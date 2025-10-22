@@ -138,6 +138,7 @@ import type {
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
+import { executeExpression } from "../../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import useForm from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
@@ -309,9 +310,38 @@ function reAuthenticate() {
 function getInitialFormValues() {
   return props.metadata.columns.reduce((accum: Record<string, any>, column) => {
     if (column.defaultValue !== undefined) {
-      accum[column.id] = column.defaultValue;
+      if (column.defaultValue.startsWith("=")) {
+        try {
+          accum[column.id] = executeExpression(
+            "(" + column.defaultValue.substr(1) + ")",
+            {},
+            props.metadata
+          );
+        } catch (error) {
+          console.error(
+            "Default value expression failed for column " +
+              column.id +
+              ": " +
+              error
+          );
+        }
+      } else if (column.columnType === "BOOL") {
+        accum[column.id] = getBooleanDefaultValue(column.defaultValue);
+      } else {
+        accum[column.id] = column.defaultValue;
+      }
     }
     return accum;
   }, {});
+}
+
+function getBooleanDefaultValue(value: any): boolean | undefined {
+  if (value === "TRUE" || value === "true" || value === true) {
+    return true;
+  } else if (value === "FALSE" || value === "false" || value === false) {
+    return false;
+  } else {
+    return undefined;
+  }
 }
 </script>
