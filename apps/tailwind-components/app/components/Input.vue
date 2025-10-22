@@ -2,7 +2,7 @@
   <InputString
     v-if="['STRING', 'AUTO_ID'].includes(typeUpperCase)"
     :id="id"
-    v-model="modelValue as string | number | undefined"
+    v-model="modelValue"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
@@ -14,7 +14,7 @@
   <InputString
     v-else-if="'EMAIL' === typeUpperCase"
     :id="id"
-    v-model="modelValue as string"
+    v-model="modelValue"
     type="email"
     :valid="valid"
     :invalid="invalid"
@@ -27,7 +27,7 @@
   <InputArray
     v-else-if="NON_REF_ARRAY_TYPES.includes(typeUpperCase)"
     :id="id"
-    v-model="modelValue as any[]"
+    v-model="modelValue"
     :type="typeUpperCase"
     :valid="valid"
     :invalid="invalid"
@@ -39,7 +39,7 @@
   <InputString
     v-else-if="'HYPERLINK' === typeUpperCase"
     :id="id"
-    v-model="modelValue as string"
+    v-model="modelValue"
     type="text"
     :valid="valid"
     :invalid="invalid"
@@ -52,7 +52,7 @@
   <InputDecimal
     v-else-if="'DECIMAL' === typeUpperCase"
     :id="id"
-    v-model="modelValue as string | number | undefined"
+    v-model="modelValue"
     type="text"
     :valid="valid"
     :invalid="invalid"
@@ -65,7 +65,7 @@
   <InputInt
     v-else-if="'INT' === typeUpperCase"
     :id="id"
-    v-model="modelValue as string | number | undefined"
+    v-model="modelValue"
     type="text"
     :valid="valid"
     :invalid="invalid"
@@ -78,7 +78,7 @@
   <InputLong
     v-else-if="'LONG' === typeUpperCase"
     :id="id"
-    v-model="modelValue as string | undefined"
+    v-model="modelValue"
     type="text"
     :valid="valid"
     :invalid="invalid"
@@ -91,7 +91,7 @@
   <InputBoolean
     v-else-if="['BOOL'].includes(typeUpperCase)"
     :id="id"
-    v-model="modelValue as boolean"
+    v-model="modelValue"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
@@ -104,7 +104,7 @@
   />
   <InputTextArea
     v-else-if="['TEXT'].includes(typeUpperCase)"
-    v-model="modelValue as string | undefined"
+    v-model="modelValue"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -116,34 +116,34 @@
   />
   <InputRadioGroup
     v-else-if="['RADIO'].includes(typeUpperCase) && options"
-    v-model="modelValue as columnValue"
+    v-model="modelValue"
     :id="id"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :options="options as IValueLabel[]"
+    :options="options"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
   />
   <InputCheckboxGroup
     v-else-if="['CHECKBOX'].includes(typeUpperCase) && options"
-    v-model="modelValue as columnValue[]"
+    v-model="modelValue"
     :id="id"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :options="options as IValueLabel[]"
+    :options="options"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
   <InputRef
     v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
-    v-model="modelValue as columnValueObject"
+    v-model="modelValue"
     :limit="50"
     :id="id"
     :valid="valid"
@@ -151,16 +151,16 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :refSchemaId="refSchemaId as string"
-    :refTableId="refTableId as string"
-    :refLabel="refLabel as string"
+    :refSchemaId="refSchemaId"
+    :refTableId="refTableId"
+    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
-    v-model="modelValue as columnValueObject[]"
+    v-model="modelValue"
     :limit="50"
     :id="id"
     :valid="valid"
@@ -168,32 +168,32 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :refSchemaId="refSchemaId as string"
-    :refTableId="refTableId as string"
-    :refLabel="refLabel as string"
+    :refSchemaId="refSchemaId"
+    :refTableId="refTableId"
+    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
   />
   <InputRefSelect
     v-else-if="'SELECT' === typeUpperCase"
-    v-model="modelValue as columnValueObject"
+    v-model="modelValue"
     :id="id"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :refSchemaId="refSchemaId as string"
-    :refTableId="refTableId as string"
-    :refLabel="refLabel as string"
+    :refSchemaId="refSchemaId"
+    :refTableId="refTableId"
+    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
   />
   <InputRefSelect
     v-else-if="'MULTISELECT' === typeUpperCase"
-    v-model="modelValue as columnValueObject[]"
+    v-model="modelValue"
     :multiselect="true"
     :id="id"
     :valid="valid"
@@ -201,27 +201,27 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :refSchemaId="refSchemaId as string"
-    :refTableId="refTableId as string"
-    :refLabel="refLabel as string"
+    :refSchemaId="refSchemaId"
+    :refTableId="refTableId"
+    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"
-    v-model="modelValue as columnValueObject[]"
+    v-model="modelValue"
     :id="id"
-    :refSchemaId="refSchemaId as string"
-    :refTableId="refTableId as string"
-    :refLabel="refLabel as string"
-    :refBackColumn="refBackId as string"
+    :refSchemaId="refSchemaId"
+    :refTableId="refTableId"
+    :refLabel="refLabel"
+    :refBackColumn="refBackId"
     :refBackPrimaryKey="rowKey"
   />
 
   <InputOntology
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
-    :modelValue="modelValue as columnValueObject ? (modelValue as columnValueObject)['name'] as string : undefined"
+    :modelValue="modelValue ? modelValue['name'] : undefined"
     @update:modelValue="
       $event ? (modelValue = { name: $event }) : (modelValue = undefined)
     "
@@ -231,9 +231,9 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :ontologySchemaId="refSchemaId as string"
-    :ontologyTableId="refTableId as string"
-    :refLabel="refLabel as string"
+    :ontologySchemaId="refSchemaId"
+    :ontologyTableId="refTableId"
+    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -241,7 +241,7 @@
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
     :isArray="true"
-    :modelValue="Array.isArray(modelValue)? modelValue.filter(value => value).map( value => (value as columnValueObject)['name'] as string) : []"
+    :modelValue="getOntologyArrayValues(modelValue)"
     @update:modelValue="
       Array.isArray($event)
         ? (modelValue = $event.map((value) => {
@@ -255,16 +255,16 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    :ontologySchemaId="refSchemaId as string"
-    :ontologyTableId="refTableId as string"
-    :refLabel="refLabel as string"
+    :ontologySchemaId="refSchemaId"
+    :ontologyTableId="refTableId"
+    :refLabel="refLabel"
     :limit="limit"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
-    v-model="modelValue as columnValueObject"
+    v-model="modelValue"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -276,7 +276,7 @@
   <InputDate
     v-else-if="'DATE' === typeUpperCase"
     :id="id"
-    v-model="modelValue as string"
+    v-model="modelValue"
     type="text"
     :valid="valid"
     :invalid="invalid"
@@ -289,7 +289,7 @@
   <InputDateTime
     v-else-if="'DATETIME' === typeUpperCase"
     :id="id"
-    v-model="modelValue as string"
+    v-model="modelValue"
     type="text"
     :valid="valid"
     :invalid="invalid"
@@ -299,7 +299,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <InputPlaceHolder v-else :type="typeUpperCase as string" />
+  <InputPlaceHolder v-else :type="typeUpperCase" />
 </template>
 
 <script setup lang="ts">
@@ -367,4 +367,12 @@ const NON_REF_ARRAY_TYPES = [
   "UUID_ARRAY",
   "PERIOD_ARRAY",
 ];
+
+function getOntologyArrayValues(val: any) {
+  return Array.isArray(val)
+    ? val
+        .filter((value: columnValueObject) => value)
+        .map((value: columnValueObject) => value["name"])
+    : [];
+}
 </script>
