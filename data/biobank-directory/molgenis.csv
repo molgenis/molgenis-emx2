@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,label,columnType,key,required,isReadonly,description,refSchema,refTable,refBack,refLabel,defaultValue,validation,message,computed,semantics
-Address,,,,,,,,"Structured vcard address",,,,,,,,,vcard:Address
+Address,,,,,,,,"Structured VCard address",,,,,,,,,vcard:Address
 Address,,id,ID,string,1,true,,"Unique ID for the address",,,,,,,,,
 Address,,street,Street,string,,true,,"Street name",,,,,,,,,vcard:street-address
 Address,,city,Locality,string,,true,,"The locality",,,,,,,,,vcard:locality
