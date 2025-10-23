@@ -35,9 +35,13 @@ Catalogs,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,"dcterms:title,rdfs
 Catalogs,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,, "foaf:homepage,dcat:landingPage"
 Catalogs,,has_version,,string,,,,Version of the catalog.,,,,,,,,,"dcterms:hasVersion,dcat:version"
 Catalogs,,description,,string,,,,Description of the catalog.,,,,,,,,,dcterms:description
+Catalogs,,logo,,hyperlink,,,,Logo of the catalog,,,,,,,,,foaf:logo
+Catalogs,,contact,,ref,,,,Organisation that functions as the contact point for the catalog,,Organisations,,,,,,,dcat:contactPoint
 Catalogs,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Publishers,,,,,,,dcterms:publisher
+Catalogs,,referenced_by,,hyperlink_array,,,,"A link to a related resource that references, cites, or otherwise points to the described resource",,,,,,,,,dcterms:isReferencedBy
 Catalogs,,language,,hyperlink_array,,,,The language(s) used in the catalog.,,,,,,,,,dcterms:language
 Catalogs,,license,,hyperlink,,TRUE,,The reference to the usage license of the catalog.,,,,,,,,,dcterms:license
+Catalogs,,policy,,hyperlink,,,,Information about the access policies of the catalog,,,,,https://www.bbmri-eric.eu/services/access-policies/,,,,odrl:hasPolicy
 Catalogs,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
 Catalogs,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
 Catalogs,,conforms_to,,hyperlink,,true,,The specification of the catalog metadata schema.,,,,,,,,,dcterms:conformsTo
@@ -45,6 +49,10 @@ Catalogs,,rights,,hyperlink_array,,,,"Information about rights held in and over 
 Catalogs,,access_rights,,hyperlink_array,,,,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
 Catalogs,,collections,,refback,,,,The component collections of this catalog.,,Collections,catalog,,,,,,"ldp:contains,dcat:hasPart"
 Catalogs,,theme_taxonomy,,hyperlink_array,,TRUE,,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",,,,,,,,,dcat:themeTaxonomy
+Catalogs,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
+Catalogs,,keyword,,string_array,,,,Keyword(s) describing the catalog,,,,,,,,,dcat:keyword
+Catalogs,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+Catalogs,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
 Catalogs,,ldp_membership_relation,,hyperlink_array,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.,,,,,"=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']",,,,ldp:hasMemberRelation
 Catalogs,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the catalog.,,Catalogs,,,,,,,ldp:membershipResource
 CollectionFacts,,,,,,,,Collection Facts,,,,,,,,,
