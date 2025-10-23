@@ -44,24 +44,24 @@ Biobanks,,collaboration_commercial,Commercial Collaboration,bool,,false,,The bio
 Biobanks,,collaboration_non_for_profit,Non-for-profit Collaboration,bool,,false,,The biobank can be used for collaboration with non-for-profit partners.,,,,,,,,,
 Biobanks,,national_node,National Node,ref,,true,,The biobank originates from this national node.,,NationalNodes,,${description},,,,,
 Biobanks,,withdrawn,Withdrawn,bool,,true,,This biobank is withdrawn from the Directory.,,,,,false,,,,
-Catalog,,,,,,,,DCAT v2 catalog entry,,,,,,,,,"dcat:Catalog,ldp:DirectContainer"
-Catalog,,id,,string,1,TRUE,,Local database identifier of the catalog. Identifier of the metadata entry.,,,,,,,,,"afr:AFR_0000919"
-Catalog,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,dcterms:title
-Catalog,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,,foaf:homepage
-Catalog,,has_version,,string,,,,Version of the catalog.,,,,,,,,,dcterms:hasVersion
-Catalog,,description,,string,,,,Description of the catalog.,,,,,,,,,dcterms:description
-Catalog,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Publishers,,,,,,,dcterms:publisher
-Catalog,,language,,hyperlink_array,,,,The language(s) used in the catalog.,,,,,,,,,dcterms:language
-Catalog,,license,,hyperlink,,TRUE,,The reference to the usage license of the catalog.,,,,,,,,,dcterms:license
-Catalog,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
-Catalog,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
-Catalog,,conforms_to,,hyperlink,,true,,The specification of the catalog metadata schema.,,,,,,,,,dcterms:conformsTo
-Catalog,,rights,,hyperlink_array,,,,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
-Catalog,,access_rights,,hyperlink_array,,,,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
-Catalog,,collections,,refback,,,,The component collections of this catalog.,,Collections,catalog,,,,,,"ldp:contains,dcat:hasPart"
-Catalog,,theme_taxonomy,,hyperlink_array,,TRUE,,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",,,,,,,,,dcat:themeTaxonomy
-Catalog,,ldp_membership_relation,,hyperlink_array,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.,,,,,"=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']",,,,ldp:hasMemberRelation
-Catalog,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the catalog.,,Catalog,,,,,,,ldp:membershipResource
+Catalogs,,,,,,,,DCAT v2 catalog entry,,,,,,,,,"dcat:Catalog,ldp:DirectContainer"
+Catalogs,,id,,string,1,TRUE,,Local database identifier of the catalog. Identifier of the metadata entry.,,,,,,,,,"afr:AFR_0000919"
+Catalogs,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,dcterms:title
+Catalogs,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,,foaf:homepage
+Catalogs,,has_version,,string,,,,Version of the catalog.,,,,,,,,,dcterms:hasVersion
+Catalogs,,description,,string,,,,Description of the catalog.,,,,,,,,,dcterms:description
+Catalogs,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Publishers,,,,,,,dcterms:publisher
+Catalogs,,language,,hyperlink_array,,,,The language(s) used in the catalog.,,,,,,,,,dcterms:language
+Catalogs,,license,,hyperlink,,TRUE,,The reference to the usage license of the catalog.,,,,,,,,,dcterms:license
+Catalogs,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
+Catalogs,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
+Catalogs,,conforms_to,,hyperlink,,true,,The specification of the catalog metadata schema.,,,,,,,,,dcterms:conformsTo
+Catalogs,,rights,,hyperlink_array,,,,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
+Catalogs,,access_rights,,hyperlink_array,,,,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
+Catalogs,,collections,,refback,,,,The component collections of this catalog.,,Collections,catalog,,,,,,"ldp:contains,dcat:hasPart"
+Catalogs,,theme_taxonomy,,hyperlink_array,,TRUE,,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",,,,,,,,,dcat:themeTaxonomy
+Catalogs,,ldp_membership_relation,,hyperlink_array,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.,,,,,"=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']",,,,ldp:hasMemberRelation
+Catalogs,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the catalog.,,Catalogs,,,,,,,ldp:membershipResource
 CollectionFacts,,,,,,,,Collection Facts,,,,,,,,,
 CollectionFacts,,id,ID,string,1,true,true,Unique ID of the fact.,,,,,,,,,
 CollectionFacts,,collection,Collection ID,ref,,true,,ID of the collection where the fact belongs to.,,Collections,,${name},,,,,
@@ -141,7 +141,7 @@ Collections,,access_description,Access Description,text,,false,,Short descriptio
 Collections,,access_uri,Access URI,hyperlink,,false,,URI describing the access policy.,,,,,,,,,dcterms:accessRights
 Collections,,sop,PD/SOPs,ontology_array,,false,,Availability of Process Descriptions (PDs) and/or Standard Operating Procedures (SOPs).,DirectoryOntologies,SOPs,,${label},,,,,
 Collections,,rdf_helpers,RDF helpers,heading,,false,,Helper attributes to make RDF output compliant with various standards.,,,,,,,,,
-Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalog,,,,,,,ldp:membershipResource
+Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalogs,,,,,,ldp:membershipResource
 Collections,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Collections,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
 ContactPersonsNationalNodes,,,,,,,,Contact persons national nodes,,,,,,,,,
@@ -150,33 +150,33 @@ ContactPersonsNationalNodes,,first_name,First name,string,,false,,First name.,,,
 ContactPersonsNationalNodes,,last_name,Last name,string,,true,,Last name.,,,,,,,,,
 ContactPersonsNationalNodes,,email,Email,email,,true,,Email address.,,,,,,,,,
 ContactPersonsNationalNodes,,role,Contact Role,string,,true,,Role of the contact person within the national node.,,,,,,,,,
-Endpoint,,,,,,,,General information describing an endpoint,,,,,,,,,"ldp:DirectContainer"
-Endpoint,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier"
-Endpoint,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoint table.,,,,,,,,,rdf:type
-Endpoint,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
-Endpoint,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
-Endpoint,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalog,,,,,,,"fdp-o:metadataCatalog,ldp:contains"
-Endpoint,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Publishers,,,,,,,dcterms:publisher
-Endpoint,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
-Endpoint,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
-Endpoint,,conformsTo,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
-Endpoint,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
-Endpoint,,access_rights,,hyperlink_array,,,,"Information about who can access the endpoint or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
-Endpoint,,contact,,ref,,,,Relevant contact information for the endpoint.,,Organisations,,,,,,,dcat:contactPoint
-Endpoint,,keyword,,string_array,,,,Keyword(s) describing the endpoint.,,,,,,,,,dcat:keyword
-Endpoint,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
-Endpoint,,end_point_description,,hyperlink_array,,,,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description.",,,,,,,,,dcat:endpointDescription
-Endpoint,,issued,,datetime,,true,,When the metadata for this resource was first published. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
-Endpoint,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
-Endpoint,,start_date,,date,,,,Date when the metadata service started its operations.,,,,,,,,,fdp-o:startDate
-Endpoint,,end_date,,date,,,,Date when the metadata service ended its operations.,,,,,,,,,fdp-o:endDate
-Endpoint,,ui_language,,hyperlink_array,,,,"The user interface language(s) of the endpoint, which is different from the dcat:Resource property of dcterms:language that relates to the language of the metadata record.",,,,,,,,,fdp-o:uiLanguage
-Endpoint,,version,,text,,,,Version of the metadata service software which exposes the endpoint.,,,,,,,,,"dcterms:hasVersion,fdp-o:hasSoftwareVersion,dcat:version"
-Endpoint,,conforms_to_FDP_spec,,hyperlink,,TRUE,,The relation should point to an URI that contains the version of the FDP specifications this instance of the endpoint conforms to.,,,,,,,,,fdp-o:conformsToFdpSpec
-Endpoint,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
-Endpoint,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
-Endpoint,,ldp_membership_relation,,hyperlink,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the endpoint with its member catalogs.,,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,,,,ldp:hasMemberRelation
-Endpoint,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the endpoint.,,Endpoint,,,,,,,ldp:membershipResource
+Endpoints,,,,,,,,General information describing an endpoint,,,,,,,,,"ldp:DirectContainer"
+Endpoints,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier"
+Endpoints,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoints table.,,,,,,,,,rdf:type
+Endpoints,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
+Endpoints,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
+Endpoints,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalogs,,,,,,"fdp-o:metadataCatalog,ldp:contains"
+Endpoints,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Publishers,,,,,,,dcterms:publisher
+Endpoints,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
+Endpoints,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
+Endpoints,,conformsTo,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
+Endpoints,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
+Endpoints,,access_rights,,hyperlink_array,,,,"Information about who can access the endpoint or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
+Endpoints,,contact,,ref,,,,Relevant contact information for the endpoint.,,Organisations,,,,,,,dcat:contactPoint
+Endpoints,,keyword,,string_array,,,,Keyword(s) describing the endpoint.,,,,,,,,,dcat:keyword
+Endpoints,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
+Endpoints,,end_point_description,,hyperlink_array,,,,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description.",,,,,,,,,dcat:endpointDescription
+Endpoints,,issued,,datetime,,true,,When the metadata for this resource was first published. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
+Endpoints,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
+Endpoints,,start_date,,date,,,,Date when the metadata service started its operations.,,,,,,,,,fdp-o:startDate
+Endpoints,,end_date,,date,,,,Date when the metadata service ended its operations.,,,,,,,,,fdp-o:endDate
+Endpoints,,ui_language,,hyperlink_array,,,,"The user interface language(s) of the endpoint, which is different from the dcat:Resource property of dcterms:language that relates to the language of the metadata record.",,,,,,,,,fdp-o:uiLanguage
+Endpoints,,version,,text,,,,Version of the metadata service software which exposes the endpoint.,,,,,,,,,"dcterms:hasVersion,fdp-o:hasSoftwareVersion,dcat:version"
+Endpoints,,conforms_to_FDP_spec,,hyperlink,,TRUE,,The relation should point to an URI that contains the version of the FDP specifications this instance of the endpoint conforms to.,,,,,,,,,fdp-o:conformsToFdpSpec
+Endpoints,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+Endpoints,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+Endpoints,,ldp_membership_relation,,hyperlink,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the endpoint with its member catalogs.,,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,,,,ldp:hasMemberRelation
+Endpoints,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the endpoint.,,Endpoints,,,,,,,ldp:membershipResource
 NationalNodes,,,,,,,,National Node Information,,,,,,,,,
 NationalNodes,,id,ID,string,1,true,true,Unique national node ID (in most of the cases a two letter country code).,,,,,,,,,
 NationalNodes,,description,Description,string,2,true,,Description,,,,,,,,,
