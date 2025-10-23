@@ -82,9 +82,9 @@ const bgClass = computed(() => {
     case "dark":
       return "bg-black";
     case "success":
-      return "bg-green-500";
+      return "bg-valid";
     case "error":
-      return "bg-red-500";
+      return "bg-invalid";
     case "warning":
       return "bg-yellow-500";
     case "info":
@@ -109,11 +109,23 @@ const bgClass = computed(() => {
       >
         <div>
           <div>
-            <button @click="hide()" class="absolute top-7 right-7 z-10">
+            <button
+              @click="hide()"
+              class="absolute top-7 right-7 z-10"
+              :class="{
+                'text-invalid': type === 'error',
+                'text-valid': type === 'success',
+              }"
+            >
               <BaseIcon name="cross" />
             </button>
 
-            <div class="overflow-auto calc-remaining-max-height pb-12">
+            <div
+              class="overflow-auto calc-remaining-max-height"
+              :class="{
+                'pb-12': !['success', 'error'].includes(type),
+              }"
+            >
               <slot></slot>
             </div>
           </div>
