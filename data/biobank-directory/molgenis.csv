@@ -7,13 +7,13 @@ QualityInfoBiobanks,,assess_level_bio,Assessment Level,ontology,,true,,,Director
 QualityInfoBiobanks,,certification_number,Certification Number,string,,false,,,,,,,,,,,
 QualityInfoBiobanks,,certification_report,Certification Report,hyperlink,,false,,,,,,,,,,,
 QualityInfoBiobanks,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
-Agent,,,,,,,,"An agent (e.g. person, group, software or physical artifact).",,,,,,,,,"foaf:Agent"
-Agent,,name,,string,1,TRUE,,A name and identifier for this agent.,,,,,,,,,"foaf:name"
-Agent,,description,,string,,,,Description of the agent.,,,,,,,,,dcterms:description
-Agent,,type,,hyperlink_array,,,,This agent is of the following type(s) (e.g. http://xmlns.com/foaf/0.1/Person),,,,,,,,,rdf:type
-Agent,,url,,hyperlink,,,,The homepage of the agent.,,,,,,,,,"foaf:homepage,dcat:landingPage"
-Agent,,logo,,hyperlink,,,,The logo of the agent.,,,,,,,,,foaf:logo
-Agent,,mbox,,email,,,,E-mail address of the agent.,,,,,,,,,"foaf:mbox"
+Publishers,,,,,,,,"A publisher of a resource, catalog, endpoint, etc.",,,,,,,,,"foaf:Agent"
+Publishers,,name,,string,1,TRUE,,A name and identifier for this publisher.,,,,,,,,,"foaf:name"
+Publishers,,description,,string,,,,Description of the publisher.,,,,,,,,,dcterms:description
+Publishers,,type,,hyperlink_array,,,,This publisher is of the following foaf type(s) (e.g. http://xmlns.com/foaf/0.1/Person),,,,,,,,,rdf:type
+Publishers,,url,,hyperlink,,,,The homepage of the publisher.,,,,,,,,,"foaf:homepage,dcat:landingPage"
+Publishers,,logo,,hyperlink,,,,The logo of the publisher.,,,,,,,,,foaf:logo
+Publishers,,mbox,,email,,,,E-mail address of the publisher.,,,,,,,,,"foaf:mbox"
 AlsoKnownIn,,,,,,,,"Biobank, collection or network also exists in …",,,,,,,,,
 AlsoKnownIn,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 AlsoKnownIn,,name_system,Name of the System,string,,true,,"Name of the source in which the biobank, collection or network also exists.",,,,,,,,,
@@ -50,7 +50,7 @@ Catalog,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,dcterms:title
 Catalog,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,,foaf:homepage
 Catalog,,has_version,,string,,,,Version of the catalog.,,,,,,,,,dcterms:hasVersion
 Catalog,,description,,string,,,,Description of the catalog.,,,,,,,,,dcterms:description
-Catalog,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Agent,,,,,,,dcterms:publisher
+Catalog,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Publishers,,,,,,,dcterms:publisher
 Catalog,,language,,hyperlink_array,,,,The language(s) used in the catalog.,,,,,,,,,dcterms:language
 Catalog,,license,,hyperlink,,TRUE,,The reference to the usage license of the catalog.,,,,,,,,,dcterms:license
 Catalog,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
@@ -156,13 +156,13 @@ Endpoint,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of
 Endpoint,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
 Endpoint,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
 Endpoint,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalog,,,,,,,"fdp-o:metadataCatalog,ldp:contains"
-Endpoint,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Agent,,,,,,,dcterms:publisher
+Endpoint,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Publishers,,,,,,,dcterms:publisher
 Endpoint,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
 Endpoint,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
 Endpoint,,conformsTo,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
 Endpoint,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
 Endpoint,,access_rights,,hyperlink_array,,,,"Information about who can access the endpoint or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
-Endpoint,,contact,,ref,,,,Relevant contact information for the endpoint.,,Agent,,,,,,,dcat:contactPoint
+Endpoint,,contact,,ref,,,,Relevant contact information for the endpoint.,,Publishers,,,,,,,dcat:contactPoint
 Endpoint,,keyword,,string_array,,,,Keyword(s) describing the endpoint.,,,,,,,,,dcat:keyword
 Endpoint,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
 Endpoint,,end_point_description,,hyperlink_array,,,,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description.",,,,,,,,,dcat:endpointDescription
