@@ -80,7 +80,7 @@ Collections,,acronym,Acronym,string,,false,,Collection acronym according to MIAB
 Collections,,description,Description,text,,true,,Collection description according to MIABIS 2.0 - MIABIS-2.0-08.,,,,,,,,,dcterms:description
 Collections,,url,URL,hyperlink,,false,,Collection URL - MIABIS-2.0-04.,,,,,,,,,dcat:landingPage
 Collections,,location,Location,string,,false,,The city where the collection is located.,,,,,,,,,
-Collections,,country,Country,ontology,,true,,Country according to MIABIS 2.0 - MIABIS-2.0-07-H.,DirectoryOntologies,Countries,,${label},,,,,
+Collections,,country,Country,ontology,,true,,Country according to MIABIS 2.0 - MIABIS-2.0-07-H.,DirectoryOntologies,Countries,,${label},,,,,dcterms:spatial
 Collections,,latitude,Latitude,string,,false,,"Latitude of the collection in the WGS84 system (the one used by GPS), positive is northern hemisphere.",,,,,,,,,
 Collections,,longitude,Longitude,string,,false,,"Longitude of the collection in the WGS84 system (the one used by GPS), positive is to the East of Greenwich.",,,,,,,,,
 Collections,,head,Head of the Collection,ref,,false,,Person in charge of the collection.,,Persons,,${email},,,,,
