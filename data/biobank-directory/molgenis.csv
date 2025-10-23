@@ -135,6 +135,8 @@ Collections,,rdf_helpers,RDF helpers,heading,,false,,Helper attributes to make R
 Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalogs,,,,,,,ldp:membershipResource
 Collections,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Collections,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+Collections,,issued,,datetime,,true,,When the metadata for this resource was first published,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
+Collections,,modified,,datetime,,true,,When the metadata for this resource was last modified,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
 ContactPersonsNationalNodes,,,,,,,,Contact persons national nodes,,,,,,,,,
 ContactPersonsNationalNodes,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 ContactPersonsNationalNodes,,first_name,First name,string,,false,,First name.,,,,,,,,,
@@ -157,8 +159,8 @@ DataServices,,contact_organisation,Contact Organisation,ref,,false,,"Contact for
 DataServices,,contact_individual,Contact Person,ref,,false,,"Contact for the resource in case it is a person (e.g., a contact for a collection)",Persons,,,,,,,,dcat:contactPoint
 DataServices,,EJP_RD_personalData,Contains personal data,,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 DataServices,,EJP_RD_vpConnection,Want to be part of the EJP-RD VP,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
-DataServices,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
-DataServices,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
+DataServices,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
+DataServices,,modified,,datetime,,true,,When the metadata for this resource was last modified,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
 DataServices,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
 DataServices,,description,Description,text,,true,,Description of the data service,,,,,,,,,dcterms:description
 DataServices,,keyword,,string_array,,,,Keyword(s) describing the data service.,,,,,,,,,dcat:keyword
