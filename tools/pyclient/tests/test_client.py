@@ -99,8 +99,18 @@ def test_truncate():
         # Test truncate with ReferenceException
         with pytest.raises(ReferenceException) as excinfo:
             client.truncate(schema='pet store', table='Pet')
+        assert excinfo.value.msg.startswith("Transaction failed: delete on table \"Pet\" violates foreign key constraint.")
 
         # Test correct running
+        client.truncate(schema='pet store', table='User')
+        users_after = len(client.get_graphql(schema="pet store", table="User", columns=["username"]))
+        assert users_after == 0
+
+        client.save_schema(table="User", name="pet store", file=str(RESOURCES_DIR / "petstore" / "User.csv"))
+
+
+
+
 
 def test_upload_csv():
     """Tests the `_upload_csv` method."""
