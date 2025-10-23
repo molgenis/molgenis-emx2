@@ -1,25 +1,16 @@
 import { LocationQuery } from "vue-router";
 import useErrorHandler from "../composables/errorHandler";
-import { IOntologyItem } from "../interfaces/interfaces";
+import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
 import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
-import * as _ from "lodash";
 
 let bookmarkApplied = false;
 
 const { setError, clearError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
-  if (bookmarkApplied) {
-    return;
-  }
-
-  if (!watchedQuery || !(Object.keys(watchedQuery).length > 0)) {
-    return;
-  }
-
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
@@ -51,10 +42,10 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         "Starting with a preselected list of collections"
       );
     }
+  } else {
+    checkoutStore.removeAllFromSelection(false);
   }
 
-  /** we load the filters, grab the names, so we can loop over it to map the selections */
-  const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
     const matchAllFilters = decodeURIComponent(
       watchedQuery.matchAll as string
@@ -64,38 +55,57 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     }
   }
 
-  for (const filterName of filters) {
+  /** we load the filters, grab the names, so we can loop over it to map the selections */
+  const filterNames = Object.keys(filtersStore.facetDetails);
+  for (const filterName of filterNames) {
     if (watchedQuery[filterName]) {
       const filtersToAdd: string = decodeURIComponent(
         watchedQuery[filterName] as string
       );
 
-      if (filterName === "Diagnosisavailable") {
-        const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
-        /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
-        const queryValues = atob(filtersToAdd).split(",");
-        const options: IOntologyItem[] =
-          await filtersStore.getOntologyOptionsForCodes(
-            diagnosisFacetDetails,
-            queryValues
-          );
-        options.forEach((option) => {
-          filtersStore.updateOntologyFilter(filterName, option, true, true);
-        });
-      } else {
-        const filterOptions = filtersStore.filterOptionsCache[filterName];
-        if (filterOptions) {
-          const queryValues = filtersToAdd.split(",");
-          const activeFilters = filterOptions.filter((filterOption) =>
-            queryValues.includes(filterOption.value)
-          );
-          filtersStore.updateFilter(filterName, activeFilters, true);
-        }
+      switch (filterName) {
+        case "Diagnosisavailable":
+          const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
+          /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
+          const queryValues = atob(filtersToAdd).split(",");
+          const options: IOntologyItem[] =
+            await filtersStore.getOntologyOptionsForCodes(
+              diagnosisFacetDetails,
+              queryValues
+            );
+          options.forEach((option) => {
+            filtersStore.updateOntologyFilter(filterName, option, true, true);
+          });
+          break;
+        case "search":
+          filtersStore.updateFilter(filterName, filtersToAdd, true);
+          break;
+        case "Collaborationtype":
+          filtersStore.updateFilter(filterName, filtersToAdd === "true", true);
+          break;
+        default:
+          const filterOptions = await filtersStore.facetDetails[
+            filterName
+          ].options();
+          if (filterOptions && Array.isArray(filterOptions)) {
+            const queryValues = filtersToAdd.split(",");
+            const activeFilters = filterOptions.filter(
+              (filterOption: IFilterOption) => {
+                if (typeof filterOption.value === "boolean") {
+                  return false;
+                } else {
+                  return queryValues.includes(filterOption.value);
+                }
+              }
+            );
+            filtersStore.updateFilter(filterName, activeFilters, true);
+          }
       }
+    } else {
+      filtersStore.updateFilter(filterName, undefined, true);
     }
   }
 
-  filtersStore.bookmarkWaitingForApplication = false;
   bookmarkApplied = true;
 }
 
@@ -103,8 +113,7 @@ export function createBookmark(
   filters: Record<string, any>,
   collectionCart: Record<string, ILabelValuePair[]>,
   serviceCart: Record<string, ILabelValuePair[]>,
-  filterTypes: Record<string, any>,
-  bookmarkWaitingForApplication: boolean = false
+  filterTypes: Record<string, any>
 ) {
   const bookmarkQuery: Record<string, string> = {};
   const matchAll = [];
@@ -156,16 +165,14 @@ export function createBookmark(
     bookmarkQuery.serviceCart = encodeURI(encodedCart);
   }
 
-  if (!bookmarkWaitingForApplication) {
-    try {
-      clearError();
-      router.push({
-        name: router.currentRoute.value.name,
-        query: bookmarkQuery,
-      });
-    } catch (error) {
-      setError(error);
-    }
+  try {
+    clearError();
+    router.push({
+      name: router.currentRoute.value.name,
+      query: bookmarkQuery,
+    });
+  } catch (error) {
+    setError(error);
   }
 }
 

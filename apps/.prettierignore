@@ -3,4 +3,6 @@ coverage
 .nuxt
 .output
 .gradle
+dist
 sourceCodeMap.json
+playwright-report

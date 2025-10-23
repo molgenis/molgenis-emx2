@@ -84,7 +84,7 @@ module.exports = {
       },
     },
     extend: {
-      boxShadow: ({ theme }) => ({
+      boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
@@ -104,10 +104,13 @@ module.exports = {
         95: "23.75rem",
         82.5: "20.625rem",
       },
-      height: ({ theme }) => ({
+      padding: () => ({
+        "last-row-cell": "var(--padding-table-body-last-row-cell)",
+      }),
+      height: () => ({
         input: "var(--height-input)",
       }),
-      height: ({ theme }) => ({
+      height: () => ({
         input: "var(--height-input)",
         "input-tiny": "var(--height-input-tiny)",
         "input-small": "var(--height-input-small)",
@@ -144,7 +147,7 @@ module.exports = {
         "collapsible-listitem-line":
           "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },
-      backgroundColor: ({ theme }) => ({
+      backgroundColor: () => ({
         "button-primary": "var(--background-color-button-primary)",
         "button-primary-hover": "var(--background-color-button-primary-hover)",
         "button-secondary": "var(--background-color-button-secondary)",
@@ -219,7 +222,7 @@ module.exports = {
           "var(--background-color-button-switch-selected)",
         "button-switch-hover": "var(--background-color-button-switch-hover)",
       }),
-      textColor: ({ theme }) => ({
+      textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
         "button-primary-hover": "var(--text-color-button-primary-hover)",
         "button-secondary": "var(--text-color-button-secondary)",
@@ -232,6 +235,8 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        "button-icon": "var(--text-color-button-icon)",
+        "button-icon-hover": "var(--text-color-button-icon-hover)",
         menu: "var(--text-color-menu)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
         "button-tree-node-toggle-hover":
@@ -323,7 +328,7 @@ module.exports = {
         "button-switch-selected": "var(--text-color-button-switch-selected)",
         "button-switch-hover": "var(--text-color-button-switch-hover)",
       }),
-      borderColor: ({ theme }) => ({
+      borderColor: () => ({
         theme: "var(--border-color-theme)",
         "button-primary": "var(--border-color-button-primary)",
         "button-primary-hover": "var(--border-color-button-primary-hover)",
@@ -361,7 +366,7 @@ module.exports = {
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
       }),
-      stroke: ({ theme }) => ({
+      stroke: () => ({
         input: "var(--border-color-input)",
         "input-checked": "var(--text-color-button-primary)",
         "input-focused": "var(--border-color-input-focused)",
@@ -372,7 +377,7 @@ module.exports = {
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
       }),
-      fill: ({ theme }) => ({
+      fill: () => ({
         input: "var(--background-color-input)",
         "input-focused": "var(--background-color-input-focused)",
         "input-checked": "var(--background-color-button-primary)",
@@ -408,7 +413,7 @@ module.exports = {
       outlineColor: {
         select: "var(--outline-color-select)",
       },
-      content: ({ theme }) => ({
+      content: () => ({
         required: "var(--text-content-required)",
       }),
     },

@@ -11,7 +11,7 @@ import org.molgenis.emx2.MolgenisException;
 public enum FilterConceptVP {
   AGE_THIS_YEAR("ncit:C83164", "{ yearOfBirth: { between: [%s, %s] } }"),
   AGE_OF_ONSET(
-      "ncit:C124353", "{ processes: { diseases: { ageOfOnset: { between: [%s, %s] } } } }"),
+      "ncit:C124353", "{ processes: { diseases: { ageAtOnset: { between: [%s, %s] } } } }"),
   AGE_AT_DIAG(
       "ncit:C156420", "{ processes: { diseases: { ageAtDiagnosis: { between: [%s, %s] } }  } }"),
   CAUSAL_GENE(

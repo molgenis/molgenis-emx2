@@ -36,7 +36,6 @@ Biobanks,,head,Head of the Biobank,ref,,false,,Person in charge of the biobank.,
 Biobanks,,contact,Contact Person,ref,,true,,Contact person of the biobank.,,Persons,,${email},,,,,dcat:contactPoint
 Biobanks,,juridical_person,Juridical Person,string,,true,,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,obo:OMRSE_00000038
 Biobanks,,network,Networks,ref_array,,false,,"Reference to a biobank network ID, to which the biobank belongs.",,Networks,,${name},,,,,
-Biobanks,,combined_network,Combined Network,ref_array,,false,,"Reference to one or more network IDs, to which the biobank belongs directly or indirectly (i.e., either the biobank is explicitly marked as part of the network or its network is).",,Networks,,${name},,,,,
 Biobanks,,also_known,Also Known In,ref_array,,false,,The biobank also exists in …,,AlsoKnownIn,,${name_system},,,,,
 Biobanks,,collections,Collections,refback,,false,,Collections belonging to the biobank.,,Collections,biobank,${name},,,,,
 Biobanks,,services,Services,refback,,false,,Capabilities and services that the biobank organisation can offer to a researcher.,,Services,biobank,${name},,,,,
@@ -103,7 +102,6 @@ Collections,,sub_collections,Sub Collections,refback,,false,,"Reference to a col
 Collections,,biobank,Biobank,ref,,true,,"Reference to a biobank ID, to which the collection belongs.",,Biobanks,,${name},,,,,"obo:OBIB_0000735,dcterms:publisher"
 Collections,,biobank_label,Biobank Label,string,,true,,"Name of the biobank, to which the collection belongs.",,,,,,,,,
 Collections,,network,Network,ref_array,,false,,"Reference to a network ID, to which the collection belongs.",,Networks,,${name},,,,,
-Collections,,combined_network,Combined Network,ref_array,,false,,"Reference to one or more network IDs, to which the collection belongs directly or indirectly (i.e., either the collection is explicitly marked as part of the network or its biobank is).",,Networks,,${name},,,,,
 Collections,,also_known,Also Known In,ref_array,,false,,The collection also exists in …,,AlsoKnownIn,,${name_system},,,,,
 Collections,,studies,Studies,ref_array,,false,,A link to studies during which the collection was generated,,Studies,,${title},,,,,
 Collections,,characteristics,Characteristics,heading,,false,,Collection Characteristics,,,,,,,,,
@@ -199,7 +197,6 @@ Networks,,also_known,Also Known In,ref_array,,false,,The network is also known i
 Networks,,url,URL,hyperlink,,false,,Network URL,,,,,,,,,
 Networks,,juridical_person,Juridical Person,string,,false,,Juristic person of the network to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,
 Networks,,contact,Contact Person,ref,,true,,Contact person of the network.,,Persons,,${email},,,,,
-Networks,,parent_network,Parent Network,ref_array,,false,,"Reference to a network ID, refers to the superior network.",,Networks,,${name},,,,,
 Networks,,common_network_elements,Common Network Elements,ontology_array,,false,,Selection of elements that are the same for all biobanks/collections within the network.,DirectoryOntologies,CommonNetworkElements,,${label},,,,,
 Networks,,national_node,National Node,ref,,true,,The network originates from this national node.,,NationalNodes,,${description},,,,,
 Networks,,withdrawn,Withdrawn,bool,,true,,The network is withdrawn from the Directory.,,,,,false,,,,

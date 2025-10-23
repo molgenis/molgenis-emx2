@@ -83,6 +83,14 @@ public class Constants {
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
+  public static final String MOLGENIS_METRICS_ENABLED = "MOLGENIS_METRICS_ENABLED";
+  public static final String MOLGENIS_METRICS_PATH = "MOLGENIS_METRICS_PATH";
+  public static final String MOLGENIS_APP_CACHE_DURATION = "MOLGENIS_INCLUDE_APP_CACHE_DURATION";
+  public static final String MOLGENIS_APP_DB_CACHE_SIZE = "MOLGENIS_APP_DB_CACHE_SIZE";
+  public static final String MOLGENIS_APP_SCHEMA_CACHE_SIZE = "MOLGENIS_APP_SCHEMA_CACHE_SIZE";
+  public static final String MOLGENIS_APP_GQL_DB_CACHE_SIZE = "MOLGENIS_APP_GQL_DB_CACHE_SIZE";
+  public static final String MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE =
+      "MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE";
 
   protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 
@@ -140,6 +148,7 @@ public class Constants {
   public static final String API_TTL = "/api/ttl";
   public static final String API_JSONLD = "/api/jsonld";
   public static final String API_FILE = "/api/file";
+  public static final String MG_TOP_OF_FORM = "mg_top_of_form";
 
   private Constants() {
     // hide constructor

@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import fs from "fs";
+import { defineNuxtConfig } from "nuxt/config";
+import * as fs from "fs";
 import { resolve } from "path";
 
 const sourceCodeMapPath = resolve("./sourceCodeMap.json");
@@ -17,6 +18,7 @@ export default defineNuxtConfig({
     "@nuxt/test-utils/module",
     "floating-vue/nuxt",
     "@nuxtjs/tailwindcss",
+    "nuxt-monaco-editor",
   ],
   ignore: [
     ".gradle/**",

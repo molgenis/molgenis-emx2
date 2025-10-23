@@ -12,7 +12,7 @@ from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
-from .constants import HEADING, DATE, DATETIME
+from .constants import HEADING, DATE, DATETIME, SECTION
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
@@ -464,7 +464,7 @@ class Client:
         bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
         date_columns = [c.name for c in table_meta.columns
                         if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
-        response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes, parse_dates=date_columns)
+        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes, parse_dates=date_columns)
 
         response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
         response_data = response_data.astype(dtypes)
@@ -1179,7 +1179,7 @@ class Client:
         for col in table_metadata.columns:
             if columns is not None and (col.id not in columns and col.name not in columns):
                 continue
-            if col.get('columnType') in [HEADING]:
+            if col.get('columnType') in [HEADING, SECTION]:
                 continue
             elif col.get('columnType').startswith('ONTOLOGY'):
                 query += f"    {col.get('id')} {{name}}\n"

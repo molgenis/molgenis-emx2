@@ -31,12 +31,6 @@ public class BeaconVpEntryTypesTest {
         "../../configuration/entryTypesSchema.json",
         result.get("response").get("$schema").textValue());
 
-    JsonNode biosample = result.get("response").get("entryTypes").get("biosamples");
-    assertTrue(biosample.isObject());
-    assertEquals("Biosamples", biosample.get("id").textValue());
-    assertEquals("biosamples", biosample.get("name").textValue());
-    assertEquals("NCIT:C70699", biosample.get("ontologyTermForThisType").get("id").textValue());
-
     JsonNode datasets = result.get("response").get("entryTypes").get("catalogs");
     assertTrue(datasets.isObject());
     assertEquals("Dataset", datasets.get("id").textValue());

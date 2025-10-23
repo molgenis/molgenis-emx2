@@ -61,7 +61,7 @@ export async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -75,8 +75,12 @@ export async function convertRowToPrimaryKey(
   }
 }
 
-async function getKeyValue(cellValue: any, column: IColumn, schemaId?: string) {
-  if (typeof cellValue === "string") {
+export async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaId?: string
+) {
+  if (typeof cellValue === "string" || typeof cellValue === "number") {
     return cellValue;
   } else {
     if (column.refTableId) {
@@ -85,6 +89,8 @@ async function getKeyValue(cellValue: any, column: IColumn, schemaId?: string) {
         column.refTableId,
         schemaId
       );
+    } else {
+      throw new Error("Unexpected key type");
     }
   }
 }
