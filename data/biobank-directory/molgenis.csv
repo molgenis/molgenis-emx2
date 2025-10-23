@@ -219,7 +219,7 @@ Networks,,national_node,National Node,ref,,true,,The network originates from thi
 Networks,,withdrawn,Withdrawn,bool,,true,,The network is withdrawn from the Directory.,,,,,false,,,,
 Organisations,,,,,,,,Organisations which function as contact points,,,,,,,,,vcard:Organization
 Organisations,,id,ID,,1,true,,Unique ID of the organisation,,,,,,,,,
-Organisations,,full_name,Full name,,true,,,The full name of the organisation,,,,,,,,,vcard:fn
+Organisations,,full_name,Full name,,,true,,The full name of the organisation,,,,,,,,,vcard:fn
 Organisations,,email,E-mail address,email,,false,,The e-mail address of the organisation,,,,,,,,,vcard:hasEmail
 Organisations,,address,Address,ref,,false,,The address of the organisation,Address,,,,,,,,vcard:hasAddress
 Organisations,,phone,Phone number,,,false,,The telephone number of the organisation,,,,,,,,,vcard:hasTelephone
