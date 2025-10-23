@@ -176,7 +176,7 @@ Endpoints,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as
 Endpoints,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Publishers,,,,,,,dcterms:publisher
 Endpoints,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
 Endpoints,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
-Endpoints,,conformsTo,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
+Endpoints,,conforms_to,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
 Endpoints,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
 Endpoints,,access_rights,,hyperlink_array,,,,"Information about who can access the endpoint or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
 Endpoints,,contact,,ref,,,,Relevant contact information for the endpoint.,,Organisations,,,,,,,dcat:contactPoint
