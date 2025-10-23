@@ -118,7 +118,7 @@ Collections,,access_description,Access Description,text,,false,,Short descriptio
 Collections,,access_uri,Access URI,hyperlink,,false,,URI describing the access policy.,,,,,,,,,dcterms:accessRights
 Collections,,sop,PD/SOPs,ontology_array,,false,,Availability of Process Descriptions (PDs) and/or Standard Operating Procedures (SOPs).,DirectoryOntologies,SOPs,,${label},,,,,
 Collections,,rdf_helpers,RDF helpers,heading,,false,,Helper attributes to make RDF output compliant with various standards.,,,,,,,,,
-Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalogs,,,,,,ldp:membershipResource
+Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalogs,,,,,,,ldp:membershipResource
 Collections,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Collections,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
 ContactPersonsNationalNodes,,,,,,,,Contact persons national nodes,,,,,,,,,
@@ -132,7 +132,7 @@ Endpoints,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:
 Endpoints,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoints table.,,,,,,,,,rdf:type
 Endpoints,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
 Endpoints,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
-Endpoints,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalogs,,,,,,"fdp-o:metadataCatalog,ldp:contains"
+Endpoints,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalogs,,,,,,,"fdp-o:metadataCatalog,ldp:contains"
 Endpoints,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Publishers,,,,,,,dcterms:publisher
 Endpoints,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
 Endpoints,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
@@ -190,7 +190,7 @@ Persons,,title_before_name,Title before Name,string,,false,,"Title before name, 
 Persons,,first_name,First Name,string,,false,,First name according to MIABIS 2.0 - MIABIS-2.0-07-A.,,,,,,,,,vcard:hasGivenName
 Persons,,last_name,Last Name,string,,false,,Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.,,,,,,,,,vcard:hasFamilyName
 Persons,,title_after_name,Title after Name,string,,false,,"Title after name, values like ""Bsc.""",,,,,,,,,
-Persons,,full_name,Full Name,,,,,The full name of the person,,,,,,,,title_before_name + " " + first_name + " " + last_name + " " + title_after_name,vcard:fn
+Persons,,full_name,Full Name,,,,,The full name of the person,,,,,,,,"title_before_name + "" "" + first_name + "" "" + last_name + "" "" + title_after_name",vcard:fn
 Persons,,email,Email address,email,,true,,Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.,,,,,,,,,"vcard:email,vcard:hasEmail"
 Persons,,phone,Phone Number,string,,false,,Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.,,,,,,,,,vcard:hasTelephone
 Persons,,address,Address,text,,false,,Address according to MIABIS 2.0 - MIABIS-2.0-07-E.,,,,,,,,,
