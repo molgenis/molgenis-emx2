@@ -303,30 +303,30 @@
 </template>
 
 <script setup lang="ts">
-import type { IInputProps, IValueLabel } from "../../types/types";
+import { computed } from "vue";
 import type {
   CellValueType,
   columnValue,
-  columnValueObject,
 } from "../../../metadata-utils/src/types";
-import { computed } from "vue";
-import InputString from "./input/String.vue";
+import type { IInputProps, IValueLabel } from "../../types/types";
+import { getOntologyArrayValues } from "../utils/typeUtils";
 import InputArray from "./input/Array.vue";
-import InputDecimal from "./input/Decimal.vue";
-import InputInt from "./input/Int.vue";
-import InputLong from "./input/Long.vue";
 import InputBoolean from "./input/Boolean.vue";
-import InputTextArea from "./input/TextArea.vue";
-import InputRadioGroup from "./input/RadioGroup.vue";
 import InputCheckboxGroup from "./input/CheckboxGroup.vue";
-import InputRef from "./input/Ref.vue";
-import InputRefBack from "./input/RefBack.vue";
-import InputOntology from "./input/Ontology.vue";
-import InputFile from "./input/File.vue";
 import InputDate from "./input/Date.vue";
 import InputDateTime from "./input/DateTime.vue";
+import InputDecimal from "./input/Decimal.vue";
+import InputFile from "./input/File.vue";
+import InputInt from "./input/Int.vue";
+import InputLong from "./input/Long.vue";
+import InputOntology from "./input/Ontology.vue";
 import InputPlaceHolder from "./input/PlaceHolder.vue";
+import InputRadioGroup from "./input/RadioGroup.vue";
+import InputRef from "./input/Ref.vue";
+import InputRefBack from "./input/RefBack.vue";
 import InputRefSelect from "./input/RefSelect.vue";
+import InputString from "./input/String.vue";
+import InputTextArea from "./input/TextArea.vue";
 
 const modelValue = defineModel<columnValue | columnValue[]>();
 const props = withDefaults(
@@ -367,12 +367,4 @@ const NON_REF_ARRAY_TYPES = [
   "UUID_ARRAY",
   "PERIOD_ARRAY",
 ];
-
-function getOntologyArrayValues(val: any) {
-  return Array.isArray(val)
-    ? val
-        .filter((value: columnValueObject) => value)
-        .map((value: columnValueObject) => value["name"])
-    : [];
-}
 </script>

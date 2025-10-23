@@ -7,7 +7,8 @@
         size="small"
         icon="plus"
         @click="visible = true"
-        >{{ isInsert ? "Add" : "Edit" }} {{ rowType }}
+      >
+        {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
       </Button>
     </slot>
   </template>
@@ -25,8 +26,9 @@
           <span
             v-show="isDraft"
             class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-            >Draft</span
           >
+            Draft
+          </span>
         </div>
 
         <button
@@ -132,13 +134,13 @@
 
 <script setup lang="ts">
 import { computed, ref, toRaw, watch } from "vue";
+import { getInitialFormValues } from "../../utils/typeUtils";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import { executeExpression } from "../../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import useForm from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
@@ -179,7 +181,9 @@ const visible = defineModel("visible", {
 });
 const rowKey = ref<Record<string, columnValue>>();
 const isInsert = ref(true);
-const editFormValues = ref<Record<string, columnValue>>(getInitialFormValues());
+const editFormValues = ref<Record<string, columnValue>>(
+  getInitialFormValues(props.metadata)
+);
 
 watch(
   () => props.formValues,
@@ -305,43 +309,5 @@ function reAuthenticate() {
     showReAuthenticateButton,
     formMessage
   );
-}
-
-function getInitialFormValues() {
-  return props.metadata.columns.reduce((accum: Record<string, any>, column) => {
-    if (column.defaultValue !== undefined) {
-      if (column.defaultValue.startsWith("=")) {
-        try {
-          accum[column.id] = executeExpression(
-            "(" + column.defaultValue.substr(1) + ")",
-            {},
-            props.metadata
-          );
-        } catch (error) {
-          console.error(
-            "Default value expression failed for column " +
-              column.id +
-              ": " +
-              error
-          );
-        }
-      } else if (column.columnType === "BOOL") {
-        accum[column.id] = getBooleanDefaultValue(column.defaultValue);
-      } else {
-        accum[column.id] = column.defaultValue;
-      }
-    }
-    return accum;
-  }, {});
-}
-
-function getBooleanDefaultValue(value: any): boolean | undefined {
-  if (value === "TRUE" || value === "true" || value === true) {
-    return true;
-  } else if (value === "FALSE" || value === "false" || value === false) {
-    return false;
-  } else {
-    return undefined;
-  }
 }
 </script>
