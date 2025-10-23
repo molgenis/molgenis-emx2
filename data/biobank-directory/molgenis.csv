@@ -162,7 +162,7 @@ Endpoint,,license,,hyperlink,,TRUE,,A reference to the usage license of the endp
 Endpoint,,conformsTo,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
 Endpoint,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
 Endpoint,,access_rights,,hyperlink_array,,,,"Information about who can access the endpoint or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
-Endpoint,,contact,,ref,,,,Relevant contact information for the endpoint.,,Publishers,,,,,,,dcat:contactPoint
+Endpoint,,contact,,ref,,,,Relevant contact information for the endpoint.,,Organisations,,,,,,,dcat:contactPoint
 Endpoint,,keyword,,string_array,,,,Keyword(s) describing the endpoint.,,,,,,,,,dcat:keyword
 Endpoint,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
 Endpoint,,end_point_description,,hyperlink_array,,,,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description.",,,,,,,,,dcat:endpointDescription
