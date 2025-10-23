@@ -31,9 +31,9 @@ Biobanks,,national_node,National Node,ref,,true,,The biobank originates from thi
 Biobanks,,withdrawn,Withdrawn,bool,,true,,This biobank is withdrawn from the Directory.,,,,,false,,,,
 Catalogs,,,,,,,,DCAT v2 catalog entry,,,,,,,,,"dcat:Catalog,ldp:DirectContainer"
 Catalogs,,id,,string,1,TRUE,,Local database identifier of the catalog. Identifier of the metadata entry.,,,,,,,,,"afr:AFR_0000919"
-Catalogs,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,dcterms:title
-Catalogs,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,,foaf:homepage
-Catalogs,,has_version,,string,,,,Version of the catalog.,,,,,,,,,dcterms:hasVersion
+Catalogs,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,"dcterms:title,rdfs:label"
+Catalogs,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,, "foaf:homepage,dcat:landingPage"
+Catalogs,,has_version,,string,,,,Version of the catalog.,,,,,,,,,"dcterms:hasVersion,dcat:version"
 Catalogs,,description,,string,,,,Description of the catalog.,,,,,,,,,dcterms:description
 Catalogs,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Publishers,,,,,,,dcterms:publisher
 Catalogs,,language,,hyperlink_array,,,,The language(s) used in the catalog.,,,,,,,,,dcterms:language
