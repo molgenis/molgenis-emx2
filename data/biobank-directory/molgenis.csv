@@ -135,6 +135,7 @@ ContactPersonsNationalNodes,,first_name,First name,string,,false,,First name.,,,
 ContactPersonsNationalNodes,,last_name,Last name,string,,true,,Last name.,,,,,,,,,
 ContactPersonsNationalNodes,,email,Email,email,,true,,Email address.,,,,,,,,,
 ContactPersonsNationalNodes,,role,Contact Role,string,,true,,Role of the contact person within the national node.,,,,,,,,,
+DataServices,,,,,,,,Entity to describe a DataService as defined by DCAT and EJP-RD Resource Metadata Schema,,,,,,,,,dcat:DataService
 DataServices,,id,ID,,1,true,,Unique ID of the Data Service,,,,,,,,,
 DataServices,,endpoint_url,Endpoint URL,hyperlink,,true,,URL of the endpoint of the data service,,,,,,,,,
 DataServices,,endpoint_description,Endpoint Description,text,,true,,Description of the endpoint of the data service,,,,,,,,,dcterms:endpointDescription
