@@ -9,16 +9,13 @@ export function getInitialFormValues(metadata: ITableMetaData) {
         if (column.defaultValue.startsWith("=")) {
           try {
             accum[column.id] = executeExpression(
-              "(" + column.defaultValue.substr(1) + ")",
+              `(${column.defaultValue.substr(1)})`,
               {},
               metadata
             );
           } catch (error) {
             console.error(
-              "Default value expression failed for column " +
-                column.id +
-                ": " +
-                error
+              `Default value expression failed for column ${column.id}: ${error}`
             );
           }
         } else if (column.columnType === "BOOL") {
@@ -33,7 +30,7 @@ export function getInitialFormValues(metadata: ITableMetaData) {
   );
 }
 
-export function getBooleanDefaultValue(value: any): boolean | undefined {
+function getBooleanDefaultValue(value: any): boolean | undefined {
   if (value === "TRUE" || value === "true" || value === true) {
     return true;
   } else if (value === "FALSE" || value === "false" || value === false) {
