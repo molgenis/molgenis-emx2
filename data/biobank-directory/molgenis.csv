@@ -7,13 +7,13 @@ QualityInfoBiobanks,,assess_level_bio,Assessment Level,ontology,,true,,,Director
 QualityInfoBiobanks,,certification_number,Certification Number,string,,false,,,,,,,,,,,
 QualityInfoBiobanks,,certification_report,Certification Report,hyperlink,,false,,,,,,,,,,,
 QualityInfoBiobanks,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
-Agent,,,,,,,,"An agent (e.g. person, group, software or physical artifact).",,,,,,,,,"foaf:Agent,vcard:Agent"
-Agent,,name,,string,1,TRUE,,A name and identifier for this agent.,,,,,,,,,"foaf:name,dcterms:identifier"
+Agent,,,,,,,,"An agent (e.g. person, group, software or physical artifact).",,,,,,,,,"foaf:Agent"
+Agent,,name,,string,1,TRUE,,A name and identifier for this agent.,,,,,,,,,"foaf:name"
 Agent,,description,,string,,,,Description of the agent.,,,,,,,,,dcterms:description
 Agent,,type,,hyperlink_array,,,,This agent is of the following type(s) (e.g. http://xmlns.com/foaf/0.1/Person),,,,,,,,,rdf:type
-Agent,,url,,hyperlink,,,,The homepage of the agent.,,,,,,,,,"vcard:url,foaf:homepage,dcat:landingPage"
+Agent,,url,,hyperlink,,,,The homepage of the agent.,,,,,,,,,"foaf:homepage,dcat:landingPage"
 Agent,,logo,,hyperlink,,,,The logo of the agent.,,,,,,,,,foaf:logo
-Agent,,mbox,,email,,,,E-mail address of the agent.,,,,,,,,,"vcard:hasEmail,foaf:mbox"
+Agent,,mbox,,email,,,,E-mail address of the agent.,,,,,,,,,"foaf:mbox"
 AlsoKnownIn,,,,,,,,"Biobank, collection or network also exists in …",,,,,,,,,
 AlsoKnownIn,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 AlsoKnownIn,,name_system,Name of the System,string,,true,,"Name of the source in which the biobank, collection or network also exists.",,,,,,,,,
