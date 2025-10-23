@@ -153,8 +153,8 @@ DataServices,,title,,,,true,,Name of the data service,,,,,,,,,"dcterms:title,rdf
 DataServices,,url,URL,hyperlink,,false,,data service URL,,,,,,,,,dcat:landingPage
 DataServices,,logo,Logo,hyperlink,,,,The logo of the data service.,,,,,,,,,foaf:logo
 DataServices,,collection,Served Collection,ref,,false,,Reference to the served collection,,Collections,,,,,,,dcat:servesDataset
-DataServices,,catalog,Served Catalog,ref,,false,,Reference to the served catalog,,Catalog,,,,,,,dcat:servesDataset
-DataServices,,partOf,Part Of,ref,,false,,The catalog where this data service is listed,,Catalog,,,,,,,
+DataServices,,catalog,Served Catalog,ref,,false,,Reference to the served catalog,,Catalogs,,,,,,,dcat:servesDataset
+DataServices,,partOf,Part Of,ref,,false,,The catalog where this data service is listed,,Catalogs,,,,,,,
 DataServices,,contact_organisation,Contact Organisation,ref,,false,,"Contact for the resource in case it is an organisation (e.g., a contact for a catalog)",,Organisations,,,,,,,dcat:contactPoint
 DataServices,,contact_individual,Contact Person,ref,,false,,"Contact for the resource in case it is a person (e.g., a contact for a collection)",,Persons,,,,,,,dcat:contactPoint
 DataServices,,EJP_RD_personalData,Contains personal data,,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
