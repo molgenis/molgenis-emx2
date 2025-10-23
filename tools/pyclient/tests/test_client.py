@@ -11,8 +11,7 @@ from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
-    NoSuchTableException
-
+    NoSuchTableException, ReferenceException
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -94,7 +93,14 @@ async def test_upload_file():
 
 def test_truncate():
     """Tests the `truncate` method."""
-    ...
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test truncate with ReferenceException
+        with pytest.raises(ReferenceException) as excinfo:
+            client.truncate(schema='pet store', table='Pet')
+
+        # Test correct running
 
 def test_upload_csv():
     """Tests the `_upload_csv` method."""
