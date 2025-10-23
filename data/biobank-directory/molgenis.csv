@@ -41,7 +41,7 @@ Catalogs,,publisher,,ref_array,,,,The entity or entities (person or organization
 Catalogs,,referenced_by,,hyperlink_array,,,,"A link to a related resource that references, cites, or otherwise points to the described resource",,,,,,,,,dcterms:isReferencedBy
 Catalogs,,language,,hyperlink_array,,,,The language(s) used in the catalog.,,,,,,,,,dcterms:language
 Catalogs,,license,,hyperlink,,TRUE,,The reference to the usage license of the catalog.,,,,,,,,,dcterms:license
-Catalogs,,policy,,hyperlink,,,,Information about the access policies of the catalog,,,,,https://www.bbmri-eric.eu/services/access-policies/,,,,odrl:hasPolicy
+Catalogs,,policy,,hyperlink,,,,Information about the access policies of the catalog,,,,,,,,,odrl:hasPolicy
 Catalogs,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
 Catalogs,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
 Catalogs,,conforms_to,,hyperlink,,true,,The specification of the catalog metadata schema.,,,,,,,,,dcterms:conformsTo
