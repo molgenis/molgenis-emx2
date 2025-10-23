@@ -135,6 +135,29 @@ ContactPersonsNationalNodes,,first_name,First name,string,,false,,First name.,,,
 ContactPersonsNationalNodes,,last_name,Last name,string,,true,,Last name.,,,,,,,,,
 ContactPersonsNationalNodes,,email,Email,email,,true,,Email address.,,,,,,,,,
 ContactPersonsNationalNodes,,role,Contact Role,string,,true,,Role of the contact person within the national node.,,,,,,,,,
+DataServices,,id,ID,,1,true,,Unique ID of the Data Service,,,,,,,,,
+DataServices,,endpoint_url,Endpoint URL,hyperlink,,true,,URL of the endpoint of the data service,,,,,,,,,
+DataServices,,endpoint_description,Endpoint Description,text,,true,,Description of the endpoint of the data service,,,,,,,,,dcterms:endpointDescription
+DataServices,,conforms_to,,hyperlink,,true,,The specification of the data service,,,,,,,,,dcterms:conformsTo
+DataServices,,type,Data Service Type,hyperlink_array,,,,"The type of data service, for ejp-rd is one of VPBeacon2_Catalog, VPBeacon2_Individuals, VPBeacon2_Biosamples",,,,,,,,,dcterms:type
+DataServices,,title,,,,true,,Name of the data service,,,,,,,,,"dcterms:title,rdfs:label"
+DataServices,,url,URL,hyperlink,,false,,data service URL,,,,,,,,,dcat:landingPage
+DataServices,,logo,Logo,hyperlink,,,,The logo of the data service.,,,,,,,,,foaf:logo
+DataServices,,collection,Served Collection,ref,,false,,Reference to the served collection,,Collections,,,,,,,dcat:servesDataset
+DataServices,,catalog,Served Catalog,ref,,false,,Reference to the served catalog,,Catalog,,,,,,,dcat:servesDataset
+DataServices,,partOf,Part Of,ref,,false,,The catalog where this data service is listed,,Catalog,,,,,,,
+DataServices,,contact_organisation,Contact Organisation,ref,,false,,"Contact for the resource in case it is an organisation (e.g., a contact for a catalog)",Organisations,,,,,,,,dcat:contactPoint
+DataServices,,contact_individual,Contact Person,ref,,false,,"Contact for the resource in case it is a person (e.g., a contact for a collection)",Persons,,,,,,,,dcat:contactPoint
+DataServices,,EJP_RD_personalData,Contains personal data,,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+DataServices,,EJP_RD_vpConnection,Want to be part of the EJP-RD VP,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+DataServices,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
+DataServices,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
+DataServices,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
+DataServices,,description,Description,text,,true,,Description of the data service,,,,,,,,,dcterms:description
+DataServices,,keyword,,string_array,,,,Keyword(s) describing the data service.,,,,,,,,,dcat:keyword
+DataServices,,language,,hyperlink_array,,,,The language(s) used in the data service.,,,,,,,,,dcterms:language
+DataServices,,license,,hyperlink,,true,,The reference to the usage license of the data service.,,,,,,,,,dcterms:license
+DataServices,,publisher,,ref,,true,,The publisher making the data service available.,Publishers,,,,,,,,dcterms:publisher
 Endpoints,,,,,,,,General information describing an endpoint,,,,,,,,,"ldp:DirectContainer"
 Endpoints,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier"
 Endpoints,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoints table.,,,,,,,,,rdf:type
