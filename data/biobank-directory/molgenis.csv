@@ -155,8 +155,8 @@ DataServices,,logo,Logo,hyperlink,,,,The logo of the data service.,,,,,,,,,foaf:
 DataServices,,collection,Served Collection,ref,,false,,Reference to the served collection,,Collections,,,,,,,dcat:servesDataset
 DataServices,,catalog,Served Catalog,ref,,false,,Reference to the served catalog,,Catalog,,,,,,,dcat:servesDataset
 DataServices,,partOf,Part Of,ref,,false,,The catalog where this data service is listed,,Catalog,,,,,,,
-DataServices,,contact_organisation,Contact Organisation,ref,,false,,"Contact for the resource in case it is an organisation (e.g., a contact for a catalog)",Organisations,,,,,,,,dcat:contactPoint
-DataServices,,contact_individual,Contact Person,ref,,false,,"Contact for the resource in case it is a person (e.g., a contact for a collection)",Persons,,,,,,,,dcat:contactPoint
+DataServices,,contact_organisation,Contact Organisation,ref,,false,,"Contact for the resource in case it is an organisation (e.g., a contact for a catalog)",,Organisations,,,,,,,dcat:contactPoint
+DataServices,,contact_individual,Contact Person,ref,,false,,"Contact for the resource in case it is a person (e.g., a contact for a collection)",,Persons,,,,,,,dcat:contactPoint
 DataServices,,EJP_RD_personalData,Contains personal data,,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 DataServices,,EJP_RD_vpConnection,Want to be part of the EJP-RD VP,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
 DataServices,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
@@ -166,7 +166,7 @@ DataServices,,description,Description,text,,true,,Description of the data servic
 DataServices,,keyword,,string_array,,,,Keyword(s) describing the data service.,,,,,,,,,dcat:keyword
 DataServices,,language,,hyperlink_array,,,,The language(s) used in the data service.,,,,,,,,,dcterms:language
 DataServices,,license,,hyperlink,,true,,The reference to the usage license of the data service.,,,,,,,,,dcterms:license
-DataServices,,publisher,,ref,,true,,The publisher making the data service available.,Publishers,,,,,,,,dcterms:publisher
+DataServices,,publisher,,ref,,true,,The publisher making the data service available.,,Publishers,,,,,,,dcterms:publisher
 Endpoints,,,,,,,,General information describing an endpoint,,,,,,,,,"ldp:DirectContainer"
 Endpoints,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier"
 Endpoints,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoints table.,,,,,,,,,rdf:type
@@ -221,7 +221,7 @@ Organisations,,,,,,,,Organisations which function as contact points,,,,,,,,,vcar
 Organisations,,id,ID,,1,true,,Unique ID of the organisation,,,,,,,,,
 Organisations,,full_name,Full name,,,true,,The full name of the organisation,,,,,,,,,vcard:fn
 Organisations,,email,E-mail address,email,,false,,The e-mail address of the organisation,,,,,,,,,vcard:hasEmail
-Organisations,,address,Address,ref,,false,,The address of the organisation,Address,,,,,,,,vcard:hasAddress
+Organisations,,address,Address,ref,,false,,The address of the organisation,,Address,,,,,,,vcard:hasAddress
 Organisations,,phone,Phone number,,,false,,The telephone number of the organisation,,,,,,,,,vcard:hasTelephone
 Organisations,,url,URL,hyperlink,,false,,The URL of a web page containing information about the organisation,,,,,,,,,vcard:hasURL
 Persons,,,,,,,,"Information of the contact persons of a biobank, collection of network, like name, address and e-mail address.",,,,,,,,,"vcard:Kind,vcard:Individual"
