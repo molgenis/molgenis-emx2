@@ -1,4 +1,10 @@
 tableName,tableExtends,columnName,label,columnType,key,required,isReadonly,description,refSchema,refTable,refBack,refLabel,defaultValue,validation,message,computed,semantics
+Address,,,,,,,,"Structured vcard address",,,,,,,,,vcard:Address
+Address,,id,ID,string,1,true,,"Unique ID for the address",,,,,,,,,
+Address,,street,Street,string,,true,,"Street name",,,,,,,,,vcard:street-address
+Address,,city,Locality,string,,true,,"The locality",,,,,,,,,vcard:locality
+Address,,country,Country,string,,true,,"The name of the country",,,,,,,,,vcard:country-name
+Address,,postal_code,Postal Code,string,,true,,"The postal code",,,,,,,,,vcard:postal-code
 AlsoKnownIn,,,,,,,,"Biobank, collection or network also exists in …",,,,,,,,,
 AlsoKnownIn,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 AlsoKnownIn,,name_system,Name of the System,string,,true,,"Name of the source in which the biobank, collection or network also exists.",,,,,,,,,
@@ -213,7 +219,7 @@ Organisations,,,,,,,,Organisations which function as contact points,,,,,,,,,vcar
 Organisations,,id,ID,,1,true,,Unique ID of the organisation,,,,,,,,,
 Organisations,,full_name,Full name,,true,,,The full name of the organisation,,,,,,,,,vcard:fn
 Organisations,,email,E-mail address,email,,false,,The e-mail address of the organisation,,,,,,,,,vcard:hasEmail
-Organisations,,address,Address,ref,,false,,The address of the organisation,,,,,,,,,vcard:hasAddress
+Organisations,,address,Address,ref,,false,,The address of the organisation,Address,,,,,,,,vcard:hasAddress
 Organisations,,phone,Phone number,,,false,,The telephone number of the organisation,,,,,,,,,vcard:hasTelephone
 Organisations,,url,URL,hyperlink,,false,,The URL of a web page containing information about the organisation,,,,,,,,,vcard:hasURL
 Persons,,,,,,,,"Information of the contact persons of a biobank, collection of network, like name, address and e-mail address.",,,,,,,,,"vcard:Kind,vcard:Individual"
