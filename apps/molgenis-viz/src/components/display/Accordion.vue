@@ -3,28 +3,21 @@
     :id="`accordion-${id}`"
     :class="visible ? 'accordion visible' : 'accordion'"
   >
-    <!-- Dynamic heading element (h1–h6) -->
-    <component
-      :is="headingTag"
-      class="accordion-heading"
-      :class="`heading-style-${headingStyle}`"
-    >
+    <h3 class="accordion-heading">
       <button
         type="button"
         :id="`accordion-toggle-${id}`"
         class="accordion-toggle"
         :aria-controls="`accordion-content-${id}`"
         :aria-expanded="visible"
-        @click="onclick"
+        v-on:click="onclick"
       >
         <span class="toggle-label">{{ title }}</span>
         <ChevronDownIcon
           :class="visible ? 'toggle-icon rotated' : 'toggle-icon'"
         />
       </button>
-    </component>
-
-    <!-- Collapsible section -->
+    </h3>
     <section
       :id="`accordion-content-${id}`"
       class="accordion-content"
@@ -32,6 +25,7 @@
       role="region"
       v-show="visible"
     >
+      <!-- Content to be hidden or shown -->
       <slot></slot>
     </section>
   </div>
@@ -40,42 +34,34 @@
 <script>
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 
+// @displayName Accordion
+// Create a collapsible element for hiding and showing content. For example, the
+// accordion component is a good option for structuring an FAQ page. Accordion state
+// (i.e., open or closed) can be accessed using the following event `@isOpen`.
 export default {
-  name: "Accordion",
-  components: { ChevronDownIcon },
   props: {
+    // A unique identifier for the accordion
     id: {
       type: String,
       required: true,
     },
+    // A label that describes the hidden content
     title: {
       type: String,
       required: true,
     },
+    // If true, the accordion will be opened on render
     isOpenByDefault: {
       type: Boolean,
+      required: false,
       default: false,
     },
-    /**
-     * The heading style (1–6) determines which HTML tag (h1–h6) is rendered
-     * and which color is applied.
-     */
-    headingStyle: {
-      type: Number,
-      default: 3,
-      validator: (value) =>
-        [1, 2, 3, 4, 5, 6].includes(value),
-    },
   },
+  components: { ChevronDownIcon },
   data() {
     return {
       visible: false,
     };
-  },
-  computed: {
-    headingTag() {
-      return `h${this.headingStyle}`;
-    },
   },
   methods: {
     onclick() {
@@ -84,7 +70,7 @@ export default {
     },
   },
   mounted() {
-    this.visible = this.isOpenByDefault;
+    this.visible = this.isOpenByDefault ? this.isOpenByDefault : this.visible;
   },
 };
 </script>
@@ -113,14 +99,15 @@ $border-radius: 6px;
       border: none;
       position: relative;
       background: none;
+      background-color: none;
       margin: 0;
       padding: 0;
       cursor: pointer;
       font-size: inherit;
       text-align: left;
-      color: inherit; // ensure text uses heading color
+      color: currentColor;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       width: 100%;
 
@@ -155,7 +142,7 @@ $border-radius: 6px;
       border-radius: $border-radius $border-radius 0 0;
     }
     .accordion-content {
-      padding: 1.2rem;
+      padding: 0 12px;
     }
   }
 }
