@@ -44,7 +44,7 @@ Catalogs,,description,,string,,,,Description of the catalog.,,,,,,,,,dcterms:des
 Catalogs,,logo,,hyperlink,,,,Logo of the catalog,,,,,,,,,foaf:logo
 Catalogs,,contact,,ref,,,,Organisation that functions as the contact point for the catalog,,Organisations,,,,,,,dcat:contactPoint
 Catalogs,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Publishers,,,,,,,dcterms:publisher
-Catalogs,,endpoint,,refback,,,,The endpoint(s) linking to this catalog",,Endpoints,metadata_catalog,,,,,,dcat:endpointURL
+Catalogs,,endpoint_url,,hyperlink,,,,The root location or primary endpoint of the service (a web-resolvable IRI).,,,,,,,,,dcat:endpointURL
 Catalogs,,referenced_by,,hyperlink_array,,,,"A link to a related resource that references, cites, or otherwise points to the described resource",,,,,,,,,dcterms:isReferencedBy
 Catalogs,,language,,hyperlink_array,,,,The language(s) used in the catalog.,,,,,,,,,dcterms:language
 Catalogs,,license,,hyperlink,,TRUE,,The reference to the usage license of the catalog.,,,,,,,,,dcterms:license
@@ -174,6 +174,7 @@ Endpoints,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:
 Endpoints,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoints table.,,,,,,,,,rdf:type
 Endpoints,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
 Endpoints,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
+Endpoints,,url,,hyperlink,,,,The root location or primary endpoint of the service (a web-resolvable IRI).,,,,,,,,,dcat:endpointURL
 Endpoints,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalogs,,,,,,,"fdp-o:metadataCatalog,ldp:contains"
 Endpoints,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Publishers,,,,,,,dcterms:publisher
 Endpoints,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
