@@ -71,24 +71,72 @@ def test_set_token():
         assert client._token == token
 
 
+
+def test_upload_csv():
+    """Tests the `upload_csv` method."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        with pytest.raises(FileNotFoundError) as excinfo:
+            client._upload_csv(file_path=Path("Pet.csv"), schema="pet store")
+        assert str(excinfo.value) == "[Errno 2] No such file or directory: 'Pet.csv'"
+
+        client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Tag.csv", schema="pet store")
+        client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Pet.csv", schema="pet store")
+        client._upload_csv(file_path=RESOURCES_DIR / "delete" / "Pet.csv", schema="pet store")
+        client._upload_csv(file_path=RESOURCES_DIR / "delete" / "Tag.csv", schema="pet store")
+
+
 @pytest.mark.asyncio
 async def test_upload_file():
     """Tests the `upload_file` method."""
     with Client(url=server_url) as client:
         client.signin(username, password)
 
+        # Upload without specifying schema
         with pytest.raises(NoSuchSchemaException) as excinfo:
             await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.csv")
         assert excinfo.value.msg == f"Specify the schema where the file should be uploaded."
 
-        with pytest.raises(FileNotFoundError) as excinfo:
-            await client.upload_file("Pet.csv", schema="pet store")
-        assert str(excinfo.value) == "No file found at PosixPath('Pet.csv')."
+        # Upload ZIP file
+        pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "pet store.zip", schema="pet store")
+        pet_between = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
-        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Tag.csv", schema="pet store")
-        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.csv", schema="pet store")
-        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "Pet.csv", schema="pet store")
-        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "Tag.csv", schema="pet store")
+        assert pet_between == pet_before + 2
+        assert tag_between == tag_before + 2
+
+        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "pet store.zip", schema="pet store")
+        pet_after = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert pet_after == pet_before
+        assert tag_after == tag_before
+
+        # Upload XLSX file
+        pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "pet store.xlsx", schema="pet store")
+        pet_between = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert pet_between == pet_before + 2
+        assert tag_between == tag_before + 2
+
+        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "pet store.xlsx", schema="pet store")
+        pet_after = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert pet_after == pet_before
+        assert tag_after == tag_before
+
+        # Upload with unsupported file type
+        with pytest.raises(NotImplementedError) as excinfo:
+            await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.txt", schema="pet store")
+        assert str(excinfo.value) == "Uploading files with extension '.txt' is not supported."
+
 
 
 def test_truncate():
@@ -110,11 +158,6 @@ def test_truncate():
 
 
 
-
-
-def test_upload_csv():
-    """Tests the `_upload_csv` method."""
-    ...
 
 def test_delete_records():
     """Tests the `delete_records` method."""
