@@ -1,4 +1,8 @@
-# target server should be empty and updated to latest emx2 version
+# Target server requirements:
+# empty and updated to latest emx2 version
+# nginx settings should support the latest changes in the url
+# 'catalogue' schema (or for UMCG 'UMCG' schema) should be made with DATA_CATALOGUE template, without demo data
+
 
 from decouple import config
 from molgenis_emx2_pyclient import Client
@@ -44,31 +48,32 @@ os.chdir('./files')
 # instantiate Client for source server:
 source = Client(SOURCE_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=SOURCE_SERVER_TOKEN)
 
-# ETL for catalogue schema data:
-print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
-asyncio.run(source.export(filename=CATALOGUE_SCHEMA_NAME + '_data.zip'))
-# transform data from schema
-print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
-# unzip schema data
-zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
-zip_handling.unzip_data()
-# transform schema data:
-update = Transform(schema_name=CATALOGUE_SCHEMA_NAME, profile='DataCatalogueFlat')
-# update data model file
-update.delete_data_model_file()
-update.update_data_model_file()
-update.transform_data()
-zip_handling.zip_data()
-
+# # ETL for catalogue schema data:
+# print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
+# asyncio.run(source.export(filename=CATALOGUE_SCHEMA_NAME + '_data.zip'))
+# # transform data from schema
+# print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
+# # unzip schema data
+# zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
+# zip_handling.unzip_data()
+# # transform schema data:
+# update = Transform(schema_name=CATALOGUE_SCHEMA_NAME, profile='DataCatalogueFlat')
+# # update data model file
+# update.delete_data_model_file()
+# update.update_data_model_file()
+# update.transform_data()
+# zip_handling.zip_data()
+#
 # instantiate Client for target server:
-# target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
-
+target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
 # upload catalogue data to target server
+# asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema=CATALOGUE_SCHEMA_NAME))
 
 # ETL for other schemas:
-schema_names = source.schema_names
-for schema_name in schema_names:
-    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store']:
+for schema in source.get_schemas():
+    schema_name = schema.get('name')
+    schema_description = schema.get('description')
+    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store'] and schema_name not in target.schema_names:  # TODO: delete this last check
         # instantiate Client for source schema:
         source = Client(SOURCE_SERVER_URL, schema=schema_name, token=SOURCE_SERVER_TOKEN)
 
@@ -104,10 +109,11 @@ for schema_name in schema_names:
         update.update_data_model_file()
         update.transform_data()
         zip_handling.zip_data()
+
         # # instantiate Client for target server:
-        # target = Client(TARGET_SERVER_URL, schema=schema_name, token=TARGET_SERVER_TOKEN)
-        # upload zipped data to target server
-
-
-# data checks:
-# move some sub-organisations to Organisations.department
+        # target = Client(TARGET_SERVER_URL, CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
+        # create new schema
+        if schema_name not in target.schema_names: # TODO: delete this check
+            asyncio.run(target.create_schema(name=schema_name, description=schema_description))
+            # upload zipped data to target server:
+            asyncio.run(target.upload_file(file_path=schema_name + '_upload.zip', schema=schema_name))
