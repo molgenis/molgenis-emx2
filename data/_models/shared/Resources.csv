@@ -4,7 +4,7 @@ Resources,,rdf type,hyperlink_array,,,,,,,,rdf:type,The DCAT type such as dcat:C
 Resources,,fdp endpoint,ref,,,,Endpoint,,,,ldp:membershipResource,FDP endpoint to associated with the catalogue,"DataCatalogueFlat,EMA",,= {id: 'main_fdp'}
 Resources,,ldp membership relation,hyperlink,,,,,,,,ldp:hasMemberRelation,LDP membership relation,"DataCatalogueFlat,EMA",,https://w3id.org/fdp/fdp-o#metadataCatalog
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
-Resources,,hricore,bool,,,,,,,,,"Do you want your metadata to be compatible with HRICore v2.0.1, so that the metadata can be shared with the Dutch National Health Data Catalogue?",,,
+Resources,,hricore,bool,,,,,,,,,"Do you want your metadata to be compatible with HRICore v2.0.1, so that the metadata can be shared with the Dutch National Health Data Catalogue?","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",,
 Resources,,id,,1,TRUE,,,,,,,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
 Resources,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
 Resources,,name,text,3,TRUE,,,,,,dcterms:title,Name used in international projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
