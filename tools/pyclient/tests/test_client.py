@@ -4,14 +4,12 @@ Tests for the Pyclient.
 import os
 from pathlib import Path
 
-import asyncio
 import pytest
-import pytest_asyncio
 from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
-    NoSuchTableException, ReferenceException
+    ReferenceException, PermissionDeniedException
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -154,14 +152,46 @@ def test_truncate():
         users_after = len(client.get_graphql(schema="pet store", table="User", columns=["username"]))
         assert users_after == 0
 
-        client.save_schema(table="User", name="pet store", file=str(RESOURCES_DIR / "petstore" / "User.csv"))
+        client.save_schema(table="User", name="pet store", file=RESOURCES_DIR / "petstore" / "User.csv")
 
 
 
 
 def test_delete_records():
     """Tests the `delete_records` method."""
-    ...
+
+    # Test fail without editor rights
+    with Client(url=server_url) as client:
+        with pytest.raises(PermissionDeniedException) as excinfo:
+            client.delete_records(table="Pet", schema="pet store", file=RESOURCES_DIR / "insert" / "Pet.csv")
+        assert str(excinfo.value) == "Message: Transaction failed: permission denied.\n"
+
+        client.signin(username, password)
+
+        # Test fail without schema
+        with pytest.raises(NoSuchSchemaException) as excinfo:
+            client.delete_records(table="Pet", file=RESOURCES_DIR / "insert" / "Pet.csv")
+
+        assert excinfo.value.msg == "Schema None not available."
+
+        # Test fail without specifying file or data
+        with pytest.raises(FileNotFoundError) as excinfo:
+            client.delete_records(schema="pet store" , table="Pet")
+
+        assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
+
+        # Test delete with file
+        with pytest.raises(FileNotFoundError) as excinfo:
+            client.delete_records(schema="pet store" , table="Pet")
+
+        assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
+
+
+
+        # Test delete with data as list
+
+        # Test delete with data as DataFrame
+
 
 def test_get():
     """Tests the `get` method."""
