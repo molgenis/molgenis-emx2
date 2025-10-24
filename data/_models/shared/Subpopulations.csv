@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,defaultValue
 Subpopulations,,,,,,,,,,,dcat:Dataset,Subpopulations defined for this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
-Subpopulations,,resource,ref,1,TRUE,,Resources,,,,dcat:inSeries,Resource this subpopulation is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
+Subpopulations,,resource,ref,1,TRUE,,Resources,,,,"dcat:inSeries,dcterms:source",Resource this subpopulation is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,name,,1,TRUE,,,,,,dcterms:title,"Subpopulation name, e.g. 'mothers in first trimester','newborns'","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,pid,,,,,,,,,dcterms:identifier,Persistent identifier for this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,description,text,,,,,,,,dcterms:description,Subpopulation description,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",

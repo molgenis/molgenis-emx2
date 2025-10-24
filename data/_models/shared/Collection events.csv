@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,defaultValue
 Collection events,,,,,,,,,,,dcat:Dataset,Definition of a collection event for a resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
-Collection events,,resource,ref,1,TRUE,,Resources,,,,dcat:inSeries,Resource this collection event is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
+Collection events,,resource,ref,1,TRUE,,Resources,,,,"dcat:inSeries,dcterms:source",Resource this collection event is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Collection events,,name,,1,TRUE,,,,,,dcterms:title,Name of the collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Collection events,,pid,,,,,,,,,dcterms:identifier,Persistent identifier for this collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Collection events,,description,text,,,,,,,,dcterms:description,Description of the collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
