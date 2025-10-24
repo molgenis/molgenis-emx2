@@ -303,7 +303,6 @@ public class SqlQuery extends QueryBean {
           }
         }
       }
-
       cteList.addAll(
           getCteListForQuery(table, null, tableAlias, select, getFilter(), getSearchTerms()));
       fields.add(
@@ -311,7 +310,7 @@ public class SqlQuery extends QueryBean {
               .as(name(select.getColumn())));
     }
 
-    // asemble final query from cte and the queries.
+    // asemble final query from the ctes
     SelectJoinStep<Record1<Object>> query =
         sql.with(cteList.toArray(CommonTableExpression[]::new))
             .select(field(ROW_TO_JSON_SQL))
@@ -446,86 +445,162 @@ public class SqlQuery extends QueryBean {
     String tableRootAlias = tableAlias + "-data";
     List<CommonTableExpression> cteList = new ArrayList<>();
 
-    // get selected table rows, filtered and limit/offset as basis for the json
-    // todo, only include selected fields to
-    // todo filter
-    List<Condition> conditions =
-        getFilterConditions(table, parentColumn, tableRootAlias, filters, searchTerms);
-    if (parentColumn != null) {
-      if (parentColumn.isRef()) {
-        // (pkey) in (select fkey fields from parent data table
-        List<Field<Object>> pkeyFields =
-            parentColumn.getReferences().stream().map(ref -> field(name(ref.getRefTo()))).toList();
-        List<Field<Object>> fkeyFields =
-            parentColumn.getReferences().stream().map(ref -> field(name(ref.getName()))).toList();
-        conditions.add(
-            row(pkeyFields).in(DSL.select(fkeyFields).from(name(alias(parentAlias + "-data")))));
+    // we produce a 'data' and a 'json' query
+    Set<Field> dataFields = new HashSet<>();
+    Set<Field> jsonFields = new HashSet<>();
+
+    for (SelectColumn selectedField : select.getSubselect()) {
+      String fieldName = selectedField.getColumn();
+      // aggregate fields
+      if (COUNT_FIELD.equals(fieldName)) {
+        dataFields.add(getCountField().as(COUNT_FIELD));
+        jsonFields.add(field(name(alias(tableAlias + "-data"), fieldName)));
+      }
+      // select / group by fields
+      else {
+        Column subColumn = getColumnForGraphqlField(table, selectedField);
+        if (subColumn.isReference()) {
+          // assumes refBack is natural joined as if ref_array
+          String refAlias = getCteAlias(selectedField, tableAlias);
+          jsonFields.add(field(name(alias(refAlias), fieldName)));
+          subColumn
+              .getReferences()
+              .forEach(
+                  ref -> {
+                    dataFields.add(field(name(ref.getName())));
+                  });
+        } else if (subColumn.isFile()) {
+          dataFields.add(jsonFileField(table, tableAlias, selectedField, subColumn));
+          jsonFields.add(field(name(name(alias(tableAlias + "-data"), fieldName))));
+        } else {
+          dataFields.add(subColumn.getJooqField());
+          jsonFields.add(field(name(alias(tableAlias + "-data"), fieldName)));
+        }
       }
     }
+
+    // todo deal with agg/groupBy
+    List<Condition> conditions =
+        getFilterConditions(table, parentColumn, tableRootAlias, filters, searchTerms);
+
+    // link to parent using the ref, ref_array or refback
+    if (parentColumn != null) {
+      List<Field<Object>> pkeyFields =
+          parentColumn.getReferences().stream().map(ref -> field(name(ref.getRefTo()))).toList();
+      List<Field<Object>> fkeyFields =
+          parentColumn.getReferences().stream().map(ref -> field(name(ref.getName()))).toList();
+      if (parentColumn.isRef()
+          || (parentColumn.isRefback() && parentColumn.getRefBackColumn().isRef())) {
+        // (pkey) in (select fkey fields from parent data table) or
+        // (fkey) in (select pkey fields from parent data table)
+        conditions.add(
+            row(pkeyFields).in(DSL.select(fkeyFields).from(name(alias(parentAlias + "-data")))));
+      } else if (parentColumn.isRefArray()) {
+        // (pkey) in (unnest(fkey_part1) WITH ORDINALITY AS u1(f1, idx))
+        Optional<Table<Record>> unnestedArrayTable =
+            parentColumn.getReferences().stream()
+                .map(
+                    ref ->
+                        unnest(field(name(ref.getName()), ref.getJooqType()))
+                            .withOrdinality()
+                            .as(ref.getName() + "_nested", ref.getName(), "idx"))
+                .reduce((table1, table2) -> table1.naturalJoin(table2));
+        SelectJoinStep<Record> unnested =
+            // using column name also as the alias for the nested
+            DSL.select(
+                    fkeyFields.stream()
+                        .map(field -> field(name(field.getName() + "_nested", field.getName())))
+                        .toList())
+                .from(name(alias(parentAlias + "-data")))
+                .crossJoin(unnestedArrayTable.get());
+        conditions.add(row(pkeyFields).in(DSL.select(fkeyFields).from(unnested)));
+      } else if (parentColumn.isRefback() && parentColumn.getRefBackColumn().isRefArray()) {
+        conditions.add(
+            row(pkeyFields)
+                .in(
+                    DSL.select(fkeyFields)
+                        .from(
+                            getUnnestedRefArrayAsTable(
+                                parentAlias + "-data", parentColumn.getRefBackColumn()))));
+      } else {
+        throw new UnsupportedOperationException("todo cte support for nested ref_array, refback");
+      }
+    }
+
+    // add the 'data' selection
+
     cteList.add(
         name(alias(tableRootAlias))
             .as(
-                DSL.select(asterisk())
+                DSL.select(dataFields)
                     .from(tableWithInheritanceJoin(table).as(name(alias(tableRootAlias))))
                     .where(conditions)));
 
     // define the json select on top of that data query, might have nested cte
-    SelectJoinStep jsonSelect =
-        DSL.select(jsonSubselectFields(table, tableAlias, select))
-            .from((name(alias(tableRootAlias))));
+    SelectJoinStep jsonSelect = DSL.select(jsonFields).from((name(alias(tableRootAlias))));
 
     for (SelectColumn subSelect : select.getSubselect()) {
-      Column subColumn = getColumnForGraphqlField(table, subSelect);
-      if (subColumn.isReference()) {
-        // left joins for the nested cte
-        String subAlias = getCteAlias(subSelect, tableAlias);
-        Condition[] joinCondition =
-            table.getPrimaryKeyFields().stream()
-                .map(
-                    field ->
-                        field(name(alias(tableRootAlias), field.getName()))
-                            .eq(field(name(alias(subAlias), field.getName()))))
-                .toArray(Condition[]::new);
-        jsonSelect = jsonSelect.leftJoin(name(alias(subAlias))).on(joinCondition);
-        // creation of the nested cte
-        TableMetadata subTable = subColumn.getRefTable();
-        Filter subFilter = subSelect.getFilter();
-        cteList.addAll(
-            getCteListForQuery(
-                (SqlTableMetadata) subTable,
-                subColumn,
-                tableAlias,
-                subSelect,
-                subFilter,
-                new String[0]));
+      String fieldName = subSelect.getColumn();
+      if (COUNT_FIELD.equals(fieldName)) {
+        // aggregates ignored
+      } else {
+        Column subColumn = getColumnForGraphqlField(table, subSelect);
+        if (subColumn.isReference()) {
+          // left joins for the nested cte
+          String subAlias = getCteAlias(subSelect, tableAlias);
+          Condition[] joinCondition =
+              table.getPrimaryKeyFields().stream()
+                  .map(
+                      field ->
+                          field(name(alias(tableRootAlias), field.getName()))
+                              .eq(field(name(alias(subAlias), field.getName()))))
+                  .toArray(Condition[]::new);
+          jsonSelect = jsonSelect.leftJoin(name(alias(subAlias))).on(joinCondition);
+          // creation of the nested cte
+          TableMetadata subTable = subColumn.getRefTable();
+          Filter subFilter = subSelect.getFilter();
+          cteList.addAll(
+              getCteListForQuery(
+                  (SqlTableMetadata) subTable,
+                  subColumn,
+                  tableAlias,
+                  subSelect,
+                  subFilter,
+                  new String[0]));
+        }
       }
     }
 
     // select pkey plus the json for the field
     List<Field<?>> selection = new ArrayList();
+    List<Field<?>> groupByFields = new ArrayList<>();
     if (parentColumn != null) {
-      selection.addAll(
+      List<Field<Object>> pkeyFields =
           parentColumn.getTable().getPrimaryKeyFields().stream()
               .map(field -> field(name(alias(parentAlias + "-data"), field.getName())))
-              .toList());
+              .toList();
+      selection.addAll(pkeyFields);
       if (parentColumn.isRefback() || parentColumn.isRefArray()) {
         selection.add(field("json_agg(to_jsonb(sub))").as(select.getColumn()));
+        groupByFields.addAll(pkeyFields);
       } else {
         selection.add(field("to_jsonb(sub)").as(select.getColumn()));
       }
-      cteList.add(
-          name(tableAlias)
-              .as(
-                  DSL.select(selection)
-                      .from(name(alias(parentAlias + "-data")))
-                      .innerJoin(jsonSelect.asTable("sub"))
-                      .on(refJoinCondition(parentColumn, parentAlias + "-data", "sub"))));
+      SelectOnConditionStep result =
+          DSL.select(selection)
+              .from(name(alias(parentAlias + "-data")))
+              .innerJoin(jsonSelect.asTable("sub"))
+              .on(refJoinCondition(parentColumn, parentAlias + "-data", "sub"));
+      if (!groupByFields.isEmpty()) {
+        result.groupBy(groupByFields);
+      }
+      cteList.add(name(tableAlias).as(result));
     } else {
       // when 'root' field create cte that selects rows into one json matching the selected field
       cteList.add(
           name(tableAlias)
               .as(
-                  DSL.select(field("jsonb_agg(to_jsonb(item))").as(DATA))
+                  DSL.select(field("jsonb_strip_nulls(jsonb_agg(to_jsonb(item)))").as(DATA))
                       .from(jsonSelect.asTable(ITEM))));
     }
 
