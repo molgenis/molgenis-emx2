@@ -61,6 +61,7 @@ Catalogs,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded 
 Catalogs,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
 Catalogs,,ldp_membership_relation,,hyperlink_array,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.,,,,,"=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']",,,,ldp:hasMemberRelation
 Catalogs,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the catalog.,,Catalogs,,,,,,,ldp:membershipResource
+Catalogs,,fdp_metadata_identifier,,ref,,,,This attribute points to the catalog itself so as to generate the fdp-o:metadataIdentifier.,,Catalogs,,,,,,,fdp-o:metadataIdentifier
 CollectionFacts,,,,,,,,Collection Facts,,,,,,,,,
 CollectionFacts,,id,ID,string,1,true,true,Unique ID of the fact.,,,,,,,,,
 CollectionFacts,,collection,Collection ID,ref,,true,,ID of the collection where the fact belongs to.,,Collections,,${name},,,,,
@@ -194,6 +195,7 @@ Endpoints,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded
 Endpoints,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
 Endpoints,,ldp_membership_relation,,hyperlink,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the endpoint with its member catalogs.,,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,,,,ldp:hasMemberRelation
 Endpoints,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the endpoint.,,Endpoints,,,,,,,ldp:membershipResource
+Endpoints,,fdp_metadata_identifier,,ref,,,,This attribute points to the endpoint itself so as to generate the fdp-o:metadataIdentifier.,,Endpoints,,,,,,,fdp-o:metadataIdentifier
 NationalNodes,,,,,,,,National Node Information,,,,,,,,,
 NationalNodes,,id,ID,string,1,true,true,Unique national node ID (in most of the cases a two letter country code).,,,,,,,,,
 NationalNodes,,description,Description,string,2,true,,Description,,,,,,,,,
