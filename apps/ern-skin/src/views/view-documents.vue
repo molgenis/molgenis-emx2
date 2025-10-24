@@ -16,18 +16,14 @@
     >
       <h2 id="section-documents-title"></h2>
       <Accordion id="studies-nav" title="Studies" :isOpenByDefault="false">
-        <ul>
-          <Studies table="Studies" labelsColumn="title" />
-        </ul>
+        <Studies table="Studies" labelsColumn="title" />
       </Accordion>
       <Accordion
         id="accReq-nav"
         title="Access Requests"
         :isOpenByDefault="false"
       >
-        <ul>
-          <FileList table="Files" labelsColumn="name" fileColumn="file" />
-        </ul>
+        <FileList table="Files" labelsColumn="name" fileColumn="file" />
       </Accordion>
       <Accordion
         id="patient-nav"
@@ -53,14 +49,12 @@
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <ul>
-          <big><strong>Publications</strong></big>
-          <Publications
-            table="Publications"
-            labelsColumn="title"
-            doiColumn="doi"
-          />
-        </ul>
+        <strong>Publications</strong>
+        <Publications
+          table="Publications"
+          labelsColumn="title"
+          doiColumn="doi"
+        />
       </Accordion>
     </PageSection>
   </Page>

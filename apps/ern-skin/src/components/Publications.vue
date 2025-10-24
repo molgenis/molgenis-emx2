@@ -35,7 +35,7 @@
       <p>Repeat the process for each publication.</p>
     </div>
   </MessageBox>
-  <ul class="publication" v-for="publication in data" :key="publication.id">
+  <ul class="publication" v-for="publication in data">
     <li>
       <a
         class="publication-element publication-url"
@@ -48,11 +48,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+// @ts-expect-error
 import { MessageBox } from "molgenis-viz";
-import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
+import { PlusIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
   table: string;
@@ -67,7 +68,7 @@ interface PublicationProperties {
 }
 
 const error = ref<Error | null>(null);
-const data: Record<string, PublicationProperties>[] = ref([]);
+const data = ref<PublicationProperties[]>([]);
 
 async function getPublications() {
   const query = gql`query {

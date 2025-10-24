@@ -28,7 +28,7 @@
       <p>Repeat the process for each study.</p>
     </div>
   </MessageBox>
-  <ul class="study" v-for="study in data" :key="study.id">
+  <ul class="study" v-for="study in data">
     <li>
       <a
         class="study-element study-url"
@@ -44,17 +44,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
 // @ts-expect-error
 import { MessageBox } from "molgenis-viz";
-import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
+import { PlusIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
   table: string;
   labelsColumn?: string;
-  fileColumn: string;
 }>();
 
 interface StudyProperties {
@@ -63,7 +62,7 @@ interface StudyProperties {
 }
 
 const error = ref<Error | null>(null);
-const data: Record<string, StudyProperties>[] = ref([]);
+const data = ref<StudyProperties[]>([]);
 
 async function getStudies() {
   const query = gql`query {
