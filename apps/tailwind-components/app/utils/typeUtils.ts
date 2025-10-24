@@ -19,7 +19,7 @@ export function getInitialFormValues(metadata: ITableMetaData) {
             );
           }
         } else if (column.columnType === "BOOL") {
-          accum[column.id] = getBooleanDefaultValue(column.defaultValue);
+          accum[column.id] = getBooleanValue(column.defaultValue);
         } else {
           accum[column.id] = column.defaultValue;
         }
@@ -30,7 +30,7 @@ export function getInitialFormValues(metadata: ITableMetaData) {
   );
 }
 
-function getBooleanDefaultValue(value: any): boolean | undefined {
+function getBooleanValue(value: any): boolean | undefined {
   if (value === "TRUE" || value === "true" || value === true) {
     return true;
   } else if (value === "FALSE" || value === "false" || value === false) {
