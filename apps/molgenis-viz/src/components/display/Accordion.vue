@@ -61,10 +61,10 @@ export default {
      * and which color is applied.
      */
     headingStyle: {
-      type: [String, Number],
+      type: Number,
       default: 3,
       validator: (value) =>
-        ["1", "2", "3", "4", "5", "6", 1, 2, 3, 4, 5, 6].includes(value),
+        [1, 2, 3, 4, 5, 6].includes(value),
     },
   },
   data() {
@@ -108,27 +108,6 @@ $border-radius: 6px;
     font-size: 14pt;
     background-color: $gray-050;
     border-radius: $border-radius;
-
-    &.heading-style-1 {
-        background-color: #0084b4;
-        border-color: #0084b4;
-        color: #ffffff;
-    }
-    &.heading-style-2 {
-      background-color: #00a453;
-      border-color: #00a453;
-      color: #ffffff;
-    }
-    &.heading-style-3 {
-      background-color: #f48b31;
-      border-color: #f48b31;
-      color: #ffffff;
-    }
-    &.heading-style-4 {
-      background-color: #eb212e;
-      border-color: #eb212e;
-      color: #ffffff;
-    }
 
     .accordion-toggle {
       border: none;
@@ -176,7 +155,7 @@ $border-radius: 6px;
       border-radius: $border-radius $border-radius 0 0;
     }
     .accordion-content {
-      padding: 0 12px;
+      padding: 1.2rem;
     }
   }
 }

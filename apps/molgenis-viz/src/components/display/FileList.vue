@@ -101,8 +101,8 @@ async function getFiles() {
       }
     }
   }`;
-  const response = await request("../api/graphql", query);
-  data.value = response[props.table];
+  const response: Record<string, FileProperties[]> = await request("../api/graphql", query);
+  data.value = response[props.table] as FileProperties[];
 }
 
 onMounted(() => {
@@ -122,7 +122,6 @@ onMounted(() => {
     @include setIconSize(24px);
   }
 }
-
 .file-list {
   list-style: none;
   padding: 0;
@@ -173,6 +172,10 @@ onMounted(() => {
         background-color: $yellow-400;
         color: $blue-800;
       }
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 }

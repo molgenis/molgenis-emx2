@@ -81,11 +81,11 @@ async function getPublications() {
 }
 
 getPublications().catch((err) => {
-if (!err.response.errors.length) {
-  error.value = err;
-} else {
-  error.value = err.response.errors[0].message;
-}
+  if (!err.response.errors.length) {
+    error.value = err;
+  } else {
+    error.value = err.response.errors[0].message;
+  }
 });
 </script>
 

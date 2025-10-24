@@ -3,11 +3,7 @@
     <p><strong>Unable to retrieve studies</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox
-    type="error"
-    v-else-if="!data && !error"
-    class="study-list-error"
-  >
+  <MessageBox type="error" v-else-if="!data && !error" class="study-list-error">
     <div class="p-2">
       <p>
         No studies are available. To add studies, follow the steps outlines
@@ -51,6 +47,7 @@
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+// @ts-expect-error
 import { MessageBox } from "molgenis-viz";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
@@ -79,11 +76,11 @@ async function getStudies() {
 }
 
 getStudies().catch((err) => {
-if (!err.response.errors.length) {
-  error.value = err;
-} else {
-  error.value = err.response.errors[0].message;
-}
+  if (!err.response.errors.length) {
+    error.value = err;
+  } else {
+    error.value = err.response.errors[0].message;
+  }
 });
 </script>
 
