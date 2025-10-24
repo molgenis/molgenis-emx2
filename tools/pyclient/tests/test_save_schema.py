@@ -27,7 +27,7 @@ def test_schema_fail():
         client.signin(username, password)
         with pytest.raises(NoSuchSchemaException) as excinfo:
             client.save_schema(name="Pet store", table="Pet",
-                               file=str(RESOURCES_DIR / "insert" / "Pet.csv"))
+                               file=RESOURCES_DIR / "insert" / "Pet.csv")
         assert excinfo.value.msg == "Schema 'Pet store' not available."
 
 def test_table_fail():
@@ -38,7 +38,7 @@ def test_table_fail():
         # Test failing table name
         with pytest.raises(NoSuchTableException) as excinfo:
             client.save_schema(name="pet store", table="Pets",
-                               file=str(RESOURCES_DIR / "insert" / "Pet.csv"))
+                               file=RESOURCES_DIR / "insert" / "Pet.csv")
         assert excinfo.value.msg == "Table 'Pets' not found in schema 'pet store'."
 
 def test_missing_file():
@@ -60,7 +60,7 @@ def test_incorrect_file_name():
         # Test file upload incorrect name
         with pytest.raises(FileNotFoundError) as excinfo:
             client.save_schema(name="pet store", table="Pet",
-                               file=str(RESOURCES_DIR / "insert" / "Pat.csv"))
+                               file=RESOURCES_DIR / "insert" / "Pat.csv")
 
         assert excinfo.value.args[1] == "No such file or directory"
         assert str(excinfo.value.filename).endswith(str(RESOURCES_DIR / "insert" / "Pat.csv"))
@@ -75,9 +75,9 @@ def test_upload_file():
         tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
         client.save_schema(name="pet store", table="Tag",
-                           file=str(RESOURCES_DIR / "insert" / "Tag.csv"))
+                           file=RESOURCES_DIR / "insert" / "Tag.csv")
         client.save_schema(name="pet store", table="Pet",
-                           file=str(RESOURCES_DIR / "insert" / "Pet.csv"))
+                           file=RESOURCES_DIR / "insert" / "Pet.csv")
 
         # Number of records between
         pet_between = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
@@ -87,9 +87,9 @@ def test_upload_file():
         assert tag_between == tag_before + 2
 
         client.save_schema(name="pet store", table="Pet",
-                           file=str(RESOURCES_DIR / "delete" / "Pet.csv"))
+                           file=RESOURCES_DIR / "delete" / "Pet.csv")
         client.save_schema(name="pet store", table="Tag",
-                           file=str(RESOURCES_DIR / "delete" / "Tag.csv"))
+                           file=RESOURCES_DIR / "delete" / "Tag.csv")
 
         # Number of records after
         pet_after = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))

@@ -208,7 +208,7 @@ class Client:
         self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def save_schema(self, table: str, name: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
         :param name: name of a schema
@@ -365,7 +365,7 @@ class Client:
             raise PyclientException(msg)
         return msg
 
-    def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def delete_records(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
         :param table: the name of the table
@@ -960,7 +960,7 @@ class Client:
         return value
 
     @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
+    def _prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
