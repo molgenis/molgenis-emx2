@@ -1,4 +1,4 @@
-// Generated (on: 2025-04-23T20:59:57.584101) from Generator.java for schema: catalogue
+// Generated (on: 2025-10-13T15:09:32.484667) from Generator.java for schema: catalogue
 
 export interface IFile {
   id?: string;
@@ -22,6 +22,23 @@ export interface IOntologyNode extends ITreeNode {
   order?: number;
 }
 
+export interface IAccessRights {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: IAccessRights;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IAccessRights[];
+}
+
+export interface IAccessRights_agg {
+  count: number;
+}
+
 export interface IAgeGroups {
   order?: number;
   name: string;
@@ -39,14 +56,41 @@ export interface IAgeGroups_agg {
   count: number;
 }
 
-export interface IAgent {
+export interface IAgentTypes {
+  order?: number;
   name: string;
-  logo?: string;
-  url?: string;
-  mbox?: string;
+  label?: string;
+  tags?: string[];
+  parent?: IAgentTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IAgentTypes[];
 }
 
-export interface IAgent_agg {
+export interface IAgentTypes_agg {
+  count: number;
+}
+
+export interface IAgents {
+  resource: IResources;
+  id: string;
+  type: IOntologyNode;
+  name?: string;
+  organisation?: IOrganisations;
+  otherOrganisation?: string;
+  department?: string;
+  website?: string;
+  email?: string;
+  logo?: IFile;
+  role?: IOntologyNode[];
+  organisationName?: string;
+  organisationPid?: string;
+  organisationWebsite?: string;
+}
+
+export interface IAgents_agg {
   count: number;
 }
 
@@ -189,8 +233,10 @@ export interface ICohortStudyTypes_agg {
 export interface ICollectionEvents {
   resource: IResources;
   name: string;
+  pid?: string;
   description?: string;
   subpopulations?: ISubpopulations[];
+  keywords?: string[];
   startDate?: string;
   endDate?: string;
   ageGroups?: IOntologyNode[];
@@ -204,10 +250,11 @@ export interface ICollectionEvents {
   contactPoint?: IContacts;
   publisher?: IOrganisations;
   creator?: IOrganisations[];
-  license?: string;
   issued?: string;
   modified?: string;
   theme?: string[];
+  accessRights?: IOntologyNode;
+  applicableLegislation?: string[];
 }
 
 export interface ICollectionEvents_agg {
@@ -227,7 +274,6 @@ export interface IContacts {
   organisation?: IOrganisations;
   email?: string;
   orcid?: string;
-  orcidUrl?: string;
   homepage?: string;
   photo?: IFile;
   expertise?: string;
@@ -442,13 +488,13 @@ export interface IEndpoint {
   name: string[];
   version?: string;
   description?: string;
-  publisher: IAgent[];
+  publisher: IAgents[];
   language?: string[];
   license: string;
   conformsTo: string;
   rights?: string[];
   accessRights?: string[];
-  contact?: IAgent;
+  contact?: IContacts;
   keyword?: string[];
   theme?: string[];
   endPointDescription?: string[];
@@ -789,17 +835,36 @@ export interface IOrganisationRoles_agg {
   count: number;
 }
 
+export interface IOntologyOrganisations extends IOntologyNode {
+  name: string;
+  acronym?: string;
+  country?: IOntologyNode;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  website?: string;
+}
+
 export interface IOrganisations {
   resource: IResources;
   id: string;
-  pid?: string;
-  name: string;
-  acronym?: string;
-  logo?: IFile;
-  country?: IOntologyNode[];
+  type: IOntologyNode;
+  name?: string;
+  organisation?: IOntologyOrganisations;
+  otherOrganisation?: string;
+  department?: string;
   website?: string;
+  email?: string;
+  logo?: IFile;
   role?: IOntologyNode[];
-  isLeadOrganisation?: boolean;
+  organisationName?: string;
+  organisationPid?: string;
+  organisationWebsite?: string;
+  isLeadOrganisation: boolean;
+}
+
+export interface IOrganisations_agg {
+  count: number;
 }
 
 export interface IOrganisations_agg {
@@ -854,6 +919,14 @@ export interface IPopulationOfInterest {
 }
 
 export interface IPopulationOfInterest_agg {
+  count: number;
+}
+
+export interface IProfiles {
+  dataCatalogueFlat?: string;
+}
+
+export interface IProfiles_agg {
   count: number;
 }
 
@@ -971,7 +1044,7 @@ export interface IResourceTypes_agg {
 
 export interface IResources {
   rdfType?: string;
-  fdpEndpoint?: string;
+  fdpEndpoint?: IEndpoint;
   ldpMembershipRelation?: string;
   id: string;
   pid?: string;
@@ -996,7 +1069,6 @@ export interface IResources {
   contactEmail?: string;
   logo?: IFile;
   status?: IOntologyNode;
-  license?: string;
   conformsTo?: string;
   hasMemberRelation?: string;
   issued?: string;
@@ -1011,8 +1083,8 @@ export interface IResources {
   unitOfObservation?: string;
   subpopulations?: ISubpopulations[];
   collectionEvents?: ICollectionEvents[];
-  resources?: IResources[];
-  partOfResources?: IResources[];
+  dataResources?: IResources[];
+  partOfNetworks?: IResources[];
   numberOfParticipants?: number;
   numberOfParticipantsWithSamples?: number;
   underlyingPopulation?: string;
@@ -1020,7 +1092,11 @@ export interface IResources {
   populationOfInterestOther?: string;
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
+  minimumAge?: number;
+  maximumAge?: number;
   populationAgeGroups?: IOntologyNode[];
+  ageMin?: number;
+  ageMax?: number;
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   exclusionCriteria?: IOntologyNode[];
@@ -1035,12 +1111,13 @@ export interface IResources {
   populationCoverage?: string;
   populationNotCovered?: string;
   counts?: IResourceCounts[];
-  peopleInvolved?: IContacts[];
-  contactPoint?: IContacts;
   organisationsInvolved?: IOrganisations[];
   publisher?: IOrganisations;
   creator?: IOrganisations[];
-  networksInvolved?: IResources[];
+  peopleInvolved?: IContacts[];
+  contactPoint?: IContacts;
+  childNetworks?: IResources[];
+  parentNetworks?: IResources[];
   datasets?: IDatasets[];
   samplesets?: ISamplesets[];
   areasOfInformation?: IOntologyNode[];
@@ -1070,6 +1147,7 @@ export interface IResources {
   informedConsentType?: IOntologyNode;
   informedConsentRequired?: IOntologyNode;
   informedConsentOther?: string;
+  accessRights?: IOntologyNode;
   dataAccessConditions?: IOntologyNode[];
   dataUseConditions?: IOntologyNode[];
   dataAccessConditionsDescription?: string;
@@ -1122,6 +1200,8 @@ export interface IResources {
   acknowledgements?: string;
   documentation?: IDocumentation[];
   supplementaryInformation?: string;
+  theme?: string[];
+  applicableLegislation?: string[];
   collectionStartPlanned?: string;
   collectionStartActual?: string;
   analysisStartPlanned?: string;
@@ -1132,7 +1212,6 @@ export interface IResources {
   analysisPlan?: string;
   objectives?: string;
   results?: string;
-  theme?: string[];
 }
 
 export interface IResources_agg {
@@ -1260,58 +1339,6 @@ export interface IStudyStatus_agg {
   count: number;
 }
 
-export interface ISubmissionTypes {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ISubmissionTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ISubmissionTypes[];
-}
-
-export interface ISubmissionTypes_agg {
-  count: number;
-}
-
-export interface ISubmissions {
-  submissionDate: string;
-  submitterName: string;
-  resources: IResources[];
-  submitterEmail: string;
-  submitterOrganisation?: string;
-  submitterRole?: IOntologyNode;
-  submitterRoleOther?: string;
-  submissionType?: IOntologyNode;
-  submissionDescription?: string;
-  responsiblePersons?: string;
-  acceptanceDate?: string;
-}
-
-export interface ISubmissions_agg {
-  count: number;
-}
-
-export interface ISubmitterRoles {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ISubmitterRoles;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ISubmitterRoles[];
-}
-
-export interface ISubmitterRoles_agg {
-  count: number;
-}
-
 export interface ISubpopulationCounts {
   resource: IResources;
   subpopulation: ISubpopulations;
@@ -1328,12 +1355,16 @@ export interface ISubpopulationCounts_agg {
 export interface ISubpopulations {
   resource: IResources;
   name: string;
+  pid?: string;
   description?: string;
+  keywords?: string[];
   numberOfParticipants?: number;
   counts?: ISubpopulationCounts[];
   inclusionStart?: number;
   inclusionEnd?: number;
   ageGroups?: IOntologyNode[];
+  ageMin?: number;
+  ageMax?: number;
   mainMedicalCondition?: IOntologyNode[];
   comorbidity?: IOntologyNode[];
   countries?: IOntologyNode[];
@@ -1345,10 +1376,11 @@ export interface ISubpopulations {
   contactPoint?: IContacts;
   publisher?: IOrganisations;
   creator?: IOrganisations[];
-  license?: string;
   issued?: string;
   modified?: string;
   theme?: string[];
+  accessRights?: IOntologyNode;
+  applicableLegislation?: string[];
 }
 
 export interface ISubpopulations_agg {
