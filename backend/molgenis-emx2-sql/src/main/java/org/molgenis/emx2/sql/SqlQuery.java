@@ -284,31 +284,31 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
-    String tableAlias = "gql_" + table.getTableName();
+    // String tableAlias = "gql_" + table.getTableName();
     List<CommonTableExpression> cteList = new ArrayList<>();
-    if (select.getColumn().endsWith("_agg")) {
-      fields.add(
-          jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
-              .as(convertToPascalCase(select.getColumn())));
-    } else if (select.getColumn().endsWith("_groupBy")) {
-      fields.add(
-          jsonGroupBySelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
-              .as(convertToPascalCase(select.getColumn())));
-    } else {
-      // select all on root level as default
-      if (select.getSubselect().isEmpty()) {
-        for (Column c : table.getColumns()) {
-          if (!c.isHeading()) {
-            select.select(c.getName());
-          }
+    //    if (select.getColumn().endsWith("_agg")) {
+    //      fields.add(
+    //          jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
+    //              .as(convertToPascalCase(select.getColumn())));
+    //    } else if (select.getColumn().endsWith("_groupBy")) {
+    //      fields.add(
+    //          jsonGroupBySelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
+    //              .as(convertToPascalCase(select.getColumn())));
+    //    } else {
+    // select all on root level as default
+    if (select.getSubselect().isEmpty()) {
+      for (Column c : table.getColumns()) {
+        if (!c.isHeading()) {
+          select.select(c.getName());
         }
       }
-      cteList.addAll(
-          getCteListForQuery(table, null, tableAlias, select, getFilter(), getSearchTerms()));
-      fields.add(
-          field(DSL.select(field(name(DATA))).from(name(alias(tableAlias))))
-              .as(name(select.getColumn())));
     }
+    cteList.addAll(
+        getCteListForQuery(table, null, select.getColumn(), select, getFilter(), getSearchTerms()));
+    fields.add(
+        field(DSL.select(field(name(DATA))).from(name(alias(select.getColumn()))))
+            .as(name(select.getColumn())));
+    // }
 
     // asemble final query from the ctes
     SelectJoinStep<Record1<Object>> query =
@@ -441,50 +441,88 @@ public class SqlQuery extends QueryBean {
       SelectColumn select,
       Filter filters,
       String[] searchTerms) {
-    String tableAlias = parentColumn != null ? getCteAlias(select, parentAlias) : parentAlias;
-    String tableRootAlias = tableAlias + "-data";
     List<CommonTableExpression> cteList = new ArrayList<>();
 
-    // we produce a 'data' and a 'json' query
-    Set<Field> dataFields = new HashSet<>();
+    // json cte will do json object building
+    String jsonCteAlias = parentColumn != null ? getCteAlias(select, parentAlias) : parentAlias;
     Set<Field> jsonFields = new HashSet<>();
+
+    // data cte will do raw select and aggregation
+    // will also be used by 'child' fields to pre-filter records to minimize data
+    String dataCteAlias = jsonCteAlias + "-data";
+    Set<Field> dataFields = new HashSet<>();
     Set<Field> aggregateFields = new HashSet<>();
 
     for (SelectColumn selectedField : select.getSubselect()) {
       String fieldName = selectedField.getColumn();
       // aggregate fields
       if (COUNT_FIELD.equals(fieldName)) {
+        jsonFields.add(field(name(alias(jsonCteAlias + "-data"), fieldName)));
         aggregateFields.add(getCountField().as(COUNT_FIELD));
-        jsonFields.add(field(name(alias(tableAlias + "-data"), fieldName)));
+      } else if (EXISTS_FIELD.equals(selectedField.getColumn())) {
+        jsonFields.add(field(name(alias(jsonCteAlias + "-data"), fieldName)));
+        if (schema.hasActiveUserRole(EXISTS.toString())) {
+          aggregateFields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
+        } else {
+          throw new MolgenisException("EXIST not permitted for this user");
+        }
+      } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(fieldName)) {
+        jsonFields.add(field(name(alias(jsonCteAlias + "-data"), fieldName)));
+        checkHasViewPermission(table);
+        aggregateFields.add(
+            jsonObject(
+                    selectedField.getSubselect().stream()
+                        .map(
+                            sub -> {
+                              Column c = getColumnByName(table, sub.getColumn());
+                              return key(c.getIdentifier())
+                                  .value(
+                                      switch (fieldName) {
+                                        case MAX_FIELD ->
+                                            max(field(name(alias(dataCteAlias), c.getName())));
+                                        case MIN_FIELD ->
+                                            min(field(name(alias(dataCteAlias), c.getName())));
+                                        case AVG_FIELD ->
+                                            min(field(name(alias(dataCteAlias), c.getName())));
+                                        case SUM_FIELD ->
+                                            avg(
+                                                field(
+                                                    name(alias(dataCteAlias), c.getName()),
+                                                    c.getJooqType()));
+                                        default ->
+                                            throw new MolgenisException(
+                                                "Unknown aggregate type provided: " + fieldName);
+                                      });
+                            })
+                        .toArray(JSONEntry[]::new))
+                .as(name(fieldName)));
       }
+
       // select / group by fields
       else {
         Column subColumn = getColumnForGraphqlField(table, selectedField);
         if (subColumn.isReference()) {
-          // assumes refBack is natural joined as if ref_array
-          String refAlias = getCteAlias(selectedField, tableAlias);
+          String refAlias = getCteAlias(selectedField, jsonCteAlias);
           jsonFields.add(field(name(alias(refAlias), fieldName)));
+          // assumes refBack is natural joined as if ref_array
           subColumn
               .getReferences()
               .forEach(
                   ref -> {
-                    dataFields.add(field(name(tableRootAlias, ref.getName())));
+                    dataFields.add(field(name(dataCteAlias, ref.getName())));
                   });
         } else if (subColumn.isFile()) {
-          dataFields.add(jsonFileField(table, tableAlias, selectedField, subColumn));
-          jsonFields.add(field(name(name(alias(tableAlias + "-data"), fieldName))));
+          jsonFields.add(field(name(alias(jsonCteAlias + "-data"), fieldName)));
+          dataFields.add(jsonFileField(table, jsonCteAlias, selectedField, subColumn));
         } else {
-          dataFields.add(field(name(alias(tableRootAlias), fieldName)));
-          jsonFields.add(field(name(alias(tableAlias + "-data"), fieldName)));
+          jsonFields.add(field(name(alias(jsonCteAlias + "-data"), fieldName)));
+          dataFields.add(field(name(alias(dataCteAlias), fieldName)));
         }
       }
     }
 
-    // todo deal with agg/groupBy
     List<Condition> conditions =
-        getFilterConditions(table, parentColumn, tableRootAlias, filters, searchTerms);
-
-    // add the 'data' query to cte
+        getFilterConditions(table, parentColumn, dataCteAlias, filters, searchTerms);
 
     // check if we have aggregatefields
     Set<Field> groupByFields = new HashSet<>();
@@ -498,22 +536,22 @@ public class SqlQuery extends QueryBean {
     // default query
     SelectConditionStep<Record> query =
         DSL.select(dataSelection)
-            .from(tableWithInheritanceJoin(table).as(name(alias(tableRootAlias))))
+            .from(tableWithInheritanceJoin(table).as(name(alias(dataCteAlias))))
             .where(conditions);
 
     if (parentColumn != null) {
 
       // we will join with parent
       Condition joinCondition =
-          refJoinCondition(parentColumn, parentAlias + "-data", tableAlias + "-data");
+          refJoinCondition(parentColumn, parentAlias + "-data", jsonCteAlias + "-data");
 
-      // we join on pkey fields later so include those too
+      // we join on fkey fields later so include those too
       dataSelection.addAll(
-          parentColumn.getTable().getPrimaryKeyFields().stream()
+          parentColumn.getReferences().stream()
               .map(
-                  field ->
-                      field(name(alias(parentAlias + "-data"), field.getName()))
-                          .as(name("_parent_" + field.getName())))
+                  ref ->
+                      field(name(alias(parentAlias + "-data"), ref.getName()))
+                          .as(name("_parent_" + ref.getName())))
               .toList());
 
       // group on parent
@@ -528,33 +566,34 @@ public class SqlQuery extends QueryBean {
       query =
           DSL.select(dataSelection)
               .from(name(alias(parentAlias + "-data")))
-              .innerJoin(tableWithInheritanceJoin(table).as(name(alias(tableRootAlias))))
+              .innerJoin(tableWithInheritanceJoin(table).as(name(alias(dataCteAlias))))
               .on(joinCondition)
               .where(conditions);
     }
     if (!groupByFields.isEmpty()) {
-      cteList.add(name(alias(tableRootAlias)).as(query.groupBy(groupByFields)));
+      cteList.add(name(alias(dataCteAlias)).as(query.groupBy(groupByFields)));
     } else {
-      cteList.add(name(alias(tableRootAlias)).as(query));
+      cteList.add(name(alias(dataCteAlias)).as(query));
     }
 
     // define the json select on top of that data query, might have nested cte
-    SelectJoinStep jsonSelect = DSL.select(jsonFields).from((name(alias(tableRootAlias))));
+    SelectJoinStep jsonSelect = DSL.select(jsonFields).from((name(alias(dataCteAlias))));
 
     for (SelectColumn subSelect : select.getSubselect()) {
       String fieldName = subSelect.getColumn();
-      if (COUNT_FIELD.equals(fieldName)) {
+      if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD, COUNT_FIELD, EXISTS_FIELD)
+          .contains(fieldName)) {
         // aggregates ignored
       } else {
         Column subColumn = getColumnForGraphqlField(table, subSelect);
         if (subColumn.isReference()) {
           // left joins for the nested cte
-          String subAlias = getCteAlias(subSelect, tableAlias);
+          String subAlias = getCteAlias(subSelect, jsonCteAlias);
           Condition[] joinCondition =
               table.getPrimaryKeyFields().stream()
                   .map(
                       field ->
-                          field(name(alias(tableRootAlias), field.getName()))
+                          field(name(alias(dataCteAlias), field.getName()))
                               .eq(field(name(alias(subAlias), field.getName()))))
                   .toArray(Condition[]::new);
           jsonSelect = jsonSelect.leftJoin(name(alias(subAlias))).on(joinCondition);
@@ -565,7 +604,7 @@ public class SqlQuery extends QueryBean {
               getCteListForQuery(
                   (SqlTableMetadata) subTable,
                   subColumn,
-                  tableAlias,
+                  jsonCteAlias,
                   subSelect,
                   subFilter,
                   new String[0]));
@@ -584,31 +623,43 @@ public class SqlQuery extends QueryBean {
       selection.addAll(pkeyFields);
       List<Param<String>> jsonFilter =
           parentColumn.getTable().getPrimaryKeyFields().stream()
-              .map(field -> DSL.val("_parent_" + field.getName()))
+              .map(field -> DSL.inline("_parent_" + field.getName()))
               .toList();
       if (parentColumn.isRefback() || parentColumn.isRefArray()) {
         selection.add(
-            field("json_agg(to_jsonb(sub) - {0} )", list(jsonFilter)).as(select.getColumn()));
+            field("json_agg(to_jsonb(sub) - ARRAY[{0}] )", list(jsonFilter))
+                .as(select.getColumn()));
         jsonGroupByFields.addAll(
             parentColumn.getTable().getPrimaryKeyFields().stream()
                 .map(field -> field(name("sub", "_parent_" + field.getName())))
                 .toList());
+      } else if (aggregateFields.isEmpty()) {
+        selection.add(field("to_jsonb(sub) - ARRAY[{0}]", list(jsonFilter)).as(select.getColumn()));
       } else {
-        selection.add(field("to_jsonb(sub) - {0}", list(jsonFilter)).as(select.getColumn()));
+        selection.add(
+            field("json_agg(to_jsonb(sub) - ARRAY[{0}])", list(jsonFilter)).as(select.getColumn()));
       }
       SelectJoinStep result =
-          DSL.select(selection).from(table(name(alias(tableAlias + "-data"))).as("sub"));
+          DSL.select(selection).from(table(name(alias(jsonCteAlias + "-data"))).as("sub"));
       if (!jsonGroupByFields.isEmpty()) {
         result.groupBy(jsonGroupByFields);
       }
-      cteList.add(name(tableAlias).as(result));
+      cteList.add(name(jsonCteAlias).as(result));
     } else {
       // when 'root' field create cte that selects rows into one json matching the selected field
-      cteList.add(
-          name(tableAlias)
-              .as(
-                  DSL.select(field("jsonb_strip_nulls(jsonb_agg(to_jsonb(item)))").as(DATA))
-                      .from(jsonSelect.asTable(ITEM))));
+      if (jsonCteAlias.endsWith("_agg")) {
+        cteList.add(
+            name(jsonCteAlias)
+                .as(
+                    DSL.select(field("jsonb_strip_nulls(to_jsonb(item))").as(DATA))
+                        .from(jsonSelect.asTable(ITEM))));
+      } else {
+        cteList.add(
+            name(jsonCteAlias)
+                .as(
+                    DSL.select(field("jsonb_strip_nulls(jsonb_agg(to_jsonb(item)))").as(DATA))
+                        .from(jsonSelect.asTable(ITEM))));
+      }
     }
 
     return cteList;
@@ -893,6 +944,7 @@ public class SqlQuery extends QueryBean {
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
           switch (field.getColumn()) {
+              // todo, in theory you can have multiple, e.g. _max{length,height}.
             case MAX_FIELD ->
                 result.add(
                     key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
