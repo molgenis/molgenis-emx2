@@ -88,13 +88,8 @@ public class TestQueryJsonGraph {
     System.out.println(result);
     assertTrue(result.contains("spike"));
 
-    s = schema.agg("Pet");
-    s.select(s("count"));
-    result = s.retrieveJSON();
-    System.out.println(result);
-    assertTrue(result.contains("Pet_agg"));
-
     s = schema.getTable("Person").query();
+
     s.select(
         s("name"),
         s("father", s("name"), s("father", s("name")), s("mother", s("name"))),

@@ -615,6 +615,21 @@ public class SqlQuery extends QueryBean {
       cteList.add(name(alias(dataCteAlias)).as(dataCte));
     }
 
+    // copy link to parent
+    if (parentColumn != null) {
+      if (parentAlias.endsWith("_groupBy")) {
+        jsonFields.addAll(
+            parentColumn.getReferences().stream()
+                .map(ref -> field(name(dataCteAlias, "_parent_" + ref.getName())))
+                .toList());
+      } else {
+        jsonFields.addAll(
+            parentColumn.getTable().getPrimaryKeyFields().stream()
+                .map(pkey -> field(name(dataCteAlias, "_parent_" + pkey.getName())))
+                .toList());
+      }
+    }
+
     // define the json select on top of that data query, might have nested cte
     SelectJoinStep jsonSelect = DSL.select(jsonFields).from((name(alias(dataCteAlias))));
 
@@ -714,8 +729,7 @@ public class SqlQuery extends QueryBean {
         jsonSelection.add(
             field("json_agg(to_jsonb(sub) - ARRAY[{0}])", list(jsonFilter)).as(select.getColumn()));
       }
-      SelectJoinStep jsonCte =
-          DSL.select(jsonSelection).from(table(name(alias(jsonCteAlias + "-data"))).as("sub"));
+      SelectJoinStep jsonCte = DSL.select(jsonSelection).from(jsonSelect.asTable("sub"));
       if (!jsonGroupByFields.isEmpty()) {
         jsonCte.groupBy(jsonGroupByFields);
       }
