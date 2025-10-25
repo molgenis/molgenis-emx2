@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.*;
@@ -443,6 +444,13 @@ public class SqlQuery extends QueryBean {
       String[] searchTerms) {
     List<CommonTableExpression> cteList = new ArrayList<>();
 
+    // validation for groupBy
+    if (select.getColumn().endsWith("_groupBy")) {
+      if (select.getSubselect(COUNT_FIELD) == null && select.getSubselect(SUM_FIELD) == null) {
+        throw new MolgenisException("COUNt or SUM is required when using group by");
+      }
+    }
+
     // json cte will do json object building
     String jsonCteAlias = parentColumn != null ? getCteAlias(select, parentAlias) : parentAlias;
     Set<Field> jsonFields = new HashSet<>();
@@ -458,6 +466,7 @@ public class SqlQuery extends QueryBean {
 
     for (SelectColumn selectedField : select.getSubselect()) {
       String fieldName = selectedField.getColumn();
+
       // aggregate fields
       if (COUNT_FIELD.equals(fieldName)) {
         jsonFields.add(field(name(alias(jsonCteAlias + "-data"), fieldName)));
@@ -481,14 +490,19 @@ public class SqlQuery extends QueryBean {
                               return key(c.getIdentifier())
                                   .value(
                                       switch (fieldName) {
+                                          // todo do we need check permission for this or truncate?
                                         case MAX_FIELD ->
                                             max(field(name(alias(dataCteAlias), c.getName())));
                                         case MIN_FIELD ->
                                             min(field(name(alias(dataCteAlias), c.getName())));
+                                          // todo do we need check permission for this?
                                         case AVG_FIELD ->
-                                            min(field(name(alias(dataCteAlias), c.getName())));
-                                        case SUM_FIELD ->
                                             avg(
+                                                field(
+                                                    name(alias(dataCteAlias), c.getName()),
+                                                    c.getJooqType()));
+                                        case SUM_FIELD ->
+                                            sum(
                                                 field(
                                                     name(alias(dataCteAlias), c.getName()),
                                                     c.getJooqType()));
@@ -515,18 +529,30 @@ public class SqlQuery extends QueryBean {
                   subColumn.getReferences().stream()
                       .map(ref -> field(name(ref.getName())))
                       .toList();
-              unnestedRefArrayJoins.add(unnest(unnestFields).as(table(unnestFields).as(fieldName)));
+              unnestedRefArrayJoins.add(
+                  unnest(unnestFields.toArray(Field[]::new))
+                      .as(
+                          fieldName,
+                          unnestFields.stream().map(Field::getName).toArray(String[]::new)));
+              subColumn
+                  .getReferences()
+                  .forEach(
+                      ref -> {
+                        dataFields.add(
+                            coalesce(field(name(ref.getName(), ref.getName())), inline("__NULL__"))
+                                .as(name(fieldName)));
+                      });
             } else if (jsonCteAlias.endsWith("_groupBy") && subColumn.isRefback()) {
               throw new MolgenisException(
                   "refback not yet implemented, requires a join against source");
+            } else {
+              subColumn
+                  .getReferences()
+                  .forEach(
+                      ref -> {
+                        dataFields.add(field(name(dataCteAlias, ref.getName())));
+                      });
             }
-            // select from the unnested join table
-            subColumn
-                .getReferences()
-                .forEach(
-                    ref -> {
-                      dataFields.add(field(name(ref.getName())));
-                    });
           } else {
             subColumn
                 .getReferences()
@@ -548,19 +574,26 @@ public class SqlQuery extends QueryBean {
     List<Condition> conditions =
         getFilterConditions(table, parentColumn, dataCteAlias, filters, searchTerms);
 
-    // check if we have aggregatefields
-    Set<Field> groupByFields = new HashSet<>();
+    // check if we have aggregate fields
+    Set<Field> dataGroupByFields = new HashSet<>();
     if (!aggregateFields.isEmpty()) {
-      groupByFields.addAll(dataFields);
+      // need to make sure we have fully qualified names
+      // the unnested refs need qualified names
+      dataGroupByFields.addAll(
+          dataFields.stream()
+              .map(
+                  field ->
+                      field(
+                          name(
+                              field.getQualifiedName().first() != null
+                                  ? field.getQualifiedName().first()
+                                  : field.getQualifiedName().last(),
+                              field.getQualifiedName().last())))
+              .toList());
     }
     Set<Field> dataSelection = new HashSet<>();
     dataSelection.addAll(dataFields);
     dataSelection.addAll(aggregateFields);
-
-    // validate if groupBy indeed had groupBy fields
-    if (jsonCteAlias.endsWith("_groupBy") && aggregateFields.isEmpty()) {
-      throw new MolgenisException("_groupBy requires at least one aggregate field such as 'count'");
-    }
 
     // default query
     SelectJoinStep<Record> dataCte =
@@ -569,7 +602,7 @@ public class SqlQuery extends QueryBean {
 
     // join with the unnested ref_array
     for (TableLike unnestedRefArray : unnestedRefArrayJoins) {
-      dataCte = dataCte.crossJoin(unnestedRefArray);
+      dataCte = dataCte.leftJoin(lateral(unnestedRefArray)).on();
     }
     if (!conditions.isEmpty()) {
       dataCte = (SelectJoinStep<Record>) dataCte.where(conditions);
@@ -577,8 +610,19 @@ public class SqlQuery extends QueryBean {
     if (parentColumn != null) {
 
       // we will join with parent
-      Condition joinCondition =
-          refJoinCondition(parentColumn, parentAlias + "-data", jsonCteAlias + "-data");
+      Condition joinCondition = null;
+      if (parentAlias.endsWith("_groupBy")) {
+        // previous joins makes this simple ref
+        joinCondition =
+            refJoinCondition(
+                // copy to simple ref
+                new Column(parentColumn.getTable(), parentColumn).setType(REF),
+                parentAlias + "-data",
+                jsonCteAlias + "-data");
+      } else {
+        joinCondition =
+            refJoinCondition(parentColumn, parentAlias + "-data", jsonCteAlias + "-data");
+      }
 
       if (parentAlias.endsWith("_groupBy")) {
         // in case of groupBy select we join parent to child using ref fields
@@ -601,7 +645,7 @@ public class SqlQuery extends QueryBean {
 
         // group on parent fields
         if (!aggregateFields.isEmpty()) {
-          groupByFields.addAll(
+          dataGroupByFields.addAll(
               parentColumn.getRefTable().getPrimaryKeyColumns().stream()
                   .map(pkey -> field(name(alias(parentAlias + "-data"), pkey.getName())))
                   .toList());
@@ -617,8 +661,12 @@ public class SqlQuery extends QueryBean {
                   .on(joinCondition)
                   .where(conditions);
     }
-    if (!groupByFields.isEmpty()) {
-      cteList.add(name(alias(dataCteAlias)).as(dataCte.groupBy(groupByFields)));
+    if (!dataGroupByFields.isEmpty()) {
+      // sort by groupBy fields to make deterministic
+      final List<OrderField<?>> orderByFields = new ArrayList<>();
+      dataGroupByFields.forEach(field -> orderByFields.add(field.asc().nullsLast()));
+      cteList.add(
+          name(alias(dataCteAlias)).as(dataCte.groupBy(dataGroupByFields).orderBy(orderByFields)));
     } else {
       cteList.add(name(alias(dataCteAlias)).as(dataCte));
     }
@@ -699,14 +747,22 @@ public class SqlQuery extends QueryBean {
       }
       jsonSelection.addAll(pkeyFields);
 
-      if (parentColumn.isRefback() || parentColumn.isRefArray()) {
+      if (!parentAlias.endsWith("_groupBy")
+          && (parentColumn.isRefback() || parentColumn.isRefArray())) {
         jsonSelection.add(
             field("json_agg(to_jsonb(sub) - ARRAY[{0}] )", list(jsonFilter))
                 .as(select.getColumn()));
-        jsonGroupByFields.addAll(
-            parentColumn.getTable().getPrimaryKeyFields().stream()
-                .map(field -> field(name("sub", "_parent_" + field.getName())))
-                .toList());
+        if (parentAlias.endsWith("_groupBy")) {
+          jsonGroupByFields.addAll(
+              parentColumn.getReferences().stream()
+                  .map(ref -> field(name("sub", "_parent_" + ref.getName())))
+                  .toList());
+        } else {
+          jsonGroupByFields.addAll(
+              parentColumn.getTable().getPrimaryKeyFields().stream()
+                  .map(field -> field(name("sub", "_parent_" + field.getName())))
+                  .toList());
+        }
       } else if (aggregateFields.isEmpty()) {
         jsonSelection.add(
             field("to_jsonb(sub) - ARRAY[{0}]", list(jsonFilter)).as(select.getColumn()));
@@ -997,6 +1053,7 @@ public class SqlQuery extends QueryBean {
         .as(column.getIdentifier());
   }
 
+  @Deprecated
   private Field<?> jsonAggregateSelect(
       SqlTableMetadata table,
       Column column,
@@ -1056,6 +1113,7 @@ public class SqlQuery extends QueryBean {
     throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }
 
+  @Deprecated
   private Field<Object> jsonGroupBySelect(
       SqlTableMetadata table,
       Column column,
@@ -1118,7 +1176,7 @@ public class SqlQuery extends QueryBean {
         // in case of 'ref' we need a subselect
         if (col.isReference()) {
           Column copy = new Column(col.getTable(), col);
-          copy.setType(ColumnType.REF); // ref_array should be treated as ref
+          copy.setType(REF); // ref_array should be treated as ref
           groupByFields.add(
               jsonSubselect(
                       (SqlTableMetadata) copy.getRefTable(),
