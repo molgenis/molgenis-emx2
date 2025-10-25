@@ -78,9 +78,10 @@ class Transform:
 
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
-        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE']:
+        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE', 'NetworksStaging']:
             self.collection_events()
             self.subpopulations()
+        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE']:
             self.subpopulation_counts()
         if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
@@ -93,7 +94,7 @@ class Transform:
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
         # TODO: change dependent on server
-        df_agents['resource'] = 'UMCG'
+        df_agents['resource'] = 'HDSU'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -136,18 +137,22 @@ class Transform:
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
         # for catalogue and network schemas split resources ref_array in data resources and child networks
-        if self.profile in ['DataCatalogueFlat', 'NetworksStaging']:
+        if self.profile == 'DataCatalogueFlat':
             dict_types = dict(zip(df_resources.id, df_resources.type))
             df_resources['data resources'] = df_resources['resources'].apply(get_data_resources, dict_types=dict_types)
             df_resources['child networks'] = df_resources['resources'].apply(get_child_networks, dict_types=dict_types)
+        if self.profile == 'NetworksStaging':
+            df_resources['data resources'] = df_resources['resources']
 
         # for demo data only
         if self.schema_name == 'testCatalogue':
-            df_resources['issued'] = ''
-            df_resources['modified'] = ''
             df_resources['keywords'] = df_resources['keywords'].apply(add_keywords)
             df_resources['pid'] = 'https://placeholder-pid/' + df_resources['id'].str.lower() + '.org'
             df_resources['pid'] = df_resources['pid'].str.replace(' ', '')
+
+        # reset issued and modified
+        df_resources['issued'] = ''
+        df_resources['modified'] = ''
 
         # get publisher and creator from Organisations table
         df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
@@ -216,7 +221,7 @@ class Transform:
         df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
 
         df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
-        df_endpoint['publisher.resource'] = 'UMCG'  # TODO: change dependent on server
+        df_endpoint['publisher.resource'] = 'HDSU'  # TODO: change dependent on server
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
