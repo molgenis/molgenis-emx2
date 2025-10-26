@@ -483,6 +483,15 @@ public class SqlQuery extends QueryBean {
                         unnestFields.stream()
                             .map(field -> "_parent_" + field.getName())
                             .toArray(String[]::new)));
+          } else if (subColumn.isRefback()) {
+            // refback will use primary key
+            refJoinFields.addAll(
+                table.getPrimaryKeyFields().stream()
+                    .map(
+                        ref ->
+                            field(name(alias(tableAlias), ref.getName()))
+                                .as("_parent_" + ref.getName()))
+                    .toList());
           } else {
             // ref can simply use the field
             refJoinFields.addAll(
@@ -529,7 +538,10 @@ public class SqlQuery extends QueryBean {
                     .flatMap(Set::stream)
                     .collect(Collectors.toSet()))
             .from(tableWithInheritanceJoin(table).as(name(alias(tableAlias))));
-    List<Condition> conditions = new ArrayList<>();
+
+    // filtering
+    // todo remove parent filtering from this
+    List<Condition> conditions = getFilterConditions(table, null, tableAlias, filters, searchTerms);
     if (parentColumn != null) {
       // in case of groupBy the parentColumn will have been unnested, so we fix it
       Column joinColumn =
@@ -1307,7 +1319,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Condition refJoinCondition(Column column, String tableAlias, String subAlias) {
-    return refJoinCondition(column, tableAlias, subAlias, "null");
+    return refJoinCondition(column, tableAlias, subAlias, "");
   }
 
   private Condition refJoinCondition(
