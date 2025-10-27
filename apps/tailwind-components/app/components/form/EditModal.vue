@@ -7,8 +7,9 @@
         size="small"
         icon="plus"
         @click="visible = true"
-        >{{ isInsert ? "Add" : "Edit" }} {{ rowType }}</Button
       >
+        {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
+      </Button>
     </slot>
   </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
@@ -116,9 +117,9 @@
           <div class="flex gap-4">
             <Button type="secondary" @click="onCancel">Cancel</Button>
             <Button type="outline" @click="onSave(true)">Save as draft</Button>
-            <Button type="primary" @click="onSave(false)"
-              >Save {{ rowType }}</Button
-            >
+            <Button type="primary" @click="onSave(false)">
+              Save {{ rowType }}
+            </Button>
           </div>
         </menu>
       </div>
@@ -128,26 +129,27 @@
 
 <script setup lang="ts">
 import { computed, ref, toRaw, watch } from "vue";
+import { getInitialFormValues } from "../../utils/typeUtils";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import useForm from "../../composables/useForm";
-import { errorToMessage } from "../../utils/errorToMessage";
-import FormFields from "./Fields.vue";
-import { SessionExpiredError } from "../../utils/sessionExpiredError";
-import { useSession } from "../../composables/useSession";
-import PreviousSectionNav from "./PreviousSectionNav.vue";
-import NextSectionNav from "./NextSectionNav.vue";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import useForm from "../../composables/useForm";
+import { useSession } from "../../composables/useSession";
+import { errorToMessage } from "../../utils/errorToMessage";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import Modal from "../Modal.vue";
-import BaseIcon from "../BaseIcon.vue";
-import FormLegend from "./Legend.vue";
 import FormError from "./Error.vue";
+import FormFields from "./Fields.vue";
+import FormLegend from "./Legend.vue";
 import FormMessage from "./Message.vue";
+import NextSectionNav from "./NextSectionNav.vue";
+import PreviousSectionNav from "./PreviousSectionNav.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 
@@ -175,7 +177,10 @@ const visible = defineModel("visible", {
 });
 const rowKey = ref<Record<string, columnValue>>();
 const isInsert = ref(true);
-const editFormValues = ref<Record<string, columnValue>>({});
+const editFormValues = ref<Record<string, columnValue>>(
+  getInitialFormValues(props.metadata)
+);
+
 watch(
   () => props.formValues,
   () => {
@@ -241,10 +246,8 @@ async function onSave(draft: boolean) {
     }
     let resp;
     if (isInsert.value) {
-      console.log("insert");
       await insertInto();
     } else {
-      console.log("update");
       await updateInto();
     }
     if (!resp) {

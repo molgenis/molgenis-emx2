@@ -17,8 +17,8 @@
         @update:added="afterRowAdded"
       >
         <Button type="primary" icon="add-circle" @click="setVisible"
-          >Add {{ tableId }}</Button
-        >
+          >Add {{ tableId }}
+        </Button>
       </EditModal>
 
       <TableControlColumns
