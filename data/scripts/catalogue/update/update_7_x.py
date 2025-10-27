@@ -2,12 +2,7 @@ import shutil
 import os
 from pathlib import Path
 import pandas as pd
-from string import digits
-import re
-import numpy as np
 from decouple import config
-from molgenis_emx2_pyclient import Client
-import numpy as np
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
