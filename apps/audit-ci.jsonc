@@ -13,8 +13,8 @@
     // "GHSA-xxxx-xxxx-xxxx"
     "GHSA-37j7-fg3j-429f",
     "GHSA-96g7-g7g9-jxw8",
-    "GHSA-phwq-j96m-2c2q",
-    "GHSA-qpm2-6cq5-7pq5"
+    "GHSA-phwq-j96m-2c2q"
+//    "GHSA-qpm2-6cq5-7pq5"  test that the ci fails
   ],
 
   // Whether to run `npm audit` (default) or `yarn audit`
