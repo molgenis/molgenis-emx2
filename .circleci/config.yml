@@ -427,8 +427,10 @@ jobs:
           kubectl delete namespace preview-emx2-pr-${GHA_PREVIEW_NR} || true
 
   clear-dev-db-every-3-weeks:
+    <<: *build_config
+
     steps:
-      - checkout
+      - pre_steps
 
       # Check if we should run this week
       - run:
@@ -503,7 +505,7 @@ workflows:
     jobs:
     - delete-helm-preview
 
-  clear-dev-db-every-3-weeks:
+  clear-dev-db:
     triggers:
       - schedule:
           cron: "0 7 * * 1" # every Monday 07:00 UTC as cron can not do every 3 weeks
