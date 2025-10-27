@@ -266,6 +266,8 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public String retrieveJSON() {
+    long start = System.currentTimeMillis();
+
     SelectColumn select = getSelect();
     List<Field<?>> fields = new ArrayList<>();
     DSLContext sql = schema.getJooq();
@@ -300,36 +302,28 @@ public class SqlQuery extends QueryBean {
                 getQueryForField(
                         table, null, select.getColumn(), select, getFilter(), getSearchTerms())
                     .asTable(ITEM));
-    //      List<CommonTableExpression> cteList = new ArrayList<>();
-    //      if (select.getSubselect().isEmpty()) {
-    //        for (Column c : table.getColumns()) {
-    //          if (!c.isHeading()) {
-    //            select.select(c.getName());
-    //          }
-    //        }
-    //      }
-    //      cteList.addAll(
-    //          getCteListForQuery(
-    //              table, null, select.getColumn(), select, getFilter(), getSearchTerms()));
-    //      fields.add(
-    //          field(DSL.select(field(name(DATA))).from(name(alias(select.getColumn()))))
-    //              .as(name(convertToPascalCase(select.getColumn()))));
-    //      // asemble final query from the ctes
-    //      query =
-    //          sql.with(cteList.toArray(CommonTableExpression[]::new))
-    //              .select(field(ROW_TO_JSON_SQL))
-    //              .from(table(sql.select(fields)).as(ITEM));
+    if (logger.isInfoEnabled()) {
+      //      logger.info(
+      //          "query in {}ms: {}", System.currentTimeMillis() - start,
+      // query.getSQL(ParamType.INLINED));
+      logger.info("query created in {}ms", System.currentTimeMillis() - start, select.getColumn());
+    }
 
-    long start = System.currentTimeMillis();
+    start = System.currentTimeMillis();
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
+      //      logger.info(
+      //          "query in {}ms: {}", System.currentTimeMillis() - start,
+      // query.getSQL(ParamType.INLINED));
       logger.info(
-          "query in {}ms: {}", System.currentTimeMillis() - start, query.getSQL(ParamType.INLINED));
+          "query executed in {}ms. Snippet: {}",
+          System.currentTimeMillis() - start,
+          select.getColumn());
     }
     return result;
   }
 
-  private static @NotNull String getCteAlias(SelectColumn select, String tableAlias) {
+  private static @NotNull String getRefTableAlias(SelectColumn select, String tableAlias) {
     return tableAlias + (select != null ? "-" + select.getColumn() : "");
   }
 
@@ -406,7 +400,7 @@ public class SqlQuery extends QueryBean {
       }
     }
 
-    String tableAlias = parentColumn != null ? getCteAlias(select, parentAlias) : parentAlias;
+    String tableAlias = parentColumn != null ? getRefTableAlias(select, parentAlias) : parentAlias;
 
     // keep track of data fields, aggregate fields and join fields
     Set<Field> dataFields = new LinkedHashSet<>();
@@ -458,60 +452,68 @@ public class SqlQuery extends QueryBean {
       } else {
         Column subColumn = getColumnForGraphqlField(table, selectedField);
         if (subColumn.isReference()) {
-          String refAlias = getCteAlias(selectedField, tableAlias);
-          // links
-          if (tableAlias.endsWith("_groupBy") && subColumn.isRefArray()) {
-            // in case of group by we must unnest the ref_array first (cross join with result,
-            // below)
-            List<Field<Object>> unnestFields =
-                subColumn.getReferences().stream()
-                    .map(ref -> field(name(ref.getName(), ref.getName())))
-                    .toList();
-            refJoinFields.addAll(
-                unnestFields.stream()
-                    .map(field -> field(name(fieldName, "_parent_" + field.getName())))
-                    .toList());
-            unnestedRefArrayJoins.add(
-                // unnest from tableAlias
-                unnest(
-                        unnestFields.stream()
-                            .map(field -> field(name(alias(tableAlias), field.getName())))
-                            .toList())
-                    // into fieldName(col1,col2)
-                    .as(
-                        fieldName,
-                        unnestFields.stream()
-                            .map(field -> "_parent_" + field.getName())
-                            .toArray(String[]::new)));
-          } else if (subColumn.isRefback()) {
+          String refAlias = getRefTableAlias(selectedField, tableAlias);
+          if (tableAlias.endsWith("_groupBy")
+              && (subColumn.isRefArray() || subColumn.isRefback())) {
+            if (subColumn.isRefArray()) {
+              // in case of group by we must unnest the ref_array and join against that
+              List<Field<Object>> unnestFields =
+                  subColumn.getReferences().stream()
+                      .map(ref -> field(name(ref.getName(), ref.getName())))
+                      .toList();
+              refJoinFields.addAll(
+                  unnestFields.stream()
+                      .map(field -> field(name(fieldName, "_parent_" + field.getName())))
+                      .toList());
+              unnestedRefArrayJoins.add(
+                  // unnest from tableAlias
+                  unnest(
+                          unnestFields.stream()
+                              .map(field -> field(name(alias(tableAlias), field.getName())))
+                              .toList())
+                      // into fieldName(col1,col2)
+                      .as(
+                          fieldName,
+                          unnestFields.stream()
+                              .map(field -> "_parent_" + field.getName())
+                              .toArray(String[]::new)));
+            } else {
+              // refback will cross join against primary key
+              refJoinFields.addAll(
+                  table.getPrimaryKeyFields().stream()
+                      .map(
+                          ref ->
+                              field(name(alias(tableAlias), ref.getName()))
+                                  .as("_parent_" + ref.getName()))
+                      .toList());
+            }
+            refSubSelects.put(
+                refAlias,
+                getQueryForField(
+                    (SqlTableMetadata) subColumn.getRefTable(),
+                    subColumn,
+                    tableAlias,
+                    selectedField,
+                    selectedField.getFilter(),
+                    new String[0]));
+          } else if (tableAlias.endsWith("_groupBy") && subColumn.isRefback()) {
             // refback will use primary key
             refJoinFields.addAll(
                 table.getPrimaryKeyFields().stream()
-                    .map(
-                        ref ->
-                            field(name(alias(tableAlias), ref.getName()))
-                                .as("_parent_" + ref.getName()))
+                    .map(ref -> field(name(alias(tableAlias), ref.getName())).as(ref.getName()))
                     .toList());
           } else {
-            // ref can simply use the field
-            refJoinFields.addAll(
-                subColumn.getReferences().stream()
-                    .map(
-                        ref ->
-                            field(name(alias(tableAlias), ref.getName()))
-                                .as("_parent_" + ref.getName()))
-                    .toList());
+            dataFields.add(
+                getQueryForField(
+                        (SqlTableMetadata) subColumn.getRefTable(),
+                        subColumn,
+                        tableAlias,
+                        selectedField,
+                        selectedField.getFilter(),
+                        new String[0])
+                    .asField(fieldName));
           }
-          // build the necessary subselect
-          refSubSelects.put(
-              refAlias,
-              getQueryForField(
-                  (SqlTableMetadata) subColumn.getRefTable(),
-                  subColumn,
-                  tableAlias,
-                  selectedField,
-                  selectedField.getFilter(),
-                  new String[0]));
+
         } else if (subColumn.getColumnType().getBaseType().equals(ColumnType.PERIOD)) {
           dataFields.add(intervalField(tableAlias, subColumn));
         } else if (subColumn.isFile()) {
@@ -538,17 +540,20 @@ public class SqlQuery extends QueryBean {
                     .flatMap(Set::stream)
                     .collect(Collectors.toSet()))
             .from(tableWithInheritanceJoin(table).as(name(alias(tableAlias))));
+    primaryTableSelect = limitOffsetOrderBy(table, select, primaryTableSelect, tableAlias);
 
     // filtering
     // todo remove parent filtering from this
     List<Condition> conditions = getFilterConditions(table, null, tableAlias, filters, searchTerms);
     if (parentColumn != null) {
       // in case of groupBy the parentColumn will have been unnested, so we fix it
-      Column joinColumn =
-          parentAlias.endsWith("_groupBy")
-              ? new Column(parentColumn.getTable(), parentColumn).setType(REF)
-              : parentColumn;
-      conditions.add(refJoinCondition(joinColumn, parentAlias, tableAlias, "_parent_"));
+      Column joinColumn = parentColumn;
+      String prefix = "";
+      if (parentAlias.endsWith("_groupBy") && parentColumn.isRefArray()) {
+        joinColumn = new Column(parentColumn.getTable(), parentColumn).setType(REF);
+        prefix = "_parent_";
+      }
+      conditions.add(refJoinCondition(joinColumn, parentAlias, tableAlias, prefix));
     }
     if (!conditions.isEmpty()) {
       primaryTableSelect = (SelectJoinStep<Record>) primaryTableSelect.where(conditions);
@@ -580,15 +585,26 @@ public class SqlQuery extends QueryBean {
       selection = String.format("jsonb_agg(%s)", selection);
     }
 
+    // deterministic order
+    if (tableAlias.endsWith("_groupBy")) {
+      primaryTableSelect =
+          (SelectJoinStep<Record>)
+              primaryTableSelect.orderBy(
+                  groupByFields.stream().map(f -> field(name(f.getName()))).toList());
+    }
+
     SelectJoinStep<Record1<Object>> jsonSelect =
         table
             .getJooq()
             .select(field(selection).as(select.getColumn()))
             .from(primaryTableSelect.asTable(name(alias(tableAlias))));
+
+    // left joining in case of groupBy
     for (String refAlias : refSubSelects.keySet()) {
       jsonSelect =
           jsonSelect.leftJoin(lateral(refSubSelects.get(refAlias)).as(name(alias(refAlias)))).on();
     }
+
     if (tableAlias.endsWith("_groupBy")) {
       // deterministic order
       jsonSelect =
@@ -597,393 +613,6 @@ public class SqlQuery extends QueryBean {
                   groupByFields.stream().map(f -> field(name(f.getName()))).toList());
     }
     return jsonSelect;
-  }
-
-  public List<CommonTableExpression> getCteListForQuery(
-      SqlTableMetadata table,
-      Column parentColumn,
-      String parentAlias,
-      SelectColumn select,
-      Filter filters,
-      String[] searchTerms) {
-    List<CommonTableExpression> cteList = new ArrayList<>();
-
-    // validation for groupBy
-    if (select.getColumn().endsWith("_groupBy")) {
-      if (select.getSubselect(COUNT_FIELD) == null && select.getSubselect(SUM_FIELD) == null) {
-        throw new MolgenisException("COUNt or SUM is required when using group by");
-      }
-    }
-
-    // json cte will do json object building
-    String jsonCteAlias = parentColumn != null ? getCteAlias(select, parentAlias) : parentAlias;
-    Set<Field> jsonFields = new HashSet<>();
-    Set<Field> jsonOrderByFields = new HashSet<>();
-
-    // data cte will do raw select and aggregation
-    // will also be used by 'child' fields to pre-filter records to minimize data
-    String dataCteAlias = jsonCteAlias + "-data";
-    Set<Field> dataFields = new HashSet<>();
-    Set<Field> aggregateFields = new HashSet<>();
-
-    // for groupBy we must unnest ref_array, see below
-    List<TableLike> unnestedRefArrayJoins = new ArrayList();
-
-    for (SelectColumn selectedField : select.getSubselect()) {
-      String fieldName = selectedField.getColumn();
-
-      // aggregate fields
-      if (COUNT_FIELD.equals(fieldName)) {
-        jsonFields.add(field(name(alias(dataCteAlias), fieldName)));
-        aggregateFields.add(getCountField().as(COUNT_FIELD));
-      } else if (EXISTS_FIELD.equals(selectedField.getColumn())) {
-        jsonFields.add(field(name(alias(dataCteAlias), fieldName)));
-        if (schema.hasActiveUserRole(EXISTS.toString())) {
-          aggregateFields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
-        } else {
-          throw new MolgenisException("EXIST not permitted for this user");
-        }
-      } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(fieldName)) {
-        checkHasViewPermission(table);
-        for (SelectColumn sub : selectedField.getSubselect()) {
-          Column c = getColumnByName(table, sub.getColumn());
-          Field subField = field(name(alias(dataCteAlias), c.getName()), c.getJooqType());
-          Name subName = name(fieldName + "-" + sub.getColumn());
-          aggregateFields.add(
-              switch (fieldName) {
-                case MAX_FIELD -> max(subField).as(subName);
-                case MIN_FIELD -> min(subField).as(subName);
-                case AVG_FIELD -> avg(subField).as(subName);
-                case SUM_FIELD -> sum(subField).as(subName);
-                default ->
-                    throw new MolgenisException("Unknown aggregate type provided: " + fieldName);
-              });
-        }
-        jsonFields.add(
-            jsonObject(
-                    selectedField.getSubselect().stream()
-                        .map(
-                            sub ->
-                                key(sub.getColumn())
-                                    .value(
-                                        field(
-                                            name(
-                                                alias(dataCteAlias),
-                                                fieldName + "-" + sub.getColumn()))))
-                        .toList())
-                .as(name(fieldName)));
-      }
-
-      // select / group by fields
-      else {
-        Column subColumn = getColumnForGraphqlField(table, selectedField);
-
-        // for deterministic order
-        if (jsonCteAlias.endsWith("_groupBy")) {
-          jsonOrderByFields.add(field(name(fieldName)));
-        }
-
-        if (subColumn.isReference()) {
-          String refAlias = getCteAlias(selectedField, jsonCteAlias);
-          jsonFields.add(field(name(alias(refAlias), fieldName)));
-
-          // in case of groupBy we must unnest ref_array or join ref_back
-          if (jsonCteAlias.endsWith("_groupBy")) {
-            if (subColumn.isRefArray()) {
-              List<Field<Object>> unnestFields =
-                  subColumn.getReferences().stream()
-                      .map(ref -> field(name(ref.getName())))
-                      .toList();
-              unnestedRefArrayJoins.add(
-                  unnest(unnestFields.toArray(Field[]::new))
-                      .as(
-                          fieldName,
-                          unnestFields.stream().map(Field::getName).toArray(String[]::new)));
-              subColumn
-                  .getReferences()
-                  .forEach(
-                      ref -> {
-                        dataFields.add(
-                            field(name(ref.getName(), ref.getName())).as(name(fieldName)));
-                      });
-            } else if (jsonCteAlias.endsWith("_groupBy") && subColumn.isRefback()) {
-              throw new MolgenisException(
-                  "refback not yet implemented, requires a join against source");
-            } else {
-              subColumn
-                  .getReferences()
-                  .forEach(
-                      ref -> {
-                        dataFields.add(field(name(dataCteAlias, ref.getName())));
-                      });
-            }
-          } else {
-            subColumn
-                .getReferences()
-                .forEach(
-                    ref -> {
-                      dataFields.add(field(name(dataCteAlias, ref.getName())));
-                    });
-          }
-        } else if (subColumn.isFile()) {
-          jsonFields.add(field(name(alias(dataCteAlias), fieldName)));
-          dataFields.add(jsonFileField(table, jsonCteAlias, selectedField, subColumn));
-        } else if (subColumn.isArray() && jsonCteAlias.endsWith("_groupBy")) {
-          jsonFields.add(field(name(alias(dataCteAlias), fieldName)));
-          // in case of groupBy we also unnest arrays
-          unnestedRefArrayJoins.add(
-              unnest(field(name(alias(jsonCteAlias + "-data"), fieldName), subColumn.getJooqType()))
-                  .as(fieldName, fieldName));
-          dataFields.add(field(name(fieldName, fieldName)).as(name(fieldName)));
-
-        } else {
-          jsonFields.add(field(name(alias(dataCteAlias), fieldName)));
-          dataFields.add(field(name(alias(dataCteAlias), fieldName)));
-        }
-      }
-    }
-
-    List<Condition> conditions =
-        getFilterConditions(table, parentColumn, dataCteAlias, filters, searchTerms);
-
-    // check if we have aggregate fields
-    Set<Field> dataGroupByFields = new HashSet<>();
-    if (!aggregateFields.isEmpty()) {
-      // need to make sure we have fully qualified names
-      // the unnested refs need qualified names
-      dataGroupByFields.addAll(
-          dataFields.stream()
-              .map(
-                  field ->
-                      field(
-                          name(
-                              field.getQualifiedName().first() != null
-                                  ? field.getQualifiedName().first()
-                                  : field.getQualifiedName().last(),
-                              field.getQualifiedName().last())))
-              .toList());
-    }
-    Set<Field> dataSelection = new HashSet<>();
-    dataSelection.addAll(dataFields);
-    dataSelection.addAll(aggregateFields);
-
-    // default query
-    SelectJoinStep<Record> dataCte =
-        DSL.selectDistinct(dataSelection)
-            .from(tableWithInheritanceJoin(table).as(name(alias(dataCteAlias))));
-
-    // join with the unnested ref_array
-    for (TableLike unnestedRefArray : unnestedRefArrayJoins) {
-      dataCte = dataCte.leftJoin(lateral(unnestedRefArray)).on();
-    }
-    if (!conditions.isEmpty()) {
-      dataCte = (SelectJoinStep<Record>) dataCte.where(conditions);
-    }
-    if (parentColumn != null) {
-
-      // we will join with parent
-      Condition joinCondition = null;
-      if (parentAlias.endsWith("_groupBy")) {
-        // previous joins makes this simple ref
-        joinCondition =
-            refJoinCondition(
-                // copy to simple ref
-                new Column(parentColumn.getTable(), parentColumn).setType(REF),
-                parentAlias + "-data",
-                jsonCteAlias + "-data");
-      } else {
-        joinCondition =
-            refJoinCondition(parentColumn, parentAlias + "-data", jsonCteAlias + "-data");
-      }
-
-      if (parentAlias.endsWith("_groupBy")) {
-        // in case of groupBy select we join parent to child using ref fields
-        dataSelection.addAll(
-            parentColumn.getReferences().stream()
-                .map(
-                    ref ->
-                        field(name(alias(parentAlias + "-data"), ref.getName()))
-                            .as(name("_parent_" + ref.getName())))
-                .toList());
-      } else {
-        // in case of normal select we join parent to child using pkey fields
-        dataSelection.addAll(
-            parentColumn.getRefTable().getPrimaryKeyColumns().stream()
-                .map(
-                    pkey ->
-                        field(name(alias(parentAlias + "-data"), pkey.getName()))
-                            .as(name("_parent_" + pkey.getName())))
-                .toList());
-
-        // group on parent fields
-        if (!aggregateFields.isEmpty()) {
-          dataGroupByFields.addAll(
-              parentColumn.getRefTable().getPrimaryKeyColumns().stream()
-                  .map(pkey -> field(name(alias(parentAlias + "-data"), pkey.getName())))
-                  .toList());
-        }
-      }
-
-      // replace default query with parent join
-      dataCte =
-          (SelectJoinStep<Record>)
-              DSL.selectDistinct(dataSelection)
-                  .from(name(alias(parentAlias + "-data")))
-                  .innerJoin(tableWithInheritanceJoin(table).as(name(alias(dataCteAlias))))
-                  .on(joinCondition)
-                  .where(conditions);
-    }
-    if (!dataGroupByFields.isEmpty()) {
-      cteList.add(name(alias(dataCteAlias)).as(dataCte.groupBy(dataGroupByFields)));
-    } else {
-      cteList.add(name(alias(dataCteAlias)).as(dataCte));
-    }
-
-    // copy link to parent
-    if (parentColumn != null) {
-      if (parentAlias.endsWith("_groupBy")) {
-        jsonFields.addAll(
-            parentColumn.getReferences().stream()
-                .map(ref -> field(name(dataCteAlias, "_parent_" + ref.getName())))
-                .toList());
-      } else {
-        jsonFields.addAll(
-            parentColumn.getTable().getPrimaryKeyFields().stream()
-                .map(pkey -> field(name(dataCteAlias, "_parent_" + pkey.getName())))
-                .toList());
-      }
-    }
-
-    // define the json select on top of that data query, might have nested cte
-    SelectJoinStep jsonSelect = DSL.select(jsonFields).from((name(alias(dataCteAlias))));
-
-    for (SelectColumn subSelect : select.getSubselect()) {
-      String fieldName = subSelect.getColumn();
-      if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD, COUNT_FIELD, EXISTS_FIELD)
-          .contains(fieldName)) {
-        // aggregates ignored
-      } else {
-        Column subColumn = getColumnForGraphqlField(table, subSelect);
-        if (subColumn.isReference()) {
-          // left joins for the nested cte
-          String subAlias = getCteAlias(subSelect, jsonCteAlias);
-          Condition[] joinCondition = null;
-          if (jsonCteAlias.endsWith("_groupBy")) {
-            // in case of groupBy we join based on ref
-            joinCondition =
-                subColumn.getReferences().stream()
-                    .map(
-                        field ->
-                            field(name(alias(dataCteAlias), field.getName()))
-                                .eq(field(name(alias(subAlias), "_parent_" + field.getName()))))
-                    .toArray(Condition[]::new);
-          } else {
-            // in a case of normal select we join based on pkey
-            joinCondition =
-                table.getPrimaryKeyFields().stream()
-                    .map(
-                        field ->
-                            field(name(alias(dataCteAlias), field.getName()))
-                                .eq(field(name(alias(subAlias), field.getName()))))
-                    .toArray(Condition[]::new);
-          }
-          jsonSelect = jsonSelect.leftJoin(name(alias(subAlias))).on(joinCondition);
-          // creation of the nested cte
-          TableMetadata subTable = subColumn.getRefTable();
-          Filter subFilter = subSelect.getFilter();
-          cteList.addAll(
-              getCteListForQuery(
-                  (SqlTableMetadata) subTable,
-                  subColumn,
-                  jsonCteAlias,
-                  subSelect,
-                  subFilter,
-                  new String[0]));
-        }
-      }
-    }
-
-    // select pkey plus the json for the field
-    List<Field<?>> jsonSelection = new ArrayList();
-    List<Field<?>> jsonGroupByFields = new ArrayList<>();
-    List<Field<Object>> pkeyFields = null;
-    List<Param<String>> jsonFilter = null;
-    if (parentColumn != null) {
-      if (parentAlias.endsWith("_groupBy")) {
-        pkeyFields =
-            parentColumn.getReferences().stream()
-                .map(ref -> field(name("sub", "_parent_" + ref.getName())))
-                .toList();
-        jsonFilter =
-            parentColumn.getReferences().stream()
-                .map(ref -> DSL.inline("_parent_" + ref.getName()))
-                .toList();
-      } else {
-        pkeyFields =
-            parentColumn.getTable().getPrimaryKeyFields().stream()
-                .map(pkey -> field(name("sub", "_parent_" + pkey.getName())).as(pkey.getName()))
-                .toList();
-        jsonFilter =
-            parentColumn.getTable().getPrimaryKeyFields().stream()
-                .map(pkey -> DSL.inline("_parent_" + pkey.getName()))
-                .toList();
-      }
-      jsonSelection.addAll(pkeyFields);
-
-      if (!parentAlias.endsWith("_groupBy")
-          && (parentColumn.isRefback() || parentColumn.isRefArray())) {
-        jsonSelection.add(
-            field("json_agg(to_jsonb(sub) - ARRAY[{0}] )", list(jsonFilter))
-                .as(select.getColumn()));
-        if (parentAlias.endsWith("_groupBy")) {
-          jsonGroupByFields.addAll(
-              parentColumn.getReferences().stream()
-                  .map(ref -> field(name("sub", "_parent_" + ref.getName())))
-                  .toList());
-        } else {
-          jsonGroupByFields.addAll(
-              parentColumn.getTable().getPrimaryKeyFields().stream()
-                  .map(field -> field(name("sub", "_parent_" + field.getName())))
-                  .toList());
-        }
-      } else if (aggregateFields.isEmpty()) {
-        jsonSelection.add(
-            field("to_jsonb(sub) - ARRAY[{0}]", list(jsonFilter)).as(select.getColumn()));
-      } else {
-        jsonSelection.add(
-            field("json_agg(to_jsonb(sub) - ARRAY[{0}])", list(jsonFilter)).as(select.getColumn()));
-      }
-      SelectJoinStep jsonCte = DSL.select(jsonSelection).from(jsonSelect.asTable("sub"));
-      if (!jsonGroupByFields.isEmpty()) {
-        jsonCte.groupBy(jsonGroupByFields);
-      }
-      if (jsonCteAlias.endsWith("_groupBy")) {
-        // deterministic order
-        jsonCte = (SelectJoinStep) jsonCte.orderBy(jsonOrderByFields);
-      }
-      cteList.add(name(jsonCteAlias).as(jsonCte));
-    } else {
-      // when 'root' field create cte that selects rows into one json matching the selected field
-      if (jsonCteAlias.endsWith("_groupBy")) {
-        // deterministic order
-        jsonSelect = (SelectJoinStep) jsonSelect.orderBy(jsonOrderByFields);
-      }
-      if (jsonCteAlias.endsWith("_agg")) {
-        cteList.add(
-            name(jsonCteAlias)
-                .as(
-                    DSL.select(field("jsonb_strip_nulls(to_jsonb(item))").as(DATA))
-                        .from(jsonSelect.asTable(ITEM))));
-      } else {
-        cteList.add(
-            name(jsonCteAlias)
-                .as(
-                    DSL.select(field("jsonb_strip_nulls(jsonb_agg(to_jsonb(item)))").as(DATA))
-                        .from(jsonSelect.asTable(ITEM))));
-      }
-    }
-
-    return cteList;
   }
 
   private @NotNull List<Condition> getFilterConditions(

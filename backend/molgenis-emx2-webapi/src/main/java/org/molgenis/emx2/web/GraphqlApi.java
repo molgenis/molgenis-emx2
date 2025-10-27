@@ -103,7 +103,8 @@ public class GraphqlApi {
       if (query.contains("password")) {
         logger.info("query: obfuscated because contains parameter with name 'password'");
       } else {
-        logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+        logger.info("query: {}", query.substring(0, Math.min(100, query.length())));
+        // logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
       }
     }
 
