@@ -23,10 +23,9 @@ export default defineNuxtConfig({
       analyticsKey: "",
       analyticsProvider: "siteimprove",
       cohortOnly: false,
-      schema: "UMCG",
+      schema: "catalogue-demo",
       apiBase:
-        process.env.NUXT_PUBLIC_API_BASE ||
-        "https://brenda3.molgeniscloud.org/",
+        process.env.NUXT_PUBLIC_API_BASE || "https://emx2.dev.molgenis.org/",
     },
   },
   imports: {
