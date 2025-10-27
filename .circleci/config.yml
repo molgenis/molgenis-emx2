@@ -451,7 +451,7 @@ jobs:
             bash ci/create_or_update_k8s-azure.sh "emx2" latest true
 
       - run:
-          name: Message slack about a new molgenis-emx2-pyclient version
+          name: Message slack about a database cleanup
           command: |
             curl -d "token=${SLACK_TOKEN}" \
             -d "cleaned database at https://emx2.dev.molgenis.org/" \
