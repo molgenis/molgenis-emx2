@@ -64,7 +64,7 @@ commands:
     - checkout
     - run:
         name: run-audit-ci
-        command: npx audit-ci@^7 --config ./audit-ci.jsonc
+        command: npx audit-ci@^7 --config ./audit-ci.jsonc --registry=https://registry.npmjs.org
         working_directory: apps
     - run: git fetch --all --tags
     - run:
