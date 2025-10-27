@@ -426,6 +426,40 @@ jobs:
           bash ci/set_kubectl_config-azure.sh
           kubectl delete namespace preview-emx2-pr-${GHA_PREVIEW_NR} || true
 
+  clear-dev-db-every-3-weeks:
+    steps:
+      - checkout
+
+      # Check if we should run this week
+      - run:
+          name: Check if it's the 3rd week
+          command: |
+            WEEK_NUM=$(date +%U)
+            echo "Current week number: $WEEK_NUM"
+            if [ $(( WEEK_NUM % 3 )) -ne 0 ]; then
+              echo "⏭️ Not week 3, 6, 9... skipping job."
+              circleci step halt
+            fi
+
+      - run:
+          name: Run npm audit
+          command:
+            export $( cat build/ci.properties | xargs )
+            bash ci/set_kubectl_config-azure.sh
+            bash ci/create_or_update_k8s-azure.sh "emx2" latest true
+
+      - run:
+          name: Message slack about a new molgenis-emx2-pyclient version
+          command: |
+            curl -d "token=${SLACK_TOKEN}" \
+            -d "cleaned database at https://emx2.dev.molgenis.org/" \
+            -d "channel=C057JRKLUKG" \
+            -X POST https://slack.com/api/chat.postMessage
+             
+      
+      
+
+
 workflows:
   version: 2
   build_and_test_and_preview_or_release:
@@ -468,3 +502,13 @@ workflows:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
     - delete-helm-preview
+
+  clear-dev-db-every-3-weeks:
+    triggers:
+      - schedule:
+          cron: "0 7 * * 1" # every Monday 07:00 UTC as cron can not do every 3 weeks
+          filters:
+            branches:
+              only: main
+    jobs:
+      - clear-dev-db-every-3-weeks
