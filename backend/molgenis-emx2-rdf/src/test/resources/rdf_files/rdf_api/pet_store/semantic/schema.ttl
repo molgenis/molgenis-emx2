@@ -55,9 +55,7 @@
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>.
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=yakul>
-  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals>;
-  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
-  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals>.
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>.

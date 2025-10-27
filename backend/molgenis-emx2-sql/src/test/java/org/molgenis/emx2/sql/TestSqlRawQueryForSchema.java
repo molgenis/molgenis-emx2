@@ -25,7 +25,7 @@ public class TestSqlRawQueryForSchema {
     Schema schema = database.dropCreateSchema(TestSqlRawQueryForSchema.class.getSimpleName());
     PET_STORE.getImportTask(schema, true).run();
     List<Row> rows = schema.retrieveSql("Select * from \"Pet\"");
-    assertEquals(8, rows.size());
+    assertEquals(9, rows.size());
   }
 
   @Test

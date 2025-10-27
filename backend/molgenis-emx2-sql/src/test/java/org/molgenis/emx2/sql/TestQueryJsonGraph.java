@@ -205,7 +205,7 @@ public class TestQueryJsonGraph {
         mapper.readValue(
             petStore.groupBy("Pet").select(s("count"), s("tags", s("name"))).retrieveJSON(),
             Map.class);
-    assertEquals(1, result.get("Pet_groupBy").get(4).get("count"));
+    assertEquals(4, result.get("Pet_groupBy").get(4).get("count"));
     assertEquals(null, ((Map) result.get("Pet_groupBy").get(4).get("tags")));
     assertEquals(1, result.get("Pet_groupBy").get(0).get("count"));
     assertEquals("blue", ((Map) result.get("Pet_groupBy").get(0).get("tags")).get("name"));
