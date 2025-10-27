@@ -1,0 +1,20 @@
+{
+  // Set the minimum severity level that will cause the CI to fail.
+  // Options: info | low | moderate | high | critical
+  "auditLevel": "critical",
+
+  // Whether to include devDependencies in the audit.
+  "includeDev": true,
+
+  // Optional: packages or advisories to allowlist (ignored even if vulnerable)
+  "allowlist": [
+    // "lodash",
+    // "GHSA-xxxx-xxxx-xxxx"
+  ],
+
+  // Whether to run `npm audit` (default) or `yarn audit`
+  "packageManager": "npm",
+
+  // Optional: use this to suppress warnings
+  "reportType": "summary" // can also be "json" or "important"
+}
