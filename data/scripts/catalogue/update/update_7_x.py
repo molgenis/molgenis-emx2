@@ -89,7 +89,7 @@ class Transform:
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
         # TODO: change dependent on server
-        df_agents['resource'] = 'HDSU'
+        df_agents['resource'] = 'UMCG'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -216,7 +216,7 @@ class Transform:
         df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
 
         df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
-        df_endpoint['publisher.resource'] = 'HDSU'  # TODO: change dependent on server
+        df_endpoint['publisher.resource'] = 'UMCG'  # TODO: change dependent on server
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
