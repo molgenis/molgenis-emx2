@@ -4,7 +4,7 @@
     v-model="modelValue"
     :aria-describedby="describedBy"
     :options="yesNoOption"
-    :showClearButton="true"
+    :showClearButton="showClearButton"
     :align="align"
     :invalid="invalid"
     :valid="valid"
@@ -14,20 +14,24 @@
   />
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import type { IInputProps, IRadioOptionsData } from "../../../types/types";
+import InputRadioGroup from "./RadioGroup.vue";
+
 const props = withDefaults(
   defineProps<
     IInputProps & {
       trueLabel?: string;
       falseLabel?: string;
       align?: "horizontal" | "vertical";
+      showClearButton?: boolean;
     }
   >(),
   {
     trueLabel: "True",
     falseLabel: "False",
+    showClearButton: true,
   }
 );
 const modelValue = defineModel<true | false | null>();

@@ -17,7 +17,6 @@ import type {
 } from "../../../metadata-utils/src/types";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
-import logger from "../utils/logger";
 import {
   getColumnError,
   isColumnVisible,

@@ -121,6 +121,7 @@ const navigation = computed(() => {
   }
   if (schema.value && isAdmin.value) {
     items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
+    items.push({ label: "Pages", link: `/${schema.value}/pages/` });
   }
   if (isAdmin.value) {
     items.push({ label: "Admin", link: `/admin` });
