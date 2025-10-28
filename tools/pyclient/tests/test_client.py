@@ -4,6 +4,7 @@ Tests for the Pyclient.
 import os
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from dotenv import load_dotenv
 
@@ -155,8 +156,6 @@ def test_truncate():
         client.save_schema(table="User", name="pet store", file=RESOURCES_DIR / "petstore" / "User.csv")
 
 
-
-
 def test_delete_records():
     """Tests the `delete_records` method."""
 
@@ -181,16 +180,40 @@ def test_delete_records():
         assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
 
         # Test delete with file
-        with pytest.raises(FileNotFoundError) as excinfo:
-            client.delete_records(schema="pet store" , table="Pet")
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        client.save_schema(name="pet store", table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
-        assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
+        assert tag_between == tag_before + 2
+        client.delete_records(schema="pet store" , table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
 
-
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        assert tag_after == tag_before
 
         # Test delete with data as list
+        tags_df = pd.read_csv(RESOURCES_DIR / "insert" / "Tag.csv")
+        tags_list = list(tags_df.to_dict(orient='index').values())
+
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        client.save_schema(name="pet store", table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert tag_between == tag_before + 2
+        client.delete_records(schema="pet store" , table="Tag", data=tags_list)
+
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        assert tag_after == tag_before
 
         # Test delete with data as DataFrame
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        client.save_schema(name="pet store", table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert tag_between == tag_before + 2
+        client.delete_records(schema="pet store" , table="Tag", data=tags_df)
+
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        assert tag_after == tag_before
 
 
 def test_get():
