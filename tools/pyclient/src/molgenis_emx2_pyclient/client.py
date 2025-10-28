@@ -475,11 +475,14 @@ class Client:
             try:
                 response_data = response_data[columns]
             except KeyError as e:
-                if "not in index" in e.args[0]:
-                    raise NoSuchColumnException(f"Columns {e.args[0]}")
+                if e.args[0].startswith("None of [Index(['"):
+                    missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
+                    msg = f"Columns {missing_cols} not found."
+                elif "not in index" in e.args[0]:
+                    msg = f"Columns {e.args[0]}"
                 else:
-                    raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
-                                                f" not in index.")
+                    msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
+                raise NoSuchColumnException(msg)
             response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         if not as_df:
             response_data = response_data.to_dict('records')
