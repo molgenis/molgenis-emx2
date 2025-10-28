@@ -213,11 +213,10 @@ onMounted(async () => {
                   <Button
                     type="primary"
                     size="tiny"
+                    label="validate"
                     :disabled="shaclSet.status === 'RUNNING'"
                     @click.prevent="runShacl(shaclSet)"
-                  >
-                    validate
-                  </Button>
+                  />
                   <Button
                     type="outline"
                     size="tiny"
@@ -260,8 +259,8 @@ onMounted(async () => {
         </Table>
         <div v-for="shaclSet in shaclSetValidations">
           <div v-if="shaclSet.isViewed">
-            <div class="flex flex-col md:flex-row gap-2.5">
-              <div class="flex items-center gap-2.5">
+            <div class="flex flex-col gap-2.5 items-start md:flex-row">
+              <div class="flex items-baseline gap-5">
                 <Button
                   class="flex-none"
                   type="outline"
@@ -270,6 +269,11 @@ onMounted(async () => {
                   label="go back"
                   @click.prevent="toggleShaclOutputView(shaclSet)"
                 />
+                <h3 class="uppercase text-heading-4xl font-display">
+                  {{ shaclSet.name }} (version: {{ shaclSet.version }})
+                </h3>
+              </div>
+              <div class="flex items-center gap-2.5 ml-auto">
                 <BaseIcon
                   name="progress-activity"
                   class="animate-spin flex-none"
@@ -294,19 +298,13 @@ onMounted(async () => {
                   width.number="32"
                   v-else-if="shaclSet.status === 'ERROR'"
                 />
-                <h3 class="uppercase text-heading-4xl font-display">
-                  {{ shaclSet.name }} (version: {{ shaclSet.version }})
-                </h3>
-              </div>
-              <div class="flex items-center gap-2.5 my-2.5 ml-auto">
                 <Button
                   type="primary"
                   size="small"
+                  label="validate"
                   :disabled="shaclSet.status === 'RUNNING'"
                   @click.prevent="runShacl(shaclSet)"
-                >
-                  validate
-                </Button>
+                />
                 <ButtonDownloadBlob
                   size="small"
                   :disabled="
