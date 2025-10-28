@@ -320,7 +320,7 @@ onMounted(async () => {
             >
               <span>{{ shaclSet.error }}</span>
             </Message>
-            <DisplayOutput class="px-8 my-8 min-w-full overflow-x-auto">
+            <DisplayOutput class="px-8 my-8 overflow-x-auto">
               <pre>{{ shaclSet.output }}</pre>
             </DisplayOutput>
           </div>
