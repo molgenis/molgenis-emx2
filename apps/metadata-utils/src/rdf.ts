@@ -1,8 +1,8 @@
-export interface ShaclSetItem {
+export interface ShaclSet {
   id: string;
   name: string;
   version: string;
   sources: string[];
 }
 
-export type ShaclSets = ShaclSetItem[];
+export type ShaclSetArray = ShaclSet[];

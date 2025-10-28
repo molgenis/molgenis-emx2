@@ -4,7 +4,7 @@ import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { ref, onMounted } from "vue";
 import { parse } from "yaml";
-import type { ShaclSetItem } from "../../../../../../metadata-utils/src/rdf";
+import type { ShaclSetArray } from "../../../../../../metadata-utils/src/rdf";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue"
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue"
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue"
@@ -14,7 +14,7 @@ import Message from "../../../../../../tailwind-components/app/components/Messag
 import Table from "../../../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
-import RdfShaclSetItem from "../../../../../../tailwind-components/app/components/rdf/ShaclSetItem.vue"
+import RdfShaclTableRow from "../../../../../../tailwind-components/app/components/rdf/ShaclTableRow.vue"
 
 const route = useRoute();
 const schema = (Array.isArray(route.params.schema)
@@ -43,9 +43,9 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
 const crumbs: Record<string, string> = {};
 crumbs[schema] = `/${schema}`;
 crumbs["rdf"] = `/${schema}/rdf`;
-crumbs["shacl"] = "/rdf/shacl";
+crumbs["shacl"] = "";
 
-const shaclSets = ref<ShaclSetItem[]>();
+const shaclSets = ref<ShaclSetArray>();
 const loading = ref<boolean>(true);
 const error = ref<string>();
 
@@ -67,7 +67,7 @@ async function fetchShacls(): Promise<string> {
 onMounted(async () => {
   Promise.resolve(fetchShacls())
     .then((data) => {
-      shaclSets.value = (data as unknown) as ShaclSetItem[];
+      shaclSets.value = (data as unknown) as ShaclSetArray;
     })
     .catch((err) => {
       error.value = err;
@@ -126,7 +126,7 @@ onMounted(async () => {
             </TableHeadRow>
           </template>
           <template #body>
-            <RdfShaclSetItem
+            <RdfShaclTableRow
               v-for="shaclSet in shaclSets"
               :shacl-set="shaclSet"
             />

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useRoute } from "#app/composables/router";
 import { computed, ref } from "vue";
-import type { ShaclSetItem } from "../../../../metadata-utils/src/rdf";
+import type { ShaclSet } from "../../../../metadata-utils/src/rdf";
 import BaseIcon from "../BaseIcon.vue";
 import TableCell from "../TableCell.vue";
 import Button from "../Button.vue";
@@ -18,7 +18,7 @@ const schema = Array.isArray(route.params.schema)
 
 const props = withDefaults(
   defineProps<{
-    shaclSet: ShaclSetItem;
+    shaclSet: ShaclSet;
   }>(),
   {}
 );
