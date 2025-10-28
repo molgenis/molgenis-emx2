@@ -104,8 +104,13 @@ async function runShacl(shaclSet: ShaclSetValidation) {
 }
 
 function toggleShaclOutputView(shaclSet: ShaclSetValidation) {
-  showTable.value = !showTable.value;
-  shaclSet.isViewed = !shaclSet.isViewed;
+  if (shaclSet.status === "RUNNING" || shaclSet.status === "UNKNOWN") {
+    showTable.value = true;
+    shaclSet.isViewed = false;
+  } else {
+    showTable.value = !showTable.value;
+    shaclSet.isViewed = !shaclSet.isViewed;
+  }
 }
 
 onMounted(async () => {
@@ -180,25 +185,25 @@ onMounted(async () => {
               <TableCell>
                 <BaseIcon
                   name="progress-activity"
-                  class="animate-spin m-auto"
+                  class="animate-spin m-auto flex-none"
                   width.number="32"
                   v-if="shaclSet.status === 'RUNNING'"
                 />
                 <BaseIcon
                   name="check"
-                  class="m-auto"
+                  class="m-auto flex-none"
                   width.number="32"
                   v-else-if="shaclSet.status === 'VALID'"
                 />
                 <BaseIcon
                   name="cross"
-                  class="m-auto"
+                  class="m-auto flex-none"
                   width.number="32"
                   v-else-if="shaclSet.status === 'INVALID'"
                 />
                 <BaseIcon
                   name="exclamation"
-                  class="m-auto"
+                  class="m-auto flex-none"
                   width.number="32"
                   v-else-if="shaclSet.status === 'ERROR'"
                 />
@@ -255,38 +260,63 @@ onMounted(async () => {
         </Table>
         <div v-for="shaclSet in shaclSetValidations">
           <div v-if="shaclSet.isViewed">
-            <div class="flex items-center gap-2.5">
-              <Button
-                type="outline"
-                size="small"
-                icon="caretLeft"
-                label="go back"
-                @click.prevent="toggleShaclOutputView(shaclSet)"
-              />
-              <BaseIcon
-                name="progress-activity"
-                class="animate-spin"
-                width.number="32"
-                v-if="shaclSet.status === 'RUNNING'"
-              />
-              <BaseIcon
-                name="check"
-                width.number="32"
-                v-else-if="shaclSet.status === 'VALID'"
-              />
-              <BaseIcon
-                name="cross"
-                width.number="32"
-                v-else-if="shaclSet.status === 'INVALID'"
-              />
-              <BaseIcon
-                name="exclamation"
-                width.number="32"
-                v-else-if="shaclSet.status === 'ERROR'"
-              />
-              <h3 class="uppercase text-heading-4xl font-display">
-                {{ shaclSet.name }} (version: {{ shaclSet.version }})
-              </h3>
+            <div class="flex flex-col md:flex-row gap-2.5">
+              <div class="flex items-center gap-2.5">
+                <Button
+                  class="flex-none"
+                  type="outline"
+                  size="small"
+                  icon="caretLeft"
+                  label="go back"
+                  @click.prevent="toggleShaclOutputView(shaclSet)"
+                />
+                <BaseIcon
+                  name="progress-activity"
+                  class="animate-spin flex-none"
+                  width.number="32"
+                  v-if="shaclSet.status === 'RUNNING'"
+                />
+                <BaseIcon
+                  name="check"
+                  class="flex-none"
+                  width.number="32"
+                  v-else-if="shaclSet.status === 'VALID'"
+                />
+                <BaseIcon
+                  name="cross"
+                  class="flex-none"
+                  width.number="32"
+                  v-else-if="shaclSet.status === 'INVALID'"
+                />
+                <BaseIcon
+                  name="exclamation"
+                  class="flex-none"
+                  width.number="32"
+                  v-else-if="shaclSet.status === 'ERROR'"
+                />
+                <h3 class="uppercase text-heading-4xl font-display">
+                  {{ shaclSet.name }} (version: {{ shaclSet.version }})
+                </h3>
+              </div>
+              <div class="flex items-center gap-2.5 my-2.5 ml-auto">
+                <Button
+                  type="primary"
+                  size="small"
+                  :disabled="shaclSet.status === 'RUNNING'"
+                  @click.prevent="runShacl(shaclSet)"
+                >
+                  validate
+                </Button>
+                <ButtonDownloadBlob
+                  size="small"
+                  :disabled="
+                    shaclSet.status !== 'VALID' && shaclSet.status !== 'INVALID'
+                  "
+                  :data="shaclSet.output"
+                  mediaType="text/turtle"
+                  :fileName="`${schema} - shacl - ${shaclSet.id}.ttl`"
+                />
+              </div>
             </div>
             <Message
               :id="`shacl-validation-${shaclSet.id}-error`"
