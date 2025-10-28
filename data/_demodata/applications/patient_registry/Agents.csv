@@ -1,2 +1,2 @@
-resource,id,logo,url,mbox,mg_draft
+resource,id,logo,website,email,mg_draft
 MOLGENIS,MOLGENIS,,https://molgenis.org/,support@molgenis.org,FALSE
