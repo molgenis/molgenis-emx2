@@ -66,15 +66,14 @@ public class SqlQuery extends QueryBean {
 
   /** Create alias that is short enough for postgresql to not complain */
   public String alias(String label) {
-    return label;
-    //    if (!label.contains(SUBSELECT_SEPARATOR)) {
-    //      // we only need aliases for subquery tables
-    //      return label;
-    //    }
-    //    if (!tableAliasList.contains(label)) {
-    //      tableAliasList.add(label);
-    //    }
-    //    return "a" + tableAliasList.indexOf(label);
+    if (!label.contains(SUBSELECT_SEPARATOR)) {
+      // we only need aliases for subquery tables
+      return label;
+    }
+    if (!tableAliasList.contains(label)) {
+      tableAliasList.add(label);
+    }
+    return "a" + tableAliasList.indexOf(label);
   }
 
   @Override
@@ -269,7 +268,6 @@ public class SqlQuery extends QueryBean {
     long start = System.currentTimeMillis();
 
     SelectColumn select = getSelect();
-    List<Field<?>> fields = new ArrayList<>();
     DSLContext sql = schema.getJooq();
 
     // get the table from root select
@@ -289,7 +287,6 @@ public class SqlQuery extends QueryBean {
               + schema.getName());
     }
 
-    @NotNull
     SelectJoinStep<Record1<Object>> query =
         sql.select(
                 field(
@@ -299,31 +296,23 @@ public class SqlQuery extends QueryBean {
                         ? name(ITEM)
                         : name(ITEM, select.getColumn())))
             .from(
-                getQueryForField(
+                jsonCreateQueryForField(
                         table, null, select.getColumn(), select, getFilter(), getSearchTerms())
                     .asTable(ITEM));
-    if (logger.isInfoEnabled()) {
-      //      logger.info(
-      //          "query in {}ms: {}", System.currentTimeMillis() - start,
-      // query.getSQL(ParamType.INLINED));
-      logger.info("query created in {}ms", System.currentTimeMillis() - start, select.getColumn());
-    }
 
-    start = System.currentTimeMillis();
+    if (logger.isInfoEnabled()) {
+      logger.info("query created in {}ms", System.currentTimeMillis() - start, select.getColumn());
+      start = System.currentTimeMillis();
+    }
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
-      //      logger.info(
-      //          "query in {}ms: {}", System.currentTimeMillis() - start,
-      // query.getSQL(ParamType.INLINED));
       logger.info(
-          "query executed in {}ms. Snippet: {}",
-          System.currentTimeMillis() - start,
-          select.getColumn());
+          "query in {}ms: {}", System.currentTimeMillis() - start, query.getSQL(ParamType.INLINED));
     }
     return result;
   }
 
-  private static @NotNull String getRefTableAlias(SelectColumn select, String tableAlias) {
+  private static String getRefTableAlias(SelectColumn select, String tableAlias) {
     return tableAlias + (select != null ? "-" + select.getColumn() : "");
   }
 
@@ -385,7 +374,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  public SelectJoinStep<Record1<Object>> getQueryForField(
+  public SelectJoinStep<Record1<Object>> jsonCreateQueryForField(
       SqlTableMetadata table,
       Column parentColumn,
       String parentAlias,
@@ -401,6 +390,7 @@ public class SqlQuery extends QueryBean {
     }
 
     String tableAlias = parentColumn != null ? getRefTableAlias(select, parentAlias) : parentAlias;
+    String parentPrefix = ""; // scoping variable, might not be needed
 
     // keep track of data fields, aggregate fields and join fields
     Set<Field> dataFields = new LinkedHashSet<>();
@@ -455,56 +445,77 @@ public class SqlQuery extends QueryBean {
           String refAlias = getRefTableAlias(selectedField, tableAlias);
           if (tableAlias.endsWith("_groupBy")
               && (subColumn.isRefArray() || subColumn.isRefback())) {
+            // in case of group by we must unnest the ref_array/refback and cross join against that
+            List<Field<Object>> unnestFields =
+                subColumn.getReferences().stream()
+                    .map(ref -> field(name(ref.getName(), ref.getName())))
+                    .toList();
+            refJoinFields.addAll(
+                unnestFields.stream()
+                    .map(field -> field(name(fieldName, parentPrefix + field.getName())))
+                    .toList());
             if (subColumn.isRefArray()) {
-              // in case of group by we must unnest the ref_array and join against that
-              List<Field<Object>> unnestFields =
-                  subColumn.getReferences().stream()
-                      .map(ref -> field(name(ref.getName(), ref.getName())))
-                      .toList();
-              refJoinFields.addAll(
-                  unnestFields.stream()
-                      .map(field -> field(name(fieldName, "_parent_" + field.getName())))
-                      .toList());
               unnestedRefArrayJoins.add(
-                  // unnest from tableAlias
-                  unnest(
-                          unnestFields.stream()
-                              .map(field -> field(name(alias(tableAlias), field.getName())))
-                              .toList())
-                      // into fieldName(col1,col2)
-                      .as(
-                          fieldName,
-                          unnestFields.stream()
-                              .map(field -> "_parent_" + field.getName())
-                              .toArray(String[]::new)));
+                  // ugh, jooq should support unnest(list<field>)
+                  DSL.selectFrom(
+                          "unnest({0}) WITH ORDINALITY AS {1}({2})",
+                          keyword(
+                              unnestFields.stream()
+                                  .map(field -> name(alias(tableAlias), field.getName()).toString())
+                                  .collect(Collectors.joining(", "))),
+                          name(fieldName),
+                          keyword(
+                              unnestFields.stream()
+                                  .map(field -> name(parentPrefix + field.getName()).toString())
+                                  .collect(Collectors.joining(", "))))
+                      .asTable(name(fieldName)));
             } else {
-              // refback will cross join against primary key
-              refJoinFields.addAll(
-                  table.getPrimaryKeyFields().stream()
-                      .map(
-                          ref ->
-                              field(name(alias(tableAlias), ref.getName()))
-                                  .as("_parent_" + ref.getName()))
-                      .toList());
+              // convert refback so it looks like a ref_array
+              Column refbackColumn = subColumn.getRefBackColumn();
+              if (refbackColumn.isRefArray()) {
+                List<Field> refbackSelect = new ArrayList<>();
+                refbackSelect.addAll(
+                    // get the ref
+                    subColumn.getReferences().stream()
+                        .map(ref -> field(name(ref.getRefTo())).as(ref.getName()))
+                        .toList());
+                unnestedRefArrayJoins.add(
+                    DSL.select(refbackSelect)
+                        .from(tableWithInheritanceJoin(subColumn.getRefTable()).as(alias(refAlias)))
+                        .where(refJoinCondition(subColumn.getRefBackColumn(), refAlias, tableAlias))
+                        .asTable(name(fieldName)));
+              } else {
+                // refback is a ref
+                List<Field> refbackSelect = new ArrayList<>();
+                refbackSelect.addAll(
+                    refbackColumn.getReferences().stream()
+                        .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
+                        .toList());
+                refbackSelect.addAll(
+                    refbackColumn.getReferences().stream()
+                        .map(ref -> field(name(ref.getRefTo())).as(ref.getName()))
+                        .toList());
+                unnestedRefArrayJoins.add(
+                    DSL.select(refbackSelect)
+                        .from(
+                            tableWithInheritanceJoin(subColumn.getRefTable()).as(alias(refAlias))));
+              }
             }
+            // subselect as always
             refSubSelects.put(
                 refAlias,
-                getQueryForField(
+                jsonCreateQueryForField(
                     (SqlTableMetadata) subColumn.getRefTable(),
-                    subColumn,
+                    subColumn.isRefback()
+                        ? new Column(subColumn.getTable(), subColumn).setType(REF)
+                        : subColumn,
                     tableAlias,
                     selectedField,
                     selectedField.getFilter(),
                     new String[0]));
-          } else if (tableAlias.endsWith("_groupBy") && subColumn.isRefback()) {
-            // refback will use primary key
-            refJoinFields.addAll(
-                table.getPrimaryKeyFields().stream()
-                    .map(ref -> field(name(alias(tableAlias), ref.getName())).as(ref.getName()))
-                    .toList());
           } else {
             dataFields.add(
-                getQueryForField(
+                jsonCreateQueryForField(
                         (SqlTableMetadata) subColumn.getRefTable(),
                         subColumn,
                         tableAlias,
@@ -513,7 +524,6 @@ public class SqlQuery extends QueryBean {
                         new String[0])
                     .asField(fieldName));
           }
-
         } else if (subColumn.getColumnType().getBaseType().equals(ColumnType.PERIOD)) {
           dataFields.add(intervalField(tableAlias, subColumn));
         } else if (subColumn.isFile()) {
@@ -540,24 +550,33 @@ public class SqlQuery extends QueryBean {
                     .flatMap(Set::stream)
                     .collect(Collectors.toSet()))
             .from(tableWithInheritanceJoin(table).as(name(alias(tableAlias))));
-    primaryTableSelect = limitOffsetOrderBy(table, select, primaryTableSelect, tableAlias);
 
     // filtering
-    // todo remove parent filtering from this
-    List<Condition> conditions = getFilterConditions(table, null, tableAlias, filters, searchTerms);
+    List<Condition> conditions = new ArrayList<>();
+    if (filters != null) {
+      conditions.addAll(
+          // column should be null when nesting (is only used for refJoinCondition)
+          jsonFilterQueryConditions(table, null, tableAlias, tableAlias, filters, searchTerms));
+    }
+    if (searchTerms.length > 0) {
+      conditions.add(jsonSearchConditions(table, tableAlias, searchTerms));
+    }
     if (parentColumn != null) {
       // in case of groupBy the parentColumn will have been unnested, so we fix it
       Column joinColumn = parentColumn;
       String prefix = "";
       if (parentAlias.endsWith("_groupBy") && parentColumn.isRefArray()) {
         joinColumn = new Column(parentColumn.getTable(), parentColumn).setType(REF);
-        prefix = "_parent_";
+        prefix = parentPrefix;
       }
       conditions.add(refJoinCondition(joinColumn, parentAlias, tableAlias, prefix));
     }
     if (!conditions.isEmpty()) {
       primaryTableSelect = (SelectJoinStep<Record>) primaryTableSelect.where(conditions);
     }
+    // limit offset
+    primaryTableSelect = limitOffsetOrderBy(table, select, primaryTableSelect, tableAlias);
+
     // in case of groupBy we might have unnested ref_array
     for (TableLike unnestedRefArray : unnestedRefArrayJoins) {
       primaryTableSelect = primaryTableSelect.leftJoin(lateral(unnestedRefArray)).on();
@@ -610,7 +629,9 @@ public class SqlQuery extends QueryBean {
       jsonSelect =
           (SelectJoinStep<Record1<Object>>)
               jsonSelect.orderBy(
-                  groupByFields.stream().map(f -> field(name(f.getName()))).toList());
+                  groupByFields.stream()
+                      .map(f -> field(name(alias(tableAlias), f.getName())))
+                      .toList());
     }
     return jsonSelect;
   }
@@ -1029,8 +1050,8 @@ public class SqlQuery extends QueryBean {
                                 .eq(field(name(alias(subAlias), ref.getName())))
                             : condition(
                                 ANY_SQL,
-                                field(name(alias(tableAlias), parentPrefix + ref.getRefTo())),
-                                field(name(alias(subAlias), ref.getName()))))
+                                field(name(alias(tableAlias), ref.getRefTo())),
+                                field(name(alias(subAlias), parentPrefix + ref.getName()))))
                 .toList());
       }
     } else {
