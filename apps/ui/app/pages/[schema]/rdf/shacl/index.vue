@@ -186,25 +186,21 @@ onMounted(async () => {
                 <BaseIcon
                   name="progress-activity"
                   class="animate-spin m-auto flex-none"
-                  width.number="32"
                   v-if="shaclSet.status === 'RUNNING'"
                 />
                 <BaseIcon
                   name="check"
                   class="m-auto flex-none"
-                  width.number="32"
                   v-else-if="shaclSet.status === 'VALID'"
                 />
                 <BaseIcon
                   name="cross"
                   class="m-auto flex-none"
-                  width.number="32"
                   v-else-if="shaclSet.status === 'INVALID'"
                 />
                 <BaseIcon
                   name="exclamation"
                   class="m-auto flex-none"
-                  width.number="32"
                   v-else-if="shaclSet.status === 'ERROR'"
                 />
               </TableCell>
@@ -277,25 +273,25 @@ onMounted(async () => {
                 <BaseIcon
                   name="progress-activity"
                   class="animate-spin flex-none"
-                  width.number="32"
+                  :width="30"
                   v-if="shaclSet.status === 'RUNNING'"
                 />
                 <BaseIcon
                   name="check"
                   class="flex-none"
-                  width.number="32"
+                  :width="30"
                   v-else-if="shaclSet.status === 'VALID'"
                 />
                 <BaseIcon
                   name="cross"
                   class="flex-none"
-                  width.number="32"
+                  :width="30"
                   v-else-if="shaclSet.status === 'INVALID'"
                 />
                 <BaseIcon
                   name="exclamation"
                   class="flex-none"
-                  width.number="32"
+                  :width="30"
                   v-else-if="shaclSet.status === 'ERROR'"
                 />
                 <Button
