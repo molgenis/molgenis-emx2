@@ -4,11 +4,11 @@ To be deleted upon finishing tests.
 """
 import asyncio
 
-from tests.test_client import test_delete_records
+from tests.test_get import test_columns_okay
 
 
 def main():
-    asyncio.run(test_delete_records())
+    test_columns_okay()
 
 
 if __name__ == '__main__':

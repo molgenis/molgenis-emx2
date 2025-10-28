@@ -53,7 +53,15 @@ def test_columns_fail():
 
 def test_columns_okay():
     """Tests get with specifying columns."""
-    ...
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        pets_list = client.get(schema="pet store", table="Pet", columns=["name", "weight", "orders"])
+        assert list(pets_list[0].keys()) == ["name", "weight", "orders"]
+
+        pets_df = client.get(schema="pet store", table="Pet", columns=["name", "weight", "orders"], as_df=True)
+        assert list(pets_df.columns) == ["name", "weight", "orders"]
+
 
 def test_query_filter_fail():
     """Tests get fail with incorrect query filter."""
