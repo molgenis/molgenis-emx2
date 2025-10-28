@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { useFetch } from "#app/composables/fetch";
-import {navigateTo} from "#app/composables/router";
+import { navigateTo } from "#app/composables/router";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import Container from "../../../../../tailwind-components/app/components/Container.vue"
-import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue"
-import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue"
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Table from "../../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../../tailwind-components/app/components/TableHeadRow.vue";
@@ -13,9 +13,11 @@ import TableRow from "../../../../../tailwind-components/app/components/TableRow
 import TableCell from "../../../../../tailwind-components/app/components/TableCell.vue";
 
 const route = useRoute();
-const schema = (Array.isArray(route.params.schema)
-  ? route.params.schema[0]
-  : route.params.schema) as string;
+const schema = (
+  Array.isArray(route.params.schema)
+    ? route.params.schema[0]
+    : route.params.schema
+) as string;
 
 useHead({ title: `RDF - ${schema} - Molgenis` });
 

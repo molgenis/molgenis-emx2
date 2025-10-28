@@ -2,28 +2,29 @@
 import { useFetch } from "#app/composables/fetch";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import {ref, onMounted, computed} from "vue";
+import { ref, onMounted } from "vue";
 import { parse } from "yaml";
-import type {ShaclSet} from "../../../../../../metadata-utils/src/rdf";
-import Container from "../../../../../../tailwind-components/app/components/Container.vue"
-import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue"
-import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue"
-import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue"
-import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue"
-import Message from "../../../../../../tailwind-components/app/components/Message.vue"
+import type { ShaclSet } from "../../../../../../metadata-utils/src/rdf";
+import Container from "../../../../../../tailwind-components/app/components/Container.vue";
+import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
+import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
+import Message from "../../../../../../tailwind-components/app/components/Message.vue";
 import Table from "../../../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableCell from "../../../../../../tailwind-components/app/components/TableCell.vue";
-import ButtonDownloadBlob
-  from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import Button from "../../../../../../tailwind-components/app/components/Button.vue";
+import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayOutput from "../../../../../../tailwind-components/app/components/display/Output.vue";
 
 const route = useRoute();
-const schema = (Array.isArray(route.params.schema)
+const schema = (
+  Array.isArray(route.params.schema)
     ? route.params.schema[0]
-    : route.params.schema) as string;
+    : route.params.schema
+) as string;
 
 useHead({ title: `SHACL - RDF - ${schema}  - Molgenis` });
 
@@ -74,14 +75,14 @@ async function fetchShacls(): Promise<string> {
     );
   }
 
-  const output = (data.value as unknown) as string;
+  const output = data.value as unknown as string;
   return parse(output);
 }
 
 function validateShaclOutput(output: string): boolean {
   return output
-      .substring(0, 100)
-      .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
+    .substring(0, 100)
+    .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
 }
 
 async function runShacl(shaclSet: ShaclSetValidation) {
@@ -110,13 +111,13 @@ function toggleShaclOutputView(shaclSet: ShaclSetValidation) {
 onMounted(async () => {
   Promise.resolve(fetchShacls())
     .then((data) => {
-      shaclSetValidations.value = (data as unknown) as ShaclSetValidation[];
+      shaclSetValidations.value = data as unknown as ShaclSetValidation[];
       shaclSetValidations.value.forEach((i) => {
         i.status = "UNKNOWN";
         i.output = "";
         i.error = "";
         i.isViewed = false;
-      })
+      });
     })
     .catch((err) => {
       error.value = err;
@@ -178,62 +179,74 @@ onMounted(async () => {
             <tr v-for="shaclSet in shaclSetValidations">
               <TableCell>
                 <BaseIcon
-                    name="progress-activity"
-                    class="animate-spin m-auto"
-                    width.number="32"
-                    v-if="shaclSet.status === 'RUNNING'"
+                  name="progress-activity"
+                  class="animate-spin m-auto"
+                  width.number="32"
+                  v-if="shaclSet.status === 'RUNNING'"
                 />
                 <BaseIcon
-                    name="check"
-                    class="m-auto"
-                    width.number="32"
-                    v-else-if="shaclSet.status === 'VALID'"
+                  name="check"
+                  class="m-auto"
+                  width.number="32"
+                  v-else-if="shaclSet.status === 'VALID'"
                 />
                 <BaseIcon
-                    name="cross"
-                    class="m-auto"
-                    width.number="32"
-                    v-else-if="shaclSet.status === 'INVALID'"
+                  name="cross"
+                  class="m-auto"
+                  width.number="32"
+                  v-else-if="shaclSet.status === 'INVALID'"
                 />
                 <BaseIcon
-                    name="exclamation"
-                    class="m-auto"
-                    width.number="32"
-                    v-else-if="shaclSet.status === 'ERROR'"
+                  name="exclamation"
+                  class="m-auto"
+                  width.number="32"
+                  v-else-if="shaclSet.status === 'ERROR'"
                 />
               </TableCell>
-              <TableCell><div class="flex flex-col gap-2.5 md:flex-row md:gap-5">
-                <Button
+              <TableCell>
+                <div class="flex flex-col gap-2.5 md:flex-row md:gap-5">
+                  <Button
                     type="primary"
                     size="tiny"
                     :disabled="shaclSet.status === 'RUNNING'"
                     @click.prevent="runShacl(shaclSet)"
-                >validate</Button
-                >
-                <Button
+                  >
+                    validate
+                  </Button>
+                  <Button
                     type="outline"
                     size="tiny"
                     icon="plus"
                     label="view"
-                    :disabled="shaclSet.status === 'RUNNING' || shaclSet.status === 'UNKNOWN'"
+                    :disabled="
+                      shaclSet.status === 'RUNNING' ||
+                      shaclSet.status === 'UNKNOWN'
+                    "
                     @click.prevent="toggleShaclOutputView(shaclSet)"
-                />
-                <ButtonDownloadBlob
+                  />
+                  <ButtonDownloadBlob
                     size="tiny"
-                    :disabled="shaclSet.status !== 'VALID' && shaclSet.status !== 'INVALID'"
+                    :disabled="
+                      shaclSet.status !== 'VALID' &&
+                      shaclSet.status !== 'INVALID'
+                    "
                     :data="shaclSet.output"
                     mediaType="text/turtle"
                     :fileName="`${schema} - shacl - ${shaclSet.id}.ttl`"
-                />
-              </div></TableCell>
+                  />
+                </div>
+              </TableCell>
               <TableCell>{{ shaclSet.name }}</TableCell>
               <TableCell class="text-right">{{ shaclSet.version }}</TableCell>
               <TableCell>
                 <ol>
-                  <li v-for="source in shaclSet.sources" class="mb-2.5 last:mb-0">
+                  <li
+                    v-for="source in shaclSet.sources"
+                    class="mb-2.5 last:mb-0"
+                  >
                     <a class="line-clamp-1" :href="source" target="_blank">{{
-                        source
-                      }}</a>
+                      source
+                    }}</a>
                   </li>
                 </ol>
               </TableCell>
@@ -243,41 +256,43 @@ onMounted(async () => {
         <div v-for="shaclSet in shaclSetValidations">
           <div v-if="shaclSet.isViewed">
             <div class="flex items-center gap-2.5">
-            <Button
+              <Button
                 type="outline"
                 size="small"
                 icon="caretLeft"
                 label="go back"
                 @click.prevent="toggleShaclOutputView(shaclSet)"
-            />
-              <BaseIcon
-                  name="progress-activity"
-                  class="animate-spin"
-                  width.number="32"
-                  v-if="shaclSet.status === 'RUNNING'"
               />
               <BaseIcon
-                  name="check"
-                  width.number="32"
-                  v-else-if="shaclSet.status === 'VALID'"
+                name="progress-activity"
+                class="animate-spin"
+                width.number="32"
+                v-if="shaclSet.status === 'RUNNING'"
               />
               <BaseIcon
-                  name="cross"
-                  width.number="32"
-                  v-else-if="shaclSet.status === 'INVALID'"
+                name="check"
+                width.number="32"
+                v-else-if="shaclSet.status === 'VALID'"
               />
               <BaseIcon
-                  name="exclamation"
-                  width.number="32"
-                  v-else-if="shaclSet.status === 'ERROR'"
+                name="cross"
+                width.number="32"
+                v-else-if="shaclSet.status === 'INVALID'"
               />
-            <h3 class="uppercase text-heading-4xl font-display">{{ shaclSet.name}} (version: {{shaclSet.version}})</h3>
+              <BaseIcon
+                name="exclamation"
+                width.number="32"
+                v-else-if="shaclSet.status === 'ERROR'"
+              />
+              <h3 class="uppercase text-heading-4xl font-display">
+                {{ shaclSet.name }} (version: {{ shaclSet.version }})
+              </h3>
             </div>
             <Message
-                :id="`shacl-validation-${shaclSet.id}-error`"
-                class="my-8"
-                :invalid="true"
-                v-if="shaclSet.error"
+              :id="`shacl-validation-${shaclSet.id}-error`"
+              class="my-8"
+              :invalid="true"
+              v-if="shaclSet.error"
             >
               <span>{{ shaclSet.error }}</span>
             </Message>
