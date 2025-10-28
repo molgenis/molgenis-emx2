@@ -1,2 +1,6 @@
 name,code,ontologyTermURI
 Health,,http://publications.europa.eu/resource/authority/data-theme/HEAL
+Agriculture,,http://publications.europa.eu/resource/authority/data-theme/AGRI
+Environment,,http://publications.europa.eu/resource/authority/data-theme/ENVI
+Energy,,http://publications.europa.eu/resource/authority/data-theme/ENER
+Government and public sector,,http://publications.europa.eu/resource/authority/data-theme/GOVE
