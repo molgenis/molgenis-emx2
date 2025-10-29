@@ -62,6 +62,10 @@ commands:
   pre_steps:
     steps:
     - checkout
+    - run:
+        name: run-audit-ci
+        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
+        working_directory: apps
     - run: git fetch --all --tags
     - run:
         name: Setup git, todo, move to molgenisci user
