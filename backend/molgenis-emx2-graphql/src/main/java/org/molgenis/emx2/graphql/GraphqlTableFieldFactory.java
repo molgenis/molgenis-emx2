@@ -750,59 +750,61 @@ public class GraphqlTableFieldFactory {
   }
 
   /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
-  private SelectColumn[] convertMapSelection(
-      TableMetadata aTable, DataFetchingFieldSelectionSet selection) {
-    List<SelectColumn> result = new ArrayList<>();
-    for (SelectedField s : selection.getFields()) {
-      if (!s.getQualifiedName().contains("/")) {
-        if (s.getSelectionSet().getFields().isEmpty()) {
-          Optional<Column> column = findColumnById(aTable, s.getName());
-          if (column.isPresent()) {
-            result.add(new SelectColumn(column.get().getName()));
-          } else {
-            result.add(new SelectColumn(s.getName()));
-          }
-        } else {
-          Optional<Column> column = findColumnById(aTable, s.getName());
-          if (column.isPresent()) {
-            SelectColumn sc =
-                new SelectColumn(
-                    column.get().getName()
-                        + (s.getName().endsWith("_agg")
-                            ? "_agg"
-                            : s.getName().endsWith("_groupBy") ? "_groupBy" : ""),
-                    convertMapSelection(
-                        column.get().isReference() ? column.get().getRefTable() : null,
-                        s.getSelectionSet()));
-            // get limit and offset for the selection
-            Map<String, Object> args = s.getArguments();
-            if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
-              sc.where(
-                  convertMapToFilterArray(
-                      column.get().getRefTable(),
-                      (Map<String, Object>) args.get(GraphqlConstants.FILTER_ARGUMENT)));
-            }
-            if (args.containsKey(GraphqlConstants.LIMIT)) {
-              sc.setLimit((int) args.get(GraphqlConstants.LIMIT));
-            }
-            if (args.containsKey(GraphqlConstants.OFFSET)) {
-              sc.setOffset((int) args.get(GraphqlConstants.OFFSET));
-            }
-            if (args.containsKey(GraphqlConstants.ORDERBY)) {
-              TableMetadata orderByTable =
-                  column.get().isReference() ? column.get().getRefTable() : column.get().getTable();
-              sc.setOrderBy(convertOrderByIdsToNames(orderByTable, args));
-            }
-            result.add(sc);
-          } else if (agg_fields.contains(s.getName())) {
-            result.add(
-                new SelectColumn(s.getName(), convertMapSelection(aTable, s.getSelectionSet())));
-          }
-        }
-      }
-    }
-    return result.toArray(new SelectColumn[result.size()]);
-  }
+  //  private SelectColumn[] convertMapSelection(
+  //      TableMetadata aTable, DataFetchingFieldSelectionSet selection) {
+  //    List<SelectColumn> result = new ArrayList<>();
+  //    for (SelectedField s : selection.getFields()) {
+  //      if (!s.getQualifiedName().contains("/")) {
+  //        if (s.getSelectionSet().getFields().isEmpty()) {
+  //          Optional<Column> column = findColumnById(aTable, s.getName());
+  //          if (column.isPresent()) {
+  //            result.add(new SelectColumn(column.get().getName()));
+  //          } else {
+  //            result.add(new SelectColumn(s.getName()));
+  //          }
+  //        } else {
+  //          Optional<Column> column = findColumnById(aTable, s.getName());
+  //          if (column.isPresent()) {
+  //            SelectColumn sc =
+  //                new SelectColumn(
+  //                    column.get().getName()
+  //                        + (s.getName().endsWith("_agg")
+  //                            ? "_agg"
+  //                            : s.getName().endsWith("_groupBy") ? "_groupBy" : ""),
+  //                    convertMapSelection(
+  //                        column.get().isReference() ? column.get().getRefTable() : null,
+  //                        s.getSelectionSet()));
+  //            // get limit and offset for the selection
+  //            Map<String, Object> args = s.getArguments();
+  //            if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
+  //              sc.where(
+  //                  convertMapToFilterArray(
+  //                      column.get().getRefTable(),
+  //                      (Map<String, Object>) args.get(GraphqlConstants.FILTER_ARGUMENT)));
+  //            }
+  //            if (args.containsKey(GraphqlConstants.LIMIT)) {
+  //              sc.setLimit((int) args.get(GraphqlConstants.LIMIT));
+  //            }
+  //            if (args.containsKey(GraphqlConstants.OFFSET)) {
+  //              sc.setOffset((int) args.get(GraphqlConstants.OFFSET));
+  //            }
+  //            if (args.containsKey(GraphqlConstants.ORDERBY)) {
+  //              TableMetadata orderByTable =
+  //                  column.get().isReference() ? column.get().getRefTable() :
+  // column.get().getTable();
+  //              sc.setOrderBy(convertOrderByIdsToNames(orderByTable, args));
+  //            }
+  //            result.add(sc);
+  //          } else if (agg_fields.contains(s.getName())) {
+  //            result.add(
+  //                new SelectColumn(s.getName(), convertMapSelection(aTable,
+  // s.getSelectionSet())));
+  //          }
+  //        }
+  //      }
+  //    }
+  //    return result.toArray(new SelectColumn[result.size()]);
+  //  }
 
   private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
@@ -818,6 +820,86 @@ public class GraphqlTableFieldFactory {
     }
   }
 
+  private SelectColumn[] convertMapSelection(
+      TableMetadata table, DataFetchingFieldSelectionSet selection) {
+
+    List<SelectColumn> result = new ArrayList<>();
+    if (selection == null) return new SelectColumn[0];
+
+    // ✅ 1. Precompute column lookup map once per table
+    Map<String, Column> columnById = buildColumnLookupMap(table);
+
+    // ✅ 2. Iterate once over selected fields
+    for (SelectedField s : selection.getFields()) {
+      String name = s.getName();
+
+      // Skip nested GraphQL paths like "foo/bar"
+      if (s.getQualifiedName().contains("/")) continue;
+
+      List<SelectedField> subFields = s.getSelectionSet().getFields();
+      Map<String, Object> args = s.getArguments();
+      Column column = columnById.get(name);
+
+      if (subFields.isEmpty()) {
+        // --- Simple leaf field ---
+        result.add(new SelectColumn(column != null ? column.getName() : name));
+
+      } else {
+        // --- Nested or aggregate field ---
+        String suffix =
+            name.endsWith("_agg") ? "_agg" : name.endsWith("_groupBy") ? "_groupBy" : "";
+
+        if (column != null) {
+          TableMetadata refTable = column.isReference() ? column.getRefTable() : null;
+
+          SelectColumn nested =
+              new SelectColumn(
+                  column.getName() + suffix, convertMapSelection(refTable, s.getSelectionSet()));
+
+          // --- Handle filters, limits, offsets, orderby ---
+          if (args != null && !args.isEmpty()) {
+            if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
+              nested.where(
+                  convertMapToFilterArray(
+                      refTable, (Map<String, Object>) args.get(GraphqlConstants.FILTER_ARGUMENT)));
+            }
+            if (args.containsKey(GraphqlConstants.LIMIT)) {
+              nested.setLimit((int) args.get(GraphqlConstants.LIMIT));
+            }
+            if (args.containsKey(GraphqlConstants.OFFSET)) {
+              nested.setOffset((int) args.get(GraphqlConstants.OFFSET));
+            }
+            if (args.containsKey(GraphqlConstants.ORDERBY)) {
+              TableMetadata orderByTable =
+                  column.isReference() ? column.getRefTable() : column.getTable();
+              nested.setOrderBy(convertOrderByIdsToNames(orderByTable, args));
+            }
+          }
+          result.add(nested);
+
+        } else if (agg_fields.contains(name)) {
+          // --- Aggregate pseudo-field ---
+          result.add(new SelectColumn(name, convertMapSelection(table, s.getSelectionSet())));
+        }
+      }
+    }
+
+    return result.toArray(SelectColumn[]::new);
+  }
+
+  private static Map<String, Column> buildColumnLookupMap(TableMetadata table) {
+    if (table == null) return Map.of();
+    List<Column> cols = table.getColumnsIncludingSubclasses();
+
+    Map<String, Column> lookup = new HashMap<>(cols.size() * 3);
+    for (Column c : cols) {
+      lookup.put(c.getIdentifier(), c);
+      lookup.put(c.getIdentifier() + "_agg", c);
+      lookup.put(c.getIdentifier() + "_groupBy", c);
+    }
+    return lookup;
+  }
+
   private DataFetcher fetcherForTableQueryField(TableMetadata aTable) {
     return dataFetchingEnvironment -> {
       Table table = aTable.getTable();
@@ -828,7 +910,13 @@ public class GraphqlTableFieldFactory {
       } else if (fieldName.endsWith("_groupBy")) {
         q = table.groupBy();
       }
+
+      long step = System.currentTimeMillis();
       q.select(convertMapSelection(aTable, dataFetchingEnvironment.getSelectionSet()));
+
+      System.out.println("converted select in " + (System.currentTimeMillis() - step) + "ms");
+      step = System.currentTimeMillis();
+
       Map<String, Object> args = dataFetchingEnvironment.getArguments();
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
@@ -836,6 +924,10 @@ public class GraphqlTableFieldFactory {
                 table.getMetadata(),
                 dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }
+
+      System.out.println("converted filter in " + (System.currentTimeMillis() - step) + "ms");
+      step = System.currentTimeMillis();
+
       if (args.containsKey(GraphqlConstants.LIMIT)) {
         q.limit((int) args.get(GraphqlConstants.LIMIT));
       }
@@ -850,6 +942,9 @@ public class GraphqlTableFieldFactory {
       if (search != null && !search.trim().equals("")) {
         q.search(search);
       }
+
+      System.out.println(
+          "prepared the graphql query in " + (System.currentTimeMillis() - step) + "ms");
 
       Object result = transform(q.retrieveJSON());
       // bit silly, we have to remove root field here. Some refactoring makes this look nicer

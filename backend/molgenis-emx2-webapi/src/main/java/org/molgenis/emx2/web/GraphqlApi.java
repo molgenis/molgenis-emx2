@@ -91,20 +91,20 @@ public class GraphqlApi {
   }
 
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {
+    long start = System.currentTimeMillis();
+
+    long step = System.currentTimeMillis();
+
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
     Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
-
-    long start = System.currentTimeMillis();
 
     // we don't log password calls
     if (logger.isInfoEnabled()) {
       if (query.contains("password")) {
         logger.info("query: obfuscated because contains parameter with name 'password'");
       } else {
-        String flatQuery = query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " ");
-        logger.info("query: {}", flatQuery.substring(0, Math.min(query.length(), 100)));
         // logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
       }
     }
@@ -123,7 +123,12 @@ public class GraphqlApi {
           g.execute(ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
     }
 
+    logger.info("graphql request executed in {}ms", (System.currentTimeMillis() - step));
+    step = System.currentTimeMillis();
+
     String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
+
+    logger.info("graphql result converted in {}ms", (System.currentTimeMillis() - step));
 
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
