@@ -8,9 +8,9 @@
 
   <div>
     <DemoDataControls
-      :include-row-select="false"
       v-model:metadata="metadata"
       v-model:schemaId="schemaId"
+      v-model:tableId="tableId"
     >
     </DemoDataControls>
   </div>
@@ -23,4 +23,5 @@ import DemoDataControls from "../../DemoDataControls.vue";
 
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>("type test");
+const tableId = ref<string>("Types");
 </script>

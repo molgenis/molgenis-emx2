@@ -12,6 +12,8 @@
       v-model:metadata="metadata"
       v-model:schemaId="schemaId"
       v-model:formValues="formValues"
+      v-model:tableId="tableId"
+      :include-row-select="true"
     >
     </DemoDataControls>
   </div>
@@ -29,4 +31,5 @@ import DemoDataControls from "../../DemoDataControls.vue";
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>("type test");
 const formValues = ref<Record<columnId, columnValue>>({});
+const tableId = ref<string>("Types");
 </script>
