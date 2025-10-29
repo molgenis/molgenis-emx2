@@ -1,7 +1,7 @@
 <template>
   <address :class="cssClassNames">
     <span><strong>University Medical Centre Groningen</strong></span>
-    <span>NESTOR registry</span>
+    <span>NESTOR Registry</span>
     <span>Department of Medical Genetics</span>
     <span>Antonius Deusinglaan 1, 9713 AV Groningen</span>
     <span>The Netherlands</span>

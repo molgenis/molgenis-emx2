@@ -7,7 +7,6 @@ import java.util.List;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
-import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -91,10 +90,5 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
         }
       }
     }
-
-    getWriter()
-        .processTriple(subject, DCTERMS.CREATED, Values.literal(row.getDateTime("mg_insertedOn")));
-    getWriter()
-        .processTriple(subject, DCTERMS.MODIFIED, Values.literal(row.getDateTime("mg_updatedOn")));
   }
 }

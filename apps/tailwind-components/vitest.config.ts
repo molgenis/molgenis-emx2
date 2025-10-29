@@ -2,11 +2,11 @@ import { defineVitestConfig } from "@nuxt/test-utils/config";
 
 export default defineVitestConfig({
   test: {
-    environment: "happy-dom",
+    environment: "nuxt",
     include: ["tests/vitest/**/**/*.spec.ts"],
     coverage: {
-      include: ["components/**/*.vue", "composables/**/*.ts", "utils/**/*.ts"],
-      exclude: ["components/global/**/*.vue"],
+      include: ["app/components/**/*.vue", "app/composables/**/*.ts", "app/utils/**/*.ts"],
+      exclude: ["app/components/global/**/*.vue", "server/**", "tests/**", "app/types/**"],
       reporter: ["text", "lcov"],
     },
   },

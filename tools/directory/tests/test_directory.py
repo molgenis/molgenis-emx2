@@ -45,26 +45,6 @@ async def test_stage_external_nodes(eric):
 
 
 @pytest.mark.asyncio
-async def test_publish_node_staging_fails(eric, async_session, report_init):
-    nl = ExternalServerNode("NL", "Netherlands", None, "url")
-    state = _setup_state([nl], eric, report_init)
-
-    error = DirectoryError("error")
-    eric.stager.stage.side_effect = error
-
-    report = await eric.publish_nodes([nl])
-
-    eric.printer.print_node_title.assert_called_once_with(nl)
-    eric.stager.stage.assert_called_with(nl)
-    assert not async_session.get_published_node_data.called
-    assert not eric.preparator.prepare.called
-    assert await eric.publisher.publish.called_with(state)
-    assert len(state.data_to_publish.biobanks.rows_by_id) == 0
-    assert report.node_errors[nl] == error
-    eric.printer.print_summary.assert_called_once_with(report)
-
-
-@pytest.mark.asyncio
 async def test_publish_node_prepare_fails(eric, report_init):
     nl = ExternalServerNode("NL", "Netherlands", None, "url")
     state = _setup_state([nl], eric, report_init)
@@ -75,7 +55,7 @@ async def test_publish_node_prepare_fails(eric, report_init):
     report = await eric.publish_nodes([nl])
 
     eric.printer.print_node_title.assert_called_once_with(nl)
-    eric.stager.stage.assert_called_with(nl)
+    eric.preparator.prepare.assert_called_with(nl, state)
     assert await eric.publisher.publish.called_with(state)
     assert report.node_errors[nl] == error
     eric.printer.print_summary.assert_called_once_with(report)
@@ -89,12 +69,10 @@ async def test_publish_nodes(eric, report_init):
 
     error = DirectoryError("error")
     eric.publisher.publish.side_effect = error
-    eric.stager.stage.return_value = []
 
     report = await eric.publish_nodes([no, nl])
 
     assert eric.printer.print_node_title.mock_calls == [call(no), call(nl)]
-    eric.stager.stage.assert_has_calls([call(nl)])
     eric.preparator.prepare.assert_has_calls(
         [call(no, state), call(nl, state)], any_order=True
     )

@@ -19,6 +19,7 @@ from .errors import MolgenisRequestError
 from .model import (
     DirectoryData,
     ExternalServerNode,
+    FileIngestNode,
     MixedData,
     Node,
     NodeData,
@@ -253,7 +254,9 @@ class DirectorySession(Session):
         self._validate_codes([code], nodes)
         return self._to_nodes(nodes)[0]
 
-    def get_external_nodes(self, codes: List[str] = None) -> List[ExternalServerNode]:
+    def get_external_nodes(
+        self, codes: List[str] = None
+    ) -> List[ExternalServerNode | FileIngestNode]:
         """
         Retrieves a list of ExternalServerNode objects from the national nodes table.
         Will return all nodes or some nodes if 'codes' is specified.
@@ -265,13 +268,18 @@ class DirectorySession(Session):
                 table=self.NODES_TABLE, query_filter=f"id == {codes}", as_df=True
             )
         else:
-            df_nodes = self.get(table=self.NODES_TABLE, as_df=True)
+            df_nodes = self.get(
+                table=self.NODES_TABLE,
+                query_filter="data_refresh.name == ['file_ingest', 'external_server']",
+                as_df=True,
+            )
 
-        df_nodes = df_nodes.loc[df_nodes["dns"] != ""]
         nodes = df_nodes.to_dict("records")
 
         if codes:
             self._validate_codes(codes, nodes)
+        else:
+            self._check_dns(nodes)
         return self._to_nodes(nodes)
 
     @staticmethod
@@ -283,19 +291,18 @@ class DirectorySession(Session):
                 raise KeyError(f"Unknown code: {code}")
 
     @staticmethod
+    def _check_dns(nodes: List[dict]):
+        """Raises a ValueError if the external node has no dns specified"""
+        for node in nodes:
+            if not node['dns']:
+                raise ValueError(f"Missing dns value for node {node['id']}")
+
+    @staticmethod
     def _to_nodes(nodes: List[dict]):
         """Maps rows to Node or ExternalServerNode objects."""
-        result = list()
+        result = []
         for node in nodes:
-            if "dns" not in node:
-                result.append(
-                    Node(
-                        code=node["id"],
-                        description=node["description"],
-                        date_end=node.get("date_end"),
-                    )
-                )
-            else:
+            if node['data_refresh'] == 'external_server':
                 result.append(
                     ExternalServerNode(
                         code=node["id"],
@@ -303,6 +310,23 @@ class DirectorySession(Session):
                         date_end=node.get("date_end"),
                         url=node["dns"],
                         token=os.getenv(f"{node['id']}_user"),
+                    )
+                )
+            elif node['data_refresh'] == 'file_ingest':
+                result.append(
+                    FileIngestNode(
+                        code=node["id"],
+                        description=node["description"],
+                        date_end=node.get("date_end"),
+                        url=node["dns"],
+                    )
+                )
+            else:
+                result.append(
+                    Node(
+                        code=node["id"],
+                        description=node["description"],
+                        date_end=node.get("date_end"),
                     )
                 )
 
@@ -444,7 +468,7 @@ class ExternalServerSession(DirectorySession):
 
     def get_node_data(self) -> NodeData:
         """
-        Gets the six tables of this node's external server.
+        Gets the tables of this node's external server.
 
         :return: a NodeData object
         """
