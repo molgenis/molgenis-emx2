@@ -16,6 +16,7 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
@@ -754,10 +755,17 @@ public class GraphqlTableFieldFactory {
 
   /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
   private SelectColumn[] convertMapSelection(
-      TableMetadata aTable, DataFetchingFieldSelectionSet selection) {
+      TableMetadata table, DataFetchingFieldSelectionSet selection) {
     List<SelectColumn> result = new ArrayList<>();
     if (selection == null) return new SelectColumn[0];
-    Map<String, Column> columnById = buildColumnLookupMap(aTable);
+    Map<String, Column> columnIdentifierMap =
+        table.getColumnsIncludingSubclasses().stream()
+            .collect(
+                Collectors.toMap(
+                    Column::getIdentifier,
+                    Function.identity(),
+                    // might be duplicates from subclass
+                    (existing, replacement) -> existing));
     for (SelectedField s : selection.getFields()) {
       String name = s.getName();
 
@@ -766,7 +774,7 @@ public class GraphqlTableFieldFactory {
 
       List<SelectedField> subFields = s.getSelectionSet().getFields();
       Map<String, Object> args = s.getArguments();
-      Column column = columnById.get(name);
+      Column column = columnIdentifierMap.get(name.replaceAll("(_agg|_groupBy)$", ""));
 
       if (subFields.isEmpty()) {
         // --- Simple leaf field ---
@@ -807,7 +815,7 @@ public class GraphqlTableFieldFactory {
 
         } else if (agg_fields.contains(name)) {
           // --- Aggregate pseudo-field ---
-          result.add(new SelectColumn(name, convertMapSelection(aTable, s.getSelectionSet())));
+          result.add(new SelectColumn(name, convertMapSelection(table, s.getSelectionSet())));
         }
       }
     }
@@ -815,20 +823,6 @@ public class GraphqlTableFieldFactory {
     return result.toArray(SelectColumn[]::new);
   }
 
-  private static Map<String, Column> buildColumnLookupMap(TableMetadata table) {
-    if (table == null) return Map.of();
-    List<Column> cols = table.getColumnsIncludingSubclasses();
-
-    Map<String, Column> lookup = new HashMap<>(cols.size() * 3);
-    for (Column c : cols) {
-      lookup.put(c.getIdentifier(), c);
-      lookup.put(c.getIdentifier() + "_agg", c);
-      lookup.put(c.getIdentifier() + "_groupBy", c);
-    }
-    return lookup;
-  }
-
-  // todo refactor other parts to also use buildColumnLookupMap?
   private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
       return aTable.getColumnsIncludingSubclasses().stream()
