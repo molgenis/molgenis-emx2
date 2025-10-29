@@ -270,14 +270,15 @@ await client.export(schema='MySchema', table='Resources', filename='Resources-ex
 ```
 
 
-### save_schema
+### save_table
 ```python
-def save_schema(self, 
+def save_table(self, 
                 table: str, 
-                name: str = None, 
+                schema: str = None, 
                 file: str = None, 
                 data: list | pandas.DataFrame = None):
 ```
+Replaces now deprecated `save_schema`.
 Imports or updates records in a table of a named schema.
 The data either originates from a file on the disk, or is supplied by the user after, for example, preprocessing.
 Either `file` or `data` must be supplied. The data must be compatible with the schema to which it is uploaded. 
@@ -287,7 +288,7 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | parameter | type | description                                        | required | default               |
 |-----------|------|----------------------------------------------------|----------|-----------------------|
 | `table`   | str  | the name of a table                                | True     |                       |
-| `name`    | str  | the name of a schema                               | False    | client.default_schema |
+| `schema`  | str  | the name of a schema                               | False    | client.default_schema |
 | `file`    | str  | the location of a `csv` file with data             | False    | None                  |
 | `data`    | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
