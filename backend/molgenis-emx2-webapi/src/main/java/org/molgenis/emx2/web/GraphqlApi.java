@@ -92,9 +92,7 @@ public class GraphqlApi {
 
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {
     long start = System.currentTimeMillis();
-
     long step = System.currentTimeMillis();
-
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
@@ -105,7 +103,7 @@ public class GraphqlApi {
       if (query.contains("password")) {
         logger.info("query: obfuscated because contains parameter with name 'password'");
       } else {
-        // logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+        logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
       }
     }
 
