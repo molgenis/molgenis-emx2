@@ -1,0 +1,25 @@
+{
+  // Set the minimum severity level that will cause the CI to fail.
+  // Options: info | low | moderate | high | critical
+  // this needs to be passed a command line option when using npm >8
+  // "auditLevel": "moderate",
+
+  // Whether to include devDependencies in the audit.
+  "includeDev": true,
+
+  // Optional: packages or advisories to allowlist (ignored even if vulnerable)
+  "allowlist": [
+    // "lodash",
+    // "GHSA-xxxx-xxxx-xxxx"
+    "GHSA-37j7-fg3j-429f",
+    "GHSA-96g7-g7g9-jxw8",
+    "GHSA-phwq-j96m-2c2q",
+    "GHSA-qpm2-6cq5-7pq5"
+  ],
+
+  // Whether to run `npm audit` (default) or `yarn audit`
+  "packageManager": "npm",
+
+  // Optional: use this to suppress warnings
+  "reportType": "summary" // can also be "json" or "important"
+}
