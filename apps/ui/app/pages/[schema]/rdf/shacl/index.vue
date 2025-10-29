@@ -142,15 +142,15 @@ onMounted(async () => {
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
-    </PageHeader>
-    <div>
-      <p class="flex justify-start">
+      <template #description>
         Validate the RDF API output for the complete schema.
         <CustomTooltip
           label=""
           content="Output is deemed valid if nodes adhere to the requirements or those nodes are not present."
         />
-      </p>
+      </template>
+    </PageHeader>
+    <div>
       <div class="mt-8">
         <div class="h-40 flex item-center justify-center" v-if="loading">
           <div class="text-center">

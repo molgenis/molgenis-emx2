@@ -11,6 +11,7 @@ import TableHead from "../../../../../tailwind-components/app/components/TableHe
 import TableHeadRow from "../../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableRow from "../../../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../../../tailwind-components/app/components/TableCell.vue";
+import Hyperlink from "../../../../../tailwind-components/app/components/text/Hyperlink.vue";
 
 const route = useRoute();
 const schema = (
@@ -70,25 +71,16 @@ crumbs["rdf"] = "";
             >
           </TableRow>
         </template>
+        <template #foot>
+          For information about RDF in EMX2, please view the docs about the
+          <Hyperlink name="RDF API" link="/apps/docs/#/molgenis/dev_rdf" />
+          and the
+          <Hyperlink
+            name="semantics field"
+            link="/apps/docs/#/molgenis/dev_rdf"
+          />.
+        </template>
       </Table>
-      <p>
-        For information about RDF in EMX2, please view the docs about the
-        <a
-          href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf"
-          target="_blank"
-          class="underline"
-        >
-          RDF API
-        </a>
-        and the
-        <a
-          href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics"
-          target="_blank"
-          class="underline"
-        >
-          semantics field</a
-        >.
-      </p>
     </div>
   </Container>
 </template>
