@@ -18,14 +18,12 @@ import graphql.schema.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlQuery;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlTableFieldFactory {
-  private static final Logger logger = LoggerFactory.getLogger(SqlQuery.class);
-
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlTableFieldFactory.class);
   // static types
   private static final GraphQLEnumType orderByEnum =
       GraphQLEnumType.newEnum()
