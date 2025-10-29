@@ -756,11 +756,10 @@ public class GraphqlTableFieldFactory {
 
   /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
   private SelectColumn[] convertMapSelection(
-      TableMetadata table, DataFetchingFieldSelectionSet selection) {
-
+      TableMetadata aTable, DataFetchingFieldSelectionSet selection) {
     List<SelectColumn> result = new ArrayList<>();
     if (selection == null) return new SelectColumn[0];
-    Map<String, Column> columnById = buildColumnLookupMap(table);
+    Map<String, Column> columnById = buildColumnLookupMap(aTable);
     for (SelectedField s : selection.getFields()) {
       String name = s.getName();
 
@@ -810,7 +809,7 @@ public class GraphqlTableFieldFactory {
 
         } else if (agg_fields.contains(name)) {
           // --- Aggregate pseudo-field ---
-          result.add(new SelectColumn(name, convertMapSelection(table, s.getSelectionSet())));
+          result.add(new SelectColumn(name, convertMapSelection(aTable, s.getSelectionSet())));
         }
       }
     }
