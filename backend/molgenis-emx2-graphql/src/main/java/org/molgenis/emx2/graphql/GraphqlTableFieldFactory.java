@@ -855,9 +855,6 @@ public class GraphqlTableFieldFactory {
       }
       long step = System.currentTimeMillis();
       q.select(convertMapSelection(aTable, dataFetchingEnvironment.getSelectionSet()));
-
-      logger.info("parsed graphql select in {}ms ", (System.currentTimeMillis() - step));
-      step = System.currentTimeMillis();
       Map<String, Object> args = dataFetchingEnvironment.getArguments();
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
@@ -879,7 +876,8 @@ public class GraphqlTableFieldFactory {
       if (search != null && !search.trim().equals("")) {
         q.search(search);
       }
-      logger.info("parsed grapqhl filter in {}ms", (System.currentTimeMillis() - step));
+      logger.info(
+          "converted graphql to molgenis query in {}ms", (System.currentTimeMillis() - step));
       Object result = transform(q.retrieveJSON());
       // bit silly, we have to remove root field here. Some refactoring makes this look nicer
       if (result != null) {
