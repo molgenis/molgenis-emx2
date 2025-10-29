@@ -1,6 +1,6 @@
 # GraphQL in MOLGENIS
 
-Each database in MOLGENIS has a GraphQL endpoint that exposes a GraphQL API for the data model of that database.
+Each database in MOLGENIS has a GraphQL endpoint that exposes a GraphQL API for the data model of that database. 
 In addition, at the root there is a generic API.
 
 For example:
@@ -19,9 +19,9 @@ These functionalities are available for both the 'root' API and the database API
 
 ### Sign in
 
-Sign in to an existing account.
-When running in a website then a session will be created.
-However, when you use a script you can retrieve a token to authenticate in other calls.
+Sign in to an existing account. 
+When running in a website then a session will be created. 
+However, when you use a script you can retrieve a token to authenticate in other calls. 
 Provide these in subsequent request headers as `x-molgenis-token`.
 
 ```graphql
@@ -503,9 +503,9 @@ wildcards to pass a json object in combintation with your query. Example:
 
 ```javascript
 //untested
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 
-const row = {name: "mickey", category: {name: "cat"}};
+const row = { name: "mickey", category: { name: "cat" } };
 let query = `mutation insert($row: [PetInput]) {
   insert(Pet: $row) {
     message
@@ -513,9 +513,9 @@ let query = `mutation insert($row: [PetInput]) {
 }`;
 
 client
-    .request(query, {Pet: row})
-    .then((data) => console.log(data))
-    .catch((error) => console.log(error));
+  .request(query, { Pet: row })
+  .then((data) => console.log(data))
+  .catch((error) => console.log(error));
 ```
 
 ### Example querying the Pet Store
@@ -532,8 +532,7 @@ Get the name of all the pets
 }
 ```
 
-<small>Tip: if you use ctrl + space inside the curlybraces of, in this case, Pet, you get autocomplete on its
-properties.</small>
+<small>Tip: if you use ctrl + space inside the curlybraces of, in this case, Pet, you get autocomplete on its properties.</small>
 
 Get only the pet named Pooky
 
@@ -649,10 +648,8 @@ Will return:
 When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
 
 - You will find a 'graphql' endpoint automatically served within the root of your app so to easy program against it
-- In case of serving app in a schema, you will get 'schema' graphql endpoint,
-  e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
-- In case of serving the app in 'central' you will get 'database' graphql endpoint,
-  e.g. https://emx2.dev.molgenis.org/apps/central/
+- In case of serving app in a schema, you will get 'schema' graphql endpoint, e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
+- In case of serving the app in 'central' you will get 'database' graphql endpoint, e.g. https://emx2.dev.molgenis.org/apps/central/
 
 <br />
 <br />
@@ -680,10 +677,9 @@ add the following to the dependancies section
   }
 ```
 
-Then open a terminal and type in `yarn`.
+Then open a terminal and type in `npm`.
 
-> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps
-> directory. Open a terminal and type `yarn build`
+> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `npm run build`
 
 Now you can import the library as follows:
 
@@ -723,8 +719,7 @@ to get the results:
 
 When you specify a table using `.table("MyTable")` MyTable is in the case of QueryEMX2 seen as 'root' table.
 
-When you want to filter on the _root_ table you can use the `.where()` function for an _and_ clause and `orWhere()`
-function for a _or_ clause.
+When you want to filter on the _root_ table you can use the `.where()` function for an _and_ clause and `orWhere()` function for a _or_ clause.
 
 Then you combine that with an operator function that takes the filter value as an argument.
 
@@ -745,12 +740,9 @@ the following function are available:
 - _match_any(value)
 - _match_all(value)
 - _match_none(value)
-- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(
-  name))
-- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in
-  children of 'name' term
-- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in
-  children of 'name' term
+- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
+- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 

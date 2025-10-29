@@ -65,22 +65,30 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
+    String currentSectionId = Constants.MG_TOP_OF_FORM; // default first section
     String currentHeadingId = null;
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
-      if (column.getColumnType().equals(ColumnType.HEADING)) {
+      if (column.getColumnType().equals(ColumnType.SECTION)) {
+        currentSectionId = column.getIdentifier();
+        currentHeadingId = null;
+      } else if (column.getColumnType().equals(ColumnType.HEADING)) {
         currentHeadingId = column.getIdentifier();
       }
       Column jsonColumn = new Column(column, tableMetadata, minimal);
       jsonColumn.setHeading(currentHeadingId);
+      jsonColumn.setSection(currentSectionId);
       this.columns.add(jsonColumn);
     }
-    // should always have a heading as first column
-    if (this.columns.size() > 0 && !this.columns.get(0).getColumnType().isHeading()) {
+    // should always have a section as first column
+    if (this.columns.size() > 0
+        && !this.columns.get(0).getColumnType().equals(ColumnType.SECTION)) {
       Column firstHeading = new Column();
       firstHeading.setId(Constants.MG_TOP_OF_FORM);
       firstHeading.setName(Constants.MG_TOP_OF_FORM);
       firstHeading.setLabel("_top");
-      firstHeading.setColumnType(ColumnType.HEADING);
+      firstHeading.setColumnType(ColumnType.SECTION);
+      firstHeading.setSection(Constants.MG_TOP_OF_FORM);
+      firstHeading.setTable(this.name);
       this.columns.add(0, firstHeading);
     }
     this.tableType = tableMetadata.getTableType();

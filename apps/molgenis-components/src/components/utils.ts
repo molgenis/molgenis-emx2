@@ -61,7 +61,7 @@ export async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -145,7 +145,7 @@ export function applyJsTemplate(
     if (label) {
       return label;
     }
-  } catch (err: any) {
+  } catch (err) {
     // The template is not working, lets try and fail gracefully
     console.log(
       err.message +

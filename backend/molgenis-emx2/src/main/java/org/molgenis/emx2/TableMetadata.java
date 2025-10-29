@@ -259,7 +259,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getStoredColumns() {
     return getLocalColumns().stream()
-        .filter(c -> !HEADING.equals(c.getColumnType()) && !c.isRefback())
+        .filter(c -> !c.isHeading() && !c.isRefback())
         .collect(Collectors.toList());
   }
 

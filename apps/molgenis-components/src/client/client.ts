@@ -10,9 +10,9 @@ import type { IRow } from "../Interfaces/IRow";
 import { deepClone, getKeyValue } from "../components/utils";
 import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
-import type { IQueryMetaData } from "../../../tailwind-components/types/IQueryMetaData";
+import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
-import { toFormData } from "../../../tailwind-components/utils/toFormData";
+import { toFormData } from "../../../metadata-utils/src/toFormData";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
@@ -387,7 +387,7 @@ async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,

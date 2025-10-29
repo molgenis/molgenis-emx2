@@ -11,7 +11,7 @@
           :columns="columns"
           @update:columns="emitFilters"
           checkAttribute="showFilter"
-          :exclude="['HEADING', 'FILE']"
+          :exclude="['HEADING', 'FILE', 'SECTION']"
           label="filters"
           icon="filter"
         />
@@ -21,6 +21,7 @@
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
+          :exclude="['HEADING', 'SECTION']"
           label="columns"
           icon="columns"
           id="showColumn"
@@ -33,7 +34,7 @@
           icon="download"
           v-slot="scope"
         >
-          <form class="px-4 py-3" style="min-width: 15rem">
+          <form class="px-4 py-3" style="min-width: 15rem;">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
@@ -829,7 +830,12 @@ function getColumnIds(
   return (
     columns
       //@ts-ignore TODO: remove column input modification in TableMolgenis
-      .filter((column) => column[property] && column.columnType !== "HEADING")
+      .filter(
+        (column) =>
+          column[property] &&
+          column.columnType !== "HEADING" &&
+          column.columnType !== "SECTION"
+      )
       .map((column) => column.id)
   );
 }

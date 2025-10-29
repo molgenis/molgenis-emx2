@@ -10,10 +10,10 @@
       <div v-else>
         <PageHeader
           title="ERN CRANIO Registry"
-          :subtitle="currentOrganisation.name"
+          :subtitle="currentOrganisation?.name"
           :imageSrc="
-            currentOrganisation.image
-              ? `${currentOrganisation.image.url}`
+            currentOrganisation?.image
+              ? `${currentOrganisation?.image.url}`
               : 'img/banner-diagnoses.jpg'
           "
         />
@@ -24,9 +24,9 @@
             :schemaNames="cranioSchemas"
             :api="{
               graphql: {
-                current: `/${currentOrganisation.schemaName}/api/graphql`,
-                public: `/${cranioSchemas.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
-                providers: `/${cranioSchemas.CRANIO_PROVIDER_SCHEMA}/api/graphql`,
+                current: `/${currentOrganisation?.schemaName}/api/graphql`,
+                public: `/${cranioSchemas?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
+                providers: `/${cranioSchemas?.CRANIO_PROVIDER_SCHEMA}/api/graphql`,
               },
             }"
           ></router-view>
@@ -51,7 +51,6 @@ import { Molgenis } from "molgenis-components";
 import {
   Page,
   PageHeader,
-  PageSection,
   Dashboard,
   MessageBox,
   LoadingScreen,
@@ -63,7 +62,6 @@ import ProviderSidebar from "./components/ProviderSidebar.vue";
 import AppFooter from "./components/AppFooter.vue";
 
 const session = ref(null);
-const page = ref(null);
 
 const loading = ref<boolean>(true);
 const error = ref<string>();
@@ -79,7 +77,7 @@ onBeforeMount(async () => {
       `/${cranioSchemas.value?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
       currentSchemaName.value
     );
-  } catch (err: unknown) {
+  } catch (err) {
     if (Object.hasOwn(err as Error, "response")) {
       const message = (err as IMgErrorResponse).response.errors[0].message;
       error.value = message;

@@ -21,7 +21,7 @@ git switch -c feat/e2e-...
 ### Install the dependencies
 
 ```bash
-yarn install
+npm install
 ```
 
 ### Running the tests

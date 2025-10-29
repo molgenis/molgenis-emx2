@@ -236,6 +236,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.SECTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.HEADING)
                   .type(Scalars.GraphQLString))
           .field(

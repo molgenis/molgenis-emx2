@@ -14,6 +14,7 @@ const {
   PERIOD_REGEX,
   AUTO_ID,
   HEADING,
+  SECTION,
   MIN_INT,
   MAX_INT,
   MIN_LONG,
@@ -56,7 +57,11 @@ export function getColumnError(
     return error as string;
   }
 
-  if (column.columnType === AUTO_ID || column.columnType === HEADING) {
+  if (
+    column.columnType === AUTO_ID ||
+    column.columnType === HEADING ||
+    column.columnType === SECTION
+  ) {
     return undefined;
   }
 
@@ -93,7 +98,7 @@ export function getColumnError(
   if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
-  if (type === "PERIOD" && !isInvalidPeriod(value)) {
+  if (type === "PERIOD" && isInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
   if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
@@ -185,7 +190,7 @@ export function isMissingValue(value: any): boolean {
   }
 }
 
-export function isRequired(value: string | boolean): boolean {
+export function isRequired(value: string | boolean | undefined): boolean {
   if (typeof value === "string") {
     if (value.toLowerCase() === "true") {
       return true;
@@ -193,7 +198,7 @@ export function isRequired(value: string | boolean): boolean {
       return false;
     }
   } else {
-    return value;
+    return value === true;
   }
 }
 
@@ -383,9 +388,8 @@ export function getChapterStyle(
 export function getSaveDisabledMessage(
   rowErrors: Record<string, string | undefined>
 ) {
-  const numberOfErrors = Object.values(rowErrors).filter(
-    (value) => value
-  ).length;
+  const numberOfErrors = Object.values(rowErrors).filter((value) => value)
+    .length;
   return numberOfErrors > 0
     ? `There are ${numberOfErrors} error(s) preventing saving`
     : "";

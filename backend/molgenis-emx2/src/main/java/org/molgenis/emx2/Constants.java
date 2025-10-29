@@ -151,7 +151,7 @@ public class Constants {
   public static final String API_TTL = "/api/ttl";
   public static final String API_JSONLD = "/api/jsonld";
   public static final String API_FILE = "/api/file";
-  public static final String MG_TOP_OF_FORM = "_mg_top_of_form";
+  public static final String MG_TOP_OF_FORM = "mg_top_of_form";
 
   private Constants() {
     // hide constructor

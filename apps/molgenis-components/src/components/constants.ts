@@ -7,10 +7,8 @@ export default {
   SCHEMA_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$/,
   TABLE_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$/,
   COLUMN_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$/,
-  EMAIL_REGEX:
-    /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$|^$/,
-  HYPERLINK_REGEX:
-    /^((https?):\/\/)(www.)?[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=()]*)\/?$|^$/,
+  EMAIL_REGEX: /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$|^$/,
+  HYPERLINK_REGEX: /^((https?):\/\/)(www.)?[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=()]*)\/?$|^$/,
   PERIOD_REGEX: /^P(?=\d+Y|\d+M|\d+D)(\d+Y)?(\d+M)?(\d+D)?$/,
   MAX_INT: 2147483647,
   MIN_INT: -2147483648,
@@ -19,6 +17,7 @@ export default {
   IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",
   AUTO_ID: "AUTO_ID",
   HEADING: "HEADING",
+  SECTION: "SECTION",
 };
 
 const LEVEL_1 = "Level 1";

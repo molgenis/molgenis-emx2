@@ -1,10 +1,10 @@
 <template>
-  <div style="overflow-x: scroll">
+  <div style="overflow-x: scroll;">
     <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
-        <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
+        <th slot="header" scope="col" style="width: 1px;" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
-          <span style="text-align: left; font-weight: normal">
+          <span style="text-align: left; font-weight: normal;">
             <slot name="rowcolheader" />
           </span>
         </th>
@@ -104,7 +104,8 @@ export default {
   computed: {
     dataColumns() {
       const columnsWithoutHeaders = this.columns.filter(
-        (column) => column.columnType !== "HEADING"
+        (column) =>
+          column.columnType !== "HEADING" && column.columnType !== "SECTION"
       );
 
       return columnsWithoutHeaders.map((column) => {
