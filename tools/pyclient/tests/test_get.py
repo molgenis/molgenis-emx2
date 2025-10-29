@@ -65,7 +65,13 @@ def test_columns_okay():
 
 def test_query_filter_fail():
     """Tests get fail with incorrect query filter."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+        with pytest.raises(ValueError) as excinfo:
+            client.get(table="Pet", schema="pet store", query_filter="name")
+        assert excinfo.value.args[0] == ("Cannot process statement 'name', ensure specifying one of the operators"
+                                         " '==', '>', '<', '!=', 'between' in your statement.")
 
 def test_equals_filter():
     """Tests the 'equals' filter for the query filter parameter."""
