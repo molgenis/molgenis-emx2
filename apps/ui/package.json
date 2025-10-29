@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "vue-tsc --noEmit",
     "build": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
-    "dev": "nuxt dev --dotenv ../.env",
+    "dev": "nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
