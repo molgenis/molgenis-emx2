@@ -41,7 +41,7 @@ withDefaults(
       </div>
       <div
         v-if="slots['description']"
-        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+        class="flex m-auto mt-1 mb-0 lg:mb-5 text-body-lg"
       >
         <slot name="description"></slot>
       </div>

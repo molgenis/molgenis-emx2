@@ -50,7 +50,7 @@ class ShaclSelectorTest {
 
     Optional<ShaclSet> optional =
         Arrays.stream(ShaclSelector.getAllFiltered())
-            .filter(i -> i.name().equals("dcat-ap-v3"))
+            .filter(i -> i.id().equals("dcat-ap-v3"))
             .findFirst();
     if (optional.isPresent()) {
       ShaclSet actual = optional.get();
@@ -65,9 +65,7 @@ class ShaclSelectorTest {
     // does not test full file but only names for simplicity (1 shacl set is tested fully)
     Set<String> expected = Set.of("fdp-v1.2", "dcat-ap-v3", "hri-v1", "hri-v2", "ejp-rd-vp");
     Set<String> actual =
-        Arrays.stream(ShaclSelector.getAllFiltered())
-            .map(ShaclSet::name)
-            .collect(Collectors.toSet());
+        Arrays.stream(ShaclSelector.getAllFiltered()).map(ShaclSet::id).collect(Collectors.toSet());
     assertEquals(expected, actual);
   }
 }
