@@ -350,7 +350,7 @@ class Client:
         file_name = file_path.name
         if not file_name.startswith('molgenis'):
             table = file_name.split(file_path.suffix)[0]
-            return self.save_schema(table=table, name=schema, file=str(file_path))
+            return self.save_table(table=table, schema=schema, file=str(file_path))
         api_url = f"{self.url}/{schema}/api/csv"
         data = self._prep_data_or_file(file_path=str(file_path))
 
