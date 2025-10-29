@@ -63,7 +63,7 @@ crumbs["rdf"] = "";
         </template>
         <template #body>
           <TableRow @click="navigateTo(`/${schema}/rdf/shacl`)">
-            <TableCell> SHACL Validation</TableCell>
+            <TableCell>SHACL Validation</TableCell>
             <TableCell
               >Validate a schema as a whole to see if it adheres to existing
               standards</TableCell
