@@ -50,6 +50,7 @@ import type { Resp, Schema } from "../types/types";
 const props = withDefaults(
   defineProps<{
     includeRowSelect?: boolean;
+    rowIndex?: number;
   }>(),
   {
     includeRowSelect: false,
@@ -103,6 +104,10 @@ if (!metadata.value && schemaId.value && tableId.value) {
   metadata.value = await fetchTableMetadata(schemaId.value, tableId.value);
   if (props.includeRowSelect) {
     await getNumberOfRows();
+    if (props.rowIndex !== undefined && props.rowIndex !== null) {
+      rowIndex.value = props.rowIndex;
+      await fetchRow(rowIndex.value - 1);
+    }
   }
 }
 

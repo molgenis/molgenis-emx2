@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import type { ITableSettings } from "../../../types/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";

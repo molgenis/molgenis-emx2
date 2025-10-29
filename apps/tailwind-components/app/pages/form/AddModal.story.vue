@@ -17,11 +17,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import DemoDataControls from "../../DemoDataControls.vue";
+import { useRoute, useRouter } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
 
 const metadata = ref<ITableMetaData>();
-const schemaId = ref<string>("type test");
-const tableId = ref<string>("Types");
+const schemaId = ref<string>((route.query.schema as string) || "type test");
+const tableId = ref<string>((route.query.table as string) || "Types");
+
+watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
+  router.push({
+    query: {
+      schema: newSchemaId,
+      table: newTableId,
+    },
+  });
+});
 </script>
