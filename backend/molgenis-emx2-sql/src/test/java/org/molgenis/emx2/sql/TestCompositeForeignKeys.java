@@ -438,25 +438,12 @@ public class TestCompositeForeignKeys {
         .orderBy("uncles")
         .retrieveJSON();
 
-    // and kwik = 2 uncles, and kwok = 1 uncles
-    ObjectMapper mapper = new ObjectMapper();
-    Map<String, List<Map<String, Object>>> map =
-        mapper.readValue(
-            p.groupBy()
-                .select(s("count"), s("cousins", s("firstName"), s("lastName")))
-                .retrieveJSON(),
-            Map.class);
-    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
-    assertEquals(
-        "Kwik",
-        ((Map<String, String>) map.get("Person_groupBy").get(0).get("cousins")).get("firstName"));
-    assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
-
     // test group by ref_array
     // kwik = Micky, Donald
     // Kwok = Donald
     // so mickey has 1 newphew, and donald 2
-    map =
+    ObjectMapper mapper = new ObjectMapper();
+    Map<String, List<Map<String, Object>>> map =
         mapper.readValue(
             p.groupBy()
                 .select(s("count"), s("uncles", s("firstName"), s("lastName")))
@@ -470,5 +457,18 @@ public class TestCompositeForeignKeys {
     assertEquals(
         "Mickey",
         ((Map<String, String>) map.get("Person_groupBy").get(1).get("uncles")).get("firstName"));
+
+    // and kwik = 2 uncles, and kwok = 1 uncles
+    map =
+        mapper.readValue(
+            p.groupBy()
+                .select(s("count"), s("cousins", s("firstName"), s("lastName")))
+                .retrieveJSON(),
+            Map.class);
+    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
+    assertEquals(
+        "Kwik",
+        ((Map<String, String>) map.get("Person_groupBy").get(0).get("cousins")).get("firstName"));
+    assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
   }
 }

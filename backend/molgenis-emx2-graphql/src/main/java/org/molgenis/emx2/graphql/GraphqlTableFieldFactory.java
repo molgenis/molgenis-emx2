@@ -754,20 +754,7 @@ public class GraphqlTableFieldFactory {
     return null;
   }
 
-  private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
-    if (aTable != null) {
-      return aTable.getColumnsIncludingSubclasses().stream()
-          .filter(
-              c ->
-                  c.getIdentifier().equals(id)
-                      || (c.getIdentifier() + "_agg").equals(id)
-                      || (c.getIdentifier() + "_groupBy").equals(id))
-          .findFirst();
-    } else {
-      return Optional.empty();
-    }
-  }
-
+  /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
   private SelectColumn[] convertMapSelection(
       TableMetadata table, DataFetchingFieldSelectionSet selection) {
 
@@ -842,6 +829,21 @@ public class GraphqlTableFieldFactory {
       lookup.put(c.getIdentifier() + "_groupBy", c);
     }
     return lookup;
+  }
+
+  // todo refactor other parts to also use buildColumnLookupMap?
+  private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
+    if (aTable != null) {
+      return aTable.getColumnsIncludingSubclasses().stream()
+          .filter(
+              c ->
+                  c.getIdentifier().equals(id)
+                      || (c.getIdentifier() + "_agg").equals(id)
+                      || (c.getIdentifier() + "_groupBy").equals(id))
+          .findFirst();
+    } else {
+      return Optional.empty();
+    }
   }
 
   private DataFetcher fetcherForTableQueryField(TableMetadata aTable) {
