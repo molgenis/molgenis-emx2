@@ -28,6 +28,7 @@ export default gql`
           readonly
           semantics
           description
+          defaultValue
           position
           computed
           visible
