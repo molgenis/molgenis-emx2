@@ -8,6 +8,7 @@ import { removeChildIfParentSelected } from "#imports";
 import { moduleToString } from "../../../tailwind-components/app/utils/moduleToString";
 import { computed } from "vue";
 import CatalogueItemList from "./CatalogueItemList.vue";
+import ContentBlockModal from "../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();

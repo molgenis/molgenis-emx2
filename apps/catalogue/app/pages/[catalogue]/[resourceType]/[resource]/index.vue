@@ -43,6 +43,7 @@ import VariableDisplay from "../../../../components/VariableDisplay.vue";
 import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
 import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
 
 const config = useRuntimeConfig();
 const route = useRoute();
