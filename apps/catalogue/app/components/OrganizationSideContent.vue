@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { IOrganisations } from "../../interfaces/catalogue";
+import ContentBlockModal from "../../../tailwind-components/app/components/content/ContentBlockModal.vue";
+import CatalogueItemList from "./CatalogueItemList.vue";
+
 const props = defineProps<{
   organisation: IOrganisations;
 }>();
 </script>
 <template>
   <ContentBlockModal
-    :title="props.organisation.organisation.name ?? ''"
+    :title="props.organisation?.organisation?.name ?? ''"
     description="Lead organisation"
   >
     <CatalogueItemList

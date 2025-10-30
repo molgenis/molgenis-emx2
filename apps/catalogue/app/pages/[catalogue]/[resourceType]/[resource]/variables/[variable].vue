@@ -17,6 +17,7 @@ import LayoutsDetailPage from "../../../../../components/layouts/DetailPage.vue"
 import PageHeader from "../../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import SideNavigation from "../../../../../components/SideNavigation.vue";
+import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
 
 import {
   useQueryParams,
