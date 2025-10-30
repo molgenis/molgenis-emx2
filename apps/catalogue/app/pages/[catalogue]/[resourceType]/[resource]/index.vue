@@ -19,7 +19,7 @@ import dateUtils from "../../../../utils/dateUtils";
 import type { IResources } from "../../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
-import { moduleToString } from "#imports";
+import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, ref } from "vue";
 import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
 import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
@@ -88,7 +88,6 @@ const query = `
       dateLastRefresh
       startYear
       endYear
-      license
       countries {
         name order
       }
@@ -157,10 +156,17 @@ const query = `
         id
         name
         website
-        acronym
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
-        country ${moduleToString(ontologyFragment)}
+        organisation {
+          name
+          acronym
+          website
+          country {
+            name
+            order
+          }
+        } 
       }
       subpopulations {
           name
@@ -184,17 +190,6 @@ const query = `
       }
       datasets {
         name
-      }
-      partOfResources {
-        id
-        name
-        type {
-            name
-        }
-        website
-        logo {
-          url
-        }
       }
       publications_agg {
         count

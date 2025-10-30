@@ -4,7 +4,8 @@ import dateUtils from "../utils/dateUtils";
 import type { ISubpopulations } from "../../interfaces/catalogue";
 import type { Resp } from "../../../tailwind-components/types/types";
 import { useRoute, useFetch, showError, useRuntimeConfig } from "#app";
-import { moduleToString, removeChildIfParentSelected } from "#imports";
+import { removeChildIfParentSelected } from "#imports";
+import { moduleToString } from "../../../tailwind-components/app/utils/moduleToString";
 import { computed } from "vue";
 import CatalogueItemList from "./CatalogueItemList.vue";
 
