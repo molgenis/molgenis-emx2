@@ -1,4 +1,5 @@
 {
+  "exclude": ["vite.config.ts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,

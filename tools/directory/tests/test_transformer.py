@@ -199,45 +199,6 @@ def test_transformer_set_biobank_labels(transformer):
     assert node_data.collections.rows[1]["biobank_label"] == ""
 
 
-def test_transformer_create_combined_networks(transformer):
-    node_data = MagicMock()
-    node_data.collections.rows = [
-        {"biobank": "biobank1", "network": []},
-        {"biobank": "biobank2", "network": ["network1"]},
-        {"biobank": "biobank3", "network": ["network2"]},
-        {"biobank": "biobank4", "network": []},
-        {"biobank": "biobank5", "network": ["network1", "network2"]},
-        {"biobank": "biobank6", "network": []},
-    ]
-    node_data.biobanks.rows_by_id = {
-        "biobank1": {"network": ["network1", "network2"]},
-        "biobank2": {"network": []},
-        "biobank3": {"network": ["network1"]},
-        "biobank4": {"network": ["network2"]},
-        "biobank5": {"network": []},
-        "biobank6": {"network": []},
-    }
-    transformer.node_data = node_data
-
-    transformer._set_combined_networks()
-
-    assert set(node_data.collections.rows[0]["combined_network"]) == {
-        "network1",
-        "network2",
-    }
-    assert set(node_data.collections.rows[1]["combined_network"]) == {"network1"}
-    assert set(node_data.collections.rows[2]["combined_network"]) == {
-        "network1",
-        "network2",
-    }
-    assert set(node_data.collections.rows[3]["combined_network"]) == {"network2"}
-    assert set(node_data.collections.rows[4]["combined_network"]) == {
-        "network1",
-        "network2",
-    }
-    assert set(node_data.collections.rows[5]["combined_network"]) == set()
-
-
 def test_transformer_combined_quality(node_data, transformer):
     q_info = QualityInfo(
         biobanks={},

@@ -1,0 +1,20 @@
+name,description,html,css,javascript,dependencies,enable base styles,enable button styles, enable full screen
+myTestPage,An example page,"<h1>My test page</h1><div class="msg"><strong>Note!</strong>This page is still in development</div>",,,min.css,true,true,false,
+my-custom-page,,"<div class=""flex justify-center items-center p-7.5 bg-blue-100"">
+    <div class=""w-[90%]"">
+        <h1 id=""title"">My Page Title</h1>
+        <p id=""subtitle"" class=""text-base-2xl"">Welcome to my page!</p>
+    </div>
+</div>","#title {
+    font-family: Helvetica, monospace, sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 15%;
+    font-weight: bold;
+}
+
+#subtitle {
+    font-family: Helvetica, monospace, sans-serif;
+    font-size: 2.3rem;
+    font-weight: 100;
+}",,,true,true,true,
