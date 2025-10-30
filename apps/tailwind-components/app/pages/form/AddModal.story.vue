@@ -26,8 +26,8 @@ const router = useRouter();
 const route = useRoute();
 
 const metadata = ref<ITableMetaData>();
-const schemaId = ref<string>((route.query.schema as string) || "type test");
-const tableId = ref<string>((route.query.table as string) || "Types");
+const schemaId = ref<string>((route.query.schema as string) || "pet store");
+const tableId = ref<string>((route.query.table as string) || "Category");
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({

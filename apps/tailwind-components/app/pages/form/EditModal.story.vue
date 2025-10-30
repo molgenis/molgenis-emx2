@@ -34,9 +34,9 @@ const router = useRouter();
 const route = useRoute();
 
 const metadata = ref<ITableMetaData>();
-const schemaId = ref<string>((route.query.schema as string) || "type test");
+const schemaId = ref<string>((route.query.schema as string) || "pet store");
 const formValues = ref<Record<columnId, columnValue>>({});
-const tableId = ref<string>((route.query.table as string) || "Types");
+const tableId = ref<string>((route.query.table as string) || "Category");
 const rowIndex = ref<number>(
   route.query.rowIndex ? Number(route.query.rowIndex) : 0
 );
