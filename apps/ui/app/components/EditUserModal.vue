@@ -1,6 +1,6 @@
 <template>
   <Modal v-model:visible="visible" :title="`Edit user: ${userName}`">
-    <div>
+    <div class="p-5">
       <b>New password</b>
       <InputString
         id="New password"
@@ -8,10 +8,11 @@
         :valid="password.length >= 8"
         :hasError="password.length < 8"
         type="password"
+        class="mb-2"
       />
       <b>Repeat new password</b>
       <InputString
-        id="New password"
+        id="New password second time"
         v-model="password2"
         :valid="password === password2 && password2 !== ''"
         :hasError="password !== password2"
@@ -19,7 +20,7 @@
       />
     </div>
 
-    <div>
+    <div class="p-5">
       <b>Disable user</b>
       <InputRadioGroup
         id="disabledUserRadio"
@@ -31,24 +32,35 @@
       />
     </div>
 
-    <div>
+    <div class="p-5">
       <b>Roles</b>
-      <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
-      <InputSelect id="select-role" v-model="role" :options="roles" />
-      <Button size="tiny" icon="plus" @click="addRole" />
 
       <Table>
         <template #head>
           <TableHeadRow>
-            <TableHead></TableHead>
+            <TableHead class="w-0"></TableHead>
             <TableHead>Schema</TableHead>
             <TableHead>Role</TableHead>
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow v-for="role in userRoles">
+          <TableRow v-if="_.isEmpty(userRoles)">
+            <TableCell></TableCell>
             <TableCell>
-              <Button size="tiny" icon="trash" @click="removeRole(role)" />
+              no roles found
+            </TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+
+          <TableRow v-else v-for="role in userRoles">
+            <TableCell>
+              <Button
+                iconOnly
+                size="tiny"
+                icon="trash"
+                label="remove"
+                @click="removeRole(role)"
+              />
             </TableCell>
             <TableCell>{{ role.schemaId }}</TableCell>
             <TableCell>{{ role.role }}</TableCell>
@@ -57,40 +69,65 @@
       </Table>
     </div>
 
-    <!-- <div v-if="userTokens.length">
+    <div class="p-5 pt-0 flex gap-2">
+      <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
+      <InputSelect id="select-role" v-model="role" :options="roles" />
+      <Button
+        size="small"
+        icon="plus"
+        @click="addRole"
+        class="whitespace-nowrap"
+        >Add role</Button
+      >
+    </div>
+
+    <!--
+    <div v-if="userTokens.length" class="p-5">
       <b>Tokens</b>
       <Table>
         <template #head>
           <TableHeadRow>
-            <TableHead></TableHead>
+            <TableHead class="w-0"></TableHead>
             <TableHead>Token</TableHead>
           </TableHeadRow>
         </template>
         <template #body>
           <TableRow v-for="token in userTokens">
             <TableCell>
-              <Button size="tiny" icon="trash" @click="removeToken(token)" />
+              <Button iconOnly size="tiny" icon="trash" label="remove" @click="removeToken(token)" />
             </TableCell>
             <TableCell>{{ token }}</TableCell>
           </TableRow>
         </template>
       </Table>
-    </div> -->
+    </div>
+-->
 
     <template #footer>
-      <div>
+      <div class="m-1">
         <div v-if="password !== password2">Passwords do not match</div>
-        <div v-if="password.length < 8">
+        <div v-if="password.length < 8 && password.length > 0">
           Password must be at least 8 characters
         </div>
+        <div class="flex gap-1">
+          <Button
+            icon="Plus"
+            size="small"
+            @click="saveUser()"
+            :disabled="!isValidUser()"
+            >Save</Button
+          >
+          <Button icon="Cross" size="small" @click="closeEditUserModal"
+            >Close</Button
+          >
+        </div>
       </div>
-      <Button @click="saveUser()" :disabled="!isValidUser()">Save</Button>
-      <Button @click="closeEditUserModal">Close</Button>
     </template>
   </Modal>
 </template>
 
 <script setup lang="ts">
+import _ from "lodash";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { isValidPassword, updateUser } from "~/util/adminUtils";
 import { computed, ref } from "vue";
@@ -99,6 +136,11 @@ import InputString from "../../../tailwind-components/app/components/input/Strin
 import InputRadioGroup from "../../../tailwind-components/app/components/input/RadioGroup.vue";
 import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import Table from "../../../tailwind-components/app/components/Table.vue";
+import TableHead from "../../../tailwind-components/app/components/TableHead.vue";
+import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
+import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
+import TableHeadRow from "../../../tailwind-components/app/components/TableHeadRow.vue";
 
 const props = defineProps<{
   user: IUser;
@@ -148,9 +190,9 @@ function removeRole(role: IRole) {
   delete userRoles.value[role.schemaId];
 }
 
-// function removeToken(token: string) {
-//   userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
-// }
+function removeToken(token: string) {
+  userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
+}
 
 function getRoles(roles: IRole[]): Record<string, IRole> {
   return roles.reduce((accum, role) => {
