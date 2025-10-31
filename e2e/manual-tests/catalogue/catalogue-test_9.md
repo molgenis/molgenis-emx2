@@ -56,16 +56,16 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 | 24a | ORGANISATIONS | | | |
 | | | Lead organisations | | |
 | | | 1 card per organisation: | | |
-| | | Name for lead organisation 1 (ACRONYM FOR LEADORG1) \| Botswana, Holy See (the) \| Data originator, Data holder, Data provider, Researcher, Surveillance, Other | | |
-| | | name for test lead organisation 2 (acronym for test lead organisation 2) \| Bonaire, Sint Eustatius and Saba, Réunion \| Data provider, Other | | |
+| | | University Medical Center Groningen (UMCG) \| Netherlands (the) \| Data originator, Data holder, Data provider, Researcher, Surveillance, Other | | |
+| | | Leiden University Medical Center (LUMC) \| Netherlands (the) \| Data provider, Other | | |
 | | | Additional organisations | | |
 | | | 1 card per organisation: | | |
-| | | name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina, Mayotte \| Data provider, Surveillance | | |
-| | | name of test additional organisation 1 (acronym for test additional organisation 1) \| Canada, Western Sahara* \| Researcher, Surveillance | | |
+| | | University Medical Center Utrecht (UMCU) \| Netherlands (the) \| Data provider, Surveillance | | |
+| | | Erasmus MC \| Netherlands (the)\| Researcher, Surveillance | | |
 | 24b | CONTRIBUTORS | | | |
 | | | 1 card per contributor: | | |
-| | | dr. ir. P.I.P.M. (PIPM) surname prefix last name PIPM \| Name for lead organisation 1 \| <pipm@testdomain.nl> \| Principal Investigator, Project manager | | |
-| | | dr. D.M. (datamgr first name) datamgr surname prefix datamgr last name \| Name for lead organisation 1 \| <test@email.nl> \| Data manager | | |
+| | | dr. ir. P.I.P.M. (PIPM) surname prefix last name PIPM \| University Medical Center Groningen \| <pipm@testdomain.nl> \| Principal Investigator, Project manager | | |
+| | | dr. D.M. (datamgr first name) datamgr surname prefix datamgr last name \| University Medical Center Groningen \| <test@email.nl> \| Data manager | | |
 | 25 | Available Data & Samples | | | |
 | | Data categories | Imaging data, Medical records, National registries, Genealogical records | | |
 | | Hover over 'ⓘ' | Details about each data category appears | | |
