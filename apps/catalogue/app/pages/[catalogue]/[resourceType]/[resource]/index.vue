@@ -192,6 +192,18 @@ const query = `
       datasets {
         name
       }
+      partOfNetworks {
+        id
+        name
+        description
+        website
+        logo {
+          url
+        }
+        type {
+          name
+        }
+      }
       publications_agg {
         count
       }
@@ -358,9 +370,9 @@ async function fetchDatasetOptions() {
 fetchDatasetOptions();
 
 const networks = computed(() =>
-  !resource.value.partOfResources
+  !resource.value.partOfNetworks
     ? []
-    : resource.value.partOfResources.filter((c) =>
+    : resource.value.partOfNetworks.filter((c) =>
         c.type.find((t) => t.name == "Network")
       )
 );
