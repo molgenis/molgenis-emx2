@@ -1,27 +1,29 @@
 <template>
-  <vue-date-picker
-    :uid="id"
-    :placeholder="datePlaceholder"
-    :aria-describedby="describedBy"
-    :disabled="disabled"
-    :data-valid="valid"
-    :data-invalid="invalid"
-    type="Date"
-    v-model:="internalValue"
-    @update:modelValue="handleUpdate"
-    model-type="format"
-    month-name-format="long"
-    :format="inputDateFormat"
-    :auto-apply="true"
-    :enable-time-picker="false"
-    :text-input="{
-      enterSubmit: true,
-      tabSubmit: true,
-      selectOnFocus: true,
-      escClose: true,
-    }"
-    @blur="handleBlur"
-  />
+  <client-only>
+    <vue-date-picker
+      :uid="id"
+      :placeholder="datePlaceholder"
+      :aria-describedby="describedBy"
+      :disabled="disabled"
+      :data-valid="valid"
+      :data-invalid="invalid"
+      type="Date"
+      v-model:="internalValue"
+      @update:modelValue="handleUpdate"
+      model-type="format"
+      month-name-format="long"
+      :format="inputDateFormat"
+      :auto-apply="true"
+      :enable-time-picker="false"
+      :text-input="{
+        enterSubmit: true,
+        tabSubmit: true,
+        selectOnFocus: true,
+        escClose: true,
+      }"
+      @blur="handleBlur"
+    />
+  </client-only>
 </template>
 
 <script setup lang="ts">
