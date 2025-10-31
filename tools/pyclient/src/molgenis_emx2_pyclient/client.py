@@ -13,7 +13,7 @@ from requests import Response
 from . import graphql_queries as queries
 from . import utils
 from .constants import HEADING, DATE, DATETIME, SECTION
-from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
+from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
@@ -129,6 +129,8 @@ class Client:
 
     def signout(self):
         """Signs the client out of the EMX2 server."""
+        if self.signin_status != "success":
+            raise SignoutError("Could not sign out as user is not signed in.")
         response = self.session.post(
             url=self.api_graphql,
             json={'query': queries.signout()}
@@ -206,7 +208,7 @@ class Client:
         self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def save_schema(self, table: str, name: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
         :param name: name of a schema
@@ -363,7 +365,7 @@ class Client:
             raise PyclientException(msg)
         return msg
 
-    def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def delete_records(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
         :param table: the name of the table
@@ -473,11 +475,14 @@ class Client:
             try:
                 response_data = response_data[columns]
             except KeyError as e:
-                if "not in index" in e.args[0]:
-                    raise NoSuchColumnException(f"Columns {e.args[0]}")
+                if e.args[0].startswith("None of [Index(['"):
+                    missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
+                    msg = f"Columns {missing_cols} not found."
+                elif "not in index" in e.args[0]:
+                    msg = f"Columns {e.args[0]}"
                 else:
-                    raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
-                                                f" not in index.")
+                    msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
+                raise NoSuchColumnException(msg)
             response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         if not as_df:
             response_data = response_data.to_dict('records')
@@ -958,7 +963,7 @@ class Client:
         return value
 
     @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
+    def _prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
