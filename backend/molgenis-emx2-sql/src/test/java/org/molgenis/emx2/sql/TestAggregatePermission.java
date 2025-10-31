@@ -53,7 +53,12 @@ public class TestAggregatePermission {
 
   @Test
   public void testAggregatorCanRetrieveCountsWithMinimum10() {
-    assertTrue(schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON().contains("10"));
+    try {
+      AGGREGATE_COUNT_THRESHOLD = 10;
+      assertTrue(schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON().contains("10"));
+    } finally {
+      AGGREGATE_COUNT_THRESHOLD = 1;
+    }
   }
 
   @Test
