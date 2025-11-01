@@ -28,6 +28,7 @@ import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
+import org.molgenis.emx2.sql.SqlTypeUtils;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
@@ -58,7 +59,10 @@ public abstract class RdfGenerator {
       var tableName = table.getSchema().getName() + "." + table.getName();
       query.where(f("mg_tableclass", EQUALS, tableName));
     }
-    return query.retrieveRows();
+
+    List<Row> rows = query.retrieveRows();
+    SqlTypeUtils.applyComputed(table.getMetadata().getColumns(), rows);
+    return rows;
   }
 
   /**
