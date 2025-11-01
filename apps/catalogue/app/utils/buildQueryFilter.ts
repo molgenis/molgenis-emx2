@@ -28,9 +28,8 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
       } else if (
         (filter.config as IRefArrayFilterCustomConfig).buildFilterFunction
       ) {
-        const buildFilterFunction = (
-          filter.config as IRefArrayFilterCustomConfig
-        ).buildFilterFunction;
+        const buildFilterFunction = (filter.config as IRefArrayFilterCustomConfig)
+          .buildFilterFunction;
         if (buildFilterFunction) {
           accum = buildFilterFunction(accum, filter.conditions);
         }

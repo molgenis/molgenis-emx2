@@ -142,7 +142,7 @@ export default {
           this.internalValues,
           this.tableMetaData as ITableMetaData
         );
-      } catch (error: any) {
+      } catch (error) {
         console.log("isVisible expression error: ", error);
         this.errorPerColumn[column.id] = error;
         return true;

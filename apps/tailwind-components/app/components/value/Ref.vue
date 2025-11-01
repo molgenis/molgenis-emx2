@@ -28,11 +28,9 @@ function handleRefCellClicked() {
 }
 
 const refColumnLabel = computed(() => {
-  const labelTemplate = (
-    props.metadata.refLabel
-      ? props.metadata.refLabel
-      : props.metadata.refLabelDefault
-  ) as string;
+  const labelTemplate = (props.metadata.refLabel
+    ? props.metadata.refLabel
+    : props.metadata.refLabelDefault) as string;
   return rowToString(props.data, labelTemplate);
 });
 </script>

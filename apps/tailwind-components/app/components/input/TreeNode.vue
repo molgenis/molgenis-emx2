@@ -63,10 +63,8 @@ const hasChildren = computed(() =>
           @click.stop="toggleExpand(node)"
           class="-left-[15px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
           :class="{
-            'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
-              inverted,
-            'text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover':
-              !inverted,
+            'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted': inverted,
+            'text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover': !inverted,
           }"
           :aria-expanded="node.expanded"
           :aria-controls="node.name"
