@@ -759,13 +759,17 @@ public class GraphqlTableFieldFactory {
     List<SelectColumn> result = new ArrayList<>();
     if (selection == null) return new SelectColumn[0];
     Map<String, Column> columnIdentifierMap =
-        table.getColumnsIncludingSubclasses().stream()
-            .collect(
-                Collectors.toMap(
-                    Column::getIdentifier,
-                    Function.identity(),
-                    // might be duplicates from subclass
-                    (existing, replacement) -> existing));
+        table != null
+            ? table.getColumnsIncludingSubclasses().stream()
+                .collect(
+                    Collectors.toMap(
+                        Column::getIdentifier,
+                        Function.identity(),
+                        // might be duplicates from subclass
+                        (existing, replacement) -> existing))
+            :
+            // in case of file table will be empty
+            Map.of();
     for (SelectedField s : selection.getFields()) {
       String name = s.getName();
 
