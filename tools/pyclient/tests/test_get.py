@@ -75,7 +75,23 @@ def test_query_filter_fail():
 
 def test_equals_filter():
     """Tests the 'equals' filter for the query filter parameter."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test on string
+        pets = client.get(table="Pet", schema="pet store", query_filter="name == 'Henry'")
+        assert len(pets) == 0
+
+        pets = client.get(table="Pet", schema="pet store", query_filter="name == 'pooky'")
+        assert len(pets) == 1
+
+        # Test on int
+
+        # Test on float
+
+        # Test on ref
+
 
 def test_greater_filter():
     """Tests the 'greater than' filter for the query filter parameter."""
