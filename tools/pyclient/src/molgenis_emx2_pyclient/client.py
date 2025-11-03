@@ -3,9 +3,9 @@ import json
 import logging
 import pathlib
 import time
-from warnings import deprecated
 from functools import cache
 from io import BytesIO
+from warnings import warn
 
 import pandas as pd
 import requests
@@ -207,12 +207,12 @@ class Client:
         self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    @deprecated("`save_schema` is deprecated. Use `save_table` instead.")
     def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
         """
         Imports or updates records in a table of a named schema.
         Deprecated and replaced by `save_table`.
         """
+        warn("`save_schema` is deprecated. Use `save_table` instead.")
         return self.save_table(table, name, file, data)
 
     def save_table(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
