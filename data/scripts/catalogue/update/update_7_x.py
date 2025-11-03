@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import pandas as pd
 from decouple import config
+import re
+
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
@@ -209,11 +211,21 @@ class Transform:
         df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
-        df_contacts['resource'] = 
+        df_resource_contacts = df_resources.dropna(subset=['contact email'])
+        df_resource_contacts = df_resource_contacts[['id', 'contact email']]
 
-        # write table to file
+        df_resource_contacts = df_resource_contacts.rename(columns={'id': 'resource',
+                                                                    'contact email': 'email'}, inplace=False)
+
+        df_resource_contacts['name'] = df_resource_contacts['email'].apply(get_first_part_email)
+        df_resource_contacts['first name'] = df_resource_contacts['name'].apply(get_first_name)
+        df_resource_contacts['last name'] = df_resource_contacts['name'].apply(get_last_name)
+
+        # TODO: get contact point in resources table
+        df_resources['contact point.resource'] = df_resources['resource']
+
+        # write tables to file
         df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
-
 
     def contacts(self):
         """ Transform data in Contacts
@@ -442,3 +454,37 @@ def nan_to_string(x):
     if pd.isna(x):
         x = ''
     return x
+
+
+def get_first_part_email(email):
+    x = email.find('@')
+    name = email[:x]
+
+    return name
+
+
+def get_first_name(name):
+    first_name = ''
+    if name.isalnum():
+        first_name = name
+    else:
+        split_name = re.split("\W+", name)
+        if len(split_name) == 2:
+            first_name = split_name[0]
+        else:
+            split_name = split_name[:-1]
+            for n in split_name:
+                first_name += ' ' + n
+            first_name.strip()
+
+    return first_name
+
+
+def get_last_name(name):
+    if name.isalnum():
+        last_name = 'contact'
+    else:
+        split_name = re.split("\W+", name)
+        last_name = split_name[len(split_name) - 1]
+
+    return last_name
