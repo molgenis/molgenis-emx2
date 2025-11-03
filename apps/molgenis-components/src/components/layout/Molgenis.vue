@@ -99,7 +99,7 @@ const defaultSchemaMenuItems: MenuItem[] = [
   },
   {
     label: "Graphql",
-    href: "graphql-playground",
+    href: "graphiql",
     role: "Viewer",
     submenu: [],
   },

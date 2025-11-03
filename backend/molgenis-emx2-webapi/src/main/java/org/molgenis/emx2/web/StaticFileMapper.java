@@ -40,6 +40,7 @@ public class StaticFileMapper {
         });
 
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
+    app.get("*/{app}/static/<static>", StaticFileMapper::redirectStatic);
     app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
 
@@ -67,6 +68,12 @@ public class StaticFileMapper {
 
   private static void redirectAssets(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/assets/" + ctx.pathParam("asset");
+    addFileToContext(ctx, path, null);
+  }
+
+  private static void redirectStatic(Context ctx) {
+    String path =
+        "/public_html/apps/" + ctx.pathParam("app") + "/static/" + ctx.pathParam("static");
     addFileToContext(ctx, path, null);
   }
 
