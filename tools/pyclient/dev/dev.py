@@ -22,8 +22,8 @@ import openpyxl
 import pandas as pd
 from dotenv import load_dotenv
 
-from tools.pyclient.src.molgenis_emx2_pyclient import Client
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
+from src.molgenis_emx2_pyclient import Client
+from src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
                                                                   GraphQLException, PermissionDeniedException,
                                                                   ReferenceException)
 
@@ -43,8 +43,7 @@ async def main():
         participant_range = [10_000, 20_000]
         subpopulations = client.get_graphql(table='Subpopulations',
                                     query_filter=f'`numberOfParticipants` between {participant_range}',
-                                    columns=['name', 'description', 'numberOfParticipants'],
-                                    as_df=False)
+                                    columns=['name', 'description', 'numberOfParticipants'])
         print(subpopulations)
 
         excluded_countries = ["Denmark", "France"]
@@ -150,8 +149,8 @@ async def main():
 
         # Import new data
         try:
-            client.save_schema(name='pet store', table='Tag', data=new_tags)
-            client.save_schema(name='pet store', table='Pet', data=new_pets)
+            client.save_table(schema='pet store', table='Tag', data=new_tags)
+            client.save_table(schema='pet store', table='Pet', data=new_pets)
 
             # Retrieve records
             tags_data = client.get(schema='pet store', table='Tag', as_df=True)
@@ -192,8 +191,8 @@ async def main():
 
         # Import new data
         try:
-            client.save_schema(name='pet store', table='Tag', data=new_tags)
-            client.save_schema(name='pet store', table='Pet', data=new_pets)
+            client.save_table(schema='pet store', table='Tag', data=new_tags)
+            client.save_table(schema='pet store', table='Pet', data=new_pets)
 
             # Retrieve records
             tags_data = client.get(schema='pet store', table='Tag', as_df=True)
@@ -220,8 +219,8 @@ async def main():
             pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
             # Import files
-            client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
-            client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
+            client.save_table(schema='pet store', table='Tag', file='demodata/Tag.csv')
+            client.save_table(schema='pet store', table='Pet', file='demodata/Pet.csv')
 
             client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
             client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
