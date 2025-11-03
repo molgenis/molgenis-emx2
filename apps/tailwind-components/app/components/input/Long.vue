@@ -24,6 +24,7 @@ import {
   isNumericKey,
 } from "../../../../molgenis-components/src/components/utils";
 import type { IInputProps } from "../../../types/types";
+import InputString from "./String.vue";
 
 const modelValue = defineModel<string | undefined>("modelValue", {
   required: true,

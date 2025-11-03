@@ -17,8 +17,8 @@
         @update:added="afterRowAdded"
       >
         <Button type="primary" icon="add-circle" @click="setVisible"
-          >Add {{ tableId }}</Button
-        >
+          >Add {{ tableId }}
+        </Button>
       </EditModal>
 
       <TableControlColumns
@@ -29,7 +29,7 @@
   </div>
 
   <div
-    class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
+    class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
       <table ref="table" class="text-left w-full table-fixed">

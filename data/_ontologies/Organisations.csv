@@ -1,3 +1,310 @@
-name,acronym,codesystem,code,ontologyTermURI,definition,aliases,country,city,latitude,longitude
-University Medical Center Groningen,UMCG,ROR,ROR:03cv38k47,https://ror.org/03cv38k47,,"Universitair Medisch Centrum Groningen",Netherlands (the),Groningen,53.21917,6.56667
-University of Groningen,RUG,ROR,ROR:012p63287,https://ror.org/012p63287,,"Rijksuniversiteit Groningen",Netherlands (the),Groningen,53.21917,6.56667
+name,acronym,codesystem,code,ontologyTermURI,definition,aliases,country,city,latitude,longitude,website,type
+Amsterdam UMC Location University of Amsterdam,AMC,ROR,ROR:03t4gr691,https://ror.org/03t4gr691,,Academic Medical Center,Netherlands (the),Amsterdam,52.37403,4.88969,https://www.amc.nl,"funder, healthcare"
+Leiden University Medical Center,LUMC,ROR,ROR:05xvt9f17,https://ror.org/05xvt9f17,,,Netherlands (the),Leiden,52.15833,4.49306,https://www.lumc.nl,"funder, healthcare"
+University Medical Center Groningen,UMCG,ROR,ROR:03cv38k47,https://ror.org/03cv38k47,,Groningen University Hospital,Netherlands (the),Groningen,53.21917,6.56667,https://www.umcg.nl,"funder, healthcare"
+Amsterdam University Medical Centers,,ROR,ROR:05grdyy37,https://ror.org/05grdyy37,,Amsterdam UMC,Netherlands (the),Amsterdam,52.37403,4.88969,https://www.amsterdamumc.org,"funder, healthcare"
+Maastricht University Medical Centre,AZM; MUMC,ROR,ROR:02d9ce178,https://ror.org/02d9ce178,,Academic Hospital Maastricht; Maastricht UMC+,Netherlands (the),Maastricht,50.84833,5.68889,https://www.mumc.nl,"funder, healthcare"
+University Medical Center Utrecht,UMC,ROR,ROR:0575yy874,https://ror.org/0575yy874,,UMC Utrecht,Netherlands (the),Utrecht,52.09083,5.12222,https://www.umcutrecht.nl,"funder, healthcare"
+University of Bristol,,ROR,ROR:0524sp257,https://ror.org/0524sp257,,,United Kingdom of Great Britain and Northern Ireland (the),Bristol,51.45523,-2.59665,http://bristol.ac.uk/,"education, funder"
+Imperial College London,,ROR,ROR:041kmwe10,https://ror.org/041kmwe10,,"Imperial College of Science, Technology and Medicine",United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,https://www.imperial.ac.uk,"education, funder"
+Chiesi (Italy),,ROR,ROR:0511bn634,https://ror.org/0511bn634,,,Italy,Parma,44.79935,10.32618,http://www.chiesigroup.com/en/,"company, funder"
+Hospital Clínic de Barcelona,,ROR,ROR:02a2kzf50,https://ror.org/02a2kzf50,,,Spain,Barcelona,41.38879,2.15899,https://www.clinicbarcelona.org/,healthcare
+Bradford Royal Infirmary,BRI,ROR,ROR:01ck0pr88,https://ror.org/01ck0pr88,,,United Kingdom of Great Britain and Northern Ireland (the),Bradford,53.79391,-1.75206,https://www.bradfordhospitals.nhs.uk/our-hospitals/bradford-royal-infirmary-bri/,healthcare
+Erasmus MC,,ROR,ROR:018906e22,https://ror.org/018906e22,,Erasmus University Medical Center,Netherlands (the),Rotterdam,51.9225,4.47917,https://www.erasmusmc.nl,"funder, healthcare"
+European Bioinformatics Institute,EBI; EMBL-EBI,ROR,ROR:02catss52,https://ror.org/02catss52,,,United Kingdom of Great Britain and Northern Ireland (the),Cambridge,52.2,0.11667,http://www.ebi.ac.uk/,"facility, funder"
+Jackson Laboratory,,ROR,ROR:021sy4w91,https://ror.org/021sy4w91,,,United States of America (the),Bar Harbor,44.38758,-68.2039,https://www.jax.org/#,"nonprofit, funder"
+RECETOX,RI,ROR,ROR:032hzqh22,https://ror.org/032hzqh22,,Research Centre for Toxic Compounds in the Environment,Czechia,Brno,49.19522,16.60796,https://www.recetox.muni.cz,"facility, funder"
+LMU Klinikum,,ROR,ROR:02jet3w32,https://ror.org/02jet3w32,,,Germany,Munich,48.13743,11.57549,https://www.lmu-klinikum.de/,healthcare
+Statens Serum Institut,SSI,ROR,ROR:0417ye583,https://ror.org/0417ye583,,,Denmark,Copenhagen,55.67594,12.56553,https://www.ssi.dk,"facility, funder"
+Gelre Hospitals,,ROR,ROR:05275vm15,https://ror.org/05275vm15,,,Netherlands (the),Apeldoorn,52.21,5.96944,https://www.gelreziekenhuizen.nl/Gelreziekenhuizen,healthcare
+University of Twente,,ROR,ROR:006hf6230,https://ror.org/006hf6230,,,Netherlands (the),Enschede,52.21833,6.89583,https://www.utwente.nl,"education, funder"
+Zuyderland Medisch Centrum,OMC,ROR,ROR:03bfc4534,https://ror.org/03bfc4534,,Orbis Medisch Centrum; Zuyderland Hospital; Zuyderland Medical Center,Netherlands (the),Sittard,50.99833,5.86944,https://www.zuyderland.nl/,healthcare
+Inserm,INSERM,ROR,ROR:02vjkv261,https://ror.org/02vjkv261,,,France,Paris,48.85341,2.3488,https://www.inserm.fr,"funder, government"
+Capital Region of Denmark,RH,ROR,ROR:049qz7x77,https://ror.org/049qz7x77,,,Denmark,Hillerød,55.92791,12.30081,https://www.regionh.dk/,"funder, government"
+Institute for Experimental Endocrinology and Oncology,IEOS,ROR,ROR:04sn06036,https://ror.org/04sn06036,,,Italy,Naples,40.85216,14.26811,http://www.ieos.cnr.it/,facility
+Aarhus University Hospital,,ROR,ROR:040r8fr65,https://ror.org/040r8fr65,,,Denmark,Aarhus,56.15674,10.21076,http://www.en.auh.dk/,"healthcare, funder"
+Antwerp University Hospital,UZA,ROR,ROR:01hwamj44,https://ror.org/01hwamj44,,Antwerp UH; Antwerpen UZ; Antwerpen Universitair Ziekenhuis; Edegem Universitair Ziekenhuis; Edegem University Hospital; Universitair Ziekenhuis Edegem; University Hospital Antwerp; University Hospital Edegem,Belgium,Antwerp,51.22047,4.40026,https://www.uza.be,"funder, healthcare"
+Azienda Ospedale - Università Padova,,ROR,ROR:04bhk6583,https://ror.org/04bhk6583,,Azienda Ospedaliera di Padova; University - Hospital of Padua,Italy,Padua,45.40797,11.88586,https://www.aopd.veneto.it,healthcare
+Meyer Children's Hospital,,ROR,ROR:01n2xwm51,https://ror.org/01n2xwm51,,AOU Meyer; Azienda Ospedaliero Universitaria Meyer,Italy,Florence,43.77925,11.24626,http://www.meyer.it/index.php/en/,healthcare
+Charité - Universitätsmedizin Berlin,,ROR,ROR:001w7jn25,https://ror.org/001w7jn25,,Charité,Germany,Berlin,52.52437,13.41053,https://www.charite.de,"funder, healthcare"
+Temple Street Children's University Hospital,,ROR,ROR:0527gjc91,https://ror.org/0527gjc91,,Children's University Hospital,Ireland,Dublin,53.33306,-6.24889,http://www.cuh.ie/,healthcare
+Fondazione IRCCS Istituto Neurologico Carlo Besta,,ROR,ROR:05rbx8m02,https://ror.org/05rbx8m02,,IRCCS Istituto Neurologico Carlo Besta; Istituto Neurologico Carlo Besta,Italy,Milan,45.46427,9.18951,https://www.istituto-besta.it,"healthcare, funder"
+Agostino Gemelli University Polyclinic,,ROR,ROR:00rg70c39,https://ror.org/00rg70c39,,,Italy,Rome,41.89193,12.51133,https://www.policlinicogemelli.it/,healthcare
+Haukeland University Hospital,,ROR,ROR:03np4e098,https://ror.org/03np4e098,,Haukeland universitetssykehus,Norway,Bergen,60.39299,5.32415,http://www.helse-bergen.no/no/Sider/default.aspx,"healthcare, funder"
+Helsinki University Hospital,HUCH; HUCS; HUS; HYKS,ROR,ROR:02e8hzf44,https://ror.org/02e8hzf44,,Helsingfors universitets centralsjukhus; Helsingin seudun yliopistollinen keskussairaala,Finland,Helsinki,60.16952,24.93545,http://www.hus.fi/en/Pages/default.aspx,"healthcare, funder"
+Hôpital Necker-Enfants Malades,,ROR,ROR:05tr67282,https://ror.org/05tr67282,,Necker Hospital – Hospital for Sick Children,France,Paris,48.85341,2.3488,http://hopital-necker.aphp.fr/,healthcare
+Hôpitaux Universitaires de Strasbourg,HUS,ROR,ROR:04bckew43,https://ror.org/04bckew43,,University Hospital of Strasbourg,France,Strasbourg,48.58392,7.74553,http://www.chru-strasbourg.fr/,healthcare
+Hospices Civils de Lyon,HCL,ROR,ROR:01502ca60,https://ror.org/01502ca60,,,France,Lyon,45.74846,4.84671,https://www.chu-lyon.fr,"funder, healthcare"
+Hospital Universitario 12 De Octubre,,ROR,ROR:00qyh5r35,https://ror.org/00qyh5r35,,,Spain,Madrid,40.4165,-3.70256,https://www.comunidad.madrid/hospital/12octubre/,healthcare
+Hospital Sant Joan de Déu Barcelona,,ROR,ROR:001jx2139,https://ror.org/001jx2139,,,Spain,Barcelona,41.38879,2.15899,http://www.hsjdbcn.org/portal/en/institut-pediatric/inicio,healthcare
+Centro Hospitalar Lisboa Norte,CHLN,ROR,ROR:020sr6z07,https://ror.org/020sr6z07,,,Portugal,Lisbon,38.71667,-9.13333,http://www.chln.min-saude.pt/,healthcare
+Karolinska University Hospital,,ROR,ROR:00m8d6786,https://ror.org/00m8d6786,,,Sweden,Stockholm,59.32938,18.06871,http://www.karolinska.se/en,"healthcare, funder"
+Mater Dei Hospital,MDH,ROR,ROR:05a01hn31,https://ror.org/05a01hn31,,,Malta,Msida,35.8925,14.48278,http://health.gov.mt/en/MDH/Pages/Home.aspx,healthcare
+Oslo University Hospital,,ROR,ROR:00j9c2840,https://ror.org/00j9c2840,,Oslo universitetssykehus HF,Norway,Oslo,59.91273,10.74609,http://www.oslo-universitetssykehus.no/om-oss/english,healthcare
+Radboud University Medical Center,RUNMC,ROR,ROR:05wg1m734,https://ror.org/05wg1m734,,Radboud University Nijmegen Medical Centre,Netherlands (the),Nijmegen,51.8425,5.85278,https://www.radboudumc.nl,"funder, healthcare"
+University of Warmia and Mazury in Olsztyn,UWM,ROR,ROR:05s4feg49,https://ror.org/05s4feg49,,,Poland,Olsztyn,53.77995,20.49416,https://uwm.edu.pl,"education, funder"
+Riga Stradiņš University,RSU,ROR,ROR:03nadks56,https://ror.org/03nadks56,,,Latvia,Riga,56.946,24.10589,https://www.rsu.lv,"education, funder"
+Rigshospitalet,,ROR,ROR:03mchdq19,https://ror.org/03mchdq19,,,Denmark,Copenhagen,55.67594,12.56553,https://www.rigshospitalet.dk/,"healthcare, funder"
+Sahlgrenska University Hospital,,ROR,ROR:04vgqjj36,https://ror.org/04vgqjj36,,,Sweden,Gothenburg,57.70716,11.96679,http://www.sahlgrenskaic.com/medical-care/sahlgrenska-university-hospital/,"funder, healthcare"
+Ospedale San Bortolo,,ROR,ROR:05wd86d64,https://ror.org/05wd86d64,,,Italy,Vicenza,45.54672,11.5475,http://www.ulssvicenza.it/,healthcare
+Azienda Ospedaliera San Gerardo,,ROR,ROR:01xf83457,https://ror.org/01xf83457,,,Italy,Monza,45.58005,9.27246,http://hsgerardo.org/,healthcare
+Ospedale San Paolo,,ROR,ROR:0026m8b31,https://ror.org/0026m8b31,,,Italy,Milan,45.46427,9.18951,http://www.ao-sanpaolo.it/,healthcare
+University of Szeged,,ROR,ROR:01pnej532,https://ror.org/01pnej532,,,Hungary,Szeged,46.253,20.14824,http://www.u-szeged.hu/,"education, funder"
+Universitätsklinikum Tübingen,UKT,ROR,ROR:00pjgxh97,https://ror.org/00pjgxh97,,,Germany,Tübingen,48.52266,9.05222,https://www.medizin.uni-tuebingen.de/en/Homepage.html,"healthcare, funder"
+University Hospital in Motol,,ROR,ROR:0125yxn03,https://ror.org/0125yxn03,,Fakultní nemocnice v Motole,Czechia,Prague,50.08804,14.42076,https://www.fnmotol.cz,healthcare
+University of Salzburg,PLUS,ROR,ROR:05gs8cd61,https://ror.org/05gs8cd61,,Paris Lodron University of Salzburg,Austria,Salzburg,47.79941,13.04399,https://www.plus.ac.at/,"education, funder"
+Ljubljana University Medical Centre,UMC,ROR,ROR:01nr6fy72,https://ror.org/01nr6fy72,,Ljubljana UMC; UKC Ljubljana; Univerzitetni klinični center Ljubljana,Slovenia,Ljubljana,46.05108,14.50513,http://www.kclj.si/,healthcare
+University of Pecs,PTE,ROR,ROR:037b5pv06,https://ror.org/037b5pv06,,,Hungary,Pécs,46.0725,18.23083,https://pte.hu,"education, funder"
+Uppsala University Hospital,,ROR,ROR:01apvbh93,https://ror.org/01apvbh93,,Ackis; Akademiska; Akademiska Sjukhuset,Sweden,Uppsala,59.85882,17.63889,http://www.akademiska.se/,"healthcare, funder"
+Ghent University Hospital,,ROR,ROR:00xmkp704,https://ror.org/00xmkp704,,UZ Gent,Belgium,Ghent,51.05,3.71667,http://www.uzgent.be/,"healthcare, funder"
+Universitair Ziekenhuis Leuven,,ROR,ROR:0424bsv16,https://ror.org/0424bsv16,,UZ Leuven,Belgium,Leuven,50.87959,4.70093,https://www.uzleuven.be/en,"healthcare, funder"
+Vall d'Hebron Hospital Universitari,,ROR,ROR:03ba28x55,https://ror.org/03ba28x55,,,Spain,Barcelona,41.38879,2.15899,https://www.vallhebron.com,healthcare
+Vilnius University Hospital Santariskiu Klinikos,,ROR,ROR:0590pq693,https://ror.org/0590pq693,,,Lithuania,Vilnius,54.68916,25.2798,https://www.santa.lt,healthcare
+Karolinska Institutet,KI,ROR,ROR:056d84691,https://ror.org/056d84691,,Karolinska Institute; Royal Caroline Institute,Sweden,Stockholm,59.32938,18.06871,https://ki.se,"education, funder"
+National Institute for Public Health and the Environment,RIVM,ROR,ROR:01cesdt21,https://ror.org/01cesdt21,,,Netherlands (the),De Bilt,52.11,5.18056,https://www.rivm.nl,"facility, funder"
+University of Copenhagen,UCPH,ROR,ROR:035b05819,https://ror.org/035b05819,,,Denmark,Copenhagen,55.67594,12.56553,https://www.ku.dk,"education, funder"
+University of Eastern Finland,UEF,ROR,ROR:00cyydd11,https://ror.org/00cyydd11,,Itä-Suomen Yliopisto,Finland,Kuopio,62.89238,27.67703,https://www.uef.fi,"education, funder"
+Institute of Molecular and Translational Medicine,IMTM,ROR,ROR:041e7q719,https://ror.org/041e7q719,,,Czechia,Olomouc,49.59552,17.25175,https://www.imtm.cz/,facility
+Hasselt University,,ROR,ROR:04nbhqj75,https://ror.org/04nbhqj75,,UHasselt,Belgium,Hasselt,50.93106,5.33781,https://www.uhasselt.be,"education, funder"
+Barcelona Supercomputing Center,BSC,ROR,ROR:05sd8tv96,https://ror.org/05sd8tv96,,Centre Nacional de Supercomputació,Spain,Barcelona,41.38879,2.15899,https://www.bsc.es/,"facility, funder"
+Utrecht University,,ROR,ROR:04pp8hn57,https://ror.org/04pp8hn57,,Rijksuniversiteit Utrecht,Netherlands (the),Utrecht,52.09083,5.12222,https://www.uu.nl,"education, funder"
+University of British Columbia,UBC,ROR,ROR:03rmrcq20,https://ror.org/03rmrcq20,,,Canada,Vancouver,49.24966,-123.11934,https://www.ubc.ca/,"education, funder"
+University of Oulu,,ROR,ROR:03yj89h83,https://ror.org/03yj89h83,,,Finland,Oulu,65.01236,25.46816,https://www.oulu.fi,"education, funder"
+Máxima Medisch Centrum,MMC,ROR,ROR:02x6rcb77,https://ror.org/02x6rcb77,,,Netherlands (the),Veldhoven,51.41833,5.40278,http://expats.mmc.nl/,healthcare
+The Netherlands Cancer Institute,NKI; NKI-AVL,ROR,ROR:03xqtf034,https://ror.org/03xqtf034,,Nederlands Kanker Instituut - Antoni van Leeuwenhoekziekenhuis; Netherlands Cancer Institute; Netherlands Cancer Institute - Antoni van Leeuwenhoek Hospital,Netherlands (the),Amsterdam,52.37403,4.88969,https://www.nki.nl,healthcare
+"i3S - Instituto de Investigação e Inovação em Saúde, Universidade do Porto",,ROR,ROR:04wjk1035,https://ror.org/04wjk1035,,,Portugal,Porto,41.14961,-8.61099,https://www.i3s.up.pt,facility
+Children's Hospital Agia Sophia,,ROR,ROR:0315ea826,https://ror.org/0315ea826,,,Greece,Athens,37.98376,23.72784,http://www.paidon-agiasofia.gr/,healthcare
+Cyprus Institute of Neurology and Genetics,CING,ROR,ROR:01ggsp920,https://ror.org/01ggsp920,,,Cyprus,Nicosia,35.17531,33.3642,https://www.cing.ac.cy,nonprofit
+Azienda USL di Bologna,,ROR,ROR:02mby1820,https://ror.org/02mby1820,,,Italy,Bologna,44.49381,11.33875,http://www.ausl.bologna.it/,healthcare
+Ospedale di Parma,,ROR,ROR:03jg24239,https://ror.org/03jg24239,,,Italy,Parma,44.79935,10.32618,https://www.ao.pr.it,healthcare
+Azienda Ospedaliera Universitaria Senese,,ROR,ROR:02s7et124,https://ror.org/02s7et124,,,Italy,Siena,43.31822,11.33064,http://www.ao-siena.toscana.it/,healthcare
+Cambridge University Hospitals NHS Foundation Trust,CUH,ROR,ROR:04v54gj93,https://ror.org/04v54gj93,,,United Kingdom of Great Britain and Northern Ireland (the),Cambridge,52.2,0.11667,http://www.cuh.org.uk/,"funder, healthcare"
+University Hospital Bonn,,ROR,ROR:01xnwqx93,https://ror.org/01xnwqx93,,,Germany,Bonn,50.73438,7.09549,https://www.ukb.uni-bonn.de/,healthcare
+Centre Hospitalier de Luxembourg,CHL,ROR,ROR:03xq7w797,https://ror.org/03xq7w797,,,Luxembourg,Luxembourg,49.61167,6.13,https://www.chl.lu/,healthcare
+Hospital de São João,CHSJ,ROR,ROR:04qsnc772,https://ror.org/04qsnc772,,Centro Hospitalar de São João,Portugal,Porto,41.14961,-8.61099,http://portal-chsj.min-saude.pt/pages/2,healthcare
+Fondazione IRCCS Ca' Granda Ospedale Maggiore Policlinico,,ROR,ROR:016zn0y21,https://ror.org/016zn0y21,,Ca' Granda,Italy,Milan,45.46427,9.18951,http://www.policlinico.mi.it/,"healthcare, funder"
+Fondazione IRCCS Istituto Nazionale dei Tumori,INT,ROR,ROR:05dwj7825,https://ror.org/05dwj7825,,,Italy,Milan,45.46427,9.18951,http://www.istitutotumori.mi.it/,healthcare
+Manchester University NHS Foundation Trust,MFT,ROR,ROR:00he80998,https://ror.org/00he80998,,,United Kingdom of Great Britain and Northern Ireland (the),Manchester,53.48095,-2.23743,https://mft.nhs.uk/,"funder, healthcare"
+Oulu University Hospital,OUH; OYKS; OYS,ROR,ROR:045ney286,https://ror.org/045ney286,,Oulu University Central Hospital; Oulun yliopistollinen keskussairaala,Finland,Oulu,65.01236,25.46816,https://www.ppshp.fi/en/Pages/default.aspx,"healthcare, funder"
+Guy's and St Thomas' NHS Foundation Trust,,ROR,ROR:00j161312,https://ror.org/00j161312,,,United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,http://www.guysandstthomas.nhs.uk/Home.aspx,"healthcare, funder"
+Herzzentrum Dresden Universitaetsklinik,HZDD,ROR,ROR:01jx86h05,https://ror.org/01jx86h05,,Heart Center Dresden; Herzzentrum Dresden,Germany,Dresden,51.05089,13.73832,http://www.herzzentrum-dresden.com,healthcare
+Hospital Universitari Germans Trias i Pujol,,ROR,ROR:04wxdxa47,https://ror.org/04wxdxa47,,,Spain,Barcelona,41.38879,2.15899,http://www.gencat.cat/ics/germanstrias/,healthcare
+Institut Curie,,ROR,ROR:04t0gwh46,https://ror.org/04t0gwh46,,Institut Curie,France,Paris,48.85341,2.3488,http://www.institut-curie.org/,"funder, nonprofit"
+Institute of Oncology Ljubljana,,ROR,ROR:00y5zsg21,https://ror.org/00y5zsg21,,Onkološki Inštitut Ljubljana,Slovenia,Ljubljana,46.05108,14.50513,https://www.onko-i.si,facility
+Instituto Português de Oncologia Francisco Gentil,IPO,ROR,ROR:00r7b5b77,https://ror.org/00r7b5b77,,IPO Francisco Gentil,Portugal,Lisbon,38.71667,-9.13333,http://www.ipolisboa.min-saude.pt/,healthcare
+Bambino Gesù Children's Hospital,OPBG,ROR,ROR:02sy42d13,https://ror.org/02sy42d13,,Baby Jesus Paediatric Hospital; Bambino Gesù Hospital; IRCCS Bambino Gesù Children's Hospital; IRCCS Ospedale Pediatrico Bambino Gesù,Italy,Rome,41.89193,12.51133,https://www.ospedalebambinogesu.it,healthcare
+Masaryk Memorial Cancer Institute,MMCI,ROR,ROR:0270ceh40,https://ror.org/0270ceh40,,,Czechia,Brno,49.19522,16.60796,https://www.mou.cz,facility
+Innsbruck Medical University,MUI,ROR,ROR:03pt86f80,https://ror.org/03pt86f80,,,Austria,Innsbruck,47.26266,11.39454,https://www.i-med.ac.at/mypoint/,"education, funder"
+Medical University of Vienna,,ROR,ROR:05n3x4p02,https://ror.org/05n3x4p02,,MedUni Vienna; MedUni Wien,Austria,Vienna,48.20849,16.37208,https://www.meduniwien.ac.at,"education, funder"
+Medical Genetics Center,MGZ,ROR,ROR:027nwsc63,https://ror.org/027nwsc63,,,Germany,Munich,48.13743,11.57549,https://www.mgz-muenchen.com/,healthcare
+Medizinische Hochschule Hannover,MHH,ROR,ROR:00f2yqf98,https://ror.org/00f2yqf98,,Med. HS Hannover,Germany,Hanover,52.37052,9.73322,https://www.mhh.de,"education, funder"
+Odense University Hospital,OUH,ROR,ROR:00ey0ed83,https://ror.org/00ey0ed83,,Odense Universitets Hospital,Denmark,Odense,55.39594,10.38831,https://ouh.dk,"funder, healthcare"
+Pauls Stradiņš Clinical University Hospital,,ROR,ROR:00h1aq868,https://ror.org/00h1aq868,,,Latvia,Riga,56.946,24.10589,https://www.stradini.lv,healthcare
+Pomeranian Medical University,PMU,ROR,ROR:01v1rak05,https://ror.org/01v1rak05,,Pomorski Uniwersytet Medyczny,Poland,Szczecin,53.42894,14.55302,https://www.pum.edu.pl,"education, funder"
+IPO Porto,,ROR,ROR:027ras364,https://ror.org/027ras364,,Instituto Português de Oncologia do Porto,Portugal,Porto,41.14961,-8.61099,http://www.ipoporto.pt/en,"healthcare, funder"
+Université de Rouen Normandie,URN,ROR,ROR:03nhjew95,https://ror.org/03nhjew95,,University of Rouen Normandy; Université de Rouen,France,Rouen,49.44313,1.09932,https://www.univ-rouen.fr,"education, funder"
+Tartu University Hospital,,ROR,ROR:01dm91j21,https://ror.org/01dm91j21,,Tartu Hospital; Tartu University Clinic,Estonia,Tartu,58.38062,26.72509,https://www.kliinikum.ee,healthcare
+Varsinais-Suomen Sairaanhoitopiiri,VSSHP,ROR,ROR:036bxpj43,https://ror.org/036bxpj43,,,Finland,Turku,60.45148,22.26869,http://www.vsshp.fi/fi/Sivut/default.aspx,"healthcare, funder"
+Universitätsklinikum Erlangen,,ROR,ROR:0030f2a11,https://ror.org/0030f2a11,,,Germany,Erlangen,49.59099,11.00783,http://www.uk-erlangen.de/en/,"healthcare, funder"
+University Medical Center Hamburg-Eppendorf,UKE,ROR,ROR:01zgy1s35,https://ror.org/01zgy1s35,,,Germany,Hamburg,53.55073,9.99302,http://www.uke.de/,"healthcare, funder"
+Universitair Ziekenhuis Brussel,UZB; UZB VUB,ROR,ROR:038f7y939,https://ror.org/038f7y939,,UZ Brussel; University Hospital Brussels,Belgium,Brussels,50.85045,4.34878,https://www.uzbrussel.be,healthcare
+Hôpitaux Universitaires Henri-Mondor,,ROR,ROR:033yb0967,https://ror.org/033yb0967,,Centre Hospitalier Universitaire Henri-Mondor,France,Créteil,48.79266,2.46569,http://chu-mondor.aphp.fr/lhopital-henri-mondor/,healthcare
+University of Liège,,ROR,ROR:00afp2z80,https://ror.org/00afp2z80,,ULiège,Belgium,Liège,50.63373,5.56749,https://www.uliege.be,"education, funder"
+Medisch Centrum Leeuwarden,MCL,ROR,ROR:0283nw634,https://ror.org/0283nw634,,,Netherlands (the),Leeuwarden,53.20139,5.80859,https://www.mcl.nl/,healthcare
+Leiden University,,ROR,ROR:027bh9e22,https://ror.org/027bh9e22,,Rijksuniversiteit Leiden,Netherlands (the),Leiden,52.15833,4.49306,http://www.leiden.edu/,"education, funder"
+Tampere University,,ROR,ROR:033003e23,https://ror.org/033003e23,,,Finland,Tampere,61.49911,23.78712,https://www.tuni.fi/en,"education, funder"
+Universität Innsbruck,,ROR,ROR:054pv6659,https://ror.org/054pv6659,,Leopold-Franzens-Universität Innsbruck,Austria,Innsbruck,47.26266,11.39454,https://www.uibk.ac.at,"education, funder"
+Siemens (Netherlands),,ROR,ROR:02mt4w922,https://ror.org/02mt4w922,,,Netherlands (the),Amsterdam,52.37403,4.88969,https://new.siemens.com/,company
+Antaros Medical (Sweden),,ROR,ROR:029v5hv47,https://ror.org/029v5hv47,,,Sweden,Mölndal,57.6554,12.01378,https://antarosmedical.com/,company
+Bayer (Germany),,ROR,ROR:04hmn8g73,https://ror.org/04hmn8g73,,,Germany,Leverkusen,51.0303,6.98432,http://www.gesundheit.bayer.de/de/index.php,"company, funder"
+Roche (Switzerland),,ROR,ROR:00by1q217,https://ror.org/00by1q217,,Hoffmann-La Roche,Switzerland,Basel,47.55839,7.57327,http://www.roche.ch/en/index.htm,"company, funder"
+Vall d'Hebron Institut de Recerca,VHIR; VHIR-CERCA,ROR,ROR:01d5vx451,https://ror.org/01d5vx451,,Vall d'Hebron Research Institute,Spain,Barcelona,41.38879,2.15899,https://vhir.vallhebron.com,facility
+Vall d'Hebron Institute of Oncology,VHIO; VHIO-CERCA,ROR,ROR:054xx3904,https://ror.org/054xx3904,,,Spain,Barcelona,41.38879,2.15899,https://www.vhio.net,healthcare
+ImaginAb (United States),,ROR,ROR:020pq6t22,https://ror.org/020pq6t22,,,United States of America (the),Inglewood,33.96168,-118.35313,https://www.imaginab.com/,company
+Janssen (Belgium),,ROR,ROR:04yzcpd71,https://ror.org/04yzcpd71,,Janssen Pharmaceutica,Belgium,Beerse,51.31927,4.85304,https://www.janssen.com/belgium/,company
+Pfizer (United Kingdom),,ROR,ROR:04x4v8p40,https://ror.org/04x4v8p40,,Pfizer Limited,United Kingdom of Great Britain and Northern Ireland (the),Tadworth,51.29169,-0.23582,http://www.pfizer.co.uk/,"company, funder"
+Lygature,,ROR,ROR:02vtk3a57,https://ror.org/02vtk3a57,,,Netherlands (the),Utrecht,52.09083,5.12222,https://www.lygature.org/,nonprofit
+Amsterdam UMC Location Vrije Universiteit Amsterdam,VUMC,ROR,ROR:00q6h8f30,https://ror.org/00q6h8f30,,Amsterdam UMC Location VUmc; VU Medisch Centrum; Vrije Universiteit Medical Center,Netherlands (the),Amsterdam,52.37403,4.88969,https://vumc.nl,healthcare
+Takeda (United Kingdom),,ROR,ROR:05c0v3585,https://ror.org/05c0v3585,,,United Kingdom of Great Britain and Northern Ireland (the),Cambridge,52.2,0.11667,http://www.takedacam.com/,company
+University of Cambridge,,ROR,ROR:013meh722,https://ror.org/013meh722,,Cambridge University,United Kingdom of Great Britain and Northern Ireland (the),Cambridge,52.2,0.11667,https://www.cam.ac.uk,"education, funder"
+Vrije Universiteit Brussel,VUB,ROR,ROR:006e5kg04,https://ror.org/006e5kg04,,,Belgium,Brussels,50.85045,4.34878,http://www.vub.ac.be/en/,"education, funder"
+University of Münster,UM,ROR,ROR:00pd74e08,https://ror.org/00pd74e08,,Universitaet Muenster; University of Muenster; Westfälische Wilhelms-Universität Münster,Germany,Münster,51.96236,7.62571,https://www.uni-muenster.de,"education, funder"
+University of Tübingen,,ROR,ROR:03a1kwz48,https://ror.org/03a1kwz48,,"Eberhard Karls University, Tübingen",Germany,Tübingen,48.52266,9.05222,https://www.uni-tuebingen.de/en/university.html,"education, funder"
+GGZ Drenthe,,ROR,ROR:0107rkg57,https://ror.org/0107rkg57,,,Netherlands (the),Assen,52.99667,6.5625,https://www.ggzdrenthe.nl/,"healthcare, funder"
+GGZ Friesland,,ROR,ROR:03c0kv729,https://ror.org/03c0kv729,,,Netherlands (the),Leeuwarden,53.20139,5.80859,https://www.ggzfriesland.nl/,"healthcare, funder"
+Lentis,,ROR,ROR:00t93jm73,https://ror.org/00t93jm73,,GGZ Lentis; Lentis Basic Mental Healthcare,Netherlands (the),Groningen,53.21917,6.56667,https://www.lentis.nl/,"healthcare, funder"
+IRCCS Azienda Ospedliero-Universitaria di Bologna Policlinico di Sant'Orsola,AOUBO,ROR,ROR:00t4vnv68,https://ror.org/00t4vnv68,,Azienda ospedaliero-universitaria Policlinico Sant’Orsola Malpighi; Policlinico S.Orsola - Malpighi; Policlinico di Sant'Orsola; Sant’Orsola-Malpighi Polyclinic,Italy,Bologna,44.49381,11.33875,https://www.aosp.bo.it,healthcare
+Centre Hospitalier Universitaire de Bordeaux,CHU,ROR,ROR:01hq89f96,https://ror.org/01hq89f96,,CHU de Bordeaux,France,Bordeaux,44.84044,-0.5805,http://www.chu-bordeaux.fr/,"healthcare, funder"
+National Institute of Cardiovascular Diseases,NÚSCH,ROR,ROR:00gktjq65,https://ror.org/00gktjq65,,Národný ústav srdcových a cievnych chorôb,Slovakia,Bratislava,48.14816,17.10674,http://www.nusch.sk/en,healthcare
+Erasmus Hospital,,ROR,ROR:05j1gs298,https://ror.org/05j1gs298,,,Belgium,Brussels,50.85045,4.34878,http://www.erasme.ulb.ac.be/page.asp?id=13338&langue=EN,healthcare
+University of Coimbra,,ROR,ROR:04z8k9a98,https://ror.org/04z8k9a98,,,Portugal,Coimbra,40.20564,-8.41955,https://www.uc.pt,"education, funder"
+University of Debrecen,,ROR,ROR:02xf66n48,https://ror.org/02xf66n48,,,Hungary,Debrecen,47.53167,21.62444,https://unideb.hu,"education, funder"
+CHU Dijon Bourgogne,,ROR,ROR:0377z4z10,https://ror.org/0377z4z10,,CHU de Dijon; Centre Hospitalier Régional Universitaire de Dijon; Centre Hospitalier Universitaire Dijon Bourgogne,France,Dijon,47.31667,5.01667,https://www.chu-dijon.fr,healthcare
+Mater Misericordiae University Hospital,MMUH,ROR,ROR:040hqpc16,https://ror.org/040hqpc16,,The Mater ,Ireland,Dublin,53.33306,-6.24889,http://www.mater.ie/,healthcare
+Düsseldorf University Hospital,,ROR,ROR:006k2kk72,https://ror.org/006k2kk72,,,Germany,Düsseldorf,51.22172,6.77616,https://www.uni-duesseldorf.de/home/en/university-hospital.html,healthcare
+Essen University Hospital,,ROR,ROR:02na8dn90,https://ror.org/02na8dn90,,,Germany,Essen,51.45657,7.01228,https://www.uk-essen.de,"funder, healthcare"
+University of Ferrara,,ROR,ROR:041zkgm14,https://ror.org/041zkgm14,,,Italy,Ferrara,44.83804,11.62057,https://www.unife.it,"education, funder"
+Gdańsk Medical University,MUG,ROR,ROR:019sbgd69,https://ror.org/019sbgd69,,,Poland,Gdansk,54.35227,18.64912,http://mug.edu.pl/,"education, funder"
+Istituto Giannina Gaslini,,ROR,ROR:0424g0k78,https://ror.org/0424g0k78,,,Italy,Genoa,44.40478,8.94439,http://www.gaslini.org/,healthcare
+Ghent University,,ROR,ROR:00cv9y106,https://ror.org/00cv9y106,,UGent,Belgium,Ghent,51.05,3.71667,https://www.ugent.be,"education, funder"
+Universitätsmedizin Göttingen,UMG,ROR,ROR:021ft0n22,https://ror.org/021ft0n22,,,Germany,Göttingen,51.53443,9.93228,https://www.umg.eu/,"funder, healthcare"
+University of Groningen,,ROR,ROR:012p63287,https://ror.org/012p63287,,Academia Groningana,Netherlands (the),Groningen,53.21917,6.56667,http://www.rug.nl/,"education, funder"
+Cliniques Universitaires Saint-Luc,,ROR,ROR:03s4khd80,https://ror.org/03s4khd80,,,Belgium,Brussels,50.85045,4.34878,http://www.saintluc.be/,"healthcare, funder"
+Hôpital Jeanne de Flandre,,ROR,ROR:01e8kn913,https://ror.org/01e8kn913,,,France,Lille,50.63297,3.05858,http://www.chru-lille.fr/organisation-structure/hopitaux/98613.html,healthcare
+University Hospital Schleswig-Holstein,UKSH,ROR,ROR:01tvm6f46,https://ror.org/01tvm6f46,,,Germany,Kiel,54.32133,10.13489,https://www.uksh.de,healthcare
+Hôpital Femme Mère Enfant,HFME,ROR,ROR:006yspz11,https://ror.org/006yspz11,,,France,Bron,45.73865,4.91303,https://www.chu-lyon.fr/hopital-femme-mere-enfant,healthcare
+Hospital La Paz Institute for Health Research,IDIPAZ,ROR,ROR:017bynh47,https://ror.org/017bynh47,,,Spain,Madrid,40.4165,-3.70256,http://www.idipaz.es/,facility
+University Hospital Magdeburg,,ROR,ROR:03m04df46,https://ror.org/03m04df46,,,Germany,Magdeburg,52.12773,11.62916,http://www.med.uni-magdeburg.de/en/Strukturuebersicht.html,healthcare
+Hôpital de la Timone,,ROR,ROR:05jrr4320,https://ror.org/05jrr4320,,,France,Marseille,43.29695,5.38107,http://fr.ap-hm.fr/nos-hopitaux/hopital-de-la-timone,healthcare
+Centre Hospitalier Universitaire de Montpellier,CHRU MTP,ROR,ROR:00mthsf17,https://ror.org/00mthsf17,,,France,Montpellier,43.61093,3.87635,http://www.chu-montpellier.fr/,"funder, healthcare"
+University Hospital Münster,UKM,ROR,ROR:01856cw59,https://ror.org/01856cw59,,University Hospital Muenster; University Hospital of Muenster; University Hospital of Münster,Germany,Münster,51.96236,7.62571,http://klinikum.uni-muenster.de,healthcare
+Federico II University Hospital,,ROR,ROR:02jr6tp70,https://ror.org/02jr6tp70,,Policlinico di Napoli,Italy,Naples,40.85216,14.26811,http://www.policlinico.unina.it/flex/cm/pages/ServeBLOB.php/L/IT/IDPagina/1,healthcare
+University of Southern Denmark,SDU,ROR,ROR:03yrrjy16,https://ror.org/03yrrjy16,,South Danish University,Denmark,Odense,55.39594,10.38831,https://www.sdu.dk,"education, funder"
+Uniwersytecki Szpital Kliniczny w Olsztynie,USK,ROR,ROR:03a07kg34,https://ror.org/03a07kg34,,,Poland,Olsztyn,53.77995,20.49416,http://usk-olsztyn.pl/,healthcare
+Hôpital Robert-Debré,,ROR,ROR:02dcqy320,https://ror.org/02dcqy320,,,France,Paris,48.85341,2.3488,http://robertdebre.aphp.fr/,healthcare
+Azienda Sanitaria Unità Locale di Reggio Emilia,,ROR,ROR:001bbwj30,https://ror.org/001bbwj30,,AUSL Reggio Emilia,Italy,Reggio Emilia,44.69825,10.63125,http://www.ausl.re.it/,healthcare
+Centre Hospitalier Universitaire de Rennes,,ROR,ROR:05qec5a53,https://ror.org/05qec5a53,,CHU Rennes; CHU de Rennes,France,Rennes,48.11198,-1.67429,http://www.chu-rennes.fr/sections,"funder, healthcare"
+Children's Clinical University Hospital,,ROR,ROR:01js8h045,https://ror.org/01js8h045,,University Children’s Hospital,Latvia,Riga,56.946,24.10589,https://www.bkus.lv/lv,healthcare
+Victor Babeș University of Medicine and Pharmacy Timișoara,UMFT,ROR,ROR:00afdp487,https://ror.org/00afdp487,,"Universitatea de Medicină și Farmacie ""Victor Babeş"", Timișoara",Romania,Timișoara,45.75372,21.22571,https://www.umft.ro/acasa,education
+University of Turin,UNITO,ROR,ROR:048tbm396,https://ror.org/048tbm396,,,Italy,Turin,45.07049,7.68682,https://www.unito.it,"education, funder"
+Children's Memorial Health Institute,CMHI; CZD,ROR,ROR:020atbp69,https://ror.org/020atbp69,,"Instytut ""Pomnik - Centrum Zdrowia Dziecka",Poland,Warsaw,52.22977,21.01178,http://www.czd.pl/index.php?option=com_content&view=article&id=279&Itemid=106,healthcare
+Children's Hospital Zagreb,,ROR,ROR:03rmwy138,https://ror.org/03rmwy138,,Klaićeva,Croatia,Zagreb,45.81444,15.97798,http://www.kdb.hr/,healthcare
+Vytautas Magnus University,VDU,ROR,ROR:04y7eh037,https://ror.org/04y7eh037,,Vytauto Didžiojo Universitetas,Lithuania,Kaunas,54.90272,23.90961,https://www.vdu.lt,education
+Helmholtz Zentrum München,HMGU,ROR,ROR:00cfam450,https://ror.org/00cfam450,,GSF - Gesellschaft für Strahlen- und Umweltforschung; German Research Center for Environmental Health,Germany,Munich,48.13743,11.57549,http://www.helmholtz-muenchen.de,"facility, funder"
+Vrije Universiteit Amsterdam,VU,ROR,ROR:008xxew50,https://ror.org/008xxew50,,VU Amsterdam,Netherlands (the),Amsterdam,52.37403,4.88969,https://vu.nl/,"education, funder"
+Norwegian Institute of Public Health,NIPH,ROR,ROR:046nvst19,https://ror.org/046nvst19,,Folkehelseinstituttet,Norway,Oslo,59.91273,10.74609,http://www.fhi.no/,"funder, government"
+Istituto Neurologico Mediterraneo,,ROR,ROR:00cpb6264,https://ror.org/00cpb6264,,IRCCS Neuromed,Italy,Pozzilli,41.51142,14.06252,http://www.neuromed.it/,healthcare
+Spaarne Gasthuis,,ROR,ROR:05d7whc82,https://ror.org/05d7whc82,,,Netherlands (the),Haarlem,52.38084,4.63683,https://spaarnegasthuis.nl/,healthcare
+Martini Ziekenhuis,,ROR,ROR:017b69w10,https://ror.org/017b69w10,,,Netherlands (the),Groningen,53.21917,6.56667,http://www.martiniziekenhuis.nl/,healthcare
+Netherlands Comprehensive Cancer Organisation,IKNL,ROR,ROR:03g5hcd33,https://ror.org/03g5hcd33,,,Netherlands (the),Eindhoven,51.44083,5.47778,https://www.iknl.nl/,healthcare
+University of Oslo,UiO,ROR,ROR:01xtthb56,https://ror.org/01xtthb56,,Royal Frederick University,Norway,Oslo,59.91273,10.74609,http://www.uio.no/english/,"education, funder"
+Treant Zorggroep,,ROR,ROR:01tm5k604,https://ror.org/01tm5k604,,,Netherlands (the),Emmen,52.77917,6.90694,https://www.treant.nl/,healthcare
+Piedmont Reference Center for Epidemiology and Cancer Prevention,,ROR,ROR:05v0e5774,https://ror.org/05v0e5774,,CPO Piemonte,Italy,Turin,45.07049,7.68682,http://www.cpo.it/en/home/,healthcare
+The University of Western Australia,UWA,ROR,ROR:047272k79,https://ror.org/047272k79,,University of Western Australia,Australia,Perth,-31.95224,115.8614,https://www.uwa.edu.au,"education, funder"
+Ospedale San Giovanni Bosco,,ROR,ROR:0300pwe30,https://ror.org/0300pwe30,,,Italy,Turin,45.07049,7.68682,http://www.aslto2.piemonte.it/_front/front.php?p=2&url=v%3D%26nome%3Ddirezione%20sanitaria%20ospedale%20s.%20g.%20bosco%26entita%3D207%26menu%3D43%26top%3D200,healthcare
+Azienda Ospedaliera San Camillo-Forlanini,,ROR,ROR:00j707644,https://ror.org/00j707644,,,Italy,Rome,41.89193,12.51133,http://www.scamilloforlanini.rm.it/html/,healthcare
+Azienda Ospedaliero-Universitaria di Modena,,ROR,ROR:01hmmsr16,https://ror.org/01hmmsr16,,Policlinico di Modena,Italy,Modena,44.64783,10.92539,https://www.aou.mo.it,healthcare
+Ospedali Riuniti di Ancona,AOU,ROR,ROR:01j0qa041,https://ror.org/01j0qa041,,,Italy,Ancona,43.5942,13.50337,http://www.ospedaliriuniti.marche.it/portale/,healthcare
+Azienda Ospedaliera Universitaria Pisana,,ROR,ROR:05xrcj819,https://ror.org/05xrcj819,,,Italy,Pisa,43.70853,10.4036,http://www.ao-pisa.toscana.it/,healthcare
+Policlinico Umberto I,,ROR,ROR:011cabk38,https://ror.org/011cabk38,,,Italy,Rome,41.89193,12.51133,http://www.policlinicoumberto1.it/,healthcare
+Azienda Ospedaliera Universitaria Integrata Verona,AOUI,ROR,ROR:00sm8k518,https://ror.org/00sm8k518,,,Italy,Verona,45.43854,10.9938,http://www.ospedaleuniverona.it/ecm/home,healthcare
+Bicêtre Hospital,,ROR,ROR:05c9p1x46,https://ror.org/05c9p1x46,,,France,Le Kremlin-Bicêtre,48.81471,2.36073,http://hopital-bicetre.aphp.fr/,healthcare
+Hôpital Cochin,,ROR,ROR:00ph8tk69,https://ror.org/00ph8tk69,,,France,Paris,48.85341,2.3488,https://www.aphp.fr/contenu/hopital-cochin-3,healthcare
+Pitié-Salpêtrière Hospital,,ROR,ROR:02mh9a093,https://ror.org/02mh9a093,,Hôpital Universitaire de la Pitié-Salpêtrière,France,Paris,48.85341,2.3488,http://pitiesalpetriere.aphp.fr/,healthcare
+Hôpital Raymond-Poincaré,,ROR,ROR:03pef0w96,https://ror.org/03pef0w96,,,France,Garches,48.84226,2.18232,http://raymondpoincare.aphp.fr/,healthcare
+Istituto Ortopedico Gaetano Pini,,ROR,ROR:02brpaf34,https://ror.org/02brpaf34,,,Italy,Milan,45.46427,9.18951,http://www.gpini.it/,healthcare
+Centro Hospitalar de Lisboa Central,CHLC,ROR,ROR:00k6r3f30,https://ror.org/00k6r3f30,,,Portugal,Lisbon,38.71667,-9.13333,http://www.chlc.min-saude.pt/homepage.aspx?menuid=1,healthcare
+Centro Hospitalar do Porto,CHP,ROR,ROR:04dwpyh46,https://ror.org/04dwpyh46,,,Portugal,Porto,41.14961,-8.61099,http://www.chporto.pt/,"healthcare, funder"
+Centre Hospitalier Universitaire de Lille,,ROR,ROR:02ppyfa04,https://ror.org/02ppyfa04,,CHRU de Lille; CHU de Lille; Centre Hospitalier Régional et Universitaire de Lille,France,Lille,50.63297,3.05858,https://www.chu-lille.fr,"funder, healthcare"
+Azienda Socio Sanitaria Territoriale degli Spedali Civili di Brescia,,ROR,ROR:015rhss58,https://ror.org/015rhss58,,ASST Spedali Civili di Brescia; Azienda Ospedaliera Spedali Civili di Brescia; Spedali Civili di Brescia,Italy,Brescia,45.53558,10.21472,https://www.asst-spedalicivili.it,healthcare
+Azienda Ospedaliero-Universitaria Careggi,AOUC,ROR,ROR:02crev113,https://ror.org/02crev113,,,Italy,Florence,43.77925,11.24626,https://www.aou-careggi.toscana.it,healthcare
+Clinical Emergency Hospital Bucharest,,ROR,ROR:03grprm46,https://ror.org/03grprm46,,Floreasca Hospital; Spitalul Floreasca,Romania,Bucharest,44.43225,26.10626,http://www.scub.ro/,healthcare
+"Istituto Nazionale di Fisica Nucleare, Sezione di Padova",INFN-PD,ROR,ROR:00z34yn88,https://ror.org/00z34yn88,,INFN Padova; INFN Padova Division; INFN Sezione di Padova,Italy,Padua,45.40797,11.88586,https://www.pd.infn.it,"facility, funder"
+Fondation Saint-Luc,,ROR,ROR:021354321,https://ror.org/021354321,,Fondation Saint Luc; Saint Luc Foundation,Belgium,Brussels,50.85045,4.34878,https://www.fondationsaintluc.be,"nonprofit, funder"
+Ospedali Riuniti San Giovanni di Dio e Ruggi d'Aragona,,ROR,ROR:04etf9p48,https://ror.org/04etf9p48,,Ospedale San Leonardo,Italy,Salerno,40.67545,14.79328,http://www.sangiovannieruggi.it/,healthcare
+Erasmus University Rotterdam,EUR,ROR,ROR:057w15z03,https://ror.org/057w15z03,,,Netherlands (the),Rotterdam,51.9225,4.47917,https://www.eur.nl,"education, funder"
+Istituti Clinici Scientifici Maugeri,,ROR,ROR:00mc77d93,https://ror.org/00mc77d93,,IRCCS Maugeri di Pavia,Italy,Pavia,45.19205,9.15917,https://www.icsmaugeri.it/,healthcare
+Casa Sollievo della Sofferenza,,ROR,ROR:00md77g41,https://ror.org/00md77g41,,,Italy,San Giovanni Rotondo,41.70643,15.7277,http://www.operapadrepio.it/en/,healthcare
+Laiko General Hospital of Athens,,ROR,ROR:02dvs1389,https://ror.org/02dvs1389,,,Greece,Athens,37.98376,23.72784,http://www.laiko.gr/,healthcare
+Institute of Rheumatology,RU,ROR,ROR:00jk0vn85,https://ror.org/00jk0vn85,,,Czechia,Prague,50.08804,14.42076,https://www.revma.cz/,facility
+Ospedale Policlinico San Martino,,ROR,ROR:04d7es448,https://ror.org/04d7es448,,IRCCS AOU San Martino,Italy,Genoa,44.40478,8.94439,http://www.ospedalesanmartino.it/,healthcare
+Kerckhoff Klinik,,ROR,ROR:04m54m956,https://ror.org/04m54m956,,,Germany,Bad Nauheim,50.36463,8.73859,https://www.kerckhoff-klinik.de,healthcare
+"National Institute of Geriatrics, Rheumatology and Rehabilitation",,ROR,ROR:03gz68w66,https://ror.org/03gz68w66,,"Narodowy Instytut Geriatrii, Reumatologii i Rehabilitacji",Poland,Warsaw,52.22977,21.01178,https://spartanska.pl,"facility, funder"
+Istituto di Ricovero e Cura a Carattere Scientifico San Raffaele,,ROR,ROR:006x48140,https://ror.org/006x48140,,IRCCS San Raffaele,Italy,Rome,41.89193,12.51133,https://www.sanraffaele.it/assistenza/strutture-sanitarie/1/irccs-san-raffaele-pisana,healthcare
+University of Rome Tor Vergata,,ROR,ROR:02p77k626,https://ror.org/02p77k626,,University of Rome II,Italy,Rome,41.89193,12.51133,https://web.uniroma2.it,"education, funder"
+Knowledge Centre for Sport Netherlands,,ROR,ROR:02pd5tw33,https://ror.org/02pd5tw33,,,Netherlands (the),Ede,52.03333,5.65833,https://www.kenniscentrumsport.nl/,other
+Northumbria University,,ROR,ROR:049e6bc10,https://ror.org/049e6bc10,,University of Northumbria at Newcastle,United Kingdom of Great Britain and Northern Ireland (the),Newcastle upon Tyne,54.97328,-1.61396,https://www.northumbria.ac.uk/,"education, funder"
+University of Crete,UOC,ROR,ROR:00dr28g20,https://ror.org/00dr28g20,,,Greece,Rethymno,35.36555,24.48232,https://www.uoc.gr,"education, funder"
+Azienda Ospedaliera Citta' della Salute e della Scienza di Torino,,ROR,ROR:001f7a930,https://ror.org/001f7a930,,,Italy,Turin,45.07049,7.68682,https://www.cittadellasalute.to.it/,healthcare
+Azienda Usl Toscana Centro,,ROR,ROR:05a87zb20,https://ror.org/05a87zb20,,,Italy,Pistoia,43.93064,10.92365,https://www.uslcentro.toscana.it/,healthcare
+Centre Hospitalier Universitaire Henri-Mondor,,ROR,ROR:04m61mj84,https://ror.org/04m61mj84,,CHU Henri-Mondor,France,Créteil,48.79266,2.46569,http://chu-mondor.aphp.fr/,healthcare
+Children's Health Ireland at Crumlin,,ROR,ROR:025qedy81,https://ror.org/025qedy81,,"Our Lady's Children's Hospital, Crumlin; Our Lady's Hospital for Sick Children",Ireland,Dublin,53.33306,-6.24889,http://www.olchc.ie/,"healthcare, funder"
+Centre Hospitalier Universitaire de Nice,,ROR,ROR:05qsjq305,https://ror.org/05qsjq305,,CHU de Nice,France,Nice,43.70313,7.26608,http://www.chu-nice.fr/,"funder, healthcare"
+Hôpital Charles-Nicolle,,ROR,ROR:00cxy0s05,https://ror.org/00cxy0s05,,Charles-Nicolle Hospital,France,Rouen,49.44313,1.09932,https://www.chu-rouen.fr/hopital_charles_nicolle/,healthcare
+Centre Hospitalier Universitaire de Toulouse,,ROR,ROR:017h5q109,https://ror.org/017h5q109,,CHU de Toulouse,France,Toulouse,43.60426,1.44367,http://www.chu-toulouse.fr/,"healthcare, funder"
+Spitalul Clinic Colentina,,ROR,ROR:04fkbqt11,https://ror.org/04fkbqt11,,,Romania,Bucharest,44.43225,26.10626,http://www.spitalul-colentina.ro/scc-en/hospital_colentina.htm,healthcare
+EB House Austria,,ROR,ROR:059q6am89,https://ror.org/059q6am89,,,Austria,Salzburg,47.79941,13.04399,http://www.eb-haus.org/en/,healthcare
+Fakultní nemocnice Bulovka,,ROR,ROR:009e9xr64,https://ror.org/009e9xr64,,Nemocnice Na Bulovce,Czechia,Prague,50.08804,14.42076,http://bulovka.cz/,healthcare
+Lithuanian University of Health Sciences,LSMU,ROR,ROR:0069bkg23,https://ror.org/0069bkg23,,,Lithuania,Kaunas,54.90272,23.90961,https://lsmu.lt,"education, funder"
+Istituto Dermopatico dell'Immacolata,IDI,ROR,ROR:02b5mfy68,https://ror.org/02b5mfy68,,,Italy,Rome,41.89193,12.51133,http://www.idi.it/,healthcare
+St. Anne's University Hospital Brno,FNUSA,ROR,ROR:049bjee35,https://ror.org/049bjee35,,St. Anne's University Hospital,Czechia,Brno,49.19522,16.60796,https://www.fnusa.cz,healthcare
+Semmelweis University,,ROR,ROR:01g9ty582,https://ror.org/01g9ty582,,,Hungary,Budapest,47.49835,19.04045,http://semmelweis.hu/english/the-university/,"education, funder"
+Städtisches Klinikum Dessau,,ROR,ROR:00gj8pr18,https://ror.org/00gj8pr18,,,Germany,Dessau,51.83864,12.24555,http://www.klinikum-dessau.de/,healthcare
+University Medical Center Freiburg,,ROR,ROR:03vzbgh69,https://ror.org/03vzbgh69,,,Germany,Freiburg im Breisgau,47.9959,7.85222,http://www.uniklinik-freiburg.de/en/uniklinikum.html,healthcare
+University Hospital Regensburg,UKR,ROR,ROR:01226dv09,https://ror.org/01226dv09,,,Germany,Regensburg,49.01513,12.10161,http://www.uniklinikum-regensburg.de/e/,"healthcare, funder"
+Universitätsklinikum Würzburg,UKW,ROR,ROR:03pvr2g57,https://ror.org/03pvr2g57,,Universitaetsklinikum Wuerzburg - Klinikum Der Bayerischen Julius-Maximilians-Universitat; University Hospital Würzburg; University Hospital of Wuerzburg,Germany,Würzburg,49.79391,9.95121,https://www.ukw.de,healthcare
+Universitätsmedizin Rostock,,ROR,ROR:04dm1cm79,https://ror.org/04dm1cm79,,,Germany,Rostock,54.0887,12.14049,http://www.med.uni-rostock.de/,healthcare
+University Hospital Brno,,ROR,ROR:00qq1fp34,https://ror.org/00qq1fp34,,,Czechia,Brno,49.19522,16.60796,https://www.fnbrno.cz,healthcare
+University Hospital Centre Zagreb,KBC,ROR,ROR:00r9vb833,https://ror.org/00r9vb833,,Clinical Hospital Centre; KBC Zagreb; Klinički Bolnički Centar Zagreb,Croatia,Zagreb,45.81444,15.97798,https://www.kbc-zagreb.hr,healthcare
+University Hospital Kralovske Vinohrady,FNKV,ROR,ROR:04sg4ka71,https://ror.org/04sg4ka71,,,Czechia,Prague,50.08804,14.42076,http://www.fnkv.cz/,healthcare
+Zealand University Hospital,ZUH,ROR,ROR:00363z010,https://ror.org/00363z010,,,Denmark,Roskilde,55.64152,12.08035,http://www.regionsjaelland.dk/kampagner/english/hospitals/zuh/sider/default.aspx,"healthcare, funder"
+University of Southampton,,ROR,ROR:01ryk1543,https://ror.org/01ryk1543,,,United Kingdom of Great Britain and Northern Ireland (the),Southampton,50.90395,-1.40428,http://www.southampton.ac.uk/,"education, funder"
+Accare,,ROR,ROR:02h4pw461,https://ror.org/02h4pw461,,,Netherlands (the),Groningen,53.21917,6.56667,https://www.accare.nl/,"healthcare, funder"
+Parnassia Groep,,ROR,ROR:002wh3v03,https://ror.org/002wh3v03,,,Netherlands (the),The Hague,52.07667,4.29861,https://www.parnassiagroep.nl/,healthcare
+University of Surrey,,ROR,ROR:00ks66431,https://ror.org/00ks66431,,,United Kingdom of Great Britain and Northern Ireland (the),Guildford,51.23536,-0.57427,https://www.surrey.ac.uk,"education, funder"
+Agencia Española de Medicamentos y Productos Sanitarios,AEMPS,ROR,ROR:043fs9135,https://ror.org/043fs9135,,,Spain,Madrid,40.4165,-3.70256,http://www.aemps.gob.es/,"government, funder"
+Agenzia Regionale di Sanità della Toscana,ARS,ROR,ROR:059vkfm47,https://ror.org/059vkfm47,,,Italy,Florence,43.77925,11.24626,https://www.ars.toscana.it/it/,other
+Aarhus University,AU,ROR,ROR:01aj84f44,https://ror.org/01aj84f44,,,Denmark,Aarhus,56.15674,10.21076,https://www.au.dk,"education, funder"
+Biobanking and Biomolecular Resources Research Infrastructure Consortium,BBMRI-ERIC,ROR,ROR:00pwncn89,https://ror.org/00pwncn89,,,Austria,Graz,47.06667,15.45,http://bbmri-eric.eu/,other
+Istituto di Fisiologia Clinica,CNR IFC; IFC,ROR,ROR:01kdj2848,https://ror.org/01kdj2848,,Institute of Clinical Physiology,Italy,Pisa,43.70853,10.4036,https://www.ifc.cnr.it/index.php/it/,facility
+Finnish Institute for Health and Welfare,THL,ROR,ROR:03tf0c761,https://ror.org/03tf0c761,,Terveyden ja Hyvinvoinnin Laitos,Finland,Helsinki,60.16952,24.93545,https://thl.fi/etusivu,"funder, government"
+Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,FISABIO,ROR,ROR:0116vew40,https://ror.org/0116vew40,,,Spain,Valencia,39.47391,-0.37966,http://fisabio.san.gva.es/,"nonprofit, funder"
+GlaxoSmithKline (United Kingdom),GSK,ROR,ROR:01xsqw823,https://ror.org/01xsqw823,,,United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,http://uk.gsk.com/,"company, funder"
+Duke Institute for Health Innovation,DIHI,ROR,ROR:031n1rn61,https://ror.org/031n1rn61,,,United States of America (the),Durham,35.99403,-78.89862,http://www.dihi.org/,"other, funder"
+Barcelona Institute for Global Health,BIGH; BIGH-CERCA,ROR,ROR:03hjgt059,https://ror.org/03hjgt059,,ISGlobal,Spain,Barcelona,41.38879,2.15899,http://www.isglobal.org/en/,healthcare
+Universidade do Porto,,ROR,ROR:043pwc612,https://ror.org/043pwc612,,U.Porto,Portugal,Porto,41.14961,-8.61099,https://www.up.pt,"education, funder"
+Institut Universitari d'Investigació en Atenció Primària Jordi Gol,,ROR,ROR:0370bpp07,https://ror.org/0370bpp07,,IDIAP Jordi Gol,Spain,Barcelona,41.38879,2.15899,http://www.idiapjordigol.com/index.php?lang=en,other
+KU Leuven,KUL,ROR,ROR:05f950310,https://ror.org/05f950310,,Catholic University of Leuven; University of Leuven,Belgium,Leuven,50.87959,4.70093,http://www.kuleuven.be/english,"education, funder"
+Netherlands Pharmacovigilance Centre Lareb,,ROR,ROR:04fp8ns78,https://ror.org/04fp8ns78,,,Netherlands (the),'s-Hertogenbosch,51.69917,5.30417,http://www.lareb.nl/?lang=en-GB,facility
+Leibniz Institute for Prevention Research and Epidemiology - BIPS,BIPS,ROR,ROR:02c22vc57,https://ror.org/02c22vc57,,Bremen Institute for Prevention Research and Social Medicine,Germany,Bremen,53.07582,8.80717,https://www.bips-institut.de/en/home.html,facility
+Novartis (Netherlands),,ROR,ROR:01a80cj23,https://ror.org/01a80cj23,,Novartis Pharma,Netherlands (the),Arnhem,51.98,5.91111,http://www.novartis.nl/,company
+Otto-von-Guericke University Magdeburg,OvGU,ROR,ROR:00ggpsq73,https://ror.org/00ggpsq73,,,Germany,Magdeburg,52.12773,11.62916,http://www.ovgu.de/unimagdeburg/en/Otto+von+Guericke+University+Magdeburg.html,"education, funder"
+Pharmo Institute,,ROR,ROR:01wfg6h04,https://ror.org/01wfg6h04,,,Netherlands (the),Utrecht,52.09083,5.12222,http://www.pharmo.nl/,facility
+Sanofi (France),,ROR,ROR:02n6c9837,https://ror.org/02n6c9837,,Sanofi-Aventis,France,Paris,48.85341,2.3488,http://en.sanofi.com/,"company, funder"
+Takeda (Japan),,ROR,ROR:04hjbmv12,https://ror.org/04hjbmv12,,,Japan,Osaka,34.69379,135.50107,http://www.takeda.com,"company, funder"
+Université de Bordeaux,,ROR,ROR:057qpr032,https://ror.org/057qpr032,,,France,Bordeaux,44.84044,-0.5805,https://www.u-bordeaux.fr,"education, funder"
+University College London,UCL,ROR,ROR:02jx3x895,https://ror.org/02jx3x895,,"London University; University College, London",United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,http://www.ucl.ac.uk/,"education, funder"
+University of KwaZulu-Natal,UKZN ,ROR,ROR:04qzfn040,https://ror.org/04qzfn040,,,South Africa,Durban,-29.8579,31.0292,https://www.ukzn.ac.za,"education, funder"
+University of Ulster,UU,ROR,ROR:01yp9g959,https://ror.org/01yp9g959,,,United Kingdom of Great Britain and Northern Ireland (the),Coleraine,55.13333,-6.66667,https://www.ulster.ac.uk,"education, funder"
+University of Messina,UNIME,ROR,ROR:05ctdxz19,https://ror.org/05ctdxz19,,,Italy,Messina,38.19394,15.55256,https://www.unime.it,"education, funder"
+University of Dundee,,ROR,ROR:03h2bxq36,https://ror.org/03h2bxq36,,Universitas Dundensis,United Kingdom of Great Britain and Northern Ireland (the),Dundee,56.46913,-2.97489,https://www.dundee.ac.uk,"education, funder"
+Uppsala University,,ROR,ROR:048a87296,https://ror.org/048a87296,,,Sweden,Uppsala,59.85882,17.63889,https://www.uu.se/en/,"education, funder"
+Swansea University,,ROR,ROR:053fq8t95,https://ror.org/053fq8t95,,,United Kingdom of Great Britain and Northern Ireland (the),Swansea,51.62079,-3.94323,https://www.swansea.ac.uk,"education, funder"
+Huisartsenpraktijk Meander,,ROR,ROR:01q9pd408,https://ror.org/01q9pd408,,,Netherlands (the),Coevorden,52.66103,6.74046,https://www.huisartsenmeander.nl,healthcare
+HuisartsenOrganisatie Oost-Gelderland,HOOG,ROR,ROR:05xmrvj69,https://ror.org/05xmrvj69,,Multicenter General Practitioners Organisation; Multicenter General Practitioners Organisation 'HuisartsenOrganisatie Oost-Gelderland',Netherlands (the),Apeldoorn,52.18722,5.91969,https://www.hoogzorg.nl,healthcare
+Parkinson Platform Noord Nederland,PPNN,ROR,ROR:02j8tjh47,https://ror.org/02j8tjh47,,PPNN Study Group,Netherlands (the),Groningen,53.21917,6.56667,https://www.ppnn.info,healthcare
+Verslavingszorg Noord Nederland,VNN,ROR,ROR:0564c7p76,https://ror.org/0564c7p76,,,Netherlands (the),Groningen,53.21917,6.56667,https://www.vnn.nl/,healthcare
+University Clinic of Pulmonary and Allergic Diseases Golnik,,ROR,ROR:01yxj7x74,https://ror.org/01yxj7x74,,,Slovenia,Golnik,46.33333,14.33333,http://www.klinika-golnik.si/en/,healthcare
+University of Catania,,ROR,ROR:03a64bh57,https://ror.org/03a64bh57,,,Italy,Catania,37.49223,15.07041,https://www.unict.it,"education, funder"
+University Hospital of Geneva,HUG,ROR,ROR:01m1pv723,https://ror.org/01m1pv723,,,Switzerland,Geneva,46.20222,6.14569,http://www.hug-ge.ch/,"healthcare, funder"
+Serviço Nacional de Saúde,SNS,ROR,ROR:020j5zv28,https://ror.org/020j5zv28,,,Portugal,Lisbon,38.71667,-9.13333,https://www.sns.gov.pt,government
+Krankenhaus Bethanien,,ROR,ROR:03ndabk35,https://ror.org/03ndabk35,,,Germany,Solingen,51.17343,7.0845,http://www.klinik-bethanien.de/,healthcare
+Ommelander Ziekenhuis Groningen,OZG,ROR,ROR:02mh2ah12,https://ror.org/02mh2ah12,,OZG Ziekenhuis; Ommelander Ziekenhuis; Ommelander Ziekenhuis Groep; Ommelander Ziekenhuis OZG,Netherlands (the),Scheemda,53.17333,6.97222,https://www.ommelanderziekenhuis.nl,healthcare
+Dutch Initiative on Crohn and Colitis,ICC; ICC-IBD,ROR,ROR:03a1ym388,https://ror.org/03a1ym388,,Initiative on Crohn and Colitis,Netherlands (the),Urmond,50.99083,5.77222,https://icc-ibd.com,nonprofit
+Hanze University of Applied Sciences,UAS,ROR,ROR:00xqtxw43,https://ror.org/00xqtxw43,,,Netherlands (the),Groningen,53.21917,6.56667,https://www.hanze.nl,"education, funder"
+Netherlands Organisation for Applied Scientific Research,TNO,ROR,ROR:01bnjb948,https://ror.org/01bnjb948,,,Netherlands (the),Delft,52.00667,4.35556,https://www.tno.nl,"funder, nonprofit"
+Health-RI,,ROR,ROR:02xcmp898,https://ror.org/02xcmp898,,,Netherlands (the),Utrecht,52.09083,5.12222,https://www.health-ri.nl,other
+Radiotherapeutisch Instituut Friesland,RIF,ROR,ROR:05f7htr55,https://ror.org/05f7htr55,,,Netherlands (the),Leeuwarden,53.20139,5.80859,http://www.radiotherapiefriesland.nl/,nonprofit
+Radiotherapiegroep,,ROR,ROR:048338z54,https://ror.org/048338z54,,,Netherlands (the),Arnhem,51.98,5.91111,https://www.radiotherapiegroep.nl,healthcare
+Royal Marsden Hospital,RM,ROR,ROR:034vb5t35,https://ror.org/034vb5t35,,,United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,http://www.nhs.uk/Services/hospitals/Overview/DefaultView.aspx?id=1416,"healthcare, funder"
+Sunnybrook Hospital,,ROR,ROR:008kn1a71,https://ror.org/008kn1a71,,,Canada,Toronto,43.70643,-79.39864,,healthcare
+The Christie Hospital,,ROR,ROR:03nd63441,https://ror.org/03nd63441,,,United Kingdom of Great Britain and Northern Ireland (the),Manchester,53.48095,-2.23743,http://www.christie.nhs.uk/,healthcare
+University of Brescia,,ROR,ROR:02q2d2610,https://ror.org/02q2d2610,,,Italy,Brescia,45.53558,10.21472,https://www.unibs.it,"education, funder"
+Bravis Ziekenhuis,,ROR,ROR:05564wx43,https://ror.org/05564wx43,,,Netherlands (the),Roosendaal,51.53083,4.46528,https://www.bravisziekenhuis.nl/,healthcare
+Catharina Ziekenhuis,,ROR,ROR:01qavk531,https://ror.org/01qavk531,,,Netherlands (the),Eindhoven,51.44083,5.47778,https://www.catharinaziekenhuis.nl/,healthcare
+Diakonessenhuis hospital,,ROR,ROR:01nrpzj54,https://ror.org/01nrpzj54,,,Netherlands (the),Utrecht,52.09083,5.12222,http://www.diakonessenhuis.nl/Pub,healthcare
+IJsselland Ziekenhuis,YSL,ROR,ROR:03qh1f279,https://ror.org/03qh1f279,,,Netherlands (the),Capelle aan den IJssel,51.92917,4.57778,http://www.ysl.nl/,healthcare
+Isala,,ROR,ROR:046a2wj10,https://ror.org/046a2wj10,,,Netherlands (the),Zwolle,52.5125,6.09444,https://www.isala.nl,healthcare
+Ziekenhuis Nij Smellinghe,,ROR,ROR:030gj2p37,https://ror.org/030gj2p37,,,Netherlands (the),Drachten,53.11254,6.0989,https://www.nijsmellinghe.nl/,healthcare
+Haga Hospital,,ROR,ROR:03q4p1y48,https://ror.org/03q4p1y48,,,Netherlands (the),The Hague,52.07667,4.29861,https://www.hagaziekenhuis.nl/,healthcare
+Meander Medisch Centrum,,ROR,ROR:04n1xa154,https://ror.org/04n1xa154,,,Netherlands (the),Amersfoort,52.155,5.3875,https://www.meandermc.nl/wps/portal/patientenportaal/home/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOK9DM0sPByDDbz8TT3MDByd3czMXV28jQxCzIAKIoEKDHAARwNC-sP1o8BK_P1dLDy8vQ283H3dHA08w7x8HMOcPA0s_M2gCvBYUZAbYZDpqKgIAOY-6DY!/dl5/d5/L2dBISEvZ0FBIS9nQSEh/,healthcare
+Tergooi,,ROR,ROR:045nawc23,https://ror.org/045nawc23,,,Netherlands (the),Blaricum,52.2725,5.24167,https://www.tergooi.nl/,healthcare
+Wilhelmina Children's Hospital,WKZ,ROR,ROR:05fqypv61,https://ror.org/05fqypv61,,,Netherlands (the),Utrecht,52.09083,5.12222,https://www.hetwkz.nl/en/en,"healthcare, funder"
+Allegheny Health Network,"AHN, WPAHS",ROR,ROR:0101kry21,https://ror.org/0101kry21,,West Penn Allegheny Health System,United States of America (the),Pittsburgh,40.44062,-79.99589,https://www.ahn.org/,"healthcare, funder"
+The University of Texas MD Anderson Cancer Center,,ROR,ROR:04twxam07,https://ror.org/04twxam07,,,United States of America (the),Houston,29.76328,-95.36327,https://www.mdanderson.org,"funder, healthcare"
+Austin Health,,ROR,ROR:05dbj6g52,https://ror.org/05dbj6g52,,,Australia,Melbourne,-37.814,144.96332,http://www.austin.org.au/,"funder, healthcare"
+Institut Jules Bordet,,ROR,ROR:05e8s8534,https://ror.org/05e8s8534,,Jules Bordet Instituut,Belgium,Brussels,50.85045,4.34878,http://www.bordet.be/,healthcare
+Medical College of Wisconsin,MCW,ROR,ROR:00qqv6244,https://ror.org/00qqv6244,,,United States of America (the),Milwaukee,43.0389,-87.90647,https://www.mcw.edu,"education, funder"
+Ospedale Sacro Cuore Don Calabria,,ROR,ROR:010hq5p48,https://ror.org/010hq5p48,,,Italy,Negrar,45.52918,10.93899,https://www.sacrocuore.it/index-en.php,healthcare
+Princess Margaret Cancer Centre,,ROR,ROR:03zayce58,https://ror.org/03zayce58,,Princess Margaret Hospital,Canada,Toronto,43.70643,-79.39864,http://www.uhn.ca/PrincessMargaret,healthcare
+St. Antonius Ziekenhuis,,ROR,ROR:01jvpb595,https://ror.org/01jvpb595,,,Netherlands (the),Nieuwegein,52.02917,5.08056,https://www.antoniusziekenhuis.nl,"funder, healthcare"

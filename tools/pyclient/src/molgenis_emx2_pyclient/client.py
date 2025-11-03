@@ -5,6 +5,7 @@ import pathlib
 import time
 from functools import cache
 from io import BytesIO
+from warnings import warn
 
 import pandas as pd
 import requests
@@ -209,12 +210,20 @@ class Client:
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
     def save_schema(self, table: str, name: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
+        """
+        Imports or updates records in a table of a named schema.
+        Deprecated and replaced by `save_table`.
+        """
+        warn("`save_schema` is deprecated. Use `save_table` instead.")
+        return self.save_table(table, name, file, data)
+
+    def save_table(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
-        :param name: name of a schema
-        :type name: str
         :param table: the name of the table
         :type table: str
+        :param schema: name of a schema
+        :type schema: str
         :param file: location of the file containing records to import or update
         :type file: str
         :param data: a dataset containing records to import or update (list of dictionaries)
@@ -223,7 +232,7 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        current_schema = name
+        current_schema = schema
         if current_schema is None:
             current_schema = self.default_schema
 
@@ -343,7 +352,7 @@ class Client:
         file_name = file_path.name
         if not file_name.startswith('molgenis'):
             table = file_name.split(file_path.suffix)[0]
-            return self.save_schema(table=table, name=schema, file=str(file_path))
+            return self.save_table(table=table, schema=schema, file=str(file_path))
         api_url = f"{self.url}/{schema}/api/csv"
         data = self._prep_data_or_file(file_path=str(file_path))
 
