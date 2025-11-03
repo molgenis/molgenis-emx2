@@ -19,6 +19,11 @@
   version: 2
   sources:
   - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
+-  name: hri-v2.0.2
+   description: Health RI
+   version: 2.0.2
+   sources:
+  - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.2
 - name: ejp-rd-vp
   description: European Joint Programme - Rare Disease - Virtual Platform
   version: 01-08-2024
