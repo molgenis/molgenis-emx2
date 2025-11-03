@@ -67,7 +67,7 @@ and understand what they are seeing when viewing a resource in detail.
 | | | Additional organisations | | |
 | | | 1 card with organisation: University Medical Center Groningen (UMCG) \| Netherlands (the) \| Data provider, Surveillance | | |
 | 40 | CONTRIBUTORS | | | |
-| | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| name for test lead organisation 2 \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
+| | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| University Medical Center Utrecht (UMCU) \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
 | 41 | Click on the email address of the contact person | The local email system opens and an email addressed to <testemailalternative@testdomain.nl> is opened. | | |
 | 42 | Return to the resource information page | | | |
 | 43 | DATASET VARIABLES | Datasets, Datasets and their description | | |
