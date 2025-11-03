@@ -295,11 +295,11 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 ##### examples
 ```python
 # Save an edited table with Resources data from a CSV file to the Resources table
-client.save_schema(table='Resources', file='Resources-edited.csv')
+client.save_table(table='Resources', schema='MySchema', file='Resources-edited.csv')
 
 # Save an edited table with Resources data from memory to the Resources table
 resources: pandas.DataFrame = ...
-client.save_schema(table='Resources', data=resources)
+client.save_table(table='Resources', schema='MySchema', data=resources)
 ```
 
 ### upload_file
