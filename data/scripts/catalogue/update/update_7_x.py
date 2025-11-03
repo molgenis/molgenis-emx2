@@ -37,10 +37,11 @@ class Transform:
     """General functions to update catalogue data model.
     """
 
-    def __init__(self, schema_name, profile):
+    def __init__(self, schema_name, profile, source_url):
         self.schema_name = schema_name
         self.profile = profile
         self.path = self.schema_name + '_data/'
+        self.url = source_url
 
     def delete_data_model_file(self):
         """Delete molgenis.csv
@@ -71,7 +72,7 @@ class Transform:
         self.organisations()
         self.resources()
 
-        if self.profile == 'UMCGCohortsStaging':
+        if self.profile in 'UMCGCohortsStaging':
             self.contacts()
         if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE', 'NetworksStaging']:
             self.collection_events()
@@ -80,6 +81,8 @@ class Transform:
             self.subpopulation_counts()
         if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
+        if self.url == 'https://molgeniscatalogue.org':
+            self.contact_points()
 
     def agents(self):
         """ Transform data in Agents
@@ -199,6 +202,18 @@ class Transform:
 
         # write table to file
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
+
+    def contact_points(self):
+        """ Get data from contact email to Contacts table
+        """
+        df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+
+        df_contacts['resource'] = 
+
+        # write table to file
+        df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
+
 
     def contacts(self):
         """ Transform data in Contacts

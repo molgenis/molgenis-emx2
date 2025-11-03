@@ -105,7 +105,7 @@ for schema in source.get_schemas():
         print(schema_name, profile)
 
         # transform schema data:
-        update = Transform(schema_name=schema_name, profile=profile)
+        update = Transform(schema_name=schema_name, profile=profile, url=SOURCE_SERVER_URL)
         # update data model file
         update.delete_data_model_file()
         update.update_data_model_file()
