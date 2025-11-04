@@ -21,8 +21,9 @@ from the latest version of Molgenis EMX2.
 
 ### 13.56.0
 
-Fixed: improved error handling in 'columns' filter in `get` method
-Fixed: issue with 'equals' filter for references in `get` method
+- Improved error handling in 'columns' filter in `get` method
+- Fixed issue with 'equals' filter for references in `get` method
+- Fixed `greater_than` and `smaller_than` filters for LONG type values in `get` method
 
 ### 13.55.4
 

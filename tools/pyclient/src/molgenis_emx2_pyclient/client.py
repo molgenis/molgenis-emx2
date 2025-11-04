@@ -880,8 +880,11 @@ class Client:
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
+        val = None
         match col.get('columnType'):
             case 'INT':
+                val = int(_val) + 1 * exclusive
+            case 'LONG':
                 val = int(_val) + 1 * exclusive
             case 'DECIMAL':
                 val = float(_val) + 0.0000001 * exclusive
@@ -903,8 +906,11 @@ class Client:
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
+        val = None
         match col.get('columnType'):
             case 'INT':
+                val = int(_val) - 1 * exclusive
+            case 'LONG':
                 val = int(_val) - 1 * exclusive
             case 'DECIMAL':
                 val = float(_val) - 0.0000001 * exclusive
