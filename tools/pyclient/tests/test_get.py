@@ -17,6 +17,7 @@ load_dotenv()
 server_url = os.environ.get("MG_SERVER")
 username = os.environ.get("MG_USERNAME")
 password = os.environ.get("MG_PASSWORD")
+token = os.environ.get("MOLGENIS_TOKEN")
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 
@@ -87,10 +88,21 @@ def test_equals_filter():
         assert len(pets) == 1
 
         # Test on int
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity == 7")
+        assert len(orders) == 1
 
         # Test on float
+        pets = client.get(table="Pet", schema="pet store", query_filter="weight == 9.4")
+        assert len(pets) == 1
 
         # Test on ref
+        pets = client.get(table="Pet", schema="pet store", query_filter="category == 'cat'")
+        assert len(pets) == 3
+
+        # Test on ontology
+        pets = client.get(table="Pet", schema="pet store", query_filter="tags == 'red'")
+        assert len(pets) == 4
+
 
 
 def test_greater_filter():
