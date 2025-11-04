@@ -932,7 +932,12 @@ class Client:
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
+        val = None
         match col.get('columnType'):
+            case 'BOOL':
+                val = False
+                if str(_val).lower() == 'true':
+                    val = True
             case _:
                 try:
                     val = json.loads(''.join(_val.split('`')).replace("'", '"'))

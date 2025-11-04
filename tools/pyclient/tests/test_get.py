@@ -87,35 +87,80 @@ def test_equals_filter():
         pets = client.get(table="Pet", schema="pet store", query_filter="name == 'pooky'")
         assert len(pets) == 1
 
-        # Test on int
+        # Test int
         orders = client.get(table="Order", schema="pet store", query_filter="quantity == 7")
         assert len(orders) == 1
 
-        # Test on float
+        # Test float
         pets = client.get(table="Pet", schema="pet store", query_filter="weight == 9.4")
         assert len(pets) == 1
 
-        # Test on ref
+        # Test ref
         pets = client.get(table="Pet", schema="pet store", query_filter="category == 'cat'")
         assert len(pets) == 3
 
-        # Test on ontology
-        pets = client.get(table="Pet", schema="pet store", query_filter="tags == 'red'")
+        # Test ontology
+        pets = client.get(table="Pet", schema="pet store", query_filter="tags == red")
         assert len(pets) == 4
 
 
 
 def test_greater_filter():
     """Tests the 'greater than' filter for the query filter parameter."""
-    ...
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity > 5")
+        assert len(orders) == 1
+
+        # Test float
+        pets = client.get(table="Pet", schema="pet store", query_filter="weight > 1.1")
+        assert len(pets) == 4
 
 def test_smaller_filter():
     """Tests the 'smaller than' filter for the query filter parameter."""
-    ...
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity < 5")
+        assert len(orders) == 1
+
+        # Test float
+        pets = client.get(table="Pet", schema="pet store", query_filter="weight < 1.1")
+        assert len(pets) == 4
 
 def test_unequal_filter():
     """Tests the 'unequal' filter for the query filter parameter."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test boolean
+        orders = client.get(table="Order", schema="pet store", query_filter="complete != True")
+        assert len(orders) == 1
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity != 7")
+        assert len(orders) == 1
+
+        # Test float
+        orders = client.get(table="Pet", schema="pet store", query_filter="weight != 1.337")
+        assert len(orders) == 7
+
+        # Test string
+        pets = client.get(table="Pet", schema="pet store", query_filter="name != pooky")
+        assert len(pets) == 7
+
+        # Test ref
+        pets = client.get(table="Pet", schema="pet store", query_filter="category != cat")
+        assert len(pets) == 3
+
+        # Test ontology
+        pets = client.get(table="Pet", schema="pet store", query_filter="tags != 'red'")
+        assert len(pets) == 4
+
 
 def test_between_filter():
     """Tests the 'between' filter for the query filter parameter."""
