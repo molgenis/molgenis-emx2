@@ -274,8 +274,8 @@ public class RDFApi {
     }
   }
 
-  private static ShaclSet retrieveShaclSet(Context ctx, String name) {
-    ShaclSet shaclSet = ShaclSelector.get(name);
+  private static ShaclSet retrieveShaclSet(Context ctx, String id) {
+    ShaclSet shaclSet = ShaclSelector.get(id);
     if (shaclSet == null) {
       ctx.status(404);
       throw new MolgenisException("Validation set could not be found.");
