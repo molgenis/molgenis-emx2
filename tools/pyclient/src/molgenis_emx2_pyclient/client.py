@@ -853,6 +853,7 @@ class Client:
 
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+        val = None
         match col.get('columnType'):
             case 'BOOL':
                 val = False
@@ -864,7 +865,7 @@ class Client:
                 except json.decoder.JSONDecodeError:
                     val = ''.join(_val.split('`'))
 
-        return {col.id: {'equals': val}}
+        return {'equals': [{col.id: val}]}
 
     def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
