@@ -91,12 +91,12 @@ public class GraphqlApi {
   }
 
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {
+    long start = System.currentTimeMillis();
+    long step = System.currentTimeMillis();
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
     Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
-
-    long start = System.currentTimeMillis();
 
     // we don't log password calls
     if (logger.isInfoEnabled()) {
@@ -121,7 +121,12 @@ public class GraphqlApi {
           g.execute(ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
     }
 
+    logger.info("graphql request executed in {}ms", (System.currentTimeMillis() - step));
+    step = System.currentTimeMillis();
+
     String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
+
+    logger.info("graphql result converted in {}ms", (System.currentTimeMillis() - step));
 
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
