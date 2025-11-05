@@ -25,7 +25,7 @@ const tableId = computed(() => {
 </script>
 
 <template>
-  <div class="py-5 space-y-2">
+  <div class="py-5 ">
     <DemoDataControls
       :include-row-select="false"
       v-model:metadata="metadata"
