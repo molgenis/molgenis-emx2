@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { InputBoolean } from "#components";
+import InputBoolean from "../../../../app/components/input/Boolean.vue";
 
 const wrapper = mount(InputBoolean);
 
