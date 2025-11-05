@@ -1,3 +1,5 @@
+import type {ProcessStatus} from "./generic";
+
 export interface ShaclSet {
   id: string;
   name: string;
@@ -6,10 +8,8 @@ export interface ShaclSet {
 }
 
 export interface ShaclSetValidation extends ShaclSet {
-  status: ShaclStatus;
+  status: ProcessStatus;
   output: string;
   error: string;
   isViewed: boolean;
 }
-
-export type ShaclStatus = "UNKNOWN" | "RUNNING" | "VALID" | "INVALID" | "ERROR";

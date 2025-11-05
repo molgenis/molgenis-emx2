@@ -6,7 +6,6 @@ import { ref, onMounted } from "vue";
 import { parse } from "yaml";
 import type {
   ShaclSet,
-  ShaclStatus,
   ShaclSetValidation,
 } from "../../../../../../metadata-utils/src/rdf";
 import type { Resp } from "../../../../../../tailwind-components/types/types";
@@ -16,7 +15,7 @@ import LoadingContent from "../../../../../../tailwind-components/app/components
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
-import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
+import IconProcess from "../../../../../../tailwind-components/app/components/icon/Process.vue";
 import Table from "../../../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
@@ -115,26 +114,7 @@ onMounted(async () => {
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
               >
-                <BaseIcon
-                  name="progress-activity"
-                  class="animate-spin m-auto flex-none"
-                  v-if="shaclSet.status === 'RUNNING'"
-                />
-                <BaseIcon
-                  name="check"
-                  class="m-auto flex-none"
-                  v-else-if="shaclSet.status === 'VALID'"
-                />
-                <BaseIcon
-                  name="cross"
-                  class="m-auto flex-none"
-                  v-else-if="shaclSet.status === 'INVALID'"
-                />
-                <BaseIcon
-                  name="exclamation"
-                  class="m-auto flex-none"
-                  v-else-if="shaclSet.status === 'ERROR'"
-                />
+                <IconProcess :status="shaclSet.status" />
               </TableCell>
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"

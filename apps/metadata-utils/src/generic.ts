@@ -1,0 +1,1 @@
+export type ProcessStatus = "UNKNOWN" | "RUNNING" | "DONE" | "INVALID" | "ERROR";

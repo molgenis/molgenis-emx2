@@ -4,19 +4,13 @@ import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { ref, onMounted } from "vue";
 import { parse } from "yaml";
-import type {
-  ShaclSet,
-  ShaclStatus,
-  ShaclSetValidation,
-} from "../../../../../../metadata-utils/src/rdf";
-import type {
-  Resp,
-  Schema,
-} from "../../../../../../tailwind-components/types/types";
+import type { ShaclSetValidation } from "../../../../../../metadata-utils/src/rdf";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
+import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
+import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
 import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
 import Message from "../../../../../../tailwind-components/app/components/Message.vue";
 import Button from "../../../../../../tailwind-components/app/components/Button.vue";
@@ -38,14 +32,6 @@ const routeShaclSet = (
 
 useHead({
   title: `${routeShaclSet} - SHACL - RDF - ${routeSchema}  - Molgenis`,
-});
-
-const { data } = await useFetch<Resp<Schema>>(`/${routeSchema}/graphql`, {
-  key: "tables",
-  method: "POST",
-  body: {
-    query: `{_schema{id,label}}`,
-  },
 });
 
 const crumbs: Record<string, string> = {};
@@ -72,7 +58,7 @@ async function runShacl(shaclSet: ShaclSetValidation) {
     shaclSet.status = "ERROR";
     shaclSet.error = `Error (status code: ${res.status})`;
   } else if (validateShaclOutput(shaclSet.output)) {
-    shaclSet.status = "VALID";
+    shaclSet.status = "DONE";
   } else {
     shaclSet.status = "INVALID";
   }
@@ -93,6 +79,9 @@ async function runShacl(shaclSet: ShaclSetValidation) {
         />
       </template>
     </PageHeader>
+    <ContentBasic>
+<!--      <LoadingContent id="" is-loading="" loading-text="" error-text=""></LoadingContent>-->
+    </ContentBasic>
     <!--        <div class="flex flex-col gap-2.5 items-start md:flex-row">-->
     <!--          <div class="flex items-baseline gap-5">-->
     <!--            <Button-->
