@@ -4,14 +4,19 @@ import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { ref, onMounted } from "vue";
 import { parse } from "yaml";
-import type { ShaclSet, ShaclStatus, ShaclSetValidation } from "../../../../../../metadata-utils/src/rdf";
-import type {Resp} from "../../../../../../tailwind-components/types/types"
+import type {
+  ShaclSet,
+  ShaclStatus,
+  ShaclSetValidation,
+} from "../../../../../../metadata-utils/src/rdf";
+import type { Resp } from "../../../../../../tailwind-components/types/types";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
+import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
+import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
 import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
-import Message from "../../../../../../tailwind-components/app/components/Message.vue";
 import Table from "../../../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
@@ -20,7 +25,7 @@ import TableCell from "../../../../../../tailwind-components/app/components/Tabl
 import Button from "../../../../../../tailwind-components/app/components/Button.vue";
 import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayOutput from "../../../../../../tailwind-components/app/components/display/Output.vue";
-import {navigateTo} from "#app/composables/router";
+import { navigateTo } from "#app/composables/router";
 
 const route = useRoute();
 const routeSchema = (
@@ -32,12 +37,11 @@ const routeSchema = (
 useHead({ title: `SHACL - RDF - ${routeSchema}  - Molgenis` });
 
 const crumbs: Record<string, string> = {};
-crumbs[routeSchema] = `../../`;
-crumbs["rdf"] = `../`;
-crumbs["shacl"] = "";
+crumbs[routeSchema] = `/${routeSchema}`;
+crumbs["rdf"] = "`/${routeSchema}/rdf`";
+crumbs["shacl"] = "`/${routeSchema}/rdf/shacl`";
 
 const shaclSetValidations = ref<ShaclSetValidation[]>();
-const showTable = ref<boolean>(true);
 const loading = ref<boolean>(true);
 const error = ref<string>();
 
@@ -78,10 +82,7 @@ onMounted(async () => {
 
 <template>
   <Container>
-    <PageHeader
-      :title="`SHACL dashboard for ${routeSchema}`"
-      align="left"
-    >
+    <PageHeader :title="`SHACL dashboard for ${routeSchema}`" align="left">
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
@@ -93,27 +94,14 @@ onMounted(async () => {
         />
       </template>
     </PageHeader>
-    <div>
-      <div class="mt-8">
-        <div class="h-40 flex item-center justify-center" v-if="loading">
-          <div class="text-center">
-            <BaseIcon
-              name="progress-activity"
-              class="animate-spin m-auto"
-              :width="32"
-            />
-            <p>Loading SHACL sets...</p>
-          </div>
-        </div>
-        <Message
-          id="shacl-sets-error-message"
-          class="my-2"
-          :invalid="true"
-          v-else-if="error"
-        >
-          <span>{{ error }}</span>
-        </Message>
-        <Table v-else-if="showTable">
+    <ContentBasic>
+      <LoadingContent
+        id="shaclSets"
+        :isLoading="loading"
+        loadingText="Loading SHACL sets..."
+        :errorText="error"
+      >
+        <Table>
           <template #head>
             <TableHeadRow>
               <TableHead>status</TableHead>
@@ -124,7 +112,9 @@ onMounted(async () => {
           </template>
           <template #body>
             <TableRow v-for="shaclSet in shaclSetValidations">
-              <TableCell @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)">
+              <TableCell
+                @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
+              >
                 <BaseIcon
                   name="progress-activity"
                   class="animate-spin m-auto flex-none"
@@ -146,8 +136,15 @@ onMounted(async () => {
                   v-else-if="shaclSet.status === 'ERROR'"
                 />
               </TableCell>
-              <TableCell @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)">{{ shaclSet.name }}</TableCell>
-              <TableCell class="text-right" @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)">{{ shaclSet.version }}</TableCell>
+              <TableCell
+                @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
+                >{{ shaclSet.name }}</TableCell
+              >
+              <TableCell
+                class="text-right"
+                @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
+                >{{ shaclSet.version }}</TableCell
+              >
               <TableCell>
                 <ol>
                   <li
@@ -163,7 +160,7 @@ onMounted(async () => {
             </TableRow>
           </template>
         </Table>
-      </div>
-    </div>
+      </LoadingContent>
+    </ContentBasic>
   </Container>
 </template>

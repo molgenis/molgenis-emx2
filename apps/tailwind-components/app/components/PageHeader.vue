@@ -41,13 +41,13 @@ withDefaults(
       </div>
       <div
         v-if="slots['description']"
-        class="flex m-auto mt-1 mb-0 lg:mb-5 text-body-lg"
+        class="flex mt-1 mb-0 lg:mb-5 text-body-lg"
       >
         <slot name="description"></slot>
       </div>
       <div
         v-if="description"
-        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+        class="mt-1 mb-0 lg:mb-5 text-body-lg"
       >
         <ContentReadMore v-if="truncate" :text="description" />
         <p v-else>{{ description }}</p>

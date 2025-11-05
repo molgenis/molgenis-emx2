@@ -29,10 +29,7 @@ crumbs["rdf"] = "";
 
 <template>
   <Container>
-    <PageHeader
-      :title="`RDF services for ${routeSchema}`"
-      align="left"
-    >
+    <PageHeader :title="`RDF services for ${routeSchema}`" align="left">
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
@@ -61,8 +58,8 @@ crumbs["rdf"] = "";
               <Hyperlink name="RDF API" link="/apps/docs/#/molgenis/dev_rdf" />
               and the
               <Hyperlink
-                  name="semantics field"
-                  link="/apps/docs/#/molgenis/dev_rdf"
+                name="semantics field"
+                link="/apps/docs/#/molgenis/dev_rdf"
               />.
             </td>
           </tr>
