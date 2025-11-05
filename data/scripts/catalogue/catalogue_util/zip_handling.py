@@ -19,7 +19,7 @@ class Zip:
         """
         try:
             # remove unzipped data and avoid Windows PermissionError
-            shutil.rmtree(self.path, onerror=lambda func, path, _: (os.chmod(path, stat.S_IWRITE), func(path)))
+            shutil.rmtree(self.path + '_data.zip', onerror=lambda func, path, _: (os.chmod(path, stat.S_IWRITE), func(path)))
         except FileNotFoundError:
             self.logger.info('No unzipped data was found')
 

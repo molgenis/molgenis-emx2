@@ -15,13 +15,8 @@ import {
   useAsyncData,
   useRuntimeConfig,
 } from "#app";
-import {
-  conditionsFromPathQuery,
-  mergeWithPageDefaults,
-  moduleToString,
-  buildQueryFilter,
-  toPathQueryConditions,
-} from "#imports";
+import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
+import { buildQueryFilter } from "../../../utils/buildQueryFilter";
 import { computed } from "vue";
 import LayoutsSearchPage from "../../../components/layouts/SearchPage.vue";
 import FilterSidebar from "../../../components/filter/Sidebar.vue";
@@ -39,6 +34,11 @@ import CardListItem from "../../../../../tailwind-components/app/components/Card
 import VariableCard from "../../../components/VariableCard.vue";
 import HarmonisationTable from "../../../components/harmonisation/HarmonisationTable.vue";
 import Pagination from "../../../../../tailwind-components/app/components/Pagination.vue";
+import {
+  conditionsFromPathQuery,
+  mergeWithPageDefaults,
+  toPathQueryConditions,
+} from "../../../utils/filterUtils";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -165,14 +165,19 @@ async function fetchResourceOptions(): Promise<INode[]> {
             resourcesFilter: {
               _or: [
                 {
-                  partOfResources: { equals: [{ id: catalogueRouteParam }] },
+                  partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
                 },
                 {
-                  partOfResources: {
-                    type: { name: { equals: "Network" } },
-                    partOfResources: {
-                      equals: [{ id: catalogueRouteParam }],
-                    },
+                  parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+                },
+                {
+                  partOfNetworks: {
+                    childNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  },
+                },
+                {
+                  partOfNetworks: {
+                    parentNetworks: { equals: [{ id: catalogueRouteParam }] },
                   },
                 },
               ],
@@ -254,10 +259,24 @@ const filter = computed(() => {
 const fetchData = async () => {
   let resourcesFilter: any = {};
   if (scoped) {
-    resourcesFilter.partOfResources = {
+    resourcesFilter = {
       _or: [
-        { equals: [{ id: catalogueRouteParam }] },
-        { partOfResources: { equals: [{ id: catalogueRouteParam }] } },
+        {
+          parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+        },
+        {
+          partOfNetworks: {
+            _or: [
+              { equals: [{ id: catalogueRouteParam }] },
+              {
+                childNetworks: { equals: [{ id: catalogueRouteParam }] },
+              },
+              {
+                parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+              },
+            ],
+          },
+        },
       ],
     };
   }
@@ -291,7 +310,7 @@ const fetchData = async () => {
               {
                 resource: {
                   type: { name: { equals: "Network" } },
-                  partOfResources: { id: { equals: catalogueRouteParam } },
+                  parentNetworks: { id: { equals: catalogueRouteParam } },
                 },
               },
               {
@@ -300,7 +319,7 @@ const fetchData = async () => {
                     { resource: { id: { equals: catalogueRouteParam } } },
                     {
                       resource: {
-                        partOfResources: {
+                        parentNetworks: {
                           id: { equals: catalogueRouteParam },
                         },
                       },

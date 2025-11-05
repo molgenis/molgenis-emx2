@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     "@nuxt/test-utils/module",
     "floating-vue/nuxt",
     "@nuxtjs/tailwindcss",
+    "nuxt-monaco-editor",
   ],
   ignore: [
     ".gradle/**",
