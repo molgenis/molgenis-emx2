@@ -12,7 +12,7 @@
       </Button>
     </slot>
   </template>
-  <Modal v-model:visible="visible" max-width="max-w-9/10">
+  <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
         <div class="mb-5 relative flex items-center">
@@ -116,9 +116,7 @@
           <div class="flex gap-4">
             <Button type="secondary" @click="onCancel">Cancel</Button>
             <Button type="outline" @click="onSave(true)">Save as draft</Button>
-            <Button type="primary" @click="onSave(false)">
-              Save {{ rowType }}
-            </Button>
+            <Button type="primary" @click="onSave(false)">Save</Button>
           </div>
         </menu>
       </div>
@@ -208,6 +206,9 @@ const isDraft = computed(
 
 function onCancel() {
   visible.value = false;
+  saveErrorMessage.value = "";
+  formMessage.value = "";
+  editFormValues.value = {};
   emit("update:cancelled");
 }
 
@@ -240,24 +241,16 @@ async function onSave(draft: boolean) {
     }
   }
   try {
-    if (draft) {
-      editFormValues.value["mg_draft"] = true;
-    } else {
-      editFormValues.value["mg_draft"] = false;
-    }
-    let resp;
-    if (isInsert.value) {
-      await insertInto();
-    } else {
-      await updateInto();
-    }
+    editFormValues.value["mg_draft"] = draft;
+    const resp = await (isInsert.value ? insertInto() : updateInto());
     if (!resp) {
-      return;
+      throw new Error(
+        `No response from server on ${isInsert.value ? "insert" : "update"}`
+      );
     }
-    formMessage.value =
-      (isInsert.value ? "inserted 1 " : "saved 1 ") +
-      rowType.value +
-      (draft ? " as draft" : "");
+    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+      rowType.value
+    } ${draft ? "as draft" : ""}`;
     emit(isInsert.value ? "update:added" : "update:updated", resp);
     if (isInsert.value) {
       await updateRowKey();
