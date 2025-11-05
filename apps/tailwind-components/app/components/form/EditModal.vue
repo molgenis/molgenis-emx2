@@ -20,7 +20,6 @@
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
             {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
-            {{ editFormValues["mg_draft"] ? "(status=draft)" : "" }}
           </h2>
 
           <DraftLabel v-if="isDraft" />
@@ -203,7 +202,9 @@ function setVisible() {
 }
 
 const rowType = computed(() => props.metadata.id);
-const isDraft = ref(true);
+const isDraft = computed(
+  () => editFormValues.value["mg_draft"] === true || false
+);
 
 function onCancel() {
   visible.value = false;
