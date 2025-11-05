@@ -205,4 +205,12 @@ def test_multiple_filters():
 
 def test_as_df():
     """Tests the method where the results are returned as pandas DataFrame."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        pets = client.get(table="Pet", schema="pet store", as_df=True)
+        assert type(pets) == pd.DataFrame is not None
+
+        assert pets.columns.to_list() == ['name', 'category', 'photoUrls', 'status', 'tags', 'weight', 'orders', 'mg_draft']
+        assert pets['category'].to_list() == ['dog', 'cat', 'cat', 'caterpillar', 'ant', 'bird', 'mouse', 'cat']
