@@ -23,7 +23,7 @@
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
-    "@vuepic/vue-datepicker": "11.0.1",
+    "@vuepic/vue-datepicker": "11.0.3",
     "@vueuse/components": "12.8.2",
     "@vueuse/core": "12.8.2",
     "consola": "3.2.3",
@@ -31,15 +31,14 @@
     "install": "^0.13.0",
     "monaco-editor": "0.53.0",
     "ofetch": "1.4.1",
-    "vue": "3.5.13",
-    "vue-draggable-next": "2.2.1",
+    "vue": "3.5.22",
+    "vue-draggable-next": "2.3.0",
     "vue-flatpickr-component": "12.0.0",
-    "vue-router": "4.4.3",
-    "vuedraggable": "2.24.3"
+    "vue-router": "4.4.3"
   },
   "devDependencies": {
     "@nuxt/image": "1.11.0",
-    "@nuxt/test-utils": "3.12.1",
+    "@nuxt/test-utils": "3.20.1",
     "@nuxtjs/tailwindcss": "6.14.0",
     "@playwright/test": "1.56.0",
     "@vue/test-utils": "2.4.6",

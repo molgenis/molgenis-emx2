@@ -136,8 +136,11 @@ const hasChildren = computed(() =>
             :valid="valid"
             :disabled="disabled"
           />
-          <span class="block text-body-sm leading-normal pl-1"
-            >{{ node.label || node.name }}
+          <span
+            class="block text-body-sm leading-normal pl-1"
+            :class="inverted ? 'text-title-contrast' : 'text-title'"
+          >
+            {{ node.label || node.name }}
             <template
               v-if="node.code || (node.label && node.label !== node.name)"
               >(<a
