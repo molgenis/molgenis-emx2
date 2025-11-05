@@ -4,7 +4,8 @@ import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { ref, onMounted } from "vue";
 import { parse } from "yaml";
-import type { ShaclSet } from "../../../../../../metadata-utils/src/rdf";
+import type { ShaclSet, ShaclStatus, ShaclSetValidation } from "../../../../../../metadata-utils/src/rdf";
+import type {Resp} from "../../../../../../tailwind-components/types/types"
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
@@ -14,49 +15,25 @@ import Message from "../../../../../../tailwind-components/app/components/Messag
 import Table from "../../../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../../../../tailwind-components/app/components/TableCell.vue";
 import Button from "../../../../../../tailwind-components/app/components/Button.vue";
 import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayOutput from "../../../../../../tailwind-components/app/components/display/Output.vue";
+import {navigateTo} from "#app/composables/router";
 
 const route = useRoute();
-const schema = (
+const routeSchema = (
   Array.isArray(route.params.schema)
     ? route.params.schema[0]
     : route.params.schema
 ) as string;
 
-useHead({ title: `SHACL - RDF - ${schema}  - Molgenis` });
-
-type Resp<T> = {
-  data: Record<string, T>;
-};
-
-interface Schema {
-  id: string;
-  label: string;
-}
-
-export type ShaclStatus = "UNKNOWN" | "RUNNING" | "VALID" | "INVALID" | "ERROR";
-
-interface ShaclSetValidation extends ShaclSet {
-  status: ShaclStatus;
-  output: string;
-  error: string;
-  isViewed: boolean;
-}
-
-const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
-  key: "tables",
-  method: "POST",
-  body: {
-    query: `{_schema{id,label}}`,
-  },
-});
+useHead({ title: `SHACL - RDF - ${routeSchema}  - Molgenis` });
 
 const crumbs: Record<string, string> = {};
-crumbs[schema] = `/${schema}`;
-crumbs["rdf"] = `/${schema}/rdf`;
+crumbs[routeSchema] = `../../`;
+crumbs["rdf"] = `../`;
 crumbs["shacl"] = "";
 
 const shaclSetValidations = ref<ShaclSetValidation[]>();
@@ -77,40 +54,6 @@ async function fetchShacls(): Promise<string> {
 
   const output = data.value as unknown as string;
   return parse(output);
-}
-
-function validateShaclOutput(output: string): boolean {
-  return output
-    .substring(0, 100)
-    .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
-}
-
-async function runShacl(shaclSet: ShaclSetValidation) {
-  shaclSet.status = "RUNNING";
-  shaclSet.output = "";
-  shaclSet.error = "";
-
-  const res = await fetch(`/${schema}/api/rdf?validate=${shaclSet.id}`);
-  shaclSet.output = await res.text();
-
-  if (res.status !== 200) {
-    shaclSet.status = "ERROR";
-    shaclSet.error = `Error (status code: ${res.status})`;
-  } else if (validateShaclOutput(shaclSet.output)) {
-    shaclSet.status = "VALID";
-  } else {
-    shaclSet.status = "INVALID";
-  }
-}
-
-function toggleShaclOutputView(shaclSet: ShaclSetValidation) {
-  if (shaclSet.status === "RUNNING" || shaclSet.status === "UNKNOWN") {
-    showTable.value = true;
-    shaclSet.isViewed = false;
-  } else {
-    showTable.value = !showTable.value;
-    shaclSet.isViewed = !shaclSet.isViewed;
-  }
 }
 
 onMounted(async () => {
@@ -136,7 +79,7 @@ onMounted(async () => {
 <template>
   <Container>
     <PageHeader
-      :title="`SHACL dashboard for ${data?.data?._schema?.label}`"
+      :title="`SHACL dashboard for ${routeSchema}`"
       align="left"
     >
       <template #prefix>
@@ -174,15 +117,14 @@ onMounted(async () => {
           <template #head>
             <TableHeadRow>
               <TableHead>status</TableHead>
-              <TableHead>controls</TableHead>
               <TableHead>name</TableHead>
               <TableHead>version</TableHead>
               <TableHead>sources</TableHead>
             </TableHeadRow>
           </template>
           <template #body>
-            <tr v-for="shaclSet in shaclSetValidations">
-              <TableCell>
+            <TableRow v-for="shaclSet in shaclSetValidations">
+              <TableCell @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)">
                 <BaseIcon
                   name="progress-activity"
                   class="animate-spin m-auto flex-none"
@@ -204,40 +146,8 @@ onMounted(async () => {
                   v-else-if="shaclSet.status === 'ERROR'"
                 />
               </TableCell>
-              <TableCell>
-                <div class="flex flex-col gap-2.5 md:flex-row md:gap-5">
-                  <Button
-                    type="primary"
-                    size="tiny"
-                    label="validate"
-                    :disabled="shaclSet.status === 'RUNNING'"
-                    @click.prevent="runShacl(shaclSet)"
-                  />
-                  <Button
-                    type="outline"
-                    size="tiny"
-                    icon="plus"
-                    label="view"
-                    :disabled="
-                      shaclSet.status === 'RUNNING' ||
-                      shaclSet.status === 'UNKNOWN'
-                    "
-                    @click.prevent="toggleShaclOutputView(shaclSet)"
-                  />
-                  <ButtonDownloadBlob
-                    size="tiny"
-                    :disabled="
-                      shaclSet.status !== 'VALID' &&
-                      shaclSet.status !== 'INVALID'
-                    "
-                    :data="shaclSet.output"
-                    mediaType="text/turtle"
-                    :fileName="`${schema} - shacl - ${shaclSet.id}.ttl`"
-                  />
-                </div>
-              </TableCell>
-              <TableCell>{{ shaclSet.name }}</TableCell>
-              <TableCell class="text-right">{{ shaclSet.version }}</TableCell>
+              <TableCell @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)">{{ shaclSet.name }}</TableCell>
+              <TableCell class="text-right" @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)">{{ shaclSet.version }}</TableCell>
               <TableCell>
                 <ol>
                   <li
@@ -250,81 +160,9 @@ onMounted(async () => {
                   </li>
                 </ol>
               </TableCell>
-            </tr>
+            </TableRow>
           </template>
         </Table>
-        <div v-for="shaclSet in shaclSetValidations">
-          <div v-if="shaclSet.isViewed">
-            <div class="flex flex-col gap-2.5 items-start md:flex-row">
-              <div class="flex items-baseline gap-5">
-                <Button
-                  class="flex-none"
-                  type="outline"
-                  size="small"
-                  icon="caretLeft"
-                  label="go back"
-                  @click.prevent="toggleShaclOutputView(shaclSet)"
-                />
-                <h3 class="uppercase text-heading-4xl font-display">
-                  {{ shaclSet.name }} (version: {{ shaclSet.version }})
-                </h3>
-              </div>
-              <div class="flex items-center gap-2.5 ml-auto">
-                <BaseIcon
-                  name="progress-activity"
-                  class="animate-spin flex-none"
-                  :width="30"
-                  v-if="shaclSet.status === 'RUNNING'"
-                />
-                <BaseIcon
-                  name="check"
-                  class="flex-none"
-                  :width="30"
-                  v-else-if="shaclSet.status === 'VALID'"
-                />
-                <BaseIcon
-                  name="cross"
-                  class="flex-none"
-                  :width="30"
-                  v-else-if="shaclSet.status === 'INVALID'"
-                />
-                <BaseIcon
-                  name="exclamation"
-                  class="flex-none"
-                  :width="30"
-                  v-else-if="shaclSet.status === 'ERROR'"
-                />
-                <Button
-                  type="primary"
-                  size="small"
-                  label="validate"
-                  :disabled="shaclSet.status === 'RUNNING'"
-                  @click.prevent="runShacl(shaclSet)"
-                />
-                <ButtonDownloadBlob
-                  size="small"
-                  :disabled="
-                    shaclSet.status !== 'VALID' && shaclSet.status !== 'INVALID'
-                  "
-                  :data="shaclSet.output"
-                  mediaType="text/turtle"
-                  :fileName="`${schema} - shacl - ${shaclSet.id}.ttl`"
-                />
-              </div>
-            </div>
-            <Message
-              :id="`shacl-validation-${shaclSet.id}-error`"
-              class="my-8"
-              :invalid="true"
-              v-if="shaclSet.error"
-            >
-              <span>{{ shaclSet.error }}</span>
-            </Message>
-            <DisplayOutput class="px-8 my-8 overflow-x-auto">
-              <pre>{{ shaclSet.output }}</pre>
-            </DisplayOutput>
-          </div>
-        </div>
       </div>
     </div>
   </Container>

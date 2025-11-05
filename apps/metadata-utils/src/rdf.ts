@@ -5,4 +5,11 @@ export interface ShaclSet {
   sources: string[];
 }
 
-export type ShaclSetArray = ShaclSet[];
+export interface ShaclSetValidation extends ShaclSet {
+  status: ShaclStatus;
+  output: string;
+  error: string;
+  isViewed: boolean;
+}
+
+export type ShaclStatus = "UNKNOWN" | "RUNNING" | "VALID" | "INVALID" | "ERROR";
