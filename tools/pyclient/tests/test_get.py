@@ -154,12 +154,14 @@ def test_unequal_filter():
         assert len(pets) == 7
 
         # Test ref
-        pets = client.get(table="Pet", schema="pet store", query_filter="category != cat")
-        assert len(pets) == 3
+        with pytest.raises(NotImplementedError) as excinfo:
+            client.get(table="Pet", schema="pet store", query_filter="category != cat")
+        assert str(excinfo.value) == "The filter '!=' is not implemented for columns of type 'RADIO'."
 
         # Test ontology
-        pets = client.get(table="Pet", schema="pet store", query_filter="tags != 'red'")
-        assert len(pets) == 4
+        with pytest.raises(NotImplementedError) as excinfo:
+            client.get(table="Pet", schema="pet store", query_filter="tags != 'red'")
+        assert str(excinfo.value) == "The filter '!=' is not implemented for columns of type 'ONTOLOGY_ARRAY'."
 
 
 def test_between_filter():

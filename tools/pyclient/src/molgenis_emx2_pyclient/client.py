@@ -832,7 +832,7 @@ class Client:
             elif '<' in stmt:
                 _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
             elif '!=' in stmt:
-                _filter.update(**self.__prepare_unequal_filter(stmt, _table, _schema))
+                _filter.update(**self.__prepare_not_equals_filter(stmt, _table, _schema))
             elif 'between' in stmt:
                 _filter.update(**self.__prepare_between_filter(stmt, _table, _schema))
             else:
@@ -919,7 +919,7 @@ class Client:
 
         return {col.id: {"between": [None, val]}}
 
-    def __prepare_unequal_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+    def __prepare_not_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
         _col = stmt.split('!=')[0].strip()
         _val = stmt.split('!=')[1].strip()
@@ -933,11 +933,13 @@ class Client:
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
         val = None
-        match col.get('columnType'):
+        match col_type := col.get('columnType'):
             case 'BOOL':
                 val = False
                 if str(_val).lower() == 'true':
                     val = True
+            case 'RADIO' | 'REF' | 'REF_ARRAY' | 'ONTOLOGY' | 'ONTOLOGY_ARRAY':
+                raise NotImplementedError(f"The filter '!=' is not implemented for columns of type {col_type!r}.")
             case _:
                 try:
                     val = json.loads(''.join(_val.split('`')).replace("'", '"'))
