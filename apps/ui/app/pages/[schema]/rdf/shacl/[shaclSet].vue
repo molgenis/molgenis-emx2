@@ -49,9 +49,9 @@ const { data } = await useFetch<Resp<Schema>>(`/${routeSchema}/graphql`, {
 });
 
 const crumbs: Record<string, string> = {};
-crumbs[routeSchema] = `../../`;
-crumbs["rdf"] = `../`;
-crumbs["shacl"] = `./`;
+crumbs[routeSchema] = `/${routeSchema}`;
+crumbs["rdf"] = `/${routeSchema}/rdf`;
+crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
 crumbs[`${routeShaclSet}`] = "";
 
 function validateShaclOutput(output: string): boolean {

@@ -38,8 +38,8 @@ useHead({ title: `SHACL - RDF - ${routeSchema}  - Molgenis` });
 
 const crumbs: Record<string, string> = {};
 crumbs[routeSchema] = `/${routeSchema}`;
-crumbs["rdf"] = "`/${routeSchema}/rdf`";
-crumbs["shacl"] = "`/${routeSchema}/rdf/shacl`";
+crumbs["rdf"] = `/${routeSchema}/rdf`;
+crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
 
 const shaclSetValidations = ref<ShaclSetValidation[]>();
 const loading = ref<boolean>(true);
