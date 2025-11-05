@@ -5,7 +5,13 @@
       title="User management"
       :description="`${userCount} users found`"
     >
-      <Button icon="plus" con="user" type="secondary" size="small" @click="showNewUserModal = true">
+      <Button
+        icon="plus"
+        con="user"
+        type="secondary"
+        size="small"
+        @click="showNewUserModal = true"
+      >
         Create User
       </Button>
 

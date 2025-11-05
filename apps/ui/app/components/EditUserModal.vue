@@ -46,9 +46,7 @@
         <template #body>
           <TableRow v-if="_.isEmpty(userRoles)">
             <TableCell></TableCell>
-            <TableCell>
-              no roles found
-            </TableCell>
+            <TableCell> no roles found </TableCell>
             <TableCell></TableCell>
           </TableRow>
 
