@@ -14,6 +14,7 @@ describe("input boolean", () => {
   it("has correct options", () => {
     const altWrapper = mount(InputBoolean, {
       props: {
+        id: "test-boolean",
         trueLabel: "A",
         falseLabel: "B",
       },
