@@ -131,7 +131,7 @@ def test_smaller_filter():
         pets = client.get(table="Pet", schema="pet store", query_filter="weight < 1.1")
         assert len(pets) == 4
 
-def test_unequal_filter():
+def test_not_equals_filter():
     """Tests the 'unequal' filter for the query filter parameter."""
 
     with Client(url=server_url) as client:
@@ -189,7 +189,19 @@ def test_between_filter():
 
 def test_multiple_filters():
     """Tests the query filter parameter with multiple filters."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        pets = client.get(table="Pet", schema="pet store",
+                            query_filter="weight between [0, 2.5] and name != jerry")
+        assert len(pets) == 4
+
+        pets = client.get(table="Pet", schema="pet store",
+                            query_filter="status == available and tags == red")
+        assert len(pets) == 4
+
+
 
 def test_as_df():
     """Tests the method where the results are returned as pandas DataFrame."""
