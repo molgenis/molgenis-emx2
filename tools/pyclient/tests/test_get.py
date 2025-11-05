@@ -166,7 +166,26 @@ def test_unequal_filter():
 
 def test_between_filter():
     """Tests the 'between' filter for the query filter parameter."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity between [5, 10]")
+        assert len(orders) == 1
+
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity between [7.5, 10]")
+        assert len(orders) == 0
+
+        # Test float
+        orders = client.get(table="Pet", schema="pet store", query_filter="weight between [0, 2.5]")
+        assert len(orders) == 5
+
+        # Test string
+        with pytest.raises(NotImplementedError) as excinfo:
+            client.get(table="Pet", schema="pet store", query_filter="name between [0, 5]")
+        assert str(excinfo.value) == "The filter 'between' is not implemented for columns of type 'STRING'."
+
 
 def test_multiple_filters():
     """Tests the query filter parameter with multiple filters."""

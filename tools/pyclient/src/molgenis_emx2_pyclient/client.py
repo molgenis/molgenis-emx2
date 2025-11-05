@@ -964,7 +964,7 @@ class Client:
 
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
-        if (col_type := col.get('columnType')) not in ['INT', 'DECIMAL']:
+        if (col_type := col.get('columnType')) not in ['LONG', 'INT', 'DECIMAL']:
             raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
 
         return {col.id: {'between': val}}
