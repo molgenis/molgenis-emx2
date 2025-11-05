@@ -18,6 +18,20 @@ Boolean defining whether to load the demo catalogue on server startup
 
 ## Schema settings
 
+### App logo
+
+#### key
+
+`CATALOGUE_LOGO_SRC`
+
+#### description
+
+String containing location of the logo image
+
+#### default
+
+None, if set the env logo is shown else the molgenis logo is shown
+
 ### Notification
 
 #### key
