@@ -466,15 +466,18 @@ def get_first_part_email(email):
 def get_first_name(name):
     first_name = ''
     if name.isalnum():
-        first_name = name
+        first_name = name.capitalize()
     else:
         split_name = re.split("\W+", name)
         if len(split_name) == 2:
-            first_name = split_name[0]
+            first_name = split_name[0].capitalize()
         else:
             split_name = split_name[:-1]
             for n in split_name:
-                first_name += ' ' + n
+                if len(n) == 1:
+                    first_name += n.capitalize() + '.'
+                else:
+                    first_name += ' ' + n.capitalize()
             first_name.strip()
 
     return first_name
@@ -482,9 +485,9 @@ def get_first_name(name):
 
 def get_last_name(name):
     if name.isalnum():
-        last_name = 'contact'
+        last_name = 'Contact'
     else:
         split_name = re.split("\W+", name)
-        last_name = split_name[len(split_name) - 1]
+        last_name = split_name[len(split_name) - 1].capitalize()
 
     return last_name
