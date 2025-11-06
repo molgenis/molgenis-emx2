@@ -11,6 +11,68 @@ Agents,,website,hyperlink,,,,,,,,type?.name === 'Individual',,foaf:homepage,A we
 Agents,,email,email,,if(resource?.hricore === true) 'This field is mandatory for HRICore compatibility',,,,,,,,foaf:mbox,E-mail address to contact this organisation or individual,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Agents,,logo,file,,,,,,,,type?.name === 'Organisation',,foaf:logo,Logo of the organisation,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE,FAIR Genomes",
 Agents,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,type?.name === 'Organisation',,,Type(s) of contribution or role in the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
-Agents,,organisation name,,,,,,,,,,,foaf:name,"Organisation name, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",
-Agents,,organisation pid,,,,,,,,,,,dcterms:identifier,"ROR id, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",
-Agents,,organisation website,hyperlink,,,,,,,,,,foaf:homepage,"Organisation website, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",
+Agents,,organisation name,,,,,,,,,,,foaf:name,"Organisation name, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",organisation?.name
+Agents,,organisation pid,,,,,,,,,,,dcterms:identifier,"ROR id, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA","(function () {
+  try {
+    const pseudoId = organisation?.name;
+    console.log(""pseudoId:"", pseudoId);
+    if (!pseudoId) return null;
+
+    const query = ""query Organisations($filter: OrganisationsFilter) { Organisations(filter: $filter) { organisation { name ontologyTermURI } } }"";
+
+    const variables = {
+      filter: {
+       organisation: {
+          name: {
+            equals: pseudoId
+          }
+        }
+      }
+    };
+
+    const response = simplePostClient(query, variables, ""catalogue"");
+    console.log(""GraphQL response:"", response);
+
+    const orgs = response?.Organisations?.[0];
+    const organisationPid = orgs?.organisation?.ontologyTermURI;
+    console.log(""organisationPid:"", organisationPid);
+
+    return organisationPid || null;
+
+  } catch (error) {
+    console.error(""Failed to compute organisationPid:"", error);
+    return null;
+  }
+})();"
+Agents,,organisation website,hyperlink,,,,,,,,,,foaf:homepage,"Organisation website, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA","(function () {
+  try {
+    const pseudoId = organisation?.name;
+    console.log(""pseudoId:"", pseudoId);
+    if (!pseudoId) return null;
+
+    const query = ""query Organisations($filter: OrganisationsFilter) { Organisations(filter: $filter) { organisation { name website } } }"";
+
+    const variables = {
+      filter: {
+       organisation: {
+          name: {
+            equals: pseudoId
+          }
+        }
+      }
+    };
+
+    const response = simplePostClient(query, variables, ""catalogue"");
+    console.log(""GraphQL response:"", response);
+
+    const orgs = response?.Organisations?.[0];
+    const organisationWebsite = orgs?.organisation?.website;
+    console.log(""organisationWebsite:"", organisationWebsite);
+
+    return organisationWebsite || null;
+
+  } catch (error) {
+    console.error(""Failed to compute website:"", error);
+    return null;
+  }
+})();"
