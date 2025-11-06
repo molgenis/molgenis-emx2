@@ -410,6 +410,7 @@ async function loadMoreTerms() {
       @blur="emit('blur')"
     >
       <ButtonFilterWellContainer
+        v-if="ontologyTree.length < maxOntologyNodes - 1"
         ref="selectionContainer"
         :id="`${id}-ontology-selections`"
         @clear="clearSelection"
