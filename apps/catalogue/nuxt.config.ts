@@ -17,8 +17,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      emx2Theme: "molgenis",
-      emx2Logo: "",
+      emx2Theme: "hdsu",
+      emx2Logo: "HDSU-logo",
       siteTitle: "MOLGENIS",
       analyticsKey: "",
       analyticsProvider: "siteimprove",

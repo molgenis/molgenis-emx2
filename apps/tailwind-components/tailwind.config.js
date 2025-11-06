@@ -148,6 +148,7 @@ module.exports = {
           "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },
       backgroundColor: () => ({
+        "link-hover": "var(--background-color-link-hover)",
         "button-primary": "var(--background-color-button-primary)",
         "button-primary-hover": "var(--background-color-button-primary-hover)",
         "button-secondary": "var(--background-color-button-secondary)",

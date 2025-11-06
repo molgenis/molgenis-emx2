@@ -409,7 +409,7 @@ crumbs[route.params.resourceType as string] = "";
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
+              <span class="py-15 text-link">
                 No resources found with current filters
               </span>
             </div>

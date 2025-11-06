@@ -1,0 +1,30 @@
+:root[data-theme="hdsu"] {
+  --raft-accent: #0e661c;
+  --raft-bg: #ebe8e6;
+  --raft-accent-secondary: #59646b;
+  --raft-bg-inv: #1e1e1e;
+  --raft-bg-alt: rgba(255, 255, 255, 0.6);
+  --raft-fg-alt: #fdfdfd;
+
+  --background-color-app-wrapper: var(--raft-bg);
+  --background-image-base-gradient: linear-gradient(
+    180deg,
+    var(--raft-bg),
+    var(--raft-bg) 133.81%
+  );
+  --background-color-navigation: #f7f6f5;
+
+  --text-color: var(--raft-fg-alt);
+  --text-color-title: var(--raft-accent);
+  --text-color-sub-menu: var(--raft-bg-inv);
+  --text-color-sub-menu-hover: var(--raft-bg-inv);
+  --text-color-link: var(--raft-accent);
+  --text-color-breadcrumb: var(--raft-accent);
+
+  --background-color-button-primary: var(--raft-accent);
+  --background-color-button-primary-hover: var(--raft-accent);
+  --background-color-link-hover: var(--raft-bg-alt);
+
+  --border-color-button-primary: var(--raft-accent);
+  --border-color-button-primary-hover: var(--raft-accent);
+}

@@ -453,7 +453,7 @@ crumbs["variables"] = "";
               v-if="data?.data?.Variables_agg.count === 0"
               class="flex justify-center pt-3"
             >
-              <span class="py-15 text-blue-500">
+              <span class="py-15 text-link">
                 No variables found with current filters
               </span>
             </div>
