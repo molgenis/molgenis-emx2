@@ -1,6 +1,6 @@
 # Researcher
 
-The [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/) is perfectly suited
+The [MOLGENIS Data Catalogue](https://molgeniscatalogue.org/) is perfectly suited
 to help you find the relevant data for your research question.
 Using the catalogue, you can explore a variety of resources and compose a dataset
 tailored to your research needs.

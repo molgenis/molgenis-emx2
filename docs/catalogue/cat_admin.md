@@ -46,7 +46,7 @@ String containing html to be rendered in page banner
 
 None, no notification message is shown
 
-### Landing page title
+### Catalogue landing page title
 
 #### key
 
@@ -58,8 +58,7 @@ Main title shown on landing page
 
 #### default
 
-"European Networks Health Data
-& Cohort Catalogue."
+"Browse all catalogue contents"
 
 ### Landing page description
 
@@ -73,8 +72,7 @@ Description text or subtitle shown on landing page
 
 #### default
 
-"Browse and manage metadata for data resources, such as cohorts, registries, biobanks,
-and multi-center collaborations thereof such as networks, common data models and studies."
+"Select one of the content categories listed below."
 
 ### Landing page call-to-action (CTA) labels
 
