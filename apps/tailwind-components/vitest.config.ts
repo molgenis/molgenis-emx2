@@ -5,8 +5,17 @@ export default defineVitestConfig({
     environment: "nuxt",
     include: ["tests/vitest/**/**/*.spec.ts"],
     coverage: {
-      include: ["app/components/**/*.vue", "app/composables/**/*.ts", "app/utils/**/*.ts"],
-      exclude: ["app/components/global/**/*.vue", "server/**", "tests/**", "app/types/**"],
+      include: [
+        "app/components/**/*.vue",
+        "app/composables/**/*.ts",
+        "app/utils/**/*.ts",
+      ],
+      exclude: [
+        "app/components/global/**/*.vue",
+        "server/**",
+        "tests/**",
+        "app/types/**",
+      ],
       reporter: ["text", "lcov"],
     },
   },
