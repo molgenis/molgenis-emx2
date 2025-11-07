@@ -85,6 +85,7 @@ class Transform:
             self.variable_mappings()
         if self.url == 'https://molgeniscatalogue.org':
             self.contact_points()
+            self.variables()
 
     def agents(self):
         """ Transform data in Agents
@@ -262,7 +263,7 @@ class Transform:
             # concatenate name and subpopulations from resource and name or subpopulations columns
             df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
             df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
-            df_col_event['subpopulations'] = df_col_event.apply(concat_resource_subpopulations, axis=1)
+            df_col_event['subpopulations'] = df_col_event.apply(concat_resource_multiple, column_name='subpopulations', axis=1)
 
             # get keywords from Resources
             dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
@@ -337,13 +338,24 @@ class Transform:
             # write table to file
             df_subpop_counts.to_csv(self.path + 'Subpopulation counts.csv', index=False)
 
+    def variables(self):
+        """ Transform data in Variables
+        """
+        df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object')
+        if len(df_variables) != 0:
+            # concatenate collection event name from resource and collection event name
+            df_variables['collection event'] = df_variables.apply(concat_resource_multiple, column_name='collection event', axis=1)
+
+            # write table to file
+            df_variables.to_csv(self.path + 'Variables.csv', index=False)
+
     def variable_mappings(self):
         """ Transform data in Variable mappings
         """
         df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
         if len(df_mappings) != 0:
             df_mappings['target variable'] = df_mappings.apply(clean_targets, axis=1)
-            df_mappings['repeats'] = df_mappings.apply(clean_repeats)
+            df_mappings['repeats'] = df_mappings['repeats'].apply(clean_repeats)
 
             # write table to file
             df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
@@ -412,16 +424,16 @@ def concat_resource_name(row, column_name):
         return row[column_name]
 
 
-def concat_resource_subpopulations(row):
-    if not row['subpopulations'] == '':
-        subpopulations_list = row['subpopulations'].split(',')
-        subpopulations = ''
-        for s in subpopulations_list:
-            if not row['resource'].lower() in s.lower():
-                subpopulations += ',' + row['resource'] + ' ' + s
+def concat_resource_multiple(row, column_name):
+    if not row[column_name] == '':
+        split_entries = row[column_name].split(',')
+        new_entries = ''
+        for e in split_entries:
+            if not row['resource'].lower() in e.lower():
+                new_entries += ',' + row['resource'] + ' ' + e
             else:
-                subpopulations += ',' + s
-        return subpopulations.strip(',')
+                new_entries += ',' + e
+        return new_entries.strip(',')
 
 
 def get_description(row, dict_descriptions):
