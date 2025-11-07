@@ -55,7 +55,7 @@ print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 zip_handling.unzip_data()
 # transform schema data:
-update = Transform(schema_name=CATALOGUE_SCHEMA_NAME, profile='DataCatalogueFlat')
+update = Transform(schema_name=CATALOGUE_SCHEMA_NAME, profile='DataCatalogueFlat', source_url=SOURCE_SERVER_URL)
 # update data model file
 update.delete_data_model_file()
 update.update_data_model_file()
@@ -105,7 +105,7 @@ for schema in source.get_schemas():
         print(schema_name, profile)
 
         # transform schema data:
-        update = Transform(schema_name=schema_name, profile=profile, url=SOURCE_SERVER_URL)
+        update = Transform(schema_name=schema_name, profile=profile, source_url=SOURCE_SERVER_URL)
         # update data model file
         update.delete_data_model_file()
         update.update_data_model_file()
@@ -113,7 +113,7 @@ for schema in source.get_schemas():
         zip_handling.zip_data()
 
         # # instantiate Client for target server:
-        # target = Client(TARGET_SERVER_URL, CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
+        target = Client(TARGET_SERVER_URL, CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
         # create new schema
         if schema_name not in target.schema_names:
             asyncio.run(target.create_schema(name=schema_name, description=schema_description))

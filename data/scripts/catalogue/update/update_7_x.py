@@ -94,7 +94,7 @@ class Transform:
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
         # TODO: change dependent on server
-        df_agents['resource'] = 'UMCG'
+        df_agents['resource'] = 'MOLGENIS'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -243,7 +243,7 @@ class Transform:
         df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
 
         df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
-        df_endpoint['publisher.resource'] = 'UMCG'  # TODO: change dependent on server
+        df_endpoint['publisher.resource'] = 'MOLGENIS'  # TODO: change dependent on server
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
@@ -342,7 +342,8 @@ class Transform:
         """
         df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
         if len(df_mappings) != 0:
-            df_mappings['repeats'] = df_mappings['repeats'].apply(clean_repeats)
+            df_mappings['target variable'] = df_mappings.apply(clean_targets, axis=1)
+            df_mappings['repeats'] = df_mappings.apply(clean_repeats)
 
             # write table to file
             df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
@@ -394,11 +395,21 @@ def clean_repeats(repeats):
     return repeats
 
 
+def clean_targets(row):
+    target = row['target variable']
+    if row['repeats'] == 'preg':
+        target = row['target variable'] + 'preg'
+    elif row['repeats'] in ['t1', 't2', 't3']:
+        target = row['target variable'] + 't'
+
+    return target
+
+
 def concat_resource_name(row, column_name):
-        if not row['resource'].lower() in row[column_name].lower():
-            return row['resource'] + ' ' + row[column_name]
-        else:
-            return row[column_name]
+    if not row['resource'].lower() in row[column_name].lower():
+        return row['resource'] + ' ' + row[column_name]
+    else:
+        return row[column_name]
 
 
 def concat_resource_subpopulations(row):
