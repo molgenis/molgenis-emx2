@@ -71,6 +71,11 @@ class Transform:
         if self.profile == 'DataCatalogueFlat':
             self.agents()
             self.endpoint()
+        if self.url == 'https://molgeniscatalogue.org/':
+            self.contact_points()
+        if self.url == 'https://molgeniscatalogue.org/' and not self.profile == 'INTEGRATE':
+            self.variables()
+
         self.organisations()
         self.resources()
 
@@ -83,9 +88,6 @@ class Transform:
             self.subpopulation_counts()
         if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
-        if self.url == 'https://molgeniscatalogue.org':
-            self.contact_points()
-            self.variables()
 
     def agents(self):
         """ Transform data in Agents
@@ -180,8 +182,8 @@ class Transform:
                     df_resources.loc[i, 'publisher.id'] = df_organisations_c['id'][0]
             i += 1
 
-        # get contact point from Contacts table for demo data only
-        if self.schema_name == 'testCatalogue':
+        # get contact point from Contacts table for demo data and molgeniscatalogue only
+        if self.schema_name == 'testCatalogue' or self.url == 'https://molgeniscatalogue/':
             df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
             df_resources['contact point.resource'] = ''
             df_resources['contact point.first name'] = ''
@@ -221,9 +223,7 @@ class Transform:
         df_resource_contacts['name'] = df_resource_contacts['email'].apply(get_first_part_email)
         df_resource_contacts['first name'] = df_resource_contacts['name'].apply(get_first_name)
         df_resource_contacts['last name'] = df_resource_contacts['name'].apply(get_last_name)
-
-        # TODO: get contact point in resources table
-        df_resources['contact point.resource'] = df_resources['resource']
+        df_resource_contacts['role'] = 'Primary contact'
 
         # write tables to file
         df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
@@ -341,18 +341,21 @@ class Transform:
     def variables(self):
         """ Transform data in Variables
         """
-        df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object')
+        df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False, dtype='object')
         if len(df_variables) != 0:
             # concatenate collection event name from resource and collection event name
             df_variables['collection event'] = df_variables.apply(concat_resource_multiple, column_name='collection event', axis=1)
 
+            df_variables = df_variables.drop(columns=['mappings.source', 'mappings.source dataset', 'mappings.target',
+                                                      'mappings.target dataset', 'mappings.target variable',
+                                                      'mappings.repeats'])
             # write table to file
             df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_mappings(self):
         """ Transform data in Variable mappings
         """
-        df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
+        df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False, dtype='object')
         if len(df_mappings) != 0:
             df_mappings['target variable'] = df_mappings.apply(clean_targets, axis=1)
             df_mappings['repeats'] = df_mappings['repeats'].apply(clean_repeats)
@@ -425,7 +428,7 @@ def concat_resource_name(row, column_name):
 
 
 def concat_resource_multiple(row, column_name):
-    if not row[column_name] == '':
+    if not row[column_name] == '' and not pd.isna(row[column_name]):
         split_entries = row[column_name].split(',')
         new_entries = ''
         for e in split_entries:
