@@ -1,17 +1,19 @@
 <script lang="ts" setup>
 import BaseIcon from "~/components/BaseIcon.vue";
 import Message from "~/components/Message.vue";
+import type {AsyncDataRequestStatus} from "#app";
 
 defineProps<{
   id: string;
-  isLoading: boolean;
+  status: AsyncDataRequestStatus;
   loadingText: string;
   errorText: string | undefined;
 }>()
 </script>
 
 <template>
-  <div v-if="isLoading">
+  <div v-if="status === 'idle'" />
+  <div v-else-if="status === 'pending'">
     <BaseIcon
         name="progress-activity"
         class="animate-spin m-auto"
@@ -23,7 +25,7 @@ defineProps<{
       :id="`${id}-error`"
       class="my-2"
       :invalid="true"
-      v-else-if="errorText"
+      v-else-if="status === 'error'"
   >
     <span>{{ errorText }}</span>
   </Message>

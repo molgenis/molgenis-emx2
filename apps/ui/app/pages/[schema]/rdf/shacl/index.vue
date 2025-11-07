@@ -2,13 +2,7 @@
 import { useFetch } from "#app/composables/fetch";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import { ref, onMounted } from "vue";
 import { parse } from "yaml";
-import type {
-  ShaclSet,
-  ShaclSetValidation,
-} from "../../../../../../metadata-utils/src/rdf";
-import type { Resp } from "../../../../../../tailwind-components/types/types";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
 import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
@@ -40,42 +34,19 @@ crumbs[routeSchema] = `/${routeSchema}`;
 crumbs["rdf"] = `/${routeSchema}/rdf`;
 crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
 
-const shaclSetValidations = ref<ShaclSetValidation[]>();
-const loading = ref<boolean>(true);
-const error = ref<string>();
-
-async function fetchShacls(): Promise<string> {
-  const { data, error, status } = await useFetch<Resp<string>>(
-    `/api/rdf?shacls`
-  );
-
-  if (!data.value || error.value || status.value === "error") {
+const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
+  key: "shaclSets",
+  onResponse({ request, response, options }) {
+    if (!response._data) {
+      throw new Error("Retrieved SHACL set data is empty.");
+    }
+    response._data = parse(response._data);
+  },
+  onResponseError() {
     throw new Error(
       "Could not load available SHACL sets. Please check if you have access to any schema's to validate."
     );
-  }
-
-  const output = data.value as unknown as string;
-  return parse(output);
-}
-
-onMounted(async () => {
-  Promise.resolve(fetchShacls())
-    .then((data) => {
-      shaclSetValidations.value = data as unknown as ShaclSetValidation[];
-      shaclSetValidations.value.forEach((i) => {
-        i.status = "UNKNOWN";
-        i.output = "";
-        i.error = "";
-        i.isViewed = false;
-      });
-    })
-    .catch((err) => {
-      error.value = err;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  },
 });
 </script>
 
@@ -96,9 +67,9 @@ onMounted(async () => {
     <ContentBasic>
       <LoadingContent
         id="shaclSets"
-        :isLoading="loading"
+        :status="status"
         loadingText="Loading SHACL sets..."
-        :errorText="error"
+        :errorText="error?.message"
       >
         <Table>
           <template #head>
@@ -110,11 +81,11 @@ onMounted(async () => {
             </TableHeadRow>
           </template>
           <template #body>
-            <TableRow v-for="shaclSet in shaclSetValidations">
+            <TableRow v-for="shaclSet in data">
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
               >
-                <IconProcess :status="shaclSet.status" />
+                <!--                <IconProcess :status="shaclSet.status" />-->
               </TableCell>
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
