@@ -26,7 +26,7 @@ Boolean defining whether to load the demo catalogue on server startup
 
 #### description
 
-String containing location of the logo image
+String containing [URL](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#src) of the logo image
 
 #### default
 
