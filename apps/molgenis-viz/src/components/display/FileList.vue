@@ -78,6 +78,7 @@ import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
   table: string;
+  filter?: string;
   labelsColumn?: string;
   fileColumn: string;
 }>();
@@ -107,7 +108,7 @@ const data = ref<FilesData[]>();
 
 async function getFiles() {
   const query = gql`query {
-    ${props.table} {
+    ${props.table} ${props.filter || ""} {
       ${props.labelsColumn || ""}
       ${props.fileColumn} {
         id
