@@ -64,8 +64,8 @@ public abstract class CustomAssertions {
     }
   }
 
-  public static void adheresToShacl(Schema schema, String shaclSetName) throws IOException {
-    ShaclSet shaclSet = Objects.requireNonNull(ShaclSelector.get(shaclSetName));
+  public static void adheresToShacl(Schema schema, String shaclSetId) throws IOException {
+    ShaclSet shaclSet = Objects.requireNonNull(ShaclSelector.get(shaclSetId));
 
     OutputStream outputStream = new ByteArrayOutputStream();
     try (RdfService<RdfApiGenerator> rdfService =
