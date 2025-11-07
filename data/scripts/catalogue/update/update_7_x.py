@@ -79,12 +79,12 @@ class Transform:
         self.organisations()
         self.resources()
 
-        if self.profile in 'UMCGCohortsStaging':
+        if self.profile == 'UMCGCohortsStaging':
             self.contacts()
         if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE', 'NetworksStaging']:
             self.collection_events()
             self.subpopulations()
-        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE']:
+        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts']:
             self.subpopulation_counts()
         if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
