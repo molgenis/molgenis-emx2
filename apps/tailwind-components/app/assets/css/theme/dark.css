@@ -111,4 +111,8 @@
   --border-color-button-switch: var(--color-gray-900);
   --border-color-button-switch-selected: var(--color-green-200);
   --border-color-button-switch-hover: var(--color-green-200);
+
+  /** labels */
+  --background-color-label-draft: var(--color-stroke-light);
+  --text-color-label-draft: var(--color-white);
 }
