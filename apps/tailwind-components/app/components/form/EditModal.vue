@@ -249,11 +249,16 @@ async function onSave(draft: boolean) {
         `No response from server on ${isInsert.value ? "insert" : "update"}`
       );
     }
+    emit(isInsert.value ? "update:added" : "update:updated", resp);
+    if(isInsert.value && !isDraft.value) {
+      visible.value = false;
+      return;
+    }
     formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
       rowType.value
     } ${draft ? "as draft" : ""}`;
     showFormMessage.value = true;
-    emit(isInsert.value ? "update:added" : "update:updated", resp);
+    
     if (isInsert.value) {
       await updateRowKey();
     }
