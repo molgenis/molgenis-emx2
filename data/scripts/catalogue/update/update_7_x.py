@@ -466,11 +466,14 @@ def get_first_part_email(email):
 def get_first_name(name):
     first_name = ''
     if name.isalnum():
-        first_name = name.capitalize()
+        pass  # this leads to ugly results for contact cards
     else:
         split_name = re.split("\W+", name)
         if len(split_name) == 2:
-            first_name = split_name[0].capitalize()
+            if len(split_name[0]) == 1:
+                first_name = split_name[0].capitalize() + '.'
+            else:
+                first_name = split_name[0].capitalize()
         else:
             split_name = split_name[:-1]
             for n in split_name:
@@ -484,8 +487,9 @@ def get_first_name(name):
 
 
 def get_last_name(name):
+    last_name = ''
     if name.isalnum():
-        last_name = 'Contact'
+        pass  # this leads to ugly results for contact cards
     else:
         split_name = re.split("\W+", name)
         last_name = split_name[len(split_name) - 1].capitalize()
