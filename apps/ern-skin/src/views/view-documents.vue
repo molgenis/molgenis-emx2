@@ -23,7 +23,11 @@
         title="Access Requests"
         :isOpenByDefault="false"
       >
-        <FileList table="Files" labelsColumn="name" fileColumn="file" />
+        <FileList
+         table="Files"
+         filter='(filter: { tags: { not_equals: "private" } })'
+         labelsColumn="name"
+         fileColumn="file" />
       </Accordion>
       <Accordion
         id="patient-nav"
@@ -49,6 +53,7 @@
         title="General Documents"
         :isOpenByDefault="false"
       >
+        <PrivateFiles/>
         <strong>Publications</strong>
         <Publications
           table="Publications"
@@ -62,8 +67,9 @@
 
 <script setup lang="ts">
 // @ts-ignore
-import { Accordion, Page, PageSection, FileList } from "molgenis-viz";
+import { Accordion, Page, PageSection, FileList, MessageBox } from "molgenis-viz";
 import CustomPageHeader from "../components/CustomPageHeader.vue";
+import PrivateFiles from "../components/PrivateFiles.vue";
 import Publications from "../components/Publications.vue";
 import Studies from "../components/Studies.vue";
 </script>
