@@ -4,6 +4,7 @@
   --raft-accent-secondary: #59646b;
   --raft-bg-inv: #1e1e1e;
   --raft-bg-alt: rgba(255, 255, 255, 0.6);
+  --raft-fg: #1d1f25;
   --raft-fg-alt: #fdfdfd;
 
   --background-color-app-wrapper: var(--raft-bg);
@@ -16,6 +17,7 @@
 
   --text-color: var(--raft-fg-alt);
   --text-color-title: var(--raft-accent);
+  --text-color-title-contrast: var(--raft-fg);
   --text-color-sub-menu: var(--raft-bg-inv);
   --text-color-sub-menu-hover: var(--raft-bg-inv);
   --text-color-link: var(--raft-accent);
