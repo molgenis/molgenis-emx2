@@ -262,12 +262,17 @@ class Transform:
 
             # concatenate name and subpopulations from resource and name or subpopulations columns
             df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
-            df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
-            df_col_event['subpopulations'] = df_col_event.apply(concat_resource_multiple, column_name='subpopulations', axis=1)
+            if self.profile != 'NetworksStaging':
+                df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
+                df_col_event['subpopulations'] = df_col_event.apply(concat_resource_multiple, column_name='subpopulations', axis=1)
 
-            # get keywords from Resources
-            dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
-            df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+                # get keywords from Resources
+                dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+                df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+
+                # get creator from Resources
+                dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+                df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # get descriptions from Resources when missing
             dict_descriptions = dict(zip(df_resources.id, df_resources.description))
@@ -276,9 +281,6 @@ class Transform:
             # get publisher from Resources
             dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
             df_col_event['publisher'] = df_col_event['resource'].apply(get_publisher, dict_publisher=dict_publisher)
-            # get creator from Resources
-            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-            df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # only for demo data:
             if self.schema_name == 'testCatalogue':
@@ -302,10 +304,6 @@ class Transform:
             # concatenate name from resource and name columns
             df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, column_name='name', axis=1)
 
-            # get keywords from Resources
-            dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
-            df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
-
             # get descriptions from Resources when missing
             dict_descriptions = dict(zip(df_resources.id, df_resources.description))
             df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
@@ -314,9 +312,14 @@ class Transform:
             dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
             df_subpopulations['publisher'] = df_subpopulations['resource'].apply(get_publisher, dict_publisher=dict_publisher)
 
-            # get creator from Resources
-            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-            df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
+            if self.profile != 'NetworksStaging':
+                # get keywords from Resources
+                dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+                df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+
+                # get creator from Resources
+                dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+                df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # only for demo data:
             if self.schema_name == 'testCatalogue':
@@ -346,9 +349,10 @@ class Transform:
             # concatenate collection event name from resource and collection event name
             df_variables['collection event'] = df_variables.apply(concat_resource_multiple, column_name='collection event', axis=1)
 
-            df_variables = df_variables.drop(columns=['mappings.source', 'mappings.source dataset', 'mappings.target',
-                                                      'mappings.target dataset', 'mappings.target variable',
-                                                      'mappings.repeats'])
+            if self.profile != 'NetworksStaging':
+                df_variables = df_variables.drop(columns=['mappings.source', 'mappings.source dataset', 'mappings.target',
+                                                          'mappings.target dataset', 'mappings.target variable',
+                                                          'mappings.repeats'])
             # write table to file
             df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
