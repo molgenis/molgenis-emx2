@@ -33,6 +33,8 @@
   --background-color-search-results-view-tabs: var(--raft-accent);
   --text-color-search-results-view-tabs: var(--raft-accent);
   --text-color-search-results-view-tabs-hover: var(--raft-bg-inv);
+  --text-color-search-filter-expand: var(--raft-bg-inv);
+  --text-color-icon-neutral: var(--raft-accent-secondary);
 
   --background-color-search-button: var(--raft-bg);
   --text-color-search-button: var(--raft-accent);

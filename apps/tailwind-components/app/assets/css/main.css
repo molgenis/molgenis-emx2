@@ -266,5 +266,8 @@
     /** labels */
     --background-color-label-draft: var(--color-gray-400);
     --text-color-label-draft: var(--color-white);
+
+    /** tooltips */
+    --text-color-icon-neutral: var(--color-blue-200);
   }
 }

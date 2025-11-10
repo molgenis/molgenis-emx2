@@ -331,6 +331,7 @@ module.exports = {
         "button-switch-selected": "var(--text-color-button-switch-selected)",
         "button-switch-hover": "var(--text-color-button-switch-hover)",
         "label-draft": "var(--text-color-label-draft)",
+        "icon-neutral": "var(--text-color-icon-neutral)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",
