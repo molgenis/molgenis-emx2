@@ -34,7 +34,7 @@ const props = withDefaults(
     }
   >(),
   {
-    limit: 25,
+    limit: 15,
   }
 );
 
@@ -65,6 +65,9 @@ const treeInputs = ref();
 function setTreeInputs() {
   treeInputs.value = treeContainer.value?.querySelectorAll("ul li");
 }
+
+const showExtendedControls = computed<boolean>(() =>
+    hasChildren.value || ontologyTree.value.length > props.limit);
 
 onMounted(() => {
   init()
@@ -410,10 +413,11 @@ async function loadMoreTerms() {
       @blur="emit('blur')"
     >
       <ButtonFilterWellContainer
-        v-if="ontologyTree.length < maxOntologyNodes - 1"
+        v-if="showExtendedControls && Object.keys(valueLabels).length"
         ref="selectionContainer"
         :id="`${id}-ontology-selections`"
         @clear="clearSelection"
+        :size="Object.keys(valueLabels).length"
       >
         <template v-if="Object.keys(valueLabels).length > 0">
           <Button
@@ -426,11 +430,13 @@ async function loadMoreTerms() {
             size="tiny"
             @click="deselect(name as string)"
           >
-            {{ valueLabels[name] }}
+            <div class="max-w-[150px] truncate" :title="valueLabels[name]">
+              {{ valueLabels[name] }}
+            </div>
           </Button>
         </template>
       </ButtonFilterWellContainer>
-      <div class="my-4" v-if="hasChildren || ontologyTree.length > limit">
+      <div class="my-4" v-if="showExtendedControls">
         <label :for="`search-for-${id}`" class="sr-only">
           search in ontology
         </label>

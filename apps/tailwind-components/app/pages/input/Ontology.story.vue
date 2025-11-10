@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const ontologySchemaId = ref<string>("pet store");
-const ontologyTableId = ref<string>("Tag");
+const ontologySchemaId = ref<string>("CatalogueOntologies");
+const ontologyTableId = ref<string>("AreasOfInformationCohorts");
 const modelValue = ref("green");
 const modelValueArray = ref(["colors", "mammals"]);
 </script>
