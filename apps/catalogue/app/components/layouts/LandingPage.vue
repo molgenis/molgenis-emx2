@@ -27,7 +27,7 @@ const bannerHtml = computed(() => {
     :collectionCount="headerData.collectionCount"
     :networkCount="headerData.networkCount"
   />
-  <HeaderGlobal v-else />
+  <HeaderGlobal v-else :logoSrc="headerData.logoSrc" />
   <Container>
     <slot></slot>
   </Container>
