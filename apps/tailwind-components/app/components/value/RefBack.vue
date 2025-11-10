@@ -23,11 +23,9 @@ const handleRefBackCellClicked = () => {
 
 const refBackColumnLabel = computed(() => {
   // we know that in case of refback, either refLabel or refLabelDefault is defined, although this can not easily be expressed in the typescript
-  const labelTemplate = (
-    props.metadata.refLabel
-      ? props.metadata.refLabel
-      : props.metadata.refLabelDefault
-  ) as string;
+  const labelTemplate = (props.metadata.refLabel
+    ? props.metadata.refLabel
+    : props.metadata.refLabelDefault) as string;
   return props.data
     .map((refRow) => rowToString(refRow, labelTemplate))
     .join(", ");
