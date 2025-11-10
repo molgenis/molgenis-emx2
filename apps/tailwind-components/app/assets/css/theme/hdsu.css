@@ -25,10 +25,14 @@
 
   --background-color-button-primary: var(--raft-accent);
   --background-color-button-primary-hover: var(--raft-accent);
-  --background-color-link-hover: var(--raft-bg-alt);
 
-  --border-color-button-primary: var(--raft-accent);
-  --border-color-button-primary-hover: var(--raft-accent);
+  --background-color-button-secondary: var(--raft-bg);
+  --text-color-button-secondary: var(--raft-accent);
+  --text-color-button-secondary-hover: var(--raft-accent);
+  --background-color-button-secondary-hover: var(--raft-fg-alt);
+  --border-color-button-secondary-hover: var(--raft-accent);
+
+  --background-color-link-hover: var(--raft-bg-alt);
 
   --background-color-search-results-view-tabs: var(--raft-accent);
   --text-color-search-results-view-tabs: var(--raft-accent);
