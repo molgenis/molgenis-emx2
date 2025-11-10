@@ -17,7 +17,8 @@
           v-else-if="
             metadata.columnType === 'STRING' ||
             metadata.columnType === 'DATE' ||
-            metadata.columnType === 'DATETIME'
+            metadata.columnType === 'DATETIME' ||
+            metadata.columnType === 'AUTO_ID'
           "
           :metadata="metadata"
           :data="data"
