@@ -122,11 +122,14 @@
               <BaseIcon
                 v-if="savingDraft"
                 class="inline animate-spin"
-                name="sun"
+                name="ProgressActivity"
             /></Button>
             <Button type="primary" :disabled="saving" @click="onSave(false)"
               >Save
-              <BaseIcon v-if="saving" class="inline animate-spin" name="sun"
+              <BaseIcon
+                v-if="saving"
+                class="inline animate-spin"
+                name="ProgressActivity"
             /></Button>
           </div>
         </menu>
