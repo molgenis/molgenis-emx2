@@ -168,6 +168,7 @@ module.exports = {
         "button-inline-hover": "var(--background-color-button-inline-hover)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
+        "navigation-dynamic": "var(--background-color-navigation-dynamic)",
         navigation: "var(--background-color-navigation)",
         "navigation-sticky": "var(--background-color-navigation-sticky)",
         "search-results-view-tabs":
