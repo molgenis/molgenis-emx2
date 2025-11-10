@@ -36,6 +36,8 @@
 
   --background-color-search-button: var(--raft-bg);
   --text-color-search-button: var(--raft-accent);
+  --text-color-search-button-hover: var(--raft-bg-inv);
+  --background-color-search-filter-group-toggle: var(--raft-bg);
 
   --text-color-pagination: var(--raft-accent);
   --text-color-pagination-hover: var(--raft-accent);
