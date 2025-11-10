@@ -86,7 +86,7 @@ class Transform:
             self.subpopulations()
         if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts']:
             self.subpopulation_counts()
-        if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
+        if self.profile in ['CohortsStaging', 'RWEStaging' 'DataCatalogueFlat']:
             self.variable_mappings()
 
     def agents(self):
@@ -211,6 +211,7 @@ class Transform:
     def contact_points(self):
         """ Get data from contact email to Contacts table
         """
+        #TODO: this does not work yet
         df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
@@ -346,10 +347,11 @@ class Transform:
         """
         df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False, dtype='object')
         if len(df_variables) != 0:
-            # concatenate collection event name from resource and collection event name
-            df_variables['collection event'] = df_variables.apply(concat_resource_multiple, column_name='collection event', axis=1)
+            if self.profile != 'RWEStaging':
+                # concatenate collection event name from resource and collection event name
+                df_variables['collection event'] = df_variables.apply(concat_resource_multiple, column_name='collection event', axis=1)
 
-            if self.profile != 'NetworksStaging':
+            if self.profile not in ['NetworksStaging', 'RWEStaging']:
                 df_variables = df_variables.drop(columns=['mappings.source', 'mappings.source dataset', 'mappings.target',
                                                           'mappings.target dataset', 'mappings.target variable',
                                                           'mappings.repeats'])
@@ -411,6 +413,7 @@ def clean_repeats(repeats):
         repeats = 'NA'
     elif repeats in ['t1', 't2', 't3']:
         repeats = repeats[1:]
+    repeats = repeats.replace('.', ',')
     return repeats
 
 
