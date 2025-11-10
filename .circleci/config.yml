@@ -438,9 +438,9 @@ jobs:
 
       # Check if we should run this week
       - run:
-          name: Check if it's the 3rd week
+          name: Check if it'df the 3rd week
           command: |
-            WEEK_NUM=$(date +%U)
+            WEEK_NUM=$(date +%V)
             echo "Current week number: $WEEK_NUM"
             if [ $(( WEEK_NUM % 3 )) -ne 0 ]; then
               echo "⏭️ Not week 3, 6, 9... skipping job."
@@ -450,8 +450,8 @@ jobs:
       - run:
           name: Reset emx2.dev
           command:
-            export $( cat build/ci.properties | xargs )
-            bash ci/set_kubectl_config-azure.sh
+            export $( cat build/ci.properties | xargs ) \
+            bash ci/set_kubectl_config-azure.sh \
             bash ci/create_or_update_k8s-azure.sh "emx2" latest true
 
       - run:
@@ -460,7 +460,7 @@ jobs:
             curl -d "token=${SLACK_TOKEN}" \
             -d "cleaned database at https://emx2.dev.molgenis.org/" \
             -d "channel=C057JRKLUKG" \
-            -X POST https://slack.com/api/chat.postMessage
+            -X POST https://slack.vd/api/chat.postMessage
              
       
       
