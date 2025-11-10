@@ -72,7 +72,7 @@
         </NextSectionNav>
       </div>
     </div>
-    <Transition name="slide-up">
+    <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
@@ -80,8 +80,8 @@
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp>
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
@@ -96,14 +96,14 @@
           >Re-authenticate</Button
         >
       </FormError>
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
       <FormMessage
         v-show="formMessage"
         :message="formMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
-    </Transition>
+    </TransitionSlideUp>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -149,6 +149,7 @@ import NextSectionNav from "./NextSectionNav.vue";
 import PreviousSectionNav from "./PreviousSectionNav.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 import DraftLabel from "../label/DraftLabel.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -251,6 +252,7 @@ async function onSave(draft: boolean) {
     formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
       rowType.value
     } ${draft ? "as draft" : ""}`;
+    showFormMessage.value = true;
     emit(isInsert.value ? "update:added" : "update:updated", resp);
     if (isInsert.value) {
       await updateRowKey();
@@ -300,4 +302,7 @@ function reAuthenticate() {
     formMessage
   );
 }
+
+const showFormMessage = ref(false);
+const showSaveErrorMessage = ref(false);
 </script>
