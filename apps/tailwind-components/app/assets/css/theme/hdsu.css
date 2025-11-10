@@ -29,4 +29,17 @@
 
   --border-color-button-primary: var(--raft-accent);
   --border-color-button-primary-hover: var(--raft-accent);
+
+  --background-color-search-results-view-tabs: var(--raft-accent);
+  --text-color-search-results-view-tabs: var(--raft-accent);
+  --text-color-search-results-view-tabs-hover: var(--raft-bg-inv);
+
+  --background-color-search-button: var(--raft-bg);
+  --text-color-search-button: var(--raft-accent);
+
+  --text-color-pagination: var(--raft-accent);
+  --text-color-pagination-hover: var(--raft-accent);
+  --text-color-pagination-button: var(--raft-accent);
+  --text-color-pagination-button-hover: var(--raft-accent);
+  --border-color-pagination-hover: var(--raft-accent);
 }
