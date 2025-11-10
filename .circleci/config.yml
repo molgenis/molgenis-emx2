@@ -438,7 +438,7 @@ jobs:
 
       # Check if we should run this week
       - run:
-          name: Check if it'df the 3rd week
+          name: Check if it's the 3rd week
           command: |
             WEEK_NUM=$(date +%V)
             echo "Current week number: $WEEK_NUM"
@@ -460,7 +460,7 @@ jobs:
             curl -d "token=${SLACK_TOKEN}" \
             -d "cleaned database at https://emx2.dev.molgenis.org/" \
             -d "channel=C057JRKLUKG" \
-            -X POST https://slack.vd/api/chat.postMessage
+            -X POST https://slack.com/api/chat.postMessage
              
       
       
