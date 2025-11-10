@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useRuntimeConfig, useRoute, useCookie, useHead } from "#app";
-import { useGtag, useDatasetStore } from "#imports";
+import { useRuntimeConfig, useCookie, useHead } from "#app";
+import { useGtag, useDatasetStore, useTheme } from "#imports";
 import { computed, ref } from "vue";
 import BottomModal from "../app/components/BottomModal.vue";
 import Button from "../../tailwind-components/app/components/Button.vue";
 import BackgroundGradient from "../../tailwind-components/app/components/BackgroundGradient.vue";
 
 const config = useRuntimeConfig();
-const route = useRoute();
+const theme = await useTheme();
 const { initialize } = useGtag();
 
 const datasetStore = useDatasetStore();
@@ -54,10 +54,7 @@ const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
   : "/_nuxt-styles/img/molgenis.ico";
 useHead({
-  htmlAttrs: {
-    "data-theme":
-      (route.query.theme as string) || config.public.emx2Theme || "",
-  },
+  htmlAttrs: { "data-theme": theme },
   link: [{ rel: "icon", href: faviconHref }],
   titleTemplate: (titleChunk) => {
     if (titleChunk && config.public.siteTitle) {

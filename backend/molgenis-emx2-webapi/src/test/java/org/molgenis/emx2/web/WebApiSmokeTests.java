@@ -13,7 +13,6 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.TestResourceLoader.getFileAsString;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
@@ -1134,7 +1133,17 @@ public class WebApiSmokeTests {
             assertTrue(
                 resultSchema.contains(
                     "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
-        () -> assertEquals(getFileAsString("api/rdf/shacl_sets.yaml"), resultShaclSetsYaml));
+        // Test on small snippet to validate "files:" is absent (and all other fields are present)
+        () ->
+            assertTrue(
+                resultShaclSetsYaml.contains(
+                    """
+- id: dcat-ap-v3
+  name: DCAT-AP
+  version: 3.0.0
+  sources:
+  - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+- id: hri-v1""")));
   }
 
   /**

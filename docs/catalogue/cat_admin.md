@@ -146,6 +146,19 @@ String containing html to be rendered on the all ( default subcatalogue) page
 #### default
 None, no additional content is shown    
 
+## Theme Configuration
+
+You can configure the application theme either **at deploy time** or **at runtime**.
+
+- 🏗️ Deploy Time: Set the NUXT_PUBLIC_EMX2_THEME environment variable to the theme value.
+- ⚙️ Run Time: Create or update the CATALOGUE_THEME settings to the theme value.
+
+If neither value is provided, the default theme **molgenis** will be used.
+
+#### debug theme 
+
+For debugging or development purposes, you can override the active theme by adding a query parameter to the URL:, ```?theme=my-theme```
+
 ## Favicon
 
 A themed favicon is set by placing a [theme].ico file in the public/img folder.
