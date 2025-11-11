@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useFetch } from "#app/composables/fetch";
 import { useRoute } from "vue-router";
-import {useHead} from "#app";
+import {useHead, useState} from "#app";
 import { parse } from "yaml";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
@@ -19,6 +19,7 @@ import Button from "../../../../../../tailwind-components/app/components/Button.
 import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayOutput from "../../../../../../tailwind-components/app/components/display/Output.vue";
 import { navigateTo } from "#app/composables/router";
+import type {ProcessData} from "metadata-utils/src/generic";
 
 const route = useRoute();
 const routeSchema = (
@@ -51,6 +52,8 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
     );
   },
 });
+
+const shaclSetRuns = useState(`${routeSchema}-shaclSetRuns`, () => ({} as Record<string, ProcessData>));
 </script>
 
 <template>
@@ -88,7 +91,7 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
               >
-                <!--                <IconProcess :status="shaclSet.status" />-->
+              <IconProcess :status="shaclSetRuns[shaclSet.id]?.status" />
               </TableCell>
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"

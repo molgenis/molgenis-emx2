@@ -19,6 +19,7 @@ import ButtonDownloadBlob from "../../../../../../tailwind-components/app/compon
 import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
 import {useFetch} from "#app/composables/fetch";
 import type {ProcessData, ProcessStatus} from "metadata-utils/src/generic";
+import IconProcess from "../../../../../../tailwind-components/app/components/icon/Process.vue";
 
 const route = useRoute();
 const routeSchema = (
@@ -49,24 +50,26 @@ function validateShaclOutput(output: string): boolean {
     .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
 }
 
-const shaclSetRun = useState<ProcessData>(`${routeSchema}_shaclSetRun_${routeShaclSet}`, () => ({status: "UNKNOWN"}));
-
-async function runShacl() {
-  shaclSetRun.value.status = "RUNNING";
-  const res = await fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
-  shaclSetRun.value.output = await res.text();
-
-  if (res.status !== 200) {
-    shaclSetRun.value.status = "ERROR";
-    shaclSetRun.value.error = `Error (status code: ${res.status})`;
-  } else if (validateShaclOutput(shaclSetRun.value.output)) {
-    shaclSetRun.value.status = "DONE";
-  } else {
-    shaclSetRun.value.status = "INVALID";
-  }
+const shaclSetRuns = useState(`${routeSchema}-shaclSetRuns`, () => ({} as Record<string, ProcessData>));
+if(!shaclSetRuns.value[routeShaclSet]) {
+  shaclSetRuns.value[routeShaclSet] = {status: "UNKNOWN"}
+  runShacl();
 }
 
-if(shaclSetRun.value.status === "UNKNOWN") runShacl();
+async function runShacl() {
+  shaclSetRuns.value[routeShaclSet].status = "RUNNING";
+  const res = await fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
+  shaclSetRuns.value[routeShaclSet].output = await res.text();
+
+  if (res.status !== 200) {
+    shaclSetRuns.value[routeShaclSet].status = "ERROR";
+    shaclSetRuns.value[routeShaclSet].error = `Error (status code: ${res.status})`;
+  } else if (validateShaclOutput(shaclSetRuns.value[routeShaclSet].output)) {
+    shaclSetRuns.value[routeShaclSet].status = "DONE";
+  } else {
+    shaclSetRuns.value[routeShaclSet].status = "INVALID";
+  }
+}
 </script>
 
 <template>
@@ -84,6 +87,7 @@ if(shaclSetRun.value.status === "UNKNOWN") runShacl();
       </template>
     </PageHeader>
     <ContentBasic>
+      <IconProcess :status="shaclSetRuns[routeShaclSet].status" />
       <Button
           type="primary"
           size="small"
@@ -92,12 +96,12 @@ if(shaclSetRun.value.status === "UNKNOWN") runShacl();
       />
       <ButtonDownloadBlob
           size="small"
-          :data="shaclSetRun.output"
+          :data="shaclSetRuns[routeShaclSet].output"
           mediaType="text/turtle"
           :fileName="`${routeSchema} - shacl - ${routeShaclSet}.ttl`"
       />
       <LoadingContent :id="`shaclSet-${routeShaclSet}`" :status="'success'" loading-text="Running validation" error-text="Failed to run validation">
-        <DisplayCodeBlock :content="shaclSetRun.output" />
+        <DisplayCodeBlock :content="shaclSetRuns[routeShaclSet].output" />
       </LoadingContent>
     </ContentBasic>
                 <!--        <div class="flex flex-col gap-2.5 items-start md:flex-row">-->
