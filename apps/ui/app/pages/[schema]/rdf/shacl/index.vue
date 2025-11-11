@@ -15,11 +15,8 @@ import TableHead from "../../../../../../tailwind-components/app/components/Tabl
 import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableRow from "../../../../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../../../../tailwind-components/app/components/TableCell.vue";
-import Button from "../../../../../../tailwind-components/app/components/Button.vue";
-import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
-import DisplayOutput from "../../../../../../tailwind-components/app/components/display/Output.vue";
 import { navigateTo } from "#app/composables/router";
-import type {ProcessData} from "metadata-utils/src/generic";
+import type {ProcessData} from "../../../../../../metadata-utils/src/generic";
 
 const route = useRoute();
 const routeSchema = (

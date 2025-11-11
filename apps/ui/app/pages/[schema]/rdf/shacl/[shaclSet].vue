@@ -1,24 +1,16 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import {useAsyncData, useHead, useState} from "#app";
-import type {
-  ShaclSet,
-  ShaclSetRun,
-  ShaclSetValidation
-} from "../../../../../../metadata-utils/src/rdf";
+import {useHead, useState} from "#app";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
 import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
 import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
-import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
-import Message from "../../../../../../tailwind-components/app/components/Message.vue";
 import Button from "../../../../../../tailwind-components/app/components/Button.vue";
 import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
-import {useFetch} from "#app/composables/fetch";
-import type {ProcessData, ProcessStatus} from "metadata-utils/src/generic";
+import type {ProcessData} from "../../../../../../metadata-utils/src/generic";
 import IconProcess from "../../../../../../tailwind-components/app/components/icon/Process.vue";
 
 const route = useRoute();
