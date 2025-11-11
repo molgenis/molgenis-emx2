@@ -12,7 +12,8 @@ import BaseIcon from "../../../../../../tailwind-components/app/components/BaseI
 import Message from "../../../../../../tailwind-components/app/components/Message.vue";
 import Button from "../../../../../../tailwind-components/app/components/Button.vue";
 import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
-import DisplayOutput from "../../../../../../tailwind-components/app/components/display/Output.vue";
+import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
+import {useFetch} from "#app/composables/fetch";
 
 const route = useRoute();
 const routeSchema = (
@@ -57,17 +58,10 @@ function validateShaclOutput(output: string): boolean {
   // }
 // }
 
-const { data, status, pending, error, refresh, clear } = await useAsyncData(`${routeSchema}-shaclSet-${routeShaclSet}`,
-    () => $fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`),
-    {lazy: true, dedupe: "defer",
-      // transform: (value) => ({
-      //   value: value,
-      //   isValid: validateShaclOutput(value as unknown as string)
-      // }),
-      getCachedData(key, nuxtApp, ctx) {
-        return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
-      }
-    })
+const { data, status, pending, error, refresh, clear } = await useFetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`,
+    { key: `${routeSchema}-shaclSet-${routeShaclSet}`,
+      lazy: true, deep: false, cache: "force-cache"}
+    )
 
 
 // const { data, status, error, refresh, clear } = useFetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`, {
@@ -101,11 +95,8 @@ const { data, status, pending, error, refresh, clear } = await useAsyncData(`${r
       </template>
     </PageHeader>
     <ContentBasic>
-      {{data}}
       <LoadingContent :id="`shaclSet-${routeShaclSet}`" :status="status" loading-text="Running validation" error-text="Failed to run validation">
-        <DisplayOutput class="px-8 my-8 overflow-x-auto">
-          <pre>{{ data }}</pre>
-        </DisplayOutput>
+        <DisplayCodeBlock :content="data as unknown as string" />
       </LoadingContent>
     </ContentBasic>
                 <!--        <div class="flex flex-col gap-2.5 items-start md:flex-row">-->
