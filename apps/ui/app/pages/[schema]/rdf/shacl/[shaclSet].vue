@@ -57,7 +57,12 @@ if(!shaclSetRuns.value[routeShaclSet]) {
 }
 
 async function runShacl() {
+  if(shaclSetRuns.value[routeShaclSet].status === "RUNNING") return;
+
+  shaclSetRuns.value[routeShaclSet].output = undefined;
+  shaclSetRuns.value[routeShaclSet].error = undefined;
   shaclSetRuns.value[routeShaclSet].status = "RUNNING";
+
   const res = await fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
   shaclSetRuns.value[routeShaclSet].output = await res.text();
 
@@ -91,13 +96,15 @@ async function runShacl() {
       <Button
           type="primary"
           size="small"
-          label="validate"
+          label="rerun"
+          :disabled="shaclSetRuns[routeShaclSet].status === 'RUNNING'"
           @click.prevent="runShacl"
       />
       <ButtonDownloadBlob
           size="small"
           :data="shaclSetRuns[routeShaclSet].output"
           mediaType="text/turtle"
+          :disabled="!shaclSetRuns[routeShaclSet].output"
           :fileName="`${routeSchema} - shacl - ${routeShaclSet}.ttl`"
       />
       <LoadingContent :id="`shaclSet-${routeShaclSet}`" :status="'success'" loading-text="Running validation" error-text="Failed to run validation">
