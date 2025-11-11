@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import { useFetch } from "#app/composables/fetch";
 import { useRoute } from "vue-router";
-import { useHead } from "#app";
-import { ref, onMounted } from "vue";
-import { parse } from "yaml";
+import {useAsyncData, useHead} from "#app";
 import type { ShaclSetValidation } from "../../../../../../metadata-utils/src/rdf";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
@@ -46,23 +43,47 @@ function validateShaclOutput(output: string): boolean {
     .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
 }
 
-async function runShacl(shaclSet: ShaclSetValidation) {
-  shaclSet.status = "RUNNING";
-  shaclSet.output = "";
-  shaclSet.error = "";
+// async function runShacl() {
+  // const res = fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
+  // shaclSet.output = await res.text();
+  //
+  // if (res.status !== 200) {
+  //   shaclSet.status = "ERROR";
+  //   shaclSet.error = `Error (status code: ${res.status})`;
+  // } else if (validateShaclOutput(shaclSet.output)) {
+  //   shaclSet.status = "DONE";
+  // } else {
+  //   shaclSet.status = "INVALID";
+  // }
+// }
 
-  const res = await fetch(`/${routeSchema}/api/rdf?validate=${shaclSet.id}`);
-  shaclSet.output = await res.text();
+const { data, status, pending, error, refresh, clear } = await useAsyncData(`${routeSchema}-shaclSet-${routeShaclSet}`,
+    () => $fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`),
+    {lazy: true, dedupe: "defer",
+      // transform: (value) => ({
+      //   value: value,
+      //   isValid: validateShaclOutput(value as unknown as string)
+      // }),
+      getCachedData(key, nuxtApp, ctx) {
+        return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+      }
+    })
 
-  if (res.status !== 200) {
-    shaclSet.status = "ERROR";
-    shaclSet.error = `Error (status code: ${res.status})`;
-  } else if (validateShaclOutput(shaclSet.output)) {
-    shaclSet.status = "DONE";
-  } else {
-    shaclSet.status = "INVALID";
-  }
-}
+
+// const { data, status, error, refresh, clear } = useFetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`, {
+//   key: `shaclSet-${routeShaclSet}`,
+//   onResponse({ request, response, options }) {
+//     if (!response._data) {
+//       throw new Error("Retrieved SHACL set data is empty.");
+//     }
+//     // response._data = parse(response._data);
+//   },
+//   onResponseError() {
+//     throw new Error(
+//         "Could not load available SHACL sets. Please check if you have access to any schema's to validate."
+//     );
+//   },
+// });
 </script>
 
 <template>
@@ -80,9 +101,14 @@ async function runShacl(shaclSet: ShaclSetValidation) {
       </template>
     </PageHeader>
     <ContentBasic>
-<!--      <LoadingContent id="" is-loading="" loading-text="" error-text=""></LoadingContent>-->
+      {{data}}
+      <LoadingContent :id="`shaclSet-${routeShaclSet}`" :status="status" loading-text="Running validation" error-text="Failed to run validation">
+        <DisplayOutput class="px-8 my-8 overflow-x-auto">
+          <pre>{{ data }}</pre>
+        </DisplayOutput>
+      </LoadingContent>
     </ContentBasic>
-    <!--        <div class="flex flex-col gap-2.5 items-start md:flex-row">-->
+                <!--        <div class="flex flex-col gap-2.5 items-start md:flex-row">-->
     <!--          <div class="flex items-baseline gap-5">-->
     <!--            <Button-->
     <!--                class="flex-none"-->

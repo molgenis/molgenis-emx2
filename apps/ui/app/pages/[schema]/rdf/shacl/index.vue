@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useFetch } from "#app/composables/fetch";
 import { useRoute } from "vue-router";
-import { useHead } from "#app";
+import {useHead} from "#app";
 import { parse } from "yaml";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
@@ -36,6 +36,9 @@ crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
 
 const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
   key: "shaclSets",
+  getCachedData(key, nuxtApp) {
+    return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+  },
   onResponse({ request, response, options }) {
     if (!response._data) {
       throw new Error("Retrieved SHACL set data is empty.");
