@@ -58,9 +58,11 @@ function validateShaclOutput(output: string): boolean {
   // }
 // }
 
-const { data, status, pending, error, refresh, clear } = await useFetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`,
+const { data, status, pending, error, refresh, clear } = useFetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`,
     { key: `${routeSchema}-shaclSet-${routeShaclSet}`,
-      lazy: true, deep: false, cache: "force-cache"}
+      lazy: true, dedupe: "defer", deep: false, getCachedData(key, nuxtApp) {
+        return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+      },}
     )
 
 
@@ -95,6 +97,18 @@ const { data, status, pending, error, refresh, clear } = await useFetch(`/${rout
       </template>
     </PageHeader>
     <ContentBasic>
+      <Button
+          type="primary"
+          size="small"
+          label="validate"
+          @click.prevent="clear(); refresh()"
+      />
+      <ButtonDownloadBlob
+          size="small"
+          :data="data as unknown as string"
+          mediaType="text/turtle"
+          :fileName="`${routeSchema} - shacl - ${routeShaclSet}.ttl`"
+      />
       <LoadingContent :id="`shaclSet-${routeShaclSet}`" :status="status" loading-text="Running validation" error-text="Failed to run validation">
         <DisplayCodeBlock :content="data as unknown as string" />
       </LoadingContent>
