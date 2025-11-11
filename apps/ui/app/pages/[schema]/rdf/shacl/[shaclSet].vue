@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import {useAsyncData, useHead} from "#app";
-import type { ShaclSetValidation } from "../../../../../../metadata-utils/src/rdf";
+import {useAsyncData, useHead, useState} from "#app";
+import type {
+  ShaclSet,
+  ShaclSetRun,
+  ShaclSetValidation
+} from "../../../../../../metadata-utils/src/rdf";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
@@ -14,6 +18,7 @@ import Button from "../../../../../../tailwind-components/app/components/Button.
 import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
 import {useFetch} from "#app/composables/fetch";
+import type {ProcessData, ProcessStatus} from "metadata-utils/src/generic";
 
 const route = useRoute();
 const routeSchema = (
@@ -44,42 +49,24 @@ function validateShaclOutput(output: string): boolean {
     .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
 }
 
-// async function runShacl() {
-  // const res = fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
-  // shaclSet.output = await res.text();
-  //
-  // if (res.status !== 200) {
-  //   shaclSet.status = "ERROR";
-  //   shaclSet.error = `Error (status code: ${res.status})`;
-  // } else if (validateShaclOutput(shaclSet.output)) {
-  //   shaclSet.status = "DONE";
-  // } else {
-  //   shaclSet.status = "INVALID";
-  // }
-// }
+const shaclSetRun = useState<ProcessData>(`${routeSchema}_shaclSetRun_${routeShaclSet}`, () => ({status: "UNKNOWN"}));
 
-const { data, status, pending, error, refresh, clear } = useFetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`,
-    { key: `${routeSchema}-shaclSet-${routeShaclSet}`,
-      lazy: true, dedupe: "defer", deep: false, getCachedData(key, nuxtApp) {
-        return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
-      },}
-    )
+async function runShacl() {
+  shaclSetRun.value.status = "RUNNING";
+  const res = await fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
+  shaclSetRun.value.output = await res.text();
 
+  if (res.status !== 200) {
+    shaclSetRun.value.status = "ERROR";
+    shaclSetRun.value.error = `Error (status code: ${res.status})`;
+  } else if (validateShaclOutput(shaclSetRun.value.output)) {
+    shaclSetRun.value.status = "DONE";
+  } else {
+    shaclSetRun.value.status = "INVALID";
+  }
+}
 
-// const { data, status, error, refresh, clear } = useFetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`, {
-//   key: `shaclSet-${routeShaclSet}`,
-//   onResponse({ request, response, options }) {
-//     if (!response._data) {
-//       throw new Error("Retrieved SHACL set data is empty.");
-//     }
-//     // response._data = parse(response._data);
-//   },
-//   onResponseError() {
-//     throw new Error(
-//         "Could not load available SHACL sets. Please check if you have access to any schema's to validate."
-//     );
-//   },
-// });
+if(shaclSetRun.value.status === "UNKNOWN") runShacl();
 </script>
 
 <template>
@@ -101,16 +88,16 @@ const { data, status, pending, error, refresh, clear } = useFetch(`/${routeSchem
           type="primary"
           size="small"
           label="validate"
-          @click.prevent="clear(); refresh()"
+          @click.prevent="runShacl"
       />
       <ButtonDownloadBlob
           size="small"
-          :data="data as unknown as string"
+          :data="shaclSetRun.output"
           mediaType="text/turtle"
           :fileName="`${routeSchema} - shacl - ${routeShaclSet}.ttl`"
       />
-      <LoadingContent :id="`shaclSet-${routeShaclSet}`" :status="status" loading-text="Running validation" error-text="Failed to run validation">
-        <DisplayCodeBlock :content="data as unknown as string" />
+      <LoadingContent :id="`shaclSet-${routeShaclSet}`" :status="'success'" loading-text="Running validation" error-text="Failed to run validation">
+        <DisplayCodeBlock :content="shaclSetRun.output" />
       </LoadingContent>
     </ContentBasic>
                 <!--        <div class="flex flex-col gap-2.5 items-start md:flex-row">-->
