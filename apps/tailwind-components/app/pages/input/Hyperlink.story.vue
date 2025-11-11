@@ -5,6 +5,7 @@
       :columns="metadata.columns"
       v-model="model"
       :error-map="errorMap"
+      :visible-map="[]"
       @update="onUpdateColumn"
       @blur="onBlurColumn"
     />

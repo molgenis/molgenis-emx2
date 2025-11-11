@@ -419,22 +419,6 @@ export default function useForm(
     }
   };
 
-  const visibleColumns = computed(() => {
-    if (!currentSection.value) {
-      currentSection.value = sections.value[0]?.id;
-    }
-    return metadata.value?.columns.filter(
-      (column) =>
-        !column.id.startsWith("mg_") &&
-        visibleMap[column.id] &&
-        currentSection.value === column.section
-    );
-  });
-
-  const invisibleColumns = computed(() => {
-    return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
-  });
-
   const nextSection = computed(() => {
     const sectionList = sections.value.filter((s) => s.type === "SECTION");
     const currentIndex = sectionList.findIndex(
@@ -517,8 +501,6 @@ export default function useForm(
     onViewColumn,
     sections,
     currentSection,
-    visibleColumns,
-    invisibleColumns,
     errorMap,
     validateAllColumns,
     visibleMap,

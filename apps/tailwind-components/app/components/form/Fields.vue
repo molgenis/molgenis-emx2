@@ -20,6 +20,7 @@ const props = defineProps<{
   columns: IColumn[];
   rowKey?: columnValue;
   constantValues?: IRow; //provides values that shouldn't be edited
+  visibleMap: Record<columnId, boolean | undefined>; //provides columns to be shown
   errorMap: Record<columnId, string>; //map of errors if available
 }>();
 
@@ -87,7 +88,11 @@ const isRequired = (value: string | boolean): boolean =>
       </div>
       <FormField
         class="pb-8"
-        v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
+        v-else-if="
+          !Object.keys(constantValues || {}).includes(column.id) &&
+          visibleMap &&
+          visibleMap[column.id]
+        "
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"

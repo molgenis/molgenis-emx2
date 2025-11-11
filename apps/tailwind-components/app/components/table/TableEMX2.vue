@@ -277,8 +277,8 @@ const rows = computed(() => {
   return data.value.tableData.rows;
 });
 
-const showDraftColumn = computed(() =>
-  rows.value.some((row) => row?.mg_draft === true)
+const showDraftColumn = computed(
+  () => rows.value?.some((row) => row?.mg_draft === true) || true
 );
 
 const count = computed(() => data.value?.tableData?.count ?? 0);

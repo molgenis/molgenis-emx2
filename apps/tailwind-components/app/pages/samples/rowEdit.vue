@@ -59,7 +59,7 @@ const {
   onViewColumn,
   onBlurColumn,
   onUpdateColumn,
-  visibleColumns,
+  visibleMap,
 } = useForm(metadata, formValues, "row-edit-field-container");
 
 function onSave() {
@@ -132,7 +132,8 @@ function onCancel() {
         <FormFields
           class="px-32 bg-form"
           schemaId="catalogue-demo"
-          :columns="visibleColumns"
+          :columns="metadata.columns"
+          :visibleMap="visibleMap"
           :errorMap="errorMap"
           v-model="formValues"
           @update="onUpdateColumn"
