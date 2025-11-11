@@ -18,6 +18,20 @@ Boolean defining whether to load the demo catalogue on server startup
 
 ## Schema settings
 
+### App logo
+
+#### key
+
+`CATALOGUE_LOGO_SRC`
+
+#### description
+
+String containing [URL](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#src) of the logo image
+
+#### default
+
+None, if set the env logo is shown else the molgenis logo is shown
+
 ### Notification
 
 #### key
@@ -145,6 +159,19 @@ String containing html to be rendered on the all ( default subcatalogue) page
 
 #### default
 None, no additional content is shown    
+
+## Theme Configuration
+
+You can configure the application theme either **at deploy time** or **at runtime**.
+
+- 🏗️ Deploy Time: Set the NUXT_PUBLIC_EMX2_THEME environment variable to the theme value.
+- ⚙️ Run Time: Create or update the CATALOGUE_THEME settings to the theme value.
+
+If neither value is provided, the default theme **molgenis** will be used.
+
+#### debug theme 
+
+For debugging or development purposes, you can override the active theme by adding a query parameter to the URL:, ```?theme=my-theme```
 
 ## Favicon
 

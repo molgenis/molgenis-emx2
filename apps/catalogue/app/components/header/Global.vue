@@ -6,6 +6,10 @@ import Logo from "../../../../tailwind-components/app/components/Logo.vue";
 import LogoMobile from "../../../../tailwind-components/app/components/LogoMobile.vue";
 import MainNavigation from "../../components/MainNavigation.vue";
 
+const props = defineProps<{
+  logoSrc?: string;
+}>();
+
 const config = useRuntimeConfig();
 
 const menu = [
@@ -53,7 +57,7 @@ const menu = [
   <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
-        <Logo :link="`/`" />
+        <Logo :link="`/`" :image="logoSrc" />
         <MainNavigation :navigation="menu" />
         <!--  <div class="w-[450px]">
            <SearchBar />
@@ -68,7 +72,7 @@ const menu = [
           <HamburgerMenu :navigation="menu" />
 
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile link="/" />
+            <LogoMobile link="/" :image="logoSrc" />
           </div>
 
           <div class="flex gap-3">
