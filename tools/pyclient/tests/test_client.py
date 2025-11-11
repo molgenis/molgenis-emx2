@@ -216,14 +216,6 @@ def test_delete_records():
         assert tag_after == tag_before
 
 
-def test_get():
-    """Tests the `get` method."""
-    ...
-
-def test_get_graphql():
-    """Tests the `get_graphql` method."""
-    ...
-
 def test_export():
     """Tests the `export` method."""
     ...
