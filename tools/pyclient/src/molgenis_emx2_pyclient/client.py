@@ -13,7 +13,7 @@ from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
-from .constants import HEADING, DATE, DATETIME, SECTION
+from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
@@ -1214,9 +1214,9 @@ class Client:
                 continue
             if col.get('columnType') in [HEADING, SECTION]:
                 continue
-            elif col.get('columnType').startswith('ONTOLOGY'):
+            elif col.get('columnType').startswith(ONTOLOGY):
                 query += f"    {col.get('id')} {{name}}\n"
-            elif col.get('columnType').startswith('REF'):
+            elif col.get('columnType').startswith(REF) or col.get('columnType') in [RADIO, SELECT]:
                 if (ref_schema := col.get('refSchemaName', schema)) == schema:
                     pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
                 else:
@@ -1225,7 +1225,7 @@ class Client:
                 query += f"    {col.get('id')} {{"
                 query += parse_nested_pkeys(pkeys)
                 query += "}\n"
-            elif col.get('columnType').startswith('FILE'):
+            elif col.get('columnType').startswith(FILE):
                 query += f"    {col.get('id')} {{id}}\n"
             else:
                 query += f"    {col.get('id')}\n"
