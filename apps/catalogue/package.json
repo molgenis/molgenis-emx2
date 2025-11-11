@@ -12,8 +12,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
-    "format": "prettier . --write --config ../.prettierrc.js --gitignore",
-    "checkFormat": "prettier . --check --config ../.prettierrc.js --gitignore",
+    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore --gitignore",
+    "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore --gitignore",
     "typecheck": "nuxi typecheck"
   },
   "devDependencies": {
@@ -50,6 +50,6 @@
     "ofetch": "1.4.1",
     "pinia": "3.0.3",
     "vite": "5.4.16",
-    "vue": "3.5.13"
+    "vue": "3.5.22"
   }
 }

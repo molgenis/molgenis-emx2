@@ -1,5 +1,5 @@
-import { defineNuxtPlugin } from "#app";
 import { type DirectiveBinding } from "vue";
+import { defineNuxtPlugin } from "nuxt/app";
 type LazyLoadBindingValue = () => Promise<void> | void;
 
 //this directive will fire when the top of an element scrolls to/over the top of a scrollable container

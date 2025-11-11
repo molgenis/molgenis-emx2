@@ -29,8 +29,8 @@ const props = withDefaults(
     }
   >(),
   {
-    trueLabel: "True",
-    falseLabel: "False",
+    trueLabel: "Yes",
+    falseLabel: "No",
     showClearButton: true,
   }
 );
