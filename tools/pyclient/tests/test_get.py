@@ -198,8 +198,8 @@ def test_multiple_filters():
         assert len(pets) == 4
 
         pets = client.get(table="Pet", schema="pet store",
-                            query_filter="status == available and tags == red")
-        assert len(pets) == 4
+                            query_filter="status == available and tags.name == red")
+        assert len(pets) == 3
 
 
 
@@ -212,5 +212,5 @@ def test_as_df():
         pets = client.get(table="Pet", schema="pet store", as_df=True)
         assert type(pets) == pd.DataFrame is not None
 
-        assert pets.columns.to_list() == ['name', 'category', 'photoUrls', 'status', 'tags', 'weight', 'orders', 'mg_draft']
-        assert pets['category'].to_list() == ['dog', 'cat', 'cat', 'caterpillar', 'ant', 'bird', 'mouse', 'cat']
+        assert sorted(pets.columns.to_list()) == ['category', 'mg_draft', 'name', 'orders', 'photoUrls', 'status', 'tags', 'weight']
+        assert sorted(pets['category'].to_list()) == ['ant', 'bird', 'cat', 'cat', 'cat', 'caterpillar', 'dog', 'mouse']

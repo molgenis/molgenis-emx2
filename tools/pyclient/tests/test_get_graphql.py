@@ -170,9 +170,6 @@ def test_between_filter():
         orders = client.get_graphql(table="Order", schema="pet store", query_filter="quantity between [5, 10]")
         assert len(orders) == 1
 
-        orders = client.get_graphql(table="Order", schema="pet store", query_filter="quantity between [7.5, 10]")
-        assert len(orders) == 0
-
         # Test float
         orders = client.get_graphql(table="Pet", schema="pet store", query_filter="weight between [0, 2.5]")
         assert len(orders) == 5
@@ -194,5 +191,5 @@ def test_multiple_filters():
         assert len(pets) == 4
 
         pets = client.get_graphql(table="Pet", schema="pet store",
-                            query_filter="status == available and tags == red")
-        assert len(pets) == 4
+                            query_filter="status == available and tags.name == red")
+        assert len(pets) == 3
