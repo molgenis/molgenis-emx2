@@ -488,7 +488,7 @@ class Client:
                     missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
                     msg = f"Columns {missing_cols} not found."
                 elif "not in index" in e.args[0]:
-                    msg = f"Columns {e.args[0]}"
+                    msg = f"Columns {e.args[0]} not found."
                 else:
                     msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
                 raise NoSuchColumnException(msg)
@@ -1200,6 +1200,11 @@ class Client:
         """
         schema_metadata: Schema = self.get_schema_metadata(schema)
         table_metadata: Table = schema_metadata.get_table('id', table_id)
+
+        if columns is not None:
+            if not all(col in map(lambda c: c.id, table_metadata.columns) for col in columns):
+                unknown_cols = "'" + "', '".join([col for col in columns if col not in map(lambda c: c.id, table_metadata.columns)]) + "'"
+                raise NoSuchColumnException(f"Columns {unknown_cols} not found.")
 
         query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
                  f"  {table_id}(filter: $filter) {{\n")
