@@ -488,7 +488,7 @@ class Client:
                     missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
                     msg = f"Columns {missing_cols} not found."
                 elif "not in index" in e.args[0]:
-                    msg = f"Columns {e.args[0]} not found."
+                    msg = f"Columns {e.args[0]}"
                 else:
                     msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
                 raise NoSuchColumnException(msg)
@@ -865,7 +865,7 @@ class Client:
                 except json.decoder.JSONDecodeError:
                     val = ''.join(_val.split('`'))
 
-        return {'equals': [{col.id: val}]}
+        return {col.id: {'equals': val}}
 
     def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""

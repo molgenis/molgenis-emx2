@@ -96,11 +96,11 @@ def test_equals_filter():
         assert len(pets) == 1
 
         # Test ref
-        pets = client.get(table="Pet", schema="pet store", query_filter="category == 'cat'")
+        pets = client.get(table="Pet", schema="pet store", query_filter="category.name == cat")
         assert len(pets) == 3
 
         # Test ontology
-        pets = client.get(table="Pet", schema="pet store", query_filter="tags == red")
+        pets = client.get(table="Pet", schema="pet store", query_filter="tags.name == red")
         assert len(pets) == 4
 
 
