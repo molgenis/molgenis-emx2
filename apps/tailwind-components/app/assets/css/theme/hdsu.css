@@ -60,4 +60,6 @@
   --background-color-tab: var(--raft-accent-secondary);
   --background-color-tab-hover: var(--raft-accent);
   --background-color-tab-active: var(--raft-accent);
+
+  --text-color-table-row: var(--raft-fg);
 }
