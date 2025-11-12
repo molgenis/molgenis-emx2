@@ -25,6 +25,8 @@
 
   --background-color-button-primary: var(--raft-accent);
   --background-color-button-primary-hover: var(--raft-accent);
+  --border-color-button-primary: var(--raft-accent);
+  --border-color-button-primary-hover: var(--raft-accent);
 
   --background-color-button-secondary: var(--raft-bg);
   --text-color-button-secondary: var(--raft-accent);
@@ -54,4 +56,8 @@
   --background-color-label-available: var(--raft-accent);
   --background-color-label-available-hover: var(--raft-accent-secondary);
   --text-color-label-available: var(--color-white);
+
+  --background-color-tab: var(--raft-accent-secondary);
+  --background-color-tab-hover: var(--raft-accent);
+  --background-color-tab-active: var(--raft-accent);
 }
