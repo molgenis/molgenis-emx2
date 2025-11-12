@@ -11,7 +11,10 @@ import Button from "../../../../../../tailwind-components/app/components/Button.
 import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
 import type { ProcessData } from "../../../../../../metadata-utils/src/generic";
+import ButtonPageHeader from "../../../../../../tailwind-components/app/components/button/PageHeader.vue"
 import IconProcess from "../../../../../../tailwind-components/app/components/icon/Process.vue";
+import {navigateTo} from "nuxt/app";
+import {downloadBlob} from "../../../../../../tailwind-components/app/utils/downloadBlob";
 
 const route = useRoute();
 const routeSchema = (
@@ -87,6 +90,9 @@ if(processData.status === "UNKNOWN") runShacl();
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
+      <template #title-prefix>
+        <ButtonPageHeader label="back" icon="arrow-left" @click="navigateTo(crumbs['shacl'])" />
+      </template>
       <template #description>
         Validate the RDF API output for the complete schema.
         <CustomTooltip
@@ -94,26 +100,14 @@ if(processData.status === "UNKNOWN") runShacl();
           content="Output is deemed valid if nodes adhere to the requirements or those nodes are not present."
         />
       </template>
+      <template class="flex flex-row ml-auto gap-4" #title-suffix>
+        <div class="flex flex-row ml-auto gap-2">
+        <ButtonPageHeader type="outline" label="refresh" icon="refresh" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl" />
+        <ButtonPageHeader type="outline" label="download" icon="download" :disabled="!processData.output" @click.prevent="downloadBlob(processData.output, 'text/turtle', `${routeSchema} - shacl - ${routeShaclSet}.ttl`)" />
+        </div>
+      </template>
     </PageHeader>
     <ContentBasic>
-      <template #controls>
-        <Button
-            type="outline"
-            size="small"
-            icon="refresh"
-            :iconOnly="true"
-            label="rerun"
-            :disabled="processData.status === 'RUNNING'"
-            @click.prevent="runShacl"
-        />
-        <ButtonDownloadBlob
-            size="small"
-            :iconOnly="true"
-            :data="processData.output"
-            mediaType="text/turtle"
-            :fileName="`${routeSchema} - shacl - ${routeShaclSet}.ttl`"
-        />
-      </template>
       <LoadingContent
         :id="`shaclSet-${routeShaclSet}`"
         :status="processData.status"
