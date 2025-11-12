@@ -327,6 +327,9 @@ export default function useForm(
   };
 
   const updateVisibility = () => {
+    if (!currentSection.value) {
+      currentSection.value = sections.value[0]?.id;
+    }
     let previousSection: IColumn | undefined = undefined;
     let sectionColumns: string[] = [];
     let previousHeading: IColumn | undefined = undefined;
