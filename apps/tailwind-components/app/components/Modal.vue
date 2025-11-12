@@ -109,7 +109,7 @@ function hide() {
       </div>
 
       <footer
-        class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none"
+        class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50"
       >
         <slot name="footer" :hide="hide" />
       </footer>

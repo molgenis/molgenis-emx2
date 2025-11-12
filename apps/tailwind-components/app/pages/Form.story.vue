@@ -24,8 +24,8 @@ interface Schema {
 
 const route = useRoute();
 const router = useRouter();
-const schemaId = ref((route.query.schema as string) ?? "type test");
-const tableId = ref((route.query.table as string) ?? "Types");
+const schemaId = ref((route.query.schema as string) ?? "pet store");
+const tableId = ref((route.query.table as string) ?? "Category");
 const rowIndex = ref<null | number>(null);
 if (route.query.rowIndex) {
   rowIndex.value = parseInt(route.query.rowIndex as string);
