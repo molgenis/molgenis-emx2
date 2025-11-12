@@ -267,6 +267,10 @@
     --background-color-label-draft: var(--color-gray-400);
     --text-color-label-draft: var(--color-white);
 
+    --background-color-label-available: var(--color-blue-500);
+    --background-color-label-available-hover: var(--color-blue-700);
+    --text-color-label-available: var(--color-black);
+
     /** tooltips */
     --text-color-icon-neutral: var(--color-blue-200);
   }

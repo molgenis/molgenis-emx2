@@ -50,4 +50,8 @@
   --text-color-pagination-button: var(--raft-accent);
   --text-color-pagination-button-hover: var(--raft-accent);
   --border-color-pagination-hover: var(--raft-accent);
+
+  --background-color-label-available: var(--raft-accent);
+  --background-color-label-available-hover: var(--raft-accent-secondary);
+  --text-color-label-available: var(--color-white);
 }
