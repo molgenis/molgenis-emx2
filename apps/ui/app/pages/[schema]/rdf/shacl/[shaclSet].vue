@@ -36,42 +36,49 @@ crumbs["rdf"] = `/${routeSchema}/rdf`;
 crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
 crumbs[`${routeShaclSet}`] = "";
 
-function validateShaclOutput(output: string): boolean {
-  return output
-    .substring(0, 100)
-    .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
-}
-
-const shaclSetRuns = useState(
-  `${routeSchema}-shaclSetRuns`,
-  () => ({} as Record<string, ProcessData>)
+// Structure: routeSchema -> routeShaclSet -> ProcessData
+const shaclSetRuns = useState("shaclSetRuns",
+  () => ({} as Record<string, Record<string, ProcessData>>)
 );
-if (!shaclSetRuns.value[routeShaclSet]) {
-  shaclSetRuns.value[routeShaclSet] = { status: "UNKNOWN" };
-  runShacl();
+
+function getProcessData(): ProcessData {
+  if (!shaclSetRuns.value[routeSchema]) {
+    shaclSetRuns.value[routeSchema] = {}
+  }
+  if(!shaclSetRuns.value[routeSchema][routeShaclSet]) {
+    shaclSetRuns.value[routeSchema][routeShaclSet] = {status: "UNKNOWN"};
+  }
+  return shaclSetRuns.value[routeSchema][routeShaclSet];
 }
 
 async function runShacl() {
-  if (shaclSetRuns.value[routeShaclSet].status === "RUNNING") return;
+  if (processData.status === "RUNNING") return;
 
-  shaclSetRuns.value[routeShaclSet].output = undefined;
-  shaclSetRuns.value[routeShaclSet].error = undefined;
-  shaclSetRuns.value[routeShaclSet].status = "RUNNING";
+  processData.output = undefined;
+  processData.error = undefined;
+  processData.status = "RUNNING";
 
   const res = await fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
-  shaclSetRuns.value[routeShaclSet].output = await res.text();
+  processData.output = await res.text();
 
   if (res.status !== 200) {
-    shaclSetRuns.value[routeShaclSet].status = "ERROR";
-    shaclSetRuns.value[
-      routeShaclSet
-    ].error = `Error (status code: ${res.status})`;
-  } else if (validateShaclOutput(shaclSetRuns.value[routeShaclSet].output)) {
-    shaclSetRuns.value[routeShaclSet].status = "DONE";
+    processData.status = "ERROR";
+    processData.error = `Error (status code: ${res.status})`;
+  } else if (validateShaclOutput(processData.output)) {
+    processData.status = "DONE";
   } else {
-    shaclSetRuns.value[routeShaclSet].status = "INVALID";
+    processData.status = "INVALID";
   }
 }
+
+function validateShaclOutput(output: string): boolean {
+  return output
+      .substring(0, 100)
+      .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
+}
+
+const processData = getProcessData();
+if(processData.status === "UNKNOWN") runShacl();
 </script>
 
 <template>
@@ -89,28 +96,31 @@ async function runShacl() {
       </template>
     </PageHeader>
     <ContentBasic>
-      <IconProcess :status="shaclSetRuns[routeShaclSet].status" />
-      <Button
-        type="primary"
-        size="small"
-        label="rerun"
-        :disabled="shaclSetRuns[routeShaclSet].status === 'RUNNING'"
-        @click.prevent="runShacl"
-      />
-      <ButtonDownloadBlob
-        size="small"
-        :data="shaclSetRuns[routeShaclSet].output"
-        mediaType="text/turtle"
-        :disabled="!shaclSetRuns[routeShaclSet].output"
-        :fileName="`${routeSchema} - shacl - ${routeShaclSet}.ttl`"
-      />
+      <template #controls>
+        <Button
+            type="outline"
+            size="small"
+            icon="refresh"
+            :iconOnly="true"
+            label="rerun"
+            :disabled="processData.status === 'RUNNING'"
+            @click.prevent="runShacl"
+        />
+        <ButtonDownloadBlob
+            size="small"
+            :iconOnly="true"
+            :data="processData.output"
+            mediaType="text/turtle"
+            :fileName="`${routeSchema} - shacl - ${routeShaclSet}.ttl`"
+        />
+      </template>
       <LoadingContent
         :id="`shaclSet-${routeShaclSet}`"
-        :status="'success'"
-        loading-text="Running validation"
-        error-text="Failed to run validation"
+        :status="processData.status"
+        loading-text="Running validation (this might take a while)"
+        :error-text="processData.error"
       >
-        <DisplayCodeBlock :content="shaclSetRuns[routeShaclSet].output" />
+        <DisplayCodeBlock :content="processData.output" />
       </LoadingContent>
     </ContentBasic>
   </Container>

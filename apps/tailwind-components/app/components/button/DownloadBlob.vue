@@ -11,18 +11,18 @@ const props = withDefaults(
     disabled?: boolean;
     iconOnly?: boolean;
     tooltip?: string;
-    data: string;
+    data?: string;
     mediaType: string;
     fileName: string;
   }>(),
   {
     type: "outline",
-    label: "download",
+    label: "download"
   }
 );
 
-function startDownload(data: string, mediaType: string, fileName: string) {
-  if (props.disabled) return;
+function startDownload(data: string | undefined, mediaType: string, fileName: string) {
+  if (!data || props.disabled) return;
 
   const blob = new Blob([data], { type: mediaType });
   const url = window.URL.createObjectURL(blob);
@@ -42,7 +42,7 @@ function startDownload(data: string, mediaType: string, fileName: string) {
     :label="label"
     icon="download"
     :icon-position="iconPosition"
-    :disabled="disabled"
+    :disabled="!data || disabled"
     :icon-only="iconOnly"
     :tooltip="tooltip"
     @click.prevent="startDownload(data, mediaType, fileName)"

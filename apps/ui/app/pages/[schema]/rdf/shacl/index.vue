@@ -50,9 +50,9 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
   },
 });
 
-const shaclSetRuns = useState(
-  `${routeSchema}-shaclSetRuns`,
-  () => ({} as Record<string, ProcessData>)
+// Structure: routeSchema -> routeShaclSet -> ProcessData
+const shaclSetRuns = useState("shaclSetRuns",
+    () => ({} as Record<string, Record<string, ProcessData>>)
 );
 </script>
 
@@ -91,7 +91,7 @@ const shaclSetRuns = useState(
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
               >
-                <IconProcess :status="shaclSetRuns[shaclSet.id]?.status" />
+                <IconProcess :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status" />
               </TableCell>
               <TableCell
                 @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
