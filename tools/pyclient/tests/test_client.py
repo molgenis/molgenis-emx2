@@ -2,15 +2,17 @@
 Tests for the Pyclient.
 """
 import os
+from io import BytesIO
 from pathlib import Path
 
+import openpyxl
 import pandas as pd
 import pytest
 from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
-    ReferenceException, PermissionDeniedException
+    ReferenceException, PermissionDeniedException, NoSuchTableException
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -215,10 +217,34 @@ def test_delete_records():
         tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
         assert tag_after == tag_before
 
-
-def test_export():
+@pytest.mark.asyncio
+async def test_export():
     """Tests the `export` method."""
-    ...
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Upload without specifying schema
+        with pytest.raises(NoSuchSchemaException) as excinfo:
+            await client.export(table="Pet", filename="pet.csv")
+        assert excinfo.value.msg == "Schema None not available."
+
+        # Test incorrect file name
+        with pytest.raises(ValueError) as excinfo:
+            await client.export(schema="pet store", table="Pet", filename="pet.txt")
+        assert str(excinfo.value) == "File name must end with ('csv', 'xlsx', 'zip')"
+
+        # Test CSV
+        csv_data: BytesIO = await client.export(schema="pet store", table="Pet")
+        df = pd.read_csv(csv_data)
+        assert len(df.columns) == 8
+
+        # Test XLSX table
+        xlsx_data: BytesIO = await client.export(schema="pet store", table="Pet", as_excel=True)
+        book = openpyxl.load_workbook(xlsx_data, data_only=True)
+
+        # Test XLSX tables as sheets
+
+        # Test ZIP
 
 def test_create_schema():
     """Tests the `create_schema` method."""
