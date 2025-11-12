@@ -95,7 +95,11 @@ const isRequired = (value: string | boolean): boolean =>
         :label="column.label"
         :description="column.description"
         :disabled="
-          Boolean(column.readonly === 'true' || (rowKey && column.key === 1))
+          Boolean(
+            column.readonly === 'true' ||
+              (rowKey && column.key === 1) ||
+              column.columnType === 'AUTO_ID'
+          )
         "
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
