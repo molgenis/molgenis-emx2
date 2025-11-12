@@ -263,7 +263,9 @@ async function onSave(draft: boolean) {
   try {
     editFormValues.value["mg_draft"] = draft;
     saving.value = true;
-    const resp = await (isInsert.value ? insertInto() : updateInto());
+    const resp = await (isInsert.value ? insertInto() : updateInto()).catch(
+      () => (saving.value = false)
+    );
     saving.value = false;
     if (!resp) {
       throw new Error(
