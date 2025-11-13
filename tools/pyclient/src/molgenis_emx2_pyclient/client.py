@@ -638,7 +638,7 @@ class Client:
 
         return BytesIO(response.content)
 
-    async def create_schema(self, name: str = None,
+    async def create_schema(self, name: str,
                             description: str = None,
                             template: str = None,
                             include_demo_data: bool = False):
