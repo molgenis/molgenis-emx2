@@ -271,11 +271,9 @@ const { data, refresh } = useAsyncData(
   }
 );
 
-const rows = computed(() => {
-  if (!data.value?.tableData) return [];
-
-  return data.value.tableData.rows;
-});
+const rows = computed(() =>
+  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+);
 
 const showDraftColumn = computed(() =>
   rows.value.some((row) => row?.mg_draft === true)
