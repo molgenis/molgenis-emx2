@@ -1,7 +1,7 @@
 # Scripts and jobs
 
 MOLGENIS EMX2 offers the possibility to execute scripts that enable the administrator to perform tasks such as data management on the server itself.
-In the 'tasks' menu item (also available via http://servername/apps/tasks) you can define scripts and view jobs. 
+In the 'tasks' menu item (also available via http://servername/apps/tasks) you can define scripts and view jobs.
 
 ## Scripts
 
@@ -12,7 +12,7 @@ When creating a script entry the following can be defined:
 * script type, either _Python_ or _bash_
 * the script itself
 * dependencies, optional, list the dependencies for a Python script with optionally version numbers like in a `requirements.txt` file
-* extra file, optional, may be a file used by the script or additional modules in a ZIP archive
+* extra file, optional. Can be a single file or a ZIP archive. The ZIP archive will be extracted before running the script.
 * outputFileExtension, optional, for returning output files. E.g. 'txt'
 * disabled, when set to true the script will not run if a cron schedule is set
 * failureAddress, when set, will send a message to this email address, if a job fails
@@ -23,6 +23,13 @@ Your script will receive as environment variables:
 * a token via `MOLGENIS_TOKEN`
 * a path to `OUTPUT_FILE` which you can use to produce an outputFile which will then be stored in `Jobs.output`
 
+Example of how to use 'extra file' to upload and use a Python module:
+
+* upload a ZIP archive containing a folder `additional_module` with a file `my_module.py`
+which contains a class `custom_class`
+* in the script itself: `from additional_module.my_module import custom_class`
+* use the imported class as you like, e.g. `new_class = custom_class()`
+
 ### Pyclient
 
 Python scripts can make use of the [Molgenis Pyclient](use_usingpyclient.md). Make sure to initialize the client as
@@ -30,8 +37,8 @@ described [here](use_usingpyclient.md#scripts-and-jobs)
 
 
 ## Jobs
-Under the _Jobs_ tab the results of previously executed jobs can be viewed and the status of currently running jobs can be observed. 
-Inspect the logs for more detail about the progress of the 
+Under the _Jobs_ tab the results of previously executed jobs can be viewed and the status of currently running jobs can be observed.
+Inspect the logs for more detail about the progress of the
 If specified the output file can be obtained from here.
 
 ## API
