@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { useRuntimeConfig, useRoute, useHead, useRouter } from "#app";
+import { useRuntimeConfig, useHead, useRouter } from "#app";
+import { useTheme } from "./composables/useTheme";
 
 defineProps(["error"]);
 
 const config = useRuntimeConfig();
-const route = useRoute();
 const router = useRouter();
+const theme = await useTheme();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
   : "/_nuxt-styles/img/molgenis.ico";
 
 useHead({
-  htmlAttrs: {
-    "data-theme":
-      (route.query.theme as string) || config.public.emx2Theme || "",
-  },
+  htmlAttrs: { "data-theme": theme },
   link: [{ rel: "icon", href: faviconHref }],
   titleTemplate: (titleChunk) => {
     return titleChunk

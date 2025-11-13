@@ -4,7 +4,6 @@ import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import type {
-  columnId,
   columnValue,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
@@ -14,6 +13,11 @@ import BreadCrumbs from "../../components/BreadCrumbs.vue";
 import Button from "../../components/Button.vue";
 import Container from "../../components/Container.vue";
 import PageHeader from "../../components/PageHeader.vue";
+import FormLegend from "../../components/form/Legend.vue";
+import FormFields from "../../components/form/Fields.vue";
+import FormError from "../../components/form/Error.vue";
+import FormRequiredInfoSection from "../../components/form/RequiredInfoSection.vue";
+import DraftLabel from "../../components/label/DraftLabel.vue";
 
 definePageMeta({
   layout: "full-page",
@@ -87,9 +91,7 @@ function onCancel() {
         ></Button>
       </template>
       <template #title-suffix>
-        <span class="ml-3 bg-gray-400 px-2 py-2 rounded text-white font-bold"
-          >Draft</span
-        >
+        <DraftLabel />
       </template>
     </PageHeader>
     <section class="grid grid-cols-4 gap-3">

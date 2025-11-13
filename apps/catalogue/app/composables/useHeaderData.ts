@@ -12,6 +12,7 @@ interface IHeaderQuery {
   Variables_agg: { count: number };
   Collections_agg: { count: number };
   Networks_agg: { count: number };
+  _settings: { key: "CATALOGUE_LOGO_SRC"; value: string }[];
 }
 
 export async function useHeaderData() {
@@ -40,6 +41,12 @@ export async function useHeaderData() {
               }
               Networks_agg: Resources_agg(filter:$networkFilter) {
                   count
+              }
+              _settings (keys: [
+                "CATALOGUE_LOGO_SRC"
+              ]){
+                key
+                value
               }
             }`,
         variables: {
@@ -104,5 +111,11 @@ export async function useHeaderData() {
   const variableCount = data.Variables_agg.count || 0;
   const collectionCount = data.Collections_agg.count || 0;
   const networkCount = data.Networks_agg.count || 0;
-  return { catalogue, variableCount, collectionCount, networkCount };
+  const logoSrc = (
+    data._settings.find((setting) => setting.key === "CATALOGUE_LOGO_SRC") || {
+      value: "",
+    }
+  ).value;
+
+  return { catalogue, variableCount, collectionCount, networkCount, logoSrc };
 }

@@ -256,8 +256,11 @@ const rootNodes = computed(() => {
     @click="toggleSearch"
     :aria-controls="`${id}-tree-search-input-container`"
     :aria-expanded="showOptionsSearch"
+    :class="inverted ? 'text-title-contrast' : 'text-title'"
   >
-    <span>Search for options</span>
+    <span :class="inverted ? 'text-title-contrast' : 'text-title'"
+      >Search for options</span
+    >
   </ButtonText>
   <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
     <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
