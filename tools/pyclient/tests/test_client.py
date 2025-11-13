@@ -2,6 +2,7 @@
 Tests for the Pyclient.
 """
 import os
+import zipfile
 from io import BytesIO
 from pathlib import Path
 
@@ -237,14 +238,34 @@ async def test_export():
         csv_data: BytesIO = await client.export(schema="pet store", table="Pet")
         df = pd.read_csv(csv_data)
         assert len(df.columns) == 8
+        await client.export(schema="pet store", table="Pet", filename="pet.csv")
+        assert (Path(__file__).parent.parent / "pet.csv").exists()
+        (Path(__file__).parent.parent / "pet.csv").unlink()
+
+        # Test ZIP
+        zip_data: BytesIO = await client.export(schema="pet store")
+        with zipfile.ZipFile(zip_data, 'r') as zf:
+            file_names = zf.namelist()
+        assert len(file_names) == 8
+        await client.export(schema="pet store", filename="pet store.zip")
+        assert (Path(__file__).parent.parent / "pet store.zip").exists()
+        (Path(__file__).parent.parent / "pet store.zip").unlink()
 
         # Test XLSX table
         xlsx_data: BytesIO = await client.export(schema="pet store", table="Pet", as_excel=True)
         book = openpyxl.load_workbook(xlsx_data, data_only=True)
+        assert len(book.sheetnames) == 1
+        await client.export(schema="pet store", table="Pet", as_excel=True, filename="pet.xlsx")
+        assert (Path(__file__).parent.parent / "pet.xlsx").exists()
+        (Path(__file__).parent.parent / "pet.xlsx").unlink()
 
         # Test XLSX tables as sheets
-
-        # Test ZIP
+        xlsx_data: BytesIO = await client.export(schema="pet store", as_excel=True)
+        book = openpyxl.load_workbook(xlsx_data, data_only=True)
+        assert len(book.sheetnames) == 8
+        await client.export(schema="pet store", as_excel=True, filename="pet store.xlsx")
+        assert (Path(__file__).parent.parent / "pet store.xlsx").exists()
+        (Path(__file__).parent.parent / "pet store.xlsx").unlink()
 
 def test_create_schema():
     """Tests the `create_schema` method."""
