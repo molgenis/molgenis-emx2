@@ -59,9 +59,11 @@
           v-if="visible"
           ref="formFields"
           :row-key="rowKey"
-          :columns="visibleColumns"
+          :columns="metadata.columns"
           :constantValues="constantValues"
           :errorMap="errorMap"
+          :visibleMap="visibleMap"
+          :visibleSection="currentSection"
           v-model="editFormValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
@@ -286,12 +288,13 @@ const {
   insertInto,
   updateInto,
   errorMap,
+  visibleMap,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
   validateAllColumns,
   sections,
-  visibleColumns,
+  currentSection,
   reset,
 } = useForm(props.metadata, editFormValues, "fields-container");
 

@@ -335,7 +335,7 @@ describe("useForm", () => {
       ],
     });
 
-    const { sections, visibleColumns, onBlurColumn } = useForm(
+    const { sections, visibleMap, onBlurColumn } = useForm(
       tableMetadata,
       formValues
     );
@@ -348,7 +348,9 @@ describe("useForm", () => {
       type: "HEADING",
     });
     expect(sections.value.length).toEqual(2); //section and heading
-    expect(visibleColumns.value.length).toEqual(3);
+    expect(
+      tableMetadata.value.columns.filter((c) => visibleMap[c.id]).length
+    ).toEqual(3);
 
     //simulate update on col1
     formValues.value["col1"] = true;
@@ -356,14 +358,18 @@ describe("useForm", () => {
     if (tableMetadata.value.columns[1])
       onBlurColumn(tableMetadata.value.columns[1]);
     expect(sections.value.length).toEqual(3);
-    expect(visibleColumns.value.length).toEqual(5);
+    expect(
+      tableMetadata.value.columns.filter((c) => visibleMap[c.id]).length
+    ).toEqual(5);
 
     //simulate update on col2
     formValues.value["col2"] = true;
     if (tableMetadata.value.columns[3])
       onBlurColumn(tableMetadata.value.columns[3]);
     expect(sections.value.length).toEqual(4);
-    expect(visibleColumns.value.length).toEqual(7);
+    expect(
+      tableMetadata.value.columns.filter((c) => visibleMap[c.id]).length
+    ).toEqual(7);
 
     //simulate update on col1
     //should invisible fields be emptied ???
@@ -371,7 +377,9 @@ describe("useForm", () => {
     if (tableMetadata.value.columns[1])
       onBlurColumn(tableMetadata.value.columns[1]);
     expect(sections.value.length).toEqual(2);
-    expect(visibleColumns.value.length).toEqual(3);
+    expect(
+      tableMetadata.value.columns.filter((c) => visibleMap[c.id]).length
+    ).toEqual(3);
   });
 
   test("section navigation", () => {

@@ -162,7 +162,7 @@ const {
   sections,
   previousSection,
   nextSection,
-  visibleColumns,
+  visibleMap,
   errorMap,
   gotoSection,
   validateAllColumns,
@@ -204,8 +204,9 @@ const numberOfFieldsWithErrors = computed(
           </Button>
           <FormFields
             class="grow"
-            :columns="visibleColumns"
+            :columns="metadata.columns"
             :errorMap="errorMap"
+            :visibleMap="visibleMap"
             :row-key="rowKey"
             v-model="formValues"
             @update="onUpdateColumn"
