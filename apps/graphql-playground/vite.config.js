@@ -16,6 +16,11 @@ export default defineConfig(({ command }) => ({
           entry: 'monaco-graphql/esm/graphql.worker.js',
         },
       ],
+      publicPath: "assets",
+      customDistPath: (root, buildOutDir, base) => {
+          return buildOutDir + '/' + 'assets';
+        },
+
     }),
   ],
   base: command === "serve" ? "/" : "apps/graphql-playground/",
