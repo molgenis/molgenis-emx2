@@ -316,6 +316,6 @@ prepareModel();
         >Clear</ButtonText
       >
     </template>
-    <ButtonText v-else>No results found</ButtonText>
+    <ButtonText v-else>no options available</ButtonText>
   </InputGroupContainer>
 </template>
