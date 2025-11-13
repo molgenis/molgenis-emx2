@@ -68,7 +68,7 @@ const defaultMenu = [
   },
   {
     label: "Graphql",
-    href: "graphql-playground",
+    href: "graphiql",
     role: "Viewer",
   },
   {

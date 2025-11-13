@@ -71,7 +71,7 @@ class Session:
 
         query = 'mutation{signin(email: "%s", password: "%s"){status,message}}' % (self.email, self.password)
         response = requests.post(
-            self.url + 'apps/graphql-playground/graphql',
+            self.url + 'apps/graphiql/graphql',
             json={'query': query}
         )
 
