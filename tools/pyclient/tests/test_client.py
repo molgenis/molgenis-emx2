@@ -13,7 +13,8 @@ from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
-    ReferenceException, PermissionDeniedException, NoSuchTableException
+    ReferenceException, PermissionDeniedException, NoSuchTableException, PyclientException
+from src.molgenis_emx2_pyclient.metadata import Schema
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -267,9 +268,49 @@ async def test_export():
         assert (Path(__file__).parent.parent / "pet store.xlsx").exists()
         (Path(__file__).parent.parent / "pet store.xlsx").unlink()
 
-def test_create_schema():
+@pytest.mark.asyncio
+async def test_create_schema():
     """Tests the `create_schema` method."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test fail on existing name
+        with pytest.raises(PyclientException) as excinfo:
+            await client.create_schema(name="pet store")
+        assert excinfo.value.msg == "Schema with name 'pet store' already exists."
+
+        # Test description
+        await client.create_schema(name="pet store 2", description="The second pet store.")
+        schemas: list[Schema] = client.get_schemas()
+        pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        assert len(pet_meta) == 1
+        assert pet_meta[0].get('description') == "The second pet store."
+        await client.delete_schema("pet store 2")
+
+        # Test template
+        await client.create_schema(name="pet store 2",
+                                   description="The second pet store.",
+                                   template="PET_STORE")
+        schemas: list[Schema] = client.get_schemas()
+        pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        assert len(pet_meta) == 1
+        assert len(client.get_schema_metadata("pet store 2").tables) == 5
+        await client.delete_schema("pet store 2")
+
+
+        # Test include demo data
+        await client.create_schema(name="pet store 2",
+                                   description="The second pet store.",
+                                   template="PET_STORE",
+                                   include_demo_data=True)
+        schemas: list[Schema] = client.get_schemas()
+        pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        assert len(pet_meta) == 1
+        assert len(client.get_schema_metadata("pet store 2").tables) == 5
+        assert len(client.get(table="Pet", schema="pet store 2")) == 8
+        await client.delete_schema("pet store 2")
+
 
 def test_delete_schema():
     """Tests the `delete_schema` method."""
