@@ -10,7 +10,7 @@ const route = useRoute();
 const activeTab = computed(() => {
   if (route.path.includes("users")) return "users";
   if (route.path.includes("settings")) return "settings";
-  return "";
+  return "users";
 });
 </script>
 
