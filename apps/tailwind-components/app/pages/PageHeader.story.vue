@@ -1,24 +1,57 @@
 <template>
+  <div class="flex gap-16 flex-col">
+    <div>
+      <p class="pb-3 text-title">
+        Simple pageheader (default alignment):
+      </p>
+      <div>
+        <PageHeader title="My Title" description='My description' />
+      </div>
+    </div>
   <div>
-    <PageHeader icon="handshake" title="My Title" description='This is some dummy text to create a string of over 250 characters long to show that it is initially truncated. You can view the full text by pressing "..." at the end of this description to view the text that is initially hidden but then suddenly appears and allows the user to read the full description.'>
+    <p class="pb-3 text-title">
+      Pageheader with title prefix/suffix and long description:
+    </p>
+    <div>
+    <PageHeader title="My Title" description='This is some dummy text to create a string of over 250 characters long to show that it is initially truncated. You can view the full text by pressing "..." at the end of this description to view the text that is initially hidden but then suddenly appears and allows the user to read the full description.'>
       <template #title-prefix>
-        <ButtonPageHeader label="title-prefix slot with ButtonPageHeader" icon="arrow-left" />
+        <ButtonPageHeader label="ButtonPageHeader in title-prefix slot" icon="arrow-left" />
       </template>
       <template #title-suffix>
-        <span>title-postfix slot with text</span>
+        <span>text in title-postfix slot</span>
       </template>
     </PageHeader>
-
-    <PageHeader align="left" title="My Title" description="My description">
+    </div>
+  </div>
+    <div>
+      <p class="pb-3 text-title">
+        Pageheader with left-alignment and all optional slots filled:
+      </p>
+    <PageHeader align="left" icon="handshake" title="My Title">
+      <template #description>
+        <span>Description through slot (instead of prop)</span><CustomTooltip
+            label="tooltip"
+            content="that has a tooltip component inside of it"
+        />
+      </template>
+      <template #title-prefix>
+        <ButtonPageHeader label="ButtonPageHeader in title-prefix slot" icon="arrow-left" />
+      </template>
+      <template #title-suffix>
+        <ButtonPageHeader label="ButtonPageHeader in title-suffix slot" icon="star" />
+        <ButtonPageHeader label="another ButtonPageHeader in title-suffix slot" icon="trash" />
+      </template>
       <template #prefix>
-        <span>Prefix slot</span>
+        <span>prefix</span>
       </template>
       <template #suffix>
-        <span>Suffix slot</span>
+        <span>suffix</span>
       </template>
     </PageHeader>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
 import ButtonPageHeader from "../components/button/PageHeader.vue";
+import CustomTooltip from "../components/CustomTooltip.vue";
 </script>
