@@ -35,7 +35,7 @@
       <p class="pb-3 text-title">
         Left-aligned Pageheader with all optional slots filled:
       </p>
-    <PageHeader align="left" icon="handshake" title="A very long title to that needs multiple lines to see how line wrapping/alignment is handled">
+    <PageHeader align="left" icon="handshake" title="My Title">
       <template #description>
         <span>Description through slot (instead of prop)</span><CustomTooltip
             label="tooltip"
