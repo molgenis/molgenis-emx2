@@ -18,6 +18,15 @@ Releases of the Molgenis EMX2 Pyclient follow the release number of the accompan
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ
 from the latest version of Molgenis EMX2.
 
+
+### 13.60.1
+
+- Improved error handling in 'columns' filter in `get` method
+- Fixed issue with 'equals' filter for references in `get` method
+- Fixed `greater_than` and `smaller_than` filters for LONG type values in `get` method
+- Renamed `__prepare_unequal_filter` to `__prepare_not_equals_filter` and added NotImplementedError for certain data types
+- Fixed issue with incorrect column names in `get_graphql`
+
 ### 13.55.4
 
 Added: method `save_table`. Replaces `save_schema` which is now deprecated.

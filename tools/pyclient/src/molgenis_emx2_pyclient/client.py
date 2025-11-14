@@ -13,8 +13,8 @@ from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
-from .constants import HEADING, DATE, DATETIME, SECTION
-from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
+from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT
+from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
@@ -130,6 +130,8 @@ class Client:
 
     def signout(self):
         """Signs the client out of the EMX2 server."""
+        if self.signin_status != "success":
+            raise SignoutError("Could not sign out as user is not signed in.")
         response = self.session.post(
             url=self.api_graphql,
             json={'query': queries.signout()}
@@ -207,7 +209,7 @@ class Client:
         self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def save_schema(self, table: str, name: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """
         Imports or updates records in a table of a named schema.
         Deprecated and replaced by `save_table`.
@@ -215,7 +217,7 @@ class Client:
         warn("`save_schema` is deprecated. Use `save_table` instead.")
         return self.save_table(table, name, file, data)
 
-    def save_table(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def save_table(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
         :param table: the name of the table
@@ -372,7 +374,7 @@ class Client:
             raise PyclientException(msg)
         return msg
 
-    def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def delete_records(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
         :param table: the name of the table
@@ -482,11 +484,14 @@ class Client:
             try:
                 response_data = response_data[columns]
             except KeyError as e:
-                if "not in index" in e.args[0]:
-                    raise NoSuchColumnException(f"Columns {e.args[0]}")
+                if e.args[0].startswith("None of [Index(['"):
+                    missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
+                    msg = f"Columns {missing_cols} not found."
+                elif "not in index" in e.args[0]:
+                    msg = f"Columns {e.args[0]}"
                 else:
-                    raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
-                                                f" not in index.")
+                    msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
+                raise NoSuchColumnException(msg)
             response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         if not as_df:
             response_data = response_data.to_dict('records')
@@ -827,7 +832,7 @@ class Client:
             elif '<' in stmt:
                 _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
             elif '!=' in stmt:
-                _filter.update(**self.__prepare_unequal_filter(stmt, _table, _schema))
+                _filter.update(**self.__prepare_not_equals_filter(stmt, _table, _schema))
             elif 'between' in stmt:
                 _filter.update(**self.__prepare_between_filter(stmt, _table, _schema))
             else:
@@ -848,6 +853,7 @@ class Client:
 
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+        val = None
         match col.get('columnType'):
             case 'BOOL':
                 val = False
@@ -874,8 +880,11 @@ class Client:
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
+        val = None
         match col.get('columnType'):
             case 'INT':
+                val = int(_val) + 1 * exclusive
+            case 'LONG':
                 val = int(_val) + 1 * exclusive
             case 'DECIMAL':
                 val = float(_val) + 0.0000001 * exclusive
@@ -897,8 +906,11 @@ class Client:
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
+        val = None
         match col.get('columnType'):
             case 'INT':
+                val = int(_val) - 1 * exclusive
+            case 'LONG':
                 val = int(_val) - 1 * exclusive
             case 'DECIMAL':
                 val = float(_val) - 0.0000001 * exclusive
@@ -907,7 +919,7 @@ class Client:
 
         return {col.id: {"between": [None, val]}}
 
-    def __prepare_unequal_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+    def __prepare_not_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
         _col = stmt.split('!=')[0].strip()
         _val = stmt.split('!=')[1].strip()
@@ -920,7 +932,14 @@ class Client:
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
-        match col.get('columnType'):
+        val = None
+        match col_type := col.get('columnType'):
+            case 'BOOL':
+                val = False
+                if str(_val).lower() == 'true':
+                    val = True
+            case 'RADIO' | 'REF' | 'REF_ARRAY' | 'ONTOLOGY' | 'ONTOLOGY_ARRAY':
+                raise NotImplementedError(f"The filter '!=' is not implemented for columns of type {col_type!r}.")
             case _:
                 try:
                     val = json.loads(''.join(_val.split('`')).replace("'", '"'))
@@ -945,7 +964,7 @@ class Client:
 
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
-        if (col_type := col.get('columnType')) not in ['INT', 'DECIMAL']:
+        if (col_type := col.get('columnType')) not in ['LONG', 'INT', 'DECIMAL']:
             raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
 
         return {col.id: {'between': val}}
@@ -967,7 +986,7 @@ class Client:
         return value
 
     @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
+    def _prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
@@ -1182,6 +1201,11 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata(schema)
         table_metadata: Table = schema_metadata.get_table('id', table_id)
 
+        if columns is not None:
+            if not all(col in map(lambda c: c.id, table_metadata.columns) for col in columns):
+                unknown_cols = "'" + "', '".join([col for col in columns if col not in map(lambda c: c.id, table_metadata.columns)]) + "'"
+                raise NoSuchColumnException(f"Columns {unknown_cols} not found.")
+
         query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
                  f"  {table_id}(filter: $filter) {{\n")
 
@@ -1190,9 +1214,9 @@ class Client:
                 continue
             if col.get('columnType') in [HEADING, SECTION]:
                 continue
-            elif col.get('columnType').startswith('ONTOLOGY'):
+            elif col.get('columnType').startswith(ONTOLOGY):
                 query += f"    {col.get('id')} {{name}}\n"
-            elif col.get('columnType').startswith('REF'):
+            elif col.get('columnType').startswith(REF) or col.get('columnType') in [RADIO, SELECT]:
                 if (ref_schema := col.get('refSchemaName', schema)) == schema:
                     pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
                 else:
@@ -1201,7 +1225,7 @@ class Client:
                 query += f"    {col.get('id')} {{"
                 query += parse_nested_pkeys(pkeys)
                 query += "}\n"
-            elif col.get('columnType').startswith('FILE'):
+            elif col.get('columnType').startswith(FILE):
                 query += f"    {col.get('id')} {{id}}\n"
             else:
                 query += f"    {col.get('id')}\n"
