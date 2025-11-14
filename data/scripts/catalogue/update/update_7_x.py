@@ -211,7 +211,6 @@ class Transform:
     def contact_points(self):
         """ Get data from contact email to Contacts table
         """
-        #TODO: this does not work yet
         df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
@@ -225,9 +224,10 @@ class Transform:
         df_resource_contacts['first name'] = df_resource_contacts['name'].apply(get_first_name)
         df_resource_contacts['last name'] = df_resource_contacts['name'].apply(get_last_name)
         df_resource_contacts['role'] = 'Primary contact'
+        df_resource_contacts.dropna(subset=['first name', 'last name'], inplace=True)
 
         # write tables to file
-        df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
+        df_resource_contacts.to_csv(self.path + 'Contacts.csv', index=False)
 
     def contacts(self):
         """ Transform data in Contacts
@@ -499,9 +499,9 @@ def get_first_part_email(email):
 def get_first_name(name):
     first_name = ''
     if name.isalnum():
-        pass  # this leads to ugly results for contact cards
+        first_name = pd.NA
     else:
-        split_name = re.split("\W+", name)
+        split_name = re.split(r"[^a-zA-Z0-9\s]", name)
         if len(split_name) == 2:
             if len(split_name[0]) == 1:
                 first_name = split_name[0].capitalize() + '.'
@@ -522,9 +522,9 @@ def get_first_name(name):
 def get_last_name(name):
     last_name = ''
     if name.isalnum():
-        pass  # this leads to ugly results for contact cards
+        last_name = pd.NA
     else:
-        split_name = re.split("\W+", name)
+        split_name = re.split(r"[^a-zA-Z0-9\s]", name)
         last_name = split_name[len(split_name) - 1].capitalize()
 
     return last_name
