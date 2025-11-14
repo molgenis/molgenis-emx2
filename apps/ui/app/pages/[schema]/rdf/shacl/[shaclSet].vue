@@ -7,12 +7,9 @@ import BreadCrumbs from "../../../../../../tailwind-components/app/components/Br
 import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
 import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
 import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
-import Button from "../../../../../../tailwind-components/app/components/Button.vue";
-import ButtonDownloadBlob from "../../../../../../tailwind-components/app/components/button/DownloadBlob.vue";
 import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
 import type { ProcessData } from "../../../../../../metadata-utils/src/generic";
 import ButtonPageHeader from "../../../../../../tailwind-components/app/components/button/PageHeader.vue"
-import IconProcess from "../../../../../../tailwind-components/app/components/icon/Process.vue";
 import {navigateTo} from "nuxt/app";
 import {downloadBlob} from "../../../../../../tailwind-components/app/utils/downloadBlob";
 
