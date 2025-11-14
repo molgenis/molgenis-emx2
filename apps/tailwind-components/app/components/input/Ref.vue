@@ -20,6 +20,7 @@ import InputGroupContainer from "../input/InputGroupContainer.vue";
 import InputLabel from "./Label.vue";
 import ButtonText from "../button/Text.vue";
 import Button from "../Button.vue";
+import ButtonFilterWellContainer from "../button/FilterWellContainer.vue";
 
 const props = withDefaults(
   defineProps<
@@ -229,52 +230,44 @@ function loadMore() {
   });
 }
 
+const showExtendedControls = computed<boolean>(() => initialCount.value > props.limit);
+
 prepareModel();
 </script>
 
 <template>
   <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
     <template v-if="initialCount > limit">
-      <div
-        class="flex flex-wrap gap-2 mb-2"
+      <ButtonFilterWellContainer
         v-if="isArray ? selection.length : selection"
+        ref="selectionContainer"
+        :id="`${id}-ref-selections`"
+        @clear="clearSelection"
+        :size="selection.length"
       >
-        <Button
-          @click="clearSelection"
-          v-if="isArray && selection.length > 1"
-          type="filterWell"
-          size="tiny"
-          icon="cross"
-          iconPosition="right"
-          class="mr-2"
-          >Clear all</Button
-        >
-        <Button
-          v-for="label in isArray ? selection : [selection]"
-          icon="cross"
-          iconPosition="right"
-          type="filterWell"
-          size="tiny"
-          @click="deselect(label as string)"
-        >
-          {{ label }}
-        </Button>
-      </div>
-      <div v-if="initialCount > limit" class="flex flex-wrap gap-2 mb-2">
-        <InputLabel :for="`search-for-${id}`" class="sr-only">
-          search in {{ columnName }}
-        </InputLabel>
-        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-          Search
-        </ButtonText>
+        <template v-if="selection.length > 0">
+          <Button
+            v-for="label in isArray ? selection : [selection]"
+            icon="cross"
+            iconPosition="right"
+            type="filterWell"
+            size="tiny"
+            @click="deselect(label as string)"
+          >
+            <div class="max-w-[150px] truncate" :title="label">{{ label }}</div>
+          </Button>
+        </template>
+      </ButtonFilterWellContainer>
+      <div class="my-4" v-if="showExtendedControls">
+        <label :for="`search-for-${id}`" class="sr-only">
+          search in options
+        </label>
         <InputSearch
-          :class="showSearch ? 'visible' : 'invisible pointer-events-none'"
           :id="`search-for-${id}`"
-          size="tiny"
           :modelValue="searchTerms"
           @update:modelValue="updateSearch"
-          class="mb-2"
-          :placeholder="`Search in ${columnName}`"
+          size="small"
+          placeholder="Search in options"
           :aria-hidden="!showSearch"
         />
       </div>
