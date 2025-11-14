@@ -15,7 +15,7 @@ withDefaults(
   <a
     :href="href"
     :target="target"
-    class="text-blue-500 underline hover:bg-blue-50"
+    class="text-link underline hover:bg-link-hover"
   >
     <BaseIcon
       v-if="target === '_blank'"

@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { withDefaults, defineProps, defineAsyncComponent } from "vue";
+import { defineProps, defineAsyncComponent } from "vue";
 
 const props = withDefaults(
   defineProps<{

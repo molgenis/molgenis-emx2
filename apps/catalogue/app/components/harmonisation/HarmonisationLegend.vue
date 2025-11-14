@@ -48,7 +48,7 @@ function closeModal() {
         title="About statuses"
         @click="openModal"
       >
-        <BaseIcon name="Info" class="text-blue-500" />
+        <BaseIcon name="Info" class="text-link" />
         <span class="sr-only">about statuses</span>
       </button>
     </div>

@@ -37,7 +37,7 @@ const repeats = computed(() =>
         <h2>
           <NuxtLink
             :to="`/${catalogue}/variables/${resourcePathId}`"
-            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+            class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
           >
             {{ variable?.name }}
           </NuxtLink>
@@ -57,7 +57,7 @@ const repeats = computed(() =>
       </div>
       <div class="hidden basis-1/5 xl:flex xl:justify-end">
         <NuxtLink :to="`/${catalogue}/variables/${resourcePathId}`">
-          <ArrowRight width="24" class="text-blue-500" />
+          <ArrowRight width="24" class="text-link" />
           <span class="sr-only">go to page on {{ variable.name }}</span>
         </NuxtLink>
       </div>

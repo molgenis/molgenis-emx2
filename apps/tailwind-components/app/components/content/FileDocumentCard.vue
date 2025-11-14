@@ -19,11 +19,11 @@ withDefaults(
     :target="isExternal ? '_blank' : '_self'"
   >
     <div class="flex-grow align-middle">
-      <span class="text-blue-500 text-body-base">
+      <span class="text-link text-body-base">
         {{ title }}
       </span>
     </div>
-    <IconButton v-if="isExternal" icon="external-link" class="text-blue-500" />
-    <IconButton v-else icon="arrow-right" class="text-blue-500 rotate-90" />
+    <IconButton v-if="isExternal" icon="external-link" class="text-link" />
+    <IconButton v-else icon="arrow-right" class="text-link rotate-90" />
   </a>
 </template>

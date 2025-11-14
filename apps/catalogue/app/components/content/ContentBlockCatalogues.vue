@@ -47,7 +47,7 @@ defineProps<{
           <TableCell>
             <NuxtLink :to="`/${catalogue.id}`">
               <span
-                class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+                class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
                 >{{ catalogue.id }}</span
               >
             </NuxtLink>
@@ -59,13 +59,13 @@ defineProps<{
           </TableCell>
           <TableCell>
             <NuxtLink :to="`/${catalogue.id}`">
-              <IconButton icon="arrow-right" class="text-blue-500" />
+              <IconButton icon="arrow-right" class="text-link" />
             </NuxtLink>
           </TableCell>
         </TableRow>
 
         <div v-if="catalogues.length == 0" class="flex justify-center pt-3">
-          <span class="py-15 text-blue-500">
+          <span class="py-15 text-link">
             No catalogue found with current filters
           </span>
         </div>

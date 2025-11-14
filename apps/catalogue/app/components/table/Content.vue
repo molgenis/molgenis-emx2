@@ -179,7 +179,7 @@ const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
             </div>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
+            <IconButton icon="arrow-right" class="text-link" />
           </TableCell>
 
           <SideModal

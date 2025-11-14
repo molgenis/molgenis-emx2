@@ -47,7 +47,7 @@
           Please contact
           <a
             href="mailto:support@molgenis.org"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             support@molgenis.org </a
           >.
@@ -72,7 +72,7 @@
             href="https://github.com/molgenis/molgenis-emx2"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             MOLGENIS molgenis-emx2
           </a>
@@ -108,7 +108,7 @@
             href="https://www.molgenis.org"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             www.molgenis.org
           </a>
@@ -117,7 +117,7 @@
             href="https://ticket.molgenis.net/help/en-gb"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             knowledge base </a
           >. Full documentation:
@@ -125,7 +125,7 @@
             href="https://molgenis.github.io/molgenis-emx2/#/molgenis/use"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             molgenis-emx2 docs </a
           >.
@@ -136,7 +136,7 @@
           to reach out to:
           <a
             href="mailto:support@molgenis.org"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             support@molgenis.org </a
           >.

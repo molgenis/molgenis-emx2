@@ -21,7 +21,7 @@ defineProps({
         :alt="title"
         class="rounded-3px h-56 bg-contain bg-center"
       />
-      <figcaption class="mt-3.5 text-body-base text-blue-500">
+      <figcaption class="mt-3.5 text-body-base text-link">
         {{ title }}
       </figcaption>
     </figure>

@@ -31,7 +31,9 @@ defineProps({
       <template #body>
         <TableRow>
           <TableCell
-            ><a href="#" class="hover:underline hover:bg-blue-50 text-body-base"
+            ><a
+              href="#"
+              class="hover:underline hover:bg-link-hover text-body-base"
               >Children</a
             >
             <dl class="font-normal sm:hidden text-gray-900">
@@ -55,12 +57,14 @@ defineProps({
             >All ages</TableCell
           >
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="arrow-right" class="text-link"
           /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell
-            ><a href="#" class="hover:underline hover:bg-blue-50 text-body-base"
+            ><a
+              href="#"
+              class="hover:underline hover:bg-link-hover text-body-base"
               >Partners</a
             >
             <dl class="font-normal sm:hidden text-gray-900">
@@ -86,12 +90,14 @@ defineProps({
             >All ages</TableCell
           >
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="arrow-right" class="text-link"
           /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell
-            ><a href="#" class="hover:underline hover:bg-blue-50 text-body-base"
+            ><a
+              href="#"
+              class="hover:underline hover:bg-link-hover text-body-base"
               >Mothers</a
             >
             <dl class="font-normal sm:hidden text-gray-900">
@@ -115,7 +121,7 @@ defineProps({
             >All ages</TableCell
           >
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="arrow-right" class="text-link"
           /></TableCell>
         </TableRow>
       </template>

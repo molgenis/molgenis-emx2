@@ -34,7 +34,7 @@ const hoverColorClass = computed(() => {
       :distance="12"
     >
       <button
-        class="w-6 h-6 text-blue-200 cursor-default select-none"
+        class="w-6 h-6 text-icon-neutral cursor-default select-none"
         :class="hoverColorClass"
       >
         <BaseIcon name="info" />

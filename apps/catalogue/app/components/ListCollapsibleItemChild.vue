@@ -30,7 +30,7 @@ defineProps({
     <dt class="pt-1 pl-14 flex items-start">
       <div class="flex items-center gap-1">
         <div class="inline-block">
-          <a v-if="url" :href="url" class="hover:underline text-blue-500">
+          <a v-if="url" :href="url" class="hover:underline text-link">
             {{ title }}
           </a>
           <span v-else>{{ title }}</span>

@@ -35,7 +35,7 @@
             href="https://www.go-fair.org/fair-principles/"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >FAIR principles</a
           >. The UMCG Research Data Catalogue includes a wide variety of data
           and sample resources, from large population-based cohorts and clinical
@@ -45,14 +45,14 @@
             href="https://umcgresearch.org/w/gcc"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >Genomics Coordination Centre (GCC)</a
           >, the
           <a
             href="https://umcgresearch.org/w/umcg-cohort-and-biobank-coordination-hub"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >Cohort and Biobank Coordination Hub (CBCH)</a
           >
           and the Digital Competence Center (DCC) of the UMCG. This database was
@@ -62,7 +62,7 @@
             href="https://doi.org/10.1093/bioinformatics/bty742"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >Van der Velde et al (2018)</a
           >
           or
@@ -70,7 +70,7 @@
             href="https://doi.org/10.1186/1471-2105-11-S12-S12"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >Swertz et al (2010)</a
           >
           on use.
@@ -85,7 +85,7 @@
             href="https://icd.who.int/browse10/2019/en#/"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >ICD-10 (International Statistical Classification of Diseases and
             Related Health Problems)</a
           >,
@@ -93,7 +93,7 @@
             href="https://www.orphadata.com/orphanet-nomenclature-for-coding/"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >ORPHA codes (Orphanet nomenclature of rare diseases)</a
           >
           and
@@ -101,7 +101,7 @@
             href="https://github.com/BBMRI-ERIC/miabis"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >MIABIS (Minimum Information About BIobank data Sharing)</a
           >.
         </ContentBlock>
@@ -114,7 +114,7 @@
             href="mailto:researchdatacatalogue@umcg.nl"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >researchdatacatalogue@umcg.nl</a
           >
           . Questions about the Molgenis software can be sent to
@@ -122,7 +122,7 @@
             href="mailto:support@molgenis.org"
             rel="noopener noreferrer"
             target="_blank"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
             >support@molgenis.org</a
           >.
         </ContentBlock>
@@ -176,7 +176,7 @@
                 href="https://catalogue.bbmri.nl/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >Bbmri-NL</a
               >
             </DisplayListItem>
@@ -185,7 +185,7 @@
                 href="https://directory.bbmri-eric.eu/#/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >BBMRI-ERIC</a
               >
             </DisplayListItem>
@@ -194,7 +194,7 @@
                 href="https://www.maelstrom-research.org/page/catalogue"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >Maelstrom catalogue</a
               >
             </DisplayListItem>
@@ -203,7 +203,7 @@
                 href="https://www.healthinformationportal.eu/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >European Health Information Portal</a
               >
             </DisplayListItem>
@@ -212,7 +212,7 @@
                 href="https://dans.knaw.nl/nl/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >DANS</a
               >
             </DisplayListItem>
@@ -221,7 +221,7 @@
                 href="https://explore.openaire.eu/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >OpenAIRE</a
               >
             </DisplayListItem>
@@ -230,7 +230,7 @@
                 href="https://www.cessda.eu/Tools/Data-Catalogue"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >CESSDA</a
               >
             </DisplayListItem>
@@ -239,7 +239,7 @@
                 href="https://lifecycle-project.eu/for-scientists/variable-catalogue/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >LifeCycle</a
               >
             </DisplayListItem>
@@ -248,7 +248,7 @@
                 href="https://www.clinicaltrialsregister.eu/ctr-search/search"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >Clinical trial register EU</a
               >
             </DisplayListItem>
@@ -257,7 +257,7 @@
                 href="https://datasetsearch.research.google.com/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >Google Dataset Search</a
               >
             </DisplayListItem>
@@ -266,7 +266,7 @@
                 href="http://catalogue.dcvalliance.nl/"
                 rel="noopener noreferrer"
                 target="_blank"
-                class="text-blue-500 underline hover:bg-blue-50"
+                class="text-link underline hover:bg-link-hover"
                 >DCV Alliance</a
               >
             </DisplayListItem>

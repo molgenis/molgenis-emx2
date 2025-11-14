@@ -56,7 +56,7 @@ function toggleSelect(node: INode) {
           <!--
           <span
             v-if="node?.result?.count"
-            class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200 fill-black"
+            class="inline-block mr-2 text-icon-neutral group-hover:underline decoration-blue-200 fill-black"
             hoverColor="white"
             >&nbsp;- {{ node.result.count }}
           </span>

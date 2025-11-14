@@ -89,7 +89,7 @@ function handleVariableUsedClick(variableUsed: IVariableBase) {
           <template v-else>
             <li v-for="variableUsed in mapping.sourceVariables">
               <a
-                class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
+                class="text-body-base text-link hover:underline hover:bg-link-hover cursor-pointer"
                 @click="handleVariableUsedClick(variableUsed)"
               >
                 <BaseIcon

@@ -3,7 +3,7 @@
     <HeaderButton
       label="Selected items"
       icon="shopping-cart"
-      class="xl:text-blue-500"
+      class="xl:text-link"
       @click="$emit('click')"
     />
     <div

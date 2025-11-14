@@ -67,7 +67,7 @@ watch([datasetStore.datasets], () => {
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
             :to="`/${catalogue}/${route.params.resourceType}/${resource.id}`"
-            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+            class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
           >
             {{ resource?.acronym || resource?.name }}
           </NuxtLink>
@@ -81,7 +81,7 @@ watch([datasetStore.datasets], () => {
         <label
           v-if="datasetStore.isEnabled"
           :for="`${resource.id}-shopping-cart-input`"
-          class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-blue-500 hover:text-blue-800 focus:text-blue-800"
+          class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-link hover:text-blue-800 focus:text-blue-800"
           :class="{
             'items-baseline xl:items-center mt-0.5 xl:mt-0': !compact,
             'bg-blue-500 text-white hover:text-white': isInShoppingCart,
@@ -100,7 +100,7 @@ watch([datasetStore.datasets], () => {
         <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
           <IconButton
             icon="arrow-right"
-            class="text-blue-500 hidden xl:flex xl:justify-end"
+            class="text-link hidden xl:flex xl:justify-end"
           />
         </NuxtLink>
       </div>

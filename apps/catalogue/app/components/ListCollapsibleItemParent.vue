@@ -29,14 +29,14 @@ const toggleCollapse = () => {
     <div class="flex gap-1 items-start">
       <span
         @click="toggleCollapse()"
-        class="text-blue-500 mr-1 mt-0.5 rounded-full hover:bg-blue-50 hover:cursor-pointer p-0.5"
+        class="text-link mr-1 mt-0.5 rounded-full hover:bg-link-hover hover:cursor-pointer p-0.5"
         :class="{ 'rotate-180': collapsed }"
       >
         <BaseIcon name="caret-up" :width="20" />
       </span>
 
       <div>
-        <a v-if="url" :href="url" class="hover:underline text-blue-500">
+        <a v-if="url" :href="url" class="hover:underline text-link">
           {{ title }}
         </a>
         <span v-else>

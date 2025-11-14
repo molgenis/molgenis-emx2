@@ -24,7 +24,7 @@ defineProps<{
         </div>
       </span>
       <a
-        class="text-blue-500 block hover:underline"
+        class="text-link block hover:underline"
         v-if="organisation.organisation?.website"
         :href="organisation.organisation?.website"
       >

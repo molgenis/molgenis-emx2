@@ -67,7 +67,7 @@ const links: Link[] = [];
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
                 :to="`/${catalogue}/networks/${network.id}`"
-                class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+                class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
               >
                 {{ network?.acronym || network?.name }}
               </NuxtLink>
@@ -79,7 +79,7 @@ const links: Link[] = [];
         <IconButton
           icon="star"
           :class="iconStarClasses"
-          class="text-blue-500 xl:justify-end"
+          class="text-link xl:justify-end"
         />
         -->
             <NuxtLink
@@ -88,7 +88,7 @@ const links: Link[] = [];
             >
               <IconButton
                 icon="arrow-right"
-                class="text-blue-500 hidden xl:flex xl:justify-end"
+                class="text-link hidden xl:flex xl:justify-end"
               />
             </NuxtLink>
 
@@ -97,7 +97,7 @@ const links: Link[] = [];
               v-for="(link, index) in links"
               v-bind:key="index"
               :href="link.url"
-              class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
+              class="text-link hover:underline hover:bg-link-hover mr-7.5 hidden sm:inline-block"
             >
               <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{
                 link.title
@@ -115,7 +115,7 @@ const links: Link[] = [];
           v-for="(link, index) in links"
           v-bind:key="index"
           :href="link.url"
-          class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
+          class="text-link hover:underline hover:bg-link-hover mr-7.5 hidden sm:inline-block"
         >
           <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{
             link.title
