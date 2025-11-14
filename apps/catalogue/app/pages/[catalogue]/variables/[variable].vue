@@ -57,10 +57,11 @@ const variable = computed(
 const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
-let crumbs: any = {};
-crumbs[`${route.params.catalogue}`] = `/${route.params.catalogue}`;
-crumbs["variables"] = `/${route.params.catalogue}/variables`;
-crumbs[route.params.variable as string] = "";
+const crumbs = [
+  { label: `${route.params.catalogue}`, url: `/${route.params.catalogue}` },
+  { label: "variables", url: `/${route.params.catalogue}/variables` },
+  { label: route.params.variable as string, url: "" },
+];
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];

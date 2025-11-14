@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type {
+  Crumb,
   ITableSettings,
   sortDirection,
 } from "../../../../../tailwind-components/types/types";
@@ -63,12 +64,10 @@ function handleSettingsUpdate() {
   router.push({ query });
 }
 
-const crumbs = computed(() => {
-  let crumb: { [key: string]: string } = {};
-  crumb[schemaId] = `/${schemaId}`;
-  crumb[tableMetadata.label || tableMetadata.id] = "";
-  return crumb;
-});
+const crumbs: Crumb[] = [
+  { label: schemaId, url: `/${schemaId}` },
+  { label: tableMetadata.label || tableMetadata.id, url: "" },
+];
 
 const currentBreadCrumb = computed(
   () => tableMetadata.label ?? tableMetadata.id

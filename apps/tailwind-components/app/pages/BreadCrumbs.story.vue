@@ -11,9 +11,15 @@
     <BreadCrumbs :crumbs="crumbs" align="left" />
   </div>
 
-  <p class="pt-6 pb-3 text-title">Breadcrumbs with 'item 4' as current</p>
+  <p class="pt-6 pb-3 text-title">
+    Breadcrumbs with a number in one of the labels
+  </p>
   <div>
-    <BreadCrumbs :crumbs="crumbs" current="item 4" align="left" />
+    <BreadCrumbs
+      :crumbs="crumbsWithNumberLabels"
+      current="item 4"
+      align="left"
+    />
   </div>
 </template>
 
@@ -21,14 +27,20 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import BreadCrumbs from "../components/BreadCrumbs.vue";
+import type { Crumb } from "../../types/types";
 
 const route = useRoute();
-interface Crumbs {
-  [key: string]: string;
-}
 
-const crumbs = ref<Crumbs>({});
-crumbs.value["item 1"] = route.path;
-crumbs.value["item 2"] = route.path;
-crumbs.value["item 3"] = route.path;
+const crumbs = ref<Crumb[]>([]);
+crumbs.value.push({ label: "item 1", url: route.path });
+crumbs.value.push({ label: "item 2", url: route.path });
+crumbs.value.push({ label: "item 3", url: route.path });
+
+const crumbsWithNumberLabels = ref<Crumb[]>([]);
+crumbsWithNumberLabels.value.push({ label: "1", url: route.path });
+crumbsWithNumberLabels.value.push({
+  label: "non number label",
+  url: route.path,
+});
+crumbsWithNumberLabels.value.push({ label: "3", url: route.path });
 </script>

@@ -16,6 +16,7 @@ import ContentBlocks from "../../../../../../../tailwind-components/app/componen
 import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ContentOntology from "../../../../../components/content/Ontology.vue";
 import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
+import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema as string;
@@ -55,22 +56,33 @@ const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting === "true" || config.public.cohortOnly;
 });
-const pageCrumbs: any = {};
 
-pageCrumbs[
-  cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.catalogue}`;
+const pageCrumbs: Crumb[] = [
+  {
+    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
+    url: `/${route.params.catalogue}`,
+  },
 
-pageCrumbs[
-  route.params.resourceType as string
-] = `/${route.params.catalogue}/${route.params.resourceType}`;
+  {
+    label: route.params.resourceType as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}`,
+  },
 
-pageCrumbs[
-  route.params.resource as string
-] = `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
+  {
+    label: route.params.resource as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`,
+  },
 
-pageCrumbs["Subpopulations"] = "";
-pageCrumbs[route.params.subpopulation as string] = "";
+  {
+    label: "Subpopulations",
+    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations`,
+  },
+
+  {
+    label: route.params.subpopulation as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${route.params.subpopulation}`,
+  },
+];
 
 function renderList(
   list: any[],

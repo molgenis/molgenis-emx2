@@ -12,6 +12,7 @@ import TableHead from "../../../../tailwind-components/app/components/TableHead.
 import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
+import type { Crumb } from "../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -62,11 +63,11 @@ const ontologies = computed(
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
 
-const crumbs: Record<string, string> = {};
+const crumbs: Crumb[] = [];
 if (schema) {
-  crumbs[schema] = `/${schema}`;
+  crumbs.push({ label: schema, url: `/${schema}` });
 }
-crumbs["tables"] = "";
+crumbs.push({ label: "tables", url: "" });
 </script>
 <template>
   <Container>

@@ -150,3 +150,8 @@ export interface Section {
     metadata: IColumn;
   }[];
 }
+
+export interface Crumb {
+  url: string;
+  label: string;
+}

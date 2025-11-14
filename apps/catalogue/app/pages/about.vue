@@ -1,11 +1,7 @@
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader id="page-header" title="About">
-        <template #prefix>
-          <BreadCrumbs />
-        </template>
-      </PageHeader>
+      <PageHeader id="page-header" title="About" />
     </template>
 
     <template #side>
@@ -165,7 +161,6 @@
 import { useHead } from "nuxt/app";
 import LayoutsDetailPage from "../components/layouts/DetailPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../tailwind-components/app/components/BreadCrumbs.vue";
 import SideNavigation from "../components/SideNavigation.vue";
 import ContentBlocks from "../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";

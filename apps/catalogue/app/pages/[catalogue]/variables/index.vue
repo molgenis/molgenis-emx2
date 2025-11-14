@@ -6,7 +6,10 @@ import type {
   IRefArrayFilter,
 } from "../../../../interfaces/types";
 import mappingsFragment from "../../../gql/fragments/mappings";
-import type { INode } from "../../../../../tailwind-components/types/types";
+import type {
+  Crumb,
+  INode,
+} from "../../../../../tailwind-components/types/types";
 import {
   useRoute,
   useRouter,
@@ -368,9 +371,10 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-let crumbs: any = {};
-crumbs[`${route.params.catalogue}`] = `/${route.params.catalogue}`;
-crumbs["variables"] = "";
+const crumbs: Crumb[] = [
+  { label: `${route.params.catalogue}`, url: `/${route.params.catalogue}` },
+  { label: "variables", url: "" },
+];
 </script>
 
 <template>

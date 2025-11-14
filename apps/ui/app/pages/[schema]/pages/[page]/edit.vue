@@ -3,7 +3,10 @@ import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 
-import type { INotificationType } from "../../../../../../tailwind-components/types/types";
+import type {
+  Crumb,
+  INotificationType,
+} from "../../../../../../tailwind-components/types/types";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import ContentBlockModal from "../../../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import SideModal from "../../../../../../tailwind-components/app/components/SideModal.vue";
@@ -130,11 +133,12 @@ watch(
   }
 );
 
-const crumbs: Record<string, string> = {};
-crumbs[schema as string] = `/${schema}`;
-crumbs["Pages"] = `/${schema}/pages`;
-crumbs[page as string] = `/${schema}/pages/${page}`;
-crumbs["Edit"] = "";
+const crumbs: Crumb[] = [
+  { label: schema as string, url: `/${schema}` },
+  { label: "Pages", url: `/${schema}/pages` },
+  { label: page as string, url: `/${schema}/pages/${page}` },
+  { label: "Edit", url: "" },
+];
 </script>
 
 <template>
