@@ -8,6 +8,14 @@
         <PageHeader title="My Title" description='My description' />
       </div>
     </div>
+    <div>
+      <p class="pb-3 text-title">
+        Simple pageheader (left aligned):
+      </p>
+      <div>
+        <PageHeader align="left" title="My Title" description='My description' />
+      </div>
+    </div>
   <div>
     <p class="pb-3 text-title">
       Center-aligned Pageheader with title prefix/suffix, icon and long description:
