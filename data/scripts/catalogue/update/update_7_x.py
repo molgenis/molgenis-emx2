@@ -86,7 +86,7 @@ class Transform:
             self.subpopulations()
         if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts']:
             self.subpopulation_counts()
-        if self.profile in ['CohortsStaging', 'RWEStaging' 'DataCatalogueFlat']:
+        if self.profile in ['CohortsStaging', 'RWEStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
 
     def agents(self):
