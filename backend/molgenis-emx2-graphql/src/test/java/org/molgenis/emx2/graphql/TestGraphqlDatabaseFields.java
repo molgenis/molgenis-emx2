@@ -3,14 +3,12 @@ package org.molgenis.emx2.graphql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,7 +23,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static GraphQL grapql;
+  private static GraphqlApi grapql;
   private static Database database;
   private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
@@ -36,7 +34,7 @@ public class TestGraphqlDatabaseFields {
     taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, false).run();
-    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
+    grapql = new GraphqlApi(database, taskService);
   }
 
   @Test
@@ -234,11 +232,7 @@ public class TestGraphqlDatabaseFields {
     JsonNode result =
         new ObjectMapper()
             .readTree(
-                convertExecutionResultToJson(
-                    grapql.execute(
-                        ExecutionInput.newExecutionInput(query)
-                            .graphQLContext(graphQLContext)
-                            .build())));
+                convertExecutionResultToJson(grapql.execute(query, Map.of(), sessionManager)));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }
