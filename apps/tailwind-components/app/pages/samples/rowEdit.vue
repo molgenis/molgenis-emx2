@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHead } from "#app";
 import { definePageMeta } from "#imports";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import type {
   columnValue,
@@ -18,7 +18,6 @@ import FormFields from "../../components/form/Fields.vue";
 import FormError from "../../components/form/Error.vue";
 import FormRequiredInfoSection from "../../components/form/RequiredInfoSection.vue";
 import DraftLabel from "../../components/label/DraftLabel.vue";
-import { url } from "@nuxt/test-utils";
 import type { Crumb } from "../../../types/types";
 
 definePageMeta({
