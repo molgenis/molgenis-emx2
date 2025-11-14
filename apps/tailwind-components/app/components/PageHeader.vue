@@ -39,7 +39,7 @@ withDefaults(
             'mr-4': slots['title-prefix'],
           }"
         >
-          <div class="ml-auto w-fit gap-4">
+          <div class="ml-auto w-fit flex gap-4">
             <slot name="title-prefix"></slot>
           </div>
         </div>
@@ -62,7 +62,7 @@ withDefaults(
       <div
         v-if="slots['description']"
         class="flex mt-1 mb-0 lg:mb-5 text-body-lg"
-        :class="{ 'text-center': align === 'center' }"
+        :class="{ 'm-auto': align === 'center' }"
       >
         <slot name="description"></slot>
       </div>
