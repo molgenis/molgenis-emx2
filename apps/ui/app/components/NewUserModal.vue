@@ -1,28 +1,30 @@
 <template>
   <Modal v-model:visible="visible" title="Create User">
-    <div class="p-5">
-      <label>Username</label>
-      <InputString
-        id="New username"
-        v-model="username"
-        :hasError="isDuplicateName"
-      />
-      <label>Password</label>
-      <InputString
-        id="New user password"
-        v-model="password"
-        :valid="password.length >= 8"
-        :hasError="password.length < 8"
-        type="password"
-      />
-      <label>Repeat password</label>
-      <InputString
-        id="New user password second time"
-        v-model="password2"
-        :valid="password === password2 && password2 !== ''"
-        :hasError="password !== password2"
-        type="password"
-      />
+    <div class="overflow-y-auto">
+      <div class="p-5">
+        <label>Username</label>
+            <InputString
+          id="New username"
+          v-model="username"
+          :hasError="isDuplicateName"
+        />
+        <label>Password</label>
+        <InputString
+          id="New user password"
+          v-model="password"
+          :valid="password.length >= 8"
+          :hasError="password.length < 8"
+          type="password"
+        />
+        <label>Repeat password</label>
+        <InputString
+          id="New user password second time"
+          v-model="password2"
+          :valid="password === password2 && password2 !== ''"
+          :hasError="password !== password2"
+          type="password"
+        />
+      </div>
     </div>
     <template #footer>
       <div class="m-1">

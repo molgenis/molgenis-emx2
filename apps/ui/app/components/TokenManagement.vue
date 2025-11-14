@@ -1,32 +1,34 @@
 <template>
-  <Modal v-model:visible="visible" :title="`Manage ${userName}'s tokens`">
-    <Table>
-      <template #head>
-        <TableHeadRow>
-          <TableHead class="w-0"></TableHead>
-          <TableHead>Name</TableHead>
-        </TableHeadRow>
-      </template>
-      <template #body>
-        <TableRow v-for="token in userTokens">
-          <TableCell>
-            <!--
-            <Button
-                  iconOnly
-                  icon="trash"
-                  type="secondary"
-                  size="small"
-                  label="Remove token"
-                  @click="removeToken(token)"
-                />
+  <Modal v-model:visible="visible" :title="`Manage ${user.email}'s tokens`">
+    <div class="overflow-y-auto">
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead class="w-0"></TableHead>
+            <TableHead>Name</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow v-for="token in user.tokens">
+            <TableCell>
+<!--
+              <Button
+                    iconOnly
+                    icon="trash"
+                    type="secondary"
+                    size="small"
+                    label="Remove token"
+                    @click="removeToken(token)"
+                  />
 -->
-          </TableCell>
-          <TableCell>
-            {{ token }}
-          </TableCell>
-        </TableRow>
-      </template>
-    </Table>
+            </TableCell>
+            <TableCell>
+              {{ token }}
+            </TableCell>
+          </TableRow>
+        </template>
+      </Table>
+    </div>
   </Modal>
 </template>
 
@@ -51,16 +53,9 @@ const props = defineProps<{
 
 const visible = defineModel("visible", { required: true });
 
-function closeModal() {
-  visible.value = false;
-}
-
-const userName = ref<string>(props.user.email);
-const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
-
 async function removeToken(token: string) {
   let editedUser: IUser = _.cloneDeep(props.user);
-  editedUser.tokens = _.reject(userTokens.value, (tok) => tok === token);
+  editedUser.tokens = _.reject(props.user.tokens , (tok) => tok === token);
   await updateUser(editedUser);
   emit("userUpdated");
 }

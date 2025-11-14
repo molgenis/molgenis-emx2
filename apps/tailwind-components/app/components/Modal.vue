@@ -104,7 +104,7 @@ function hide() {
         </header>
       </slot>
 
-      <div class="flex-1 flex flex-col min-h-0 overflow-y-auto">
+      <div class="flex-1 flex flex-col min-h-0">
         <slot />
       </div>
 

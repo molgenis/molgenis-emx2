@@ -87,7 +87,6 @@
           </TableRow>
         </template>
       </Table>
-
       <NewUserModal
         v-model:visible="showNewUserModal"
         :usernames="usernames"

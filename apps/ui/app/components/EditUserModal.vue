@@ -1,85 +1,86 @@
 <template>
-  <Modal v-model:visible="visible" :title="`Edit user: ${userName}`">
-    <div class="p-5">
-      <b>New password</b>
-      <InputString
-        id="New password"
-        v-model="password"
-        :valid="password.length >= 8"
-        :hasError="password.length < 8"
-        type="password"
-        class="mb-2"
-      />
-      <b>Repeat new password</b>
-      <InputString
-        id="New password second time"
-        v-model="password2"
-        :valid="password === password2 && password2 !== ''"
-        :hasError="password !== password2"
-        type="password"
-      />
+  <Modal v-model:visible="visible" :title="`Edit user: ${userName}`" max-width="max-w-9/10">
+    <div class="overflow-y-auto">
+      <div class="p-5">
+        <b>New password</b>
+        <InputString
+          id="New password"
+          v-model="password"
+          :valid="password.length >= 8"
+          :hasError="password.length < 8"
+          type="password"
+          class="mb-2"
+        />
+        <b>Repeat new password</b>
+        <InputString
+          id="New password second time"
+          v-model="password2"
+          :valid="password === password2 && password2 !== ''"
+          :hasError="password !== password2"
+          type="password"
+        />
+      </div>
+
+      <div class="p-5">
+        <b>Disable user</b>
+        <InputRadioGroup
+          id="disabledUserRadio"
+          :options="[
+            { value: true, label: 'Enabled' },
+            { value: false, label: 'Disabled' },
+          ]"
+          v-model="isEnabled"
+        />
+      </div>
+
+      <div class="p-5">
+        <b>Roles</b>
+
+        <Table>
+          <template #head>
+            <TableHeadRow>
+              <TableHead class="w-0"></TableHead>
+              <TableHead>Schema</TableHead>
+              <TableHead>Role</TableHead>
+            </TableHeadRow>
+          </template>
+          <template #body>
+            <TableRow v-if="_.isEmpty(userRoles)">
+              <TableCell></TableCell>
+              <TableCell> no roles found </TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+
+            <TableRow v-else v-for="role in userRoles">
+              <TableCell>
+                <Button
+                  iconOnly
+                  size="tiny"
+                  icon="trash"
+                  label="remove"
+                  @click="removeRole(role)"
+                />
+              </TableCell>
+              <TableCell>{{ role.schemaId }}</TableCell>
+              <TableCell>{{ role.role }}</TableCell>
+            </TableRow>
+          </template>
+        </Table>
+      </div>
+
+      <div class="p-5 pt-0 flex gap-2">
+        <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
+        <InputSelect id="select-role" v-model="role" :options="roles" />
+        <Button
+          size="small"
+          icon="plus"
+          @click="addRole"
+          class="whitespace-nowrap"
+          >Add role</Button
+        >
+      </div>
     </div>
-
-    <div class="p-5">
-      <b>Disable user</b>
-      <InputRadioGroup
-        id="disabledUserRadio"
-        :options="[
-          { value: true, label: 'Enabled' },
-          { value: false, label: 'Disabled' },
-        ]"
-        v-model="isEnabled"
-      />
-    </div>
-
-    <div class="p-5">
-      <b>Roles</b>
-
-      <Table>
-        <template #head>
-          <TableHeadRow>
-            <TableHead class="w-0"></TableHead>
-            <TableHead>Schema</TableHead>
-            <TableHead>Role</TableHead>
-          </TableHeadRow>
-        </template>
-        <template #body>
-          <TableRow v-if="_.isEmpty(userRoles)">
-            <TableCell></TableCell>
-            <TableCell> no roles found </TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-
-          <TableRow v-else v-for="role in userRoles">
-            <TableCell>
-              <Button
-                iconOnly
-                size="tiny"
-                icon="trash"
-                label="remove"
-                @click="removeRole(role)"
-              />
-            </TableCell>
-            <TableCell>{{ role.schemaId }}</TableCell>
-            <TableCell>{{ role.role }}</TableCell>
-          </TableRow>
-        </template>
-      </Table>
-    </div>
-
-    <div class="p-5 pt-0 flex gap-2">
-      <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
-      <InputSelect id="select-role" v-model="role" :options="roles" />
-      <Button
-        size="small"
-        icon="plus"
-        @click="addRole"
-        class="whitespace-nowrap"
-        >Add role</Button
-      >
-    </div>
-
-    <!--
+<!--
     <div v-if="userTokens.length" class="p-5">
       <b>Tokens</b>
       <Table>
@@ -128,7 +129,7 @@
 import _ from "lodash";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { isValidPassword, updateUser } from "~/util/adminUtils";
-import { computed, ref } from "vue";
+import { computed, ref, toRef, watch } from "vue";
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import InputRadioGroup from "../../../tailwind-components/app/components/input/RadioGroup.vue";
@@ -155,13 +156,22 @@ const schema = ref<string>(
   props.schemas.length ? props.schemas[0]?.id ?? "" : ""
 );
 
-const userName = ref<string>(props.user.email);
-const isEnabled = ref<boolean>(props.user.enabled);
-const userRoles = ref<Record<string, IRole>>(getRoles(props.user.roles || []));
+const userName = computed(()=>props.user.email);
+const isEnabled = computed(()=>props.user.enabled);
 const revokedRoles = ref<Record<string, IRole>>({});
-const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
 const password = ref<string>("");
 const password2 = ref<string>("");
+
+const userRoles = ref<Record<string, IRole>>(getRoles(props.user.roles || []));
+const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
+
+watch(
+  () => props.user,
+  (newUser) => {
+    userRoles.value = getRoles(newUser.roles || []);
+    userTokens.value = newUser.tokens || ([] as string[]);
+  }
+);
 
 const SchemaIds = computed(() => {
   return props.schemas.map((schema) => schema.id);
@@ -213,7 +223,7 @@ async function saveUser() {
     tokens: userTokens.value,
     roles: Object.values(userRoles.value),
     revokedRoles: Object.values(revokedRoles.value),
-  }; //TODO define update user object
+  };
 
   if (password.value) {
     editedUser.password = password.value;
