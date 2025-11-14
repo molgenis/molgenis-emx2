@@ -26,11 +26,19 @@ withDefaults(
       <slot name="prefix"></slot>
     </div>
     <div class="flex flex-col text-title">
-      <span class="mb-2 mt-2.5 xl:block hidden m-auto" v-if="icon && align === 'center'">
+      <span
+        class="mb-2 mt-2.5 xl:block hidden m-auto"
+        v-if="icon && align === 'center'"
+      >
         <BaseIcon :name="icon" :width="55" />
       </span>
       <div class="flex items-center">
-        <div :class="{ 'flex-1': align === 'center', 'mr-4': slots['title-prefix'] }">
+        <div
+          :class="{
+            'flex-1': align === 'center',
+            'mr-4': slots['title-prefix'],
+          }"
+        >
           <div class="ml-auto w-fit gap-4">
             <slot name="title-prefix"></slot>
           </div>
@@ -41,7 +49,13 @@ withDefaults(
         </div>
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>
 
-        <div class="flex gap-4" :class="{ 'flex-1': align === 'center', 'ml-4': slots['title-suffix'] }">
+        <div
+          class="flex gap-4"
+          :class="{
+            'flex-1': align === 'center',
+            'ml-4': slots['title-suffix'],
+          }"
+        >
           <slot name="title-suffix"></slot>
         </div>
       </div>
