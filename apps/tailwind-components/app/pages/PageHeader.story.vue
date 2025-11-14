@@ -15,7 +15,6 @@
     <div>
     <PageHeader title="My Title" icon="handshake" description='This is some dummy text to create a string of over 250 characters long to show that it is initially truncated. You can view the full text by pressing "..." at the end of this description to view the text that is initially hidden but then suddenly appears and allows the user to read the full description.'>
       <template #title-prefix>
-<!--        <ButtonPageHeader label="ButtonPageHeader in title-prefix slot" icon="arrow-left" />-->
         <span>title-prefix text</span>
       </template>
       <template #title-suffix>
