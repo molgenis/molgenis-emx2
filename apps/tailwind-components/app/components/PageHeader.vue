@@ -25,29 +25,51 @@ withDefaults(
     <div class="mb-6" v-if="slots.prefix">
       <slot name="prefix"></slot>
     </div>
-    <div
-      class="flex flex-col text-title"
-      :class="{ 'items-center': align === 'center' }"
-    >
-      <span class="mb-2 mt-2.5 xl:block hidden text-icon" v-if="icon">
+    <div class="flex flex-col text-title">
+      <span
+        class="mb-2 mt-2.5 xl:block hidden m-auto"
+        v-if="icon && align === 'center'"
+      >
         <BaseIcon :name="icon" :width="55" />
       </span>
-      <div class="relative flex items-center">
-        <slot name="title-prefix"></slot>
+      <div class="flex items-center">
+        <div
+          :class="{
+            'flex-1': align === 'center',
+            'mr-4': slots['title-prefix'],
+          }"
+        >
+          <div class="ml-auto w-fit flex gap-4">
+            <slot name="title-prefix"></slot>
+          </div>
+        </div>
 
+        <div class="xl:block hidden mr-4" v-if="icon && align === 'left'">
+          <BaseIcon :name="icon" :width="55" />
+        </div>
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>
 
-        <slot name="title-suffix"></slot>
+        <div
+          class="flex gap-4"
+          :class="{
+            'flex-1': align === 'center',
+            'ml-4': slots['title-suffix'],
+          }"
+        >
+          <slot name="title-suffix"></slot>
+        </div>
       </div>
       <div
         v-if="slots['description']"
-        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+        class="flex mt-1 mb-0 lg:mb-5 text-body-lg"
+        :class="{ 'm-auto': align === 'center' }"
       >
         <slot name="description"></slot>
       </div>
       <div
         v-if="description"
-        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+        class="mt-1 mb-0 lg:mb-5 text-body-lg"
+        :class="{ 'text-center': align === 'center' }"
       >
         <ContentReadMore v-if="truncate" :text="description" />
         <p v-else>{{ description }}</p>
