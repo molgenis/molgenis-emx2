@@ -32,9 +32,9 @@ useHead({
 });
 
 const crumbs: Crumb[] = [
-  {label: "Catalogue example", url: "/catalogue-example"},
-  {label: "Cohorts", url: "/catalogue-example/cohorts"},
-  {label: "Edit cohort: CONSTANCES", url: ""},
+  { label: "Catalogue example", url: "/catalogue-example" },
+  { label: "Cohorts", url: "/catalogue-example/cohorts" },
+  { label: "Edit cohort: CONSTANCES", url: "" },
 ];
 const formValues = ref<Record<string, columnValue>>({});
 const metadata = cohortTableMetadata as ITableMetaData;
