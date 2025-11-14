@@ -32,7 +32,7 @@ withDefaults(
       <span class="mb-2 mt-2.5 xl:block hidden text-icon" v-if="icon">
         <BaseIcon :name="icon" :width="55" />
       </span>
-      <div class="relative flex items-center">
+      <div class="relative flex items-center gap-4">
         <slot name="title-prefix"></slot>
 
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>
@@ -41,13 +41,15 @@ withDefaults(
       </div>
       <div
         v-if="slots['description']"
-        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+        class="mt-1 mb-0 lg:mb-5 text-body-lg"
+        :class="{ 'text-center': align === 'center' }"
       >
         <slot name="description"></slot>
       </div>
       <div
         v-if="description"
-        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+        class="mt-1 mb-0 lg:mb-5 text-body-lg"
+        :class="{ 'text-center': align === 'center' }"
       >
         <ContentReadMore v-if="truncate" :text="description" />
         <p v-else>{{ description }}</p>
