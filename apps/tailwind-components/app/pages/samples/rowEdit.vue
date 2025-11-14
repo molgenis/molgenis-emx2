@@ -18,6 +18,8 @@ import FormFields from "../../components/form/Fields.vue";
 import FormError from "../../components/form/Error.vue";
 import FormRequiredInfoSection from "../../components/form/RequiredInfoSection.vue";
 import DraftLabel from "../../components/label/DraftLabel.vue";
+import { url } from "@nuxt/test-utils";
+import type { Crumb } from "../../../types/types";
 
 definePageMeta({
   layout: "full-page",
@@ -29,13 +31,11 @@ useHead({
   },
 });
 
-const crumbs = computed(() => {
-  let crumb: { [key: string]: string } = {};
-  crumb["Catalogue example"] = `/catalogue-example`;
-  crumb["Cohorts"] = `/catalogue-example/cohorts`;
-  crumb["Edit cohort: CONSTANCES"] = "";
-  return crumb;
-});
+const crumbs: Crumb[] = [
+  {label: "Catalogue example", url: "/catalogue-example"},
+  {label: "Cohorts", url: "/catalogue-example/cohorts"},
+  {label: "Edit cohort: CONSTANCES", url: ""},
+];
 const formValues = ref<Record<string, columnValue>>({});
 const metadata = cohortTableMetadata as ITableMetaData;
 const PAGE_OFF_SET = 200;
