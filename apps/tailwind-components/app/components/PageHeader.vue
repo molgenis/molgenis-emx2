@@ -25,19 +25,23 @@ withDefaults(
     <div class="mb-6" v-if="slots.prefix">
       <slot name="prefix"></slot>
     </div>
-    <div
-      class="flex flex-col text-title"
-      :class="{ 'items-center': align === 'center' }"
-    >
-      <span class="mb-2 mt-2.5 xl:block hidden text-icon" v-if="icon">
+    <div class="flex flex-col text-title">
+      <span class="mb-2 mt-2.5 xl:block hidden text-icon"
+            :class="{ 'm-auto': align === 'center' }" v-if="icon">
         <BaseIcon :name="icon" :width="55" />
       </span>
-      <div class="relative flex items-center gap-4">
-        <slot name="title-prefix"></slot>
+      <div class="flex items-center gap-4">
+        <div :class="{ 'flex-1': align === 'center' }">
+          <div class="ml-auto w-fit">
+            <slot name="title-prefix"></slot>
+          </div>
+        </div>
 
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>
 
-        <slot name="title-suffix"></slot>
+        <div class="flex" :class="{ 'flex-1': align === 'center' }">
+          <slot name="title-suffix"></slot>
+        </div>
       </div>
       <div
         v-if="slots['description']"
