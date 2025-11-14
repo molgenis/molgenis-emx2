@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import pandas as pd
 from decouple import config
+import re
+
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
@@ -37,10 +39,11 @@ class Transform:
     """General functions to update catalogue data model.
     """
 
-    def __init__(self, schema_name, profile):
+    def __init__(self, schema_name, profile, source_url):
         self.schema_name = schema_name
         self.profile = profile
         self.path = self.schema_name + '_data/'
+        self.url = source_url
 
     def delete_data_model_file(self):
         """Delete molgenis.csv
@@ -68,6 +71,11 @@ class Transform:
         if self.profile == 'DataCatalogueFlat':
             self.agents()
             self.endpoint()
+        if self.url == 'https://molgeniscatalogue.org/':
+            self.contact_points()
+        if self.url == 'https://molgeniscatalogue.org/' and not self.profile == 'INTEGRATE':
+            self.variables()
+
         self.organisations()
         self.resources()
 
@@ -76,9 +84,9 @@ class Transform:
         if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE', 'NetworksStaging']:
             self.collection_events()
             self.subpopulations()
-        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE']:
+        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts']:
             self.subpopulation_counts()
-        if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
+        if self.profile in ['CohortsStaging', 'RWEStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
 
     def agents(self):
@@ -89,7 +97,7 @@ class Transform:
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
         # TODO: change dependent on server
-        df_agents['resource'] = 'UMCG'
+        df_agents['resource'] = 'MOLGENIS'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -174,8 +182,8 @@ class Transform:
                     df_resources.loc[i, 'publisher.id'] = df_organisations_c['id'][0]
             i += 1
 
-        # get contact point from Contacts table for demo data only
-        if self.schema_name == 'testCatalogue':
+        # get contact point from Contacts table for demo data and molgeniscatalogue only
+        if self.schema_name == 'testCatalogue' or self.url == 'https://molgeniscatalogue/':
             df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
             df_resources['contact point.resource'] = ''
             df_resources['contact point.first name'] = ''
@@ -200,6 +208,27 @@ class Transform:
         # write table to file
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
+    def contact_points(self):
+        """ Get data from contact email to Contacts table
+        """
+        df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+
+        df_resource_contacts = df_resources.dropna(subset=['contact email'])
+        df_resource_contacts = df_resource_contacts[['id', 'contact email']]
+
+        df_resource_contacts = df_resource_contacts.rename(columns={'id': 'resource',
+                                                                    'contact email': 'email'}, inplace=False)
+
+        df_resource_contacts['name'] = df_resource_contacts['email'].apply(get_first_part_email)
+        df_resource_contacts['first name'] = df_resource_contacts['name'].apply(get_first_name)
+        df_resource_contacts['last name'] = df_resource_contacts['name'].apply(get_last_name)
+        df_resource_contacts['role'] = 'Primary contact'
+        df_resource_contacts.dropna(subset=['first name', 'last name'], inplace=True)
+
+        # write tables to file
+        df_resource_contacts.to_csv(self.path + 'Contacts.csv', index=False)
+
     def contacts(self):
         """ Transform data in Contacts
         """
@@ -216,7 +245,7 @@ class Transform:
         df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
 
         df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
-        df_endpoint['publisher.resource'] = 'UMCG'  # TODO: change dependent on server
+        df_endpoint['publisher.resource'] = 'MOLGENIS'  # TODO: change dependent on server
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
@@ -234,12 +263,17 @@ class Transform:
 
             # concatenate name and subpopulations from resource and name or subpopulations columns
             df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
-            df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
-            df_col_event['subpopulations'] = df_col_event.apply(concat_resource_subpopulations, axis=1)
+            if self.profile != 'NetworksStaging':
+                df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
+                df_col_event['subpopulations'] = df_col_event.apply(concat_resource_multiple, column_name='subpopulations', axis=1)
 
-            # get keywords from Resources
-            dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
-            df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+                # get keywords from Resources
+                dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+                df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+
+                # get creator from Resources
+                dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+                df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # get descriptions from Resources when missing
             dict_descriptions = dict(zip(df_resources.id, df_resources.description))
@@ -248,9 +282,6 @@ class Transform:
             # get publisher from Resources
             dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
             df_col_event['publisher'] = df_col_event['resource'].apply(get_publisher, dict_publisher=dict_publisher)
-            # get creator from Resources
-            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-            df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # only for demo data:
             if self.schema_name == 'testCatalogue':
@@ -274,10 +305,6 @@ class Transform:
             # concatenate name from resource and name columns
             df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, column_name='name', axis=1)
 
-            # get keywords from Resources
-            dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
-            df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
-
             # get descriptions from Resources when missing
             dict_descriptions = dict(zip(df_resources.id, df_resources.description))
             df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
@@ -286,9 +313,14 @@ class Transform:
             dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
             df_subpopulations['publisher'] = df_subpopulations['resource'].apply(get_publisher, dict_publisher=dict_publisher)
 
-            # get creator from Resources
-            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-            df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
+            if self.profile != 'NetworksStaging':
+                # get keywords from Resources
+                dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+                df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+
+                # get creator from Resources
+                dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+                df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # only for demo data:
             if self.schema_name == 'testCatalogue':
@@ -310,11 +342,28 @@ class Transform:
             # write table to file
             df_subpop_counts.to_csv(self.path + 'Subpopulation counts.csv', index=False)
 
+    def variables(self):
+        """ Transform data in Variables
+        """
+        df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False, dtype='object')
+        if len(df_variables) != 0:
+            if self.profile != 'RWEStaging':
+                # concatenate collection event name from resource and collection event name
+                df_variables['collection event'] = df_variables.apply(concat_resource_multiple, column_name='collection event', axis=1)
+
+            if self.profile not in ['NetworksStaging', 'RWEStaging']:
+                df_variables = df_variables.drop(columns=['mappings.source', 'mappings.source dataset', 'mappings.target',
+                                                          'mappings.target dataset', 'mappings.target variable',
+                                                          'mappings.repeats'])
+            # write table to file
+            df_variables.to_csv(self.path + 'Variables.csv', index=False)
+
     def variable_mappings(self):
         """ Transform data in Variable mappings
         """
-        df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
+        df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False, dtype='object')
         if len(df_mappings) != 0:
+            df_mappings['target variable'] = df_mappings.apply(clean_targets, axis=1)
             df_mappings['repeats'] = df_mappings['repeats'].apply(clean_repeats)
 
             # write table to file
@@ -364,26 +413,37 @@ def clean_repeats(repeats):
         repeats = 'NA'
     elif repeats in ['t1', 't2', 't3']:
         repeats = repeats[1:]
+    repeats = repeats.replace('.', ',')
     return repeats
 
 
+def clean_targets(row):
+    target = row['target variable']
+    if row['repeats'] == 'preg':
+        target = row['target variable'] + 'preg'
+    elif row['repeats'] in ['t1', 't2', 't3']:
+        target = row['target variable'] + 't'
+
+    return target
+
+
 def concat_resource_name(row, column_name):
-        if not row['resource'].lower() in row[column_name].lower():
-            return row['resource'] + ' ' + row[column_name]
-        else:
-            return row[column_name]
+    if not row['resource'].lower() in row[column_name].lower():
+        return row['resource'] + ' ' + row[column_name]
+    else:
+        return row[column_name]
 
 
-def concat_resource_subpopulations(row):
-    if not row['subpopulations'] == '':
-        subpopulations_list = row['subpopulations'].split(',')
-        subpopulations = ''
-        for s in subpopulations_list:
-            if not row['resource'].lower() in s.lower():
-                subpopulations += ',' + row['resource'] + ' ' + s
+def concat_resource_multiple(row, column_name):
+    if not row[column_name] == '' and not pd.isna(row[column_name]):
+        split_entries = row[column_name].split(',')
+        new_entries = ''
+        for e in split_entries:
+            if not row['resource'].lower() in e.lower():
+                new_entries += ',' + row['resource'] + ' ' + e
             else:
-                subpopulations += ',' + s
-        return subpopulations.strip(',')
+                new_entries += ',' + e
+        return new_entries.strip(',')
 
 
 def get_description(row, dict_descriptions):
@@ -427,3 +487,44 @@ def nan_to_string(x):
     if pd.isna(x):
         x = ''
     return x
+
+
+def get_first_part_email(email):
+    x = email.find('@')
+    name = email[:x]
+
+    return name
+
+
+def get_first_name(name):
+    first_name = ''
+    if name.isalnum():
+        first_name = pd.NA
+    else:
+        split_name = re.split(r"[^a-zA-Z0-9\s]", name)
+        if len(split_name) == 2:
+            if len(split_name[0]) == 1:
+                first_name = split_name[0].capitalize() + '.'
+            else:
+                first_name = split_name[0].capitalize()
+        else:
+            split_name = split_name[:-1]
+            for n in split_name:
+                if len(n) == 1:
+                    first_name += n.capitalize() + '.'
+                else:
+                    first_name += ' ' + n.capitalize()
+            first_name.strip()
+
+    return first_name
+
+
+def get_last_name(name):
+    last_name = ''
+    if name.isalnum():
+        last_name = pd.NA
+    else:
+        split_name = re.split(r"[^a-zA-Z0-9\s]", name)
+        last_name = split_name[len(split_name) - 1].capitalize()
+
+    return last_name
