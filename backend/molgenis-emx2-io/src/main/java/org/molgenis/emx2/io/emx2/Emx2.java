@@ -36,6 +36,7 @@ public class Emx2 {
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
   private static final String PROFILES = "profiles";
+  private static final String COLUMN_FORM_LABEL = "formLabel";
 
   private Emx2() {
     // hidden
@@ -157,6 +158,7 @@ public class Emx2 {
                   value -> {
                     column.setLabel(row.getString(value), (value.split(":")[1]));
                   });
+          if (row.notNull(COLUMN_FORM_LABEL)) column.setFormLabel(row.getString(COLUMN_FORM_LABEL));
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
