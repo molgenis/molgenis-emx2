@@ -114,23 +114,25 @@
         />
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
-            <Button type="secondary" :disabled="saving" @click="onCancel"
-              >Cancel</Button
-            >
-            <Button type="outline" :disabled="saving" @click="onSave(true)"
-              >Save as draft
+            <Button type="secondary" :disabled="saving" @click="onCancel">
+              Cancel
+            </Button>
+            <Button type="outline" :disabled="saving" @click="onSave(true)">
+              Save as draft
               <BaseIcon
                 v-if="savingDraft"
                 class="inline animate-spin"
                 name="ProgressActivity"
-            /></Button>
-            <Button type="primary" :disabled="saving" @click="onSave(false)"
-              >Save
+              />
+            </Button>
+            <Button type="primary" :disabled="saving" @click="onSave(false)">
+              Save
               <BaseIcon
                 v-if="saving"
                 class="inline animate-spin"
                 name="ProgressActivity"
-            /></Button>
+              />
+            </Button>
           </div>
         </menu>
       </div>
