@@ -183,7 +183,7 @@ class Transform:
             i += 1
 
         # get contact point from Contacts table for demo data and molgeniscatalogue only
-        if self.schema_name == 'testCatalogue' or self.url == 'https://molgeniscatalogue/':
+        if self.schema_name == 'testCatalogue' or self.url == 'https://molgeniscatalogue.org/':
             df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
             df_resources['contact point.resource'] = ''
             df_resources['contact point.first name'] = ''
