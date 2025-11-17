@@ -148,7 +148,7 @@ public class Column {
     c.setComputed(computed);
     c.setReadonly(readonly);
     c.setProfiles(profiles);
-    c.setRequired(formLabel);
+    c.setFormLabel(formLabel);
 
     // ignore inherited
     return c;
