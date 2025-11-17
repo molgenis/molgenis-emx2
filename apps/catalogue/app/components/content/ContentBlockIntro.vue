@@ -187,20 +187,14 @@ const submitForm = async () => {
             <hr class="border-gray-300 my-4" />
             <div class="pl-3">
               <span class="text-body-base">or contact us at: </span>
-              <a
-                class="text-blue-500 hover:underline"
-                :href="`mailto:${contact}`"
-              >
+              <a class="text-link hover:underline" :href="`mailto:${contact}`">
                 {{ contact }}
               </a>
             </div>
           </template>
           <template v-else>
             <div class="font-bold text-body-base">E-mail</div>
-            <a
-              class="text-blue-500 hover:underline"
-              :href="`mailto:${contact}`"
-            >
+            <a class="text-link hover:underline" :href="`mailto:${contact}`">
               {{ contact }}
             </a>
           </template>
