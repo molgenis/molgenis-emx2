@@ -515,6 +515,6 @@ workflows:
           cron: "0 7 * * 1" # every Monday 07:00 UTC as cron can not do every 3 weeks
           filters:
             branches:
-              only: main
+              only: master
     jobs:
       - clear-dev-db-every-3-weeks

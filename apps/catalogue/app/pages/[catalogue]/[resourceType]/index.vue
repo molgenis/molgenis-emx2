@@ -7,7 +7,6 @@ import {
   useFetch,
   navigateTo,
 } from "#app";
-import { computed, ref } from "vue";
 import type {
   IFilter,
   IMgError,
@@ -32,8 +31,9 @@ import {
   mergeWithPageDefaults,
   toPathQueryConditions,
 } from "../../../utils/filterUtils";
-import { buildQueryFilter } from "~/utils/buildQueryFilter";
-import { logError } from "~/utils/errorLogger";
+import { buildQueryFilter } from "../../../utils/buildQueryFilter";
+import { computed, ref } from "vue";
+import { logError } from "../../../utils/errorLogger";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -248,20 +248,29 @@ const gqlFilter = computed(() => {
     }
   }
 
+  const collectionPartOf = [
+    { partOfNetworks: { id: { equals: route.params.catalogue } } },
+    {
+      partOfNetworks: {
+        parentNetworks: { id: { equals: route.params.catalogue } },
+      },
+    },
+  ];
+
+  const networkParentOf = [
+    { parentNetworks: { id: { equals: route.params.catalogue } } },
+  ];
+
   // add hard coded page specific filters
   if ("all" !== route.params.catalogue) {
     result = {
       _and: [
         result,
         {
-          _or: [
-            { partOfResources: { id: { equals: route.params.catalogue } } },
-            {
-              partOfResources: {
-                partOfResources: { id: { equals: route.params.catalogue } },
-              },
-            },
-          ],
+          _or:
+            route.params.resourceType == "collections"
+              ? collectionPartOf
+              : networkParentOf,
         },
       ],
     };
