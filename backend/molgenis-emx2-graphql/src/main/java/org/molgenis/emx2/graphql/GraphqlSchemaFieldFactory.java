@@ -25,22 +25,14 @@ import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlSchemaFieldFactory {
 
-  public static final GraphQLInputObjectType permissionsInputMetadataType =
+  public static final GraphQLInputObjectType permissionInputType =
       new GraphQLInputObjectType.Builder()
-          .name("MolgenisPermissionsInput")
+          .name("MolgenisLanguageValueType")
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_ID)
                   .type(Scalars.GraphQLString)
                   .description("Optional, if a permission should be applied on level of tableId"))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GROUP_NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(USERS)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(IS_ROW_LEVEL)
@@ -67,45 +59,21 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .build();
 
-  public static final GraphQLObjectType permissionsOutputMetadataType =
-      new GraphQLObjectType.Builder()
-          .name("MolgenisPermissionsType")
+  public static final GraphQLInputObjectType permissionsGroupInputMetadataType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisPermissionsGroupInput")
           .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(TABLE_NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
+              GraphQLInputObjectField.newInputObjectField()
                   .name(GROUP_NAME)
                   .type(Scalars.GraphQLString))
           .field(
-              GraphQLFieldDefinition.newFieldDefinition()
+              GraphQLInputObjectField.newInputObjectField()
                   .name(USERS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(IS_ROW_LEVEL)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(HAS_SELECT)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(HAS_INSERT)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(HAS_UPDATE)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(HAS_DELETE)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(HAS_ADMIN)
-                  .type(Scalars.GraphQLBoolean))
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(PERMISSIONS)
+                  .type(GraphQLList.list(permissionInputType)))
           .build();
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
@@ -565,7 +533,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(PERMISSIONS)
-                  .type(GraphQLList.list(permissionsInputMetadataType)))
+                  .type(GraphQLList.list(permissionsGroupInputMetadataType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
@@ -778,7 +746,7 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.KEYS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
-        .type(GraphQLList.list(permissionsOutputMetadataType))
+        .type(GraphQLList.list(permissionsGroupInputMetadataType))
         .dataFetcher(dataFetchingEnvironment -> schema.getMetadata().getPermissions());
   }
 
@@ -831,7 +799,7 @@ public class GraphqlSchemaFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(Constants.PERMISSIONS)
-                .type(GraphQLList.list(permissionsInputMetadataType)))
+                .type(GraphQLList.list(permissionsGroupInputMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(Constants.SETTINGS)
