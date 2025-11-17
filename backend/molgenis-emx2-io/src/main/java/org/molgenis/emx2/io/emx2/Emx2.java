@@ -188,6 +188,7 @@ public class Emx2 {
             TABLE_EXTENDS,
             TABLE_TYPE,
             COLUMN_NAME,
+            COLUMN_FORM_LABEL,
             COLUMN_TYPE,
             KEY,
             REQUIRED,
@@ -248,6 +249,7 @@ public class Emx2 {
       row.setString(
           TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
       row.setString(COLUMN_NAME, null);
+      row.setString(COLUMN_FORM_LABEL, null);
       row.setString(COLUMN_TYPE, null);
       row.setString(KEY, null);
       row.setString(REQUIRED, null);
@@ -286,6 +288,7 @@ public class Emx2 {
         Row row = new Row();
         row.setString(TABLE_NAME, column.getTableName());
         row.setString(COLUMN_NAME, column.getName());
+        if (column.getFormLabel() != null) row.setString(COLUMN_FORM_LABEL, column.getFormLabel());
         if (!column.getColumnType().equals(STRING))
           row.setString(COLUMN_TYPE, column.getColumnType().toString().toLowerCase());
         if (column.getRequired() != null) row.setString(REQUIRED, column.getRequired());
