@@ -45,7 +45,7 @@ test("add new row", async ({ page }) => {
 
   await page.getByRole("textbox", { name: "weight Required" }).click();
   await page.getByRole("textbox", { name: "weight Required" }).fill("23");
-  await page.getByRole("button", { name: "Save Pet", exact: true }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.getByRole("button", { name: "Close modal", exact: true }).click();
 
   await expect(

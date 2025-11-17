@@ -12,7 +12,7 @@
       </Button>
     </slot>
   </template>
-  <Modal v-model:visible="visible" max-width="max-w-9/10">
+  <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
         <div class="mb-5 relative flex items-center">
@@ -20,15 +20,9 @@
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
             {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
-            {{ editFormValues["mg_draft"] ? "(status=draft)" : "" }}
           </h2>
 
-          <span
-            v-show="isDraft"
-            class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-          >
-            Draft
-          </span>
+          <DraftLabel v-if="isDraft" />
         </div>
 
         <button
@@ -78,7 +72,7 @@
         </NextSectionNav>
       </div>
     </div>
-    <Transition name="slide-up">
+    <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
@@ -86,8 +80,8 @@
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp>
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
@@ -102,14 +96,14 @@
           >Re-authenticate</Button
         >
       </FormError>
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
       <FormMessage
         v-show="formMessage"
         :message="formMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
-    </Transition>
+    </TransitionSlideUp>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -122,9 +116,7 @@
           <div class="flex gap-4">
             <Button type="secondary" @click="onCancel">Cancel</Button>
             <Button type="outline" @click="onSave(true)">Save as draft</Button>
-            <Button type="primary" @click="onSave(false)">
-              Save {{ rowType }}
-            </Button>
+            <Button type="primary" @click="onSave(false)">Save</Button>
           </div>
         </menu>
       </div>
@@ -156,6 +148,8 @@ import FormMessage from "./Message.vue";
 import NextSectionNav from "./NextSectionNav.vue";
 import PreviousSectionNav from "./PreviousSectionNav.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
+import DraftLabel from "../label/DraftLabel.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -207,10 +201,15 @@ function setVisible() {
 }
 
 const rowType = computed(() => props.metadata.id);
-const isDraft = ref(false);
+const isDraft = computed(
+  () => editFormValues.value["mg_draft"] === true || false
+);
 
 function onCancel() {
   visible.value = false;
+  saveErrorMessage.value = "";
+  formMessage.value = "";
+  editFormValues.value = {};
   emit("update:cancelled");
 }
 
@@ -243,24 +242,17 @@ async function onSave(draft: boolean) {
     }
   }
   try {
-    if (draft) {
-      editFormValues.value["mg_draft"] = true;
-    } else {
-      editFormValues.value["mg_draft"] = false;
-    }
-    let resp;
-    if (isInsert.value) {
-      await insertInto();
-    } else {
-      await updateInto();
-    }
+    editFormValues.value["mg_draft"] = draft;
+    const resp = await (isInsert.value ? insertInto() : updateInto());
     if (!resp) {
-      return;
+      throw new Error(
+        `No response from server on ${isInsert.value ? "insert" : "update"}`
+      );
     }
-    formMessage.value =
-      (isInsert.value ? "inserted 1 " : "saved 1 ") +
-      rowType.value +
-      (draft ? " as draft" : "");
+    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+      rowType.value
+    } ${draft ? "as draft" : ""}`;
+    showFormMessage.value = true;
     emit(isInsert.value ? "update:added" : "update:updated", resp);
     if (isInsert.value) {
       await updateRowKey();
@@ -310,4 +302,7 @@ function reAuthenticate() {
     formMessage
   );
 }
+
+const showFormMessage = ref(false);
+const showSaveErrorMessage = ref(false);
 </script>
