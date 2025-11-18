@@ -1,6 +1,7 @@
 """
 Tests for the Pyclient.
 """
+import logging
 import os
 import zipfile
 from io import BytesIO
@@ -13,7 +14,7 @@ from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
-    ReferenceException, PermissionDeniedException, NoSuchTableException, PyclientException
+    ReferenceException, PermissionDeniedException, PyclientException
 from src.molgenis_emx2_pyclient.metadata import Schema
 
 load_dotenv()
@@ -413,9 +414,39 @@ def test_set_schema():
         client.set_schema("pet store")
         assert client.default_schema == "pet store"
 
-def test_report_task_progress():
+
+@pytest.mark.asyncio
+async def test_report_task_progress(caplog):
     """Tests the `_report_task_progress` method."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        file_path = RESOURCES_DIR / "delete" / "pet store.zip"
+        api_url = f"{client.url}/pet store/api/zip?async=true"
+
+        with open(file_path, 'rb') as file:
+            response = client.session.post(
+                url=api_url,
+                files={'file': file}
+            )
+        process_id = response.json().get('id')
+
+        caplog.set_level(logging.INFO)
+        await client._report_task_progress(process_id)
+
+        message_starts = [
+            "Import from store",
+            "    Modified 2 rows in Pet in ",
+            "    Modified 2 rows in Tag in ",
+            "Committing",
+            "Completed task: Import csv file in "
+        ]
+        for ms, cm in zip(message_starts, caplog.messages):
+            assert cm.startswith(ms)
+
+
+
 
 def test_validate_graphql_response():
     """Tests the `_validate_graphql_response` method."""
