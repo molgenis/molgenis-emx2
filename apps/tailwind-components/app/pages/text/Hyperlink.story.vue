@@ -1,3 +1,6 @@
+<script setup lang="ts">
+import Hyperlink from "~/components/text/Hyperlink.vue";
+</script>
 <template>
   <div>
     <span>Some text with </span
@@ -18,8 +21,3 @@
     /><span> in it.</span>
   </div>
 </template>
-<script setup lang="ts">
-import ButtonPageheaderBack from "../components/button/PageHeaderBack.vue";
-import CustomTooltip from "../components/CustomTooltip.vue";
-import Hyperlink from "~/components/text/Hyperlink.vue";
-</script>

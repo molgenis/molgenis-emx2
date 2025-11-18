@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import ButtonPageheaderBack from "../components/button/PageHeaderBack.vue";
+import Hyperlink from "~/components/text/Hyperlink.vue";
+</script>
 <template>
   <div class="flex gap-16 flex-col">
     <div>
@@ -79,8 +83,3 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
-import ButtonPageheaderBack from "../components/button/PageHeaderBack.vue";
-import CustomTooltip from "../components/CustomTooltip.vue";
-import Hyperlink from "~/components/text/Hyperlink.vue";
-</script>
