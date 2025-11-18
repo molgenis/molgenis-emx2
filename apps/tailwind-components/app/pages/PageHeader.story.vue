@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Hyperlink from "~/components/text/Hyperlink.vue";
+import TextHyperlink from "~/components/text/Hyperlink.vue";
 </script>
 <template>
   <div class="flex gap-16 flex-col">
@@ -26,7 +26,7 @@ import Hyperlink from "~/components/text/Hyperlink.vue";
       <PageHeader icon="handshake" title="My Title" backPath="../">
         <template #description>
           <span>My description using a slot with </span
-          ><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>
+          ><TextHyperlink to="https://molgenis.org" label="a Hyperlink" /><span>
             in between 2 spans.</span
           >
         </template>
@@ -39,7 +39,7 @@ import Hyperlink from "~/components/text/Hyperlink.vue";
       <PageHeader align="left" icon="handshake" title="My Title" backPath="/">
         <template #description>
           <span>My description using a slot with </span
-          ><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>
+          ><TextHyperlink to="https://molgenis.org" label="a Hyperlink" /><span>
             in between 2 spans.</span
           >
         </template>
