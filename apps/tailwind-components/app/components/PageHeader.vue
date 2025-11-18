@@ -39,7 +39,7 @@ withDefaults(
             'mr-4': slots['title-prefix'],
           }"
         >
-          <div class="ml-auto w-fit flex gap-4">
+          <div class="ml-auto w-fit flex items-center gap-4">
             <slot name="title-prefix"></slot>
           </div>
         </div>
@@ -50,7 +50,7 @@ withDefaults(
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>
 
         <div
-          class="flex gap-4"
+          class="flex items-center gap-4"
           :class="{
             'flex-1': align === 'center',
             'ml-4': slots['title-suffix'],
