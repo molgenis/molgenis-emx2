@@ -22,10 +22,7 @@
       </p>
       <PageHeader icon="handshake" title="My Title">
         <template #description>
-          <span>My description using a slot</span><CustomTooltip
-            label="tooltip"
-            content="that has a tooltip component inside of it"
-        /><span> with more text after tooltip to show alignment.</span>
+          <span>My description using a slot with</span><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>in between 2 spans.</span>
         </template>
         <template #title-prefix>
           <ButtonPageheaderBack />
@@ -38,10 +35,7 @@
       </p>
       <PageHeader align="left" icon="handshake" title="My Title">
         <template #description>
-          <span>My description using a slot</span><CustomTooltip
-            label="tooltip"
-            content="that has a tooltip component inside of it"
-        /><span> with more text after tooltip to show alignment.</span>
+          <span>My description using a slot with</span><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>in between 2 spans.</span>
         </template>
         <template #title-prefix>
           <ButtonPageheaderBack label="custom button text" />
@@ -81,4 +75,5 @@
 <script setup lang="ts">
 import ButtonPageheaderBack from "../components/button/PageHeaderBack.vue";
 import CustomTooltip from "../components/CustomTooltip.vue";
+import Hyperlink from "~/components/text/Hyperlink.vue";
 </script>
