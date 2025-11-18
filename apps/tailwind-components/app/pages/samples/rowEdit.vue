@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {navigateTo, useHead} from "#app";
+import { navigateTo, useHead } from "#app";
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";

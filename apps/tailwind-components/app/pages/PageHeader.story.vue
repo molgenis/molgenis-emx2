@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Hyperlink from "~/components/text/Hyperlink.vue";
-import {navigateTo} from "#app";
+import { navigateTo } from "#app";
 </script>
 <template>
   <div class="flex gap-16 flex-col">

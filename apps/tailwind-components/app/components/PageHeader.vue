@@ -44,11 +44,11 @@ withDefaults(
           <div class="ml-auto w-fit flex items-center gap-4">
             <NuxtLink :to="backPath" v-if="backPath">
               <Button
-                  type="filterWell"
-                  size="large"
-                  label="back"
-                  :iconOnly="true"
-                  icon="arrow-left"
+                type="filterWell"
+                size="large"
+                label="back"
+                :iconOnly="true"
+                icon="arrow-left"
               />
             </NuxtLink>
             <slot name="title-prefix"></slot>
