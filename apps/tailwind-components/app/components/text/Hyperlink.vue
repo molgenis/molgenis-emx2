@@ -30,7 +30,7 @@ const rel = computed(() => {
 </script>
 
 <template>
-  <NuxtLink :to="to" class="underline" :class="inline ? 'ml-1' : ''" :target="target" :rel="rel" :external="external">
+  <NuxtLink :to="to" class="underline" :class="inline ? 'm-1' : ''" :target="target" :rel="rel" :external="external">
     <BaseIcon class="inline" name="icon" :width="16" v-if="icon" /><span>{{ label }}</span><BaseIcon class="inline" name="ExternalLink" :width="16" v-if="external" />
   </NuxtLink>
 </template>
