@@ -423,14 +423,17 @@ export default function useForm(
     if (!currentSection.value) {
       currentSection.value = sections.value[0]?.id;
     }
-    const columns = metadata.value?.columns || [];
-    return columns.filter(
-      (column) =>
-        !column.id.startsWith("mg_") &&
-        visibleMap[column.id] &&
-        currentSection.value === column.section &&
-        (column.columnType !== "AUTO_ID" ||
-          formValues.value[column.id] !== undefined)
+    return (
+      metadata.value?.columns
+        .filter((column) => !column.id.startsWith("mg_"))
+        .filter((column) => visibleMap[column.id])
+        .filter((column) => currentSection.value === column.section)
+        // only show AUTO_ID columns when they have a value
+        .filter(
+          (column) =>
+            column.columnType !== "AUTO_ID" ||
+            formValues.value[column.id] !== undefined
+        )
     );
   });
   const invisibleColumns = computed(() => {
