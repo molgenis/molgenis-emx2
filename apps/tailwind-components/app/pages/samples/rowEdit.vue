@@ -18,7 +18,7 @@ import FormFields from "../../components/form/Fields.vue";
 import FormError from "../../components/form/Error.vue";
 import FormRequiredInfoSection from "../../components/form/RequiredInfoSection.vue";
 import DraftLabel from "../../components/label/DraftLabel.vue";
-import ButtonPageHeader from "~/components/button/PageHeader.vue";
+import ButtonPageHeaderBack from "~/components/button/PageHeaderBack.vue";
 
 definePageMeta({
   layout: "full-page",
@@ -82,7 +82,7 @@ function onCancel() {
         <BreadCrumbs :align="'left'" :crumbs="crumbs" />
       </template>
       <template #title-prefix>
-        <ButtonPageHeader label="back" icon="arrow-left" />
+        <ButtonPageHeaderBack />
       </template>
       <template #title-suffix>
         <DraftLabel />
