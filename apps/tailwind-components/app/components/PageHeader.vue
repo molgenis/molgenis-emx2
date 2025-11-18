@@ -2,6 +2,7 @@
 import { useSlots } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import ContentReadMore from "./ContentReadMore.vue";
+import Button from "~/components/Button.vue";
 
 const slots: ReturnType<typeof useSlots> = useSlots();
 
@@ -12,6 +13,7 @@ withDefaults(
     icon?: string;
     truncate?: boolean;
     align?: "left" | "center";
+    backButton?: (...args: any[]) => void;
   }>(),
   {
     truncate: true,
@@ -36,10 +38,19 @@ withDefaults(
         <div
           :class="{
             'flex-1': align === 'center',
-            'mr-4': slots['title-prefix'],
+            'mr-4': slots['title-prefix'] || backButton,
           }"
         >
           <div class="ml-auto w-fit flex items-center gap-4">
+            <Button
+                type="filterWell"
+                size="large"
+                label="back"
+                :iconOnly="true"
+                icon="arrow-left"
+                @click="backButton"
+                v-if="backButton"
+            />
             <slot name="title-prefix"></slot>
           </div>
         </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ButtonPageheaderBack from "../components/button/PageHeaderBack.vue";
 import Hyperlink from "~/components/text/Hyperlink.vue";
+import {navigateTo} from "#app";
 </script>
 <template>
   <div class="flex gap-16 flex-col">
@@ -22,34 +23,27 @@ import Hyperlink from "~/components/text/Hyperlink.vue";
     </div>
     <div>
       <p class="pb-3 text-title">
-        Center-aligned Pageheader using description slot and back icon:
+        Center-aligned Pageheader with back button using description slot:
       </p>
-      <PageHeader icon="handshake" title="My Title">
+      <PageHeader icon="handshake" title="My Title" :backButton="() => navigateTo('/')">
         <template #description>
           <span>My description using a slot with </span
           ><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>
             in between 2 spans.</span
           >
-        </template>
-        <template #title-prefix>
-          <ButtonPageheaderBack />
         </template>
       </PageHeader>
     </div>
     <div>
       <p class="pb-3 text-title">
-        Left-aligned Pageheader using description slot and back icon:
+        Left-aligned Pageheader with back button using description slot:
       </p>
-      <PageHeader align="left" icon="handshake" title="My Title">
+      <PageHeader align="left" icon="handshake" title="My Title" :backButton="() => navigateTo('/')">
         <template #description>
           <span>My description using a slot with </span
           ><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>
             in between 2 spans.</span
           >
-        </template>
-        <template #title-prefix>
-          <ButtonPageheaderBack label="custom button text" />
-          <span>icon and text in title-prefix</span>
         </template>
       </PageHeader>
     </div>
@@ -63,6 +57,7 @@ import Hyperlink from "~/components/text/Hyperlink.vue";
       <PageHeader
         title="My Title"
         description='This is some dummy text to create a string of over 250 characters long to show that it is initially truncated. You can view the full text by pressing "..." at the end of this description to view the text that is initially hidden but then suddenly appears and allows the user to read the full description.'
+        :backButton="() => navigateTo('/')"
       >
         <template #title-prefix>
           <span>title-prefix text</span>
