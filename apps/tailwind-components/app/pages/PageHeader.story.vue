@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ButtonPageheaderBack from "../components/button/PageHeaderBack.vue";
 import Hyperlink from "~/components/text/Hyperlink.vue";
 import {navigateTo} from "#app";
 </script>

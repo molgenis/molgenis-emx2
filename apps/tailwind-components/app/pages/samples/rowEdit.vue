@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useHead } from "#app";
+import {navigateTo, useHead} from "#app";
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -18,7 +18,6 @@ import FormFields from "../../components/form/Fields.vue";
 import FormError from "../../components/form/Error.vue";
 import FormRequiredInfoSection from "../../components/form/RequiredInfoSection.vue";
 import DraftLabel from "../../components/label/DraftLabel.vue";
-import ButtonPageHeaderBack from "~/components/button/PageHeaderBack.vue";
 
 definePageMeta({
   layout: "full-page",
@@ -77,12 +76,9 @@ function onCancel() {
 </script>
 <template>
   <Container>
-    <PageHeader title="Edit cohort: CONSTANCES" align="left">
+    <PageHeader title="Edit cohort: CONSTANCES" align="left" :backButton="() => navigateTo('/')">
       <template #prefix>
         <BreadCrumbs :align="'left'" :crumbs="crumbs" />
-      </template>
-      <template #title-prefix>
-        <ButtonPageHeaderBack />
       </template>
       <template #title-suffix>
         <DraftLabel />
