@@ -350,10 +350,38 @@ async def test_update_schema():
 
         await client.delete_schema("pet store 2")
 
-
-def test_recreate_schema():
+@pytest.mark.asyncio
+async def test_recreate_schema():
     """Tests the `recreate_schema` method."""
-    ...
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Fail on missing schema
+        with pytest.raises(NoSuchSchemaException) as excinfo:
+            await client.recreate_schema("pet store 2")
+        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+
+        await client.create_schema("pet store 2")
+
+        await client.recreate_schema(name="pet store 2", description="The second pet store.")
+        schemas = client.get_schemas()
+        pet2_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        assert pet2_meta[0].get("description") == "The second pet store."
+
+        await client.recreate_schema(name="pet store 2",
+                                     description="The second pet store.",
+                                     template="PET_STORE")
+        assert len(client.get_schema_metadata("pet store 2").tables) == 5
+
+        await client.recreate_schema(name="pet store 2",
+                                     description="The second pet store.",
+                                     template="PET_STORE",
+                                     include_demo_data=True)
+        assert len(client.get(table="Pet", schema="pet store 2")) == 8
+
+        await client.delete_schema("pet store 2")
+
 
 def test_get_schema_metadata():
     """Tests the `get_schema_metadata` method."""
