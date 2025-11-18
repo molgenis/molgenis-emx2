@@ -398,13 +398,20 @@ async def test_recreate_schema():
 
         await client.delete_schema("pet store 2")
 
-def test_prepare_filter():
-    """Tests the `_prepare_filter` method."""
-    ...
 
 def test_set_schema():
     """Tests the `set_schema` method."""
-    ...
+
+    with Client(url=server_url) as client:
+        current_schema = client.default_schema
+        assert current_schema is None
+
+        with pytest.raises(NoSuchSchemaException) as excinfo:
+            client.set_schema("pet store 2")
+        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+
+        client.set_schema("pet store")
+        assert client.default_schema == "pet store"
 
 def test_report_task_progress():
     """Tests the `_report_task_progress` method."""
@@ -413,6 +420,3 @@ def test_report_task_progress():
 def test_validate_graphql_response():
     """Tests the `_validate_graphql_response` method."""
     ...
-
-
-
