@@ -13,7 +13,7 @@ withDefaults(
     icon?: string;
     truncate?: boolean;
     align?: "left" | "center";
-    backButton?: (...args: any[]) => void;
+    backPath?: string;
   }>(),
   {
     truncate: true,
@@ -38,19 +38,19 @@ withDefaults(
         <div
           :class="{
             'flex-1': align === 'center',
-            'mr-4': slots['title-prefix'] || backButton,
+            'mr-4': slots['title-prefix'] || backPath,
           }"
         >
           <div class="ml-auto w-fit flex items-center gap-4">
-            <Button
-                type="filterWell"
-                size="large"
-                label="back"
-                :iconOnly="true"
-                icon="arrow-left"
-                @click="backButton"
-                v-if="backButton"
-            />
+            <NuxtLink :to="backPath" v-if="backPath">
+              <Button
+                  type="filterWell"
+                  size="large"
+                  label="back"
+                  :iconOnly="true"
+                  icon="arrow-left"
+              />
+            </NuxtLink>
             <slot name="title-prefix"></slot>
           </div>
         </div>

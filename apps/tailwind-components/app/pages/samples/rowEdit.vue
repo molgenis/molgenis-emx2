@@ -76,7 +76,7 @@ function onCancel() {
 </script>
 <template>
   <Container>
-    <PageHeader title="Edit cohort: CONSTANCES" align="left" :backButton="() => navigateTo('/')">
+    <PageHeader title="Edit cohort: CONSTANCES" align="left" backPath="/">
       <template #prefix>
         <BreadCrumbs :align="'left'" :crumbs="crumbs" />
       </template>
