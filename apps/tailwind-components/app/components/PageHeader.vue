@@ -61,7 +61,7 @@ withDefaults(
       </div>
       <div
         v-if="slots['description']"
-        class="flex mt-1 mb-0 lg:mb-5 text-body-lg"
+        class="mt-1 mb-0 lg:mb-5 text-body-lg"
         :class="{ 'm-auto': align === 'center' }"
       >
         <slot name="description"></slot>
