@@ -747,7 +747,7 @@ class Client:
     async def recreate_schema(self, name: str = None,
                               description: str = None,
                               template: str = None,
-                              include_demo_data: bool = None):
+                              include_demo_data: bool = False):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
 
