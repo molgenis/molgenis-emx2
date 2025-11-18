@@ -1,29 +1,30 @@
+import { $fetch } from "ofetch";
 import {
   computed,
-  ref,
+  isRef,
   reactive,
+  ref,
+  unref,
   watch,
   type MaybeRef,
-  unref,
-  isRef,
 } from "vue";
-import type {
-  columnValue,
-  ITableMetaData,
-  IColumn,
-  columnId,
-  HeadingType,
-  IFormLegendSection,
-} from "../../../metadata-utils/src/types";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
-import { getPrimaryKey } from "../utils/getPrimaryKey";
+import type {
+  columnId,
+  columnValue,
+  HeadingType,
+  IColumn,
+  IFormLegendSection,
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
 import {
   getColumnError,
   isColumnVisible,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import { useSession } from "#imports";
+import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+import { useSession } from "./useSession";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -219,16 +220,18 @@ export default function useForm(
   const validateColumn = (column: IColumn) => {
     const error = getColumnError(column, formValues.value, metadata.value);
 
-    if (error) {
-      errorMap.value[column.id] = error;
-    } else {
-      errorMap.value[column.id] = metadata.value.columns
-        .filter((c) => c.validation?.includes(column.id))
-        .map((c) => {
-          const result = getColumnError(c, formValues.value, metadata.value);
-          return result;
-        })
-        .join("");
+    if (visibleColumns.value.find((visCol) => column.id === visCol.id)) {
+      if (error) {
+        errorMap.value[column.id] = error;
+      } else {
+        errorMap.value[column.id] = metadata.value.columns
+          .filter((c) => c.validation?.includes(column.id))
+          .map((c) => {
+            const result = getColumnError(c, formValues.value, metadata.value);
+            return result;
+          })
+          .join("");
+      }
     }
 
     // remove empty entries from the map
@@ -321,7 +324,7 @@ export default function useForm(
         query,
         variables,
       },
-    }).catch((error) =>
+    }).catch((error: any) =>
       handleFetchError(error, "Error on delete form database")
     );
   };
@@ -436,9 +439,6 @@ export default function useForm(
         )
     );
   });
-  const invisibleColumns = computed(() => {
-    return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
-  });
 
   const nextSection = computed(() => {
     const sectionList = sections.value.filter((s) => s.type === "SECTION");
@@ -523,7 +523,6 @@ export default function useForm(
     sections,
     currentSection,
     visibleColumns,
-    invisibleColumns,
     errorMap,
     validateAllColumns,
     visibleMap,
