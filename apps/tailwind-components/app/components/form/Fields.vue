@@ -21,7 +21,7 @@ const props = defineProps<{
   rowKey?: columnValue;
   constantValues?: IRow; //provides values that shouldn't be edited
   visibleMap: Record<columnId, boolean | undefined>; //provides columns to be shown, including other sections
-  visibleSection: string; //id of current section
+  visibleSection: string | undefined; //id of current section
   errorMap: Record<columnId, string>; //map of errors if available
 }>();
 
