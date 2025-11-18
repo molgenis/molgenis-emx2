@@ -59,11 +59,9 @@
           v-if="visible"
           ref="formFields"
           :row-key="rowKey"
-          :columns="metadata.columns"
+          :columns="visibleColumns"
           :constantValues="constantValues"
           :errorMap="errorMap"
-          :visibleMap="visibleMap"
-          :visibleSection="currentSection"
           v-model="editFormValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
@@ -116,9 +114,25 @@
         />
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
-            <Button type="secondary" @click="onCancel">Cancel</Button>
-            <Button type="outline" @click="onSave(true)">Save as draft</Button>
-            <Button type="primary" @click="onSave(false)">Save</Button>
+            <Button type="secondary" :disabled="saving" @click="onCancel">
+              Cancel
+            </Button>
+            <Button type="outline" :disabled="saving" @click="onSave(true)">
+              Save as draft
+              <BaseIcon
+                v-if="savingDraft"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
+            <Button type="primary" :disabled="saving" @click="onSave(false)">
+              Save
+              <BaseIcon
+                v-if="saving"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
           </div>
         </menu>
       </div>
@@ -175,6 +189,11 @@ const visible = defineModel("visible", {
   type: Boolean,
   default: false,
 });
+
+const saving = ref(false);
+const savingDraft = computed(
+  () => saving.value && editFormValues.value["mg_draft"] === true
+);
 const rowKey = ref<Record<string, columnValue>>();
 const isInsert = ref(true);
 const editFormValues = ref<Record<string, columnValue>>(
@@ -245,7 +264,11 @@ async function onSave(draft: boolean) {
   }
   try {
     editFormValues.value["mg_draft"] = draft;
-    const resp = await (isInsert.value ? insertInto() : updateInto());
+    saving.value = true;
+    const resp = await (isInsert.value ? insertInto() : updateInto()).catch(
+      () => (saving.value = false)
+    );
+    saving.value = false;
     if (!resp) {
       throw new Error(
         `No response from server on ${isInsert.value ? "insert" : "update"}`
@@ -288,13 +311,12 @@ const {
   insertInto,
   updateInto,
   errorMap,
-  visibleMap,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
   validateAllColumns,
   sections,
-  currentSection,
+  visibleColumns,
   reset,
 } = useForm(props.metadata, editFormValues, "fields-container");
 

@@ -271,14 +271,12 @@ const { data, refresh } = useAsyncData(
   }
 );
 
-const rows = computed(() => {
-  if (!data.value?.tableData) return [];
+const rows = computed(() =>
+  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+);
 
-  return data.value.tableData.rows;
-});
-
-const showDraftColumn = computed(
-  () => rows.value?.some((row) => row?.mg_draft === true) || true
+const showDraftColumn = computed(() =>
+  rows.value.some((row) => row?.mg_draft === true)
 );
 
 const count = computed(() => data.value?.tableData?.count ?? 0);

@@ -327,9 +327,6 @@ export default function useForm(
   };
 
   const updateVisibility = () => {
-    if (!currentSection.value) {
-      currentSection.value = sections.value[0]?.id;
-    }
     let previousSection: IColumn | undefined = undefined;
     let sectionColumns: string[] = [];
     let previousHeading: IColumn | undefined = undefined;
@@ -422,6 +419,27 @@ export default function useForm(
     }
   };
 
+  const visibleColumns = computed(() => {
+    if (!currentSection.value) {
+      currentSection.value = sections.value[0]?.id;
+    }
+    return (
+      metadata.value?.columns
+        .filter((column) => !column.id.startsWith("mg_"))
+        .filter((column) => visibleMap[column.id])
+        .filter((column) => currentSection.value === column.section)
+        // only show AUTO_ID columns when they have a value
+        .filter(
+          (column) =>
+            column.columnType !== "AUTO_ID" ||
+            formValues.value[column.id] !== undefined
+        )
+    );
+  });
+  const invisibleColumns = computed(() => {
+    return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
+  });
+
   const nextSection = computed(() => {
     const sectionList = sections.value.filter((s) => s.type === "SECTION");
     const currentIndex = sectionList.findIndex(
@@ -504,6 +522,8 @@ export default function useForm(
     onViewColumn,
     sections,
     currentSection,
+    visibleColumns,
+    invisibleColumns,
     errorMap,
     validateAllColumns,
     visibleMap,

@@ -5,11 +5,10 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import type {
   columnValue,
-  ISchemaMetaData,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
-import useFetchTableMetadata from "../../composables/fetchTableMetadata";
+import cohortTableMetadata from "./data/cohort-table-metadata";
 import BreadCrumbs from "../../components/BreadCrumbs.vue";
 import Button from "../../components/Button.vue";
 import Container from "../../components/Container.vue";
@@ -32,15 +31,13 @@ useHead({
 
 const crumbs = computed(() => {
   let crumb: { [key: string]: string } = {};
-  crumb["Catalogue example"] = `/catalogue-demo`;
-  crumb["Cohorts"] = `/catalogue-demo/cohorts`;
+  crumb["Catalogue example"] = `/catalogue-example`;
+  crumb["Cohorts"] = `/catalogue-example/cohorts`;
   crumb["Edit cohort: CONSTANCES"] = "";
   return crumb;
 });
 const formValues = ref<Record<string, columnValue>>({});
-
-const metadata = await useFetchTableMetadata("catalogue-demo", "Resources");
-
+const metadata = cohortTableMetadata as ITableMetaData;
 const PAGE_OFF_SET = 200;
 
 function scrollTo(elementId: string) {
@@ -62,9 +59,7 @@ const {
   onViewColumn,
   onBlurColumn,
   onUpdateColumn,
-  visibleMap,
-  currentSection,
-  gotoSection,
+  visibleColumns,
 } = useForm(metadata, formValues, "row-edit-field-container");
 
 function onSave() {
@@ -105,7 +100,7 @@ function onCancel() {
           v-if="sections"
           class="pr-20 mr-5 sticky top-0"
           :sections="sections"
-          @goToSection="gotoSection"
+          @goToSection="scrollTo($event)"
         />
       </div>
 
@@ -137,9 +132,7 @@ function onCancel() {
         <FormFields
           class="px-32 bg-form"
           schemaId="catalogue-demo"
-          :columns="metadata.columns"
-          :visibleMap="visibleMap"
-          :visibleSection="currentSection"
+          :columns="visibleColumns"
           :errorMap="errorMap"
           v-model="formValues"
           @update="onUpdateColumn"

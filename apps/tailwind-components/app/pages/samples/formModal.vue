@@ -47,8 +47,7 @@
         >
           <FormFields
             schemaId="catalogue-demo"
-            :columns="metadata.columns"
-            :visibleMap="visibleMap"
+            :columns="visibleColumns"
             :error-map="errorMap"
             v-model="formValues"
             @update="onUpdateColumn"
@@ -159,6 +158,6 @@ const {
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
-  visibleMap,
+  visibleColumns,
 } = useForm(metadata, formValues, "fields-container");
 </script>

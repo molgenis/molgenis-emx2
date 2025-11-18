@@ -20,8 +20,6 @@ const props = defineProps<{
   columns: IColumn[];
   rowKey?: columnValue;
   constantValues?: IRow; //provides values that shouldn't be edited
-  visibleMap: Record<columnId, boolean | undefined>; //provides columns to be shown, including other sections
-  visibleSection: string | undefined; //id of current section
   errorMap: Record<columnId, string>; //map of errors if available
 }>();
 
@@ -70,11 +68,7 @@ const isRequired = (value: string | boolean): boolean =>
     <template v-for="column in columns">
       <div
         v-if="
-          (column.columnType === 'HEADING' ||
-            column.columnType === 'SECTION') &&
-          visibleMap &&
-          visibleMap[column.id] &&
-          visibleSection === column.section
+          column.columnType === 'HEADING' || column.columnType === 'SECTION'
         "
         :id="`${column.id}-form-field`"
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
@@ -93,12 +87,7 @@ const isRequired = (value: string | boolean): boolean =>
       </div>
       <FormField
         class="pb-8"
-        v-else-if="
-          !Object.keys(constantValues || {}).includes(column.id) &&
-          visibleMap &&
-          visibleMap[column.id] &&
-          visibleSection === column.section
-        "
+        v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
@@ -106,7 +95,11 @@ const isRequired = (value: string | boolean): boolean =>
         :label="column.label"
         :description="column.description"
         :disabled="
-          Boolean(column.readonly === 'true' || (rowKey && column.key === 1))
+          Boolean(
+            column.readonly === 'true' ||
+              (rowKey && column.key === 1) ||
+              column.columnType === 'AUTO_ID'
+          )
         "
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"

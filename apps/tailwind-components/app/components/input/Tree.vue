@@ -3,7 +3,7 @@ import type { ITreeNode, ITreeNodeState } from "../../../types/types";
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 import InputSearch from "./Search.vue";
-import { defineProps, withDefaults, defineEmits } from "vue";
+import { defineProps, defineEmits } from "vue";
 import ButtonText from "../button/Text.vue";
 
 const props = withDefaults(
@@ -250,41 +250,39 @@ const rootNodes = computed(() => {
 </script>
 
 <template>
-  <div>
-    <ButtonText
-      :id="`${id}-tree-search-button-toggle`"
-      icon="Search"
-      @click="toggleSearch"
-      :aria-controls="`${id}-tree-search-input-container`"
-      :aria-expanded="showOptionsSearch"
-      :class="inverted ? 'text-title-contrast' : 'text-title'"
+  <ButtonText
+    :id="`${id}-tree-search-button-toggle`"
+    icon="Search"
+    @click="toggleSearch"
+    :aria-controls="`${id}-tree-search-input-container`"
+    :aria-expanded="showOptionsSearch"
+    :class="inverted ? 'text-title-contrast' : 'text-title'"
+  >
+    <span :class="inverted ? 'text-title-contrast' : 'text-title'"
+      >Search for options</span
     >
-      <span :class="inverted ? 'text-title-contrast' : 'text-title'"
-        >Search for options</span
-      >
-    </ButtonText>
-    <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
-      <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
-      <InputSearch
-        :id="`${id}-tree-search-input`"
-        :modelValue="optionsSearch"
-        @update:modelValue="handleSearchInput"
-        placeholder="Type to search in options..."
-        :describedby="`${id}-tree-search-input-message`"
-      />
-      <div :id="`${id}-tree-search-input-message`">
-        <span v-if="rootNodes.filter((node) => node.visible).length === 0">
-          no results found
-        </span>
-      </div>
-    </div>
-    <TreeNode
-      :id="id"
-      :nodes="rootNodes"
-      :inverted="inverted"
-      :isRoot="true"
-      @toggleSelect="toggleSelect"
-      @toggleExpand="toggleExpand"
+  </ButtonText>
+  <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
+    <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
+    <InputSearch
+      :id="`${id}-tree-search-input`"
+      :modelValue="optionsSearch"
+      @update:modelValue="handleSearchInput"
+      placeholder="Type to search in options..."
+      :describedby="`${id}-tree-search-input-message`"
     />
+    <div :id="`${id}-tree-search-input-message`">
+      <span v-if="rootNodes.filter((node) => node.visible).length === 0">
+        no results found
+      </span>
+    </div>
   </div>
+  <TreeNode
+    :id="id"
+    :nodes="rootNodes"
+    :inverted="inverted"
+    :isRoot="true"
+    @toggleSelect="toggleSelect"
+    @toggleExpand="toggleExpand"
+  />
 </template>
