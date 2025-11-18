@@ -2,6 +2,7 @@
 import BaseIcon from "~/components/BaseIcon.vue";
 import { computed } from "vue";
 
+// See https://nuxt.com/docs/4.x/api/components/nuxt-link#handling-static-file-and-cross-app-links
 const props = withDefaults(
   defineProps<{
     to: string;
@@ -17,23 +18,15 @@ const props = withDefaults(
 const external = computed(() => {
   return props.type === "external";
 });
-
-const target = computed(() => {
-  return external ? "_blank" : "_self";
-});
-
-const rel = computed(() => {
-  return external ? "external noopener noreferrer" : "";
-});
 </script>
 
 <template>
   <NuxtLink
     :to="to"
     class="underline"
-    :target="target"
-    :rel="rel"
-    :external="external"
+    :target="external ? '_blank' : '_self'"
+    :rel="external ? 'external noopener noreferrer' : ''"
+    :external="type !== 'nuxt'"
   >
     <BaseIcon
       class="inline mr-1"
