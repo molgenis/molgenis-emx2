@@ -46,7 +46,6 @@ withDefaults(
               <Button
                 type="filterWell"
                 size="large"
-                label="back"
                 :iconOnly="true"
                 icon="arrow-left"
               />
