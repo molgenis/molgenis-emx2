@@ -22,7 +22,7 @@
       </p>
       <PageHeader icon="handshake" title="My Title">
         <template #description>
-          <span>My description using a slot with</span><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>in between 2 spans.</span>
+          <span>My description using a slot with </span><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span> in between 2 spans.</span>
         </template>
         <template #title-prefix>
           <ButtonPageheaderBack />
@@ -35,7 +35,7 @@
       </p>
       <PageHeader align="left" icon="handshake" title="My Title">
         <template #description>
-          <span>My description using a slot with</span><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span>in between 2 spans.</span>
+          <span>My description using a slot with </span><Hyperlink to="https://molgenis.org" label="a Hyperlink" /><span> in between 2 spans.</span>
         </template>
         <template #title-prefix>
           <ButtonPageheaderBack label="custom button text" />

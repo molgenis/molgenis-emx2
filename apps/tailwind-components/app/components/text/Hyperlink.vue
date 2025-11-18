@@ -8,11 +8,9 @@ const props = withDefaults(
       label: string;
       icon?: string;
       type?: "nuxt" | "static" | "external";
-      inline?: boolean;
     }>(),
     {
-      type: "external",
-      inline: true,
+      type: "external"
     }
 );
 
@@ -30,7 +28,7 @@ const rel = computed(() => {
 </script>
 
 <template>
-  <NuxtLink :to="to" class="underline" :class="inline ? 'm-1' : ''" :target="target" :rel="rel" :external="external">
-    <BaseIcon class="inline" name="icon" :width="16" v-if="icon" /><span>{{ label }}</span><BaseIcon class="inline" name="ExternalLink" :width="16" v-if="external" />
+  <NuxtLink :to="to" class="underline" :target="target" :rel="rel" :external="external">
+    <BaseIcon class="inline mr-1" :name="icon" :width="16" v-if="icon" /><span>{{ label }}</span><BaseIcon class="inline" name="ExternalLink" :width="16" v-if="external" />
   </NuxtLink>
 </template>
