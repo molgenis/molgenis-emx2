@@ -65,7 +65,7 @@ const isRequired = (value: string | boolean): boolean =>
 
 <template>
   <div ref="container">
-    <template v-for="column in columns">
+    <template v-for="column in columns" :key="column.id">
       <div
         v-if="
           column.columnType === 'HEADING' || column.columnType === 'SECTION'
