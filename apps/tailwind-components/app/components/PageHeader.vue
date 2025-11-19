@@ -2,7 +2,7 @@
 import { useSlots } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import ContentReadMore from "./ContentReadMore.vue";
-import Button from "~/components/Button.vue";
+import Button from "./Button.vue";
 
 const slots: ReturnType<typeof useSlots> = useSlots();
 
@@ -13,6 +13,8 @@ withDefaults(
     icon?: string;
     truncate?: boolean;
     align?: "left" | "center";
+    // Adds back button that links to the supplied path. Must be a path within the nuxt app!
+    // Should be used when a page shows a subsection of another page to return to the primary page.
     backPath?: string;
   }>(),
   {

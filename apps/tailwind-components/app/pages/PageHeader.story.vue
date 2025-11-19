@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TextHyperlink from "~/components/text/Hyperlink.vue";
+import TextHyperlink from "../components/text/Hyperlink.vue";
 </script>
 <template>
   <div class="flex gap-16 flex-col">
