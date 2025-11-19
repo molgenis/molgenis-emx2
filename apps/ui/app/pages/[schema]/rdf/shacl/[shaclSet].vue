@@ -83,7 +83,7 @@ if(processData.status === "UNKNOWN") runShacl();
 
 <template>
   <Container>
-    <PageHeader :title="`${routeShaclSet} for ${routeSchema}`" align="left">
+    <PageHeader :title="`${routeShaclSet} validation of ${routeSchema}`" align="left">
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
