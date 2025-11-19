@@ -4,7 +4,7 @@ import type {ProcessStatus} from "../../../../metadata-utils/src/generic";
 import type {AsyncDataRequestStatus} from "#app";
 
 defineProps<{
-  status: ProcessStatus | AsyncDataRequestStatus;
+  status: ProcessStatus | AsyncDataRequestStatus | undefined;
   width?: number;
 }>()
 </script>
@@ -33,4 +33,5 @@ defineProps<{
       :width="width"
       v-else-if="status === 'ERROR' || status === 'error'"
   />
+  <!-- else: ProcessStatus "UNKNOWN" || AsyncDataRequestStatus "IDLE" || undefined -->
 </template>

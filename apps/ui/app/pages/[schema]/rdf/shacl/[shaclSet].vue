@@ -88,7 +88,14 @@ if(processData.status === "UNKNOWN") runShacl();
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
       <template #title-prefix>
-        <ButtonPageHeader label="back" icon="arrow-left" @click="navigateTo(crumbs['shacl'])" />
+        <Button
+            class="mr-4"
+            type="filterWell"
+            size="large"
+            :iconOnly="true"
+            icon="arrow-left"
+            @click="navigateTo(crumbs['shacl'])"
+        />
       </template>
       <template #description>
         Validate the RDF API output for the complete schema.
