@@ -25,7 +25,7 @@ const tableClass = computed(() => {
     case "complete":
       return "bg-green-500";
     case "available":
-      return "bg-blue-500";
+      return "bg-label-available";
   }
 });
 
@@ -51,9 +51,9 @@ const fillClass = computed(() => {
     case "complete":
       return "text-green-800 fill-current";
     case "available":
-      return "bg-blue-500 fill-white";
+      return "bg-label-available text-label-available";
   }
-});
+}); 
 </script>
 <template>
   <div

@@ -5,6 +5,7 @@
 @import url("./theme/molgenis.css");
 @import url("./theme/umcg.css");
 @import url("./theme/aumc.css");
+@import url("./theme/hdsu.css");
 @import url("./plugins/popper.css");
 @import url("./plugins/datepicker.css");
 
@@ -76,6 +77,8 @@
 
     --opacity-background-gradient: 0;
 
+    --background-color-link-hover: var(--color-blue-50);
+
     --background-color-button-primary: var(--color-blue-500);
     --background-color-button-primary-hover: var(--color-blue-700);
     --background-color-button-secondary: var(--color-white);
@@ -96,6 +99,7 @@
     --background-color-app-wrapper: var(--color-white);
     --background-color-content: var(--color-white);
     --background-color-navigation: var(--color-white);
+    --background-color-navigation-dynamic: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
     --background-color-search-filter-group-toggle: var(--color-blue-800);
@@ -262,5 +266,12 @@
     /** labels */
     --background-color-label-draft: var(--color-gray-400);
     --text-color-label-draft: var(--color-white);
+
+    --background-color-label-available: var(--color-blue-500);
+    --background-color-label-available-hover: var(--color-blue-700);
+    --text-color-label-available: var(--color-black);
+
+    /** tooltips */
+    --text-color-icon-neutral: var(--color-blue-200);
   }
 }

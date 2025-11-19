@@ -14,6 +14,7 @@ export default gql`
         columns {
           id
           label
+          formLabel
           section
           heading
           columnType

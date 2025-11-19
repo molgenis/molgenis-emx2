@@ -92,10 +92,14 @@ const isRequired = (value: string | boolean): boolean =>
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
         :type="column.columnType"
-        :label="column.label"
+        :label="column.formLabel ?? column.label"
         :description="column.description"
         :disabled="
-          Boolean(column.readonly === 'true' || (rowKey && column.key === 1))
+          Boolean(
+            column.readonly === 'true' ||
+              (rowKey && column.key === 1) ||
+              column.columnType === 'AUTO_ID'
+          )
         "
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
