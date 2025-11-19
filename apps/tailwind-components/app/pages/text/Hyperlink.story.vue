@@ -23,6 +23,7 @@ import TextHyperlink from "~/components/text/Hyperlink.vue";
     ><TextHyperlink
       to="https://molgenis.org"
       label="an external hyperlink"
+      type="external"
     /><span> in it.</span>
   </div>
   <div>
@@ -31,6 +32,14 @@ import TextHyperlink from "~/components/text/Hyperlink.vue";
       to="https://molgenis.org"
       label="an external hyperlink with icon"
       icon="handshake"
+      type="external"
     /><span> in it.</span>
+  </div>
+  <div>
+    <span>Some text with a hyperlink without label (</span
+    ><TextHyperlink
+      to="https://molgenis.org"
+      type="external"
+  /><span>) in it.</span>
   </div>
 </template>

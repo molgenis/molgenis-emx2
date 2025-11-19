@@ -4,10 +4,10 @@ import { computed } from "vue";
 
 const props = defineProps<{
     to: string;
-    label: string;
+    label?: string;
     icon?: string;
     // See https://nuxt.com/docs/4.x/api/components/nuxt-link#handling-static-file-and-cross-app-links
-    type?: "nuxt" | "static" | "external";
+    type: "nuxt" | "static" | "external";
   }>()
 
 function isExternal() {
@@ -28,7 +28,7 @@ function isExternal() {
       :name="icon"
       :width="16"
       v-if="icon"
-    /><span>{{ label }}</span
+    /><span>{{ label ? label : to }}</span
     ><BaseIcon class="inline" name="ExternalLink" :width="16" v-if="isExternal()" />
   </NuxtLink>
 </template>
