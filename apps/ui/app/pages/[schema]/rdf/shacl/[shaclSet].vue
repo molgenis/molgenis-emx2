@@ -9,9 +9,9 @@ import ContentBasic from "../../../../../../tailwind-components/app/components/c
 import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
 import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
 import type { ProcessData } from "../../../../../../metadata-utils/src/generic";
-import ButtonPageHeader from "../../../../../../tailwind-components/app/components/button/PageHeader.vue"
 import {navigateTo} from "nuxt/app";
 import {downloadBlob} from "../../../../../../tailwind-components/app/utils/downloadBlob";
+import Button from "../../../../../../tailwind-components/app/components/Button.vue";
 
 const route = useRoute();
 const routeSchema = (
@@ -97,14 +97,12 @@ if(processData.status === "UNKNOWN") runShacl();
           content="Output is deemed valid if nodes adhere to the requirements or those nodes are not present."
         />
       </template>
-      <template class="flex flex-row ml-auto gap-4" #title-suffix>
-        <div class="flex flex-row ml-auto gap-2">
-        <ButtonPageHeader type="outline" label="refresh" icon="refresh" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl" />
-        <ButtonPageHeader type="outline" label="download" icon="download" :disabled="!processData.output" @click.prevent="downloadBlob(processData.output, 'text/turtle', `${routeSchema} - shacl - ${routeShaclSet}.ttl`)" />
-        </div>
-      </template>
     </PageHeader>
     <ContentBasic>
+      <template #controls>
+        <Button type="outline" size="small" label="refresh" icon="refresh" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl" />
+        <Button type="outline" size="small" label="download" icon="download" :disabled="!processData.output" @click.prevent="downloadBlob(processData.output, 'text/turtle', `${routeSchema} - shacl - ${routeShaclSet}.ttl`)" />
+      </template>
       <LoadingContent
         :id="`shaclSet-${routeShaclSet}`"
         :status="processData.status"
