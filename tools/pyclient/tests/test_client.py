@@ -442,10 +442,8 @@ async def test_report_task_progress(caplog):
             "Committing",
             "Completed task: Import csv file in "
         ]
-        for ms, cm in zip(message_starts, caplog.messages):
-            assert cm.startswith(ms)
-
-
+        for cm in caplog.messages:
+            assert any(map(lambda ms: cm.startswith(ms), message_starts))
 
 
 def test_validate_graphql_response():
