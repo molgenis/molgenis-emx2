@@ -62,15 +62,16 @@ onMounted(async () => {
   if (hearingLossSeverityChart.value) {
     hearingLossSeverityChart.value.yAxisMaxValue = serverityAxis.limit;
     hearingLossSeverityChart.value.yAxisTicks = serverityAxis.ticks;
-    hearingLossSeverityChart.value.dataPoints =
-      hearingLossSeverityChart.value.dataPoints?.sort((a, b) => {
+    hearingLossSeverityChart.value.dataPoints = hearingLossSeverityChart.value.dataPoints?.sort(
+      (a, b) => {
         return (
           (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
           (b.dataPointPrimaryCategory as string).localeCompare(
             a.dataPointPrimaryCategory as string
           )
         );
-      });
+      }
+    );
   }
 
   // age of onset prep
@@ -92,10 +93,10 @@ onMounted(async () => {
     geneticDiagnosisGenesChart.value.xAxisMaxValue = geneAxis.limit;
     geneticDiagnosisGenesChart.value.xAxisTicks = geneAxis.ticks;
 
-    geneticDiagnosisGenesChart.value.dataPoints =
-      geneticDiagnosisGenesChart.value.dataPoints?.sort((a, b) =>
+    geneticDiagnosisGenesChart.value.dataPoints = geneticDiagnosisGenesChart.value.dataPoints?.sort(
+      (a, b) =>
         (a.dataPointName as string).localeCompare(b.dataPointName as string)
-      );
+    );
   }
 
   // prep genetic diagnosis type
@@ -138,7 +139,7 @@ onMounted(async () => {
     <h2 class="dashboard-h2">General overview for your center</h2>
     <DashboardRow :columns="1">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
+        <LoadingScreen v-if="loading" style="height: 250px;" />
         <ColumnChart
           v-else
           :chartId="hearingLossTypeChart?.chartId"
@@ -166,7 +167,7 @@ onMounted(async () => {
     </DashboardRow>
     <DashboardRow :columns="1">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
+        <LoadingScreen v-if="loading" style="height: 250px;" />
         <GroupedColumnChart
           v-else
           :chartId="hearingLossSeverityChart?.chartId"
@@ -200,7 +201,7 @@ onMounted(async () => {
     </DashboardRow>
     <DashboardRow :columns="1">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
+        <LoadingScreen v-if="loading" style="height: 250px;" />
         <ColumnChart
           v-else
           :chartId="hearingLossOnsetChart?.chartId"
@@ -229,7 +230,7 @@ onMounted(async () => {
     <h3 class="dashboard-h3">Genetic diagnosis</h3>
     <DashboardRow :columns="2">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
+        <LoadingScreen v-if="loading" style="height: 250px;" />
         <BarChart
           v-else
           :chartId="geneticDiagnosisGenesChart?.chartId"
@@ -255,7 +256,7 @@ onMounted(async () => {
         />
       </DashboardChart>
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
+        <LoadingScreen v-if="loading" style="height: 250px;" />
         <ColumnChart
           v-else
           class="chart-axis-x-angled-text"
@@ -284,7 +285,7 @@ onMounted(async () => {
     </DashboardRow>
     <DashboardRow :columns="2">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
+        <LoadingScreen v-if="loading" style="height: 250px;" />
         <ColumnChart
           v-else
           :chartId="etiologyChart?.chartId"
@@ -310,7 +311,7 @@ onMounted(async () => {
         />
       </DashboardChart>
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
+        <LoadingScreen v-if="loading" style="height: 250px;" />
         <ColumnChart
           v-else
           class="chart-axis-x-angled-text"

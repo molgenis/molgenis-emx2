@@ -102,11 +102,9 @@ const sourceColumn = computed(() => {
 });
 
 const refColumnLabel = computed(() => {
-  const labelTemplate = (
-    sourceColumn.value?.refLabel
-      ? sourceColumn.value?.refLabel
-      : sourceColumn.value?.refLabelDefault
-  ) as string;
+  const labelTemplate = (sourceColumn.value?.refLabel
+    ? sourceColumn.value?.refLabel
+    : sourceColumn.value?.refLabelDefault) as string;
   return rowToString(refRow.value, labelTemplate);
 });
 
