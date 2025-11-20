@@ -181,6 +181,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.COLUMN_FORM_LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_POSITION)
                   .type(Scalars.GraphQLInt))
           .field(
@@ -370,6 +374,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(LABELS)
                   .type(GraphQLList.list(inputLanguageValueType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(COLUMN_FORM_LABEL)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_TYPE)

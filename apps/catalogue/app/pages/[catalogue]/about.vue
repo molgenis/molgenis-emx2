@@ -1,11 +1,7 @@
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader id="page-header" title="About">
-        <template #prefix>
-          <BreadCrumbs />
-        </template>
-      </PageHeader>
+      <PageHeader id="page-header" title="About" />
     </template>
     <template #side>
       <SideNavigation
@@ -308,7 +304,6 @@ import DisplayListItem from "../../../../tailwind-components/app/components/disp
 import DefinitionList from "../../../../tailwind-components/app/components/DefinitionList.vue";
 import DefinitionListTerm from "../../../../tailwind-components/app/components/DefinitionListTerm.vue";
 import DefinitionListDefinition from "../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
-import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import SideNavigation from "../../components/SideNavigation.vue";
 import ContentBlocks from "../../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";

@@ -34,6 +34,7 @@ import {
 import { buildQueryFilter } from "../../../utils/buildQueryFilter";
 import { computed, ref } from "vue";
 import { logError } from "../../../utils/errorLogger";
+import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -330,11 +331,13 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const crumbs: any = {};
-crumbs[
-  cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.catalogue}`;
-crumbs[route.params.resourceType as string] = "";
+const crumbs: Crumb[] = [
+  {
+    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
+    url: `/${route.params.catalogue}`,
+  },
+  { label: route.params.resourceType as string, url: "" },
+];
 </script>
 
 <template>
