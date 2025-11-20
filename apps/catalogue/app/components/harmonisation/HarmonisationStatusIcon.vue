@@ -53,7 +53,7 @@ const fillClass = computed(() => {
     case "available":
       return "bg-label-available text-label-available";
   }
-}); 
+});
 </script>
 <template>
   <div
