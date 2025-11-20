@@ -117,10 +117,10 @@ for schema in source.get_schemas():
         # create new schema
         if schema_name not in target.schema_names:
             asyncio.run(target.create_schema(name=schema_name, description=schema_description))
-
         # upload zipped data to target server:
         asyncio.run(target.upload_file(file_path=schema_name + '_upload.zip', schema=schema_name))
 
 
 # move departments from file to database
 # move Aggregates schema to prod
+# NetworksStaging curate resources vs child networks

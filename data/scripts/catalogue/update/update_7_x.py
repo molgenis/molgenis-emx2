@@ -9,17 +9,6 @@ import re
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
 
-def float_to_int(df):
-    """
-    Cast float64 Series to Int64. Floats are not converted to integers by EMX2
-    """
-    for column in df.columns:
-        if df[column].dtype == 'float64':
-            df.loc[:, column] = df[column].astype('Int64')
-
-    return df
-
-
 def get_data_model(profile_path, path_to_write, profile):
     # get data model from profile and write to file
     data_model = pd.DataFrame()
@@ -97,7 +86,7 @@ class Transform:
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
         # TODO: change dependent on server
-        df_agents['resource'] = 'MOLGENIS'
+        df_agents['resource'] = 'HDSU'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -234,7 +223,8 @@ class Transform:
         """
         df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
         if len(df_contacts) != 0:
-            df_contacts['statement of consent personal data'] = df_contacts.apply(calculate_consent, axis=1)
+            if 'statement of consent personal data' in df_contacts.columns:
+                df_contacts['statement of consent personal data'] = df_contacts.apply(calculate_consent, axis=1)
 
             # write table to file
             df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
@@ -245,7 +235,7 @@ class Transform:
         df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
 
         df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
-        df_endpoint['publisher.resource'] = 'MOLGENIS'  # TODO: change dependent on server
+        df_endpoint['publisher.resource'] = 'HDSU'  # TODO: change dependent on server
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
