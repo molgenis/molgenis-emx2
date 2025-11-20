@@ -9,7 +9,6 @@ from warnings import warn
 
 import pandas as pd
 import requests
-from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
@@ -1079,7 +1078,7 @@ class Client:
                 task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
 
-    def _validate_graphql_response(self, response: Response, mutation: str = None, fallback_error_message: str = None):
+    def _validate_graphql_response(self, response, mutation: str = None, fallback_error_message: str = None):
         """Validates a GraphQL response and prints the appropriate message.
 
         :param response: a graphql response from the server
