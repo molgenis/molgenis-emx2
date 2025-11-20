@@ -26,7 +26,7 @@ def test_schema_fail():
     with Client(url=server_url) as client:
         client.signin(username, password)
         with pytest.raises(NoSuchSchemaException) as excinfo:
-            client.save_schema(name="Pet store", table="Pet",
+            client.save_table(schema="Pet store", table="Pet",
                                file=RESOURCES_DIR / "insert" / "Pet.csv")
         assert excinfo.value.msg == "Schema 'Pet store' not available."
 
@@ -37,7 +37,7 @@ def test_table_fail():
 
         # Test failing table name
         with pytest.raises(NoSuchTableException) as excinfo:
-            client.save_schema(name="pet store", table="Pets",
+            client.save_table(schema="pet store", table="Pets",
                                file=RESOURCES_DIR / "insert" / "Pet.csv")
         assert excinfo.value.msg == "Table 'Pets' not found in schema 'pet store'."
 
@@ -48,7 +48,7 @@ def test_missing_file():
 
         # Test missing file and data
         with pytest.raises(FileNotFoundError) as excinfo:
-            client.save_schema(name="pet store", table="Pet")
+            client.save_table(schema="pet store", table="Pet")
 
         assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
 
@@ -59,7 +59,7 @@ def test_incorrect_file_name():
 
         # Test file upload incorrect name
         with pytest.raises(FileNotFoundError) as excinfo:
-            client.save_schema(name="pet store", table="Pet",
+            client.save_table(schema="pet store", table="Pet",
                                file=RESOURCES_DIR / "insert" / "Pat.csv")
 
         assert excinfo.value.args[1] == "No such file or directory"
@@ -74,9 +74,9 @@ def test_upload_file():
         pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
         tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
-        client.save_schema(name="pet store", table="Tag",
+        client.save_table(schema="pet store", table="Tag",
                            file=RESOURCES_DIR / "insert" / "Tag.csv")
-        client.save_schema(name="pet store", table="Pet",
+        client.save_table(schema="pet store", table="Pet",
                            file=RESOURCES_DIR / "insert" / "Pet.csv")
 
         # Number of records between
@@ -86,9 +86,9 @@ def test_upload_file():
         assert pet_between == pet_before + 2
         assert tag_between == tag_before + 2
 
-        client.save_schema(name="pet store", table="Pet",
+        client.save_table(schema="pet store", table="Pet",
                            file=RESOURCES_DIR / "delete" / "Pet.csv")
-        client.save_schema(name="pet store", table="Tag",
+        client.save_table(schema="pet store", table="Tag",
                            file=RESOURCES_DIR / "delete" / "Tag.csv")
 
         # Number of records after
@@ -110,9 +110,9 @@ def test_save_upload_list_data():
         tag_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Tag.csv").to_dict(orient='index').values()
         pet_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Pet.csv", keep_default_na=False).to_dict(orient='index').values()
 
-        client.save_schema(name="pet store", table="Tag",
+        client.save_table(schema="pet store", table="Tag",
                            data=list(tag_insert))
-        client.save_schema(name="pet store", table="Pet",
+        client.save_table(schema="pet store", table="Pet",
                            data=list(pet_insert))
 
         # Number of records between
@@ -125,9 +125,9 @@ def test_save_upload_list_data():
         tag_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Tag.csv").to_dict(orient='index').values()
         pet_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Pet.csv", keep_default_na=False).to_dict(orient='index').values()
 
-        client.save_schema(name="pet store", table="Pet",
+        client.save_table(schema="pet store", table="Pet",
                            data=list(pet_delete))
-        client.save_schema(name="pet store", table="Tag",
+        client.save_table(schema="pet store", table="Tag",
                            data=list(tag_delete))
 
         # Number of records after
@@ -149,9 +149,9 @@ def test_save_upload_pandas():
         tag_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Tag.csv")
         pet_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Pet.csv", keep_default_na=False)
 
-        client.save_schema(name="pet store", table="Tag",
+        client.save_table(schema="pet store", table="Tag",
                            data=tag_insert)
-        client.save_schema(name="pet store", table="Pet",
+        client.save_table(schema="pet store", table="Pet",
                            data=pet_insert)
 
         # Number of records between
@@ -164,9 +164,9 @@ def test_save_upload_pandas():
         tag_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Tag.csv")
         pet_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Pet.csv", keep_default_na=False)
 
-        client.save_schema(name="pet store", table="Pet",
+        client.save_table(schema="pet store", table="Pet",
                            data=pet_delete)
-        client.save_schema(name="pet store", table="Tag",
+        client.save_table(schema="pet store", table="Tag",
                            data=tag_delete)
 
         # Number of records after
