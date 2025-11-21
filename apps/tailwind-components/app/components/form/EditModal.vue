@@ -195,22 +195,25 @@ const savingDraft = computed(
   () => saving.value && editFormValues.value["mg_draft"] === true
 );
 const rowKey = ref<Record<string, columnValue>>();
-const isInsert = ref(true);
+const isInsert = ref(props.formValues ? false : true);
 const editFormValues = ref<Record<string, columnValue>>(
-  getInitialFormValues(props.metadata)
+  structuredClone(toRaw(props.formValues)) ||
+    getInitialFormValues(props.metadata)
 );
 
-watch(
-  () => props.formValues,
-  () => {
-    if (props.formValues) {
-      editFormValues.value = structuredClone(toRaw(props.formValues));
-      updateRowKey();
-      isInsert.value = false;
-    }
-  },
-  { immediate: true }
-);
+if (props.formValues) {
+  updateRowKey();
+}
+
+watch(visible, (newValue, oldValue) => {
+  if (newValue && !oldValue) {
+    reset();
+  }
+});
+
+watch(editFormValues.value, () => {
+  formMessage.value = "";
+});
 
 const session = await useSession();
 const saveErrorMessage = ref<string>("");
@@ -230,7 +233,9 @@ function onCancel() {
   visible.value = false;
   saveErrorMessage.value = "";
   formMessage.value = "";
-  editFormValues.value = {};
+  editFormValues.value =
+    structuredClone(toRaw(props.formValues)) ||
+    getInitialFormValues(props.metadata);
   emit("update:cancelled");
 }
 
@@ -288,16 +293,6 @@ async function onSave(draft: boolean) {
   }
 }
 
-watch(visible, (newValue, oldValue) => {
-  if (newValue && !oldValue) {
-    reset();
-  }
-});
-
-watch(editFormValues.value, () => {
-  formMessage.value = "";
-});
-
 const {
   requiredMessage,
   errorMessage,
@@ -329,5 +324,4 @@ function reAuthenticate() {
 }
 
 const showFormMessage = ref(false);
-const showSaveErrorMessage = ref(false);
 </script>
