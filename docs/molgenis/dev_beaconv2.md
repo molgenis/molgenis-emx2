@@ -208,9 +208,10 @@ your specific use cases.
 
 #### Accessing the Template Editor
 - Log in as admin.
+- Go to the Admin menu.
 - Click the Templates tab.
 - Click on the entity type you want to configure.
-- Select the schema/database for the template.
+- Select the target schema/database for the template.
 - Edit the template using the built-in editor.
 - Save your changes — they will be immediately applied to the API responses.
 

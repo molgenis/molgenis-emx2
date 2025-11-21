@@ -317,7 +317,6 @@ module.exports = {
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
 
-        required: "var(--text-color-required)",
         "button-input-toggle": "var(--text-color-button-input-toggle)",
         "legend-error-count": "var(--text-color-legend-error-count)",
         "code-output": "var(--text-color-code-output)",
