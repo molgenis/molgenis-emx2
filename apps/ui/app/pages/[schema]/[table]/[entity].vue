@@ -83,7 +83,7 @@ const sections = computed(() => {
     </PageHeader>
     <section
       v-for="section in sections"
-      class="px-8 first:pt-[50px] last:pb-[50px]"
+      class="first:pt-[50px] last:pb-[100px]"
       :class="section.heading ? 'pt-[50px]' : ''"
     >
       <h3
