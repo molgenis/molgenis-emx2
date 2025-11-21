@@ -15,5 +15,5 @@ test("External links should have specific rels for security/privacy", async () =
 });
 
 test("External links should have icon to indicate it is external", async () => {
-  expect(hyperlinkExternal.findComponent(BaseIcon).props()['name']).toBe("ExternalLink");
+  expect(hyperlinkExternal.findComponent(BaseIcon).props()["name"]).toBe("ExternalLink");
 });
