@@ -26,9 +26,11 @@ import TextHyperlink from "../components/text/Hyperlink.vue";
       <PageHeader icon="handshake" title="My Title" backPath="../">
         <template #description>
           <span>My description using a slot with </span
-          ><TextHyperlink to="https://molgenis.org" label="a Hyperlink" type="external" /><span>
-            in between 2 spans.</span
-          >
+          ><TextHyperlink
+            to="https://molgenis.org"
+            label="a Hyperlink"
+            type="external"
+          /><span> in between 2 spans.</span>
         </template>
       </PageHeader>
     </div>
@@ -39,9 +41,11 @@ import TextHyperlink from "../components/text/Hyperlink.vue";
       <PageHeader align="left" icon="handshake" title="My Title" backPath="/">
         <template #description>
           <span>My description using a slot with </span
-          ><TextHyperlink to="https://molgenis.org" label="a Hyperlink" type="external" /><span>
-            in between 2 spans.</span
-          >
+          ><TextHyperlink
+            to="https://molgenis.org"
+            label="a Hyperlink"
+            type="external"
+          /><span> in between 2 spans.</span>
         </template>
       </PageHeader>
     </div>

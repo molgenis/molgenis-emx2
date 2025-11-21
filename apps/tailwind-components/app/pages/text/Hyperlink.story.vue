@@ -37,10 +37,9 @@ import TextHyperlink from "~/components/text/Hyperlink.vue";
   </div>
   <div>
     <span>Some text with a hyperlink without label (</span
-    ><TextHyperlink
-      to="https://molgenis.org"
-      type="external"
-  /><span>) in it.</span>
+    ><TextHyperlink to="https://molgenis.org" type="external" /><span
+      >) in it.</span
+    >
   </div>
   <div class="text-heading-4xl">
     <span>Large text with </span
@@ -48,6 +47,6 @@ import TextHyperlink from "~/components/text/Hyperlink.vue";
       to="https://molgenis.org"
       label="an external hyperlink"
       type="external"
-  /><span> in it.</span>
+    /><span> in it.</span>
   </div>
 </template>
