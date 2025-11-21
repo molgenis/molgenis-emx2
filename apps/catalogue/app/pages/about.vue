@@ -1,11 +1,7 @@
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader id="page-header" title="About">
-        <template #prefix>
-          <BreadCrumbs />
-        </template>
-      </PageHeader>
+      <PageHeader id="page-header" title="About" />
     </template>
 
     <template #side>
@@ -47,7 +43,7 @@
           Please contact
           <a
             href="mailto:support@molgenis.org"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             support@molgenis.org </a
           >.
@@ -72,7 +68,7 @@
             href="https://github.com/molgenis/molgenis-emx2"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             MOLGENIS molgenis-emx2
           </a>
@@ -108,7 +104,7 @@
             href="https://www.molgenis.org"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             www.molgenis.org
           </a>
@@ -117,7 +113,7 @@
             href="https://ticket.molgenis.net/help/en-gb"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             knowledge base </a
           >. Full documentation:
@@ -125,7 +121,7 @@
             href="https://molgenis.github.io/molgenis-emx2/#/molgenis/use"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             molgenis-emx2 docs </a
           >.
@@ -136,7 +132,7 @@
           to reach out to:
           <a
             href="mailto:support@molgenis.org"
-            class="text-blue-500 underline hover:bg-blue-50"
+            class="text-link underline hover:bg-link-hover"
           >
             support@molgenis.org </a
           >.
@@ -165,7 +161,6 @@
 import { useHead } from "nuxt/app";
 import LayoutsDetailPage from "../components/layouts/DetailPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../tailwind-components/app/components/BreadCrumbs.vue";
 import SideNavigation from "../components/SideNavigation.vue";
 import ContentBlocks from "../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";

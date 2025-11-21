@@ -50,6 +50,7 @@ export const schemaQuery = gql`
           validation
           visible
           computed
+          formLabel
         }
       }
     }
