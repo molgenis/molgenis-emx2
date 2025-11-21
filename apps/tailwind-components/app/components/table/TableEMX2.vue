@@ -362,7 +362,7 @@ function handleCellClick(
   showModal.value = true;
 }
 
-function handleRowClick(row) {
+function handleRowClick(row: IRow) {
   if (skipRowClick.value) {
     skipRowClick.value = false;
     return;
@@ -379,12 +379,12 @@ function getRowId(row: IRow) {
     .replaceAll(" ", "-");
 }
 
-function onShowDeleteModal(row: Record<string, columnValue>) {
+function onShowDeleteModal(row: IRow) {
   rowDataForModal.value = row;
   showDeleteModal.value = true;
 }
 
-function onShowEditModal(row: Record<string, columnValue>) {
+function onShowEditModal(row: IRow) {
   rowDataForModal.value = row;
   showEditModal.value = true;
 }
