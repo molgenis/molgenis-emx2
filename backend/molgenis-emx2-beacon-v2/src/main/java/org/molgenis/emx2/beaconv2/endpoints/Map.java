@@ -20,6 +20,7 @@ public class Map {
   private List<EntryType> entryTypes;
   private String host;
   private String schema;
+  private String url;
 
   public Map() {}
 
@@ -29,6 +30,8 @@ public class Map {
     this.entryTypes = EntryType.getEntryTypesOfSpec(spec);
     this.host = extractHost(ctx.url());
     this.schema = ctx.pathParamMap().get("schema");
+    this.url = host + (schema != null ? "/" + schema : "") + "/api/" + spec.getPath() + "/";
+
     String jsltPath = "informational/map.jslt";
     Expression jslt = Parser.compileResource(jsltPath);
     return jslt.apply(new ObjectMapper().valueToTree(this));
