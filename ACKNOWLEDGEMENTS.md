@@ -1,10 +1,10 @@
 # Acknowledgements
 
+Molgenis EMX2 is released under [GNU LESSER GENERAL PUBLIC LICENSE 3.0](./LICENSE). We would like to thank and acknowledge existing projects for all the effort that went into those projects. Without them, Molgenis EMX2 would not be possible.
+
 ## Ontologies
 
-The following ontologies were incorporated into the MOLGENIS-EMX2 data models. All ontologies&mdash;unless otherwise specified&mdash;were transformed into the MOLGENIS-EMX2 Ontology format.
-
-Information was sourced from [Bioportal](https://bioportal.bioontology.org), [OboFoundry](https://obofoundry.org/), and [EBI OLS4](https://www.ebi.ac.uk/ols4/ontologies). All information is correct at the time of commit.
+The MOLGENIS-EMX2 data models incorporate many ontologies and standards. These resources&mdash;unless otherwise specified&mdash;were transformed into the [MOLGENIS-EMX2 Ontology format](https://molgenis.github.io/molgenis-emx2/#/molgenis/use_schema?id=ontologies). Information about ontologies was sourced from [Bioportal](https://bioportal.bioontology.org), [OboFoundry](https://obofoundry.org/), [EBI OLS4](https://www.ebi.ac.uk/ols4/ontologies), and project websites. All information is correct at the time of commit.
 
 ### Chemical Methods Ontology (CHMO)
 
@@ -181,4 +181,26 @@ Orphadata Science: Free access data from Orphanet. © INSERM 1999. Available on 
 ### Semanticscience Integrated Ontology (SIO)
 
 - Website: [https://github.com/MaastrichtU-IDS/semanticscience](https://github.com/MaastrichtU-IDS/semanticscience)
+- License: CC-BY-4.0
+
+### Statistics Ontology (STATO)
+
+- Website: [https://stato-ontology.org/](https://stato-ontology.org/), [https://github.com/ISA-tools/stato](https://github.com/ISA-tools/stato)
+- License: CC-BY-3.0
+
+### Software Ontology (SWO)
+
+- Website: [https://github.com/allysonlister/swo](https://github.com/allysonlister/swo)
+- License: [CC-BY-4.0](https://github.com/allysonlister/swo/blob/master/LICENSE)
+
+Malone, J., Brown, A., Lister, A.L. et al. The Software Ontology (SWO): a resource for reproducibility in biomedical data analysis, curation and digital preservation. J Biomed Semant 5, 25 (2014). [https://doi.org/10.1186/2041-1480-5-25](https://doi.org/10.1186/2041-1480-5-25)
+
+### Units of Measurement Ontology (UO)
+
+- Website: [https://github.com/bio-ontology-research-group/unit-ontology](https://github.com/bio-ontology-research-group/unit-ontology)
+- License: [CC-BY-4.0](https://github.com/bio-ontology-research-group/unit-ontology/blob/master/LICENSE.md)
+
+### Variation Ontology (VariO)
+
+- Website: [https://bioportal.bioontology.org/ontologies/VARIO](https://bioportal.bioontology.org/ontologies/VARIO)
 - License:
