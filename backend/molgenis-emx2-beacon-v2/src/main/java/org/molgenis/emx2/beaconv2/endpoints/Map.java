@@ -19,6 +19,7 @@ public class Map {
   private BeaconSpec spec;
   private List<EntryType> entryTypes;
   private String host;
+  private String schema;
 
   public Map() {}
 
@@ -27,6 +28,7 @@ public class Map {
     this.spec = BeaconSpec.findByPath(ctx.attribute("specification"));
     this.entryTypes = EntryType.getEntryTypesOfSpec(spec);
     this.host = extractHost(ctx.url());
+    this.schema = ctx.pathParamMap().get("schema");
     String jsltPath = "informational/map.jslt";
     Expression jslt = Parser.compileResource(jsltPath);
     return jslt.apply(new ObjectMapper().valueToTree(this));

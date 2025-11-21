@@ -1,5 +1,5 @@
 import "meta.jslt" as meta
-let beaconPath = .host + "/api/" + .spec.path + "/"
+let beaconPath = .host + "/" + .schema + "/" + "/api/" + .spec.path + "/"
 {
     "$schema": "../beaconMapResponse.json",
     "meta": meta(.),
