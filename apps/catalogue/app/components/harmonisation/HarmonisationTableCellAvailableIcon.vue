@@ -22,7 +22,11 @@ const statusClasses = computed(() => {
     class="absolute inset-x-0 -top-px -bottom-px justify-center items-center inline-flex group"
     :class="statusClasses"
   >
-    <BaseIcon v-if="status === 'available'" name="check" :class="statusClasses" />
+    <BaseIcon
+      v-if="status === 'available'"
+      name="check"
+      :class="statusClasses"
+    />
     <span class="sr-only">{{ status }}</span>
   </div>
 </template>
