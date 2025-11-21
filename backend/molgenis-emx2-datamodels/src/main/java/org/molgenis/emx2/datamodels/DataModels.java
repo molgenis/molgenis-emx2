@@ -86,7 +86,7 @@ public class DataModels {
     } else if (Regular.hasRegular(template)) {
       task = Regular.valueOf(template).getImportTask(schema, includeDemoData);
     } else {
-      throw new MolgenisException("Invalid template '" + template + "'.");
+      throw new MolgenisException("Cannot create schema from template '" + template + "'. Template does not exist.");
     }
     return task.setDescription("Loading data model: " + template + " onto " + schema.getName());
   }
