@@ -75,19 +75,9 @@ function onCancel() {
 </script>
 <template>
   <Container>
-    <PageHeader title="Edit cohort: CONSTANCES" align="left">
+    <PageHeader title="Edit cohort: CONSTANCES" align="left" backPath="/">
       <template #prefix>
         <BreadCrumbs :align="'left'" :crumbs="crumbs" />
-      </template>
-      <template #title-prefix>
-        <Button
-          class="mr-4"
-          type="filterWell"
-          :iconOnly="true"
-          icon="arrow-left"
-          size="large"
-          label="back"
-        ></Button>
       </template>
       <template #title-suffix>
         <DraftLabel />
