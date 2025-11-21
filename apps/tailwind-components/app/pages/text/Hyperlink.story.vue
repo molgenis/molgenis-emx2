@@ -42,4 +42,12 @@ import TextHyperlink from "~/components/text/Hyperlink.vue";
       type="external"
   /><span>) in it.</span>
   </div>
+  <div class="text-heading-4xl">
+    <span>Large text with </span
+    ><TextHyperlink
+      to="https://molgenis.org"
+      label="an external hyperlink"
+      type="external"
+  /><span> in it.</span>
+  </div>
 </template>
