@@ -14,7 +14,8 @@ from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
-    ReferenceException, PermissionDeniedException, PyclientException
+    ReferenceException, PermissionDeniedException, PyclientException, ServiceUnavailableError, ServerNotFoundError, \
+    InvalidTokenException, GraphQLException, NonExistentTemplateException
 from src.molgenis_emx2_pyclient.metadata import Schema
 
 load_dotenv()
@@ -297,7 +298,12 @@ async def test_create_schema():
             await client.create_schema(name="pet store")
         assert excinfo.value.msg == "Schema with name 'pet store' already exists."
 
+        with pytest.raises(NonExistentTemplateException) as excinfo:
+            await client.create_schema(name="pet store 2", template="PET_STORE123")
+        assert excinfo.value.msg == "Selected template does not exist."
+
         # Test description
+        await client.delete_schema("pet store 2")
         await client.create_schema(name="pet store 2", description="The second pet store.")
         schemas: list[Schema] = client.get_schemas()
         pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
@@ -446,6 +452,105 @@ async def test_report_task_progress(caplog):
             assert any(map(lambda ms: cm.startswith(ms), message_starts))
 
 
-def test_validate_graphql_response():
+def test_validate_graphql_response(caplog):
     """Tests the `_validate_graphql_response` method."""
-    ...
+
+    class MockResponse:
+
+        def __init__(self, status_code, text = None, json_data = None, method = None):
+            self.status_code = status_code
+            self.text = text
+            self.json_data = json_data
+
+            class Request:
+                def __init__(self, _method: str):
+                    self.method = _method
+
+            self.request = Request(method)
+
+        def json(self):
+            return self.json_data
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        response = MockResponse(503)
+        with pytest.raises(ServiceUnavailableError) as excinfo:
+            client._validate_graphql_response(response)
+        assert excinfo.value.msg == "Server with url 'http://localhost:8080' (temporarily) unavailable."
+
+        response = MockResponse(404)
+        with pytest.raises(ServerNotFoundError) as excinfo:
+            client._validate_graphql_response(response)
+        assert excinfo.value.msg == "Server with url 'http://localhost:8080' not found."
+
+        response = MockResponse(400, text="Invalid token or token expired")
+        with pytest.raises(InvalidTokenException) as excinfo:
+            client._validate_graphql_response(response)
+        assert excinfo.value.msg == "Invalid token or token expired."
+
+        response = MockResponse(400, "Cannot perform operation: permission denied")
+        with pytest.raises(PermissionDeniedException) as excinfo:
+            client._validate_graphql_response(response)
+        assert excinfo.value.msg == f"Transaction failed: permission denied."
+
+
+        response = MockResponse(400, "Graphql API error: cannot perform operation.",
+                                json_data={"errors": [{"message": "Syntax error in GraphQL statement."}]})
+        with pytest.raises(GraphQLException) as excinfo:
+            caplog.set_level(logging.INFO)
+            client._validate_graphql_response(response)
+        assert caplog.messages == ["Syntax error in GraphQL statement."]
+        assert excinfo.value.msg == "Syntax error in GraphQL statement."
+
+        error_msg = """Delete into table Pet failed: Transaction failed: delete on table "Pet" violates foreign key 
+        constraint. Details: Key ("name")=(pooky) is still referenced from table "User", column(s)("pets")"""
+        response = MockResponse(400, "Cannot delete value: violates foreign key constraint.",
+                                json_data={"errors": [{"message": error_msg}]})
+        with pytest.raises(ReferenceException) as excinfo:
+            caplog.clear()
+            client._validate_graphql_response(response)
+        assert caplog.messages == [error_msg]
+        assert excinfo.value.msg == error_msg
+
+        response = MockResponse(400, text="Unknown error",
+                                json_data={"errors": [{"message": "An unknown error occurred."}]})
+        with pytest.raises(PyclientException) as excinfo:
+            caplog.clear()
+            client._validate_graphql_response(response)
+        assert caplog.messages == ["An unknown error occurred."]
+        assert excinfo.value.msg == "An unknown error occurred when trying to reach this server."
+
+        response = MockResponse(300, method='GET')
+        val = client._validate_graphql_response(response)
+        assert val is None
+
+        response = MockResponse(200)
+        val = client._validate_graphql_response(response)
+        assert val is None
+
+        response = MockResponse(300, text="Something something",
+                                json_data={})
+        caplog.clear()
+        client._validate_graphql_response(response, fallback_error_message="Was supposed to do something.")
+        assert caplog.messages == ["Was supposed to do something."]
+
+        response = MockResponse(300, text="Insufficient permissions.",
+                                json_data={"errors": [{"message": "Cannot perform operation: permission denied."}],
+                                           "data": {}})
+        with pytest.raises(PermissionDeniedException) as excinfo:
+            client._validate_graphql_response(response)
+        assert excinfo.value.msg == "Insufficient permissions for this operations."
+
+        response = MockResponse(300, text="Insufficient permissions.",
+                                json_data={"errors": [{"message": "Cannot perform operation: permission denied."}],
+                                           "data": {}})
+        with pytest.raises(PermissionDeniedException) as excinfo:
+            client._validate_graphql_response(response)
+        assert excinfo.value.msg == "Insufficient permissions for this operations."
+
+@pytest.mark.asyncio
+async def test_create_fail():
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+        await client.create_schema(name="pet store 2", template="PET_STORE123")

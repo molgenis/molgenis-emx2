@@ -668,11 +668,21 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        self._validate_graphql_response(
-            response=response,
-            mutation='createSchema',
-            fallback_error_message=f"Failed to create schema {name!r}"
-        )
+        try:
+            self._validate_graphql_response(
+                response=response,
+                mutation='createSchema',
+                fallback_error_message=f"Failed to create schema {name!r}"
+            )
+        except NonExistentTemplateException:
+            # Catch process URL
+            process_id = response.json().get('data').get('createSchema').get('taskId')
+
+            if process_id:
+                # Report on task progress
+                await self._report_task_progress(process_id)
+            await self.delete_schema(name)
+            raise NonExistentTemplateException(f"Could not create schema with template {template!r}.")
 
         # Catch process URL
         process_id = response.json().get('data').get('createSchema').get('taskId')
@@ -1109,6 +1119,11 @@ class Client:
                 msg = response.json().get("errors", [])[0].get('message', '')
                 log.error(msg)
                 raise ReferenceException(msg)
+            if "No enum constant org.molgenis.emx2.datamodels.DataModels" in response.text:
+                msg = response.json().get("errors", [])[0].get('message', '')
+                log.error(msg)
+                raise NonExistentTemplateException("Selected template does not exist.")
+
 
             msg = response.json().get("errors", [])[0].get('message', '')
             log.error(msg)
