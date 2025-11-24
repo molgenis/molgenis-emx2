@@ -202,7 +202,7 @@ const editFormValues = ref<Record<string, columnValue>>(
 );
 
 if (props.formValues) {
-  updateRowKey();
+  await updateRowKey();
 }
 
 watch(visible, (newValue, oldValue) => {
