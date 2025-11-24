@@ -493,10 +493,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public boolean hasUser(String user) {
-    return !jooq.fetch(
-            "SELECT rolname FROM pg_catalog.pg_roles WHERE rolname = {0}", MG_USER_PREFIX + user)
-        .isEmpty();
+  public boolean hasUser(String username) {
+    return jooq.fetchExists(DSL.selectOne().from(USERS_METADATA).where(USER_NAME.eq(username)));
   }
 
   @Override

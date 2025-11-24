@@ -188,7 +188,7 @@ const numberOfFieldsWithErrors = computed(
         />
         <div
           id="forms-story-fields-container"
-          class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
+          class="bg-form p-4"
           :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
         >
           <Button
