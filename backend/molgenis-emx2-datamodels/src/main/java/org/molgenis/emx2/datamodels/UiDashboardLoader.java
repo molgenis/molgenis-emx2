@@ -1,16 +1,16 @@
 package org.molgenis.emx2.datamodels;
 
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class UiDashboardLoader extends ImportDataModelTask {
 
-  public UiDashboardLoader(Schema schema, Boolean includeDemoData) {
-    super(schema, includeDemoData);
+  public UiDashboardLoader(Database database, String schemaName, Boolean includeDemoData) {
+    super(database, schemaName, includeDemoData);
   }
 
   @Override

@@ -19,12 +19,15 @@ public class ImportProfileTask extends Task {
   private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
-  @JsonIgnore private final Schema schema;
+  @JsonIgnore private final String schemaName;
   private final String configLocation;
   private final boolean includeDemoData;
+  private final Database database;
 
-  public ImportProfileTask(Schema schema, String configLocation, boolean includeDemoData) {
-    this.schema = schema;
+  public ImportProfileTask(
+      Database database, String schemaName, String configLocation, boolean includeDemoData) {
+    this.database = database;
+    this.schemaName = schemaName;
     this.configLocation = configLocation;
     this.includeDemoData = includeDemoData;
   }
@@ -34,9 +37,9 @@ public class ImportProfileTask extends Task {
     this.start();
     Task commitTask = new Task();
     try {
-      schema.tx(
+      this.database.tx(
           db -> {
-            Schema s = db.getSchema(schema.getName());
+            Schema s = db.createSchema(this.schemaName);
             load(s);
             this.addSubTask(commitTask);
             commitTask.setDescription("Committing");
@@ -157,15 +160,15 @@ public class ImportProfileTask extends Task {
         if (createNewSchema != null) {
           continue;
         }
-        createNewSchema = db.createSchema(schemaName);
+        //        createNewSchema = db.createSchema(schemaName);
         String profileLocation = createSchemasIfMissing.getProfile();
         ImportProfileTask profileLoader =
             new ImportProfileTask(
-                createNewSchema, profileLocation, createSchemasIfMissing.isImportDemoData());
+                db, schemaName, profileLocation, createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
         profileLoader.run();
-        // profileLoader.load(createNewSchema, createSchemasIfMissing.isImportDemoData());
+        profileLoader.load(createNewSchema);
       }
     }
     return profiles;

@@ -2,6 +2,7 @@ package org.molgenis.emx2.io;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.InputStreamReader;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.emx2.Emx2;
@@ -11,10 +12,12 @@ import org.molgenis.emx2.tasks.Task;
 public class ImportDataModelTask extends Task {
 
   @JsonIgnore private final Schema schema;
+  private final Database database;
   private final boolean includeDemoData;
 
-  public ImportDataModelTask(Schema schema, Boolean includeDemoData) {
-    this.schema = schema;
+  public ImportDataModelTask(Database database, String schemaName, Boolean includeDemoData) {
+    this.database = database;
+    this.schema = database.createSchema(schemaName);
     this.includeDemoData = includeDemoData;
   }
 

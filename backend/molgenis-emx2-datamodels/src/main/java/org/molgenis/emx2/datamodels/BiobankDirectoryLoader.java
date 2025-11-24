@@ -16,8 +16,8 @@ public class BiobankDirectoryLoader extends ImportDataModelTask {
 
   private boolean staging = false;
 
-  public BiobankDirectoryLoader(Schema schema, Boolean includeDemoData) {
-    super(schema, includeDemoData);
+  public BiobankDirectoryLoader(Database database, String schemaName, Boolean includeDemoData) {
+    super(database, schemaName, includeDemoData);
   }
 
   @Override

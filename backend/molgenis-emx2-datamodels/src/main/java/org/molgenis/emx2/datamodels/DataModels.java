@@ -1,7 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
 import java.util.Arrays;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.tasks.Task;
@@ -41,8 +41,8 @@ public class DataModels {
       return template;
     }
 
-    public Task getImportTask(Schema schema, boolean includeDemoData) {
-      return new ImportProfileTask(schema, this.getTemplate(), includeDemoData);
+    public Task getImportTask(Database database, String schemaName, boolean includeDemoData) {
+      return new ImportProfileTask(database, schemaName, this.getTemplate(), includeDemoData);
     }
   }
 
@@ -54,12 +54,12 @@ public class DataModels {
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     BIOBANK_DIRECTORY_STAGING(
-        ((schema, includeDemoData) ->
-            new BiobankDirectoryLoader(schema, includeDemoData).setStaging(true)));
+        ((database, schema, includeDemoData) ->
+            new BiobankDirectoryLoader(database, schema, includeDemoData).setStaging(true)));
 
     @FunctionalInterface
     private interface TaskFactory {
-      ImportDataModelTask createTask(Schema schema, boolean includeDemoData);
+      ImportDataModelTask createTask(Database database, String schemaName, boolean includeDemoData);
     }
 
     private final TaskFactory taskFactory;
@@ -68,19 +68,20 @@ public class DataModels {
       this.taskFactory = taskFactory;
     }
 
-    public Task getImportTask(Schema schema, boolean includeDemoData) {
-      return taskFactory.createTask(schema, includeDemoData);
+    public Task getImportTask(Database database, String schemaName, boolean includeDemoData) {
+      return taskFactory.createTask(database, schemaName, includeDemoData);
     }
   }
 
-  public static Task getImportTask(Schema schema, String template, boolean includeDemoData) {
+  public static Task getImportTask(
+      Database database, String schemaName, String template, boolean includeDemoData) {
     Task task;
     if (Profile.hasProfile(template)) {
       Profile profile = Profile.valueOf(template);
-      task = profile.getImportTask(schema, includeDemoData);
+      task = profile.getImportTask(database, schemaName, includeDemoData);
     } else {
-      task = Regular.valueOf(template).getImportTask(schema, includeDemoData);
+      task = Regular.valueOf(template).getImportTask(database, schemaName, includeDemoData);
     }
-    return task.setDescription("Loading data model: " + template + " onto " + schema.getName());
+    return task.setDescription("Loading data model: " + template + " onto " + schemaName);
   }
 }

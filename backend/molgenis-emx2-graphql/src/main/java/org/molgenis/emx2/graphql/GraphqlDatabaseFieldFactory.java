@@ -97,9 +97,9 @@ public class GraphqlDatabaseFieldFactory {
               GraphqlApiMutationResult result =
                   new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
 
-              Schema schema = database.createSchema(name, description);
+              //              Schema schema = database.createSchema(name, description);
               if (template != null) {
-                Task task = DataModels.getImportTask(schema, template, includeDemoData);
+                Task task = DataModels.getImportTask(database, name, template, includeDemoData);
                 if (parentTaskId != null) {
                   Task parentTask = taskService.getTask(parentTaskId);
                   task.setParentTask(parentTask);
