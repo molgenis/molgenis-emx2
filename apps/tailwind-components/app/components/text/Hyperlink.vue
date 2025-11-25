@@ -1,21 +1,39 @@
 <script lang="ts" setup>
 import BaseIcon from "~/components/BaseIcon.vue";
+import { computed } from "vue";
 
-withDefaults(
-  defineProps<{
-    name: string;
-    link: string;
-    icon?: string;
-    external?: boolean;
-  }>(),
-  {
-    external: true
-  }
-);
+const props = defineProps<{
+  to: string;
+  label?: string;
+  icon?: string;
+  // See https://nuxt.com/docs/4.x/api/components/nuxt-link#handling-static-file-and-cross-app-links
+  type: "nuxt" | "static" | "external";
+}>();
+
+function isExternal() {
+  return props.type === "external";
+}
 </script>
 
 <template>
-  <a :href="link" class="underline" :target="external ? '_blank' : '_self'" :rel="external ? 'external noopener noreferrer': ''">
-    <BaseIcon class="inline" name="icon" :width="16" v-if="icon" /><span>{{ name }}</span><BaseIcon class="inline" name="ExternalLink" :width="16" v-if="external" />
-  </a>
+  <NuxtLink
+    :to="to"
+    class="underline"
+    :target="isExternal() ? '_blank' : '_self'"
+    :rel="isExternal() ? 'external noopener noreferrer' : ''"
+    :external="type !== 'nuxt'"
+  >
+    <BaseIcon
+      class="inline mr-1"
+      :name="icon"
+      :width="16"
+      v-if="icon"
+    /><span>{{ label ? label : to }}</span
+    ><BaseIcon
+      class="inline"
+      name="ExternalLink"
+      :width="16"
+      v-if="isExternal()"
+    />
+  </NuxtLink>
 </template>

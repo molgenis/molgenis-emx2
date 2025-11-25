@@ -20,6 +20,7 @@ const props = defineProps<{
   variableCount: number;
   collectionCount: number;
   networkCount: number;
+  logoSrc?: string;
 }>();
 
 const cohortOnly = computed(() => {
@@ -99,7 +100,7 @@ if (!cohortOnly.value) {
         <Logo
           :link="`/${catalogueRouteParam}`"
           :image="
-            catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
+            catalogueRouteParam === 'all' ? logoSrc : catalogue?.logo?.url
           "
           :inverted="true"
         />
@@ -122,7 +123,7 @@ if (!cohortOnly.value) {
             <LogoMobile
               :link="`/${catalogueRouteParam}`"
               :image="
-                catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
+                catalogueRouteParam === 'all' ? logoSrc : catalogue?.logo?.url
               "
             />
           </div>

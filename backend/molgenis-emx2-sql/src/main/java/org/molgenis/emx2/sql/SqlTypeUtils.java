@@ -234,7 +234,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static void checkValidation(Column column, Map<String, Object> values) {
-    if (values.get(column.getName()) != null) {
+    if (values.get(column.getIdentifier()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {

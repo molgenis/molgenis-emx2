@@ -125,7 +125,10 @@ export default function useForm(
   /** return required, visible fields across all sections */
   const requiredFields = computed(() => {
     return metadata.value?.columns.filter(
-      (column: IColumn) => visibleMap[column.id] && isRequired(column.required)
+      (column: IColumn) =>
+        visibleMap[column.id] &&
+        isRequired(column.required) &&
+        column.columnType !== "AUTO_ID"
     );
   });
 

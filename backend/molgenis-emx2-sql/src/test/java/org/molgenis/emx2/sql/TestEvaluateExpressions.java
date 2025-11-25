@@ -109,6 +109,22 @@ public class TestEvaluateExpressions {
     applyValidationAndComputed(tableMetadata.getColumns(), new Row());
   }
 
+  @Test
+  public void testCheckValidationWithCapitalColumnNameSuccess() {
+    String validation = "name === 'pietje'";
+    TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
+    applyValidationAndComputed(tableMetadata.getColumns(), new Row("Name", "pietje"));
+  }
+
+  @Test
+  public void testCheckValidationWithCapitalColumnNameFail() {
+    String validation = "name === 'pietje'";
+    TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
+    assertThrows(
+        MolgenisException.class,
+        () -> applyValidationAndComputed(tableMetadata.getColumns(), new Row("Name", "piet")));
+  }
+
   @Tag("windowsFail")
   @Test
   public void testCheckValidationInvalidExpression() {
