@@ -34,6 +34,12 @@ describe("useForm", () => {
         label: "columns 4",
         required: true,
       },
+      {
+        columnType: "AUTO_ID",
+        id: "col5",
+        label: "columns 5",
+        required: true,
+      },
     ],
   });
 

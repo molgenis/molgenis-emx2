@@ -16,17 +16,19 @@ import org.molgenis.emx2.beaconv2.EntryType;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Map {
 
-  private BeaconSpec spec;
   private List<EntryType> entryTypes;
-  private String host;
+  private String url;
 
   public Map() {}
 
   @JsonIgnore
   public JsonNode getResponse(Context ctx) {
-    this.spec = BeaconSpec.findByPath(ctx.attribute("specification"));
+    BeaconSpec spec = BeaconSpec.findByPath(ctx.attribute("specification"));
     this.entryTypes = EntryType.getEntryTypesOfSpec(spec);
-    this.host = extractHost(ctx.url());
+    String host = extractHost(ctx.url());
+    String schema = ctx.pathParamMap().get("schema");
+    this.url = host + (schema != null ? "/" + schema : "") + "/api/" + spec.getPath() + "/";
+
     String jsltPath = "informational/map.jslt";
     Expression jslt = Parser.compileResource(jsltPath);
     return jslt.apply(new ObjectMapper().valueToTree(this));
