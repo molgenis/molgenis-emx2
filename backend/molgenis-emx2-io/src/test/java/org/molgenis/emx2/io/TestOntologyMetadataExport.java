@@ -16,12 +16,14 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestOntologyMetadataExport {
   static Database database;
   static Schema schema;
+  private static final String schemaName = "TestOntologyMetadataExport";
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(TestOntologyMetadataExport.class.getSimpleName());
-    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
+    database.dropSchemaIfExists(schemaName);
+    DataModels.Profile.PET_STORE.getImportTask(database, schemaName, "", false).run();
+    schema = database.getSchema(schemaName);
   }
 
   @Test
@@ -37,7 +39,7 @@ public class TestOntologyMetadataExport {
     Path tmp = Files.createTempDirectory(null);
     Path excelFile = tmp.resolve("TestOntologyMetadataExport.xlsx");
     MolgenisIO.toExcelFile(excelFile, schema, false);
-    schema = database.dropCreateSchema(TestOntologyMetadataExport.class.getSimpleName());
+    schema = database.dropCreateSchema(schemaName);
     MolgenisIO.importFromExcelFile(excelFile, schema, false);
 
     assertEquals(TableType.ONTOLOGIES, schema.getTable("Tag").getMetadata().getTableType());

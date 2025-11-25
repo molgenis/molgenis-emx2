@@ -22,11 +22,12 @@ public class TestRenameAndDelete {
 
   static Database db;
   static Schema schema;
+  static String schemaName = "TestRenameAndDelete";
 
   @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema(TestRenameAndDelete.class.getSimpleName());
+    schema = db.dropCreateSchema(schemaName);
   }
 
   @Test
@@ -58,7 +59,7 @@ public class TestRenameAndDelete {
     imt.run();
 
     // check schema for the changes
-    schema = db.getSchema(TestRenameAndDelete.class.getSimpleName());
+    schema = db.getSchema(schemaName);
     assertNull(schema.getTable("myTable"));
     assertNotNull(schema.getTable("otherTable"));
     assertNull(schema.getTable("otherTable").getMetadata().getColumn("a"));
@@ -89,8 +90,9 @@ public class TestRenameAndDelete {
 
   @Test
   public void testRenameWhenRefs() throws IOException {
-    schema = db.dropCreateSchema(TestRenameAndDelete.class.getSimpleName());
-    PET_STORE.getImportTask(schema, false).run();
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", false).run();
+    schema = db.getSchema(schemaName);
     assertNotNull(schema.getTable("Category"));
 
     // now we gonna rename a table which has a ref from Category to Type
