@@ -59,6 +59,7 @@ export interface IColumn {
   computed?: string;
   conditions?: string[];
   description?: string;
+  formLabel?: string;
   key?: number;
   position?: number;
   readonly?: string;

@@ -148,6 +148,7 @@ module.exports = {
           "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },
       backgroundColor: () => ({
+        "link-hover": "var(--background-color-link-hover)",
         "button-primary": "var(--background-color-button-primary)",
         "button-primary-hover": "var(--background-color-button-primary-hover)",
         "button-secondary": "var(--background-color-button-secondary)",
@@ -167,6 +168,7 @@ module.exports = {
         "button-inline-hover": "var(--background-color-button-inline-hover)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
+        "navigation-dynamic": "var(--background-color-navigation-dynamic)",
         navigation: "var(--background-color-navigation)",
         "navigation-sticky": "var(--background-color-navigation-sticky)",
         "search-results-view-tabs":
@@ -222,6 +224,9 @@ module.exports = {
           "var(--background-color-button-switch-selected)",
         "button-switch-hover": "var(--background-color-button-switch-hover)",
         "label-draft": "var(--background-color-label-draft)",
+        "label-available": "var(--background-color-label-available)",
+        "label-available-hover":
+          "var(--background-color-label-available-hover)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -312,7 +317,6 @@ module.exports = {
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
 
-        required: "var(--text-color-required)",
         "button-input-toggle": "var(--text-color-button-input-toggle)",
         "legend-error-count": "var(--text-color-legend-error-count)",
         "code-output": "var(--text-color-code-output)",
@@ -329,6 +333,8 @@ module.exports = {
         "button-switch-selected": "var(--text-color-button-switch-selected)",
         "button-switch-hover": "var(--text-color-button-switch-hover)",
         "label-draft": "var(--text-color-label-draft)",
+        "icon-neutral": "var(--text-color-icon-neutral)",
+        "label-available": "var(--text-color-label-available)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",

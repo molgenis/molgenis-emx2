@@ -65,7 +65,7 @@ const isRequired = (value: string | boolean): boolean =>
 
 <template>
   <div ref="container">
-    <template v-for="column in columns">
+    <template v-for="column in columns" :key="column.id">
       <div
         v-if="
           column.columnType === 'HEADING' || column.columnType === 'SECTION'
@@ -92,7 +92,7 @@ const isRequired = (value: string | boolean): boolean =>
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
         :type="column.columnType"
-        :label="column.label"
+        :label="column.formLabel ?? column.label"
         :description="column.description"
         :disabled="
           Boolean(

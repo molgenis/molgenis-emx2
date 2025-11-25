@@ -50,6 +50,7 @@ export const schemaQuery = gql`
           validation
           visible
           computed
+          formLabel
         }
       }
     }
@@ -169,13 +170,11 @@ export function getLocalizedLabel(
 ): string {
   let label;
   if (tableOrColumnMetadata?.labels) {
-    label = tableOrColumnMetadata.labels.find(
-      (el) => el.locale === locale
-    )?.value;
+    label = tableOrColumnMetadata.labels.find((el) => el.locale === locale)
+      ?.value;
     if (!label) {
-      label = tableOrColumnMetadata.labels.find(
-        (el) => el.locale === "en"
-      )?.value;
+      label = tableOrColumnMetadata.labels.find((el) => el.locale === "en")
+        ?.value;
     }
   }
   if (!label) {

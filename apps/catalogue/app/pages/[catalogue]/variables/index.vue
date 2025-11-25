@@ -6,7 +6,10 @@ import type {
   IRefArrayFilter,
 } from "../../../../interfaces/types";
 import mappingsFragment from "../../../gql/fragments/mappings";
-import type { INode } from "../../../../../tailwind-components/types/types";
+import type {
+  Crumb,
+  INode,
+} from "../../../../../tailwind-components/types/types";
 import {
   useRoute,
   useRouter,
@@ -368,9 +371,10 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-let crumbs: any = {};
-crumbs[`${route.params.catalogue}`] = `/${route.params.catalogue}`;
-crumbs["variables"] = "";
+const crumbs: Crumb[] = [
+  { label: `${route.params.catalogue}`, url: `/${route.params.catalogue}` },
+  { label: "variables", url: "" },
+];
 </script>
 
 <template>
@@ -453,7 +457,7 @@ crumbs["variables"] = "";
               v-if="data?.data?.Variables_agg.count === 0"
               class="flex justify-center pt-3"
             >
-              <span class="py-15 text-blue-500">
+              <span class="py-15 text-link">
                 No variables found with current filters
               </span>
             </div>

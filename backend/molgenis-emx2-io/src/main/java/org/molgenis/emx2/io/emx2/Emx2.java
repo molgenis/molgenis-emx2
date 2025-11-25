@@ -37,6 +37,7 @@ public class Emx2 {
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
   private static final String PROFILES = "profiles";
+  private static final String COLUMN_FORM_LABEL = "formLabel";
 
   private Emx2() {
     // hidden
@@ -163,6 +164,7 @@ public class Emx2 {
                   value -> {
                     column.setLabel(row.getString(value), (value.split(":")[1]));
                   });
+          if (row.notNull(COLUMN_FORM_LABEL)) column.setFormLabel(row.getString(COLUMN_FORM_LABEL));
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
@@ -192,6 +194,7 @@ public class Emx2 {
             TABLE_EXTENDS,
             TABLE_TYPE,
             COLUMN_NAME,
+            COLUMN_FORM_LABEL,
             COLUMN_TYPE,
             KEY,
             REQUIRED,
@@ -252,6 +255,7 @@ public class Emx2 {
       row.setString(
           TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
       row.setString(COLUMN_NAME, null);
+      row.setString(COLUMN_FORM_LABEL, null);
       row.setString(COLUMN_TYPE, null);
       row.setString(KEY, null);
       row.setString(REQUIRED, null);
@@ -290,6 +294,7 @@ public class Emx2 {
         Row row = new Row();
         row.setString(TABLE_NAME, column.getTableName());
         row.setString(COLUMN_NAME, column.getName());
+        if (column.getFormLabel() != null) row.setString(COLUMN_FORM_LABEL, column.getFormLabel());
         if (!column.getColumnType().equals(STRING))
           row.setString(COLUMN_TYPE, column.getColumnType().toString().toLowerCase());
         if (column.getRequired() != null) row.setString(REQUIRED, column.getRequired());
