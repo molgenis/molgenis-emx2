@@ -449,10 +449,10 @@ jobs:
 
       - run:
           name: Reset emx2.dev
-          command:
-            export $( cat build/ci.properties | xargs ) \
-            bash ci/set_kubectl_config-azure.sh \
+          command: |
+            sh ci/set_kubectl_config-azure.sh
             bash ci/create_or_update_k8s-azure.sh "emx2" latest true
+          working_directory: repo
 
       - run:
           name: Message slack about a database cleanup
