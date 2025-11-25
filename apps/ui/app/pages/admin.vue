@@ -27,6 +27,6 @@ const activeTab = computed(() => {
       >
     </div>
     <users v-if="activeTab === 'users'" />
-    <NuxtPage v-else/>
+    <NuxtPage v-else />
   </Container>
 </template>

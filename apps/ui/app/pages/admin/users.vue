@@ -45,7 +45,7 @@
                   type="secondary"
                   size="small"
                   label="Delete user"
-                  @click="removeUser(user)"
+                  @click="showDeleteUserConfirmation(user)"
                 />
               </div>
             </TableCell>
@@ -102,6 +102,13 @@
         @userUpdated="retrieveUsers"
       />
 
+      <DeleteUserConfirmation
+        v-if="selectedUser"
+        v-model:visible="showDeleteUserModal"
+        :user="selectedUser"
+        @deleteUser="removeUser(selectedUser)"
+      />
+
       <TokenManagement
         v-if="selectedUser"
         v-model:visible="showTokenModal"
@@ -115,7 +122,6 @@
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
-import TokenManagement from "~/components/TokenManagement.vue";
 import {
   createUser,
   deleteUser,
@@ -137,6 +143,8 @@ import TableHeadRow from "../../../../tailwind-components/app/components/TableHe
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
 import EditUserModal from "../../components/EditUserModal.vue";
+import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
+import TokenManagement from "~/components/TokenManagement.vue";
 
 /**
  * Todo:
@@ -155,6 +163,7 @@ const LIMIT = 100;
 const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const showTokenModal = ref(false);
+const showDeleteUserModal = ref(false);
 const selectedUser = ref<IUser | null>(null);
 
 const currentPage = ref(1);
@@ -201,6 +210,11 @@ async function removeUser(user: IUser) {
 function editUser(user: IUser) {
   selectedUser.value = user;
   showEditUserModal.value = true;
+}
+
+function showDeleteUserConfirmation(user: IUser) {
+  selectedUser.value = user;
+  showDeleteUserModal.value = true;
 }
 
 function manageTokens(user: IUser) {

@@ -1,5 +1,9 @@
 <template>
-  <Modal v-model:visible="visible" :title="`Edit user: ${userName}`" max-width="max-w-9/10">
+  <Modal
+    v-model:visible="visible"
+    :title="`Edit user: ${userName}`"
+    max-width="max-w-9/10"
+  >
     <div class="overflow-y-auto">
       <div class="p-5">
         <b>New password</b>
@@ -80,7 +84,7 @@
         >
       </div>
     </div>
-<!--
+    <!--
     <div v-if="userTokens.length" class="p-5">
       <b>Tokens</b>
       <Table>
@@ -156,8 +160,8 @@ const schema = ref<string>(
   props.schemas.length ? props.schemas[0]?.id ?? "" : ""
 );
 
-const userName = computed(()=>props.user.email);
-const isEnabled = computed(()=>props.user.enabled);
+const userName = computed(() => props.user.email);
+const isEnabled = computed(() => props.user.enabled);
 const revokedRoles = ref<Record<string, IRole>>({});
 const password = ref<string>("");
 const password2 = ref<string>("");

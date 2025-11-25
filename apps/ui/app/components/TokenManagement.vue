@@ -11,7 +11,7 @@
         <template #body>
           <TableRow v-for="token in user.tokens">
             <TableCell>
-<!--
+              <!--
               <Button
                     iconOnly
                     icon="trash"
@@ -55,7 +55,7 @@ const visible = defineModel("visible", { required: true });
 
 async function removeToken(token: string) {
   let editedUser: IUser = _.cloneDeep(props.user);
-  editedUser.tokens = _.reject(props.user.tokens , (tok) => tok === token);
+  editedUser.tokens = _.reject(props.user.tokens, (tok) => tok === token);
   await updateUser(editedUser);
   emit("userUpdated");
 }

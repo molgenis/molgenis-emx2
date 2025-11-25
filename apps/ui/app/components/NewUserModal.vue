@@ -3,7 +3,7 @@
     <div class="overflow-y-auto">
       <div class="p-5">
         <label>Username</label>
-            <InputString
+        <InputString
           id="New username"
           v-model="username"
           :hasError="isDuplicateName"
