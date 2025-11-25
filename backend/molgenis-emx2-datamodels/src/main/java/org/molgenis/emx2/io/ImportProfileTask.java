@@ -20,15 +20,21 @@ public class ImportProfileTask extends Task {
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
   @JsonIgnore private final String schemaName;
+  private final String description;
   private final String configLocation;
   private final boolean includeDemoData;
   private final Database database;
   private Schema schema;
 
   public ImportProfileTask(
-      Database database, String schemaName, String configLocation, boolean includeDemoData) {
+      Database database,
+      String schemaName,
+      String description,
+      String configLocation,
+      boolean includeDemoData) {
     this.database = database;
     this.schemaName = schemaName;
+    this.description = description;
     this.configLocation = configLocation;
     this.includeDemoData = includeDemoData;
   }
@@ -40,7 +46,7 @@ public class ImportProfileTask extends Task {
     try {
       this.database.tx(
           db -> {
-            Schema s = db.createSchema(this.schemaName);
+            Schema s = db.createSchema(this.schemaName, this.description);
             this.schema = s;
             load(s);
             this.addSubTask(commitTask);
@@ -166,7 +172,7 @@ public class ImportProfileTask extends Task {
         String profileLocation = createSchemasIfMissing.getProfile();
         ImportProfileTask profileLoader =
             new ImportProfileTask(
-                db, schemaName, profileLocation, createSchemasIfMissing.isImportDemoData());
+                db, schemaName, "", profileLocation, createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
         profileLoader.run();

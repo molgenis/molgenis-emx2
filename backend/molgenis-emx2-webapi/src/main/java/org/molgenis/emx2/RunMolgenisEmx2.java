@@ -68,27 +68,27 @@ public class RunMolgenisEmx2 {
           db.becomeAdmin();
 
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
-            Schema schema = db.createSchema("pet store");
-            DataModels.Profile.PET_STORE.getImportTask(db, "pet store", true).run();
+            DataModels.Profile.PET_STORE.getImportTask(db, "pet store", "", true).run();
           }
 
           if (INCLUDE_TYPE_TEST_DEMO && db.getSchema("type test") == null) {
-            Schema schema = db.createSchema("type test");
-            DataModels.Profile.TYPE_TEST.getImportTask(db, "type test", true).run();
+            DataModels.Profile.TYPE_TEST.getImportTask(db, "type test", "", true).run();
           }
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
-            Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
-            DataModels.Profile.DATA_CATALOGUE.getImportTask(database, CATALOGUE_DEMO, true).run();
+            DataModels.Profile.DATA_CATALOGUE
+                .getImportTask(
+                    database, CATALOGUE_DEMO, "from DataCatalogue demo data loader", true)
+                .run();
           }
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
-            Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
-            new BiobankDirectoryLoader(database, DIRECTORY_DEMO, true).setStaging(false).run();
+            new BiobankDirectoryLoader(database, DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo", true)
+                .setStaging(false)
+                .run();
           }
 
           if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
-            Schema schema = db.createSchema("patient registry demo");
-            new PatientRegistryDemoLoader(database, "patient registry demo", true).run();
+            new PatientRegistryDemoLoader(database, "patient registry demo", "", true).run();
           }
         });
 

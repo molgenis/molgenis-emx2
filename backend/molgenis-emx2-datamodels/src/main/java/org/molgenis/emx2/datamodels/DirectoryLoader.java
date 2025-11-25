@@ -8,8 +8,9 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class DirectoryLoader extends ImportDataModelTask {
 
-  public DirectoryLoader(Database database, String schemaName, Boolean includeDemoData) {
-    super(database, schemaName, includeDemoData);
+  public DirectoryLoader(
+      Database database, String schemaName, String description, Boolean includeDemoData) {
+    super(database, schemaName, description, includeDemoData);
   }
 
   @Override

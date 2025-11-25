@@ -8,8 +8,9 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class ProjectManagerLoader extends ImportDataModelTask {
 
-  public ProjectManagerLoader(Database database, String schemaName, Boolean includeDemoData) {
-    super(database, schemaName, includeDemoData);
+  public ProjectManagerLoader(
+      Database database, String schemaName, String description, Boolean includeDemoData) {
+    super(database, schemaName, description, includeDemoData);
   }
 
   @Override

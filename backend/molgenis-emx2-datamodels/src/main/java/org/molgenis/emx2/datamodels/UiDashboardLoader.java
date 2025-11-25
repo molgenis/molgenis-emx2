@@ -9,8 +9,9 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class UiDashboardLoader extends ImportDataModelTask {
 
-  public UiDashboardLoader(Database database, String schemaName, Boolean includeDemoData) {
-    super(database, schemaName, includeDemoData);
+  public UiDashboardLoader(
+      Database database, String schemaName, String description, Boolean includeDemoData) {
+    super(database, schemaName, description, includeDemoData);
   }
 
   @Override

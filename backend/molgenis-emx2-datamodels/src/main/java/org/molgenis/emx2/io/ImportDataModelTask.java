@@ -12,12 +12,11 @@ import org.molgenis.emx2.tasks.Task;
 public class ImportDataModelTask extends Task {
 
   @JsonIgnore private final Schema schema;
-  private final Database database;
   private final boolean includeDemoData;
 
-  public ImportDataModelTask(Database database, String schemaName, Boolean includeDemoData) {
-    this.database = database;
-    this.schema = database.createSchema(schemaName);
+  public ImportDataModelTask(
+      Database database, String schemaName, String description, Boolean includeDemoData) {
+    this.schema = database.createSchema(schemaName, description);
     this.includeDemoData = includeDemoData;
   }
 

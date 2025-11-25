@@ -9,8 +9,9 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class PatientRegistryDemoLoader extends ImportDataModelTask {
 
-  public PatientRegistryDemoLoader(Database database, String schemaName, Boolean includeDemoData) {
-    super(database, schemaName, includeDemoData);
+  public PatientRegistryDemoLoader(
+      Database database, String schemaName, String description, Boolean includeDemoData) {
+    super(database, schemaName, description, includeDemoData);
   }
 
   @Override
