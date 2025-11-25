@@ -64,34 +64,24 @@ public class TestLoaders {
       // delete ontologies last
       database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
 
-      //      dataCatalogue = database.createSchema(DATA_CATALOGUE);
-      DataModels.Profile.DATA_CATALOGUE.getImportTask(database, DATA_CATALOGUE, true).run();
-      //      cohortStaging = database.createSchema(COHORT_STAGING);
+      DataModels.Profile.DATA_CATALOGUE.getImportTask(database, DATA_CATALOGUE, "test", true).run();
       DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING
-          .getImportTask(database, COHORT_STAGING, true)
+          .getImportTask(database, COHORT_STAGING, "test", true)
           .run();
-      //      networkStaging = database.createSchema(NETWORK_STAGING);
       DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING
-          .getImportTask(database, NETWORK_STAGING, true)
+          .getImportTask(database, NETWORK_STAGING, "test", true)
           .run();
-      //      directory = database.createSchema(DIRECTORY_TEST);
-      DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(database, DIRECTORY_TEST, true).run();
-      //      projectManagerSchema = database.createSchema(PROJECT_MANAGER);
-      DataModels.Regular.PROJECTMANAGER.getImportTask(database, PROJECT_MANAGER, true).run();
-      //      directoryStaging = database.createSchema(DIRECTORY_STAGING);
+      DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(database, DIRECTORY_TEST, "test", true).run();
+      DataModels.Regular.PROJECTMANAGER.getImportTask(database, PROJECT_MANAGER, "test", true).run();
       DataModels.Regular.BIOBANK_DIRECTORY_STAGING
-          .getImportTask(database, DIRECTORY_STAGING, false)
+          .getImportTask(database, DIRECTORY_STAGING, "test", false)
           .run();
-      //      dashboard = database.dropCreateSchema(DASHBOARD_TEST);
-      DataModels.Regular.UI_DASHBOARD.getImportTask(database, DASHBOARD_TEST, true).run();
-      //      patientRegistry = database.dropCreateSchema(PATIENT_REGISTRY);
-      DataModels.Profile.PATIENT_REGISTRY.getImportTask(database, PATIENT_REGISTRY, true).run();
-      //      patientRegistryDemo = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
+      DataModels.Regular.UI_DASHBOARD.getImportTask(database, DASHBOARD_TEST, "test", true).run();
+      DataModels.Profile.PATIENT_REGISTRY.getImportTask(database, PATIENT_REGISTRY, "test", true).run();
       DataModels.Regular.PATIENT_REGISTRY_DEMO
-          .getImportTask(database, PATIENT_REGISTRY_DEMO, true)
+          .getImportTask(database, PATIENT_REGISTRY_DEMO, "test", true)
           .run();
-      //      pagesSchema = database.dropCreateSchema(PAGES_SCHEMA);
-      DataModels.Profile.MG_CMS.getImportTask(database, PAGES_SCHEMA, true).run();
+      DataModels.Profile.MG_CMS.getImportTask(database, PAGES_SCHEMA, "test", true).run();
       // This profile is broken
       //      FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
       //      DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();
