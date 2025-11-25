@@ -71,13 +71,19 @@ public class TestLoaders {
       DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING
           .getImportTask(database, NETWORK_STAGING, "test", true)
           .run();
-      DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(database, DIRECTORY_TEST, "test", true).run();
-      DataModels.Regular.PROJECTMANAGER.getImportTask(database, PROJECT_MANAGER, "test", true).run();
+      DataModels.Regular.BIOBANK_DIRECTORY
+          .getImportTask(database, DIRECTORY_TEST, "test", true)
+          .run();
+      DataModels.Regular.PROJECTMANAGER
+          .getImportTask(database, PROJECT_MANAGER, "test", true)
+          .run();
       DataModels.Regular.BIOBANK_DIRECTORY_STAGING
           .getImportTask(database, DIRECTORY_STAGING, "test", false)
           .run();
       DataModels.Regular.UI_DASHBOARD.getImportTask(database, DASHBOARD_TEST, "test", true).run();
-      DataModels.Profile.PATIENT_REGISTRY.getImportTask(database, PATIENT_REGISTRY, "test", true).run();
+      DataModels.Profile.PATIENT_REGISTRY
+          .getImportTask(database, PATIENT_REGISTRY, "test", true)
+          .run();
       DataModels.Regular.PATIENT_REGISTRY_DEMO
           .getImportTask(database, PATIENT_REGISTRY_DEMO, "test", true)
           .run();

@@ -77,7 +77,7 @@ public class TestFullTextSearch {
   @Test
   public void nestedSearch() {
     Schema schema = db.dropCreateSchema(TestFullTextSearch.class.getSimpleName() + "nested");
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(db, schema.getName(), "", true).run();
 
     List<Row> result =
         schema.query("Order").where(f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();

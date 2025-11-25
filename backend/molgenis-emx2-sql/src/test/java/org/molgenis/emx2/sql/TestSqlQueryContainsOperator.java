@@ -22,7 +22,7 @@ public class TestSqlQueryContainsOperator {
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestSqlQueryContainsOperator.class.getSimpleName());
-    DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
+    DataModels.Profile.PET_STORE.getImportTask(db, schema.getName(), "", true).run();
     schema
         .getTable("Pet")
         .insert(row("name", "mickey", "photoUrls", "foo", "category", "dog", "weight", 1));

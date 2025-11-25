@@ -23,7 +23,7 @@ public class TestSqlRawQueryForSchema {
   @Test
   public void testSql() {
     Schema schema = database.dropCreateSchema(TestSqlRawQueryForSchema.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(database, schema.getName(), "", true).run();
     List<Row> rows = schema.retrieveSql("Select * from \"Pet\"");
     assertEquals(9, rows.size());
   }
@@ -31,7 +31,7 @@ public class TestSqlRawQueryForSchema {
   @Test
   public void testSqlParameterized() {
     Schema schema = database.dropCreateSchema(TestSqlRawQueryForSchema.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(database, schema.getName(), "", true).run();
 
     List<Row> rows =
         schema.retrieveSql("Select * from \"Pet\" p where p.name=${name}", Map.of("name", "spike"));

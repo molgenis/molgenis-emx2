@@ -24,7 +24,7 @@ public class TestOntologyQueries {
   public void setUp() {
     Database database = TestDatabaseFactory.getTestDatabase();
     schema = (SqlSchema) database.dropCreateSchema(TestOntologyQueries.class.getSimpleName());
-    DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
+    DataModels.Profile.PET_STORE.getImportTask(database, schema.getName(), "", true).run();
   }
 
   @Test

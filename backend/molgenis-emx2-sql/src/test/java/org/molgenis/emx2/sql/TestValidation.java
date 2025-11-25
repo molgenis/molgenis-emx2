@@ -21,7 +21,7 @@ public class TestValidation {
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestValidation.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(db, schema.getName(), "", true).run();
   }
 
   @Test

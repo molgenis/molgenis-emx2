@@ -26,7 +26,7 @@ public class TestAggregatePermission {
   public static void setUp() throws SQLException {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestAggregatePermission.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(db, schema.getName(), "", true).run();
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     db.setActiveUser("AGGREGATE_TEST_USER");
