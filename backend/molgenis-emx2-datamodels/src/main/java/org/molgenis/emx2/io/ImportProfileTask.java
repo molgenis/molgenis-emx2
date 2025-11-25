@@ -23,6 +23,7 @@ public class ImportProfileTask extends Task {
   private final String configLocation;
   private final boolean includeDemoData;
   private final Database database;
+  private Schema schema;
 
   public ImportProfileTask(
       Database database, String schemaName, String configLocation, boolean includeDemoData) {
@@ -40,6 +41,7 @@ public class ImportProfileTask extends Task {
       this.database.tx(
           db -> {
             Schema s = db.createSchema(this.schemaName);
+            this.schema = s;
             load(s);
             this.addSubTask(commitTask);
             commitTask.setDescription("Committing");
@@ -168,7 +170,7 @@ public class ImportProfileTask extends Task {
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
         profileLoader.run();
-        profileLoader.load(createNewSchema);
+        profileLoader.load(profileLoader.schema);
       }
     }
     return profiles;
