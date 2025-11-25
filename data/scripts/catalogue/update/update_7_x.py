@@ -269,6 +269,12 @@ class Transform:
             dict_descriptions = dict(zip(df_resources.id, df_resources.description))
             df_col_event['description'] = df_col_event.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
 
+            # get contact point from Resources
+            dict_first_name = dict(zip(df_resources.id, df_resources['contact point.first name']))
+            df_col_event['contact point.first name'] = df_col_event['resource'].apply(get_contact_first_name, dict_first_name=dict_first_name)
+            dict_last_name = dict(zip(df_resources.id, df_resources['contact point.last name']))
+            df_col_event['contact point.last name'] = df_col_event['resource'].apply(get_contact_last_name, dict_last_name=dict_last_name)
+
             # get publisher from Resources
             dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
             df_col_event['publisher'] = df_col_event['resource'].apply(get_publisher, dict_publisher=dict_publisher)
@@ -311,6 +317,12 @@ class Transform:
                 # get creator from Resources
                 dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
                 df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
+
+            # get contact point from Resources
+            dict_first_name = dict(zip(df_resources.id, df_resources['contact point.first name']))
+            df_subpopulations['contact point.first name'] = df_subpopulations['resource'].apply(get_contact_first_name, dict_first_name=dict_first_name)
+            dict_last_name = dict(zip(df_resources.id, df_resources['contact point.last name']))
+            df_subpopulations['contact point.last name'] = df_subpopulations['resource'].apply(get_contact_last_name, dict_last_name=dict_last_name)
 
             # only for demo data:
             if self.schema_name == 'testCatalogue':
@@ -449,6 +461,14 @@ def get_publisher(resource, dict_publisher):
 
 def get_creator(resource, dict_creator):
     return dict_creator[resource]
+
+
+def get_contact_first_name(resource, dict_first_name):
+    return dict_first_name[resource]
+
+
+def get_contact_last_name(resource, dict_last_name):
+    return dict_last_name[resource]
 
 
 def get_data_resources(resources, dict_types):
