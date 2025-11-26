@@ -51,8 +51,14 @@
             </TableCell>
             <TableCell>
               <BaseIcon
-                :class="user.enabled ? 'text-green-800' : 'text-red-500'"
-                :name="user.enabled ? 'Check' : 'Cross'"
+                v-if="user.enabled"
+                class="text-green-800"
+                name="Check"
+              />
+              <BaseIcon
+                v-else
+                class="text-red-500"
+                name="Cross"
               />
             </TableCell>
             <TableCell>{{ user.email }}</TableCell>
@@ -88,13 +94,14 @@
         </template>
       </Table>
       <NewUserModal
+        v-if="showNewUserModal"
         v-model:visible="showNewUserModal"
         :usernames="usernames"
         @addUser="addUser"
       />
 
       <EditUserModal
-        v-if="selectedUser"
+        v-if="selectedUser && showEditUserModal"
         v-model:visible="showEditUserModal"
         :schemas="schemas"
         :roles="roles"
@@ -103,14 +110,14 @@
       />
 
       <DeleteUserConfirmation
-        v-if="selectedUser"
+        v-if="selectedUser && showDeleteUserModal"
         v-model:visible="showDeleteUserModal"
         :user="selectedUser"
         @deleteUser="removeUser(selectedUser)"
       />
 
       <TokenManagement
-        v-if="selectedUser"
+        v-if="selectedUser && showTokenModal"
         v-model:visible="showTokenModal"
         :user="selectedUser"
         @userUpdated="retrieveUsers"

@@ -22,7 +22,7 @@
             "
             >Delete</Button
           >
-          <Button icon="Cross" size="small" @click="visible = false"
+          <Button icon="cross" size="small" @click="visible = false"
             >Cancel</Button
           >
         </div>

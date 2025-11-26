@@ -161,7 +161,7 @@ const schema = ref<string>(
 );
 
 const userName = computed(() => props.user.email);
-const isEnabled = computed(() => props.user.enabled);
+const isEnabled = ref<boolean>(props.user.enabled);
 const revokedRoles = ref<Record<string, IRole>>({});
 const password = ref<string>("");
 const password2 = ref<string>("");
@@ -174,6 +174,7 @@ watch(
   (newUser) => {
     userRoles.value = getRoles(newUser.roles || []);
     userTokens.value = newUser.tokens || ([] as string[]);
+    isEnabled.value = newUser.enabled;
   }
 );
 
