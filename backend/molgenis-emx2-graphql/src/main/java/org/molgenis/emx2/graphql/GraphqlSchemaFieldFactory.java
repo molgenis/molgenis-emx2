@@ -27,7 +27,7 @@ public class GraphqlSchemaFieldFactory {
 
   public static final GraphQLInputObjectType permissionInputType =
       new GraphQLInputObjectType.Builder()
-          .name("MolgenisLanguageValueType")
+          .name("MolgenisPermissionInputType")
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_ID)
@@ -747,16 +747,16 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(dataFetchingEnvironment -> schema.getChangesCount());
   }
 
-  public GraphQLFieldDefinition.Builder permissionsQuery(Schema schema) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_permissions")
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.KEYS)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
-        .type(GraphQLList.list(permissionsGroupInputMetadataType))
-        .dataFetcher(dataFetchingEnvironment -> schema.getMetadata().getPermissions());
-  }
+  //  public GraphQLFieldDefinition.Builder permissionsQuery(Schema schema) {
+  //    return GraphQLFieldDefinition.newFieldDefinition()
+  //        .name("_permissions")
+  //        .argument(
+  //            GraphQLArgument.newArgument()
+  //                .name(GraphqlConstants.KEYS)
+  //                .type(GraphQLList.list(Scalars.GraphQLString)))
+  //        .type(GraphQLList.list(permissionsGroupInputMetadataType))
+  //        .dataFetcher(dataFetchingEnvironment -> schema.getMetadata().getPermissions());
+  //  }
 
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
