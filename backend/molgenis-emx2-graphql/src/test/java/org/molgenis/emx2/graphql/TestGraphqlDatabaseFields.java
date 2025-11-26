@@ -27,7 +27,7 @@ public class TestGraphqlDatabaseFields {
   private static GraphQL graphql;
   private static Database database;
   private static TaskService taskService;
-  private static final String schemaName = "TestGraphqlDatabaseFields";
+  private static final String schemaName = TestGraphqlDatabaseFields.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {

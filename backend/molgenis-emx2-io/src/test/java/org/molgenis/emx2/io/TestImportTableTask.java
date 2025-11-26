@@ -18,12 +18,12 @@ public class TestImportTableTask {
 
   private static Database database;
   private static Schema schema;
-  private static final String schemaName = "TestImportTableTask";
+  private static final String schemaName = TestImportTableTask.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema("TestImportTableTask");
+    schema = database.dropCreateSchema(schemaName);
   }
 
   @Test

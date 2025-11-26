@@ -22,7 +22,7 @@ public class TestRenameAndDelete {
 
   static Database db;
   static Schema schema;
-  static String schemaName = "TestRenameAndDelete";
+  static String schemaName = TestRenameAndDelete.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {

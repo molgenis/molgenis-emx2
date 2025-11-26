@@ -111,7 +111,7 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testSearch() {
-    Query s = this.schema.getTable("Person").query();
+    Query s = schema.getTable("Person").query();
     s.select(s("name"));
     s.search("opa");
 
@@ -174,7 +174,7 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testAgg() {
-    String schemaName = "TestQueryJsonGraph_testAgg";
+    String schemaName = TestQueryJsonGraph.class.getSimpleName() + "_testAgg";
     db.dropSchemaIfExists(schemaName);
     PET_STORE.getImportTask(db, schemaName, "", true).run();
     Schema schema = db.getSchema(schemaName);

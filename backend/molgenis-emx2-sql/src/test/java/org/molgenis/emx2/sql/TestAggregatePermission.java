@@ -21,7 +21,7 @@ import org.molgenis.emx2.Schema;
 public class TestAggregatePermission {
   private static Database db;
   static Schema schema;
-  static String schemaName = "TestAggregatePermission";
+  static String schemaName = TestAggregatePermission.class.getSimpleName();
 
   @BeforeAll
   public static void setUp() throws SQLException {

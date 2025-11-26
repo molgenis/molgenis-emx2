@@ -16,7 +16,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestOntologyMetadataExport {
   static Database database;
   static Schema schema;
-  private static final String schemaName = "TestOntologyMetadataExport";
+  private static final String schemaName = TestOntologyMetadataExport.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
