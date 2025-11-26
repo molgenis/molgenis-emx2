@@ -111,8 +111,8 @@ public class WebApiSmokeTests {
 
     // Always create test database from scratch to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    schema = db.createSchema(PET_STORE_SCHEMA);
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(db, PET_STORE_SCHEMA, "", true).run();
+    schema = db.getSchema(PET_STORE_SCHEMA);
 
     // grant a user permission
     db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
@@ -276,8 +276,9 @@ public class WebApiSmokeTests {
   @Test
   public void testReports() throws IOException {
     // create a new schema for report
-    Schema schema = db.dropCreateSchema("pet store reports");
-    PET_STORE.getImportTask(schema, true).run();
+    db.dropSchemaIfExists("pet store reports");
+    PET_STORE.getImportTask(db, "pet store reports", "", true).run();
+    Schema schema = db.getSchema("pet store reports");
 
     // check if reports work
     byte[] zipContents =
@@ -1150,7 +1151,7 @@ public class WebApiSmokeTests {
    * Request that does not define a content type but does validate on this.
    *
    * @param expectStatusCode
-   * @param contentType
+   * @param expectContentType
    * @return
    */
   private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
@@ -1177,7 +1178,7 @@ public class WebApiSmokeTests {
    * Request that defines given & expected content types individually and validates on this.
    *
    * @param expectStatusCode
-   * @param contentType
+   * @param expectedContentType
    * @return
    */
   private RequestSender rdfApiContentTypeRequest(
