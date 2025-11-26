@@ -20,8 +20,10 @@ public class TestValidation {
   @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema(TestValidation.class.getSimpleName());
-    PET_STORE.getImportTask(db, schema.getName(), "", true).run();
+    String schemaName = TestValidation.class.getSimpleName();
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", true).run();
+    schema = db.getSchema(schemaName);
   }
 
   @Test

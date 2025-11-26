@@ -23,8 +23,10 @@ public class TestOntologyQueries {
   @BeforeEach
   public void setUp() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    schema = (SqlSchema) database.dropCreateSchema(TestOntologyQueries.class.getSimpleName());
-    DataModels.Profile.PET_STORE.getImportTask(database, schema.getName(), "", true).run();
+    String schemaName = TestOntologyQueries.class.getSimpleName();
+    database.dropSchemaIfExists(schemaName);
+    DataModels.Profile.PET_STORE.getImportTask(database, schemaName, "", true).run();
+    schema = (SqlSchema) database.getSchema(schemaName);
   }
 
   @Test
