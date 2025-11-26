@@ -65,29 +65,39 @@ public class TestLoaders {
       database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
 
       DataModels.Profile.DATA_CATALOGUE.getImportTask(database, DATA_CATALOGUE, "test", true).run();
+      dataCatalogue = database.getSchema(DATA_CATALOGUE);
       DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING
           .getImportTask(database, COHORT_STAGING, "test", true)
           .run();
+      cohortStaging = database.getSchema(COHORT_STAGING);
       DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING
           .getImportTask(database, NETWORK_STAGING, "test", true)
           .run();
+      networkStaging = database.getSchema(NETWORK_STAGING);
       DataModels.Regular.BIOBANK_DIRECTORY
           .getImportTask(database, DIRECTORY_TEST, "test", true)
           .run();
+      directory = database.getSchema(DIRECTORY_TEST);
       DataModels.Regular.PROJECTMANAGER
           .getImportTask(database, PROJECT_MANAGER, "test", true)
           .run();
+      projectManagerSchema = database.getSchema(PROJECT_MANAGER);
       DataModels.Regular.BIOBANK_DIRECTORY_STAGING
           .getImportTask(database, DIRECTORY_STAGING, "test", false)
           .run();
+      directoryStaging = database.getSchema(DIRECTORY_STAGING);
       DataModels.Regular.UI_DASHBOARD.getImportTask(database, DASHBOARD_TEST, "test", true).run();
+      dashboard = database.getSchema(DASHBOARD_TEST);
       DataModels.Profile.PATIENT_REGISTRY
           .getImportTask(database, PATIENT_REGISTRY, "test", true)
           .run();
+      patientRegistry = database.getSchema(PATIENT_REGISTRY);
       DataModels.Regular.PATIENT_REGISTRY_DEMO
           .getImportTask(database, PATIENT_REGISTRY_DEMO, "test", true)
           .run();
+      patientRegistryDemo = database.getSchema(PATIENT_REGISTRY_DEMO);
       DataModels.Profile.MG_CMS.getImportTask(database, PAGES_SCHEMA, "test", true).run();
+      pagesSchema = database.getSchema(PAGES_SCHEMA);
       // This profile is broken
       //      FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
       //      DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();

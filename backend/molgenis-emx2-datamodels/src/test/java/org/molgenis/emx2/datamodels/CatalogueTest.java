@@ -10,7 +10,6 @@ public class CatalogueTest extends TestLoaders {
 
   @Test
   void test06DataCatalogueLoader() throws Exception {
-    dataCatalogue = database.getSchema(DATA_CATALOGUE);
     assertEquals(24, dataCatalogue.getTableNames().size());
 
     // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
@@ -20,14 +19,12 @@ public class CatalogueTest extends TestLoaders {
 
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
-    cohortStaging = database.getSchema(COHORT_STAGING);
     assertEquals(20, cohortStaging.getTableNames().size());
   }
 
   @Disabled
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
-    networkStaging = database.getSchema(NETWORK_STAGING);
     assertEquals(15, networkStaging.getTableNames().size());
   }
 }
