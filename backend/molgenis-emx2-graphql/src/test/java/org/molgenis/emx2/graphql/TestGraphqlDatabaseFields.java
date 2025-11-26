@@ -17,7 +17,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
@@ -25,7 +24,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static GraphQL grapql;
+  private static GraphQL graphql;
   private static Database database;
   private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
@@ -33,18 +32,16 @@ public class TestGraphqlDatabaseFields {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchemaIfExists(schemaName);
     taskService = new TaskServiceInMemory();
-    Schema schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, false).run();
-    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
+    PET_STORE.getImportTask(database, schemaName, "", false).run();
+    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
     // ensure schema doesn't exist
-    if (database.getSchema(schemaName + "B") != null) {
-      database.dropSchema(schemaName + "B");
-    }
+    database.dropSchemaIfExists(schemaName + "B");
 
     assertNull(database.getSchema(schemaName + "B"));
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
@@ -235,7 +232,7 @@ public class TestGraphqlDatabaseFields {
         new ObjectMapper()
             .readTree(
                 convertExecutionResultToJson(
-                    grapql.execute(
+                    graphql.execute(
                         ExecutionInput.newExecutionInput(query)
                             .graphQLContext(graphQLContext)
                             .build())));
