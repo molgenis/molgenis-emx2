@@ -203,6 +203,15 @@ BEGIN
                     INTO user_exists;
 
                     IF user_exists THEN
+                        -- Ensure MG_USER_<username> role exists
+                        PERFORM 1
+                        FROM pg_roles
+                        WHERE rolname = 'MG_USER_' || user_var;
+
+                        IF NOT FOUND THEN
+                            EXECUTE format('CREATE ROLE %I NOLOGIN', 'MG_USER_' || user_var);
+                            RAISE NOTICE 'Created missing MG_USER_% role', user_var;
+                        END IF;
                         -- Grant the group role to the user if they exist
                         EXECUTE format('GRANT %I TO %I', role_name, 'MG_USER_' || user_var);
                         RAISE NOTICE 'Granting role % to user %', role_name, user_var;
