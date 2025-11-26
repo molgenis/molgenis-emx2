@@ -9,6 +9,7 @@ import PageHeader from "../../../../../tailwind-components/app/components/PageHe
 import BaseIcon from "../../../../../tailwind-components/app/components/BaseIcon.vue";
 import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import type { Pages } from "../../../../../tailwind-components/app/utils/Pages";
+import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -33,9 +34,10 @@ const { data } = await $fetch<PagesResponse>(`/${schema}/graphql`, {
   throw new Error(err);
 });
 
-const crumbs: Record<string, string> = {};
-crumbs[schema as string] = `/${schema}`;
-crumbs["Pages"] = "";
+const crumbs: Crumb[] = [
+  { label: schema as string, url: `/${schema}` },
+  { label: "Pages", url: "" },
+];
 </script>
 
 <template>

@@ -28,7 +28,7 @@
       <li v-for="row in item.content" :key="row">
         <a
           v-if="row.type === 'LINK'"
-          class="text-blue-500 text-body-base hover:underline"
+          class="text-link text-body-base hover:underline"
           target="_blank"
           :href="row.url"
           >{{ row.label }}</a
@@ -41,7 +41,7 @@
 
     <a
       v-else-if="item.type === 'LINK'"
-      class="text-blue-500 text-body-base hover:underline"
+      class="text-link text-body-base hover:underline"
       target="_blank"
       :href="item.content.url"
     >
@@ -50,7 +50,7 @@
 
     <a v-else-if="showAsFile(item)" class="flex" :href="item.content.url">
       <div class="flex-start">
-        <span class="text-blue-500 text-body-base hover:underline">
+        <span class="text-link text-body-base hover:underline">
           {{ item.label }}
         </span>
       </div>

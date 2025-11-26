@@ -16,6 +16,7 @@ public class Column {
   private String heading;
   private String description;
   private List<LanguageValue> labels = new ArrayList<>();
+  private String formLabel;
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
@@ -65,6 +66,7 @@ public class Column {
             .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
+    this.formLabel = column.getFormLabel();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
     this.key = column.getKey();
@@ -146,6 +148,7 @@ public class Column {
     c.setComputed(computed);
     c.setReadonly(readonly);
     c.setProfiles(profiles);
+    c.setFormLabel(formLabel);
 
     // ignore inherited
     return c;
@@ -429,5 +432,13 @@ public class Column {
 
   public void setHeading(String heading) {
     this.heading = heading;
+  }
+
+  public String getFormLabel() {
+    return formLabel;
+  }
+
+  public void setFormLabel(String formLabel) {
+    this.formLabel = formLabel;
   }
 }
