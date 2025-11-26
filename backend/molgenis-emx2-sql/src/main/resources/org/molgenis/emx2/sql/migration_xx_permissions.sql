@@ -1,130 +1,90 @@
--- Function to create or update schema-level permissions
-CREATE OR REPLACE FUNCTION "MOLGENIS".create_permissions(
-    schema_id TEXT
+CREATE SCHEMA IF NOT EXISTS temp_migration;
+
+CREATE TABLE temp_migration.roles (
+                                      role_name TEXT PRIMARY KEY,
+                                      is_user_role BOOLEAN,
+                                      mapped_user TEXT
+);
+
+CREATE TABLE temp_migration.group_permissions AS
+SELECT *
+FROM "MOLGENIS".group_permissions
+WHERE 1=0;
+
+CREATE TABLE temp_migration.group_metadata AS
+SELECT *
+FROM "MOLGENIS".group_metadata
+WHERE 1=0;
+
+INSERT INTO temp_migration.roles (role_name, is_user_role)
+SELECT rolname, FALSE
+FROM pg_roles
+WHERE rolname LIKE 'MG_ROLE_%';
+
+INSERT INTO temp_migration.roles (role_name, is_user_role, mapped_user)
+SELECT rolname, TRUE, regexp_replace(rolname, '^MG_USER_', '')
+FROM pg_roles
+WHERE rolname LIKE 'MG_USER_%';
+
+INSERT INTO temp_migration.group_metadata (group_name, users)
+SELECT
+    r.rolname AS group_name,
+    ARRAY(
+            SELECT regexp_replace(u.rolname, '^MG_USER_', '')
+            FROM pg_auth_members m
+                     JOIN pg_roles u ON u.oid = m.member
+            WHERE m.roleid = r.oid
+              AND u.rolname LIKE 'MG_USER_%'
+    ) AS users
+FROM pg_roles r
+WHERE r.rolname LIKE 'MG_ROLE_%';
+
+INSERT INTO temp_migration.group_permissions (
+    group_name, table_schema, table_name,
+    has_select, has_insert, has_update, has_delete, has_admin
 )
-    RETURNS void
-    LANGUAGE plpgsql AS
-$$
-DECLARE
-    default_permissions TEXT[] := ARRAY ['SELECT', 'INSERT', 'UPDATE','DELETE','AGG','AGG_COUNT','AGG_RANGE','AGG_EXIST','MANAGE','ADMIN','GROUP_SELECT','GROUP_UPDATE','GROUP_DELETE'];
-    default_groups      TEXT[] := ARRAY ['VIEWERS', 'EDITORS', 'MANAGERS', 'ADMIN', 'GROUP_EDITORS', 'GROUP_VIEWERS'];
-    permission_name     TEXT;
-    group_name          TEXT;
-    table_ids           TEXT[];
-    table_id            TEXT;
-BEGIN
-    -- apply to all tables
-    SELECT ARRAY_AGG(table_name)
-    INTO table_ids
-    FROM information_schema.tables
-    WHERE table_schema = schema_id
-      AND table_type = 'BASE TABLE';
+SELECT
+    grantee AS group_name,
+    table_schema,
+    table_name,
+    (MAX(CASE WHEN privilege_type='SELECT' THEN 1 ELSE 0 END) = 1) AS has_select,
+    (MAX(CASE WHEN privilege_type='INSERT' THEN 1 ELSE 0 END) = 1) AS has_insert,
+    (MAX(CASE WHEN privilege_type='UPDATE' THEN 1 ELSE 0 END) = 1) AS has_update,
+    (MAX(CASE WHEN privilege_type='DELETE' THEN 1 ELSE 0 END) = 1) AS has_delete,
+    FALSE AS has_admin
+FROM information_schema.role_table_grants
+WHERE grantee LIKE 'MG_ROLE_%'
+GROUP BY grantee, table_schema, table_name;
 
-    -- Make sure main admin group exists
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'MG_GROUP:_ADMIN_') THEN
-        EXECUTE 'CREATE ROLE "MG_GROUP:_ADMIN_"'; -- super admin
-    END IF;
+/** Rollen droppen */
+DO $$
+    DECLARE r TEXT;
+    BEGIN
+        -- Drop memberships
+        FOR r IN SELECT role_name FROM temp_migration.roles ORDER BY role_name DESC
+            LOOP
+                EXECUTE format('REASSIGN OWNED BY %I TO molgenis;', r);
+                EXECUTE format('DROP OWNED BY %I;', r);
+            END LOOP;
 
-    -- define default permissions
-    FOREACH permission_name IN ARRAY default_permissions
-        LOOP
-            permission_name := format('MG_PERM:%s:_ALL_:%s', schema_id, permission_name);
-            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = permission_name) THEN
-                EXECUTE format('CREATE ROLE %I', permission_name);
-            END IF;
-        END LOOP;
-
-    -- define default groups
-    FOREACH group_name IN ARRAY default_groups
-        LOOP
-            group_name := format('MG_GROUP:%s_%s', schema_id, group_name);
-            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-                EXECUTE format('CREATE ROLE %I', group_name);
-            END IF;
-        END LOOP;
-
-    -- Grant usage on the schema
-    EXECUTE format(
-            'GRANT USAGE ON SCHEMA %1$I TO "MG_PERM:%1$s:_ALL_:SELECT", "MG_PERM:%1$s:_ALL_:GROUP_SELECT", "MG_PERM:%1$s:_ALL_:INSERT", "MG_PERM:%1$s:_ALL_:UPDATE", "MG_PERM:%1$s:_ALL_:GROUP_UPDATE",
-            "MG_PERM:%1$s:_ALL_:DELETE", "MG_PERM:%1$s:_ALL_:GROUP_DELETE", "MG_PERM:%1$s:_ALL_:ADMIN"',
-            schema_id
-            );
-
-    -- Grant CREATE privilege on the schema
-    EXECUTE format(
-            'GRANT CREATE ON SCHEMA %1$I TO "MG_PERM:%1$s:_ALL_:ADMIN" WITH GRANT OPTION',
-            schema_id
-            );
-
-
-    -- Grant SELECT/INSERT/UPDATE/DELETE to admin
-    EXECUTE format(
-            'GRANT "MG_PERM:%1$s:_ALL_:SELECT", "MG_PERM:%1$s:_ALL_:INSERT", "MG_PERM:%1$s:_ALL_:UPDATE", "MG_PERM:%1$s:_ALL_:DELETE" TO "MG_PERM:%1$s:_ALL_:ADMIN" WITH ADMIN OPTION',
-            schema_id
-            );
-
-
-    -- Grant SELECT permissions to aggregate roles
-    EXECUTE format(
-            'GRANT "MG_PERM:%1$s:_ALL_:SELECT" TO "MG_PERM:%1$s:_ALL_:AGG", "MG_PERM:%1$s:_ALL_:AGG_COUNT", "MG_PERM:%1$s:_ALL_:AGG_RANGE", "MG_PERM:%1$s:_ALL_:AGG_EXIST"',
-            schema_id
-            );
-
-    -- Grant to groups
-    EXECUTE format('GRANT "MG_PERM:%1$s:_ALL_:SELECT" TO "MG_GROUP:%1$s_VIEWERS"', schema_id);
-    EXECUTE format('GRANT "MG_PERM:%1$s:_ALL_:GROUP_SELECT" TO "MG_GROUP:%1$s_GROUP_VIEWERS"', schema_id);
-    EXECUTE format(
-            'GRANT "MG_PERM:%1$s:_ALL_:SELECT", "MG_PERM:%1$s:_ALL_:INSERT", "MG_PERM:%1$s:_ALL_:UPDATE", "MG_PERM:%1$s:_ALL_:DELETE" TO "MG_GROUP:%1$s_EDITORS"',
-            schema_id);
-    EXECUTE format(
-            'GRANT "MG_PERM:%1$s:_ALL_:GROUP_SELECT", "MG_PERM:%1$s:_ALL_:INSERT", "MG_PERM:%1$s:_ALL_:GROUP_UPDATE", "MG_PERM:%1$s:_ALL_:GROUP_DELETE" TO "MG_GROUP:%1$s_GROUP_EDITORS"',
-            schema_id);
-    EXECUTE format(
-            'GRANT "MG_PERM:%1$s:_ALL_:ADMIN", "MG_GROUP:%1$s_VIEWERS", "MG_GROUP:%1$s_EDITORS", "MG_GROUP:%1$s_GROUP_VIEWERS", "MG_GROUP:%1$s_GROUP_EDITORS" TO "MG_GROUP:%1$s_ADMIN" WITH ADMIN OPTION',
-            schema_id);
-
-    FOREACH table_id IN ARRAY table_ids
-        LOOP
-            -- create table level permissions
-            FOREACH permission_name IN ARRAY default_permissions
-                LOOP
-                    permission_name := format('MG_PERM:%s:%s:%s', schema_id, table_id, permission_name);
-                    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = permission_name) THEN
-                        EXECUTE format('CREATE ROLE %I', permission_name);
-                    END IF;
-                END LOOP;
-            EXECUTE format(
-                    'GRANT SELECT ON TABLE %1$I.%2$I TO "MG_PERM:%1$s:_ALL_:SELECT", "MG_PERM:%1$s:%2$s:SELECT", "MG_PERM:%1$s:_ALL_:GROUP_SELECT", "MG_PERM:%1$s:%2$s:GROUP_SELECT"',
-                    schema_id, table_id);
-            EXECUTE format(
-                    'GRANT INSERT ON TABLE %1$I.%2$I TO "MG_PERM:%1$s:_ALL_:INSERT", "MG_PERM:%1$s:%2$s:INSERT"',
-                    schema_id, table_id);
-            EXECUTE format(
-                    'GRANT UPDATE ON TABLE %1$I.%2$I TO "MG_PERM:%1$s:_ALL_:UPDATE", "MG_PERM:%1$s:%2$s:UPDATE", "MG_PERM:%1$s:_ALL_:GROUP_UPDATE", "MG_PERM:%1$s:%2$s:GROUP_UPDATE"',
-                    schema_id, table_id);
-            EXECUTE format(
-                    'GRANT DELETE ON TABLE %1$I.%2$I TO "MG_PERM:%1$s:_ALL_:DELETE", "MG_PERM:%1$s:_ALL_:GROUP_DELETE", "MG_PERM:%1$s:%2$s:DELETE", "MG_PERM:%1$s:%2$s:GROUP_DELETE"',
-                    schema_id, table_id);
-            -- Below are protected in middleware; would require views to protect on backend
-            EXECUTE format(
-                    'GRANT "MG_PERM:%1$s:%2$s:SELECT" TO "MG_PERM:%1$s:%2$s:AGG", "MG_PERM:%1$s:%2$s:AGG_COUNT", "MG_PERM:%1$s:%2$s:AGG_RANGE", "MG_PERM:%1$s:%2$s:AGG_EXIST"',
-                    schema_id, table_id);
-
-            -- ensure the schema admin can grant these roles
-            EXECUTE format(
-                    'GRANT "MG_PERM:%1$s:%2$s:SELECT", "MG_PERM:%1$s:%2$s:INSERT", "MG_PERM:%1$s:%2$s:UPDATE", "MG_PERM:%1$s:%2$s:DELETE" TO "MG_PERM:%1$s:_ALL_:ADMIN" WITH ADMIN OPTION',
-                    schema_id, table_id);
-
-            EXECUTE format('ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group VARCHAR', schema_id, table_id);
-            EXECUTE format('ALTER TABLE %I.%I ENABLE ROW LEVEL SECURITY', schema_id, table_id);
-            EXECUTE format(
-                    'CREATE POLICY select_policy ON %I.%I FOR SELECT USING (pg_has_role(''MG_PERM:%s:%s:SELECT'',current_user,''MEMBER'') OR (pg_has_role(''MG_PERM:%s:%s:GROUP_SELECT'',''MEMBER'') AND pg_has_role(mg_group, current_user,''MEMBER'')))',
-                    schema_id, table_id, schema_id, table_id, schema_id, table_id
-                    );
-        END LOOP;
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE NOTICE 'Error during GRANT execution: %', SQLERRM;
-        RAISE;
-END
+        -- Drop roles
+        FOR r IN SELECT role_name FROM temp_migration.roles ORDER BY role_name DESC
+            LOOP
+                EXECUTE format('DROP ROLE IF EXISTS %I;', r);
+            END LOOP;
+    END;
 $$;
+
+/** Rollen inserten in nieuwe tabllen */
+INSERT INTO "MOLGENIS".group_metadata (group_name, users)
+SELECT group_name, users
+FROM temp_migration.group_metadata;
+
+INSERT INTO "MOLGENIS".group_permissions (
+    group_name, table_schema, table_name,
+    has_select, has_insert, has_update, has_delete, has_admin
+)
+SELECT
+    group_name, table_schema, table_name,
+    has_select, has_insert, has_update, has_delete, has_admin
+FROM temp_migration.group_permissions;
