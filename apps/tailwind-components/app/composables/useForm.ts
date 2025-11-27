@@ -6,6 +6,7 @@ import {
   type MaybeRef,
   unref,
   isRef,
+  type ComputedRef,
 } from "vue";
 import type {
   columnValue,
@@ -19,12 +20,10 @@ import { toFormData } from "../../../metadata-utils/src/toFormData";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import {
   getColumnError,
-  isColumnVisible,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { useSession } from "#imports";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
-
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
   formValuesRef: MaybeRef<Record<columnId, columnValue>>,
@@ -48,6 +47,77 @@ export default function useForm(
   }
 
   const visibleMap = reactive<Record<columnId, boolean | undefined>>({});
+
+  // initialize form values with all columns to prevent reference errors in expressions
+  metadata.value.columns.forEach((column: IColumn) => {
+    if (!formValues.value.hasOwnProperty(column.id)) {
+      formValues.value[column.id] = null;
+    }
+  });
+
+  const formValueKeys = metadata.value.columns.map((col) => col.id);
+
+  // setup visability signals
+  const visibilityMap = metadata.value.columns.reduce((acc, column) => {
+    const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
+
+    const exprString = column.visible;
+    const params: string[] = [];
+
+    for (const key of formValueKeys) {
+      // regex finds formValue keys used inside the expression
+      // const regex = new RegExp(`\\b${key}\\b`, "g");
+
+      // better regex that excludes litarals
+      const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
+      if (regex.test(exprString || "")) {
+        params.push(key);
+      }
+    }
+
+    const paramsString = params.join(", ");
+    const myFunction = new Function(paramsString, "return " + cleanExpression);
+
+    if (params.length === 0) {
+      acc[column.id] = computed(() => myFunction());
+    } else if (params.length === 1) {
+      acc[column.id] = computed(() => myFunction(formValues.value[params[0]]));
+    } else if (params.length === 2) {
+      acc[column.id] = computed(() =>
+        myFunction(formValues.value[params[0]], formValues.value[params[1]])
+      );
+    } else if (params.length === 3) {
+      acc[column.id] = computed(() =>
+        myFunction(
+          formValues.value[params[0]],
+          formValues.value[params[1]],
+          formValues.value[params[2]]
+        )
+      );
+    } else if (params.length === 4) {
+      acc[column.id] = computed(() =>
+        myFunction(
+          formValues.value[params[0]],
+          formValues.value[params[1]],
+          formValues.value[params[2]],
+          formValues.value[params[3]]
+        )
+      );
+    } else if (params.length === 5) {
+      acc[column.id] = computed(() =>
+        myFunction(
+          formValues.value[params[0]],
+          formValues.value[params[1]],
+          formValues.value[params[2]],
+          formValues.value[params[3]],
+          formValues.value[params[4]]
+        )
+      );
+    }
+    // acc[column.id] = computed(() => { return myFunction(formValues.value[params[0]]);});
+    return acc;
+  }, {} as Record<columnId, ComputedRef<boolean>>);
+
   const errorMap = ref<Record<columnId, string>>({});
   const currentSection = ref<columnId | undefined>();
   const currentHeading = ref<columnId>();
@@ -63,7 +133,6 @@ export default function useForm(
     currentHeading.value = undefined;
     lastScrollTo.value = undefined;
     currentErrorField.value = undefined;
-    updateVisibility();
   };
 
   const sections = computed(() => {
@@ -329,76 +398,8 @@ export default function useForm(
     );
   };
 
-  const updateVisibility = () => {
-    let previousSection: IColumn | undefined = undefined;
-    let sectionColumns: string[] = [];
-    let previousHeading: IColumn | undefined = undefined;
-    let headingColumns: string[] = [];
-    metadata.value.columns.forEach((c) => {
-      if (c.columnType === "SECTION") {
-        if (previousSection) {
-          //section is only visible if some columns are also visible
-          visibleMap[previousSection.id] =
-            visibleMap[previousSection.id] &&
-            sectionColumns.some((columnId) => visibleMap[columnId]);
-        }
-        visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
-          ? true
-          : false;
-        sectionColumns = [];
-        headingColumns = []; //section also resets heading
-        previousSection = c;
-        previousHeading = undefined;
-      } else if (c.columnType === "HEADING") {
-        if (previousHeading) {
-          //heading is only visible if some columns are also visible
-          visibleMap[previousHeading.id] =
-            visibleMap[previousHeading.id] &&
-            headingColumns.some((columnId) => visibleMap[columnId]);
-        }
-        //visible if section visible and self visible
-        visibleMap[c.id] =
-          (!previousSection || visibleMap[previousSection.id]) &&
-          isColumnVisible(c, formValues.value, metadata.value)
-            ? true
-            : false;
-        headingColumns = [];
-        previousHeading = c;
-        sectionColumns.push(c.id);
-      } else {
-        //visible if section is visible and heading is visible and self is visible
-        visibleMap[c.id] =
-          (!previousSection || visibleMap[previousSection.id]) &&
-          (!previousHeading || visibleMap[previousHeading.id]) &&
-          isColumnVisible(c, formValues.value, metadata.value)
-            ? true
-            : false;
-        headingColumns.push(c.id);
-        sectionColumns.push(c.id);
-      }
-      // empty invisible columns
-      // (tricky business, users might be hurt, and we require visible expressions to point 'backwards' never 'forwards')
-      if (!visibleMap[c.id]) {
-        formValues.value[c.id] = undefined;
-      }
-    });
-    //check visibility of last heading
-    if (previousHeading) {
-      visibleMap[(previousHeading as IColumn).id] =
-        visibleMap[(previousHeading as IColumn).id] &&
-        headingColumns.some((columnId) => visibleMap[columnId]);
-    }
-    //check visibility of last section
-    if (previousSection) {
-      visibleMap[(previousSection as IColumn).id] =
-        visibleMap[(previousSection as IColumn).id] &&
-        sectionColumns.some((columnId) => visibleMap[columnId]);
-    }
-  };
-
   const onBlurColumn = (column: IColumn) => {
     validateColumn(column);
-    updateVisibility();
   };
 
   const onUpdateColumn = (column: IColumn) => {
@@ -406,7 +407,6 @@ export default function useForm(
     if (errorMap.value[column.id]) {
       validateColumn(column);
     }
-    updateVisibility();
   };
 
   const onViewColumn = (column: IColumn) => {
@@ -423,14 +423,14 @@ export default function useForm(
   };
 
   const visibleColumns = computed(() => {
-    if (!currentSection.value) {
-      currentSection.value = sections.value[0]?.id;
-    }
+    // if (!currentSection.value) {
+    //   currentSection.value = sections.value[0]?.id;
+    // }
     return (
       metadata.value?.columns
         .filter((column) => !column.id.startsWith("mg_"))
-        .filter((column) => visibleMap[column.id])
-        .filter((column) => currentSection.value === column.section)
+        .filter((column) => visibilityMap[column.id]?.value === true)
+        // .filter((column) => currentSection.value === column.section)
         // only show AUTO_ID columns when they have a value
         .filter(
           (column) =>
@@ -438,9 +438,6 @@ export default function useForm(
             formValues.value[column.id] !== undefined
         )
     );
-  });
-  const invisibleColumns = computed(() => {
-    return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
   });
 
   const nextSection = computed(() => {
@@ -497,14 +494,6 @@ export default function useForm(
     attemptScroll();
   }
 
-  watch(
-    () => metadata?.value,
-    () => {
-      reset();
-    },
-    { immediate: true }
-  );
-
   return {
     requiredFields,
     emptyRequiredFields,
@@ -526,11 +515,9 @@ export default function useForm(
     sections,
     currentSection,
     visibleColumns,
-    invisibleColumns,
     errorMap,
     validateAllColumns,
     visibleMap,
     lastScrollTo, //for debug
-    reset,
   };
 }

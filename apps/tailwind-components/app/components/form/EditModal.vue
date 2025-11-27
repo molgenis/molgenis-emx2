@@ -288,12 +288,6 @@ async function onSave(draft: boolean) {
   }
 }
 
-watch(visible, (newValue, oldValue) => {
-  if (newValue && !oldValue) {
-    reset();
-  }
-});
-
 watch(editFormValues.value, () => {
   formMessage.value = "";
 });
@@ -317,7 +311,6 @@ const {
   validateAllColumns,
   sections,
   visibleColumns,
-  reset,
 } = useForm(props.metadata, editFormValues, "fields-container");
 
 function reAuthenticate() {
