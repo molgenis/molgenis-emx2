@@ -145,7 +145,7 @@ export function applyJsTemplate(
     if (label) {
       return label;
     }
-  } catch (err: any) {
+  } catch (err) {
     // The template is not working, lets try and fail gracefully
     console.log(
       err.message +
