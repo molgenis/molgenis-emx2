@@ -14,9 +14,15 @@ def isCI = System.getenv('CI') ? true : false
 
 
 node {
-    version = '24.11.1' //latest LTS
+    version = '22.17.0'
     npmVersion = "10.9.2"
     download = !isCI
+
+    //to get rollup native
+    npmEnvVars = [
+            'npm_config_optional': 'true',
+            'ROLLUP_USE_NATIVE': 'true'
+    ]
 }
 
 npm_install {
@@ -25,6 +31,9 @@ npm_install {
         exclude("**/node_modules/**")
     })
     outputs.file("package-lock.json")
+    environment = [
+            'npm_config_optional': 'true'
+    ]
 }
 
 def excludePatterns = [
