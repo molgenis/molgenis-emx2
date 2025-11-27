@@ -14,10 +14,10 @@
       aria-labelledby="section-documents-title"
       :verticalPadding="2"
     >
-      <h2 id="section-documents-title"></h2>
-      <Accordion id="studies-nav" title="Studies" :isOpenByDefault="false">
-        <Studies table="Studies" labelsColumn="title" />
-      </Accordion>
+    <h2 id="section-documents-title"></h2>
+      <nav class="navbar">
+      <router-link class="nav-item" :to="{ name: 'studies' }">Studies</router-link>
+      </nav>
       <Accordion
         id="accReq-nav"
         title="Access Requests"
@@ -75,6 +75,23 @@ import Studies from "../components/Studies.vue";
 </script>
 
 <style lang="scss">
+.navbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #0084b4;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: white;
+}
+
+.nav-item:hover {
+  font-weight: bold;
+  color: white;
+}
+
 #accordion-studies-nav {
   .accordion-heading {
     background-color: #0084b4;
