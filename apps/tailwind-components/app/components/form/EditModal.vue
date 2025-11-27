@@ -62,7 +62,7 @@
           :columns="visibleColumns"
           :constantValues="constantValues"
           :errorMap="errorMap"
-          v-model="editFormValues"
+          v-model="formValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
           @view="onViewColumn"
@@ -174,6 +174,7 @@ const props = withDefaults(
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
+    isInsert?: boolean;
   }>(),
   {
     showButton: true,
@@ -192,14 +193,18 @@ const visible = defineModel("visible", {
 
 const saving = ref(false);
 const savingDraft = computed(
-  () => saving.value && editFormValues.value["mg_draft"] === true
+  () => saving.value && formValues.value["mg_draft"] === true
 );
 const rowKey = ref<Record<string, columnValue>>();
-const isInsert = ref(props.formValues ? false : true);
-const editFormValues = ref<Record<string, columnValue>>(
-  structuredClone(toRaw(props.formValues)) ||
-    getInitialFormValues(props.metadata)
-);
+const isInsert = ref(props.isInsert ? true : false);
+const formValues = ref<Record<string, columnValue>>(initFormValues());
+
+function initFormValues() {
+  const values =
+    structuredClone(toRaw(props.formValues)) ||
+    getInitialFormValues(props.metadata);
+  return Object.assign(values, props.constantValues || {});
+}
 
 if (props.formValues) {
   await updateRowKey();
@@ -211,7 +216,7 @@ watch(visible, (newValue, oldValue) => {
   }
 });
 
-watch(editFormValues.value, () => {
+watch(formValues.value, () => {
   formMessage.value = "";
 });
 
@@ -225,17 +230,13 @@ function setVisible() {
 }
 
 const rowType = computed(() => props.metadata.id);
-const isDraft = computed(
-  () => editFormValues.value["mg_draft"] === true || false
-);
+const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 
 function onCancel() {
   visible.value = false;
   saveErrorMessage.value = "";
   formMessage.value = "";
-  editFormValues.value =
-    structuredClone(toRaw(props.formValues)) ||
-    getInitialFormValues(props.metadata);
+  formValues.value = initFormValues();
   emit("update:cancelled");
 }
 
@@ -252,7 +253,7 @@ function handleError(err: unknown, defaultMessage: string) {
 
 async function updateRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
-    editFormValues.value,
+    formValues.value,
     props.metadata.id,
     props.metadata.schemaId as string
   );
@@ -268,7 +269,7 @@ async function onSave(draft: boolean) {
     }
   }
   try {
-    editFormValues.value["mg_draft"] = draft;
+    formValues.value["mg_draft"] = draft;
     saving.value = true;
     const resp = await (isInsert.value ? insertInto() : updateInto()).catch(
       () => (saving.value = false)
@@ -313,7 +314,7 @@ const {
   sections,
   visibleColumns,
   reset,
-} = useForm(props.metadata, editFormValues, "fields-container");
+} = useForm(props.metadata, formValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(
