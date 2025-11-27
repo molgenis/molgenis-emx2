@@ -39,7 +39,7 @@ studies,,,title,text,,true,,,http://purl.obolibrary.org/obo/NCIT_C49802,Title of
 studies,,,condition,string,,true,,,http://purl.obolibrary.org/obo/NCIT_C189194,Condition/Disease,Condition/Disease
 studies,,,coordinator,string,,true,,,http://purl.obolibrary.org/obo/NCIT_C51880,Medical coordinator/Project mentor,Medical coordinator/Project mentor
 studies,,,objective,string,,true,,,http://purl.obolibrary.org/obo/NCIT_C188823,Objective of the study,Objective of the study
-studies,,,patients,int,,true,,,http://purl.obolibrary.org/obo/NCIT_C49692,Patients concerned,Patients concerned
+studies,,,patients,string,,true,,,http://purl.obolibrary.org/obo/NCIT_C49692,Patients concerned,Patients concerned
 studies,,,dataUsed,string,,true,,,,Data used,Data used
 studies,,,dataErras,string,,true,,,,Data contained in ERRAS,Data contained in ERRAS
 studies,,,patientData,string,,true,,,http://purl.obolibrary.org/obo/NCIT_C188811,Data collected from the patients,Data collected from the patients
