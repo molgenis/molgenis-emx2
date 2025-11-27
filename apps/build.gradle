@@ -14,7 +14,7 @@ def isCI = System.getenv('CI') ? true : false
 
 
 node {
-    version = '22.17.0'
+    version = '24.11.1' //latest LTS
     npmVersion = "10.9.2"
     download = !isCI
 }
