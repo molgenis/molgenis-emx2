@@ -46,8 +46,6 @@ export default function useForm(
     });
   }
 
-  const visibleMap = reactive<Record<columnId, boolean | undefined>>({});
-
   // initialize form values with all columns to prevent reference errors in expressions
   metadata.value.columns.forEach((column: IColumn) => {
     if (!formValues.value.hasOwnProperty(column.id)) {
@@ -124,22 +122,10 @@ export default function useForm(
   const lastScrollTo = ref<columnId>();
   const currentErrorField = ref<IColumn | undefined>(undefined);
 
-  const reset = () => {
-    for (const key in visibleMap) {
-      delete visibleMap[key];
-    }
-    errorMap.value = {};
-    currentSection.value = undefined;
-    currentHeading.value = undefined;
-    lastScrollTo.value = undefined;
-    currentErrorField.value = undefined;
-  };
-
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
-    if (!metadata.value) return sectionList;
     for (const column of metadata.value?.columns.filter(
-      (c) => visibleMap[c.id]
+      (c) => visibilityMap[c.id]?.value === true
     )) {
       let isActive = false;
       if (
@@ -169,9 +155,9 @@ export default function useForm(
       //no real sections included, then empty list so no section menu will be shown
       return [];
     }
-    if (!currentSection.value) {
-      currentSection.value = sectionList[0]?.id;
-    }
+    // if (!currentSection.value) {
+    //   currentSection.value = sectionList[0]?.id;
+    // }
     return sectionList;
   });
 
@@ -195,7 +181,7 @@ export default function useForm(
   const requiredFields = computed(() => {
     return metadata.value?.columns.filter(
       (column: IColumn) =>
-        visibleMap[column.id] &&
+        visibilityMap[column.id]?.value === true &&
         isRequired(column.required) &&
         column.columnType !== "AUTO_ID"
     );
@@ -517,7 +503,6 @@ export default function useForm(
     visibleColumns,
     errorMap,
     validateAllColumns,
-    visibleMap,
     lastScrollTo, //for debug
   };
 }
