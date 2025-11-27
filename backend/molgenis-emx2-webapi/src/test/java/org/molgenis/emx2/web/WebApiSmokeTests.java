@@ -278,7 +278,6 @@ public class WebApiSmokeTests {
     // create a new schema for report
     db.dropSchemaIfExists("pet store reports");
     PET_STORE.getImportTask(db, "pet store reports", "", true).run();
-    Schema schema = db.getSchema("pet store reports");
 
     // check if reports work
     byte[] zipContents =

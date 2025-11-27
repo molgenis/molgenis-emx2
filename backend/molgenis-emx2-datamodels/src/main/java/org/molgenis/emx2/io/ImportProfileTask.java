@@ -161,18 +161,17 @@ public class ImportProfileTask extends Task {
     // special option: if there are createSchemasIfMissing, import those first
     if (profiles.getFirstCreateSchemasIfMissing() != null) {
       for (CreateSchemas createSchemasIfMissing : profiles.getFirstCreateSchemasIfMissing()) {
-        String schemaName = createSchemasIfMissing.getName();
+        String missingSchemaName = createSchemasIfMissing.getName();
         Database db = schema.getDatabase();
-        Schema createNewSchema = db.getSchema(schemaName);
+        Schema createNewSchema = db.getSchema(missingSchemaName);
         // if schema exists by this name, stop and continue with next
         if (createNewSchema != null) {
           continue;
         }
-        //        createNewSchema = db.createSchema(schemaName);
         String profileLocation = createSchemasIfMissing.getProfile();
         ImportProfileTask profileLoader =
             new ImportProfileTask(
-                db, schemaName, "", profileLocation, createSchemasIfMissing.isImportDemoData());
+                db, missingSchemaName, "", profileLocation, createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
         profileLoader.run();

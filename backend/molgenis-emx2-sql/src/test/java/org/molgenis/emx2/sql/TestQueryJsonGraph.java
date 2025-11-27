@@ -174,10 +174,10 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testAgg() {
-    String schemaName = TestQueryJsonGraph.class.getSimpleName() + "_testAgg";
-    db.dropSchemaIfExists(schemaName);
-    PET_STORE.getImportTask(db, schemaName, "", true).run();
-    Schema schema = db.getSchema(schemaName);
+    String aggSchemaName = TestQueryJsonGraph.class.getSimpleName() + "_testAgg";
+    db.dropSchemaIfExists(aggSchemaName);
+    PET_STORE.getImportTask(db, aggSchemaName, "", true).run();
+    Schema schema = db.getSchema(aggSchemaName);
 
     String json = schema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
     assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));
