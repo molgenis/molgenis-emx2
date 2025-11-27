@@ -171,7 +171,11 @@ public class ImportProfileTask extends Task {
         String profileLocation = createSchemasIfMissing.getProfile();
         ImportProfileTask profileLoader =
             new ImportProfileTask(
-                db, missingSchemaName, "", profileLocation, createSchemasIfMissing.isImportDemoData());
+                db,
+                missingSchemaName,
+                "",
+                profileLocation,
+                createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
         profileLoader.run();

@@ -2,7 +2,6 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
@@ -34,7 +33,7 @@ public class TestGraphqlDatabaseFields {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(schemaName);
     taskService = new TaskServiceInMemory();
-    PET_STORE.getImportTask(database, schemaName, "", false).run();
+    //    PET_STORE.getImportTask(database, schemaName, "", false).run();
     graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 
@@ -55,6 +54,35 @@ public class TestGraphqlDatabaseFields {
     execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
     assertNull(database.getSchema(schemaName + "B"));
   }
+
+  @Test
+  public void testCreateSchemaFromTemplate() throws IOException {
+    database.dropSchemaIfExists(schemaName + "C");
+    assertNull(database.getSchema(schemaName + "C"));
+    //    execute(
+    //        "mutation{createSchema(name:\""
+    //            + schemaName
+    //            + "C\", description: \"test\", template: \"PET_STORE\", includeDemoData:
+    // false){message}}");
+    String testGraphQL =
+        """
+            mutation {
+                createSchema(
+                    name:"TestGraphqlDatabaseFieldsC",
+                    description: "test",
+                    template:  "PET_STORE",
+                    includeDemoData: false) {
+                    message
+                }
+                }""";
+    execute(testGraphQL);
+    String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
+    assertTrue(result.contains(schemaName + "C"));
+    assertEquals(5, database.getSchema(schemaName + "C").getTableNames().size());
+  }
+
+  @Test
+  public void testUpdateSchema() throws IOException {}
 
   @Test
   public void testCreateDatabaseSetting() throws IOException {
