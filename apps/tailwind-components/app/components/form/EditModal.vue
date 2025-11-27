@@ -171,10 +171,10 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     metadata: ITableMetaData;
+    isInsert: boolean;
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
-    isInsert: boolean;
   }>(),
   {
     showButton: true,
@@ -186,6 +186,7 @@ const emit = defineEmits([
   "update:updated",
   "update:cancelled",
 ]);
+
 const visible = defineModel("visible", {
   type: Boolean,
   default: false,
