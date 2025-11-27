@@ -142,7 +142,6 @@
 
 <script setup lang="ts">
 import { computed, ref, toRaw, watch } from "vue";
-import { getInitialFormValues } from "../../utils/typeUtils";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
@@ -154,9 +153,12 @@ import useForm from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import { getInitialFormValues } from "../../utils/typeUtils";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
 import FormFields from "./Fields.vue";
 import FormLegend from "./Legend.vue";
@@ -164,8 +166,6 @@ import FormMessage from "./Message.vue";
 import NextSectionNav from "./NextSectionNav.vue";
 import PreviousSectionNav from "./PreviousSectionNav.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
-import DraftLabel from "../label/DraftLabel.vue";
-import TransitionSlideUp from "../transition/SlideUp.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -174,7 +174,7 @@ const props = withDefaults(
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
-    isInsert?: boolean;
+    isInsert: boolean;
   }>(),
   {
     showButton: true,
@@ -196,15 +196,8 @@ const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
 const rowKey = ref<Record<string, columnValue>>();
-const isInsert = ref(props.isInsert ? true : false);
+const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
-
-function initFormValues() {
-  const values =
-    structuredClone(toRaw(props.formValues)) ||
-    getInitialFormValues(props.metadata);
-  return Object.assign(values, props.constantValues || {});
-}
 
 if (props.formValues) {
   await updateRowKey();
@@ -225,12 +218,19 @@ const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
+const rowType = computed(() => props.metadata.id);
+const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
+
 function setVisible() {
   visible.value = true;
 }
 
-const rowType = computed(() => props.metadata.id);
-const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
+function initFormValues() {
+  const values =
+    structuredClone(toRaw(props.formValues)) ||
+    getInitialFormValues(props.metadata);
+  return Object.assign(values, props.constantValues || {});
+}
 
 function onCancel() {
   visible.value = false;
