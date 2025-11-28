@@ -61,29 +61,22 @@ definitions:
 commands:
   pre_steps:
     steps:
-    - checkout
     - run:
-        name: fetch all
+        name: Fresh Git Checkout
         command: |
-          # If repository is shallow, unshallow it
-          if git rev-parse --is-shallow-repository | grep true; then
-            git fetch --unshallow
-          else
-            echo "Repository already unshallow"
-          fi
-    - run:
-        name: still fetch everything and check before and after
-        command: |
-          git rev-list --count HEAD
-          git fetch --all --tags --prune --force
+          rm -rf .git
+          
+          echo "Initializing repository and adding origin"
+          git init
+          git remote add origin $CIRCLE_REPOSITORY_URL
+          
+          echo "Fetching all branches, tags, and PR refs"
           git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
           git fetch origin +refs/tags/*:refs/tags/* --prune
-          git rev-list --count HEAD
-    - run:
-        name: run-audit-ci
-        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
-        working_directory: apps
-    - run: git fetch --all --tags
+          git fetch origin '+refs/pull/*/head:refs/remotes/origin/pr/*' --prune
+
+          echo "Checking out branch $CIRCLE_BRANCH"
+          git checkout -f $CIRCLE_BRANCH
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -91,6 +84,10 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
+    - run:
+        name: run-audit-ci
+        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
+        working_directory: apps      
     - run:
           name: Concatenate Build Files as key for cache
           command: |
