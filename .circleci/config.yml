@@ -62,6 +62,7 @@ commands:
   pre_steps:
     steps:
     - checkout
+        fetch-depth: 0
     - run:
         name: run-audit-ci
         command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
