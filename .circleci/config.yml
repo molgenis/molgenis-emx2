@@ -214,7 +214,7 @@ jobs:
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
     - post_steps
@@ -246,7 +246,7 @@ jobs:
         command: |
           ./gradlew shadowJar test jacocoMergedReport sonar ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.verbose=true -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} \
 
     - run:
         name: either release or push only snapshots to docker
