@@ -4,7 +4,7 @@
 
 plugins {
     id "java"
-    id "org.sonarqube" version "4.4.1.3373"
+    id "org.sonarqube" version "5.1.0.4882"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
@@ -28,10 +28,12 @@ println "Corrected version checking for optional snapshot: " + rootProject.versi
 
 nyxPublish.dependsOn assemble
 
-sonarqube {
+sonar {
     properties {
         property 'sonar.projectName', 'molgenis-emx2'
         property 'sonar.projectKey', 'molgenis_molgenis-emx2'
+        property 'sonar.organization', 'molgenis'
+        property 'sonar.host.url', 'https://sonarcloud.io'
         property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/backend/build/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml"
     }
 }
