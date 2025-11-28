@@ -62,21 +62,16 @@ commands:
   pre_steps:
     steps:
     - run:
-        name: Fresh Git Checkout
+        name: Fresh Git Checkout to prevend missing objects
         command: |
           rm -rf .git
-          
-          echo "Initializing repository and adding origin"
           git init
-          git remote add origin $CIRCLE_REPOSITORY_URL
-          
-          echo "Fetching all branches, tags, and PR refs"
-          git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
-          git fetch origin +refs/tags/*:refs/tags/* --prune
-          git fetch origin '+refs/pull/*/head:refs/remotes/origin/pr/*' --prune
-
-          echo "Checking out branch $CIRCLE_BRANCH"
-          git checkout -f $CIRCLE_BRANCH
+          git remote add origin "$CIRCLE_REPOSITORY_URL"
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/tags/*:refs/tags/* --prune
+          git checkout -f "$CIRCLE_BRANCH"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
