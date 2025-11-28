@@ -62,7 +62,7 @@ commands:
   pre_steps:
     steps:
     - checkout:
-      clone-depth: full
+        clone-depth: full
     - run:
         name: run-audit-ci
         command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
