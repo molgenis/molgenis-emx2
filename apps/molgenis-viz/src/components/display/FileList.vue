@@ -3,11 +3,7 @@
     <p><strong>Unable to retrieve files</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox
-    type="error"
-    v-else-if="!data.length && !error"
-    class="file-list-error"
-  >
+  <MessageBox type="error" v-else-if="!data" class="file-list-error">
     <div class="p-2">
       <p>
         No files are available for download. To import files, follow the steps
@@ -39,24 +35,33 @@
     </div>
   </MessageBox>
   <ul class="file-list" v-else>
-    <li class="file" v-for="file in data" :key="file.id">
+    <li class="file" v-for="file in data">
       <p class="file-element file-name">
         <span v-if="labelsColumn && Object.hasOwn(file, labelsColumn)">
           {{ file[labelsColumn] }}
         </span>
         <span v-else>
-          {{ file[fileColumn].filename }}
+          {{ (file[fileColumn] as FileProperties).filename }}
         </span>
       </p>
       <p class="file-element file-format">
-        {{ file[fileColumn].extension }}
+        {{ (file[fileColumn] as FileProperties).extension }}
       </p>
       <p class="file-element file-size">
-        {{ (file[fileColumn].size / Math.pow(1024, 2)).toFixed(2) }} MB
+        {{
+          (
+            (file[fileColumn] as FileProperties).size / Math.pow(1024, 2)
+          ).toFixed(2)
+        }}
+        MB
       </p>
-      <a class="file-element file-url" :href="file[fileColumn].url" download>
+      <a
+        class="file-element file-url"
+        :href="(file[fileColumn] as FileProperties).url"
+        download
+      >
         <span class="visually-hidden">
-          Download {{ file[fileColumn].filename }}
+          Download {{ (file[fileColumn] as FileProperties).filename }}
         </span>
         <ArrowDownTrayIcon class="heroicons" />
       </a>
@@ -73,6 +78,7 @@ import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
   table: string;
+  filter?: string;
   labelsColumn?: string;
   fileColumn: string;
 }>();
@@ -85,12 +91,24 @@ interface FileProperties {
   url: string;
 }
 
+interface FileColumn {
+  [key: string]: FileProperties;
+}
+
+interface FilesData {
+  [key: string]: string | FileColumn[] | FileProperties;
+}
+
+interface FilesResponse {
+  [key: string]: FilesData[];
+}
+
 const error = ref<Error | null>(null);
-const data: Record<string, FileProperties>[] = ref([]);
+const data = ref<FilesData[]>();
 
 async function getFiles() {
   const query = gql`query {
-    ${props.table} {
+    ${props.table} ${props.filter || ""} {
       ${props.labelsColumn || ""}
       ${props.fileColumn} {
         id
@@ -101,8 +119,10 @@ async function getFiles() {
       }
     }
   }`;
-  const response = await request("../api/graphql", query);
-  data.value = response[props.table];
+
+  const response: FilesResponse = await request("../api/graphql", query);
+  const files = response[props.table as keyof FilesResponse];
+  data.value = files as unknown as FilesData[];
 }
 
 onMounted(() => {
@@ -122,7 +142,6 @@ onMounted(() => {
     @include setIconSize(24px);
   }
 }
-
 .file-list {
   list-style: none;
   padding: 0;
@@ -173,6 +192,10 @@ onMounted(() => {
         background-color: $yellow-400;
         color: $blue-800;
       }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 }
