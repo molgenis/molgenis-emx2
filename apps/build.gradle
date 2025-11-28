@@ -17,12 +17,6 @@ node {
     version = '22.17.0'
     npmVersion = "10.9.2"
     download = !isCI
-
-    //to get rollup native
-    npmEnvVars = [
-            'npm_config_optional': 'true',
-            'ROLLUP_USE_NATIVE': 'true'
-    ]
 }
 
 npm_install {
