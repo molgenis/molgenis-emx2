@@ -4,10 +4,12 @@ import playwrightConfig from "../../../../playwright.config";
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
-
+const mouseClickDelay = 1000;
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}FormField.story`);
-  await page.getByRole("heading", { name: "FormField" }).click({ delay: 1000 });
+  await page
+    .getByRole("heading", { name: "FormField" })
+    .click({ delay: mouseClickDelay });
 });
 
 test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @input-textarea", async ({
@@ -17,7 +19,7 @@ test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @inp
     .locator("label")
     .filter({ hasText: "invalid" })
     .locator("rect")
-    .click();
+    .click({ delay: mouseClickDelay });
   await page.getByLabel("invalid").check();
   await expect(page.getByLabel("invalid")).toBeChecked();
   const InputTextAreaClass = await page
@@ -29,7 +31,7 @@ test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @inp
 test("InputTextArea: required state is properly indicated @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await page.getByText("Required is true").click();
+  await page.getByText("Required is true").click({ delay: mouseClickDelay });
   await expect(
     page.getByLabel("Demo input for type=text Required")
   ).toBeVisible();
@@ -42,7 +44,7 @@ test("InputTextArea: valid state properly styles component @tw-components @tw-fo
     .locator("label")
     .filter({ hasText: /^valid$/ })
     .locator("rect")
-    .click();
+    .click({ delay: mouseClickDelay });
   const InputTextAreaClass = await page
     .getByLabel("Demo input for type=text")
     .getAttribute("class");
@@ -52,7 +54,7 @@ test("InputTextArea: valid state properly styles component @tw-components @tw-fo
 test("InputTextArea: component is properly disabled @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await page.getByText("disabled").click();
+  await page.getByText("disabled").click({ delay: mouseClickDelay });
   await expect(page.getByLabel("Demo input for type=text")).toBeDisabled();
 });
 
