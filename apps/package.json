@@ -41,7 +41,7 @@
     "test-ci": "turbo run test-ci"
   },
   "dependencies": {
-    "turbo": "2.6.1",
+    "turbo": "2.6.1"
   },
   "resolutions": {
     "prettier": "2.8.8"
