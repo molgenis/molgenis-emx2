@@ -38,7 +38,7 @@ async function getSession() {
   const response = await request('/api/graphql', query, {}, { credentials: 'include' })
   user.value = response._session?.email || null
 }
-onMounted(() => {
+
 getSession()
   .catch((err: any) => {
     if (err.response?.errors?.length) {
@@ -49,6 +49,5 @@ getSession()
   })
   .finally(() => {
     loading.value = false
-  });
   });
 </script>
