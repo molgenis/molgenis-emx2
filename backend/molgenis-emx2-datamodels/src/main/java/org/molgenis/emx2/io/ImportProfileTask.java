@@ -19,12 +19,22 @@ public class ImportProfileTask extends Task {
   private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
-  @JsonIgnore private final Schema schema;
+  @JsonIgnore private final String schemaName;
+  private final String description;
   private final String configLocation;
   private final boolean includeDemoData;
+  private final Database database;
+  private Schema schema;
 
-  public ImportProfileTask(Schema schema, String configLocation, boolean includeDemoData) {
-    this.schema = schema;
+  public ImportProfileTask(
+      Database database,
+      String schemaName,
+      String description,
+      String configLocation,
+      boolean includeDemoData) {
+    this.database = database;
+    this.schemaName = schemaName;
+    this.description = description;
     this.configLocation = configLocation;
     this.includeDemoData = includeDemoData;
   }
@@ -34,9 +44,10 @@ public class ImportProfileTask extends Task {
     this.start();
     Task commitTask = new Task();
     try {
-      schema.tx(
+      this.database.tx(
           db -> {
-            Schema s = db.getSchema(schema.getName());
+            Schema s = db.createSchema(this.schemaName, this.description);
+            this.schema = s;
             load(s);
             this.addSubTask(commitTask);
             commitTask.setDescription("Committing");
@@ -150,22 +161,25 @@ public class ImportProfileTask extends Task {
     // special option: if there are createSchemasIfMissing, import those first
     if (profiles.getFirstCreateSchemasIfMissing() != null) {
       for (CreateSchemas createSchemasIfMissing : profiles.getFirstCreateSchemasIfMissing()) {
-        String schemaName = createSchemasIfMissing.getName();
+        String missingSchemaName = createSchemasIfMissing.getName();
         Database db = schema.getDatabase();
-        Schema createNewSchema = db.getSchema(schemaName);
+        Schema createNewSchema = db.getSchema(missingSchemaName);
         // if schema exists by this name, stop and continue with next
         if (createNewSchema != null) {
           continue;
         }
-        createNewSchema = db.createSchema(schemaName);
         String profileLocation = createSchemasIfMissing.getProfile();
         ImportProfileTask profileLoader =
             new ImportProfileTask(
-                createNewSchema, profileLocation, createSchemasIfMissing.isImportDemoData());
+                db,
+                missingSchemaName,
+                "",
+                profileLocation,
+                createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
         profileLoader.run();
-        // profileLoader.load(createNewSchema, createSchemasIfMissing.isImportDemoData());
+        profileLoader.load(profileLoader.schema);
       }
     }
     return profiles;
