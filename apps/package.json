@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "turbo": "2.6.1",
-    "rollup": "@rollup/rollup-linux-x64-gnu"
   },
   "resolutions": {
     "prettier": "2.8.8"
