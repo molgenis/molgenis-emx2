@@ -376,7 +376,6 @@ order,name,codesystem,code,ontologyTermURI,definition
 374,obsolete Congenital strabismus,HP,HP:0000487,http://purl.obolibrary.org/obo/HP_0000487,
 375,Retinopathy,HP,HP:0000488,http://purl.obolibrary.org/obo/HP_0000488,"Any noninflammatory disease of the retina. This nonspecific term is retained here because of its wide use in the literature, but if possible new annotations should indicate the precise type of retinal abnormality."
 376,obsolete Abnormality of globe location or size,HP,HP:0000489,http://purl.obolibrary.org/obo/HP_0000489,
-377,obsolete Abnormality of globe location or size,HP,HP:0000489,http://purl.obolibrary.org/obo/HP_0000489,
 378,Deeply set eye,HP,HP:0000490,http://purl.obolibrary.org/obo/HP_0000490,An eye that is more deeply recessed into the plane of the face than is typical.
 379,Keratitis,HP,HP:0000491,http://purl.obolibrary.org/obo/HP_0000491,Inflammation of the cornea.
 380,Abnormal eyelid morphology,HP,HP:0000492,http://purl.obolibrary.org/obo/HP_0000492,An abnormality of the eyelids.
@@ -416,7 +415,6 @@ order,name,codesystem,code,ontologyTermURI,definition
 414,Chorioretinal atrophy,HP,HP:0000533,http://purl.obolibrary.org/obo/HP_0000533,Atrophy of the choroid and retinal layers of the fundus.
 415,Abnormal eyebrow morphology,HP,HP:0000534,http://purl.obolibrary.org/obo/HP_0000534,An abnormality of the eyebrow.
 416,obsolete Sparse and thin eyebrow,HP,HP:0000535,http://purl.obolibrary.org/obo/HP_0000535,
-417,obsolete Sparse and thin eyebrow,HP,HP:0000535,http://purl.obolibrary.org/obo/HP_0000535,
 418,Epicanthus inversus,HP,HP:0000537,http://purl.obolibrary.org/obo/HP_0000537,"A fold of skin starting at or just below the medial aspect of the lower lid and arching upward to cover, extend in front of and lateral to the medial canthus."
 419,Pseudopapilledema,HP,HP:0000538,http://purl.obolibrary.org/obo/HP_0000538,Apparent optic disc swelling in the absence of increased intracranial pressure.
 420,Abnormality of refraction,HP,HP:0000539,http://purl.obolibrary.org/obo/HP_0000539,An abnormality in the process of focusing of light by the eye in order to produce a sharp image on the retina.
@@ -5091,7 +5089,6 @@ order,name,codesystem,code,ontologyTermURI,definition
 5089,Undetectable light- and dark-adapted electroretinogram,HP,HP:0007688,http://purl.obolibrary.org/obo/HP_0007688,Absence of the combined rod-and-cone response on electroretinogram.
 5090,Map-dot-fingerprint corneal dystrophy,HP,HP:0007690,http://purl.obolibrary.org/obo/HP_0007690,
 5091,obsolete Short curly eyelashes,HP,HP:0007691,http://purl.obolibrary.org/obo/HP_0007691,
-5092,obsolete Short curly eyelashes,HP,HP:0007691,http://purl.obolibrary.org/obo/HP_0007691,
 5093,obsolete Nonnuclear polymorphic congenital cataract,HP,HP:0007692,http://purl.obolibrary.org/obo/HP_0007692,
 5094,Abnormal pupillary light reflex,HP,HP:0007695,http://purl.obolibrary.org/obo/HP_0007695,"An abnormality of the reflex that controls the diameter of the pupil, in response to the intensity of light that falls on the retina of the eye."
 5095,Hypoplasia of the lower eyelids,HP,HP:0007697,http://purl.obolibrary.org/obo/HP_0007697,Underdevelopment of the lower eyelid.
@@ -15567,7 +15564,6 @@ order,name,codesystem,code,ontologyTermURI,definition
 15565,Clinodactyly of hallux,HP,HP:0040018,http://purl.obolibrary.org/obo/HP_0040018,
 15566,Finger clinodactyly,HP,HP:0040019,http://purl.obolibrary.org/obo/HP_0040019,
 15567,Radial deviation of the 5th finger,HP,HP:0040020,http://purl.obolibrary.org/obo/HP_0040020,
-15568,obsolete Radial deviation of the thumb,HP,HP:0040021,http://purl.obolibrary.org/obo/HP_0040021,
 15569,Clinodactyly of the 2nd finger,HP,HP:0040022,http://purl.obolibrary.org/obo/HP_0040022,
 15570,Clinodactyly of the thumb,HP,HP:0040023,http://purl.obolibrary.org/obo/HP_0040023,
 15571,Clinodactyly of the 3rd finger,HP,HP:0040024,http://purl.obolibrary.org/obo/HP_0040024,
