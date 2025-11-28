@@ -258,7 +258,6 @@
     :ontologySchemaId="refSchemaId"
     :ontologyTableId="refTableId"
     :refLabel="refLabel"
-    :limit="limit"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
