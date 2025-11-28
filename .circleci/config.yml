@@ -61,7 +61,7 @@ definitions:
 commands:
   pre_steps:
     steps:
-    - checkout
+    - checkout:
         fetch-depth: 0
     - run:
         name: run-audit-ci
