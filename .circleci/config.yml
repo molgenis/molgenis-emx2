@@ -63,6 +63,15 @@ commands:
     steps:
     - checkout
     - run:
+        name: fetch all
+        command: |
+          # If repository is shallow, unshallow it
+          if git rev-parse --is-shallow-repository | grep true; then
+            git fetch --unshallow
+          else
+            echo "Repository already unshallow"
+          fi
+    - run:
         name: run-audit-ci
         command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
         working_directory: apps
