@@ -15,7 +15,7 @@ defineProps<{
     <IconButton
       label="label"
       icon="star"
-      class="text-blue-500 absolute right-2 top-2"
+      class="text-link absolute right-2 top-2"
     />
   -->
     <div class="flex items-start justify-center flex-col h-full">
@@ -33,9 +33,11 @@ defineProps<{
         <span v-if="contact?.prefix"> {{ contact?.prefix }}&nbsp;</span>
         <span v-if="contact?.lastName"> {{ contact?.lastName }} </span>
       </span>
-      <span v-if="contact.organisation">{{ contact.organisation?.name }}</span>
+      <span v-if="contact.organisation?.organisation">{{
+        contact.organisation?.organisation.name
+      }}</span>
       <a
-        class="text-blue-500 block hover:underline"
+        class="text-link block hover:underline"
         v-if="contact?.email"
         :href="`mailto:${contact?.email}`"
       >

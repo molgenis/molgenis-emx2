@@ -7,7 +7,8 @@ import type {
   IOntologyItem,
 } from "../../../../../../interfaces/types";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { moduleToString, logError, buildTree } from "#imports";
+import { logError, buildTree } from "#imports";
+import { moduleToString } from "../../../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, reactive } from "vue";
 import { removeChildIfParentSelected } from "../../../../../utils/treeHelpers";
 import LayoutsDetailPage from "../../../../../components/layouts/DetailPage.vue";
@@ -18,6 +19,7 @@ import ContentBlocks from "../../../../../../../tailwind-components/app/componen
 import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ContentOntology from "../../../../../components/content/Ontology.vue";
 import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
+import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -53,23 +55,28 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const pageCrumbs: any = {};
-
-pageCrumbs[
-  cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.catalogue}`;
-
-pageCrumbs[
-  route.params.resourceType as string
-] = `/${route.params.catalogue}/${route.params.resourceType}`;
-
-pageCrumbs[
-  route.params.resource as string
-] = `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
-
-pageCrumbs["Collection events"] = "";
-pageCrumbs[route.params.collectionevent as string] = "";
-
+const pageCrumbs: Crumb[] = [
+  {
+    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
+    url: `/${route.params.catalogue}`,
+  },
+  {
+    label: route.params.resourceType as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}`,
+  },
+  {
+    label: route.params.resource as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`,
+  },
+  {
+    label: "Collection events",
+    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events`,
+  },
+  {
+    label: route.params.collectionevent as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${route.params.collectionevent}`,
+  },
+];
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
 }

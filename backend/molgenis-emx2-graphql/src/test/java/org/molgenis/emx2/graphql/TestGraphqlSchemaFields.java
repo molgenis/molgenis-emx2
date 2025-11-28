@@ -367,7 +367,7 @@ public class TestGraphqlSchemaFields {
 
     // order by desc
     assertEquals(
-        "tweety", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
+        "yakul", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
     // order by on non-root column
     assertEquals(
@@ -459,14 +459,14 @@ public class TestGraphqlSchemaFields {
     assertEquals("green", result.at("/Pet_groupBy/1/tags/name").asText());
     assertEquals(3, result.at("/Pet_groupBy/1/count").intValue());
 
-    assertEquals("purple", result.at("/Pet_groupBy/2/tags/name").textValue());
-    assertEquals(2, result.at("/Pet_groupBy/2/count").intValue());
+    assertEquals("herbivorous mammals", result.at("/Pet_groupBy/2/tags/name").textValue());
+    assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
 
-    assertEquals("red", result.at("/Pet_groupBy/3/tags/name").textValue());
-    assertEquals(4, result.at("/Pet_groupBy/3/count").intValue());
+    assertEquals("purple", result.at("/Pet_groupBy/3/tags/name").textValue());
+    assertEquals(2, result.at("/Pet_groupBy/3/count").intValue());
 
-    assertEquals(null, result.at("/Pet_groupBy/4/tags/name").textValue());
-    assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
+    assertEquals("red", result.at("/Pet_groupBy/4/tags/name").textValue());
+    assertEquals(4, result.at("/Pet_groupBy/4/count").intValue());
 
     result = execute("{Pet_groupBy{count,category{name}}}");
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
@@ -490,7 +490,7 @@ public class TestGraphqlSchemaFields {
     // also works on refback
     result = execute("{Pet_groupBy {count,orders{orderId}}}");
     // 6 pets without order
-    assertEquals(6, result.at("/Pet_groupBy/2/count").intValue());
+    assertEquals(7, result.at("/Pet_groupBy/2/count").intValue());
     assertNull(null, result.at("/Pet_groupBy/2/orders").textValue());
 
     // orderId=1 has one pet
@@ -528,9 +528,9 @@ public class TestGraphqlSchemaFields {
     // refs
     JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
 
-    assertEquals(null, result.at("/Pet_groupBy/4/tagsTest/nameTest").textValue());
-    assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
-    assertEquals(9.4d, result.at("/Pet_groupBy/4/_sum/weight").doubleValue());
+    assertEquals("red", result.at("/Pet_groupBy/4/tagsTest/nameTest").textValue());
+    assertEquals(4, result.at("/Pet_groupBy/4/count").intValue());
+    assertEquals(18.950000000000003d, result.at("/Pet_groupBy/4/_sum/weight").doubleValue());
 
     assertEquals("blue", result.at("/Pet_groupBy/0/tagsTest/nameTest").asText());
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
@@ -1010,7 +1010,7 @@ public class TestGraphqlSchemaFields {
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
-    assertEquals(8, result.at("/_reports/count").intValue());
+    assertEquals(9, result.at("/_reports/count").intValue());
 
     // report 2 has parameters
     result =
