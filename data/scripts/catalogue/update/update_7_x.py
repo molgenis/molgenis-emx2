@@ -86,7 +86,7 @@ class Transform:
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
         # TODO: change dependent on server
-        df_agents['resource'] = 'HDSU'
+        df_agents['resource'] = 'MOLGENIS'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -235,7 +235,7 @@ class Transform:
         df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
 
         df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
-        df_endpoint['publisher.resource'] = 'HDSU'  # TODO: change dependent on server
+        df_endpoint['publisher.resource'] = 'MOLGENIS'  # TODO: change dependent on server
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
@@ -508,22 +508,22 @@ def get_first_part_email(email):
 
 def get_first_name(name):
     first_name = ''
-    if name.isalnum():
+    if name.isalnum():  # probably not a name
         first_name = pd.NA
     else:
         split_name = re.split(r"[^a-zA-Z0-9\s]", name)
-        if len(split_name) == 2:
+        if len(split_name) == 2:  # name is first name and last name
             if len(split_name[0]) == 1:
                 first_name = split_name[0].capitalize() + '.'
             else:
                 first_name = split_name[0].capitalize()
-        else:
-            split_name = split_name[:-1]
+        else:  # name probably consists of multiple first names or initials and a last name
+            split_name = split_name[:-1]  # delete last name
             for n in split_name:
                 if len(n) == 1:
                     first_name += n.capitalize() + '.'
                 else:
-                    first_name += ' ' + n.capitalize()
+                    first_name += n.capitalize() + ' '
             first_name.strip()
 
     return first_name
