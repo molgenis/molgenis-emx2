@@ -46,5 +46,8 @@
   },
   "resolutions": {
     "prettier": "2.8.8"
+  },
+  "overrides": {
+    "rollup": "4.22.5"
   }
 }
