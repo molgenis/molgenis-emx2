@@ -4,7 +4,7 @@ const API_GRAPHQL = "/api/graphql";
 import { $fetch } from "ofetch";
 
 export async function deleteUser(user: IUser) {
-  $fetch(API_GRAPHQL, {
+  return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
       query: `mutation{removeUser(email: "${user.email}"){status,message}}`,

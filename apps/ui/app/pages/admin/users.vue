@@ -34,7 +34,7 @@
                   icon="user"
                   type="secondary"
                   size="small"
-                  label="Edit user"
+                  :label="`Edit user: ${user.email}`"
                   @click="editUser(user)"
                 />
                 <Button
@@ -44,7 +44,7 @@
                   icon="trash"
                   type="secondary"
                   size="small"
-                  label="Delete user"
+                  :label="`Delete user: ${user.email}`"
                   @click="showDeleteUserConfirmation(user)"
                 />
               </div>
@@ -55,11 +55,7 @@
                 class="text-green-800"
                 name="Check"
               />
-              <BaseIcon
-                v-else
-                class="text-red-500"
-                name="Cross"
-              />
+              <BaseIcon v-else class="text-red-500" name="Cross" />
             </TableCell>
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
@@ -211,7 +207,7 @@ async function retrieveUsers() {
 
 async function removeUser(user: IUser) {
   await deleteUser(user);
-  retrieveUsers();
+  await retrieveUsers();
 }
 
 function editUser(user: IUser) {
