@@ -71,7 +71,6 @@ import { Accordion, Page, PageSection, FileList, MessageBox } from "molgenis-viz
 import CustomPageHeader from "../components/CustomPageHeader.vue";
 import PrivateFiles from "../components/PrivateFiles.vue";
 import Publications from "../components/Publications.vue";
-import Studies from "../components/Studies.vue";
 </script>
 
 <style lang="scss">
@@ -90,14 +89,6 @@ import Studies from "../components/Studies.vue";
 .nav-item:hover {
   font-weight: bold;
   color: white;
-}
-
-#accordion-studies-nav {
-  .accordion-heading {
-    background-color: #0084b4;
-    border-color: #0084b4;
-    color: #ffffff;
-  }
 }
 
 #accordion-accReq-nav {

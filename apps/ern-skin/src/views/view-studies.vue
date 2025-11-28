@@ -30,10 +30,8 @@
 
 <script setup lang="ts">
 // @ts-ignore
-import { Accordion, Page, PageSection, FileList, MessageBox } from "molgenis-viz";
+import { Accordion, Page, PageSection } from "molgenis-viz";
 import CustomPageHeader from "../components/CustomPageHeader.vue";
-import PrivateFiles from "../components/PrivateFiles.vue";
-import Publications from "../components/Publications.vue";
 import Studies from "../components/Studies.vue";
 </script>
 
