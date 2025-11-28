@@ -75,7 +75,9 @@ commands:
         name: still fetch everything and check before and after
         command: |
           git rev-list --count HEAD
-          git fetch --all --tags --prune
+          git fetch --all --tags --prune --force
+          git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
+          git fetch origin +refs/tags/*:refs/tags/* --prune
           git rev-list --count HEAD
     - run:
         name: run-audit-ci
