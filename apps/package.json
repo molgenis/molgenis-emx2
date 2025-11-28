@@ -41,7 +41,8 @@
     "test-ci": "turbo run test-ci"
   },
   "dependencies": {
-    "turbo": "2.6.1"
+    "turbo": "2.6.1",
+    "rollup": "4.22.5"
   },
   "resolutions": {
     "prettier": "2.8.8"
