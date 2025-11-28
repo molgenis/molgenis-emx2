@@ -3,7 +3,7 @@
     <CustomPageHeader
       class="erras-header"
       title="ERN-SKIN Registry"
-      subtitle="Studies"
+      subtitle="STUDIES"
       height="xlarge"
       title-position-x="center"
       title-position-y="center"
