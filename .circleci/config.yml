@@ -307,6 +307,7 @@ jobs:
             pnpm install @playwright/test         
             npx playwright install chrome
             npx playwright install
+          working_directory: apps
       - run:
           name: Test tailwind components
           command: |
