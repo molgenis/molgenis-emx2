@@ -293,6 +293,12 @@ jobs:
       - image: mcr.microsoft.com/playwright:v1.57.0-jammy
     steps:
       - checkout
+      - run:
+          name: Enable pnpm
+          command: |
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            pnpm -v
       - run: pnpm i -D @playwright/test
       - run:
           name: Install dependencies
