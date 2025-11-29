@@ -42,6 +42,10 @@
       "dependsOn": ["build"],
       "outputs": [],
       "cache": true
+    },
+    "e2e": {
+      "outputs": [],
+      "cache": true
     }
   }
 }
