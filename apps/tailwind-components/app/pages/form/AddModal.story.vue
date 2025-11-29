@@ -4,7 +4,8 @@
     :metadata="metadata"
     :schemaId="schemaId"
     :key="metadata.id"
-  ></FormEditModal>
+    :isInsert="true"
+  />
 
   <div>
     <DemoDataControls
