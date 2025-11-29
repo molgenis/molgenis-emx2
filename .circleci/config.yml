@@ -313,7 +313,7 @@ jobs:
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
             pnpm install
-            pnpm run e2e --workspace=tailwind-components
+            pnpm --filter tailwind-components run e2e
           working_directory: apps
       - run:
           name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
@@ -337,8 +337,7 @@ jobs:
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            pnpm install --workspace=catalogue
-            pnpm run e2e --workspace=catalogue
+            pnpm --filter catalogue run e2e
           working_directory: apps
       - run:
           name: Wait for directory e2e test data to be loaded, poll every 10 seconds
@@ -362,17 +361,15 @@ jobs:
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            pnpm install --workspace=directory
-            pnpm run e2e --workspace=directory
-          working_directory: apps/
+            pnpm --filter directory run e2e
+          working_directory: apps
       - run:
           name: UI tests
           command: |
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            pnpm install --workspace=ui
-            pnpm run e2e --workspace=ui
+            pnpm --filter ui run e2e
           working_directory: apps
       - run:
             name: Run non ssr e2e tests
@@ -380,7 +377,6 @@ jobs:
               echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
               export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
               echo $E2E_BASE_URL
-              pnpm install
               npx playwright test --config e2e e2e/tests
       - run:
             name: Save test results for stats
