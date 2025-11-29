@@ -142,6 +142,7 @@ tasks.register('lint', PnpmTask) {
 
 task testJavaScript(type: PnpmTask) {
     dependsOn pnpm_build
+    args = ['run', 'test-ci']
 }
 test.dependsOn testJavaScript
 
