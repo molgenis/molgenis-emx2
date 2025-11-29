@@ -303,17 +303,16 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pnpm install
             pnpm install @playwright/test         
             npx playwright install chrome
             npx playwright install
-          working_directory: apps
       - run:
           name: Test tailwind components
           command: |
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
+            pnpm install
             pnpm run e2e --workspace=tailwind-components
           working_directory: apps
       - run:
