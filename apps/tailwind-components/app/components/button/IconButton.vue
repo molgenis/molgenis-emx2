@@ -1,5 +1,5 @@
 <script setup>
-import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
+import BaseIcon from "../BaseIcon.vue";
 defineProps({
   label: {
     type: String,

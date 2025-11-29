@@ -15,66 +15,75 @@ def isCI = System.getenv('CI') ? true : false
 
 node {
     version = '22.17.0'
-    npmVersion = "10.9.2"
-    download = !isCI
+    pnpmVersion = "10.24.0"
+    download = true
+    workDir = file("build/node")
 }
 
-npm_install {
-    args = ['--workspaces']
-    inputs.file('package.json')
-    outputs.file('package-lock.json')
-    // do not declare node_modules as output, as it is huge, and to big for gradle to handle
-    // outputs.dir('node_modules')
+ext.listProjectFolders = { List<String> excludeNames = ['node_modules',".gradle","build",".turbo"] ->
+    def base = project.projectDir
+    def children = base.listFiles()
+
+    if (children == null) {
+        return []
+    }
+
+    return children.findAll { f ->
+        f.isDirectory() && !excludeNames.contains(f.name)
+    }.collect { it.name }
+}
+def workspaceDirs = listProjectFolders()
+println "Workspace dirs = $workspaceDirs"
+
+pnpmInstall {
+    inputs.files(
+            workspaceDirs.collect { dir ->
+                file("${dir}/package.json")
+            }
+    )
+    inputs.files(
+            workspaceDirs.collect { dir ->
+                file("${dir}/pnpm-lock.yaml")
+            }
+    )
+    inputs.file("pnpm-lock.yaml") // root lockfile
+    outputs.upToDateWhen {
+        // Up-to-date ONLY if lockfile & package.json unchanged
+        true
+    }
 }
 
-def excludePatterns = [
-        "node_modules/**", "**/node_modules/**", "**/dist/**", "**/.git/**", "**/.gradle/**", "**/build/**", "**/.nuxt/**",
-        "**/public/_nuxt-styles/**", "**/.output/**", "**/showCase/**"
-]
 
-tasks.register('npm_build', NpmTask) {
-    dependsOn npm_install
-    args = ['run', 'build', '--workspaces']
-    // Inputs = all frontend sources
-    inputs.files(fileTree(".") {
-        include("*")
-        exclude(excludePatterns)
-    })
-    inputs.file("package.json")
-    inputs.file("package-lock.json")
-
-    // Outputs = dist directory
-    outputs.files(fileTree(".") {
-        include("*/dist/**")
-    })
+tasks.register('pnpm_build', PnpmTask) {
+    dependsOn pnpmInstall
+    args = ['run', 'build']
 }
 
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
-    delete file(project.layout.buildDirectory)
-    file(".").eachDir { dir ->
-        def distDir = new File(dir, "dist")
-        def showCaseDir = new File(dir, "showCase")
-        def nodeModulesDir = new File(dir, "node_modules")
-        def DotNuxtDir = new File(dir, ".nuxt")
-        def DotOutDir = new File(dir, ".output")
-        if (nodeModulesDir.exists()) {
-            delete nodeModulesDir
-        }
-        if (showCaseDir.exists()) {
-            delete showCaseDir
-        }
-        if (distDir.exists()) {
-            delete distDir
-        }
-        if (DotNuxtDir.exists()) {
-            delete DotNuxtDir
-        }
-        if (DotOutDir.exists()) {
-            delete DotOutDir
+    doFirst {
+        // delete build directory as before
+        delete(project.layout.buildDirectory)
+        delete file("${project.projectDir}/node_modules")
+        delete file("${project.projectDir}/.turbo")
+
+
+        // delete only known workspace folders' generated things; no global fileTree over repo
+        workspaceDirs.each { dirName ->
+            def dir = project.file(dirName)
+            if (dir.exists()) {
+                delete new File(dir, ".turbo")
+                delete new File(dir, "dist")
+                delete new File(dir, "showCase")
+                delete new File(dir, "node_modules") // optional
+                delete new File(dir, "build")
+            }
         }
     }
+
+    outputs.upToDateWhen { false } // still always run when invoked
 }
+clean.dependsOn cleanApps;
 
 // Custom task to collect all dist folders into the resources directory
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
@@ -110,48 +119,26 @@ abstract class CollectDistTask extends DefaultTask {
 }
 
 tasks.register("collectDist", CollectDistTask) {
-    dependsOn("npm_build")
+    dependsOn("pnpm_build")
 }
 
-tasks.register('format', NpmTask) {
-    dependsOn npm_install
+tasks.register('format', PnpmTask) {
+    dependsOn pnpmInstall
     if (!isCI) {
-        args = ['run', 'format', '--workspaces']
+        args = ['run', 'format']
     } else {
-        args = ['run', 'checkFormat', '--workspaces']
+        args = ['run', 'checkFormat']
     }
-    inputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
-    outputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
 }
 
-tasks.register('lint', NpmTask) {
-    dependsOn npm_build
-    args = ['run', 'lint', '--workspace=tailwind-components', '--workspace=catalogue', '--workspace=ui']
-    inputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
-    outputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
+tasks.register('lint', PnpmTask) {
+    dependsOn pnpm_build
+    args = ['run', 'lint']
 }
 
-task testJavaScript(type: NpmTask) {
-    dependsOn npm_build
-
-    args = ['run', 'test-ci', '--workspaces', '--if-present']
-    inputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
-
+task testJavaScript(type: PnpmTask) {
+    dependsOn pnpm_build
+    args = ['run', 'test-ci']
 }
 test.dependsOn testJavaScript
 
@@ -165,12 +152,10 @@ sourceSets {
 
 // Link the app build to the java jar
 tasks.named("processResources") {
-
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn("collectDist")
 
     from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
         into("public_html/apps")
     }
 }
-
-apply plugin: 'com.github.node-gradle.node'

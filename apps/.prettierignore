@@ -3,6 +3,9 @@ coverage
 .nuxt
 .output
 .gradle
+.turbo
+.vscode
+node_modules
 dist
 sourceCodeMap.json
 playwright-report
