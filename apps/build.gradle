@@ -47,8 +47,10 @@ pnpmInstall {
             }
     )
     inputs.file("pnpm-lock.yaml") // root lockfile
-    outputs.dir("${projectDir}/node_modules/.pnpm")
-    outputs.cacheIf { true }
+    outputs.upToDateWhen {
+        // Up-to-date ONLY if lockfile & package.json unchanged
+        true
+    }
 }
 
 
@@ -64,11 +66,14 @@ tasks.register("cleanApps", Delete) {
         // delete build directory as before
         delete(project.layout.buildDirectory)
         delete file("${project.projectDir}/node_modules")
+        delete file("${project.projectDir}/.turbo")
+
 
         // delete only known workspace folders' generated things; no global fileTree over repo
         workspaceDirs.each { dirName ->
             def dir = project.file(dirName)
             if (dir.exists()) {
+                delete new File(dir, ".turbo")
                 delete new File(dir, "dist")
                 delete new File(dir, "showCase")
                 delete new File(dir, "node_modules") // optional
