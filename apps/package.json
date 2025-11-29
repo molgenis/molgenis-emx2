@@ -7,7 +7,8 @@
     "lint": "turbo run lint --filter=tailwind-components --filter=catalogue --filter=ui",
     "format": "turbo run format",
     "checkFormat": "turbo run checkFormat",
-    "test-ci": "turbo run test-ci"
+    "test-ci": "turbo run test-ci",
+    "e2e": "turbo run e2e"
   },
   "dependencies": {
     "turbo": "2.6.1"
