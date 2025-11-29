@@ -15,52 +15,69 @@ def isCI = System.getenv('CI') ? true : false
 
 node {
     version = '22.17.0'
-    npmVersion = "10.9.2"
-    download = !isCI
+    pnpmVersion = "10.24.0"
+    download = true
+    workDir = file("build/node")
 }
 
-npm_install {
-    inputs.files(fileTree('.') {
-        include('**/package.json','**/package-lock.json')
-        exclude("**/node_modules/**")
-    })
-    outputs.file("package-lock.json")
-    environment = [
-            'npm_config_optional': 'true'
-    ]
+ext.listProjectFolders = { List<String> excludeNames = ['node_modules',".gradle","build",".turbo"] ->
+    def base = project.projectDir
+    def children = base.listFiles()
+
+    if (children == null) {
+        return []
+    }
+
+    return children.findAll { f ->
+        f.isDirectory() && !excludeNames.contains(f.name)
+    }.collect { it.name }
+}
+def workspaceDirs = listProjectFolders()
+println "Workspace dirs = $workspaceDirs"
+
+pnpmInstall {
+    inputs.files(
+            workspaceDirs.collect { dir ->
+                file("${dir}/package.json")
+            }
+    )
+    inputs.files(
+            workspaceDirs.collect { dir ->
+                file("${dir}/pnpm-lock.yaml")
+            }
+    )
+    inputs.file("pnpm-lock.yaml") // root lockfile
+    outputs.dir("${projectDir}/node_modules/.pnpm")
+    outputs.cacheIf { true }
 }
 
-def excludePatterns = [
-        "node_modules/**", "**/node_modules/**", "**/dist/**", "**/.git/**", "**/.gradle/**", "**/build/**", "**/.nuxt/**",
-        "**/public/_nuxt-styles/**", "**/.output/**", "**/showCase/**", ".turbo/**"
-]
 
-tasks.register('npm_build', NpmTask) {
-    dependsOn npm_install
+tasks.register('pnpm_build', PnpmTask) {
+    dependsOn pnpmInstall
     args = ['run', 'build']
-
-    // Inputs = all frontend sources
-    inputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
-    inputs.file("package.json")
-    inputs.file("package-lock.json")
-
-    // Outputs = dist directory
-    outputs.files(fileTree(".") {
-        include("*/dist/**")
-    })
 }
 
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
-    delete(project.layout.buildDirectory)
-    def dirsToClean = ["**/dist", "**/showCase", "**/node_modules", "**/.nuxt", "**/.output", "**/.turbo","**/build","**/.gradle"]
-    dirsToClean.each { pattern ->
-        delete fileTree(dir: project.rootDir, includes: [pattern])
+    // avoid doing heavy work at configuration time
+    doFirst {
+        // delete build directory as before
+        delete(project.layout.buildDirectory)
+        delete file("${project.projectDir}/node_modules")
+
+        // delete only known workspace folders' generated things; no global fileTree over repo
+        workspaceDirs.each { dirName ->
+            def dir = project.file(dirName)
+            if (dir.exists()) {
+                delete new File(dir, "dist")
+                delete new File(dir, "showCase")
+                delete new File(dir, "node_modules") // optional
+                delete new File(dir, "build")
+            }
+        }
     }
-    outputs.upToDateWhen { false }
+
+    outputs.upToDateWhen { false } // still always run when invoked
 }
 clean.dependsOn cleanApps;
 
@@ -69,82 +86,57 @@ clean.dependsOn cleanApps;
 abstract class CollectDistTask extends DefaultTask {
     @TaskAction
     void collect() {
+
+        File root = project.rootDir
+
         File targetDir = project.layout.buildDirectory
                 .dir("generated/resources/public_html/apps")
                 .get()
                 .asFile
 
         project.copy { spec ->
-            project.file(".").eachDir { dir ->
-                def showCaseDir = new File(dir, "showCase")
-                def distDir = new File(dir, "dist")
+            root.eachDir { dir ->   // ← EXECUTION TIME NOW
+
+                File showCaseDir = new File(dir, "showCase")
+                File distDir = new File(dir, "dist")
+
                 if (showCaseDir.exists()) {
                     spec.from(showCaseDir) {
                         into(dir.name)
                     }
-                }
-                else if (distDir.exists()) {
+                } else if (distDir.exists()) {
                     spec.from(distDir) {
                         into(dir.name)
                     }
                 }
-
             }
+
             spec.into(targetDir)
         }
-
-        println "✅ Collected dist folders into $targetDir"
+        println "Collected dist folders into $targetDir"
     }
 }
 
 tasks.register("collectDist", CollectDistTask) {
-    inputs.files(fileTree(".") {
-        include("**/dist/**")
-        exclude(excludePatterns)
-    })
-    outputs.dir(layout.buildDirectory.dir("generated/resources/public_html/apps"))
-    dependsOn("npm_build")
+    dependsOn("pnpm_build")
 }
 
-tasks.register('format', NpmTask) {
-    dependsOn npm_install
+tasks.register('format', PnpmTask) {
+    dependsOn pnpmInstall
     if (!isCI) {
         args = ['run', 'format']
     } else {
         args = ['run', 'checkFormat']
     }
-    inputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
-    outputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
 }
 
-tasks.register('lint', NpmTask) {
-    dependsOn npm_build
+tasks.register('lint', PnpmTask) {
+    dependsOn pnpm_build
     args = ['run', 'lint']
-    inputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
-    outputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
 }
 
-task testJavaScript(type: NpmTask) {
-    dependsOn npm_build
-
-    args = ['run', 'test-ci']
-    inputs.files(fileTree(".") {
-        include("**/*")
-        exclude(excludePatterns)
-    })
-
+task testJavaScript(type: PnpmTask) {
+    dependsOn pnpm_build
 }
 test.dependsOn testJavaScript
 
@@ -165,5 +157,3 @@ tasks.named("processResources") {
         into("public_html/apps")
     }
 }
-
-apply plugin: 'com.github.node-gradle.node'

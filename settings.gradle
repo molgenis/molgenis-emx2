@@ -51,6 +51,12 @@ nyx {
     }
 }
 
+gradle.beforeProject { Project p ->
+    p.layout.projectDirectory.asFileTree.matching {
+        exclude("**/node_modules/**")
+    }
+}
+
 rootProject.name = 'emx2'
 include(':apps')
 include(':docs')
