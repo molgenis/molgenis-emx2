@@ -303,6 +303,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            pnpm install
             pnpm install @playwright/test         
             npx playwright install chrome
             npx playwright install
