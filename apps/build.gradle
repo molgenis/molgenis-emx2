@@ -61,7 +61,6 @@ tasks.register('pnpm_build', PnpmTask) {
 
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
-    // avoid doing heavy work at configuration time
     doFirst {
         // delete build directory as before
         delete(project.layout.buildDirectory)
@@ -91,34 +90,31 @@ clean.dependsOn cleanApps;
 abstract class CollectDistTask extends DefaultTask {
     @TaskAction
     void collect() {
-
-        File root = project.rootDir
-
         File targetDir = project.layout.buildDirectory
                 .dir("generated/resources/public_html/apps")
                 .get()
                 .asFile
 
         project.copy { spec ->
-            root.eachDir { dir ->   // ← EXECUTION TIME NOW
-
-                File showCaseDir = new File(dir, "showCase")
-                File distDir = new File(dir, "dist")
-
+            project.file(".").eachDir { dir ->
+                def showCaseDir = new File(dir, "showCase")
+                def distDir = new File(dir, "dist")
                 if (showCaseDir.exists()) {
                     spec.from(showCaseDir) {
                         into(dir.name)
                     }
-                } else if (distDir.exists()) {
+                }
+                else if (distDir.exists()) {
                     spec.from(distDir) {
                         into(dir.name)
                     }
                 }
-            }
 
+            }
             spec.into(targetDir)
         }
-        println "Collected dist folders into $targetDir"
+
+        println "✅ Collected dist folders into $targetDir"
     }
 }
 
