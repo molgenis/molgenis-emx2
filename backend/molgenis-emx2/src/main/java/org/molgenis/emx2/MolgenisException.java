@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.molgenis.emx2.utils.MolgenisExceptionDetail;
 
 public class MolgenisException extends RuntimeException {
@@ -13,7 +14,12 @@ public class MolgenisException extends RuntimeException {
   public MolgenisException(String message, Exception cause) {
     super(cause);
     this.type = getClass();
-    this.message = message + ": " + cause.getMessage();
+    if (cause instanceof MolgenisException) {
+      this.message = message;
+    } else {
+      String rootMessage = ExceptionUtils.getRootCauseMessage(cause);
+      this.message = message + ": " + rootMessage;
+    }
   }
 
   public MolgenisException(String message) {

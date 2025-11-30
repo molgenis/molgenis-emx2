@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
+import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
@@ -109,6 +110,10 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata create(TableMetadata... tables) {
+    // enhance tables with computed id
+    for (TableMetadata table : tables) {
+      addMgIdColumn(table);
+    }
     getDatabase()
         .tx(
             database -> {
@@ -139,6 +144,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;
+  }
+
+  static void addMgIdColumn(TableMetadata table) {
+    Column idColumn = table.getColumn(MG_ID) != null ? table.getColumn(MG_ID) : new Column(MG_ID);
+    idColumn.setType(ColumnType.AUTO_ID);
+    idColumn.setKey(0); // index, future is to make this primary key?
+    idColumn.setReadonly(true); // should prevent this to be user provided somehow.
+    table.add(idColumn);
   }
 
   static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
