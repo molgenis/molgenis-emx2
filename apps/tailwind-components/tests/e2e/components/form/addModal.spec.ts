@@ -40,3 +40,11 @@ test("should validate form before saving", async ({ page }) => {
   await expect(page.getByText("3 fields require attention")).toBeVisible();
   await expect(page.getByText("errorname is required")).toBeVisible();
 });
+
+test("should prefill default values", async ({ page }) => {
+  await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Order`);
+  await page.getByRole("button", { name: "Add Order" }).click();
+  await expect(page.getByRole("textbox", { name: "status" })).toHaveValue(
+    "hallo"
+  );
+});
