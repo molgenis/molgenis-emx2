@@ -67,7 +67,7 @@ public class TestGraphqlDatabaseFields {
         execute(
             "mutation{createSchema(name:\""
                 + schemaName
-                + "B\", description: \"test\", template: \"PET_STORE\", includeDemoData: false){message taskId}}");
+                + "B\", description: \"test\", template: \"ERN_DASHBOARD\", includeDemoData: false){message taskId}}");
     String taskId = executeResult.get("data").get("createSchema").get("taskId").asText();
     Task mutationTask = taskService.getTask(taskId);
     TaskStatus mutationTaskStatus = mutationTask.getStatus();
@@ -77,7 +77,7 @@ public class TestGraphqlDatabaseFields {
     }
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(schemaName + "B"));
-    assertEquals(5, database.getSchema(schemaName + "B").getTableNames().size());
+    assertEquals(7, database.getSchema(schemaName + "B").getTableNames().size());
 
     execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
     assertNull(database.getSchema(schemaName + "B"));

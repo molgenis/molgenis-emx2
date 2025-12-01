@@ -53,7 +53,6 @@ public class TestLoaders {
       database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
       database.dropSchemaIfExists(DIRECTORY_TEST);
       database.dropSchemaIfExists(DIRECTORY_STAGING);
-      database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
       database.dropSchemaIfExists(FAIR_GENOMES);
       database.dropSchemaIfExists(PROJECT_MANAGER);
       database.dropSchemaIfExists(DASHBOARD_TEST);
@@ -62,6 +61,7 @@ public class TestLoaders {
       database.dropSchemaIfExists(PAGES_SCHEMA);
 
       // delete ontologies last
+      database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
       database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
 
       DataModels.Profile.DATA_CATALOGUE.getImportTask(database, DATA_CATALOGUE, "test", true).run();
@@ -74,10 +74,6 @@ public class TestLoaders {
           .getImportTask(database, NETWORK_STAGING, "test", true)
           .run();
       networkStaging = database.getSchema(NETWORK_STAGING);
-      DataModels.Regular.BIOBANK_DIRECTORY
-          .getImportTask(database, DIRECTORY_TEST, "test", true)
-          .run();
-      directory = database.getSchema(DIRECTORY_TEST);
       DataModels.Regular.PROJECTMANAGER
           .getImportTask(database, PROJECT_MANAGER, "test", true)
           .run();
