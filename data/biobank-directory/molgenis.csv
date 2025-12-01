@@ -136,8 +136,8 @@ Collections,,sop,PD/SOPs,ontology_array,,false,,Availability of Process Descript
 Collections,,rdf_helpers,RDF helpers,heading,,false,,Helper attributes to make RDF output compliant with various standards.,,,,,,,,,
 Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalogs,,,,,,,ldp:membershipResource
 Collections,,license,,hyperlink,,false,,A legal document under which this catalogue record is made available.,,,,,,,,,dcterms:license
-Collections,,publisher,,string,,false,,An entity responsible for making the resource available.,,,,,,,,,dcterms:publisher
-Collections,,language,,hyperlink,,false,,A language of the resource.,,,,,,,,,dcterms:language
+Collections,,publisher,,ref,,false,,An entity responsible for making the resource available.,,Publishers,,,,,,,dcterms:publisher
+Collections,,language,,hyperlink_array,,false,,The language(s) of the resource.,,,,,,,,,dcterms:language
 Collections,,keywords,,string_array,,false,,Keyword(s) describing the resource.,,,,,,,,,dcat:keyword
 Collections,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Collections,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
