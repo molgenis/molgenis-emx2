@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 29;
+  private static final int SOFTWARE_DATABASE_VERSION = 30;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -181,6 +181,10 @@ public class Migrations {
 
           if (version < 29) {
             executeMigrationFile(tdb, "migration28.sql", "Update admin field original admin user");
+          }
+
+          if (version < 30) {
+            executeMigrationFile(tdb, "migration29.sql", "add formLabel column to column metadata");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

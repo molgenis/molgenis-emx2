@@ -12,16 +12,16 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
-    "format": "prettier . --write --config ../.prettierrc.js --gitignore",
-    "checkFormat": "prettier . --check --config ../.prettierrc.js --gitignore",
+    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore --gitignore",
+    "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore --gitignore",
     "typecheck": "nuxi typecheck"
   },
   "devDependencies": {
     "@nuxt/image": "1.11.0",
-    "@nuxt/test-utils": "3.14.4",
+    "@nuxt/test-utils": "3.20.1",
     "@nuxtjs/tailwindcss": "6.14.0",
     "@pinia/nuxt": "0.11.1",
-    "@playwright/test": "1.56.0",
+    "@playwright/test": "1.57.0",
     "@vitejs/plugin-vue": "4.6.2",
     "@vue/test-utils": "2.4.6",
     "autoprefixer": "10.4.19",
@@ -31,7 +31,7 @@
     "jsdom": "22.1.0",
     "metadata-utils": "*",
     "nuxt": "4.1.2",
-    "playwright-core": "1.56.0",
+    "playwright-core": "1.57.0",
     "postcss": "8.4.39",
     "postcss-custom-properties": "13.3.11",
     "prettier": "2.8.8",
@@ -49,7 +49,7 @@
     "nuxt-gtag": "3.0.1",
     "ofetch": "1.4.1",
     "pinia": "3.0.3",
-    "vite": "5.4.16",
-    "vue": "3.5.13"
+    "vite": "5.4.21",
+    "vue": "3.5.22"
   }
 }

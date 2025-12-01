@@ -14,6 +14,7 @@ export default gql`
         columns {
           id
           label
+          formLabel
           section
           heading
           columnType
@@ -28,6 +29,7 @@ export default gql`
           readonly
           semantics
           description
+          defaultValue
           position
           computed
           visible

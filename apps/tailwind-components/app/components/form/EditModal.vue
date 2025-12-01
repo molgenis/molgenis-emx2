@@ -7,11 +7,12 @@
         size="small"
         icon="plus"
         @click="visible = true"
-        >{{ isInsert ? "Add" : "Edit" }} {{ rowType }}</Button
       >
+        {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
+      </Button>
     </slot>
   </template>
-  <Modal v-model:visible="visible" max-width="max-w-9/10">
+  <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
         <div class="mb-5 relative flex items-center">
@@ -19,14 +20,9 @@
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
             {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
-            {{ editFormValues["mg_draft"] ? "(status=draft)" : "" }}
           </h2>
 
-          <span
-            v-show="isDraft"
-            class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-            >Draft</span
-          >
+          <DraftLabel v-if="isDraft" />
         </div>
 
         <button
@@ -76,7 +72,7 @@
         </NextSectionNav>
       </div>
     </div>
-    <Transition name="slide-up">
+    <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
@@ -84,8 +80,8 @@
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp>
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
@@ -100,14 +96,14 @@
           >Re-authenticate</Button
         >
       </FormError>
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
       <FormMessage
         v-show="formMessage"
         :message="formMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
-    </Transition>
+    </TransitionSlideUp>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -118,11 +114,25 @@
         />
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
-            <Button type="secondary" @click="onCancel">Cancel</Button>
-            <Button type="outline" @click="onSave(true)">Save as draft</Button>
-            <Button type="primary" @click="onSave(false)"
-              >Save {{ rowType }}</Button
-            >
+            <Button type="secondary" :disabled="saving" @click="onCancel">
+              Cancel
+            </Button>
+            <Button type="outline" :disabled="saving" @click="onSave(true)">
+              Save as draft
+              <BaseIcon
+                v-if="savingDraft"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
+            <Button type="primary" :disabled="saving" @click="onSave(false)">
+              Save
+              <BaseIcon
+                v-if="saving"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
           </div>
         </menu>
       </div>
@@ -132,27 +142,30 @@
 
 <script setup lang="ts">
 import { computed, ref, toRaw, watch } from "vue";
+import { getInitialFormValues } from "../../utils/typeUtils";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import useForm from "../../composables/useForm";
-import { errorToMessage } from "../../utils/errorToMessage";
-import FormFields from "./Fields.vue";
-import { SessionExpiredError } from "../../utils/sessionExpiredError";
-import { useSession } from "../../composables/useSession";
-import PreviousSectionNav from "./PreviousSectionNav.vue";
-import NextSectionNav from "./NextSectionNav.vue";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import useForm from "../../composables/useForm";
+import { useSession } from "../../composables/useSession";
+import { errorToMessage } from "../../utils/errorToMessage";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import Modal from "../Modal.vue";
-import BaseIcon from "../BaseIcon.vue";
-import FormLegend from "./Legend.vue";
 import FormError from "./Error.vue";
+import FormFields from "./Fields.vue";
+import FormLegend from "./Legend.vue";
 import FormMessage from "./Message.vue";
+import NextSectionNav from "./NextSectionNav.vue";
+import PreviousSectionNav from "./PreviousSectionNav.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
+import DraftLabel from "../label/DraftLabel.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -176,9 +189,17 @@ const visible = defineModel("visible", {
   type: Boolean,
   default: false,
 });
+
+const saving = ref(false);
+const savingDraft = computed(
+  () => saving.value && editFormValues.value["mg_draft"] === true
+);
 const rowKey = ref<Record<string, columnValue>>();
 const isInsert = ref(true);
-const editFormValues = ref<Record<string, columnValue>>({});
+const editFormValues = ref<Record<string, columnValue>>(
+  getInitialFormValues(props.metadata)
+);
+
 watch(
   () => props.formValues,
   () => {
@@ -201,10 +222,15 @@ function setVisible() {
 }
 
 const rowType = computed(() => props.metadata.id);
-const isDraft = ref(false);
+const isDraft = computed(
+  () => editFormValues.value["mg_draft"] === true || false
+);
 
 function onCancel() {
   visible.value = false;
+  saveErrorMessage.value = "";
+  formMessage.value = "";
+  editFormValues.value = {};
   emit("update:cancelled");
 }
 
@@ -237,26 +263,21 @@ async function onSave(draft: boolean) {
     }
   }
   try {
-    if (draft) {
-      editFormValues.value["mg_draft"] = true;
-    } else {
-      editFormValues.value["mg_draft"] = false;
-    }
-    let resp;
-    if (isInsert.value) {
-      console.log("insert");
-      await insertInto();
-    } else {
-      console.log("update");
-      await updateInto();
-    }
+    editFormValues.value["mg_draft"] = draft;
+    saving.value = true;
+    const resp = await (isInsert.value ? insertInto() : updateInto()).catch(
+      () => (saving.value = false)
+    );
+    saving.value = false;
     if (!resp) {
-      return;
+      throw new Error(
+        `No response from server on ${isInsert.value ? "insert" : "update"}`
+      );
     }
-    formMessage.value =
-      (isInsert.value ? "inserted 1 " : "saved 1 ") +
-      rowType.value +
-      (draft ? " as draft" : "");
+    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+      rowType.value
+    } ${draft ? "as draft" : ""}`;
+    showFormMessage.value = true;
     emit(isInsert.value ? "update:added" : "update:updated", resp);
     if (isInsert.value) {
       await updateRowKey();
@@ -306,4 +327,7 @@ function reAuthenticate() {
     formMessage
   );
 }
+
+const showFormMessage = ref(false);
+const showSaveErrorMessage = ref(false);
 </script>

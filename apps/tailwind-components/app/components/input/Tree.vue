@@ -3,7 +3,7 @@ import type { ITreeNode, ITreeNodeState } from "../../../types/types";
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 import InputSearch from "./Search.vue";
-import { defineProps, withDefaults, defineEmits } from "vue";
+import { defineProps, defineEmits } from "vue";
 import ButtonText from "../button/Text.vue";
 
 const props = withDefaults(
@@ -256,8 +256,11 @@ const rootNodes = computed(() => {
     @click="toggleSearch"
     :aria-controls="`${id}-tree-search-input-container`"
     :aria-expanded="showOptionsSearch"
+    :class="inverted ? 'text-title-contrast' : 'text-title'"
   >
-    <span>Search for options</span>
+    <span :class="inverted ? 'text-title-contrast' : 'text-title'"
+      >Search for options</span
+    >
   </ButtonText>
   <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
     <label :for="`${id}-tree-search-input`" class="sr-only">search</label>

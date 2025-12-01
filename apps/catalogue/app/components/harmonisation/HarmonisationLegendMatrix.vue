@@ -34,7 +34,7 @@ withDefaults(
       :distance="12"
       theme="tooltip"
     >
-      <div class="flex gap-1 text-blue-500 hover:underline cursor-pointer">
+      <div class="flex gap-1 text-link hover:underline cursor-pointer">
         <BaseIcon name="info" />
         <span> About statuses </span>
       </div>

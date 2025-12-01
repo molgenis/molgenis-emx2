@@ -6,11 +6,9 @@ import type {
 } from "../../../../interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
 import { useRoute, useFetch, useHead, useRuntimeConfig } from "#app";
-import {
-  moduleToString,
-  useQueryParams,
-  calcIndividualVariableHarmonisationStatus,
-} from "#imports";
+import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
+import { useQueryParams } from "../../../composables/useQueryParams";
+import { calcIndividualVariableHarmonisationStatus } from "../../../utils/harmonisation";
 import { computed, reactive } from "vue";
 import LayoutsDetailPage from "../../../components/layouts/DetailPage.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
@@ -59,10 +57,11 @@ const variable = computed(
 const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
-let crumbs: any = {};
-crumbs[`${route.params.catalogue}`] = `/${route.params.catalogue}`;
-crumbs["variables"] = `/${route.params.catalogue}/variables`;
-crumbs[route.params.variable as string] = "";
+const crumbs = [
+  { label: `${route.params.catalogue}`, url: `/${route.params.catalogue}` },
+  { label: "variables", url: `/${route.params.catalogue}/variables` },
+  { label: route.params.variable as string, url: "" },
+];
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];

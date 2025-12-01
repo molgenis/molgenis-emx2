@@ -7,7 +7,6 @@ import {
   useFetch,
   navigateTo,
 } from "#app";
-import { computed, ref } from "vue";
 import type {
   IFilter,
   IMgError,
@@ -32,8 +31,10 @@ import {
   mergeWithPageDefaults,
   toPathQueryConditions,
 } from "../../../utils/filterUtils";
-import { buildQueryFilter } from "~/utils/buildQueryFilter";
-import { logError } from "~/utils/errorLogger";
+import { buildQueryFilter } from "../../../utils/buildQueryFilter";
+import { computed, ref } from "vue";
+import { logError } from "../../../utils/errorLogger";
+import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -248,20 +249,29 @@ const gqlFilter = computed(() => {
     }
   }
 
+  const collectionPartOf = [
+    { partOfNetworks: { id: { equals: route.params.catalogue } } },
+    {
+      partOfNetworks: {
+        parentNetworks: { id: { equals: route.params.catalogue } },
+      },
+    },
+  ];
+
+  const networkParentOf = [
+    { parentNetworks: { id: { equals: route.params.catalogue } } },
+  ];
+
   // add hard coded page specific filters
   if ("all" !== route.params.catalogue) {
     result = {
       _and: [
         result,
         {
-          _or: [
-            { partOfResources: { id: { equals: route.params.catalogue } } },
-            {
-              partOfResources: {
-                partOfResources: { id: { equals: route.params.catalogue } },
-              },
-            },
-          ],
+          _or:
+            route.params.resourceType == "collections"
+              ? collectionPartOf
+              : networkParentOf,
         },
       ],
     };
@@ -321,11 +331,13 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const crumbs: any = {};
-crumbs[
-  cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.catalogue}`;
-crumbs[route.params.resourceType as string] = "";
+const crumbs: Crumb[] = [
+  {
+    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
+    url: `/${route.params.catalogue}`,
+  },
+  { label: route.params.resourceType as string, url: "" },
+];
 </script>
 
 <template>
@@ -400,7 +412,7 @@ crumbs[route.params.resourceType as string] = "";
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
+              <span class="py-15 text-link">
                 No resources found with current filters
               </span>
             </div>
