@@ -195,7 +195,7 @@ Endpoints,,modified,,datetime,,true,,When the metadata for this resource was las
 Endpoints,,start_date,,date,,,,Date when the metadata service started its operations.,,,,,,,,,fdp-o:startDate
 Endpoints,,end_date,,date,,,,Date when the metadata service ended its operations.,,,,,,,,,fdp-o:endDate
 Endpoints,,ui_language,,hyperlink_array,,,,"The user interface language(s) of the endpoint, which is different from the dcat:Resource property of dcterms:language that relates to the language of the metadata record.",,,,,,,,,fdp-o:uiLanguage
-Endpoints,,version,,text,,,,Version of the metadata service software which exposes the endpoint.,,,,,,,,,"fdp-o:hasSoftwareVersion"
+Endpoints,,version,,text,,,,Version of the metadata service software which exposes the endpoint.,,,,,,,,,"fdp-o:hasSoftwareVersion,dcterms:hasVersion"
 Endpoints,,conforms_to_FDP_spec,,hyperlink,,TRUE,,The relation should point to an URI that contains the version of the FDP specifications this instance of the endpoint conforms to.,,,,,,,,,fdp-o:conformsToFdpSpec
 Endpoints,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Endpoints,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
