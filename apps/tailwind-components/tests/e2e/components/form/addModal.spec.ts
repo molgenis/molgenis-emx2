@@ -43,6 +43,7 @@ test("should validate form before saving", async ({ page }) => {
 
 test("should prefill default values", async ({ page }) => {
   await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Order`);
+  await expect(page.getByText("Demo data controls")).toBeVisible();
   await page.getByRole("button", { name: "Add Order" }).click();
   await expect(page.getByRole("textbox", { name: "status" })).toHaveValue(
     "hallo"
