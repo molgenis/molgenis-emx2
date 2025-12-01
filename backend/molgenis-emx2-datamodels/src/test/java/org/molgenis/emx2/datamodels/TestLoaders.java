@@ -78,6 +78,10 @@ public class TestLoaders {
           .getImportTask(database, PROJECT_MANAGER, "test", true)
           .run();
       projectManagerSchema = database.getSchema(PROJECT_MANAGER);
+      DataModels.Regular.BIOBANK_DIRECTORY
+          .getImportTask(database, DIRECTORY_TEST, "test", true)
+          .run();
+      directory = database.getSchema(DIRECTORY_TEST);
       DataModels.Regular.BIOBANK_DIRECTORY_STAGING
           .getImportTask(database, DIRECTORY_STAGING, "test", false)
           .run();
