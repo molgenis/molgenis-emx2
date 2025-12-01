@@ -84,7 +84,28 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testUpdateSchema() throws IOException {}
+  public void testUpdateSchema() throws IOException {
+    database.dropSchemaIfExists(schemaName + "B");
+
+    assertNull(database.getSchema(schemaName + "B"));
+    String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
+    assertFalse(result.contains(schemaName + "B"));
+
+    execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
+    assertNotNull(database.getSchema(schemaName + "B"));
+    result = execute("{_schemas{name}}").at("/data/_schemas").toString();
+    assertTrue(result.contains(schemaName + "B"));
+
+    execute(
+        "mutation{updateSchema(name:\""
+            + schemaName
+            + "B\", description: \"updated description\"){message}}");
+    String description = database.getSchemaInfo(schemaName + "B").description();
+    assertEquals("updated description", description);
+
+    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
+    assertNull(database.getSchema(schemaName + "B"));
+  }
 
   @Test
   public void testCreateDatabaseSetting() throws IOException {
