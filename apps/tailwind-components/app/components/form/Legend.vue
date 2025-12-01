@@ -1,66 +1,60 @@
 <template>
-  <nav class="pt-4 pb-8 bg-form-legend" v-if="sections.length > 1">
-    <h3 class="text-disabled p-4 ml-4">Jump to</h3>
+  <nav class="pt-4 pb-8 bg-form-legend">
     <ul class="list-none">
-      <li
-        v-for="section in sections"
-        class="py-2 pr-4 relative group/chapter flex items-center gap-2 justify-start h-full"
-      >
-        <div
-          class="absolute left-0 top-0 h-full w-1 group-hover/chapter:bg-button-primary transition-translate duration-100 ease-in-out origin-left -translate-full group-hover/chapter:translate-0"
-          :class="{ 'bg-button-primary': section.isActive }"
+      <li v-for="(section, index) in sectionsWithHeaders" :key="section.id">
+        <FormLegendHeader
+          :id="section.id"
+          :label="section.label"
+          :isActive="section.isActive || (noSectionsActive && index === 0)"
+          :errorCount="section.errorCount"
+          @goToSection="emit('goToSection', $event)"
         />
-        <a
-          :id="`form-legend-section-${section.id})`"
-          :aria-describedby="`form-legend-section-${section.id})-error-count`"
-          class="pl-7 truncate hover:overflow-visible bg-form-legend cursor-pointer"
-          href="#"
-          :aria-current="section.isActive"
-          @click.prevent="emit('goToSection', section.id)"
-        >
-          <span
-            class="text-title-contrast capitalize"
-            :class="{
-              'font-bold': section.isActive,
-              'ml-4': hasSections && section.type === 'HEADING',
-            }"
-          >
-            {{ section.label }}
-          </span>
-        </a>
-        <div
-          v-if="(section.errorCount ?? 0) > 0"
-          :id="`form-legend-section-${section.id}-error-count`"
-          class="inline-flex h-6 w-6 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
-        >
-          <span>{{
-            (section.errorCount ?? 0) > 9 ? "9+" : section.errorCount
-          }}</span>
-          <span class="sr-only">
-            error{{
-              section.errorCount > 1 || section.errorCount === 0 ? "s" : ""
-            }}
-            in {{ section.label }}
-          </span>
-        </div>
+        <ul v-for="header in section.headers" class="list-none">
+          <li class="pl-4 py-2">
+            <FormLegendHeader
+              :id="header.id"
+              :label="header.label"
+              :isActive="header.isActive ? true : false"
+              :errorCount="header.errorCount"
+              @goToSection="emit('goToSection', $event)"
+            ></FormLegendHeader>
+          </li>
+        </ul>
       </li>
     </ul>
   </nav>
 </template>
 
 <script lang="ts" setup>
-import type { IFormLegendSection } from "../../../../metadata-utils/src/types";
+import type {
+  LegendHeading,
+  LegendSection,
+} from "../../../../metadata-utils/src/types";
 import { computed } from "vue";
+import FormLegendHeader from "./legend/Header.vue";
 
 const props = defineProps<{
-  sections: IFormLegendSection[];
+  sections: LegendSection[];
 }>();
 const emit = defineEmits(["goToSection"]);
 
-const hasSections = computed(() => {
-  //anonymous sections don't have a label
-  return props.sections.some(
-    (section) => section.type === "SECTION" && section.id !== "_mg_top_of_form"
-  );
+const sectionsWithHeaders = computed(() => {
+  return props.sections.map((section) => {
+    return {
+      id: section.id,
+      label: section.label,
+      type: section.type,
+      isActive: section.isActive ? true : false,
+      errorCount: section.errorCount ?? 0,
+      headers: section.fields.filter((field) =>
+        field.hasOwnProperty("type")
+      ) as LegendHeading[],
+    };
+  });
+});
+
+// fallback for the dedault section
+const noSectionsActive = computed(() => {
+  return !props.sections.some((section) => section.isActive);
 });
 </script>

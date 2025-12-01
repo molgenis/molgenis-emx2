@@ -66,6 +66,7 @@
           @update="onUpdateColumn"
           @blur="onBlurColumn"
           @view="onViewColumn"
+          @leaving-view="onLeaveView"
         />
         <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
           {{ nextSection.label }}
@@ -147,6 +148,7 @@ import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
+  IColumn,
   IRow,
 } from "../../../../metadata-utils/src/types";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
@@ -189,6 +191,10 @@ const visible = defineModel("visible", {
   type: Boolean,
   default: false,
 });
+
+function onLeaveView(column: IColumn) {
+  visibleColumnIds.value.delete(column.id);
+}
 
 const saving = ref(false);
 const savingDraft = computed(
@@ -308,9 +314,11 @@ const {
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
+  onLeaveViewColumn,
   validateAllColumns,
   sections,
   visibleColumns,
+  visibleColumnIds,
 } = useForm(props.metadata, editFormValues, "fields-container");
 
 function reAuthenticate() {
