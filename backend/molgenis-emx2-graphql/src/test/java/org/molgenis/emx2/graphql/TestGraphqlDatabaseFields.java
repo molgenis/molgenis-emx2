@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
+import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,8 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.molgenis.emx2.tasks.TaskStatus;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
@@ -56,29 +60,27 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testCreateSchemaFromTemplate() throws IOException {
-    database.dropSchemaIfExists(schemaName + "C");
-    assertNull(database.getSchema(schemaName + "C"));
-    //    execute(
-    //        "mutation{createSchema(name:\""
-    //            + schemaName
-    //            + "C\", description: \"test\", template: \"PET_STORE\", includeDemoData:
-    // false){message}}");
-    String testGraphQL =
-        """
-            mutation {
-                createSchema(
-                    name:"TestGraphqlDatabaseFieldsC",
-                    description: "test",
-                    template:  "PET_STORE",
-                    includeDemoData: false) {
-                    message
-                }
-                }""";
-    execute(testGraphQL);
+  public void testCreateSchemaFromTemplate() throws IOException, InterruptedException {
+    database.dropSchemaIfExists(schemaName + "B");
+    assertNull(database.getSchema(schemaName + "B"));
+    JsonNode executeResult =
+        execute(
+            "mutation{createSchema(name:\""
+                + schemaName
+                + "B\", description: \"test\", template: \"PET_STORE\", includeDemoData: false){message taskId}}");
+    String taskId = executeResult.get("data").get("createSchema").get("taskId").asText();
+    Task mutationTask = taskService.getTask(taskId);
+    TaskStatus mutationTaskStatus = mutationTask.getStatus();
+    while (mutationTaskStatus != COMPLETED && mutationTaskStatus != ERROR) {
+      Thread.sleep(50);
+      mutationTaskStatus = mutationTask.getStatus();
+    }
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertTrue(result.contains(schemaName + "C"));
-    assertEquals(5, database.getSchema(schemaName + "C").getTableNames().size());
+    assertTrue(result.contains(schemaName + "B"));
+    assertEquals(5, database.getSchema(schemaName + "B").getTableNames().size());
+
+    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
+    assertNull(database.getSchema(schemaName + "B"));
   }
 
   @Test
