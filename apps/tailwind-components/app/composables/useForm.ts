@@ -69,9 +69,10 @@ export default function useForm(
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
     if (!metadata.value) return sectionList;
-    for (const column of metadata.value?.columns.filter(
-      (c) => visibleMap[c.id]
-    )) {
+    const visibleCols = metadata.value?.columns.filter(
+      (column) => visibleMap[column.id]
+    );
+    for (const column of visibleCols) {
       let isActive = false;
       if (
         column.id === currentSection.value ||
@@ -124,47 +125,49 @@ export default function useForm(
 
   /** return required, visible fields across all sections */
   const requiredFields = computed(() => {
-    return metadata.value?.columns.filter(
-      (column: IColumn) =>
-        visibleMap[column.id] &&
-        isRequired(column.required) &&
-        column.columnType !== "AUTO_ID"
+    return (
+      metadata.value?.columns.filter(
+        (column: IColumn) =>
+          visibleMap[column.id] &&
+          isRequired(column.required) &&
+          column.columnType !== "AUTO_ID"
+      ) || []
     );
   });
 
   /** return required and empty, visible fields across all sections */
   const emptyRequiredFields = computed(() => {
-    return (
-      requiredFields.value?.filter(
-        (column: IColumn) => !formValues.value[column.id]
-      ) || []
+    return requiredFields.value.filter(
+      (column: IColumn) => !formValues.value[column.id]
     );
   });
 
   const requiredMessage = computed(() => {
-    const fieldPlural =
-      emptyRequiredFields.value.length > 1 ? "fields" : "field";
     if (emptyRequiredFields.value.length === 0) {
       return "All required fields are filled";
+    } else {
+      const fieldPlural = emptyRequiredFields.value.length ? "fields" : "field";
+      return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
     }
-    return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
   });
 
   const errorMessage = computed(() => {
-    const errorCount = Object.values(errorMap.value).filter(
-      (value) => value !== ""
+    const errorCount = Object.entries(errorMap.value).filter(
+      ([key, value]) => visibleMap[key] && value !== ""
     ).length;
     const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
     return errorCount > 0
-      ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
+      ? `${errorCount} ${fieldLabel} attention before you can save this row`
       : "";
   });
 
   const currentRequiredField = ref<IColumn | null>(null);
+
   const gotoNextRequiredField = () => {
-    if (!emptyRequiredFields.value || emptyRequiredFields.value.length === 0) {
+    if (!emptyRequiredFields.value.length) {
       return;
     }
+
     if (currentRequiredField.value === null) {
       currentRequiredField.value = emptyRequiredFields.value[0] ?? null;
     } else {
@@ -177,21 +180,20 @@ export default function useForm(
           nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
         ] ?? null;
     }
+
     if (currentRequiredField.value) {
       currentSection.value = currentRequiredField.value.section;
       scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
   };
+
   const gotoPreviousRequiredField = () => {
-    if (!emptyRequiredFields.value) {
+    if (!emptyRequiredFields.value.length) {
       return;
     }
+
     if (currentRequiredField.value === null) {
-      if (emptyRequiredFields.value.length > 0) {
-        currentRequiredField.value = emptyRequiredFields.value[0] ?? null;
-      } else {
-        currentRequiredField.value = null;
-      }
+      currentRequiredField.value = emptyRequiredFields.value[0] ?? null;
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
@@ -202,12 +204,13 @@ export default function useForm(
           prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
         ] ?? null;
     }
+
     if (currentRequiredField.value) {
       scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
-    currentSection.value = currentRequiredField.value
-      ? currentRequiredField.value.section
-      : undefined;
+
+    currentSection.value = currentRequiredField.value?.section;
+
     if (currentRequiredField.value) {
       scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
@@ -226,9 +229,9 @@ export default function useForm(
       errorMap.value[column.id] = error;
     } else {
       errorMap.value[column.id] = metadata.value.columns
-        .filter((c) => c.validation?.includes(column.id))
-        .map((c) => {
-          const result = getColumnError(c, formValues.value, metadata.value);
+        .filter((col) => col.validation?.includes(column.id))
+        .map((col) => {
+          const result = getColumnError(col, formValues.value, metadata.value);
           return result;
         })
         .join("");
@@ -236,7 +239,7 @@ export default function useForm(
 
     // remove empty entries from the map
     Object.entries(errorMap.value).forEach(([key, value]) => {
-      if (value == "" || value == undefined || value == null) {
+      if (value === "" || value === undefined || value === null) {
         delete errorMap.value[key];
       }
     });
@@ -244,7 +247,7 @@ export default function useForm(
 
   const gotoPreviousError = () => {
     const keys = Object.keys(errorMap.value);
-    if (keys.length === null) {
+    if (!keys.length) {
       return;
     }
     const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");
@@ -263,7 +266,7 @@ export default function useForm(
 
   const gotoNextError = () => {
     const keys = Object.keys(errorMap.value);
-    if (keys.length === null) {
+    if (!keys.length) {
       return;
     }
     const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");
@@ -313,7 +316,7 @@ export default function useForm(
     const key = await getPrimaryKey(
       formValues.value,
       metadata.value.id,
-      metadata.value.schemaId as string
+      metadata.value.schemaId
     );
     const query = `mutation delete($pkey:[${metadata.value.id}Input]){delete(${metadata.value.id}:$pkey){message}}`;
     const variables = { pkey: [key] };
@@ -342,9 +345,8 @@ export default function useForm(
             visibleMap[previousSection.id] &&
             sectionColumns.some((columnId) => visibleMap[columnId]);
         }
-        visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
-          ? true
-          : false;
+        visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value);
+
         sectionColumns = [];
         headingColumns = []; //section also resets heading
         previousSection = c;
@@ -359,9 +361,8 @@ export default function useForm(
         //visible if section visible and self visible
         visibleMap[c.id] =
           (!previousSection || visibleMap[previousSection.id]) &&
-          isColumnVisible(c, formValues.value, metadata.value)
-            ? true
-            : false;
+          isColumnVisible(c, formValues.value, metadata.value);
+
         headingColumns = [];
         previousHeading = c;
         sectionColumns.push(c.id);
@@ -370,9 +371,8 @@ export default function useForm(
         visibleMap[c.id] =
           (!previousSection || visibleMap[previousSection.id]) &&
           (!previousHeading || visibleMap[previousHeading.id]) &&
-          isColumnVisible(c, formValues.value, metadata.value)
-            ? true
-            : false;
+          isColumnVisible(c, formValues.value, metadata.value);
+
         headingColumns.push(c.id);
         sectionColumns.push(c.id);
       }
@@ -439,9 +439,6 @@ export default function useForm(
         )
     );
   });
-  const invisibleColumns = computed(() => {
-    return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
-  });
 
   const nextSection = computed(() => {
     const sectionList = sections.value.filter((s) => s.type === "SECTION");
@@ -461,12 +458,13 @@ export default function useForm(
     );
     if (currentIndex > 0) {
       return sectionList[currentIndex - 1];
+    } else {
+      return null;
     }
-    return null;
   });
 
   async function handleFetchError(error: any, message: string) {
-    if (error.statusCode && error.statusCode >= 400) {
+    if (error.statusCode >= 400) {
       const { hasSessionTimeout } = await useSession();
       if (await hasSessionTimeout()) {
         console.log("Session has timed out, ask for re-authentication");
@@ -507,7 +505,7 @@ export default function useForm(
 
   return {
     requiredFields,
-    emptyRequiredFields,
+    emptyRequiredFields, //exposed for testing
     requiredMessage,
     errorMessage,
     gotoSection,
@@ -526,7 +524,6 @@ export default function useForm(
     sections,
     currentSection,
     visibleColumns,
-    invisibleColumns,
     errorMap,
     validateAllColumns,
     visibleMap,
