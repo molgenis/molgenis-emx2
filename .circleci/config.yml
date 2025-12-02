@@ -61,12 +61,17 @@ definitions:
 commands:
   pre_steps:
     steps:
-    - checkout
     - run:
-        name: run-audit-ci
-        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
-        working_directory: apps
-    - run: git fetch --all --tags
+        name: Fresh Git Checkout to prevend missing objects
+        command: |
+          rm -rf .git
+          git init
+          git remote add origin "$CIRCLE_REPOSITORY_URL"
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/tags/*:refs/tags/* --prune
+          git checkout -f "$CIRCLE_BRANCH"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -74,6 +79,10 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
+    - run:
+        name: run-audit-ci
+        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
+        working_directory: apps      
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -281,7 +290,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.56.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.57.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
@@ -449,10 +458,10 @@ jobs:
 
       - run:
           name: Reset emx2.dev
-          command:
-            export $( cat build/ci.properties | xargs ) \
-            bash ci/set_kubectl_config-azure.sh \
+          command: |
+            sh ci/set_kubectl_config-azure.sh
             bash ci/create_or_update_k8s-azure.sh "emx2" latest true
+          working_directory: repo
 
       - run:
           name: Message slack about a database cleanup

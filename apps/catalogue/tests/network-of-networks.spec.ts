@@ -25,12 +25,7 @@ test("show network of networks", async ({ page, goto }) => {
   });
   await page.getByRole("button", { name: "Variables" }).click();
   await expect(page.getByText("7 variables")).toBeVisible();
-  //todo check if not should be 9
-  await page.getByRole("heading", { name: "Sources" }).click();
-  await page.getByRole("heading", { name: "Sources" }).click();
-  await expect(page.getByText("testCohort4")).toBeVisible();
+  await page.getByRole("checkbox", { name: "testCohort4" }).check();
   await page.getByRole("button", { name: "Harmonisations" }).click();
-  await expect(
-    page.getByRole("cell", { name: "testCohort4" }).locator("span")
-  ).toBeVisible();
+  await expect(page.getByRole("table").getByText("testCohort4")).toBeVisible();
 });
