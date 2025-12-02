@@ -96,6 +96,39 @@ watch(
 );
 
 /* retrieves all terms, for small ontologies */
+async function retrieveAllTerms() {
+  let query = `query myquery {
+        retrieveTerms: ${props.ontologyTableId}(orderby:{order:ASC,name:ASC}){name,parent{name},label,definition,code,codesystem,ontologyTermURI}
+       }`;
+  const data = await fetchGraphql(props.ontologySchemaId, query, {});
+
+  return assembleChildren(data.retrieveTerms || []);
+}
+
+function assembleChildren(
+  data: ITreeNodeState[],
+  parentName: string | null = null
+): ITreeNodeState[] {
+  return (
+    data
+      .filter((row) => row.parent?.name == parentName)
+      .map((row: any) => {
+        const node = {
+          name: row.name,
+          label: row.label,
+          description: row.definition,
+          code: row.code,
+          codeSystem: row.codesystem,
+          uri: row.ontologyTermURI,
+          selectable: true,
+          visible: true,
+          children: assembleChildren(data, row.name),
+        };
+        node.expanded = node.children.length > 0;
+        return node;
+      }) || []
+  );
+}
 
 /* retrieves terms, optionally as children to a parent */
 async function retrieveTerms(
@@ -179,13 +212,14 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
 /** initial load */
 async function init() {
   await getMaxTableRows();
-  if (maxTableRows.value < 25) {
+  if (maxTableRows.value <= 25) {
     //retrieve all
-
+    ontologyTree.value = [...(await retrieveAllTerms())];
   } else {
     //only retrieve root
-  ontologyTree.value = [...(await retrieveTerms())];
+    ontologyTree.value = [...(await retrieveTerms())];
   }
+  await applySelectedStates();
 }
 
 /** apply selection UI state on selection changes */
@@ -382,15 +416,14 @@ async function getMaxParentNodes(variables?: any) {
 }
 
 const showAsSelect = computed(() => {
-  return maxOntologyNodes.value > props.limit || hasChildren.value
-})
+  return maxOntologyNodes.value > props.limit || maxTableRows <= 25;
+});
 
 // Close dropdown when clicking outside
 const wrapperRef = ref<HTMLElement | null>(null);
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
-
 </script>
 
 <template>
@@ -417,51 +450,55 @@ useClickOutside(wrapperRef, () => {
         @click.stop="showSelect = !showSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
-        <template v-if="modelValue" role="group">
-          <Button
-            v-if="Array.isArray(modelValue) && modelValue.length > 1"
-            :id="`${id}-button-clear`"
-            icon="cross"
-            iconPosition="right"
-            type="filterWell"
-            size="tiny"
-            class="mr-2"
-            @click.stop="clearSelection"
-          >
-            clear all
-          </Button>
-          <Button
-            v-for="name in Array.isArray(modelValue)
+          <template v-if="modelValue" role="group">
+            <Button
+              v-if="Array.isArray(modelValue) && modelValue.length > 1"
+              :id="`${id}-button-clear`"
+              icon="cross"
+              iconPosition="right"
+              type="filterWell"
+              size="tiny"
+              class="mr-2"
+              @click.stop="clearSelection"
+            >
+              clear all
+            </Button>
+            <Button
+              v-for="name in Array.isArray(modelValue)
               ? (modelValue as string[]).sort()
               : modelValue ? [modelValue] : []"
-            icon="cross"
-            iconPosition="right"
-            type="filterWell"
-            size="tiny"
-            @click.stop="deselect(name as string)"
-          >
-            {{ valueLabels[name] }}
-          </Button>
-        </template>
-        <div v-show="showAsSelect">
-          <label :for="`search-for-${id}`" class="sr-only">
-            search in ontology
-          </label>
-          <input
-            :id="`search-for-${id}`"
-            type="text"
-            v-model="searchTerms"
-            @input="updateSearch(searchTerms)"
-            class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
-            placeholder="Search in terms"
-            autocomplete="off"
-            @click.stop="showSelect = true"
-          />
-        </div>
+              icon="cross"
+              iconPosition="right"
+              type="filterWell"
+              size="tiny"
+              @click.stop="deselect(name as string)"
+            >
+              {{ valueLabels[name] }}
+            </Button>
+          </template>
+          <div v-show="showAsSelect">
+            <label :for="`search-for-${id}`" class="sr-only">
+              search in ontology
+            </label>
+            <input
+              :id="`search-for-${id}`"
+              type="text"
+              v-model="searchTerms"
+              @input="updateSearch(searchTerms)"
+              class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
+              placeholder="Search in terms"
+              autocomplete="off"
+              @click.stop="showSelect = true"
+            />
+          </div>
         </div>
         <div>
-        <BaseIcon v-if="showSelect" name="caret-up" @click.stop="showSelect = false" />
-        <BaseIcon v-else name="caret-down"  class="justify-end"  />
+          <BaseIcon
+            v-if="showSelect"
+            name="caret-up"
+            @click.stop="showSelect = false"
+          />
+          <BaseIcon v-else name="caret-down" class="justify-end" />
         </div>
       </div>
       <div
