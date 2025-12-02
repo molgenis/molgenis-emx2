@@ -32,9 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import _ from "lodash";
-import type { ISchemaInfo, IUser } from "~/util/adminUtils";
-import { computed, ref } from "vue";
+import type { IUser } from "../util/adminUtils";
+import { computed } from "vue";
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 
