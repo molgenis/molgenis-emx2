@@ -95,6 +95,8 @@ watch(
   }
 );
 
+/* retrieves all terms, for small ontologies */
+
 /* retrieves terms, optionally as children to a parent */
 async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined
@@ -176,9 +178,14 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
 
 /** initial load */
 async function init() {
-  ontologyTree.value = [...(await retrieveTerms())];
-  await applySelectedStates();
   await getMaxTableRows();
+  if (maxTableRows.value < 25) {
+    //retrieve all
+
+  } else {
+    //only retrieve root
+  ontologyTree.value = [...(await retrieveTerms())];
+  }
 }
 
 /** apply selection UI state on selection changes */
@@ -335,7 +342,7 @@ function clearSelection() {
 function toggleSearch() {
   showSearch.value = !showSearch.value;
   searchTerms.value = "";
-  if (!showSearch.value) init();
+  init();
 }
 
 async function updateSearch(value: string) {
@@ -374,11 +381,16 @@ async function getMaxParentNodes(variables?: any) {
   maxOntologyNodes.value = data[`${props.ontologyTableId}_agg`].count;
 }
 
+const showAsSelect = computed(() => {
+  return maxOntologyNodes.value > props.limit || hasChildren.value
+})
+
 // Close dropdown when clicking outside
 const wrapperRef = ref<HTMLElement | null>(null);
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
+
 </script>
 
 <template>
@@ -391,7 +403,7 @@ useClickOutside(wrapperRef, () => {
       'flex items-center border outline-none rounded-input cursor-pointer':
         maxOntologyNodes > limit,
     }"
-    @click.stop="maxOntologyNodes > limit ? (showSelect = true) : null"
+    @click.stop="showAsSelect ? (showSelect = true) : null"
   >
     <InputGroupContainer
       :id="`${id}-ontology`"
@@ -400,9 +412,11 @@ useClickOutside(wrapperRef, () => {
       @blur="emit('blur')"
     >
       <div
-        v-show="maxOntologyNodes > limit"
-        class="flex flex-wrap min-w-0 gap-2 flex-1 px-2 py-2 items-center"
+        v-show="showAsSelect"
+        class="flex items-center justify-between gap-2 m-2"
+        @click.stop="showSelect = !showSelect"
       >
+        <div class="flex flex-wrap items-center gap-2">
         <template v-if="modelValue" role="group">
           <Button
             v-if="Array.isArray(modelValue) && modelValue.length > 1"
@@ -429,7 +443,7 @@ useClickOutside(wrapperRef, () => {
             {{ valueLabels[name] }}
           </Button>
         </template>
-        <div v-show="maxOntologyNodes > limit">
+        <div v-show="showAsSelect">
           <label :for="`search-for-${id}`" class="sr-only">
             search in ontology
           </label>
@@ -441,16 +455,22 @@ useClickOutside(wrapperRef, () => {
             class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
             placeholder="Search in terms"
             autocomplete="off"
+            @click.stop="showSelect = true"
           />
+        </div>
+        </div>
+        <div>
+        <BaseIcon v-if="showSelect" name="caret-up" @click.stop="showSelect = false" />
+        <BaseIcon v-else name="caret-down"  class="justify-end"  />
         </div>
       </div>
       <div
         ref="wrapperRef"
         :class="{
           'absolute z-20 max-h-[50vh] border rounded-input bg-white overflow-y-auto w-full pl-4':
-            maxOntologyNodes > limit,
+            showAsSelect,
         }"
-        v-show="showSelect || maxOntologyNodes <= limit"
+        v-show="showSelect || !showAsSelect"
       >
         <fieldset ref="treeContainer">
           <legend class="sr-only">select ontology terms</legend>

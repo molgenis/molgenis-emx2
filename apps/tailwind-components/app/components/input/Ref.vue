@@ -230,7 +230,9 @@ function loadMore() {
   });
 }
 
-const showExtendedControls = computed<boolean>(() => initialCount.value > props.limit);
+const showExtendedControls = computed<boolean>(
+  () => initialCount.value > props.limit
+);
 
 prepareModel();
 </script>

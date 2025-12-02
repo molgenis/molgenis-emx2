@@ -26,8 +26,8 @@ function toPascalCase(text: string): string {
 const componentName = toPascalCase(props.name);
 const iconComp = computed(() => {
   const componentName = toPascalCase(props.name);
-  return defineAsyncComponent(() =>
-    import(`../components/global/icons/${componentName}.vue`)
+  return defineAsyncComponent(
+    () => import(`../components/global/icons/${componentName}.vue`)
   );
 });
 </script>

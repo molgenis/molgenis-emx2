@@ -6,6 +6,11 @@ const ontologyTableId = ref<string>("Tag");
 const modelValue = ref("green");
 const modelValueArray = ref(["colors", "mammals"]);
 
+const ontologySchemaId1 = ref<string>("CatalogueOntologies");
+const ontologyTableId1 = ref<string>("ResourceTypes");
+const modelValue1 = ref("Biobank");
+const modelValueArray1 = ref(["Biobank", "Cohort study"]);
+
 const ontologySchemaId2 = ref<string>("CatalogueOntologies");
 const ontologyTableId2 = ref<string>("Countries");
 const modelValue2 = ref("Andorra");
@@ -55,6 +60,37 @@ const modelValueArray3 = ref(["Maternal height", "Country of cohort"]);
       />
       <p class="mt-4">modelValueArray = {{ modelValueArray }}</p>
     </div>
+    <h2 class="text-title">Small list ontology single</h2>
+    <div class="mt-4">
+      <InputOntology
+        id="test-ontology-input-id"
+        v-model="modelValue1"
+        :ontologySchemaId="ontologySchemaId1"
+        :ontologyTableId="ontologyTableId1"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+        @blur="onBlur"
+        @focus="onBlur"
+      />
+      <p class="mt-4">modelValue = {{ modelValue1 }}</p>
+    </div>
+    <h2 class="mt-4 text-title">Small list ontology array</h2>
+    <div class="mt-4">
+      <InputOntology
+        id="test-ontology-array-input-id"
+        :isArray="true"
+        v-model="modelValueArray1"
+        :ontologySchemaId="ontologySchemaId1"
+        :ontologyTableId="ontologyTableId1"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+        @blur="onBlur"
+        @focus="onFocus"
+      />
+      <p class="mt-4">modelValueArray = {{ modelValueArray1 }}</p>
+    </div>
     <h2 class="text-title">Large flat ontology single</h2>
     <div class="mt-4">
       <InputOntology
@@ -68,7 +104,7 @@ const modelValueArray3 = ref(["Maternal height", "Country of cohort"]);
         @blur="onBlur"
         @focus="onBlur"
       />
-      <p class="mt-4">modelValue = {{ modelValue }}</p>
+      <p class="mt-4">modelValue = {{ modelValue2 }}</p>
     </div>
     <h2 class="mt-4 text-title">Large flat ontology array</h2>
     <div class="mt-4">
@@ -84,7 +120,7 @@ const modelValueArray3 = ref(["Maternal height", "Country of cohort"]);
         @blur="onBlur"
         @focus="onFocus"
       />
-      <p class="mt-4">modelValueArray = {{ modelValueArray }}</p>
+      <p class="mt-4">modelValueArray = {{ modelValueArray2 }}</p>
     </div>
 
     <h2 class="text-title">Large deep ontology single</h2>
@@ -100,7 +136,7 @@ const modelValueArray3 = ref(["Maternal height", "Country of cohort"]);
         @blur="onBlur"
         @focus="onBlur"
       />
-      <p class="mt-4">modelValue = {{ modelValue }}</p>
+      <p class="mt-4">modelValue = {{ modelValue3 }}</p>
     </div>
     <h2 class="mt-4 text-title">Large deep ontology array</h2>
     <div class="mt-4">
@@ -116,7 +152,7 @@ const modelValueArray3 = ref(["Maternal height", "Country of cohort"]);
         @blur="onBlur"
         @focus="onFocus"
       />
-      <p class="mt-4">modelValueArray = {{ modelValueArray }}</p>
+      <p class="mt-4">modelValueArray = {{ modelValueArray3 }}</p>
     </div>
   </InputTestContainer>
 </template>
