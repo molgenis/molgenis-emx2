@@ -1,7 +1,7 @@
 part of clinical observation,type
 Case1C,Intellectual disability
 Case1C,Neck muscle weakness
-Case1C,Muscular hypotonia
+Case1C,Hypotonia
 Case1C,Neonatal hypotonia
 Case1C,Congenital hip dislocation
 Case1C,Inability to walk
@@ -18,7 +18,7 @@ Case2M,Scotoma
 Case2M,Abnormality of retinal pigmentation
 Case2M,Abnormality of macular pigmentation
 Case2M,Metamorphopsia
-Case3C,Elevated serum creatinine
+Case3C,Elevated circulating creatinine concentration
 Case3C,Muscle weakness
 Case3C,Myalgia
 Case3C,Muscular dystrophy
@@ -32,12 +32,12 @@ Case4C,Hepatomegaly
 Case4C,Motor deterioration
 Case4C,Developmental regression
 Case4C,Increased CSF lactate
-Case4C,Increased CSF protein
+Case4C,Increased CSF protein concentration
 Case4C,Lactic acidosis
 Case4C,Sensory axonal neuropathy
 Case4C,Myoclonic spasms
 Case4C,Decreased body weight
-Case4C,"Intellectual disability, progressive"
+Case4C,"obsolete Intellectual disability, progressive"
 Case4C,Motor axonal neuropathy
 Case4C,Neurodevelopmental delay
 Case4C,Cognitive impairment
@@ -49,6 +49,6 @@ Case5C,Neoplasm of the breast
 Case5M,Ovarian neoplasm
 Case6C,Neck muscle weakness
 Case6C,Distal arthrogryposis
-Case6C,Muscular hypotonia of the trunk
+Case6C,Axial hypotonia
 Case6C,Skeletal muscle atrophy
 Case6C,Neonatal hypotonia
