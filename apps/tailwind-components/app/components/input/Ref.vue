@@ -9,16 +9,8 @@ import type {
 
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import logger from "../../utils/logger";
-import { fetchTableMetadata } from "#imports";
-import {
-  ref,
-  type Ref,
-  computed,
-  watch,
-  onMounted,
-  useTemplateRef,
-  nextTick,
-} from "vue";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { ref, type Ref, computed, watch, onMounted } from "vue";
 import fetchTableData from "../../composables/fetchTableData";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
@@ -43,7 +35,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 50, //can be rather larger now because will auto load more if needed
+    limit: 25,
   }
 );
 
@@ -233,7 +225,7 @@ function clearSelection() {
 }
 
 function loadMore() {
-  offset.value += 25; //small number is more smooth
+  offset.value += props.limit;
   loadOptions({
     offset: offset.value,
     limit: props.limit,
@@ -241,9 +233,9 @@ function loadMore() {
   });
 }
 
-const displayAsSelect = computed(() => initialCount.value > props.limit);
-
 prepareModel();
+
+const displayAsSelect = computed(() => initialCount.value > props.limit);
 
 // Close dropdown when clicking outside
 const wrapperRef = ref<HTMLElement | null>(null);

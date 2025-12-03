@@ -59,7 +59,6 @@ const maxOntologyNodes = ref<number>(0);
 const noTreeInputsFound = ref<boolean>(false);
 const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
 const treeInputs = ref();
-
 const showSelect = ref(false);
 
 function setTreeInputs() {

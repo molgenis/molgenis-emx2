@@ -1,41 +1,68 @@
 <script lang="ts" setup>
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import Button from "../Button.vue";
+import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount } from "vue";
+import ButtonText from "../button/Text.vue";
 
-const props = defineProps<{
+defineProps<{
   id: string;
-  size: number;
 }>();
+
+const buttonContainer = useTemplateRef<HTMLDivElement>("filterButtonContainer");
+const widthObserver = ref();
+const showExpandButton = ref<boolean>(false);
+const hasFilterWellButtons = ref<boolean>(false);
+const filterButtons = ref<HTMLCollection>();
 const isExpanded = ref<boolean>(false);
-const filterButtonContainer = ref<HTMLElement | null>(null);
-const isOverflowing = ref(false);
+
+const scrollConfig = {
+  behavior: "smooth",
+  block: "nearest",
+  inline: "center",
+} as ScrollOptions;
+
+const observerConfig = {
+  childList: true,
+  subtree: true,
+  attributes: false,
+  characterData: false,
+};
 
 const emit = defineEmits(["clear"]);
 
-function checkOverflow() {
-  const el = filterButtonContainer.value;
-  if (!el) return;
-  // Compare scrollHeight (full content height) to visible height (clientHeight)
-  isOverflowing.value = el.scrollHeight > el.clientHeight;
+function observeScrollWidth() {
+  if (
+    buttonContainer.value &&
+    buttonContainer.value.scrollHeight > buttonContainer.value.offsetHeight
+  ) {
+    showExpandButton.value = true;
+  } else {
+    showExpandButton.value = false;
+    isExpanded.value = false;
+  }
+
+  updateFilterButtons();
 }
 
-onMounted(async () => {
-  await nextTick();
-  checkOverflow();
-  // Recheck on window resize or after layout updates
-  window.addEventListener("resize", checkOverflow);
+function updateFilterButtons() {
+  filterButtons.value = buttonContainer.value?.children as HTMLCollection;
+
+  if (buttonContainer.value) {
+    hasFilterWellButtons.value = buttonContainer.value.children.length > 1;
+  }
+}
+
+onMounted(() => {
+  widthObserver.value = new MutationObserver(observeScrollWidth);
+  widthObserver.value.observe(buttonContainer.value, observerConfig);
 });
 
-watch(isExpanded, async () => {
-  await nextTick();
-  checkOverflow();
-});
+onBeforeUnmount(() => widthObserver.value.disconnect());
 
 watch(
-  () => props.size,
-  async () => {
-    await nextTick();
-    checkOverflow();
+  () => buttonContainer.value,
+  () => {
+    if (buttonContainer.value) {
+      updateFilterButtons();
+    }
   }
 );
 </script>
@@ -44,44 +71,38 @@ watch(
   <div
     ref="filterWell"
     role="group"
-    class="flex justify-between items-start w-full gap-2 w-full"
+    class="grid flex-nowrap justify-start items-center gap-2"
   >
+    <div class="flex gap-4" v-if="hasFilterWellButtons">
+      <ButtonText
+        :id="`${id}-button-clear`"
+        @click="emit('clear', true)"
+        type="filterWell"
+        size="tiny"
+      >
+        Clear all
+      </ButtonText>
+      <ButtonText
+        :id="`${id}-button-expand`"
+        @click="isExpanded = !isExpanded"
+        v-if="showExpandButton"
+        :aria-expanded="isExpanded"
+        :aria-controls="`${id}-collapsible-content`"
+        :aria-haspopup="true"
+      >
+        {{ isExpanded ? "Show less" : "Show more" }}
+      </ButtonText>
+    </div>
     <div
       :id="`${id}-collapsible-content`"
       ref="filterButtonContainer"
-      class="flex flex-wrap gap-2 flex-1 min-w-0"
+      class="flex flex-wrap gap-2 justify-start items-center"
       :class="{
-        'overflow-y-hidden max-h-12': !isExpanded,
+        'overflow-y-hidden max-h-8': !isExpanded,
         'overflow-y-visible max-h-auto': isExpanded,
       }"
     >
-      <Button
-        v-if="size > 1"
-        :id="`${id}-button-clear`"
-        icon="cross"
-        iconPosition="right"
-        type="filterWell"
-        size="tiny"
-        @click="emit('clear', true)"
-      >
-        clear all
-      </Button>
       <slot></slot>
     </div>
-    <Button
-      v-if="isOverflowing || isExpanded"
-      type="inline"
-      class="shadow-sm rounded-full shrink-0 text-button-text self-start"
-      icon-position="right"
-      :id="`accordion__${id}-toggle-icon-only`"
-      :icon="isExpanded ? 'caret-up' : 'caret-down'"
-      :label="isExpanded ? 'minimize' : 'show all ' + size"
-      @click="isExpanded = !isExpanded"
-      :aria-labelledby="`accordion__${id}-toggle`"
-      :aria-controls="`accordion__${id}-content`"
-      :aria-expanded="isExpanded"
-      :aria-haspopup="true"
-      size="tiny"
-    />
   </div>
 </template>
