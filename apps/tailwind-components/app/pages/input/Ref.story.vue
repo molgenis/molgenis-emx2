@@ -7,6 +7,12 @@ const labelTemplate = ref<string>("${name}");
 const value = ref([{ name: "spike" }]);
 const value2 = ref([{ name: "spike" }]);
 
+const schemaId2 = ref<string>("CatalogueOntologies");
+const tableId2 = ref<string>("Countries");
+const labelTemplate2 = ref<string>("${name}");
+const value3 = ref([{ name: "Belgium" }]);
+const value4 = ref([{ name: "Belgium" }]);
+
 const refExampleError = ref<boolean>(false);
 
 function onBlur() {
@@ -30,7 +36,7 @@ function onBlur() {
         v-model="value"
         :refSchemaId="schemaId"
         :refTableId="tableId"
-        :limit="5"
+        :limit="10"
         :refLabel="labelTemplate"
         :valid="valid"
         :invalid="refExampleError || invalid"
@@ -62,7 +68,7 @@ function onBlur() {
         v-model="value2"
         :refSchemaId="schemaId"
         :refTableId="tableId"
-        :limit="5"
+        :limit="10"
         :refLabel="labelTemplate"
         :isArray="false"
         :valid="valid"
@@ -71,5 +77,41 @@ function onBlur() {
       />
     </div>
     <div class="pt-5">value selected: {{ value2 }}</div>
+    <div class="pt-5">
+      <label for="story-ref-array">
+        <span class="text-title font-bold">Example of a long ref</span>
+      </label>
+      <InputRef
+        id="story-ref"
+        v-model="value3"
+        :refSchemaId="schemaId2"
+        :refTableId="tableId2"
+        :limit="25"
+        :refLabel="labelTemplate2"
+        :isArray="false"
+        :valid="valid"
+        :invalid="invalid"
+        :disabled="disabled"
+      />
+    </div>
+    <div class="pt-5">value selected: {{ value3 }}</div>
+    <div class="pt-5">
+      <label for="story-ref-array">
+        <span class="text-title font-bold">Example of a long ref</span>
+      </label>
+      <InputRef
+        id="story-ref"
+        v-model="value4"
+        :refSchemaId="schemaId2"
+        :refTableId="tableId2"
+        :limit="25"
+        :refLabel="labelTemplate2"
+        :isArray="true"
+        :valid="valid"
+        :invalid="invalid"
+        :disabled="disabled"
+      />
+    </div>
+    <div class="pt-5">value selected: {{ value4 }}</div>
   </InputTestContainer>
 </template>

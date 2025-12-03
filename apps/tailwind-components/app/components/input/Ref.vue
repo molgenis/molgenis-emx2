@@ -20,7 +20,9 @@ import InputGroupContainer from "../input/InputGroupContainer.vue";
 import InputLabel from "./Label.vue";
 import ButtonText from "../button/Text.vue";
 import Button from "../Button.vue";
-import ButtonFilterWellContainer from "../button/FilterWellContainer.vue";
+import BaseIcon from "../BaseIcon.vue";
+import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+import { useClickOutside } from "../../composables/useClickOutside";
 
 const props = withDefaults(
   defineProps<
@@ -39,6 +41,7 @@ const props = withDefaults(
   }
 );
 
+const initLoading = ref(true);
 const modelValue = defineModel<columnValueObject[] | columnValueObject>();
 const tableMetadata = ref<ITableMetaData>();
 
@@ -51,6 +54,8 @@ const offset = ref<number>(0);
 const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
+const showSelect = ref(false);
+
 const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
 });
@@ -97,6 +102,7 @@ async function prepareModel() {
 
   await loadOptions({ limit: props.limit });
   initialCount.value = count.value;
+  initLoading.value = false;
 }
 
 watch(
@@ -152,11 +158,13 @@ async function loadOptions(filter: IQueryMetaData) {
     filter
   );
 
+  const newOptionMap: recordValue = {};
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
-      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
+      (row) => (newOptionMap[applyTemplate(props.refLabel, row)] = row)
     );
+    optionMap.value = newOptionMap;
     count.value = data.count;
   } else {
     hasNoResults.value = true;
@@ -170,7 +178,6 @@ function toggleSearch() {
 }
 
 function updateSearch(newSearchTerms: string) {
-  optionMap.value = {};
   offset.value = 0;
   searchTerms.value = newSearchTerms;
   loadOptions({ limit: props.limit, searchTerms: searchTerms.value });
@@ -230,87 +237,140 @@ function loadMore() {
   });
 }
 
-const showExtendedControls = computed<boolean>(
-  () => initialCount.value > props.limit
-);
+const displayAsSelect = computed(() => initialCount.value > props.limit);
 
 prepareModel();
+
+// Close dropdown when clicking outside
+const wrapperRef = ref<HTMLElement | null>(null);
+useClickOutside(wrapperRef, () => {
+  showSelect.value = false;
+});
 </script>
 
 <template>
-  <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
-    <template v-if="initialCount > limit">
-      <ButtonFilterWellContainer
-        v-if="isArray ? selection.length : selection"
-        ref="selectionContainer"
-        :id="`${id}-ref-selections`"
-        @clear="clearSelection"
-        :size="selection.length"
+  <div v-if="initLoading" class="h-20 flex justify-start items-center">
+    <BaseIcon name="progress-activity" class="animate-spin text-input" />
+  </div>
+  <div
+    v-else-if="!initLoading && initialCount"
+    :class="{
+      'flex items-center border outline-none rounded-input cursor-pointer':
+        displayAsSelect,
+    }"
+    @click.stop="displayAsSelect ? (showSelect = true) : null"
+  >
+    <InputGroupContainer
+      :id="`${id}-ref`"
+      class="border-transparent w-full relative"
+      @focus="emit('focus')"
+      @blur="emit('blur')"
+    >
+      <div
+        v-show="displayAsSelect"
+        class="flex items-center justify-between gap-2 m-2"
+        @click.stop="showSelect = !showSelect"
       >
-        <template v-if="selection.length > 0">
-          <Button
-            v-for="label in isArray ? selection : [selection]"
-            icon="cross"
-            iconPosition="right"
-            type="filterWell"
-            size="tiny"
-            @click="deselect(label as string)"
-          >
-            <div class="max-w-[150px] truncate" :title="label">{{ label }}</div>
-          </Button>
-        </template>
-      </ButtonFilterWellContainer>
-      <div class="my-4" v-if="showExtendedControls">
-        <label :for="`search-for-${id}`" class="sr-only">
-          search in options
-        </label>
-        <InputSearch
-          :id="`search-for-${id}`"
-          :modelValue="searchTerms"
-          @update:modelValue="updateSearch"
-          size="small"
-          placeholder="Search in options"
-          :aria-hidden="!showSearch"
-        />
+        <div class="flex flex-wrap items-center gap-2">
+          <template v-if="modelValue" role="group">
+            <Button
+              @click="clearSelection"
+              v-if="isArray && selection.length > 1"
+              type="filterWell"
+              size="tiny"
+              icon="cross"
+              iconPosition="right"
+              class="mr-2"
+              >clear all</Button
+            >
+            <Button
+              v-for="label in isArray ? selection : [selection]"
+              icon="cross"
+              iconPosition="right"
+              type="filterWell"
+              size="tiny"
+              @click="deselect(label as string)"
+            >
+              {{ label }}
+            </Button>
+          </template>
+          <div>
+            <label :for="`search-for-${id}`" class="sr-only">
+              search in ontology
+            </label>
+            <input
+              :id="`search-for-${id}`"
+              type="text"
+              v-model="searchTerms"
+              @input="updateSearch(searchTerms)"
+              class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
+              placeholder="Search in terms"
+              autocomplete="off"
+              @click.stop="showSelect = true"
+            />
+          </div>
+        </div>
+        <div>
+          <BaseIcon
+            v-show="showSelect"
+            name="caret-up"
+            @click.stop="showSelect = false"
+          />
+          <BaseIcon
+            v-show="!showSelect"
+            name="caret-down"
+            class="justify-end"
+          />
+        </div>
       </div>
-    </template>
-    <template v-if="!hasNoResults">
-      <fieldset>
-        <legend class="sr-only">select {{ columnName }} options</legend>
-        <InputCheckboxGroup
-          v-if="isArray"
-          :id="id"
-          :options="listOptions"
-          :modelValue="(selection as string[])"
-          @select="select"
-          @deselect="deselect"
-          :invalid="invalid"
-          :valid="valid"
-          :disabled="disabled"
-        />
-        <InputRadioGroup
-          v-else
-          :id="id"
-          :options="listOptions"
-          :modelValue="(selection as string)"
-          @select="select"
-          @deselect="deselect"
-          :invalid="invalid"
-          :valid="valid"
-          :disabled="disabled"
-        />
-      </fieldset>
-      <ButtonText @click="loadMore" v-if="offset + limit < count">
-        load {{ entitiesLeftToLoad }} more
-      </ButtonText>
-      <ButtonText
-        v-if="
-          initialCount <= limit && (isArray ? selection.length > 0 : selection)
-        "
-        @click="clearSelection"
-        >Clear</ButtonText
+      <div
+        ref="wrapperRef"
+        :class="{
+          'absolute z-20 max-h-[50vh] border rounded-input bg-white overflow-y-auto w-full pl-4':
+            displayAsSelect,
+        }"
+        v-show="showSelect || !displayAsSelect"
       >
-    </template>
-    <ButtonText v-else>no options available</ButtonText>
-  </InputGroupContainer>
+        <fieldset>
+          <legend class="sr-only">select {{ columnName }} options</legend>
+          <InputCheckboxGroup
+            v-if="isArray"
+            :id="id"
+            :options="listOptions"
+            :modelValue="(selection as string[])"
+            @select="select"
+            @deselect="deselect"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
+          />
+          <InputRadioGroup
+            v-else
+            :id="id"
+            :options="listOptions"
+            :modelValue="(selection as string)"
+            @select="select"
+            @deselect="deselect"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
+          />
+        </fieldset>
+        <ButtonText
+          v-if="
+            initialCount <= limit &&
+            (isArray ? selection.length > 0 : selection)
+          "
+          @click="clearSelection"
+          >Clear</ButtonText
+        >
+      </div>
+    </InputGroupContainer>
+  </div>
+  <div
+    v-else
+    class="py-4 flex justify-start items-center text-input-description"
+  >
+    <TextNoResultsMessage label="No options available" />
+  </div>
 </template>

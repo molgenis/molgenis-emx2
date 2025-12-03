@@ -416,7 +416,7 @@ async function getMaxParentNodes(variables?: any) {
   maxOntologyNodes.value = data[`${props.ontologyTableId}_agg`].count;
 }
 
-const showAsSelect = computed(() => {
+const displayAsSelect = computed(() => {
   return (
     maxOntologyNodes.value > props.limit ||
     maxTableRows.value > 25 ||
@@ -439,9 +439,9 @@ useClickOutside(wrapperRef, () => {
     v-else-if="!initLoading && maxOntologyNodes"
     :class="{
       'flex items-center border outline-none rounded-input cursor-pointer':
-        showAsSelect,
+        displayAsSelect,
     }"
-    @click.stop="showAsSelect ? (showSelect = true) : null"
+    @click.stop="displayAsSelect ? (showSelect = true) : null"
   >
     <InputGroupContainer
       :id="`${id}-ontology`"
@@ -450,7 +450,7 @@ useClickOutside(wrapperRef, () => {
       @blur="emit('blur')"
     >
       <div
-        v-show="showAsSelect"
+        v-show="displayAsSelect"
         class="flex items-center justify-between gap-2 m-2"
         @click.stop="showSelect = !showSelect"
       >
@@ -481,7 +481,7 @@ useClickOutside(wrapperRef, () => {
               {{ valueLabels[name] }}
             </Button>
           </template>
-          <div v-show="showAsSelect">
+          <div>
             <label :for="`search-for-${id}`" class="sr-only">
               search in ontology
             </label>
@@ -514,9 +514,9 @@ useClickOutside(wrapperRef, () => {
         ref="wrapperRef"
         :class="{
           'absolute z-20 max-h-[50vh] border rounded-input bg-white overflow-y-auto w-full pl-4':
-            showAsSelect,
+            displayAsSelect,
         }"
-        v-show="showSelect || !showAsSelect"
+        v-show="showSelect || !displayAsSelect"
       >
         <fieldset ref="treeContainer">
           <legend class="sr-only">select ontology terms</legend>
