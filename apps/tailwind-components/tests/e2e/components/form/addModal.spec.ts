@@ -6,12 +6,9 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
-test.beforeEach(async ({ page }) => {
+test("should show the add modal", async ({ page }) => {
   await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Pet`);
   await expect(page.getByText("Demo data controls")).toBeVisible();
-});
-
-test("should show the add modal", async ({ page }) => {
   await page.getByRole("button", { name: "Add Pet" }).click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
   await expect(
@@ -32,6 +29,8 @@ test("should show the add modal", async ({ page }) => {
 });
 
 test("should validate form before saving", async ({ page }) => {
+  await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Pet`);
+  await expect(page.getByText("Demo data controls")).toBeVisible();
   await page.getByRole("button", { name: "Add Pet" }).click();
   await expect(
     page.getByRole("textbox", { name: "name Required" })
@@ -39,4 +38,13 @@ test("should validate form before saving", async ({ page }) => {
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("3 fields require attention")).toBeVisible();
   await expect(page.getByText("errorname is required")).toBeVisible();
+});
+
+test("should prefill default values", async ({ page }) => {
+  await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Order`);
+  await expect(page.getByText("Demo data controls")).toBeVisible();
+  await page.getByRole("button", { name: "Add Order" }).click();
+  await expect(page.getByRole("textbox", { name: "status" })).toHaveValue(
+    "hallo"
+  );
 });
