@@ -99,13 +99,18 @@ public class GraphqlDatabaseFieldFactory {
 
               Schema schema = database.createSchema(name, description);
               if (template != null) {
-                Task task = DataModels.getImportTask(schema, template, includeDemoData);
-                if (parentTaskId != null) {
-                  Task parentTask = taskService.getTask(parentTaskId);
-                  task.setParentTask(parentTask);
+                try {
+                  Task task = DataModels.getImportTask(schema, template, includeDemoData);
+                  if (parentTaskId != null) {
+                    Task parentTask = taskService.getTask(parentTaskId);
+                    task.setParentTask(parentTask);
+                  }
+                  String id = taskService.submit(task);
+                  result.setTaskId(id);
+                } catch (MolgenisException e) {
+                  database.dropSchema(name);
+                  throw e;
                 }
-                String id = taskService.submit(task);
-                result.setTaskId(id);
               } else {
                 database.getListener().onSchemaChange();
               }
