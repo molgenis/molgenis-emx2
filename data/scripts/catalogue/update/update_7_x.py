@@ -215,6 +215,9 @@ class Transform:
         df_resource_contacts['role'] = 'Primary contact'
         df_resource_contacts.dropna(subset=['first name', 'last name'], inplace=True)
 
+        #TODO: merge df_contacts and df_resource_contacts
+        pd.merge(df_contacts, df_resource_contacts, how='inner')
+
         # write tables to file
         df_resource_contacts.to_csv(self.path + 'Contacts.csv', index=False)
 
