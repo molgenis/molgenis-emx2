@@ -121,8 +121,6 @@ export default function useForm(
   }, {} as Record<columnId, ComputedRef<boolean>>);
 
   const errorMap = ref<Record<columnId, string>>({});
-  const currentSection = ref<columnId | undefined>();
-  const currentHeading = ref<columnId>();
   const lastScrollTo = ref<columnId>();
   const currentErrorField = ref<IColumn | undefined>(undefined);
 
@@ -203,14 +201,13 @@ export default function useForm(
   });
 
   const gotoSection = (id: string) => {
-    console.log("gotoSection", id);
     sections.value.forEach((section) => {
       //apply to the right id
       if (section.id === id) {
         scrollTo(id + "-form-field");
       }
-      section.fields.forEach((field) => {
-        if (field.id === id) {
+      section.headers.forEach((header) => {
+        if (header.id === id) {
           scrollTo(id + "-form-field");
         }
       });
@@ -271,7 +268,6 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
-      currentSection.value = currentRequiredField.value.section;
       scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
   };
@@ -298,9 +294,6 @@ export default function useForm(
     if (currentRequiredField.value) {
       scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
-    currentSection.value = currentRequiredField.value
-      ? currentRequiredField.value.section
-      : undefined;
     if (currentRequiredField.value) {
       scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
@@ -349,7 +342,6 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === previousErrorColumnId
       );
-      currentSection.value = currentErrorField.value?.section;
       scrollTo(`${previousErrorColumnId}-form-field`);
     }
   };
@@ -367,7 +359,6 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === nextErrorColumnId
       );
-      currentSection.value = currentErrorField.value?.section;
       scrollTo(`${nextErrorColumnId}-form-field`);
     }
   };
@@ -436,12 +427,10 @@ export default function useForm(
   const visibleColumnIds = ref<Set<string>>(new Set<string>());
 
   const onViewColumn = (column: IColumn) => {
-    console.log("onViewColumn", column.id);
     visibleColumnIds.value.add(column.id);
   };
 
   const onLeaveViewColumn = (column: IColumn) => {
-    console.log("onLeaveViewColumn", column.id);
     visibleColumnIds.value.delete(column.id);
   };
 
@@ -458,6 +447,14 @@ export default function useForm(
             formValues.value[column.id] !== undefined
         )
     );
+  });
+
+  const currentSection = computed(() => {
+    console.log("computing current section");
+    console.log(
+      sections.value.map((s) => ({ id: s.id, isActive: s.isActive.value }))
+    );
+    return sections.value.find((s) => s.isActive.value)?.id;
   });
 
   const nextSection = computed(() => {
@@ -512,7 +509,6 @@ export default function useForm(
           const SCROLL_PADDING = 32;
           const offset =
             target.offsetTop - container.offsetTop - SCROLL_PADDING;
-          console.log("scrolling to", elementId, "at offset", offset);
           container.scrollTo({ top: offset, behavior: "smooth" });
         } else {
           // try again on the next frame until the element exists
