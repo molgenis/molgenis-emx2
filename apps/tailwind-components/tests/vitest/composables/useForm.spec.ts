@@ -123,7 +123,7 @@ describe("useForm", () => {
         required: true,
       },
     ]);
-    expect(requiredMessage.value).toBe("1/2 required field left");
+    expect(requiredMessage.value).toBe("1/2 required fields left");
   });
 
   test("setting an error should update the message", () => {
@@ -133,7 +133,7 @@ describe("useForm", () => {
 
     errorMap.value["col2"] = "some error";
     expect(errorMessage.value).toBe(
-      "1 field requires attention before you can save this cohort"
+      "1 field requires attention before you can save this row"
     );
   });
 
