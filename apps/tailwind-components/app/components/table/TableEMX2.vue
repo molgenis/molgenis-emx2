@@ -68,10 +68,8 @@
           <tr
             v-if="rows"
             v-for="row in rows"
-            class="group h-[50px]"
-            :class="{
-              'hover:cursor-pointer': props.isEditable,
-            }"
+            class="group h-[50px] hover:cursor-pointer"
+            @click="handleRowClick(row)"
           >
             <TableCellEMX2
               v-if="showDraftColumn"
@@ -196,6 +194,7 @@ import type {
 import type {
   ITableSettings,
   RefPayload,
+  RowPayload,
   sortDirection,
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
@@ -228,6 +227,10 @@ const props = withDefaults(
     isEditable: () => false,
   }
 );
+
+const emit = defineEmits<{
+  (e: "row-clicked", payload: RowPayload): void;
+}>();
 
 const showDeleteModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
@@ -345,6 +348,7 @@ function handlePagingRequest(page: number) {
   refresh();
 }
 
+const skipRowClick = ref(false);
 function handleCellClick(
   event: RefPayload,
   column: IColumn,
@@ -356,7 +360,18 @@ function handleCellClick(
       ? (column as IRefColumn)
       : (column as IRefColumn); // todo other types of column
 
+  skipRowClick.value = true;
   showModal.value = true;
+}
+
+function handleRowClick(row: IRow) {
+  if (skipRowClick.value) {
+    skipRowClick.value = false;
+    return;
+  }
+  if (data.value?.tableMetadata) {
+    emit("row-clicked", { data: row, metadata: data.value.tableMetadata });
+  }
 }
 
 function getRowId(row: IRow) {
@@ -366,12 +381,12 @@ function getRowId(row: IRow) {
     .replaceAll(" ", "-");
 }
 
-function onShowDeleteModal(row: Record<string, columnValue>) {
+function onShowDeleteModal(row: IRow) {
   rowDataForModal.value = row;
   showDeleteModal.value = true;
 }
 
-function onShowEditModal(row: Record<string, columnValue>) {
+function onShowEditModal(row: IRow) {
   rowDataForModal.value = row;
   showEditModal.value = true;
 }
