@@ -2,10 +2,16 @@
 
 Steps:
 
-* Install [Postgresql](https://www.postgresql.org/download/) (we use 15)
+* Install Postgres 15, you can find it here [Postgresql](https://www.postgresql.org/download/)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     psql postgres
+    ```
+
+    Or on macOS:
+
+    ```
+      psql -U postgres
     ```
 * Then in psql console paste
     ```console
@@ -13,7 +19,10 @@ Steps:
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;
     ```
-* Install java (we use adopt [OpenJDK 21](https://adoptium.net/))
+> If you already had a version of molgenis installed and want to do a clean install: check out the FAQ section
+
+
+* Install Java version 21 (it does not run on 22 or above), you can find it here: [OpenJDK 21](https://adoptium.net/)
 * Optionally, if you want to use [scripts](use_scripts_jobs.md) then also install python3
 * Download molgenis-emx2-version-all.jar from [releases](https://github.com/molgenis/molgenis-emx2/releases).
 * Start molgenis-emx2 using command below (will run on 8080)
@@ -66,3 +75,16 @@ rm -R /opt/homebrew/var/postgres
 initdb -d  /opt/homebrew/var/postgres
 brew services restart postgresql 
 ```
+
+# FAQ
+
+If you previously had an installation of Molgenis and want to start fresh, here is a .sql file which you can execute:
+
+You can download the file here: [get clean permissions and db sql file](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/clean-permissions-and-db.sql)
+
+```
+psql -U postgres -f clean-permissions-and-db.sql
+```
+
+You will be prompted to enter the password of the user postgres.
+
