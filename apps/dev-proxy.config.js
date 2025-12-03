@@ -1,4 +1,4 @@
-const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
+const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org";
 const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet store";
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
