@@ -10,14 +10,20 @@ import type {
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import logger from "../../utils/logger";
 import { fetchTableMetadata } from "#imports";
-import { ref, type Ref, computed, watch } from "vue";
+import {
+  ref,
+  type Ref,
+  computed,
+  watch,
+  onMounted,
+  useTemplateRef,
+  nextTick,
+} from "vue";
 import fetchTableData from "../../composables/fetchTableData";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import InputSearch from "./Search.vue";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
 import InputGroupContainer from "../input/InputGroupContainer.vue";
-import InputLabel from "./Label.vue";
 import ButtonText from "../button/Text.vue";
 import Button from "../Button.vue";
 import BaseIcon from "../BaseIcon.vue";
@@ -37,7 +43,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 30,
+    limit: 50, //can be rather larger now because will auto load more if needed
   }
 );
 
@@ -58,10 +64,6 @@ const showSelect = ref(false);
 
 const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
-});
-
-const entitiesLeftToLoad = computed<number>(() => {
-  return Math.min(count.value - offset.value - props.limit, props.limit);
 });
 
 //computed elements to translate to CheckboxGroup or
@@ -158,13 +160,14 @@ async function loadOptions(filter: IQueryMetaData) {
     filter
   );
 
-  const newOptionMap: recordValue = {};
+  if (!filter.offset) {
+    optionMap.value = {}; //empty
+  }
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
-      (row) => (newOptionMap[applyTemplate(props.refLabel, row)] = row)
+      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
     );
-    optionMap.value = newOptionMap;
     count.value = data.count;
   } else {
     hasNoResults.value = true;
@@ -178,6 +181,7 @@ function toggleSearch() {
 }
 
 function updateSearch(newSearchTerms: string) {
+  optionMap.value = {};
   offset.value = 0;
   searchTerms.value = newSearchTerms;
   loadOptions({ limit: props.limit, searchTerms: searchTerms.value });
@@ -229,7 +233,7 @@ function clearSelection() {
 }
 
 function loadMore() {
-  offset.value += props.limit;
+  offset.value += 5; //small number is more smooth
   loadOptions({
     offset: offset.value,
     limit: props.limit,
@@ -246,14 +250,34 @@ const wrapperRef = ref<HTMLElement | null>(null);
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
+
+//observer to know when to load more values
+const sentinel = ref();
+onMounted(() => {
+  const observer = new IntersectionObserver(
+    async (entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting && offset.value <= count.value) {
+        loadMore();
+      }
+    },
+    {
+      root: wrapperRef.value, // the container
+      threshold: 0.1,
+      rootMargin: "100px", //more smooth
+    }
+  );
+
+  observer.observe(sentinel.value);
+});
 </script>
 
 <template>
-  <div v-if="initLoading" class="h-20 flex justify-start items-center">
+  <div v-show="initLoading" class="h-20 flex justify-start items-center">
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
   <div
-    v-else-if="!initLoading && initialCount"
+    v-show="!initLoading && initialCount"
     :class="{
       'flex items-center border outline-none rounded-input cursor-pointer':
         displayAsSelect,
@@ -356,6 +380,7 @@ useClickOutside(wrapperRef, () => {
             :disabled="disabled"
           />
         </fieldset>
+        <div ref="sentinel" class="h-1"></div>
         <ButtonText
           v-if="
             initialCount <= limit &&
@@ -368,7 +393,7 @@ useClickOutside(wrapperRef, () => {
     </InputGroupContainer>
   </div>
   <div
-    v-else
+    v-show="initialCount"
     class="py-4 flex justify-start items-center text-input-description"
   >
     <TextNoResultsMessage label="No options available" />
