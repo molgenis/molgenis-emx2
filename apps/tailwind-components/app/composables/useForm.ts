@@ -6,6 +6,7 @@ import {
   unref,
   isRef,
   type ComputedRef,
+  type Ref,
 } from "vue";
 import type {
   columnValue,
@@ -120,25 +121,35 @@ export default function useForm(
   const lastScrollTo = ref<columnId>();
   const currentErrorField = ref<IColumn | undefined>(undefined);
 
-  const sections = ref<LegendSection[]>([]);
+  const sections: Ref<LegendSection[]> = ref([]);
 
   // first pass to get sections
   metadata.value.columns.filter((column) => {
     if (column.columnType === "SECTION") {
+      const columns = metadata.value.columns.filter(
+        (col) => col.section === column.id
+      );
+
       const section: LegendSection = {
         id: column.id,
         label: column.label,
         type: "SECTION",
         fields: [],
-        errorCount: 0,
         isActive: computed(
           () =>
             visibleColumnIds.value.has(column.id) ||
             section.fields.some((field) => visibleColumnIds.value.has(field.id))
         ),
+        errorCount: computed(() => {
+          return columns.reduce((acc, col) => {
+            if (errorMap.value[col.id]) {
+              return acc + 1;
+            }
+            return acc;
+          }, 0);
+        }),
       };
 
-      // @ts-ignore
       sections.value.push(section);
     }
   });
@@ -150,12 +161,23 @@ export default function useForm(
         (section) => section.id === column.section
       );
       if (section && column.columnType === "HEADING") {
+        const columns = metadata.value.columns.filter(
+          (col) => col.heading === column.id
+        );
+
         section.fields.push({
           id: column.id,
           label: column.label,
           type: "HEADING",
-          // @ts-ignore
           isActive: computed(() => visibleColumnIds.value.has(column.id)),
+          errorCount: computed(() => {
+            return columns.reduce((acc, col) => {
+              if (errorMap.value[col.id]) {
+                return acc + 1;
+              }
+              return acc;
+            }, 0);
+          }),
         });
       }
     }
@@ -296,7 +318,7 @@ export default function useForm(
 
   const gotoPreviousError = () => {
     const keys = Object.keys(errorMap.value);
-    if (keys.length === null) {
+    if (!keys.length) {
       return;
     }
     const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");
@@ -315,7 +337,7 @@ export default function useForm(
 
   const gotoNextError = () => {
     const keys = Object.keys(errorMap.value);
-    if (keys.length === null) {
+    if (!keys.length) {
       return;
     }
     const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");

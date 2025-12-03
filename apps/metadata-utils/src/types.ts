@@ -115,7 +115,7 @@ interface LegendItem {
   id: string;
   label: string;
   type: HeadingType;
-  errorCount: number;
+  errorCount: ComputedRef<number>;
   isActive: ComputedRef<boolean>;
 }
 export interface LegendSection extends LegendItem {
@@ -125,7 +125,6 @@ export interface LegendSection extends LegendItem {
 export interface LegendHeading extends LegendItem {
   type: "HEADING";
 }
-
 
 export type columnId = string;
 export type columnValue =
