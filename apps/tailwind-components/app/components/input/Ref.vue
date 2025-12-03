@@ -233,7 +233,7 @@ function clearSelection() {
 }
 
 function loadMore() {
-  offset.value += 5; //small number is more smooth
+  offset.value += 25; //small number is more smooth
   loadOptions({
     offset: offset.value,
     limit: props.limit,
@@ -257,7 +257,7 @@ onMounted(() => {
   const observer = new IntersectionObserver(
     async (entries) => {
       const entry = entries[0];
-      if (entry?.isIntersecting && offset.value <= count.value) {
+      if (entry?.isIntersecting) {
         loadMore();
       }
     },

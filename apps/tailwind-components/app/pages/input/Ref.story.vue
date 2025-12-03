@@ -41,7 +41,6 @@ function onBlur() {
         :valid="valid"
         :invalid="refExampleError || invalid"
         :disabled="disabled"
-        :required="true"
         @update:modelValue="refExampleError ? onBlur() : null"
         @blur="onBlur"
       />
