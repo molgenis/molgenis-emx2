@@ -105,79 +105,79 @@ describe("useForm", () => {
     expect(lastScrollTo.value).equals("col4-form-field");
   });
 
-  // test("setting a value on required field should update the message", () => {
-  //   const formValues = ref<Record<string, columnValue>>({});
-  //   const { requiredMessage, emptyRequiredFields } = useForm(
-  //     tableMetadata,
-  //     formValues
-  //   );
-  //   expect(requiredMessage.value).toBe("2/2 required fields left");
+  test("setting a value on required field should update the message", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const { requiredMessage, emptyRequiredFields } = useForm(
+      tableMetadata,
+      formValues
+    );
+    expect(requiredMessage.value).toBe("2/2 required fields left");
 
-  //   // setting a value removes the field from the required list
-  //   formValues.value["col2"] = "some value";
-  //   expect(emptyRequiredFields.value).toEqual([
-  //     {
-  //       columnType: "STRING",
-  //       id: "col4",
-  //       label: "columns 4",
-  //       required: true,
-  //     },
-  //   ]);
-  //   expect(requiredMessage.value).toBe("1/2 required field left");
-  // });
+    // setting a value removes the field from the required list
+    formValues.value["col2"] = "some value";
+    expect(emptyRequiredFields.value).toEqual([
+      {
+        columnType: "STRING",
+        id: "col4",
+        label: "columns 4",
+        required: true,
+      },
+    ]);
+    expect(requiredMessage.value).toBe("1/2 required field left");
+  });
 
-  // test("setting an error should update the message", () => {
-  //   const formValues = ref<Record<string, columnValue>>({});
-  //   const { errorMessage, errorMap } = useForm(tableMetadata, formValues);
-  //   expect(errorMessage.value).toBe("");
+  test("setting an error should update the message", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const { errorMessage, errorMap } = useForm(tableMetadata, formValues);
+    expect(errorMessage.value).toBe("");
 
-  //   errorMap.value["col2"] = "some error";
-  //   expect(errorMessage.value).toBe(
-  //     "1 field requires attention before you can save this cohort"
-  //   );
-  // });
+    errorMap.value["col2"] = "some error";
+    expect(errorMessage.value).toBe(
+      "1 field requires attention before you can save this cohort"
+    );
+  });
 
-  // test("should go to the next error", () => {
-  //   const formValues = ref<Record<string, columnValue>>({});
-  //   const { gotoNextError, errorMap, lastScrollTo } = useForm(
-  //     tableMetadata,
-  //     formValues
-  //   );
-  //   errorMap.value = {
-  //     col2: "some error",
-  //     col4: "some error",
-  //   };
-  //   gotoNextError();
-  //   expect(lastScrollTo.value).equals("col2-form-field");
-  // });
+  test("should go to the next error", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const { gotoNextError, errorMap, lastScrollTo } = useForm(
+      tableMetadata,
+      formValues
+    );
+    errorMap.value = {
+      col2: "some error",
+      col4: "some error",
+    };
+    gotoNextError();
+    expect(lastScrollTo.value).equals("col2-form-field");
+  });
 
-  // test("should go to the previous error", () => {
-  //   const formValues = ref<Record<string, columnValue>>({});
-  //   const { gotoPreviousError, errorMap, lastScrollTo } = useForm(
-  //     tableMetadata,
-  //     formValues
-  //   );
-  //   errorMap.value = {
-  //     col2: "some error",
-  //     col4: "some error",
-  //   };
-  //   gotoPreviousError();
-  //   expect(lastScrollTo.value).equals("col4-form-field");
-  // });
+  test("should go to the previous error", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const { gotoPreviousError, errorMap, lastScrollTo } = useForm(
+      tableMetadata,
+      formValues
+    );
+    errorMap.value = {
+      col2: "some error",
+      col4: "some error",
+    };
+    gotoPreviousError();
+    expect(lastScrollTo.value).equals("col4-form-field");
+  });
 
-  // test("should return empty list in case of table meta without columns", () => {
-  //   const formValues = ref<Record<string, columnValue>>({});
-  //   const tableMetadata: Ref<ITableMetaData> = ref({
-  //     id: "vi test table metadata",
-  //     name: "vi test table metadata",
-  //     schemaId: "vi test table metadata",
-  //     label: "vi test table metadata",
-  //     tableType: "some table type",
-  //     columns: [],
-  //   });
-  //   const { sections } = useForm(tableMetadata, formValues);
-  //   expect(sections.value).toEqual([]);
-  // });
+  test("should return empty list in case of table meta without columns", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const tableMetadata: Ref<ITableMetaData> = ref({
+      id: "vi test table metadata",
+      name: "vi test table metadata",
+      schemaId: "vi test table metadata",
+      label: "vi test table metadata",
+      tableType: "some table type",
+      columns: [],
+    });
+    const { sections } = useForm(tableMetadata, formValues);
+    expect(sections.value).toEqual([]);
+  });
 
   test("should return a list of sections with error count", () => {
     const formValues = ref<Record<string, columnValue>>({});
