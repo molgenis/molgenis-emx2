@@ -9,7 +9,7 @@ packages:
 - tables
 - updownload
 - pages
-#- graphql-playground
+- graphql-playground
 - tailwind-components
 - catalogue
 - molgenis-viz
