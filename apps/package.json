@@ -12,8 +12,5 @@
   },
   "dependencies": {
     "turbo": "2.6.1"
-  },
-  "resolutions": {
-    "prettier": "2.8.8"
   }
 }

@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  prettier: 2.8.8
-
 importers:
 
   .:
@@ -528,16 +525,16 @@ importers:
   graphql-playground:
     dependencies:
       '@graphiql/toolkit':
-        specifier: ^0.11.3
+        specifier: 0.11.3
         version: 0.11.3(@types/node@24.10.1)(graphql@16.12.0)
       graphiql:
-        specifier: ^5.2.1
+        specifier: 5.2.2
         version: 5.2.2(@types/node@24.10.1)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
       graphql:
-        specifier: ^16.12.0
+        specifier: 16.12.0
         version: 16.12.0
       react:
-        specifier: ^19.2.0
+        specifier: 19.2.0
         version: 19.2.0
       react-dom:
         specifier: ^19.2.0
@@ -570,6 +567,9 @@ importers:
       globals:
         specifier: 16.5.0
         version: 16.5.0
+      prettier:
+        specifier: 3.7.4
+        version: 3.7.4
       vite:
         specifier: 5.4.21
         version: 5.4.21(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1)
@@ -7491,7 +7491,7 @@ packages:
     peerDependencies:
       graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
       monaco-editor: '>= 0.20.0 < 0.53'
-      prettier: 2.8.8
+      prettier: ^2.8.0 || ^3.0.0
 
   motion-dom@12.23.23:
     resolution: {integrity: sha512-n5yolOs0TQQBRUFImrRfs/+6X4p3Q4n1dUEqt/H58Vx7OW6RF+foWEgmTVDhIWJIMXOuNNL0apKH2S16en9eiA==}
@@ -8411,6 +8411,11 @@ packages:
   prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+
+  prettier@3.7.4:
+    resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
+    engines: {node: '>=14'}
     hasBin: true
 
   pretty-bytes@7.1.0:
@@ -11308,8 +11313,8 @@ snapshots:
       jsonc-parser: 3.3.1
       markdown-it: 14.1.0
       monaco-editor: 0.52.2
-      monaco-graphql: 1.7.3(graphql@16.12.0)(monaco-editor@0.52.2)(prettier@2.8.8)
-      prettier: 2.8.8
+      monaco-graphql: 1.7.3(graphql@16.12.0)(monaco-editor@0.52.2)(prettier@3.7.4)
+      prettier: 3.7.4
       react: 19.2.0
       react-compiler-runtime: 19.1.0-rc.1(react@19.2.0)
       react-dom: 19.2.0(react@19.2.0)
@@ -18325,13 +18330,13 @@ snapshots:
     dependencies:
       '@types/trusted-types': 1.0.6
 
-  monaco-graphql@1.7.3(graphql@16.12.0)(monaco-editor@0.52.2)(prettier@2.8.8):
+  monaco-graphql@1.7.3(graphql@16.12.0)(monaco-editor@0.52.2)(prettier@3.7.4):
     dependencies:
       graphql: 16.12.0
       graphql-language-service: 5.5.0(graphql@16.12.0)
       monaco-editor: 0.52.2
       picomatch-browser: 2.2.6
-      prettier: 2.8.8
+      prettier: 3.7.4
 
   motion-dom@12.23.23:
     dependencies:
@@ -19756,6 +19761,8 @@ snapshots:
   prepend-http@3.0.1: {}
 
   prettier@2.8.8: {}
+
+  prettier@3.7.4: {}
 
   pretty-bytes@7.1.0: {}
 
