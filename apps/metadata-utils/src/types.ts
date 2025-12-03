@@ -116,11 +116,12 @@ interface LegendItem {
   label: string;
   type: HeadingType;
   errorCount: ComputedRef<number>;
+  isVisible: ComputedRef<boolean>;
   isActive: ComputedRef<boolean>;
 }
 export interface LegendSection extends LegendItem {
   type: "SECTION";
-  fields: LegendHeading[];
+  headers: LegendHeading[];
 }
 export interface LegendHeading extends LegendItem {
   type: "HEADING";

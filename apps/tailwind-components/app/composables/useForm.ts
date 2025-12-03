@@ -14,7 +14,6 @@ import type {
   IColumn,
   columnId,
   LegendSection,
-  LegendHeading,
 } from "../../../metadata-utils/src/types";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
@@ -77,39 +76,45 @@ export default function useForm(
     const myFunction = new Function(paramsString, "return " + cleanExpression);
 
     if (params.length === 0) {
-      acc[column.id] = computed(() => myFunction());
+      acc[column.id] = computed(() => !!myFunction());
     } else if (params.length === 1) {
-      acc[column.id] = computed(() => myFunction(formValues.value[params[0]]));
+      acc[column.id] = computed(
+        () => !!myFunction(formValues.value[params[0]])
+      );
     } else if (params.length === 2) {
-      acc[column.id] = computed(() =>
-        myFunction(formValues.value[params[0]], formValues.value[params[1]])
+      acc[column.id] = computed(
+        () =>
+          !!myFunction(formValues.value[params[0]], formValues.value[params[1]])
       );
     } else if (params.length === 3) {
-      acc[column.id] = computed(() =>
-        myFunction(
-          formValues.value[params[0]],
-          formValues.value[params[1]],
-          formValues.value[params[2]]
-        )
+      acc[column.id] = computed(
+        () =>
+          !!myFunction(
+            formValues.value[params[0]],
+            formValues.value[params[1]],
+            formValues.value[params[2]]
+          )
       );
     } else if (params.length === 4) {
-      acc[column.id] = computed(() =>
-        myFunction(
-          formValues.value[params[0]],
-          formValues.value[params[1]],
-          formValues.value[params[2]],
-          formValues.value[params[3]]
-        )
+      acc[column.id] = computed(
+        () =>
+          !!myFunction(
+            formValues.value[params[0]],
+            formValues.value[params[1]],
+            formValues.value[params[2]],
+            formValues.value[params[3]]
+          )
       );
     } else if (params.length === 5) {
-      acc[column.id] = computed(() =>
-        myFunction(
-          formValues.value[params[0]],
-          formValues.value[params[1]],
-          formValues.value[params[2]],
-          formValues.value[params[3]],
-          formValues.value[params[4]]
-        )
+      acc[column.id] = computed(
+        () =>
+          !!myFunction(
+            formValues.value[params[0]],
+            formValues.value[params[1]],
+            formValues.value[params[2]],
+            formValues.value[params[3]],
+            formValues.value[params[4]]
+          )
       );
     }
     return acc;
@@ -124,21 +129,29 @@ export default function useForm(
   const sections: Ref<LegendSection[]> = ref([]);
 
   // first pass to get sections
-  metadata.value.columns.filter((column) => {
+  metadata.value.columns.forEach((column) => {
     if (column.columnType === "SECTION") {
       const columns = metadata.value.columns.filter(
-        (col) => col.section === column.id
+        (col) =>
+          col.section === column.id &&
+          !col.id.startsWith("mg_") &&
+          col.id !== column.id
       );
 
       const section: LegendSection = {
         id: column.id,
         label: column.label,
         type: "SECTION",
-        fields: [],
+        headers: [],
+        isVisible: computed(() =>
+          columns.some((col) => visibilityMap[col.id]?.value === true)
+        ),
         isActive: computed(
           () =>
             visibleColumnIds.value.has(column.id) ||
-            section.fields.some((field) => visibleColumnIds.value.has(field.id))
+            section.headers.some((header) =>
+              visibleColumnIds.value.has(header.id)
+            )
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
@@ -155,20 +168,26 @@ export default function useForm(
   });
 
   // second pass to get headings and colums
-  metadata.value.columns.filter((column) => {
+  metadata.value.columns.forEach((column) => {
     if (column.columnType !== "SECTION") {
       const section = sections.value.find(
         (section) => section.id === column.section
       );
       if (section && column.columnType === "HEADING") {
         const columns = metadata.value.columns.filter(
-          (col) => col.heading === column.id
+          (col) =>
+            col.heading === column.id &&
+            col.id !== column.id &&
+            !col.id.startsWith("mg_")
         );
 
-        section.fields.push({
+        section.headers.push({
           id: column.id,
           label: column.label,
           type: "HEADING",
+          isVisible: computed(() =>
+            columns.some((col) => visibilityMap[col.id]?.value === true)
+          ),
           isActive: computed(() => visibleColumnIds.value.has(column.id)),
           errorCount: computed(() => {
             return columns.reduce((acc, col) => {
@@ -427,9 +446,6 @@ export default function useForm(
   };
 
   const visibleColumns = computed(() => {
-    // if (!currentSection.value) {
-    //   currentSection.value = sections.value[0]?.id;
-    // }
     return (
       metadata.value?.columns
         .filter((column) => !column.id.startsWith("mg_"))
