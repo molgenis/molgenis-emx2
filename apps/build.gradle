@@ -20,6 +20,9 @@ node {
     workDir = file("build/node")
 }
 
+// list all directories in 'apps' (i.e. the individual application folders)
+// and then filter from this list those folders that are side-effect of the build processs
+// (if we include node_modules, .gradle, .turbo in file scans they get much slower then needed)
 ext.listProjectFolders = { List<String> excludeNames = ['node_modules',".gradle","build",".turbo"] ->
     def base = project.projectDir
     def children = base.listFiles()
