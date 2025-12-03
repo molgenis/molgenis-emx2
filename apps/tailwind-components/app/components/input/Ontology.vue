@@ -38,7 +38,7 @@ const props = withDefaults(
 
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
-const modelValue = defineModel<string[] | string>();
+const modelValue = defineModel<string[] | string | undefined>();
 //labels for the selected values
 const valueLabels: Ref<Record<string, string>> = ref({});
 //state of the tree that is shown
@@ -212,8 +212,8 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
 /** initial load */
 async function init() {
   await getMaxTableRows();
-  if (maxTableRows.value <= 25) {
-    //retrieve all
+  if (searchTerms.value.length === 0 && maxTableRows.value <= 25) {
+    //retrieve all, expanded
     ontologyTree.value = [...(await retrieveAllTerms())];
   } else {
     //only retrieve root
@@ -382,6 +382,7 @@ function toggleSearch() {
 async function updateSearch(value: string) {
   searchTerms.value = value;
   counterOffset.value = 0;
+  ontologyTree.value = [];
   await init();
 }
 
@@ -416,7 +417,11 @@ async function getMaxParentNodes(variables?: any) {
 }
 
 const showAsSelect = computed(() => {
-  return maxOntologyNodes.value > props.limit || maxTableRows <= 25;
+  return (
+    maxOntologyNodes.value > props.limit ||
+    maxTableRows.value > 25 ||
+    searchTerms.value.length > 0
+  );
 });
 
 // Close dropdown when clicking outside
@@ -434,7 +439,7 @@ useClickOutside(wrapperRef, () => {
     v-else-if="!initLoading && maxOntologyNodes"
     :class="{
       'flex items-center border outline-none rounded-input cursor-pointer':
-        maxOntologyNodes > limit,
+        showAsSelect,
     }"
     @click.stop="showAsSelect ? (showSelect = true) : null"
   >
@@ -494,11 +499,15 @@ useClickOutside(wrapperRef, () => {
         </div>
         <div>
           <BaseIcon
-            v-if="showSelect"
+            v-show="showSelect"
             name="caret-up"
             @click.stop="showSelect = false"
           />
-          <BaseIcon v-else name="caret-down" class="justify-end" />
+          <BaseIcon
+            v-show="!showSelect"
+            name="caret-down"
+            class="justify-end"
+          />
         </div>
       </div>
       <div
