@@ -1,19 +1,12 @@
 <script setup lang="ts">
-import {
-  onMounted,
-  useTemplateRef,
-  watch,
-  defineProps,
-  defineEmits,
-  defineModel,
-} from "vue";
+import { vIntersectionObserver } from "@vueuse/components";
+import { defineEmits, defineModel, defineProps, useTemplateRef } from "vue";
 import type {
   columnId,
   columnValue,
   IColumn,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import { vIntersectionObserver } from "@vueuse/components";
 import FormField from "./Field.vue";
 
 const props = defineProps<{
@@ -49,23 +42,6 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
     if (col) emit("leaving-view", col);
   }
 }
-
-function copyConstantValuesToModelValue() {
-  if (props.constantValues) {
-    modelValue.value = Object.assign({}, props.constantValues);
-  }
-}
-
-watch(
-  () => props.constantValues,
-  () => {
-    copyConstantValuesToModelValue();
-  }
-);
-
-onMounted(() => {
-  copyConstantValuesToModelValue();
-});
 
 const isRequired = (value: string | boolean): boolean =>
   (typeof value === "string" && value.toLowerCase() === "true") ||

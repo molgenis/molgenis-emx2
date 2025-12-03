@@ -62,7 +62,7 @@
           :columns="visibleColumns"
           :constantValues="constantValues"
           :errorMap="errorMap"
-          v-model="editFormValues"
+          v-model="formValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
           @view="onViewColumn"
@@ -143,7 +143,6 @@
 
 <script setup lang="ts">
 import { computed, ref, toRaw, watch } from "vue";
-import { getInitialFormValues } from "../../utils/typeUtils";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
@@ -156,9 +155,12 @@ import useForm from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import { getInitialFormValues } from "../../utils/typeUtils";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
 import FormFields from "./Fields.vue";
 import FormLegend from "./Legend.vue";
@@ -166,13 +168,12 @@ import FormMessage from "./Message.vue";
 import NextSectionNav from "./NextSectionNav.vue";
 import PreviousSectionNav from "./PreviousSectionNav.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
-import DraftLabel from "../label/DraftLabel.vue";
-import TransitionSlideUp from "../transition/SlideUp.vue";
 
 const props = withDefaults(
   defineProps<{
     schemaId: string;
     metadata: ITableMetaData;
+    isInsert: boolean;
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
@@ -187,6 +188,7 @@ const emit = defineEmits([
   "update:updated",
   "update:cancelled",
 ]);
+
 const visible = defineModel("visible", {
   type: Boolean,
   default: false,
@@ -198,45 +200,44 @@ function onLeaveView(column: IColumn) {
 
 const saving = ref(false);
 const savingDraft = computed(
-  () => saving.value && editFormValues.value["mg_draft"] === true
+  () => saving.value && formValues.value["mg_draft"] === true
 );
 const rowKey = ref<Record<string, columnValue>>();
-const isInsert = ref(true);
-const editFormValues = ref<Record<string, columnValue>>(
-  getInitialFormValues(props.metadata)
-);
+const isInsert = ref(props.isInsert);
+const formValues = ref<Record<string, columnValue>>(initFormValues());
 
-watch(
-  () => props.formValues,
-  () => {
-    if (props.formValues) {
-      editFormValues.value = structuredClone(toRaw(props.formValues));
-      updateRowKey();
-      isInsert.value = false;
-    }
-  },
-  { immediate: true }
-);
+if (props.formValues) {
+  await updateRowKey();
+}
+
+watch(formValues.value, () => {
+  formMessage.value = "";
+});
 
 const session = await useSession();
 const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
+const rowType = computed(() => props.metadata.id);
+const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
+
 function setVisible() {
   visible.value = true;
 }
 
-const rowType = computed(() => props.metadata.id);
-const isDraft = computed(
-  () => editFormValues.value["mg_draft"] === true || false
-);
+function initFormValues() {
+  const values =
+    structuredClone(toRaw(props.formValues)) ||
+    getInitialFormValues(props.metadata);
+  return Object.assign(values, props.constantValues || {});
+}
 
 function onCancel() {
   visible.value = false;
   saveErrorMessage.value = "";
   formMessage.value = "";
-  editFormValues.value = {};
+  formValues.value = initFormValues();
   emit("update:cancelled");
 }
 
@@ -253,7 +254,7 @@ function handleError(err: unknown, defaultMessage: string) {
 
 async function updateRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
-    editFormValues.value,
+    formValues.value,
     props.metadata.id,
     props.metadata.schemaId as string
   );
@@ -269,7 +270,7 @@ async function onSave(draft: boolean) {
     }
   }
   try {
-    editFormValues.value["mg_draft"] = draft;
+    formValues.value["mg_draft"] = draft;
     saving.value = true;
     const resp = await (isInsert.value ? insertInto() : updateInto()).catch(
       () => (saving.value = false)
@@ -294,7 +295,7 @@ async function onSave(draft: boolean) {
   }
 }
 
-watch(editFormValues.value, () => {
+watch(formValues.value, () => {
   formMessage.value = "";
 });
 
@@ -319,7 +320,7 @@ const {
   sections,
   visibleColumns,
   visibleColumnIds,
-} = useForm(props.metadata, editFormValues, "fields-container");
+} = useForm(props.metadata, formValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(
