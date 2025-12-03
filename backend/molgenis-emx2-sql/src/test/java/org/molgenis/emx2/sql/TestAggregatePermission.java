@@ -21,12 +21,15 @@ import org.molgenis.emx2.Schema;
 public class TestAggregatePermission {
   private static Database db;
   static Schema schema;
+  static String schemaName = TestAggregatePermission.class.getSimpleName();
 
   @BeforeAll
   public static void setUp() throws SQLException {
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema(TestAggregatePermission.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", true).run();
+    schema = db.getSchema(schemaName);
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     db.setActiveUser("AGGREGATE_TEST_USER");
