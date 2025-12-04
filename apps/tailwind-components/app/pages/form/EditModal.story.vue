@@ -5,7 +5,8 @@
     :schemaId="schemaId"
     :formValues="formValues"
     :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
-  ></FormEditModal>
+    :isInsert="false"
+  />
 
   <div>
     <DemoDataControls
