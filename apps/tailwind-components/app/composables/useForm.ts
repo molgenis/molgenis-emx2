@@ -63,9 +63,6 @@ export default function useForm(
 
     for (const key of formValueKeys) {
       // regex finds formValue keys used inside the expression
-      // const regex = new RegExp(`\\b${key}\\b`, "g");
-
-      // better regex that excludes litarals
       const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
       if (regex.test(exprString || "")) {
         params.push(key);
@@ -73,50 +70,20 @@ export default function useForm(
     }
 
     const paramsString = params.join(", ");
-    const myFunction = new Function(paramsString, "return " + cleanExpression);
+    const visabilityFunction = new Function(
+      paramsString,
+      "return " + cleanExpression
+    );
 
-    if (params.length === 0) {
-      acc[column.id] = computed(() => !!myFunction());
-    } else if (params.length === 1) {
-      acc[column.id] = computed(
-        () => !!myFunction(formValues.value[params[0]])
-      );
-    } else if (params.length === 2) {
-      acc[column.id] = computed(
-        () =>
-          !!myFunction(formValues.value[params[0]], formValues.value[params[1]])
-      );
-    } else if (params.length === 3) {
-      acc[column.id] = computed(
-        () =>
-          !!myFunction(
-            formValues.value[params[0]],
-            formValues.value[params[1]],
-            formValues.value[params[2]]
-          )
-      );
-    } else if (params.length === 4) {
-      acc[column.id] = computed(
-        () =>
-          !!myFunction(
-            formValues.value[params[0]],
-            formValues.value[params[1]],
-            formValues.value[params[2]],
-            formValues.value[params[3]]
-          )
-      );
-    } else if (params.length === 5) {
-      acc[column.id] = computed(
-        () =>
-          !!myFunction(
-            formValues.value[params[0]],
-            formValues.value[params[1]],
-            formValues.value[params[2]],
-            formValues.value[params[3]],
-            formValues.value[params[4]]
-          )
-      );
-    }
+    // use function with apply to pass parameters dynamically while keeping reactivity
+    acc[column.id] = computed(
+      () =>
+        !!visabilityFunction.apply(
+          null,
+          params.map((p) => formValues.value[p])
+        )
+    );
+
     return acc;
   }, {} as Record<columnId, ComputedRef<boolean>>);
 
