@@ -404,8 +404,6 @@ describe("useForm", () => {
     } = useForm(tableMetadata, formValues);
 
     onViewColumn({ id: "col1" }); // to activate the first section
-    console.log(visibleColumnIds.value);
-    console.log(sections.value.map((s) => s.id));
     expect(previousSection.value).toEqual(null);
     expect(currentSection.value).toEqual("main");
     expect(nextSection.value?.id).toEqual("next");
