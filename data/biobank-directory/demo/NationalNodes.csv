@@ -1,5 +1,5 @@
 id,description,dns,contact_persons,data_refresh,date_start,date_end
 DE,Germany,,,manual,,
 EU,European Union,,,manual,,
-NL,Netherlands,https://example.org,,external_server,,
+NL,Netherlands,https://example.org,external_server_person,external_server,,
 EXT,External Countries,,,manual,,
