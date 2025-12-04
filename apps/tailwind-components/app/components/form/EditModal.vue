@@ -209,12 +209,10 @@ function gotoNextError() {
 }
 
 function gotoPreviousRequiredField() {
-  1;
   form.value?.gotoPreviousRequiredField();
 }
 
 function gotoNextRequiredField() {
-  1;
   form.value?.gotoNextRequiredField();
 }
 
