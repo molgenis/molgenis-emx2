@@ -332,7 +332,7 @@ describe("useForm", () => {
     expect(sections.value[0].headers[1].isVisible).toBe(true);
   });
 
-  test("section navigation", () => {
+  test("section prev, current and next section", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
@@ -406,13 +406,8 @@ describe("useForm", () => {
     onViewColumn({ id: "col1" }); // to activate the first section
     console.log(visibleColumnIds.value);
     console.log(sections.value.map((s) => s.id));
-    // expect(previousSection.value).toEqual(null);
-    // expect(currentSection.value).toEqual("main");
-    // expect(nextSection.value?.id).toEqual("next");
-
-    // gotoSection("next");
-
-    // expect(previousSection.value?.id).toEqual("main");
-    // expect(nextSection.value).toEqual(null);
+    expect(previousSection.value).toEqual(null);
+    expect(currentSection.value).toEqual("main");
+    expect(nextSection.value?.id).toEqual("next");
   });
 });
