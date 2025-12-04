@@ -14,6 +14,7 @@ public class CatalogueTest extends TestLoaders {
 
     // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
     adheresToShacl(dataCatalogue, "ejp-rd-vp");
+    adheresToShacl(dataCatalogue, "hri-v2.0.2");
   }
 
   @Test

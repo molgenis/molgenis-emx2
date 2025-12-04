@@ -29,7 +29,7 @@ test("should show the edit modal", async ({ page }) => {
     page.getByRole("button", { name: "Save as draft" })
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Save Pet", exact: true })
+    page.getByRole("button", { name: "Save", exact: true })
   ).toBeVisible();
   await expect(page.getByText("name Required the name")).toBeVisible();
 });
@@ -41,7 +41,7 @@ test("should validate form before updating", async ({ page }) => {
   await page.getByRole("textbox", { name: "weight Required" }).click();
   await page.getByRole("textbox", { name: "weight Required" }).fill("");
 
-  await page.getByRole("button", { name: "Save Pet", exact: true }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
     page.getByText("1 field requires attention before you can save this cohort")
   ).toBeVisible();

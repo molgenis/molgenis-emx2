@@ -100,6 +100,7 @@ When setting up WSL, there are a few things to keep in mind:
 - Install the correct version of [postgres](https://www.postgresql.org/download/linux/ubuntu/#apt) within the Linux subsystem.
 - Make sure to put your git repository on the Linux files system, using a mounted Windows folder is very slow.
 - When using VSCode, turn off the `security.restrictUNCAccess` setting
+- When using VSCode, install the WSL extension and after this, add all other extensions to the WSL window. This is needed for extensions and intellisense to properly work.
 
 ## Tips
 

@@ -32,22 +32,22 @@ public abstract class ShaclSelector {
     }
 
     for (ShaclSet shaclSet : ShaclSetArray) {
-      shaclSetMap.put(shaclSet.name(), shaclSet);
+      shaclSetMap.put(shaclSet.id(), shaclSet);
     }
   }
 
-  public static Set<String> getNames() {
+  public static Set<String> getIds() {
     return shaclSetMap.keySet();
   }
 
-  public static ShaclSet get(String name) {
-    return shaclSetMap.get(name);
+  public static ShaclSet get(String id) {
+    return shaclSetMap.get(id);
   }
 
   /** Returns all {@link ShaclSet}s but removed any data not needed for front-end. */
   public static ShaclSet[] getAllFiltered() {
     return shaclSetMap.values().stream()
-        .map(i -> new ShaclSet(i.name(), i.description(), i.version(), i.sources(), null))
+        .map(i -> new ShaclSet(i.id(), i.name(), i.version(), i.sources(), null))
         .toArray(ShaclSet[]::new);
   }
 }

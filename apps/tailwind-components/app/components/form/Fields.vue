@@ -1,19 +1,12 @@
 <script setup lang="ts">
-import {
-  onMounted,
-  useTemplateRef,
-  watch,
-  defineProps,
-  defineEmits,
-  defineModel,
-} from "vue";
+import { vIntersectionObserver } from "@vueuse/components";
+import { defineEmits, defineModel, defineProps, useTemplateRef } from "vue";
 import type {
   columnId,
   columnValue,
   IColumn,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import { vIntersectionObserver } from "@vueuse/components";
 import FormField from "./Field.vue";
 
 const props = defineProps<{
@@ -41,23 +34,6 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   }
 }
 
-function copyConstantValuesToModelValue() {
-  if (props.constantValues) {
-    modelValue.value = Object.assign({}, props.constantValues);
-  }
-}
-
-watch(
-  () => props.constantValues,
-  () => {
-    copyConstantValuesToModelValue();
-  }
-);
-
-onMounted(() => {
-  copyConstantValuesToModelValue();
-});
-
 const isRequired = (value: string | boolean): boolean =>
   (typeof value === "string" && value.toLowerCase() === "true") ||
   value === true;
@@ -65,7 +41,7 @@ const isRequired = (value: string | boolean): boolean =>
 
 <template>
   <div ref="container">
-    <template v-for="column in columns">
+    <template v-for="column in columns" :key="column.id">
       <div
         v-if="
           column.columnType === 'HEADING' || column.columnType === 'SECTION'
@@ -92,10 +68,14 @@ const isRequired = (value: string | boolean): boolean =>
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
         :type="column.columnType"
-        :label="column.label"
+        :label="column.formLabel ?? column.label"
         :description="column.description"
         :disabled="
-          Boolean(column.readonly === 'true' || (rowKey && column.key === 1))
+          Boolean(
+            column.readonly === 'true' ||
+              (rowKey && column.key === 1) ||
+              column.columnType === 'AUTO_ID'
+          )
         "
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"

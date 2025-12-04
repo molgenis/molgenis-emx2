@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { InputBoolean } from "#components";
+import InputBoolean from "../../../../app/components/input/Boolean.vue";
 
 const wrapper = mount(InputBoolean);
 
@@ -14,6 +14,7 @@ describe("input boolean", () => {
   it("has correct options", () => {
     const altWrapper = mount(InputBoolean, {
       props: {
+        id: "test-boolean",
         trueLabel: "A",
         falseLabel: "B",
       },

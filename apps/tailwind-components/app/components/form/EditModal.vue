@@ -12,7 +12,7 @@
       </Button>
     </slot>
   </template>
-  <Modal v-model:visible="visible" max-width="max-w-9/10">
+  <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
         <div class="mb-5 relative flex items-center">
@@ -20,15 +20,9 @@
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
             {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
-            {{ editFormValues["mg_draft"] ? "(status=draft)" : "" }}
           </h2>
 
-          <span
-            v-show="isDraft"
-            class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-          >
-            Draft
-          </span>
+          <DraftLabel v-if="isDraft" />
         </div>
 
         <button
@@ -68,7 +62,7 @@
           :columns="visibleColumns"
           :constantValues="constantValues"
           :errorMap="errorMap"
-          v-model="editFormValues"
+          v-model="formValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
           @view="onViewColumn"
@@ -78,7 +72,7 @@
         </NextSectionNav>
       </div>
     </div>
-    <Transition name="slide-up">
+    <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
@@ -86,8 +80,8 @@
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp>
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
@@ -102,14 +96,14 @@
           >Re-authenticate</Button
         >
       </FormError>
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
       <FormMessage
         v-show="formMessage"
         :message="formMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
-    </Transition>
+    </TransitionSlideUp>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -120,10 +114,24 @@
         />
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
-            <Button type="secondary" @click="onCancel">Cancel</Button>
-            <Button type="outline" @click="onSave(true)">Save as draft</Button>
-            <Button type="primary" @click="onSave(false)">
-              Save {{ rowType }}
+            <Button type="secondary" :disabled="saving" @click="onCancel">
+              Cancel
+            </Button>
+            <Button type="outline" :disabled="saving" @click="onSave(true)">
+              Save as draft
+              <BaseIcon
+                v-if="savingDraft"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
+            <Button type="primary" :disabled="saving" @click="onSave(false)">
+              Save
+              <BaseIcon
+                v-if="saving"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
             </Button>
           </div>
         </menu>
@@ -134,7 +142,6 @@
 
 <script setup lang="ts">
 import { computed, ref, toRaw, watch } from "vue";
-import { getInitialFormValues } from "../../utils/typeUtils";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
@@ -146,9 +153,12 @@ import useForm from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import { getInitialFormValues } from "../../utils/typeUtils";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
 import FormFields from "./Fields.vue";
 import FormLegend from "./Legend.vue";
@@ -161,6 +171,7 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     metadata: ITableMetaData;
+    isInsert: boolean;
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
@@ -175,42 +186,58 @@ const emit = defineEmits([
   "update:updated",
   "update:cancelled",
 ]);
+
 const visible = defineModel("visible", {
   type: Boolean,
   default: false,
 });
-const rowKey = ref<Record<string, columnValue>>();
-const isInsert = ref(true);
-const editFormValues = ref<Record<string, columnValue>>(
-  getInitialFormValues(props.metadata)
-);
 
-watch(
-  () => props.formValues,
-  () => {
-    if (props.formValues) {
-      editFormValues.value = structuredClone(toRaw(props.formValues));
-      updateRowKey();
-      isInsert.value = false;
-    }
-  },
-  { immediate: true }
+const saving = ref(false);
+const savingDraft = computed(
+  () => saving.value && formValues.value["mg_draft"] === true
 );
+const rowKey = ref<Record<string, columnValue>>();
+const isInsert = ref(props.isInsert);
+const formValues = ref<Record<string, columnValue>>(initFormValues());
+
+if (props.formValues) {
+  await updateRowKey();
+}
+
+watch(visible, (newValue, oldValue) => {
+  if (newValue && !oldValue) {
+    reset();
+  }
+});
+
+watch(formValues.value, () => {
+  formMessage.value = "";
+});
 
 const session = await useSession();
 const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
+const rowType = computed(() => props.metadata.id);
+const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
+
 function setVisible() {
   visible.value = true;
 }
 
-const rowType = computed(() => props.metadata.id);
-const isDraft = ref(false);
+function initFormValues() {
+  const values =
+    structuredClone(toRaw(props.formValues)) ||
+    getInitialFormValues(props.metadata);
+  return Object.assign(values, props.constantValues || {});
+}
 
 function onCancel() {
   visible.value = false;
+  saveErrorMessage.value = "";
+  formMessage.value = "";
+  formValues.value = initFormValues();
   emit("update:cancelled");
 }
 
@@ -227,7 +254,7 @@ function handleError(err: unknown, defaultMessage: string) {
 
 async function updateRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
-    editFormValues.value,
+    formValues.value,
     props.metadata.id,
     props.metadata.schemaId as string
   );
@@ -243,24 +270,21 @@ async function onSave(draft: boolean) {
     }
   }
   try {
-    if (draft) {
-      editFormValues.value["mg_draft"] = true;
-    } else {
-      editFormValues.value["mg_draft"] = false;
-    }
-    let resp;
-    if (isInsert.value) {
-      await insertInto();
-    } else {
-      await updateInto();
-    }
+    formValues.value["mg_draft"] = draft;
+    saving.value = true;
+    const resp = await (isInsert.value ? insertInto() : updateInto()).catch(
+      () => (saving.value = false)
+    );
+    saving.value = false;
     if (!resp) {
-      return;
+      throw new Error(
+        `No response from server on ${isInsert.value ? "insert" : "update"}`
+      );
     }
-    formMessage.value =
-      (isInsert.value ? "inserted 1 " : "saved 1 ") +
-      rowType.value +
-      (draft ? " as draft" : "");
+    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+      rowType.value
+    } ${draft ? "as draft" : ""}`;
+    showFormMessage.value = true;
     emit(isInsert.value ? "update:added" : "update:updated", resp);
     if (isInsert.value) {
       await updateRowKey();
@@ -270,16 +294,6 @@ async function onSave(draft: boolean) {
     handleError(err, "Error saving data");
   }
 }
-
-watch(visible, (newValue, oldValue) => {
-  if (newValue && !oldValue) {
-    reset();
-  }
-});
-
-watch(editFormValues.value, () => {
-  formMessage.value = "";
-});
 
 const {
   requiredMessage,
@@ -301,7 +315,7 @@ const {
   sections,
   visibleColumns,
   reset,
-} = useForm(props.metadata, editFormValues, "fields-container");
+} = useForm(props.metadata, formValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(
@@ -310,4 +324,6 @@ function reAuthenticate() {
     formMessage
   );
 }
+
+const showFormMessage = ref(false);
 </script>
