@@ -38,7 +38,8 @@ ext.listProjectFolders = { List<String> excludeNames = ['node_modules',".gradle"
 def workspaceDirs = listProjectFolders()
 println "Workspace dirs = $workspaceDirs"
 
-tasks.register('pnpm_install') {
+tasks.register('pnpm_install', PnpmTask) {
+    args = ['install']
     inputs.file("package.json")
     def optionalFile = file("pnpm-lock.yaml")
     if(optionalFile.exists())     inputs.file(optionalFile)
@@ -46,11 +47,6 @@ tasks.register('pnpm_install') {
         inputs.file("${project.projectDir}/${dir}/package.json")
     }
     outputs.file("${project.projectDir}/node_modules/.pnpm-workspace-state-v1.json")
-    doLast {
-        exec {
-            commandLine "pnpm", "install"
-        }
-    }
 }
 
 //helper code for reusable input/output caching
