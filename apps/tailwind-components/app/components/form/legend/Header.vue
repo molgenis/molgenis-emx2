@@ -27,8 +27,8 @@ const emit = defineEmits<{
     />
     <div class="flex gap-2">
       <a
-        :id="`form-legend-header-${id})`"
-        :aria-describedby="`form-legend-header-${id})-error-count`"
+        :id="`form-legend-header-${id}`"
+        :aria-describedby="`form-legend-header-${id}-error-count`"
         class="pl-7 truncate hover:overflow-visible bg-form-legend cursor-pointer"
         href="#"
         :aria-current="isActive"

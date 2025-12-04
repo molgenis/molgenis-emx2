@@ -202,7 +202,6 @@ export default function useForm(
 
   const gotoSection = (id: string) => {
     sections.value.forEach((section) => {
-      //apply to the right id
       if (section.id === id) {
         scrollTo(id + "-form-field");
       }
@@ -450,11 +449,12 @@ export default function useForm(
   });
 
   const currentSection = computed(() => {
-    console.log("computing current section");
-    console.log(
-      sections.value.map((s) => ({ id: s.id, isActive: s.isActive.value }))
-    );
-    return sections.value.find((s) => s.isActive.value)?.id;
+    const activeSections = sections.value.filter((s) => s.isActive.value);
+    if (activeSections.length < 1) {
+      return sections.value[0]?.id || null;
+    } else {
+      return activeSections[0]?.id || null;
+    }
   });
 
   const nextSection = computed(() => {
