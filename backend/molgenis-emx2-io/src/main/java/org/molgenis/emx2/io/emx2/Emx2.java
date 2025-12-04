@@ -20,6 +20,7 @@ public class Emx2 {
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
   public static final String LABEL = "label";
+  public static final String ROW_LEVEL_SECURITY = "rowLevelSecurity";
   public static final String KEY = "key";
   public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
@@ -75,6 +76,11 @@ public class Emx2 {
 
         if (row.getString(OLD_NAME) != null) {
           schema.getTableMetadata(tableName).setOldName(row.getString(OLD_NAME));
+        }
+        if (row.getBoolean(ROW_LEVEL_SECURITY) != null) {
+          schema
+              .getTableMetadata(tableName)
+              .setRowLevelSecurity(row.getBoolean(ROW_LEVEL_SECURITY));
         }
         if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
           schema.getTableMetadata(tableName).drop();

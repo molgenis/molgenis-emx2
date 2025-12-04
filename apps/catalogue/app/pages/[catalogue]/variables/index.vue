@@ -285,9 +285,9 @@ const fetchData = async () => {
   }
 
   // add 'special' filter for harmonisation x-axis if 'resources' filter is set
-  const resourceConditions = (
-    filters.value.find((f) => f.id === "resources") as IRefArrayFilter
-  )?.conditions;
+  const resourceConditions = (filters.value.find(
+    (f) => f.id === "resources"
+  ) as IRefArrayFilter)?.conditions;
   if (resourceConditions.length) {
     resourcesFilter = {
       ...resourcesFilter,

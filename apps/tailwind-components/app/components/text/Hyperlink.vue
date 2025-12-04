@@ -23,12 +23,8 @@ function isExternal() {
     :rel="isExternal() ? 'external noopener noreferrer' : ''"
     :external="type !== 'nuxt'"
   >
-    <BaseIcon
-      class="inline mr-1"
-      :name="icon"
-      :width="16"
-      v-if="icon"
-    /><span>{{ label ? label : to }}</span
+    <BaseIcon class="inline mr-1" :name="icon" :width="16" v-if="icon" /><span
+      >{{ label ? label : to }}</span
     ><BaseIcon
       class="inline"
       name="ExternalLink"
