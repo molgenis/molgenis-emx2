@@ -47,7 +47,7 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onBlur"
       />
-      <p class="m-4">modelValue = {{ modelValue }}</p>
+      <p class="mt-4 text-input-description">modelValue = {{ modelValue }}</p>
     </div>
     <div class="m-4">
       <FormField
@@ -64,7 +64,9 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onFocus"
       />
-      <p class="m-4">modelValueArray = {{ modelValueArray }}</p>
+      <p class="mt-4 text-input-description">
+        modelValueArray = {{ modelValueArray }}
+      </p>
     </div>
     <div class="m-4">
       <FormField
@@ -81,7 +83,7 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onBlur"
       />
-      <p class="mt-4">modelValue = {{ modelValue1 }}</p>
+      <p class="mt-4 text-input-description">modelValue = {{ modelValue1 }}</p>
     </div>
     <div class="m-4">
       <FormField
@@ -97,7 +99,9 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onFocus"
       />
-      <p class="m-4">modelValueArray = {{ modelValueArray1 }}</p>
+      <p class="mt-4 text-input-description">
+        modelValueArray = {{ modelValueArray1 }}
+      </p>
     </div>
     <div class="m-4">
       <FormField
@@ -114,7 +118,7 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onBlur"
       />
-      <p class="m-4">modelValue = {{ modelValue2 }}</p>
+      <p class="mt-4 text-input-description">modelValue = {{ modelValue2 }}</p>
     </div>
     <div class="m-4">
       <FormField
@@ -132,7 +136,9 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onFocus"
       />
-      <p class="m-4">modelValueArray = {{ modelValueArray2 }}</p>
+      <p class="mt-4 text-input-description">
+        modelValueArray = {{ modelValueArray2 }}
+      </p>
     </div>
     <div class="m-4">
       <FormField
@@ -149,7 +155,7 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onBlur"
       />
-      <p class="m-4">modelValue = {{ modelValue3 }}</p>
+      <p class="mt-4 text-input-description">modelValue = {{ modelValue3 }}</p>
     </div>
     <div class="m-4">
       <FormField
@@ -167,7 +173,9 @@ const modelValueArray3 = ref([
         @blur="onBlur"
         @focus="onFocus"
       />
-      <p class="m-4">modelValueArray = {{ modelValueArray3 }}</p>
+      <p class="mt-4 text-input-description">
+        modelValueArray = {{ modelValueArray3 }}
+      </p>
     </div>
   </InputTestContainer>
 </template>

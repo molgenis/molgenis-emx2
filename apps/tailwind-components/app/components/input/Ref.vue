@@ -273,6 +273,17 @@ onMounted(() => {
     :class="{
       'flex items-center border outline-none rounded-input cursor-pointer':
         displayAsSelect,
+      'bg-input ': displayAsSelect && !disabled,
+      'border-disabled': displayAsSelect && disabled,
+      'border-valid text-valid': valid && !disabled,
+      'border-invalid text-invalid': invalid && !disabled,
+      'text-disabled cursor-not-allowed': disabled,
+      'bg-disabled border-valid text-valid cursor-not-allowed':
+        valid && disabled,
+      'bg-disabled border-invalid text-invalid cursor-not-allowed':
+        invalid && disabled,
+      'text-input hover:border-input-hover focus-within:border-input-focused':
+        !disabled && !invalid && !valid,
     }"
     @click.stop="displayAsSelect ? (showSelect = true) : null"
   >
@@ -290,27 +301,22 @@ onMounted(() => {
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="modelValue" role="group">
             <Button
-              @click="clearSelection"
-              v-if="isArray && selection.length > 1"
-              type="filterWell"
-              size="tiny"
-              icon="cross"
-              iconPosition="right"
-              class="mr-2"
-              >clear all</Button
-            >
-            <Button
               v-for="label in isArray ? selection : [selection]"
               icon="cross"
               iconPosition="right"
               type="filterWell"
               size="tiny"
+              :class="{
+                'text-disabled cursor-not-allowed': disabled,
+                'text-valid bg-valid': valid,
+                'text-invalid bg-invalid': invalid,
+              }"
               @click="deselect(label as string)"
             >
               {{ label }}
             </Button>
           </template>
-          <div>
+          <div v-if="!disabled">
             <label :for="`search-for-${id}`" class="sr-only">
               search in ontology
             </label>
@@ -326,26 +332,47 @@ onMounted(() => {
             />
           </div>
         </div>
-        <div>
+        <div class="flex items-center gap-2">
+          <BaseIcon
+            name="trash"
+            :class="{
+              'text-valid': valid,
+              'text-invalid': invalid,
+              'text-disabled cursor-not-allowed': disabled,
+              'text-input': !disabled,
+            }"
+            @click.stop="clearSelection"
+          />
           <BaseIcon
             v-show="showSelect"
             name="caret-up"
+            :class="{
+              'text-valid': valid,
+              'text-invalid': invalid,
+              'text-disabled cursor-not-allowed': disabled,
+              'text-input': !disabled,
+            }"
             @click.stop="showSelect = false"
           />
           <BaseIcon
             v-show="!showSelect"
             name="caret-down"
-            class="justify-end"
+            :class="{
+              'text-valid': valid,
+              'text-invalid': invalid,
+              'text-disabled cursor-not-allowed': disabled,
+              'text-input': !disabled,
+            }"
           />
         </div>
       </div>
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border rounded-input bg-white overflow-y-auto w-full pl-4':
+          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
-        v-show="showSelect || !displayAsSelect"
+        v-show="(showSelect && !disabled) || !displayAsSelect"
       >
         <fieldset>
           <legend class="sr-only">select {{ columnName }} options</legend>
@@ -373,21 +400,25 @@ onMounted(() => {
           />
         </fieldset>
         <div ref="sentinel" class="h-1"></div>
-        <ButtonText
-          v-if="
-            initialCount <= limit &&
-            (isArray ? selection.length > 0 : selection)
-          "
-          @click="clearSelection"
-          >Clear</ButtonText
-        >
       </div>
     </InputGroupContainer>
   </div>
   <div
-    v-show="initialCount"
+    v-show="initialCount === 0"
     class="py-4 flex justify-start items-center text-input-description"
   >
     <TextNoResultsMessage label="No options available" />
   </div>
+  <Button
+    v-if="
+      !displayAsSelect && (isArray ? (modelValue || []).length > 0 : modelValue)
+    "
+    @click="clearSelection"
+    type="text"
+    size="small"
+    iconPosition="right"
+    class="mr-2 underline cursor-pointer"
+  >
+    Clear
+  </Button>
 </template>

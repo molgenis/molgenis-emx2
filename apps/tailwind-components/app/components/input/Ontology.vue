@@ -440,14 +440,16 @@ useClickOutside(wrapperRef, () => {
     :class="{
       'flex items-center border outline-none rounded-input cursor-pointer ':
         displayAsSelect,
-      'bg-input border-valid text-valid': valid && !disabled,
-      'bg-input border-invalid text-invalid': invalid && !disabled,
-      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
+      'bg-input ': displayAsSelect && !disabled,
+      'border-disabled': displayAsSelect && disabled,
+      'border-valid text-valid': valid && !disabled,
+      'border-invalid text-invalid': invalid && !disabled,
+      'text-disabled cursor-not-allowed': disabled,
       'bg-disabled border-valid text-valid cursor-not-allowed':
         valid && disabled,
       'bg-disabled border-invalid text-invalid cursor-not-allowed':
         invalid && disabled,
-      'bg-input text-input hover:border-input-hover focus-within:border-input-focused':
+      'text-input hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid && !valid,
     }"
     @click.stop="displayAsSelect ? (showSelect = true) : null"
@@ -473,12 +475,17 @@ useClickOutside(wrapperRef, () => {
               iconPosition="right"
               type="filterWell"
               size="tiny"
+              :class="{
+                'text-disabled cursor-not-allowed': disabled,
+                'text-valid bg-valid': valid,
+                'text-invalid bg-invalid': invalid,
+              }"
               @click.stop="deselect(name as string)"
             >
               {{ valueLabels[name] }}
             </Button>
           </template>
-          <div>
+          <div v-if="!disabled">
             <label :for="`search-for-${id}`" class="sr-only">
               search in ontology
             </label>
@@ -494,13 +501,13 @@ useClickOutside(wrapperRef, () => {
             />
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center gap-2">
           <BaseIcon
             name="trash"
             :class="{
               'text-valid': valid,
               'text-invalid': invalid,
-              'text-disabled': disabled,
+              'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
             @click.stop="clearSelection"
@@ -511,7 +518,7 @@ useClickOutside(wrapperRef, () => {
             :class="{
               'text-valid': valid,
               'text-invalid': invalid,
-              'text-disabled': disabled,
+              'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
             @click.stop="showSelect = false"
@@ -522,7 +529,7 @@ useClickOutside(wrapperRef, () => {
             :class="{
               'text-valid': valid,
               'text-invalid': invalid,
-              'text-disabled': disabled,
+              'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
           />
@@ -531,7 +538,7 @@ useClickOutside(wrapperRef, () => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4 hover:border-input-focused':
+          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
         v-show="showSelect || !displayAsSelect"
@@ -572,10 +579,11 @@ useClickOutside(wrapperRef, () => {
       !displayAsSelect && (isArray ? (modelValue || []).length > 0 : modelValue)
     "
     @click="clearSelection"
-    type="link"
+    type="text"
     size="small"
     iconPosition="right"
-    class="mr-2"
+    class="mr-2 underline cursor-pointer"
+    :class="{ 'pl-4': hasChildren }"
   >
     Clear
   </Button>
