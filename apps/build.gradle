@@ -170,7 +170,7 @@ tasks.register('testJavascript', PnpmTask) {
     registerAppInputsOutputs(delegate, workspaceDirs, inputFolders)
 }
 
-test.dependsOn 'testJavaScript'
+test.dependsOn 'testJavascript'
 
 sourceSets {
     main {
