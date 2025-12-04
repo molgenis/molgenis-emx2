@@ -266,6 +266,7 @@ function toggleSelect(node: ITreeNodeState) {
   if (props.disabled) return;
   if (!props.isArray) {
     modelValue.value = modelValue.value === node.name ? undefined : node.name;
+    showSelect.value = false;
   } else if (Array.isArray(modelValue.value)) {
     //if a selected value then simply deselect
     if (modelValue.value.includes(node.name)) {
@@ -437,8 +438,17 @@ useClickOutside(wrapperRef, () => {
   <div
     v-else-if="!initLoading && maxOntologyNodes"
     :class="{
-      'flex items-center border outline-none rounded-input cursor-pointer':
+      'flex items-center border outline-none rounded-input cursor-pointer ':
         displayAsSelect,
+      'bg-input border-valid text-valid': valid && !disabled,
+      'bg-input border-invalid text-invalid': invalid && !disabled,
+      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
+      'bg-disabled border-valid text-valid cursor-not-allowed':
+        valid && disabled,
+      'bg-disabled border-invalid text-invalid cursor-not-allowed':
+        invalid && disabled,
+      'bg-input text-input hover:border-input-hover focus-within:border-input-focused':
+        !disabled && !invalid && !valid,
     }"
     @click.stop="displayAsSelect ? (showSelect = true) : null"
   >
@@ -455,18 +465,6 @@ useClickOutside(wrapperRef, () => {
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="modelValue" role="group">
-            <Button
-              v-if="Array.isArray(modelValue) && modelValue.length > 1"
-              :id="`${id}-button-clear`"
-              icon="cross"
-              iconPosition="right"
-              type="filterWell"
-              size="tiny"
-              class="mr-2"
-              @click.stop="clearSelection"
-            >
-              clear all
-            </Button>
             <Button
               v-for="name in Array.isArray(modelValue)
               ? (modelValue as string[]).sort()
@@ -496,23 +494,44 @@ useClickOutside(wrapperRef, () => {
             />
           </div>
         </div>
-        <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <BaseIcon
+            name="trash"
+            :class="{
+              'text-valid': valid,
+              'text-invalid': invalid,
+              'text-disabled': disabled,
+              'text-input': !disabled,
+            }"
+            @click.stop="clearSelection"
+          />
           <BaseIcon
             v-show="showSelect"
             name="caret-up"
+            :class="{
+              'text-valid': valid,
+              'text-invalid': invalid,
+              'text-disabled': disabled,
+              'text-input': !disabled,
+            }"
             @click.stop="showSelect = false"
           />
           <BaseIcon
             v-show="!showSelect"
             name="caret-down"
-            class="justify-end"
+            :class="{
+              'text-valid': valid,
+              'text-invalid': invalid,
+              'text-disabled': disabled,
+              'text-input': !disabled,
+            }"
           />
         </div>
       </div>
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border rounded-input bg-white overflow-y-auto w-full pl-4':
+          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4 hover:border-input-focused':
             displayAsSelect,
         }"
         v-show="showSelect || !displayAsSelect"
@@ -548,4 +567,16 @@ useClickOutside(wrapperRef, () => {
       :label="`Ontology '${props.ontologyTableId}' in schema '${props.ontologySchemaId}' is empty`"
     />
   </div>
+  <Button
+    v-if="
+      !displayAsSelect && (isArray ? (modelValue || []).length > 0 : modelValue)
+    "
+    @click="clearSelection"
+    type="link"
+    size="small"
+    iconPosition="right"
+    class="mr-2"
+  >
+    Clear
+  </Button>
 </template>
