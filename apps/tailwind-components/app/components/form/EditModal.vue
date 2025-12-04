@@ -35,44 +35,15 @@
       </header>
     </template>
 
-    <div class="grid grid-cols-4 gap-1 min-h-0">
-      <div class="col-span-1 bg-form-legend overflow-y-auto h-full min-h-0">
-        <FormLegend
-          v-if="visible && sections"
-          class="sticky top-0"
-          :sections="sections"
-          @goToSection="gotoSection"
-        />
-      </div>
+    <Form
+      v-if="visible"
+      ref="edit-modal-form"
+      :metadata="props.metadata"
+      :formValues="formValues"
+      :constantValues="props.constantValues"
+      :rowKey="rowKey"
+    />
 
-      <div
-        id="fields-container"
-        class="col-span-3 px-4 py-50px overflow-y-auto"
-      >
-        <PreviousSectionNav
-          v-if="previousSection"
-          @click="gotoSection(previousSection.id)"
-        >
-          {{ previousSection.label }}
-        </PreviousSectionNav>
-        <FormFields
-          v-if="visible"
-          ref="formFields"
-          :row-key="rowKey"
-          :columns="visibleColumns"
-          :constantValues="constantValues"
-          :errorMap="errorMap"
-          v-model="formValues"
-          @update="onUpdateColumn"
-          @blur="onBlurColumn"
-          @view="onViewColumn"
-          @leaving-view="onLeaveView"
-        />
-        <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
-          {{ nextSection.label }}
-        </NextSectionNav>
-      </div>
-    </div>
     <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
@@ -142,16 +113,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watch } from "vue";
+import { computed, ref, toRaw, useTemplateRef, watch } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
-  IColumn,
   IRow,
 } from "../../../../metadata-utils/src/types";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
-import useForm from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
@@ -160,14 +129,12 @@ import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
-import TransitionSlideUp from "../transition/SlideUp.vue";
-import FormError from "./Error.vue";
-import FormFields from "./Fields.vue";
-import FormLegend from "./Legend.vue";
-import FormMessage from "./Message.vue";
-import NextSectionNav from "./NextSectionNav.vue";
-import PreviousSectionNav from "./PreviousSectionNav.vue";
+import type { ComponentPublicInstance } from "vue";
+import Form from "./Form.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
+import FormError from "./Error.vue";
+import FormMessage from "./Message.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -194,9 +161,9 @@ const visible = defineModel("visible", {
   default: false,
 });
 
-function onLeaveView(column: IColumn) {
-  visibleColumnIds.value.delete(column.id);
-}
+const form = useTemplateRef<FormType>("edit-modal-form");
+
+type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
 
 const saving = ref(false);
 const savingDraft = computed(
@@ -233,6 +200,40 @@ function initFormValues() {
   return Object.assign(values, props.constantValues || {});
 }
 
+function gotoPreviousError() {
+  form.value?.gotoPreviousError();
+}
+
+function gotoNextError() {
+  form.value?.gotoNextError();
+}
+
+function gotoPreviousRequiredField() {
+  1;
+  form.value?.gotoPreviousRequiredField();
+}
+
+function gotoNextRequiredField() {
+  1;
+  form.value?.gotoNextRequiredField();
+}
+
+const requiredMessage = computed(() => {
+  if (!visible.value) {
+    return "";
+  }
+  1;
+  return form.value?.requiredMessage || "";
+});
+
+const errorMessage = computed(() => {
+  if (!visible.value) {
+    return "";
+  }
+  1;
+  return form.value?.errorMessage || "";
+});
+
 function onCancel() {
   visible.value = false;
   saveErrorMessage.value = "";
@@ -263,18 +264,20 @@ async function updateRowKey() {
 async function onSave(draft: boolean) {
   saveErrorMessage.value = "";
   formMessage.value = "";
-  if (!draft) {
-    validateAllColumns();
-    if (Object.keys(errorMap.value).length > 0) {
-      return;
-    }
+  if (!draft && !form.value?.isValid()) {
+    // do not proceed if not valid
+    return;
   }
   try {
     formValues.value["mg_draft"] = draft;
     saving.value = true;
-    const resp = await (isInsert.value ? insertInto() : updateInto()).catch(
-      () => (saving.value = false)
-    );
+    if (!form.value) {
+      throw new Error("Form reference is not available");
+    }
+    const resp = await (isInsert.value
+      ? form.value.insertInto()
+      : form.value.updateInto()
+    ).catch(() => (saving.value = false));
     saving.value = false;
     if (!resp) {
       throw new Error(
@@ -299,29 +302,6 @@ watch(formValues.value, () => {
   formMessage.value = "";
 });
 
-const {
-  requiredMessage,
-  errorMessage,
-  gotoPreviousRequiredField,
-  gotoNextRequiredField,
-  gotoNextError,
-  gotoPreviousError,
-  gotoSection,
-  previousSection,
-  nextSection,
-  insertInto,
-  updateInto,
-  errorMap,
-  onUpdateColumn,
-  onBlurColumn,
-  onViewColumn,
-  onLeaveViewColumn,
-  validateAllColumns,
-  sections,
-  visibleColumns,
-  visibleColumnIds,
-} = useForm(props.metadata, formValues, "fields-container");
-
 function reAuthenticate() {
   session.reAuthenticate(
     saveErrorMessage,
@@ -331,5 +311,4 @@ function reAuthenticate() {
 }
 
 const showFormMessage = ref(false);
-const showSaveErrorMessage = ref(false);
 </script>
