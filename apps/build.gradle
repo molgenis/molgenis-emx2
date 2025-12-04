@@ -38,28 +38,54 @@ ext.listProjectFolders = { List<String> excludeNames = ['node_modules',".gradle"
 def workspaceDirs = listProjectFolders()
 println "Workspace dirs = $workspaceDirs"
 
-pnpmInstall {
-    inputs.files(
-            workspaceDirs.collect { dir ->
-                file("${dir}/package.json")
-            }
-    )
-    inputs.files(
-            workspaceDirs.collect { dir ->
-                file("${dir}/pnpm-lock.yaml")
-            }
-    )
-    inputs.file("pnpm-lock.yaml") // root lockfile
-    outputs.upToDateWhen {
-        // Up-to-date ONLY if lockfile & package.json unchanged
-        true
+tasks.register('pnpm_install') {
+    inputs.file("package.json")
+    def optionalFile = file("pnpm-lock.yaml")
+    if(optionalFile.exists())     inputs.file(optionalFile)
+    workspaceDirs.each { dir ->
+        inputs.file("${project.projectDir}/${dir}/package.json")
     }
+    outputs.file("${project.projectDir}/node_modules/.pnpm-workspace-state-v1.json")
+    doLast {
+        exec {
+            commandLine "pnpm", "install"
+        }
+    }
+}
+
+//helper code for reusable input/output caching
+def inputFolders = ['src','assets'
+                    ,'app'
+                    , 'public'
+                    , 'scripts'
+                    , 'server'
+                    , 'types'
+                    , 'tests'
+                    , 'lib'
+                    , 'interfaces'
+                    , 'package.json'
+                    , 'vite.config.js']
+def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> inputFolders) {
+    task.inputs.file("package.json")
+    def optionalLock = task.project.file("pnpm-lock.yaml")
+    if (optionalLock.exists()) {
+        task.inputs.file(optionalLock)
+    }
+    workspaceDirs.each { dir ->
+        task.inputs.files(
+                task.project.fileTree(dir) {
+                    include inputFolders
+                }
+        )
+    }
+    task.outputs.upToDateWhen { true }
 }
 
 
 tasks.register('pnpm_build', PnpmTask) {
-    dependsOn pnpmInstall
+    dependsOn 'pnpm_install'
     args = ['run', 'build']
+    registerAppInputsOutputs(delegate, workspaceDirs, inputFolders)
 }
 
 // Util task to clean up all apps files created during build
@@ -86,7 +112,7 @@ tasks.register("cleanApps", Delete) {
 
     outputs.upToDateWhen { false } // still always run when invoked
 }
-clean.dependsOn cleanApps;
+clean.dependsOn 'cleanApps';
 
 // Custom task to collect all dist folders into the resources directory
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
@@ -123,27 +149,32 @@ abstract class CollectDistTask extends DefaultTask {
 
 tasks.register("collectDist", CollectDistTask) {
     dependsOn("pnpm_build")
+    registerAppInputsOutputs(delegate, workspaceDirs, inputFolders)
 }
 
 tasks.register('format', PnpmTask) {
-    dependsOn pnpmInstall
+    dependsOn 'pnpm_build'
     if (!isCI) {
         args = ['run', 'format']
     } else {
         args = ['run', 'checkFormat']
     }
+    registerAppInputsOutputs(delegate, workspaceDirs, inputFolders)
 }
 
 tasks.register('lint', PnpmTask) {
-    dependsOn pnpm_build
+    dependsOn 'pnpm_build'
     args = ['run', 'lint']
+    registerAppInputsOutputs(delegate, workspaceDirs, inputFolders)
 }
 
-task testJavaScript(type: PnpmTask) {
-    dependsOn pnpm_build
+tasks.register('testJavascript', PnpmTask) {
+    dependsOn 'pnpm_build'
     args = ['run', 'test-ci']
+    registerAppInputsOutputs(delegate, workspaceDirs, inputFolders)
 }
-test.dependsOn testJavaScript
+
+test.dependsOn 'testJavaScript'
 
 sourceSets {
     main {
