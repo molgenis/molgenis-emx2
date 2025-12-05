@@ -215,10 +215,12 @@ class Transform:
         df_resource_contacts['role'] = 'Primary contact'
         df_resource_contacts.dropna(subset=['first name', 'last name'], inplace=True)
 
-        df_new_contacts = pd.concat([df_contacts, df_resource_contacts])
+        df_merged_contacts = pd.concat([df_contacts, df_resource_contacts])
+        df_merged_contacts['resource_email'] = df_merged_contacts['resource'] + df_merged_contacts['email']
+        df_merged_contacts.drop_duplicates(subset='resource_email', inplace=True)
 
         # write tables to file
-        df_new_contacts.to_csv(self.path + 'Contacts.csv', index=False)
+        df_merged_contacts.to_csv(self.path + 'Contacts.csv', index=False)
 
     def contacts(self):
         """ Transform data in Contacts
