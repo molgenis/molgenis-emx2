@@ -17,7 +17,7 @@ export async function deleteUser(user: IUser) {
 
 export async function updateUser(user: IUser) {
   const updateUser = createUpdateUser(user);
-  return $fetch(GRAPHQL, {
+  return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
       query: `mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}`,
@@ -46,7 +46,7 @@ function createUpdateUser(user: IUser) {
 export function createUser(newUserName: string, newPassword: string) {
   if (!newUserName || !newPassword) return;
 
-  return $fetch(GRAPHQL, {
+  return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
       query: `mutation{changePassword(email: "${newUserName}", password: "${newPassword}"){status,message}}`,
@@ -80,7 +80,7 @@ export async function getRoles(schemas: ISchemaInfo[]): Promise<string[]> {
 }
 
 export function getSchemas() {
-  return $fetch<{ data: { _schemas: ISchemaInfo[] } }>(GRAPHQL, {
+  return $fetch<{ data: { _schemas: ISchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
       query: "{_schemas{id,label}}",
