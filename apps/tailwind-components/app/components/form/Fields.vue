@@ -82,7 +82,7 @@ const isRequired = (value: string | boolean): boolean =>
         :disabled="
           Boolean(
             column.readonly === 'true' ||
-              (rowKey && column.key === 1) ||
+              (rowKey && Object.keys(rowKey).length && column.key === 1) ||
               column.columnType === 'AUTO_ID'
           )
         "

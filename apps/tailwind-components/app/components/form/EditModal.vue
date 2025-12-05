@@ -41,7 +41,6 @@
       :metadata="props.metadata"
       :formValues="formValues"
       :constantValues="props.constantValues"
-      :rowKey="rowKey"
     />
 
     <TransitionSlideUp>
@@ -120,7 +119,6 @@ import type {
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
@@ -169,13 +167,9 @@ const saving = ref(false);
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
-const rowKey = ref<Record<string, columnValue>>();
+
 const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
-
-if (props.formValues) {
-  await updateRowKey();
-}
 
 watch(formValues.value, () => {
   formMessage.value = "";
@@ -251,14 +245,6 @@ function handleError(err: unknown, defaultMessage: string) {
   }
 }
 
-async function updateRowKey() {
-  rowKey.value = await fetchRowPrimaryKey(
-    formValues.value,
-    props.metadata.id,
-    props.metadata.schemaId as string
-  );
-}
-
 async function onSave(draft: boolean) {
   saveErrorMessage.value = "";
   formMessage.value = "";
@@ -287,9 +273,6 @@ async function onSave(draft: boolean) {
     } ${draft ? "as draft" : ""}`;
     showFormMessage.value = true;
     emit(isInsert.value ? "update:added" : "update:updated", resp);
-    if (isInsert.value) {
-      await updateRowKey();
-    }
     isInsert.value = false;
   } catch (err) {
     handleError(err, "Error saving data");

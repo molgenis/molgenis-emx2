@@ -10,11 +10,12 @@ import FormFields from "./Fields.vue";
 import FormLegend from "./Legend.vue";
 import NextSectionNav from "./NextSectionNav.vue";
 import PreviousSectionNav from "./PreviousSectionNav.vue";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { ref } from "vue";
 
 const props = defineProps<{
   metadata: ITableMetaData;
   constantValues?: Record<columnId, columnValue>;
-  rowKey?: Record<string, columnValue>;
 }>();
 
 const formValues = defineModel("formValues", {
@@ -32,7 +33,7 @@ const {
   gotoSection,
   previousSection,
   nextSection,
-  insertInto,
+  insertInto: insert,
   updateInto,
   errorMap,
   onUpdateColumn,
@@ -57,6 +58,16 @@ defineExpose({
   requiredMessage,
 });
 
+const rowKey = ref<Record<string, columnValue>>();
+async function fetchRowKey() {
+  rowKey.value = await fetchRowPrimaryKey(
+    formValues.value,
+    props.metadata.id,
+    props.metadata.schemaId
+  );
+}
+await fetchRowKey();
+
 function onLeaveView(column: IColumn) {
   visibleColumnIds.value.delete(column.id);
 }
@@ -64,6 +75,13 @@ function onLeaveView(column: IColumn) {
 function isValid() {
   validateAllColumns();
   return Object.keys(errorMap.value).length < 1;
+}
+
+// wrapper to update rowKey after insert because we keep the from open
+function insertInto() {
+  const insertPromise = insert();
+  insertPromise.then(async () => fetchRowKey());
+  return insertPromise;
 }
 </script>
 <template>
@@ -86,7 +104,7 @@ function isValid() {
       </PreviousSectionNav>
       <FormFields
         ref="formFields"
-        :row-key="rowKey"
+        :rowKey="rowKey"
         :columns="visibleColumns"
         :constantValues="constantValues"
         :errorMap="errorMap"

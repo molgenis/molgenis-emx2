@@ -393,17 +393,16 @@ describe("useForm", () => {
         },
       ],
     });
-    const {
-      sections,
-      currentSection,
-      previousSection,
-      nextSection,
-      gotoSection,
-      visibleColumnIds,
-      onViewColumn,
-    } = useForm(tableMetadata, formValues);
+    const { currentSection, previousSection, nextSection, onViewColumn } =
+      useForm(tableMetadata, formValues);
 
-    onViewColumn({ id: "col1" }); // to activate the first section
+    onViewColumn({
+      columnType: "STRING",
+      id: "col1",
+      label: "columns 1",
+      section: "main",
+      heading: "h1",
+    }); // to activate the first section
     expect(previousSection.value).toEqual(null);
     expect(currentSection.value).toEqual("main");
     expect(nextSection.value?.id).toEqual("next");
