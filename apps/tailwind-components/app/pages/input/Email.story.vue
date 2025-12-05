@@ -1,13 +1,15 @@
 <template>
   <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
-    <FormFields
-      id="email-form"
-      v-model="model"
-      :columns="metadata.columns"
-      :error-map="errorMap"
-      @update="onUpdateColumn"
-      @blur="onBlurColumn"
-    />
+    <ClientOnly>
+      <FormFields
+        id="email-form"
+        v-model="model"
+        :columns="metadata.columns"
+        :error-map="errorMap"
+        @update="onUpdateColumn"
+        @blur="onBlurColumn"
+      />
+    </ClientOnly>
   </div>
 </template>
 

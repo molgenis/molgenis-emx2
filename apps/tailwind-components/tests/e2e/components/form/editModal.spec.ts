@@ -18,10 +18,10 @@ test("should show the edit modal", async ({ page }) => {
   await page.getByRole("button", { name: "Edit Pet" }).click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
   await expect(
-    page.getByRole("listitem").filter({ hasText: "details" })
+    page.getByRole("link").filter({ hasText: "details" })
   ).toBeVisible();
   await expect(
-    page.getByRole("listitem").filter({ hasText: "Heading2" })
+    page.getByRole("link").filter({ hasText: "Heading2" })
   ).toBeVisible();
   await expect(page.getByText("All required fields are filled")).toBeVisible();
   await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();

@@ -85,6 +85,7 @@ import InputListboxToggle from "./listbox/Toggle.vue";
 import InputListboxListItem from "./listbox/ListItem.vue";
 import InputSearch from "./Search.vue";
 import { type IInputProps } from "../../../types/types";
+import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 
 const props = withDefaults(
   defineProps<
