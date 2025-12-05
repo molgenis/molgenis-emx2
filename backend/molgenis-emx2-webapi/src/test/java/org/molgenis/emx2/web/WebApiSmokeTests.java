@@ -1,42 +1,5 @@
 package org.molgenis.emx2.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import graphql.Assert;
-import io.restassured.RestAssured;
-import io.restassured.filter.session.SessionFilter;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSender;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.Order;
-import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
-import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.utils.EnvironmentProperty;
-import org.molgenis.emx2.web.controllers.MetricsController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.regex.Pattern;
-
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -53,6 +16,42 @@ import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import graphql.Assert;
+import io.restassured.RestAssured;
+import io.restassured.filter.session.SessionFilter;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSender;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.Order;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.web.controllers.MetricsController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -521,7 +520,7 @@ class WebApiSmokeTests {
   }
 
   @Test
-  void testCsvApi_givenNoSession_whenDownloadingMembers_thenRedirect() {
+  void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
     var response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
@@ -551,6 +550,23 @@ class WebApiSmokeTests {
     assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
 
     var path = Path.of(Objects.requireNonNull(getClass().getResource("csv/members.csv")).getPath());
+    String expected = Files.readString(path);
+    assertEquals(expected, response.asString());
+  }
+
+  @Test
+  void testCsvApi_downloadSettings() throws IOException {
+    db.dropCreateSchema(CSV_TEST_SCHEMA);
+
+    var response =
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
+
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_settings_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+    var path =
+        Path.of(Objects.requireNonNull(getClass().getResource("csv/settings.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
   }
