@@ -22,7 +22,7 @@
             <TableHead>Enabled</TableHead>
             <TableHead>Name / Email</TableHead>
             <TableHead>Roles</TableHead>
-            <TableHead>Tokens</TableHead>
+            <!-- <TableHead>Tokens</TableHead> -->
           </TableHeadRow>
         </template>
         <template #body>
