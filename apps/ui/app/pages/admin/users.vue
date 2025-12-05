@@ -62,9 +62,9 @@
               <div v-if="user.roles?.length > 3">
                 <ShowMore>
                   <template v-slot:button>
-                    <Button type="secondary" size="tiny"
-                      >show all {{ user.roles?.length }} roles</Button
-                    >
+                    <Button type="secondary" size="tiny">
+                      show all {{ user.roles?.length }} roles
+                    </Button>
                   </template>
                   <div v-for="role in user.roles">
                     {{ role.schemaId }} ({{ role.role }})
@@ -179,6 +179,7 @@ const schema = ref<string>("");
 
 retrieveUsers();
 schemas.value = await getSchemas();
+// @ts-expect-error
 schema.value = schemas.value.length ? schemas.value[0].id : "";
 roles.value = await getRoles(schemas.value);
 

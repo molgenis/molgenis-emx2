@@ -80,8 +80,9 @@
           icon="plus"
           @click="addRole"
           class="whitespace-nowrap"
-          >Add role</Button
         >
+          Add role
+        </Button>
       </div>
     </div>
     <!--
@@ -118,11 +119,12 @@
             size="small"
             @click="saveUser()"
             :disabled="!isValidUser()"
-            >Save</Button
           >
-          <Button icon="Cross" size="small" @click="closeEditUserModal"
-            >Close</Button
-          >
+            Save
+          </Button>
+          <Button icon="Cross" size="small" @click="closeEditUserModal">
+            Close
+          </Button>
         </div>
       </div>
     </template>
@@ -130,6 +132,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-expect-error
 import _ from "lodash";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { isValidPassword, updateUser } from "~/util/adminUtils";
@@ -204,7 +207,7 @@ function removeRole(role: IRole) {
 }
 
 function removeToken(token: string) {
-  userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
+  userTokens.value = _.reject(userTokens.value, (tok: string) => tok === token);
 }
 
 function getRoles(roles: IRole[]): Record<string, IRole> {

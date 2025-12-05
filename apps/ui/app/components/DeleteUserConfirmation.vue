@@ -2,12 +2,15 @@
   <Modal v-model:visible="visible" :title="`Delete user: ${userName}`">
     <div class="overflow-y-auto">
       <div class="p-5">
-        <p class="mb-4">
-          Are you sure you want to delete the user
-          <strong>{{ userName }}</strong
-          ><br />
+        <div class="mb-4">
+          <p>
+            Are you sure you want to delete the user
+            <strong>
+              {{ userName }}
+            </strong>
+          </p>
           This action cannot be undone.
-        </p>
+        </div>
       </div>
     </div>
     <template #footer>
@@ -20,11 +23,12 @@
               emit('deleteUser', props.user);
               visible = false;
             "
-            >Delete</Button
           >
-          <Button icon="cross" size="small" @click="visible = false"
-            >Cancel</Button
-          >
+            Delete
+          </Button>
+          <Button icon="cross" size="small" @click="visible = false">
+            Cancel
+          </Button>
         </div>
       </div>
     </template>
