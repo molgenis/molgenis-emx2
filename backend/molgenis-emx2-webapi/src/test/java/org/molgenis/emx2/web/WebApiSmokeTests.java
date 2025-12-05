@@ -55,27 +55,30 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 @ExtendWith(SystemStubsExtension.class)
-public class WebApiSmokeTests {
+class WebApiSmokeTests {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
   private static final String EXCEPTION_CONTENT_TYPE = "application/json";
 
-  public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   public static final String PET_SHOP_VIEWER = "shopviewer";
   public static final String PET_SHOP_MANAGER = "shopmanager";
+
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
+  public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
-  public static String SESSION_ID; // to toss around a session for the tests
+  private static final String CSV_TEST_SCHEMA = "pet store csv";
+
+  private static final int PORT = 8081; // other than default so we can see effect
+
+  private static String sessionId; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
-  final String CSV_TEST_SCHEMA = "pet store csv";
-  static final int PORT = 8081; // other than default so we can see effect
 
   @BeforeAll
-  public static void before() throws Exception {
+  static void before() throws Exception {
     // FIXME: beforeAll fails under windows
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
@@ -97,7 +100,7 @@ public class WebApiSmokeTests {
         (String)
             EnvironmentProperty.getParameter(
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-    SESSION_ID =
+    sessionId =
         given()
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
@@ -129,7 +132,7 @@ public class WebApiSmokeTests {
   }
 
   @AfterAll
-  public static void after() {
+  static void after() {
     // Always clean up database to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     db.dropSchemaIfExists("pet store yaml");
@@ -157,7 +160,7 @@ public class WebApiSmokeTests {
 
     String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
 
-    given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
+    given().sessionId(sessionId).body(createUserQuery).post("/api/graphql").asString();
 
     int threadCount = 10;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -175,7 +178,7 @@ public class WebApiSmokeTests {
               startLatch.await();
 
               String signinResult =
-                  given().sessionId(SESSION_ID).body(signinQuery).post("/api/graphql").asString();
+                      given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
 
               try {
                 assertTrue(
@@ -186,7 +189,7 @@ public class WebApiSmokeTests {
               }
 
               String sessionResult =
-                  given().sessionId(SESSION_ID).body(sessionQuery).post("/api/graphql").asString();
+                      given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
 
               assertFalse(
                   sessionResult.contains(ADMIN_USER),
@@ -224,10 +227,10 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testApiRoot() {
+  void testApiRoot() {
     String result =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .expect()
             .statusCode(200)
             .when()
@@ -238,10 +241,14 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testCsvApi_zipUploadDownload() throws IOException {
+  void testCsvApi_zipUploadDownload() throws IOException {
     // get original schema
-    String schemaCsv =
-        given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
+    String schemaCsv = given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get(DATA_PET_STORE)
+            .asString();
 
     // create a new schema for zip
     db.dropCreateSchema("pet store zip");
@@ -252,7 +259,7 @@ public class WebApiSmokeTests {
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .multiPart(zipFile)
         .when()
         .post("/pet store zip/api/zip")
@@ -262,7 +269,7 @@ public class WebApiSmokeTests {
     // check if schema equal using json representation
     String schemaCsv2 =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store zip/api/csv")
@@ -274,7 +281,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testReports() throws IOException {
+  void testReports() throws IOException {
     // create a new schema for report
     Schema schema = db.dropCreateSchema("pet store reports");
     PET_STORE.getImportTask(schema, true).run();
@@ -313,7 +320,7 @@ public class WebApiSmokeTests {
     // test json report api
     String jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report1")
             .asString();
     assertFalse(
@@ -321,7 +328,7 @@ public class WebApiSmokeTests {
         "single result should not include report name"); // are we sure about this?
     jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
             .asString();
     assertTrue(
@@ -330,7 +337,7 @@ public class WebApiSmokeTests {
     // check that id is for keys
     jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
             .asString();
     assertTrue(jsonResults.contains("report1"), "should use report id as key");
@@ -338,7 +345,7 @@ public class WebApiSmokeTests {
 
     jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report2&name=spike,pooky")
             .asString();
     assertTrue(jsonResults.contains("pooky"));
@@ -346,7 +353,7 @@ public class WebApiSmokeTests {
     // test report using jsonb_agg
     jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report3")
             .asString();
     ObjectMapper objectMapper = new ObjectMapper();
@@ -356,7 +363,7 @@ public class WebApiSmokeTests {
     // test report using jsonb rows
     jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report4")
             .asString();
     Object result = objectMapper.readValue(jsonResults, Object.class);
@@ -365,7 +372,7 @@ public class WebApiSmokeTests {
     // test report using json objects
     jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report5")
             .asString();
     Object jsonResult = objectMapper.readValue(jsonResults, Object.class);
@@ -373,7 +380,7 @@ public class WebApiSmokeTests {
 
     jsonResults =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .get("/pet store reports/api/reports/json?id=report4,report5")
             .asString();
     Map<String, Object> multipleResults = objectMapper.readValue(jsonResults, Map.class);
@@ -382,7 +389,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testCsvApi_csvTableMetadataUpdate() throws IOException {
+  void testCsvApi_csvTableMetadataUpdate() throws IOException {
 
     // fresh schema for testing
     db.dropCreateSchema(CSV_TEST_SCHEMA);
@@ -445,7 +452,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testCsvApi_csvUploadDownload() throws IOException {
+  void testCsvApi_csvUploadDownload() throws IOException {
     // create a new schema for complete csv data round trip
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
@@ -515,10 +522,10 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testCsvApi_tableFilter() {
+  void testCsvApi_tableFilter() {
     String result =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
             .accept(ACCEPT_CSV)
             .when()
@@ -529,7 +536,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .queryParam("filter", "{\"tags\":{\"name\": {\"equals\":\"blue\"}}}")
             .accept(ACCEPT_CSV)
             .when()
@@ -542,7 +549,7 @@ public class WebApiSmokeTests {
   private String acceptFileUpload(File content, String table, boolean async) {
     Response response =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .body(content)
             .header("fileName", table)
             .when()
@@ -555,7 +562,7 @@ public class WebApiSmokeTests {
 
   private String getContentAsString(String path) {
     return given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .accept(ACCEPT_CSV)
         .when()
         .get("/" + CSV_TEST_SCHEMA + path)
@@ -563,47 +570,45 @@ public class WebApiSmokeTests {
   }
 
   private byte[] getContentAsByteArray(String fileType, String path) {
-    return given().sessionId(SESSION_ID).accept(fileType).when().get(path).asByteArray();
+    return given().sessionId(sessionId).accept(fileType).when().get(path).asByteArray();
   }
 
   @Test
-  public void testJsonYamlApi() {
-    String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
+  void testJsonYamlApi() {
+    String schemaJson = given().sessionId(sessionId).when().get("/pet store/api/json").asString();
 
     db.dropCreateSchema("pet store json");
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .body(schemaJson)
         .when()
         .post("/pet store json/api/json")
         .then()
         .statusCode(200);
 
-    String schemaJson2 =
-        given().sessionId(SESSION_ID).when().get("/pet store json/api/json").asString();
+    String schemaJson2 = given().sessionId(sessionId).when().get("/pet store json/api/json").asString();
 
     assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
 
-    String schemaYaml = given().sessionId(SESSION_ID).when().get("/pet store/api/yaml").asString();
+    String schemaYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml").asString();
 
     db.dropCreateSchema("pet store yaml");
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .body(schemaYaml)
         .when()
         .post("/pet store yaml/api/yaml")
         .then()
         .statusCode(200);
 
-    String schemaYaml2 =
-        given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
+    String schemaYaml2 = given().sessionId(sessionId).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .body(schemaYaml2)
         .when()
         .delete("/pet store yaml/api/yaml")
@@ -611,7 +616,7 @@ public class WebApiSmokeTests {
         .statusCode(200);
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .body(schemaJson2)
         .when()
         .delete("/pet store json/api/json")
@@ -623,12 +628,12 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testExcelApi() throws IOException, InterruptedException {
+  void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
     String schemaCSV =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store/api/csv")
@@ -644,7 +649,7 @@ public class WebApiSmokeTests {
     // upload excel into new schema
     String message =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .multiPart(excelFile)
             .when()
             .post("/pet store excel/api/excel?async=true")
@@ -655,7 +660,7 @@ public class WebApiSmokeTests {
     String id = val.get("id");
 
     // poll task until complete
-    Response poll = given().sessionId(SESSION_ID).when().get(url);
+    Response poll = given().sessionId(sessionId).when().get(url);
     int count = 0;
     // poll while running
     // (previously we checked on 'complete' but then it also fired if subtask was complete)
@@ -664,7 +669,7 @@ public class WebApiSmokeTests {
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
-      poll = given().sessionId(SESSION_ID).when().get(url);
+      poll = given().sessionId(sessionId).when().get(url);
       Thread.sleep(500);
     }
     assertFalse(
@@ -673,7 +678,7 @@ public class WebApiSmokeTests {
     // check if id in tasks list
     assertTrue(
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .multiPart(excelFile)
             .when()
             .get("/pet store/api/tasks")
@@ -683,7 +688,7 @@ public class WebApiSmokeTests {
     // check if schema equal using json representation
     String schemaCSV2 =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .accept(ACCEPT_CSV)
             .when()
             .get("/pet store excel/api/csv")
@@ -706,27 +711,27 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testCsvApi_tableCsvUploadDownload() {
+  void testCsvApi_tableCsvUploadDownload() {
 
     String path = "/pet store/api/csv/Tag";
 
-    String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
+    String result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
     assertTrue(result.contains("green,,,colors"));
 
     String update = "name,parent\r\nyellow,colors\r\n";
-    given().sessionId(SESSION_ID).body(update).when().post(path).then().statusCode(200);
+    given().sessionId(sessionId).body(update).when().post(path).then().statusCode(200);
 
-    result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
+    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
     assertTrue(result.contains("yellow"));
 
-    given().sessionId(SESSION_ID).body(update).when().delete(path).then().statusCode(200);
+    given().sessionId(sessionId).body(update).when().delete(path).then().statusCode(200);
 
-    result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
+    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
     assertTrue(result.contains("green,,,colors"));
   }
 
   @Test
-  public void testGraphqlApi() {
+  void testGraphqlApi() {
     String path = "/api/graphql";
 
     // session filter will take care of sessions if applicable
@@ -835,7 +840,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testBootstrapThemeService() {
+  void testBootstrapThemeService() {
     // should success
     String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();
     Assert.assertTrue(css.contains("123123"));
@@ -846,7 +851,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testMolgenisWebservice_redirectToFirstMenuItem() {
+  void testMolgenisWebservice_redirectToFirstMenuItem() {
     given()
         .redirects()
         .follow(false)
@@ -905,7 +910,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testTokenBasedAuth() throws JsonProcessingException {
+  void testTokenBasedAuth() throws JsonProcessingException {
 
     // check if we can use temporary token
     String token = getToken("shopmanager", "shopmanager");
@@ -989,12 +994,12 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testMolgenisWebservice_robotsDotTxt() {
+  void testMolgenisWebservice_robotsDotTxt() {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
   }
 
   @Test
-  public void testRdfApiRequest() {
+  void testRdfApiRequest() {
     final String urlPrefix = "http://localhost:" + PORT;
 
     final String defaultContentType = "text/turtle";
@@ -1083,7 +1088,7 @@ public class WebApiSmokeTests {
     // Output from global API call.
     String resultBase =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .when()
             .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
             .getBody()
@@ -1093,7 +1098,7 @@ public class WebApiSmokeTests {
     // TODO: https://github.com/molgenis/molgenis-emx2/issues/4954 (fix to return 204)
     String resultBaseNonExisting =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .when()
             .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
             .getBody()
@@ -1102,7 +1107,7 @@ public class WebApiSmokeTests {
     // Output shacl sets
     String resultShaclSetsYaml =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .when()
             .get("http://localhost:" + PORT + "/api/rdf?shacls")
             .getBody()
@@ -1111,7 +1116,7 @@ public class WebApiSmokeTests {
     // Output schema API call.
     String resultSchema =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .when()
             .get("http://localhost:" + PORT + "/pet store/api/rdf")
             .getBody()
@@ -1138,12 +1143,12 @@ public class WebApiSmokeTests {
             assertTrue(
                 resultShaclSetsYaml.contains(
                     """
-- id: dcat-ap-v3
-  name: DCAT-AP
-  version: 3.0.0
-  sources:
-  - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-- id: hri-v1""")));
+                    - id: dcat-ap-v3
+                      name: DCAT-AP
+                      version: 3.0.0
+                      sources:
+                      - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+                    - id: hri-v1""")));
   }
 
   /**
@@ -1155,7 +1160,7 @@ public class WebApiSmokeTests {
    */
   private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
     return given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .statusCode(expectStatusCode)
         .header("Content-Type", expectContentType)
@@ -1183,7 +1188,7 @@ public class WebApiSmokeTests {
   private RequestSender rdfApiContentTypeRequest(
       int expectStatusCode, String givenContentType, String expectedContentType) {
     return given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .header("Accept", givenContentType)
         .expect()
         .statusCode(expectStatusCode)
@@ -1198,11 +1203,11 @@ public class WebApiSmokeTests {
    * @return
    */
   private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
-    return given().sessionId(SESSION_ID).expect().statusCode(expectStatusCode).when();
+    return given().sessionId(sessionId).expect().statusCode(expectStatusCode).when();
   }
 
   @Test
-  public void downloadCsvTable() {
+  void downloadCsvTable() {
     Response response = downloadPet("/pet store/api/csv/Pet");
     assertTrue(
         response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
@@ -1210,13 +1215,13 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void downloadCsvTableWithSystemColumns() {
+  void downloadCsvTableWithSystemColumns() {
     Response response = downloadPet("/pet store/api/csv/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
     assertTrue(response.getBody().asString().contains("mg_"));
   }
 
   @Test
-  public void downloadExcelTable() throws IOException {
+  void downloadExcelTable() throws IOException {
     Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
     assertEquals("name,category,photoUrls,status,tags,weight,orders,mg_draft", rows.get(0));
@@ -1225,14 +1230,14 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void downloadExelTableWithSystemColumns() throws IOException {
+  void downloadExelTableWithSystemColumns() throws IOException {
     Response response = downloadPet("/pet store/api/excel/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
     assertTrue(rows.get(0).contains("mg_"));
   }
 
   @Test
-  public void downloadZipTable() throws IOException, InterruptedException {
+  void downloadZipTable() throws IOException, InterruptedException {
     File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
     List<File> files = TestUtils.extractFileFromZip(file);
     String result = Files.readString(files.get(0).toPath());
@@ -1241,7 +1246,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void downloadZipTableWithSystemColumns() throws IOException, InterruptedException {
+  void downloadZipTableWithSystemColumns() throws IOException, InterruptedException {
     File file =
         TestUtils.responseToFile(
             downloadPet("/pet store/api/zip/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true"));
@@ -1252,7 +1257,7 @@ public class WebApiSmokeTests {
 
   private Response downloadPet(String requestString) {
     return given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .accept(ACCEPT_EXCEL)
         .expect()
         .statusCode(200)
@@ -1263,7 +1268,7 @@ public class WebApiSmokeTests {
   @Test
   void testRoot() {
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .redirects()
         .follow(false)
         .expect()
@@ -1276,7 +1281,7 @@ public class WebApiSmokeTests {
 
   @Test
   @Disabled("unstable")
-  public void testScriptExecution() throws JsonProcessingException, InterruptedException {
+  void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
     String token = getToken("admin", "admin");
     String result;
@@ -1354,7 +1359,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testScriptScheduling() throws JsonProcessingException, InterruptedException {
+  void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
     db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
     db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
@@ -1416,8 +1421,7 @@ public class WebApiSmokeTests {
     assertEquals("Readme", result);
 
     // save a scheduled script that fires every second
-    result =
-        given()
+    given()
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body(
@@ -1476,8 +1480,7 @@ public class WebApiSmokeTests {
   @Test
   @Disabled("unstable; fails on CI around 50% of the time")
   // todo update / rewrite test to be more stable in CI env
-  public void testExecuteSubtaskInScriptTask()
-      throws JsonProcessingException, InterruptedException {
+  void testExecuteSubtaskInScriptTask() throws JsonProcessingException, InterruptedException {
     String parentJobName = "parentJobTest";
     Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
     jobs.delete(row("name", parentJobName));
@@ -1515,7 +1518,7 @@ public class WebApiSmokeTests {
                 + "molgenis-emx2-pyclient>=11.22.0"));
     String result =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .when()
             .post("/api/scripts/" + parentJobName)
             .getBody()
@@ -1542,7 +1545,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(SESSION_ID)
+            .sessionId(sessionId)
             .when()
             .post("/api/scripts/" + failingJobName)
             .getBody()
@@ -1554,7 +1557,7 @@ public class WebApiSmokeTests {
 
   private static boolean testJobSuccess(String url)
       throws InterruptedException, JsonProcessingException {
-    String result = given().sessionId(SESSION_ID).get(url).asString();
+    String result = given().sessionId(sessionId).get(url).asString();
 
     String status = "WAITING";
     int count = 0;
@@ -1563,7 +1566,7 @@ public class WebApiSmokeTests {
         throw new MolgenisException("failed: polling took too long, result is: " + result);
       }
       Thread.sleep(1000);
-      result = given().sessionId(SESSION_ID).get(url).asString();
+      result = given().sessionId(sessionId).get(url).asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
     }
     return !status.equals("ERROR");
@@ -1586,7 +1589,7 @@ public class WebApiSmokeTests {
   @Test
   void testJSONLDonJSONLDEndpoint() {
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .contentType("application/ld+json")
         .statusCode(200)
@@ -1594,7 +1597,7 @@ public class WebApiSmokeTests {
         .get("/pet store/api/jsonld");
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .contentType("application/ld+json")
         .statusCode(200)
@@ -1605,7 +1608,7 @@ public class WebApiSmokeTests {
   @Test
   void testTurtleOnTTLEndpoint() {
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .contentType("text/turtle")
         .statusCode(200)
@@ -1613,7 +1616,7 @@ public class WebApiSmokeTests {
         .get("/pet store/api/ttl");
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .contentType("text/turtle")
         .statusCode(200)
@@ -1663,28 +1666,28 @@ public class WebApiSmokeTests {
     var table = schema.getTable(TABLE_WITH_SPACES);
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .statusCode(200)
         .when()
         .get("/pet store/api/jsonld/" + table.getIdentifier());
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/" + table.getIdentifier());
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .statusCode(200)
         .when()
         .get("/pet store/api/excel/" + table.getIdentifier());
 
     given()
-        .sessionId(SESSION_ID)
+        .sessionId(sessionId)
         .expect()
         .statusCode(200)
         .when()
@@ -1693,7 +1696,7 @@ public class WebApiSmokeTests {
 
   @Test
   void testProfileApi() {
-    String result = result = given().get("/api/profiles").getBody().asString();
+    String result = given().get("/api/profiles").getBody().asString();
     assertTrue(result.contains("Samples"));
   }
 
