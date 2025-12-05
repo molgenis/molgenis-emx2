@@ -1,5 +1,42 @@
 package org.molgenis.emx2.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import graphql.Assert;
+import io.restassured.RestAssured;
+import io.restassured.filter.session.SessionFilter;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSender;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.Order;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.web.controllers.MetricsController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
+
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -16,40 +53,6 @@ import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import graphql.Assert;
-import io.restassured.RestAssured;
-import io.restassured.filter.session.SessionFilter;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSender;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.Order;
-import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
-import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.utils.EnvironmentProperty;
-import org.molgenis.emx2.web.controllers.MetricsController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -178,7 +181,7 @@ class WebApiSmokeTests {
               startLatch.await();
 
               String signinResult =
-                      given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
+                  given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
 
               try {
                 assertTrue(
@@ -189,7 +192,7 @@ class WebApiSmokeTests {
               }
 
               String sessionResult =
-                      given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
+                  given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
 
               assertFalse(
                   sessionResult.contains(ADMIN_USER),
@@ -243,12 +246,8 @@ class WebApiSmokeTests {
   @Test
   void testCsvApi_zipUploadDownload() throws IOException {
     // get original schema
-    String schemaCsv = given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get(DATA_PET_STORE)
-            .asString();
+    String schemaCsv =
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
     db.dropCreateSchema("pet store zip");
@@ -522,6 +521,41 @@ class WebApiSmokeTests {
   }
 
   @Test
+  void testCsvApi_givenNoSession_whenDownloadingMembers_thenRedirect() {
+    db.dropCreateSchema(CSV_TEST_SCHEMA);
+
+    var response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Unauthorized to get schema members"
+            }
+          ]
+        }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_downloadMembers() throws IOException {
+    db.dropCreateSchema(CSV_TEST_SCHEMA);
+
+    var response =
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_members_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+    var path = Path.of(Objects.requireNonNull(getClass().getResource("csv/members.csv")).getPath());
+    String expected = Files.readString(path);
+    assertEquals(expected, response.asString());
+  }
+
+  @Test
   void testCsvApi_tableFilter() {
     String result =
         given()
@@ -587,7 +621,8 @@ class WebApiSmokeTests {
         .then()
         .statusCode(200);
 
-    String schemaJson2 = given().sessionId(sessionId).when().get("/pet store json/api/json").asString();
+    String schemaJson2 =
+        given().sessionId(sessionId).when().get("/pet store json/api/json").asString();
 
     assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
 
@@ -603,7 +638,8 @@ class WebApiSmokeTests {
         .then()
         .statusCode(200);
 
-    String schemaYaml2 = given().sessionId(sessionId).when().get("/pet store yaml/api/yaml").asString();
+    String schemaYaml2 =
+        given().sessionId(sessionId).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
 
@@ -632,12 +668,7 @@ class WebApiSmokeTests {
 
     // download json schema
     String schemaCSV =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get("/pet store/api/csv")
-            .asString();
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
 
     // create a new schema for excel
     db.dropCreateSchema("pet store excel");
@@ -1422,13 +1453,13 @@ class WebApiSmokeTests {
 
     // save a scheduled script that fires every second
     given()
-            .header(MOLGENIS_TOKEN[0], token)
-            .when()
-            .body(
-                "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
-            .post(SYSTEM_PREFIX + "/api/graphql")
-            .getBody()
-            .asString();
+        .header(MOLGENIS_TOKEN[0], token)
+        .when()
+        .body(
+            "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
+        .post(SYSTEM_PREFIX + "/api/graphql")
+        .getBody()
+        .asString();
 
     // see that it is listed
     result =
