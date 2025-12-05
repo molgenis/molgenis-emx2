@@ -214,7 +214,6 @@ const requiredMessage = computed(() => {
   if (!visible.value) {
     return "";
   }
-  1;
   return form.value?.requiredMessage || "";
 });
 
@@ -222,7 +221,6 @@ const errorMessage = computed(() => {
   if (!visible.value) {
     return "";
   }
-  1;
   return form.value?.errorMessage || "";
 });
 

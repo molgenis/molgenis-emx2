@@ -19,27 +19,30 @@ import type {
 
 const mockActiveElem = ref("main");
 
-const mainSectioFields = [
+const mainSectionFields = [
   {
     label: "Overview",
     id: "overview",
-    errorCount: 1,
+    errorCount: computed(() => 1),
     type: "HEADING" as LegendHeading["type"],
     isActive: computed(() => mockActiveElem.value === "overview"),
+    isVisible: computed(() => true),
   },
   {
     label: "Population",
     id: "population",
-    errorCount: 2,
+    errorCount: computed(() => 2),
     type: "HEADING" as LegendHeading["type"],
     isActive: computed(() => mockActiveElem.value === "population"),
+    isVisible: computed(() => true),
   },
   {
     label: "Contents",
     id: "contents",
-    errorCount: 0,
+    errorCount: computed(() => 0),
     type: "HEADING" as LegendHeading["type"],
     isActive: computed(() => mockActiveElem.value === "contents"),
+    isVisible: computed(() => true),
   },
 ];
 
@@ -47,16 +50,18 @@ const accessSectionFields = [
   {
     label: "Registration",
     id: "data-registration",
-    errorCount: 16,
+    errorCount: computed(() => 16),
     type: "HEADING" as LegendHeading["type"],
     isActive: computed(() => mockActiveElem.value === "data-registration"),
+    isVisible: computed(() => true),
   },
   {
     label: "Information",
     id: "information",
-    errorCount: 0,
+    errorCount: computed(() => 0),
     type: "HEADING" as LegendHeading["type"],
     isActive: computed(() => mockActiveElem.value === "information"),
+    isVisible: computed(() => true),
   },
 ];
 
@@ -64,26 +69,28 @@ const sections = ref<LegendSection[]>([
   {
     label: "Main",
     id: "main",
-    errorCount: 3,
+    errorCount: computed(() => 3),
     type: "SECTION",
-    fields: mainSectioFields,
+    headers: mainSectionFields,
     isActive: computed(
       () =>
         mockActiveElem.value === "main" ||
-        mainSectioFields.some((field) => field.isActive.value === true)
+        mainSectionFields.some((field) => field.isActive.value === true)
     ),
+    isVisible: computed(() => true),
   },
   {
     label: "Access",
     id: "access",
-    errorCount: 0,
+    errorCount: computed(() => 0),
     type: "SECTION",
-    fields: accessSectionFields,
+    headers: accessSectionFields,
     isActive: computed(
       () =>
         mockActiveElem.value === "access" ||
         accessSectionFields.some((field) => field.isActive.value === true)
     ),
+    isVisible: computed(() => true),
   },
 ]);
 
@@ -96,9 +103,9 @@ const activeHeader = computed(() => {
     if (section.isActive) {
       return section;
     }
-    for (const field of section.fields) {
-      if ((field as any).isActive) {
-        return field;
+    for (const header of section.headers) {
+      if ((header as any).isActive) {
+        return header;
       }
     }
   }

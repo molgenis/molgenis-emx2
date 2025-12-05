@@ -58,7 +58,7 @@ export default function useForm(
 
   const formValueKeys = metadata.value.columns.map((col) => col.id);
 
-  // setup visability signals
+  // setup visibility signals
   const visibilityMap = metadata.value.columns.reduce((acc, column) => {
     const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
 
@@ -74,7 +74,7 @@ export default function useForm(
     }
 
     const paramsString = params.join(", ");
-    const visabilityFunction = new Function(
+    const visibilityFunction = new Function(
       paramsString,
       "return " + cleanExpression
     );
@@ -82,7 +82,7 @@ export default function useForm(
     // use function with apply to pass parameters dynamically while keeping reactivity
     acc[column.id] = computed(
       () =>
-        !!visabilityFunction.apply(
+        !!visibilityFunction.apply(
           null,
           params.map((p) => formValues.value[p])
         )

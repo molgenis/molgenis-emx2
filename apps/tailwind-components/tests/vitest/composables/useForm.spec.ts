@@ -319,10 +319,7 @@ describe("useForm", () => {
       ],
     });
 
-    const { sections, visibleColumns, onBlurColumn } = useForm(
-      tableMetadata,
-      formValues
-    );
+    const { sections } = useForm(tableMetadata, formValues);
 
     expect(sections.value[0].headers[1].isVisible).toBe(false);
 
