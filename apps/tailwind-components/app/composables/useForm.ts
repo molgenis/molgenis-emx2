@@ -47,7 +47,11 @@ export default function useForm(
 
   // initialize form values with all columns to prevent reference errors in expressions
   metadata.value.columns.forEach((column: IColumn) => {
-    if (!formValues.value.hasOwnProperty(column.id)) {
+    if (
+      !formValues.value.hasOwnProperty(column.id) &&
+      column.columnType !== "SECTION" &&
+      column.columnType !== "HEADING"
+    ) {
       formValues.value[column.id] = null;
     }
   });
