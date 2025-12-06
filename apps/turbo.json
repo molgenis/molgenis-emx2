@@ -4,11 +4,10 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": [
-        "**",
+        "**/*",
         "!node_modules/**",
         "!dist/**",
         "!*.log",
-        "!README.md",
         "!.gradle",
         "!build",
         "!.nuxt",

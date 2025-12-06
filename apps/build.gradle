@@ -38,16 +38,16 @@ def workspaceDirs = listProjectFolders()
 println "Workspace dirs = $workspaceDirs"
 
 def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
-    task.inputs.file("package.json")
-    def optionalLock = task.project.file("pnpm-lock.yaml")
-    if (optionalLock.exists()) {
-        task.inputs.file(optionalLock)
+    //include all files in root
+    project.projectDir.listFiles().findAll { it.isFile() }.each {file ->
+            task.inputs.file(file);
     }
-            
+    //include all files in the app folders except build files
     workspaceDirs.each { f ->
         def dir = project.file(f)
         task.inputs.files(
                 task.project.fileTree(f) {
+                    include "**/*"
                     exclude excludeFolders
                 }
         )
