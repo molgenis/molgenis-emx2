@@ -1,35 +1,16 @@
 {
   "private": true,
   "name": "emx2-frontend",
-  "workspaces": [
-    "metadata-utils",
-    "molgenis-components",
-    "emx2-analytics",
-    "helloworld",
-    "settings",
-    "central",
-    "schema",
-    "tables",
-    "updownload",
-    "pages",
-    "graphql-playground",
-    "graphql-playground",
-    "tailwind-components",
-    "catalogue",
-    "molgenis-viz",
-    "cranio-public",
-    "cranio-provider",
-    "ern-genturis",
-    "ern-ithaca",
-    "ern-reconnet",
-    "ern-skin",
-    "nestor-public",
-    "reports",
-    "tasks",
-    "gportal",
-    "projectmanager",
-    "aggregates",
-    "directory",
-    "ui"
-  ]
+  "packageManager": "pnpm@10.24.0",
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint --filter=tailwind-components --filter=catalogue --filter=ui",
+    "format": "turbo run format",
+    "checkFormat": "turbo run checkFormat",
+    "test-ci": "turbo run test-ci",
+    "e2e": "turbo run e2e"
+  },
+  "dependencies": {
+    "turbo": "2.6.1"
+  }
 }
