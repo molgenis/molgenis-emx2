@@ -98,7 +98,7 @@ if (route.params.resourceType === "collections") {
       // @ts-ignore
       filter: { tags: { equals: "collection" } },
       columnId: "type",
-      initialCollapsed: true,
+      initialCollapsed: false,
     },
     conditions: [],
   });
@@ -106,13 +106,14 @@ if (route.params.resourceType === "collections") {
 
 pageFilterTemplate = pageFilterTemplate.concat([
   {
-    id: "cohortTypes",
+    id: "areasOfInformation",
     config: {
-      label: "Cohort types",
+      label: "Areas of information",
       type: "ONTOLOGY",
-      ontologyTableId: "CohortStudyTypes",
+      ontologyTableId: "AreasOfInformationCohorts",
       ontologySchema: "CatalogueOntologies",
-      columnId: "cohortType",
+      columnId: "areasOfInformation",
+      filterTable: "collectionEvents",
     },
     conditions: [],
   },
@@ -124,6 +125,18 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologyTableId: "DataCategories",
       ontologySchema: "CatalogueOntologies",
       columnId: "dataCategories",
+      filterTable: "collectionEvents",
+    },
+    conditions: [],
+  },
+  {
+    id: "populationAgeGroups",
+    config: {
+      label: "Population age groups",
+      type: "ONTOLOGY",
+      ontologyTableId: "AgeGroups",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "ageGroups",
       filterTable: "collectionEvents",
     },
     conditions: [],
@@ -141,26 +154,24 @@ pageFilterTemplate = pageFilterTemplate.concat([
     conditions: [],
   },
   {
-    id: "areasOfInformation",
+    id: "cohortTypes",
     config: {
-      label: "Areas of information",
+      label: "Cohort types",
       type: "ONTOLOGY",
-      ontologyTableId: "AreasOfInformationCohorts",
+      ontologyTableId: "CohortStudyTypes",
       ontologySchema: "CatalogueOntologies",
-      columnId: "areasOfInformation",
-      filterTable: "collectionEvents",
+      columnId: "cohortType",
     },
     conditions: [],
   },
   {
-    id: "populationAgeGroups",
+    id: "cohortDesigns",
     config: {
-      label: "Population age groups",
+      label: "Design",
       type: "ONTOLOGY",
-      ontologyTableId: "AgeGroups",
+      ontologyTableId: "CohortDesigns",
       ontologySchema: "CatalogueOntologies",
-      columnId: "ageGroups",
-      filterTable: "collectionEvents",
+      columnId: "design",
     },
     conditions: [],
   },
