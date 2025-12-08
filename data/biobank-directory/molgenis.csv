@@ -141,8 +141,8 @@ Collections,,language,,hyperlink_array,,false,,The language(s) of the resource.,
 Collections,,keywords,,string_array,,false,,Keyword(s) describing the resource.,,,,,,,,,dcat:keyword
 Collections,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Collections,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
-Collections,,issued,,datetime,,true,,When the metadata for this resource was first published,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
-Collections,,modified,,datetime,,true,,When the metadata for this resource was last modified,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
+Collections,,issued,,datetime,,true,,When this resource was first published,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
+Collections,,modified,,datetime,,true,,When this resource was last modified,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
 ContactPersonsNationalNodes,,,,,,,,Contact persons national nodes,,,,,,,,,
 ContactPersonsNationalNodes,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 ContactPersonsNationalNodes,,first_name,First name,string,,false,,First name.,,,,,,,,,
