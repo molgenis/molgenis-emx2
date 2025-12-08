@@ -415,7 +415,7 @@ onMounted(() => {
     "
     @click="clearSelection"
     type="text"
-    size="small"
+    size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
   >

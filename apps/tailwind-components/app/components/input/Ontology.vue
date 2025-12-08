@@ -580,7 +580,7 @@ useClickOutside(wrapperRef, () => {
     "
     @click="clearSelection"
     type="text"
-    size="small"
+    size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
     :class="{ 'pl-4': hasChildren }"
