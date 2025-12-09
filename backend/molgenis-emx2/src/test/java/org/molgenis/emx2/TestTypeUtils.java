@@ -14,10 +14,10 @@ import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class TestTypeUtils {
+class TestTypeUtils {
 
   @Test
-  public void test() {
+  void test() {
     executeTest(ColumnType.UUID_ARRAY, new UUID[] {UUID.randomUUID(), UUID.randomUUID()});
     executeTest(ColumnType.BOOL_ARRAY, new Boolean[] {true, false});
     executeTest(ColumnType.INT_ARRAY, new Integer[] {1, 2});
@@ -56,7 +56,7 @@ public class TestTypeUtils {
   }
 
   @Test
-  public void testCommaInCsvString() {
+  void testCommaInCsvString() {
     String test = "\"value with, comma\",\"and, another\"";
 
     String[] result = TypeUtils.toStringArray(test);
@@ -65,7 +65,7 @@ public class TestTypeUtils {
   }
 
   @Test
-  public void testDataTimeStringToDateTimeObject() {
+  void testDataTimeStringToDateTimeObject() {
     assertEquals(
         TypeUtils.toDateTime("2023-02-24T12:08:23.46378"),
         LocalDateTime.of(2023, 02, 24, 12, 8, 23, 463780000));
@@ -99,8 +99,8 @@ public class TestTypeUtils {
 
     // array
     String arrayString = "[\"string1\",\"string2\"]";
-    JsonNode arrayJackson = new ObjectMapper().readTree(objectString);
-    JSONB arrayJooq = JSONB.valueOf(objectString);
+    JsonNode arrayJackson = new ObjectMapper().readTree(arrayString);
+    JSONB arrayJooq = JSONB.valueOf(arrayString);
 
     // string
     String stringString = "\"string1\"";
@@ -124,9 +124,9 @@ public class TestTypeUtils {
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
         // valid: array
-        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
-        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
-        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
+        () -> assertEquals(arrayJooq, TypeUtils.toJsonb(arrayString)),
+        () -> assertEquals(arrayJooq, TypeUtils.toJsonb(arrayJackson)),
+        () -> assertEquals(arrayJooq, TypeUtils.toJsonb(arrayJooq)),
         // invalid: primitive - string
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringString)),
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringJackson)),
