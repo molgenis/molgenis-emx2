@@ -1,9 +1,21 @@
 module.exports = {
   plugins: [
     {
-      name: "convertColors",
+      name: "removeUselessStrokeAndFill",
       params: {
-        currentColor: true,
+        removeNone: true,
+      },
+    },
+    {
+      name: "removeAttrs",
+      params: {
+        attrs: ["*:fill:*"],
+      },
+    },
+    {
+      name: "addAttributesToSVGElement",
+      params: {
+        attributes: ['fill="currentColor"'],
       },
     },
     {
