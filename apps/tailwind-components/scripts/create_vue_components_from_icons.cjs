@@ -2,8 +2,8 @@ var fs = require("fs");
 var path = require("path");
 var process = require("process");
 
-var moveFrom = "./assets/minified-icons";
-var moveTo = "./components/global/icons";
+var moveFrom = "./app/assets/minified-icons";
+var moveTo = "./app/components/global/icons";
 
 function camelize(str) {
   return str
