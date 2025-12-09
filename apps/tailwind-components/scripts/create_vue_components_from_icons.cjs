@@ -62,3 +62,10 @@ fs.readdir(moveFrom, function (err, files) {
     });
   });
 });
+
+fs.rm(moveFrom, {recursive: true}, (err) => {
+  if (err) {
+    return console.error(err);
+  }
+  console.log("Tmp folder successfully removed!");
+});
