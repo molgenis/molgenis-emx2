@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -88,6 +89,20 @@ class TestTypeUtils {
     assertThrows(MolgenisException.class, () -> TypeUtils.toBool(onePointZero));
     assertThrows(MolgenisException.class, () -> TypeUtils.toBool(five));
     assertThrows(MolgenisException.class, () -> TypeUtils.toBool(minusOne));
+  }
+
+  @Test
+  void testToDecimal() {
+    assertNull(TypeUtils.toDecimal(null));
+    assertNull(TypeUtils.toDecimal(""));
+    assertNull(TypeUtils.toDecimal("\n"));
+
+    assertEquals(15, TypeUtils.toDecimal("15.0"));
+    assertEquals(-15, TypeUtils.toDecimal("-15.0"));
+    assertEquals(15, TypeUtils.toDecimal(new BigDecimal(15)));
+    assertEquals(15, TypeUtils.toDecimal(15));
+    assertEquals(15, (double) 15);
+    assertEquals(15, TypeUtils.toDecimal(15L));
   }
 
   @Test
