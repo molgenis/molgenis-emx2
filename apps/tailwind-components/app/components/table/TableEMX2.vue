@@ -13,11 +13,12 @@
         v-if="props.isEditable && data?.tableMetadata"
         :metadata="data.tableMetadata"
         :schemaId="props.schemaId"
+        :isInsert="true"
         v-slot="{ setVisible }"
         @update:added="afterRowAdded"
       >
-        <Button type="primary" icon="add-circle" @click="setVisible"
-          >Add {{ tableId }}
+        <Button type="primary" icon="add-circle" @click="setVisible">
+          Add {{ tableId }}
         </Button>
       </EditModal>
 
@@ -176,6 +177,7 @@
     :schemaId="props.schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
+    :isInsert="false"
     v-model:visible="showEditModal"
     @update:updated="afterRowUpdated"
   />

@@ -1,19 +1,12 @@
 <script setup lang="ts">
-import {
-  onMounted,
-  useTemplateRef,
-  watch,
-  defineProps,
-  defineEmits,
-  defineModel,
-} from "vue";
+import { vIntersectionObserver } from "@vueuse/components";
+import { defineEmits, defineModel, defineProps, useTemplateRef } from "vue";
 import type {
   columnId,
   columnValue,
   IColumn,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import { vIntersectionObserver } from "@vueuse/components";
 import FormField from "./Field.vue";
 
 const props = defineProps<{
@@ -27,36 +20,28 @@ const modelValue = defineModel<IRow>("modelValue", {
   required: true,
 });
 
-const emit = defineEmits(["update", "view", "blur"]);
+const emit = defineEmits(["update", "view", "leaving-view", "blur"]);
 
 const container = useTemplateRef<HTMLDivElement>("container");
 
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);
+
   if (highest) {
     const col = props.columns.find(
       (c) => highest.target.id === `${c.id}-form-field`
     );
     if (col) emit("view", col);
   }
-}
 
-function copyConstantValuesToModelValue() {
-  if (props.constantValues) {
-    modelValue.value = Object.assign({}, props.constantValues);
+  const leaving = entries.find((entry) => entry.isIntersecting === false);
+  if (leaving) {
+    const col = props.columns.find(
+      (c) => leaving.target.id === `${c.id}-form-field`
+    );
+    if (col) emit("leaving-view", col);
   }
 }
-
-watch(
-  () => props.constantValues,
-  () => {
-    copyConstantValuesToModelValue();
-  }
-);
-
-onMounted(() => {
-  copyConstantValuesToModelValue();
-});
 
 const isRequired = (value: string | boolean): boolean =>
   (typeof value === "string" && value.toLowerCase() === "true") ||
@@ -97,7 +82,7 @@ const isRequired = (value: string | boolean): boolean =>
         :disabled="
           Boolean(
             column.readonly === 'true' ||
-              (rowKey && column.key === 1) ||
+              (rowKey && Object.keys(rowKey).length && column.key === 1) ||
               column.columnType === 'AUTO_ID'
           )
         "
