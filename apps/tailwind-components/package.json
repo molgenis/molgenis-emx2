@@ -19,7 +19,7 @@
     "e2e": "playwright test",
     "wcag:test": "node ./scripts/pa11y_update_urls.js && pa11y-ci -c .pa11yci",
     "wcag:serve": "http-server .reports/ -p 1234",
-    "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
+    "parse-icons": "node ./scripts/create_vue_components_from_icons.cjs",
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
@@ -51,7 +51,6 @@
     "pa11y-ci-reporter-html": "^7.0.0",
     "playwright-core": "1.56.0",
     "prettier": "2.8.8",
-    "svgo": "2.8.0",
     "tailwindcss": "3.4.17",
     "typescript": "5.6.2",
     "vue-tsc": "2.2.0"
