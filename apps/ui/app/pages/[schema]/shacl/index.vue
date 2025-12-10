@@ -124,7 +124,7 @@ const shaclSetRuns = useState("shaclSetRuns",
                         size="small"
                         label="download"
                         @click.prevent="downloadShacl(shaclSetRuns[routeSchema]?.[shaclSet.id]?.output, routeSchema, shaclSet.id)"
-                        :disabled="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status !== 'DONE' && shaclSetRuns[routeSchema]?.[shaclSet.id]?.status !== 'INVALID'"
+                        :disabled="!shaclSetRuns[routeSchema]?.[shaclSet.id]?.output && shaclSetRuns[routeSchema]?.[shaclSet.id]?.status !== 'INVALID'"
                     />
                 </div>
               </TableCell>
