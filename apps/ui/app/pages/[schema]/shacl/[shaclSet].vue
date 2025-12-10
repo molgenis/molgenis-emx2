@@ -29,13 +29,12 @@ const routeShaclSet = (
 ) as string;
 
 useHead({
-  title: `${routeShaclSet} - SHACL - RDF - ${routeSchema}  - Molgenis`,
+  title: `${routeShaclSet} - SHACL - ${routeSchema}  - Molgenis`,
 });
 
 const crumbs: Record<string, string> = {};
 crumbs[routeSchema] = `/${routeSchema}`;
-crumbs["rdf"] = `/${routeSchema}/rdf`;
-crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
+crumbs["shacl"] = `/${routeSchema}/shacl`;
 crumbs[`${routeShaclSet}`] = "";
 
 const processData = getProcessData(routeSchema, routeShaclSet);

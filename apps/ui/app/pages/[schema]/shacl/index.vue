@@ -29,12 +29,11 @@ const routeSchema = (
     : route.params.schema
 ) as string;
 
-useHead({ title: `SHACL - RDF - ${routeSchema}  - Molgenis` });
+useHead({ title: `SHACL - ${routeSchema}  - Molgenis` });
 
 const crumbs: Record<string, string> = {};
 crumbs[routeSchema] = `/${routeSchema}`;
-crumbs["rdf"] = `/${routeSchema}/rdf`;
-crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
+crumbs["shacl"] = `/${routeSchema}/shacl`;
 
 const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
   key: "shaclSets",
@@ -108,7 +107,7 @@ const shaclSetRuns = useState("shaclSetRuns",
                       :disabled="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status === 'RUNNING'"
                   />
                   <NuxtLink
-                      :to="`/${routeSchema}/rdf/shacl/${shaclSet.id}`"
+                      :to="`/${routeSchema}/shacl/${shaclSet.id}`"
                   >
                   <Button
                       :icon-only="true"
