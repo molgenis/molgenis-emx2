@@ -40,6 +40,12 @@ describe("useForm", () => {
         label: "columns 5",
         required: true,
       },
+      {
+        columnType: "BOOL",
+        id: "col6",
+        label: "columns 6",
+        required: true,
+      },
     ],
   });
 
@@ -59,11 +65,20 @@ describe("useForm", () => {
         label: "columns 4",
         required: true,
       },
+      {
+        columnType: "BOOL",
+        id: "col6",
+        label: "columns 6",
+        required: true,
+      },
     ]);
   });
 
   test("should return a list of empty required fields", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { emptyRequiredFields } = useForm(tableMetadata, formValues);
     expect(emptyRequiredFields.value).toEqual([
       {
@@ -82,7 +97,10 @@ describe("useForm", () => {
   });
 
   test("should go to the next required field", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { gotoNextRequiredField, lastScrollTo } = useForm(
       tableMetadata,
       formValues
@@ -94,7 +112,10 @@ describe("useForm", () => {
   });
 
   test("should go to the previous required field", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { gotoPreviousRequiredField, lastScrollTo } = useForm(
       tableMetadata,
       formValues
@@ -106,12 +127,15 @@ describe("useForm", () => {
   });
 
   test("setting a value on required field should update the message", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { requiredMessage, emptyRequiredFields } = useForm(
       tableMetadata,
       formValues
     );
-    expect(requiredMessage.value).toBe("2/2 required fields left");
+    expect(requiredMessage.value).toBe("2/3 required fields left");
 
     // setting a value removes the field from the required list
     formValues.value["col2"] = "some value";
@@ -123,7 +147,7 @@ describe("useForm", () => {
         required: true,
       },
     ]);
-    expect(requiredMessage.value).toBe("1/2 required field left");
+    expect(requiredMessage.value).toBe("1/3 required field left");
   });
 
   test("setting an error should update the message", () => {
