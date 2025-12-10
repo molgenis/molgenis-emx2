@@ -1,9 +1,10 @@
-var fs = require("fs");
-var path = require("path");
-var process = require("process");
+const fs = require("fs");
+const path = require("path");
+const process = require("process");
+const svgo = require("svgo");
 
-var moveFrom = "./app/assets/minified-icons";
-var moveTo = "./app/components/global/icons";
+const sourceDir = "./app/assets/icons";
+const targetDir = "./app/components/global/icons";
 
 function camelize(str) {
   return str
@@ -17,8 +18,8 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-fs.rmdirSync(moveTo, { recursive: true });
-fs.mkdir(moveTo, (err) => {
+fs.rmdirSync(targetDir, { recursive: true });
+fs.mkdir(targetDir, (err) => {
   if (err) {
     return console.error(err);
   }
@@ -26,7 +27,7 @@ fs.mkdir(moveTo, (err) => {
 });
 
 // Loop through all the files in the temp directory
-fs.readdir(moveFrom, function (err, files) {
+fs.readdir(sourceDir, function (err, files) {
   if (err) {
     console.error("Could not list the directory.", err);
     process.exit(1);
@@ -34,22 +35,54 @@ fs.readdir(moveFrom, function (err, files) {
 
   files.forEach(function (file) {
     // Make one pass and make the file complete
-    var fromPath = path.join(moveFrom, file);
+    const sourceFile = path.join(sourceDir, file);
 
-    fs.readFile(fromPath, "utf8", (err, data) => {
+    fs.readFile(sourceFile, "utf8", (err, data) => {
       if (err) {
         console.error(err);
         return;
       }
 
-      var newFileName = camelize(file);
+      const optimizedSvg = svgo.optimize(data, {
+        plugins: [
+          {
+            name: "removeDimensions",
+          },
+          {
+            name: "removeAttrs",
+            params: {
+              attrs: ["*:fill:*"]
+            }
+          },
+          {
+            name: 'makeEverythingPink',
+            // type: "perItem",
+            fn: (ast, params, info) => {
+              return {
+                element: {
+                  enter: (node, parentNode) => {
+                    delete node.attributes.viewBox
+                    // node.attributes.fill = 'pink';
+                  },
+                },
+              };
+            },
+            // fn: function(item) {
+            //   console.log(item);
+            //   // item.attributes["fill"] = "pink"
+            // },
+          }
+        ]
+      });
+
+      let newFileName = camelize(file);
       newFileName = capitalizeFirstLetter(newFileName);
       newFileName = newFileName.replace("Svg", "vue");
 
-      var toPath = path.join(moveTo, newFileName);
+      const toPath = path.join(targetDir, newFileName);
 
       const newFile = `<template>
-  ${data} 
+  ${optimizedSvg.data} 
 </template>`;
 
       fs.writeFile(toPath, newFile, { flag: "w" }, (err) => {
@@ -61,11 +94,4 @@ fs.readdir(moveFrom, function (err, files) {
       });
     });
   });
-});
-
-fs.rm(moveFrom, {recursive: true}, (err) => {
-  if (err) {
-    return console.error(err);
-  }
-  console.log("Tmp folder successfully removed!");
 });
