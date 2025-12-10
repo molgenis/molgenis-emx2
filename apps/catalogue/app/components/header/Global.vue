@@ -34,7 +34,8 @@ const menu = [
       },
   {
     label: "Upload data",
-    link: "/apps/central/#/",
+    // link: "/apps/central/#/",
+    link: "/catalogue/pages/#/data-manager-portal", // make catalogue a default schema variable?
   },
   {
     label: "Manuals",
