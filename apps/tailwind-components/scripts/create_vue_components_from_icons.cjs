@@ -2,7 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var process = require("process");
 
-var moveFrom = "./app/assets/minified-icons";
+var moveFrom = "./app/assets/icons";
 var moveTo = "./app/components/global/icons";
 
 function camelize(str) {
@@ -61,11 +61,4 @@ fs.readdir(moveFrom, function (err, files) {
       });
     });
   });
-});
-
-fs.rm(moveFrom, {recursive: true}, (err) => {
-  if (err) {
-    return console.error(err);
-  }
-  console.log("Tmp folder successfully removed!");
 });
