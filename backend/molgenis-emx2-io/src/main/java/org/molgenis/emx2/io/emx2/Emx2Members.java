@@ -4,9 +4,7 @@ import static org.molgenis.emx2.Row.row;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.molgenis.emx2.Member;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 /** outputs into MOLGENIS_MEMBERS */
@@ -20,6 +18,8 @@ public class Emx2Members {
   }
 
   public static void outputRoles(TableStore store, Schema schema) {
+    checkRoles(schema);
+
     List<Row> members = new ArrayList<>();
     for (Member m : schema.getMembers()) {
       members.add(row(USER, m.getUser(), ROLE, m.getRole()));
@@ -30,6 +30,8 @@ public class Emx2Members {
   }
 
   public static int inputRoles(TableStore store, Schema schema) {
+    checkRoles(schema);
+
     int count = 0;
     if (store.containsTable(ROLES_TABLE)) {
       for (Row row : store.readTable(ROLES_TABLE)) {
@@ -38,5 +40,16 @@ public class Emx2Members {
       }
     }
     return count;
+  }
+
+  private static void checkRoles(Schema schema) {
+    if (!canAccessMembers(schema)) {
+      throw new UnauthorizedException("Unauthorized to access schema members");
+    }
+  }
+
+  private static boolean canAccessMembers(Schema schema) {
+    var roles = schema.getInheritedRolesForActiveUser();
+    return roles.contains(Privileges.MANAGER.toString()) || roles.contains(Privileges.OWNER.toString());
   }
 }
