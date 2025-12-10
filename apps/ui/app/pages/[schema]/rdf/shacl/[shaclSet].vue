@@ -68,7 +68,7 @@ if(processData.status === "UNKNOWN") runShacl(processData, routeSchema, routeSha
     </PageHeader>
     <ContentBasic>
       <template #controls>
-        <Button type="outline" size="small" label="refresh" icon="refresh" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl(processData, routeSchema, routeShaclSet)" />
+        <Button type="outline" size="small" label="run" icon="playArrow" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl(processData, routeSchema, routeShaclSet)" />
         <Button type="outline" size="small" label="download" icon="download" :disabled="!processData.output" @click.prevent="downloadShacl(processData.output, routeSchema, routeShaclSet)" />
       </template>
       <LoadingContent

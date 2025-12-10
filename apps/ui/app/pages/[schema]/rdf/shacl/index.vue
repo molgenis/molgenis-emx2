@@ -93,7 +93,7 @@ const shaclSetRuns = useState("shaclSetRuns",
           <template #body>
             <TableRow class="group" v-for="shaclSet in data">
               <TableCell>
-                <IconProcess :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status" />
+                <IconProcess class="absolute h-10 group-hover:invisible" :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status" />
                 <!-- todo: replace code below with generic non-EMX2 data table once available -->
                 <div
                     class="left-0 h-10 -mt-2 w-[124px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
