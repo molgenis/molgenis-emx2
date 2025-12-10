@@ -135,9 +135,17 @@ export default function useForm(
   /** return required and empty, visible fields across all sections */
   const emptyRequiredFields = computed(() => {
     return (
-      requiredFields.value?.filter(
-        (column: IColumn) => !formValues.value[column.id]
-      ) || []
+      requiredFields.value?.filter((column: IColumn) => {
+        if (column.columnType === "BOOL") {
+          //boolean required fields are considered filled when they are either true or false
+          return (
+            formValues.value[column.id] === undefined ||
+            formValues.value[column.id] === null
+          );
+        } else {
+          return !formValues.value[column.id];
+        }
+      }) || []
     );
   });
 
