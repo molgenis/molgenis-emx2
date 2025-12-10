@@ -529,7 +529,7 @@ class WebApiSmokeTests {
         {
           "errors" : [
             {
-              "message" : "Unauthorized to get schema members"
+              "message" : "Unauthorized to access schema members"
             }
           ]
         }""",
