@@ -41,3 +41,8 @@ ssRNA-seq,ssRNA-seq,,,
 PE 150-bp,Paired-end 150-bp,,,
 Panel,Gene panel sequencing,,,
 Array,Genotyping array,,,
+sr-RNAseq,Short-read RNA sequencing,EDAM,"EDAM:4057,EDAM:3170","http://edamontology.org/topic_4057,http://edamontology.org/topic_3170"
+lr-RNAseq,Long-read RNA sequencing,EDAM,"EDAM:4056,EDAM:3170","http://edamontology.org/topic_4056,http://edamontology.org/topic_3170"
+sr-WGS,Short-read Whole Genome Sequencing,NCIT,"EDAM:4057,NCIT:C101294","http://edamontology.org/topic_4057,http://purl.obolibrary.org/obo/NCIT_C101294"
+lr-WGS,Long-read Whole Genome Sequencing,NCIT,"EDAM:4056,NCIT:C101294","http://edamontology.org/topic_4056,http://purl.obolibrary.org/obo/NCIT_C101294"
+OGM,Optical Genome Mapping,NCIT,NCIT:C116162,http://purl.obolibrary.org/obo/NCIT_C116162
