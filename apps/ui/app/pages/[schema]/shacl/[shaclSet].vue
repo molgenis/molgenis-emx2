@@ -1,19 +1,19 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import Container from "../../../../../../tailwind-components/app/components/Container.vue";
-import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
-import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
-import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
-import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import CustomTooltip from "../../../../../tailwind-components/app/components/CustomTooltip.vue";
+import ContentBasic from "../../../../../tailwind-components/app/components/content/ContentBasic.vue";
+import LoadingContent from "../../../../../tailwind-components/app/components/LoadingContent.vue";
+import DisplayCodeBlock from "../../../../../tailwind-components/app/components/display/CodeBlock.vue";
 import {navigateTo} from "nuxt/app";
 import {
   downloadShacl
-} from "../../../../../../tailwind-components/app/utils/downloadBlob";
-import Button from "../../../../../../tailwind-components/app/components/Button.vue";
-import {getProcessData, runShacl} from "../../../../util/shaclUtils";
+} from "../../../../../tailwind-components/app/utils/downloadBlob";
+import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import {getProcessData, runShacl} from "../../../util/shaclUtils";
 
 const route = useRoute();
 const routeSchema = (

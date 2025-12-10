@@ -3,24 +3,24 @@ import { useFetch } from "#app/composables/fetch";
 import { useRoute } from "vue-router";
 import { useHead, useState } from "#app";
 import { parse } from "yaml";
-import Container from "../../../../../../tailwind-components/app/components/Container.vue";
-import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
-import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
-import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue";
-import IconProcess from "../../../../../../tailwind-components/app/components/icon/Process.vue";
-import Table from "../../../../../../tailwind-components/app/components/Table.vue";
-import TableHead from "../../../../../../tailwind-components/app/components/TableHead.vue";
-import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
-import TableRow from "../../../../../../tailwind-components/app/components/TableRow.vue";
-import TableCell from "../../../../../../tailwind-components/app/components/TableCell.vue";
-import type { ProcessData } from "../../../../../../metadata-utils/src/generic";
-import Button from "../../../../../../tailwind-components/app/components/Button.vue";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import ContentBasic from "../../../../../tailwind-components/app/components/content/ContentBasic.vue";
+import LoadingContent from "../../../../../tailwind-components/app/components/LoadingContent.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import CustomTooltip from "../../../../../tailwind-components/app/components/CustomTooltip.vue";
+import IconProcess from "../../../../../tailwind-components/app/components/icon/Process.vue";
+import Table from "../../../../../tailwind-components/app/components/Table.vue";
+import TableHead from "../../../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../../../tailwind-components/app/components/TableRow.vue";
+import TableCell from "../../../../../tailwind-components/app/components/TableCell.vue";
+import type { ProcessData } from "../../../../../metadata-utils/src/generic";
+import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import {
   downloadShacl
-} from "../../../../../../tailwind-components/app/utils/downloadBlob";
-import {getProcessData, runShacl} from "../../../../util/shaclUtils";
+} from "../../../../../tailwind-components/app/utils/downloadBlob";
+import {getProcessData, runShacl} from "../../../util/shaclUtils";
 
 const route = useRoute();
 const routeSchema = (
