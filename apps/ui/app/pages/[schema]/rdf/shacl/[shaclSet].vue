@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { useHead, useState } from "#app";
+import { useHead } from "#app";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
@@ -8,10 +8,12 @@ import CustomTooltip from "../../../../../../tailwind-components/app/components/
 import ContentBasic from "../../../../../../tailwind-components/app/components/content/ContentBasic.vue";
 import LoadingContent from "../../../../../../tailwind-components/app/components/LoadingContent.vue";
 import DisplayCodeBlock from "../../../../../../tailwind-components/app/components/display/CodeBlock.vue";
-import type { ProcessData } from "../../../../../../metadata-utils/src/generic";
 import {navigateTo} from "nuxt/app";
-import {downloadBlob} from "../../../../../../tailwind-components/app/utils/downloadBlob";
+import {
+  downloadShacl
+} from "../../../../../../tailwind-components/app/utils/downloadBlob";
 import Button from "../../../../../../tailwind-components/app/components/Button.vue";
+import {getProcessData, runShacl} from "../../../../util/shaclUtils";
 
 const route = useRoute();
 const routeSchema = (
@@ -36,49 +38,8 @@ crumbs["rdf"] = `/${routeSchema}/rdf`;
 crumbs["shacl"] = `/${routeSchema}/rdf/shacl`;
 crumbs[`${routeShaclSet}`] = "";
 
-// Structure: routeSchema -> routeShaclSet -> ProcessData
-const shaclSetRuns = useState("shaclSetRuns",
-  () => ({} as Record<string, Record<string, ProcessData>>)
-);
-
-function getProcessData(): ProcessData {
-  if (!shaclSetRuns.value[routeSchema]) {
-    shaclSetRuns.value[routeSchema] = {}
-  }
-  if(!shaclSetRuns.value[routeSchema][routeShaclSet]) {
-    shaclSetRuns.value[routeSchema][routeShaclSet] = {status: "UNKNOWN"};
-  }
-  return shaclSetRuns.value[routeSchema][routeShaclSet];
-}
-
-async function runShacl() {
-  if (processData.status === "RUNNING") return;
-
-  processData.output = undefined;
-  processData.error = undefined;
-  processData.status = "RUNNING";
-
-  const res = await fetch(`/${routeSchema}/api/rdf?validate=${routeShaclSet}`);
-  processData.output = await res.text();
-
-  if (res.status !== 200) {
-    processData.status = "ERROR";
-    processData.error = `Error (status code: ${res.status})`;
-  } else if (validateShaclOutput(processData.output)) {
-    processData.status = "DONE";
-  } else {
-    processData.status = "INVALID";
-  }
-}
-
-function validateShaclOutput(output: string): boolean {
-  return output
-      .substring(0, 100)
-      .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
-}
-
-const processData = getProcessData();
-if(processData.status === "UNKNOWN") runShacl();
+const processData = getProcessData(routeSchema, routeShaclSet);
+if(processData.status === "UNKNOWN") runShacl(processData, routeSchema, routeShaclSet);
 </script>
 
 <template>
@@ -107,8 +68,8 @@ if(processData.status === "UNKNOWN") runShacl();
     </PageHeader>
     <ContentBasic>
       <template #controls>
-        <Button type="outline" size="small" label="refresh" icon="refresh" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl" />
-        <Button type="outline" size="small" label="download" icon="download" :disabled="!processData.output" @click.prevent="downloadBlob(processData.output, 'text/turtle', `${routeSchema} - shacl - ${routeShaclSet}.ttl`)" />
+        <Button type="outline" size="small" label="refresh" icon="refresh" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl(processData, routeSchema, routeShaclSet)" />
+        <Button type="outline" size="small" label="download" icon="download" :disabled="!processData.output" @click.prevent="downloadShacl(processData.output, routeSchema, routeShaclSet)" />
       </template>
       <LoadingContent
         :id="`shaclSet-${routeShaclSet}`"

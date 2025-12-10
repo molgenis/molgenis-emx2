@@ -15,8 +15,12 @@ import TableHead from "../../../../../../tailwind-components/app/components/Tabl
 import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableRow from "../../../../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../../../../tailwind-components/app/components/TableCell.vue";
-import { navigateTo } from "#app/composables/router";
 import type { ProcessData } from "../../../../../../metadata-utils/src/generic";
+import Button from "../../../../../../tailwind-components/app/components/Button.vue";
+import {
+  downloadShacl
+} from "../../../../../../tailwind-components/app/utils/downloadBlob";
+import {getProcessData, runShacl} from "../../../../util/shaclUtils";
 
 const route = useRoute();
 const routeSchema = (
@@ -87,19 +91,49 @@ const shaclSetRuns = useState("shaclSetRuns",
             </TableHeadRow>
           </template>
           <template #body>
-            <TableRow v-for="shaclSet in data">
-              <TableCell
-                @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
-              >
+            <TableRow class="group" v-for="shaclSet in data">
+              <TableCell>
                 <IconProcess :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status" />
+                <!-- todo: replace code below with generic non-EMX2 data table once available -->
+                <div
+                    class="left-0 h-10 -mt-2 w-[124px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                >
+                  <Button
+                      :icon-only="true"
+                      type="inline"
+                      icon="playArrow"
+                      size="small"
+                      label="run"
+                      @click.prevent="runShacl(getProcessData(routeSchema, shaclSet.id), routeSchema, shaclSet.id)"
+                      :disabled="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status === 'RUNNING'"
+                  />
+                  <NuxtLink
+                      :to="`/${routeSchema}/rdf/shacl/${shaclSet.id}`"
+                  >
+                  <Button
+                      :icon-only="true"
+                      type="inline"
+                      icon="inspect"
+                      size="small"
+                      label="inspect"
+                  />
+                  </NuxtLink>
+                    <Button
+                        :icon-only="true"
+                        type="inline"
+                        icon="download"
+                        size="small"
+                        label="download"
+                        @click.prevent="downloadShacl(shaclSetRuns[routeSchema]?.[shaclSet.id]?.output, routeSchema, shaclSet.id)"
+                        :disabled="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status !== 'DONE' && shaclSetRuns[routeSchema]?.[shaclSet.id]?.status !== 'INVALID'"
+                    />
+                </div>
               </TableCell>
               <TableCell
-                @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
                 >{{ shaclSet.name }}</TableCell
               >
               <TableCell
                 class="text-right"
-                @click="navigateTo(`/${routeSchema}/rdf/shacl/${shaclSet.id}`)"
                 >{{ shaclSet.version }}</TableCell
               >
               <TableCell>
