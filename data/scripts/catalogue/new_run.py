@@ -46,8 +46,8 @@ os.chdir('./files')
 # instantiate Client for source server:
 source = Client(SOURCE_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=SOURCE_SERVER_TOKEN)
 
-# # ETL for catalogue schema data:
-# print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
+# ETL for catalogue schema data:
+print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
 asyncio.run(source.export(filename=CATALOGUE_SCHEMA_NAME + '_data.zip'))
 # transform data from schema
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
@@ -64,8 +64,8 @@ zip_handling.zip_data()
 
 # instantiate Client for target server:
 target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
-# # upload catalogue data to target server
-# asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema=CATALOGUE_SCHEMA_NAME))
+# upload catalogue data to target server
+asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema=CATALOGUE_SCHEMA_NAME))
 
 # ETL for other schemas:
 for schema in source.get_schemas():
