@@ -334,16 +334,6 @@ onMounted(() => {
         </div>
         <div class="flex items-center gap-2">
           <BaseIcon
-            name="trash"
-            :class="{
-              'text-valid': valid,
-              'text-invalid': invalid,
-              'text-disabled cursor-not-allowed': disabled,
-              'text-input': !disabled,
-            }"
-            @click.stop="clearSelection"
-          />
-          <BaseIcon
             v-show="showSelect"
             name="caret-up"
             :class="{
@@ -410,9 +400,7 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="
-      !displayAsSelect && (isArray ? (modelValue || []).length > 0 : modelValue)
-    "
+    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
     @click="clearSelection"
     type="text"
     size="tiny"
