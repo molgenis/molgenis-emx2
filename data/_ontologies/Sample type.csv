@@ -416,3 +416,6 @@ Tissue (FFPE),"Tissue, formalin fixated and paraffin preserved or equivalent.",M
 Tissue (Frozen),"An anatomical structure consisting of similarly specialized cells and intercellular matrix, aggregated according to genetically determined spatial relationships, performing a specific function.",MIABIS-2.0-17,TISSUE (FROZEN),https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 Urine,The fluid that is excreted by the kidneys. It is stored in the bladder and discharged through the urethra.,MIABIS-2.0-17,URINE,https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 Circulating Cell-Free DNA,Circulating Cell-Free DNA,NCIT,C128274,http://purl.obolibrary.org/obo/NCIT_C128274
+Peripheral Blood Mononuclear Cell,A peripheral blood cell with a single nucleus. This category includes lymphocytes and monocytes.,NCIT,NCIT:C12954,http://purl.obolibrary.org/obo/NCIT_C12954
+Cell Preparation Tube with Heparin,"An evacuated blood collection tube that contains heparin, intended for the collection of whole blood and the separation of mononuclear cells.",NCIT,NCIT:C200886,http://purl.obolibrary.org/obo/NCIT_C200886
+Fibroblast,,NCIT,NCIT:C12482,http://purl.obolibrary.org/obo/NCIT_C12482
