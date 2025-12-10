@@ -93,8 +93,9 @@
           type="outline"
           size="small"
           @click="reAuthenticate"
-          >Re-authenticate</Button
         >
+          Re-authenticate
+        </Button>
       </FormError>
     </TransitionSlideUp>
     <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
