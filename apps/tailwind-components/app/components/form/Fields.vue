@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { vIntersectionObserver } from "@vueuse/components";
-import { defineEmits, defineModel, defineProps, useTemplateRef } from "vue";
+import { useTemplateRef } from "vue";
 import type {
   columnId,
   columnValue,
