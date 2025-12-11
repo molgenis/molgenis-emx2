@@ -82,7 +82,7 @@ function getFaviconUrl() {
 
 function initMatomo() {
   const { matomoUrl, matomoSiteId } = settingsStore.config;
-console.log({ matomoUrl, matomoSiteId });
+
   if (matomoUrl && matomoSiteId) {
     const _paq = (window._paq = window._paq || []);
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
