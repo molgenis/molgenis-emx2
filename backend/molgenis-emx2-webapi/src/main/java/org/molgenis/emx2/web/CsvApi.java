@@ -159,7 +159,7 @@ public class CsvApi {
     var currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
     var sqlSchemaMetadata = new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
     var roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
-    return roles.contains(Privileges.EDITOR.toString())
+    return schema.getDatabase().isAdmin()
         || roles.contains(Privileges.MANAGER.toString())
         || roles.contains(Privileges.OWNER.toString());
   }
