@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MetadataUtils {
+  private static final String MATCHES = "matches";
   private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
   private static Integer version;
 
@@ -656,12 +657,12 @@ public class MetadataUtils {
 
   public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
     org.jooq.Record result =
-        jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as("matches"))
+        jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as(MATCHES))
             .from(USERS_METADATA)
             .where(field(USER_NAME).eq(username))
             .fetchOne();
 
-    return result != null && result.get("matches") != null && result.get("matches", Boolean.class);
+    return result != null && result.get(MATCHES) != null && result.get(MATCHES, Boolean.class);
   }
 
   public static void setVersion(DSLContext jooq, int newVersion) {
