@@ -3,6 +3,8 @@ import { computed, ref } from "vue";
 import type {
   Crumb,
   ITableSettings,
+  KeyObject,
+  RowPayload,
   sortDirection,
 } from "../../../../../tailwind-components/types/types";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
@@ -13,6 +15,7 @@ import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import { getPrimaryKey } from "#imports";
 
 const route = useRoute();
 const router = useRouter();
@@ -76,6 +79,30 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession();
+
+/**
+ * Generates human readable key from KeyObject, one way only, only used for readability
+ */
+const buildValueKey = (keyObject: KeyObject): string => {
+  return Object.values(keyObject).reduce(
+    (acc: string, val: string | KeyObject) => {
+      const joiner = acc.length === 0 ? "" : "-";
+      return (acc +=
+        joiner + (typeof val === "string" ? val : buildValueKey(val)));
+    },
+    ""
+  );
+};
+
+async function onRowClicked({ data, metadata }: RowPayload) {
+  const primaryKeys = await getPrimaryKey(data, tableId, schemaId);
+
+  router.push(
+    `/${schemaId}/${tableId}/${
+      buildValueKey(primaryKeys) + "?keys=" + JSON.stringify(primaryKeys)
+    }`
+  );
+}
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
@@ -95,6 +122,7 @@ const { isAdmin, session } = await useSession();
       :tableId="tableId"
       v-model:settings="tableSettings"
       :isEditable="session?.roles?.includes('Editor') || isAdmin"
+      @row-clicked="onRowClicked($event)"
     />
   </section>
 </template>
