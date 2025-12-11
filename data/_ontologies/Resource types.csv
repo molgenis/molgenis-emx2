@@ -1,9 +1,9 @@
 name,label,parent,tags,codesystem,code,ontologyTermURI,definition
-Biobank,,,collection,EDAM,EDAM:3337,http://edamontology.org/topic_3337,Repositories of biological samples
+Biobank,,,collection,EDAM,EDAM:3337,http://edamontology.org/topic_3337,Repositories of biological samples and asociated databases
 Catalogue,,,,,,,Catalogue of resources
 Preclinical study,,,collection,,,,Preclinical scientific study
 Clinical trial,,,collection,SIO,SIO:001000,http://semanticscience.org/resource/SIO_001000,Studies testing medical interventions in humans
-Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,Observational studies of defined populations
+Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,"An observational study of a defined population, including the use of e.g. questionnaires and surveys"
 Common data model,,,collection,,,,A standardised data model which allows for coherent data and information exchange
 Health records,,,collection,SCDO,SCDO:0000492,http://purl.obolibrary.org/obo/SCDO_0000492,
 Network,,,network,,,,
