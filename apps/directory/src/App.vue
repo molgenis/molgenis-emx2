@@ -47,8 +47,13 @@ onMounted(async () => {
   filtersStore.bookmarkWaitingForApplication = true;
   await router.isReady();
   applyBookmark(query.value);
-  initMatomo();
   changeFavicon();
+
+  /** Because nextTick did not work and triggering it onUpdated is not a good idea. */
+  let matomoTimer = setTimeout(() => {
+    initMatomo();
+    clearTimeout(matomoTimer);
+  }, 250);
 });
 
 function closeAllDropdownButtons(event: any) {
@@ -78,6 +83,7 @@ function getFaviconUrl() {
 
 function initMatomo() {
   const { matomoUrl, matomoSiteId } = settingsStore.config;
+
   if (matomoUrl && matomoSiteId) {
     const _paq = (window._paq = window._paq || []);
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
