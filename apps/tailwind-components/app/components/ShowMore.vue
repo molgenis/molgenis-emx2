@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 import Button from "./Button.vue";
 
 const showMore = ref(false);
@@ -8,7 +8,7 @@ const showMore = ref(false);
 <template>
   <div>
     <div @click="showMore = true">
-      <slot  v-if="!showMore" name="button">
+      <slot v-if="!showMore" name="button">
         <Button type="text">show more</Button>
       </slot>
     </div>

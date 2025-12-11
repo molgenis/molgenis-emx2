@@ -35,7 +35,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 25,
+    limit: 20,
   }
 );
 
@@ -225,7 +225,7 @@ function clearSelection() {
 }
 
 function loadMore() {
-  offset.value += props.limit;
+  offset.value += 25;
   loadOptions({
     offset: offset.value,
     limit: props.limit,

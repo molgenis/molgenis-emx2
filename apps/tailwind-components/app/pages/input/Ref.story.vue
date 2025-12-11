@@ -82,6 +82,7 @@ function onBlur() {
       </label>
       <InputRef
         id="story-ref"
+        :limit="0"
         v-model="value3"
         :refSchemaId="schemaId2"
         :refTableId="tableId2"
@@ -99,6 +100,7 @@ function onBlur() {
       </label>
       <InputRef
         id="story-ref"
+        :limit="0"
         v-model="value4"
         :refSchemaId="schemaId2"
         :refTableId="tableId2"

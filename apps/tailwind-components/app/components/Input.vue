@@ -144,7 +144,7 @@
   <InputRef
     v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
     v-model="modelValue"
-    :limit="50"
+    :limit="30"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -161,7 +161,7 @@
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue"
-    :limit="50"
+    :limit="30"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -175,9 +175,10 @@
     @blur="emit('blur')"
     :is-array="true"
   />
-  <InputRefSelect
+  <InputRef
     v-else-if="'SELECT' === typeUpperCase"
     v-model="modelValue"
+    :limit="0"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -191,11 +192,12 @@
     @blur="emit('blur')"
     :align="align"
   />
-  <InputRefSelect
+  <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
     v-model="modelValue"
     :multiselect="true"
     :id="id"
+    :limit="0"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
