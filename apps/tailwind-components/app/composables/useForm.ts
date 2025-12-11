@@ -143,7 +143,7 @@ export default function useForm(
         (section) => section.id === column.section
       );
       if (section && column.columnType === "HEADING") {
-        const columns = metadata.value.columns.filter(
+        const headingColumns = metadata.value.columns.filter(
           (col) =>
             col.heading === column.id &&
             col.id !== column.id &&
@@ -155,11 +155,15 @@ export default function useForm(
           label: column.label,
           type: "HEADING",
           isVisible: computed(() =>
-            columns.some((col) => visibilityMap[col.id]?.value === true)
+            headingColumns.some((col) => visibilityMap[col.id]?.value === true)
           ),
-          isActive: computed(() => visibleColumnIds.value.has(column.id)),
+          isActive: computed(
+            () =>
+              visibleColumnIds.value.has(column.id) ||
+              headingColumns.some((col) => visibleColumnIds.value.has(col.id))
+          ),
           errorCount: computed(() => {
-            return columns.reduce((acc, col) => {
+            return headingColumns.reduce((acc, col) => {
               if (errorMap.value[col.id]) {
                 return acc + 1;
               }
