@@ -38,10 +38,11 @@
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "graphql-request": "6.1.0",
-    "metadata-utils": "*",
+    "metadata-utils": "workspace:*",
     "universal-cookie": "4.0.4",
     "vue": "3.5.22",
     "vue-flatpickr-component": "11.0.5",
+    "flatpickr": "4.6.13",
     "vue-gtag": "2.0.1",
     "vue3-cookies": "^1.0.6",
     "vuedraggable": "4.1.0"
