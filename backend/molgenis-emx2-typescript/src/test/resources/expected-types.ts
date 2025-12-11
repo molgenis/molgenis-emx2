@@ -82,6 +82,7 @@ export interface IUser {
     phone?: string;
     userStatus?: number;
     pets?: any;
+    street?: string;
 }
 
 export interface IUser_agg {

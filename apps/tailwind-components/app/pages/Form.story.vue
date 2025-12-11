@@ -169,6 +169,7 @@ const {
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
+  visibleColumnIds,
 } = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(
