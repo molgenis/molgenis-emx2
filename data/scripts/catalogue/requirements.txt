@@ -9,5 +9,5 @@ requests==2.32.4
 setuptools==78.1.1
 six==1.16.0
 molgenis_emx2_pyclient==11.61.2
-urllib3==2.5.0
+urllib3==2.6.0
 

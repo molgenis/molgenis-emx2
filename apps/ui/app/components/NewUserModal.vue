@@ -1,43 +1,50 @@
 <template>
   <Modal v-model:visible="visible" title="Create User">
-    <label>Username</label>
-    <InputString
-      id="New username"
-      v-model="username"
-      :hasError="isDuplicateName"
-    />
-    <label>Password</label>
-    <InputString
-      id="New user password"
-      v-model="password"
-      :valid="password.length >= 8"
-      :hasError="password.length < 8"
-      type="password"
-    />
-    <label>Repeat password</label>
-    <InputString
-      id="New user password"
-      v-model="password2"
-      :valid="password === password2 && password2 !== ''"
-      :hasError="password !== password2"
-      type="password"
-    />
-
+    <div class="overflow-y-auto">
+      <div class="p-5">
+        <label>Username</label>
+        <InputString
+          id="New username"
+          v-model="username"
+          :hasError="isDuplicateName"
+        />
+        <label>Password</label>
+        <InputString
+          id="New user password"
+          v-model="password"
+          :valid="password.length >= 8"
+          :hasError="password.length < 8"
+          type="password"
+        />
+        <label>Repeat password</label>
+        <InputString
+          id="New user password second time"
+          v-model="password2"
+          :valid="password === password2 && password2 !== ''"
+          :hasError="password !== password2"
+          type="password"
+        />
+      </div>
+    </div>
     <template #footer>
-      <div>
+      <div class="m-1">
         <div v-if="isDuplicateName">Username already exists</div>
         <div v-if="password !== password2">Passwords do not match</div>
-        <div v-if="password.length < 8">
+        <div v-if="password.length < 8 && password.length > 0">
           Password must be at least 8 characters
         </div>
+        <div class="flex gap-1">
+          <Button
+            icon="Plus"
+            size="small"
+            @click="addUser(username, password, password2)"
+            :disabled="!isValidUser()"
+          >
+            Add user
+          </Button>
+          <Button icon="Cross" size="small" @click="closeModal">Close</Button>
+        </div>
       </div>
-      <Button
-        @click="addUser(username, password, password2)"
-        :disabled="!isValidUser()"
-      >
-        Add user
-      </Button>
-      <Button @click="closeModal">Close</Button>
     </template>
   </Modal>
 </template>

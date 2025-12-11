@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import type { columnValue } from "../../../../metadata-utils/src/types";
+import InputGroupContainer from "../input/InputGroupContainer.vue";
+import InputLabel from "../input/Label.vue";
+import InputCheckboxIcon from "../input/CheckboxIcon.vue";
+import ButtonText from "../button/Text.vue";
 
 withDefaults(
   defineProps<
