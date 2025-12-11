@@ -661,7 +661,7 @@ public class MetadataUtils {
             .where(field(USER_NAME).eq(username))
             .fetchOne();
 
-    return result != null && result.get("matches", Boolean.class);
+    return result != null && result.get("matches") != null && result.get("matches", Boolean.class);
   }
 
   public static void setVersion(DSLContext jooq, int newVersion) {
