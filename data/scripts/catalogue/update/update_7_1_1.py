@@ -85,8 +85,6 @@ def get_registry_types(types):
             registry_types += ',' + 'Disease registry'
         elif t == 'Rare disease':
             registry_types += ',' + 'Rare disease registry'
-        elif t in ['Data source', 'Databank']:
-            registry_types += ',' + 'Registry'
     registry_types = registry_types.strip()
 
     return registry_types
