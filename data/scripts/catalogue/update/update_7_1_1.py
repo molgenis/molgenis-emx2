@@ -25,17 +25,24 @@ class Transform:
     """General functions to update catalogue data model.
     """
 
-    def __init__(self, schema_name, profile):
+    def __init__(self, schema_name):
         self.schema_name = schema_name
-        self.profile = profile
         self.path = self.schema_name + '_data/'
+        self.profile = self.get_profile()
+
+    def get_profile(self):
+        df_profile = pd.read_csv(self.path + 'Profiles.csv', dtype='object')
+        profile = df_profile.columns[0]
+
+        return profile
+
 
     def delete_data_model_file(self):
         """Delete molgenis.csv
         """
         os.remove(self.path + 'molgenis.csv')
 
-        def update_data_model_file(self):
+    def update_data_model_file(self):
         """Get data model from profile and copy molgenis.csv to appropriate folder
         """
         profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
@@ -83,14 +90,12 @@ def get_registry_types(types):
     return registry_types
 
 
-
 def update_types(types):
     updated_types = ''
     types = types.split(',')
 
     for t in types:
-        if t in ['Disease specific', 'Other type']:
-            
+        if t in ['Disease specific', 'Other type', 'Data source', 'Databank']:
+            pass
 
-
-    return updates_types
+    return updated_types

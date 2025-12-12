@@ -2,12 +2,11 @@
 # empty and updated to latest emx2 version
 # nginx settings should support the latest changes in the url
 # 'catalogue' schema (or for UMCG 'UMCG' schema) should be made with DATA_CATALOGUE template, without demo data
-
-
+import pandas as pd
 from decouple import config
 from molgenis_emx2_pyclient import Client
 from catalogue_util.zip_handling import Zip
-from update.update_7_x import Transform
+from update.update_7_1_1 import Transform
 import os
 import asyncio
 from pathlib import Path
@@ -55,7 +54,7 @@ print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 zip_handling.unzip_data()
 # transform schema data:
-update = Transform(schema_name=CATALOGUE_SCHEMA_NAME, profile='DataCatalogueFlat')
+update = Transform(schema_name=CATALOGUE_SCHEMA_NAME)
 # update data model file
 update.delete_data_model_file()
 update.update_data_model_file()
@@ -85,27 +84,8 @@ for schema in source.get_schemas():
         zip_handling = Zip(schema_name)
         zip_handling.unzip_data()
 
-        # determine schema profile:
-        path_to_data = Path().cwd().joinpath(schema_name + '_data')
-        tables = os.listdir(path_to_data)
-        if 'Linkages.csv' in tables:
-            profile = 'RWEStaging'
-        elif all(x in tables for x in ['Collection events.csv', 'Variables.csv', 'Variable mappings.csv', 'Internal identifiers.csv']):
-            profile = 'CohortsStaging'
-        elif SOURCE_SERVER_URL == 'https://molgeniscatalogue.org/':
-            profile = 'INTEGRATE'
-        elif SOURCE_SERVER_URL == 'https://molgeniscatalogue.org/' and 'Variable mappings.csv' not in tables:
-            profile = 'NetworksStaging'
-        elif SOURCE_SERVER_URL == 'https://catalogue.hdsu.nl/' and 'Variables.csv' in tables:
-            profile = 'NetworksStaging'
-        elif SOURCE_SERVER_URL == 'https://catalogue.hdsu.nl/' and 'Variables.csv' not in tables:
-            profile = 'UMCUCohorts'
-        elif CATALOGUE_SCHEMA_NAME == 'UMCG':
-            profile = 'UMCGCohortsStaging'
-        print(schema_name, profile)
-
         # transform schema data:
-        update = Transform(schema_name=schema_name, profile=profile)
+        update = Transform(schema_name=schema_name)
         # update data model file
         update.delete_data_model_file()
         update.update_data_model_file()
