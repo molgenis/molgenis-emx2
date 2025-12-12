@@ -82,6 +82,7 @@ const shaclSetRuns = useState("shaclSetRuns",
           <template #head>
             <TableHeadRow>
               <TableHead>status</TableHead>
+              <TableHead>controls</TableHead>
               <TableHead>name</TableHead>
               <TableHead>version</TableHead>
               <TableHead>sources</TableHead>
@@ -90,40 +91,40 @@ const shaclSetRuns = useState("shaclSetRuns",
           <template #body>
             <TableRow class="group" v-for="shaclSet in data">
               <TableCell>
-                <IconProcess class="absolute h-10 group-hover:invisible" :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status" />
+                <IconProcess :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status" />
                 <!-- todo: replace code below with generic non-EMX2 data table once available -->
-                <div
-                    class="left-0 h-10 -mt-2 w-[124px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+              </TableCell>
+              <TableCell>
+                <div class="flex flex-row">
+                <Button
+                    :icon-only="true"
+                    type="inline"
+                    icon="playArrow"
+                    size="small"
+                    label="run"
+                    @click.prevent="runShacl(getProcessData(routeSchema, shaclSet.id), routeSchema, shaclSet.id)"
+                    :disabled="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status === 'RUNNING'"
+                />
+                <NuxtLink
+                    :to="`/${routeSchema}/shacl/${shaclSet.id}`"
                 >
-                  <Button
-                      :icon-only="true"
-                      type="inline"
-                      icon="playArrow"
-                      size="small"
-                      label="run"
-                      @click.prevent="runShacl(getProcessData(routeSchema, shaclSet.id), routeSchema, shaclSet.id)"
-                      :disabled="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status === 'RUNNING'"
-                  />
-                  <NuxtLink
-                      :to="`/${routeSchema}/shacl/${shaclSet.id}`"
-                  >
-                  <Button
-                      :icon-only="true"
-                      type="inline"
-                      icon="inspect"
-                      size="small"
-                      label="inspect"
-                  />
-                  </NuxtLink>
-                    <Button
-                        :icon-only="true"
-                        type="inline"
-                        icon="download"
-                        size="small"
-                        label="download"
-                        @click.prevent="downloadShacl(shaclSetRuns[routeSchema]?.[shaclSet.id], routeSchema, shaclSet.id)"
-                        :disabled="!isSuccess(shaclSetRuns[routeSchema]?.[shaclSet.id]?.status)"
-                    />
+                <Button
+                    :icon-only="true"
+                    type="inline"
+                    icon="inspect"
+                    size="small"
+                    label="inspect"
+                />
+                </NuxtLink>
+                <Button
+                    :icon-only="true"
+                    type="inline"
+                    icon="download"
+                    size="small"
+                    label="download"
+                    @click.prevent="downloadShacl(shaclSetRuns[routeSchema]?.[shaclSet.id], routeSchema, shaclSet.id)"
+                    :disabled="!isSuccess(shaclSetRuns[routeSchema]?.[shaclSet.id]?.status)"
+                />
                 </div>
               </TableCell>
               <TableCell
