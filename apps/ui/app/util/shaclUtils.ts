@@ -50,10 +50,7 @@ function validateShaclOutput(output: string): boolean {
     .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
 }
 
-export function downloadShacl(
-  schema: string,
-  shaclSet: string
-) {
+export function downloadShacl(schema: string, shaclSet: string) {
   const processData = getProcessData(schema, shaclSet);
   if (!isSuccess(processData.status)) return;
   downloadBlob(

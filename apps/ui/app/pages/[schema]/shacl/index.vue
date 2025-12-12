@@ -102,12 +102,7 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
                     icon="playArrow"
                     size="small"
                     label="run"
-                    @click.prevent="
-                      runShacl(
-                        routeSchema,
-                        shaclSet.id
-                      )
-                    "
+                    @click.prevent="runShacl(routeSchema, shaclSet.id)"
                     :disabled="
                       getProcessData(routeSchema, shaclSet.id).status ===
                       'RUNNING'
@@ -128,12 +123,7 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
                     icon="download"
                     size="small"
                     label="download"
-                    @click.prevent="
-                      downloadShacl(
-                        routeSchema,
-                        shaclSet.id
-                      )
-                    "
+                    @click.prevent="downloadShacl(routeSchema, shaclSet.id)"
                     :disabled="
                       !isSuccess(
                         getProcessData(routeSchema, shaclSet.id).status
