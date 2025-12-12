@@ -41,7 +41,7 @@ crumbs[`${routeShaclSet}`] = "";
 
 const processData = getProcessData(routeSchema, routeShaclSet);
 if (processData.status === "UNKNOWN")
-  runShacl(processData, routeSchema, routeShaclSet);
+  runShacl(routeSchema, routeShaclSet);
 </script>
 
 <template>
@@ -79,7 +79,7 @@ if (processData.status === "UNKNOWN")
           label="run"
           icon="playArrow"
           :disabled="processData.status === 'RUNNING'"
-          @click.prevent="runShacl(processData, routeSchema, routeShaclSet)"
+          @click.prevent="runShacl(routeSchema, routeShaclSet)"
         />
         <Button
           type="outline"
@@ -88,7 +88,7 @@ if (processData.status === "UNKNOWN")
           icon="download"
           :disabled="!isSuccess(processData.status)"
           @click.prevent="
-            downloadShacl(processData, routeSchema, routeShaclSet)
+            downloadShacl(routeSchema, routeShaclSet)
           "
         />
       </template>

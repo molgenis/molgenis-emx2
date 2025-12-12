@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useFetch } from "#app/composables/fetch";
 import { useRoute } from "vue-router";
-import { useHead, useState } from "#app";
+import { useHead } from "#app";
 import { parse } from "yaml";
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
 import ContentBasic from "../../../../../tailwind-components/app/components/content/ContentBasic.vue";
@@ -15,7 +15,6 @@ import TableHead from "../../../../../tailwind-components/app/components/TableHe
 import TableHeadRow from "../../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableRow from "../../../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../../../tailwind-components/app/components/TableCell.vue";
-import type { ProcessData } from "../../../../../metadata-utils/src/generic";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import {
   downloadShacl,
@@ -54,12 +53,6 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
     );
   },
 });
-
-// Structure: routeSchema -> routeShaclSet -> ProcessData
-const shaclSetRuns = useState(
-  "shaclSetRuns",
-  () => ({} as Record<string, Record<string, ProcessData>>)
-);
 </script>
 
 <template>
@@ -97,7 +90,7 @@ const shaclSetRuns = useState(
             <TableRow class="group" v-for="shaclSet in data">
               <TableCell>
                 <IconProcess
-                  :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status"
+                  :status="getProcessData(routeSchema, shaclSet.id).status"
                 />
                 <!-- todo: replace code below with generic non-EMX2 data table once available -->
               </TableCell>
@@ -111,13 +104,12 @@ const shaclSetRuns = useState(
                     label="run"
                     @click.prevent="
                       runShacl(
-                        getProcessData(routeSchema, shaclSet.id),
                         routeSchema,
                         shaclSet.id
                       )
                     "
                     :disabled="
-                      shaclSetRuns[routeSchema]?.[shaclSet.id]?.status ===
+                      getProcessData(routeSchema, shaclSet.id).status ===
                       'RUNNING'
                     "
                   />
@@ -138,14 +130,13 @@ const shaclSetRuns = useState(
                     label="download"
                     @click.prevent="
                       downloadShacl(
-                        shaclSetRuns[routeSchema]?.[shaclSet.id],
                         routeSchema,
                         shaclSet.id
                       )
                     "
                     :disabled="
                       !isSuccess(
-                        shaclSetRuns[routeSchema]?.[shaclSet.id]?.status
+                        getProcessData(routeSchema, shaclSet.id).status
                       )
                     "
                   />

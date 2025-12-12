@@ -20,10 +20,11 @@ export function getProcessData(schema: string, shaclSet: string): ProcessData {
 }
 
 export async function runShacl(
-  processData: ProcessData,
   schema: string,
   shaclSet: string
 ): Promise<void> {
+  const processData = getProcessData(schema, shaclSet);
+
   if (processData.status === "RUNNING") return;
 
   processData.output = undefined;
@@ -50,11 +51,11 @@ function validateShaclOutput(output: string): boolean {
 }
 
 export function downloadShacl(
-  processData: ProcessData | undefined,
   schema: string,
   shaclSet: string
 ) {
-  if (!processData || !isSuccess(processData.status)) return;
+  const processData = getProcessData(schema, shaclSet);
+  if (!isSuccess(processData.status)) return;
   downloadBlob(
     processData?.output,
     "text/turtle",
