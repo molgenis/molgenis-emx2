@@ -38,13 +38,23 @@ Alternatively, you can import the icons directly. Please note that the default i
 
 ### Adding new icons
 
-Before adding a new icon to the component library, make sure there isn't a similar icon in `/global/icons` folder. If an appropriate icon isn't available, download the svg from [https://fonts.google.com/icons](https://fonts.google.com/icons) and [https://www.flaticon.com/authors/special/lineal](https://www.flaticon.com/authors/special/lineal). Place the file in the `assets/icons` folder and run the parse icons command.
+Before adding a new icon to the component library, make sure there isn't a similar icon in `/global/icons` folder. If an appropriate icon isn't available, download the svg from [https://fonts.google.com/icons](https://fonts.google.com/icons) and [https://www.flaticon.com/authors/special/lineal](https://www.flaticon.com/authors/special/lineal).
+Place the file in the `assets/icons` folder and rename it in adherence with the other files (lowercase with spaces and remove any extra text that is not needed).
+
+After this, manually inspect the file and make the following changes:
+
+- Remove `height` and `width` within the `<svg>` tag.
+- Add `color="currentColor"` to the `<svg>` tag and remove any `fill` elsewhere. If this causes the vector to show differently (f.e. with some cases of `<svg fill="none"><path stroke="color" d="coordinates"/></svg>`), change color in `stroke` instead.
+- Remove any `path` that is not actually drawn (f.e. `<path d="coordinates" fill="none"/>`).
+- Remove any additional properties that do not affect the output (f.e. some cases of `<path fill-rule="evenodd" clip-rule="evenodd" d="coordinates" />`, `enable-background`, et cetera)
+
+Once these edits are done, open IntelliJ IDEA, right click on the `./app/assets/icons` folder and select "Reformat code" (ensure no filters are selected).
+
+Finally, run the following script (from the tailwind-components directory) to create vue components of the SVG files:
 
 ```bash
 npm run parse-icons
 ```
-
-This script uses the [sgvo](https://github.com/svg/svgo) module to clean the icons and transform them into vue components. These files are then saved in the `global/icons/` folder.
 
 ## Getting started
 
