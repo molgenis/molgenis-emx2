@@ -16,6 +16,7 @@ import { useFavicon, usePreferredDark } from "@vueuse/core";
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import Error from "./components/Error.vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
@@ -29,9 +30,10 @@ const query = computed(() => route.query);
 const filtersStore = useFiltersStore();
 const settingsStore = useSettingsStore();
 
+const { configurationFetched } = storeToRefs(settingsStore);
+
 const banner = computed(() => settingsStore.config.banner);
 const footer = computed(() => settingsStore.config.footer);
-const configLoaded = computed(() => settingsStore.configurationFetched);
 
 const session = ref({});
 
@@ -44,7 +46,7 @@ watch(session, () => {
   settingsStore.setSessionInformation(session.value);
 });
 
-watch(configLoaded, () => {
+watch(configurationFetched, () => {
   initMatomo();
 });
 
