@@ -17,8 +17,12 @@ import TableRow from "../../../../../tailwind-components/app/components/TableRow
 import TableCell from "../../../../../tailwind-components/app/components/TableCell.vue";
 import type { ProcessData } from "../../../../../metadata-utils/src/generic";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import {downloadShacl, getProcessData, runShacl} from "../../../util/shaclUtils";
-import {isSuccess} from "../../../util/processUtils";
+import {
+  downloadShacl,
+  getProcessData,
+  runShacl,
+} from "../../../util/shaclUtils";
+import { isSuccess } from "../../../util/processUtils";
 
 const route = useRoute();
 const routeSchema = (
@@ -52,8 +56,9 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
 });
 
 // Structure: routeSchema -> routeShaclSet -> ProcessData
-const shaclSetRuns = useState("shaclSetRuns",
-    () => ({} as Record<string, Record<string, ProcessData>>)
+const shaclSetRuns = useState(
+  "shaclSetRuns",
+  () => ({} as Record<string, Record<string, ProcessData>>)
 );
 </script>
 
@@ -91,49 +96,63 @@ const shaclSetRuns = useState("shaclSetRuns",
           <template #body>
             <TableRow class="group" v-for="shaclSet in data">
               <TableCell>
-                <IconProcess :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status" />
+                <IconProcess
+                  :status="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status"
+                />
                 <!-- todo: replace code below with generic non-EMX2 data table once available -->
               </TableCell>
               <TableCell>
                 <div class="flex flex-row">
-                <Button
+                  <Button
                     :icon-only="true"
                     type="inline"
                     icon="playArrow"
                     size="small"
                     label="run"
-                    @click.prevent="runShacl(getProcessData(routeSchema, shaclSet.id), routeSchema, shaclSet.id)"
-                    :disabled="shaclSetRuns[routeSchema]?.[shaclSet.id]?.status === 'RUNNING'"
-                />
-                <NuxtLink
-                    :to="`/${routeSchema}/shacl/${shaclSet.id}`"
-                >
-                <Button
-                    :icon-only="true"
-                    type="inline"
-                    icon="inspect"
-                    size="small"
-                    label="inspect"
-                />
-                </NuxtLink>
-                <Button
+                    @click.prevent="
+                      runShacl(
+                        getProcessData(routeSchema, shaclSet.id),
+                        routeSchema,
+                        shaclSet.id
+                      )
+                    "
+                    :disabled="
+                      shaclSetRuns[routeSchema]?.[shaclSet.id]?.status ===
+                      'RUNNING'
+                    "
+                  />
+                  <NuxtLink :to="`/${routeSchema}/shacl/${shaclSet.id}`">
+                    <Button
+                      :icon-only="true"
+                      type="inline"
+                      icon="inspect"
+                      size="small"
+                      label="inspect"
+                    />
+                  </NuxtLink>
+                  <Button
                     :icon-only="true"
                     type="inline"
                     icon="download"
                     size="small"
                     label="download"
-                    @click.prevent="downloadShacl(shaclSetRuns[routeSchema]?.[shaclSet.id], routeSchema, shaclSet.id)"
-                    :disabled="!isSuccess(shaclSetRuns[routeSchema]?.[shaclSet.id]?.status)"
-                />
+                    @click.prevent="
+                      downloadShacl(
+                        shaclSetRuns[routeSchema]?.[shaclSet.id],
+                        routeSchema,
+                        shaclSet.id
+                      )
+                    "
+                    :disabled="
+                      !isSuccess(
+                        shaclSetRuns[routeSchema]?.[shaclSet.id]?.status
+                      )
+                    "
+                  />
                 </div>
               </TableCell>
-              <TableCell
-                >{{ shaclSet.name }}</TableCell
-              >
-              <TableCell
-                class="text-right"
-                >{{ shaclSet.version }}</TableCell
-              >
+              <TableCell>{{ shaclSet.name }}</TableCell>
+              <TableCell class="text-right">{{ shaclSet.version }}</TableCell>
               <TableCell>
                 <ol>
                   <li

@@ -8,10 +8,14 @@ import CustomTooltip from "../../../../../tailwind-components/app/components/Cus
 import ContentBasic from "../../../../../tailwind-components/app/components/content/ContentBasic.vue";
 import LoadingContent from "../../../../../tailwind-components/app/components/LoadingContent.vue";
 import DisplayCodeBlock from "../../../../../tailwind-components/app/components/display/CodeBlock.vue";
-import {navigateTo} from "nuxt/app";
+import { navigateTo } from "nuxt/app";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import {downloadShacl, getProcessData, runShacl} from "../../../util/shaclUtils";
-import {isSuccess} from "../../../util/processUtils";
+import {
+  downloadShacl,
+  getProcessData,
+  runShacl,
+} from "../../../util/shaclUtils";
+import { isSuccess } from "../../../util/processUtils";
 
 const route = useRoute();
 const routeSchema = (
@@ -36,23 +40,27 @@ crumbs["shacl"] = `/${routeSchema}/shacl`;
 crumbs[`${routeShaclSet}`] = "";
 
 const processData = getProcessData(routeSchema, routeShaclSet);
-if(processData.status === "UNKNOWN") runShacl(processData, routeSchema, routeShaclSet);
+if (processData.status === "UNKNOWN")
+  runShacl(processData, routeSchema, routeShaclSet);
 </script>
 
 <template>
   <Container>
-    <PageHeader :title="`${routeShaclSet} validation of ${routeSchema}`" align="left">
+    <PageHeader
+      :title="`${routeShaclSet} validation of ${routeSchema}`"
+      align="left"
+    >
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
       <template #title-prefix>
         <Button
-            class="mr-4"
-            type="filterWell"
-            size="large"
-            :iconOnly="true"
-            icon="arrow-left"
-            @click="navigateTo(crumbs['shacl'])"
+          class="mr-4"
+          type="filterWell"
+          size="large"
+          :iconOnly="true"
+          icon="arrow-left"
+          @click="navigateTo(crumbs['shacl'])"
         />
       </template>
       <template #description>
@@ -65,8 +73,24 @@ if(processData.status === "UNKNOWN") runShacl(processData, routeSchema, routeSha
     </PageHeader>
     <ContentBasic>
       <template #controls>
-        <Button type="outline" size="small" label="run" icon="playArrow" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl(processData, routeSchema, routeShaclSet)" />
-        <Button type="outline" size="small" label="download" icon="download" :disabled="!isSuccess(processData.status)" @click.prevent="downloadShacl(processData, routeSchema, routeShaclSet)" />
+        <Button
+          type="outline"
+          size="small"
+          label="run"
+          icon="playArrow"
+          :disabled="processData.status === 'RUNNING'"
+          @click.prevent="runShacl(processData, routeSchema, routeShaclSet)"
+        />
+        <Button
+          type="outline"
+          size="small"
+          label="download"
+          icon="download"
+          :disabled="!isSuccess(processData.status)"
+          @click.prevent="
+            downloadShacl(processData, routeSchema, routeShaclSet)
+          "
+        />
       </template>
       <LoadingContent
         :id="`shaclSet-${routeShaclSet}`"
