@@ -10,7 +10,7 @@ import sys
 
 from dotenv import load_dotenv
 
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
+from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
 CATALOGUE = 'catalogue'
 

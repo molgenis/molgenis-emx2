@@ -134,7 +134,7 @@ class StagingMigrator(Client):
                 updated_table: pd.DataFrame = self._get_filtered(table)
                 modified_table: pd.DataFrame = self._modify_table(updated_table, table)
                 if len(modified_table.index) != 0:
-                    upload_archive.writestr(file_name, modified_table.to_csv())
+                    upload_archive.writestr(file_name, modified_table.to_csv(index=False))
                     updated_tables.append(Path(file_name).stem)
 
         # Return zip
@@ -143,6 +143,11 @@ class StagingMigrator(Client):
             upload_stream.flush()
             return upload_stream
         log.info(f"Migrating tables {', '.join(updated_tables)}.")
+
+        filepath = BASE_DIR.joinpath(f"update.zip")
+        if Path(filepath).exists():
+            Path(filepath).unlink()
+        Path(filepath).write_bytes(upload_stream.getbuffer())
         return upload_stream
 
     def delete_resource(self):
@@ -169,7 +174,7 @@ class StagingMigrator(Client):
                 log.debug(f"Preparing table {table.name!r} for deletion.")
                 updated_table: pd.DataFrame = self._set_all_delete(table)
                 if len(updated_table.index) != 0:
-                    upload_archive.writestr(file_name, updated_table.to_csv())
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
                     updated_tables.append(Path(file_name).stem)
 
         if len(updated_tables) == 0:
