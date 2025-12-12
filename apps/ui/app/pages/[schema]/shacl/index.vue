@@ -92,7 +92,6 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
                 <IconProcess
                   :status="getProcessData(routeSchema, shaclSet.id).status"
                 />
-                <!-- todo: replace code below with generic non-EMX2 data table once available -->
               </TableCell>
               <TableCell>
                 <div class="flex flex-row">
