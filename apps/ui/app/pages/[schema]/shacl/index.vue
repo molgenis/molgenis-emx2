@@ -17,10 +17,8 @@ import TableRow from "../../../../../tailwind-components/app/components/TableRow
 import TableCell from "../../../../../tailwind-components/app/components/TableCell.vue";
 import type { ProcessData } from "../../../../../metadata-utils/src/generic";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import {
-  downloadShacl
-} from "../../../../../tailwind-components/app/utils/downloadBlob";
-import {getProcessData, runShacl} from "../../../util/shaclUtils";
+import {downloadShacl, getProcessData, runShacl} from "../../../util/shaclUtils";
+import {isSuccess} from "../../../util/processUtils";
 
 const route = useRoute();
 const routeSchema = (
@@ -123,8 +121,8 @@ const shaclSetRuns = useState("shaclSetRuns",
                         icon="download"
                         size="small"
                         label="download"
-                        @click.prevent="downloadShacl(shaclSetRuns[routeSchema]?.[shaclSet.id]?.output, routeSchema, shaclSet.id)"
-                        :disabled="!shaclSetRuns[routeSchema]?.[shaclSet.id]?.output && shaclSetRuns[routeSchema]?.[shaclSet.id]?.status !== 'INVALID'"
+                        @click.prevent="downloadShacl(shaclSetRuns[routeSchema]?.[shaclSet.id], routeSchema, shaclSet.id)"
+                        :disabled="!isSuccess(shaclSetRuns[routeSchema]?.[shaclSet.id]?.status)"
                     />
                 </div>
               </TableCell>

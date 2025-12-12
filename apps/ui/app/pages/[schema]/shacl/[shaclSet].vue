@@ -9,11 +9,9 @@ import ContentBasic from "../../../../../tailwind-components/app/components/cont
 import LoadingContent from "../../../../../tailwind-components/app/components/LoadingContent.vue";
 import DisplayCodeBlock from "../../../../../tailwind-components/app/components/display/CodeBlock.vue";
 import {navigateTo} from "nuxt/app";
-import {
-  downloadShacl
-} from "../../../../../tailwind-components/app/utils/downloadBlob";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import {getProcessData, runShacl} from "../../../util/shaclUtils";
+import {downloadShacl, getProcessData, runShacl} from "../../../util/shaclUtils";
+import {isSuccess} from "../../../util/processUtils";
 
 const route = useRoute();
 const routeSchema = (
@@ -68,7 +66,7 @@ if(processData.status === "UNKNOWN") runShacl(processData, routeSchema, routeSha
     <ContentBasic>
       <template #controls>
         <Button type="outline" size="small" label="run" icon="playArrow" :disabled="processData.status === 'RUNNING'" @click.prevent="runShacl(processData, routeSchema, routeShaclSet)" />
-        <Button type="outline" size="small" label="download" icon="download" :disabled="!processData.output" @click.prevent="downloadShacl(processData.output, routeSchema, routeShaclSet)" />
+        <Button type="outline" size="small" label="download" icon="download" :disabled="!isSuccess(processData.status)" @click.prevent="downloadShacl(processData, routeSchema, routeShaclSet)" />
       </template>
       <LoadingContent
         :id="`shaclSet-${routeShaclSet}`"

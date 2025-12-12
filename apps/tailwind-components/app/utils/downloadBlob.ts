@@ -11,7 +11,3 @@ export function downloadBlob(data: string | undefined, mediaType: string, fileNa
 
   window.URL.revokeObjectURL(url);
 }
-
-export function downloadShacl(data: string | undefined, schema: string, shaclSet: string) {
-  downloadBlob(data, 'text/turtle', `${schema} - shacl - ${shaclSet}.ttl`)
-}
