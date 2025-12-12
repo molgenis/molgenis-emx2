@@ -98,4 +98,4 @@ def update_types(types):
     remove = ['Rare disease', 'Disease specific', 'Other type', 'Data source', 'Databank']
     updated_types = [t for t in types if t not in remove]
 
-    return updated_types
+    return ','.join(updated_types)

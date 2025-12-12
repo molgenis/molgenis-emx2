@@ -1,15 +1,12 @@
 # Target server requirements:
 # empty and updated to latest emx2 version
-# nginx settings should support the latest changes in the url
 # 'catalogue' schema (or for UMCG 'UMCG' schema) should be made with DATA_CATALOGUE template, without demo data
-import pandas as pd
 from decouple import config
 from molgenis_emx2_pyclient import Client
 from catalogue_util.zip_handling import Zip
 from update.update_7_1_1 import Transform
 import os
 import asyncio
-from pathlib import Path
 
 
 # Data model details
