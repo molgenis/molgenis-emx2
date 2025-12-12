@@ -45,7 +45,6 @@ function validateShaclOutput(output: string): boolean {
 }
 
 export function downloadShacl(processData: ProcessData | undefined, schema: string, shaclSet: string) {
-  if(isSuccess(processData)) {
-    downloadBlob(processData?.output, 'text/turtle', `${schema} - shacl - ${shaclSet}.ttl`)
-  }
+  if(!processData || !isSuccess(processData.status)) return;
+  downloadBlob(processData?.output, 'text/turtle', `${schema} - shacl - ${shaclSet}.ttl`)
 }
