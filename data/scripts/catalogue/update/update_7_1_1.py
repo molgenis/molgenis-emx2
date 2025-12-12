@@ -87,7 +87,6 @@ def get_registry_types(types):
             registry_types += ',' + 'Rare disease registry'
         elif t in ['Data source', 'Databank']:
             registry_types += ',' + 'Registry'
-
     registry_types = registry_types.strip()
 
     return registry_types
@@ -95,7 +94,8 @@ def get_registry_types(types):
 
 def update_types(types):
     types = types.split(',')
+    updated_types = ['Registry' if t in ['Data source', 'Databank'] else t for t in types]
     remove = ['Rare disease', 'Disease specific', 'Other type', 'Data source', 'Databank']
-    updated_types = [t for t in types if t not in remove]
+    updated_types = [t for t in updated_types if t not in remove]
 
     return ','.join(updated_types)
