@@ -1,21 +1,26 @@
 <script lang="ts" setup>
 import BaseIcon from "~/components/BaseIcon.vue";
 import Message from "~/components/Message.vue";
-import IconProcess from "~/components/icon/Process.vue";
 import type {AsyncDataRequestStatus} from "#app";
 import type {ProcessStatus} from "../../../metadata-utils/src/generic";
 
-defineProps<{
-  id: string;
-  status: ProcessStatus | AsyncDataRequestStatus;
-  loadingText: string;
-  errorText: string | undefined;
-}>()
+withDefaults(
+    defineProps<{
+      id: string;
+      status: ProcessStatus | AsyncDataRequestStatus;
+      loadingText: string;
+      errorText: string | undefined;
+      showSlotOnError?: boolean;
+    }>(),
+    {
+      showSlotOnError: true
+    }
+);
 </script>
 
 <template>
-  <div v-if="status === 'UNKNOWN' || status === 'idle'" />
-  <div class="flex justify-center items-center text-heading-xl gap-5" v-else-if="status === 'RUNNING' || status === 'pending'">
+  <!-- nothing if: status === 'UNKNOWN' || status === 'idle' -->
+  <div class="flex justify-center items-center text-heading-xl gap-5" v-if="status === 'RUNNING' || status === 'pending'">
     <BaseIcon
         name="progress-activity"
         class="animate-spin"
@@ -31,5 +36,5 @@ defineProps<{
   >
     <span>{{ errorText }}</span>
   </Message>
-  <slot v-else></slot>
+  <slot v-if="status === 'DONE' || status === 'INVALID' || status === 'success' || (showSlotOnError && (status === 'ERROR' || status === 'error'))" />
 </template>
