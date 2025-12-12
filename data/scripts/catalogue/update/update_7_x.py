@@ -70,10 +70,10 @@ class Transform:
 
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
-        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE', 'NetworksStaging']:
+        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE']:
             self.collection_events()
             self.subpopulations()
-        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts']:
+        if self.profile in ['DataCatalogueFlat', 'UMCGCohortsStaging', 'UMCUCohorts'] and not self.url == 'https://molgeniscatalogue.org/':
             self.subpopulation_counts()
         if self.profile in ['CohortsStaging', 'RWEStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
@@ -255,9 +255,10 @@ class Transform:
             df_col_event['issued'] = ''
             df_col_event['modified'] = ''
 
-            # concatenate name and subpopulations from resource and name or subpopulations columns
-            df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
-            if self.profile != 'NetworksStaging':
+            if self.url != 'https://molgeniscatalogue.org/':
+                # concatenate name and subpopulations from resource and name or subpopulations columns
+                df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
+
                 df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
                 df_col_event['subpopulations'] = df_col_event.apply(concat_resource_multiple, column_name='subpopulations', axis=1)
 
@@ -265,13 +266,13 @@ class Transform:
                 dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
                 df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
 
-                # get creator from Resources
-                dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-                df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
+                # get descriptions from Resources when missing
+                dict_descriptions = dict(zip(df_resources.id, df_resources.description))
+                df_col_event['description'] = df_col_event.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
 
-            # get descriptions from Resources when missing
-            dict_descriptions = dict(zip(df_resources.id, df_resources.description))
-            df_col_event['description'] = df_col_event.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+            # get creator from Resources
+            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+            df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # get contact point from Resources
             dict_first_name = dict(zip(df_resources.id, df_resources['contact point.first name']))
@@ -302,25 +303,26 @@ class Transform:
             # transformations
             df_subpopulations['issued'] = ''
             df_subpopulations['modified'] = ''
-            # concatenate name from resource and name columns
-            df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, column_name='name', axis=1)
 
-            # get descriptions from Resources when missing
-            dict_descriptions = dict(zip(df_resources.id, df_resources.description))
-            df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+            if self.url != 'https://molgeniscatalogue.org/':
+                # concatenate name from resource and name columns
+                df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, column_name='name', axis=1)
+
+                # get descriptions from Resources when missing
+                dict_descriptions = dict(zip(df_resources.id, df_resources.description))
+                df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+
+                # get keywords from Resources
+                dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+                df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
 
             # get publisher from Resources
             dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
             df_subpopulations['publisher'] = df_subpopulations['resource'].apply(get_publisher, dict_publisher=dict_publisher)
 
-            if self.profile != 'NetworksStaging':
-                # get keywords from Resources
-                dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
-                df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
-
-                # get creator from Resources
-                dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-                df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
+            # get creator from Resources
+            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+            df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
 
             # get contact point from Resources
             dict_first_name = dict(zip(df_resources.id, df_resources['contact point.first name']))
@@ -353,7 +355,7 @@ class Transform:
         """
         df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False, dtype='object')
         if len(df_variables) != 0:
-            if self.profile != 'RWEStaging':
+            if self.url != 'https://molgeniscatalogue.org/':
                 # concatenate collection event name from resource and collection event name
                 df_variables['collection event'] = df_variables.apply(concat_resource_multiple, column_name='collection event', axis=1)
 
