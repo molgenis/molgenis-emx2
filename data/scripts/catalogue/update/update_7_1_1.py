@@ -66,6 +66,7 @@ class Transform:
         """ Transform data in Resources
         """
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        df_resources.rename(columns={'RWD type': 'registry or health record type'}, inplace=True)
 
         # update resource types
         df_resources['registry or health record type'] = df_resources['type'].apply(get_registry_types)
