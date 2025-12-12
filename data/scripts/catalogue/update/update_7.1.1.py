@@ -31,10 +31,21 @@ class Transform:
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
         # update resource types
+        df_resources['registry or health record type'] = df_resources['type'].apply(get_registry_types)
         df_resources['type'] = df_resources['type'].apply(update_types)
 
         # write table to file
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
+
+
+def get_registry_types(types):
+    registry_types = ''
+    types = types.split(',')
+
+
+    return registry_types
+
+
 
 def update_types(types):
     updated_types = ''
