@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 import { ref, onBeforeMount, watch } from "vue";
+import InputListbox from "../../components/input/Listbox.vue";
+import InputLabel from "../../components/input/Label.vue";
+import InputRadioGroup from "../../components/input/RadioGroup.vue";
 
 const modelValue = ref<string>("");
 const listboxData = ref<string[]>([]);
