@@ -244,37 +244,37 @@ function handleError(err: unknown, defaultMessage: string) {
 }
 
 async function onSave(draft: boolean) {
+  saving.value = true;
   saveErrorMessage.value = "";
   formMessage.value = "";
-  if (!draft && !form.value?.isValid()) {
-    // do not proceed if not valid
-    return;
-  }
-  try {
-    formValues.value["mg_draft"] = draft;
-    saving.value = true;
-    if (!form.value) {
-      throw new Error("Form reference is not available");
+  if (draft || form.value?.isValid()) {
+    try {
+      formValues.value["mg_draft"] = draft;
+      if (!form.value) {
+        throw new Error("Form reference is not available");
+      }
+      const resp = await (isInsert.value
+        ? form.value.insertInto()
+        : form.value.updateInto()
+      ).catch(() => (saving.value = false));
+      saving.value = false;
+      if (!resp) {
+        throw new Error(
+          `No response from server on ${isInsert.value ? "insert" : "update"}`
+        );
+      }
+      formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+        rowType.value
+      } ${draft ? "as draft" : ""}`;
+      showFormMessage.value = true;
+      emit(isInsert.value ? "update:added" : "update:updated", resp);
+      isInsert.value = false;
+    } catch (err) {
+      saving.value = false;
+      handleError(err, "Error saving data");
     }
-    const resp = await (isInsert.value
-      ? form.value.insertInto()
-      : form.value.updateInto()
-    ).catch(() => (saving.value = false));
-    saving.value = false;
-    if (!resp) {
-      throw new Error(
-        `No response from server on ${isInsert.value ? "insert" : "update"}`
-      );
-    }
-    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
-      rowType.value
-    } ${draft ? "as draft" : ""}`;
-    showFormMessage.value = true;
-    emit(isInsert.value ? "update:added" : "update:updated", resp);
-    isInsert.value = false;
-  } catch (err) {
-    handleError(err, "Error saving data");
   }
+  saving.value = false;
 }
 
 watch(formValues.value, () => {
