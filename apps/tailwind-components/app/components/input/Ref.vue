@@ -16,7 +16,6 @@ import type { IColumn } from "../../../../metadata-utils/src/types";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
 import InputGroupContainer from "../input/InputGroupContainer.vue";
-import ButtonText from "../button/Text.vue";
 import Button from "../Button.vue";
 import BaseIcon from "../BaseIcon.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
@@ -70,7 +69,7 @@ const selection = computed(() =>
     : (Object.keys(selectionMap.value)[0] as string)
 );
 
-async function prepareModel() {
+async function init() {
   tableMetadata.value = await fetchTableMetadata(
     props.refSchemaId,
     props.refTableId
@@ -101,11 +100,11 @@ async function prepareModel() {
 
 watch(
   () => props.refSchemaId,
-  () => prepareModel
+  () => init
 );
 watch(
   () => props.refTableId,
-  () => prepareModel
+  () => init
 );
 
 // the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
@@ -172,6 +171,32 @@ function toggleSearch() {
   if (searchTerms.value) updateSearch("");
 }
 
+const sentinel = ref<HTMLElement | null>(null);
+let loadMoreObserver: IntersectionObserver | null = null;
+function toggleSelect() {
+  if (showSelect.value) {
+    showSelect.value = false;
+    loadMoreObserver?.disconnect();
+    loadMoreObserver = null;
+  } else {
+    showSelect.value = true;
+    loadMoreObserver = new IntersectionObserver(
+      async (entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting) {
+          loadMore();
+        }
+      },
+      {
+        root: wrapperRef.value, // the container
+        threshold: 0.1,
+        rootMargin: "100px", //more smooth
+      }
+    );
+    loadMoreObserver.observe(sentinel.value);
+  }
+}
+
 function updateSearch(newSearchTerms: string) {
   optionMap.value = {};
   offset.value = 0;
@@ -233,8 +258,6 @@ function loadMore() {
   });
 }
 
-prepareModel();
-
 const displayAsSelect = computed(() => initialCount.value > props.limit);
 
 // Close dropdown when clicking outside
@@ -243,29 +266,17 @@ useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
 
-//observer to know when to load more values
-const sentinel = ref();
 onMounted(() => {
-  const observer = new IntersectionObserver(
-    async (entries) => {
-      const entry = entries[0];
-      if (entry?.isIntersecting) {
-        loadMore();
-      }
-    },
-    {
-      root: wrapperRef.value, // the container
-      threshold: 0.1,
-      rootMargin: "100px", //more smooth
-    }
-  );
-
-  observer.observe(sentinel.value);
+  init();
 });
 </script>
 
 <template>
-  <div v-show="initLoading" class="h-20 flex justify-start items-center">
+  <div
+    ref="lazyLoadTrigger"
+    v-show="initLoading"
+    class="h-20 flex justify-start items-center"
+  >
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
   <div
@@ -285,7 +296,7 @@ onMounted(() => {
       'text-input hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid && !valid,
     }"
-    @click.stop="displayAsSelect ? (showSelect = true) : null"
+    @click.stop="displayAsSelect && !showSelect ? toggleSelect : null"
   >
     <InputGroupContainer
       :id="`${id}-ref`"
@@ -296,10 +307,10 @@ onMounted(() => {
       <div
         v-show="displayAsSelect"
         class="flex items-center justify-between gap-2 m-2"
-        @click.stop="showSelect = !showSelect"
+        @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
-          <template v-if="modelValue" role="group">
+          <template v-if="isArray ? selection.length : selection" role="group">
             <Button
               v-for="label in isArray ? selection : [selection]"
               icon="cross"
@@ -328,7 +339,7 @@ onMounted(() => {
               class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
               placeholder="Search in terms"
               autocomplete="off"
-              @click.stop="showSelect = true"
+              @click.stop="toggleSelect"
             />
           </div>
         </div>
@@ -342,7 +353,7 @@ onMounted(() => {
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-            @click.stop="showSelect = false"
+            @click.stop="toggleSelect"
           />
           <BaseIcon
             v-show="!showSelect"
@@ -400,7 +411,7 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    v-if="isArray ? selection.length : selection"
     @click="clearSelection"
     type="text"
     size="tiny"
