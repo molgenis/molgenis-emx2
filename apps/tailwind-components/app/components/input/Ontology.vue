@@ -467,7 +467,7 @@ onMounted(() => {
       <div
         v-show="displayAsSelect"
         class="flex items-center justify-between gap-2 m-2"
-        @click.stop="showSelect = !showSelect"
+        @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="modelValue" role="group">
