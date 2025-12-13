@@ -235,7 +235,6 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId"
     :ontologyTableId="refTableId"
-    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -259,7 +258,6 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId"
     :ontologyTableId="refTableId"
-    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -338,7 +336,7 @@ const props = withDefaults(
       refSchemaId?: string;
       refTableId?: string;
       refLabel?: string;
-      refBackId?: string;
+      refBackColumn?: string;
       rowKey?: any;
       options?: IValueLabel[];
       trueLabel?: string;
