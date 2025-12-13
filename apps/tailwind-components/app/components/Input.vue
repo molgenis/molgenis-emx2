@@ -144,7 +144,7 @@
   <InputRef
     v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
     v-model="modelValue"
-    :limit="30"
+    :limit="20"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -161,7 +161,7 @@
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue"
-    :limit="30"
+    :limit="20"
     :id="id"
     :valid="valid"
     :invalid="invalid"
