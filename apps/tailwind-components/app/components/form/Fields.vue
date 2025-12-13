@@ -49,54 +49,50 @@ const isRequired = (value: string | boolean): boolean =>
 </script>
 
 <template>
-  <div ref="container">
-    <template v-for="column in columns" :key="column.id">
-      <div
-        v-if="
-          column.columnType === 'HEADING' || column.columnType === 'SECTION'
+  <template v-for="column in columns" :key="column.id">
+    <div
+      v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
+      :id="`${column.id}-form-field`"
+      v-intersection-observer="onIntersectionObserver"
+    >
+      <h2
+        class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
+        :class="
+          column.columnType === 'HEADING'
+            ? 'md:text-heading-4xl text-heading-4xl'
+            : 'md:text-heading-5xl text-heading-5xl'
         "
-        :id="`${column.id}-form-field`"
-        v-intersection-observer="[onIntersectionObserver, { root: container }]"
+        v-if="column.id != 'mg_top_of_form'"
       >
-        <h2
-          class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
-          :class="
-            column.columnType === 'HEADING'
-              ? 'md:text-heading-4xl text-heading-4xl'
-              : 'md:text-heading-5xl text-heading-5xl'
-          "
-          v-if="column.id != 'mg_top_of_form'"
-        >
-          {{ column.label }}
-        </h2>
-      </div>
-      <FormField
-        class="pb-8"
-        v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
-        v-intersection-observer="[onIntersectionObserver, { root: container }]"
-        v-model="modelValue[column.id]"
-        :id="`${column.id}-form-field`"
-        :type="column.columnType"
-        :label="column.formLabel ?? column.label"
-        :description="column.description"
-        :disabled="
-          Boolean(
-            column.readonly === 'true' ||
-              (rowKey && Object.keys(rowKey).length && column.key === 1) ||
-              column.columnType === 'AUTO_ID'
-          )
-        "
-        :rowKey="rowKey"
-        :required="isRequired(column.required ?? false)"
-        :error-message="errorMap[column.id]"
-        :ref-schema-id="column.refSchemaId"
-        :ref-table-id="column.refTableId"
-        :ref-label="column.refLabel || column.refLabelDefault"
-        :ref-back-id="column.refBackId"
-        :invalid="(errorMap[column.id] || '').length > 0"
-        @update:modelValue="emit('update', column)"
-        @blur="emit('blur', column)"
-      />
-    </template>
-  </div>
+        {{ column.label }}
+      </h2>
+    </div>
+    <FormField
+      class="pb-8"
+      v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
+      v-intersection-observer="onIntersectionObserver"
+      v-model="modelValue[column.id]"
+      :id="`${column.id}-form-field`"
+      :type="column.columnType"
+      :label="column.formLabel ?? column.label"
+      :description="column.description"
+      :disabled="
+        Boolean(
+          column.readonly === 'true' ||
+            (rowKey && Object.keys(rowKey).length && column.key === 1) ||
+            column.columnType === 'AUTO_ID'
+        )
+      "
+      :rowKey="rowKey"
+      :required="isRequired(column.required ?? false)"
+      :error-message="errorMap[column.id]"
+      :ref-schema-id="column.refSchemaId"
+      :ref-table-id="column.refTableId"
+      :ref-label="column.refLabel || column.refLabelDefault"
+      :ref-back-id="column.refBackId"
+      :invalid="(errorMap[column.id] || '').length > 0"
+      @update:modelValue="emit('update', column)"
+      @blur="emit('blur', column)"
+    />
+  </template>
 </template>
