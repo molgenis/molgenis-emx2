@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import draggable from "vuedraggable";
+import {VueDraggableNext as draggable} from "vue-draggable-next";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import { sortColumns } from "../../../utils/sortColumns";
 import BaseIcon from "../../BaseIcon.vue";
