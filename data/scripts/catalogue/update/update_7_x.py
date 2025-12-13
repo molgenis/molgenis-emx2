@@ -368,10 +368,10 @@ def clean_repeats(repeats):
 
 
 def concat_resource_name(row, column_name):
-        if not row['resource'].lower() in row[column_name].lower():
-            return row['resource'] + ' ' + row[column_name]
-        else:
-            return row[column_name]
+    if not row['resource'].lower() in row[column_name].lower():
+        return row['resource'] + ' ' + row[column_name]
+    else:
+        return row[column_name]
 
 
 def concat_resource_subpopulations(row):
