@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, useTemplateRef, watch } from "vue";
+import { computed, ref, toRaw, useTemplateRef, watch, nextTick } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
@@ -246,13 +246,20 @@ function handleError(err: unknown, defaultMessage: string) {
 async function onSave(draft: boolean) {
   saveErrorMessage.value = "";
   formMessage.value = "";
-  if (!draft && !form.value?.isValid()) {
-    // do not proceed if not valid
+  saving.value = true;
+  await nextTick();
+
+  if (draft && !form.value?.isDraftValid()) {
+    saving.value = false;
+    return;
+  } else if (!form.value?.isValid()) {
+    saving.value = false;
     return;
   }
+
   try {
     formValues.value["mg_draft"] = draft;
-    saving.value = true;
+
     if (!form.value) {
       throw new Error("Form reference is not available");
     }
