@@ -80,7 +80,9 @@ public class ExcelApi {
     if (ctx.queryParam("emx1") != null) {
       MolgenisIO.toEmx1ExcelFile(excelFile, schema);
     } else {
-      MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
+      var strategy = new MolgenisIO.OutputAllStrategy().withSystemColumns(includeSystemColumns);
+
+      MolgenisIO.toExcelFile(excelFile, schema, strategy);
     }
 
     try (OutputStream outputStream = ctx.outputStream()) {

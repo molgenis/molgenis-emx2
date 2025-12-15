@@ -65,7 +65,9 @@ public class ZipApi {
       ctx.header(CONTENT_DISPOSITION, "attachment; filename=" + fileName);
 
       Path zipFile = tempDir.resolve("download.zip");
-      MolgenisIO.toZipFile(zipFile, schema, includeSystemColumns);
+      var strategy = new MolgenisIO.OutputAllStrategy().withSystemColumns(includeSystemColumns);
+
+      MolgenisIO.toZipFile(zipFile, schema, strategy);
       outputStream.write(Files.readAllBytes(zipFile));
 
       ctx.result("Export success");

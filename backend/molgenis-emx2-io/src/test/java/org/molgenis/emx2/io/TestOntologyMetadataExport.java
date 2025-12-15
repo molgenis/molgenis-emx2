@@ -36,7 +36,7 @@ public class TestOntologyMetadataExport {
     // test export import also keeps this info
     Path tmp = Files.createTempDirectory(null);
     Path excelFile = tmp.resolve("TestOntologyMetadataExport.xlsx");
-    MolgenisIO.toExcelFile(excelFile, schema, false);
+    MolgenisIO.toExcelFile(excelFile, schema, new MolgenisIO.OutputAllStrategy());
     schema = database.dropCreateSchema(TestOntologyMetadataExport.class.getSimpleName());
     MolgenisIO.importFromExcelFile(excelFile, schema, false);
 

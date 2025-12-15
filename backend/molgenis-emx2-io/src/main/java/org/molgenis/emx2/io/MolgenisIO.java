@@ -23,29 +23,31 @@ public class MolgenisIO {
     // hide constructor
   }
 
-  private static void outputAll(TableStore store, Schema schema, boolean includeSystemColumns) {
+  private static void outputAll(TableStore store, Schema schema, OutputAllStrategy strategy) {
     outputMetadata(store, schema);
-    outputRoles(store, schema);
+    if (strategy.includeMembers) {
+      outputRoles(store, schema);
+    }
     outputSettings(store, schema);
     boolean hasViewPermission = schema.getInheritedRolesForActiveUser().contains(VIEWER.toString());
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
       if (hasViewPermission || table.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
-        writeTableToStore(store, table, includeSystemColumns);
+        writeTableToStore(store, table, strategy.includeSystemColumns);
       }
     }
   }
 
-  public static void toDirectory(Path directory, Schema schema, boolean includeSystemColumns) {
-    outputAll(new TableStoreForCsvFilesDirectory(directory), schema, includeSystemColumns);
+  public static void toDirectory(Path directory, Schema schema, OutputAllStrategy strategy) {
+    outputAll(new TableStoreForCsvFilesDirectory(directory), schema, strategy);
   }
 
-  public static void toZipFile(Path zipFile, Schema schema, boolean includeSystemColumns) {
-    outputAll(new TableStoreForCsvInZipFile(zipFile), schema, includeSystemColumns);
+  public static void toZipFile(Path zipFile, Schema schema, OutputAllStrategy strategy) {
+    outputAll(new TableStoreForCsvInZipFile(zipFile), schema, strategy);
   }
 
-  public static void toExcelFile(Path excelFile, Schema schema, boolean includeSystemColumns) {
-    outputAll(new TableStoreForXlsxFile(excelFile), schema, includeSystemColumns);
+  public static void toExcelFile(Path excelFile, Schema schema, OutputAllStrategy strategy) {
+    outputAll(new TableStoreForXlsxFile(excelFile), schema, strategy);
   }
 
   public static void toEmx1ExcelFile(Path excelFile, Schema schema) {
@@ -107,5 +109,16 @@ public class MolgenisIO {
   public static Task fromClasspathDirectory(
       String path, Schema schema, boolean strict, String... includeTableNames) {
     return fromStore(new TableStoreForCsvFilesClasspath(path), schema, strict, includeTableNames);
+  }
+
+  public static class OutputAllStrategy {
+
+    private boolean includeSystemColumns = false;
+    private boolean includeMembers = false;
+
+    public OutputAllStrategy withSystemColumns(boolean includeSystemColumns) {
+      this.includeSystemColumns = includeSystemColumns;
+      return this;
+    }
   }
 }

@@ -20,14 +20,14 @@ import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @Tag("slow")
-public class TestColumnTypeIsFile {
+class TestColumnTypeIsFile {
 
   private static final String SCHEMA_NAME = "TestColumnTypeIsFile";
   static Database database;
   static Schema schema;
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(SCHEMA_NAME);
     DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
@@ -44,16 +44,16 @@ public class TestColumnTypeIsFile {
   }
 
   @Test
-  public void testExcelShouldNotIncludeFileColumns() throws IOException {
+  void testExcelShouldNotIncludeFileColumns() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path excelFile = tmp.resolve("test.xlsx");
-    MolgenisIO.toExcelFile(excelFile, schema, false);
+    MolgenisIO.toExcelFile(excelFile, schema, new MolgenisIO.OutputAllStrategy());
     TableStore store = new TableStoreForXlsxFile(excelFile);
     assertFalse(store.readTable("User").iterator().next().getColumnNames().contains("picture"));
   }
 
   @Test
-  public void testCsvShouldNotIncludeFileColumns() throws IOException {
+  void testCsvShouldNotIncludeFileColumns() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path csvFile = tmp.resolve("User.csv");
     MolgenisIO.toExcelFile(csvFile, schema.getTable("User"), false);
@@ -62,7 +62,7 @@ public class TestColumnTypeIsFile {
   }
 
   @Test
-  public void testCsvWithSystemColumnsShouldIncludeFileColumns() throws IOException {
+  void testCsvWithSystemColumnsShouldIncludeFileColumns() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path csvFile = tmp.resolve("User.csv");
     MolgenisIO.toExcelFile(csvFile, schema.getTable("User"), true);
@@ -71,10 +71,10 @@ public class TestColumnTypeIsFile {
   }
 
   @Test
-  public void testCanExportImportFilesInZip() throws IOException {
+  void testCanExportImportFilesInZip() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path zipFile = tmp.resolve("test.zip");
-    MolgenisIO.toZipFile(zipFile, schema, false);
+    MolgenisIO.toZipFile(zipFile, schema, new MolgenisIO.OutputAllStrategy());
 
     schema = database.dropCreateSchema(SCHEMA_NAME);
     MolgenisIO.fromZipFile(zipFile, schema, true);
@@ -92,12 +92,12 @@ public class TestColumnTypeIsFile {
   }
 
   @Test
-  public void testCanExportImportFilesInDirectory() throws IOException {
+  void testCanExportImportFilesInDirectory() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path directory = tmp.resolve("test");
     Files.createDirectories(directory);
 
-    MolgenisIO.toDirectory(directory, schema, false);
+    MolgenisIO.toDirectory(directory, schema, new MolgenisIO.OutputAllStrategy());
 
     schema = database.dropCreateSchema(SCHEMA_NAME);
     MolgenisIO.fromDirectory(directory, schema, true);

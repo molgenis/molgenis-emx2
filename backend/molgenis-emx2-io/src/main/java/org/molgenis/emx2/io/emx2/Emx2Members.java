@@ -50,6 +50,7 @@ public class Emx2Members {
 
   private static boolean canAccessMembers(Schema schema) {
     var roles = schema.getInheritedRolesForActiveUser();
-    return roles.contains(Privileges.MANAGER.toString()) || roles.contains(Privileges.OWNER.toString());
+    return roles.contains(Privileges.MANAGER.toString())
+        || roles.contains(Privileges.OWNER.toString());
   }
 }
