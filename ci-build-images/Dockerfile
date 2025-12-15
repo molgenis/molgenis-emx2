@@ -21,6 +21,14 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PATH="/home/molgenis/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN node --version
 RUN npm --version
+
+# ------------------------
+# Install pnpm (via Corepack)
+# ------------------------
+RUN corepack enable
+RUN corepack prepare pnpm@10.24.0 --activate
+RUN pnpm --version
+
 USER root 
 
 
