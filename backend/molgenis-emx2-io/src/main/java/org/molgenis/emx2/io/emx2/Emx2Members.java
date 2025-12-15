@@ -43,14 +43,8 @@ public class Emx2Members {
   }
 
   private static void checkRoles(Schema schema) {
-    if (!canAccessMembers(schema)) {
+    if (!new SchemaBasedPermissions(schema).canAccessMembers()) {
       throw new UnauthorizedException("Unauthorized to access schema members");
     }
-  }
-
-  private static boolean canAccessMembers(Schema schema) {
-    var roles = schema.getInheritedRolesForActiveUser();
-    return roles.contains(Privileges.MANAGER.toString())
-        || roles.contains(Privileges.OWNER.toString());
   }
 }
