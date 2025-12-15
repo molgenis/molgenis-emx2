@@ -96,12 +96,6 @@ function insertInto() {
     </div>
 
     <div id="fields-container" class="col-span-3 px-4 py-50px overflow-y-auto">
-      <PreviousSectionNav
-        v-if="previousSection"
-        @click="gotoSection(previousSection.id)"
-      >
-        {{ previousSection.label }}
-      </PreviousSectionNav>
       <FormFields
         ref="formFields"
         :rowKey="rowKey"
@@ -114,9 +108,6 @@ function insertInto() {
         @view="onViewColumn"
         @leaving-view="onLeaveView"
       />
-      <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
-        {{ nextSection.label }}
-      </NextSectionNav>
     </div>
   </div>
 </template>
