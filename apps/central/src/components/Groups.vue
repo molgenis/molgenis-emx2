@@ -57,7 +57,7 @@
             <td>
               <div style="display: flex">
                 <IconAction
-                  v-if="session && session.admin"
+                        v-if="session && session.admin"
                   icon="edit"
                   @click="openEditSchema(schema.id, schema.description)"
                 />
