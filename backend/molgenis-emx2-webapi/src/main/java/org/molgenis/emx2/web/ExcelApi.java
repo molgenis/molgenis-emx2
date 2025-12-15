@@ -3,7 +3,6 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.io.FileUtils.getTempFile;
 import static org.molgenis.emx2.web.CsvApi.getDownloadColumns;
 import static org.molgenis.emx2.web.CsvApi.getDownloadRows;
-import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.generateReportsToStore;
 
@@ -72,7 +71,10 @@ public class ExcelApi {
 
   static void getExcel(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    boolean includeSystemColumns = includeSystemColumns(ctx);
+
+    boolean includeSystemColumns = DownloadApiUtils.includeSystemColumns(ctx);
+    boolean includeMembers = DownloadApiUtils.includeMembers(ctx);
+
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
 
@@ -80,8 +82,10 @@ public class ExcelApi {
     if (ctx.queryParam("emx1") != null) {
       MolgenisIO.toEmx1ExcelFile(excelFile, schema);
     } else {
-      var strategy = new MolgenisIO.OutputAllStrategy().withSystemColumns(includeSystemColumns);
-
+      var strategy =
+          new MolgenisIO.OutputAllStrategy()
+              .withSystemColumns(includeSystemColumns)
+              .withMembers(includeMembers);
       MolgenisIO.toExcelFile(excelFile, schema, strategy);
     }
 

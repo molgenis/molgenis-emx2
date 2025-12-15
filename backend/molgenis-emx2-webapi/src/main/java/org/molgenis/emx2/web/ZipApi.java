@@ -54,9 +54,12 @@ public class ZipApi {
   }
 
   static void getZip(Context ctx) throws IOException {
-    boolean includeSystemColumns = includeSystemColumns(ctx);
+    boolean includeSystemColumns = DownloadApiUtils.includeSystemColumns(ctx);
+    boolean includeMembers = DownloadApiUtils.includeMembers(ctx);
+
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
+
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
       Schema schema = getSchema(ctx);
       String fileName = schema.getMetadata().getName() + System.currentTimeMillis() + ".zip";
@@ -65,8 +68,10 @@ public class ZipApi {
       ctx.header(CONTENT_DISPOSITION, "attachment; filename=" + fileName);
 
       Path zipFile = tempDir.resolve("download.zip");
-      var strategy = new MolgenisIO.OutputAllStrategy().withSystemColumns(includeSystemColumns);
-
+      var strategy =
+          new MolgenisIO.OutputAllStrategy()
+              .withSystemColumns(includeSystemColumns)
+              .withMembers(includeMembers);
       MolgenisIO.toZipFile(zipFile, schema, strategy);
       outputStream.write(Files.readAllBytes(zipFile));
 
@@ -123,11 +128,15 @@ public class ZipApi {
   }
 
   static void getZipTable(Context ctx) throws IOException {
-    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
-    boolean includeSystemColumns = includeSystemColumns(ctx);
-    if (table == null) throw new MolgenisException("Table " + ctx.pathParam(TABLE) + " unknown");
+    Table table =
+        Optional.of(MolgenisWebservice.getTableByIdOrName(ctx))
+            .orElseThrow(() -> new MolgenisException("Table " + ctx.pathParam(TABLE) + " unknown"));
+
+    boolean includeSystemColumns = DownloadApiUtils.includeSystemColumns(ctx);
+
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
+
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
       String tableName =
           table.getSchema().getMetadata().getName()

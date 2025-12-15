@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
+import static java.util.stream.IntStream.range;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
@@ -38,6 +39,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.*;
@@ -276,6 +282,41 @@ class WebApiSmokeTests {
 
     // delete the new schema
     db.dropSchema("pet store zip");
+  }
+
+  @Test
+  void testZipApi_whenMembersNotSpecified_thenExcludeMembersFromZip()
+      throws IOException, InterruptedException {
+    Response response =
+        given().sessionId(sessionId).accept(ACCEPT_ZIP).when().get("/pet store/api/zip");
+
+    File zip = TestUtils.responseToFile(response);
+    try (ZipFile zipFile = new ZipFile(zip)) {
+      assertFalse(zipContainsMembers(zipFile));
+    }
+  }
+
+  @Test
+  void testZipApi_whenMembersIncluded_thenIncludeMembers()
+      throws IOException, InterruptedException {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_ZIP)
+            .when()
+            .param(INCLUDE_MEMBERS, true)
+            .get("/pet store/api/zip");
+
+    File zip = TestUtils.responseToFile(response);
+    try (ZipFile zipFile = new ZipFile(zip)) {
+      assertTrue(zipContainsMembers(zipFile));
+    }
+  }
+
+  private boolean zipContainsMembers(ZipFile zipFile) {
+    List<String> csvFileNames =
+        zipFile.stream().map(ZipEntry::getName).filter(name -> name.endsWith(".csv")).toList();
+    return csvFileNames.contains("molgenis_members.csv");
   }
 
   @Test
@@ -753,6 +794,57 @@ class WebApiSmokeTests {
     os.flush();
     os.close();
     return tempFile;
+  }
+
+  @Test
+  void testExcelApi_whenMembersIncluded_thenIncludeMembers()
+      throws IOException, InvalidFormatException {
+    // create a new schema for excel
+    db.dropCreateSchema("pet store excel");
+
+    // download excel contents from schema
+    byte[] excelContents =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_EXCEL)
+            .when()
+            .param(INCLUDE_MEMBERS, true)
+            .get("/pet store/api/excel")
+            .asByteArray();
+
+    File excelFile = createTempFile(excelContents, ".xlsx");
+
+    try (Workbook workbook = new XSSFWorkbook(excelFile)) {
+      assertTrue(
+          range(0, workbook.getNumberOfSheets())
+              .mapToObj(workbook::getSheetName)
+              .anyMatch(name -> name.contains("_members")));
+    }
+  }
+
+  @Test
+  void testExcelApi_whenMembersNotSpecified_thenExcludeMembers()
+      throws IOException, InvalidFormatException {
+    // create a new schema for excel
+    db.dropCreateSchema("pet store excel");
+
+    // download excel contents from schema
+    byte[] excelContents =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_EXCEL)
+            .when()
+            .get("/pet store/api/excel")
+            .asByteArray();
+
+    File excelFile = createTempFile(excelContents, ".xlsx");
+
+    try (Workbook workbook = new XSSFWorkbook(excelFile)) {
+      for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+        String name = workbook.getSheetName(i);
+        assertFalse(name.contains("_members"));
+      }
+    }
   }
 
   @Test

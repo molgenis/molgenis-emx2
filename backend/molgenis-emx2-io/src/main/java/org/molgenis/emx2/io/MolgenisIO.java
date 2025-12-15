@@ -112,5 +112,10 @@ public class MolgenisIO {
       this.includeSystemColumns = includeSystemColumns;
       return this;
     }
+
+    public OutputAllStrategy withMembers(boolean includeMembers) {
+      this.includeMembers = includeMembers;
+      return this;
+    }
   }
 }
