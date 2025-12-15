@@ -212,10 +212,6 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
-        name: check code formatting
-        command: /gradlew lint
-
-    - run:
         name: lint the code
         command: |
           ./gradlew lint ci --no-daemon \
