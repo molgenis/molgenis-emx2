@@ -38,10 +38,6 @@ public class MolgenisIO {
     }
   }
 
-  public static void toDirectory(Path directory, Schema schema, OutputAllStrategy strategy) {
-    outputAll(new TableStoreForCsvFilesDirectory(directory), schema, strategy);
-  }
-
   public static void toZipFile(Path zipFile, Schema schema, OutputAllStrategy strategy) {
     outputAll(new TableStoreForCsvInZipFile(zipFile), schema, strategy);
   }
@@ -85,10 +81,6 @@ public class MolgenisIO {
     } else {
       outputTable(store, table);
     }
-  }
-
-  public static void fromDirectory(Path directory, Schema schema, boolean strict) {
-    new ImportDirectoryTask(directory, schema, strict).run();
   }
 
   public static void fromZipFile(Path zipFile, Schema schema, boolean strict) {

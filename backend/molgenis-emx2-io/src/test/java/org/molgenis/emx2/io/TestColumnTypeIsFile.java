@@ -90,28 +90,4 @@ class TestColumnTypeIsFile {
                 .get(0)
                 .getBinary("picture_contents")));
   }
-
-  @Test
-  void testCanExportImportFilesInDirectory() throws IOException {
-    Path tmp = Files.createTempDirectory(null);
-    Path directory = tmp.resolve("test");
-    Files.createDirectories(directory);
-
-    MolgenisIO.toDirectory(directory, schema, new MolgenisIO.OutputAllStrategy());
-
-    schema = database.dropCreateSchema(SCHEMA_NAME);
-    MolgenisIO.fromDirectory(directory, schema, true);
-
-    Table userTable = schema.getTable("User");
-    Row result =
-        userTable
-            .query()
-            .select(s("picture", s("contents"), s("mimetype"), s("filename"), s("extension")))
-            .retrieveRows()
-            .get(0);
-    assertEquals("test", new String(result.getBinary("picture_contents")));
-    assertEquals("test.txt", result.getString("picture_filename"));
-    assertEquals("txt", result.getString("picture_extension"));
-    assertEquals("text/plain", result.getString("picture_mimetype"));
-  }
 }
