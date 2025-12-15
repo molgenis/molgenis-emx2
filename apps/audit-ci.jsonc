@@ -15,7 +15,7 @@
   ],
 
   // Whether to run `npm audit` (default) or `yarn audit`
-  "packageManager": "npm",
+  "packageManager": "pnpm",
 
   // Optional: use this to suppress warnings
   "reportType": "summary" // can also be "json" or "important"
