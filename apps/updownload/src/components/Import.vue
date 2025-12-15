@@ -70,9 +70,22 @@
 
             <p>
               Export all data as
-              <a :href="`/${schema}/api/excel`">excel</a> /
-              <a :href="`/${schema}/api/zip`">csv.zip</a> /
-              <a :href="`/${schema}/api/ttl`">ttl</a> /
+              <a
+                :href="
+                  `/${schema}/api/excel` +
+                  (canExportMembers ? `?includeMembers=true` : ``)
+                "
+                >excel</a
+              >
+              /
+              <a
+                :href="
+                  `/${schema}/api/zip` +
+                  (canExportMembers ? `?includeMembers=true` : ``)
+                "
+                >csv.zip</a
+              >
+              / <a :href="`/${schema}/api/ttl`">ttl</a> /
               <a :href="`/${schema}/api/jsonld`">jsonld</a>
             </p>
 
@@ -157,10 +170,7 @@ export default {
       }
     },
     canExportMembers() {
-      return (
-        this.session?.admin ||
-        this.session?.roles.some((r) => ["Manager", "Owner"].includes(r))
-      );
+      return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
     },
     tablesHash() {
       if (this.tables) {
