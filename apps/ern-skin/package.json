@@ -6,8 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
+    "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore"
   },
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
