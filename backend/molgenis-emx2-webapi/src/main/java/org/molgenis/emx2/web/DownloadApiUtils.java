@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.INCLUDE_MEMBERS;
 import static org.molgenis.emx2.web.Constants.INCLUDE_SYSTEM_COLUMNS;
 
 import io.javalin.http.Context;
@@ -12,5 +13,9 @@ public class DownloadApiUtils {
 
   static boolean includeSystemColumns(Context ctx) {
     return String.valueOf(ctx.queryParam(INCLUDE_SYSTEM_COLUMNS)).equalsIgnoreCase("true");
+  }
+
+  static boolean includeMembers(Context ctx) {
+    return String.valueOf(ctx.queryParam(INCLUDE_MEMBERS)).equalsIgnoreCase("true");
   }
 }

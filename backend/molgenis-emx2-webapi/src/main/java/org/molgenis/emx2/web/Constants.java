@@ -33,5 +33,10 @@ public class Constants {
   */
   public static final String INCLUDE_SYSTEM_COLUMNS = "includeSystemColumns";
 
+  /*
+  Optional api reques param to specify whether the members table should be exported on a full schema export.
+  */
+  public static final String INCLUDE_MEMBERS = "includeMembers";
+
   public static final String EMX_2_METRICS_SESSION_TOTAL = "emx2_active_sessions";
 }
