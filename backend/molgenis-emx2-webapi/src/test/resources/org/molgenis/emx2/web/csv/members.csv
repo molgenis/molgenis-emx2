@@ -1,6 +1,6 @@
 user,role
 anonymous,Viewer
-costumer,Range
+customer,Range
 pet_shop_owner,Owner
 shopmanager,Manager
 shopowner,Owner
