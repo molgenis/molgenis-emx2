@@ -59,7 +59,7 @@
                 <IconAction
                   v-if="session && session.admin"
                   icon="edit"
-                      @click="openEditSchema(schema.id, schema.description)"
+                  @click="openEditSchema(schema.id, schema.description)"
                 />
                 <IconDanger
                   v-if="session && session.admin"
