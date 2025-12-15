@@ -157,7 +157,7 @@ describe("useForm", () => {
 
     errorMap.value["col2"] = "some error";
     expect(errorMessage.value).toBe(
-      "1 field requires attention before you can save this cohort"
+      "1 field requires attention before you can save this record"
     );
   });
 

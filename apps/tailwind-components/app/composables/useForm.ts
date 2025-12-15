@@ -228,7 +228,7 @@ export default function useForm(
     ).length;
     const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
     return errorCount > 0
-      ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
+      ? `${errorCount} ${fieldLabel} attention before you can save this record`
       : "";
   });
 
