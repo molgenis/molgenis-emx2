@@ -1,4 +1,8 @@
-export function downloadBlob(data: string | undefined, mediaType: string, fileName: string) {
+export function downloadBlob(
+  data: string | undefined,
+  mediaType: string,
+  fileName: string
+) {
   if (!data) return;
 
   const blob = new Blob([data], { type: mediaType });
