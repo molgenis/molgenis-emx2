@@ -1,24 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`should render the pagination component (without jump to edge) 1`] = `
-"<nav role="navigation" class="pt-12.5 font-display text-heading-xl -mx-2.5" aria-labelledby="v-0Label"><span id="v-0Label" class="sr-only"> pagination navigation </span>
-  <ul class="flex items-center justify-center list-none gap-2.5">
-    <!--v-if-->
-    <li><a href="#" class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover"><span class="sr-only">Go to page 2</span><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="24">
-          <path d="M8.46211 11.4625L14.4621 5.46252L15.5371 6.53752L10.5871 11.4625L15.5121 16.3875L14.4371 17.4625L8.46211 11.4625Z" fill="currentColor"></path>
-        </svg></a></li>
-    <li class="flex justify-center items-center">
-      <div class="px-4 tracking-widest sm:px-5"><label for="v-0" class="sr-only">go to specific page</label><span class="text-pagination"> Page </span></div><input id="v-0" class="sm:px-12 px-7.5 w-32 text-center border border-input rounded-theme bg-input text-pagination-input hover:text-pagination-hover hover:border-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest" value="3">
-      <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap"><span class="text-pagination"> OF 34</span></div>
-    </li>
-    <li><a href="#" class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover"><span class="sr-only">Go to page 4</span><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="24">
-          <path d="M15.5379 11.4625L9.53789 17.4625L8.46289 16.3875L13.4129 11.4625L8.48789 6.53753L9.56289 5.46252L15.5379 11.4625Z" fill="currentColor"></path>
-        </svg></a></li>
-    <!--v-if-->
-  </ul>
-</nav>"
-`;
-
 exports[`should render the pagination component with jump to edge 1`] = `
 "<nav role="navigation" class="pt-12.5 font-display text-heading-xl -mx-2.5" aria-labelledby="v-0Label"><span id="v-0Label" class="sr-only"> pagination navigation </span>
   <ul class="flex items-center justify-center list-none gap-2.5">

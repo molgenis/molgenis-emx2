@@ -1,3 +1,4 @@
+import type { ComputedRef } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -110,13 +111,20 @@ export interface IFieldError {
   message: string;
 }
 
-export interface IFormLegendSection {
-  label: string;
+interface LegendItem {
   id: string;
-  isActive?: boolean;
+  label: string;
   type: HeadingType;
-  section?: string;
-  errorCount: number;
+  errorCount: ComputedRef<number>;
+  isVisible: ComputedRef<boolean>;
+  isActive: ComputedRef<boolean>;
+}
+export interface LegendSection extends LegendItem {
+  type: "SECTION";
+  headers: LegendHeading[];
+}
+export interface LegendHeading extends LegendItem {
+  type: "HEADING";
 }
 
 export type columnId = string;

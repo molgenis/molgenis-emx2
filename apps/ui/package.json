@@ -31,6 +31,7 @@
     "nuxt-monaco-editor": "1.4.0",
     "pinia": "3.0.3",
     "tailwind-components": "*",
-    "vue-tsc": "2.1.6"
+    "vue-tsc": "2.1.6",
+    "prettier": "2.8.8"
   }
 }
