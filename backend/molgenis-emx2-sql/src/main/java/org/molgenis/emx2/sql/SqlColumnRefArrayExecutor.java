@@ -174,11 +174,6 @@ class SqlColumnRefArrayExecutor {
         ref.getRefTable().getJooqTable(),
         name(ref.getTable().getSchema().getName(), deleteTrigger),
         keyword(keyColumns));
-
-    //    jooq.execute(
-    //        "ALTER FUNCTION {0}() OWNER TO {1}",
-    //        name(ref.getSchemaName(), deleteTrigger),
-    //        name(getRolePrefix(ref.getSchemaName()) + MANAGER));
   }
 
   private static String getReferedCheckName(Column column) {
@@ -300,10 +295,6 @@ class SqlColumnRefArrayExecutor {
         thisTable,
         toTable,
         name(column.getTable().getSchema().getName(), functionName));
-
-    //    jooq.execute(
-    //        "ALTER FUNCTION {0}() OWNER TO {1}",
-    //        name(schemaName, functionName), name(getRolePrefix(schemaName) + MANAGER));
   }
 
   private static String getReferenceExistsCheckName(Column column) {
