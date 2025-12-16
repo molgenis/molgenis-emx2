@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineAsyncComponent } from "vue";
+import { withDefaults, defineProps, defineAsyncComponent, computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -24,7 +24,10 @@ function toPascalCase(text: string): string {
 }
 
 const componentName = toPascalCase(props.name);
-const iconComp = defineAsyncComponent(() =>
-  import(`../components/global/icons/${componentName}.vue`)
-);
+const iconComp = computed(() => {
+  const componentName = toPascalCase(props.name);
+  return defineAsyncComponent(
+    () => import(`../components/global/icons/${componentName}.vue`)
+  );
+});
 </script>

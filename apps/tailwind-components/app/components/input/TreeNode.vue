@@ -63,8 +63,10 @@ const hasChildren = computed(() =>
           @click.stop="toggleExpand(node)"
           class="-left-[15px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
           :class="{
-            'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted': inverted,
-            'text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover': !inverted,
+            'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
+              inverted,
+            'text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover':
+              !inverted,
           }"
           :aria-expanded="node.expanded"
           :aria-controls="node.name"
@@ -141,27 +143,7 @@ const hasChildren = computed(() =>
             :class="inverted ? 'text-title-contrast' : 'text-title'"
           >
             {{ node.label || node.name }}
-            <template
-              v-if="node.code || (node.label && node.label !== node.name)"
-              >(<a
-                v-if="node.uri"
-                :href="node.uri"
-                target="_blank"
-                class="underline"
-                >{{
-                  node.codesystem
-                    ? `${node.codesystem}:${node.code}`
-                    : node.code || node.name
-                }}</a
-              ><template v-else
-                >{{
-                  node.codesystem
-                    ? `${node.codesystem}:${node.code}`
-                    : node.code || node.name
-                }})</template
-              >)</template
-            ></span
-          >
+          </span>
         </InputLabel>
         <div
           class="inline-flex items-center whitespace-nowrap"
@@ -223,7 +205,7 @@ const hasChildren = computed(() =>
         >
         <ButtonText
           class="ml-2"
-          @click="
+          @click.stop="
             nodes.forEach((node) => (node.visible = true));
             emit('showOutsideResults');
           "

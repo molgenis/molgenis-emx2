@@ -17,6 +17,7 @@ import {
   navigateTo,
   useAsyncData,
   useRuntimeConfig,
+  createError,
 } from "#app";
 import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
 import { buildQueryFilter } from "../../../utils/buildQueryFilter";
@@ -190,12 +191,14 @@ async function fetchResourceOptions(): Promise<INode[]> {
     },
   });
 
-  return data.Resources.map((option: { id: string; name?: string }) => {
-    return {
-      name: option.id,
-      description: option.name,
-    } as INode;
-  });
+  return data?.Resources?.length
+    ? data.Resources.map((option: { id: string; name?: string }) => {
+        return {
+          name: option.id,
+          description: option.name,
+        } as INode;
+      })
+    : [];
 }
 
 const filters = computed(() => {
@@ -250,7 +253,7 @@ const query = computed(() => {
 });
 
 const numberOfVariables = computed(
-  () => data?.value.data?.Variables_agg.count || 0
+  () => variableRecords?.value?.data?.Variables_agg.count || 0
 );
 
 const graphqlURL = computed(() => `/${schema}/graphql`);
@@ -285,9 +288,9 @@ const fetchData = async () => {
   }
 
   // add 'special' filter for harmonisation x-axis if 'resources' filter is set
-  const resourceConditions = (filters.value.find(
-    (f) => f.id === "resources"
-  ) as IRefArrayFilter)?.conditions;
+  const resourceConditions = (
+    filters.value.find((f) => f.id === "resources") as IRefArrayFilter
+  )?.conditions;
   if (resourceConditions.length) {
     resourcesFilter = {
       ...resourcesFilter,
@@ -356,11 +359,22 @@ const fetchData = async () => {
 
 // We need to use the useAsyncData hook to fetch the data because sadly multiple backendend calls need to be synchronized to create the final query
 // todo: update datamodel to allow for single fetch from single indexed table
-const { data, error, pending } = await useAsyncData<any, IMgError>(
-  `variables-page-${catalogueRouteParam}-${route.query}`,
+const {
+  data: variableRecords,
+  error,
+  pending,
+} = await useAsyncData<any, IMgError>(
+  `variables-page-${catalogueRouteParam}-${JSON.stringify(route.query)}`,
   fetchData,
   { watch: [computed(() => route.query.conditions), offset] }
 );
+
+if (error.value) {
+  throw createError({
+    statusCode: error.value.statusCode || 500,
+    message: error.value.message || "An error occurred while fetching data.",
+  });
+}
 
 function onFilterChange(filters: IFilter[]) {
   const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
@@ -454,7 +468,7 @@ const crumbs: Crumb[] = [
             :class="{ 'opacity-25 ease-out': pending }"
           >
             <div
-              v-if="data?.data?.Variables_agg.count === 0"
+              v-if="variableRecords?.data?.Variables_agg.count === 0"
               class="flex justify-center pt-3"
             >
               <span class="py-15 text-link">
@@ -463,7 +477,7 @@ const crumbs: Crumb[] = [
             </div>
             <CardList v-else-if="activeName === 'list'">
               <CardListItem
-                v-for="variable in data?.data?.Variables"
+                v-for="variable in variableRecords?.data?.Variables"
                 :key="variable.name"
               >
                 <VariableCard
@@ -475,17 +489,22 @@ const crumbs: Crumb[] = [
             </CardList>
             <HarmonisationTable
               v-else
-              :variables="data?.data?.Variables"
-              :resources="data?.data?.Resources"
+              :variables="variableRecords?.data?.Variables"
+              :resources="variableRecords?.data?.Resources"
             >
             </HarmonisationTable>
           </SearchResultsList>
         </template>
 
-        <template #pagination v-if="data?.data?.Variables?.length > 0">
+        <template
+          #pagination
+          v-if="variableRecords?.data?.Variables?.length > 0"
+        >
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Variables_agg.count / pageSize)"
+            :totalPages="
+              Math.ceil(variableRecords?.data?.Variables_agg.count / pageSize)
+            "
             @update="setCurrentPage($event)"
           />
         </template>

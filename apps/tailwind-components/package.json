@@ -7,7 +7,7 @@
     "generate-source-map": "node ./app/utils/generateSourceMap.js",
     "build": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
-    "dev": "npm run generate-source-map && nuxt dev",
+    "dev": "pnpm run generate-source-map && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
@@ -54,6 +54,7 @@
     "svgo": "2.8.0",
     "tailwindcss": "3.4.17",
     "typescript": "5.6.2",
-    "vue-tsc": "2.2.0"
+    "vue-tsc": "2.2.0",
+    "vitest": "3.0.7"
   }
 }
