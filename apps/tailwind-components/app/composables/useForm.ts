@@ -1,27 +1,27 @@
+import { useSession } from "#imports";
 import {
   computed,
-  ref,
-  watch,
-  type MaybeRef,
-  unref,
   isRef,
+  ref,
+  unref,
+  watch,
   type ComputedRef,
+  type MaybeRef,
   type Ref,
 } from "vue";
+import { toFormData } from "../../../metadata-utils/src/toFormData";
 import type {
-  columnValue,
-  ITableMetaData,
-  IColumn,
   columnId,
+  columnValue,
+  IColumn,
+  ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
-import { toFormData } from "../../../metadata-utils/src/toFormData";
-import { getPrimaryKey } from "../utils/getPrimaryKey";
 import {
   getColumnError,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import { useSession } from "#imports";
+import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -218,8 +218,9 @@ export default function useForm(
       emptyRequiredFields.value.length > 1 ? "fields" : "field";
     if (emptyRequiredFields.value.length === 0) {
       return "All required fields are filled";
+    } else {
+      return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
     }
-    return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
   });
 
   const errorMessage = computed(() => {
@@ -228,7 +229,7 @@ export default function useForm(
     ).length;
     const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
     return errorCount > 0
-      ? `${errorCount} ${fieldLabel} attention before you can save this record`
+      ? `${errorCount} ${fieldLabel} attention before you can save this ${metadata.value.label}`
       : "";
   });
 
