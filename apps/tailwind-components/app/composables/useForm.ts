@@ -289,18 +289,10 @@ export default function useForm(
 
   const validateColumn = (column: IColumn) => {
     const error = getColumnError(column, formValues.value, metadata.value);
-    console.log(column.id, "   --    ", error);
     if (error) {
       errorMap.value[column.id] = error;
     } else {
       delete errorMap.value[column.id];
-      // = metadata.value.columns
-      //   .filter((col) => col.validation?.includes(column.id))
-      //   .map((col) => {
-      //     const result = getColumnError(col, formValues.value, metadata.value);
-      //     return result;
-      //   })
-      //   .join("");
     }
 
     // remove empty entries from the map
