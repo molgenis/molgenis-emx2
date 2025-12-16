@@ -4,7 +4,7 @@
     <h3 class="dashboard-h3">Overview of all surgical interventions</h3>
     <DashboardRow :columns="2" class="dashboard-boxes-width-2-1">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px;" />
+        <LoadingScreen v-if="loading" style="height: 250px" />
         <ColumnChart
           v-else
           :chartId="surgeryTypesChart?.chartId"
@@ -31,7 +31,7 @@
         />
       </DashboardChart>
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px;" />
+        <LoadingScreen v-if="loading" style="height: 250px" />
         <MessageBox
           v-else-if="!loading && !hasComplicationsData"
           type="warning"
@@ -76,7 +76,7 @@
     </DashboardRow>
     <DashboardRow :columns="2">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 215px;" />
+        <LoadingScreen v-if="loading" style="height: 215px" />
         <MessageBox
           v-else-if="!loading && !hasInterventionsData"
           type="warning"
@@ -105,7 +105,7 @@
         />
       </DashboardChart>
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 215px;" />
+        <LoadingScreen v-if="loading" style="height: 215px" />
         <MessageBox v-else-if="!loading && !hasSurgeryAgeData" type="warning">
           <span>Not enough data to show chart</span>
         </MessageBox>

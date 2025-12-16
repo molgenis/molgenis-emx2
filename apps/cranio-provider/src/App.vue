@@ -77,7 +77,7 @@ onBeforeMount(async () => {
       `/${cranioSchemas.value?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
       currentSchemaName.value
     );
-  } catch (err) {
+  } catch (err: unknown) {
     if (Object.hasOwn(err as Error, "response")) {
       const message = (err as IMgErrorResponse).response.errors[0].message;
       error.value = message;

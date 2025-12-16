@@ -17,10 +17,14 @@
         ref="selectedFileButton"
         class="flex justify-center items-center h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display duration-default ease-in-out border rounded-input"
         :class="{
-          'text-disabled bg-disabled hover:text-disabled cursor-not-allowed': disabled,
-          'bg-button-filter text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover': !disabled,
-          'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid': invalid,
-          'border-valid text-valid bg-valid hover:bg-valid hover:text-valid': valid,
+          'text-disabled bg-disabled hover:text-disabled cursor-not-allowed':
+            disabled,
+          'bg-button-filter text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover':
+            !disabled,
+          'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid':
+            invalid,
+          'border-valid text-valid bg-valid hover:bg-valid hover:text-valid':
+            valid,
         }"
         :disabled="disabled"
       >
@@ -32,10 +36,14 @@
       <button
         class="flex justify-center items-center h-10 px-5 text-heading-xl tracking-widest uppercase font-display duration-default ease-in-out border rounded-input bg-button-filter text-button-filter border-button-filter"
         :class="{
-          'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid': invalid,
-          'border-valid text-valid bg-valid hover:bg-valid hover:text-valid': valid,
-          'text-disabled bg-disabled border-disabled hover:text-disabled cursor-not-allowed': disabled,
-          'hover:bg-button-primary hover:text-button-primary cursor-pointer': !disabled,
+          'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid':
+            invalid,
+          'border-valid text-valid bg-valid hover:bg-valid hover:text-valid':
+            valid,
+          'text-disabled bg-disabled border-disabled hover:text-disabled cursor-not-allowed':
+            disabled,
+          'hover:bg-button-primary hover:text-button-primary cursor-pointer':
+            !disabled,
         }"
         :disabled="disabled"
       >
@@ -62,9 +70,8 @@ import BaseIcon from "../BaseIcon.vue";
 
 const modelValue = defineModel<IFile | null>();
 const fileInputElem = useTemplateRef<HTMLInputElement>("fileInput");
-const selectedFileButton = useTemplateRef<HTMLButtonElement>(
-  "selectedFileButton"
-);
+const selectedFileButton =
+  useTemplateRef<HTMLButtonElement>("selectedFileButton");
 
 defineProps<IInputProps>();
 

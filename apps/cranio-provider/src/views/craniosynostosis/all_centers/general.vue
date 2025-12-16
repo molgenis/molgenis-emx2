@@ -271,13 +271,12 @@ function updateMultipeSuturesChart() {
 }
 
 function updatePatientsByCountryChart() {
-  patientsByCountryChartData.value = patientsByCountryChart.value?.dataPoints?.sort(
-    (current, next) => {
+  patientsByCountryChartData.value =
+    patientsByCountryChart.value?.dataPoints?.sort((current, next) => {
       return current.dataPointName?.localeCompare(
         next.dataPointName as string
       ) as number;
-    }
-  );
+    });
 
   const countries: string[] = uniqueValues(
     patientsByCountryChartData.value,

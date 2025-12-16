@@ -114,7 +114,7 @@ function isAFilterSet(filters: IFilter[]) {
             #popper
             v-if="filter.config.type !== 'SEARCH' && isFilterSet(filter)"
           >
-            <ul style="list-style-type: disc;" class="pl-3 min-w-95">
+            <ul style="list-style-type: disc" class="pl-3 min-w-95">
               <li v-for="item in (filter as IConditionsFilter)?.conditions">
                 {{ item.name }}
               </li>

@@ -39,7 +39,7 @@ const toggleCollapse = () => {
       <span
         v-else
         class="relative"
-        style="top: -0.35rem;"
+        style="top: -0.35rem"
         :class="{ 'mr-2': isRootNode }"
       >
         <BaseIcon

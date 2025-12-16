@@ -173,7 +173,7 @@ export function generateHtmlPreview(
     }
   } else {
     const parser = new DOMParser();
-    const htmlString: string = (content as unknown) as string;
+    const htmlString: string = content as unknown as string;
     const doc = parser.parseFromString(htmlString, "text/html");
     /** Loop over the just parsed html items, and add them */
     Array.from(doc.body.children).forEach((el) => {

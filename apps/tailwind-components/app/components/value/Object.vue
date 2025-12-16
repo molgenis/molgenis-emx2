@@ -20,7 +20,7 @@ const asTemplate = computed(() => {
     : props.metadata.refLabelDefault;
   try {
     return new Function(...ids, "return `" + refLabel + "`;")(...vals);
-  } catch (err) {
+  } catch (err: any) {
     const idsAsString = JSON.stringify(ids);
     const valsString = JSON.stringify(vals);
     return `${err.message} we got keys: ${idsAsString} vals: ${valsString} and template: ${refLabel}`;

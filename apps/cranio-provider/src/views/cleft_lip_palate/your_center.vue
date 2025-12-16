@@ -29,7 +29,7 @@
     </DashboardRow>
     <DashboardRow :columns="2">
       <DashboardChart id="clp-patients-by-phenotype">
-        <LoadingScreen v-if="loading" style="height: 250px;" />
+        <LoadingScreen v-if="loading" style="height: 250px" />
         <ColumnChart
           v-else
           :chartId="patientsByPhenotypeChart?.chartId"
@@ -55,7 +55,7 @@
         />
       </DashboardChart>
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px;" />
+        <LoadingScreen v-if="loading" style="height: 250px" />
         <PieChart2
           v-else
           :chartId="patientsByGenderChart?.chartId"
@@ -74,7 +74,7 @@
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="1">
-      <LoadingScreen v-if="loading" style="height: 100%;" />
+      <LoadingScreen v-if="loading" style="height: 100%" />
       <template v-else>
         <DashboardChart v-if="currentVisibleMeter === 'ics'">
           <ProgressMeter
@@ -178,13 +178,14 @@ async function getPageData() {
 }
 
 function updatePhenotypesChart() {
-  patientsByPhenotypeChartData.value = patientsByPhenotypeChart.value?.dataPoints
-    ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-    })
-    .sort((a: IChartData, b: IChartData) => {
-      return (a.dataPointOrder as number) - (b.dataPointOrder as number);
-    });
+  patientsByPhenotypeChartData.value =
+    patientsByPhenotypeChart.value?.dataPoints
+      ?.filter((row: IChartData) => {
+        return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+      })
+      .sort((a: IChartData, b: IChartData) => {
+        return (a.dataPointOrder as number) - (b.dataPointOrder as number);
+      });
 
   const chartTicks = generateAxisTickData(
     patientsByPhenotypeChartData.value!,
@@ -225,11 +226,10 @@ function updateProgressMeter() {
       }
     )[0] as IChartData;
   } else {
-    cleftqCompletionChartData.value = cleftqCompletionChart.value?.dataPoints?.filter(
-      (row: IChartData) => {
+    cleftqCompletionChartData.value =
+      cleftqCompletionChart.value?.dataPoints?.filter((row: IChartData) => {
         return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-      }
-    )[0] as IChartData;
+      })[0] as IChartData;
   }
 }
 
@@ -252,9 +252,8 @@ onMounted(() => {
         patientsByPhenotypeChart.value?.dataPoints,
         "dataPointName"
       );
-      patientsByPhenotypePalette.value = generateColorPalette(
-        phenotypeCategories
-      );
+      patientsByPhenotypePalette.value =
+        generateColorPalette(phenotypeCategories);
 
       const genderCategories = uniqueValues(
         patientsByGenderChart.value?.dataPoints,

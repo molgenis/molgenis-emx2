@@ -26,7 +26,7 @@ if (logoFileName) {
       v-if="image"
       :src="image"
       class="w-50px h-auto"
-      style="background-color: white;"
+      style="background-color: white"
     />
     <img v-else-if="svg" :src="svg" alt="logo" />
     <img

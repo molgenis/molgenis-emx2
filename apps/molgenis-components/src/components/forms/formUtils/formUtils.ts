@@ -388,8 +388,9 @@ export function getChapterStyle(
 export function getSaveDisabledMessage(
   rowErrors: Record<string, string | undefined>
 ) {
-  const numberOfErrors = Object.values(rowErrors).filter((value) => value)
-    .length;
+  const numberOfErrors = Object.values(rowErrors).filter(
+    (value) => value
+  ).length;
   return numberOfErrors > 0
     ? `There are ${numberOfErrors} error(s) preventing saving`
     : "";

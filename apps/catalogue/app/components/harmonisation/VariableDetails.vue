@@ -95,7 +95,7 @@ function handleVariableUsedClick(variableUsed: IVariableBase) {
                 <BaseIcon
                   name="caret-right"
                   class="inline"
-                  style="margin-left: -8px;"
+                  style="margin-left: -8px"
                 />
                 {{ variableUsed.name }}
               </a>

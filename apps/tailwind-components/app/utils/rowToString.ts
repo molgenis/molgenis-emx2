@@ -17,7 +17,7 @@ export function rowToString(
     if (label) {
       return label;
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log(
       `${err.message} we got keys: ${JSON.stringify(
         ids

@@ -9,7 +9,7 @@
     <div
       v-if="storeHasDatasets"
       class="absolute flex items-center justify-center top-0 left-0 inline-block text-center w-6 h-6 bg-blue-200 -translate-y-2 translate-x-4"
-      style="border-radius: 100%;"
+      style="border-radius: 100%"
     >
       <span class="text-blue-800 font-bold body-xs/1">
         {{ numberOfItemsInStore }}

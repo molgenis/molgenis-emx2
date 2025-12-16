@@ -19,7 +19,7 @@
     </DashboardRow>
     <DashboardRow :columns="1">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 200px;" />
+        <LoadingScreen v-if="loading" style="height: 200px" />
         <MessageBox
           v-else-if="!loading && !hasComplicationsData"
           type="warning"
@@ -72,7 +72,7 @@
     </DashboardRow>
     <DashboardRow :columns="1">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 215px;" />
+        <LoadingScreen v-if="loading" style="height: 215px" />
         <MessageBox
           v-else-if="!loading && !hasInterventionsData"
           type="warning"
@@ -103,7 +103,7 @@
     </DashboardRow>
     <DashboardRow :columns="1">
       <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 225px;" />
+        <LoadingScreen v-if="loading" style="height: 225px" />
         <MessageBox v-else-if="!loading && !hasSurgeryAgeData" type="warning">
           <span>Not enough data to show chart</span>
         </MessageBox>
@@ -282,21 +282,21 @@ onMounted(() => {
   getPageData()
     .then(() => {
       // sort datasets
-      (complicationsChart.value as ICharts).dataPoints = (complicationsChart.value as ICharts).dataPoints?.sort(
-        (a: IChartData, b: IChartData) => {
-          return a.dataPointName?.localeCompare(
-            b.dataPointName as string
-          ) as number;
-        }
-      );
+      (complicationsChart.value as ICharts).dataPoints = (
+        complicationsChart.value as ICharts
+      ).dataPoints?.sort((a: IChartData, b: IChartData) => {
+        return a.dataPointName?.localeCompare(
+          b.dataPointName as string
+        ) as number;
+      });
 
-      (interventionsChart.value as ICharts).dataPoints = (interventionsChart.value as ICharts).dataPoints?.sort(
-        (a: IChartData, b: IChartData) => {
-          return a.dataPointName?.localeCompare(
-            b.dataPointName as string
-          ) as number;
-        }
-      );
+      (interventionsChart.value as ICharts).dataPoints = (
+        interventionsChart.value as ICharts
+      ).dataPoints?.sort((a: IChartData, b: IChartData) => {
+        return a.dataPointName?.localeCompare(
+          b.dataPointName as string
+        ) as number;
+      });
 
       // get surgery types and set starting value
       surgeryTypes.value = uniqueValues(
