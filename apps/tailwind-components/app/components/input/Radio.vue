@@ -12,7 +12,10 @@
 <script lang="ts" setup>
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import { type IInputProps } from "../../../types/types";
+
 defineProps<IInputProps>();
+
 const modelValue = defineModel<columnValue>();
+
 const emit = defineEmits(["focus", "update:modelValue"]);
 </script>

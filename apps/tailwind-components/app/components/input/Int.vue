@@ -16,12 +16,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IInputProps } from "../../../types/types";
 import constants from "../../../../molgenis-components/src/components/constants";
 import {
   flipSign,
   isNumericKey,
 } from "../../../../molgenis-components/src/components/utils";
+import type { IInputProps } from "../../../types/types";
+import InputString from "./String.vue";
 
 const modelValue = defineModel<string | number | undefined>({ required: true });
 

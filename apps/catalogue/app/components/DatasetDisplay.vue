@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFetch, useRuntimeConfig } from "#app";
-import { moduleToString } from "#imports";
+import { moduleToString } from "../../../tailwind-components/app/utils/moduleToString";
 import { computed } from "vue";
 import type { IDefinitionListItem } from "../../interfaces/types";
 import datasetGql from "../gql/datasetDetails";

@@ -24,8 +24,8 @@ interface Schema {
 
 const route = useRoute();
 const router = useRouter();
-const schemaId = ref((route.query.schema as string) ?? "type test");
-const tableId = ref((route.query.table as string) ?? "Types");
+const schemaId = ref((route.query.schema as string) ?? "pet store");
+const tableId = ref((route.query.table as string) ?? "Category");
 const rowIndex = ref<null | number>(null);
 if (route.query.rowIndex) {
   rowIndex.value = parseInt(route.query.rowIndex as string);
@@ -169,6 +169,7 @@ const {
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
+  visibleColumnIds,
 } = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(
@@ -188,7 +189,7 @@ const numberOfFieldsWithErrors = computed(
         />
         <div
           id="forms-story-fields-container"
-          class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
+          class="bg-form p-4"
           :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
         >
           <Button

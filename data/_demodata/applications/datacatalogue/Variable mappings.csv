@@ -258,15 +258,15 @@ else &mesure_moy= (&m1+&m2)/2;
 
 %mesure(ex51,ex60,ex69,difhanch1,difhanch2,difhanch3,T_hanche,mindifth);
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do;     
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
      if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;ed;
     end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,maj_ddn_2021,DDN_2021,,,LifeCycle,core,birth_month,complete,final,,birth_month=month(ddn_2021);,,,
 PELAGIE,harmonized,HDLCMES_146,,,LifeCycle,outcome,hdlcmes_,complete,final,,hdlcmes_152=0;,,152,152
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,hipcircage_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,hipcircage_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
    if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;end;
   end;
 end;",,151,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -288,8 +288,8 @@ else &mesure_moy= (&m1+&m2)/2;
 
 %mesure(ex52,ex61,ex70,diftri1,diftri2,diftri3,Pli_tricipital,mindifpt);
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do;     
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
     end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -320,21 +320,21 @@ else if c614 eq 0 then occup_f1_2=4;
 else if c614 eq 1 then occup_f1_2=3;
 else if c614 eq 2 then occup_f1_2=6;
 
-if ageq2 eq 1  then do; 
+if ageq2 eq 1  then do;
 occup_f1_1=occup_f1_2;occup_f1_2=.;
 end;
-if ageq2 eq 3  then do; 
+if ageq2 eq 3  then do;
 occup_f1_3=occup_f1_2;occup_f1_2=.;
 end;","occup_f_1, _2, or _3 was filled in according to the exact age of the child when the parents answered to the 2yo questionnaire: the ""parental/childcare leave"" is considered in ""5) Domestic tasks (housewife etc.)""",1,"1, 2, 3"
 PELAGIE,pelagie_q12,APP_Q4,,,LifeCycle,core,edu_f1_,complete,final,,"if APP_q4 eq 1 then edu_f1_12=3;
 else if APP_q4 in (2) then edu_f1_12=2;
 else if APP_q4 in (3 4 5 6) then edu_f1_12=1;
 
-if ageq12 eq 13  then do; 
+if ageq12 eq 13  then do;
 edu_f1_13=edu_f1_12;edu_f1_12=.;
 end;
 
-if ageq12 eq 14  then do; 
+if ageq12 eq 14  then do;
 edu_f1_14=edu_f1_12;edu_f1_12=.;
 end;",,12,"12, 13, 14"
 PELAGIE,harmonized,M_CREATININE_LOD_T1,,,ATHLETE,chemicals_ath,m_creatinine_lod_t,complete,final,,BDD_creatinine$m_creatinine_lod_t1<-NA,,1,1
@@ -451,206 +451,206 @@ PELAGIE,pelagie_dosage12,Q12_TRIGLYCERIDES,"pelagie_exam12,pelagie_exam12","AGE_
 PELAGIE,pelagie_q0,"M25,M26,M32,M21,DEBGROSF",maj_ddn_2021,DDN_2021,LifeCycle,core,weight_who_ga,complete,final,,"term_mater_2021=ga_bj/7;
 if birth_weight ne . then do;
   if sex eq 1 and term_mater_2021 = 17 and birth_weight <= 152 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 17 and 152 <birth_weight <219 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 17 and 152 <birth_weight <219 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 17 and birth_weight >=219 then weight_who_ga=3;
   if sex eq 1 and term_mater_2021 = 18 and birth_weight <= 188 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 18 and 188 <birth_weight <271 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 18 and 188 <birth_weight <271 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 18 and birth_weight >=271 then weight_who_ga=3;
   if sex eq 1 and term_mater_2021 = 19 and birth_weight <= 232 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 19 and 232 <birth_weight <333 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 19 and 232 <birth_weight <333 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 19 and birth_weight >=333 then weight_who_ga=3;
   if sex eq 1 and term_mater_2021 = 20 and birth_weight <= 282 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 20 and 282 <birth_weight <405 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 20 and 282 <birth_weight <405 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 20 and birth_weight >=405 then weight_who_ga=3;
   if sex eq 1 and term_mater_2021 = 21 and birth_weight <= 341 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 21 and 341 <birth_weight <489 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 21 and 341 <birth_weight <489 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 21 and birth_weight >=489 then weight_who_ga=3;
   if sex eq 1 and term_mater_2021 = 22 and birth_weight <= 408 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 22 and 408 <birth_weight <586 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 22 and 408 <birth_weight <586 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 22 and birth_weight >=586 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 23 and birth_weight <= 484 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 23 and 484 <birth_weight <695 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 23 and 484 <birth_weight <695 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 23 and birth_weight >=695 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 24 and birth_weight <= 570 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 24 and 570 <birth_weight <818 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 24 and 570 <birth_weight <818 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 24 and birth_weight >=818 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 25 and birth_weight <= 666 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 25 and 666 <birth_weight <956 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 25 and 666 <birth_weight <956 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 25 and birth_weight >=956 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 26 and birth_weight <= 772 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 26 and 772 <birth_weight <1109 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 26 and 772 <birth_weight <1109 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 26 and birth_weight >=1109 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 27 and birth_weight <= 888 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 27 and 888 <birth_weight <1276 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 27 and 888 <birth_weight <1276 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 27 and birth_weight >=1276 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 28 and birth_weight <= 1014 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 28 and 1014 <birth_weight <1458 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 28 and 1014 <birth_weight <1458 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 28 and birth_weight >=1458 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 29 and birth_weight <= 1149 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 29 and 1149 <birth_weight <1654 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 29 and 1149 <birth_weight <1654 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 29 and birth_weight >=1654 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 30 and birth_weight <= 1293 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 30 and 1293 <birth_weight <1863 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 30 and 1293 <birth_weight <1863 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 30 and birth_weight >=1863 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 31 and birth_weight <= 1445 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 31 and 1445 <birth_weight <2085 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 31 and 1445 <birth_weight <2085 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 31 and birth_weight >=2085 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 32 and birth_weight <= 1605 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 32 and 1605 <birth_weight <2319 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 32 and 1605 <birth_weight <2319 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 32 and birth_weight >=2319 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 33 and birth_weight <= 1770 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 33 and 1770 <birth_weight <2562 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 33 and 1770 <birth_weight <2562 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 33 and birth_weight >=2562 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 34 and birth_weight <= 1941 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 34 and 1941 <birth_weight <2814 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 34 and 1941 <birth_weight <2814 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 34 and birth_weight >=2814 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 35 and birth_weight <= 2114 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 35 and 2114 <birth_weight <3072 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 35 and 2114 <birth_weight <3072 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 35 and birth_weight >=3072 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 36 and birth_weight <= 2290 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 36 and 2290 <birth_weight <3334 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 36 and 2290 <birth_weight <3334 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 36 and birth_weight >=3334 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 37 and birth_weight <= 2466 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 37 and 2466 <birth_weight <3598 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 37 and 2466 <birth_weight <3598 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 37 and birth_weight >=3598 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 38 and birth_weight <= 2641 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 38 and 2641 <birth_weight <3863 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 38 and 2641 <birth_weight <3863 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 38 and birth_weight >=3863 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 39 and birth_weight <= 2813 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 39 and 2813 <birth_weight <4125 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 39 and 2813 <birth_weight <4125 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 39 and birth_weight >=4125 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 40 and birth_weight <= 2880 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 40 and 2880 <birth_weight <4251 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 40 and 2880 <birth_weight <4251 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 40 and birth_weight > 4251 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 41 and birth_weight <= 2921 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 41 and 2921 <birth_weight <4459 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 41 and 2921 <birth_weight <4459 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 41 and birth_weight > 4459 then weight_who_ga=3;
 
   if sex eq 1 and term_mater_2021 = 42 and birth_weight <= 2845 then weight_who_ga=1;
-  if sex eq 1 and term_mater_2021 = 42 and 2845 <birth_weight <4659 then weight_who_ga=2;  
+  if sex eq 1 and term_mater_2021 = 42 and 2845 <birth_weight <4659 then weight_who_ga=2;
   if sex eq 1 and term_mater_2021 = 42 and birth_weight > 4659 then weight_who_ga=3;
 /*female*/
   if sex eq 2 and term_mater_2021 = 17 and birth_weight <= 145 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 17 and 145 <birth_weight <211 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 17 and 145 <birth_weight <211 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 17 and birth_weight >=211 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 18 and birth_weight <= 180 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 18 and 180 <birth_weight <261 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 18 and 180 <birth_weight <261 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 18 and birth_weight >=261 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 19 and birth_weight <= 221 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 19 and 221 <birth_weight <319 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 19 and 221 <birth_weight <319 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 19 and birth_weight >=319 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 20 and birth_weight <= 269 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 20 and 269 <birth_weight <387 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 20 and 269 <birth_weight <387 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 20 and birth_weight >=387 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 21 and birth_weight <= 324 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 21 and 324 <birth_weight <466 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 21 and 324 <birth_weight <466 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 21 and birth_weight >=466 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 22 and birth_weight <= 388 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 22 and 388 <birth_weight <557 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 22 and 388 <birth_weight <557 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 22 and birth_weight >=557 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 23 and birth_weight <= 461 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 23 and 461 <birth_weight <660 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 23 and 461 <birth_weight <660 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 23 and birth_weight >=660 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 24 and birth_weight <= 542 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 24 and 542 <birth_weight <776 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 24 and 542 <birth_weight <776 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 24 and birth_weight >=776 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 25 and birth_weight <= 634 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 25 and 634 <birth_weight <907 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 25 and 634 <birth_weight <907 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 25 and birth_weight >=907 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 26 and birth_weight <= 735 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 26 and 735 <birth_weight <1051 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 26 and 735 <birth_weight <1051 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 26 and birth_weight >=1051 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 27 and birth_weight <= 846 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 27 and 846 <birth_weight <1210 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 27 and 846 <birth_weight <1210 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 27 and birth_weight >=1210 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 28 and birth_weight <= 967 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 28 and 967 <birth_weight <1383 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 28 and 967 <birth_weight <1383 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 28 and birth_weight >=1383 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 29 and birth_weight <= 1096 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 29 and 1096 <birth_weight <1570 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 29 and 1096 <birth_weight <1570 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 29 and birth_weight >=1570 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 30 and birth_weight <= 1234 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 30 and 1234 <birth_weight <1770 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 30 and 1234 <birth_weight <1770 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 30 and birth_weight >=1770 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 31 and birth_weight <= 1379 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 31 and 1379 <birth_weight <1984 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 31 and 1379 <birth_weight <1984 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 31 and birth_weight >=1984 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 32 and birth_weight <= 1530 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 32 and 1530 <birth_weight <2209 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 32 and 1530 <birth_weight <2209 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 32 and birth_weight >=2209 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 33 and birth_weight <= 1687 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 33 and 1687 <birth_weight <2445 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 33 and 1687 <birth_weight <2445 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 33 and birth_weight >=2445 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 34 and birth_weight <= 1847 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 34 and 1847 <birth_weight <2814 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 34 and 1847 <birth_weight <2814 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 34 and birth_weight >=2690 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 35 and birth_weight <= 2008 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 35 and 2008 <birth_weight <2943 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 35 and 2008 <birth_weight <2943 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 35 and birth_weight >=2943 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 36 and birth_weight <= 2169 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 36 and 2169 <birth_weight <3201 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 36 and 2169 <birth_weight <3201 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 36 and birth_weight >=3201 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 37 and birth_weight <= 2329 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 37 and 2329 <birth_weight <3462 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 37 and 2329 <birth_weight <3462 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 37 and birth_weight >=3462 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 38 and birth_weight <= 2484 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 38 and 2484 <birth_weight <3725 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 38 and 2484 <birth_weight <3725 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 38 and birth_weight >=3725 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 39 and birth_weight <= 2633 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 39 and 2633 <birth_weight <3988 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 39 and 2633 <birth_weight <3988 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 39 and birth_weight >=3988 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 40 and birth_weight <= 2748 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 40 and 2748 <birth_weight <4060 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 40 and 2748 <birth_weight <4060 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 40 and birth_weight > 4060 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 41 and birth_weight <= 2835 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 41 and 2835 <birth_weight <4171 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 41 and 2835 <birth_weight <4171 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 41 and birth_weight > 4171 then weight_who_ga=3;
 
   if sex eq 2 and term_mater_2021 = 42 and birth_weight <= 2834 then weight_who_ga=1;
-  if sex eq 2 and term_mater_2021 = 42 and 2834 <birth_weight <4200 then weight_who_ga=2;  
+  if sex eq 2 and term_mater_2021 = 42 and 2834 <birth_weight <4200 then weight_who_ga=2;
   if sex eq 2 and term_mater_2021 = 42 and birth_weight > 4200 then weight_who_ga=3;
 end;",,,
 PELAGIE,pelagie_q0,V168,,,LifeCycle,core,cohab_,partial,final,"cohab_0 corresponds to the status at inclusion (1st and 2nd trimesters of pregnancy) and is corrected by the status at birth when reported in the follow-ups at 2, 6  or 12 years of age.",cohab_0=v168,"cohab_0 corresponds to the status at inclusion (1st and 2nd trimesters of pregnancy) and is corrected by the status at birth when reported in the follow-ups at 2, 6  or 12 years of age.",0,0
@@ -723,10 +723,10 @@ PELAGIE,pelagie_q0,"V163M,V163P",,,LifeCycle,core,ethn1_m,complete,final,,"If v1
 else If v163p eq 1 and v163m gt 11 then ethn1_m=3;
 else If v163p gt 1 and v163m eq 11 then ethn1_m=3;
 else If v163p ne . and v163m ne . then ethn1_m=2;",,,
-PELAGIE,pelagie_q0,V50,,,LifeCycle,core,occup_m_,partial,final,"The ""6) Inactive/other"" category includes the ""Housewife status"", the ""Unemployed"", and ""the Student/apprentice"". 
+PELAGIE,pelagie_q0,V50,,,LifeCycle,core,occup_m_,partial,final,"The ""6) Inactive/other"" category includes the ""Housewife status"", the ""Unemployed"", and ""the Student/apprentice"".
 The ""1) Employed"" category includes also the ""self-employed""
 The ""parental/childcare leave"" is considered in ""5) Domestic tasks (housewife etc.)""","if v50 eq 1 then occup_m_0=1;
-else if v50 eq 0 then occup_m_0=6;","The ""6) Inactive/other"" category includes the ""Housewife status"", the ""Unemployed"", and ""the Student/apprentice"". 
+else if v50 eq 0 then occup_m_0=6;","The ""6) Inactive/other"" category includes the ""Housewife status"", the ""Unemployed"", and ""the Student/apprentice"".
 The ""1) Employed"" category includes also the ""self-employed""
 The ""parental/childcare leave"" is considered in ""5) Domestic tasks (housewife etc.)""",0,0
 PELAGIE,pelagie_q0,PCSM1CL,,,LifeCycle,core,occupcode_m_,complete,final,,Coded,,0,0
@@ -1000,10 +1000,10 @@ else if qe6_a6 in (2 0) then occup_f1_6=5;
 else if qe6_a6 eq 4 then occup_f1_6=3;
 else if qe6_a6 eq 5 then occup_f1_6=6;
 
-if ageq6 eq 5  then do; 
+if ageq6 eq 5  then do;
 occup_f1_5=occup_f1_6;occup_f1_6=.;
 end;
-if ageq6 eq 7  then do; 
+if ageq6 eq 7  then do;
 occup_f1_7=occup_f1_6;occup_f1_6=.;
 end;
 if ageq6 eq 8  then do;
@@ -1049,11 +1049,11 @@ The ""1) Employed"" category includes also the ""self-employed""","if app_q3_1 e
 else if app_q3_1 in (0 2) then occup_f1_12=5;
 else if app_q3_1 eq 3 then occup_f1_12=6;
 
-if ageq12 eq 13  then do; 
+if ageq12 eq 13  then do;
 occup_f1_13=occup_f1_12;occup_f1_12=.;
 end;
 
-if ageq12 eq 14  then do; 
+if ageq12 eq 14  then do;
 occup_f1_14=occup_f1_12;occup_f1_12=.;
 end;","occup_f_12, _13, or _14 was filled in according to the exact age of the child when the parents answered to the 12yo questionnaire.
 The ""6) Inactive/other"" category also includes the ""Unemployed"".
@@ -1065,10 +1065,10 @@ if QE6_G1=1 or QE6_G2=1 then smk_exp6=1;
 else if QE6_G1=0 and QE6_G2=0 then smk_exp6=0;",smoking status of the mother and th efather but not information about exposure of the child or not,7,"5, 6, 7, 8"
 PELAGIE,harmonized,WM_EVAL_5,,,LifeCycle,outcome,wm_eval_,complete,final,,wm_eval_5=3;,,5,5
 PELAGIE,harmonized,OCCUPCODE_F1_0,,,LifeCycle,core,occupcode_f1_fath,partial,final,Biological father by default,if occupcode_f1_0 ne . then occupcode_f1_fath0=1;,Biological father by default,0,0
-PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle,core,childcareprof_,complete,final,variable generated for children followed at 6 years of age only,"if 0<=assistantedeb<12 and assistantefin>0 then childcareprof_0=1; 
-if 0<=assistantedeb<24 and assistantefin >=12 then childcareprof_1=1; 
-if 0<=assistantedeb<36 and assistantefin >=24 then childcareprof_2=1; 
-if 0<=assistantedeb<48 and assistantefin >=36 then childcareprof_3=1; 
+PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle,core,childcareprof_,complete,final,variable generated for children followed at 6 years of age only,"if 0<=assistantedeb<12 and assistantefin>0 then childcareprof_0=1;
+if 0<=assistantedeb<24 and assistantefin >=12 then childcareprof_1=1;
+if 0<=assistantedeb<36 and assistantefin >=24 then childcareprof_2=1;
+if 0<=assistantedeb<48 and assistantefin >=36 then childcareprof_3=1;
 
 if childcare_intro ne . and childcareprof_0 eq . then childcareprof_0=0;
 if childcare_intro ne . and childcareprof_1 eq . then childcareprof_1=0;
@@ -1187,44 +1187,44 @@ PELAGIE,pelagie_q2,C675,,,LifeCycle,core,famsize_adult,complete,final,,"/* _1 to
 if c675 ne . then famsize_adult2=c675;",,1,"1, 2, 3"
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE,chemicals_ath,m_bps_lod_t,complete,final,,BDD_phtalates_phenols$m_bps_lod_t1[BDD_phtalates_phenols$SGurineF<=10]<-0.10,,1,1
 PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle,core,childcare_intro,complete,final,variable generated for children followed at 6 years of age only,"crechedeb= QE6_B5_Creche_de_AMM;
-if QE6_B5_Creche_de_AMM ge 100 
+if QE6_B5_Creche_de_AMM ge 100
 then crechedeb= (int(QE6_B5_Creche_de_AMM/100)*12)+ QE6_B5_Creche_de_AMM-(int(QE6_B5_Creche_de_AMM/100)*100);
 
 crechefin= QE6_B5_Creche_a_AMM;
-if QE6_B5_Creche_a_AMM ge 100 
+if QE6_B5_Creche_a_AMM ge 100
 then crechefin= (int(QE6_B5_Creche_a_AMM/100)*12)+ QE6_B5_Creche_a_AMM-(int(QE6_B5_Creche_a_AMM/100)*100);
 
 assistantedeb= QE6_B5_assistante_de_AMM;
-if QE6_B5_assistante_de_AMM ge 100 
+if QE6_B5_assistante_de_AMM ge 100
 then assistantedeb= (int(QE6_B5_assistante_de_AMM/100)*12)+ QE6_B5_assistante_de_AMM-(int(QE6_B5_assistante_de_AMM/100)*100);
 
 assistantefin= QE6_B5_assistante_a_AMM;
-if QE6_B5_assistante_a_AMM ge 100 
+if QE6_B5_assistante_a_AMM ge 100
 then assistantefin= (int(QE6_B5_assistante_a_AMM/100)*12)+ QE6_B5_assistante_a_AMM-(int(QE6_B5_assistante_a_AMM/100)*100);
 
 familledeb= QE6_B5_famille_de_AMM;
-if QE6_B5_famille_de_AMM ge 100 
+if QE6_B5_famille_de_AMM ge 100
 then familledeb= (int(QE6_B5_famille_de_AMM/100)*12)+ QE6_B5_famille_de_AMM-(int(QE6_B5_famille_de_AMM/100)*100);
 
 famillefin= QE6_B5_famille_a_AMM;
-if QE6_B5_famille_a_AMM ge 100 
+if QE6_B5_famille_a_AMM ge 100
 then famillefin= (int(QE6_B5_famille_a_AMM/100)*12)+ QE6_B5_famille_a_AMM-(int(QE6_B5_famille_a_AMM/100)*100);
 
 employeedeb= QE6_B5_employee_de_AMM;
-if QE6_B5_employee_de_AMM ge 100 
+if QE6_B5_employee_de_AMM ge 100
 then employeedeb= (int(QE6_B5_employee_de_AMM/100)*12)+ QE6_B5_employee_de_AMM-(int(QE6_B5_employee_de_AMM/100)*100);
 
 employeefin= QE6_B5_employee_a_AMM;
-if QE6_B5_employee_a_AMM ge 100 
+if QE6_B5_employee_a_AMM ge 100
 then employeefin= (int(QE6_B5_employee_a_AMM/100)*12)+ QE6_B5_employee_a_AMM-(int(QE6_B5_employee_a_AMM/100)*100);
 
 
 vous_memedeb= QE6_B5_vous_meme_de_AMM;
-if QE6_B5_vous_meme_de_AMM ge 100 
+if QE6_B5_vous_meme_de_AMM ge 100
 then vous_memedeb= (int(QE6_B5_vous_meme_de_AMM/100)*12)+ QE6_B5_vous_meme_de_AMM-(int(QE6_B5_vous_meme_de_AMM/100)*100);
 
 vous_memefin= QE6_B5_vous_meme_a_AMM;
-if QE6_B5_vous_meme_a_AMM ge 100 
+if QE6_B5_vous_meme_a_AMM ge 100
 then vous_memefin= (int(QE6_B5_vous_meme_a_AMM/100)*12)+ QE6_B5_vous_meme_a_AMM-(int(QE6_B5_vous_meme_a_AMM/100)*100);
 
 childcare_intro= min( Crechedeb,Assistantedeb,Familledeb,Employeedeb);",variable generated for children followed at 6 years of age only,,
@@ -1238,17 +1238,17 @@ else if B592=5 then bonbons=20;
 else if B592=6 then bonbons=30;
 else if B592=7 then bonbons=60;
 sugar_psc=bonbons/30;",,,
-PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle,core,childcarerel_,complete,final,variable generated for children followed at 6 years of age only,"if 0<=Familledeb<12 and famillefin>0 then childcarerel_0=1; 
-else if 0<=Employeedeb<12 and employeefin>0 then childcarerel_0=1; 
+PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle,core,childcarerel_,complete,final,variable generated for children followed at 6 years of age only,"if 0<=Familledeb<12 and famillefin>0 then childcarerel_0=1;
+else if 0<=Employeedeb<12 and employeefin>0 then childcarerel_0=1;
 
-if 0<=Familledeb<24 and Famillefin >=12 then childcarerel_1=1; 
-else if 0<=Employeedeb<24 and employeefin >= 12 then childcarerel_1=1; 
+if 0<=Familledeb<24 and Famillefin >=12 then childcarerel_1=1;
+else if 0<=Employeedeb<24 and employeefin >= 12 then childcarerel_1=1;
 
-if 0<=Familledeb<36 and famillefin >=24 then childcarerel_2=1; 
-else if 0<=Employeedeb<36 and employeefin>= 24 then childcarerel_2=1; 
+if 0<=Familledeb<36 and famillefin >=24 then childcarerel_2=1;
+else if 0<=Employeedeb<36 and employeefin>= 24 then childcarerel_2=1;
 
-if 0<=Familledeb<48 and famillefin >=36 then childcarerel_3=1; 
-else if 0<=Employeedeb<48 and employeefin>=36 then childcarerel_3=1; 
+if 0<=Familledeb<48 and famillefin >=36 then childcarerel_3=1;
+else if 0<=Employeedeb<48 and employeefin>=36 then childcarerel_3=1;
 
 if childcare_intro ne . and childcarerel_0 eq . then childcarerel_0=0;
 if childcare_intro ne . and childcarerel_1 eq . then childcarerel_1=0;
@@ -1294,10 +1294,10 @@ else if QE6_d6_14=3 then gateaux=8;
 else if QE6_d6_14=4 then gateaux=20;
 else if QE6_d6_14=5 then gateaux=30;
 grain_sch=sum(pate_riz,cereale_dej,pain_complet,pain_cereale_autre,gateaux)/30;",,,
-PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle,core,childcarecentre_,complete,final,variable generated for children followed at 6 years of age only,"if 0<=crechedeb<12 and crechefin>0 then childcarecentre_0=1; 
-if 0<=crechedeb<24 and crechefin >=12 then childcarecentre_1=1; 
-if 0<=crechedeb<36 and crechefin >=24 then childcarecentre_2=1; 
-if 0<=crechedeb<48 and crechefin >=36 then childcarecentre_3=1; 
+PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle,core,childcarecentre_,complete,final,variable generated for children followed at 6 years of age only,"if 0<=crechedeb<12 and crechefin>0 then childcarecentre_0=1;
+if 0<=crechedeb<24 and crechefin >=12 then childcarecentre_1=1;
+if 0<=crechedeb<36 and crechefin >=24 then childcarecentre_2=1;
+if 0<=crechedeb<48 and crechefin >=36 then childcarecentre_3=1;
 
 
 if childcare_intro ne . and childcarecentre_0 eq . then childcarecentre_0=0;
@@ -1345,15 +1345,15 @@ famsize_adult12=FA_Q3_1;","Partial harmonization because in the 12yo questionnai
 PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,ATHLETE,outcome_ath,aggr_age_,complete,final,,aggr_age_12=(DATE-ddn_2021)/365.2422;,,12,12
 PELAGIE,pelagie_q2,"B413,B441,B442",,,LifeCycle,core,pets_,partial,final,data collected at 2yo (pet from birth),"if B413=0 and B441 ne 1 then do; pets_0=0; pets_1=0;pets_2=0; end;
 if B413=0 and B441=1 then do; pets_0=1; pets_1=0;  pets_2=0;end;
- 
-else if B413=1 and B441=0 then do; pets_0=1; pets_1=1; pets_2=1;end; 
+
+else if B413=1 and B441=0 then do; pets_0=1; pets_1=1; pets_2=1;end;
 else if B413=1 and B441=1 then do;
 	if 0<=B442<12 then do; pets_0=1; pets_1=0; pets_2=0;end;
 	else if 12<=B442<24 then do; pets_0=1; pets_1=1; pets_2=0;end;
 	else if 24<=B442 then do; pets_0=1; pets_1=1; pets_2=1;end;
 	end;
 if B413=1 and B441=. then do; pets_0=1; pets_1=1; pets_2=1;end; * si animal mais on ne sait pas si séparation ou à quel âge séparation, animal présent les 2 1eres années;
-if B413=1 and B441=1 and B442=. then do; pets_0=1; pets_1=1;pets_2=1; end; 
+if B413=1 and B441=1 and B442=. then do; pets_0=1; pets_1=1;pets_2=1; end;
 if ageq2 eq 1 then pets_2=.;
 if ageq2 eq 3 then pets_3=pets_2;",data collected at 2yo (pet from birth),0,"0, 1, 2, 3"
 PELAGIE,pelagie_q0,V155,,,LifeCycle,core,supp_pgn,complete,final,,supp_pgn=v155;,,,
@@ -1449,7 +1449,7 @@ else if v122=1 then fruits=3;
 else if v122=2 then fruits=10;
 else if v122=3 then fruits=20;
 else if v122=4 then fruits=30;
-/* fruit_pgn = Fruits during pregnancy 
+/* fruit_pgn = Fruits during pregnancy
 --> we included ""Fruits et natural (fresh) juice (v122)"" */
 fruit_pgn=fruits/30;",,,
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE,chemicals_ath,m_mchp_lod_t,complete,final,,BDD_phtalates_phenols$m_mchp_lod_t1[BDD_phtalates_phenols$SGurineF<=10]<-0.20,,1,1
@@ -1559,7 +1559,7 @@ else if v113=1 then pdt_lait_ecrem=3;
 else if v113=2 then pdt_lait_ecrem=10;
 else if v113=3 then pdt_lait_ecrem=20;
 else if v113=4 then pdt_lait_ecrem=30;
-/* lfdairy_pgn = Low fat dairy during pregnancy 
+/* lfdairy_pgn = Low fat dairy during pregnancy
 --> we included low fat dairy (v113) */
 lfdairy_pgn=pdt_lait_ecrem/30;",,,
 PELAGIE,pelagie_q2,"B576,B577",,,LifeCycle,core,veg_psc,complete,final,,"/* legumes cuits */
@@ -1611,7 +1611,7 @@ else if v121=3 then petit_crustac=20;
 else if v121=4 then petit_crustac=30;
 
 /* fish_pgn = Fish and fish products during pregnancy
---> we included fish (v118), seashells (v119), small crustaceans (v120), big crustaceans (v121) */ 
+--> we included fish (v118), seashells (v119), small crustaceans (v120), big crustaceans (v121) */
 fish_pgn=sum(poissons, coquillages, gros_crustac,petit_crustac)/30;",,,
 PELAGIE,BDD_phtalates_phenols,"BPA,SGURINEF",,,ATHLETE,chemicals_ath,m_bpa_raw_t,complete,final,,BDD_phtalates_phenols$m_bpa_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$BPA,,2,2
 PELAGIE,harmonized,AGGR_PRO_13,,,ATHLETE,outcome_ath,aggr_pc_,complete,final,,"SDQ12$aggr_pc_13<-xtile(SDQ12$aggr_pro_13, n=100)",Percentile variables were generated only for years where information on prorated score was available for more than 10 children,13,13
@@ -2284,7 +2284,7 @@ else if food_all_ever_q2=0 and food_all_ever_q6=0 then food_all_ever=0;
 else if food_all_ever_q2=. and food_all_ever_q6=1 then food_all_ever=1;
 else if food_all_ever_q2=. and food_all_ever_q6=0 then food_all_ever=0;
 
-UPDATE 12-year-old follow-up: 
+UPDATE 12-year-old follow-up:
 food_all_ever_bis=food_all_ever;
 if SRA_Q13_1=1 or food_all_ever_bis=1 then food_all_ever=1;
 else if SRA_Q13_1=0 and (food_all_ever_bis=0 or food_all_ever_bis=.) then food_all_ever=0;
@@ -2293,13 +2293,13 @@ drop food_all_ever_bis;",Updated with data from 12-year-old follow-up,,
 PELAGIE,pelagie_q6,"QS6_C23,QS6_C24",pelagie_q12,SRA_Q10_2,LifeCycle,outcome,inh_all_ever,partial,final,"Partially harmonized because not specify if doctor diagnosed or not; data collected at 6yo and 12yo concerns hay fever or allergy to cats, dust,… from birth. Based on the age when the allergy first appeared, not specific information about episodes at this age.","if qs6_c23=1 or qs6_c24=1 then inh_all_ever=1;
 else if qs6_c23=0 and qs6_c24=0 then inh_all_ever=0;
 
-UPDATE 12-year-old follow-up: 
+UPDATE 12-year-old follow-up:
 inh_all_ever_bis=inh_all_ever;
 if SRA_Q10_2=1 or inh_all_ever_bis=1 then inh_all_ever=1;
 else if SRA_Q10_2=0 and (inh_all_ever_bis=0 or inh_all_ever_bis=.) then inh_all_ever=0;
 else inh_all_ever=.;
 drop inh_all_ever_bis;","Partially harmonized because not specify if doctor diagnosed or not; data collected at 6yo and 12yo concerns hay fever or allergy to cats, dust,… from birth. Based on the age when the allergy first appeared, not specific information about episodes at this age.",,
-PELAGIE,pelagie_q12,"SRA_Q10_2,SRA_Q10_2_A,SRA_Q10_2_M",,,LifeCycle,outcome,inh_all_,partial,final,No information about all the episodes of inhalant allergy. Updated with data from 12-year-old follow-up,"if SRA_Q10_2=1 and (SRA_Q10_2_A>=0 and SRA_Q10_2_A<1) or ((SRA_Q10_2_A=0 or SRA_Q10_2_A=.) and (SRA_Q10_2_M>=0 and SRA_Q10_2_M<12)) 
+PELAGIE,pelagie_q12,"SRA_Q10_2,SRA_Q10_2_A,SRA_Q10_2_M",,,LifeCycle,outcome,inh_all_,partial,final,No information about all the episodes of inhalant allergy. Updated with data from 12-year-old follow-up,"if SRA_Q10_2=1 and (SRA_Q10_2_A>=0 and SRA_Q10_2_A<1) or ((SRA_Q10_2_A=0 or SRA_Q10_2_A=.) and (SRA_Q10_2_M>=0 and SRA_Q10_2_M<12))
  then inh_all_0=1;
 else if SRA_Q10_2=0 and (SRA_Q10_2_A>=0 and SRA_Q10_2_A<1) or (SRA_Q10_2_M>=0 and SRA_Q10_2_M<12) then inh_all_0=0;
 else inh_all_0=.;",No information about all the episodes of inhalant allergy. Updated with data from 12-year-old follow-up,0,0
@@ -2364,7 +2364,7 @@ else if SRA_Q10_2=0 and SRA_Q10_2_A>=14 and SRA_Q10_2_A<15 then inh_all_14=0;
 else inh_all_14=.;",No information about all the episodes of inhalant allergy,14,14
 PELAGIE,pelagie_q6,QS6_C35,,,LifeCycle,outcome,urticaria,complete,final,,urticaria=QS6_C35;,,,
 PELAGIE,pelagie_q6,"QS6_C25,QS6_C26,AGE_ENFANT_QUEST",,,LifeCycle,outcome,rash_,complete,final,,"if  (6 le age_enfant_quest lt 7) then do;
-if QS6_C25=0 then rash_6=0; 
+if QS6_C25=0 then rash_6=0;
 else if QS6_C26=0 then rash_6=0;
 else if QS6_C26=1 then rash_6=1;
 end;",,6,6
@@ -2395,7 +2395,7 @@ PELAGIE,pelagie_q12,"SRA_Q11_1,SRA_Q11_2,SRA_Q11_4_A,AGE_Q12",,,LifeCycle,outcom
  and age_q12<14)) then rash_13=1;
 else if SRA_Q11_1=0 and age_q12>=13 then rash_13=0;
 else rash_13=.;",,13,13
-PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=14 and SRA_Q11_4_A<15) or (SRA_Q11_6_A>=14 and 
+PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=14 and SRA_Q11_4_A<15) or (SRA_Q11_6_A>=14 and
  SRA_Q11_6_A<15) or (SRA_Q12_A>=14 and SRA_Q12_A<15)) then eczema_14=1;
 else if eczema_temp_ever=0 and age_q12>=14 then eczema_14=0;
 else eczema_14=.;",,14,14
@@ -2438,7 +2438,7 @@ else if eczema_ever_q2=0 and eczema_ever_q6=0 then eczema_ever=0;
 else if eczema_ever_q2=. and eczema_ever_q6=1 then eczema_ever=1;
 else if eczema_ever_q2=. and eczema_ever_q6=0 then eczema_ever=0;
 
-UPDATE 12-year-old follow-up: 
+UPDATE 12-year-old follow-up:
 eczema_ever_bis=eczema_ever;
 if SRA_Q12_1=1 or eczema_ever_bis=1 then eczema_ever=1;
 else if SRA_Q12_1=0 and (eczema_ever_bis=0 or eczema_ever_bis=.) then eczema_ever=0;
@@ -2450,15 +2450,15 @@ end;",,6,6
 PELAGIE,pelagie_q12,"SRA_Q11_1,SRA_Q11_4_A",,,LifeCycle,outcome,rash_,partial,final,Information only about age of first rash apparition. No information regarding other specific episodes at this age.,"if SRA_Q11_1=1 and (SRA_Q11_4_A>=9 and SRA_Q11_4_A<10) then rash_9=1;
 else if SRA_Q11_1=0 and age_q12>=9 then rash_9=0;
 else rash_9=.;",Information only about age of first rash apparition. No information regarding other specific episodes at this age.,9,9
-PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle,outcome,eczema_,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age. Updated with data from 12-year-old follow-up","UPDATE 12-year-old follow-up: 
+PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle,outcome,eczema_,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age. Updated with data from 12-year-old follow-up","UPDATE 12-year-old follow-up:
 eczema_7bis=eczema_7;
-if eczema_7bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=7 and SRA_Q11_4_A<8) or (SRA_Q11_6_A>=7 and 
+if eczema_7bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=7 and SRA_Q11_4_A<8) or (SRA_Q11_6_A>=7 and
  SRA_Q11_6_A<8) or (SRA_Q12_A>=7 and SRA_Q12_A<8))) then eczema_7=1;
 else if eczema_7bis=0 or (eczema_temp_ever=0 and age_q12>=7) then eczema_7=0;
 else eczema_7=.;
 drop eczema_7bis;","Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age. Updated with data from 12-year-old follow-up",7,7
 PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle,outcome,eczema_,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age.","eczema_8bis=eczema_8;
-if eczema_8bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=8 and SRA_Q11_4_A<9) or (SRA_Q11_6_A>=8 and 
+if eczema_8bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=8 and SRA_Q11_4_A<9) or (SRA_Q11_6_A>=8 and
  SRA_Q11_6_A<9) or (SRA_Q12_A>=8 and SRA_Q12_A<9))) then eczema_8=1;
 else if eczema_8bis=0 or (eczema_temp_ever=0 and age_q12>=8) then eczema_8=0;
 else eczema_8=.;
@@ -2472,7 +2472,7 @@ PELAGIE,pelagie_q2,"B144,B146",,,LifeCycle,outcome,rash_,complete,final,,"if b14
 rash_1=b146;",,1,1
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE,chemicals_ath,m_oxbe_lod_t,complete,final,,BDD_phtalates_phenols$m_oxbe_lod_t2[BDD_phtalates_phenols$SGurineF>10]<-0.04,,2,2
 PELAGIE,pelagie_q6,"QS6_C25,QS6_C26,AGE_ENFANT_QUEST","pelagie_q12,pelagie_q12","SRA_Q11_1,SRA_Q11_4_A",LifeCycle,outcome,rash_,complete,final,Updated with data from 12-year-old follow-up,"if  (7 le age_enfant_quest lt 8) then do;
-if QS6_C25=0 then rash_7=0; 
+if QS6_C25=0 then rash_7=0;
 else if QS6_C26=0 then rash_7=0;
 else if QS6_C26=1 then rash_7=1;
 end;
@@ -2489,29 +2489,29 @@ else if rash_8bis=0 or (SRA_Q11_1=0 and age_q12>=8) then rash_8=0;
 else rash_8=.;
 drop rash_8bis;",Information only about age of first rash apparition. No information regarding other specific episodes at this age.,8,8
 PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle,outcome,eczema_,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age.","eczema_9bis=eczema_9;
-if eczema_9bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=9 and SRA_Q11_4_A<10) or (SRA_Q11_6_A>=9 and 
+if eczema_9bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=9 and SRA_Q11_4_A<10) or (SRA_Q11_6_A>=9 and
  SRA_Q11_6_A<10) or (SRA_Q12_A>=9 and SRA_Q12_A<10))) then eczema_9=1;
 else if eczema_9bis=0 or (eczema_temp_ever=0 and age_q12>=9) then eczema_9=0;
 else eczema_9=.;
 drop eczema_9bis;","Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age.",9,9
-PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle,outcome,eczema_,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age.","if eczema_temp_ever=1 and ((SRA_Q11_4_A>=10 and SRA_Q11_4_A<11) or (SRA_Q11_6_A>=10 and 
+PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle,outcome,eczema_,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age.","if eczema_temp_ever=1 and ((SRA_Q11_4_A>=10 and SRA_Q11_4_A<11) or (SRA_Q11_6_A>=10 and
  SRA_Q11_6_A<11) or (SRA_Q12_A>=10 and SRA_Q12_A<11)) then eczema_10=1;
 else if eczema_temp_ever=0 and age_q12>=10 then eczema_10=0;
 else eczema_10=.;","Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age.",10,10
-PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=11 and SRA_Q11_4_A<12) or (SRA_Q11_6_A>=11 and 
+PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=11 and SRA_Q11_4_A<12) or (SRA_Q11_6_A>=11 and
  SRA_Q11_6_A<12) or (SRA_Q12_A>=11 and SRA_Q12_A<12)) then eczema_11=1;
 else if eczema_temp_ever=0 and age_q12>=11 then eczema_11=0;
 else eczema_11=.;",,11,11
-PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=12 and SRA_Q11_4_A<13) or (SRA_Q11_6_A>=12 and 
+PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=12 and SRA_Q11_4_A<13) or (SRA_Q11_6_A>=12 and
  SRA_Q11_6_A<13) or (SRA_Q12_A>=12 and SRA_Q12_A<13)) then eczema_12=1;
 else if eczema_temp_ever=0 and age_q12>=12 then eczema_12=0;
 else eczema_12=.;",,12,12
-PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=13 and SRA_Q11_4_A<14) or (SRA_Q11_6_A>=13 and 
+PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A,SRA_Q11_2,AGE_Q12",,,LifeCycle,outcome,eczema_,complete,final,,"if eczema_temp_ever=1 and ((SRA_Q11_4_A>=13 and SRA_Q11_4_A<14) or (SRA_Q11_6_A>=13 and
  SRA_Q11_6_A<14) or (SRA_Q12_A>=13 and SRA_Q12_A<14)) then eczema_13=1;
 else if eczema_temp_ever=0 and age_q12>=13 then eczema_13=0;
 else eczema_13=.;",,13,13
 PELAGIE,pelagie_q6,"QS6_C25,QS6_C26,AGE_ENFANT_QUEST",,,LifeCycle,outcome,rash_,complete,final,,"if  (5 le age_enfant_quest lt 6) then do;
-if QS6_C25=0 then rash_5=0; 
+if QS6_C25=0 then rash_5=0;
 else if QS6_C26=0 then rash_5=0;
 else if QS6_C26=1 then rash_5=1;
 end;",,5,5
@@ -2657,53 +2657,53 @@ end;
 
 UPDATE 12-year-old follow-up:
 rhinitis_7bis=rhinitis_7;
-if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=7 and SRA_Q8_4_2_A<8) or (SRA_Q9_2_A>=7 and SRA_Q9_2_A<8) 
+if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=7 and SRA_Q8_4_2_A<8) or (SRA_Q9_2_A>=7 and SRA_Q9_2_A<8)
  or (SRA_Q10_1_A>=7 and SRA_Q10_1_A<8)) or rhinitis_7bis=1 then rhinitis_7=1;
 else if (rhinitis_temp_ever=0 and age_q12>=7) or rhinitis_7bis=0 then rhinitis_7=0;
 else rhinitis_7=.;
 drop rhinitis_7bis;",Updated with data from 12-year-old follow-up,7,7
-PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle,outcome,wm_raw_,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
+PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle,outcome,wm_raw_,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2;
 if WMp>=0.75 then do;
 WM12_raw=sum(of WM{*});
 WM12_mean=WM12_raw/WMi;
 WM12_pro=round(WM12_mean*2,1);
 end;",Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,5,"5, 6"
-PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle,outcome,wm_pro_,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
+PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle,outcome,wm_pro_,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2;
 if WMp>=0.75 then do;
 WM12_raw=sum(of WM{*});
 WM12_mean=WM12_raw/WMi;
 WM12_pro=round(WM12_mean*2,1);
 end;",Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,5,"5, 6"
-PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A",,,ATHLETE,outcome_ath,rhinitis_,partial,final,,"if rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=8 and SRA_Q8_4_2_A<9) or (SRA_Q9_2_A>=8 and SRA_Q9_2_A<9) or 
+PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A",,,ATHLETE,outcome_ath,rhinitis_,partial,final,,"if rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=8 and SRA_Q8_4_2_A<9) or (SRA_Q9_2_A>=8 and SRA_Q9_2_A<9) or
  (SRA_Q10_1_A>=8 and SRA_Q10_1_A<9) then rhinitis_8=1;
 else if rhinitis_temp_ever=0 and age_q12>=8 then rhinitis_8=0;
 else rhinitis_8=.;",Partially harmonized because is based only on the age at rhinitis diagnosis and the age when rhinitis first appeared. No information about specific rhinitis episodes at that age.,8,8
-PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A",,,ATHLETE,outcome_ath,rhinitis_,partial,final,,"if rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=9 and SRA_Q8_4_2_A<10) or (SRA_Q9_2_A>=9 and SRA_Q9_2_A<10) 
+PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A",,,ATHLETE,outcome_ath,rhinitis_,partial,final,,"if rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=9 and SRA_Q8_4_2_A<10) or (SRA_Q9_2_A>=9 and SRA_Q9_2_A<10)
  or (SRA_Q10_1_A>=9 and SRA_Q10_1_A<10) then rhinitis_9=1;
 else if rhinitis_temp_ever=0 and age_q12>=9 then rhinitis_9=0;
 else rhinitis_9=.;",Partially harmonized because is based only on the age at rhinitis diagnosis and the age when rhinitis first appeared. No information about specific rhinitis episodes at that age.,9,9
 PELAGIE,harmonized,AGGR_EVAL_3,,,ATHLETE,outcome_ath,aggr_eval_,complete,final,,eval=2;,,3,3
 PELAGIE,harmonized,INT_PRO_12,,,LifeCycle,outcome,int_pc_,complete,final,Percentile variables were generated only for years where information on prorated score was available for more than 10 children,"SDQ12$int_pc_12<-xtile(SDQ12$int_pro_12, n=100)",Percentile variables were generated only for years where information on prorated score was available for more than 10 children,12,12
 PELAGIE,BDD_phtalates_phenols,"PRPA,SGURINEF",,,ATHLETE,chemicals_ath,m_prpa_raw_t,complete,final,,BDD_phtalates_phenols$m_prpa_raw_t1[BDD_phtalates_phenols$SGurineF<=10]<-BDD_phtalates_phenols$PRPA,,1,1
-PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A",,,ATHLETE,outcome_ath,rhinitis_,partial,final,,"if rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=10 and SRA_Q8_4_2_A<11) or (SRA_Q9_2_A>=10 and SRA_Q9_2_A<11) 
+PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A",,,ATHLETE,outcome_ath,rhinitis_,partial,final,,"if rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=10 and SRA_Q8_4_2_A<11) or (SRA_Q9_2_A>=10 and SRA_Q9_2_A<11)
  or (SRA_Q10_1_A>=10 and SRA_Q10_1_A<11) then rhinitis_10=1;
 else if rhinitis_temp_ever=0 and age_q12>=10 then rhinitis_10=0;
 else rhinitis_10=.;",Partially harmonized because is based only on the age at rhinitis diagnosis and the age when rhinitis first appeared. No information about specific rhinitis episodes at that age.,10,10
 PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,LifeCycle,outcome,int_age_,complete,final,,int_age_13=(DATE-ddn_2021)/365.2422;,,13,13
-PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=11 and SRA_Q8_4_2_A<12) or (SRA_Q9_2_A>=11 and SRA_Q9_2_A<12) 
+PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=11 and SRA_Q8_4_2_A<12) or (SRA_Q9_2_A>=11 and SRA_Q9_2_A<12)
  or (SRA_Q10_1_A>=11 and SRA_Q10_1_A<12)) or (SRA_Q8_2=1 and age_q12>=11 and age_q12<12) then rhinitis_11=1;
 else if (rhinitis_temp_ever=0 and age_q12>=11) or (SRA_Q8_2=0 and age_q12>=11 and age_q12<12) then rhinitis_11=0;
 else rhinitis_11=.;",,11,11
 PELAGIE,harmonized,LAN_EVAL_5,,,LifeCycle,outcome,lan_eval_,complete,final,,lan_eval_5=3;,,5,5
-PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=12 and SRA_Q8_4_2_A<13) or (SRA_Q9_2_A>=12 and SRA_Q9_2_A<13) 
+PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=12 and SRA_Q8_4_2_A<13) or (SRA_Q9_2_A>=12 and SRA_Q9_2_A<13)
  or (SRA_Q10_1_A>=12 and SRA_Q10_1_A<13)) or (SRA_Q8_2=1 and age_q12>=12 and age_q12<13) then rhinitis_12=1;
 else if (rhinitis_temp_ever=0 and age_q12>=12) or (SRA_Q8_2=0 and age_q12>=12 and age_q12<13) then rhinitis_12=0;
 else rhinitis_12=.;",,12,12
-PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=13 and SRA_Q8_4_2_A<14) or (SRA_Q9_2_A>=13 and SRA_Q9_2_A<14) 
+PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=13 and SRA_Q8_4_2_A<14) or (SRA_Q9_2_A>=13 and SRA_Q9_2_A<14)
  or (SRA_Q10_1_A>=13 and SRA_Q10_1_A<14)) or (SRA_Q8_2=1 and age_q12>=13 and age_q12<14) then rhinitis_13=1;
 else if (rhinitis_temp_ever=0 and age_q12>=13) or (SRA_Q8_2=0 and age_q12>=13 and age_q12<14) then rhinitis_13=0;
 else rhinitis_13=.;",,13,13
-PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=14 and SRA_Q8_4_2_A<15) or (SRA_Q9_2_A>=14 and SRA_Q9_2_A<15) 
+PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE,outcome_ath,rhinitis_,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=14 and SRA_Q8_4_2_A<15) or (SRA_Q9_2_A>=14 and SRA_Q9_2_A<15)
  or (SRA_Q10_1_A>=14 and SRA_Q10_1_A<15)) or (SRA_Q8_2=1 and age_q12>=14 and age_q12<15) then rhinitis_14=1;
 else if (rhinitis_temp_ever=0 and age_q12>=14) or (SRA_Q8_2=0 and age_q12>=14 and age_q12<15) then rhinitis_14=0;
 else rhinitis_14=.;",,14,14
@@ -3263,8 +3263,8 @@ PELAGIE,harmonized,EXT_EVAL_3,,,LifeCycle,outcome,ext_eval_,complete,final,,eval
 PELAGIE,harmonized,AGGR_EVAL_6,,,ATHLETE,outcome_ath,aggr_eval_,complete,final,,eval=2;,,6,6
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE,chemicals_ath,m_cxminp_lod_t,complete,final,,BDD_phtalates_phenols$m_cxminp_lod_t2[BDD_phtalates_phenols$SGurineF>10]<-0.70,,2,2
 PELAGIE,harmonized,AGGR_INSTR_1,,,ATHLETE,outcome_ath,aggr_instr_,partial,final,,instr=13;,"Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
@@ -3809,7 +3809,7 @@ Partial CBCL scale:
 (4)	how often would you say that your child has been unable to concentrate, or maintain attention for a long period?
 (5)	how often would you say that your child has had difficulty waiting for their turn in a game?
 (6)	how often would you say your child has been inattentive/distracted?",1,1
-PELAGIE,pelagie_q2,"B319,B308,B317,B306,B310,B314",,,ATHLETE,outcome_ath,aggr_raw_,partial,final,,"array AGR{6} b319 b308 b317 b306 b310 b314; 
+PELAGIE,pelagie_q2,"B319,B308,B317,B306,B310,B314",,,ATHLETE,outcome_ath,aggr_raw_,partial,final,,"array AGR{6} b319 b308 b317 b306 b310 b314;
 AGRi=N(of AGR{*}); AGRp=AGRi/6;
 if AGRp>=0.75 then do;
 score_AGR2_raw=sum(of AGR{*});
@@ -3829,8 +3829,8 @@ aggr_pro(i)=score_AGR2_pro;
 aggr_mean(i)=score_AGR2_mean;
 end;
 end;","Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
@@ -3858,8 +3858,8 @@ PELAGIE,harmonized,BIOMES_0,,,LifeCycle,outcome,biomes_,complete,final,,biomes_1
 PELAGIE,harmonized,AGGR_EVAL_8,,,ATHLETE,outcome_ath,aggr_eval_,complete,final,,eval=2;,,8,8
 PELAGIE,harmonized,AGGR_EVAL_1,,,ATHLETE,outcome_ath,aggr_eval_,complete,final,,eval=2;,,1,1
 PELAGIE,harmonized,AGGR_INSTR_3,,,ATHLETE,outcome_ath,aggr_instr_,partial,final,,instr=13;,"Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
@@ -3891,7 +3891,7 @@ PELAGIE,harmonized,AGGR_INSTR_5,,,ATHLETE,outcome_ath,aggr_instr_,complete,final
 PELAGIE,harmonized,AGGR_INSTR_6,,,ATHLETE,outcome_ath,aggr_instr_,complete,final,,instr=47;,,6,6
 PELAGIE,pelagie_q2,B3,maj_ddn_2021,DDN_2021,ATHLETE,outcome_ath,aggr_age_,complete,final,,aggr_age_2=(b3-ddn_2021)/365.2422;,,2,2
 PELAGIE,harmonized,BIOMES_0,,,LifeCycle,outcome,biomes_,complete,final,,biomes_150=0;,,150,150
-PELAGIE,pelagie_q2,"B319,B308,B317,B306,B310,B314",,,ATHLETE,outcome_ath,aggr_avg_,partial,final,,"array AGR{6} b319 b308 b317 b306 b310 b314; 
+PELAGIE,pelagie_q2,"B319,B308,B317,B306,B310,B314",,,ATHLETE,outcome_ath,aggr_avg_,partial,final,,"array AGR{6} b319 b308 b317 b306 b310 b314;
 AGRi=N(of AGR{*}); AGRp=AGRi/6;
 if AGRp>=0.75 then do;
 score_AGR2_raw=sum(of AGR{*});
@@ -3911,8 +3911,8 @@ aggr_pro(i)=score_AGR2_pro;
 aggr_mean(i)=score_AGR2_mean;
 end;
 end;","Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
@@ -3965,7 +3965,7 @@ end;",,11,"11, 12, 13, 14"
 PELAGIE,harmonized,AGGR_EVAL_14,,,ATHLETE,outcome_ath,aggr_eval_,complete,final,,eval=2;,,14,14
 PELAGIE,harmonized,AGGR_INSTR_8,,,ATHLETE,outcome_ath,aggr_instr_,complete,final,,instr=47;,,8,8
 PELAGIE,pelagie_q6,QE6_DATE_REPONSE_JJMMAAAA,maj_ddn_2021,DDN_2021,ATHLETE,outcome_ath,aggr_age_,complete,final,,aggr_age_6=(QE6_Date_Reponse_JJMMAAAA-ddn_2021)/365.2422;,,6,6
-PELAGIE,pelagie_q2,"B319,B308,B317,B306,B310,B314",,,ATHLETE,outcome_ath,aggr_pro_,partial,final,,"array AGR{6} b319 b308 b317 b306 b310 b314; 
+PELAGIE,pelagie_q2,"B319,B308,B317,B306,B310,B314",,,ATHLETE,outcome_ath,aggr_pro_,partial,final,,"array AGR{6} b319 b308 b317 b306 b310 b314;
 AGRi=N(of AGR{*}); AGRp=AGRi/6;
 if AGRp>=0.75 then do;
 score_AGR2_raw=sum(of AGR{*});
@@ -3985,8 +3985,8 @@ aggr_pro(i)=score_AGR2_pro;
 aggr_mean(i)=score_AGR2_mean;
 end;
 end;","Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
@@ -4043,8 +4043,8 @@ PELAGIE,harmonized,NVI_INSTR_5,,,LifeCycle,outcome,nvi_instr_,partial,final,Only
 PELAGIE,harmonized,AGGR_PRO_1,,,ATHLETE,outcome_ath,aggr_pc_,partial,final,,"CPT2$aggr_pc_1<-xtile(CPT2$aggr_pro_1, n=100)","Percentile variables were generated only for years where information on prorated score was available for more than 10 children
 
 Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
@@ -4052,15 +4052,15 @@ Partial CBCL scale:
 PELAGIE,harmonized,AGGR_PRO_2,,,ATHLETE,outcome_ath,aggr_pc_,partial,final,,"CPT2$aggr_pc_2<-xtile(CPT2$aggr_pro_2, n=100)","Percentile variables were generated only for years where information on prorated score was available for more than 10 children
 
 Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
 (6)	how often would you say that your child has hit, bitten or kicked other children?",2,2
 PELAGIE,harmonized,AGGR_INSTR_2,,,ATHLETE,outcome_ath,aggr_instr_,partial,final,,instr=13;,"Partial CBCL scale:
-(1)	how often would you say that your child has been rebellious or refused to obey? 
-(2)	how often would you say your child has been in a fight? 
+(1)	how often would you say that your child has been rebellious or refused to obey?
+(2)	how often would you say your child has been in a fight?
 (3)	how often would you say that your child did not seem to feel remorse after misbehaving?
 (4)	how often would you say that your child has not changed their behaviour after being punished?
 (5)	how often would you say your child has physically attacked others?
@@ -4142,7 +4142,7 @@ PELAGIE,harmonized,ASD_PRO_11,,,LifeCycle,outcome,asd_pc_,complete,final,Percent
 PELAGIE,pelagie_GC_q11,DATECAST,maj_ddn_2021,DDN_2021,LifeCycle,outcome,asd_age_,complete,final,,asd_age_11=(datecast-ddn_2021)/365.2422;,,11,11
 PELAGIE,harmonized,NVI_PRO_6,,,LifeCycle,outcome,nvi_std_,partial,final,Standardized variables were generated only for years where information on prorated score was available for more than 10 children,nvi_std_6=((nvi_pro_6-11.2342007)/2.6047068)*15 + 100;,Standardized variables were generated only for years where information on prorated score was available for more than 10 children,6,6
 PELAGIE,pepsy,DATE_RDV,maj_ddn_2021,DDN_2021,LifeCycle,outcome,nvi_age_,complete,final,,nvi_age_5=(date_RDV-ddn_2021)/365.2422;,,5,5
-PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle,outcome,wm_avg_,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
+PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle,outcome,wm_avg_,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2;
 if WMp>=0.75 then do;
 WM12_raw=sum(of WM{*});
 WM12_mean=WM12_raw/WMi;
@@ -4484,8 +4484,8 @@ PELAGIE,BDD_creatinine,"CREATININE_TOT,SGURINEF",,,ATHLETE,chemicals_ath,m_creat
 PELAGIE,BDD_creatinine,"CREATININE_TOT,SGURINEF",,,ATHLETE,chemicals_ath,m_creatinine_raw_t,complete,final,,"BDD_creatinine$m_creatinine_raw_t2<-ifelse(!is.na(BDD_creatinine$creatinine_tot) & BDD_creatinine$SGurineF>10,BDD_creatinine$creatinine_tot,NA)",,2,2
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle,core,height_,complete,final,,/* too long to be provided and many case by case situations */,,0,"0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90"
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_exam12,DATE,LifeCycle,outcome,headcircage_,complete,final,,/* too long to be provided and many case by case situations */,,152,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
-PELAGIE,pelagie_exam12,"EX32,PB_TANITA",,,LifeCycle,outcome,bio_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"EX32,PB_TANITA",,,LifeCycle,outcome,bio_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
   end;
 end;",,151,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4495,16 +4495,16 @@ PELAGIE,harmonized,BIOMES_0,,,LifeCycle,outcome,biomes_,complete,final,,biomes_1
 PELAGIE,harmonized,BIOMES_0,,,LifeCycle,outcome,biomes_,complete,final,,biomes_158=0;,,158,158
 PELAGIE,pelagie_exam12,"EX47,EX56,EX65",,,LifeCycle,outcome,headcirc_,complete,final,,/* too long to be provided and many case by case situations */,,155,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,harmonized,TRIGLYCERIDESMES_146,,,LifeCycle,outcome,triglyceridesmes_,complete,final,,triglyceridesmes_154=0;,,154,154
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,waistcircage_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,waistcircage_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
      if P_ombili ne . then do;waistcirc_[i]=P_ombili;waistcircage_[i]=age_exam_jour;waistcircmes_[i]=0;end;
   end;
 end;",,148,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle,core,weight_age,complete,final,,/* too long to be provided and many case by case situations */,,146,"133, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169"
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,triglyceridesage_,complete,final,,triglyceridesage_154=age_exam_jour;,,154,154
 PELAGIE,harmonized,TRIGLYCERIDESMES_146,,,LifeCycle,outcome,triglyceridesmes_,complete,final,,triglyceridesmes_150=0;,,150,150
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,armcircage_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,armcircage_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
   end;
 end;",,154,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4570,8 +4570,8 @@ else &mesure_moy= (&m1+&m2)/2;
 
 %mesure(ex50,ex59,ex68,difpo1,difpo2,difpo3,P_ombili,mindifpo);
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
      if P_ombili ne . then do;waistcirc_[i]=P_ombili;waistcircage_[i]=age_exam_jour;waistcircmes_[i]=0;end;
   end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4592,8 +4592,8 @@ else &mesure_moy= (&m1+&m2)/2;
 
 %mesure(ex48,ex57,ex66,difpb1,difpb2,difpb3,P_brachial,mindifpb);
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do;     
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
     end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4601,8 +4601,8 @@ PELAGIE,harmonized,ARMCIRCMES_0,,,LifeCycle,outcome,armcircmes_,complete,final,,
 PELAGIE,harmonized,ARMCIRCMES_0,,,LifeCycle,outcome,armcircmes_,complete,final,,armcircmes_146=0;,,146,146
 PELAGIE,harmonized,ARMCIRCMES_0,,,LifeCycle,outcome,armcircmes_,complete,final,,armcircmes_147=0;,,147,147
 PELAGIE,harmonized,ARMCIRCMES_0,,,LifeCycle,outcome,armcircmes_,complete,final,,armcircmes_148=0;,,148,148
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,subscapsfage_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,subscapsfage_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
   end;
 end;",,149,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4621,15 +4621,15 @@ else &mesure_moy= (&m1+&m2)/2;
 
 %mesure(ex54,ex63,ex71,difscap1,difscap2,difscap3,Pli_scapulaire,mindifps);
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do;     
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
     end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,harmonized,SUBSCAPSFMES_0,,,LifeCycle,outcome,subscapsfmes_,complete,final,,subscapsfmes_150=0;,,150,150
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,ldlcage_,complete,final,,ldlcage_152=age_exam_jour;,,152,152
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,tricepsfage_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,tricepsfage_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
   end;
 end;",,153,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4647,8 +4647,8 @@ PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle,outcome,tricepsfmes_,complete,final
 PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle,outcome,tricepsfmes_,complete,final,,tricepsfmes_156=0;,,156,156
 PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle,outcome,tricepsfmes_,complete,final,,tricepsfmes_157=0;,,157,157
 PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle,outcome,tricepsfmes_,complete,final,,tricepsfmes_158=0;,,158,158
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,sittinghtage_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,sittinghtage_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
   end;
 end;",,149,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4668,8 +4668,8 @@ else &mesure_moy= (&m1+&m2)/2;
 
 %mesure(ex24,ex26,ex28,diftaila1,diftaila2,diftaila3,taille_assise,mindiftaila);
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do;     
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
     end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4681,20 +4681,20 @@ PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle,outcome,sittinghtmes_,complete,fin
 PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle,outcome,sittinghtmes_,complete,final,,sittinghtmes_149=0;,,149,149
 PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle,outcome,sittinghtmes_,complete,final,,sittinghtmes_150=0;,,150,150
 PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle,outcome,sittinghtmes_,complete,final,,sittinghtmes_151=0;,,151,151
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,bioage_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle,outcome,bioage_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
 if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
   end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,harmonized,LDLCMES_146,,,LifeCycle,outcome,ldlcmes_,complete,final,,ldlcmes_149=0;,,149,149
-PELAGIE,pelagie_exam12,EX39,,,LifeCycle,outcome,sbp_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,EX39,,,LifeCycle,outcome,sbp_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
     if bpage ne . then do;
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
-PELAGIE,pelagie_exam12,EX40,,,LifeCycle,outcome,dbp_,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+PELAGIE,pelagie_exam12,EX40,,,LifeCycle,outcome,dbp_,complete,final,,"do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
     if bpage ne . then do;
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
@@ -4702,8 +4702,8 @@ end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,ldlcage_,complete,final,,ldlcage_150=age_exam_jour;,,150,150
 PELAGIE,pelagie_exam12,"EX39,EX95",,,LifeCycle,outcome,sbpav_,complete,final,,"avsbp=(ex39+ex95)/2;
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
     if bpage ne . then do;
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
@@ -4712,16 +4712,16 @@ PELAGIE,harmonized,LDLCMES_146,,,LifeCycle,outcome,ldlcmes_,complete,final,,ldlc
 PELAGIE,pelagie_exam12,"EX42,EX98",,,LifeCycle,outcome,pulse_,complete,final,,"pulse= (ex42+ex98)/2;
 
 
-do i = 146 to 158 ; 
-	 if age_exam_mois eq i then do; 
+do i = 146 to 158 ;
+	 if age_exam_mois eq i then do;
 if pulse ne . then do;pulse_[i]=pulse;pulseage_[i]=age_exam_jour;pulsemessit_[i]=1;end;
 	end;
 end;",,154,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,harmonized,LDLCMES_146,,,LifeCycle,outcome,ldlcmes_,complete,final,,ldlcmes_151=0;,,151,151
 PELAGIE,pelagie_exam12,"EX40,EX96",,,LifeCycle,outcome,dbpav_,complete,final,,"avdbp=(ex40+ex96)/2;
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
     if bpage ne . then do;
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
@@ -4729,8 +4729,8 @@ end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,harmonized,LDLCMES_146,,,LifeCycle,outcome,ldlcmes_,complete,final,,ldlcmes_152=0;,,152,152
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,bpage_,complete,final,,"bpage=age_exam_jour;
 
-do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
+do i = 146 to 158 ;
+  if age_exam_mois eq i then do;
     if bpage ne . then do;
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
@@ -4740,15 +4740,15 @@ PELAGIE,harmonized,LDLCMES_146,,,LifeCycle,outcome,ldlcmes_,complete,final,,ldlc
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,ldlcage_,complete,final,,ldlcage_151=age_exam_jour;,,151,151
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,pulseage_,complete,final,,"pulseage=age_exam_jour;
 
-do i = 146 to 158 ; 
-	 if age_exam_mois eq i then do; 
+do i = 146 to 158 ;
+	 if age_exam_mois eq i then do;
 if pulse ne . then do;pulse_[i]=pulse;pulseage_[i]=age_exam_jour;pulsemessit_[i]=1;end;
 	end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
 PELAGIE,harmonized,PULSEMESSIT_0,,,LifeCycle,outcome,pulsemessit_,complete,final,,"pulsemessit=1;
 
-do i = 146 to 158 ; 
-	 if age_exam_mois eq i then do; 
+do i = 146 to 158 ;
+	 if age_exam_mois eq i then do;
 if pulse ne . then do;pulse_[i]=pulse;pulseage_[i]=age_exam_jour;pulsemessit_[i]=1;end;
 	end;
 end;",,146,"146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158"
@@ -4821,7 +4821,7 @@ PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,triglyceridesage_,compl
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,triglyceridesage_,complete,final,,triglyceridesage_150=age_exam_jour;,,150,150
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,triglyceridesage_,complete,final,,triglyceridesage_151=age_exam_jour;,,151,151
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle,outcome,triglyceridesage_,complete,final,,triglyceridesage_152=age_exam_jour;,,152,152
-PELAGIE,harmonized,"COHAB_0,COB_M,OCCUP_M_0,OCCUP_F1_0",pelagie_q0,V49,LifeCycle,core,eusilc_income,complete,final,,"log_income= 7.525938 + 
+PELAGIE,harmonized,"COHAB_0,COB_M,OCCUP_M_0,OCCUP_F1_0",pelagie_q0,V49,LifeCycle,core,eusilc_income,complete,final,,"log_income= 7.525938 +
 			-0.3140028*sans_conjoint +
 
 			0.0513736*ne_eu +
@@ -4830,9 +4830,9 @@ PELAGIE,harmonized,"COHAB_0,COB_M,OCCUP_M_0,OCCUP_F1_0",pelagie_q0,V49,LifeCycle
 			-0.0954557*etude_primary +
 			-0.0752083*etude_lowsecondary +
 			0.1353596*etude_postsecondary +
-	
+
 			-0.284897*unemployed_p +
-	
+
 			-0.3175347*unemployed_m +
 
 			-0.0387119*isco_p_1 +
@@ -4842,7 +4842,7 @@ PELAGIE,harmonized,"COHAB_0,COB_M,OCCUP_M_0,OCCUP_F1_0",pelagie_q0,V49,LifeCycle
 			-0.274532*isco_p_67 +
 			-0.252697*isco_p_8 +
 			-0.2091455*isco_p_90 +
-	
+
 			0.1308386*isco_m_1 +
 			-.0202359*isco_m_3 +
 			-.0922188*isco_m_4 +
@@ -4852,7 +4852,7 @@ PELAGIE,harmonized,"COHAB_0,COB_M,OCCUP_M_0,OCCUP_F1_0",pelagie_q0,V49,LifeCycle
 
 			0.0046984*agemere;
 
-eusilc_income=log_income;","Calculated considering: 
+eusilc_income=log_income;","Calculated considering:
 - NOT living with a partner
 - Maternal country of birth (EU vs OTHER)
 - Maternal education (≤ primary, lower secondary, post-secondary)
@@ -4923,14 +4923,14 @@ Sepages,bdd_grossesse_v5_1,mo_coupl_pr,"bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_
 if cy1eas1_q02=1 or cy1eas1_q03=1 or cy1eas1_q04=1 or  cy1eas1_q05=1 or cy1eas1_q06=1 then cohab_0=0;
 if cy1eas2_q02=1 or cy1eas2_q03=1 or cy1eas2_q04=1 or  cy1eas2_q05=1 or cy1eas2_q06=1 then cohab_0=0;",,0,0
 Sepages,bdd_grossesse_v5_1,mo_isco_cat_major,,,LifeCycle,core,occupcode_m_,complete,final,,occupcode_m_0=mo_isco_cat_major;,,0,0
-Sepages,quest_mt1raa1,mt1raa1_q21,,,LifeCycle,core,edu_m_,complete,final,The question is asked at the beginning of the pregnancy,"if MT1RAA1_Q21 in (1,2,3) then edu_m_0=3; 
+Sepages,quest_mt1raa1,mt1raa1_q21,,,LifeCycle,core,edu_m_,complete,final,The question is asked at the beginning of the pregnancy,"if MT1RAA1_Q21 in (1,2,3) then edu_m_0=3;
 else if MT1RAA1_Q21 in (4,5) then edu_m_0=2;
 else if MT1RAA1_Q21 in (6,7,8) then edu_m_0=1;",,0,0
 Sepages,bdd_grossesse_v5_1,mo_tob_grt3_yn_n2,,,LifeCycle,core,smk_t,complete,final,,smk_t3=mo_tob_grt3_yn_n2;,,3,3
-Sepages,bdd_grossesse_v5_1,mt1saa1_q02,efr_mere_LMAB_20210902_26,mo_ethnie,LifeCycle,core,ethn1_m,partial,final,,"if mo_ethnie=1 then ethnie_m_efr=1; else if mo_ethnie ne . then ethnie_m_efr=2; 
+Sepages,bdd_grossesse_v5_1,mt1saa1_q02,efr_mere_LMAB_20210902_26,mo_ethnie,LifeCycle,core,ethn1_m,partial,final,,"if mo_ethnie=1 then ethnie_m_efr=1; else if mo_ethnie ne . then ethnie_m_efr=2;
 if mt1saa1_q02 in (2,4) then mt1saa1_q02_cat=1;
-	else if mt1saa1_q02 in (1,3,5,7) then mt1saa1_q02_cat=2; 
-	else if mt1saa1_q02 =99 then mt1saa1_q02_cat=.; 
+	else if mt1saa1_q02 in (1,3,5,7) then mt1saa1_q02_cat=2;
+	else if mt1saa1_q02 =99 then mt1saa1_q02_cat=.;
 if mt1saa1_q02_cat ne . then ethn1_m=mt1saa1_q02_cat;
 else if mt1saa1_q02_cat=. then ethn1_m=ethnie_m_efr;",,,
 Sepages,bdd_grossesse_v5_1,mo_we_bepr,,,LifeCycle,core,prepreg_weight_ga,complete,final,"Missing if prepreg_weight is pre-pregnancy weight (as opposed to early pregnancy weight -->in our case, it's missing",prepreg_weight_ga=.;,,,
@@ -4976,12 +4976,12 @@ Sepages,bdd_grossesse_v5_1,po_datedel,,,LifeCycle,core,outcome,complete,final,,"
 Sepages,bdd_grossesse_v5_1,cy1hao1_q10,,,LifeCycle,core,mode_delivery,complete,final,,mode_delivery=cy1hao1_q10;,,,
 Sepages,bdd_pere_1_2,fa_isco_cat_major,,,LifeCycle,core,occupcode_f1_,complete,final,,occupcode_f1_0=fa_isco_cat_major;,,0,0
 Sepages,bdd_pere_1_2,"ft2cae1_q31,ft2cae1_q32",,,LifeCycle,core,height_f1_fath,complete,final,biological father for all,if height_f1 ne . then height_f1_fath=1;,,,
-Sepages,bdd_pere_1_2,ft2sac1_q03,,,LifeCycle,core,edu_f1_,partial,final,Question asked in the second trimestrer,"if ft2sac1_q03 in (1,2,3) then edu_f1_0=3; 
+Sepages,bdd_pere_1_2,ft2sac1_q03,,,LifeCycle,core,edu_f1_,partial,final,Question asked in the second trimestrer,"if ft2sac1_q03 in (1,2,3) then edu_f1_0=3;
 	else if ft2sac1_q03 in (4,5) then edu_f1_0=2;
 	else if ft2sac1_q03 in (6,7,8) then edu_f1_0=1;",,0,0
-Sepages,bdd_pere_1_2,ft2sac1_q02,efr_pere_LMAB_20210902_26,fa_ethnie,LifeCycle,core,ethn1_p,partial,final,question esked : What ethnic background do you consider yourself?,"if fa_ethnie=1 then ethnie_p_efr=1; else if fa_ethnie ne . then ethnie_p_efr=2; 
+Sepages,bdd_pere_1_2,ft2sac1_q02,efr_pere_LMAB_20210902_26,fa_ethnie,LifeCycle,core,ethn1_p,partial,final,question esked : What ethnic background do you consider yourself?,"if fa_ethnie=1 then ethnie_p_efr=1; else if fa_ethnie ne . then ethnie_p_efr=2;
 if ft2sac1_q02 in (2,4) then ft2sac1_q02_cat=1;
-else if ft2sac1_q02 in (1,3,5,7) then ft2sac1_q02_cat=2; 
+else if ft2sac1_q02 in (1,3,5,7) then ft2sac1_q02_cat=2;
 else if ft2sac1_q02 =99 then ft2sac1_q02_cat=.;
 if ft2sac1_q02_cat ne . then ethn1_p=ft2sac1_q02_cat;
 else if ft2sac1_q02_cat=. then ethn1_p=ethnie_p_efr;",,,
@@ -5030,20 +5030,20 @@ var1_med=abs(AG_T1_1-87);
 var2_med=abs(AG_T1_2-87);
 var3_med=abs(AG_T1_3-87);
 minAG_med=min(var1_med,var2_med,var3_med);
-if minAG_med=var1_med then do; 
-	gestational_age=AG_T1_1; 
+if minAG_med=var1_med then do;
+	gestational_age=AG_T1_1;
 	exam_date=Date_examen_T1_1;
-	period_rank=""T1_1""; 
+	period_rank=""T1_1"";
 end;
-else if minAG_med=var2_med then do; 
-	gestational_age=AG_T1_2; 
+else if minAG_med=var2_med then do;
+	gestational_age=AG_T1_2;
 	exam_date=Date_examen_T1_2;
-	period_rank=""T1_2""; 
+	period_rank=""T1_2"";
 end;
-else if minAG_med=var2_med then do; 
+else if minAG_med=var2_med then do;
 	gestational_age=AG_T1_3;
  	exam_date=Date_examen_T1_3;
-	period_rank=""T1_3""; 
+	period_rank=""T1_3"";
 end;
 ga_us_t1=gestational_age;",,1,1
 Sepages,Ultrasound_all_SLC_20220428_893,date_dernieres_regles_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","Date_examen_T2_1,date_dernieres_regles_T2_1,Date_examen_T2_2,date_dernieres_regles_T2_3,Date_examen_T2_3,date_dernieres_regles_T2_4,Date_examen_T2_4,date_debut_grossesse_T2_1,date_debut_grossesse_T2_2,date_debut_grossesse_T2_3,date_debut_grossesse_T2_4",ATHLETE,outcome_ath,ga_us_t,partial,final,,"ag_ddr_T2_1=intck('day',date_dernieres_regles_T2_1 ,Date_examen_T2_1);
@@ -5087,25 +5087,25 @@ ag_med_T2_2=abs(AG_T2_2-152);
 ag_med_T2_3=abs(AG_T2_3-152);
 ag_med_T2_4=abs(AG_T2_4-152);
 minAG_med=min(ag_med_T2_1,ag_med_T2_2,ag_med_T2_3,ag_med_T2_4);
-if minAG_med=ag_med_T2_1 then do; 
-	gestational_age=AG_T2_1; 
+if minAG_med=ag_med_T2_1 then do;
+	gestational_age=AG_T2_1;
 	exam_date=Date_examen_T2_1;
-	period_rank=""T2_1""; 
+	period_rank=""T2_1"";
 end;
-else if minAG_med=ag_med_T2_2 then do; 
-	gestational_age=AG_T2_2; 
+else if minAG_med=ag_med_T2_2 then do;
+	gestational_age=AG_T2_2;
 	exam_date=Date_examen_T2_2;
-	period_rank=""T2_2""; 
+	period_rank=""T2_2"";
 end;
-else if minAG_med=ag_med_T2_3 then do; 
-	gestational_age=AG_T2_3; 
+else if minAG_med=ag_med_T2_3 then do;
+	gestational_age=AG_T2_3;
 	exam_date=Date_examen_T2_3;
-	period_rank=""T2_3""; 
+	period_rank=""T2_3"";
 end;
-else if minAG_med=ag_med_T2_4 then do; 
-	gestational_age=AG_T2_4; 
+else if minAG_med=ag_med_T2_4 then do;
+	gestational_age=AG_T2_4;
 	exam_date=Date_examen_T2_4;
-	period_rank=""T2_4""; 
+	period_rank=""T2_4"";
 end;
 ga_us_t2=gestational_age;",,2,2
 Sepages,Ultrasound_all_SLC_20220428_893,date_dernieres_regles_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","Date_examen_T3_1,date_dernieres_regles_T3_2,Date_examen_T3_2,date_dernieres_regles_T3_3,Date_examen_T3_3,date_dernieres_regles_T3_4,Date_examen_T3_4,date_dernieres_regles_T3_5,Date_examen_T3_5,date_debut_grossesse_T3_1,date_debut_grossesse_T3_2,date_debut_grossesse_T3_3,date_debut_grossesse_T3_4,date_debut_grossesse_T3_5",ATHLETE,outcome_ath,ga_us_t,partial,final,,"ag_ddr_T3_1=intck('day',date_dernieres_regles_T3_1 ,Date_examen_T3_1);
@@ -5158,169 +5158,169 @@ ag_med_T3_3=abs(AG_T3_3-227);
 ag_med_T3_4=abs(AG_T3_4-227);
 ag_med_T3_5=abs(AG_T3_5-227);
 minAG_med=min(ag_med_T3_1,ag_med_T3_2,ag_med_T3_3,ag_med_T3_4,ag_med_T3_5);
-if minAG_med=ag_med_T3_1 then do; 
-	gestational_age=AG_T3_1; 
+if minAG_med=ag_med_T3_1 then do;
+	gestational_age=AG_T3_1;
 	exam_date=Date_examen_T3_1;
-	period_rank=""T3_1""; 
+	period_rank=""T3_1"";
 end;
-else if minAG_med=ag_med_T3_2 then do; 
-	gestational_age=AG_T3_2; 
+else if minAG_med=ag_med_T3_2 then do;
+	gestational_age=AG_T3_2;
 	exam_date=Date_examen_T3_2;
-	period_rank=""T3_2""; 
+	period_rank=""T3_2"";
 end;
-else if minAG_med=ag_med_T3_3 then do; 
+else if minAG_med=ag_med_T3_3 then do;
 	gestational_age=AG_T3_3;
-exam_date=Date_examen_T3_3; 
-	period_rank=""T3_3""; 
+exam_date=Date_examen_T3_3;
+	period_rank=""T3_3"";
 end;
-else if minAG_med=ag_med_T3_4 then do; 
-	gestational_age=AG_T3_4; 
+else if minAG_med=ag_med_T3_4 then do;
+	gestational_age=AG_T3_4;
 	exam_date=Date_examen_T3_4;
-	period_rank=""T3_4""; 
+	period_rank=""T3_4"";
 end;
-else if minAG_med=ag_med_T3_5 then do; 
+else if minAG_med=ag_med_T3_5 then do;
 	gestational_age=AG_T3_5;
     exam_date=Date_examen_T3_5;
-	period_rank=""T3_5""; 
+	period_rank=""T3_5"";
 end;
 ga_us_t3=gestational_age;",,3,3
-Sepages,Ultrasound_all_SLC_20220428_893,lcc_T1_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","lcc_T1_2,lcc_T1_3",ATHLETE,outcome_ath,CRL_t,partial,final,,"if period_rank=""T1_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,lcc_T1_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","lcc_T1_2,lcc_T1_3",ATHLETE,outcome_ath,CRL_t,partial,final,,"if period_rank=""T1_1"" then do;
 	outcome_val=strip(put(lcc_T1_1,best.));
 end;
-else if period_rank=""T1_2"" then do; 
+else if period_rank=""T1_2"" then do;
 	outcome_val=strip(put(lcc_T1_2,best.));
 end;
-else if period_rank=""T1_3"" then do; 
+else if period_rank=""T1_3"" then do;
 	outcome_val=strip(put(lcc_T1_3,best.));
 end;
 CRL_t1=outcome_val;",,1,1
-Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T1_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","biometrie_bip_T1_2,biometrie_bip_T1_3",ATHLETE,outcome_ath,fetus_biparietal_diam_t,partial,final,,"if period_rank=""T1_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T1_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","biometrie_bip_T1_2,biometrie_bip_T1_3",ATHLETE,outcome_ath,fetus_biparietal_diam_t,partial,final,,"if period_rank=""T1_1"" then do;
 	outcome_val=strip(put(biometrie_bip_T1_1,best.));
 end;
-else if period_rank=""T1_2"" then do; 
+else if period_rank=""T1_2"" then do;
 	outcome_val=strip(put(biometrie_bip_T1_2,best.));
 end;
-else if period_rank=""T1_3"" then do; 
+else if period_rank=""T1_3"" then do;
 	outcome_val=strip(put(biometrie_bip_T1_3,best.));
 end;
 biparietal_diam_t1=outcome_val;",,1,1
-Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","biometrie_bip_T2_2,biometrie_bip_T2_3,biometrie_bip_T2_4",ATHLETE,outcome_ath,fetus_biparietal_diam_t,partial,final,,"if period_rank=""T2_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","biometrie_bip_T2_2,biometrie_bip_T2_3,biometrie_bip_T2_4",ATHLETE,outcome_ath,fetus_biparietal_diam_t,partial,final,,"if period_rank=""T2_1"" then do;
 	outcome_val=strip(put(biometrie_bip_T2_1,best.));
 end;
-else if period_rank=""T2_2"" then do; 
+else if period_rank=""T2_2"" then do;
 	outcome_val=strip(put(biometrie_bip_T2_2,best.));
 end;
-else if period_rank=""T2_3"" then do; 
+else if period_rank=""T2_3"" then do;
 	outcome_val=strip(put(biometrie_bip_T2_3,best.));
 end;
-else if period_rank=""T2_4"" then do; 
+else if period_rank=""T2_4"" then do;
 	outcome_val=strip(put(biometrie_bip_T2_4,best.));
 end;
 fetus_biparietal_diam_t2=outcome_val;",,2,2
-Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","biometrie_bip_T3_2,biometrie_bip_T3_3,biometrie_bip_T3_4,biometrie_bip_T3_5",ATHLETE,outcome_ath,fetus_biparietal_diam_t,partial,final,,"if period_rank=""T3_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","biometrie_bip_T3_2,biometrie_bip_T3_3,biometrie_bip_T3_4,biometrie_bip_T3_5",ATHLETE,outcome_ath,fetus_biparietal_diam_t,partial,final,,"if period_rank=""T3_1"" then do;
 	outcome_val=strip(put(biometrie_bip_T3_1,best.));
 end;
-else if period_rank=""T3_2"" then do; 
+else if period_rank=""T3_2"" then do;
 	outcome_val=strip(put(biometrie_bip_T3_2,best.));
 end;
-else if period_rank=""T3_3"" then do; 
+else if period_rank=""T3_3"" then do;
 	outcome_val=strip(put(biometrie_bip_T3_3,best.));
 end;
-else if period_rank=""T3_4"" then do; 
+else if period_rank=""T3_4"" then do;
 	outcome_val=strip(put(biometrie_bip_T3_4,best.));
 end;
-else if period_rank=""T3_5"" then do; 
+else if period_rank=""T3_5"" then do;
 	outcome_val=strip(put(biometrie_bip_T3_5,best.));
 end;
 fetus_biparietal_diam_t3=outcome_val;",,3,3
 Sepages,Ultrasound_all_SLC_20220428_893,,,,ATHLETE,outcome_ath,fetus_weight_t,partial,final,,fetus_weight_t2 = 10**(1.326 - 0.00326*fetus_abd_circum_t2*fetus_femur_length_t2 + 0.0107*fetus_head_circum_t2 + 0.0438*fetus_abd_circum_t2 + 0.158*fetus_femur_length_t2);,,2,2
-Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_cranien_T2_2,perimetre_cranien_T2_3,perimetre_cranien_T2_4",ATHLETE,outcome_ath,fetus_head_circum_t,partial,final,,"if period_rank=""T2_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_cranien_T2_2,perimetre_cranien_T2_3,perimetre_cranien_T2_4",ATHLETE,outcome_ath,fetus_head_circum_t,partial,final,,"if period_rank=""T2_1"" then do;
 	outcome_val=strip(put(perimetre_cranien_T2_1,best.));
 end;
-else if period_rank=""T2_2"" then do; 
+else if period_rank=""T2_2"" then do;
 	outcome_val=strip(put(perimetre_cranien_T2_2,best.));
 end;
-else if period_rank=""T2_3"" then do; 
+else if period_rank=""T2_3"" then do;
 	outcome_val=strip(put(perimetre_cranien_T2_3,best.));
 end;
-else if period_rank=""T2_4"" then do; 
+else if period_rank=""T2_4"" then do;
 	outcome_val=strip(put(perimetre_cranien_T2_4,best.));
 end;
 fetus_head_circum_t2=outcome_val;",,2,2
-Sepages,Ultrasound_all_SLC_20220428_893,longueur_femur_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","longueur_femur_T2_2,longueur_femur_T2_3,longueur_femur_T2_4",ATHLETE,outcome_ath,fetus_femur_length_t,partial,final,,"if period_rank=""T2_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,longueur_femur_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","longueur_femur_T2_2,longueur_femur_T2_3,longueur_femur_T2_4",ATHLETE,outcome_ath,fetus_femur_length_t,partial,final,,"if period_rank=""T2_1"" then do;
 	outcome_val=strip(put(longueur_femur_T2_1,best.));
 end;
-else if period_rank=""T2_2"" then do; 
+else if period_rank=""T2_2"" then do;
 	outcome_val=strip(put(longueur_femur_T2_2,best.));
 end;
-else if period_rank=""T2_3"" then do; 
+else if period_rank=""T2_3"" then do;
 	outcome_val=strip(put(longueur_femur_T2_3,best.));
 end;
-else if period_rank=""T2_4"" then do; 
+else if period_rank=""T2_4"" then do;
 	outcome_val=strip(put(longueur_femur_T2_4,best.));
 end;
 fetus_femur_length_t2=outcome_val;",,2,2
-Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_cranien_T3_2,perimetre_cranien_T3_3,perimetre_cranien_T3_4,perimetre_cranien_T3_5",ATHLETE,outcome_ath,fetus_head_circum_t,partial,final,,"if period_rank=""T3_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_cranien_T3_2,perimetre_cranien_T3_3,perimetre_cranien_T3_4,perimetre_cranien_T3_5",ATHLETE,outcome_ath,fetus_head_circum_t,partial,final,,"if period_rank=""T3_1"" then do;
 	outcome_val=strip(put(perimetre_cranien_T3_1,best.));
 end;
-else if period_rank=""T3_2"" then do; 
+else if period_rank=""T3_2"" then do;
 	outcome_val=strip(put(perimetre_cranien_T3_2,best.));
 end;
-else if period_rank=""T3_3"" then do; 
+else if period_rank=""T3_3"" then do;
 	outcome_val=strip(put(perimetre_cranien_T3_3,best.));
 end;
-else if period_rank=""T3_4"" then do; 
+else if period_rank=""T3_4"" then do;
 	outcome_val=strip(put(perimetre_cranien_T3_4,best.));
 end;
-else if period_rank=""T3_5"" then do; 
+else if period_rank=""T3_5"" then do;
 	outcome_val=strip(put(perimetre_cranien_T3_5,best.));
 end;",,3,3
 Sepages,Ultrasound_all_SLC_20220428_893,,,,ATHLETE,outcome_ath,fetus_weight_t,partial,final,,fetus_weight_t3 = 10**(1.326 - 0.00326*fetus_abd_circum_t3*fetus_femur_length_t3 + 0.0107*fetus_head_circum_t3 + 0.0438*fetus_abd_circum_t3 + 0.158*fetus_femur_length_t3);,,3,3
 Sepages,Ultrasound_all_SLC_20220428_893,,,,ATHLETE,outcome_ath,biparietal_diam_sdsWHO_t,partial,final,,RScript standardization fetal growth ATHLETE_v2.1,,2,"2, 3"
-Sepages,Ultrasound_all_SLC_20220428_893,perimetre_abdominal_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_abdominal_T2_2,perimetre_abdominal_T2_3,perimetre_abdominal_T2_4",ATHLETE,outcome_ath,fetus_abd_circum_t,partial,final,,"if period_rank=""T2_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,perimetre_abdominal_T2_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_abdominal_T2_2,perimetre_abdominal_T2_3,perimetre_abdominal_T2_4",ATHLETE,outcome_ath,fetus_abd_circum_t,partial,final,,"if period_rank=""T2_1"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T2_1,best.));
 end;
-else if period_rank=""T2_2"" then do; 
+else if period_rank=""T2_2"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T2_2,best.));
 end;
-else if period_rank=""T2_3"" then do; 
+else if period_rank=""T2_3"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T2_3,best.));
 end;
-else if period_rank=""T2_4"" then do; 
+else if period_rank=""T2_4"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T2_4,best.));
 end;
 fetus_abd_circum_t2=outcome_val;",,2,2
-Sepages,Ultrasound_all_SLC_20220428_893,perimetre_abdominal_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_abdominal_T3_2,perimetre_abdominal_T3_3,perimetre_abdominal_T3_4,perimetre_abdominal_T3_5",ATHLETE,outcome_ath,fetus_abd_circum_t,partial,final,,"if period_rank=""T3_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,perimetre_abdominal_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_abdominal_T3_2,perimetre_abdominal_T3_3,perimetre_abdominal_T3_4,perimetre_abdominal_T3_5",ATHLETE,outcome_ath,fetus_abd_circum_t,partial,final,,"if period_rank=""T3_1"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T3_1,best.));
 end;
-else if period_rank=""T3_2"" then do; 
+else if period_rank=""T3_2"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T3_2,best.));
 end;
-else if period_rank=""T3_3"" then do; 
+else if period_rank=""T3_3"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T3_3,best.));
 end;
-else if period_rank=""T3_4"" then do; 
+else if period_rank=""T3_4"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T3_4,best.));
 end;
-else if period_rank=""T3_5"" then do; 
+else if period_rank=""T3_5"" then do;
 	outcome_val=strip(put(perimetre_abdominal_T3_5,best.));
 end;
 fetus_abd_circum_t3=outcome_val;",,3,3
 Sepages,Ultrasound_all_SLC_20220428_893,,,,ATHLETE,outcome_ath,head_circum_sdsWHO_t,partial,final,,RScript standardization fetal growth ATHLETE_v2.1,,3,"2, 3"
 Sepages,Ultrasound_all_SLC_20220428_893,,,,ATHLETE,outcome_ath,abd_circum_sdsWHO_t,partial,final,,RScript standardization fetal growth ATHLETE_v2.1,,3,"2, 3"
-Sepages,Ultrasound_all_SLC_20220428_893,longueur_femur_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","longueur_femur_T3_2,longueur_femur_T3_3,longueur_femur_T3_4,longueur_femur_T3_5",ATHLETE,outcome_ath,fetus_femur_length_t,partial,final,,"if period_rank=""T3_1"" then do; 
+Sepages,Ultrasound_all_SLC_20220428_893,longueur_femur_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","longueur_femur_T3_2,longueur_femur_T3_3,longueur_femur_T3_4,longueur_femur_T3_5",ATHLETE,outcome_ath,fetus_femur_length_t,partial,final,,"if period_rank=""T3_1"" then do;
 	outcome_val=strip(put(longueur_femur_T3_1,best.));
 end;
-else if period_rank=""T3_2"" then do; 
+else if period_rank=""T3_2"" then do;
 	outcome_val=strip(put(longueur_femur_T3_2,best.));
 end;
-else if period_rank=""T3_3"" then do; 
+else if period_rank=""T3_3"" then do;
 	outcome_val=strip(put(longueur_femur_T3_3,best.));
 end;
-else if period_rank=""T3_4"" then do; 
+else if period_rank=""T3_4"" then do;
 	outcome_val=strip(put(longueur_femur_T3_4,best.));
 end;
-else if period_rank=""T3_5"" then do; 
+else if period_rank=""T3_5"" then do;
 	outcome_val=strip(put(longueur_femur_T3_5,best.));
 end;
 fetus_femur_length_t3=outcome_val;",,3,3
@@ -5331,7 +5331,7 @@ for (i in 0:215){
     dataset1[c(y)] <- NA
     next
   }
-  
+
   t <- dataset[dataset$idade48m == i & !is.na(dataset$TAD1_48m), c(""familiaID"", ""membroID"", ""TAD1_48m"")]
   colnames(t) <- c(""familiaID"", ""membroID"", y)
   dataset1 <- dataset1 %>%
@@ -5347,7 +5347,7 @@ for (i in 0:215){
     dataset1[c(y)] <- NA
     next
   }
-  
+
   t <- dataset[dataset$idade84m == i & !is.na(dataset$TAD1_84m), c(""familiaID"", ""membroID"", ""TAD1_84m"")]
   colnames(t) <- c(""familiaID"", ""membroID"", y)
   dataset1 <- dataset1 %>%
@@ -5363,7 +5363,7 @@ for (i in 0:215){
     dataset1[c(y)] <- NA
     next
   }
-  
+
   t <- dataset[dataset$idade120m == i & !is.na(dataset$TAD1_120m), c(""familiaID"", ""membroID"", ""TAD1_120m"")]
   colnames(t) <- c(""familiaID"", ""membroID"", y)
   dataset1 <- dataset1 %>%
@@ -5379,7 +5379,7 @@ for (i in 0:215){
     dataset1[c(y)] <- NA
     next
   }
-  
+
   t <- dataset[dataset$idade156m == i & !is.na(dataset$TAD1_156m), c(""familiaID"", ""membroID"", ""TAD1_156m"")]
   colnames(t) <- c(""familiaID"", ""membroID"", y)
   dataset1 <- dataset1 %>%
@@ -5391,6 +5391,7 @@ temp4 <- dataset1
 
 table_final_dbp <- cbind(temp1[,1:74],temp2[,75:110],temp3[,111:144],temp4[,145:218])",,2,"0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215"
 testCohort3,test dataset for testCohort3,var7,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,7,7
+testCohort3,test dataset for testCohort3,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
 testCohort3,test dataset for testCohort3,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
 testCohort3,test dataset for testCohort3,var2,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,2,2
 testCohort3,test dataset for testCohort3,var3,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,3,3
@@ -5410,12 +5411,14 @@ testCohort2,test dataset for testCohort2,var8,,,testNetwork1,cdm_1,testVarRepeat
 testCohort2,test dataset for testCohort2,var9,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,9,9
 testCohort2,test dataset for testCohort2,var10,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,10,10
 testCohort2,test dataset for testCohort2,var11,,,testNetwork1,cdm_1,testVarNoRepeats,na,,some description,,,,
+testCohort2,test dataset for testCohort2,var0,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,0,0
 testCohort2,test dataset for testCohort2,var1,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,1,1
 testCohort2,test dataset for testCohort2,var2,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,2,2
 testCohort2,test dataset for testCohort2,var3,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,3,3
 testCohort2,test dataset for testCohort2,var4,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,4,4
 testCohort2,test dataset for testCohort2,var2,,,LifeCycle,core,ga_lmp,complete,final,In original variable was reported in weeks and was recalculated for days,COMPUTE ga_lmp= C6600Q_F12v095 * 7 + 3.5.,,,
 testCohort1,test dataset for testCohort1,var1,,,testNetwork1,cdm_1,testVarLang,complete,,test descrip,test syntax,,1,1
+testCohort1,test dataset for testCohort1,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
 testCohort1,test dataset for testCohort1,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
 testCohort1,test dataset for testCohort1,var2,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,2,2
 testCohort1,test dataset for testCohort1,var3,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,3,3
@@ -5430,6 +5433,7 @@ testCohort1,test dataset for testCohort1,var11,,,testNetwork1,cdm_1,testVarNoRep
 testCohort4,test dataset for testCohort4,var1,,,testNetwork1,cdm_1,testVarLang,partial,,test descrip,test syntax,,1,1
 testCohort4,test dataset for testCohort4,var2,,,testNetwork1,cdm_1,testVarLang3Vir,complete,,test descrip,test syntax,,1,1
 testCohort4,test dataset for testCohort4,var3,,,testNetwork1,cdm_1,testVarVir,partial,,test descrip,test syntax,,2,2
+testCohort4,test dataset for testCohort4,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
 testCohort4,test dataset for testCohort4,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
 testCohort4,test dataset for testCohort4,var2,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,2,2
 testCohort4,test dataset for testCohort4,var3,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,3,3
@@ -5778,7 +5782,7 @@ for(i in varnames) {
     year <- gsub(""C6646Q2_5_"", """", i)
     year <- gsub(""_.*"", """", year)
     year <- 2000 + as.numeric(year)
-  } 
+  }
   var_name <- paste0(""occup"", year-1966)
   sour[var_name] <- NA
   orig_var1 <- paste0(i,""_"",1)
@@ -5863,11 +5867,11 @@ add44 <- add_new(sour, ""occup44"", ""occup"", 44, NA)
 add45 <- add_new(sour, ""occup45"", ""occup"", 45, NA)
 add46 <- add_new(sour, ""occup46"", ""occup"", ""age46"", NA)
 
-harm <- rbind(harm, add16, add17, add18, add19, add20, 
-              add21, add22, add23, add24, add25, add26, 
-              add27, add28, add29, add30, add31, add32, 
-              add33, add34, add35, add36, add37, add38, 
-              add39, add40, add41, add42, add43, add44, 
+harm <- rbind(harm, add16, add17, add18, add19, add20,
+              add21, add22, add23, add24, add25, add26,
+              add27, add28, add29, add30, add31, add32,
+              add33, add34, add35, add36, add37, add38,
+              add39, add40, add41, add42, add43, add44,
               add45, add46)",,,
 NFBC1966,wave_01,"ZP0401,C6646Q1_2,C6646Q1_2_4,C6646Q1_2_5,C6646Q1_2_4_1,C6646Q1_2_5_1",,,LongITools,wave_01,famsize_adult_own,complete,final,,"# number of adults in the household at 31yr
 

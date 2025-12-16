@@ -19,7 +19,7 @@ import dateUtils from "../../../../utils/dateUtils";
 import type { IResources } from "../../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
-import { moduleToString } from "#imports";
+import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, ref } from "vue";
 import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
 import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
@@ -43,6 +43,8 @@ import VariableDisplay from "../../../../components/VariableDisplay.vue";
 import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
 import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
+import type { Crumb } from "../../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -88,7 +90,6 @@ const query = `
       dateLastRefresh
       startYear
       endYear
-      license
       countries {
         name order
       }
@@ -150,17 +151,31 @@ const query = `
         }
         organisation {
           name
-        }
+          website
+          organisationWebsite
+          email
+          organisation {
+            name
+            label
+          }
+      }
         role ${moduleToString(ontologyFragment)}
       }
       organisationsInvolved(orderby: {name: ASC})  {
         id
         name
         website
-        acronym
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
-        country ${moduleToString(ontologyFragment)}
+        organisation {
+          name
+          acronym
+          website
+          country {
+            name
+            order
+          }
+        } 
       }
       subpopulations {
           name
@@ -185,15 +200,16 @@ const query = `
       datasets {
         name
       }
-      partOfResources {
+      partOfNetworks {
         id
         name
-        type {
-            name
-        }
+        description
         website
         logo {
           url
+        }
+        type {
+          name
         }
       }
       publications_agg {
@@ -238,7 +254,7 @@ if (error.value) {
 const resource = computed(
   () => data.value?.data?.Resources[0] as IResourceQueryResponseValue
 );
-const subpopulations = computed(() => resource.value.subpopulations as any[]);
+const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subpopulations.value || !subpopulations.value.length) {
     return [];
@@ -259,10 +275,10 @@ const mainMedicalConditions = computed(() => {
 });
 
 const collectionEventCount = computed(
-  () => resource.value.collectionEvents_agg?.count
+  () => resource.value?.collectionEvents_agg?.count
 );
 const subpopulationCount = computed(
-  () => resource.value.subpopulations_agg?.count
+  () => resource.value?.subpopulations_agg?.count
 );
 
 const variableCount = computed(() => data.value?.data?.Variables_agg.count);
@@ -362,9 +378,9 @@ async function fetchDatasetOptions() {
 fetchDatasetOptions();
 
 const networks = computed(() =>
-  !resource.value.partOfResources
+  !resource.value?.partOfNetworks
     ? []
-    : resource.value.partOfResources.filter((c) =>
+    : resource.value?.partOfNetworks.filter((c) =>
         c.type.find((t) => t.name == "Network")
       )
 );
@@ -394,14 +410,14 @@ const tocItems = computed(() => {
   }
 
   const showAvailableDataAndSample = computed(() => {
-    if (!resource.value.collectionEvents) return false;
-    const dataCategories = resource.value.collectionEvents
+    if (!resource.value?.collectionEvents) return false;
+    const dataCategories = resource.value?.collectionEvents
       ?.flatMap((c) => c.dataCategories)
       .filter((e) => e !== undefined);
-    const sampleCategories = resource.value.collectionEvents
+    const sampleCategories = resource.value?.collectionEvents
       ?.flatMap((c) => c.sampleCategories)
       .filter((e) => e !== undefined);
-    const areasOfInformation = resource.value.collectionEvents
+    const areasOfInformation = resource.value?.collectionEvents
       ?.flatMap((c) => c.areasOfInformation)
       .filter((e) => e !== undefined);
     return (
@@ -420,7 +436,7 @@ const tocItems = computed(() => {
 
   if (variableCount.value ?? 0 > 0) {
     tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
-  } else if (resource.value.datasets?.length) {
+  } else if (resource.value?.datasets?.length) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
 
@@ -442,15 +458,15 @@ const tocItems = computed(() => {
     tableOffContents.push({ label: "Networks", id: "Networks" });
   }
 
-  if (resource.value.publications) {
+  if (resource.value?.publications) {
     tableOffContents.push({ label: "Publications", id: "publications" });
   }
 
   if (
-    resource.value.dataAccessConditions?.length ||
-    resource.value.dataAccessConditionsDescription ||
-    resource.value.releaseDescription ||
-    resource.value.linkageOptions
+    resource.value?.dataAccessConditions?.length ||
+    resource.value?.dataAccessConditionsDescription ||
+    resource.value?.releaseDescription ||
+    resource.value?.linkageOptions
   ) {
     tableOffContents.push({
       label: "Access Conditions",
@@ -458,14 +474,14 @@ const tocItems = computed(() => {
     });
   }
 
-  if (resource.value.fundingStatement || resource.value.acknowledgements) {
+  if (resource.value?.fundingStatement || resource.value?.acknowledgements) {
     tableOffContents.push({
       label: "Funding & Acknowledgements ",
       id: "funding-and-acknowledgement",
     });
   }
 
-  if (resource.value.documentation) {
+  if (resource.value?.documentation) {
     tableOffContents.push({ label: "Documentation", id: "Files" });
   }
 
@@ -509,30 +525,30 @@ const population: IDefinitionListItem[] = [
   {
     label: "Population oncology topology",
     type: "ONTOLOGY",
-    content: resource.value.populationOncologyTopology,
+    content: resource.value?.populationOncologyTopology,
   },
   {
     label: "Population oncology morphology",
     type: "ONTOLOGY",
-    content: resource.value.populationOncologyMorphology,
+    content: resource.value?.populationOncologyMorphology,
   },
   {
     label: "Inclusion criteria",
     type: "ONTOLOGY",
-    content: resource.value.inclusionCriteria,
+    content: resource.value?.inclusionCriteria,
   },
   {
     label: "Other inclusion criteria",
-    content: resource.value.otherInclusionCriteria,
+    content: resource.value?.otherInclusionCriteria,
   },
   {
     label: "Exclusion criteria",
     type: "ONTOLOGY",
-    content: resource.value.exclusionCriteria,
+    content: resource.value?.exclusionCriteria,
   },
   {
     label: "Other exclusion criteria",
-    content: resource.value.otherExclusionCriteria,
+    content: resource.value?.otherExclusionCriteria,
   },
 ];
 
@@ -546,49 +562,49 @@ if (mainMedicalConditions.value && mainMedicalConditions.value.length > 0) {
 
 let accessConditionsItems = computed(() => {
   let items = [];
-  if (resource.value.dataAccessConditions?.length) {
+  if (resource.value?.dataAccessConditions?.length) {
     items.push({
       label: "Data access conditions",
       type: "ONTOLOGY" as DefinitionListItemType,
-      content: resource.value.dataAccessConditions,
+      content: resource.value?.dataAccessConditions,
     });
   }
-  if (resource.value.dataUseConditions) {
+  if (resource.value?.dataUseConditions) {
     items.push({
       label: "Data use conditions",
       type: "ONTOLOGY" as DefinitionListItemType,
-      content: resource.value.dataUseConditions,
+      content: resource.value?.dataUseConditions,
     });
   }
-  if (resource.value.dataAccessFee !== undefined) {
+  if (resource.value?.dataAccessFee !== undefined) {
     items.push({
       label: "Data access fee",
-      content: resource.value.dataAccessFee,
+      content: resource.value?.dataAccessFee,
     });
   }
-  if (resource.value.releaseType !== undefined) {
+  if (resource.value?.releaseType !== undefined) {
     items.push({
       label: "Release type",
       type: "ONTOLOGY" as DefinitionListItemType,
-      content: resource.value.releaseType,
+      content: resource.value?.releaseType,
     });
   }
-  if (resource.value.releaseDescription) {
+  if (resource.value?.releaseDescription) {
     items.push({
       label: "Release description",
-      content: resource.value.releaseDescription,
+      content: resource.value?.releaseDescription,
     });
   }
-  if (resource.value.prelinked !== undefined) {
+  if (resource.value?.prelinked !== undefined) {
     items.push({
       label: "Prelinked",
-      content: resource.value.prelinked,
+      content: resource.value?.prelinked,
     });
   }
-  if (resource.value.linkageOptions) {
+  if (resource.value?.linkageOptions) {
     items.push({
       label: "Linkage options",
-      content: resource.value.linkageOptions,
+      content: resource.value?.linkageOptions,
     });
   }
 
@@ -597,16 +613,16 @@ let accessConditionsItems = computed(() => {
 
 let fundingAndAcknowledgementItems = computed(() => {
   let items = [];
-  if (resource.value.fundingStatement) {
+  if (resource.value?.fundingStatement) {
     items.push({
       label: "Funding",
-      content: resource.value.fundingStatement,
+      content: resource.value?.fundingStatement,
     });
   }
-  if (resource.value.acknowledgements) {
+  if (resource.value?.acknowledgements) {
     items.push({
       label: "Acknowledgements",
-      content: resource.value.acknowledgements,
+      content: resource.value?.acknowledgements,
     });
   }
 
@@ -614,8 +630,8 @@ let fundingAndAcknowledgementItems = computed(() => {
 });
 
 useHead({
-  title: resource.value.acronym || resource.value.name,
-  meta: [{ name: "description", content: resource.value.description }],
+  title: resource.value?.acronym || resource.value?.name,
+  meta: [{ name: "description", content: resource.value?.description }],
 });
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.resource}"}}}`;
@@ -625,27 +641,39 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const crumbs: any = {};
+const crumbs: Crumb[] = [];
 if (route.params.catalogue) {
-  crumbs[
-    cohortOnly.value ? "home" : (route.params.catalogue as string)
-  ] = `/${route.params.catalogue}`;
+  crumbs.push({
+    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
+    url: `/${route.params.catalogue}`,
+  });
   if (route.params.resourceType !== "about")
-    crumbs[
-      route.params.resourceType as string
-    ] = `/${route.params.catalogue}/${route.params.resourceType}`;
-  crumbs[route.params.resource as string] = "";
+    crumbs.push({
+      label: route.params.resourceType as string,
+      url: `/${route.params.catalogue}/${route.params.resourceType}`,
+    });
+  crumbs.push({
+    label: route.params.resource as string,
+    url: "",
+  });
 } else {
-  crumbs["Home"] = `/`;
-  crumbs["Browse"] = `/all`;
+  crumbs.push({
+    label: "Home",
+    url: `/`,
+  });
+  crumbs.push({
+    label: "Browse",
+    url: `/all`,
+  });
   if (route.params.resourceType !== "about")
-    crumbs[
-      route.params.resourceType as string
-    ] = `/all/${route.params.resourceType}`;
+    crumbs.push({
+      label: route.params.resourceType as string,
+      url: `/all/${route.params.resourceType}`,
+    });
 }
 
 const peopleInvolvedSortedByRoleAndName = computed(() =>
-  [...(resource.value.peopleInvolved ?? [])].sort((a, b) => {
+  [...(resource.value?.peopleInvolved ?? [])].sort((a, b) => {
     const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
@@ -661,7 +689,7 @@ const peopleInvolvedSortedByRoleAndName = computed(() =>
     }
   })
 );
-const organisations = computed(() => resource.value.organisationsInvolved);
+const organisations = computed(() => resource.value?.organisationsInvolved);
 const showPopulation = computed(
   () =>
     !!population.filter(
@@ -677,7 +705,7 @@ const showPopulation = computed(
         :title="
           route.params.resourceType === 'about'
             ? 'About '
-            : resource?.acronym || resource.name
+            : resource?.acronym || resource?.name
         "
         :description="
           (route.params.resourceType === 'about' ? 'About ' : '') +
@@ -706,7 +734,7 @@ const showPopulation = computed(
           :image="resource?.logo?.url"
           :link="resource?.website as linkTarget"
           :contact="resource?.contactEmail"
-          :contact-name="resource.name"
+          :contact-name="resource?.name"
           :contact-message-filter="messageFilter"
           :subject-template="resource.acronym"
         />
@@ -750,7 +778,7 @@ const showPopulation = computed(
         />
 
         <TableContent
-          v-if="resource.datasets && !variableCount"
+          v-if="resource?.datasets && !variableCount"
           id="Datasets"
           title="Datasets"
           :headers="[
@@ -775,7 +803,7 @@ const showPopulation = computed(
           v-if="variableCount ?? 0 > 0"
         >
           <TableContent
-            v-if="resource.datasets"
+            v-if="resource?.datasets"
             id="Datasets"
             title="Datasets"
             description="Datasets and their description"

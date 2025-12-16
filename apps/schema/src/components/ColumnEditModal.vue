@@ -217,6 +217,15 @@
                   label="semantics"
                 />
               </div>
+
+              <div class="col-4">
+                <InputString
+                  id="column_form_label"
+                  v-model="column.formLabel"
+                  label="form label"
+                  description="(Optional) customize label shown on forms"
+                />
+              </div>
             </div>
 
             <div class="row" v-if="subclassNames !== undefined">

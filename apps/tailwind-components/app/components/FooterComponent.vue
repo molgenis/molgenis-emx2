@@ -9,7 +9,7 @@ import BaseIcon from "./BaseIcon.vue";
     >
       <div>
         <h3 class="mb-2 text-title font-bold">Created with MOLGENIS</h3>
-        <ul class="list-style-none flex flex-col gap-1.5 text-link">
+        <ul class="list-style-none flex flex-col gap-1.5 text-link-inverted">
           <li class="flex items-ceter">
             <a
               class="flex items-center hover:underline"
@@ -42,7 +42,7 @@ import BaseIcon from "./BaseIcon.vue";
         <h3 class="mb-2 text-title font-bold">
           Running a custom MOLGENIS version
         </h3>
-        <ul class="list-style-none flex flex-col gap-1.5 text-link">
+        <ul class="list-style-none flex flex-col gap-1.5 text-link-inverted">
           <li>
             <a
               class="flex items-center hover:underline"
@@ -77,7 +77,7 @@ import BaseIcon from "./BaseIcon.vue";
       </div>
       <div>
         <h3 class="mb-2 text-title font-bold">Please cite on use</h3>
-        <ul class="list-style-none flex flex-col gap-1.5 text-link">
+        <ul class="list-style-none flex flex-col gap-1.5 text-link-inverted">
           <li>
             <a
               class="hover:underline flex items-center"

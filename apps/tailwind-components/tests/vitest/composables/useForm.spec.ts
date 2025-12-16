@@ -34,6 +34,18 @@ describe("useForm", () => {
         label: "columns 4",
         required: true,
       },
+      {
+        columnType: "AUTO_ID",
+        id: "col5",
+        label: "columns 5",
+        required: true,
+      },
+      {
+        columnType: "BOOL",
+        id: "col6",
+        label: "columns 6",
+        required: true,
+      },
     ],
   });
 
@@ -53,11 +65,20 @@ describe("useForm", () => {
         label: "columns 4",
         required: true,
       },
+      {
+        columnType: "BOOL",
+        id: "col6",
+        label: "columns 6",
+        required: true,
+      },
     ]);
   });
 
   test("should return a list of empty required fields", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { emptyRequiredFields } = useForm(tableMetadata, formValues);
     expect(emptyRequiredFields.value).toEqual([
       {
@@ -76,7 +97,10 @@ describe("useForm", () => {
   });
 
   test("should go to the next required field", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { gotoNextRequiredField, lastScrollTo } = useForm(
       tableMetadata,
       formValues
@@ -88,7 +112,10 @@ describe("useForm", () => {
   });
 
   test("should go to the previous required field", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { gotoPreviousRequiredField, lastScrollTo } = useForm(
       tableMetadata,
       formValues
@@ -100,12 +127,15 @@ describe("useForm", () => {
   });
 
   test("setting a value on required field should update the message", () => {
-    const formValues = ref<Record<string, columnValue>>({});
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
     const { requiredMessage, emptyRequiredFields } = useForm(
       tableMetadata,
       formValues
     );
-    expect(requiredMessage.value).toBe("2/2 required fields left");
+    expect(requiredMessage.value).toBe("2/3 required fields left");
 
     // setting a value removes the field from the required list
     formValues.value["col2"] = "some value";
@@ -117,7 +147,7 @@ describe("useForm", () => {
         required: true,
       },
     ]);
-    expect(requiredMessage.value).toBe("1/2 required field left");
+    expect(requiredMessage.value).toBe("1/3 required field left");
   });
 
   test("setting an error should update the message", () => {
@@ -183,26 +213,36 @@ describe("useForm", () => {
       tableType: "some table type",
       columns: [
         {
+          columnType: "SECTION",
+          id: "mg_top_of_form",
+          label: "_top",
+          section: "mg_top_of_form",
+        },
+        {
           columnType: "HEADING",
           id: "col1",
           label: "columns 1",
+          section: "mg_top_of_form",
         },
         {
           columnType: "STRING",
           id: "col2",
           label: "columns 2",
           heading: "col1",
+          section: "mg_top_of_form",
         },
         {
           columnType: "HEADING",
           id: "h2",
           label: "heading 2",
+          section: "mg_top_of_form",
         },
         {
           columnType: "STRING",
           id: "col4",
           label: "columns 4",
           heading: "h2",
+          section: "mg_top_of_form",
         },
       ],
     });
@@ -215,64 +255,32 @@ describe("useForm", () => {
       col4: "error",
     };
 
-    gotoSection("h2");
-
-    expect(sections.value).toEqual([
-      {
-        label: "columns 1",
-        id: "col1",
-        isActive: false,
-        errorCount: 0,
-        type: "HEADING",
-      },
-      {
-        label: "heading 2",
-        id: "h2",
-        isActive: true,
-        errorCount: 1,
-        type: "HEADING",
-      },
-    ]);
-  });
-
-  test("should add a heading at the start if the first col is not a header but the table has headings", () => {
-    const formValues = ref<Record<string, columnValue>>({});
-    const tableMetadata: Ref<ITableMetaData> = ref({
-      id: "vi test table metadata",
-      name: "vi test table metadata",
-      schemaId: "vi test table metadata",
-      label: "vi test table metadata",
-      tableType: "some table type",
-      columns: [
+    expect(sections.value.length).toEqual(1);
+    expect(sections.value[0]).toEqual({
+      errorCount: 1,
+      headers: [
         {
-          columnType: "STRING",
+          errorCount: 0,
           id: "col1",
+          isActive: false,
+          isVisible: true,
           label: "columns 1",
+          type: "HEADING",
         },
         {
-          columnType: "STRING",
-          id: "col2",
-          label: "columns 2",
-        },
-        {
-          columnType: "HEADING",
-          id: "h1",
-          label: "heading 1",
-        },
-        {
-          columnType: "STRING",
-          id: "col3",
-          label: "columns 3",
+          errorCount: 1,
+          id: "h2",
+          isActive: false,
+          isVisible: true,
+          label: "heading 2",
+          type: "HEADING",
         },
       ],
-    });
-    const { sections } = useForm(tableMetadata, formValues);
-    expect(sections.value[0]).toEqual({
-      errorCount: 0,
-      id: "h1",
+      id: "mg_top_of_form",
       isActive: false,
-      label: "heading 1",
-      type: "HEADING",
+      isVisible: true,
+      label: "_top",
+      type: "SECTION",
     });
   });
 
@@ -335,46 +343,17 @@ describe("useForm", () => {
       ],
     });
 
-    const { sections, visibleColumns, onBlurColumn } = useForm(
-      tableMetadata,
-      formValues
-    );
-    expect(sections.value[1]).toEqual({
-      errorCount: 0,
-      id: "h1",
-      isActive: false,
-      label: "heading 1",
-      section: "main",
-      type: "HEADING",
-    });
-    expect(sections.value.length).toEqual(2); //section and heading
-    expect(visibleColumns.value.length).toEqual(3);
+    const { sections } = useForm(tableMetadata, formValues);
 
-    //simulate update on col1
+    expect(sections.value[0].headers[1].isVisible).toBe(false);
+
+    // make col1 visible, should make h1 visible
     formValues.value["col1"] = true;
 
-    if (tableMetadata.value.columns[1])
-      onBlurColumn(tableMetadata.value.columns[1]);
-    expect(sections.value.length).toEqual(3);
-    expect(visibleColumns.value.length).toEqual(5);
-
-    //simulate update on col2
-    formValues.value["col2"] = true;
-    if (tableMetadata.value.columns[3])
-      onBlurColumn(tableMetadata.value.columns[3]);
-    expect(sections.value.length).toEqual(4);
-    expect(visibleColumns.value.length).toEqual(7);
-
-    //simulate update on col1
-    //should invisible fields be emptied ???
-    formValues.value["col1"] = false;
-    if (tableMetadata.value.columns[1])
-      onBlurColumn(tableMetadata.value.columns[1]);
-    expect(sections.value.length).toEqual(2);
-    expect(visibleColumns.value.length).toEqual(3);
+    expect(sections.value[0].headers[1].isVisible).toBe(true);
   });
 
-  test("section navigation", () => {
+  test("section prev, current and next section", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
@@ -435,20 +414,18 @@ describe("useForm", () => {
         },
       ],
     });
-    const {
-      sections,
-      currentSection,
-      previousSection,
-      nextSection,
-      gotoSection,
-    } = useForm(tableMetadata, formValues);
+    const { currentSection, previousSection, nextSection, onViewColumn } =
+      useForm(tableMetadata, formValues);
 
+    onViewColumn({
+      columnType: "STRING",
+      id: "col1",
+      label: "columns 1",
+      section: "main",
+      heading: "h1",
+    }); // to activate the first section
     expect(previousSection.value).toEqual(null);
+    expect(currentSection.value).toEqual("main");
     expect(nextSection.value?.id).toEqual("next");
-
-    gotoSection("next");
-
-    expect(previousSection.value?.id).toEqual("main");
-    expect(nextSection.value).toEqual(null);
   });
 });

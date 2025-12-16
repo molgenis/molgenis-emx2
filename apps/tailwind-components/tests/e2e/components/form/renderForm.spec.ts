@@ -7,7 +7,6 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}Form.story?schema=catalogue-demo&table=Resources`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
 });
 
 test("it should render the form", async ({ page }) => {
@@ -31,8 +30,7 @@ test("the legend should show number of errors per chapter (if any)", async ({
   // skip a required field
   await page.getByLabel("name Required", { exact: true }).press("Tab");
 
-  const elem = await page.locator("#form-legend-section-overview-error-count");
-  await expect(elem).toHaveText("1 error in overview");
+  await expect(page.getByText("overview1 error in overview")).toBeVisible();
 });
 
 test("clicking on the chapter should scroll to the chapter", async ({
