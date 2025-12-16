@@ -79,10 +79,10 @@ CREATE POLICY "schema_metadata_POLICY"
     AS PERMISSIVE
     FOR ALL
     USING (
-    exists (SELECT 1
+    EXISTS (SELECT 1
             FROM "MOLGENIS".user_permissions_mv up
-            WHERE up.user_name = current_user
-              AND up.table_schema = schema_metadata.table_schema)
+            WHERE up.table_schema = schema_metadata.table_schema
+              AND up.user_name IN (current_user, 'MG_USER_anonymous'))
     );
 
 
