@@ -302,7 +302,7 @@ BEGIN
         END IF;
 
     ELSIF TG_OP = 'DELETE' THEN
-        role_name := OLD.group_name;
+        role_name := 'MG_ROLE_' || OLD.group_name;
         RAISE NOTICE 'Revoking permissions for group % on schema %', role_name, OLD.table_schema;
 
         IF OLD.table_name IS NULL THEN
