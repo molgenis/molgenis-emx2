@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
-import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
@@ -39,8 +38,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -51,89 +48,29 @@ import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 @ExtendWith(SystemStubsExtension.class)
-class WebApiSmokeTests {
+class WebApiSmokeTests extends ApiTestBase {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
   private static final String EXCEPTION_CONTENT_TYPE = "application/json";
 
-  public static final String PET_SHOP_OWNER = "pet_shop_owner";
-  public static final String PET_SHOP_VIEWER = "shopviewer";
-  public static final String PET_SHOP_MANAGER = "shopmanager";
+  public static final String TABLE_WITH_SPACES = "table with spaces";
 
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
-  public static final String DATA_PET_STORE = "/pet store/api/csv";
-  public static final String TABLE_WITH_SPACES = "table with spaces";
-  public static final String PET_STORE_SCHEMA = "pet store";
   private static final String CSV_TEST_SCHEMA = "pet store csv";
 
-  private static final int PORT = 8081; // other than default so we can see effect
-
-  private static String sessionId; // to toss around a session for the tests
-  private static Database db;
-  private static Schema schema;
-
   @BeforeAll
-  static void before() throws Exception {
-    // FIXME: beforeAll fails under windows
-    // setup test schema
-    db = TestDatabaseFactory.getTestDatabase();
-
-    // start web service for testing, including env variables
-    new EnvironmentVariables(
-            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
-        .execute(
-            () -> {
-              RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
-            });
-
-    // set default rest assured settings
-    RestAssured.port = PORT;
-    RestAssured.baseURI = "http://localhost";
-
-    // create an admin session to work with
-    String adminPass =
-        (String)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-    sessionId =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\""
-                    + db.getAdminUserName()
-                    + "\\\",password:\\\""
-                    + adminPass
-                    + "\\\"){message}}\"}")
-            .when()
-            .post("api/graphql")
-            .sessionId();
-
-    // Always create test database from scratch to avoid instability due to side effects.
-    db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    schema = db.createSchema(PET_STORE_SCHEMA);
-    PET_STORE.getImportTask(schema, true).run();
-
-    // grant a user permission
-    db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
-    db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
-    db.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
-    schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
-    schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
-    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
-    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-    db.grantCreateSchema(PET_SHOP_OWNER);
+  static void setupTableWithSpaces() {
     if (schema.getTable(TABLE_WITH_SPACES) == null) {
       schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
     }
@@ -142,7 +79,6 @@ class WebApiSmokeTests {
   @AfterAll
   static void after() {
     // Always clean up database to avoid instability due to side effects.
-    db.dropSchemaIfExists(PET_STORE_SCHEMA);
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
   }
@@ -246,77 +182,6 @@ class WebApiSmokeTests {
             .getBody()
             .asString();
     assertTrue(result.contains("Welcome to MOLGENIS EMX2"));
-  }
-
-  @Test
-  void testCsvApi_zipUploadDownload() throws IOException {
-    // get original schema
-    String schemaCsv =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
-
-    // create a new schema for zip
-    db.dropCreateSchema("pet store zip");
-
-    // download zip contents of old schema
-    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip");
-
-    // upload zip contents into new schema
-    File zipFile = createTempFile(zipContents, ".zip");
-    given()
-        .sessionId(sessionId)
-        .multiPart(zipFile)
-        .when()
-        .post("/pet store zip/api/zip")
-        .then()
-        .statusCode(200);
-
-    // check if schema equal using json representation
-    String schemaCsv2 =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get("/pet store zip/api/csv")
-            .asString();
-    assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
-
-    // delete the new schema
-    db.dropSchema("pet store zip");
-  }
-
-  @Test
-  void testZipApi_whenMembersNotSpecified_thenExcludeMembersFromZip()
-      throws IOException, InterruptedException {
-    Response response =
-        given().sessionId(sessionId).accept(ACCEPT_ZIP).when().get("/pet store/api/zip");
-
-    File zip = TestUtils.responseToFile(response);
-    try (ZipFile zipFile = new ZipFile(zip)) {
-      assertFalse(zipContainsMembers(zipFile));
-    }
-  }
-
-  @Test
-  void testZipApi_whenMembersIncluded_thenIncludeMembers()
-      throws IOException, InterruptedException {
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_ZIP)
-            .when()
-            .param(INCLUDE_MEMBERS, true)
-            .get("/pet store/api/zip");
-
-    File zip = TestUtils.responseToFile(response);
-    try (ZipFile zipFile = new ZipFile(zip)) {
-      assertTrue(zipContainsMembers(zipFile));
-    }
-  }
-
-  private boolean zipContainsMembers(ZipFile zipFile) {
-    List<String> csvFileNames =
-        zipFile.stream().map(ZipEntry::getName).filter(name -> name.endsWith(".csv")).toList();
-    return csvFileNames.contains("molgenis_members.csv");
   }
 
   @Test
@@ -786,11 +651,11 @@ class WebApiSmokeTests {
     db.dropSchema("pet store excel");
   }
 
-  private File createTempFile(byte[] zipContents, String extension) throws IOException {
+  private File createTempFile(byte[] content, String extension) throws IOException {
     File tempFile = File.createTempFile("some", extension);
     tempFile.deleteOnExit();
     OutputStream os = new FileOutputStream(tempFile);
-    os.write(zipContents);
+    os.write(content);
     os.flush();
     os.close();
     return tempFile;
@@ -1304,24 +1169,12 @@ class WebApiSmokeTests {
         .when();
   }
 
-  /**
-   * Request that does define a content type and validates on this.
-   *
-   * @param expectStatusCode
-   * @param contentType
-   * @return
-   */
+  /** Request that does define a content type and validates on this. */
   private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
     return rdfApiContentTypeRequest(expectStatusCode, contentType, contentType);
   }
 
-  /**
-   * Request that defines given & expected content types individually and validates on this.
-   *
-   * @param expectStatusCode
-   * @param contentType
-   * @return
-   */
+  /** Request that defines given & expected content types individually and validates on this. */
   private RequestSender rdfApiContentTypeRequest(
       int expectStatusCode, String givenContentType, String expectedContentType) {
     return given()
@@ -1333,12 +1186,7 @@ class WebApiSmokeTests {
         .when();
   }
 
-  /**
-   * Request that only validates on status code.
-   *
-   * @param expectStatusCode
-   * @return
-   */
+  /** Request that only validates on status code. */
   private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
     return given().sessionId(sessionId).expect().statusCode(expectStatusCode).when();
   }
@@ -1371,25 +1219,6 @@ class WebApiSmokeTests {
     Response response = downloadPet("/pet store/api/excel/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
     assertTrue(rows.get(0).contains("mg_"));
-  }
-
-  @Test
-  void downloadZipTable() throws IOException, InterruptedException {
-    File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
-    List<File> files = TestUtils.extractFileFromZip(file);
-    String result = Files.readString(files.get(0).toPath());
-    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
-    assertTrue(result.contains("pooky,cat,,available,,9.4"));
-  }
-
-  @Test
-  void downloadZipTableWithSystemColumns() throws IOException, InterruptedException {
-    File file =
-        TestUtils.responseToFile(
-            downloadPet("/pet store/api/zip/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true"));
-    List<File> files = TestUtils.extractFileFromZip(file);
-    String result = Files.readString(files.get(0).toPath());
-    assertTrue(result.contains("mg_"));
   }
 
   private Response downloadPet(String requestString) {
