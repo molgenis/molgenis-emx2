@@ -231,7 +231,7 @@ mutation {
     groups: [
       {
         groupName: "pet store/specialGroup"
-        users: ["someUser", "someOtherUser@test.com"]
+        users: ["test@test.com", "test2@test.com"]
         permissions: [
           {
             tableSchema: "pet store"
@@ -251,7 +251,7 @@ mutation {
   }
 }
 ```
-This will assign users `test@test.com` and `test2@test.com` to the `pet_store/specialGroup`.
+This will assign users `test@test.com` and `test2@test.com` to the `pet store/specialGroup`.
 
 To query all the permission groups use:
 ```graphql
@@ -305,7 +305,7 @@ mutation {
 }
 ```
 
-This will give the `pet_store/specialGroup` we just created, with users `test@test.com` and `test2@test.com`, access to
+This will give the `pet store/specialGroup` we just created, with users `test@test.com` and `test2@test.com`, access to
 update and delete the row with orderId `ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919`.
 
 When logged in as `test@test.com`, we need to specify the `mg_group` when inserting a row into the `Order` table:
