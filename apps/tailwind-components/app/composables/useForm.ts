@@ -283,7 +283,16 @@ export default function useForm(
   };
 
   const validateAllColumns = () => {
+    errorMap.value = {};
     metadata.value.columns.forEach((column) => {
+      validateColumn(column);
+    });
+  };
+
+  const validateKeyColumns = () => {
+    errorMap.value = {};
+    const keyColumns = metadata.value.columns.filter((col) => col.key === 1);
+    keyColumns.forEach((column) => {
       validateColumn(column);
     });
   };
@@ -459,7 +468,8 @@ export default function useForm(
         );
       }
     }
-    throw new Error(message, error);
+    // if we dont suspect a session timeout, rethrow the original error
+    throw error;
   }
 
   function scrollTo(elementId: string) {
@@ -514,6 +524,7 @@ export default function useForm(
     visibleColumns,
     errorMap,
     validateAllColumns,
+    validateKeyColumns,
     lastScrollTo, //for debug
     visibleColumnIds,
   };
