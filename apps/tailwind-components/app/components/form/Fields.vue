@@ -13,7 +13,7 @@ const props = defineProps<{
   columns: IColumn[];
   rowKey?: columnValue;
   constantValues?: IRow; //provides values that shouldn't be edited
-  errorMap: Record<columnId, string>; //map of errors if available
+  visibleColumnErrors: Record<columnId, string>; //map of errors if available for visible columns
 }>();
 
 const modelValue = defineModel<IRow>("modelValue", {
@@ -85,12 +85,12 @@ const isRequired = (value: string | boolean): boolean =>
       "
       :rowKey="rowKey"
       :required="isRequired(column.required ?? false)"
-      :error-message="errorMap[column.id]"
+      :error-message="visibleColumnErrors[column.id]"
       :ref-schema-id="column.refSchemaId"
       :ref-table-id="column.refTableId"
       :ref-label="column.refLabel || column.refLabelDefault"
       :ref-back-id="column.refBackId"
-      :invalid="(errorMap[column.id] || '').length > 0"
+      :invalid="(visibleColumnErrors[column.id] || '').length > 0"
       @update:modelValue="emit('update', column)"
       @blur="emit('blur', column)"
     />

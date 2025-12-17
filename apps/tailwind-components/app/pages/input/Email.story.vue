@@ -5,7 +5,7 @@
         id="email-form"
         v-model="model"
         :columns="metadata.columns"
-        :error-map="errorMap"
+        :visibleColumnErrors="visibleColumnErrors"
         @update="onUpdateColumn"
         @blur="onBlurColumn"
       />
@@ -33,5 +33,8 @@ const metadata = ref({
     },
   ],
 });
-const { errorMap, onUpdateColumn, onBlurColumn } = useForm(metadata, model);
+const { visibleColumnErrors, onUpdateColumn, onBlurColumn } = useForm(
+  metadata,
+  model
+);
 </script>

@@ -224,7 +224,7 @@ export default function useForm(
   });
 
   const errorMessage = computed(() => {
-    const errorCount = Object.values(errorMap.value).filter(
+    const errorCount = Object.values(visibleColumnErrors.value).filter(
       (value) => value !== ""
     ).length;
     const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
@@ -427,6 +427,15 @@ export default function useForm(
     );
   });
 
+  // reactive union of visible columns and error columns
+  const visibleColumnErrors = computed(() => {
+    const visibleColIds = visibleColumns.value.map((col) => col.id);
+    const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
+      visibleColIds.includes(key)
+    );
+    return Object.fromEntries(visibleErrors);
+  });
+
   const currentSection = computed(() => {
     const activeSections = sections.value.filter((s) => s.isActive.value);
     if (activeSections.length < 1) {
@@ -522,7 +531,7 @@ export default function useForm(
     sections,
     currentSection,
     visibleColumns,
-    errorMap,
+    visibleColumnErrors,
     validateAllColumns,
     validateKeyColumns,
     lastScrollTo, //for debug
