@@ -1,15 +1,15 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
+import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../app/composables/useForm";
-import { type Ref, ref } from "vue";
 
 describe("useForm", () => {
   const tableMetadata: Ref<ITableMetaData> = ref({
     id: "vi test table metadata",
     name: "vi test table metadata",
     schemaId: "vi test table metadata",
-    label: "vi test table metadata",
+    label: "vi test table metadata label",
     tableType: "some table type",
     columns: [
       {
@@ -157,7 +157,7 @@ describe("useForm", () => {
 
     errorMap.value["col2"] = "some error";
     expect(errorMessage.value).toBe(
-      "1 field requires attention before you can save this cohort"
+      "1 field requires attention before you can save this vi test table metadata label"
     );
   });
 
