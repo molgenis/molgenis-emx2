@@ -83,4 +83,14 @@ For additional information and examples, please consult the [ARIA Patterns guide
 Types of refs:
 ```const myprop = ref<"option1" | "option2">("option2")```
 
+## For java development
+
+### We don't use var
+
+Arguments for:
+- to allow changes on the return times without
+Arguments against:
+- can't see in the code what is expected
+- the 'other end' might change without knowing
+
 
