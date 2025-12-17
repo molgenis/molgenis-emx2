@@ -87,10 +87,5 @@ Types of refs:
 
 ### We don't use var
 
-Arguments for:
-- to allow changes on the return times without
-Arguments against:
-- can't see in the code what is expected
-- the 'other end' might change without knowing
-
+Within our code base we decided to not use the java 'var' syntax but always use explicity typing.
 
