@@ -95,8 +95,8 @@ class SqlSchemaMetadataExecutor {
     return members;
   }
 
-  static List<Permission> executeGetPermissions(DSLContext jooq, SchemaMetadata schema) {
-    List<Permission> permissions = new ArrayList<>();
+  static List<GroupPermission> executeGetPermissions(DSLContext jooq, SchemaMetadata schema) {
+    List<GroupPermission> permissions = new ArrayList<>();
     return null;
   }
 

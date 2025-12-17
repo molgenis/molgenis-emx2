@@ -774,7 +774,7 @@ public class MetadataUtils {
     }
   }
 
-  public static void savePermissions(DSLContext jooq, String schemaName, Permission permission) {
+  public static void savePermissions(DSLContext jooq, String groupName, Permission permission) {
     jooq.insertInto(GROUP_PERMISSIONS)
         .columns(
             GROUP_NAME,
@@ -787,9 +787,9 @@ public class MetadataUtils {
             HAS_DELETE,
             HAS_ADMIN)
         .values(
-            permission.getGroupName(),
-            schemaName,
-            permission.getTableId(),
+            groupName,
+            permission.tableSchema(),
+            permission.tableId(),
             permission.isRowLevel(),
             permission.hasSelect(),
             permission.hasInsert(),
@@ -798,8 +798,8 @@ public class MetadataUtils {
             permission.hasAdmin())
         .onConflict(GROUP_NAME)
         .doUpdate()
-        .set(TABLE_SCHEMA, schemaName)
-        .set(TABLE_NAME, permission.getTableId())
+        .set(TABLE_SCHEMA, permission.tableSchema())
+        .set(TABLE_NAME, permission.tableId())
         .set(IS_ROW_LEVEL, permission.isRowLevel())
         .set(HAS_SELECT, permission.hasSelect())
         .set(HAS_INSERT, permission.hasInsert())
@@ -820,14 +820,30 @@ public class MetadataUtils {
         .execute();
   }
 
-  public static List<Permission> loadPermissions(SqlDatabase db) {
+  public static List<GroupPermission> loadPermissions(SqlDatabase db) {
     return db.getJooq()
-        .select()
-        .from(GROUP_PERMISSIONS)
-        .leftJoin(GROUP_METADATA)
-        .on(
-            field(name(MOLGENIS, "group_metadata", "group_name"), String.class)
-                .eq(field(name(MOLGENIS, "group_permissions", "group_name"), String.class)))
-        .fetchInto(Permission.class);
+        .select(
+            field(name("metadata", "group_name"), String.class).as("groupName"),
+            field(name("metadata", "users"), String[].class)
+                .convertFrom(arr -> arr == null ? List.of() : List.of(arr))
+                .as("users"),
+            multiset(
+                    select(
+                            field(name("p", "table_name"), String.class).as("tableId"),
+                            field(name("p", "table_schema"), String.class).as("tableSchema"),
+                            field(name("p", "is_row_level"), Boolean.class).as("isRowLevel"),
+                            field(name("p", "has_select"), Boolean.class).as("hasSelect"),
+                            field(name("p", "has_insert"), Boolean.class).as("hasInsert"),
+                            field(name("p", "has_update"), Boolean.class).as("hasUpdate"),
+                            field(name("p", "has_delete"), Boolean.class).as("hasDelete"),
+                            field(name("p", "has_admin"), Boolean.class).as("hasAdmin"))
+                        .from(table(name("MOLGENIS", "group_permissions")).as("p"))
+                        .where(
+                            field(name("p", "group_name"))
+                                .eq(field(name("metadata", "group_name")))))
+                .convertFrom(r -> r.into(Permission.class))
+                .as("permissions"))
+        .from(table(name("MOLGENIS", "group_metadata")).as("metadata"))
+        .fetchInto(GroupPermission.class);
   }
 }

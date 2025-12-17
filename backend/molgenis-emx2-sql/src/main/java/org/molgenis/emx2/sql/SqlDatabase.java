@@ -439,7 +439,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public List<Permission> getPermissions() {
+  public List<GroupPermission> getPermissions() {
     return MetadataUtils.loadPermissions(this);
   }
 

@@ -84,10 +84,13 @@ public class TestGraphqlPermissions {
           change(permissions: [
             {
               groupName: "TestGraphqlPermissions/editorSpecial",
-              tableId: "Order",
-              isRowLevel: true,
-              hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
-              users: ["testEditorSpecial", "someOtherUser@test.com"]
+              users: ["testEditorSpecial", "someOtherUser@test.com"],
+              permissions: [{
+                tableSchema: "TestGraphqlPermissions",
+                tableId: "Order",
+                isRowLevel: true,
+                hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false
+                }]
             }
           ]) {
             message
@@ -100,10 +103,12 @@ public class TestGraphqlPermissions {
             change(permissions: [
               {
                 groupName: "TestGraphqlPermissions/editorAlsoSpecial",
-                tableId: "Order",
-                isRowLevel: true,
-                hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
-                users: ["someOtherUser@test.com"]
+                users: ["someOtherUser@test.com"],
+                permissions: [{
+                  tableSchema: "TestGraphqlPermissions",
+                  tableId: "Order",
+                  isRowLevel: true,
+                  hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false}]
               }
             ]) {
               message
@@ -116,8 +121,8 @@ public class TestGraphqlPermissions {
           change(permissions: [
             {
               groupName: "TestGraphqlPermissions/Editor",
-              hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
-              users: ["testEditor"]
+              users: ["testEditor"],
+              permissions: [{hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false}]
             }
           ]) {
             message

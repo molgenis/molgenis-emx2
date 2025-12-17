@@ -234,29 +234,33 @@ BEGIN
         -- Handle UPDATE operation: when users are added or removed in the updated array
     ELSIF TG_OP = 'UPDATE' THEN
         -- Grant roles to new users in the updated list
-        FOREACH user_var IN ARRAY NEW.users
-            LOOP
-                -- Verify if the user exists in the users_metadata table
-                SELECT EXISTS(SELECT 1 FROM "MOLGENIS".users_metadata WHERE username = user_var) INTO user_exists;
-                IF NOT user_exists THEN
-                    RAISE NOTICE 'User % does not exist', user_var;
-                    -- Grant the role only if the user was not already in the group
-                ELSIF NOT user_var = ANY (OLD.users) THEN
-                    RAISE NOTICE 'Granting role % to user %', role_name, user_var;
-                    EXECUTE format('GRANT %I TO %I', role_name, 'MG_USER_' || user_var);
-                ELSE
-                    RAISE NOTICE 'User % already existed in group %', user_var, NEW.group_name;
-                END IF;
-            END LOOP;
+        IF NEW.users IS NOT NULL THEN
+            FOREACH user_var IN ARRAY NEW.users
+                LOOP
+                    -- Verify if the user exists in the users_metadata table
+                    SELECT EXISTS(SELECT 1 FROM "MOLGENIS".users_metadata WHERE username = user_var) INTO user_exists;
+                    IF NOT user_exists THEN
+                        RAISE NOTICE 'User % does not exist', user_var;
+                        -- Grant the role only if the user was not already in the group
+                    ELSIF NOT user_var = ANY (OLD.users) THEN
+                        RAISE NOTICE 'Granting role % to user %', role_name, user_var;
+                        EXECUTE format('GRANT %I TO %I', role_name, 'MG_USER_' || user_var);
+                    ELSE
+                        RAISE NOTICE 'User % already existed in group %', user_var, NEW.group_name;
+                    END IF;
+                END LOOP;
+        END IF;
 
         -- Revoke roles from users no longer in the group
-        FOREACH user_var IN ARRAY OLD.users
-            LOOP
-                IF NOT user_var = ANY (NEW.users) THEN
-                    RAISE NOTICE 'REVOKING role % from user %', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var;
-                    EXECUTE format('REVOKE %I FROM %I', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var);
-                END IF;
-            END LOOP;
+        IF OLD.users IS NOT NULL THEN
+            FOREACH user_var IN ARRAY OLD.users
+                LOOP
+                    IF NOT user_var = ANY (NEW.users) THEN
+                        RAISE NOTICE 'REVOKING role % from user %', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var;
+                        EXECUTE format('REVOKE %I FROM %I', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var);
+                    END IF;
+                END LOOP;
+        END IF;
 
 
     END IF;

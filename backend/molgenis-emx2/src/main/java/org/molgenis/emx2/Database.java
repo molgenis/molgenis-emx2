@@ -35,7 +35,7 @@ public interface Database extends HasSettingsInterface<Database> {
 
   List<Table> getTablesFromAllSchemas(String tableId);
 
-  List<Permission> getPermissions();
+  List<GroupPermission> getPermissions();
 
   User addUser(String name);
 
