@@ -223,19 +223,30 @@ mutation {
 Permission groups can be edited via the change mutation.
 
 Create a new group. `tableId` is optional; leave it blank if the permissions are for the whole schema.  
-If `name` is an existing group name, the group will be updated.
+If `groupName` is an existing group name, the group will be updated.
 
 ```graphql
 mutation {
-  change(groups: [
-    { 
-      groupName: "pet_store/specialGroup",
-      tableId: "Order", 
-      isRowLevel: true,
-      hasSelect: true, hasInsert: true, hasUpdate: true, hasDelete: true, hasAdmin: false,
-      users: ["test@test.com", "test2@test.com"]
-    }
-  ]) {
+  change(
+    groups: [
+      {
+        groupName: "pet store/specialGroup"
+        users: ["someUser", "someOtherUser@test.com"]
+        permissions: [
+          {
+            tableSchema: "pet store"
+            tableId: "Order"
+            isRowLevel: true
+            hasSelect: true
+            hasInsert: true
+            hasUpdate: true
+            hasDelete: true
+            hasAdmin: false
+          }
+        ]
+      }
+    ]
+  ) {
     message
   }
 }
@@ -284,7 +295,7 @@ mutation {
   update(
     Order: [
       {
-        mg_group: ["pet_store/specialGroup"],
+        mg_group: ["pet store/specialGroup"],
         orderId: "ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919"
       }
     ]
@@ -305,7 +316,7 @@ mutation {
     Order: {
       pet: {name: "pooky"},
       quantity: 55,
-      mg_group: "pet_store/specialGroup"
+      mg_group: "pet store/specialGroup"
   }) { message }
 }
 ```
