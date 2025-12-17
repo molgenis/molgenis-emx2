@@ -21,7 +21,7 @@ public class GraphqlDatabaseFieldFactory {
 
   public static final GraphQLObjectType permissionsMetadataType =
       new GraphQLObjectType.Builder()
-          .name("MolgenisPermissionsType")
+          .name("MolgenisPermissionsGroupType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_SCHEMA)

@@ -97,6 +97,7 @@ public class GraphqlConstants {
   public static final String ASYNC = "async";
   public static final String SECTION = "section";
   public static final String HEADING = "heading";
+  public static final String GROUPS = "groups";
 
   private GraphqlConstants() {
     // hide constructor

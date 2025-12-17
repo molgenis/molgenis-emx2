@@ -810,7 +810,7 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
-                .name(Constants.GROUPS)
+                .name(GraphqlConstants.GROUPS)
                 .type(GraphQLList.list(permissionsGroupInputMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
@@ -913,7 +913,8 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private void changePermissions(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    List<Map<String, Object>> permissionMaps = dataFetchingEnvironment.getArgument("permissions");
+    List<Map<String, Object>> permissionMaps =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.GROUPS);
     if (permissionMaps != null) {
       ObjectMapper mapper = new ObjectMapper();
 

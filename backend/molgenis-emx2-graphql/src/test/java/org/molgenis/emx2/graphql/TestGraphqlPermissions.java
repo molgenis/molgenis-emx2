@@ -81,7 +81,7 @@ public class TestGraphqlPermissions {
     executeSchema(
         """
         mutation {
-          change(permissions: [
+          change(groups: [
             {
               groupName: "TestGraphqlPermissions/editorSpecial",
               users: ["testEditorSpecial", "someOtherUser@test.com"],
@@ -100,7 +100,7 @@ public class TestGraphqlPermissions {
     executeSchema(
         """
           mutation {
-            change(permissions: [
+            change(groups: [
               {
                 groupName: "TestGraphqlPermissions/editorAlsoSpecial",
                 users: ["someOtherUser@test.com"],
@@ -118,7 +118,7 @@ public class TestGraphqlPermissions {
     executeSchema(
         """
         mutation {
-          change(permissions: [
+          change(groups: [
             {
               groupName: "TestGraphqlPermissions/Editor",
               users: ["testEditor"],
@@ -328,7 +328,7 @@ public class TestGraphqlPermissions {
     executeSchema(
         """
           mutation {
-            change(permissions: [
+            change(groups: [
               {
                 groupName: "TestGraphqlPermissions/editorAlsoSpecial",
                 users: ["testEditorSpecial", "someOtherUser@test.com"]
