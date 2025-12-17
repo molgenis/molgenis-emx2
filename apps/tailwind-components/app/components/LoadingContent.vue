@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import BaseIcon from "~/components/BaseIcon.vue";
-import Message from "~/components/Message.vue";
+import BaseIcon from "./BaseIcon.vue";
+import Message from "./Message.vue";
 import type { AsyncDataRequestStatus } from "#app";
 import type { ProcessStatus } from "../../../metadata-utils/src/generic";
 

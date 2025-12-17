@@ -1,7 +1,7 @@
 import { useHead, useState } from "#app";
 import type { ProcessData } from "../../../metadata-utils/src/generic";
 import { downloadBlob } from "../../../tailwind-components/app/utils/downloadBlob";
-import { isSuccess } from "~/util/processUtils";
+import { isSuccess } from "./processUtils";
 
 // Structure: routeSchema -> routeShaclSet -> ProcessData
 const shaclSetRuns = useState(
