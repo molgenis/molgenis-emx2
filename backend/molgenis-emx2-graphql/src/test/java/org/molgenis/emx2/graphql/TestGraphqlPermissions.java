@@ -213,7 +213,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(5)
-  void editorCanInsertAndOwnRow() throws IOException {
+  void editorCanInsertAndQueryOwnRow() throws IOException {
     executeDb("mutation{signin(email:\"testEditor\",password:\"test123456\"){message}}");
     database.setActiveUser("testEditor");
     assertEquals("testEditor", database.getActiveUser());
