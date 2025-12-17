@@ -111,7 +111,7 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
                     <Button
                       :icon-only="true"
                       type="inline"
-                      icon="inspect"
+                      icon="frameInspect"
                       size="small"
                       label="inspect"
                     />
