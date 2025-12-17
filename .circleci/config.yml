@@ -150,6 +150,7 @@ jobs:
     - run:
         name: Docker-Scout scanning on cve's, break on critical.
         command: |
+          export $( cat build/ci.properties | xargs )
           curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
           docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical 
 
@@ -212,11 +213,14 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
+        name: check apps code format
+        command: ./gradlew :apps:format
+
+    - run:
         name: lint the code
         command: |
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
-
 
     - run:
         name: run tests and push to sonar
@@ -462,7 +466,8 @@ jobs:
       - run:
           name: Reset emx2.dev
           command: |
-            sh ci/set_kubectl_config-azure.sh
+            export $( cat build/ci.properties | xargs )
+            bash ci/set_kubectl_config-azure.sh
             bash ci/create_or_update_k8s-azure.sh "emx2" latest true
           working_directory: repo
 
