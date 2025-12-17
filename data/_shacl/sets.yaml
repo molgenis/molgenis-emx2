@@ -18,26 +18,6 @@
     - dcat-ap/v3.0.0/range.ttl
     - dcat-ap/v3.0.0/shapes.ttl
     - dcat-ap/v3.0.0/shapes_recommended.ttl
-- id: hri-v1
-  name: Health RI
-  version: 1
-  sources:
-    - https://www.health-ri.nl/health-ri-roadmap-plateauplanning
-    - https://github.com/Health-RI/metadata-shacl-validation/blob/master/validator/resources/healthri/config.properties
-  files:
-    - health-ri/v1.0.0/Catalog.ttl
-    - health-ri/v1.0.0/DataService.ttl
-    - health-ri/v1.0.0/Dataset.ttl
-    - health-ri/v1.0.0/DatasetSeries.ttl
-    - health-ri/v1.0.0/Distribution.ttl
-    - health-ri/v1.0.0/Resource.ttl
-- id: hri-v2
-  name: Health RI
-  version: 2
-  sources:
-    - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
-  files:
-    - health-ri/v2.0.0/HRI-Datamodel-shapes.ttl
 - id: hri-v2.0.2
   name: Health RI
   version: 2.0.2
