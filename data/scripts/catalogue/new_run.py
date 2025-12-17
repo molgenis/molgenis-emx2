@@ -55,7 +55,7 @@ print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 zip_handling.unzip_data()
 # transform schema data:
-update = Transform(schema_name=CATALOGUE_SCHEMA_NAME, profile='DataCatalogueFlat')
+update = Transform(schema_name=CATALOGUE_SCHEMA_NAME, profile='DataCatalogueFlat', source_url=SOURCE_SERVER_URL)
 # update data model file
 update.delete_data_model_file()
 update.update_data_model_file()
@@ -71,7 +71,7 @@ asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', 
 for schema in source.get_schemas():
     schema_name = schema.get('name')
     schema_description = schema.get('description')
-    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store']:
+    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store', 'Aggregates']:
         # instantiate Client for source schema:
         source = Client(SOURCE_SERVER_URL, schema=schema_name, token=SOURCE_SERVER_TOKEN)
 
@@ -92,7 +92,7 @@ for schema in source.get_schemas():
             profile = 'RWEStaging'
         elif all(x in tables for x in ['Collection events.csv', 'Variables.csv', 'Variable mappings.csv', 'Internal identifiers.csv']):
             profile = 'CohortsStaging'
-        elif SOURCE_SERVER_URL == 'https://molgeniscatalogue.org/':
+        elif SOURCE_SERVER_URL == 'https://molgeniscatalogue.org/' and 'Internal identifiers.csv' not in tables:
             profile = 'INTEGRATE'
         elif SOURCE_SERVER_URL == 'https://molgeniscatalogue.org/' and 'Variable mappings.csv' not in tables:
             profile = 'NetworksStaging'
@@ -105,7 +105,7 @@ for schema in source.get_schemas():
         print(schema_name, profile)
 
         # transform schema data:
-        update = Transform(schema_name=schema_name, profile=profile)
+        update = Transform(schema_name=schema_name, profile=profile, source_url=SOURCE_SERVER_URL)
         # update data model file
         update.delete_data_model_file()
         update.update_data_model_file()
@@ -113,9 +113,14 @@ for schema in source.get_schemas():
         zip_handling.zip_data()
 
         # # instantiate Client for target server:
-        # target = Client(TARGET_SERVER_URL, CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
+        target = Client(TARGET_SERVER_URL, CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
         # create new schema
         if schema_name not in target.schema_names:
             asyncio.run(target.create_schema(name=schema_name, description=schema_description))
         # upload zipped data to target server:
         asyncio.run(target.upload_file(file_path=schema_name + '_upload.zip', schema=schema_name))
+
+
+# move departments from file to database
+# move Aggregates schema to prod
+# NetworksStaging curate resources vs child networks
