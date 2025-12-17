@@ -1,15 +1,15 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
+import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../app/composables/useForm";
-import { type Ref, ref } from "vue";
 
 describe("useForm", () => {
   const tableMetadata: Ref<ITableMetaData> = ref({
     id: "vi test table metadata",
     name: "vi test table metadata",
     schemaId: "vi test table metadata",
-    label: "vi test table metadata",
+    label: "vi test table metadata label",
     tableType: "some table type",
     columns: [
       {
@@ -157,7 +157,7 @@ describe("useForm", () => {
 
     errorMap.value["col2"] = "some error";
     expect(errorMessage.value).toBe(
-      "1 field requires attention before you can save this cohort"
+      "1 field requires attention before you can save this vi test table metadata label"
     );
   });
 
@@ -427,5 +427,46 @@ describe("useForm", () => {
     expect(previousSection.value).toEqual(null);
     expect(currentSection.value).toEqual("main");
     expect(nextSection.value?.id).toEqual("next");
+  });
+
+  describe("validateKeyColumns", () => {
+    const meta = ref({
+      id: "table id",
+      name: "table name",
+      schemaId: "table schema id",
+      label: "table label",
+      tableType: "some table type",
+      columns: [
+        {
+          id: "my_key",
+          label: "My key",
+          columnType: "STRING",
+          key: 1,
+          required: true,
+        },
+        {
+          id: "other_column",
+          label: "other column",
+          columnType: "STRING",
+          required: true,
+        },
+      ],
+    });
+
+    test("should only evaluate key columns", () => {
+      const formValues = ref({
+        my_key: "value",
+      });
+      const { validateKeyColumns, errorMap } = useForm(meta, formValues);
+      validateKeyColumns();
+      expect(Object.keys(errorMap.value).length).toBe(0);
+    });
+
+    test("should set error when a key column is empty", () => {
+      const formValues = ref({});
+      const { validateKeyColumns, errorMap } = useForm(meta, formValues);
+      validateKeyColumns();
+      expect(errorMap.value["my_key"]).toBe("My key is required");
+    });
   });
 });

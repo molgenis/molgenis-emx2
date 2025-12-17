@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, useTemplateRef, watch } from "vue";
+import { computed, ref, toRaw, useTemplateRef, watch, nextTick } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
@@ -246,34 +246,42 @@ function handleError(err: unknown, defaultMessage: string) {
 async function onSave(draft: boolean) {
   saveErrorMessage.value = "";
   formMessage.value = "";
-  if (!draft && !form.value?.isValid()) {
-    // do not proceed if not valid
-    return;
-  }
-  try {
-    formValues.value["mg_draft"] = draft;
-    saving.value = true;
-    if (!form.value) {
-      throw new Error("Form reference is not available");
+  saving.value = true;
+  await nextTick();
+
+  const isReadyForSubmit = draft
+    ? form.value?.isDraftValid()
+    : form.value?.isValid();
+
+  if (isReadyForSubmit) {
+    try {
+      formValues.value["mg_draft"] = draft;
+
+      if (!form.value) {
+        throw new Error("Form reference is not available");
+      }
+      const resp = (await isInsert.value)
+        ? form.value.insertInto()
+        : form.value.updateInto();
+
+      if (!resp) {
+        throw new Error(
+          `No response from server on ${isInsert.value ? "insert" : "update"}`
+        );
+      }
+      formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+        rowType.value
+      } ${draft ? "as draft" : ""}`;
+      showFormMessage.value = true;
+      emit(isInsert.value ? "update:added" : "update:updated", resp);
+      isInsert.value = false;
+    } catch (err) {
+      handleError(err, "Error saving data");
+    } finally {
+      saving.value = false;
     }
-    const resp = await (isInsert.value
-      ? form.value.insertInto()
-      : form.value.updateInto()
-    ).catch(() => (saving.value = false));
+  } else {
     saving.value = false;
-    if (!resp) {
-      throw new Error(
-        `No response from server on ${isInsert.value ? "insert" : "update"}`
-      );
-    }
-    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
-      rowType.value
-    } ${draft ? "as draft" : ""}`;
-    showFormMessage.value = true;
-    emit(isInsert.value ? "update:added" : "update:updated", resp);
-    isInsert.value = false;
-  } catch (err) {
-    handleError(err, "Error saving data");
   }
 }
 

@@ -43,7 +43,7 @@ test("should validate form before updating", async ({ page }) => {
 
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
-    page.getByText("1 field requires attention before you can save this cohort")
+    page.getByText("1 field requires attention before you can save this Pet")
   ).toBeVisible();
   await page.getByRole("button", { name: "go to next error" }).click();
   await expect(page.getByText("weight is required")).toBeVisible();
