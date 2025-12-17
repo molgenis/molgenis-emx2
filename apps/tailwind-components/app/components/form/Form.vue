@@ -41,6 +41,7 @@ const {
   onViewColumn,
   onLeaveViewColumn,
   validateAllColumns,
+  validateKeyColumns,
   sections,
   visibleColumns,
   visibleColumnIds,
@@ -48,6 +49,7 @@ const {
 
 defineExpose({
   isValid,
+  isDraftValid,
   gotoPreviousRequiredField,
   gotoNextRequiredField,
   gotoNextError,
@@ -74,6 +76,11 @@ function onLeaveView(column: IColumn) {
 
 function isValid() {
   validateAllColumns();
+  return Object.keys(errorMap.value).length < 1;
+}
+
+function isDraftValid() {
+  validateKeyColumns();
   return Object.keys(errorMap.value).length < 1;
 }
 
