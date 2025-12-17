@@ -30,6 +30,10 @@ public class GraphqlSchemaFieldFactory {
           .name("MolgenisPermissionInputType")
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_SCHEMA)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_ID)
                   .type(Scalars.GraphQLString)
                   .description("Optional, if a permission should be applied on level of tableId"))
@@ -913,28 +917,26 @@ public class GraphqlSchemaFieldFactory {
     if (permissionMaps != null) {
       ObjectMapper mapper = new ObjectMapper();
 
-      List<Permission> permissions =
+      List<GroupPermission> groupPermissions =
           permissionMaps.stream()
-              .map(
-                  map -> {
-                    Permission permission = mapper.convertValue(map, Permission.class);
-
-                    String tableId = permission.getTableId();
-                    if (tableId != null) {
-                      Table table = schema.getTableById(tableId);
-
-                      if (table == null) {
-                        throw new MolgenisException(
-                            "changePermissions failed: Table with id="
-                                + tableId
-                                + " cannot be found");
-                      }
-                    }
-                    return permission;
-                  })
+              .map(map -> mapper.convertValue(map, GroupPermission.class))
+              .peek(
+                  groupPermission ->
+                      groupPermission.permissions().stream()
+                          .filter(permission -> permission.tableId() != null)
+                          .forEach(
+                              permission -> {
+                                Table table = schema.getTableById(permission.tableId());
+                                if (table == null) {
+                                  throw new MolgenisException(
+                                      "changePermissions failed: Table with id="
+                                          + permission.tableId()
+                                          + " cannot be found");
+                                }
+                              }))
               .toList();
 
-      schema.getMetadata().setPermissions(permissions);
+      schema.getMetadata().setPermissions(groupPermissions);
     }
   }
 
