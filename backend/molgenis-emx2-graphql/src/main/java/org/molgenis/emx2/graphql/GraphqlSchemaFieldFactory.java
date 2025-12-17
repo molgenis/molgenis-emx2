@@ -810,7 +810,7 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
-                .name(Constants.PERMISSIONS)
+                .name(Constants.GROUPS)
                 .type(GraphQLList.list(permissionsGroupInputMetadataType)))
         .argument(
             GraphQLArgument.newArgument()

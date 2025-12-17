@@ -222,12 +222,12 @@ mutation {
 
 Permission groups can be edited via the change mutation.
 
-Create a new permission group. `tableId` is optional; leave it blank if the permissions are for the whole schema.  
-If `groupName` is an existing group name, the permission group will be updated.
+Create a new group. `tableId` is optional; leave it blank if the permissions are for the whole schema.  
+If `name` is an existing group name, the group will be updated.
 
 ```graphql
 mutation {
-  change(permissions: [
+  change(groups: [
     { 
       groupName: "pet_store/specialGroup",
       tableId: "Order", 
