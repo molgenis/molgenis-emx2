@@ -282,12 +282,14 @@ export default function useForm(
   };
 
   const validateAllColumns = () => {
+    errorMap.value = {};
     metadata.value.columns.forEach((column) => {
       validateColumn(column);
     });
   };
 
   const validateKeyColumns = () => {
+    errorMap.value = {};
     const keyColumns = metadata.value.columns.filter((col) => col.key === 1);
     keyColumns.forEach((column) => {
       validateColumn(column);

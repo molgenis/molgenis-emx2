@@ -249,38 +249,39 @@ async function onSave(draft: boolean) {
   saving.value = true;
   await nextTick();
 
-  if (draft && !form.value?.isDraftValid()) {
-    saving.value = false;
-    return;
-  } else if (!form.value?.isValid()) {
-    saving.value = false;
-    return;
-  }
+  const isReadyForSubmit = draft
+    ? form.value?.isDraftValid()
+    : form.value?.isValid();
 
-  try {
-    formValues.value["mg_draft"] = draft;
+  if (isReadyForSubmit) {
+    try {
+      formValues.value["mg_draft"] = draft;
 
-    if (!form.value) {
-      throw new Error("Form reference is not available");
+      if (!form.value) {
+        throw new Error("Form reference is not available");
+      }
+      const resp = (await isInsert.value)
+        ? form.value.insertInto()
+        : form.value.updateInto();
+
+      if (!resp) {
+        throw new Error(
+          `No response from server on ${isInsert.value ? "insert" : "update"}`
+        );
+      }
+      formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+        rowType.value
+      } ${draft ? "as draft" : ""}`;
+      showFormMessage.value = true;
+      emit(isInsert.value ? "update:added" : "update:updated", resp);
+      isInsert.value = false;
+    } catch (err) {
+      handleError(err, "Error saving data");
+    } finally {
+      saving.value = false;
     }
-    const resp = await (isInsert.value
-      ? form.value.insertInto()
-      : form.value.updateInto()
-    ).catch(() => (saving.value = false));
+  } else {
     saving.value = false;
-    if (!resp) {
-      throw new Error(
-        `No response from server on ${isInsert.value ? "insert" : "update"}`
-      );
-    }
-    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
-      rowType.value
-    } ${draft ? "as draft" : ""}`;
-    showFormMessage.value = true;
-    emit(isInsert.value ? "update:added" : "update:updated", resp);
-    isInsert.value = false;
-  } catch (err) {
-    handleError(err, "Error saving data");
   }
 }
 

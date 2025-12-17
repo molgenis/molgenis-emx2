@@ -428,4 +428,45 @@ describe("useForm", () => {
     expect(currentSection.value).toEqual("main");
     expect(nextSection.value?.id).toEqual("next");
   });
+
+  describe("validateKeyColumns", () => {
+    const meta = ref({
+      id: "table id",
+      name: "table name",
+      schemaId: "table schema id",
+      label: "table label",
+      tableType: "some table type",
+      columns: [
+        {
+          id: "my_key",
+          label: "My key",
+          columnType: "STRING",
+          key: 1,
+          required: true,
+        },
+        {
+          id: "other_column",
+          label: "other column",
+          columnType: "STRING",
+          required: true,
+        },
+      ],
+    });
+
+    test("should only evaluate key columns", () => {
+      const formValues = ref({
+        my_key: "value",
+      });
+      const { validateKeyColumns, errorMap } = useForm(meta, formValues);
+      validateKeyColumns();
+      expect(Object.keys(errorMap.value).length).toBe(0);
+    });
+
+    test("should set error when a key column is empty", () => {
+      const formValues = ref({});
+      const { validateKeyColumns, errorMap } = useForm(meta, formValues);
+      validateKeyColumns();
+      expect(errorMap.value["my_key"]).toBe("My key is required");
+    });
+  });
 });
