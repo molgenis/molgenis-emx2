@@ -44,6 +44,8 @@ subprojects {
 
     task format {
         dependsOn spotlessApply
+        dependsOn pmdMain
+        dependsOn pmdTest
     }
 
     /* default dependencies for all projects*/
