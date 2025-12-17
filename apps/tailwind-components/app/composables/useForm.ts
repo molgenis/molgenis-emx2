@@ -290,25 +290,11 @@ export default function useForm(
 
   const validateColumn = (column: IColumn) => {
     const error = getColumnError(column, formValues.value, metadata.value);
-
     if (error) {
       errorMap.value[column.id] = error;
     } else {
-      errorMap.value[column.id] = metadata.value.columns
-        .filter((c) => c.validation?.includes(column.id))
-        .map((c) => {
-          const result = getColumnError(c, formValues.value, metadata.value);
-          return result;
-        })
-        .join("");
+      delete errorMap.value[column.id];
     }
-
-    // remove empty entries from the map
-    Object.entries(errorMap.value).forEach(([key, value]) => {
-      if (value == "" || value == undefined || value == null) {
-        delete errorMap.value[key];
-      }
-    });
   };
 
   const gotoPreviousError = () => {
