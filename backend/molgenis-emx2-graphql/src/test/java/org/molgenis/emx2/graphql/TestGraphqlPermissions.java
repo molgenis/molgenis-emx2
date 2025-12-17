@@ -122,7 +122,10 @@ public class TestGraphqlPermissions {
             {
               groupName: "TestGraphqlPermissions/Editor",
               users: ["testEditor"],
-              permissions: [{hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false}]
+              permissions: [{
+                tableSchema: "TestGraphqlPermissions",
+                hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false
+              }]
             }
           ]) {
             message
@@ -328,10 +331,13 @@ public class TestGraphqlPermissions {
             change(permissions: [
               {
                 groupName: "TestGraphqlPermissions/editorAlsoSpecial",
-                tableId: "Order",
-                isRowLevel: true,
-                hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
                 users: ["testEditorSpecial", "someOtherUser@test.com"]
+                permissions: [{
+                  tableSchema: "TestGraphqlPermissions",
+                  tableId: "Order",
+                  isRowLevel: true,
+                  hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
+                }]
               }
             ]) {
               message
