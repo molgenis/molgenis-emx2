@@ -188,7 +188,10 @@ public class Migrations {
           }
 
           if (version < 31) {
-            executeMigrationFile(tdb, "migration_xx_triggers.sql", "Triggers");
+            executeMigrationFile(
+                tdb, "migration30a.sql", "Permission triggers for table and row level security");
+            executeMigrationFile(
+                tdb, "migration30b.sql", "Migrate existing grants/roles to MOLGENIS tables");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
