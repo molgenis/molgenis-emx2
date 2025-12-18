@@ -124,7 +124,7 @@ export default function useForm(
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
-            if (errorMap.value[col.id]) {
+            if (visibleColumnErrors.value[col.id]) {
               return acc + 1;
             }
             return acc;
@@ -164,7 +164,7 @@ export default function useForm(
           ),
           errorCount: computed(() => {
             return headingColumns.reduce((acc, col) => {
-              if (errorMap.value[col.id]) {
+              if (visibleColumnErrors.value[col.id]) {
                 return acc + 1;
               }
               return acc;
@@ -224,7 +224,7 @@ export default function useForm(
   });
 
   const errorMessage = computed(() => {
-    const errorCount = Object.values(errorMap.value).filter(
+    const errorCount = Object.values(visibleColumnErrors.value).filter(
       (value) => value !== ""
     ).length;
     const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
@@ -307,7 +307,7 @@ export default function useForm(
   };
 
   const gotoPreviousError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -325,7 +325,7 @@ export default function useForm(
   };
 
   const gotoNextError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -427,6 +427,15 @@ export default function useForm(
     );
   });
 
+  // reactive intersection of visible columns and error columns
+  const visibleColumnErrors = computed(() => {
+    const visibleColIds = visibleColumns.value.map((col) => col.id);
+    const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
+      visibleColIds.includes(key)
+    );
+    return Object.fromEntries(visibleErrors);
+  });
+
   const currentSection = computed(() => {
     const activeSections = sections.value.filter((s) => s.isActive.value);
     if (activeSections.length < 1) {
@@ -522,7 +531,7 @@ export default function useForm(
     sections,
     currentSection,
     visibleColumns,
-    errorMap,
+    visibleColumnErrors,
     validateAllColumns,
     validateKeyColumns,
     lastScrollTo, //for debug
