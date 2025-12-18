@@ -12,6 +12,7 @@
       </Button>
     </slot>
   </template>
+
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
@@ -38,9 +39,9 @@
     <Form
       v-if="visible"
       ref="edit-modal-form"
-      :metadata="props.metadata"
+      :metadata="metadata"
       :formValues="formValues"
-      :constantValues="props.constantValues"
+      :constantValues="constantValues"
     />
 
     <TransitionSlideUp>
