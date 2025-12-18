@@ -27,7 +27,7 @@ Experiments,Processes,,,,,,,,,,,,,,http://semanticscience.org/resource/SIO_00099
 NGS sequencing,Experiments,,,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C101293,Technologies that facilitate the rapid determination of the nucleotide sequence of large numbers of strands or segments of DNA or RNA,"Patient registry, FAIR Genomes"
 Experiments OGM,Experiments,,,,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C116162",An Optical Genome Mapping (OGM) experiment,Patient registry
 Experiments RNA,NGS sequencing,,,,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0001177,An RNA sequencing experiment,Patient registry
-Experiments lrGS,NGS sequencing,,,,,,,,,,,,,,,A long-read Genome Sequencing (lrGS) experiment,Patient registry
+Experiments lrGS,NGS sequencing,,,,,,,,,,,,,,http://edamontology.org/topic_4056,A long-read Genome Sequencing (lrGS) experiment,Patient registry
 Experiments,,Sample,heading,,,,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Experiments,,sample id,auto_id,,ERD-S-${mg_autoid},,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a sample","Patient registry, FAIR Genomes"
 Experiments,,local sample id,string_array,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"An identifier associated with a particular source, used by the data provider or owner","Patient registry, FAIR Genomes"
@@ -78,14 +78,14 @@ Experiments lrGS,,DIN QC value,decimal,,,,,,,,,,"if(parseFloat(dINQCValue) < 1 |
 NGS sequencing,,Library Preparation,heading,,,,,,,,,,,,,,"Patient registry,FAIR Genomes"
 Experiments OGM,,Sample Preparation,heading,,,,,,,,,,,,,,Patient registry
 Experiments OGM,,processing centre,select,,,,,CatalogueOntologies,Organisations,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001202,A data field which describes the name of the third party company or laboratory that provided services.,Patient registry
-Experiments OGM,,cell count,decimal,cell count (million),,,,,,,,,,,,The number of cells used for DNA isolation,Patient registry
+Experiments OGM,,cell count,decimal,cell count (million),,,,,,,,,,,http://purl.obolibrary.org/obo/UO_0010073,The number of cells used for DNA isolation,Patient registry
 Experiments OGM,,HMW_DNA isolation,,HMW-DNA isolation method,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000834,The output of an extraction process in which DNA molecules above a molecular weight cutoff are purified in order to exclude DNA from organellas,Patient registry
 Experiments OGM,,isolation date,date,,,,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0100465,A date field which describes the date on which the DNA was isolated from a sample,Patient registry
 Experiments OGM,,viscosity,int,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C75912,The resistance of a liquid to sheer forces and flow,Patient registry
 Experiments OGM,,mean concentration HMW_DNA,decimal,mean concentration HMW-DNA (ng/μl),,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C41185,The quantity of a HMW-DNA per unit volume or weight,Patient registry
 Experiments OGM,,labeling protocol,,,,,,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0003813,A protocol description in which input nucleic acid material is labeled,Patient registry
-Experiments OGM,,labeling date,date,,,,,,,,,,,,,The date of the labeling protocol,Patient registry
-Experiments OGM,,concentration after labeling,decimal,concentration after labeling (ng/μl),,,,,,,,,,,,The amount of DNA present in the sample after labeling,Patient registry
+Experiments OGM,,labeling date,date,,,,,,,,,,,,http://purl.org/dc/terms/date,The date of the labeling protocol,Patient registry
+Experiments OGM,,concentration after labeling,decimal,concentration after labeling (ng/μl),,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C41185,The amount of DNA present in the sample after labeling,Patient registry
 NGS sequencing,,library source,ontology,,,,,CatalogueOntologies,Library source,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source,"Patient registry, FAIR Genomes"
 NGS sequencing,,library selection,string,,,,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method,"Patient registry, FAIR Genomes"
 NGS sequencing,,library strategy,ontology,,,,,CatalogueOntologies,Sequencing methods,,,,,,http://purl.obolibrary.org/obo/FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.,"Patient registry, FAIR Genomes"
@@ -106,7 +106,6 @@ Experiments,,instrument software,string,,,,,,,,,,,,http://purl.obolibrary.org/ob
 Experiments,,persons involved,multiselect,,,,,,Contacts,,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Who was involved in the processing,"Patient registry, FAIR Genomes"
 Experiments,,output files,refback,,,,,,Files,,produced by experiment,,,,http://edamontology.org/topic_3168,links to output of files,"Patient registry"
 NGS sequencing,,date of sequencing,datetime,,,,,,,,,,,,,"When the sequencing run took place","Patient registry, FAIR Genomes"
-Experiments OGM,,date of mapping,date,,,,,,,,,,,,,When the mappping took place,Patient registry
 Experiments OGM,,date of mapping,datetime,,,,,,,,,,,,,When the mapping experiment took place,"Patient registry"
 Experiments,,reference genome used,ontology,,,,,CatalogueOntologies,Genome accessions,,,,,,http://purl.obolibrary.org/obo/NCIT_C164815,The source-specific version of the published genome assembly.,"Patient registry, FAIR Genomes"
 NGS sequencing,,mean read depth,decimal,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C155320,"The mean number of times a particular locus (site, nucleotide, amplicon, region) was sequenced.","Patient registry, FAIR Genomes"
@@ -127,8 +126,8 @@ NGS sequencing,,sequencing centre,select,,,,,CatalogueOntologies,Organisations,,
 NGS sequencing,,platform,ontology,,,,,CatalogueOntologies,Sequencing platforms,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,"The name of the sequencing platform (i.e. brand, name of a company that produces sequencer equipment). In FAIR Genomes: SequencingPlatform.","Patient registry, FAIR Genomes"
 NGS sequencing,,percentage Q30,decimal,,,,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000089,"Percentage of reads with a Phred quality score over 30, which indicates less than a 1/1000 chance that the base was called incorrectly.","Patient registry, FAIR Genomes"
 NGS sequencing,,percentage Tr20,decimal,,,,,,,,,,,,https://w3id.org/fair-genomes/resource/FG_0000003,Percentage of the target sequence on which 20 or more unique reads were successfully mapped.,"Patient registry, FAIR Genomes"
-NGS sequencing,,flow cell ID,string,,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0400043,"Aparatus in the fluidic subsystem where the sheath and sample meet. Can be one of several types; jet-in-air, quartz cuvette, or a hybrid of the two. The sample flows through the center of a fluid column of sheath fluid in the flow cell.","Patient registry, FAIR Genomes"
-Experiments RNA,,flow cell type,string,,,,,,,,,,,,,,Patient registry
+NGS sequencing,,flow cell ID,string,,,,,,,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0003078,"A flow cell identifier is an identifier that identifies some flow cell (aparatus in the fluidic subsystem where the sheath and sample meet)","Patient registry, FAIR Genomes"
+Experiments RNA,,flow cell type,string,,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0400043,"Can be one of several types; jet-in-air, quartz cuvette, or a hybrid of the two. The sample flows through the center of a fluid column of sheath fluid in the flow cell.",Patient registry
 Experiments lrGS,,samples per flow cell,int,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,The number of samples per flow cell,Patient registry
 Experiments lrGS,,yield,decimal,yield (Gb),,,,,,,,,,,http://biomodels.net/SBO/SBO_0000668,Output generated as biomass or product from a set of chemical reactions,Patient registry
 NGS sequencing,,sequencing lane identifier,string,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C182081,The numerical identifier for the lane or machine unit where a sample was located during nucleotide sequencing.,"Patient registry, FAIR Genomes"
