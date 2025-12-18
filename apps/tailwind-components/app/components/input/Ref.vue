@@ -5,6 +5,7 @@ import type {
   ITableMetaData,
   columnValueObject,
   recordValue,
+  IRow,
 } from "../../../../metadata-utils/src/types";
 
 import { type IInputProps, type IValueLabel } from "../../../types/types";
@@ -12,7 +13,6 @@ import logger from "../../utils/logger";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { ref, type Ref, computed, watch, onMounted } from "vue";
 import fetchTableData from "../../composables/fetchTableData";
-import type { IColumn } from "../../../../metadata-utils/src/types";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
 import InputGroupContainer from "../input/InputGroupContainer.vue";
@@ -20,6 +20,7 @@ import Button from "../Button.vue";
 import BaseIcon from "../BaseIcon.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = withDefaults(
   defineProps<
@@ -76,14 +77,20 @@ async function init() {
   );
 
   if (
-    modelValue.value && Array.isArray(modelValue.value)
+    modelValue.value &&
+    (Array.isArray(modelValue.value)
       ? modelValue.value.length > 0
-      : modelValue.value
+      : modelValue.value)
   ) {
+    const keys = Array.isArray(modelValue.value)
+      ? await Promise.all(
+          (modelValue.value as []).map((row) => extractPrimaryKey(row))
+        )
+      : await extractPrimaryKey(modelValue.value as columnValueObject);
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: extractPrimaryKey(modelValue.value) } }
+      { filter: { equals: keys }, expandLevel: 0 }
     );
     if (data.rows) {
       hasNoResults.value = false;
@@ -108,32 +115,9 @@ watch(
 );
 
 // the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-// todo: move the options fetch to the outside of the component and pass it as a (synchronous) prop
 watch(
   () => modelValue.value,
-  () => {
-    if (props.isArray === false) {
-      const key = Object.keys(selectionMap.value)[0];
-      if (key !== undefined) {
-        delete selectionMap.value[key];
-      }
-      if (modelValue.value) {
-        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
-          modelValue.value;
-      }
-    } else {
-      selectionMap.value = {};
-      if (
-        modelValue.value &&
-        Array.isArray(modelValue.value) &&
-        modelValue.value.length > 0
-      ) {
-        modelValue.value.forEach((value) => {
-          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
-        });
-      }
-    }
-  }
+  () => init
 );
 
 function applyTemplate(template: string, row: Record<string, any>): string {
@@ -145,6 +129,7 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 
 async function loadOptions(filter: IQueryMetaData) {
   hasNoResults.value = true;
+  filter.expandLevel = 0;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
@@ -204,43 +189,30 @@ function updateSearch(newSearchTerms: string) {
   loadOptions({ limit: props.limit, searchTerms: searchTerms.value });
 }
 
-function select(label: string) {
+async function select(label: string) {
   if (!props.isArray) {
     selectionMap.value = {};
   }
-  selectionMap.value[label] = optionMap.value[label];
+  selectionMap.value[label] = extractPrimaryKey(optionMap.value[label]);
   if (searchTerms.value) toggleSearch();
+  emitValue();
+}
+
+function emitValue() {
   emit(
     "update:modelValue",
-    props.isArray
-      ? Object.values(selectionMap.value).map((value) =>
-          extractPrimaryKey(value)
-        )
-      : extractPrimaryKey(optionMap.value[label])
+    props.isArray ? Object.values(selectionMap.value) : optionMap.value[label]
   );
 }
 
-function extractPrimaryKey(value: any) {
-  const result = {} as columnValueObject;
-  tableMetadata.value?.columns
-    .filter((column: IColumn) => column.key === 1)
-    .forEach((column: IColumn) => {
-      result[column.id] = value[column.id];
-    });
-  return result;
+async function extractPrimaryKey(row: columnValueObject) {
+  return await fetchRowPrimaryKey(row, props.refTableId, props.refSchemaId);
 }
 
 function deselect(label: string) {
   delete selectionMap.value[label];
   if (searchTerms.value) toggleSearch();
-  emit(
-    "update:modelValue",
-    props.isArray
-      ? Object.values(selectionMap.value).map((value) =>
-          extractPrimaryKey(value)
-        )
-      : undefined
-  );
+  emitValue();
 }
 
 function clearSelection() {
