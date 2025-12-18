@@ -5,7 +5,6 @@ import type {
   ITableMetaData,
   columnValueObject,
   recordValue,
-  IRow,
 } from "../../../../metadata-utils/src/types";
 
 import { type IInputProps, type IValueLabel } from "../../../types/types";
