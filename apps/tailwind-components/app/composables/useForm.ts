@@ -124,7 +124,7 @@ export default function useForm(
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
-            if (errorMap.value[col.id]) {
+            if (visibleColumnErrors.value[col.id]) {
               return acc + 1;
             }
             return acc;
@@ -164,7 +164,7 @@ export default function useForm(
           ),
           errorCount: computed(() => {
             return headingColumns.reduce((acc, col) => {
-              if (errorMap.value[col.id]) {
+              if (visibleColumnErrors.value[col.id]) {
                 return acc + 1;
               }
               return acc;
@@ -307,7 +307,7 @@ export default function useForm(
   };
 
   const gotoPreviousError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -325,7 +325,7 @@ export default function useForm(
   };
 
   const gotoNextError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -427,7 +427,7 @@ export default function useForm(
     );
   });
 
-  // reactive union of visible columns and error columns
+  // reactive intersection of visible columns and error columns
   const visibleColumnErrors = computed(() => {
     const visibleColIds = visibleColumns.value.map((col) => col.id);
     const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
