@@ -150,43 +150,26 @@ describe("useForm", () => {
     expect(requiredMessage.value).toBe("1/3 required field left");
   });
 
-  test("setting an error should update the message", () => {
-    const formValues = ref<Record<string, columnValue>>({});
-    const { errorMessage, errorMap } = useForm(tableMetadata, formValues);
-    expect(errorMessage.value).toBe("");
-
-    errorMap.value["col2"] = "some error";
-    expect(errorMessage.value).toBe(
-      "1 field requires attention before you can save this vi test table metadata label"
-    );
-  });
-
   test("should go to the next error", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const { gotoNextError, errorMap, lastScrollTo } = useForm(
+    const { gotoNextError, lastScrollTo, validateAllColumns } = useForm(
       tableMetadata,
       formValues
     );
-    errorMap.value = {
-      col2: "some error",
-      col4: "some error",
-    };
+    validateAllColumns();
     gotoNextError();
     expect(lastScrollTo.value).equals("col2-form-field");
   });
 
   test("should go to the previous error", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const { gotoPreviousError, errorMap, lastScrollTo } = useForm(
+    const { gotoPreviousError, lastScrollTo, validateAllColumns } = useForm(
       tableMetadata,
       formValues
     );
-    errorMap.value = {
-      col2: "some error",
-      col4: "some error",
-    };
+    validateAllColumns();
     gotoPreviousError();
-    expect(lastScrollTo.value).equals("col4-form-field");
+    expect(lastScrollTo.value).equals("col6-form-field");
   });
 
   test("should return empty list in case of table meta without columns", () => {
@@ -243,17 +226,17 @@ describe("useForm", () => {
           label: "columns 4",
           heading: "h2",
           section: "mg_top_of_form",
+          required: true,
         },
       ],
     });
 
-    const { sections, errorMap, gotoSection } = useForm(
+    const { sections, gotoSection, validateAllColumns } = useForm(
       tableMetadata,
       formValues
     );
-    errorMap.value = {
-      col4: "error",
-    };
+
+    validateAllColumns();
 
     expect(sections.value.length).toEqual(1);
     expect(sections.value[0]).toEqual({
@@ -457,16 +440,22 @@ describe("useForm", () => {
       const formValues = ref({
         my_key: "value",
       });
-      const { validateKeyColumns, errorMap } = useForm(meta, formValues);
+      const { validateKeyColumns, visibleColumnErrors } = useForm(
+        meta,
+        formValues
+      );
       validateKeyColumns();
-      expect(Object.keys(errorMap.value).length).toBe(0);
+      expect(Object.keys(visibleColumnErrors.value).length).toBe(0);
     });
 
     test("should set error when a key column is empty", () => {
       const formValues = ref({});
-      const { validateKeyColumns, errorMap } = useForm(meta, formValues);
+      const { validateKeyColumns, visibleColumnErrors } = useForm(
+        meta,
+        formValues
+      );
       validateKeyColumns();
-      expect(errorMap.value["my_key"]).toBe("My key is required");
+      expect(visibleColumnErrors.value["my_key"]).toBe("My key is required");
     });
   });
 });
