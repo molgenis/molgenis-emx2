@@ -157,10 +157,7 @@ export default {
       }
     },
     canExportMembers() {
-      return (
-        this.session?.admin ||
-        this.session?.roles.some((r) => ["Manager", "Owner"].includes(r))
-      );
+      return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
     },
     tablesHash() {
       if (this.tables) {
