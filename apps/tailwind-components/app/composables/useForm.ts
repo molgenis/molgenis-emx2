@@ -1,27 +1,27 @@
+import { useSession } from "#imports";
 import {
   computed,
-  ref,
-  watch,
-  type MaybeRef,
-  unref,
   isRef,
+  ref,
+  unref,
+  watch,
   type ComputedRef,
+  type MaybeRef,
   type Ref,
 } from "vue";
+import { toFormData } from "../../../metadata-utils/src/toFormData";
 import type {
-  columnValue,
-  ITableMetaData,
-  IColumn,
   columnId,
+  columnValue,
+  IColumn,
+  ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
-import { toFormData } from "../../../metadata-utils/src/toFormData";
-import { getPrimaryKey } from "../utils/getPrimaryKey";
 import {
   getColumnError,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import { useSession } from "#imports";
+import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -124,7 +124,7 @@ export default function useForm(
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
-            if (errorMap.value[col.id]) {
+            if (visibleColumnErrors.value[col.id]) {
               return acc + 1;
             }
             return acc;
@@ -164,7 +164,7 @@ export default function useForm(
           ),
           errorCount: computed(() => {
             return headingColumns.reduce((acc, col) => {
-              if (errorMap.value[col.id]) {
+              if (visibleColumnErrors.value[col.id]) {
                 return acc + 1;
               }
               return acc;
@@ -218,17 +218,18 @@ export default function useForm(
       emptyRequiredFields.value.length > 1 ? "fields" : "field";
     if (emptyRequiredFields.value.length === 0) {
       return "All required fields are filled";
+    } else {
+      return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
     }
-    return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
   });
 
   const errorMessage = computed(() => {
-    const errorCount = Object.values(errorMap.value).filter(
+    const errorCount = Object.values(visibleColumnErrors.value).filter(
       (value) => value !== ""
     ).length;
     const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
     return errorCount > 0
-      ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
+      ? `${errorCount} ${fieldLabel} attention before you can save this ${metadata.value.label}`
       : "";
   });
 
@@ -282,36 +283,31 @@ export default function useForm(
   };
 
   const validateAllColumns = () => {
+    errorMap.value = {};
     metadata.value.columns.forEach((column) => {
+      validateColumn(column);
+    });
+  };
+
+  const validateKeyColumns = () => {
+    errorMap.value = {};
+    const keyColumns = metadata.value.columns.filter((col) => col.key === 1);
+    keyColumns.forEach((column) => {
       validateColumn(column);
     });
   };
 
   const validateColumn = (column: IColumn) => {
     const error = getColumnError(column, formValues.value, metadata.value);
-
     if (error) {
       errorMap.value[column.id] = error;
     } else {
-      errorMap.value[column.id] = metadata.value.columns
-        .filter((c) => c.validation?.includes(column.id))
-        .map((c) => {
-          const result = getColumnError(c, formValues.value, metadata.value);
-          return result;
-        })
-        .join("");
+      delete errorMap.value[column.id];
     }
-
-    // remove empty entries from the map
-    Object.entries(errorMap.value).forEach(([key, value]) => {
-      if (value == "" || value == undefined || value == null) {
-        delete errorMap.value[key];
-      }
-    });
   };
 
   const gotoPreviousError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -329,7 +325,7 @@ export default function useForm(
   };
 
   const gotoNextError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -431,6 +427,15 @@ export default function useForm(
     );
   });
 
+  // reactive intersection of visible columns and error columns
+  const visibleColumnErrors = computed(() => {
+    const visibleColIds = visibleColumns.value.map((col) => col.id);
+    const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
+      visibleColIds.includes(key)
+    );
+    return Object.fromEntries(visibleErrors);
+  });
+
   const currentSection = computed(() => {
     const activeSections = sections.value.filter((s) => s.isActive.value);
     if (activeSections.length < 1) {
@@ -472,7 +477,8 @@ export default function useForm(
         );
       }
     }
-    throw new Error(message, error);
+    // if we dont suspect a session timeout, rethrow the original error
+    throw error;
   }
 
   function scrollTo(elementId: string) {
@@ -525,8 +531,9 @@ export default function useForm(
     sections,
     currentSection,
     visibleColumns,
-    errorMap,
+    visibleColumnErrors,
     validateAllColumns,
+    validateKeyColumns,
     lastScrollTo, //for debug
     visibleColumnIds,
   };
