@@ -167,7 +167,7 @@ SELECT
     has_select, has_insert, has_update, has_delete, has_admin
 FROM temp_migration.group_permissions;
 
-
+DROP SCHEMA IF EXISTS temp_migration CASCADE;
 ------------------------------------------------------------------------------
 -- 9. Done
 ------------------------------------------------------------------------------
