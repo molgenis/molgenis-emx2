@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -534,7 +535,7 @@ class WebApiSmokeTests {
         {
           "errors" : [
             {
-              "message" : "Unauthorized to access schema members"
+              "message" : "Unauthorized to get schema members"
             }
           ]
         }""",
@@ -545,14 +546,15 @@ class WebApiSmokeTests {
   void testCsvApi_downloadMembers() throws IOException {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response =
+    Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_members_\\d{12}\\.csv\"");
     assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
 
-    var path = Path.of(Objects.requireNonNull(getClass().getResource("csv/members.csv")).getPath());
+    Path path =
+        Path.of(Objects.requireNonNull(getClass().getResource("csv/members.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
   }
@@ -561,14 +563,14 @@ class WebApiSmokeTests {
   void testCsvApi_downloadSettings() throws IOException {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response =
+    Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_settings_\\d{12}\\.csv\"");
     assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
 
-    var path =
+    Path path =
         Path.of(Objects.requireNonNull(getClass().getResource("csv/settings.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
@@ -806,12 +808,6 @@ class WebApiSmokeTests {
             .asString();
     assertTrue(result.contains("errors"));
 
-    // read admin password from environment if necessary
-    String adminPass =
-        (String)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-
     result =
         given()
             .filter(sessionFilter)
@@ -819,7 +815,7 @@ class WebApiSmokeTests {
                 "{\"query\":\"mutation{signin(email:\\\""
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
-                    + adminPass
+                    + ADMIN_PASS
                     + "\\\"){message}}\"}")
             .when()
             .post(path)
