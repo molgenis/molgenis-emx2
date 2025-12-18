@@ -8,7 +8,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}Form.story?schema=pet+store&table=Pet&rowIndex=1`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 3000 });
+  await page.getByText("_top", { exact: true }).click({ delay: 3000 });
 });
 
 test("the form should show the row data", async ({ page }) => {
