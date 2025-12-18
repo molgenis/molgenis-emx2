@@ -12,8 +12,8 @@ import FormField from "./Field.vue";
 const props = defineProps<{
   columns: IColumn[];
   rowKey?: columnValue;
-  constantValues?: IRow; //provides values that shouldn't be edited
-  visibleColumnErrors: Record<columnId, string>; //map of errors if available for visible columns
+  constantValues?: IRow;
+  visibleColumnErrors: Record<columnId, string>;
 }>();
 
 const modelValue = defineModel<IRow>("modelValue", {
