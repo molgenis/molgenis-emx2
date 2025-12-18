@@ -18,7 +18,9 @@ public class Emx2Members {
   }
 
   public static void outputRoles(TableStore store, Schema schema) {
-    checkRoles(schema);
+    if (!canAccessMembers(schema)) {
+      return;
+    }
 
     List<Row> members = new ArrayList<>();
     for (Member m : schema.getMembers()) {
@@ -30,7 +32,9 @@ public class Emx2Members {
   }
 
   public static int inputRoles(TableStore store, Schema schema) {
-    checkRoles(schema);
+    if (!canAccessMembers(schema)) {
+      return 0;
+    }
 
     int count = 0;
     if (store.containsTable(ROLES_TABLE)) {
@@ -42,14 +46,9 @@ public class Emx2Members {
     return count;
   }
 
-  private static void checkRoles(Schema schema) {
-    if (!canAccessMembers(schema)) {
-      throw new UnauthorizedException("Unauthorized to access schema members");
-    }
-  }
-
   private static boolean canAccessMembers(Schema schema) {
     var roles = schema.getInheritedRolesForActiveUser();
-    return roles.contains(Privileges.MANAGER.toString()) || roles.contains(Privileges.OWNER.toString());
+    return roles.contains(Privileges.MANAGER.toString())
+        || roles.contains(Privileges.OWNER.toString());
   }
 }
