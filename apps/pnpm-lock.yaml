@@ -616,6 +616,9 @@ importers:
       vitest:
         specifier: 3.0.9
         version: 3.0.9(@types/node@24.10.1)(happy-dom@20.0.2)(jsdom@22.1.0)(sass@1.70.0)(terser@5.44.1)
+      vue:
+        specifier: 3.5.22
+        version: 3.5.22(typescript@5.8.2)
       vue-tsc:
         specifier: 3.0.7
         version: 3.0.7(typescript@5.8.2)
@@ -8499,7 +8502,7 @@ packages:
   puppeteer@9.1.1:
     resolution: {integrity: sha512-W+nOulP2tYd/ZG99WuZC/I5ljjQQ7EUw/jQGcIb9eu8mDlZxNY2SgcJXTLG9h5gRvqA3uJOe4hZXYsd3EqioMw==}
     engines: {node: '>=10.18.1'}
-    deprecated: < 24.15.0 is no longer supported
+    deprecated: < 24.10.2 is no longer supported
 
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
