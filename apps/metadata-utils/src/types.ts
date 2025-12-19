@@ -147,11 +147,7 @@ export interface columnValueObject {
 export function isColumnValueObject(
   value: columnValue
 ): value is columnValueObject {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value)
-  );
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function isColumnValueObjectArray(
@@ -161,13 +157,10 @@ export function isColumnValueObjectArray(
     Array.isArray(value) &&
     value.every(
       (item) =>
-        typeof item === "object" &&
-        item !== null &&
-        !Array.isArray(item)
+        typeof item === "object" && item !== null && !Array.isArray(item)
     )
   );
 }
-
 
 export type fileValue = {
   id: string;
