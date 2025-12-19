@@ -144,6 +144,31 @@ export interface columnValueObject {
   [x: string]: columnValue;
 }
 
+export function isColumnValueObject(
+  value: columnValue
+): value is columnValueObject {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value)
+  );
+}
+
+export function isColumnValueObjectArray(
+  value: columnValue
+): value is columnValueObject[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === "object" &&
+        item !== null &&
+        !Array.isArray(item)
+    )
+  );
+}
+
+
 export type fileValue = {
   id: string;
   size: number;
@@ -151,6 +176,19 @@ export type fileValue = {
   extension: string;
   url: string;
 };
+
+export function isFileValue(value: columnValue): value is fileValue {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "id" in value &&
+    "size" in value &&
+    "filename" in value &&
+    "extension" in value &&
+    "url" in value
+  );
+}
 
 export type IInputValue = string | number | boolean;
 
