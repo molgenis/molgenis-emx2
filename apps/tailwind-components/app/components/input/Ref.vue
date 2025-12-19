@@ -238,7 +238,7 @@ useClickOutside(wrapperRef, () => {
 });
 
 onMounted(() => {
-  await init();
+  init();
 });
 </script>
 

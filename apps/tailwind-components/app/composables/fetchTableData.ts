@@ -46,7 +46,7 @@ export default async (
     method: "POST",
     body: {
       query,
-      variables: { filter, orderby, limit },
+      variables: { filter, orderby },
     },
   }).catch((error) => {
     const message = `Could not fetch data for table ${tableId} in schema ${schemaId}`;
