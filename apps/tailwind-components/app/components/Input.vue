@@ -72,7 +72,9 @@
   <InputDecimal
     v-else-if="
       'DECIMAL' === typeUpperCase &&
-      (typeof modelValue === 'number' || modelValue === undefined)
+      (typeof modelValue === 'number' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
@@ -156,7 +158,7 @@
     @blur="emit('blur')"
   />
   <InputRadioGroup
-    v-else-if="['RADIO'].includes(typeUpperCase) && options"
+    v-else-if="'RADIO' === typeUpperCase && options"
     v-model="modelValue"
     :id="id"
     :valid="valid"
@@ -189,8 +191,9 @@
   <InputRef
     v-else-if="
       ['REF', 'RADIO'].includes(typeUpperCase) &&
-      (typeof modelValue === 'object' || modelValue === undefined) &&
-      modelValue !== null &&
+      (typeof modelValue === 'object' ||
+        modelValue === undefined ||
+        modelValue === null) &&
       !Array.isArray(modelValue) &&
       refSchemaId &&
       refTableId &&
