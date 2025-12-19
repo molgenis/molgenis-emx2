@@ -140,7 +140,8 @@ function assembleTreeWithChildren(
   // @ts-ignore
   return (
     data
-      .filter((row) => row.parent == parentNode?.name)
+      // @ts-ignore
+      .filter((row) => row.parent?.name == parentNode?.name)
       .map((row: any) => {
         const node = {
           name: row.name,
