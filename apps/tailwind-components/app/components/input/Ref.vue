@@ -10,7 +10,7 @@ import type {
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import logger from "../../utils/logger";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import { ref, type Ref, computed, watch, onMounted } from "vue";
+import { ref, type Ref, computed, watch, onMounted, nextTick } from "vue";
 import fetchTableData from "../../composables/fetchTableData";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
@@ -192,7 +192,7 @@ async function select(label: string) {
   if (!props.isArray) {
     selectionMap.value = {};
   }
-  selectionMap.value[label] = extractPrimaryKey(optionMap.value[label]);
+  selectionMap.value[label] = await extractPrimaryKey(optionMap.value[label]);
   if (searchTerms.value) toggleSearch();
   emitValue();
 }
@@ -200,11 +200,13 @@ async function select(label: string) {
 function emitValue() {
   emit(
     "update:modelValue",
-    props.isArray ? Object.values(selectionMap.value) : optionMap.value[label]
+    props.isArray
+      ? Object.values(selectionMap.value)
+      : Object.values(selectionMap.value)[0]
   );
 }
 
-async function extractPrimaryKey(row: columnValueObject) {
+async function extractPrimaryKey(row: recordValue) {
   return await fetchRowPrimaryKey(row, props.refTableId, props.refSchemaId);
 }
 
