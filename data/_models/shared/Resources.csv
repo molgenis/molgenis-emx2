@@ -50,7 +50,6 @@ Resources,,population,heading,,,,,,,,,Description of the population that is samp
 Resources,,number of participants,int,,,,,,,,healthdcatap:numberOfUniqueIndividuals,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogueFlat,CohortsStaging,RWEStaging,UMCGCohortsStaging,INTEGRATE",,,
 Resources,,underlying population,text,,,,,,,,healthdcatap:populationCoverage,Provide a summary description of the underlying population from which participants are sampled,"DataCatalogueFlat,RWEStaging",,,
-Resources,,population description,text,,,,,,,,healthdcatap:populationCoverage,A short description of the study population,EMA,,,
 Resources,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,Select population of interest,"DataCatalogueFlat,EMA,StudiesStaging",,,
 Resources,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogueFlat,EMA,StudiesStaging",,,
 Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:spatial,Countries where data/samples from this resource largely originate from,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
