@@ -265,6 +265,11 @@ mutation {
 }
 ```
 
+> **Note:**  
+> The `members` field is only accessible to users with sufficient permissions (e.g. admin users or users with an 
+> **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
+> schema.
+
 ## change schema elements
 
 You can change objects from schema query above and then pass them into the change function.
