@@ -1,6 +1,9 @@
 <template>
   <InputString
-    v-if="['STRING', 'AUTO_ID'].includes(typeUpperCase)"
+    v-if="
+      ['STRING', 'AUTO_ID'].includes(typeUpperCase) &&
+      (typeof modelValue === 'string' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     :valid="valid"
@@ -12,7 +15,10 @@
     @blur="emit('blur')"
   />
   <InputString
-    v-else-if="'EMAIL' === typeUpperCase"
+    v-else-if="
+      'EMAIL' === typeUpperCase &&
+      (typeof modelValue === 'string' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     type="email"
@@ -25,7 +31,10 @@
     @blur="emit('blur')"
   />
   <InputArray
-    v-else-if="NON_REF_ARRAY_TYPES.includes(typeUpperCase)"
+    v-else-if="
+      NON_REF_ARRAY_TYPES.includes(typeUpperCase) &&
+      (Array.isArray(modelValue) || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     :type="typeUpperCase"
@@ -37,7 +46,10 @@
     @blur="emit('blur')"
   />
   <InputString
-    v-else-if="'HYPERLINK' === typeUpperCase"
+    v-else-if="
+      'HYPERLINK' === typeUpperCase &&
+      (typeof modelValue === 'string' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     type="text"
@@ -50,7 +62,10 @@
     @blur="emit('blur')"
   />
   <InputDecimal
-    v-else-if="'DECIMAL' === typeUpperCase"
+    v-else-if="
+      'DECIMAL' === typeUpperCase &&
+      (typeof modelValue === 'number' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     type="text"
@@ -63,7 +78,10 @@
     @blur="emit('blur')"
   />
   <InputInt
-    v-else-if="'INT' === typeUpperCase"
+    v-else-if="
+      'INT' === typeUpperCase &&
+      (typeof modelValue === 'number' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     type="text"
@@ -76,7 +94,10 @@
     @blur="emit('blur')"
   />
   <InputLong
-    v-else-if="'LONG' === typeUpperCase"
+    v-else-if="
+      'LONG' === typeUpperCase &&
+      (typeof modelValue === 'string' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     type="text"
@@ -89,7 +110,10 @@
     @blur="emit('blur')"
   />
   <InputBoolean
-    v-else-if="['BOOL'].includes(typeUpperCase)"
+    v-else-if="
+      ['BOOL'].includes(typeUpperCase) &&
+      (typeof modelValue === 'boolean' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     :valid="valid"
@@ -103,7 +127,10 @@
     @blur="emit('blur')"
   />
   <InputTextArea
-    v-else-if="['TEXT'].includes(typeUpperCase)"
+    v-else-if="
+      ['TEXT'].includes(typeUpperCase) &&
+      (typeof modelValue === 'string' || modelValue === undefined)
+    "
     v-model="modelValue"
     :id="id"
     :valid="valid"
@@ -129,7 +156,11 @@
     :align="align"
   />
   <InputCheckboxGroup
-    v-else-if="['CHECKBOX'].includes(typeUpperCase) && options"
+    v-else-if="
+      ['CHECKBOX'].includes(typeUpperCase) &&
+      options &&
+      (Array.isArray(modelValue) || modelValue === undefined)
+    "
     v-model="modelValue"
     :id="id"
     :valid="valid"
@@ -142,7 +173,15 @@
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
+    v-else-if="
+      ['REF', 'RADIO'].includes(typeUpperCase) &&
+      (typeof modelValue === 'object' || modelValue === undefined) &&
+      modelValue !== null &&
+      !Array.isArray(modelValue) &&
+      refSchemaId &&
+      refTableId &&
+      refLabel
+    "
     v-model="modelValue"
     :limit="20"
     :id="id"
@@ -159,7 +198,15 @@
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
+    v-else-if="
+      ['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase) &&
+      ((Array.isArray(modelValue) && isColumnValueObjectArray(modelValue)) ||
+        isColumnValueObject(modelValue) ||
+        modelValue === undefined) &&
+      refSchemaId &&
+      refTableId &&
+      refLabel
+    "
     v-model="modelValue"
     :limit="20"
     :id="id"
@@ -176,7 +223,15 @@
     :is-array="true"
   />
   <InputRef
-    v-else-if="'SELECT' === typeUpperCase"
+    v-else-if="
+      'SELECT' === typeUpperCase &&
+      ((Array.isArray(modelValue) && isColumnValueObjectArray(modelValue)) ||
+        isColumnValueObject(modelValue) ||
+        modelValue === undefined) &&
+      refSchemaId &&
+      refTableId &&
+      refLabel
+    "
     v-model="modelValue"
     :limit="0"
     :id="id"
@@ -193,7 +248,15 @@
     :align="align"
   />
   <InputRef
-    v-else-if="'MULTISELECT' === typeUpperCase"
+    v-else-if="
+      'MULTISELECT' === typeUpperCase &&
+      ((Array.isArray(modelValue) && isColumnValueObjectArray(modelValue)) ||
+        isColumnValueObject(modelValue) ||
+        modelValue === undefined) &&
+      refSchemaId &&
+      refTableId &&
+      refLabel
+    "
     v-model="modelValue"
     :multiselect="true"
     :id="id"
@@ -211,7 +274,15 @@
     :align="align"
   />
   <InputRefBack
-    v-else-if="['REFBACK'].includes(typeUpperCase)"
+    v-else-if="
+      ['REFBACK'].includes(typeUpperCase) &&
+      ((Array.isArray(modelValue) && isColumnValueObjectArray(modelValue)) ||
+        modelValue === undefined) &&
+      refSchemaId &&
+      refTableId &&
+      refLabel &&
+      refBackColumn
+    "
     v-model="modelValue"
     :id="id"
     :refSchemaId="refSchemaId"
@@ -222,8 +293,10 @@
   />
 
   <InputOntology
-    v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
-    :modelValue="modelValue ? modelValue['name'] : undefined"
+    v-else-if="
+      ['ONTOLOGY'].includes(typeUpperCase) && refSchemaId && refTableId
+    "
+    :modelValue="modelValue && typeof modelValue === 'object' && !Array.isArray(modelValue) ? (modelValue as any)['name'] : undefined"
     @update:modelValue="
       $event ? (modelValue = { name: $event }) : (modelValue = undefined)
     "
@@ -240,7 +313,12 @@
     :is-array="false"
   />
   <InputOntology
-    v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    v-else-if="
+      ['ONTOLOGY_ARRAY'].includes(typeUpperCase) &&
+      refSchemaId &&
+      refTableId &&
+      (Array.isArray(modelValue) || modelValue === undefined)
+    "
     :isArray="true"
     :modelValue="getOntologyArrayValues(modelValue)"
     @update:modelValue="
@@ -262,7 +340,12 @@
     @blur="emit('blur')"
   />
   <InputFile
-    v-else-if="['FILE'].includes(typeUpperCase)"
+    v-else-if="
+      ['FILE'].includes(typeUpperCase) &&
+      (isFileValue(modelValue) ||
+        modelValue === undefined ||
+        modelValue === null)
+    "
     v-model="modelValue"
     :id="id"
     :valid="valid"
@@ -273,7 +356,10 @@
     @blur="emit('blur')"
   />
   <InputDate
-    v-else-if="'DATE' === typeUpperCase"
+    v-else-if="
+      'DATE' === typeUpperCase &&
+      (typeof modelValue === 'string' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     type="text"
@@ -286,7 +372,10 @@
     @blur="emit('blur')"
   />
   <InputDateTime
-    v-else-if="'DATETIME' === typeUpperCase"
+    v-else-if="
+      'DATETIME' === typeUpperCase &&
+      (typeof modelValue === 'string' || modelValue === undefined)
+    "
     :id="id"
     v-model="modelValue"
     type="text"
@@ -303,9 +392,12 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type {
-  CellValueType,
-  columnValue,
+import {
+  isColumnValueObject,
+  isColumnValueObjectArray,
+  isFileValue,
+  type CellValueType,
+  type columnValue,
 } from "../../../metadata-utils/src/types";
 import type { IInputProps, IValueLabel } from "../../types/types";
 import { getOntologyArrayValues } from "../utils/typeUtils";
@@ -323,7 +415,6 @@ import InputPlaceHolder from "./input/PlaceHolder.vue";
 import InputRadioGroup from "./input/RadioGroup.vue";
 import InputRef from "./input/Ref.vue";
 import InputRefBack from "./input/RefBack.vue";
-import InputRefSelect from "./input/RefSelect.vue";
 import InputString from "./input/String.vue";
 import InputTextArea from "./input/TextArea.vue";
 

@@ -43,7 +43,6 @@ import type {
 import { ref } from "vue";
 import Input from "../Input.vue";
 import Button from "../Button.vue";
-import { defineEmits, defineProps } from "vue";
 
 const props = defineProps<
   IInputProps & {
