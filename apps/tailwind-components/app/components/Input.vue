@@ -37,7 +37,9 @@
   <InputArray
     v-else-if="
       NON_REF_ARRAY_TYPES.includes(typeUpperCase) &&
-      (Array.isArray(modelValue) || modelValue === undefined)
+      (Array.isArray(modelValue) ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
@@ -86,7 +88,9 @@
   <InputInt
     v-else-if="
       'INT' === typeUpperCase &&
-      (typeof modelValue === 'number' || modelValue === undefined)
+      (typeof modelValue === 'number' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
@@ -118,7 +122,9 @@
   <InputBoolean
     v-else-if="
       ['BOOL'].includes(typeUpperCase) &&
-      (typeof modelValue === 'boolean' || modelValue === undefined)
+      (typeof modelValue === 'boolean' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
@@ -135,7 +141,9 @@
   <InputTextArea
     v-else-if="
       ['TEXT'].includes(typeUpperCase) &&
-      (typeof modelValue === 'string' || modelValue === undefined)
+      (typeof modelValue === 'string' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     v-model="modelValue"
     :id="id"
@@ -208,7 +216,8 @@
       ['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase) &&
       ((Array.isArray(modelValue) && isColumnValueObjectArray(modelValue)) ||
         isColumnValueObject(modelValue) ||
-        modelValue === undefined) &&
+        modelValue === undefined ||
+        modelValue === null) &&
       refSchemaId &&
       refTableId &&
       refLabel
@@ -281,9 +290,10 @@
   />
   <InputRefBack
     v-else-if="
-      ['REFBACK'].includes(typeUpperCase) &&
+      'REFBACK' === typeUpperCase &&
       ((Array.isArray(modelValue) && isColumnValueObjectArray(modelValue)) ||
-        modelValue === undefined) &&
+        modelValue === undefined ||
+        modelValue === null) &&
       refSchemaId &&
       refTableId &&
       refLabel &&
@@ -323,7 +333,9 @@
       ['ONTOLOGY_ARRAY'].includes(typeUpperCase) &&
       refSchemaId &&
       refTableId &&
-      (Array.isArray(modelValue) || modelValue === undefined)
+      (Array.isArray(modelValue) ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :isArray="true"
     :modelValue="getOntologyArrayValues(modelValue)"
@@ -364,7 +376,9 @@
   <InputDate
     v-else-if="
       'DATE' === typeUpperCase &&
-      (typeof modelValue === 'string' || modelValue === undefined)
+      (typeof modelValue === 'string' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
@@ -380,7 +394,9 @@
   <InputDateTime
     v-else-if="
       'DATETIME' === typeUpperCase &&
-      (typeof modelValue === 'string' || modelValue === undefined)
+      (typeof modelValue === 'string' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
