@@ -2,7 +2,9 @@
   <InputString
     v-if="
       ['STRING', 'AUTO_ID'].includes(typeUpperCase) &&
-      (typeof modelValue === 'string' || modelValue === undefined)
+      (typeof modelValue === 'string' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
@@ -17,7 +19,9 @@
   <InputString
     v-else-if="
       'EMAIL' === typeUpperCase &&
-      (typeof modelValue === 'string' || modelValue === undefined)
+      (typeof modelValue === 'string' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
@@ -48,7 +52,9 @@
   <InputString
     v-else-if="
       'HYPERLINK' === typeUpperCase &&
-      (typeof modelValue === 'string' || modelValue === undefined)
+      (typeof modelValue === 'string' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
