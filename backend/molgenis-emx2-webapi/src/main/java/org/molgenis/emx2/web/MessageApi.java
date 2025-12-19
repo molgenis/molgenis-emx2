@@ -4,9 +4,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.ExecutionInput;
 import graphql.ExecutionResult;
-import graphql.GraphQL;
 import graphql.parser.Parser;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -22,6 +20,7 @@ import org.molgenis.emx2.email.EmailMessage;
 import org.molgenis.emx2.email.EmailService;
 import org.molgenis.emx2.email.EmailSettings;
 import org.molgenis.emx2.email.EmailValidator;
+import org.molgenis.emx2.graphql.GraphqlApi;
 import org.molgenis.emx2.web.actions.SendMessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,10 +76,9 @@ public class MessageApi {
       throw new MolgenisException(msg);
     }
 
-    GraphQL gql = applicationCache.getSchemaGraphqlForUser(schema.getName(), ctx);
+    GraphqlApi gql = applicationCache.getSchemaGraphqlForUser(schema.getName(), ctx);
 
-    final ExecutionResult executionResult =
-        gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));
+    final ExecutionResult executionResult = gql.execute(recipientsQuery, validationFilter);
     if (!executionResult.getErrors().isEmpty()) {
       ctx.status(500);
       String msg =
