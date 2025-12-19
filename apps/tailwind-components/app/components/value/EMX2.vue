@@ -113,5 +113,11 @@ defineEmits<{
     :data="data"
   />
 
+  <ValueString
+    v-else-if="metadata.columnType === 'AUTO_ID'"
+    :metadata="metadata"
+    :data="data"
+  />
+
   <template v-else> {{ metadata.columnType }} </template>
 </template>
