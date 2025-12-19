@@ -1012,6 +1012,9 @@ importers:
       ofetch:
         specifier: 1.4.1
         version: 1.4.1
+      ufo:
+        specifier: 1.6.1
+        version: 1.6.1
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.6.2)
