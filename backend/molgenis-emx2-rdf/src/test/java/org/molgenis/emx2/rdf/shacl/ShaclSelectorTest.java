@@ -64,7 +64,7 @@ class ShaclSelectorTest {
   void testAllNamesPresentInFiltered() {
     // does not test full file but only names for simplicity (1 shacl set is tested fully)
     Set<String> expected =
-        Set.of("fdp-v1.2", "dcat-ap-v3", "hri-v1", "hri-v2", "hri-v2.0.2", "ejp-rd-vp");
+        Set.of("fdp-v1.2", "dcat-ap-v3", "hri-v2.0.2", "ejp-rd-vp");
     Set<String> actual =
         Arrays.stream(ShaclSelector.getAllFiltered()).map(ShaclSet::id).collect(Collectors.toSet());
     assertEquals(expected, actual);
