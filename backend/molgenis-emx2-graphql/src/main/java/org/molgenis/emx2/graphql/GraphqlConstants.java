@@ -37,6 +37,7 @@ public class GraphqlConstants {
   public static final String TYPE = "type";
   public static final String VALUE = "value";
   public static final String FILTER_EQUALS = "equals";
+  public static final String FILTER_NOT_EQUALS = "not_equals";
   public static final String FILTER_MATCH_ANY = "_match_any";
   public static final String FILTER_MATCH_ALL = "_match_all";
   public static final String FILTER_SEARCH = "_search";

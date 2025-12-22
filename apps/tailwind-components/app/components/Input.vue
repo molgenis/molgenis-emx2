@@ -217,7 +217,7 @@
     :refSchemaId="refSchemaId"
     :refTableId="refTableId"
     :refLabel="refLabel"
-    :refBackColumn="refBackId"
+    :refBackColumn="refBackColumn"
     :refBackPrimaryKey="rowKey"
   />
 
