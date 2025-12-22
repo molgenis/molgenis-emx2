@@ -89,7 +89,7 @@ async function init() {
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: keys }, expandLevel: 0 }
+      { filter: { equals: keys }, expandLevel: 1 }
     );
     if (data.rows) {
       hasNoResults.value = false;
@@ -128,7 +128,7 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 
 async function loadOptions(filter: IQueryMetaData) {
   hasNoResults.value = true;
-  filter.expandLevel = 0;
+  filter.expandLevel = 1;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
