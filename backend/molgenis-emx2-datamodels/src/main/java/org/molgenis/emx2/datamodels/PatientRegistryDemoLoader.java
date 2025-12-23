@@ -1,6 +1,5 @@
 package org.molgenis.emx2.datamodels;
 
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.io.ImportDataModelTask;
