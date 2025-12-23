@@ -1,11 +1,13 @@
+# Install Molgenis EMX2 as a system service 
+EMX2 supports Redhat and Ubuntu based installations.
 
-# Install Molgenis emx2 as a system service 
-We support Redhat and Ubuntu based installations.
+## Requirements
+- Java ≥ 21
+- Postgresql 15
 
+### Java
+Installing Java for Redhat or Ubuntu can be done with the instructions below:
 
-## Java 
-
-MOLGENIS EMX2 runs on java ≥ 21
 <!-- tabs:start -->
 
 #### **Ubuntu (apt)**
@@ -17,18 +19,14 @@ sudo apt -y install openjdk-21-jre-headless
 
 ```console
 sudo yum install java-21-openjdk-headless
-
 ```
 <!-- tabs:end -->
 
 
-## Postgresql 
+### Postgresql 
 
-
-MOLGENIS EMX2 depends on Postgresql 15
-Please see https://www.postgresql.org/download/ for your supported OS version. EMX2 is supported on version 15! 
+Molgenis EMX2 depends on Postgresql 15. Please see https://www.postgresql.org/download/ for your supported OS version. 
 For Redhat and Ubuntu you can use below information:
-
 
 <!-- tabs:start -->
 
@@ -41,8 +39,7 @@ sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresq
 
 sudo apt update
 
-sudo apt install postgresql-15 postgresql-contrib-15 postgresql-client-15 
-
+sudo apt install postgresql-15 postgresql-contrib-15 postgresql-client-15
 ```
 
 #### **Redhat (yum)**
@@ -50,58 +47,48 @@ sudo apt install postgresql-15 postgresql-contrib-15 postgresql-client-15
 ```console
 sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
-
 sudo dnf -qy module disable postgresql
-
 
 sudo dnf install -y postgresql15-server postgresql15-contrib
 
 sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
 sudo systemctl enable postgresql-15
 sudo systemctl start postgresql-15
-
-
 ```
 <!-- tabs:end -->
 
 
 
-## Database Creation 
+## Database Creation
 
-```console
-sudo -u postgres psql
-```
+Before setting up molgenis-emx2, a postgres database needs to be set up. This can be done with the following steps:
 
-
-```console
-
-create database molgenis;
-alter database molgenis SET jit = 'off';
-create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
-grant all privileges on database molgenis to molgenis;
-exit;
-
-```
+1. Start a postgres console:
+    ```console
+    sudo -u postgres psql
+    ```
+2. Once in the console, st up the database with the following commands:
+    ```console
+    create database molgenis;
+    alter database molgenis SET jit = 'off';
+    create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
+    grant all privileges on database molgenis to molgenis;
+    exit;
+    ```
 Note: 
 If you change the database password you must edit the password after the installation of molgenis-emx2 in the /etc/systemd/system/molgenis-emx2.service
 
 
-
-
-
 ## Add molgenis-emx2 Repo
 
-
-Add molgenis-emx2 repo and install molgenis-emx2
+Add the molgenis-emx2 repository and install molgenis-emx2
 <!-- tabs:start -->
 
 #### **Ubuntu (apt)**
 ```console
-
 wget -O- https://registry.molgenis.org/repository/packages/apt/molgenis-public.gpg | sudo gpg --yes --dearmor -o /usr/share/keyrings/molgenis-keyring.gpg
 
 echo "deb [signed-by=/usr/share/keyrings/molgenis-keyring.gpg] https://registry.molgenis.org/repository/molgenis-emx2-$(lsb_release -cs)/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/molgenis.list
-
 ```
 
 #### **Redhat (yum)**
@@ -117,7 +104,6 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 repo_gpgcheck=0
 priority=1
 EOL
-
 ```
 <!-- tabs:end -->
 
@@ -147,7 +133,7 @@ sudo yum install molgenis-emx2
 Molgenis is running port 8080. 
 * Open on http://ip.or.host.of.server:8080
 
-In most cases you can proxy_pass traffic to molgenis-emx2 with a (hard or software) loadbalancer to the molgenis-emx2 (port 8080) endpoind.
+In most cases you can proxy_pass traffic to molgenis-emx2 with a (hard or software) loadbalancer to the molgenis-emx2 (port 8080) endpoint.
 Or you can use nginx to proxypass traffic.
 
 An example of nginx proxy pass:
@@ -167,25 +153,23 @@ location / {
 
 
 ## Optional
-Optionally, you can change defaults using either java properties or using env variables in the /etc/systemd/system/molgenis-emx2.service 
+Optionally, you can change defaults using either java properties or using env variables in the `/etc/systemd/system/molgenis-emx2.service` 
 
-* MOLGENIS_POSTGRES_URI
-* MOLGENIS_POSTGRES_USER
-* MOLGENIS_POSTGRES_PASS
-* MOLGENIS_HTTP_PORT
-* MOLGENIS_ADMIN_PW
+* `MOLGENIS_POSTGRES_URI`
+* `MOLGENIS_POSTGRES_USER`
+* `MOLGENIS_POSTGRES_PASS`
+* `MOLGENIS_HTTP_PORT`
+* `MOLGENIS_ADMIN_PW`
 
 ### exposed cache settings ( uses [caffeine](https://github.com/ben-manes/caffeine/blob/master/README.md) under the hood )
-* ANONYMOUS_GQL_CACHE_MAX_SIZE
+* `ANONYMOUS_GQL_CACHE_MAX_SIZE`
 max number of cached gql schema objects for an anonymous role, defaults to 100
-* ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN 
+* `ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN` 
 cache invalidation after access in minutes defaults to 1
-* ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN 
+* `ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN` 
 cache invalidation after write in minutes defaults to 30
 
 changes require restart
-
-
 
 ## Troubleshooting
 
@@ -195,7 +179,6 @@ Check if EMX2 is running
 systemctl status molgenis-emx2
 ```
 
-
 Check if postgresql is running
 
 ```console
@@ -203,7 +186,7 @@ systemctl status postgresql
 ```
 
 Debugging log files:
-/var/log/molgenis
+`/var/log/molgenis`
  * emx2.log
  * emx2-error.log
 
