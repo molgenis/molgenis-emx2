@@ -1,9 +1,10 @@
 package org.molgenis.emx2.datamodels;
 
 import java.util.Arrays;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.ImportProfileTask;
+import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.tasks.Task;
 
 public class DataModels {
@@ -41,8 +42,10 @@ public class DataModels {
       return template;
     }
 
-    public Task getImportTask(Schema schema, boolean includeDemoData) {
-      return new ImportProfileTask(schema, this.getTemplate(), includeDemoData);
+    public Task getImportTask(
+        Database database, String schemaName, String description, boolean includeDemoData) {
+      return new ImportProfileTask(
+          database, schemaName, description, this.getTemplate(), includeDemoData);
     }
   }
 
@@ -54,12 +57,12 @@ public class DataModels {
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     BIOBANK_DIRECTORY_STAGING(
-        ((schema, includeDemoData) ->
-            new BiobankDirectoryLoader(schema, includeDemoData).setStaging(true)));
+        ((schemaLoaderSettings) ->
+            new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true)));
 
     @FunctionalInterface
     private interface TaskFactory {
-      ImportDataModelTask createTask(Schema schema, boolean includeDemoData);
+      ImportDataModelTask createTask(SchemaLoaderSettings schemaLoaderSettings);
     }
 
     private final TaskFactory taskFactory;
@@ -68,19 +71,34 @@ public class DataModels {
       this.taskFactory = taskFactory;
     }
 
-    public Task getImportTask(Schema schema, boolean includeDemoData) {
-      return taskFactory.createTask(schema, includeDemoData);
+    public Task getImportTask(
+        Database database, String schemaName, String description, boolean includeDemoData) {
+      SchemaLoaderSettings schemaLoaderSettings =
+          new SchemaLoaderSettings(database, schemaName, description, includeDemoData);
+      return taskFactory.createTask(schemaLoaderSettings);
+    }
+
+    public Task getImportTask(SchemaLoaderSettings schemaLoaderSettings) {
+      return taskFactory.createTask(schemaLoaderSettings);
     }
   }
 
-  public static Task getImportTask(Schema schema, String template, boolean includeDemoData) {
+  public static Task getImportTask(
+      Database database,
+      String schemaName,
+      String description,
+      String template,
+      boolean includeDemoData) {
     Task task;
     if (Profile.hasProfile(template)) {
       Profile profile = Profile.valueOf(template);
-      task = profile.getImportTask(schema, includeDemoData);
+      task = profile.getImportTask(database, schemaName, description, includeDemoData);
     } else {
-      task = Regular.valueOf(template).getImportTask(schema, includeDemoData);
+      task =
+          Regular.valueOf(template)
+              .getImportTask(
+                  new SchemaLoaderSettings(database, schemaName, description, includeDemoData));
     }
-    return task.setDescription("Loading data model: " + template + " onto " + schema.getName());
+    return task.setDescription("Loading data model: " + template + " onto " + schemaName);
   }
 }
