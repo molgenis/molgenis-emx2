@@ -4,6 +4,7 @@ import java.util.Arrays;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.ImportProfileTask;
+import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.tasks.Task;
 
 public class DataModels {
@@ -56,14 +57,12 @@ public class DataModels {
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     BIOBANK_DIRECTORY_STAGING(
-        ((database, schema, description, includeDemoData) ->
-            new BiobankDirectoryLoader(database, schema, description, includeDemoData)
-                .setStaging(true)));
+        ((schemaLoaderSettings) ->
+            new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true)));
 
     @FunctionalInterface
     private interface TaskFactory {
-      ImportDataModelTask createTask(
-          Database database, String schemaName, String description, boolean includeDemoData);
+      ImportDataModelTask createTask(SchemaLoaderSettings schemaLoaderSettings);
     }
 
     private final TaskFactory taskFactory;
@@ -74,7 +73,13 @@ public class DataModels {
 
     public Task getImportTask(
         Database database, String schemaName, String description, boolean includeDemoData) {
-      return taskFactory.createTask(database, schemaName, description, includeDemoData);
+      SchemaLoaderSettings schemaLoaderSettings =
+          new SchemaLoaderSettings(database, schemaName, description, includeDemoData);
+      return taskFactory.createTask(schemaLoaderSettings);
+    }
+
+    public Task getImportTask(SchemaLoaderSettings schemaLoaderSettings) {
+      return taskFactory.createTask(schemaLoaderSettings);
     }
   }
 
@@ -91,7 +96,8 @@ public class DataModels {
     } else {
       task =
           Regular.valueOf(template)
-              .getImportTask(database, schemaName, description, includeDemoData);
+              .getImportTask(
+                  new SchemaLoaderSettings(database, schemaName, description, includeDemoData));
     }
     return task.setDescription("Loading data model: " + template + " onto " + schemaName);
   }
