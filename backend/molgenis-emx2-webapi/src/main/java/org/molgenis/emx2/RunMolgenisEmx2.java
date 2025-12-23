@@ -6,6 +6,7 @@ import static org.molgenis.emx2.ColumnType.INT;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PatientRegistryDemoLoader;
+import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -87,13 +88,17 @@ public class RunMolgenisEmx2 {
                 .run();
           }
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
-            new BiobankDirectoryLoader(database, DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo", true)
+            new BiobankDirectoryLoader(
+                    new SchemaLoaderSettings(
+                        database, DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo", true))
                 .setStaging(false)
                 .run();
           }
 
           if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
-            new PatientRegistryDemoLoader(database, "patient registry demo", "", true).run();
+            new PatientRegistryDemoLoader(
+                    new SchemaLoaderSettings(database, "patient registry demo", "", true))
+                .run();
           }
         });
 
