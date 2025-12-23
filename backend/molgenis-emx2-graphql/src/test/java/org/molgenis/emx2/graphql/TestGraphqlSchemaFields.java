@@ -43,13 +43,13 @@ public class TestGraphqlSchemaFields {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";
-    final String costumer = "costumer";
+    final String customer = "customer";
 
     // initialize users
     database.setUserPassword(shopmanager, shopmanager);
     database.setUserPassword(shopviewer, shopviewer);
     database.setUserPassword(shopowner, shopowner);
-    database.setUserPassword(costumer, costumer);
+    database.setUserPassword(customer, customer);
 
     database.dropSchemaIfExists(schemaName);
     DataModels.getImportTask(database, schemaName, "", PET_STORE.name(), true).run();
@@ -57,7 +57,8 @@ public class TestGraphqlSchemaFields {
     schema.addMember(shopmanager, "Manager");
     schema.addMember(shopviewer, "Viewer");
     schema.addMember(shopowner, "Owner");
-    schema.addMember(costumer, "Range");
+    schema.addMember(customer, "Range");
+    DataModels.getImportTask(schema, PET_STORE.name(), true).run();
     schema = database.getSchema(schemaName);
 
     taskService = new TaskServiceInMemory();

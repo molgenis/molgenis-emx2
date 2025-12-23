@@ -265,6 +265,11 @@ mutation {
 }
 ```
 
+> **Note:**  
+> The `members` field is only accessible to users with sufficient permissions (e.g. admin users or users with an 
+> **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
+> schema.
+
 ## change schema elements
 
 You can change objects from schema query above and then pass them into the change function.
@@ -356,7 +361,9 @@ Query including search
 }
 ```
 
-Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators.
+Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators. 
+
+Field-level filters apply comparison operators directly to individual fields.
 
 ```graphql
 {
@@ -373,6 +380,17 @@ Query using filters, limit, offset. Note that filter enables quite complex queri
       name
     }
     weight
+  }
+}
+```
+
+Object-level filters apply logical or comparison operators to the object as a whole, rather than to individual fields. 
+In this case, `not_equals` compares primary keys, `name` for Pet.
+
+```graphql
+{
+  Pet (filter: { not_equals: { name: "pooky" } }) {
+    name
   }
 }
 ```

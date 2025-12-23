@@ -7,13 +7,13 @@
     <p><strong>No active user found</strong></p>
   </MessageBox>
   <p v-if="user !== 'anonymous' && user">
-   <FileList
-    table="Files"
-    filter='(filter: { tags: { equals: "private" } })'
-    labelsColumn="name"
-    fileColumn="file"
-   />
-   </p>
+    <FileList
+      table="Files"
+      filter='(filter: { tags: { equals: "private" } })'
+      labelsColumn="name"
+      fileColumn="file"
+    />
+  </p>
 </template>
 
 <script setup lang="ts">
@@ -21,7 +21,7 @@
 import { FileList, MessageBox } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 
 const error = ref<Error | null>(null);
 const loading = ref(true);
@@ -34,20 +34,25 @@ async function getSession() {
         email
       }
     }
-  `
-  const response = await request('/api/graphql', query, {}, { credentials: 'include' })
-  user.value = response._session?.email || null
+  `;
+  const response = await request(
+    "/api/graphql",
+    query,
+    {},
+    { credentials: "include" }
+  );
+  user.value = response._session?.email || null;
 }
 
 getSession()
   .catch((err: any) => {
     if (err.response?.errors?.length) {
-      error.value = err.response.errors[0].message
+      error.value = err.response.errors[0].message;
     } else {
-      error.value = err
+      error.value = err;
     }
   })
   .finally(() => {
-    loading.value = false
+    loading.value = false;
   });
 </script>

@@ -69,6 +69,11 @@ public class RunMolgenisEmx2 {
 
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             DataModels.Profile.PET_STORE.getImportTask(db, "pet store", "", true).run();
+            Schema schema = db.getSchema("pet store");
+            schema.getDatabase().setUserPassword("customer", "customer");
+            schema.getDatabase().setUserPassword("shopmanager", "shopmanager");
+            schema.getDatabase().setUserPassword("shopowner", "shopowner");
+            schema.getDatabase().setUserPassword("shopviewer", "shopviewer");
           }
 
           if (INCLUDE_TYPE_TEST_DEMO && db.getSchema("type test") == null) {

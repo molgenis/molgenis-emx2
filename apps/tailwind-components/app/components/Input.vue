@@ -144,7 +144,7 @@
   <InputRef
     v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
     v-model="modelValue"
-    :limit="50"
+    :limit="20"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -161,7 +161,7 @@
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue"
-    :limit="50"
+    :limit="20"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -175,9 +175,10 @@
     @blur="emit('blur')"
     :is-array="true"
   />
-  <InputRefSelect
+  <InputRef
     v-else-if="'SELECT' === typeUpperCase"
     v-model="modelValue"
+    :limit="0"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -191,11 +192,12 @@
     @blur="emit('blur')"
     :align="align"
   />
-  <InputRefSelect
+  <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
     v-model="modelValue"
     :multiselect="true"
     :id="id"
+    :limit="0"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
@@ -215,7 +217,7 @@
     :refSchemaId="refSchemaId"
     :refTableId="refTableId"
     :refLabel="refLabel"
-    :refBackColumn="refBackId"
+    :refBackColumn="refBackColumn"
     :refBackPrimaryKey="rowKey"
   />
 
@@ -233,7 +235,6 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId"
     :ontologyTableId="refTableId"
-    :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -257,8 +258,6 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId"
     :ontologyTableId="refTableId"
-    :refLabel="refLabel"
-    :limit="limit"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -337,7 +336,7 @@ const props = withDefaults(
       refSchemaId?: string;
       refTableId?: string;
       refLabel?: string;
-      refBackId?: string;
+      refBackColumn?: string;
       rowKey?: any;
       options?: IValueLabel[];
       trueLabel?: string;

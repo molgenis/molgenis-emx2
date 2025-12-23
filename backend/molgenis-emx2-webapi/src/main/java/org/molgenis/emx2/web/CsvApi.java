@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.MG_DRAFT;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFilterArray;
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
@@ -22,24 +22,31 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
 import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.io.emx2.Emx2Members;
+import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
+
   private CsvApi() {
     // hide constructor
   }
 
   public static void create(Javalin app) {
-
     // schema level operations
     final String schemaPath = "/{schema}/api/csv";
     app.get(schemaPath, CsvApi::getMetadata);
     app.post(schemaPath, CsvApi::mergeMetadata);
     app.delete(schemaPath, CsvApi::discardMetadata);
+
+    app.get("/{schema}/api/csv/members", CsvApi::getMembers);
+    app.get("/{schema}/api/csv/settings", CsvApi::getSettings);
 
     // table level operations
     final String tablePath = "/{schema}/api/csv/{table}";
@@ -95,6 +102,64 @@ public class CsvApi {
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
+    ctx.status(200);
+    ctx.result(writer.toString());
+  }
+
+  private static void getMembers(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+    if (!exportMembersAllowed(ctx, schema)) {
+      throw new MolgenisException("Unauthorized to get schema members");
+    }
+
+    StringWriter writer = new StringWriter();
+    Character separator = getSeparator(ctx);
+    TableStore tableStore = new TableStoreForCsvInMemory(separator);
+
+    Emx2Members.outputRoles(tableStore, schema);
+
+    CsvTableWriter.write(
+        tableStore.readTable(Emx2Members.ROLES_TABLE),
+        List.of(Emx2Members.USER, Emx2Members.ROLE),
+        writer,
+        separator);
+
+    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_members_" + date + ".csv\"");
+    ctx.contentType(ACCEPT_CSV);
+    ctx.status(200);
+    ctx.result(writer.toString());
+  }
+
+  private static boolean exportMembersAllowed(Context ctx, Schema schema) {
+    var currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+    var sqlSchemaMetadata = new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
+    var roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
+    return roles.contains(Privileges.MANAGER.toString())
+        || roles.contains(Privileges.OWNER.toString());
+  }
+
+  private static void getSettings(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+
+    StringWriter writer = new StringWriter();
+    Character separator = getSeparator(ctx);
+    TableStore tableStore = new TableStoreForCsvInMemory(separator);
+
+    Emx2Settings.outputSettings(tableStore, schema);
+
+    CsvTableWriter.write(
+        tableStore.readTable(SETTINGS_TABLE),
+        List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE),
+        writer,
+        separator);
+    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_settings_" + date + ".csv\"");
+    ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
   }
