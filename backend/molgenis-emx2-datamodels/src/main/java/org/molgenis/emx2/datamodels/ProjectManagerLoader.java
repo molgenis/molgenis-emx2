@@ -1,16 +1,15 @@
 package org.molgenis.emx2.datamodels;
 
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class ProjectManagerLoader extends ImportDataModelTask {
 
-  public ProjectManagerLoader(
-      Database database, String schemaName, String description, Boolean includeDemoData) {
-    super(database, schemaName, description, includeDemoData);
+  public ProjectManagerLoader(SchemaLoaderSettings schemaLoaderSettings) {
+    super(schemaLoaderSettings);
   }
 
   @Override

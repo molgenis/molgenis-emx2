@@ -5,13 +5,13 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class PatientRegistryDemoLoader extends ImportDataModelTask {
 
-  public PatientRegistryDemoLoader(
-      Database database, String schemaName, String description, Boolean includeDemoData) {
-    super(database, schemaName, description, includeDemoData);
+  public PatientRegistryDemoLoader(SchemaLoaderSettings schemaLoaderSettings) {
+    super(schemaLoaderSettings);
   }
 
   @Override

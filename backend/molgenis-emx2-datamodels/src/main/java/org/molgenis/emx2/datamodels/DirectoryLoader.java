@@ -4,13 +4,13 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class DirectoryLoader extends ImportDataModelTask {
 
-  public DirectoryLoader(
-      Database database, String schemaName, String description, Boolean includeDemoData) {
-    super(database, schemaName, description, includeDemoData);
+  public DirectoryLoader(SchemaLoaderSettings schemaLoaderSettings) {
+    super(schemaLoaderSettings);
   }
 
   @Override
