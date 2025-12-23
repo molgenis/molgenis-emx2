@@ -223,7 +223,7 @@ async function retrieveTerms(
 async function applyModelValue(data: any = undefined): Promise<void> {
   valueLabels.value = {};
   intermediates.value = [];
-  if (data === undefined) {
+  if (data === undefined && modelValue.value) {
     data = await fetchGraphql(
       props.ontologySchemaId,
       `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
@@ -232,12 +232,17 @@ async function applyModelValue(data: any = undefined): Promise<void> {
       }
     );
   }
-  valueLabels.value = Object.fromEntries(
-    data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
-  );
-  intermediates.value = data.ontologyPaths.map(
-    (term: { name: string }) => term.name
-  );
+  if (data.ontologyPaths) {
+    valueLabels.value = Object.fromEntries(
+      data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
+    );
+    intermediates.value = data.ontologyPaths.map(
+      (term: { name: string }) => term.name
+    );
+  } else {
+    valueLabels.value = {};
+    intermediates.value = [];
+  }
   applySelectedStates();
 }
 
