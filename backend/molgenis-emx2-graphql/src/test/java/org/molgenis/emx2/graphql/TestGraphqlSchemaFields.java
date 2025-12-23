@@ -58,8 +58,6 @@ public class TestGraphqlSchemaFields {
     schema.addMember(shopviewer, "Viewer");
     schema.addMember(shopowner, "Owner");
     schema.addMember(customer, "Range");
-    DataModels.getImportTask(schema, PET_STORE.name(), true).run();
-    schema = database.getSchema(schemaName);
 
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
