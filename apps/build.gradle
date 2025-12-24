@@ -137,7 +137,7 @@ tasks.register("collectDist", CollectDistTask) {
 }
 
 tasks.register('format', PnpmTask) {
-    dependsOn 'pnpm_build'
+    dependsOn 'pnpm_install'
     if (!isCI) {
         args = ['run', 'format']
     } else {
