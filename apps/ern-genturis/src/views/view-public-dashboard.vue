@@ -80,7 +80,9 @@
             :chartData="ageAtInclusion"
             xvar="label"
             yvar="value"
-            :yTickValues="ageAtInclusionTicks"
+            :yMin="0"
+            :yMax="ageAtInclusionYAxis.limit"
+            :yTickValues="ageAtInclusionYAxis.ticks"
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
             :chartHeight="225"
@@ -114,7 +116,7 @@ import {
   // @ts-ignore
 } from "molgenis-viz";
 
-import { seqAlongBy } from "../utils/utils";
+import { generateAxisTickData } from "../utils/generateAxisTicks";
 import { max } from "d3";
 const d3 = { max };
 
@@ -163,7 +165,7 @@ const error = ref<Error | null>(null);
 const registryHighlights = ref<IKeyValuePairs>({});
 const sexAtBirth = ref<IKeyValuePairs>({});
 const ageAtInclusion = ref<IStatistics[]>([]);
-const ageAtInclusionTicks = ref<string[]>([]);
+const ageAtInclusionYAxis = ref<IKeyValuePairs>({});
 const enrollmentData = ref<IStatistics[]>([]);
 const organisations = ref<IOrganisations[]>([]);
 
@@ -240,15 +242,13 @@ async function getStats() {
       .sort((current: any[], next: any[]) => (current[1] < next[1] ? 1 : -1))
   );
 
-  const age = data.filter((row: IComponent) => row.name === "barchart-age");
-  ageAtInclusion.value = age[0]["statistics"];
-
-  const maxValue: number = d3.max(
-    ageAtInclusion.value,
-    (row: IStatistics) => row.value
-  ) as number;
-  const ymax: number = Math.round(maxValue / 10) * 10;
-  ageAtInclusionTicks.value = seqAlongBy(0, ymax, 25);
+    // prepare data for age at last follow up chart
+    const age = data.filter((row: IComponent) => row.name === "barchart-age");
+    ageAtInclusion.value = age[0]["statistics"];
+    ageAtInclusionYAxis.value = generateAxisTickData(
+      ageAtInclusion.value!,
+      "value"
+    );
 
   enrollmentData.value = data
     .filter(
