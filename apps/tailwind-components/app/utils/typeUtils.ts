@@ -40,10 +40,10 @@ function getBooleanValue(value: any): boolean | undefined {
   }
 }
 
-export function getOntologyArrayValues(val: any) {
+export function getOntologyArrayValues(val: any): string[] {
   return Array.isArray(val)
     ? val
         .filter((value: columnValueObject) => value)
-        .map((value: columnValueObject) => value["name"])
+        .map((value: columnValueObject) => value["name"] as string)
     : [];
 }

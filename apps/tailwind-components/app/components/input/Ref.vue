@@ -39,7 +39,9 @@ const props = withDefaults(
 );
 
 const initLoading = ref(true);
-const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const modelValue = defineModel<
+  columnValueObject[] | columnValueObject | null
+>();
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
@@ -155,7 +157,7 @@ function toggleSearch() {
   if (searchTerms.value) updateSearch("");
 }
 
-const sentinel = ref<HTMLElement | null>(null);
+const sentinel = ref<Element>();
 let loadMoreObserver: IntersectionObserver | null = null;
 function toggleSelect() {
   if (showSelect.value) {
@@ -177,7 +179,10 @@ function toggleSelect() {
         rootMargin: "100px", //more smooth
       }
     );
-    loadMoreObserver.observe(sentinel.value);
+
+    if (sentinel.value) {
+      loadMoreObserver.observe(sentinel.value);
+    }
   }
 }
 
@@ -234,7 +239,7 @@ function loadMore() {
 const displayAsSelect = computed(() => initialCount.value > props.limit);
 
 // Close dropdown when clicking outside
-const wrapperRef = ref<HTMLElement | null>(null);
+const wrapperRef: Ref<HTMLElement | null> = ref(null);
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });

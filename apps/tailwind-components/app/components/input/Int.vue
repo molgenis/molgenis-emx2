@@ -24,7 +24,9 @@ import {
 import type { IInputProps } from "../../../types/types";
 import InputString from "./String.vue";
 
-const modelValue = defineModel<string | number | undefined>({ required: true });
+const modelValue = defineModel<string | number | undefined | null>({
+  required: true,
+});
 
 defineProps<
   IInputProps & {

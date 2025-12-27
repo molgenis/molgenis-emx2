@@ -1,16 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  defineEmits,
-  defineModel,
-  defineProps,
-  ref,
-  useTemplateRef,
-  watch,
-  withDefaults,
-  type Ref,
-  onMounted,
-} from "vue";
+import { computed, ref, useTemplateRef, watch, type Ref, onMounted } from "vue";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
@@ -59,7 +48,7 @@ const filteredCount = ref<number>(0);
 const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
 
-const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
+const wrapperRef = useTemplateRef<HTMLDivElement>("wrapperRef");
 
 function reset() {
   ontologyTree.value = [];
@@ -148,8 +137,10 @@ function assembleTreeWithChildren(
   data: ITreeNodeState[],
   parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
+  // @ts-ignore
   return (
     data
+      // @ts-ignore
       .filter((row) => row.parent?.name == parentNode?.name)
       .map((row: any) => {
         const node = {
@@ -163,7 +154,9 @@ function assembleTreeWithChildren(
           selectable: true,
           visible: true,
         };
+        // @ts-ignore
         node.children = assembleTreeWithChildren(data, node);
+        // @ts-ignore
         node.expanded = node.children.length > 0;
         return node;
       }) || []
@@ -429,7 +422,6 @@ async function toggleSelect() {
 }
 
 // Close dropdown when clicking outside
-const wrapperRef = ref<HTMLElement | null>(null);
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
