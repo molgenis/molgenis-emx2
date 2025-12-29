@@ -197,6 +197,7 @@ async function select(label: string) {
   if (!props.isArray) {
     selectionMap.value = {};
   }
+  // @ts-ignore
   selectionMap.value[label] = await extractPrimaryKey(optionMap.value[label]);
   if (searchTerms.value) toggleSearch();
   emitValue();
