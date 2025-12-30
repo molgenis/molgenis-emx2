@@ -52,6 +52,7 @@ export interface ITreeNodeState extends ITreeNode {
   children: ITreeNodeState[];
   /* if a node is selectable */
   selectable: boolean;
+  codeSystem?: string;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";

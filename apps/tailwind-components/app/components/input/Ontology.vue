@@ -1,16 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  defineEmits,
-  defineModel,
-  defineProps,
-  ref,
-  useTemplateRef,
-  watch,
-  withDefaults,
-  type Ref,
-  onMounted,
-} from "vue";
+import { computed, ref, watch, type Ref, onMounted, useTemplateRef } from "vue";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
@@ -54,12 +43,14 @@ const initLoading = ref(true);
 // if the select should be shown expanded
 const showSelect = ref(false);
 
+const OPTIONS_PAGE_SIZE = 30;
+const optionsCount = ref<number>(0);
+const optionsFetchOffset = ref<number>(0);
+
 const counterOffset = ref<number>(0);
 const filteredCount = ref<number>(0);
 const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
-
-const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
 
 function reset() {
   ontologyTree.value = [];
@@ -89,7 +80,6 @@ watch(
  * (large ontologies are loaded on showSelect)
  */
 async function reload() {
-  //goal is to have only one query to server as the network has most performance impact
   let query = "";
   const variables: any = {};
 
@@ -133,7 +123,7 @@ async function reload() {
   totalCount.value = data.totalCount?.count || totalCount.value;
   rootCount.value = data.rootCount?.count || rootCount.value;
 
-  //update the tree if we have whole ontology (otherwise that will work via retrieveTerms on showSelect
+  //update the tree if we have whole ontology (otherwise that will work via fetchOptions on showSelect
   if (!displayAsSelect.value) {
     ontologyTree.value = assembleTreeWithChildren(data.allTerms || []);
   }
@@ -171,53 +161,85 @@ function assembleTreeWithChildren(
 }
 
 /* retrieves terms, optionally as children to a parent */
-async function retrieveTerms(
-  parentNode: ITreeNodeState | undefined = undefined
-): Promise<ITreeNodeState[]> {
-  const variables: any = {
-    termFilter: parentNode
-      ? { parent: { name: { equals: parentNode.name } } }
+async function fetchOptions(
+  parent?: ITreeNodeState,
+  offset: number = counterOffset.value
+): Promise<{ count: number; options: ITreeNodeState[] }> {
+  const variables = {
+    termFilter: parent
+      ? { parent: { name: { equals: parent.name } } }
       : { parent: { _is_null: true } },
+    searchFilter: searchTerms.value
+      ? {
+          _search_including_parents: searchTerms.value,
+        }
+      : undefined,
   };
 
-  if (searchTerms.value) {
-    variables.searchFilter = Object.assign({}, variables.termFilter, {
-      _search_including_parents: searchTerms.value,
-    });
-  }
+  const TERM_FIELDS = `
+    name,
+    label,
+    definition,
+    code,
+    codesystem,
+    ontologyTermURI,
+    children (limit:1) {
+      name
+    }`;
 
-  let query = searchTerms.value
-    ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
-        searchMatch: ${props.ontologyTableId}(filter:$searchFilter, orderby:{order:ASC,name:ASC}){name}
+  const OPTIONS_ORDER = "{ order:ASC, name:ASC }";
+
+  const termFilterType = `${props.ontologyTableId}Filter`;
+
+  const query = searchTerms.value
+    ? `query ontologyInputWithSearchTerms($termFilter: ${termFilterType}, $searchFilter: ${termFilterType}) {
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:${OPTIONS_ORDER}, limit: ${OPTIONS_PAGE_SIZE}) {
+          ${TERM_FIELDS}
+        }
+        searchMatch: ${props.ontologyTableId}(filter:$searchFilter, orderby:${OPTIONS_ORDER}, limit: ${OPTIONS_PAGE_SIZE}){
+          name
+        }
+        count: ${props.ontologyTableId}_agg($termFilter: ${termFilterType}, $searchFilter: ${termFilterType}){
+          count
+        }
        }`
-    : `query myquery($termFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+    : `query ontologyInput($termFilter: ${termFilterType}) {
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:${OPTIONS_ORDER}, limit: ${OPTIONS_PAGE_SIZE}) {
+          ${TERM_FIELDS}
+        }
+        count: ${props.ontologyTableId}_agg(filter:$termFilter){
+          count
+        }
        }`;
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
-  return (
-    data.retrieveTerms?.map((row: any) => {
-      return {
-        name: row.name,
-        parentNode: parentNode,
-        label: row.label,
-        description: row.definition,
-        code: row.code,
-        codeSystem: row.codeSystem,
-        uri: row.ontologyTermURI,
-        selectable: true,
-        children: row.children,
-        //visibility is used for search hiding
-        visible: searchTerms.value
-          ? data.searchMatch?.some(
-              (match: boolean) => (match as any).name === row.name
-            ) || false
-          : true,
-      };
-    }) || []
-  );
+  function toOption(row: {
+    name: string;
+    label: string;
+    definition: string;
+    code: string;
+    codesystem: string;
+    ontologyTermURI: string;
+    children: any[];
+  }): ITreeNodeState {
+    return {
+      name: row.name,
+      parentNode: parent,
+      label: row.label,
+      description: row.definition,
+      code: row.code,
+      codeSystem: row.codesystem,
+      uri: row.ontologyTermURI,
+      children: row.children,
+      selectable: true,
+      visible: true,
+    };
+  }
+
+  const options: ITreeNodeState[] = data.retrieveTerms.map((row: any): ITreeNodeState => toOption(row));
+
+  return { count: data.count?.count || 0, options: options || [] };
 }
 
 async function applyModelValue(data: any = undefined): Promise<void> {
@@ -356,7 +378,9 @@ async function toggleTermSelect(node: ITreeNodeState) {
 
 async function toggleTermExpand(node: ITreeNodeState) {
   if (!node.expanded) {
-    const children = await retrieveTerms(node);
+    const optionsResult = await fetchOptions(node);
+    optionsCount.value = optionsResult.count;
+    const children = optionsResult.options;
     node.children = children.map((child) => {
       return {
         name: child.name,
@@ -403,8 +427,9 @@ function clearSelection() {
 async function updateSearch(value: string) {
   searchTerms.value = value;
   counterOffset.value = 0;
-  ontologyTree.value = [];
-  ontologyTree.value = [...(await retrieveTerms())];
+  const optionsResult = await fetchOptions();
+  optionsCount.value = optionsResult.count;
+  ontologyTree.value = optionsResult.options;
   applySelectedStates();
 }
 
@@ -422,9 +447,20 @@ async function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
   } else {
-    ontologyTree.value = [...(await retrieveTerms())];
+    const optionsResult = await fetchOptions();
+    optionsCount.value = optionsResult.count;
+    ontologyTree.value = optionsResult.options;
     applySelectedStates();
     showSelect.value = true;
+
+    new IntersectionObserver(entries => {
+      if (entries && entries[0]?.isIntersecting) {
+        console.log('load more observed');
+        fetchOptions(undefined, optionsFetchOffset.value +  OPTIONS_PAGE_SIZE)
+      }
+    }).observe(useTemplateRef("loadMoreObserverTarget") as unknown as Element);
+
+         
   }
 }
 
@@ -543,7 +579,7 @@ onMounted(() => {
         }"
         v-show="showSelect || !displayAsSelect"
       >
-        <fieldset ref="treeContainer">
+        <fieldset>
           <legend class="sr-only">select ontology terms</legend>
           <TreeNode
             :id="id"
@@ -561,6 +597,15 @@ onMounted(() => {
             aria-live="polite"
             aria-atomic="true"
           />
+          <div ref="loadMoreObserverTarget">
+            <span v-if="optionsCount <= counterOffset">
+              Loading..
+            </span>
+            <span v-else>
+              Showing {{ optionsCount }} terms.ffg
+            </span> 
+          </div>
+       
         </fieldset>
       </div>
     </InputGroupContainer>
