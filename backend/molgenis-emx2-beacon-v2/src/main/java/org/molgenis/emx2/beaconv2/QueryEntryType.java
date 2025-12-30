@@ -1,5 +1,6 @@
 package org.molgenis.emx2.beaconv2;
 
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.Privileges.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,9 +13,7 @@ import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.util.List;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
@@ -25,7 +24,7 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryEntryType {
 
-  private static final int MAX_QUERY_DEPTH = 2;
+  private static final int MAX_QUERY_DEPTH = 3;
 
   private final BeaconRequestBody request;
   private final BeaconQuery beaconQuery;
@@ -33,7 +32,9 @@ public class QueryEntryType {
   private final Granularity granularity;
   private final IncludedResultsetResponses includeStrategy;
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  private static final ObjectMapper mapper = new ObjectMapper();
+  private Database database;
+  private Schema schema;
 
   public QueryEntryType(BeaconRequestBody request) {
     this.request = request;
@@ -44,14 +45,21 @@ public class QueryEntryType {
   }
 
   public JsonNode query(Schema schema) {
+    if (schema != null) {
+      this.database = schema.getDatabase();
+      this.schema = schema;
+    }
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
-    if (schema != null && isAuthorized(schema.getInheritedRolesForActiveUser())) {
+    if (isAuthorized(schema.getInheritedRolesForActiveUser())) {
       Table table = schema.getTable(entryType.getId());
+      if (table == null) {
+        throw new MolgenisException("Table " + entryType.getId() + " does not exist");
+      }
       numTotalResults = queryTable(table, filterParser, resultSets);
     }
 
@@ -63,6 +71,7 @@ public class QueryEntryType {
   }
 
   public JsonNode query(Database database) throws JsltException {
+    this.database = database;
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -92,10 +101,10 @@ public class QueryEntryType {
       case RECORD, UNDEFINED:
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
         if (hasResult(resultsArray)) {
-          numTotalResults += resultsArray.size();
-          ArrayNode paginatedResults = paginateResults(resultsArray);
-          resultSet.set("results", paginatedResults);
-          resultSet.put("count", resultsArray.size());
+          int count = doCountQuery(table, filterParser.getGraphQlFilters());
+          numTotalResults += count;
+          resultSet.set("results", resultsArray);
+          resultSet.put("count", count);
           resultSets.add(resultSet);
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
@@ -111,6 +120,7 @@ public class QueryEntryType {
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
         }
+        break;
       case BOOLEAN:
         boolean exists = doExistsQuery(table, filterParser.getGraphQlFilters());
         if (exists) {
@@ -119,6 +129,7 @@ public class QueryEntryType {
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
         }
+        break;
     }
 
     return numTotalResults;
@@ -127,8 +138,31 @@ public class QueryEntryType {
   private ObjectNode getJsltResponse(ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
-    String jsltPath = "entry-types/" + entryType.getName().toLowerCase() + ".jslt";
-    Expression jslt = Parser.compileResource(jsltPath);
+    String template = null;
+    if (database != null && schema != null) {
+      database.becomeAdmin();
+      Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
+      Table templatesTable = systemSchema.getTable("Templates");
+      List<Row> templates = templatesTable.retrieveRows();
+      template =
+          templates.stream()
+              .filter(
+                  r ->
+                      r.getString("schema").equals(schema.getName())
+                          && r.getString("endpoint").equals("beacon_" + entryType.getName()))
+              .map(r -> r.get("template", String.class))
+              .findFirst()
+              .orElse(null);
+    }
+
+    Expression jslt;
+    if (template != null) {
+      jslt = Parser.compileString(template);
+    } else {
+      String jsltPath = "entry-types/" + entryType.getName().toLowerCase() + ".jslt";
+      jslt = Parser.compileResource(jsltPath);
+    }
+
     ObjectNode jsltResponse = (ObjectNode) jslt.apply(response);
 
     if (granularity.equals(Granularity.RECORD) && resultSets.isEmpty()) {
@@ -168,10 +202,14 @@ public class QueryEntryType {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
 
     String graphQlQuery =
-        new QueryBuilder(table).addAllColumns(MAX_QUERY_DEPTH).addFilters(filters).getQuery();
+        new QueryBuilder(table)
+            .addAllColumns(MAX_QUERY_DEPTH)
+            .setLimit(beaconQuery.getPagination().getLimit())
+            .setOffset(beaconQuery.getPagination().getSkip())
+            .addFilters(filters)
+            .getQuery();
     ExecutionResult result = graphQL.execute(graphQlQuery);
 
-    ObjectMapper mapper = new ObjectMapper();
     JsonNode results = mapper.valueToTree(result.getData());
     JsonNode entryTypeResult = results.get(entryType.getId());
     if (entryTypeResult == null || entryTypeResult.isNull()) return null;
@@ -179,39 +217,24 @@ public class QueryEntryType {
     return (ArrayNode) entryTypeResult;
   }
 
-  private int doCountQuery(Table table, List<String> filters) {
+  public static int doCountQuery(Table table, List<String> filters) {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
     JsonNode results = mapper.valueToTree(result.getData());
 
-    return results.get(entryType.getId() + "_agg").get("count").intValue();
+    return results.get(table.getIdentifier() + "_agg").get("count").intValue();
   }
 
-  private boolean doExistsQuery(Table table, List<String> filters) {
+  public static boolean doExistsQuery(Table table, List<String> filters) {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
     JsonNode results = mapper.valueToTree(result.getData());
 
-    return results.get(entryType.getId() + "_agg").get("exists").booleanValue();
-  }
-
-  private ArrayNode paginateResults(ArrayNode results) {
-    if (results == null || results.isNull()) return null;
-
-    int skip = beaconQuery.getPagination().getSkip();
-    int limit = beaconQuery.getPagination().getLimit();
-
-    if (limit == 0) limit = results.size();
-
-    ArrayNode paginatedResults = mapper.createArrayNode();
-    for (int i = skip; i < Math.min(skip + limit, results.size()); i++) {
-      paginatedResults.add(results.get(i));
-    }
-    return paginatedResults;
+    return results.get(table.getIdentifier() + "_agg").get("exists").booleanValue();
   }
 
   private boolean isAuthorized(List<String> roles) {

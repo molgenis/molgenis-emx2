@@ -20,7 +20,7 @@
     <FileDisplay
       v-else-if="col.columnType === 'FILE'"
       :data="row[col.id]"
-      :metaData="col"
+      :metadata="col"
     />
     <span v-else>
       {{ getValue(col, row) }}

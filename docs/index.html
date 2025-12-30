@@ -6,37 +6,88 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="description" content="Description">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-defaults.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
 </head>
 <body>
 <div id="app"></div>
-<script src="https://cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
+
 <style>
     .content {
         padding: 0px;
     }
 
-    :root {
-        --theme-color: #017FFD;
-        --heading-color: var(--theme-color);
-        --link-color: var(--theme-color);
-        --sidebar-nav-link-color--active: var(--theme-color);
-        --sidebar-nav-color: var(--theme-color);
-        --sidebar-name-font-weight: bold;
+    .app-nav:not(:empty)~main .markdown-section {
+        padding-top: 6rem;
     }
 
+    .markdown-section > h4 + p {
+        margin-top: 0;
+    }
+
+    input:focus {
+        outline: none;
+        border-radius: 10px;
+    }
+
+    .sidebar-nav > h4 {
+        margin-top: 0;
+    }
+
+    .sidebar-nav > h4 > a:is(:link, :active, :hover, :focus, :visited) {
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .app-nav > ul > li {
+        background: var(--color-yellow-500);
+        padding: 15px 40px;
+        border-radius: 9999px;
+        font-weight: 700;
+    }
+
+    .folder {
+        cursor: pointer;
+    }
+
+    :root {
+        --color-blue-500: #0071e6;
+        --color-blue-700: #1d4ed8;
+        --color-yellow-500: #fff500;
+        --theme-color: var(--color-blue-500);
+
+        --sidebar-background: var(--color-blue-500);
+        --sidebar-name-color: white;
+
+        --sidebar-nav-margin: 0;
+        --sidebar-nav-strong-color: white;
+        --sidebar-nav-link-color: white;
+        --sidebar-nav-link-color--active: var(--color-yellow-500);
+        --sidebar-nav-link-border-color--active: var(--color-yellow-500);
+
+        --search-input-border-radius: 10px;
+        --search-margin: 0.5rem 1rem 0;
+        --search-result-heading-color: #ffffff;
+        --search-result-item-color: #ffffff;
+
+        --heading-color: var(--theme-color);
+        --link-color: var(--theme-color);
+        --sidebar-name-font-weight: bold;
+        --code-font-size: calc(var(--font-size-m) * 0.80);
+        --heading-h3-color: black ;
+        --heading-h4-color: black ;
+        --heading-h4-margin: 0 0 0 0;
+        --markdown-section-p-margin: 0 0 0 0;
+    }
 </style>
 <script>
     window.$docsify = {
+        name: '<img src="./img/molgenis_logo_white.png" height="50" style="margin-left: -15px;"/>',
         repo: 'http://github.com/molgenis/molgenis-emx2',
         loadNavbar: true,
         loadSidebar: true,
         relativePath: true,
         themeColor: "#005EC4",
         loadFooter: true,
-        plugins: [
-            EditOnGithubPlugin.create('https://github.com/molgenis/molgenis-emx2/blob/master/docs/')
-        ],
         auto2top: true,
         maxLevel: 3,
         homepage: "intro.md",
@@ -45,16 +96,36 @@
             depth: 3,
             noData: 'No results!',
             placeholder: 'Search...'
+        },
+        githubEditLink: {
+            repo: "https://github.com/molgenis/molgenis-emx2/",
+            branch: "master"
         }
     }
 </script>
 <!-- Docsify v4 -->
 <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
 <!--plugins -->
+<script src="https://cdn.jsdelivr.net/npm/docsify-github-edit-link@1/dist/github-edit-link.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
 <script src="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docsify-themeable/dist/js/docsify-themeable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@alertbox/docsify-footer/dist/docsify-footer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.js"></script>
+<!-- Mermaid support: https://github.com/Leward/mermaid-docsify -->
+<script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/+esm";
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: {
+            primaryColor: '#fff',
+            primaryBorderColor: '#0071e6'
+        },
+    });
+    window.mermaid = mermaid;
+</script>
+<script src="https://unpkg.com/docsify-mermaid@2.0.1/dist/docsify-mermaid.js"></script>
 </body>
 </html>

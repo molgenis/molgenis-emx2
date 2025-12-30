@@ -3,19 +3,18 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import ProviderOverview from "../views/provider-overview.vue";
 
 // Craniosynostosis pages (id: `-cs-`)
-import ProviderCsApp from "../views/provider-cs-app.vue";
-import ProvidersCsAllGeneral from "../views/provider-cs-all-general.vue";
-import ProvidersCsAllSurgical from "../views/provider-cs-all-surgical.vue";
-import ProvidersCsCenterGeneral from "../views/provider-cs-center-general.vue";
-import ProvidersCsCenterSurgical from "../views/provider-cs-center-surgical.vue";
+import CraniosynostosisAllGeneral from "../views/craniosynostosis/all_centers/general.vue";
+import CraniosynostosisAllSurgical from "../views/craniosynostosis/all_centers/surgical.vue";
+import CraniosynostosisCenterGeneral from "../views/craniosynostosis/your_center/general.vue";
+import CraniosynostosisCenterSurgical from "../views/craniosynostosis/your_center/surgical.vue";
 
 // cleft lip and palate pages (id: `-clp-`)
-import ProviderClpApp from "../views/provider-clp-app.vue";
-import ProviderClpYourCenter from "../views/provider-clp-your-center.vue";
-import ProviderClpAllCenters from "../views/provider-clp-all-centers.vue";
+import CleftLipPalateYourCenter from "../views/cleft_lip_palate/your_center.vue";
+import CleftLipPalateAllCenters from "../views/cleft_lip_palate/all_centers.vue";
 
-import ProviderGeneticDeafness from "../views/provider-genetic-deafness.vue";
-import ProviderLarnyxcleft from "../views/provider-larnyxcleft.vue";
+// genetic hearing loss
+import GeneticHearingLossYourCenter from "../views/genetic_hearing_loss/your_center.vue";
+import GeneticHearingLossAllCenters from "../views/genetic_hearing_loss/all_centers.vue";
 
 import ErrorPage from "../views/view-404.vue";
 
@@ -38,7 +37,6 @@ const router = createRouter({
     {
       name: "provider-cs",
       path: "/cs",
-      component: ProviderCsApp,
       redirect: {
         name: "provider-cs-all-general",
       },
@@ -46,31 +44,31 @@ const router = createRouter({
         {
           name: "provider-cs-all-general",
           path: "all-centers-general",
-          component: ProvidersCsAllGeneral,
+          component: CraniosynostosisAllGeneral,
           meta: {
-            title: "All Center General Overview | Craniosynostosis | ",
+            title: "All Center General Overview | Craniosynostosis",
           },
         },
         {
           name: "provider-cs-all-surgical",
           path: "all-centers-surgical",
-          component: ProvidersCsAllSurgical,
+          component: CraniosynostosisAllSurgical,
           meta: {
-            title: "All Center Surgical Overview | Craniosynostosis | ",
+            title: "All Center Surgical Overview | Craniosynostosis",
           },
         },
         {
           name: "provider-cs-center-overview",
           path: "center-general",
-          component: ProvidersCsCenterGeneral,
+          component: CraniosynostosisCenterGeneral,
           meta: {
-            title: "Your Center General Overview | Craniosynostosis | ",
+            title: "Your Center General Overview | Craniosynostosis",
           },
         },
         {
           name: "provider-cs-center-surgical",
           path: "center-surgical",
-          component: ProvidersCsCenterSurgical,
+          component: CraniosynostosisCenterSurgical,
           meta: {
             title: "Your center surgical overview | Craniosynostosis",
           },
@@ -82,23 +80,22 @@ const router = createRouter({
     {
       name: "provider-clp",
       path: "/clp",
-      component: ProviderClpApp,
       redirect: { name: "provider-clp-your-center" },
       children: [
         {
           name: "provider-clp-your-center",
           path: "center",
-          component: ProviderClpYourCenter,
+          component: CleftLipPalateYourCenter,
           meta: {
-            title: "Your Center | Cleft Lip and Palate | ",
+            title: "Your Center | Cleft Lip and Palate",
           },
         },
         {
           name: "provider-clp-all-centers",
           path: "all-centers",
-          component: ProviderClpAllCenters,
+          component: CleftLipPalateAllCenters,
           meta: {
-            title: "All Centers | Cleft Lip and Palate | ",
+            title: "All Centers | Cleft Lip and Palate",
           },
         },
       ],
@@ -108,20 +105,27 @@ const router = createRouter({
     {
       name: "provider-genetic-deafness",
       path: "/genetic-deafness",
-      component: ProviderGeneticDeafness,
-      meta: {
-        title: "Genetic Deafness",
+      redirect: {
+        name: "provider-ghl-your-center",
       },
-    },
-
-    // Placeholder for larnyxcleft
-    {
-      name: "provider-larnyxcleft",
-      path: "/larnyxcleft",
-      component: ProviderLarnyxcleft,
-      meta: {
-        title: "Larnyxcleft",
-      },
+      children: [
+        {
+          name: "provider-ghl-your-center",
+          path: "center",
+          component: GeneticHearingLossYourCenter,
+          meta: {
+            title: "Your center | Genetic hearing loss",
+          },
+        },
+        {
+          name: "provider-ghl-all-centers",
+          path: "all-centers",
+          component: GeneticHearingLossAllCenters,
+          meta: {
+            title: "All centers | Genetic hearing loss",
+          },
+        },
+      ],
     },
 
     // error

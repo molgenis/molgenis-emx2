@@ -38,7 +38,15 @@
       >
         <div v-show="selectedOntology === ontologyId" class="w-100">
           <div v-if="displayOptions.length">
+            <MessageWarning
+              class="mx-3 position-absolute"
+              v-if="selectionOverflow"
+            >
+              You can only select 50 items at a time under 'Match All'. Please
+              adjust your query.
+            </MessageWarning>
             <TreeComponent
+              :class="{ 'warning-padding': selectionOverflow }"
               :options="displayOptions"
               :filter="ontologyQuery"
               :facetIdentifier="facetIdentifier"
@@ -61,6 +69,8 @@ import TreeComponent from "./base/TreeComponent.vue";
 import { Spinner } from "../../../../molgenis-components";
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 import * as _ from "lodash";
+//@ts-ignore
+import { MessageWarning } from "molgenis-components";
 
 const filtersStore = useFiltersStore();
 
@@ -72,19 +82,30 @@ const { facetIdentifier, ontologyIdentifiers, options, showMatchTypeSelector } =
     showMatchTypeSelector: boolean;
   }>();
 
-let ontologyQuery = ref("");
-let resolvedOptions = ref<Record<string, any> | undefined>(undefined);
-let selectedOntology = ref(ontologyIdentifiers[0]);
+const ontologyQuery = ref("");
+const resolvedOptions = ref<Record<string, any> | undefined>(undefined);
+const selectedOntology = ref(ontologyIdentifiers[0]);
 
 options()
   .then((response: any) => {
     resolvedOptions.value = response || {};
+    filtersStore.setDiseases(
+      resolvedOptions.value![selectedOntology.value] || []
+    );
   })
   .catch((error: any) => {
     console.log(`Error resolving ontology facet options: ${error}`);
   });
 
-let displayOptions = computed(() => {
+const selectionOverflow = computed(() => {
+  return (
+    facetIdentifier === "Diagnosisavailable" &&
+    filtersStore.filters["Diagnosisavailable"]?.length >= 50 &&
+    filtersStore.getFilterType("Diagnosisavailable") === "all"
+  );
+});
+
+const displayOptions = computed(() => {
   if (!resolvedOptions.value) return [];
   if (!ontologyQuery.value) {
     return resolvedOptions.value[selectedOntology.value] || [];
@@ -116,6 +137,7 @@ const handleSearchFieldChanged = _.debounce((event: any) => {
 
 function setSelectedOntology(ontologyId: string) {
   selectedOntology.value = ontologyId;
+  filtersStore.setDiseases(resolvedOptions.value![ontologyId] || []);
 }
 </script>
 
@@ -162,5 +184,9 @@ function setSelectedOntology(ontologyId: string) {
 
 .ontology-search {
   width: 100%;
+}
+
+.warning-padding {
+  padding-top: 4rem;
 }
 </style>

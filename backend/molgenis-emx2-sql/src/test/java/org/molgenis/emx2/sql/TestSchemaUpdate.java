@@ -13,15 +13,18 @@ public class TestSchemaUpdate {
   @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
-    db.dropCreateSchema(TestSchemaUpdate.class.getName(), desc);
+    db.dropCreateSchema(TestSchemaUpdate.class.getSimpleName(), desc);
   }
 
   @Test
   public void testUpdateDescription() {
     String descUpdate = "update me";
-    db.updateSchema(TestSchemaUpdate.class.getName(), descUpdate);
+    db.updateSchema(TestSchemaUpdate.class.getSimpleName(), descUpdate);
     assertTrue(
-        db.getSchemaInfo(TestSchemaUpdate.class.getName()).description().contains(descUpdate));
-    assertFalse(db.getSchemaInfo(TestSchemaUpdate.class.getName()).description().contains(desc));
+        db.getSchemaInfo(TestSchemaUpdate.class.getSimpleName())
+            .description()
+            .contains(descUpdate));
+    assertFalse(
+        db.getSchemaInfo(TestSchemaUpdate.class.getSimpleName()).description().contains(desc));
   }
 }

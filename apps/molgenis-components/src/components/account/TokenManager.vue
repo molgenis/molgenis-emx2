@@ -9,39 +9,59 @@
         </li>
       </ul>
     </div>
-    <MessageSuccess v-if="successMessage"
-      >{{ successMessage }}.
-      <div v-if="lastTokenValue">
-        <label><b>New token. Please copy for use</b></label>
-        <pre>{{ lastTokenValue }}</pre>
+    <MessageSuccess v-if="successMessage">
+      {{ successMessage }}.
+      <div v-if="lastTokenValue" style="cursor: pointer">
+        <label>
+          <b>
+            New token. Please copy for use:
+            <Tooltip
+              value="Click to copy to clipboard"
+              placement="top"
+              @click.prevent="copyToClipboard(lastTokenValue)"
+            >
+              <i id="copy-icon" class="fa fa-clipboard" />
+            </Tooltip>
+          </b>
+        </label>
+        <pre @click.prevent="copyToClipboard(lastTokenValue)">
+          {{ lastTokenValue }}
+        </pre>
       </div>
     </MessageSuccess>
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
     <label><b>Create a token</b></label>
     <form class="form-inline">
+      <ButtonAction
+        v-if="tokenName"
+        :key="tokenName"
+        :disabled="Boolean(duplicateNameMessage)"
+        @click="createToken"
+      >
+        Create token
+      </ButtonAction>
       <InputString
         id="token-name"
         placeholder="new token name"
         v-model="tokenName"
+        :errorMessage="duplicateNameMessage"
       />
-      <ButtonAction v-if="tokenName" :key="tokenName" @click="createToken"
-        >Create token
-      </ButtonAction>
     </form>
   </div>
 </template>
 
 <script lang="ts">
+import { ISetting } from "metadata-utils";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IError } from "../../Interfaces/IError";
-import { ISetting } from "meta-data-utils";
 import ButtonAction from "../forms/ButtonAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputString from "../forms/InputString.vue";
 import MessageError from "../forms/MessageError.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
-import { ISession, IResponse } from "./Interfaces";
+import { IResponse, ISession } from "./Interfaces";
+import Tooltip from "../forms/Tooltip.vue";
 
 const query = `{_session { email, token, settings{key,value}}}`;
 const changeMutation = `mutation change($users:[UsersInput]){
@@ -61,27 +81,35 @@ export default defineComponent({
     IconDanger,
     MessageSuccess,
     MessageError,
+    Tooltip,
   },
   data() {
     return {
       session: null as null | ISession,
-      tokenName: null as null | string,
-      lastTokenValue: null as null | string,
-      errorMessage: null as null | string,
-      successMessage: null as null | string,
+      tokenName: "",
+      lastTokenValue: "",
+      errorMessage: "",
+      successMessage: "",
     };
   },
   computed: {
     accessTokens(): string[] {
       const tokens: ISetting | undefined = this.session?.settings?.find(
         (setting: ISetting): boolean =>
-          setting.key === "access-tokes" && Boolean(setting.value)
+          setting.key === "access-tokens" && Boolean(setting.value)
       );
       return tokens
         ? tokens.value
             .split(",")
             .filter((value: string): boolean => value !== "")
         : [];
+    },
+    duplicateNameMessage(): string {
+      if (this.accessTokens.includes(this.tokenName)) {
+        return "Duplicate token name";
+      } else {
+        return "";
+      }
     },
   },
   methods: {
@@ -90,9 +118,9 @@ export default defineComponent({
       this.session = resp._session;
     },
     clean() {
-      this.errorMessage = null;
-      this.successMessage = null;
-      this.lastTokenValue = null;
+      this.errorMessage = "";
+      this.successMessage = "";
+      this.lastTokenValue = "";
     },
     async deleteToken(idx: number) {
       this.clean();
@@ -113,7 +141,7 @@ export default defineComponent({
       request("/api/graphql", changeMutation, variables)
         .then(() => {
           this.successMessage = "Token removed";
-          this.lastTokenValue = null;
+          this.lastTokenValue = "";
           this.fetchSession();
         })
         .catch((error: IError) => {
@@ -130,12 +158,15 @@ export default defineComponent({
         .then((result: { createToken: { message: string; token: string } }) => {
           this.successMessage = result.createToken.message;
           this.lastTokenValue = result.createToken.token;
-          this.tokenName = null;
+          this.tokenName = "";
           this.fetchSession();
         })
         .catch((error: IError) => {
           this.errorMessage = error.message;
         });
+    },
+    copyToClipboard(token: string) {
+      navigator.clipboard.writeText(token);
     },
   },
   mounted() {

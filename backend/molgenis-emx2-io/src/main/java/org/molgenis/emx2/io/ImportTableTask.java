@@ -1,5 +1,7 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.Constants.MG_DELETE;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.Field;
@@ -34,11 +36,17 @@ public class ImportTableTask extends Task {
     // execute the actual loading, we can use index to find the size
     this.setTotal(this.getProgress());
     this.setDescription("Importing rows into " + table.getName());
-    source.processTable(table.getName(), new ImportRowProcesssor(table, this));
+
+    try {
+      source.processTable(table.getName(), new ImportRowProcesssor(table, this));
+    } catch (Exception e) {
+      this.setError("Import table (%s) failed: %s".formatted(table.getName(), e.getMessage()));
+      throw e;
+    }
 
     // done
     if (getProgress() > 0) {
-      this.complete(String.format("Imported %s %s", getProgress(), table.getName()));
+      this.complete(String.format("Modified %s rows in %s", getProgress(), table.getName()));
     } else {
       this.setSkipped(String.format("Skipped table %s : sheet was empty", table.getName()));
     }
@@ -84,7 +92,9 @@ public class ImportTableTask extends Task {
         // column warning
         if (task.getProgress() == 0) {
           List<String> columnNames =
-              metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
+              new ArrayList<>(
+                  metadata.getDownloadColumnNames().stream().map(Column::getName).toList());
+          columnNames.add(MG_DELETE);
           warningColumns =
               row.getColumnNames().stream()
                   .filter(name -> !columnNames.contains(name))
@@ -132,7 +142,7 @@ public class ImportTableTask extends Task {
                   .map(Field::getName)
                   .collect(Collectors.joining(","));
           task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
-        } else if (!keyValue.isEmpty()) {
+        } else if (!keyValue.isEmpty() && !keyValue.equals("null")) {
           keys.add(keyValue);
         }
         task.setProgress(++index);
@@ -161,37 +171,58 @@ public class ImportTableTask extends Task {
     public void process(Iterator<Row> iterator, TableStore source) {
       task.setProgress(0); // for the progress monitoring
       int index = 0;
-      List<Row> batch = new ArrayList<>();
+      List<Row> importBatch = new ArrayList<>();
+      List<Row> deleteBatch = new ArrayList<>();
       List<Column> columns = table.getMetadata().getColumns();
       while (iterator.hasNext()) {
         Row row = iterator.next();
+        boolean isDrop = row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
+
         // add file attachments, if applicable
         for (Column c : columns) {
           if (c.isFile()
               && source instanceof TableAndFileStore
               && row.getValueMap().get(c.getName()) != null) {
-            BinaryFileWrapper wrapper =
-                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
-            if (row.containsName(c.getName() + "_filename")) {
-              wrapper.setFileName(row.getString(c.getName() + "_filename"));
+            try {
+              BinaryFileWrapper wrapper =
+                  ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
+              if (row.containsName(c.getName() + "_filename")) {
+                wrapper.setFileName(row.getString(c.getName() + "_filename"));
+              }
+              row.setBinary(c.getName(), wrapper);
+            } catch (Exception e) {
+              throw new MolgenisException(
+                  "Failed to read file attachment for table '%s' column '%s' row '%d'"
+                      .formatted(table.getName(), c.getName(), index),
+                  e);
             }
-            row.setBinary(c.getName(), wrapper);
           }
         }
-        batch.add(row);
+        if (!isDrop) {
+          importBatch.add(row);
+        } else {
+          deleteBatch.add(row);
+        }
         index++;
-        if (batch.size() >= 100) {
-          table.save(batch);
+
+        if (importBatch.size() >= 100) {
+          table.save(importBatch);
           task.setProgress(index);
           task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
-          batch.clear();
+          importBatch.clear();
         }
       }
       // remaining
-      if (!batch.isEmpty()) {
-        table.save(batch);
+      if (!importBatch.isEmpty()) {
+        table.save(importBatch);
         task.setProgress(index);
         task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
+      }
+      // delete
+      if (!deleteBatch.isEmpty()) {
+        table.delete(deleteBatch);
+        task.setProgress(deleteBatch.size());
+        task.setDescription("Deleted " + task.getProgress() + " rows from " + table.getName());
       }
     }
   }

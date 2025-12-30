@@ -8,7 +8,12 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
-    id 'com.palantir.docker' version '0.35.0'
+    id 'com.palantir.docker' version '0.36.0'
+}
+
+ext {
+    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
+    javaVersion = JavaVersion.VERSION_21
 }
 
 allprojects {
@@ -22,9 +27,6 @@ allprojects {
 println "Corrected version checking for optional snapshot: " + rootProject.version
 
 nyxPublish.dependsOn assemble
-
-targetCompatibility = "17"
-sourceCompatibility = "17"
 
 sonarqube {
     properties {
@@ -49,9 +51,22 @@ dependencies {
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
+    zip64 = true
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
     archiveVersion = project.version.replace("v","")
+
+    // Multi-release is needed for graalvm lib
+    manifest {
+        attributes(
+                "Main-Class": "org.molgenis.emx2.RunMolgenisEmx2",
+                "Multi-Release": "true"
+        )
+    }
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
 }
 
 publishing {
@@ -76,6 +91,7 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 task ci(type: WriteProperties) {
     outputFile file('build/ci.properties')
     property 'TAG_NAME', tagName
+    property 'FILE_NAME', shadowJar.archiveFile.get().asFile.name
 }
 
 docker {
@@ -99,10 +115,6 @@ String getGitHash() {
     return gitCommitHash
 }
 
-ext {
-    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
-}
-
 application {
     mainClass.set(javaMainClass)
 }
@@ -118,13 +130,6 @@ jar {
                 'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         )
     }
-}
-
-task cleandb(type: JavaExec) {
-    group = "Execution"
-    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
-    classpath = sourceSets.main.runtimeClasspath
-    main = "org.molgenis.emx2.AToolToCleanDatabase"
 }
 
 //task to install pre-commit hook that applies formatting

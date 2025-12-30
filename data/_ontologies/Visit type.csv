@@ -1,0 +1,151 @@
+name,parent,codesystem,code,ontologyTermURI
+Initial evaluation and management of healthy individual,,snomed,SNOMED_90526000,http://snomed.info/id/90526000
+Periodic reevaluation and management of healthy individual,,snomed,SNOMED_86013001,http://snomed.info/id/86013001
+Encounter for fitness for duty exam,,snomed,SNOMED_711458003,http://snomed.info/id/711458003
+Home visit,,snomed,SNOMED_439708006,http://snomed.info/id/439708006
+Home visit for anticoagulant drug monitoring,Home visit,snomed,SNOMED_704126008,http://snomed.info/id/704126008
+Home visit for rheumatology service,Home visit,snomed,SNOMED_698704008,http://snomed.info/id/698704008
+Evaluation and management of patient at home,Home visit,snomed,SNOMED_50357006,http://snomed.info/id/50357006
+"Hemodialysis, supervision at home (procedure)",Evaluation and management of patient at home,snomed,SNOMED_68341005,http://snomed.info/id/68341005
+Visit by health visitor,Evaluation and management of patient at home,snomed,SNOMED_310588009,http://snomed.info/id/310588009
+Health visitor follow up,Visit by health visitor,snomed,SNOMED_408487007,http://snomed.info/id/408487007
+Joint home visit,Evaluation and management of patient at home,snomed,SNOMED_225929007,http://snomed.info/id/225929007
+Home visit elderly assessment,Evaluation and management of patient at home,snomed,SNOMED_185470005,http://snomed.info/id/185470005
+District nurse visit,Evaluation and management of patient at home,snomed,SNOMED_185469009,http://snomed.info/id/185469009
+District nurse initial visit,District nurse visit,snomed,SNOMED_408483006,http://snomed.info/id/408483006
+District nurse follow up,District nurse visit,snomed,SNOMED_408482001,http://snomed.info/id/408482001
+First annual visit by district nurse,District nurse visit,snomed,SNOMED_310587004,http://snomed.info/id/310587004
+Home visit request by relative,Evaluation and management of patient at home,snomed,SNOMED_185462000,http://snomed.info/id/185462000
+Home visit for intramuscular injection,Home visit,snomed,SNOMED_440696002,http://snomed.info/id/440696002
+Home visit for marriage counseling (procedure),Home visit,snomed,SNOMED_440611006,http://snomed.info/id/440611006
+Home visit for postpartum care and assessment,Home visit,snomed,SNOMED_440085006,http://snomed.info/id/440085006
+Home visit for newborn care and assessment,Home visit,snomed,SNOMED_440068009,http://snomed.info/id/440068009
+Home visit for care and maintenance of colostomy,Home visit,snomed,SNOMED_440146002,http://snomed.info/id/440146002
+Home visit for mechanical ventilation care,Home visit,snomed,SNOMED_439887005,http://snomed.info/id/439887005
+Home visit for care and maintenance of urinary catheter,Home visit,snomed,SNOMED_439058005,http://snomed.info/id/439058005
+Home visit for cystostomy care and maintenance,Home visit,snomed,SNOMED_441244001,http://snomed.info/id/441244001
+Domiciliary or rest home patient evaluation and management,Home visit,snomed,SNOMED_210098006,http://snomed.info/id/210098006
+Home visit for chronic condition,Home visit,snomed,SNOMED_185468001,http://snomed.info/id/185468001
+Home visit for acute condition,Home visit,snomed,SNOMED_185467006,http://snomed.info/id/185467006
+Home visit for urgent condition,Home visit,snomed,SNOMED_185466002,http://snomed.info/id/185466002
+Visit with nurse at next appointment requested,,snomed,SNOMED_440568002,http://snomed.info/id/440568002
+Provision of continuity of care,,snomed,SNOMED_423215004,http://snomed.info/id/423215004
+Follow-up encounter,,snomed,SNOMED_390906007,http://snomed.info/id/390906007
+Case management follow up,Follow-up encounter,snomed,SNOMED_425604002,http://snomed.info/id/425604002
+Urgent follow-up,Follow-up encounter,snomed,SNOMED_406547006,http://snomed.info/id/406547006
+Follow-up consultation,Follow-up encounter,snomed,SNOMED_281036007,http://snomed.info/id/281036007
+Follow-up inpatient consultation visit,Follow-up consultation,snomed,SNOMED_87790002,http://snomed.info/id/87790002
+Subsequent hospital visit by physician,Follow-up consultation,snomed,SNOMED_12843005,http://snomed.info/id/12843005
+Follow-up visit,Follow-up encounter,snomed,SNOMED_185389009,http://snomed.info/id/185389009
+Postoperative follow-up visit,Follow-up visit,snomed,SNOMED_439740005,http://snomed.info/id/439740005
+Telephone follow-up,Follow-up visit,snomed,SNOMED_386473003,http://snomed.info/id/386473003
+Office visit for pediatric care and assessment (procedure),,snomed,SNOMED_3391000175108,http://snomed.info/id/3391000175108
+Provider-initiated encounter,,snomed,SNOMED_270430005,http://snomed.info/id/270430005
+Patient-initiated encounter,,snomed,SNOMED_270427003,http://snomed.info/id/270427003
+History and physical examination with evaluation and management of nursing facility patient,,snomed,SNOMED_207195004,http://snomed.info/id/207195004
+Subsequent nursing facility visit,History and physical examination with evaluation and management of nursing facility patient,snomed,SNOMED_18170008,http://snomed.info/id/18170008
+Nursing evaluation of patient and report,,snomed,SNOMED_19681004,http://snomed.info/id/19681004
+Encounter for check up,,snomed,SNOMED_185349003,http://snomed.info/id/185349003
+Encounter for fear,,snomed,SNOMED_185348006,http://snomed.info/id/185348006
+Encounter for problem,,snomed,SNOMED_185347001,http://snomed.info/id/185347001
+Encounter for sign,,snomed,SNOMED_185346005,http://snomed.info/id/185346005
+Encounter for symptom,,snomed,SNOMED_185345009,http://snomed.info/id/185345009
+Indirect encounter,,snomed,SNOMED_185316007,http://snomed.info/id/185316007
+Telepractice consultation,Indirect encounter,snomed,SNOMED_763184009,http://snomed.info/id/763184009
+Encounter by short message service text messaging,Indirect encounter,snomed,SNOMED_445450000,http://snomed.info/id/445450000
+Letter encounter,Indirect encounter,snomed,SNOMED_308720009,http://snomed.info/id/308720009
+Letter from specialist,Letter encounter,snomed,SNOMED_270425006,http://snomed.info/id/270425006
+Provision of copy of letter from specialist to patient,Letter from specialist,snomed,SNOMED_440168007,http://snomed.info/id/440168007
+Letter from consultant,Letter from specialist,snomed,SNOMED_275693003,http://snomed.info/id/275693003
+Letter encounter from patient,Letter encounter,snomed,SNOMED_270424005,http://snomed.info/id/270424005
+Letter encounter to patient,Letter encounter,snomed,SNOMED_185321005,http://snomed.info/id/185321005
+Encounter by computer link,Indirect encounter,snomed,SNOMED_185320006,http://snomed.info/id/185320006
+E-mail encounter to caregiver,Encounter by computer link,snomed,SNOMED_438516005,http://snomed.info/id/438516005
+E-mail encounter from caregiver,Encounter by computer link,snomed,SNOMED_438515009,http://snomed.info/id/438515009
+E-mail sent to patient,Encounter by computer link,snomed,SNOMED_401271004,http://snomed.info/id/401271004
+Third party encounter,Indirect encounter,snomed,SNOMED_185318008,http://snomed.info/id/185318008
+Email encounter from third party,Third party encounter,snomed,SNOMED_713776001,http://snomed.info/id/713776001
+Telephone encounter,Indirect encounter,snomed,SNOMED_185317003,http://snomed.info/id/185317003
+Telephone triage encounter,Telephone encounter,snomed,SNOMED_401267002,http://snomed.info/id/401267002
+Telephone contact by consultant,Telephone consultation,snomed,SNOMED_314849005,
+Visit out of hours,,snomed,SNOMED_185463005,http://snomed.info/id/185463005
+Bank holiday home visit,Visit out of hours,snomed,SNOMED_315205008,http://snomed.info/id/315205008
+Weekend visit,Visit out of hours,snomed,SNOMED_185465003,http://snomed.info/id/185465003
+Out of hours visit - not night visit,Visit out of hours,snomed,SNOMED_185464004,http://snomed.info/id/185464004
+History and physical examination with evaluation and management of patient (procedure),,snomed,SNOMED_14736009,http://snomed.info/id/14736009
+Evaluation and management of inpatient,History and physical examination with evaluation and management of patient (procedure),snomed,SNOMED_86181006,http://snomed.info/id/86181006
+Final inpatient visit with instructions at discharge,Evaluation and management of inpatient,snomed,SNOMED_83362003,http://snomed.info/id/83362003
+Initial hospital visit by physician,Evaluation and management of inpatient,snomed,SNOMED_69399002,http://snomed.info/id/69399002
+Emergency department patient visit,History and physical examination with evaluation and management of patient (procedure),snomed,SNOMED_4525004,http://snomed.info/id/4525004
+Agreeing on elements of the care plan,History and physical examination with evaluation and management of patient (procedure),snomed,SNOMED_288836004,http://snomed.info/id/288836004
+History and physical examination with management of domiciliary or rest home patient,History and physical examination with evaluation and management of patient (procedure),snomed,SNOMED_209099002,http://snomed.info/id/209099002
+Evaluation AND/OR management - established patient,History and physical examination with evaluation and management of patient (procedure),snomed,SNOMED_108221006,http://snomed.info/id/108221006
+Evaluation AND/OR management - new patient,History and physical examination with evaluation and management of patient (procedure),snomed,SNOMED_108220007,http://snomed.info/id/108220007
+Consultation,,snomed,SNOMED_11429006,http://snomed.info/id/11429006
+Radiation physics consultation with therapeutic radiologist,Consultation,snomed,SNOMED_8502007,http://snomed.info/id/8502007
+Comprehensive consultation,Consultation,snomed,SNOMED_84251009,http://snomed.info/id/84251009
+Genetic consultation,Consultation,snomed,SNOMED_788339009,http://snomed.info/id/788339009
+Pharmacogenetic consultation,Genetic consultation,snomed,SNOMED_428931000124102,http://snomed.info/id/428931000124102
+Consultation by ergotherapist,Consultation,snomed,SNOMED_788543009,http://snomed.info/id/788543009
+Consultation by acupuncturist,Consultation,snomed,SNOMED_788542004,http://snomed.info/id/788542004
+Consultation in brachytherapy,Consultation,snomed,SNOMED_77965002,http://snomed.info/id/77965002
+Consultation in computer dosimetry and isodose chart for brachytherapy,Consultation in brachytherapy,snomed,SNOMED_35437002,http://snomed.info/id/35437002
+Confirmatory medical consultation,Consultation,snomed,SNOMED_77406008,http://snomed.info/id/77406008
+Dermatology consultation and report,Consultation,snomed,SNOMED_73007006,http://snomed.info/id/73007006
+"Dermatology consultation and report, brief",Dermatology consultation and report,snomed,SNOMED_30078008,http://snomed.info/id/30078008
+"Dermatology consultation and report, comprehensive",Dermatology consultation and report,snomed,SNOMED_25028003,http://snomed.info/id/25028003
+"Pathology consultation, comprehensive, records and specimen with report",Consultation,snomed,SNOMED_726007,http://snomed.info/id/726007
+Surgical pathology consultation on slides with comprehensive review and interpretation,"Pathology consultation, comprehensive, records and specimen with report",snomed,SNOMED_711532000,http://snomed.info/id/711532000
+Consultation via video conference,Consultation,snomed,SNOMED_719410009,http://snomed.info/id/719410009
+Consultation for palliative care,Consultation,snomed,SNOMED_713281006,http://snomed.info/id/713281006
+Physical medicine consultation and report,Consultation,snomed,SNOMED_71318009,http://snomed.info/id/71318009
+X-ray consultation,Consultation,snomed,SNOMED_711420002,http://snomed.info/id/711420002
+Limited consultation,Consultation,snomed,SNOMED_70495004,http://snomed.info/id/70495004
+Consultation for treatment,Consultation,snomed,SNOMED_698314001,http://snomed.info/id/698314001
+Consultation for minor operation,Consultation,snomed,SNOMED_698313007,http://snomed.info/id/698313007
+Consultation for minor abdominal procedure,Consultation for minor operation,snomed,SNOMED_698312002,http://snomed.info/id/698312002
+Consultation for assisted reproductive procedure,Consultation,snomed,SNOMED_698311009,http://snomed.info/id/698311009
+Consultation for colposcopy related procedure,Consultation,snomed,SNOMED_698310005,http://snomed.info/id/698310005
+Consultation for endoscopic procedure,Consultation,snomed,SNOMED_698309000,http://snomed.info/id/698309000
+Consultation for malignant neoplasm disease,Consultation,snomed,SNOMED_698308008,http://snomed.info/id/698308008
+Consultation for benign neoplasm disease,Consultation,snomed,SNOMED_698307003,http://snomed.info/id/698307003
+Radiation physics consultation,Consultation,snomed,SNOMED_680007,http://snomed.info/id/680007
+Consultation for hearing and/or speech problem,Consultation,snomed,SNOMED_5947002,http://snomed.info/id/5947002
+Surgical pathology consultation and report on referred slides prepared elsewhere,Consultation,snomed,SNOMED_59000001,http://snomed.info/id/59000001
+Medical consultation on inpatient,Consultation,snomed,SNOMED_53923005,http://snomed.info/id/53923005
+Medical consultation on nursing facility inpatient,Medical consultation on inpatient,snomed,SNOMED_48550003,http://snomed.info/id/48550003
+Medical consultation on hospital inpatient,Medical consultation on inpatient,snomed,SNOMED_24882007,http://snomed.info/id/24882007
+Digestive tract consultation and report,Consultation,snomed,SNOMED_50687007,http://snomed.info/id/50687007
+Consultation for paternity case,Consultation,snomed,SNOMED_49463003,http://snomed.info/id/49463003
+Consultation in teletherapy,Consultation,snomed,SNOMED_49569001,http://snomed.info/id/49569001
+Telemedicine consultation with patient,Consultation,snomed,SNOMED_448337001,http://snomed.info/id/448337001
+Consultation for restraint debriefing,Consultation,snomed,SNOMED_423861007,http://snomed.info/id/423861007
+Consultation for pain,Consultation,snomed,SNOMED_420650002,http://snomed.info/id/420650002
+Consultation for acute pain,Consultation for pain,snomed,SNOMED_421946003,http://snomed.info/id/421946003
+Consultation for chronic pain,Consultation for pain,snomed,SNOMED_420454001,http://snomed.info/id/420454001
+Consultation for unaccompanied minor,Consultation,snomed,SNOMED_416520008,http://snomed.info/id/416520008
+Homeopathic consultation (procedure),Consultation,snomed,SNOMED_400979004,http://snomed.info/id/400979004
+Anesthesia consultation (procedure),Consultation,snomed,SNOMED_398228004,http://snomed.info/id/398228004
+Weight maintenance consultation,Consultation,snomed,SNOMED_388970003,http://snomed.info/id/388970003
+Weight increase consultation,Weight maintenance consultation,snomed,SNOMED_388977000,http://snomed.info/id/388977000
+Weight reduction consultation,Weight maintenance consultation,snomed,SNOMED_388975008,http://snomed.info/id/388975008
+Telephone consultation,Consultation,snomed,SNOMED_386472008,http://snomed.info/id/386472008
+Dental consultation and report,Consultation,snomed,SNOMED_34043003,http://snomed.info/id/34043003
+Orthodontic dental consultation and report,Dental consultation and report,snomed,SNOMED_89291005,http://snomed.info/id/89291005
+Dental trauma consultation and report,Dental consultation and report,snomed,SNOMED_773298008,http://snomed.info/id/773298008
+Endodontic dental consultation and report,Dental consultation and report,snomed,SNOMED_71387007,http://snomed.info/id/71387007
+Prosthodontic dental consultation and report,Dental consultation and report,snomed,SNOMED_44340006,http://snomed.info/id/44340006
+Inappropriate use of out of hours service,Consultation,snomed,SNOMED_313183009,http://snomed.info/id/313183009
+Consultation for laboratory medicine,Consultation,snomed,SNOMED_31108002,http://snomed.info/id/31108002
+Consultation in laboratory medicine for test interpretation,Consultation for laboratory medicine,snomed,SNOMED_65981005,http://snomed.info/id/65981005
+Chiropractic consultation,Consultation,snomed,SNOMED_30274002,http://snomed.info/id/30274002
+Chiropractic consultation with history,Chiropractic consultation,snomed,SNOMED_73575006,http://snomed.info/id/73575006
+"Chiropractic consultation, history and examination",Chiropractic consultation,snomed,SNOMED_42423000,http://snomed.info/id/42423000
+Chiropractic examination,"Chiropractic consultation, history and examination",snomed,SNOMED_58400001,http://snomed.info/id/58400001
+Chiropractic interpretation of x-rays,Chiropractic consultation,snomed,SNOMED_35755007,http://snomed.info/id/35755007
+Chiropractic visit,Chiropractic consultation,snomed,SNOMED_2530001,http://snomed.info/id/2530001
+Consultation and report by radiologist,Consultation,snomed,SNOMED_28191001,http://snomed.info/id/28191001
+New patient consultation,Consultation,snomed,SNOMED_185387006,http://snomed.info/id/185387006
+Consultation in chemotherapy,Consultation,snomed,SNOMED_15301000,http://snomed.info/id/15301000
+"Consultation in computer dosimetry and isodose chart, teletherapy",Consultation,snomed,SNOMED_12566000,http://snomed.info/id/12566000
+Physician visit with evaluation AND/OR management service,,snomed,SNOMED_108219001,http://snomed.info/id/108219001

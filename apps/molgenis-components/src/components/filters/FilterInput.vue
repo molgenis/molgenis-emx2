@@ -48,6 +48,7 @@ const filterTypeMap = {
   HYPERLINK_ARRAY: StringFilter,
   TEXT: StringFilter,
   TEXT_ARRAY: StringFilter,
+  JSON: StringFilter,
   UUID: StringFilter,
   UUID_ARRAY: StringFilter,
   INT: IntegerFilter,

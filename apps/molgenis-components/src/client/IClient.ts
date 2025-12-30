@@ -1,13 +1,16 @@
 import { Axios } from "axios";
-import type { ISetting, ITableMetaData } from "meta-data-utils";
-import { IRow } from "../Interfaces/IRow";
-import { IQueryMetaData } from "./IQueryMetaData";
+import type {
+  ISetting,
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
+import type { IRow } from "../Interfaces/IRow";
+import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 
 export interface IClient {
   newClient: (schemaId?: string, externalAxios?: Axios) => INewClient;
 }
 
-export type aggFunction = "count" | "_sum";
+export type AggFunction = "count" | "_sum";
 
 export interface INewClient {
   insertDataRow: (
@@ -39,7 +42,7 @@ export interface INewClient {
     selectedColumn: { id: string; column: string },
     selectedRow: { id: string; column: string },
     filter: Object,
-    aggFunction?: aggFunction,
+    aggFunction?: AggFunction,
     aggField?: string
   ) => Promise<any>;
   fetchSettings: () => Promise<any>;
@@ -52,4 +55,5 @@ export interface INewClient {
     tableId: string
   ) => Promise<Record<string, any>>;
   fetchOntologyOptions: (tableName: string) => Promise<any>;
+  getPrimaryKeyFields: (schemaId: string, tableId: string) => Promise<string[]>;
 }

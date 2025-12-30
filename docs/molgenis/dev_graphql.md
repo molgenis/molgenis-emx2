@@ -112,6 +112,7 @@ system.
 {
   _session {
     email
+    admin
     roles
     schemas
   }
@@ -264,6 +265,11 @@ mutation {
 }
 ```
 
+> **Note:**  
+> The `members` field is only accessible to users with sufficient permissions (e.g. admin users or users with an 
+> **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
+> schema.
+
 ## change schema elements
 
 You can change objects from schema query above and then pass them into the change function.
@@ -311,7 +317,11 @@ Finally, for each table there are the following functions:
 
 ### query example
 
-Simple query, including count
+A query can be performed by referring to a table name.
+For every table, aggregate functionality is available by adding <code>_agg</code> to the table name.
+This will expose the </code>count</code> and <code>exists</code> variables.
+
+A simple query, including count:
 
 ```graphql
 {
@@ -327,7 +337,7 @@ Simple query, including count
   Pet_agg {
     count
   }
-  Pet_groupBy{
+  Pet_groupBy {
     sum{weight},
     count,
     tags{name}
@@ -351,7 +361,9 @@ Query including search
 }
 ```
 
-Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators.
+Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators. 
+
+Field-level filters apply comparison operators directly to individual fields.
 
 ```graphql
 {
@@ -368,6 +380,17 @@ Query using filters, limit, offset. Note that filter enables quite complex queri
       name
     }
     weight
+  }
+}
+```
+
+Object-level filters apply logical or comparison operators to the object as a whole, rather than to individual fields. 
+In this case, `not_equals` compares primary keys, `name` for Pet.
+
+```graphql
+{
+  Pet (filter: { not_equals: { name: "pooky" } }) {
+    name
   }
 }
 ```
@@ -575,9 +598,9 @@ add the following to the dependancies section
   }
 ```
 
-Then open a terminal and type in `yarn`.
+Then open a terminal and type in `npm`.
 
-> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `yarn build`
+> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `npm run build`
 
 Now you can import the library as follows:
 
@@ -634,6 +657,13 @@ the following function are available:
 - textSearch(value)
 - between(value)
 - notBetween(value)
+- _is_null - use this filter to find null (true) or not null (false) values
+- _match_any(value)
+- _match_all(value)
+- _match_none(value)
+- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
+- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 

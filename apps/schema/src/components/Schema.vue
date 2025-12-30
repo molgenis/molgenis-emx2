@@ -17,10 +17,18 @@
           >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
-          <ButtonAction href="./#/print" target="_blank" class="ml-2">
+          <ButtonAction
+            :href="`/${schema.name}/schema/#/print`"
+            target="_blank"
+            class="ml-2"
+          >
             Show printable table
           </ButtonAction>
-          <ButtonAction href="./#/print-list" target="_blank" class="ml-2">
+          <ButtonAction
+            :href="`/${schema.name}/schema/#/print-list`"
+            target="_blank"
+            class="ml-2"
+          >
             Show printable list
           </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
@@ -176,10 +184,13 @@ export default {
       });
       //redistribute the columns to subclasses
       tables.forEach((table) => {
-        if (table.columns !== undefined) {
+        if (table.columns?.length) {
           table.columns.forEach((column) => {
             if (column.table !== table.oldName) {
-              if (tableMap[column.table].columns === undefined) {
+              if (!tableMap[column.table]) {
+                tableMap[column.table] = { columns: [] };
+              }
+              if (!tableMap[column.table].columns) {
                 tableMap[column.table].columns = [];
               }
               tableMap[column.table].columns.push(column);
@@ -188,10 +199,8 @@ export default {
         }
       });
       tables.forEach((table) => {
-        delete table.schemaId;
-        table.columns = table.columns
-          ? table.columns.filter((column) => column.table === table.name)
-          : [];
+        table.columns =
+          table.columns?.filter((column) => column.table === table.name) || [];
       });
       tables = Object.values(tableMap);
       //add ontologies

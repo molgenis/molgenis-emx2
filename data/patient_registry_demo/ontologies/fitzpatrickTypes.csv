@@ -1,0 +1,7 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+1,type1,"I Burns easily, rarely tans",,,,,,
+2,type2,"II Burns easily, tans minimally",,,,,,
+3,type3,"III Burns moderately, tans gradually",,,,,,
+4,type4,"IV Burns minimally, tans well",,,,,,
+5,type5,"V Rarely burns, tans profusely",,,,,,
+6,type6,"VI Never burns, deeply pigmented",,,,,,

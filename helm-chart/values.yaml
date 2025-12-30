@@ -21,14 +21,16 @@ oidc:
 #  discovery_url: "https://auth.molgenis.org/.well-known/openid-configuration/"
 #  callback_url:
 
+metrics:
+  enabled: false
+
 service:
   type: ClusterIP
   port: 80
 
 ingress:
   enabled: true
-  hosts:
-     - host: emx2.dev.molgenis.org
+  hosts: [emx2.dev.molgenis.org, catalogue.dev.molgenis.org]
   path: /
 
 postgres:
@@ -39,6 +41,8 @@ postgres:
   username: postgres
   password: postgres
   database: postgres
+
+includeTypeTestDemo: false
 
 catalogue:
   includeCatalogueDemo: false
@@ -53,7 +57,8 @@ ssrCatalogue:
     pullPolicy: IfNotPresent
   environment:
     apiBase: ""
-    theme: ""
+    theme: "molgenis"
     logo: ""
     siteTitle: "Data catalogue"
     analyticsKey: "6005657"
+    schema: "catalogue-demo"

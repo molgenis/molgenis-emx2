@@ -15,12 +15,14 @@
         :modelValue="modelValue[0]"
         @update:modelValue="emitValue($event, 0)"
         placeholder="from"
+        :class="{ 'is-invalid': errorMessage }"
       />
       <BaseInputDecimal
         :id="id + '-to'"
         :modelValue="modelValue[1]"
         @update:modelValue="emitValue($event, 1)"
         placeholder="to"
+        :class="{ 'is-invalid': errorMessage }"
       />
       <template v-slot:append>
         <slot name="append"></slot>

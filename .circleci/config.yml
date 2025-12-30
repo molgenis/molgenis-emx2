@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.5.0
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.5.0
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.2.3
+      - image: molgenis/ci-build:1.5.0
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -61,8 +61,17 @@ definitions:
 commands:
   pre_steps:
     steps:
-    - checkout
-    - run: git fetch --all --tags
+    - run:
+        name: Fresh Git Checkout to prevend missing objects
+        command: |
+          rm -rf .git
+          git init
+          git remote add origin "$CIRCLE_REPOSITORY_URL"
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/tags/*:refs/tags/* --prune
+          git checkout -f "$CIRCLE_BRANCH"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -70,6 +79,10 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
+    - run:
+        name: run-audit-ci
+        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
+        working_directory: apps      
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -131,9 +144,16 @@ jobs:
         name: push ssr-catalogue docker images
         command: |
           export $( cat build/ci.properties | xargs )
-          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+          docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
           docker push molgenis/ssr-catalogue-snapshot --all-tags
     
+    - run:
+        name: Docker-Scout scanning on cve's, break on critical.
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical 
+
     - run:
         name: deploy preview to azure
         command: |
@@ -144,19 +164,31 @@ jobs:
     - run:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
-          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"
-          while true; 
-              do 
-                  STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                  echo ${STATUS}
-                  if [[ "$STATUS" == "200" ]]; then 
-                      echo "preview is up";
-                      break; 
-                  else 
-                      echo "preview is not ready yet, waiting 10 seconds...";
-                  fi; 
-                  sleep 10; 
-              done
+          GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
+          MAX_RETRIES=30
+          RETRY=0
+          
+          while true; do
+            # Run curl, suppress output, get status code only
+            STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
+          
+            echo "HTTP status: ${STATUS:-none}"
+            
+            if [[ "$STATUS" == "200" ]]; then
+            echo "✅ Preview is up"
+            break
+            else
+            echo "⏳ Preview not ready yet, waiting 10 seconds..."
+            fi
+            
+            RETRY=$((RETRY + 1))
+            if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
+            echo "❌ Gave up after $MAX_RETRIES attempts"
+            exit 1
+            fi
+            
+            sleep 10
+          done
 
     - run:
         name: message slack about preview
@@ -178,14 +210,24 @@ jobs:
 
     - run:
         name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
+    - run:
+        name: check apps code format
+        command: ./gradlew :apps:format
+
+    - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
 
     - run:
         name: run tests and push to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
     - post_steps
@@ -203,15 +245,21 @@ jobs:
     
     - run:
         name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-    # we might be optimistic and skip tests here
+    - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+
+      # we might be optimistic and skip tests here
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
           ./gradlew shadowJar test jacocoMergedReport sonar ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
         name: either release or push only snapshots to docker
@@ -219,11 +267,11 @@ jobs:
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
             ./gradlew -s --no-daemon dockerPush
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+            docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
             ./gradlew -s --no-daemon dockerPush release
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
+            docker build apps/catalogue/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
 
@@ -239,22 +287,42 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
-          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.org" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.44.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.57.0-jammy
     steps:
       - checkout
-      - run: npm i -D @playwright/test
-      - run: npx playwright install chrome
       - run:
-          name: Wait for e2e test data to be loaded, poll every 10 seconds
+          name: Enable pnpm
           command: |
-            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"           
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            pnpm -v
+      - run: pnpm i -D @playwright/test
+      - run:
+          name: Install dependencies
+          command: |
+            pnpm install @playwright/test         
+            npx playwright install chrome
+            npx playwright install
+      - run:
+          name: Test tailwind components
+          command: |
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            pnpm install
+            pnpm --filter tailwind-components run e2e
+          working_directory: apps
+      - run:
+          name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
+          command: |
+            GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"           
             while true; 
                 do 
                     STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
@@ -263,16 +331,61 @@ jobs:
                         echo "test data is loaded";
                         break; 
                     else 
-                        echo "test data is not ready yet, waiting 10 seconds...";
+                        echo "catalogue test data is not ready yet, waiting 10 seconds...";
                     fi; 
                     sleep 10; 
                 done
       - run:
-          command: | 
+          name: Test nuxt ssr catalogue tests
+          command: |
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            pnpm --filter catalogue run e2e
+          working_directory: apps
+      - run:
+          name: Wait for directory e2e test data to be loaded, poll every 10 seconds
+          command: |
+            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/directory-demo/directory/"           
+            while true; 
+                do 
+                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                    echo ${STATUS} ${GETURL}
+                    if [[ "$STATUS" == "200" ]]; then 
+                        echo "test data is loaded";
+                        break; 
+                    else 
+                        echo "directory test data is not ready yet, waiting 10 seconds...";
+                    fi; 
+                    sleep 10; 
+                done
+      - run:
+          name: Directory e2e tests
+          command: |
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npx playwright test --config e2e e2e/tests
+            pnpm --filter directory run e2e
+          working_directory: apps
+      - run:
+          name: UI tests
+          command: |
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            pnpm --filter ui run e2e
+          working_directory: apps
+      - run:
+            name: Run non ssr e2e tests
+            command: |
+              echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+              export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+              echo $E2E_BASE_URL
+              npx playwright test --config e2e e2e/tests
+      - run:
+            name: Save test results for stats
+            command: |
+                find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:
@@ -333,6 +446,43 @@ jobs:
           bash ci/set_kubectl_config-azure.sh
           kubectl delete namespace preview-emx2-pr-${GHA_PREVIEW_NR} || true
 
+  clear-dev-db-every-3-weeks:
+    <<: *build_config
+
+    steps:
+      - pre_steps
+
+      # Check if we should run this week
+      - run:
+          name: Check if it's the 3rd week
+          command: |
+            WEEK_NUM=$(date +%V)
+            echo "Current week number: $WEEK_NUM"
+            if [ $(( WEEK_NUM % 3 )) -ne 0 ]; then
+              echo "⏭️ Not week 3, 6, 9... skipping job."
+              circleci step halt
+            fi
+
+      - run:
+          name: Reset emx2.dev
+          command: |
+            export $( cat build/ci.properties | xargs )
+            bash ci/set_kubectl_config-azure.sh
+            bash ci/create_or_update_k8s-azure.sh "emx2" latest true
+          working_directory: repo
+
+      - run:
+          name: Message slack about a database cleanup
+          command: |
+            curl -d "token=${SLACK_TOKEN}" \
+            -d "cleaned database at https://emx2.dev.molgenis.org/" \
+            -d "channel=C057JRKLUKG" \
+            -X POST https://slack.com/api/chat.postMessage
+             
+      
+      
+
+
 workflows:
   version: 2
   build_and_test_and_preview_or_release:
@@ -375,3 +525,13 @@ workflows:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
     - delete-helm-preview
+
+  clear-dev-db:
+    triggers:
+      - schedule:
+          cron: "0 7 * * 1" # every Monday 07:00 UTC as cron can not do every 3 weeks
+          filters:
+            branches:
+              only: master
+    jobs:
+      - clear-dev-db-every-3-weeks

@@ -3,10 +3,13 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 
 public class Table {
+  private String schemaId;
   private String name;
   private String label;
   private String description;
@@ -17,10 +20,8 @@ public class Table {
   private String inheritName;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
-  private String schemaName;
-  private String schemaId;
   private Collection<String[]> unique = new ArrayList<>();
-  private Collection<Column> columns = new ArrayList<>();
+  private List<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
   private String[] semantics;
   private String[] profiles = null;
@@ -36,11 +37,13 @@ public class Table {
   }
 
   public Table(TableMetadata tableMetadata, boolean minimal) {
+    this.schemaId = tableMetadata.getSchemaName();
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
     this.description = tableMetadata.getDescription();
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.id = tableMetadata.getIdentifier();
@@ -52,6 +55,7 @@ public class Table {
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = tableMetadata.getSemantics();
@@ -59,10 +63,31 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
-    this.schemaName = tableMetadata.getSchemaName();
-    this.schemaId = tableMetadata.getSchema().getName(); // todo? getIdentifier?
+    String currentSectionId = Constants.MG_TOP_OF_FORM; // default first section
+    String currentHeadingId = null;
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
-      this.columns.add(new Column(column, tableMetadata, minimal));
+      if (column.getColumnType().equals(ColumnType.SECTION)) {
+        currentSectionId = column.getIdentifier();
+        currentHeadingId = null;
+      } else if (column.getColumnType().equals(ColumnType.HEADING)) {
+        currentHeadingId = column.getIdentifier();
+      }
+      Column jsonColumn = new Column(column, tableMetadata, minimal);
+      jsonColumn.setHeading(currentHeadingId);
+      jsonColumn.setSection(currentSectionId);
+      this.columns.add(jsonColumn);
+    }
+    // should always have a section as first column
+    if (this.columns.size() > 0
+        && !this.columns.get(0).getColumnType().equals(ColumnType.SECTION)) {
+      Column firstHeading = new Column();
+      firstHeading.setId(Constants.MG_TOP_OF_FORM);
+      firstHeading.setName(Constants.MG_TOP_OF_FORM);
+      firstHeading.setLabel("_top");
+      firstHeading.setColumnType(ColumnType.SECTION);
+      firstHeading.setSection(Constants.MG_TOP_OF_FORM);
+      firstHeading.setTable(this.name);
+      this.columns.add(0, firstHeading);
     }
     this.tableType = tableMetadata.getTableType();
     this.profiles = tableMetadata.getProfiles();
@@ -96,7 +121,7 @@ public class Table {
     return columns;
   }
 
-  public void setColumns(Collection<Column> columns) {
+  public void setColumns(List<Column> columns) {
     this.columns = columns;
   }
 
@@ -130,14 +155,6 @@ public class Table {
 
   public void setSettings(List<Setting> settings) {
     this.settings = settings;
-  }
-
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
   }
 
   public String[] getSemantics() {
@@ -204,19 +221,19 @@ public class Table {
     this.description = description;
   }
 
-  public String getSchemaId() {
-    return schemaId;
-  }
-
-  public void setSchemaId(String schemaId) {
-    this.schemaId = schemaId;
-  }
-
   public String[] getProfiles() {
     return profiles;
   }
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public String getSchemaId() {
+    return schemaId;
+  }
+
+  public void setSchemaId(String schemaId) {
+    this.schemaId = schemaId;
   }
 }

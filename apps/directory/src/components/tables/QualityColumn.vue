@@ -7,10 +7,10 @@
       class="d-flex"
     >
       <a
+        v-if="quality.certification_report"
         :href="quality.certification_report"
         target="_blank"
         rel="noopener noreferrer"
-        v-if="quality.certification_report"
       >
         <span v-if="!quality.certification_image_link">
           {{ quality.label }}

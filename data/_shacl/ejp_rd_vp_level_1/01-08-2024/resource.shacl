@@ -1,0 +1,184 @@
+@prefix :         <http://fairdatapoint.org/> .
+@prefix dash:     <http://datashapes.org/dash#> .
+@prefix dcat:     <http://www.w3.org/ns/dcat#> .
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/>.
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix ejp:   <https://w3id.org/ejp-rd/vocabulary#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+
+:ResourceShape a sh:NodeShape ;
+  sh:targetClass dcat:Resource ;
+  sh:property [
+    sh:path dct:title ;
+    sh:name "Title" ;
+    sh:nodeKind sh:Literal ;
+    sh:minCount 1 ;
+    sh:maxCount  1 ;
+    dash:editor dash:TextFieldEditor ;
+  ], [
+    sh:name "Description" ;
+    sh:path dct:description ;
+    sh:nodeKind sh:Literal ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;   # updated to mandatory
+    dash:editor dash:TextAreaEditor ;
+  ],
+  #  [
+  #   sh:path dct:hasVersion ;
+  #   sh:name "version" ;
+  #   sh:nodeKind sh:Literal ;
+  #   sh:minCount 1 ;
+  #   sh:maxCount 1 ;
+  #   dash:editor dash:TextFieldEditor ;
+  #   dash:viewer dash:LiteralViewer ;
+  # ],
+  [
+    sh:path dcat:version ;
+    sh:name "Version" ;
+    sh:nodeKind sh:Literal ;
+    sh:maxCount 1 ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+  ],   [  # new section
+    sh:path dct:identifier ;
+    sh:name "Identifier" ;
+    sh:nodeKind sh:Literal ;
+    sh:maxCount 1 ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+  ],  [  # new section
+    sh:path dcat:theme ;
+    sh:name "Ontological Description" ;
+    sh:nodeKind sh:IRI ;
+    sh:minCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ],  [
+    sh:path dcat:keyword ; # FIX: 'keyword' is a DCAT term (prefix: dcat), instead of a Dublin Core term (prefix: dct)
+    sh:name "Keywords" ;
+    sh:nodeKind sh:Literal ;
+    sh:minCount 1 ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LabelViewer ;
+  ], [
+    sh:path dct:language ;
+    sh:name "Language" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;  # updated
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ], [
+    sh:path dct:license ;
+    sh:name "License" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;  # updated
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ], [ # new section
+    sh:path dct:accessRights ;
+    sh:name "Access Rights Document" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ], [
+    sh:path odrl:hasPolicy ;
+    sh:name "ODRL Policy" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ], [ # new section
+    sh:path dcat:landingPage ;
+    sh:name "About Page (Landing Page)" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ], [ # new section
+    sh:path dct:conformsTo ;
+    sh:name "Conforms to Standard" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ], [
+    sh:path ejp:personalData ;
+    sh:name "GDPR Personal Information?" ;
+    sh:nodeKind sh:Literal ;
+    # sh:datatype xsd:boolean ;  # FDP cannot produce the correct representation of booleans
+    sh:in ("true" "false") ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;  # updated
+    # dash:editor dash:TextFieldEditor ;
+    dash:editor dash:EnumSelectEditor ;
+    dash:viewer dash:LiteralViewer ;
+  ] , [
+    sh:path dct:publisher ;
+    sh:name "Publisher" ;
+    sh:node :OrgShape ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    dash:editor dash:BlankNodeEditor ;
+  ] , [  # this is a new section, and mandatory
+    sh:path dcat:contactPoint ;
+    sh:name "Contact Information" ;
+    sh:node :AgentShape ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    dash:editor dash:BlankNodeEditor ;
+  ] , [
+    sh:targetClass ejp:VPConnection ;
+    sh:name "Indexed by EJP VP?" ;
+    sh:path ejp:vpConnection ;
+    sh:nodeKind sh:IRI ;
+    sh:in (<https://w3id.org/ejp-rd/vocabulary#VPDiscoverable>) ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:order 0 ;
+#    dash:editor dash:URIEditor ;
+    dash:editor dash:EnumSelectEditor ;
+    # dash:viewer dash:LabelViewer ;
+  ] , [
+    sh:path foaf:logo ;
+    sh:name "Logo" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ] .
+
+:OrgShape a sh:NodeShape ;
+  sh:targetClass foaf:Organization ;
+  sh:property [
+    sh:path foaf:name;
+    sh:name "Name" ;
+    sh:nodeKind sh:Literal ;
+    sh:minCount 1 ;
+    sh:maxCount  1 ;
+    dash:editor dash:TextFieldEditor ;
+  ] , [
+    sh:path foaf:logo ;
+    sh:name "Logo" ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ] .
+
+:AgentShape a sh:NodeShape ;  # New section
+  sh:targetClass vcard:Agent ;
+  sh:property [
+    sh:path vcard:url;
+    sh:name "URL" ;
+    sh:nodeKind sh:IRI ;
+    sh:minCount 0 ; # fix not required
+    sh:maxCount  1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ] .

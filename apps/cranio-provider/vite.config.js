@@ -1,11 +1,9 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-const host = "https://beta-erncranio.molgeniscloud.org";
-const schema = "DK1";
-const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
+export default defineConfig((command) => {
+  require("dotenv").config({ path: `./.env` });
 
-export default defineConfig(() => {
   return {
     css: {
       preprocessorOptions: {
@@ -20,34 +18,9 @@ export default defineConfig(() => {
       },
     },
     plugins: [vue()],
-    base: "",
+    base: command === "serve" ? "/" : "apps/cranio-provider/",
     server: {
-      proxy: {
-        "/api/graphql": {
-          target: `${host}/${schema}`,
-          ...opts,
-        },
-        "^/[a-zA-Z0-9_.%-]+/api/graphql": {
-          target: host,
-          ...opts,
-        },
-        "^/[a-zA-Z0-9_.%-]+/api/file": {
-          target: host,
-          ...opts,
-        },
-        "/api": {
-          target: `${host}/api`,
-          ...opts,
-        },
-        "/apps": {
-          target: host,
-          ...opts,
-        },
-        "/theme.css": {
-          target: `${host}/apps/central`,
-          ...opts,
-        },
-      },
+      proxy: require("../dev-proxy.config"),
     },
   };
 });

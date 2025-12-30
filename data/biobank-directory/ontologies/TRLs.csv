@@ -1,0 +1,10 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,TRL-1,Basic principles observed,,,1,,Basic principles observed
+2,TRL-2,Technology concept formulated,,,2,,Technology concept formulated
+3,TRL-3,Experimental proof of concept,,,3,,Experimental proof of concept
+4,TRL-4,Technology validated in lab,,,4,,Technology validated in lab
+5,TRL-5,Technology validated in relevant environment (industrially relevant environment in the case of key enabling technologies),,,5,,Technology validated in relevant environment (industrially relevant environment in the case of key enabling technologies)
+6,TRL-6,Technology demonstrated in relevant environment (industrially relevant environment in the case of key enabling technologies),,,6,,Technology demonstrated in relevant environment (industrially relevant environment in the case of key enabling technologies)
+7,TRL-7,System prototype demonstration in operational environment,,,7,,System prototype demonstration in operational environment
+8,TRL-8,System complete and qualified,,,8,,System complete and qualified
+9,TRL-9,Actual system proven in operational environment (competitive manufacturing in the case of key enabling technologies; or in space),,,9,,Actual system proven in operational environment (competitive manufacturing in the case of key enabling technologies; or in space)

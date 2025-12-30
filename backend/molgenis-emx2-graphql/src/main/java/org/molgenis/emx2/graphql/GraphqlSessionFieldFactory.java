@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.SETTINGS;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
 
@@ -30,10 +31,15 @@ public class GraphqlSessionFieldFactory {
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String user = database.getActiveUser();
-              database.setActiveUser(GraphqlConstants.ANONYMOUS);
+              GraphqlSessionHandlerInterface sessionHandler =
+                  dataFetchingEnvironment
+                      .getGraphQlContext()
+                      .get(GraphqlSessionHandlerInterface.class);
+              sessionHandler.destroySession();
               return new GraphqlApiMutationResult(
-                  GraphqlApiMutationResult.Status.SUCCESS, "User '%s' has signed out", user);
+                  GraphqlApiMutationResult.Status.SUCCESS,
+                  "User '%s' has signed out",
+                  database.getActiveUser());
             })
         .build();
   }
@@ -86,16 +92,26 @@ public class GraphqlSessionFieldFactory {
             dataFetchingEnvironment -> {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
-
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
-                database.setActiveUser(userName);
-                GraphqlApiMutationResultWithToken result =
-                    new GraphqlApiMutationResultWithToken(
-                        GraphqlApiMutationResult.Status.SUCCESS,
-                        JWTgenerator.createTemporaryToken(database, userName),
-                        "Signed in as '%s'",
-                        userName);
-                return result;
+                if (database.getUser(userName).getEnabled()) {
+                  GraphqlSessionHandlerInterface sessionHandler =
+                      dataFetchingEnvironment
+                          .getGraphQlContext()
+                          .get(GraphqlSessionHandlerInterface.class);
+                  sessionHandler.createSession(userName);
+                  // token can only be created as that user
+                  // to make sure we don't change database user we create new instance
+                  Database temp = new SqlDatabase(false);
+                  temp.setActiveUser(userName);
+                  return new GraphqlApiMutationResultWithToken(
+                      GraphqlApiMutationResult.Status.SUCCESS,
+                      JWTgenerator.createTemporaryToken(temp, userName),
+                      "Signed in as '%s'",
+                      userName);
+                } else {
+                  return new GraphqlApiMutationResult(
+                      FAILED, "User '%s' disabled: check with your administrator", userName);
+                }
               } else {
                 return new GraphqlApiMutationResult(
                     FAILED, "Sign in as '%s' failed: user or password unknown", userName);
@@ -114,6 +130,10 @@ public class GraphqlSessionFieldFactory {
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(EMAIL)
                         .type(Scalars.GraphQLString))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(ADMIN)
+                        .type(Scalars.GraphQLBoolean))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(ROLES)
@@ -135,6 +155,7 @@ public class GraphqlSessionFieldFactory {
               Map<String, Object> result = new LinkedHashMap<>();
               result.put(
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
+              result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }

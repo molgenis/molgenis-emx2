@@ -13,12 +13,8 @@
       >
         {{ ontology.name }}
         <span v-if="ontology.semantics" class="small">
-          (<a
-            :href="purl"
-            target="_blank"
-            v-for="purl in ontology.semantics"
-            :key="purl"
-            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+          (<template v-for="(semantics, index) in ontology.semantics"
+            ><template v-if="index > 0">,</template>{{ semantics }}</template
           >)
         </span>
       </div>

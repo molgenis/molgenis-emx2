@@ -1,0 +1,6 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,Benign,1- Benign,,,,,
+2,Likely benign,2 - Likely benign,,,,,
+3,Uncertain significance,3 - Uncertain significance,,,,,
+4,Likely pathogenic,4 - Likely pathogenic,,,,,
+5,Pathogenic,5 - Pathogenic,,,,,

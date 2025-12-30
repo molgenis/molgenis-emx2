@@ -4,7 +4,7 @@
       class="ern-header"
       title="ERN CRANIO"
       subtitle="Dashboard"
-      imageSrc="banner-diagnoses.jpg"
+      imageSrc="img/banner-diagnoses.jpg"
     />
     <Breadcrumbs />
     <LoadingScreen v-if="loading && !error" />

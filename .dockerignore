@@ -1,5 +1,4 @@
 apps/**/node_modules
-apps/catalogue
 apps/graphql-playground
 apps/pages
 apps/schema

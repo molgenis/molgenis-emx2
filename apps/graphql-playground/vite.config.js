@@ -1,15 +1,31 @@
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import $monacoEditorPlugin from 'vite-plugin-monaco-editor';
+import devProxyConfig from '../dev-proxy.config';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  base: "",
+const monacoEditorPlugin = $monacoEditorPlugin.default ?? $monacoEditorPlugin;
+
+export default defineConfig(({ command }) => ({
+  plugins: [
+    react(),
+    monacoEditorPlugin({
+      languageWorkers: ['editorWorkerService', 'json'],
+      customWorkers: [
+        {
+          label: 'graphql',
+          entry: 'monaco-graphql/esm/graphql.worker.js',
+        },
+      ],
+      publicPath: "assets",
+      customDistPath: (root, buildOutDir, base) => {
+          return buildOutDir + '/' + 'assets';
+        },
+
+    }),
+  ],
+  base: command === "serve" ? "/" : "apps/graphql-playground/",
   server: {
-    proxy: require("../dev-proxy.config"),
+    port: 3000,
+    proxy: devProxyConfig,
   },
-  build: {
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    },
-    target: "esnext",
-  },
-});
+}));

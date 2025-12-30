@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,positive,Positive,,,,,
+2,negative,Negative,,,,,
+3,unknown,Unknown,,,,,

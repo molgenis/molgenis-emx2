@@ -160,6 +160,23 @@ class Schema:
             return self.__getattribute__(attr)
         return default
 
+    def get_pkeys(self, table_id: str) -> list:
+        """Returns the primary keys of a table."""
+        table_meta = self.get_table('id', table_id)
+        primary_columns = table_meta.get_columns(by='key', value=1)
+
+        primary_keys = []
+        for pc in primary_columns:
+            if pc.get('columnType').startswith('ONT'):
+                primary_keys.append({pc.id: 'name'})
+            elif pc.get('columnType').startswith('REF'):
+                primary_keys.append({pc.id: self.get_pkeys(pc.get('refTableId'))})
+            else:
+                primary_keys.append(pc.id)
+
+        return primary_keys
+
+
     def get_table(self, by: Literal['id', 'name'], value: str) -> Table:
         """Gets the unique table by either id or name value.
         Raises NoSuchTableException if the table could not be retrieved from the schema.

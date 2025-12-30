@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
@@ -165,8 +165,8 @@ public class TestCreateBasicDataColumnTypeColumns {
   @Test
   public void testJSON() {
     executeTest(
-        JSONB,
-        new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
+        JSON,
+        new String[] {"{\"key\": \"value1\"}", "{\"key\": \"value2\"}", "{\"key\": \"value3\"}"});
   }
 
   private void executeTest(ColumnType columnType, Serializable[] values) {
@@ -177,11 +177,13 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     String aKey = columnType + "Key";
     String aColumn = columnType + "Col";
+    String aNillableColumn = columnType + "Col" + "Nillable";
     Table aTable =
         schema.create(
             table("A")
                 .add(column(aKey).setType(columnType).setPkey())
-                .add(column(aColumn).setType(columnType)));
+                .add(column(aColumn).setType(columnType).setRequired(true))
+                .add(column(aNillableColumn).setType(columnType)));
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);
@@ -200,6 +202,16 @@ public class TestCreateBasicDataColumnTypeColumns {
     for (Row r : result) {
       System.out.println(r);
     }
+
+    result = aTable.query().where(f(aColumn, IS_NULL, true)).retrieveRows();
+    assertEquals(0, result.size());
+    result = aTable.query().where(f(aNillableColumn, IS_NULL, true)).retrieveRows();
+    assertEquals(2, result.size());
+
+    result = aTable.query().where(f(aColumn, IS_NULL, false)).retrieveRows();
+    assertEquals(2, result.size());
+    result = aTable.query().where(f(aNillableColumn, IS_NULL, false)).retrieveRows();
+    assertEquals(0, result.size());
 
     // delete
     aTable.delete(aRow, aRow2);

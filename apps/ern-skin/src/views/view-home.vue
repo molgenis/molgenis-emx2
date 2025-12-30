@@ -4,7 +4,7 @@
       class="erras-header"
       title="ERN-Skin Registry"
       subtitle="Registry for Rare and Undiagnosed Skin Diseases"
-      imageSrc="erras-header.jpg"
+      imageSrc="img/erras-header.jpg"
       height="xlarge"
       title-position-x="center"
       title-position-y="center"
@@ -71,7 +71,7 @@
       </p>
       <!-- insert image: ern-skin box diagram -->
       <img
-        src="/ern-skin-groups.png"
+        src="/img/ern-skin-groups.png"
         class="project-diagrams"
         alt="ERN-Skin disease groups"
       />
@@ -87,7 +87,7 @@
       </p>
       <!-- insert image: ERDI image -->
       <img
-        src="/ern-skin-erdri.png"
+        src="/img/ern-skin-erdri.png"
         class="project-diagrams"
         alt="European registry for rare dermatologic diseases"
       />
@@ -117,7 +117,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageSection, LinkCard } from "molgenis-viz";
 import {
   InformationCircleIcon,

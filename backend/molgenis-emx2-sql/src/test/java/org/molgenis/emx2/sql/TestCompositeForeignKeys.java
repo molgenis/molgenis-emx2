@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.*;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -53,6 +54,21 @@ public class TestCompositeForeignKeys {
               .setString("uncle.lastName", "MISSING"));
       fail("should have failed on missing foreign key");
     } catch (Exception e) {
+      System.out.println("errored correctly: " + e);
+    }
+
+    try {
+      p.insert(
+          new Row()
+              .setString("firstName", "Kwik")
+              .setString("lastName", "Duck")
+              .setString("uncle.firstName", "Donald"));
+      // missing completely.setString("uncle.lastName", "MISSING"));
+      fail("should have failed when part for composite foreign key is null, regression #3876");
+    } catch (Exception e) {
+      assertEquals(
+          "Update into table 'Person' failed.: Transaction failed: Key (uncle.firstName,uncle.lastName)=(Donald,NULL) not present in table \"Person\"",
+          e.getMessage());
       System.out.println("errored correctly: " + e);
     }
 
@@ -152,45 +168,30 @@ public class TestCompositeForeignKeys {
     List<Row> rows = q.retrieveRows(); // test that nested queries also work
     assertEquals(3, rows.size());
 
+    assertTrue(
+        p.query()
+            .select(s("firstName"), s("lastName"), s("uncle", s("firstName"), s("lastName")))
+            .where(f("uncle", MATCH_ANY, row("firstName", "Mickey", "lastName", "Mouse")))
+            .retrieveJSON()
+            .contains("Person\": null"));
+
+    assertTrue(
+        p.query()
+            .select(s("firstName"), s("lastName"), s("uncle", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "uncle",
+                    MATCH_ANY,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Donald", "lastName", "Duck")))
+            .retrieveJSON()
+            .contains("{\"uncle\": {\"lastName\": \"Duck\", \"firstName\": \"Kwik\"}"));
+
     // refback
     schema
         .getTable("Person")
         .getMetadata()
         .add(column("nephew").setType(REFBACK).setRefTable("Person").setRefBack("uncle"));
-
-    s.insert(
-        new Row()
-            .setString("firstName", "Katrien")
-            .setString("lastName", "Duck")
-            .setString("nephew.firstName", "Kwik")
-            .setString("nephew.lastName", "Duck")); // I know, not true
-
-    assertTrue(
-        List.of(
-                s.query()
-                    .select(
-                        s("firstName"),
-                        s("lastName"),
-                        s("nephew", s("firstName"), s("lastName")),
-                        s("uncle", s("firstName"), s("lastName")))
-                    .where(f("firstName", EQUALS, "Katrien"))
-                    .retrieveRows()
-                    .get(0)
-                    .getStringArray("nephew-firstName"))
-            .contains("Kwik"));
-    assertTrue(
-        List.of(
-                p.query()
-                    .select(
-                        s("firstName"),
-                        s("lastName"),
-                        s("nephew", s("firstName"), s("lastName")),
-                        s("uncle", s("firstName"), s("lastName")))
-                    .where(f("firstName", EQUALS, "Kwik"))
-                    .retrieveRows()
-                    .get(0)
-                    .getStringArray("uncle-firstName"))
-            .contains("Katrien"));
 
     // test order by for refback
     p.query()
@@ -201,6 +202,46 @@ public class TestCompositeForeignKeys {
             s("uncle", s("firstName"), s("lastName")))
         .orderBy("nephew")
         .retrieveJSON();
+
+    // filter by refback
+    result =
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("nephew", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
+            .where(f("nephew", MATCH_ANY, row("firstName", "Kwik", "lastName", "Duck")))
+            .retrieveJSON();
+    assertTrue(result.contains("Donald"));
+
+    result =
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("nephew", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "nephew",
+                    MATCH_ALL,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Kwek", "lastName", "Duck")))
+            .retrieveJSON();
+    assertTrue(result.contains("Donald"));
+
+    // empty
+    result =
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("nephew", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
+            .where(f("nephew", MATCH_ANY, row("firstName", "Donald", "lastName", "Duck")))
+            .retrieveJSON();
+    assertFalse(result.contains("Kwik"));
 
     // test group by ref
     // Kwik = Katrien
@@ -213,13 +254,13 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("uncle", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
+    assertEquals(3, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Donald",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("uncle")).get("firstName"));
     assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
     assertEquals(
-        "Katrien",
+        "Kwik",
         ((Map<String, String>) map.get("Person_groupBy").get(1).get("uncle")).get("firstName"));
 
     // test group by refback
@@ -260,6 +301,17 @@ public class TestCompositeForeignKeys {
             .setString("cousins.lastName", "Duck"));
 
     try {
+      p.insert(
+          new Row()
+              .setString("firstName", "Donald")
+              .setString("lastName", "Duck2")
+              .setString("cousins.firstName", "Kwik"));
+      fail("should fail when composite foreign key has a null value, regression #3876");
+    } catch (Exception e) {
+      System.out.println("errored correctly: " + e);
+    }
+
+    try {
       p.delete(new Row().setString("firstName", "Kwik").setString("lastName", "Duck"));
       fail("should have failed on foreign key error");
     } catch (Exception e) {
@@ -289,26 +341,6 @@ public class TestCompositeForeignKeys {
         .getMetadata()
         .add(column("uncles").setType(REFBACK).setRefTable("Person").setRefBack("cousins"));
 
-    s.insert(
-        new Row()
-            .setString("firstName", "Kwok") // doesn't exist
-            .setString("lastName", "Duck")
-            .setString("uncles.firstName", "Donald")
-            .setString("uncles.lastName", "Duck"));
-
-    assertTrue(
-        List.of(
-                s.query()
-                    .select(
-                        s("firstName"),
-                        s("lastName"),
-                        s("uncles", s("firstName"), s("lastName")),
-                        s("cousins", s("firstName"), s("lastName")))
-                    .where(f("firstName", EQUALS, "Kwok"))
-                    .retrieveRows()
-                    .get(0)
-                    .getStringArray("uncles-firstName"))
-            .contains("Donald"));
     assertTrue(
         List.of(
                 p.query()
@@ -319,9 +351,72 @@ public class TestCompositeForeignKeys {
                         s("uncles", s("firstName"), s("lastName")))
                     .where(f("firstName", EQUALS, "Donald"))
                     .retrieveRows()
-                    .get(1) //
-                    .getStringArray("cousins-firstName")) // TODO should be array?
-            .contains("Kwok"));
+                    .get(0) //
+                    .getStringArray("cousins.firstName")) // TODO should be array?
+            .contains("Kwik"));
+
+    assertTrue(
+        List.of(
+                p.query()
+                    .where(f("firstName", EQUALS, "Donald"))
+                    .retrieveRows()
+                    .get(0) //
+                    .getStringArray("cousins.firstName")) // TODO should be array?
+            .contains("Kwik"));
+
+    assertTrue(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "cousins",
+                    MATCH_ANY,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Mickey", "Mouse", "Duck")))
+            .retrieveJSON()
+            .contains("Kwik"));
+
+    assertTrue(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(f("cousins", MATCH_ANY, row("firstName", "Mickey", "Mouse", "Duck")))
+            .retrieveJSON()
+            .contains("Person\": null"));
+
+    assertFalse(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "cousins",
+                    MATCH_ALL,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Mickey", "lastName", "Mouse")))
+            .retrieveJSON()
+            .contains("Kwik"));
+
+    assertTrue(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(f("cousins", MATCH_ALL, row("firstName", "Kwik", "lastName", "Duck")))
+            .retrieveJSON()
+            .contains("Kwik"));
 
     // check we can sort on ref_array
     p.query()
@@ -354,7 +449,7 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("uncles", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
+    assertEquals(1, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Donald",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("uncles")).get("firstName"));
@@ -375,8 +470,5 @@ public class TestCompositeForeignKeys {
         "Kwik",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("cousins")).get("firstName"));
     assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
-    assertEquals(
-        "Kwok",
-        ((Map<String, String>) map.get("Person_groupBy").get(1).get("cousins")).get("firstName"));
   }
 }

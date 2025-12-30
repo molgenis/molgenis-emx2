@@ -69,6 +69,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   position: relative;
+  max-width: 100%;
 
   .sidebar-menu {
     box-sizing: content-box;
@@ -91,11 +92,15 @@
     .accordion {
       margin: 0;
       margin-bottom: 1em;
-      border: none;
+      border-color: $gdi-brand-purple-light;
+
       .accordion-heading {
         background-color: transparent;
         margin: 0;
-        padding: 0;
+      }
+
+      .accordion-content {
+        margin-bottom: 1em;
       }
     }
   }
@@ -111,7 +116,7 @@
 
   @media screen and (min-width: 724px) {
     grid-template-areas: "sidebar main";
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 400px 1fr;
 
     .sidebar-menu {
       position: -webkit-sticky;
@@ -199,12 +204,23 @@ li {
   }
 
   .accordion-content {
-    background-color: $gray-800;
     padding: 1em;
+    h4 {
+      text-align: left;
+    }
     code {
       pre {
-        color: $gray-050;
+        background: $gray-050;
+        box-sizing: content-box;
+        padding: 0.5em;
       }
     }
+  }
+}
+
+.loading-screen {
+  &.beacon-search-loading {
+    max-height: 15em;
+    background-color: $gdi-brand-purple-light;
   }
 }

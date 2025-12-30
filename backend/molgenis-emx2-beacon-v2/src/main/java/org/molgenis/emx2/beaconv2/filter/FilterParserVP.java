@@ -13,7 +13,6 @@ public class FilterParserVP implements FilterParser {
   final BeaconQuery beaconQuery;
   final List<Filter> unsupportedFilters = new ArrayList<>();
   final List<Filter> graphQlFilters = new ArrayList<>();
-  final List<Filter> postFetchFilters = new ArrayList<>();
 
   public FilterParserVP(BeaconQuery beaconQuery) {
     this.beaconQuery = beaconQuery;
@@ -61,11 +60,6 @@ public class FilterParserVP implements FilterParser {
   @Override
   public boolean hasWarnings() {
     return !getUnsupportedFilters().isEmpty();
-  }
-
-  @Override
-  public List<Filter> getPostFetchFilters() {
-    return postFetchFilters;
   }
 
   @Override

@@ -1,0 +1,10 @@
+name,definition,codesystem,code,ontologyTermURI
+"BioNano Genomics","BioNano Genomics","ROR","ROR:014pv7733","https://ror.org/014pv7733"
+Complete Genomics platform,Complete Genomics platform,GENEPIO,0001924,http://purl.obolibrary.org/obo/GENEPIO_0001924
+"Helicos platform","Helicos platform","GENEPIO","0002682","http://purl.obolibrary.org/obo/GENEPIO_0002682"
+"Illumina platform","Illumina platform","GENEPIO","0001923","http://purl.obolibrary.org/obo/GENEPIO_0001923"
+"Ion Torrent platform","Ion Torrent platform","GENEPIO","0002683","http://purl.obolibrary.org/obo/GENEPIO_0002683"
+"Oxford Nanopore Technologies","Oxford Nanopore Technologies","GENEPIO","GENEPIO:0100140","http://purl.obolibrary.org/obo/GENEPIO_0100140"
+"PacBio platform","PacBio platform","GENEPIO","0001927","http://purl.obolibrary.org/obo/GENEPIO_0001927"
+"Roche LS454 platform","Roche LS454 platform","GENEPIO","0001926","http://purl.obolibrary.org/obo/GENEPIO_0001926"
+SOLiD sequening platform,SOLiD sequening platform,GENEPIO,0002684,http://purl.obolibrary.org/obo/GENEPIO_0002684

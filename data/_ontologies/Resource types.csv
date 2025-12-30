@@ -1,10 +1,14 @@
-name,code,order,definition,comments,parent,ontologyTermURI
-Clinical cohort,Clinical cohort,,,,,
-Population cohort,Population-based,,Study done at the population level or among the population groups,,,
-Case-control,Case-control,,A case-control study design compares two groups of subjects: those with the disease or condition under study (cases) and a very similar group of subjects who do not have the disease or condition (controls).,,,
-Case only,Case only,,A case-only cohort gathers data from subjects with a disease or condition.,,,
-Birth cohort,Birth cohort,,A cohort study for which the subjects are followed from the time of birth usually including information about gestation and follow up.,,,
-Clinical trial,,,,,,
-Registry,,,,,,
-Biobank,Biobank,,,,,
-Other type,,,,,,
+name,label,parent,tags,codesystem,code,ontologyTermURI,definition
+Biobank,,,collection,EDAM,EDAM:3337,http://edamontology.org/topic_3337,Repositories of biological samples.
+Catalogue,,,,,,,Catalogue of resources.
+Clinical trial,,,collection,SIO,SIO:001000,http://semanticscience.org/resource/SIO_001000,Studies testing medical interventions.
+Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,Observational studies of defined populations
+Common data model,,,collection,,,,
+Databank,,,collection,,,,
+Data source,,,collection,,,,
+Disease specific,,,collection,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
+Health records,,,collection,SCDO,SCDO:0000492,http://purl.obolibrary.org/obo/SCDO_0000492,
+Network,,,network,,,,
+Rare disease,,,collection,OMIT,OMIT:0022617,http://purl.obolibrary.org/obo/OMIT_0022617,A collection that is focusing on rare diseases
+Registry,,,collection,,,,
+Other type,,,collection,,,,

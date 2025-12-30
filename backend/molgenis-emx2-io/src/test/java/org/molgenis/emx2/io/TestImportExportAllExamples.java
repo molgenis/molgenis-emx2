@@ -1,16 +1,15 @@
 package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.datamodels.test.ArrayTypeTestExample;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
 import org.molgenis.emx2.datamodels.test.RefAndRefArrayTestExample;
@@ -24,57 +23,59 @@ public class TestImportExportAllExamples {
 
   static Database db;
 
+  static String prefix = TestImportExportAllExamples.class.getSimpleName();
+
   @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
-  public void testArrayTypeTestExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("1");
+  public void testArrayTypeTestExample() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "1");
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testRefAndRefArrayExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("4");
+  public void testRefAndRefArrayExample() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testSimpleTypeTestExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("5");
+  public void testSimpleTypeTestExample() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "5");
     SimpleTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testProductComponentPartsExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("6");
+  public void testProductComponentPartsExample() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "6");
     ProductComponentPartsExample.create(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testPetStoreExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("7");
-    schema1.create(
-        new PetStoreLoader().getSchemaMetadata().getTables().toArray(new TableMetadata[0]));
-    executeCompare(schema1);
-  }
-
-  @Test
-  public void testDefaultValuesMetadata() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("8");
+  public void testDefaultValuesMetadata() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "8");
     schema1.create(table("test", column("id").setDefaultValue("bla")));
     Schema result = executeCompare(schema1);
     assertEquals(
         "bla", result.getMetadata().getTableMetadata("test").getColumn("id").getDefaultValue());
   }
 
-  public Schema executeCompare(SchemaMetadata schema1) throws IOException, MolgenisException {
+  @Test
+  public void testReadOnlyColumn() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "9");
+    schema1.create(table("test", column("readOnly").setReadonly(true)));
+    Schema result = executeCompare(schema1);
+    assertTrue(result.getMetadata().getTableMetadata("test").getColumn("readOnly").isReadonly());
+  }
+
+  public Schema executeCompare(SchemaMetadata schema1) throws MolgenisException {
     try {
       // now write it out and fromReader back and compare
       List<Row> contents = Emx2.toRowList(schema1);
@@ -86,7 +87,7 @@ public class TestImportExportAllExamples {
 
       CompareTools.assertEquals(schema1, schema2);
 
-      Schema schema3 = db.dropCreateSchema(getClass().getSimpleName() + schema1.getName());
+      Schema schema3 = db.dropCreateSchema(schema1.getName() + "_copy");
       schema3.migrate(schema2);
       return schema3;
 

@@ -104,7 +104,8 @@ export default {
   computed: {
     dataColumns() {
       const columnsWithoutHeaders = this.columns.filter(
-        (column) => column.columnType !== "HEADING"
+        (column) =>
+          column.columnType !== "HEADING" && column.columnType !== "SECTION"
       );
 
       return columnsWithoutHeaders.map((column) => {
@@ -202,8 +203,8 @@ export default {
   },
   async mounted() {
     const client = Client.newClient("pet store");
-    const metaData = await client.fetchSchemaMetaData();
-    const petColumns = metaData.tables.find(
+    const metadata = await client.fetchSchemaMetaData();
+    const petColumns = metadata.tables.find(
       (t) => t.id === "Pet"
     ).columns;
     this.columns = petColumns.filter((c) => !c.id.startsWith("mg_"));

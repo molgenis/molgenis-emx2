@@ -32,7 +32,7 @@
       >
       <TableSimple
         @rowClick="open"
-        :columns="['id', 'name']"
+        :columns="['id', 'description']"
         :rows="reportsWithId"
         class="bg-white"
         selectColumn="id"
@@ -101,7 +101,7 @@ export default {
       if (this.reports) {
         let index = 0;
         return this.reports.map((report) => {
-          report.id = index++;
+          report.index = index++;
           return report;
         });
       }
@@ -116,7 +116,7 @@ export default {
     },
     async add() {
       this.error = null;
-      this.reports.push({ name: "new report", sql: "" });
+      this.reports.push({ id: "uniqueid", description: "new report", sql: "" });
       await this.client
         .saveSetting("reports", this.reports)
         .catch((error) => (this.error = error));
@@ -131,7 +131,7 @@ export default {
       this.reload();
     },
     open(row) {
-      this.$router.push({ name: "edit", params: { id: row.id } });
+      this.$router.push({ name: "edit", params: { index: row.index } });
     },
     downloadSelected() {
       window.open(

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.requests.Similarity;
 
@@ -156,14 +157,37 @@ public class Filter {
 
   @JsonIgnore
   public String getGraphQlFilter() {
-    StringBuilder filter = new StringBuilder();
+    if (concept == null) return null;
 
-    if (concept != null) {
-      String graphQlQuery = concept.getGraphQlQuery().formatted(values);
-      filter.append(graphQlQuery).append(",");
+    String graphQlQuery = concept.getGraphQlQuery();
+    int argumentCount = (int) graphQlQuery.chars().filter(ch -> ch == '%').count();
+
+    if (argumentCount == getValues().length) {
+      return graphQlQuery.formatted((Object[]) getValues());
+    } else if (getValues().length % argumentCount == 0) {
+      List<String> result = new ArrayList<>();
+      for (int i = 0; i < getValues().length; i += argumentCount) {
+        Object[] arguments = Arrays.copyOfRange(getValues(), i, i + argumentCount);
+        result.add(concept.getGraphQlQuery().formatted(arguments));
+      }
+      return createOrFilter(result);
+    } else {
+      throw new MolgenisException(
+          "Number of filter arguments does not match query for Concept: " + concept.getId());
     }
+  }
 
-    filter.deleteCharAt(filter.length() - 1);
-    return filter.toString();
+  private String createOrFilter(List<String> filters) {
+    StringBuilder query = new StringBuilder();
+    query.append("{ _or: [");
+    for (String filter : filters) {
+      query.append(filter).append(",");
+    }
+    if (!filters.isEmpty()) {
+      query.deleteCharAt(query.length() - 1);
+    }
+    query.append("] }");
+
+    return query.toString();
   }
 }

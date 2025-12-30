@@ -26,7 +26,7 @@ public class TestTaskServiceScheduler {
   @Test
   @Disabled
   public void testTaskServiceScheduler() throws InterruptedException, SchedulerException {
-    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME);
+    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME, null);
     TaskServiceScheduler scheduler = new TaskServiceScheduler(service);
 
     Row scriptRow = row("name", "test", "script", "print('hello');", "cron", "0/1 * * * * ?");
@@ -72,7 +72,7 @@ public class TestTaskServiceScheduler {
 
   @Test
   public void testCronPersistence() {
-    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME);
+    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME, null);
     TaskServiceScheduler scheduler = new TaskServiceScheduler(service);
 
     // not there from before
@@ -87,7 +87,7 @@ public class TestTaskServiceScheduler {
 
     // destroy and recreate see if task comes back
     scheduler.shutdown();
-    service = new TaskServiceInDatabase(SCHEMA_NAME);
+    service = new TaskServiceInDatabase(SCHEMA_NAME, null);
 
     // make sure only 'test' is in the scheduled tasks, not other scripts
     scheduler = new TaskServiceScheduler(service);

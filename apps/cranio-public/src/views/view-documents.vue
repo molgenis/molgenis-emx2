@@ -4,7 +4,7 @@
       class="ern-header"
       title="ERN CRANIO"
       subtitle="Documents"
-      imageSrc="banner-diagnoses.jpg"
+      imageSrc="img/banner-diagnoses.jpg"
     />
     <Breadcrumbs />
     <PageSection

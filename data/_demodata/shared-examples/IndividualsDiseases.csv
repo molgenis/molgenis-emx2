@@ -1,5 +1,0 @@
-id,diseaseCode,ageOfOnset_ageGroup,ageOfOnset_age_iso8601duration,ageAtDiagnosis_ageGroup,ageAtDiagnosis_age_iso8601duration,familyHistory,severity,stage
-Ind001_Dis001,Spinocerebellar ataxia type 34,Adult 18-65 Years Old,P32Y6M1D,Adult 18-65 Years Old,P20Y3M2D,false,Profound,acute onset
-Ind001_Dis002,Edinburgh malformation syndrome,Children 2-11 Years Old,P2Y8M,Children 2-11 Years Old,P2Y1M,true,Severe,progression stage
-Ind002_Dis001,Jalili syndrome,Elderly,P89Y,Adult 18-65 Years Old,P58Y,true,Mild,relapse
-MinInd004_Dis001,Spinocerebellar ataxia type 34,,,,,,,

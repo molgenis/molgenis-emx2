@@ -7,8 +7,6 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.PetStoreLoader.COLORS;
-import static org.molgenis.emx2.datamodels.PetStoreLoader.TAG;
 import static org.molgenis.emx2.sql.SqlQuery.SUM_FIELD;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +20,10 @@ import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestSumQuery {
+
+  public static final String TAG = "Tag";
+  public static final String COLORS = "colors";
+
   private static final String TEST_SUM_QUERY = "TestSumQuery";
   static Database database;
   static Schema schema;

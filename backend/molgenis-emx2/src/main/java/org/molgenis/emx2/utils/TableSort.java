@@ -44,7 +44,7 @@ public class TableSort {
           }
         }
         if (!depends)
-          for (Column c : current.getColumns()) {
+          for (Column c : current.getPrimaryKeyColumns()) {
             if (c.getRefTableName() != null && !c.isRefback()) {
               for (int j = 0; j < todo.size(); j++) {
                 if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {

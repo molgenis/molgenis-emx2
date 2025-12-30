@@ -23,16 +23,16 @@
         <li id="project-logo-link">
           <a href="https://ern-skin.eu">
             <img
-              src="/ern-skin-logo.png"
+              src="/img/ern-skin-logo.png"
               alt="ERN-Skin"
               class="ern-skin-logo"
             />
           </a>
         </li>
         <li class="eu-logos">
-          <img src="/ern-logo.png" class="logo ern-logo" />
+          <img src="/img/ern-logo.png" class="logo ern-logo" />
           <img
-            src="/ern-skin-funding.png"
+            src="/img/ern-skin-funding.png"
             class="logo funding-logo"
             alt="funded by the European Union"
           />
@@ -43,10 +43,11 @@
   </Molgenis>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+// @ts-ignore
 import { Molgenis } from "molgenis-components";
 import AppFooter from "./components/AppFooter.vue";
+import { ref } from "vue";
 
 const session = ref(null);
 const page = ref(null);

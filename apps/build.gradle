@@ -2,118 +2,178 @@
 
 plugins {
     id "java"
-    id "com.github.node-gradle.node" version "7.0.1"
+    id "com.github.node-gradle.node" version "7.1.0"
+}
+
+java {
+    targetCompatibility = rootProject.ext.javaVersion
+    sourceCompatibility = rootProject.ext.javaVersion
 }
 
 def isCI = System.getenv('CI') ? true : false
 
-def nodeSpec = {
-    version = '20.11.0'
-    yarnVersion = '1.22.19'
-    npmVersion = "9.5.1"
-    download = !isCI
-}
-
-def excludeDef = {
-    // Exclude 'build', 'dist', and 'showCase' directories from inputs
-    exclude ".gradle"
-    exclude "dist"
-    exclude "node_modules"
-    exclude "showCase"
-    exclude ".output"
-    exclude ".fingerprint.js"
-    exclude ".nuxt"
-    exclude "public/_nuxt-styles"
-    exclude "build"
-}
 
 node {
-    with nodeSpec
+    version = '22.17.0'
+    pnpmVersion = "10.24.0"
+    download = true
+    workDir = file("build/node")
 }
 
-subprojects { subproject ->
-    apply plugin: 'com.github.node-gradle.node'
+// we want the javascript build/lint/format to fire on changes in the project folders
+// excluding build and node_modules folders
+def excludeFolders = ["node_modules",".gradle","build",".turbo",".vscode"]
 
-    node {
-        with nodeSpec
+ext.listProjectFolders = { List<String> excludeNames = excludeFolders ->
+    def base = project.projectDir
+    def children = base.listFiles()
+    if (children == null) {
+        return []
     }
+    return children.findAll { f ->
+        f.isDirectory() && !excludeNames.contains(f.name) && new File(f,"package.json").exists()
+    }.collect { it.name }
+}
+def workspaceDirs = listProjectFolders()
+println "Workspace dirs = $workspaceDirs"
 
-    task format(type: YarnTask, dependsOn: parent.yarn_install) {
-        if (!isCI) {
-            args = ['run', 'format']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-            outputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        } else {
-            args = ['run', 'checkFormat']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
+def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+    //include all files in root
+    project.projectDir.listFiles().findAll { it.isFile() }.each {file ->
+            task.inputs.file(file);
     }
-
-    def packageJson = file("package.json").text
-
-    task buildJavascript(type: YarnTask, dependsOn: format) {
-        environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-
-        //automatically get the internal dependencies
-        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
-            dependsOn ":apps:${match[1]}:buildJavascript";
-        }
-        //run the build
-        args = ['run', 'build']
-        doLast {
-            copy {
-                from "dist"
-                into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
-            }
-        }
-        outputs.dir "dist"
-//        for caching
-        inputs.files fileTree(projectDir).matching {
-            with excludeDef
-        }
-    }
-    parent.tasks.processResources.dependsOn buildJavascript
-
-    task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
-        if (packageJson.contains("test-ci")) {
-            args = ['run', 'test-ci']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-    test.dependsOn testJavaScript
-
-    if (packageJson.contains("build-showcase")) {
-        task buildShowcase(type: YarnTask, dependsOn: buildJavascript) {
-            environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-            args = ['run', 'build-showcase']
-            doLast {
-                copy {
-                    from packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
-                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+    //include all files in the app folders except build files
+    workspaceDirs.each { f ->
+        def dir = project.file(f)
+        task.inputs.files(
+                task.project.fileTree(f) {
+                    include "**/*"
+                    exclude excludeFolders
                 }
-            }
-            outputs.dir packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
-            //for caching
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
+        )
+    }
+    task.outputs.upToDateWhen { true }
+}
+
+tasks.register('pnpm_install', PnpmTask) {
+    args = ['install']
+    inputs.file("package.json")
+    def optionalFile = file("pnpm-lock.yaml")
+    if(optionalFile.exists())     inputs.file(optionalFile)
+    workspaceDirs.each { dir ->
+        inputs.file("${project.projectDir}/${dir}/package.json")
+    }
+    outputs.file("${project.projectDir}/node_modules/.pnpm-workspace-state-v1.json")
+}
+
+tasks.register('pnpm_build', PnpmTask) {
+    dependsOn 'pnpm_install'
+    args = ['run', 'build']
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+// Util task to clean up all apps files created during build
+tasks.register("cleanApps", Delete) {
+    doFirst {
+        // delete build directory as before
+        delete(project.layout.buildDirectory)
+        delete file("${project.projectDir}/node_modules")
+        delete file("${project.projectDir}/.turbo")
+
+
+        // delete only known workspace folders' generated things; no global fileTree over repo
+        workspaceDirs.each { dirName ->
+            def dir = project.file(dirName)
+            if (dir.exists()) {
+                delete new File(dir, ".turbo")
+                delete new File(dir, "dist")
+                delete new File(dir, "showCase")
+                delete new File(dir, "node_modules") // optional
+                delete new File(dir, "build")
             }
         }
-        parent.tasks.processResources.dependsOn buildShowcase
+    }
+
+    outputs.upToDateWhen { false } // still always run when invoked
+}
+clean.dependsOn 'cleanApps';
+
+// Custom task to collect all dist folders into the resources directory
+// Need because gradle cannot properly detect dynamic folders created by npm workspaces
+abstract class CollectDistTask extends DefaultTask {
+    @TaskAction
+    void collect() {
+        File targetDir = project.layout.buildDirectory
+                .dir("generated/resources/public_html/apps")
+                .get()
+                .asFile
+
+        project.copy { spec ->
+            project.file(".").eachDir { dir ->
+                def showCaseDir = new File(dir, "showCase")
+                def distDir = new File(dir, "dist")
+                if (showCaseDir.exists()) {
+                    spec.from(showCaseDir) {
+                        into(dir.name)
+                    }
+                }
+                else if (distDir.exists()) {
+                    spec.from(distDir) {
+                        into(dir.name)
+                    }
+                }
+
+            }
+            spec.into(targetDir)
+        }
+
+        println "✅ Collected dist folders into $targetDir"
     }
 }
+
+tasks.register("collectDist", CollectDistTask) {
+    dependsOn("pnpm_build")
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+tasks.register('format', PnpmTask) {
+    dependsOn 'pnpm_install'
+    if (!isCI) {
+        args = ['run', 'format']
+    } else {
+        args = ['run', 'checkFormat']
+    }
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+tasks.register('lint', PnpmTask) {
+    dependsOn 'pnpm_build'
+    args = ['run', 'lint']
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+tasks.register('testJavascript', PnpmTask) {
+    dependsOn 'pnpm_build'
+    args = ['run', 'test-ci']
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+test.dependsOn 'testJavascript'
 
 sourceSets {
     main {
         resources {
             srcDir "${buildDir}/generated/main/resources"
         }
+    }
+}
+
+// Link the app build to the java jar
+tasks.named("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn("collectDist")
+
+    from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
+        into("public_html/apps")
     }
 }

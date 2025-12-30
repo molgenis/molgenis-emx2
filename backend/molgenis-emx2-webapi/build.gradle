@@ -6,19 +6,34 @@ dependencies {
     implementation project(':backend:molgenis-emx2-datamodels')
     implementation project(':backend:molgenis-emx2-rdf')
     implementation project(':backend:molgenis-emx2-beacon-v2')
-    implementation project(':backend:molgenis-emx2-graphgenome')
+    implementation project(':backend:molgenis-emx2-cafevariome')
     implementation project(':backend:molgenis-emx2-fairdatapoint')
     implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2-email')
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.3.9'
-    implementation 'com.sparkjava:spark-core:2.9.4'
-    implementation 'io.swagger.parser.v3:swagger-parser:2.1.20'
+    implementation project(':backend:molgenis-emx2-analytics')
+    implementation 'io.swagger.parser.v3:swagger-parser:2.1.22'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.squareup.okhttp3:okhttp-brotli:4.11.0'
     testImplementation 'io.rest-assured:rest-assured:5.3.2'
     testImplementation 'org.apache.poi:poi:4.1.2'
     testImplementation 'org.apache.poi:poi-ooxml:4.1.2'
     testImplementation 'net.lingala.zip4j:zip4j:2.11.5'
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
     implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.1'
+
+    implementation 'io.prometheus:prometheus-metrics-core:1.4.1'
+    implementation 'io.prometheus:prometheus-metrics-instrumentation-jvm:1.4.1'
+    implementation 'io.prometheus:prometheus-metrics-exporter-httpserver:1.4.1'
+    implementation 'io.prometheus:prometheus-metrics-exporter-servlet-jakarta:1.4.1'
+
+
+}
+
+task dev(type: JavaExec) {
+    group = 'application'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.molgenis.emx2.RunMolgenisEmx2'
 }

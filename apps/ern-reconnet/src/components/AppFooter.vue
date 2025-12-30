@@ -26,7 +26,7 @@
             <li id="project-logo-link">
               <router-link :to="{ name: 'home' }">
                 <img
-                  :src="ErnLogo"
+                  src="/img/ern-reconnet-logo.png"
                   alt="ERN-RECONNET registry"
                   class="ern-logo"
                 />
@@ -34,7 +34,7 @@
             </li>
             <li class="eu-logos">
               <img
-                :src="FundingLogo"
+                src="/img/ern-funded-by-eu.svg"
                 class="logo funding-logo"
                 alt="funded by the European Union"
               />
@@ -46,7 +46,7 @@
                 >
                 <li>
                   <img
-                    :src="MolgenisLogo"
+                    src="/img/molgenis-logo-blue-text.png"
                     class="molgenis-logo"
                     alt="molgenis open source data platform"
                   />
@@ -60,11 +60,9 @@
   </PageFooter>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { PageFooter, UnorderedList } from "molgenis-viz";
-import ErnLogo from "../assets/ern-reconnet-logo.png";
-import MolgenisLogo from "../assets/molgenis-logo-blue-text.png";
-import FundingLogo from "../assets/ern-funded-by-eu.svg";
 </script>
 
 <style lang="scss">

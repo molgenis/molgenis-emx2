@@ -3,7 +3,7 @@
     <PageHeader
       title="GDI Local Portal"
       subtitle="Search for datasets"
-      imageSrc="bkg-datasets.jpg"
+      imageSrc="img/bkg-datasets.jpg"
       titlePositionX="center"
       height="large"
     />
@@ -81,7 +81,7 @@
                 </li>
                 <li
                   class="tag-format"
-                  v-if="dataset.fileFormats.length"
+                  v-if="dataset.fileFormats?.length"
                   v-for="format in dataset.fileFormats"
                 >
                   {{ format }}
@@ -96,7 +96,7 @@
                 name="rems-selections"
                 v-model="selection"
                 :value="dataset.id"
-                :ref="setRefs"
+                :ref="() => setRefs"
                 @change="applySelectionStyle"
               />
               <label :for="dataset.id" class="btn btn-outline-primary">
@@ -113,21 +113,35 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import gql from "graphql-tag";
 import { request } from "graphql-request";
 import { ref, watch, onBeforeMount } from "vue";
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-import { ButtonAlt, ButtonOutline } from "molgenis-components";
 import { PlusIcon, ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
+import { cleanUrl } from "../utils/index";
 
-let datasets = ref([]);
-let selection = ref([]);
-let checkboxes = ref([]);
-let remsHost = ref(null);
-let remsApplyUrl = ref(null);
-let noRemsHostFound = ref(false);
-let noDatasetFound = ref(false);
+// @ts-ignore
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+// @ts-ignore
+import { ButtonAlt, ButtonOutline } from "molgenis-components";
+
+import type {
+  ISettingsApiResponse,
+  IDatasetSchema,
+  IDatasetRef,
+  IDatasetApiResponse,
+  IDistributionFilesSchema,
+  IDatasetDistributionSchema,
+  IKeyValue,
+} from "../interfaces/datasets";
+
+let datasets = ref<IDatasetRef[]>([]);
+let selection = ref<string[]>([]);
+let checkboxes = ref<string[]>([]);
+let remsHost = ref<string>("");
+let remsApplyUrl = ref<string>("");
+let noRemsHostFound = ref<boolean>(false);
+let noDatasetFound = ref<boolean>(false);
 
 async function getDatasets() {
   const query = gql`
@@ -153,28 +167,23 @@ async function getDatasets() {
       }
     }
   `;
-  const response = await request("../api/graphql", query);
-  const data = response.Dataset.map((dataset) => {
-    const type = dataset.distribution[0].type.name;
-    const counts = dataset.distribution[0].files
-      ? dataset.distribution[0].files.length
-      : null;
-    const formats = dataset.distribution[0].files
-      ? dataset.distribution[0].files.map((file) => file.format.name)
-      : null;
-
+  const response: IDatasetApiResponse = await request("../api/graphql", query);
+  const data = response.Dataset.map((dataset: IDatasetSchema) => {
+    const distribution = dataset.distribution[0] as IDatasetDistributionSchema;
+    const formats = distribution?.files?.map((file: IDistributionFilesSchema) =>
+      file.format?.name.toLowerCase()
+    );
     return {
-      ...dataset,
-      type: type,
-      fileCount: counts,
-      fileFormats: [...new Set(formats)],
+      id: dataset.id,
+      title: dataset.title,
+      description: dataset.description,
+      type: distribution?.type?.name,
+      fileCount: distribution?.files?.length || 0,
+      fileFormats: [...Array.from(new Set(formats))] || [],
     };
   });
-  datasets.value = data;
-}
 
-function cleanUrl(url) {
-  return url[url.length - 1] === "/" ? url.slice(0, url.length - 1) : url;
+  datasets.value = data as IDatasetRef[];
 }
 
 async function setRemsHost() {
@@ -186,7 +195,7 @@ async function setRemsHost() {
       }
     }
   `;
-  const response = await request("../api/graphql", query);
+  const response: ISettingsApiResponse = await request("../api/graphql", query);
   const settings = response._settings;
   const keys = settings.map((row) => row.key);
 
@@ -194,7 +203,8 @@ async function setRemsHost() {
     throw new Error("Setting for REM_URL not found");
   }
 
-  const url = settings.filter((row) => row.key === "REMS_URL")[0].value;
+  const url = settings.filter((row: IKeyValue) => row.key === "REMS_URL")[0]
+    .value as string;
   remsHost.value = cleanUrl(url);
 }
 
@@ -210,14 +220,14 @@ function clearAll() {
   cards.forEach((card) => card.classList.remove("card-selected"));
 }
 
-function setRefs(value) {
+function setRefs(value: HTMLFormElement) {
   if (value !== null) {
-    checkboxes.value.push(value._value);
+    checkboxes.value.push(value?._value);
   }
 }
 
 function selectAll() {
-  checkboxes.value.forEach((value) => {
+  checkboxes.value.forEach((value: string) => {
     if (selection.value.indexOf(value) === -1) {
       selection.value.push(value);
     }
@@ -227,9 +237,10 @@ function selectAll() {
   cards.forEach((card) => card.classList.add("card-selected"));
 }
 
-function applySelectionStyle(event) {
-  const value = event.target.value;
-  const parent = event.target.parentNode.parentNode;
+function applySelectionStyle(event: Event) {
+  const eventTarget = event.target as HTMLInputElement;
+  const value = eventTarget?.value;
+  const parent = eventTarget?.parentNode?.parentNode as HTMLElement;
   if (selection.value.includes(value)) {
     parent.classList.add("card-selected");
   } else {
@@ -281,7 +292,7 @@ watch([selection], setUrl);
         padding: 0.15em 0.8em;
         border-radius: 24px;
         color: $blue-800;
-        background-color: $blue-050;
+        background-color: $gray-050;
         font-size: 11pt;
       }
     }

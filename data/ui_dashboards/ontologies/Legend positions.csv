@@ -1,0 +1,5 @@
+name,definition
+top,"A vertical position that indicates a chart legend should be placed before (i.e., above) a chart."
+right,A horizontal position that indicates a chart legend should be placed on the righthand side of a chart.
+bottom,"A vertical position that indicates a chart legend should be placed after (i.e., below) a chart."
+left,A horizontal position that indicates a chart legend should be placed on the lefthand side of a chart.

@@ -4,7 +4,7 @@
       class="genturis-header"
       title="ERN Genturis Registry"
       subtitle="Registry for Genetic Tumour Risk Syndromes"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -30,12 +30,7 @@
       <p>
         The GENTURIS registry consists of a collection of common data elements
         for all genturis patients, combined with disease-specific data elements
-        for all thematic disease groups covered by ERN GENTURIS. The FAIR Data
-        Point (FDP), a machine-readable description of the metadata, can be
-        found at:
-        <a href="https://genturis-registry.eu/api/fdp"
-          >https://genturis-registry.eu/api/fdp</a
-        >.
+        for all thematic disease groups covered by ERN GENTURIS.
       </p>
       <h3>Thematic disease groups</h3>
       <p>
@@ -71,7 +66,7 @@
       </ul>
       <img
         id="img-genturis-disease-groups"
-        src="/genturis-disease-groups.png"
+        src="/img/genturis-disease-groups.png"
         alt="thematic disease groups included in the genturis registry"
       />
       <p>
@@ -145,7 +140,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 </script>
 

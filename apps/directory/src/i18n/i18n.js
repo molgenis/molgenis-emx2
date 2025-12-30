@@ -13,15 +13,16 @@ export const i18n = {
     remove_all: "Remove all",
     send_to_negotiator: "Send to the Negotiator",
     send_to_podium: "Send to Podium",
-    card_biobank_details: "View biobank",
-    card_collections_details: "View biobank collections",
+    card_biobank_details: "Organisation",
+    card_collections_details: "Collections",
     match_option1: "Match all",
     match_option2: "Match any",
     filter_loading: "Loading filters",
     select_all: "Select all",
     deselect_all: "Deselect all",
     biobank_withdrawn: "This biobank is no longer part of BBMRI-ERIC",
-    collection_withdrawn:
+    collection_withdrawn: "This collection is no longer part of BBMRI-ERIC",
+    collection_biobank_withdrawn:
       "This collection belongs to a biobank that is no longer part of BBMRI-ERIC",
   },
 };

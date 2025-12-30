@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MetadataUtils {
+  private static final String MATCHES = "matches";
   private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
   private static Integer version;
 
@@ -24,7 +25,7 @@ public class MetadataUtils {
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
-  private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
+  public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
 
@@ -59,6 +60,8 @@ public class MetadataUtils {
   // column
   private static final Field<String> COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
+  private static final Field<String> COLUMN_FORM_LABEL =
+      field(name("form_label"), VARCHAR.nullable(true));
   private static final Field<JSON> COLUMN_LABEL = field(name("label"), JSON.nullable(false));
   private static final Field<Integer> COLUMN_KEY = field(name("key"), INTEGER.nullable(true));
   private static final Field<Integer> COLUMN_POSITION = field(name("position"), INTEGER);
@@ -98,8 +101,10 @@ public class MetadataUtils {
       field(name("defaultValue"), VARCHAR.nullable(true));
 
   // users
-  private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
+  public static final Field<String> USER_NAME = field(name("username"), VARCHAR);
   private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
+  public static final Field<Boolean> USER_ENABLED = field(name("enabled"), BOOLEAN.nullable(false));
+  public static final Field<Boolean> USER_ADMIN = field(name("admin"), BOOLEAN);
 
   // settings field, reused by all other metadata
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
@@ -243,7 +248,8 @@ public class MetadataUtils {
                         COLUMN_CASCADE,
                         COLUMN_DESCRIPTION,
                         COLUMN_SEMANTICS,
-                        COLUMN_VISIBLE)
+                        COLUMN_VISIBLE,
+                        COLUMN_FORM_LABEL)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
                         foreignKey(TABLE_SCHEMA, TABLE_NAME)
@@ -256,7 +262,9 @@ public class MetadataUtils {
             }
 
             t = jooq.createTableIfNotExists(USERS_METADATA);
-            t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+            t.columns(USER_NAME, USER_PASS, USER_ENABLED)
+                .constraint(primaryKey(USER_NAME))
+                .execute();
 
             t = jooq.createTableIfNotExists(SETTINGS_METADATA);
             t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
@@ -389,13 +397,16 @@ public class MetadataUtils {
       List<User> users = new ArrayList<>();
       for (org.jooq.Record user :
           db.getJooq()
-              .select(USER_NAME, SETTINGS)
+              .select(USER_NAME, USER_ENABLED, USER_ADMIN, SETTINGS)
               .from(USERS_METADATA)
               .orderBy(USER_NAME)
               .limit(limit)
               .offset(offset)
               .fetchArray()) {
-        users.add(new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class)));
+        User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
+        newUser.setEnabled(user.get(USER_ENABLED));
+        newUser.setAdmin(user.get(USER_ADMIN));
+        users.add(newUser);
       }
       return users;
     } catch (Exception e) {
@@ -458,6 +469,31 @@ public class MetadataUtils {
     return table;
   }
 
+  public static List<Column> getReferencesToTable(
+      DSLContext jooq, String schemaName, String tableName) {
+    List<org.jooq.Record> refRecords =
+        jooq.selectFrom(COLUMN_METADATA)
+            .where(
+                coalesce(COLUMN_REF_SCHEMA, TABLE_SCHEMA)
+                    .eq(schemaName)
+                    .and(COLUMN_REF_TABLE.eq(tableName)))
+            .fetch();
+
+    // create columns including suitable table and schema metadata
+    return refRecords.stream()
+        .map(
+            record -> {
+              TableMetadata tableMetadata =
+                  loadTable(jooq, record.get(TABLE_SCHEMA), record.get(TABLE_NAME));
+              SchemaMetadata schemaMetadata = new SchemaMetadata(record.get(TABLE_SCHEMA));
+              tableMetadata.setSchema(schemaMetadata);
+              Column columnMetadata = recordToColumn(record);
+              columnMetadata.setTable(tableMetadata);
+              return columnMetadata;
+            })
+        .toList();
+  }
+
   private static TableMetadata recordToTable(org.jooq.Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
     table.setInheritName(r.get(TABLE_INHERITS, String.class));
@@ -483,9 +519,9 @@ public class MetadataUtils {
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
         column.isReference()
-            ? column.getRefSchemaName().equals(column.getSchemaName())
+            ? (column.getRefSchemaName().equals(column.getSchemaName())
                 ? null
-                : column.getRefSchemaName()
+                : column.getRefSchemaName())
             : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(
@@ -493,6 +529,7 @@ public class MetadataUtils {
             TABLE_NAME,
             COLUMN_NAME,
             COLUMN_LABEL,
+            COLUMN_FORM_LABEL,
             COLUMN_TYPE,
             COLUMN_KEY,
             COLUMN_POSITION,
@@ -517,6 +554,7 @@ public class MetadataUtils {
             column.getTable().getTableName(),
             column.getName(),
             column.getLabels(),
+            column.getFormLabel(),
             Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
@@ -539,6 +577,7 @@ public class MetadataUtils {
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_LABEL, column.getLabels())
+        .set(COLUMN_FORM_LABEL, column.getFormLabel())
         .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
@@ -577,6 +616,7 @@ public class MetadataUtils {
   private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
     c.setLabels(col.get(COLUMN_LABEL) != null ? col.get(COLUMN_LABEL, Map.class) : new TreeMap<>());
+    c.setFormLabel(col.get(COLUMN_FORM_LABEL, String.class));
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
     c.setRequired(col.get(COLUMN_REQUIRED, String.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
@@ -602,10 +642,12 @@ public class MetadataUtils {
   }
 
   public static void setUserPassword(DSLContext jooq, String user, String password) {
+    // TODO BEFORE MERGE: set USER_ACTIVE to current value and not to "TRUE"
     jooq.insertInto(USERS_METADATA)
-        .columns(USER_NAME, USER_PASS)
+        .columns(USER_NAME, USER_ENABLED, USER_PASS)
         .values(
             field("{0}", String.class, user),
+            field("{0}", Boolean.class, Boolean.TRUE),
             field("crypt({0}, gen_salt('bf'))", String.class, password))
         .onConflict(USER_NAME)
         .doUpdate()
@@ -615,12 +657,12 @@ public class MetadataUtils {
 
   public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
     org.jooq.Record result =
-        jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as("matches"))
+        jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as(MATCHES))
             .from(USERS_METADATA)
             .where(field(USER_NAME).eq(username))
             .fetchOne();
 
-    return result != null && result.get("matches", Boolean.class);
+    return result != null && result.get(MATCHES) != null && result.get(MATCHES, Boolean.class);
   }
 
   public static void setVersion(DSLContext jooq, int newVersion) {
@@ -663,8 +705,8 @@ public class MetadataUtils {
   public static void saveUserMetadata(DSLContext jooq, User user) {
     // don't update password via this route
     jooq.insertInto(USERS_METADATA)
-        .columns(USER_NAME, SETTINGS)
-        .values(user.getUsername(), user.getSettings())
+        .columns(USER_NAME, USER_ENABLED, SETTINGS)
+        .values(user.getUsername(), true, user.getSettings())
         .onConflict(USER_NAME)
         .doUpdate()
         .set(SETTINGS, user.getSettings())
@@ -676,7 +718,9 @@ public class MetadataUtils {
         db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName)).fetchOne();
     if (userRecord != null) {
       User result = new User(db, userName);
+      result.setEnabled(userRecord.get(USER_ENABLED));
       result.setSettings(userRecord.get(SETTINGS, Map.class));
+      result.setAdmin(userRecord.get(USER_ADMIN));
       return result;
     }
     return null;

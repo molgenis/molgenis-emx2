@@ -28,7 +28,7 @@
               >{{ profile }}</span
             >
           </p>
-          <InputSearch v-model="search" />
+          <InputSearch v-model="search" id="search-profile-input" />
           <ul class="list-group sticky-top">
             <li
               v-for="table in tables"
@@ -92,11 +92,12 @@
                   </sup>
                   <div class="float-right">
                     <small class="align-right">
-                      <a
-                        v-for="semantics in column.semantics"
-                        href="semantics"
-                        target="_blank"
-                        >{{ semantics }}</a
+                      <span
+                        ><template
+                          v-for="(semantics, index) in column.semantics"
+                          ><template v-if="index > 0">,</template
+                          >{{ semantics }}</template
+                        ></span
                       >
                     </small>
                   </div>

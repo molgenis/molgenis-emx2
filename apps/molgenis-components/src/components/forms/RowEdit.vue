@@ -5,10 +5,11 @@
       :key="JSON.stringify(column)"
       :id="`${id}-${column.id}`"
       :modelValue="internalValues[column.id]"
+      :expressionData="internalValues"
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
-      :label="column.label"
+      :label="column.formLabel ?? column.label"
       :schemaId="column.refSchemaId || schemaMetaData.id"
       :pkey="pkey"
       :readonly="
@@ -21,18 +22,19 @@
       :required="column.required"
       :tableId="column.refTableId"
       :canEdit="canEdit"
-      :filter="refLinkFilter(column)"
-      @update:modelValue="handleModelValueUpdate($event, column.id)"
+      :filter="refFilter[column.id]"
+      @update:modelValue="handleModelValueUpdate($event, column)"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { IColumn, ITableMetaData } from "meta-data-utils";
+import { IColumn, ITableMetaData } from "metadata-utils";
 import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
 import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
+import { convertRowToPrimaryKey } from "../../client/client";
 
 const { AUTO_ID } = constants;
 
@@ -43,6 +45,7 @@ export default {
       internalValues: deepClone(
         this.defaultValue ? this.defaultValue : this.modelValue
       ),
+      refFilter: {} as Record<string, any>,
     };
   },
   props: {
@@ -110,7 +113,8 @@ export default {
     shownColumnsWithoutMeta() {
       const columnsWithoutMeta = this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column: IColumn) => !column.id?.startsWith("mg_")
+            (column: IColumn) =>
+              !column.id?.startsWith("mg_") && column.id !== "_mg_top_of_form"
           )
         : [];
       return columnsWithoutMeta.filter(this.showColumn);
@@ -118,9 +122,7 @@ export default {
   },
   methods: {
     showColumn(column: IColumn) {
-      if (column.columnType === AUTO_ID) {
-        return this.pkey;
-      } else if (column.refLinkId) {
+      if (column.refLinkId) {
         return this.internalValues[column.refLinkId];
       } else {
         const isColumnVisible = this.visibleColumns
@@ -156,47 +158,47 @@ export default {
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            console.log("Computed expression failed:", error);
+            console.log("Computed expression failed: ", error);
             this.errorPerColumn[column.id] =
               "Computed expression failed: " + error;
           }
         }
       });
     },
-    //create a filter in case inputs are linked by overlapping refs
-    refLinkFilter(column: IColumn) {
-      //need to figure out what refs overlap
-      if (
-        column.refLinkId &&
-        this.showColumn(column) &&
-        this.internalValues[column.refLinkId]
-      ) {
-        let filter: Record<string, any> = {};
-        this.tableMetaData.columns.forEach((column2: IColumn) => {
-          if (column2.id === column.refLinkId) {
-            this.schemaMetaData.tables.forEach((table: ITableMetaData) => {
-              //check how the refTableId overlaps with columns in our column
-              if (table.id === column.refTableId) {
-                table.columns.forEach((column3) => {
-                  if (
-                    column3.key === 1 &&
-                    column3.refTableId === column2.refTableId
-                  ) {
-                    filter[column3.id] = {
-                      //@ts-ignore
-                      equals: this.internalValues[column.refLinkId],
-                    };
-                  }
-                });
-              }
-            });
-          }
-        });
-        return filter;
+    //update reflink filters and reset values if reflink changes
+    async updateRefLinks(changedColumn: IColumn) {
+      const refLinkColumns = this.tableMetaData.columns.filter(
+        (col: IColumn) =>
+          this.internalValues[changedColumn.id] &&
+          col.refLinkId === changedColumn.id
+      );
+      for (const refLinkColumn of refLinkColumns) {
+        const refTable = this.schemaMetaData.tables.find(
+          (table: ITableMetaData) => table.id === refLinkColumn.refTableId
+        );
+        const overlappingRefColumns = refTable.columns.filter(
+          (col: IColumn) =>
+            col.key === 1 && col.refTableId === changedColumn.refTableId
+        );
+        for (const overlappingKey of overlappingRefColumns) {
+          //reset the value and the filter
+          this.internalValues[refLinkColumn.id] = null;
+          //and then define new filter setting
+          this.refFilter[refLinkColumn.id] = {
+            [overlappingKey.id]: {
+              equals: await convertRowToPrimaryKey(
+                this.internalValues[changedColumn.id],
+                overlappingKey.refTableId,
+                overlappingKey.refSchemaId || this.schemaMetaData.schemaId
+              ),
+            },
+          };
+        }
       }
     },
-    handleModelValueUpdate(newValue: any, columnId: string) {
-      this.internalValues[columnId] = newValue;
+    handleModelValueUpdate(newValue: any, column: IColumn) {
+      this.internalValues[column.id] = newValue;
+      this.updateRefLinks(column);
       this.onValuesUpdate();
     },
     onValuesUpdate() {
@@ -230,6 +232,10 @@ export default {
             this.errorPerColumn[column.id] =
               "Default value expression failed: " + error;
           }
+        } else if (column.columnType === "BOOL") {
+          this.internalValues[column.id] = getBooleanDefaultValue(
+            column.defaultValue
+          );
         } else {
           this.internalValues[column.id] = column.defaultValue;
         }
@@ -238,6 +244,16 @@ export default {
     this.onValuesUpdate();
   },
 };
+
+function getBooleanDefaultValue(value: any): boolean | undefined {
+  if (value === "TRUE" || value === "true" || value === true) {
+    return true;
+  } else if (value === "FALSE" || value === "false" || value === false) {
+    return false;
+  } else {
+    return undefined;
+  }
+}
 </script>
 
 <docs>
@@ -307,7 +323,6 @@ export default {
         const client = this.$Client.newClient(this.schemaId);
         this.schemaMetadata = await client.fetchSchemaMetaData();
         this.tableMetadata = await client.fetchTableMetaData(this.tableId);
-        //this.rowData = (await client.fetchTableData(this.tableId))[this.tableId];
         this.showRowEdit = true;
       },
     },

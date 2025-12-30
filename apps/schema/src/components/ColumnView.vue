@@ -12,12 +12,8 @@
       <span>
         {{ column.name }}
         <span v-if="column.semantics">
-          (<a
-            :href="purl"
-            target="_blank"
-            v-for="purl in column.semantics"
-            :key="purl"
-            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+          (<template v-for="(semantics, index) in column.semantics"
+            ><template v-if="index > 0">,</template>{{ semantics }}</template
           >)
         </span>
       </span>
@@ -133,19 +129,21 @@ export default {
   },
   computed: {
     table() {
-      return this.schema.tables.find(
-        (table) =>
-          //use oldName because otheriwse error on renaming
-          //must make sure new tables/subtables also have oldName set!
-          table.oldName === this.column.table ||
-          table.name === this.column.table ||
-          (table.subclasses !== undefined &&
-            (table.subclasses
-              .map((subclass) => subclass.oldName)
-              .includes(this.column.table) ||
-              table.subclasses
-                .map((subclass) => subclass.name)
-                .includes(this.column.table)))
+      return (
+        this.schema.tables.find(
+          (table) =>
+            //use oldName because otherwise error on renaming
+            //must make sure new tables/subtables also have oldName set!
+            table.oldName === this.column.table ||
+            table.name === this.column.table ||
+            (table.subclasses !== undefined &&
+              (table.subclasses
+                .map((subclass) => subclass.oldName)
+                .includes(this.column.table) ||
+                table.subclasses
+                  .map((subclass) => subclass.name)
+                  .includes(this.column.table)))
+        ) || {}
       );
     },
     rootTableName() {

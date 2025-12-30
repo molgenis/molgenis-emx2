@@ -5,9 +5,11 @@
   </Molgenis>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
+// @ts-ignore
 import { Molgenis } from "molgenis-components";
+// @ts-ignore
 import AppFooter from "./components/AppFooter.vue";
 
 const session = ref(null);

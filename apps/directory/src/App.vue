@@ -1,87 +1,120 @@
 <template>
-  <Molgenis v-model="session">
+  <Molgenis v-model="session" style="background-color: white">
+    <template #banner>
+      <div v-html="banner" />
+    </template>
+    <Error />
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
-      <Footer />
+      <div v-html="footer" />
     </template>
   </Molgenis>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useFavicon, usePreferredDark } from "@vueuse/core";
+//@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { computed, onMounted, watch } from "vue";
-import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
+import { computed, onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
+import Error from "./components/Error.vue";
+import { applyBookmark } from "./functions/bookmarkMapper";
+import router from "./router";
 import { useFiltersStore } from "./stores/filtersStore";
-import { useCheckoutStore } from "./stores/checkoutStore";
 import { useSettingsStore } from "./stores/settingsStore";
-import Footer from "./components/Footer.vue";
 
 const route = useRoute();
 const query = computed(() => route.query);
+
 const filtersStore = useFiltersStore();
-const checkoutStore = useCheckoutStore();
+const settingsStore = useSettingsStore();
 
-watch(
-  query,
-  (newQuery, oldQuery) => {
-    if (newQuery && Object.keys(newQuery).length) {
-      const remainingKeys = Object.keys(newQuery).filter(
-        (key) => key !== "cart"
-      );
-      /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobankcards. */
-      if (remainingKeys.length > 0) {
-        filtersStore.bookmarkWaitingForApplication = true;
-      }
-    } else if (
-      oldQuery &&
-      Object.keys(oldQuery).length > 0 &&
-      newQuery &&
-      Object.keys(newQuery).length === 0
-    ) {
-      createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
-      applyBookmark(newQuery);
-    }
+const { configurationFetched } = storeToRefs(settingsStore);
 
-    if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
-      applyBookmark(newQuery);
-    }
-  },
-  { immediate: true, deep: true }
-);
-onMounted(async () => {
-  const settingsStore = useSettingsStore();
-  await settingsStore.initializeConfig();
+const banner = computed(() => settingsStore.config.banner);
+const footer = computed(() => settingsStore.config.footer);
+
+const session = ref({});
+
+window.onpopstate = function () {
+  filtersStore.bookmarkWaitingForApplication = true;
+  applyBookmark(query.value);
+};
+
+watch(session, () => {
+  settingsStore.setSessionInformation(session.value);
 });
 
-function closeAllDropdownButtons(event) {
+watch(configurationFetched, () => {
+  initMatomo();
+});
+
+onMounted(async () => {
+  filtersStore.bookmarkWaitingForApplication = true;
+  await router.isReady();
+  applyBookmark(query.value);
+  changeFavicon();
+});
+
+function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
-  if (event.target.id) {
-    for (const dropdownButton of allDropdownButtons) {
-      if (dropdownButton.id !== event.target.id) {
+  if (event.target?.id) {
+    allDropdownButtons.forEach((dropdownButton) => {
+      if (dropdownButton.id !== event.target?.id) {
         dropdownButton.removeAttribute("open");
       }
-    }
+    });
   } else {
-    for (const dropdownButton of allDropdownButtons) {
+    allDropdownButtons.forEach((dropdownButton) => {
       dropdownButton.removeAttribute("open");
-    }
+    });
   }
 }
-</script>
 
-<script>
-export default {
-  data() {
-    return {
-      session: {},
-    };
-  },
-  watch: {
-    session(sessionState) {
-      const settingsStore = useSettingsStore();
-      settingsStore.setSessionInformation(sessionState);
-    },
-  },
-};
+function changeFavicon() {
+  const faviconUrl = getFaviconUrl();
+  useFavicon(faviconUrl);
+}
+
+function getFaviconUrl() {
+  const isDark = usePreferredDark();
+  return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
+}
+
+function initMatomo() {
+  const { matomoUrl, matomoSiteId } = settingsStore.config;
+
+  if (matomoUrl && matomoSiteId) {
+    const _paq = (window._paq = window._paq || []);
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(["trackPageView"]);
+    _paq.push(["enableLinkTracking"]);
+    (function () {
+      _paq.push(["setTrackerUrl", matomoUrl + "matomo.php"]);
+      _paq.push(["setSiteId", matomoSiteId]);
+      const doc = document;
+      const newScriptElement = doc.createElement("script");
+      const firstFoundScriptElement = doc.getElementsByTagName("script")[0];
+      newScriptElement.async = true;
+      newScriptElement.src = matomoUrl + "matomo.js";
+      firstFoundScriptElement.parentNode?.insertBefore(
+        newScriptElement,
+        firstFoundScriptElement
+      );
+    })();
+
+    router.afterEach(() => {
+      if (window._paq) {
+        window._paq.push(["setCustomUrl", window.location.href]);
+        window._paq.push(["setDocumentTitle", document.title]);
+        window._paq.push(["trackPageView"]);
+      }
+    });
+  } else {
+    console.warn(
+      `Matomo URL (${matomoUrl}) or Site ID (${matomoSiteId}) is not set in the configuration.`
+    );
+  }
+}
 </script>

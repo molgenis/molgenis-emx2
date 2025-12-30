@@ -31,13 +31,15 @@
           </p>
           <div>
             <p>
-              Import data by uploading files in excel, zip, json or yaml format.
+              Import data by uploading files in excel, csv, zip, json or yaml
+              format.
             </p>
             <form class="form-inline">
               <InputFile v-model="file" />
               <ButtonAction @click="upload" v-if="file != undefined">
                 Import
               </ButtonAction>
+              <Spinner v-if="loading" />
             </form>
             <br />
           </div>
@@ -61,27 +63,42 @@
           <p>Export data by downloading various file formats:</p>
           <div>
             <p>
-              Export schema as <a :href="'../api/csv'">csv</a> /
-              <a :href="'../api/json'">json</a> /
-              <a :href="'../api/yaml'">yaml</a>
+              Export schema as <a :href="`/${schema}/api/csv`">csv</a> /
+              <a :href="`/${schema}/api/json`">json</a> /
+              <a :href="`/${schema}/api/yaml`">yaml</a>
             </p>
+
             <p>
               Export all data as
-              <a :href="'../api/excel'">excel</a> /
-              <a :href="'../api/zip'">csv.zip</a> /
-              <a :href="'../api/ttl'">ttl</a> /
-              <a :href="'../api/jsonld'">jsonld</a>
+              <a :href="`/${schema}/api/excel`">excel</a> /
+              <a :href="`/${schema}/api/zip`">csv.zip</a> /
+              <a :href="`/${schema}/api/ttl`">ttl</a> /
+              <a :href="`/${schema}/api/jsonld`">jsonld</a>
             </p>
+
+            <div>
+              Export schema information:
+              <ul>
+                <li>
+                  Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
+                </li>
+                <li v-if="canExportMembers">
+                  Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                </li>
+              </ul>
+            </div>
+
             <div v-if="visibleTables?.length" :key="tablesHash">
               Export specific tables:
               <ul>
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
-                  <a :href="'../api/csv/' + table.id">csv</a> /
-                  <a :href="'../api/excel/' + table.id">excel</a>
+                  <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
                 </li>
               </ul>
             </div>
+
             <p>
               Note to programmers: the GET endpoints above also accept http POST
               command for updates, and DELETE commands for deletions.
@@ -97,6 +114,7 @@
 import {
   ButtonAction,
   InputFile,
+  Spinner,
   MessageError,
   MessageSuccess,
   MessageWarning,
@@ -109,6 +127,7 @@ import { request } from "graphql-request";
 export default {
   components: {
     ButtonAction,
+    Spinner,
     InputFile,
     MessageError,
     MessageSuccess,
@@ -136,6 +155,9 @@ export default {
       } else {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
+    },
+    canExportMembers() {
+      return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
     },
     tablesHash() {
       if (this.tables) {
@@ -170,7 +192,7 @@ export default {
         const reader = new FileReader();
         reader.readAsText(this.file);
         reader.onload = () => {
-          const url = `/${this.schema}/api/${type}`;
+          const url = `/${this.schema}/api/${type}?async=true`;
           const options = {
             method: "POST",
             body: reader.result,
@@ -179,8 +201,14 @@ export default {
           fetch(url, options)
             .then((response) => {
               if (response.ok) {
-                response.text().then((successText) => {
-                  this.success = successText;
+                response.json().then((response) => {
+                  if (response.id) {
+                    // if identifier is present it's a task
+                    this.taskId = response.id;
+                  } else {
+                    // it's a regular response
+                    this.success = response.message;
+                  }
                   this.error = null;
                 });
               } else {

@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Bar Chart Example"
-      imageSrc="bar-chart-header.jpg"
+      imageSrc="img/bar-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">

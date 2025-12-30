@@ -51,15 +51,14 @@ nyx {
     }
 }
 
-rootProject.name = 'emx2'
-include(':apps')
-//include all apps folders automatically
-file('apps').eachDir { dir ->
-    def packageJsonFile = new File(dir, 'package.json')
-    if (packageJsonFile.exists() && !['build', '.gradle'].contains(dir.name)) {
-        include "apps:${dir.name}"
+gradle.beforeProject { Project p ->
+    p.layout.projectDirectory.asFileTree.matching {
+        exclude("**/node_modules/**")
     }
 }
+
+rootProject.name = 'emx2'
+include(':apps')
 include(':docs')
 include(':backend:molgenis-emx2')
 include(':backend:molgenis-emx2-datamodels')
@@ -71,9 +70,13 @@ include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-tasks')
 include(':backend:molgenis-emx2-rdf')
 include(':backend:molgenis-emx2-beacon-v2')
+include(':backend:molgenis-emx2-cafevariome')
 include(':backend:molgenis-emx2-fairdatapoint')
-include(':backend:molgenis-emx2-graphgenome')
 include(':backend:molgenis-emx2-email')
 include(':backend:molgenis-emx2-nonparallel-tests')
+include(':backend:molgenis-emx2-analytics')
+include(':backend:molgenis-emx2-typescript')
 include(':tools:pyclient')
+
+
 

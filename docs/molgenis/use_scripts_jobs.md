@@ -1,46 +1,110 @@
-# Scripts and Jobs
+# Scripts and jobs
 
-In the 'tasks' menu item (also available via http://servername/apps/tasks) you can define scripts and view jobs. Under the hood, in SYSTEM database suitable
-tables for Scripts and Jobs
+MOLGENIS EMX2 offers the possibility to execute scripts that enable the administrator to perform tasks such as data management on the server itself.
+In the 'tasks' menu item (also available via http://servername/apps/tasks) you can define scripts and view jobs.
 
 ## Scripts
 
-Scripts currently can only be python scripts.
+Currently, Python and bash scripts are supported.
 
-Scripts can have the following:
-
-* unique name, required
-* the script type
-* the script
+When creating a script entry the following can be defined:
+* script name, required
+* script type, either _Python_ or _bash_
+* the script itself
+* dependencies, optional, list the dependencies for a Python script with optionally version numbers like in a `requirements.txt` file
+* extra file, optional. Can be a single file or a ZIP archive. The ZIP archive will be extracted before running the script.
 * outputFileExtension, optional, for returning output files. E.g. 'txt'
-* disabled, when true scripts cannot be run
+* disabled, when set to true the script will not run if a cron schedule is set
+* failureAddress, when set, will send a message to this email address, if a job fails
 * cron, will schedule the script to run at planned intervals
 
 Your script will receive as environment variables:
 
-* a token via MOLGENIS_TOKEN
-* a path to OUTPUT_FILE which you can use to produce an outputFile which will then be stored in Jobs.output
+* a token via `MOLGENIS_TOKEN`
+* a path to `OUTPUT_FILE` which you can use to produce an outputFile which will then be stored in `Jobs.output`
+
+Example of how to use 'extra file' to upload and use a Python module:
+
+* upload a ZIP archive containing a folder `additional_module` with a file `my_module.py`
+which contains a class `custom_class`
+* in the script itself: `from additional_module.my_module import custom_class`
+* use the imported class as you like, e.g. `new_class = custom_class()`
+
+### Pyclient
+
+Python scripts can make use of the [Molgenis Pyclient](use_usingpyclient.md). Make sure to initialize the client as
+described [here](use_usingpyclient.md#scripts-and-jobs)
+
 
 ## Jobs
-
-Lists the previous jobs. You can see the progress on each of them. Also you can expect any output produced.
+Under the _Jobs_ tab the results of previously executed jobs can be viewed and the status of currently running jobs can be observed.
+Inspect the logs for more detail about the progress of the
+If specified the output file can be obtained from here.
 
 ## API
 
-Using the MOLGENIS_TOKEN you can also use API to submit jobs (change server URL to your server):
+Using the `MOLGENIS_TOKEN` you can also use the Task API to submit jobs (change server URL to your server):
 
-`
-curl -X POST https://localhost:8080/api/tasks/ -v
-`
+### Authentication Header
+To authenticate a request include your `MOLGENIS_TOKEN` in the header:
+```bash
+-H "x-molgenis-token: $MOLGENIS_TOKEN"
+```
 
-or with parameters
-`
-curl -X POST https://localhost/api/tasks -v -d 'my parameters, as text or json or whever you like'  
-`
+---
 
-You will receive a taskID, you can use that to inspect status of the running task
+### Submit a Job
 
-E.g. to retrieve task 123123:
-`
-curl GET https://server/api/tasks/123123
-`
+Submit a script by name (replace `<server>` and `<script-name>` with your values):
+```bash
+curl -X POST   -H "x-molgenis-token: <MOLGENIS_TOKEN>"   https://<server>/api/script/<script-name>
+```
+
+Submit a script with parameters:
+```bash
+curl -X POST   -d 'params'   https://<server>/api/script/<script-name>
+```
+
+On success, you will receive a `taskID` that you can use to check the status of the job.
+
+You can also run a job synchronously using a GET request:
+```bash
+curl -X GET   -d 'params'   https://<server>/api/script/<script-name>
+```
+This will return the result status of the job, or in case of a file the resulting file.
+
+### Check Task Status
+
+Retrieve the status of a specific task:
+```bash
+curl -X GET   https://<server>/api/tasks/<taskID>
+```
+
+### Retrieve Script Output
+
+If the script produces a file, you can download it using:
+```bash
+curl -X GET   https://<server>/api/tasks/<taskID>/output
+```
+
+### Manage Tasks
+
+Delete a task:
+```bash
+curl -X DELETE   https://<server>/api/tasks/<taskID>
+```
+
+List all tasks:
+```bash
+curl -X GET   https://<server>/api/tasks
+```
+
+Get all scheduled jobs:
+```bash
+curl -X GET   https://<server>/api/tasks/scheduled
+```
+
+Clear all non-running jobs:
+```bash
+curl -X POST  https://<server>/api/tasks/clear
+```

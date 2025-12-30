@@ -87,6 +87,14 @@ public class Row {
     return getStringArray(name, true);
   }
 
+  // If a value contains a comma but is not of type array, only return that single value without
+  // forcing it into becoming an array, creating a wrongful representation of that value
+  public String[] getStringArrayPreserveDelimiter(Column column) {
+    return column.isArray()
+        ? getStringArray(column.getName(), true)
+        : new String[] {getString(column.getName())};
+  }
+
   public String[] getStringArray(String name, boolean emptyAsNull) {
     if (values.get(name) == null) {
       // if the key is present but no value, returning an empty array allows updating to an empty
@@ -171,10 +179,6 @@ public class Row {
     return TypeUtils.toJsonb(values.get(name));
   }
 
-  public JSONB[] getJsonbArray(String name) {
-    return TypeUtils.toJsonbArray(values.get(name));
-  }
-
   public Row setString(String name, String value) {
     this.values.put(name, value);
     return this;
@@ -225,8 +229,14 @@ public class Row {
       this.values.put(name + "_size", null);
       this.values.put(name + "_contents", null);
     } else {
-      this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
-      this.values.put(name + "_filename", value.getFileName());
+      String id = UUID.randomUUID().toString().replace("-", "");
+      this.values.put(name, id);
+      String filename = value.getFileName();
+      if (filename != null && !filename.isEmpty()) {
+        this.values.put(name + "_filename", filename);
+      } else {
+        this.values.put(name + "_filename", id + "." + value.getExtension());
+      }
       this.values.put(name + "_extension", value.getExtension());
       this.values.put(name + "_mimetype", value.getMimeType());
       this.values.put(name + "_size", value.getSize());
@@ -344,8 +354,6 @@ public class Row {
         return (T) getStringArray(name);
       case "JSONB":
         return (T) getJsonb(name);
-      case "JSONB[]":
-        return (T) getJsonbArray(name);
       case "Integer":
         return (T) getInteger(name);
       case "Integer[]":

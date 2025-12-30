@@ -6,10 +6,7 @@ import static org.molgenis.emx2.SelectColumn.s;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.test.CrossSchemaReferenceExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,16 +38,17 @@ public class TestCrossSchemaForeignKeysAndInheritance {
   public void testRef() {
     Query q = schema2.getTable("Child").select(s("name"), s("parent", s("name"), s("hobby")));
     assertTrue(q.retrieveJSON().contains("stamps"));
-    assertEquals("stamps", q.retrieveRows().get(0).getString("parent-hobby"));
+    // we disable subselects on retrieveRows
+    assertThrows(MolgenisException.class, () -> q.retrieveRows().get(0).getString("parent.hobby"));
   }
 
   @Test
   public void testRefArray() {
     Query q = schema2.getTable("PetLover").select(s("name"), s("pets", s("name"), s("species")));
-    assertEquals("dog", q.retrieveRows().get(1).getString("pets-species"));
-
     System.out.println(q.retrieveJSON());
     assertTrue(q.retrieveJSON().contains("dog"));
+    // we disabled subselects on retrieveRows
+    assertThrows(MolgenisException.class, () -> q.retrieveRows().get(1).getString("pets.species"));
   }
 
   @Test

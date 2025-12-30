@@ -4,11 +4,18 @@
 
 Currently we have as standard roles:
 
-* manager - context: schema. Has permissions to assign roles to users in its schema. Can create/change/remove tables and
+* **manager** - context: schema. Has permissions to assign roles to users in its schema. Can create/change/remove tables and
   columns (i.e. change the schema)
-* editor - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
-* viewer - context: schema. Has permission to view data.
-* aggregator - context: schema. Has permission to count table rows (unless <10), and to view ontology data
+* **editor** - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
+* **viewer** - context: schema. Has permission to view data.
+* **aggregator** - context: schema. Has permission to count table rows (unless <10), and to view ontology data
+
+In addition we have special roles to allow for specific permissions around aggregation which currently only have effect on graphql and beacon APIs"
+
+* **count** - context: schema. Has permission to count table rows, and to view ontology data
+* **range** - context: schema: Has permission to count table rows, with a step-size of 10 (e.g. 10,20..120,130 etc.), and to view ontology data
+* **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
+
 
 ## Users can get roles in a schema
 
@@ -16,16 +23,24 @@ Access to databases is controlled by providing roles to users. A user with a rol
 database/schema. See: [database settings](use_database_settings.md).
 
 In addition there are three special users:
-* anonymous - context: whole database. Is any user that has not signed in. You can give 'view' permission to 'anonymous'
+* **anonymous** - context: whole database. Is any user that has not signed in. You can give 'view' permission to 'anonymous'
   user (i.e, make anonymous member of your schema)
-* user - context: whole database. Is any user that has signed in. E.g. you can give 'edit' permission to 'user' to say that all authenticated users are authorized to edit
-* admin - context: whole database. Has rights to view and edit everything (cannot be changed).
+* **user** - context: whole database. Is any user that has signed in. E.g. you can give 'edit' permission to 'user' to say that all authenticated users are authorized to edit
+* **admin** - context: whole database. Has rights to view and edit everything (cannot be changed).
 
 
 ## Users can be managed by admin
 
-Individuals can 'sign up' to register themselves to MOLGENIS databases, choosing user name and password. Special user is
+Individuals can 'sign up' to register themselves to MOLGENIS databases, choosing username and password. Special user is
 the 'admin'. Only this user can see and create other users.
+
+## Admin rights can be delegated
+Root admin user can grant admin rights to other users. These users can perform administrative tasks across the system, similar to the root admin.
+
+Details:
+* Only the root admin can grant or revoke admin rights.
+* A user with admin status has full access to manage schemas, users, and permissions across the system.
+* Users with admin status cannot change the root admin's password or remove the root admin account.
 
 # Sign-in using Open ID Connect (OIDC)
 

@@ -1,10 +1,6 @@
-import { describe, assert, test, vi } from "vitest";
+import type { ISchemaMetaData } from "metadata-utils";
+import { assert, describe, test, vi } from "vitest";
 import { getColumnIds } from "./queryBuilder";
-import type { ISchemaMetaData } from "meta-data-utils";
-import {
-  contactsMetadata,
-  resourcesMetadata,
-} from "../components/mockDatasets";
 
 describe("getColumnIds", () => {
   const EXPAND_ONE = 1;
@@ -53,7 +49,7 @@ describe("getColumnIds", () => {
 });
 
 // test meta data with mg_columns removed
-const metaData: ISchemaMetaData = {
+const metadata: ISchemaMetaData = {
   id: "pet store",
   label: "Pet store",
   tables: [
@@ -252,8 +248,8 @@ const metaData: ISchemaMetaData = {
 vi.mock("./client", () => {
   // For use with getColumnIds
   return {
-    fetchSchemaMetaData: (schemaId: string) => {
-      return metaData;
+    fetchSchemaMetaData: (_schemaId: string) => {
+      return metadata;
     },
   };
 });

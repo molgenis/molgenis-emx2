@@ -1,24 +1,31 @@
+import type {
+  IColumn,
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
+import Client from "../client/client";
 import type { IRow } from "../Interfaces/IRow";
 import constants from "./constants";
-import Client from "../client/client";
-import type { IColumn } from "meta-data-utils";
+import { executeExpression } from "./forms/formUtils/formUtils";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
-  constants;
+const { CODE_0, CODE_9, CODE_PERIOD, AUTO_ID } = constants;
 
 export function isRefType(columnType: string): boolean {
-  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-    columnType
-  );
+  return [
+    "REF",
+    "REF_ARRAY",
+    "REFBACK",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+    "RADIO",
+    "SELECT",
+    "CHECKBOX",
+    "MULTISELECT",
+  ].includes(columnType);
 }
 
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
-  return (
-    (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-    keyCode === CODE_BACKSPACE ||
-    keyCode === CODE_DELETE
-  );
+  return (keyCode >= CODE_0 && keyCode <= CODE_9) || keyCode === CODE_PERIOD;
 }
 
 export function flattenObject(object: Record<string, any>): string {
@@ -43,7 +50,7 @@ export function flattenObject(object: Record<string, any>): string {
 export async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
-  schemaId: string
+  schemaId?: string
 ): Promise<Record<string, any>> {
   const client = Client.newClient(schemaId);
   const tableMetadata = await client.fetchTableMetaData(tableId);
@@ -54,7 +61,7 @@ export async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -68,8 +75,12 @@ export async function convertRowToPrimaryKey(
   }
 }
 
-async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
-  if (typeof cellValue === "string") {
+export async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaId?: string
+) {
+  if (typeof cellValue === "string" || typeof cellValue === "number") {
     return cellValue;
   } else {
     if (column.refTableId) {
@@ -78,6 +89,8 @@ async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
         column.refTableId,
         schemaId
       );
+    } else {
+      throw new Error("Unexpected key type");
     }
   }
 }
@@ -101,37 +114,18 @@ export function filterObject(
   );
 }
 
-export function flipSign(value: string): string | null {
+export function flipSign(value: string | null): string {
   switch (value) {
     case "-":
-      return null;
+      return "";
     case null:
       return "-";
     default:
-      if (value.toString().charAt(0) === "-") {
-        return value.toString().substring(1);
+      if (value.charAt(0) === "-") {
+        return value.substring(1);
       } else {
         return "-" + value;
       }
-  }
-}
-
-const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
-
-export function getBigIntError(value: string): string | undefined {
-  if (isInvalidBigInt(value)) {
-    return BIG_INT_ERROR;
-  } else {
-    return undefined;
-  }
-}
-
-export function isInvalidBigInt(value: string): boolean {
-  const isValidRegex = /^-?\d+$/;
-  if (Boolean(value) && isValidRegex.test(value)) {
-    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
-  } else {
-    return true;
   }
 }
 
@@ -203,4 +197,28 @@ export function deepEqual(
 
 function isObject(object: Record<string, any> | null): object is Object {
   return object !== null && typeof object === "object";
+}
+
+export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
+  return rows?.map((row) => {
+    return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
+      if (column.computed && column.columnType !== AUTO_ID) {
+        try {
+          accum[column.id] = executeExpression(
+            column.computed,
+            row,
+            tableMetadata
+          );
+        } catch (error) {
+          console.log("Computed expression failed: ", error);
+          accum[column.id] = "error: could not compute value: " + error;
+        }
+      } else if (row.hasOwnProperty(column.id)) {
+        accum[column.id] = row[column.id];
+      } else {
+        // don't add empty property that didn't exist before
+      }
+      return accum;
+    }, {});
+  });
 }

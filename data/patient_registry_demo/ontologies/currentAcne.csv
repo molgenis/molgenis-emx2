@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,trueTypicalAcne,True typical acne,,,,,
+2,acneConglobata,Acne conglobata,,,,,
+3,acne_hs,Acne/HS,,,,,

@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-03-12
+# MODIFIED: 2025-01-14
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -18,12 +18,14 @@ import logging
 import os
 
 import numpy
+import openpyxl
 import pandas as pd
 from dotenv import load_dotenv
 
-from tools.pyclient.src.molgenis_emx2_pyclient import Client
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
-                                                                  GraphQLException, PermissionDeniedException)
+from src.molgenis_emx2_pyclient import Client
+from src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
+                                                                  GraphQLException, PermissionDeniedException,
+                                                                  ReferenceException)
 
 
 async def main():
@@ -35,11 +37,30 @@ async def main():
     # Load the login details into the environment
     load_dotenv()
     token = os.environ.get('MG_TOKEN')
+
+    async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+
+        participant_range = [10_000, 20_000]
+        subpopulations = client.get_graphql(table='Subpopulations',
+                                    query_filter=f'`numberOfParticipants` between {participant_range}',
+                                    columns=['name', 'description', 'numberOfParticipants'])
+        print(subpopulations)
+
+        excluded_countries = ["Denmark", "France"]
+        resources = client.get(table='Resources',
+                             query_filter=f'subpopulations.countries.name != {excluded_countries}',
+                             as_df=True)
+        print(resources.head().to_string())
+
+        var_values = client.get(table='Variable values',
+                                query_filter='label != No and value != 1', as_df=True)
+
+        print(var_values.head().to_string())
+
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
         print(client.__repr__())
-        print(client.status)
 
         # Retrieve data from a table in a schema on the server using the 'get' method
         # Passing non-existing schema name yields a NoSuchSchemaException
@@ -56,17 +77,30 @@ async def main():
         except NoSuchTableException as e:
             print(e)
 
-        # Export the entire 'pet store' schema to a .xlsx file
-        # and export the 'Cohorts' table from schema 'catalogue' to a .csv file
-        client.export(schema='pet store', fmt='xlsx')
-        client.export(schema='catalogue-demo', table='Cohorts', fmt='csv')
+        # Export the entire 'pet store' schema to memory in Excel format,
+        # print its table names and the contents of the 'Pet' table.
+        pet_store_excel = await client.export(schema='pet store', as_excel=True)
+
+        pet_store = openpyxl.load_workbook(pet_store_excel, data_only=True)
+        print(pet_store.sheetnames)
+
+        pet_sheet = pd.DataFrame((ps := pd.DataFrame(pet_store['Pet'].values)).values[1:], columns=ps.iloc[0].values)
+        print(pet_sheet.to_string())
+
+        # Export the 'Resources' table from schema 'catalogue' to memory and print a sample of its contents
+        raw_resources = await client.export(schema='catalogue', table='Resources')
+        resources = pd.read_csv(raw_resources)
+        print(resources.sample(5).to_string())
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
         print(client.__repr__())
-        client.export(fmt='csv')
-        client.export(table='Pet', fmt='csv')
-        client.export(table='Pet', fmt='xlsx')
+        # Export all data from the 'pet store' schema to zipped CSVs
+        await client.export(filename='pet store.zip')
+        # Export the 'Pet' table from the 'pet store' schema to a CSV file
+        await client.export(table='Pet', filename='Pet.csv')
+        # Export the 'Pet' table from the 'pet store' schema to an Excel file
+        await client.export(table='Pet', filename='Pet.xlsx')
 
         # Retrieving data from table Pet as a list
         data = client.get(table='Pet')  # get Pets
@@ -74,6 +108,15 @@ async def main():
 
         # Retrieving data from table Pet as a pandas DataFrame
         data = client.get(table='Pet', as_df=True)  # get Pets
+        print(data)
+
+        # Retrieving filtered data from table Order as pandas DataFrame
+        # Filter on 'complete == true' only
+        data = client.get(table='Order', query_filter="price > 9", as_df=True)
+        print(data)
+
+        # Filter on 'complete == true' and 'status == delivered'
+        data = client.get(table='Order', query_filter="complete == true and status == delivered", as_df=True)
         print(data)
 
         # ///////////////////////////////////////////////////////////////////////////////
@@ -106,8 +149,8 @@ async def main():
 
         # Import new data
         try:
-            client.save_schema(name='pet store', table='Tag', data=new_tags)
-            client.save_schema(name='pet store', table='Pet', data=new_pets)
+            client.save_table(schema='pet store', table='Tag', data=new_tags)
+            client.save_table(schema='pet store', table='Pet', data=new_pets)
 
             # Retrieve records
             tags_data = client.get(schema='pet store', table='Tag', as_df=True)
@@ -148,8 +191,8 @@ async def main():
 
         # Import new data
         try:
-            client.save_schema(name='pet store', table='Tag', data=new_tags)
-            client.save_schema(name='pet store', table='Pet', data=new_pets)
+            client.save_table(schema='pet store', table='Tag', data=new_tags)
+            client.save_table(schema='pet store', table='Pet', data=new_pets)
 
             # Retrieve records
             tags_data = client.get(schema='pet store', table='Tag', as_df=True)
@@ -176,8 +219,8 @@ async def main():
             pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
             # Import files
-            client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
-            client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
+            client.save_table(schema='pet store', table='Tag', file='demodata/Tag.csv')
+            client.save_table(schema='pet store', table='Pet', file='demodata/Pet.csv')
 
             client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
             client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
@@ -189,59 +232,71 @@ async def main():
     with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Create a schema
         try:
-            client.create_schema(name='myNewSchema')
+            schema_create = asyncio.create_task(client.create_schema(name='myNewSchema'))
             print(client.schema_names)
+
+            # Import the pet store data, downloaded earlier
+            await schema_create
+            upload_task = asyncio.create_task(client.upload_file(schema='myNewSchema', file_path='pet store.zip'))
+
+            # Truncate the 'Pet' table
+            await upload_task
+            try:
+                client.truncate(table='Pet', schema='myNewSchema')
+            except ReferenceException:
+                print("Could not truncate table 'Pet', as it is referenced to in another table.")
+
+            try:
+                client.truncate(table='User', schema='myNewSchema')
+            except ReferenceException:
+                print("This cannot happen, as table 'User' is not referenced to by other tables.")
+
         except (GraphQLException, PermissionDeniedException) as e:
             print(e)
 
         # Update the description
         try:
+            await schema_create
             client.update_schema(name='myNewSchema', description='I forgot the description')
-            print(client.schema_names)
-            print(client.schemas)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
         # Recreate the schema: delete and create
         try:
-            client.recreate_schema(name='myNewSchema')
-            print(client.schema_names)
+            await client.recreate_schema(name='myNewSchema')
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
         # Delete the schema
         try:
-            client.delete_schema(name='myNewSchema')
-            print(client.schema_names)
+            await schema_create
+            await asyncio.create_task(client.delete_schema(name='myNewSchema'))
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
-    print("\n\n")
 
-    # Use the Schema, Table, and Column classes
+    # //////////////////////////////////////////////////////////////////////////////////////////
+    # Examples for using the Schema, Table, and Column classes
+    # Get the metadata for the 'catalogue' schema
     catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata('catalogue')
 
-    # Find the tables inheriting from the 'Resources' table
-    resource_children = catalogue_schema.get_tables(by='inheritName', value='Resources')
+    # Get the metadata for the Resources table
+    resources_meta = catalogue_schema.get_table(by='name', value='Resources')
+    print(resources_meta)
 
-    print("Tables in the schema inheriting from the 'Resources' table.")
-    for res_chi in resource_children:
-        print(f"{res_chi!s}\n{res_chi!r}")
-    print("\n")
+    # Find the columns in the Resources table referencing entries in the Resources table
+    resources_refs = resources_meta.get_columns(by='refTableName', value='Resources')
+    print(resources_refs)
 
-    # Find the Cohorts table
-    cohorts = catalogue_schema.get_table(by='name', value='Cohorts')
-
-    # Find the columns in the Cohorts table referencing the Organisations table
-    orgs_refs = cohorts.get_columns(by='refTableName', value='Organisations')
-
-    # Find the columns in the Cohorts table referencing the Organisations table in a reference array
-    orgs_array_refs = cohorts.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
+    # Find the columns in the Resources table referencing the Resources table in a reference array
+    res_arrays_refs = resources_meta.get_columns(by=['columnType', 'refTableName'],
+                                                   value=['REF_ARRAY', 'Resources'])
+    print(res_arrays_refs)
 
     # Print the __str__ and __repr__ representations of these columns
-    print("Columns in the Cohorts table referencing the Organisations table in an array.")
-    for orgs_ref in orgs_array_refs:
-        print(f"{orgs_ref!s}\n{orgs_ref!r}\n")
+    print("Columns in the Resources table referencing the Resources table in an array.")
+    for res_ref in res_arrays_refs:
+        print(f"{res_ref!s}\n{res_ref!r}\n")
 
 if __name__ == '__main__':
     asyncio.run(main())

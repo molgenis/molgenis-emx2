@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,molecularDiagnosis,Molecular diagnosis,,NCIT,C20826,,"The use of molecular tools and techniques, especially gene and protein expression profiles, to diagnose disease."
+2,chromosomalDiagnosis,Chromosomal Diagnosis,,MedDRA,10061765,http://purl.bioontology.org/ontology/MEDDRA/10061765,Chromosomal mutation
+3,both,Both,,,,,Molecular and Chromosomal Diagnosis

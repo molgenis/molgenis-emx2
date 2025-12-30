@@ -12,46 +12,26 @@
   </nav>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { LinkCard } from "molgenis-viz";
 
-const props = defineProps({
-  // an array of objects containing hrefs, labels, and background image paths
-  // that are used in the molgenis-viz component LinkCard. This is designed to work with interal pages only. All links must defined in the router.js file. If you would like to render any other links, please use the default slot.
-  data: {
-    type: Array,
-    default: [],
-    required: true,
-  },
+interface IObjectKeyPairs {
+  [key: string]: string;
+}
 
-  // The name of the property that contains the router name
-  name: {
-    type: String,
-    required: true,
-  },
-
-  // The name of the property in each object that contains the text to display for each link
-  label: {
-    type: String,
-    required: true,
-  },
-
-  // (optional) the name of the property that contains the location of an image. If supplied,
-  // this will render the image in the background.
-  imageSrc: {
-    type: String,
-  },
-
-  // Specify the vertical height of the LinkCard components
-  height: {
-    type: String,
-    default: "medium",
-    validator: (value) => {
-      const options = ["xsmall", "small", "medium", "large"];
-      return options.includes(value);
-    },
-  },
-});
+withDefaults(
+  defineProps<{
+    data: IObjectKeyPairs[];
+    name: string;
+    label: string;
+    imageSrc: string;
+    height?: "xsmall" | "small" | "medium" | "large";
+  }>(),
+  {
+    height: "medium",
+  }
+);
 </script>
 
 <style lang="scss">

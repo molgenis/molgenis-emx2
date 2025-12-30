@@ -53,6 +53,7 @@ import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputEmail from "../src/components/forms/InputEmail.vue";
+import InputJson from "../src/components/forms/InputJson.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
@@ -100,7 +101,6 @@ import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
-import Tab from "../src/components/layout/Tab.vue";
 import Tabs from "../src/components/layout/Tabs.vue";
 import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
@@ -190,6 +190,7 @@ export {
   InputDateTime,
   InputDecimal,
   InputEmail,
+  InputJson,
   InputFile,
   InputGroup,
   InputHeading,
@@ -251,7 +252,6 @@ export {
   Spinner,
   StringDisplay,
   SubTask,
-  Tab,
   TableDisplay,
   TableExplorer,
   TableMolgenis,

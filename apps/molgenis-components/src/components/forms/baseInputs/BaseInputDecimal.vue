@@ -1,50 +1,65 @@
 <template>
   <input
     :id="id"
-    type="number"
-    step="1"
+    type="text"
     :value="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
     :aria-describedby="id + 'Help'"
     :placeholder="placeholder"
     :readonly="readonly"
-    :required="required"
+    :required="isRequired(required)"
     @keypress="handleKeyValidity"
-    @input="emitIfValid"
+    @input="handleInputChanged"
   />
 </template>
 
-<script>
-import BaseInput from "./BaseInput.vue";
-import { isNumericKey, flipSign } from "../../utils";
+<script lang="ts">
 import constants from "../../constants";
+import { flipSign, isNumericKey } from "../../utils";
+import { isRequired } from "../formUtils/formUtils";
+import BaseInput from "./BaseInput.vue";
 
-const { CODE_MINUS } = constants;
+const { CODE_MINUS, CODE_PERIOD } = constants;
 
 export default {
   extends: BaseInput,
   methods: {
-    emitIfValid(event) {
-      const value = parseFloat(event.target.value);
+    handleInputChanged(event: any) {
+      const value = event.target?.value;
+      if (!value) {
+        this.$emit("update:modelValue", null);
+      } else {
+        this.emitIfValid(value);
+      }
+    },
+    emitIfValid(strValue: string | null) {
+      if (strValue === null) {
+        this.$emit("update:modelValue", null);
+        return;
+      }
+      const noCommaValue = strValue.replace(",", "");
+      const value = parseFloat(noCommaValue);
       if (!isNaN(value)) {
         this.$emit("update:modelValue", value);
       } else {
-        this.$emit("update:modelValue", null);
+        this.$emit("update:modelValue", strValue);
       }
     },
-    handleKeyValidity(event) {
-      const keyCode = event.which ? event.which : event.keyCode;
+    handleKeyValidity(event: any) {
+      const keyCode = event.which ?? event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit(
-          "update:modelValue",
-          parseFloat(flipSign(parseFloat(event.target.value)))
-        );
+        const flipped = flipSign(event.target?.value);
+        this.emitIfValid(flipped);
+      }
+      if (keyCode === CODE_PERIOD && event.target?.value.indexOf(".") > -1) {
+        event.preventDefault();
       }
       if (!isNumericKey(event)) {
         event.preventDefault();
       }
     },
+    isRequired,
   },
 };
 </script>

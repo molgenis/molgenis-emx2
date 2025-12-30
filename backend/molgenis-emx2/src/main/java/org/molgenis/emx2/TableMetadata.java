@@ -15,7 +15,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     implements Comparable {
 
   public static final String TABLE_NAME_MESSAGE =
-      ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_ ]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
+      ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+  public static final String SCHEMA_NAME_MESSAGE =
+      ": Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   // if a table extends another table (optional)
   public String inheritName = null;
   // to allow indicate that a table should be dropped
@@ -62,16 +64,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String validateName(String tableName) {
     // max length 31 because of Excel
     // we allow only graphql compatible names PLUS spaces
-    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!tableName.matches(Constants.TABLE_NAME_REGEX)) {
       throw new MolgenisException("Invalid table name '" + tableName + TABLE_NAME_MESSAGE);
-    }
-    if (tableName.length() > 31) {
-      throw new MolgenisException(
-          "Table name '" + tableName + "' is too long" + TABLE_NAME_MESSAGE);
-    }
-    if (tableName.contains("_ ") || tableName.contains(" _")) {
-      throw new MolgenisException(
-          "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
     }
     return tableName.trim();
   }
@@ -202,7 +196,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public List<Column> getDownloadColumnNames() {
     List<Column> list = new ArrayList<>();
     for (Column column : getColumns()) {
-      if (!column.isRefback() && !column.isHeading()) {
+      if (!column.isHeading()) {
         if (column.isFile()) {
           list.add(column(column.getName()));
           list.add(column(column.getName() + "_filename"));
@@ -262,7 +256,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getStoredColumns() {
     return getLocalColumns().stream()
-        .filter(c -> !HEADING.equals(c.getColumnType()))
+        .filter(c -> !c.isHeading() && !c.isRefback())
         .collect(Collectors.toList());
   }
 
@@ -341,6 +335,18 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return null;
   }
 
+  public Column getColumnByIdentifier(String identifier) {
+    Column column =
+        columns.values().stream()
+            .filter(c -> c.getIdentifier().equals(identifier))
+            .findFirst()
+            .orElse(null);
+    if (column == null && getInheritedTable() != null) {
+      column = getInheritedTable().getColumnByIdentifier(identifier);
+    }
+    return column;
+  }
+
   public TableMetadata add(Column... column) {
     for (Column c : column) {
       if (getInheritedTable() != null
@@ -392,6 +398,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getInheritName() {
     return this.inheritName;
+  }
+
+  public List<String> getAllInheritNames() {
+    List<String> result = new ArrayList<>();
+    result.add(this.getTableName());
+    if (getInheritName() != null) {
+      result.addAll(getInheritedTable().getAllInheritNames());
+    }
+    return result;
   }
 
   public TableMetadata setInheritName(String otherTable) {
@@ -600,6 +615,52 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     } else {
       return null;
     }
+  }
+
+  public List<Column> getColumnsIncludingSubclasses() {
+    // get all tables in current schema that inherit this
+    List<Column> result = new ArrayList<>();
+    result.addAll(this.getColumns());
+    result.addAll(getColumnsFromSubclasses());
+    return result;
+  }
+
+  public List<Column> getColumnsIncludingSubclassesExcludingHeadings() {
+    return getColumnsIncludingSubclasses().stream().filter(c -> !c.isHeading()).toList();
+  }
+
+  private List<Column> getColumnsFromSubclasses() {
+    List<Column> result = new ArrayList<>();
+    for (TableMetadata table : getSubclassTables()) {
+      result.addAll(table.getLocalColumns());
+      result.addAll(table.getColumnsFromSubclasses());
+    }
+    return result;
+  }
+
+  public Column getColumnByNameIncludingSubclasses(String columnName) {
+    return getColumnsIncludingSubclasses().stream()
+        .filter(c -> c.getName().equals(columnName))
+        .findFirst()
+        .orElseGet(() -> null);
+  }
+
+  public Column getColumnByIdIncludingSubclasses(String columnId) {
+    return getColumnsIncludingSubclasses().stream()
+        .filter(c -> c.getIdentifier().equals(columnId))
+        .findFirst()
+        .orElseGet(() -> null);
+  }
+
+  public List<TableMetadata> getSubclassTables() {
+    List<TableMetadata> result = new ArrayList();
+    for (TableMetadata table : getSchema().getTables()) {
+      if (this.getTableName().equals(table.getInheritName())) {
+        result.add(table);
+        result.addAll(table.getSubclassTables());
+      }
+    }
+    return result;
   }
 
   public TableMetadata getRootTable() {

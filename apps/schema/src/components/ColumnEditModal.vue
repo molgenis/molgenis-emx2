@@ -56,6 +56,10 @@
                   column.columnType === 'REF' ||
                   column.columnType === 'REF_ARRAY' ||
                   column.columnType === 'REFBACK' ||
+                  column.columnType === 'RADIO' ||
+                  column.columnType === 'CHECKBOX' ||
+                  column.columnType === 'SELECT' ||
+                  column.columnType === 'MULTISELECT' ||
                   column.columnType === 'ONTOLOGY' ||
                   column.columnType === 'ONTOLOGY_ARRAY'
                 "
@@ -67,6 +71,15 @@
                     column.refTableName === undefined || column.name === ''
                       ? 'Referenced table is required'
                       : undefined
+                  "
+                  :noOptionsProvidedMessage="
+                    'No ' +
+                    (column.columnType.includes('ONTOLOGY')
+                      ? 'ontology table'
+                      : 'data table') +
+                    ' found in schema \'' +
+                    (column.refSchemaName || schema.name) +
+                    '\''
                   "
                   :options="tableNames"
                   label="refTable"
@@ -196,11 +209,21 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <InputString
+                <ArrayInput
                   id="column_semantics"
+                  columnType="STRING_ARRAY"
                   v-model="column.semantics"
                   :list="true"
                   label="semantics"
+                />
+              </div>
+
+              <div class="col-4">
+                <InputString
+                  id="column_form_label"
+                  v-model="column.formLabel"
+                  label="form label"
+                  description="(Optional) customize label shown on forms"
                 />
               </div>
             </div>
@@ -267,6 +290,7 @@
 
 <script lang="ts">
 import {
+  constants,
   //@ts-ignore
   ButtonAction, //@ts-ignore
   ButtonAlt, //@ts-ignore
@@ -276,6 +300,7 @@ import {
   InputRadio, //@ts-ignore
   InputSelect, //@ts-ignore
   InputString, //@ts-ignore
+  ArrayInput, //@ts-ignore
   InputText, //@ts-ignore
   InputTextLocalized, //@ts-ignore
   LayoutForm, //@ts-ignore
@@ -297,6 +322,7 @@ export default {
     LayoutForm,
     InputText,
     InputString,
+    ArrayInput,
     InputBoolean,
     InputSelect,
     InputRadio,
@@ -417,7 +443,7 @@ export default {
     },
     //listing of all tables, used for refs
     tableNames() {
-      if (this.refSchema !== undefined) {
+      if (this.column.refSchemaName && this.refSchema.tables) {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
@@ -445,8 +471,8 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
+      if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
+        return "Name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.";
       }
       if (
         (this.modelValue === undefined ||
@@ -488,7 +514,12 @@ export default {
       return this.table.columns
         .filter(
           (c: Record<string, any>) =>
-            (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
+            (c.columnType === "REF" ||
+              c.columnType === "REF_ARRAY" ||
+              c.columnType === "RADIO" ||
+              c.columnType === "SELECT" ||
+              c.columnType === "MULTISELECT" ||
+              c.columnType === "CHECKBOX") &&
             c.name !== this.modelValue?.name
         )
         .map((c: Record<string, any>) => c.name);
@@ -541,7 +572,7 @@ export default {
         this.column = { table: this.tableName, columnType: "STRING" };
       }
       //if reference to external schema
-      if (this.column.refSchema != undefined) {
+      if (this.column.refSchemaName != undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();

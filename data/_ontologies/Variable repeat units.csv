@@ -1,5 +1,5 @@
 order,name,code,parent,ontologyTermURI,definition
-,week,,,,
-,month,,,,
-,trimester,,,,
-,year,,,,
+,Week,,,,
+,Month,,,,
+,Trimester,,,,
+,Year,,,,

@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Progress Charts"
-      imageSrc="gauge-chart-header.jpg"
+      imageSrc="img/gauge-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">

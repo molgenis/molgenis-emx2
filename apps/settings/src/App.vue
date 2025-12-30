@@ -3,8 +3,7 @@
     <Molgenis title="Settings" v-model="session">
       <div
         v-if="
-          session.email == 'admin' ||
-          (session.roles && session.roles.includes('Manager'))
+          session.admin || (session.roles && session.roles.includes('Manager'))
         "
         class="card"
       >

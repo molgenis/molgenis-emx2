@@ -37,112 +37,86 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from "vue";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { IBiobanks, ICollections } from "../../interfaces/directory";
 
-export default {
-  setup() {
-    const checkoutStore = useCheckoutStore();
-    const settingsStore = useSettingsStore();
+const checkoutStore = useCheckoutStore();
+const settingsStore = useSettingsStore();
 
-    return { checkoutStore, settingsStore };
-  },
-  props: {
-    biobankData: {
-      type: Object,
-      required: true,
-    },
-    collectionData: {
-      type: [Object, Array],
-      required: true,
-    },
-    iconOnly: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    bookmark: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    checkboxFaStyle: {
-      type: Object,
-      required: false,
-      default: function () {
-        return {
-          color: "var(--secondary)",
-        };
-      },
-    },
-    multi: {
-      type: Boolean,
-      required: false,
-      default: () => false,
-    },
-  },
-  data: () => {
-    return {
-      collections: [],
-      identifier: "",
-    };
-  },
-  methods: {
-    handleCollectionStatus(event) {
-      const { checked } = event.target;
-      const collectionData = {
-        biobank: this.biobankData,
-        collections: JSON.parse(JSON.stringify(this.collections)),
-        bookmark: this.bookmark,
-      };
+const props = withDefaults(
+  defineProps<{
+    biobankData: IBiobanks;
+    collectionData: ICollections | ICollections[];
+    iconOnly?: boolean;
+    bookmark?: boolean;
+    checkboxFaStyle?: any;
+    multi?: boolean;
+  }>(),
+  {
+    iconOnly: false,
+    bookmark: false,
+    checkboxFaStyle: { color: "var(--secondary)" },
+    multi: false,
+  }
+);
 
-      if (checked) {
-        this.checkoutStore.addCollectionsToSelection(collectionData);
-      } else {
-        this.checkoutStore.removeCollectionsFromSelection(collectionData);
-      }
-    },
-  },
-  computed: {
-    checkboxIdentifier() {
-      return this.identifier;
-    },
-    isChecked() {
-      const biobankIdentifier = this.biobankData.label || this.biobankData.name;
-      const selectedCollections =
-        this.checkoutStore.selectedCollections[biobankIdentifier];
+const uiText = computed(() => settingsStore.uiText);
 
-      if (selectedCollections) {
-        const selectedCollectionIds = selectedCollections.map((sc) => sc.value);
+const checkboxIdentifier = computed(() =>
+  Array.isArray(props.collectionData)
+    ? `selector-${Math.random().toString().substring(2)}`
+    : props.collectionData.id
+);
 
-        return this.collections
-          .map((collection) => collection.value)
-          .every((id) => selectedCollectionIds.includes(id));
-      }
-      return false;
-    },
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-  },
-  mounted() {
-    let initialData;
+const initialData = computed(() =>
+  Array.isArray(props.collectionData)
+    ? props.collectionData
+    : [props.collectionData]
+);
 
-    if (Array.isArray(this.collectionData)) {
-      initialData = this.collectionData;
-      this.identifier = `selector-${Math.random().toString().substring(2)}`;
-    } else {
-      initialData = [this.collectionData];
-      this.identifier = this.collectionData.id;
-    }
+const collections = computed(() =>
+  initialData.value.map((collection) => ({
+    label: collection.name,
+    value: collection.id,
+  }))
+);
 
-    this.collections = initialData.map((collection) => ({
-      label: collection.label || collection.name,
-      value: collection.id,
-    }));
-  },
-};
+function handleCollectionStatus(event: any) {
+  const { checked } = event.target;
+  if (checked) {
+    checkoutStore.addCollectionsToSelection(
+      props.biobankData,
+      collections.value.map((collection) => ({
+        label: collection.label,
+        value: collection.value,
+      })),
+      props.bookmark
+    );
+  } else {
+    checkoutStore.removeCollectionsFromSelection(
+      { name: props.biobankData.name },
+      collections.value.map((collection) => collection.value),
+      props.bookmark
+    );
+  }
+}
+
+const isChecked = computed(() => {
+  const selectedCollections =
+    checkoutStore.selectedCollections[props.biobankData.name];
+
+  if (selectedCollections) {
+    const selectedCollectionIds = selectedCollections.map((sc) => sc.value);
+
+    return collections.value
+      .map((collection) => collection.value)
+      .every((id) => selectedCollectionIds.includes(id));
+  }
+  return false;
+});
 </script>
 
 <style scoped>

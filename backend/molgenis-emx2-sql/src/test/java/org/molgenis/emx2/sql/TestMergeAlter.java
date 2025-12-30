@@ -73,27 +73,6 @@ public class TestMergeAlter {
       // correct
     }
 
-    // should fail because refBack still exists
-    try {
-      schema
-          .getTable(refTableName)
-          .getMetadata()
-          .alterColumn(new Column(REF_COLUMN).setType(STRING));
-      fail("should not be possible to alter ref that has refBack");
-    } catch (Exception e) {
-      // correct
-    }
-
-    try {
-      schema
-          .getTable(refTableName)
-          .getMetadata()
-          .alterColumn(new Column(REF_COLUMN).setType(STRING));
-      fail("should not be possible to drop ref that has refBack");
-    } catch (Exception e) {
-      // correct
-    }
-
     // delete refBack, than it should work
     schema.getTable(targetTableName).getMetadata().dropColumn("refBack");
     schema.getTable(refTableName).getMetadata().alterColumn(new Column(REF_COLUMN).setType(STRING));
@@ -276,7 +255,7 @@ public class TestMergeAlter {
     assertThrows(
         MolgenisException.class,
         () -> {
-          ((SqlSchemaMetadata) schema.getMetadata()).renameTable(table.getMetadata(), "My table");
+          table.getMetadata().alterName("My table");
         },
         "shouldn't be able to rename table with name that converts to same identifier");
 

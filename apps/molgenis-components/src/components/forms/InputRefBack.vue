@@ -96,7 +96,7 @@ import Client from "../../client/client.ts";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import TableMolgenis from "../tables/TableMolgenis.vue";
-import { deepEqual } from "../utils";
+import { deepEqual, applyComputed } from "../utils";
 import ConfirmModal from "./ConfirmModal.vue";
 import FormGroup from "./FormGroup.vue";
 import MessageError from "./MessageError.vue";
@@ -133,6 +133,10 @@ export default {
     pkey: {
       type: [Object, null],
       required: true,
+    },
+    expressionData: {
+      type: Object,
+      required: false,
     },
     schemaId: {
       type: String,
@@ -188,9 +192,10 @@ export default {
   methods: {
     async reload() {
       this.isLoading = true;
-      this.data = await this.client.fetchTableDataValues(this.tableId, {
+      const data = await this.client.fetchTableDataValues(this.tableId, {
         filter: this.graphqlFilter,
       });
+      this.data = applyComputed(data, this.tableMetadata);
       this.isLoading = false;
     },
     handleRowAction(type, key) {
@@ -233,7 +238,7 @@ export default {
       .fetchTableMetaData(this.tableId)
       .catch((error) => (this.graphqlError = error.message));
     this.defaultValue = new Object();
-    this.defaultValue[this.refBackId] = await this.pkey;
+    this.defaultValue[this.refBackId] = this.expressionData;
     await this.reload();
   },
 };

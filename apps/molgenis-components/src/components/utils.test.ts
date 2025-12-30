@@ -6,11 +6,12 @@ import {
   deepClone,
   deepEqual,
   flattenObject,
-  getBigIntError,
   isNumericKey,
   isRefType,
+  getKeyValue,
 } from "./utils";
 import { contactsMetadata, resourcesMetadata } from "./mockDatasets";
+import { CellValueType } from "metadata-utils/src/types";
 
 vi.mock("../client/client", () => {
   // For use with convertRowToPrimaryKey
@@ -27,7 +28,7 @@ vi.mock("../client/client", () => {
   };
 });
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS, CODE_DELETE } = constants;
+const { CODE_0, CODE_9, CODE_MINUS, CODE_PERIOD } = constants;
 
 describe("isRefType", () => {
   test("it should return true for REF, REF_ARRAY, REFBACK, ONTOLOGY, and ONTOLOGY_ARRAY types", () => {
@@ -36,6 +37,23 @@ describe("isRefType", () => {
     assert.isTrue(isRefType("REFBACK"));
     assert.isTrue(isRefType("ONTOLOGY"));
     assert.isTrue(isRefType("ONTOLOGY_ARRAY"));
+  });
+
+  test("it should return false for other types", () => {
+    assert.isFalse(isRefType("SOME_OTHER_TYPE"));
+  });
+});
+
+describe("getKeyValue", () => {
+  test("it should return the value if the cellValue is of type number", async () => {
+    const column = {
+      columnType: "INT" as CellValueType,
+      id: "someId",
+      label: "someId",
+    };
+    const actualValue = await getKeyValue(1, column);
+
+    assert.deepEqual(actualValue, 1);
   });
 
   test("it should return false for other types", () => {
@@ -59,13 +77,8 @@ describe("isNumericKey", () => {
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
-  test("code is CODE_BACKSPACE (8)", () => {
-    const keyboardEvent = { which: CODE_BACKSPACE } as KeyboardEvent;
-    assert.isTrue(isNumericKey(keyboardEvent));
-  });
-
-  test("code is CODE_DELETE (46)", () => {
-    const keyboardEvent = { which: CODE_DELETE } as KeyboardEvent;
+  test("code is CODE_PERIOD (46)", () => {
+    const keyboardEvent = { which: CODE_PERIOD } as KeyboardEvent;
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
@@ -181,38 +194,6 @@ describe("convertRowToPrimaryKey", () => {
     } catch (error) {
       expect((error as Error).message).toBe("Empty columns in metadata");
     }
-  });
-});
-
-describe("getBigIntError", () => {
-  const BIG_INT_ERROR = `Invalid value: must be value from -9223372036854775807 to 9223372036854775807`;
-
-  test("it should return undefined for a valid positive long", () => {
-    expect(getBigIntError("9223372036854775807")).toBeUndefined();
-  });
-
-  test("it should return undefined for a valid negative long", () => {
-    expect(getBigIntError("-9223372036854775807")).toBeUndefined();
-  });
-
-  test("it should return an error string for a too large long", () => {
-    expect(getBigIntError("9223372036854775808")).toEqual(BIG_INT_ERROR);
-  });
-
-  test("it should return an error string for a too small long", () => {
-    expect(getBigIntError("-9223372036854775808")).toEqual(BIG_INT_ERROR);
-  });
-
-  test("it should return an error for invalid input", () => {
-    expect(getBigIntError("randomtext")).toEqual(BIG_INT_ERROR);
-  });
-
-  test("it should return an error for empty inputs", () => {
-    expect(getBigIntError("")).toEqual(BIG_INT_ERROR);
-  });
-
-  test("it should return an error for only a minus", () => {
-    expect(getBigIntError("-")).toEqual(BIG_INT_ERROR);
   });
 });
 

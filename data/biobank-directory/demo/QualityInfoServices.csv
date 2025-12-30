@@ -1,0 +1,4 @@
+service,qualityStandard,assessmentLevel,certificationNumber,certificationReport,certificationImageLink
+bbmri-eric:serviceID:DE_1234,iso-20184-3,accredited,,,
+bbmri-eric:serviceID:NL_541,ISO-20387-2018,accredited,,,
+bbmri-eric:serviceID:NL_541,iso-20166-1,accredited,,,

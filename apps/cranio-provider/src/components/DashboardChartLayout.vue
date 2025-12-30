@@ -1,25 +1,18 @@
 <template>
-  <div :class="classNames">
+  <div class="dashboard-chart-layout" :class="`columns-${columns}`">
     <slot></slot>
   </div>
 </template>
 
-<script setup>
-import { computed } from "vue";
-
-const props = defineProps({
-  columns: {
-    type: Number,
-    default: 2,
-    validator: (value) => {
-      return value >= 1 && value <= 4;
-    },
-  },
-});
-
-const classNames = computed(() => {
-  return `dashboard-chart-layout columns-${props.columns}`;
-});
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    columns: 1 | 2 | 3 | 4;
+  }>(),
+  {
+    columns: 2,
+  }
+);
 </script>
 
 <style lang="scss">

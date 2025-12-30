@@ -173,7 +173,7 @@ class SqlTable implements Table {
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
-          .getJooq()
+          .getJooqWithExtendedTimeout()
           .deleteFrom(rootTable.getJooqTable())
           .where(field(MG_TABLECLASS).equal(mg_table))
           .execute();
@@ -181,7 +181,7 @@ class SqlTable implements Table {
     // else in normal table simply call delete
     else {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
-      database.getJooq().deleteFrom(t.getJooqTable()).execute();
+      database.getJooqWithExtendedTimeout().deleteFrom(t.getJooqTable()).execute();
     }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
@@ -347,12 +347,13 @@ class SqlTable implements Table {
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
-    return table.getMetadata().getColumns().stream()
+    return table.getMetadata().getColumnsWithoutHeadings().stream()
         .filter(
             c ->
                 !c.isRefback()
-                    || c.getReferences().stream()
-                        .anyMatch(r -> columnsProvided.contains(r.getName())))
+                    || (c.isReference()
+                        && c.getReferences().stream()
+                            .anyMatch(r -> columnsProvided.contains(r.getName()))))
         .toList();
   }
 
@@ -651,8 +652,8 @@ class SqlTable implements Table {
   }
 
   @Override
-  public List<Row> retrieveRows() {
-    return this.query().retrieveRows();
+  public List<Row> retrieveRows(Query.Option... options) {
+    return this.query().retrieveRows(options);
   }
 
   @Override

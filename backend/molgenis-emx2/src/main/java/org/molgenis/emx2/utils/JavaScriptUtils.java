@@ -38,13 +38,7 @@ public class JavaScriptUtils {
     try {
       final Context context =
           Context.newBuilder("js")
-              .allowHostAccess(
-                  HostAccess.newBuilder()
-                      .allowArrayAccess(true)
-                      .allowListAccess(true)
-                      .allowMapAccess(true)
-                      .allowAllClassImplementations(true)
-                      .build())
+              .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
               .engine(engine)
               .build();
       Value bindings = context.getBindings("js");

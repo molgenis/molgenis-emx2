@@ -4,7 +4,7 @@
       class="home-page-header"
       title="molgenis-viz"
       subtitle="Layout and Data visualization components"
-      imageSrc="home-header.jpg"
+      imageSrc="img/home-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="2" aria-labelledby="welcome-title">
@@ -84,49 +84,49 @@ const links = [
   {
     to: "bar-chart",
     label: "Bar Chart",
-    image: "bar-chart-header.jpg",
+    image: "img/bar-chart-header.jpg",
   },
   {
     to: "column-chart",
     label: "Column Chart",
-    image: "column-chart-header.jpg",
+    image: "img/column-chart-header.jpg",
   },
-  { to: "datatable", label: "Data Table", image: "table-header.jpg" },
+  { to: "datatable", label: "Data Table", image: "img/table-header.jpg" },
   {
     to: "data-highlights",
     label: "Data Highlights",
-    image: "highlights-header.jpg",
+    image: "img/highlights-header.jpg",
   },
   {
     to: "geo-mercator",
     label: "Geo Mercator",
-    image: "map-header.jpg",
+    image: "img/map-header.jpg",
   },
   {
     to: "grouped-column-chart",
     label: "Grouped Column Chart",
-    image: "grouped-column-chart-header.jpg",
+    image: "img/grouped-column-chart-header.jpg",
   },
-  { to: "chart-legend", label: "Legends", image: "legend-header.jpg" },
+  { to: "chart-legend", label: "Legends", image: "img/legend-header.jpg" },
   {
     to: "pie-chart",
     label: "Pie Chart",
-    image: "pie-chart-header.jpg",
+    image: "img/pie-chart-header.jpg",
   },
   {
     to: "pie-chart-2",
     label: "Pie Chart 2",
-    image: "pie-chart-header.jpg",
+    image: "img/pie-chart-header.jpg",
   },
   {
     to: "scatter-plot",
     label: "Scatter Plot",
-    image: "scatter-plot-header.jpg",
+    image: "img/scatter-plot-header.jpg",
   },
   {
     to: "progress-charts",
     label: "Progress Charts",
-    image: "gauge-chart-header.jpg",
+    image: "img/gauge-chart-header.jpg",
   },
 ];
 
