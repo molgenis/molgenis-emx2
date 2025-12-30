@@ -173,7 +173,7 @@ function toggleSelect() {
       },
       {
         root: wrapperRef.value, // the container
-        threshold: 0.1,
+        threshold: 0.25,
         rootMargin: "100px", //more smooth
       }
     );
@@ -343,7 +343,7 @@ onMounted(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
+          'max-h-[50vh] top-4 rounded-theme bg-input overflow-y-auto w-full pt-2 pb-6 pl-4 ':
             displayAsSelect,
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
@@ -384,12 +384,13 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="isArray ? selection.length : selection && !displayAsSelect"
     @click="clearSelection"
     type="text"
     size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
+    :class="{ 'pl-2': displayAsSelect }"
   >
     Clear
   </Button>
