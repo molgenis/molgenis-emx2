@@ -12,12 +12,9 @@
           >
             Table: {{ table.name }}
             <span v-if="table.semantics" class="small">
-              (<a
-                :href="purl"
-                target="_blank"
-                v-for="purl in table.semantics"
-                :key="purl"
-                >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+              (<template v-for="(semantics, index) in table.semantics"
+                ><template v-if="index > 0">,</template
+                >{{ semantics }}</template
               >)
             </span>
           </h4>
@@ -36,11 +33,7 @@
           />
           <a
             class="hoverIcon"
-            :href="'#'"
-            v-scroll-to="{
-              el: '#molgenis_tables_container',
-              offset: -200,
-            }"
+            :href="'#' + (table.name ? table.name.replaceAll(' ', '_') : '')"
           >
             scroll to top
           </a>
@@ -88,9 +81,11 @@
               v-if="table.subclasses"
             >
               <thead>
-                <th style="width: 25ch" scope="col">subclass</th>
-                <th style="width: 25ch" scope="col">extends</th>
-                <th scope="col">description</th>
+                <tr>
+                  <th style="width: 25ch" scope="col">subclass</th>
+                  <th style="width: 25ch" scope="col">extends</th>
+                  <th scope="col">description</th>
+                </tr>
               </thead>
               <tbody>
                 <tr
@@ -120,7 +115,7 @@
                       class="hoverIcon"
                     />
                   </td>
-                  <td>extends {{ subclass.inherit }}</td>
+                  <td>extends {{ subclass.inheritName }}</td>
                   <td>
                     {{ subclass.description }}
                   </td>
@@ -167,6 +162,8 @@
               tag="tbody"
               @end="applyPosition"
               item-key="name"
+              handle=".moveHandle"
+              :disabled="!isManager"
             >
               <template #item="{ element, index }">
                 <ColumnView

@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,female,Female,,SIO,SIO_010052,http://semanticscience.org/resource/SIO_010052,Female Phenotype
+2,Intersex,Intersex,,SIO,SIO_001405,http://semanticscience.org/resource/SIO_001405,"Intersex is a biological sex characterised by birth with genitalia and/or secondary sexual characteristics of indeterminate sex, or which combine features of both sexes."
+3,male,Male,,SIO,SIO_010048,http://semanticscience.org/resource/SIO_010048,Male Phenotype
+4,Undetermined,Undetermined,,NCIT,NCIT:C124294,http://purl.obolibrary.org/obo/NCIT_C124294,Undetermined

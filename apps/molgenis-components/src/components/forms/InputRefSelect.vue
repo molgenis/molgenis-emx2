@@ -10,15 +10,14 @@
       <input
         class="form-control"
         :class="{ 'is-invalid': errorMessage }"
-        @click="showSelect = true"
-        @focus="showSelect = true"
-        :value="
-          refLabel ? applyJsTemplate(modelValue) : flattenObject(modelValue)
-        "
+        @click="showSelect = !this.readonly"
+        @focus="showSelect = !this.readonly"
+        :value="applyJsTemplate(modelValue, refLabel)"
+        :readonly="readonly"
       />
       <template v-slot:append>
         <button
-          v-if="modelValue"
+          v-if="modelValue && !this.readonly"
           @click="$emit('update:modelValue', null)"
           class="btn btn-outline-primary"
           type="button"
@@ -30,15 +29,15 @@
       <LayoutModal v-if="showSelect" :title="title" @close="showSelect = false">
         <template v-slot:body>
           <TableSearch
-            :lookupTableName="tableName"
+            :tableId="tableId"
             :filter="filter"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :canEdit="canEdit"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
-              <ButtonAction @click="select(slotProps.rowkey)">
+              <ButtonAction @click="select(slotProps.row)">
                 Select
               </ButtonAction>
             </template>
@@ -60,7 +59,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { flattenObject } from "../utils";
+import { applyJsTemplate } from "../utils";
 
 export default {
   name: "InputRefSelect",
@@ -79,16 +78,16 @@ export default {
     InputGroup,
   },
   props: {
-    tableName: String,
-    schemaName: {
+    tableId: String,
+    schemaId: {
       type: String,
       required: false,
     },
     filter: Object,
-    refLabel: String,
-    /**
-     * if table that this input is selecting from can be edited by the current user
-     *  */
+    refLabel: {
+      type: String,
+      required: true,
+    },
     canEdit: {
       type: Boolean,
       required: false,
@@ -97,98 +96,114 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableId; //todo need a label
     },
   },
   methods: {
-    flattenObject(objectToFlatten) {
-      return objectToFlatten === undefined || objectToFlatten === null
-        ? ""
-        : flattenObject(objectToFlatten);
-    },
-    select(event) {
+    applyJsTemplate,
+    async select(event) {
       this.showSelect = false;
-      this.$emit("update:modelValue", event);
-    },
-    applyJsTemplate(object) {
-      if (object === undefined || object === null) {
-        return "";
-      }
-      const names = Object.keys(object);
-      const vals = Object.values(object);
-      const refLabel = this.refLabel ? this.refLabel : this.refLabelDefault;
-      try {
-        return new Function(...names, "return `" + refLabel + "`;")(...vals);
-      } catch (err) {
-        return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          refLabel
-        );
-      }
+      this.$emit("update:modelValue", await event);
     },
   },
 };
 </script>
 
 <docs>
-
 <template>
-<div>
   <div>
-  <label for="input-ref-select-1">Example </label>
-    <InputRefSelect 
-      id="input-ref-select-1" 
-      v-model="value1" 
-      tableName="Pet" 
-      schemaName="pet store"
-    />
-    Selection: {{ value1 }}
-  </div>
+    <div>
+      <label for="input-ref-select-1">Example </label>
+      <InputRefSelect
+        id="input-ref-select-1"
+        v-model="value1"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${name}"
+      />
+      Selection: {{ value1 }}
+    </div>
 
-  <label for="input-ref-select-2" class="mt-3">Example with default value</label>
-  <div>
-    <InputRefSelect
+    <div>
+      <label for="input-ref-select-1">Example readonly </label>
+      <InputRefSelect
+        id="input-ref-select-1b"
+        v-model="value1"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${name}"
+        :readonly="true"
+      />
+      Selection: {{ value1 }}
+    </div>
+
+    <label for="input-ref-select-2" class="mt-3">
+      Example with default value
+    </label>
+    <div>
+      <InputRefSelect
         id="input-ref-select-2"
         v-model="value2"
-        tableName="Pet"
-        schemaName="pet store"
-    />
-    Selection: {{ value2 }}
-  </div>
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${name}"
+      />
+      Selection: {{ value2 }}
+    </div>
 
-  <label for="input-ref-select-3" class="mt-3">Example with filter (category.name = dog)</label>
-  <div>
-    <InputRefSelect
+    <label for="input-ref-select-3" class="mt-3">
+      Example with filter (category.name = dog)
+    </label>
+    <div>
+      <InputRefSelect
         id="input-ref-select-3"
         v-model="value3"
-        tableName="Pet"
-        :filter="{category:{name: {equals:'dog'}}}"
-        schemaName="pet store"
-    />
-    Selection: {{ value3 }}
+        tableId="Pet"
+        :filter="{ category: { name: { equals: 'dog' } } }"
+        schemaId="pet store"
+        refLabel="${name}"
+      />
+      Selection: {{ value3 }}
+    </div>
+
+    <label for="input-ref-select-4"> Example with different label </label>
+    <div>
+      <InputRefSelect
+        id="input-ref-select-4"
+        v-model="value4"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${status}"
+      />
+      Selection: {{ value4 }}
+    </div>
+    
+    <label for="input-ref-select-5"> Example with different label and initial value</label>
+    <div>
+      <InputRefSelect
+        id="input-ref-select-5"
+        v-model="value5"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${status}"
+      />
+      Selection: {{ value5 }}
+    </div>
   </div>
-  
-
-</div>
-
-  
 </template>
 
 <script>
-  export default {
-    data: function () {
-      return {
-        value1: null,
-        value2: {name: 'spike'},
-        value3: {name: 'pooky'}
-      };
-    }
-  };
+export default {
+  data: function () {
+    return {
+      value1: null,
+      value2: { name: "spike" },
+      value3: { name: "pooky" },
+      value4: null,
+      value5: { name: "pooky" },
+      
+    };
+  },
+};
 </script>
-
 </docs>

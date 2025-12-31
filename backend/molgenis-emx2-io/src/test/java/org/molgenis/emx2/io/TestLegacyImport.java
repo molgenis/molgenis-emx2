@@ -1,13 +1,13 @@
 package org.molgenis.emx2.io;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.SelectColumn.s;
 
 import java.io.File;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -16,10 +16,11 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+@Tag("slow")
 public class TestLegacyImport {
   static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
   }
@@ -76,10 +77,7 @@ public class TestLegacyImport {
         schema
             .getTable("biobanks")
             .select(
-                s("name"),
-                s("contact_person", s("full_name")),
-                s("principal_investigators", s("full_name")),
-                s("juristic_person", s("name")))
+                s("name"), s("contact_person"), s("principal_investigators"), s("juristic_person"))
             .search("GrONingen")
             .retrieveRows();
     assertEquals(1, rows.size());
@@ -95,6 +93,6 @@ public class TestLegacyImport {
       System.out.println(r.getString("name"));
     }
 
-    Assert.assertEquals(22, schema.getTableNames().size());
+    assertEquals(22, schema.getTableNames().size());
   }
 }

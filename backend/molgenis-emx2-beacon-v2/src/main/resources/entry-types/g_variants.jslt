@@ -1,0 +1,66 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+import "response_summary.jslt" as responseSummary
+import "info.jslt" as info
+import "range.jslt" as range
+{
+    "meta": meta(.),
+    "responseSummary": responseSummary(.),
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+            {
+                "id": .id,
+                "type": "dataset",
+                "setType": "genomicVariant",
+                "exists": true,
+                "info": range(.),
+                "resultsCount": .count,
+                "results":
+                [for (.results) {
+                    "variantInternalId": .id,
+                    "variation": {
+                        "variantType": .variantType,
+                        "referenceBases": uppercase(.referenceAllele),
+                        "alternateBases": uppercase(.alternateAllele),
+                        "location": {
+                            "sequence_id": .refseqAssembyId,
+                            "type": "SequenceLocation",
+                            "interval": {
+                                "type": "SequenceInterval",
+                                "start": {
+                                    "type": "Number",
+                                    "value": number(.startPosition)
+                                },
+                                "end": {
+                                    "type": "Number",
+                                    "value": number(.stopPosition)
+                                }
+                            }
+                        }
+                    },
+                    "identifiers": {
+                        "clinVarIds": [ ],
+                        "genomicHGVSId": .genomicHGVSId,
+                        "proteinHGVSIds": .proteinHGVSIds,
+                        "transcriptHGVSIds": .transcriptHGVSIds,
+                        "variantAlternativeIds": [ ]
+                    },
+                    "molecularAttributes": {
+                        "geneIds": if (.geneId) [.geneId ],
+                        "aminoacidChanges": [ ]
+                    },
+                    "variantLevelData": if (.clinicalInterpretations) { // todo where to get this from
+                        "clinicalInterpretations":
+                        [for (.clinicalInterpretations) {
+                                "category": ontology(.category),
+                                "clinicalRelevance": lowercase(.clinicalRelevance.name),
+                                "conditionId": .conditionId,
+                                "effect": ontology(.effect)
+                            }]
+                    }
+                }]
+            }]
+    },
+    "info": info(.info)
+}

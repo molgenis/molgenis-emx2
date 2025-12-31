@@ -1,0 +1,37 @@
+{
+  "name": "ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "vue-tsc --noEmit",
+    "build": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
+    "dev": "nuxt dev",
+    "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
+    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
+    "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "ofetch": "1.4.1",
+    "monaco-editor": "0.53.0",
+    "vue": "3.5.22",
+    "vue-router": "4.4.3",
+    "yaml": "2.8.1"
+  },
+  "license": "LGPL-3.0",
+  "devDependencies": {
+    "@nuxt/test-utils": "3.20.1",
+    "@pinia/nuxt": "0.11.1",
+    "@playwright/test": "1.57.0",
+    "@vue/test-utils": "2.4.6",
+    "cross-env": "7.0.3",
+    "nuxt": "4.1.2",
+    "nuxt-monaco-editor": "1.4.0",
+    "pinia": "3.0.3",
+    "tailwind-components": "*",
+    "vue-tsc": "2.1.6",
+    "prettier": "2.8.8"
+  }
+}

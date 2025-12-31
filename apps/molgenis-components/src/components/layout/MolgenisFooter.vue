@@ -20,7 +20,6 @@
       >
       on use.
     </div>
-    <br />
     <slot />
   </div>
 </template>

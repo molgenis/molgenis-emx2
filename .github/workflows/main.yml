@@ -1,0 +1,14 @@
+on:
+  pull_request:
+    types: [ closed ]
+jobs:
+  trigger-circleci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger CircleCI delete_preview workflow
+        id: "delete-pr-preview"
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.2.0
+        with:
+          GHA_Meta: ${{ github.event.number }}
+        env:
+          CCI_TOKEN: ${{ secrets.CCI_TOKEN }}

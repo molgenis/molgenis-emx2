@@ -3,12 +3,13 @@ import path from "path";
 import docTagPlugin from "./docs-plugin.js";
 import vue from "@vitejs/plugin-vue";
 
-const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
+const BACKEND_LOCATION =
+  process.env.PROXY_API || "https://emx2.dev.molgenis.org";
 
 // basic build conf fo both library and showCase builds
 let conf = {
   plugins: [docTagPlugin(), vue()],
-  base: "",
+  base: "apps/molgenis-components/",
   server: {
     proxy: {
       "/apps/molgenis-components/assets/img/molgenis_logo_white.png": {
@@ -17,7 +18,7 @@ let conf = {
         secure: false,
       },
       "^/graphql": {
-        target: `${BACKEND_LOCATION}/api`,
+        target: `${BACKEND_LOCATION}/pet store`,
         changeOrigin: true,
         secure: false,
       },
@@ -38,6 +39,10 @@ let conf = {
       },
     },
   },
+  test: {
+    globals: true,
+    environment: "jsdom",
+  }
 };
 // In case the SHOW_CASE flag is not set to 'on' build in library mode ( i.e. lib mode is the default)
 if (process.env.SHOW_CASE !== "on") {
@@ -67,7 +72,7 @@ if (process.env.SHOW_CASE !== "on") {
     outDir: "./showCase",
   };
 
-  conf.base = ""; // use relative base path for use in public_html/app folder
+  conf.base = "apps/molgenis-components/";
 }
 
 // https://vitejs.dev/config/

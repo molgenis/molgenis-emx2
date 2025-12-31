@@ -63,7 +63,7 @@ export default {
     InputText,
   },
   props: {
-    schemaName: String,
+    schemaId: String,
     schemaDescription: String,
   },
   data: function () {
@@ -92,7 +92,7 @@ export default {
         this.endpoint,
         `mutation updateSchema($name:String, $description:String){updateSchema(name:$name, description: $description){message}}`,
         {
-          name: this.schemaName,
+          name: this.schemaId,
           description: this.newSchemaDescription,
         }
       )

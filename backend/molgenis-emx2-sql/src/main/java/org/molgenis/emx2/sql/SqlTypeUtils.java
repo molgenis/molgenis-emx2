@@ -1,11 +1,15 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.ColumnType.AUTO_ID;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -13,63 +17,156 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static Map<String, Object> validateAndGetVisibleValuesAsMap(
-      Row row, TableMetadata tableMetadata, Collection<Column> updateColumns) {
-
-    // we create a graph representation of the row, using identifiers
-    Map<String, Object> graph = convertRowToMap(tableMetadata, row);
-    Set<String> colNames =
-        updateColumns.stream()
-            .map(
-                c ->
-                    // oldName is also used for references so we can know the underlying column name
-                    c.getOldName() != null ? c.getOldName() : c.getName())
-            .collect(Collectors.toSet());
-    // only validate columns for which we have data
-    Set<Column> validationColumns =
-        tableMetadata.getColumns().stream()
-            .filter(c2 -> colNames.contains(c2.getName()))
-            .collect(Collectors.toSet());
-
-    // we null all invisible columns
-    for (Column c : validationColumns) {
-      if (!columnIsVisible(c, graph)) {
-        graph.put(c.getName(), null);
-      }
+  public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
+    for (Row row : rows) {
+      applyValidationAndComputed(columns, row);
     }
+    return rows;
+  }
 
-    // then we validate
-    for (Column c : validationColumns) {
-      checkValidation(c, graph);
-    }
-
-    // if passed validation we gonna create update record
-    Map<String, Object> values = new LinkedHashMap<>();
-    for (Column c : updateColumns) {
-      // we get role from environment
+  public static void applyValidationAndComputed(List<Column> columns, Row row) {
+    Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
+    for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
-        values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-      } else
-      // compute field, might depend on update values therefor run always on insert/update
-      if (c.getComputed() != null) {
-        values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
-      } else
-      // otherwise, unless invisible
-      if (columnIsVisible(
-          c.getOldName() != null ? tableMetadata.getColumn(c.getOldName()) : c, graph)) {
-        values.put(c.getName(), getTypedValue(c, row));
+        row.setString(
+            c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
+      } else if (AUTO_ID.equals(c.getColumnType())) {
+        applyAutoId(c, row);
+      } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
+        if (c.getDefaultValue().startsWith("=")) {
+          try {
+            if (c.isRefArray()) {
+              convertRefArrayToRow(
+                  (List)
+                      executeJavascriptOnMap(c.getDefaultValue().substring(1), graph, List.class),
+                  row,
+                  c);
+            } else if (c.isRef()) {
+              convertRefToRow(
+                  (Map)
+                      executeJavascriptOnMap(
+                          "(" + c.getDefaultValue().substring(1) + ")", graph, Map.class),
+                  row,
+                  c);
+            } else {
+              row.set(c.getName(), executeJavascript(c.getDefaultValue().substring(1)));
+            }
+          } catch (Exception e) {
+            throw new MolgenisException(
+                "Error in defaultValue of column " + c.getName() + ": " + e.getMessage());
+          }
+        } else {
+          row.set(c.getName(), c.getDefaultValue());
+        }
+      } else if (c.getComputed() != null) {
+        Object computedValue = executeJavascriptOnMap(c.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(c, computedValue, row);
+      } else if (columnIsVisible(c, graph)) {
+        checkRequired(c, row, graph);
+        checkValidation(c, graph);
       } else {
-        // invisible columns will be in updatedColumns so set to null
-        values.put(c.getName(), null);
+        if (c.isReference()) {
+          for (Reference ref : c.getReferences()) {
+            row.clear(ref.getName());
+          }
+        } else {
+          row.clear(c.getName());
+        }
       }
     }
-    return values;
+  }
+
+  public static void applyComputed(List<Column> columns, List<Row> rows) {
+    for (Row row : rows) {
+      applyComputed(columns, row);
+    }
+  }
+
+  public static void applyComputed(List<Column> columns, Row row) {
+    Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
+    for (Column column : columns) {
+      if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
+        Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(column, computedValue, row);
+      }
+    }
+  }
+
+  private static void applyAutoId(Column c, Row row) {
+    if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+      String id = SnowflakeIdGenerator.getInstance().generateId();
+      // do we use a template containing ${mg_autoid} for pre/postfixing ?
+      if (c.getComputed() != null) {
+        row.set(c.getName(), c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, id));
+      }
+      // otherwise simply put the id
+      else row.set(c.getName(), id);
+    }
+  }
+
+  private static void checkRequired(Column c, Row row, Map<String, Object> values) {
+    if (!row.isDraft() && c.getComputed() == null && !AUTO_ID.equals(c.getColumnType())) {
+      if (c.isRequired() && hasEmptyFields(c, row)) {
+        throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+      } else if (c.isConditionallyRequired()) {
+        String error = checkRequiredExpression(c.getRequired(), values);
+        if (error != null && hasEmptyFields(c, row)) {
+          throw new MolgenisException(
+              "column '" + c.getName() + "' is required: " + error + " in " + row);
+        }
+      }
+    }
+    if (c.isReference()) {
+      List<Reference> refs = c.getReferences();
+      // PostgreSQL considers the foreign key constraint not applicable if any part of the composite
+      // key is NULL.therefore we must make sure it is complete
+      // exclude overlapping
+      int countNotNullNotOverlapping = 0;
+      int countNotNull = 0;
+      for (Reference ref : refs) {
+        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+          if (!ref.isOverlapping()) {
+            countNotNullNotOverlapping++;
+          }
+          countNotNull++;
+        }
+      }
+      if (countNotNullNotOverlapping > 0 && countNotNull != refs.size()) {
+        throw new MolgenisException(
+            String.format(
+                "Key (%s)=(%s) not present in table \"%s\"",
+                refs.stream().map(ref -> ref.getName()).collect(Collectors.joining(",")),
+                refs.stream()
+                    .map(
+                        ref ->
+                            row.isNull(ref.getName(), ref.getPrimitiveType())
+                                ? "NULL"
+                                : row.getValueMap().get(ref.getName()).toString())
+                    .collect(Collectors.joining(",")),
+                c.getRefTableName()));
+      }
+    }
+  }
+
+  private static boolean hasEmptyFields(Column c, Row row) {
+    if (c.isReference()) {
+      for (Reference r : c.getReferences()) {
+        if (row.isNull(r.getName(), r.getPrimitiveType())) {
+          return true;
+        }
+      }
+    } else {
+      return row.isNull(c.getName(), c.getColumnType());
+    }
+    return false;
   }
 
   private static boolean columnIsVisible(Column column, Map values) {
     if (column.getVisible() != null) {
-      String visibleResult = executeJavascriptOnMap(column.getVisible(), values);
-      if (visibleResult.equals("false") || visibleResult.equals("null")) {
+      Object visibleResult = executeJavascriptOnMap(column.getVisible(), values);
+      if (visibleResult == null || Boolean.FALSE.equals(visibleResult)) {
         return false;
       }
     }
@@ -98,10 +195,12 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> row.getDateArray(name);
       case DATETIME -> row.getDateTime(name);
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
-      case JSONB -> row.getJsonb(name);
-      case JSONB_ARRAY -> row.getJsonbArray(name);
-      default -> throw new UnsupportedOperationException(
-          "Unsupported columnType found:" + c.getColumnType());
+      case PERIOD -> row.getPeriod(name);
+      case PERIOD_ARRAY -> row.getPeriodArray(name);
+      case JSON -> row.getJsonb(name);
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported columnType found:" + c.getColumnType());
     };
   }
 
@@ -127,17 +226,19 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> "date[]";
       case DATETIME -> "timestamp without time zone";
       case DATETIME_ARRAY -> "timestamp without time zone[]";
-      case JSONB -> "jsonb";
-      default -> throw new MolgenisException(
-          "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
+      case JSON -> "jsonb";
+      default ->
+          throw new MolgenisException(
+              "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
     };
   }
 
   public static void checkValidation(Column column, Map<String, Object> values) {
-    if (values.get(column.getName()) != null) {
+    if (values.get(column.getIdentifier()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
+        // check if validation script contains js functions that are bound to java functions
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
@@ -146,30 +247,61 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
+  private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
+    if (columns.isEmpty()) return;
+    Column column = columns.get(0);
+    if (column.getTable() == null) return;
+    if (column.getSchema() == null) return;
+    if (column.getSchema().getDatabase() == null) return;
+    Map<String, Supplier<Object>> bindings =
+        column.getSchema().getDatabase().getJavaScriptBindings();
+    for (String key : bindings.keySet()) {
+      values.put(key, bindings.get(key).get());
+    }
+  }
+
   public static String checkValidation(String validationScript, Map<String, Object> values) {
     try {
-      String error = executeJavascriptOnMap(validationScript, values);
+      Object error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
-        if (error.trim().equals("false")) {
+        if (error instanceof Boolean && (Boolean) error == false) {
           // you can have a validation rule that simply returns true or false;
           // false means not valid.
           return validationScript;
-        } else
-        // you can have a validation script returning true which means valid, and undefined also
-        if (!error.trim().equals("true") && !error.trim().equals("undefined")) {
-          return error;
+        } else if (error instanceof Boolean && (Boolean) error == true) {
+          return null;
         }
+        // you can have a validation script returning true which means valid, and undefined also
+        else {
+          return error.toString();
+        }
+      } else {
+        return null;
       }
-      return null;
     } catch (MolgenisException me) {
       // seperate syntax errors
       throw me;
     }
   }
 
-  static Map<String, Object> convertRowToMap(TableMetadata tableMetadata, Row row) {
+  public static String checkRequiredExpression(
+      String validationScript, Map<String, Object> values) {
+    try {
+      Object error = executeJavascriptOnMap(validationScript, values);
+      if (error instanceof Boolean) {
+        if ((Boolean) error) return validationScript;
+        return null;
+      }
+      if (error != null) return error.toString();
+    } catch (MolgenisException me) {
+      throw me;
+    }
+    return null;
+  }
+
+  static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
     Map<String, Object> map = new LinkedHashMap<>();
-    for (Column c : tableMetadata.getColumns()) {
+    for (Column c : columns) {
       if (c.isReference()) {
         map.put(c.getIdentifier(), getRefFromRow(row, c));
       } else if (c.isFile()) {

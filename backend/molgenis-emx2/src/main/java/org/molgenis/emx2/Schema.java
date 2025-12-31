@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface Schema {
 
@@ -12,6 +13,8 @@ public interface Schema {
   Collection<String> getTableNames();
 
   List<String> getInheritedRolesForActiveUser();
+
+  boolean hasActiveUserRole(Privileges privileges);
 
   Table create(TableMetadata table);
 
@@ -26,6 +29,8 @@ public interface Schema {
   Query query(String tableName);
 
   List<Row> retrieveSql(String sql);
+
+  List<Row> retrieveSql(String sql, Map<String, ?> params);
 
   Query agg(String tableName);
 
@@ -62,4 +67,14 @@ public interface Schema {
   List<Change> getChanges(int limit);
 
   Integer getChangesCount();
+
+  String getSettingValue(String key);
+
+  boolean hasSetting(String emailHost);
+
+  Table getTableById(String id);
+
+  Table getTableByNameOrIdCaseInsensitive(String name);
+
+  boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
 }

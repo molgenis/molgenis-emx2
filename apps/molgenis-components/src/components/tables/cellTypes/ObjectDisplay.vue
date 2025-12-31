@@ -17,27 +17,26 @@ export default {
       type: [Object],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: [Object],
-      required: true,
     },
   },
   computed: {
     hasTemplate() {
-      return !!this.metaData.refLabel || !!this.metaData.refLabelDefault;
+      return !!this.metadata.refLabel || !!this.metadata.refLabelDefault;
     },
     asTemplate() {
-      const names = Object.keys(this.data);
+      const ids = Object.keys(this.data);
       const vals = Object.values(this.data);
-      const refLabel = this.metaData.refLabel
-        ? this.metaData.refLabel
-        : this.metaData.refLabelDefault;
+      const refLabel = this.metadata.refLabel
+        ? this.metadata.refLabel
+        : this.metadata.refLabelDefault;
       try {
-        return new Function(...names, "return `" + refLabel + "`;")(...vals);
+        return new Function(...ids, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
-        const namesString = JSON.stringify(names);
+        const idsAsString = JSON.stringify(ids);
         const valsString = JSON.stringify(vals);
-        return `${err.message} we got keys: ${namesString} vals: ${valsString} and template: ${refLabel}`;
+        return `${err.message} we got keys: ${idsAsString} vals: ${valsString} and template: ${refLabel}`;
       }
     },
     asDotSeparatedString() {

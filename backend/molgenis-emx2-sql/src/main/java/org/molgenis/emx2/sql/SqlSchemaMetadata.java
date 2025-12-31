@@ -5,12 +5,10 @@ import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
-import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +26,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
     this.name = copy.getName();
+    this.description = copy.getDescription();
     this.database = db;
     this.sync(copy);
   }
@@ -115,17 +114,21 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
               SqlSchemaMetadata sm = s.getMetadata();
-              List<TableMetadata> tableList = new ArrayList<>();
-              tableList.addAll(List.of(tables));
-              if (tableList.size() > 1) sortTableByDependency(tableList);
-              for (TableMetadata table : tableList) {
+              if (tables.length > 1) {
+                // make use of dependency sorting etc
+                s.migrate(new SchemaMetadata().create(tables));
+              } else {
+                TableMetadata table = tables[0];
+                List<TableMetadata> tableList = new ArrayList<>();
+                tableList.addAll(List.of(tables));
+                validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
                   result =
                       new SqlTableMetadata(
                           sm,
                           getOntologyTableDefinition(
-                              table.getTableName(), table.getDescriptions()));
+                              table.getTableName(), table.getLabels(), table.getDescriptions()));
                 } else {
                   result = new SqlTableMetadata(sm, table);
                 }
@@ -136,6 +139,18 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;
+  }
+
+  static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
+    for (TableMetadata existingTable : sm.getTables()) {
+      if (!existingTable.getTableName().equals(table.getTableName())
+          && existingTable.getIdentifier().equals(table.getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot create/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                table.getTableName(), existingTable.getTableName(), table.getIdentifier()));
+      }
+    }
   }
 
   @Override
@@ -228,54 +243,28 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return (SqlDatabase) super.getDatabase();
   }
 
-  public void renameTable(TableMetadata table, String newName) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(renameTableTransaction(db, getName(), table.getTableName(), newName));
-            });
-  }
-
-  private static SqlSchemaMetadata renameTableTransaction(
-      Database db, String schemaName, String tableName, String newName) {
-    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
-    SqlTableMetadata tm = sm.getTableMetadata(tableName);
-    tm.alterName(newName);
-    sm.tables.remove(tableName);
-    sm.tables.put(newName, tm);
-    return sm;
-  }
-
-  public List<String> getIneritedRolesForUser(String user) {
-    if (user == null) return new ArrayList<>();
-    if (ADMIN_USER.equals(user)) {
+  public List<String> getInheritedRolesForUser(String username) {
+    if (username == null) return new ArrayList<>();
+    User user = getDatabase().getUser(username);
+    if (user.isAdmin()) {
       // admin has all roles
       return executeGetRoles(getJooq(), getName());
     }
-    final String username = user.trim();
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
     getDatabase()
-        .tx(
-            tdb -> {
-              String current = tdb.getActiveUser();
-              try {
-                tdb.becomeAdmin(); // elevate privileges
+        .getJooqAsAdmin(
+            adminJooq ->
                 result.addAll(
                     SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        ((SqlDatabase) tdb).getJooq(), getName(), username));
-              } finally {
-                tdb.setActiveUser(current); // reset privileges
-              }
-            });
+                        adminJooq, getName(), username.trim())));
     return result;
   }
 
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
     }
     return rolesCache;
   }

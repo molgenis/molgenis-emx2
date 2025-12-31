@@ -6,6 +6,8 @@
 
 <docs>
 <template>
-  <Spinner/>
+  <DemoItem>
+    <Spinner/>
+  </DemoItem>
 </template>
 </docs>

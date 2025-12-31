@@ -8,13 +8,18 @@
       aria-controls="navbarNav"
       aria-expanded="false"
       aria-label="Toggle navigation"
+      @click="toggleMenuBar = !toggleMenuBar"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
     <a v-if="logo" class="navbar-brand" href="/">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
-    <div class="collapse navbar-collapse" id="navbarNav">
+    <div
+      class="collapse navbar-collapse"
+      :class="{ show: toggleMenuBar }"
+      id="navbarNav"
+    >
       <ul class="navbar-nav" v-if="items">
         <li
           v-for="item in permittedItems"
@@ -38,6 +43,7 @@
               :href="addBaseUrl(sub.href)"
               :key="sub.label"
               :target="sub.newWindow ? '_blank' : '_self'"
+              @click="navigate(addBaseUrl(sub.href))"
               >{{ sub.label }}</a
             >
           </ButtonDropdown>
@@ -46,6 +52,7 @@
             class="nav-link"
             :href="addBaseUrl(item.href)"
             :target="item.newWindow ? '_blank' : '_self'"
+            @click="navigate(addBaseUrl(item.href))"
             >{{ item.label }}
           </a>
         </li>
@@ -84,6 +91,11 @@ export default {
         return "/" + (path ? path + "/" : "");
       },
     },
+  },
+  data: function () {
+    return {
+      toggleMenuBar: false,
+    };
   },
   computed: {
     permittedItems() {
@@ -126,29 +138,37 @@ export default {
         return this.baseURL + (href ? href : "");
       }
     },
+    navigate(href) {
+      window.location.href = href;
+      if (href.includes("#")) {
+        // Force reload to have our links with anchors work.
+        window.location.reload(true);
+      }
+      return false; // This makes the a tag not use its navigation
+    },
     permitted(item) {
-      if (!item.role) {
+      if (!item.role || this.session?.admin) {
         return true;
+      } else if (
+        item.role === "Signed in" &&
+        this.session?.email !== "anonymous"
+      ) {
+        return true;
+      } else if (item.role === "Viewer") {
+        return this.session?.roles?.some((r) =>
+          ["Viewer", "Editor", "Manager", "Owner"].includes(r)
+        );
+      } else if (item.role === "Editor") {
+        return this.session?.roles?.some((r) =>
+          ["Editor", "Manager", "Owner"].includes(r)
+        );
+      } else if (item.role === "Manager") {
+        return this.session?.roles?.some((r) =>
+          ["Manager", "Owner"].includes(r)
+        );
+      } else {
+        return false;
       }
-      if (this.session && Array.isArray(this.session.roles)) {
-        if (this.session.email === "admin") {
-          return true;
-        }
-        if (item.role === "Viewer") {
-          return this.session.roles.some((r) =>
-            ["Viewer", "Editor", "Manager", "Owner"].includes(r)
-          );
-        } else if (item.role === "Editor") {
-          return this.session.roles.some((r) =>
-            ["Editor", "Manager", "Owner"].includes(r)
-          );
-        } else if (item.role === "Manager") {
-          return this.session.roles.some((r) =>
-            ["Manager", "Owner"].includes(r)
-          );
-        }
-      }
-      return false;
     },
   },
 };
@@ -156,11 +176,12 @@ export default {
 
 <docs>
 <template>
-  <div>Simple example
+  <div>Simple example ( should not show admin if user is not in admin role)
     <MolgenisMenu logo="assets/img/molgenis_logo_white.png" :items="[
         {label:'Home',href:'', active:true},
         {label:'My search',href:'http://google.com'},
-        {label:'My movies',href:'http://youtube.com'}
+        {label:'My movies',href:'http://youtube.com'},
+        {label: 'Admin', href: '/apps/central/#/admin', role: 'Admin'}
      ]">Something in the slot
     </MolgenisMenu>
     Example with submenu

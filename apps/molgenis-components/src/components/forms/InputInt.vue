@@ -7,16 +7,14 @@
     :errorMessage="errorMessage"
   >
     <InputGroup>
-      <BaseIntInput
+      <BaseInputInt
         :id="id"
         :modelValue="modelValue"
         :placeholder="placeholder"
         :readonly="readonly"
         :required="required"
         :class="{ 'is-invalid': errorMessage }"
-        @update:modelValue="
-          $emit('update:modelValue', $event === NaN ? null : parseInt($event))
-        "
+        @update:modelValue="$emit('update:modelValue', $event)"
       />
       <template v-slot:append>
         <slot name="append" />
@@ -27,7 +25,7 @@
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
-import BaseIntInput from "./baseInputs/BaseInputInt.vue";
+import BaseInputInt from "./baseInputs/BaseInputInt.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 
@@ -35,7 +33,7 @@ export default {
   extends: BaseInput,
   components: {
     FormGroup,
-    BaseIntInput,
+    BaseInputInt,
     InputGroup,
   },
 };

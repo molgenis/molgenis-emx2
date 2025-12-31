@@ -1,11 +1,11 @@
-import { ISetting } from "../../Interfaces/ISetting";
+import { ISetting } from "metadata-utils";
 
 export interface ISession {
   email?: string;
   locale?: string;
   roles?: string[];
   schemas?: any;
-  settings?: Record<string, string>;
+  settings?: Record<string, string | number | boolean>;
   manifest?: IManifest;
   token?: string;
 }

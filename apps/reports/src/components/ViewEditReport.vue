@@ -16,26 +16,54 @@
       <h2>
         Edit report: {{ id }}<IconAction icon="eye" @click="edit = false" />
       </h2>
-      <InputString id="reportName" v-model="name" label="name" />
-      <InputText id="reportSql" v-model="sql" label="sql" />
+      <InputString
+        id="reportId"
+        v-model="id"
+        label="id"
+        :required="true"
+        description="unique index"
+      />
+      <InputString
+        id="reportDescription"
+        v-model="description"
+        label="description"
+        description="human-readable description"
+      />
+      <InputText
+        id="reportSql"
+        v-model="sql"
+        label="sql"
+        description="You can type postgresql compatible SQL. You can also create parameters, e.g. ${name:string_array}, which will create a parameter 'name' that then internally is treated as a string_array (see column types). See the download link to understand how parameters are used in URL."
+      />
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <ButtonAction @click="save">Save</ButtonAction>
       <div class="mt-2">
-        <label><b>Result:</b></label>
+        <h2>View report: {{ id }}</h2>
       </div>
     </div>
     <h2 v-else>
-      Report: {{ name
-      }}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
+      View report id={{ id }}
+      <IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
     </h2>
+    <p v-if="description">Description: {{ description }}</p>
+    <div v-if="parameterInputs">
+      Please provide parameters:
+      <FormInput
+        v-for="input in parameterInputs"
+        :id="input.name"
+        :label="input.name"
+        :name="input.name"
+        :columnType="input.columnType"
+        v-model="parameters[input.name]"
+      />
+      <ButtonAction @click="run">run</ButtonAction>
+    </div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div v-if="rows && rows.length > 0">
-      <Pagination
-        v-if="count"
-        v-model="page"
-        :limit="limit"
-        :count="count"
-      /><IconAction icon="download" @click="download(id)" />
+    <div v-if="rows">
+      <Pagination v-if="count" v-model="page" :limit="limit" :count="count" />
+      download as <a :href="downloadZip">zip</a>,
+      <a :href="downloadExcel">excel</a> or
+      <a :href="downloadJson">json</a>
       <TableSimple
         :columns="columns"
         :rows="rows"
@@ -43,7 +71,7 @@
         :key="JSON.stringify(this.rows)"
       />
     </div>
-    <div v-else>No results found.</div>
+    <div v-else-if="rows">No results found.</div>
   </div>
 </template>
 
@@ -60,6 +88,7 @@ import {
   IconAction,
   Spinner,
   MessageWarning,
+  FormInput,
 } from "molgenis-components";
 import { request } from "graphql-request";
 
@@ -76,18 +105,21 @@ export default {
     IconAction,
     Spinner,
     MessageWarning,
+    FormInput,
   },
   props: {
     session: Object,
-    id: String,
+    index: String,
     limit: { type: Number, default: 5 },
   },
   data() {
     return {
       rows: undefined,
       count: null,
+      id: null,
       sql: 'select * from "Pet"',
-      name: null,
+      description: null,
+      parameters: {},
       error: null,
       success: null,
       page: 1,
@@ -108,8 +140,47 @@ export default {
         return names;
       }
     },
+    parameterKeyValueMap() {
+      return Object.entries(this.parameters).map(([key, value]) => ({
+        key: key,
+        value: Array.isArray(value) ? value.join(",") : value,
+      }));
+    },
     canEdit() {
       return this.session?.roles?.includes("Manager");
+    },
+    parameterInputs() {
+      const regex = /\${([^}]+)}/g;
+      const matches = this.sql.match(regex);
+      if (matches)
+        return matches
+          .map((match) => match.substr(2, match.length - 3))
+          .map((match) =>
+            match.includes(":")
+              ? {
+                  name: match.split(":")[0],
+                  columnType: match.split(":")[1].toUpperCase(),
+                }
+              : { name: match, columnType: "STRING" }
+          );
+    },
+    parametersQuery() {
+      return Object.entries(this.parameters)
+        .map((entry) =>
+          Array.isArray(entry[1])
+            ? "&" + entry[0] + "=" + entry[1].join(",")
+            : "&" + entry[0] + "=" + entry[1]
+        )
+        .join("");
+    },
+    downloadZip() {
+      return "../api/reports/zip?id=" + this.id + this.parametersQuery;
+    },
+    downloadExcel() {
+      return "../api/reports/excel?id=" + this.id + this.parametersQuery;
+    },
+    downloadJson() {
+      return "../api/reports/json?id=" + this.id + this.parametersQuery;
     },
   },
   methods: {
@@ -118,19 +189,32 @@ export default {
       const offset = this.limit * (this.page - 1);
       const result = await request(
         "graphql",
-        `{_reports(id:${this.id},limit:${this.limit},offset:${offset}){data,count}}`
+        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:"${this.id}",parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
+        {
+          parameters: this.parameterKeyValueMap,
+        }
       ).catch((error) => {
-        this.error = error;
+        this.error = error.response.errors[0].message;
       });
-      this.rows = JSON.parse(result._reports.data);
+      let parsedData = JSON.parse(result._reports.data);
+      this.rows = Array.isArray(parsedData) ? parsedData : [parsedData];
       this.count = result._reports.count;
     },
     async save() {
+      if (this.id == null) {
+        this.error = "id is required";
+        return;
+      }
+      if (this.sql == null) {
+        this.error = "sql is required";
+        return;
+      }
       this.succes = null;
       this.error = null;
       const reports = await this.client.fetchSettingValue("reports");
-      reports[this.id].sql = this.sql;
-      reports[this.id].name = this.name;
+      reports[this.index].id = this.id;
+      reports[this.index].sql = this.sql;
+      reports[this.index].description = this.description;
       this.client
         .saveSetting("reports", reports)
         .then((res) => {
@@ -141,16 +225,16 @@ export default {
     },
     async reload() {
       const reports = await this.client.fetchSettingValue("reports");
-      if (reports[this.id]) {
-        this.sql = reports[this.id].sql;
-        this.name = reports[this.id].name;
+      if (reports[this.index]) {
+        this.id = reports[this.index].id;
+        this.sql = reports[this.index].sql;
+        this.description = reports[this.index].description;
       } else {
         this.error = "report not found";
       }
-      this.run();
-    },
-    download(id) {
-      window.open("../api/reports/zip?id=" + id, "_blank");
+      if (!this.sql.includes("${")) {
+        await this.run();
+      }
     },
   },
   watch: {

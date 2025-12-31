@@ -1,4 +1,5 @@
 export default [
+  "AUTO_ID",
   "BOOL",
   "BOOL_ARRAY",
   "DATE",
@@ -15,12 +16,19 @@ export default [
   "HYPERLINK_ARRAY",
   "INT",
   "INT_ARRAY",
+  "JSON",
   "LONG",
   "LONG_ARRAY",
   "ONTOLOGY",
   "ONTOLOGY_ARRAY",
-  "REF",
-  "REF_ARRAY",
+  "PERIOD",
+  "PERIOD_ARRAY",
+  "REF", //deprecated
+  "SELECT",
+  "RADIO",
+  "REF_ARRAY", //deprecated
+  "MULTISELECT",
+  "CHECKBOX",
   "REFBACK",
   "STRING",
   "STRING_ARRAY",

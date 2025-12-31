@@ -9,12 +9,17 @@ import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client";
 import * as utils from "./components/utils";
+import constants from "./components/constants";
+
+/** Add font awesome icons */
+import "@fortawesome/fontawesome-free/css/all.css";
+import "@fortawesome/fontawesome-free/js/all.js";
 
 //load the components
-const components = import.meta.globEager("./components/**/*.vue");
-const generatedDocumentComponents = import.meta.globEager(
-  "../gen-docs/**/*.vue"
-);
+const components = import.meta.glob("./components/**/*.vue", { eager: true });
+const generatedDocumentComponents = import.meta.glob("../gen-docs/**/*.vue", {
+  eager: true,
+});
 
 let docsMap = {};
 
@@ -49,6 +54,8 @@ app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$Client = Client;
 app.config.globalProperties.$utils = utils;
 app.config.globalProperties.$docsMap = docsMap;
+app.config.globalProperties.window = window;
+app.config.globalProperties.$constants = constants;
 
 //add directives
 app.directive("scroll-to", VueScrollTo);

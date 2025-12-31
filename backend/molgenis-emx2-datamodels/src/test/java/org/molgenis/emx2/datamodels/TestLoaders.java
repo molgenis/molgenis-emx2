@@ -1,117 +1,92 @@
 package org.molgenis.emx2.datamodels;
 
-import static org.junit.Assert.assertEquals;
-import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
-import static org.molgenis.emx2.datamodels.DataCatalogueLoader.CATALOGUE_ONTOLOGIES;
-import static org.molgenis.emx2.datamodels.DataCatalogueNetworkStagingLoader.SHARED_STAGING;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.OrderWith;
-import org.junit.runner.manipulation.Alphanumeric;
+import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-@OrderWith(Alphanumeric.class)
+@TestMethodOrder(MethodOrderer.MethodName.class)
+@Tag("slow")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestLoaders {
-  static Database database;
 
-  @BeforeClass
-  public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    // prevend previous dangling test results
-    database.dropSchemaIfExists("catalogue");
-    database.dropSchemaIfExists("RWEcatalogue");
-    database.dropSchemaIfExists("CohortStaging");
-    database.dropSchemaIfExists("NetworkStaging");
-    database.dropSchemaIfExists("CohortStaging3");
-    database.dropSchemaIfExists("NetworkStaging3");
-  }
+  public static final String DATA_CATALOGUE = "catalogue";
+  public static final String COHORT_STAGING = "CohortStaging";
+  public static final String NETWORK_STAGING = "NetworkStaging";
+  public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
+  public static final String DIRECTORY_TEST = "DirectoryTest";
+  public static final String DIRECTORY_STAGING = "DirectoryStaging";
+  public static final String FAIR_GENOMES = "FAIRGenomesTest";
+  public static final String PORTAL_TEST = "PortalTest";
+  public static final String PROJECT_MANAGER = "ProjectManager";
+  public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
+  public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
+  public static final String DASHBOARD_TEST = "UiDashboardTest";
+  public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
+  public static final String PATIENT_REGISTRY = "patientRegistry";
+  public static final String PAGES_SCHEMA = "pagesSchema";
 
-  @Test
-  public void test1FAIRDataHubLoader() {
-    Schema fairDataHubSchema = database.dropCreateSchema("FAIRDataHubTest");
-    AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(34, fairDataHubSchema.getTableNames().size());
-  }
+  protected static Database database;
 
-  @Test
-  public void test2DataCatalogueLoader() {
-    // staging catalogues will create 'DataCatalogue' and
-    Schema dataCatalogue = database.dropCreateSchema("catalogue");
-    cleanSharedSchemas();
+  protected static Schema dataCatalogue;
+  protected static Schema cohortStaging;
+  protected static Schema networkStaging;
+  protected static Schema directory;
+  protected static Schema FAIRGenomesSchema;
+  protected static Schema projectManagerSchema;
+  protected static Schema directoryStaging;
+  protected static Schema dashboard;
+  protected static Schema patientRegistryDemo;
+  protected static Schema patientRegistry;
+  protected static Schema pagesSchema;
 
-    AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(37, dataCatalogue.getTableNames().size());
+  @BeforeAll
+  public void setup() {
+    if (database == null) {
 
-    // cleanup because shared schema
-    database.dropSchema("catalogue");
-  }
+      database = TestDatabaseFactory.getTestDatabase();
+      // prevent previous dangling test results
+      database.dropSchemaIfExists(PORTAL_TEST);
+      database.dropSchemaIfExists(COHORT_STAGING);
+      database.dropSchemaIfExists(NETWORK_STAGING);
+      database.dropSchemaIfExists(DATA_CATALOGUE);
+      database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
+      database.dropSchemaIfExists(DIRECTORY_TEST);
+      database.dropSchemaIfExists(DIRECTORY_STAGING);
+      database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
+      database.dropSchemaIfExists(FAIR_GENOMES);
+      database.dropSchemaIfExists(PROJECT_MANAGER);
+      database.dropSchemaIfExists(DASHBOARD_TEST);
+      database.dropSchemaIfExists(PATIENT_REGISTRY_DEMO);
+      database.dropSchemaIfExists(PATIENT_REGISTRY);
+      database.dropSchemaIfExists(PAGES_SCHEMA);
 
-  @Test
-  public void test3RWECatalogue() {
-    Schema rweCatalogue = database.dropCreateSchema("RWEcatalogue");
+      // delete ontologies last
+      database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
 
-    cleanSharedSchemas();
-    AvailableDataModels.DATA_CATALOGUE.install(rweCatalogue, false);
-    MolgenisIO.fromClasspathDirectory("datacatalogue/RWEcatalogue", rweCatalogue, false);
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("RWEcatalogue");
-  }
-
-  @Test
-  public void test4DataCatalogueCohortStagingLoader() {
-    Schema cohortStaging = database.dropCreateSchema("CohortStaging");
-    cleanSharedSchemas();
-
-    AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(18, cohortStaging.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("CohortStaging");
-  }
-
-  @Test
-  public void test5DataCatalogueNetworkStagingLoader() {
-    Schema networkStaging = database.dropCreateSchema("NetworkStaging");
-    cleanSharedSchemas();
-    AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
-    assertEquals(13, networkStaging.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("NetworkStaging");
-  }
-
-  @Test
-  public void test7DataCatalogueCohortStagingLoader3() {
-    Schema cohortStaging3 = database.dropCreateSchema("CohortStaging3");
-    cleanSharedSchemas();
-
-    AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING3.install(cohortStaging3, true);
-    assertEquals(17, cohortStaging3.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("CohortStaging3");
-  }
-
-  @Test
-  public void test8DataCatalogueNetworkStagingLoader3() {
-    Schema networkStaging3 = database.dropCreateSchema("NetworkStaging3");
-    cleanSharedSchemas();
-
-    AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING3.install(networkStaging3, true);
-    assertEquals(13, networkStaging3.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("NetworkStaging3");
-  }
-
-  private static void cleanSharedSchemas() {
-    database.dropSchemaIfExists(DATA_CATALOGUE);
-    database.dropSchemaIfExists(SHARED_STAGING);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
+      dataCatalogue = database.createSchema(DATA_CATALOGUE);
+      DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
+      cohortStaging = database.createSchema(COHORT_STAGING);
+      DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING.getImportTask(cohortStaging, true).run();
+      networkStaging = database.createSchema(NETWORK_STAGING);
+      DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
+      directory = database.createSchema(DIRECTORY_TEST);
+      DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
+      projectManagerSchema = database.createSchema(PROJECT_MANAGER);
+      DataModels.Regular.PROJECTMANAGER.getImportTask(projectManagerSchema, true).run();
+      directoryStaging = database.createSchema(DIRECTORY_STAGING);
+      DataModels.Regular.BIOBANK_DIRECTORY_STAGING.getImportTask(directoryStaging, false).run();
+      dashboard = database.dropCreateSchema(DASHBOARD_TEST);
+      DataModels.Regular.UI_DASHBOARD.getImportTask(dashboard, true).run();
+      patientRegistry = database.dropCreateSchema(PATIENT_REGISTRY);
+      DataModels.Profile.PATIENT_REGISTRY.getImportTask(patientRegistry, true).run();
+      patientRegistryDemo = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
+      DataModels.Regular.PATIENT_REGISTRY_DEMO.getImportTask(patientRegistryDemo, true).run();
+      pagesSchema = database.dropCreateSchema(PAGES_SCHEMA);
+      DataModels.Profile.MG_CMS.getImportTask(pagesSchema, true).run();
+      // This profile is broken
+      //      FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
+      //      DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();
+    }
   }
 }

@@ -9,14 +9,14 @@ import graphql.execution.DataFetcherExceptionHandlerResult;
 import graphql.execution.ResultPath;
 import graphql.language.SourceLocation;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.molgenis.emx2.MolgenisException;
 
 public class GraphqlCustomExceptionHandler implements DataFetcherExceptionHandler {
 
   @Override
-  public DataFetcherExceptionHandlerResult onException(
+  public CompletableFuture<DataFetcherExceptionHandlerResult> handleException(
       DataFetcherExceptionHandlerParameters handlerParameters) {
-
     final Throwable exception = handlerParameters.getException();
     final SourceLocation sourceLocation = handlerParameters.getSourceLocation();
     final ResultPath path = handlerParameters.getPath();
@@ -44,6 +44,8 @@ public class GraphqlCustomExceptionHandler implements DataFetcherExceptionHandle
           };
     }
 
-    return DataFetcherExceptionHandlerResult.newResult().error(error).build();
+    final DataFetcherExceptionHandlerResult result =
+        DataFetcherExceptionHandlerResult.newResult().error(error).build();
+    return CompletableFuture.completedFuture(result);
   }
 }

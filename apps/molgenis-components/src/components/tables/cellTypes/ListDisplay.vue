@@ -44,7 +44,7 @@
       <component
         :is="cellTypeComponentName"
         :data="listItem"
-        :metaData="metaData"
+        :metadata="metadata"
       ></component>
     </div>
   </div>
@@ -58,6 +58,8 @@ import HyperlinkDisplay from "./HyperlinkDisplay.vue";
 
 const typeMap = {
   REF_ARRAY: "ObjectDisplay",
+  MULTISELECT: "ObjectDisplay",
+  CHECKBOX: "ObjectDisplay",
   ONTOLOGY_ARRAY: "ObjectDisplay",
   REFBACK: "ObjectDisplay",
   EMAIL_ARRAY: "EmailDisplay",
@@ -77,7 +79,7 @@ export default {
       type: [Array],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },
@@ -89,7 +91,7 @@ export default {
   },
   computed: {
     cellTypeComponentName() {
-      return typeMap[this.metaData.columnType] || "StringDisplay";
+      return typeMap[this.metadata.columnType] || "StringDisplay";
     },
     visibleListItems() {
       return this.isFolded ? this.data.slice(0, this.foldCuttOff) : this.data;

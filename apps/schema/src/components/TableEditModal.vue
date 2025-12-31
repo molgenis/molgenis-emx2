@@ -27,18 +27,18 @@
       <InputSelect
         v-if="rootTable !== undefined"
         id="table_extends"
-        v-model="table.inherit"
+        v-model="table.inheritName"
         :required="true"
         :options="inheritOptions"
         :readonly="table.oldName !== undefined"
         :errorMessage="subclassInvalid"
         label="Extends table (can not be edited after creation)"
       />
-      <InputString
+      <ArrayInput
         id="table_semantics"
-        :list="true"
+        columnType="STRING_ARRAY"
         v-model="table.semantics"
-        label="Semantics (comma separated list of IRI defining type, and/or keyword 'id')"
+        label="Semantics"
       />
     </template>
     <template v-slot:footer>
@@ -58,12 +58,14 @@
 
 <script>
 import {
+  constants,
   InputString,
   LayoutModal,
   IconAction,
   ButtonAction,
   MessageWarning,
   InputSelect,
+  ArrayInput,
   ButtonAlt,
   deepClone,
   InputTextLocalized,
@@ -71,6 +73,7 @@ import {
 
 export default {
   components: {
+    ArrayInput,
     LayoutModal,
     InputString,
     IconAction,
@@ -134,6 +137,7 @@ export default {
               .filter((name) => name !== this.table.name)
           );
         }
+        this.table.inheritName = result[0];
         return result;
       }
       return undefined;
@@ -142,9 +146,9 @@ export default {
       if (
         this.table.name === undefined ||
         this.table.name.trim() === "" ||
-        this.table.name.search(/^[a-zA-Z0-9 _]*$/)
+        this.table.name.search(constants.TABLE_NAME_REGEX)
       ) {
-        return "Name is required and can only contain 'azAZ_ '";
+        return "Name is required and must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
       if (
         this.modelValue?.name !== this.table.name &&
@@ -167,7 +171,7 @@ export default {
       return null;
     },
     subclassInvalid() {
-      return this.inheritOptions && this.table.inherit === undefined
+      return this.inheritOptions && this.table.inheritName === undefined
         ? "Extends is required in case of subclass"
         : null;
     },

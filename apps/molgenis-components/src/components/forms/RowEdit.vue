@@ -1,50 +1,51 @@
 <template>
   <div>
     <FormInput
-      v-for="column in columnsWithoutMeta.filter(showColumn)"
+      v-for="column in shownColumnsWithoutMeta"
       :key="JSON.stringify(column)"
-      :id="`${id}-${column.name}`"
-      v-model="internalValues[column.id]"
+      :id="`${id}-${column.id}`"
+      :modelValue="internalValues[column.id]"
+      :expressionData="internalValues"
       :columnType="column.columnType"
-      :description="getColumnDescription(column)"
+      :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
-      :label="getColumnLabel(column)"
-      :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
-      :pkey="getPrimaryKey(internalValues, tableMetaData)"
+      :label="column.formLabel ?? column.label"
+      :schemaId="column.refSchemaId || schemaMetaData.id"
+      :pkey="pkey"
       :readonly="
         column.readonly ||
         (pkey && column.key === 1 && !clone) ||
-        (column.computed !== undefined && column.computed.trim() != '')
+        (column.computed !== undefined && column.computed.trim() !== '')
       "
-      :refBack="column.refBack"
-      :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
-      :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
+      :refBackId="column.refBackId"
+      :refLabel="column.refLabel || column.refLabelDefault"
       :required="column.required"
-      :tableName="column.refTable"
+      :tableId="column.refTableId"
       :canEdit="canEdit"
-      :filter="refLinkFilter(column)"
+      :filter="refFilter[column.id]"
+      @update:modelValue="handleModelValueUpdate($event, column)"
     />
   </div>
 </template>
 
-<script>
-import FormInput from "./FormInput.vue";
+<script lang="ts">
+import { IColumn, ITableMetaData } from "metadata-utils";
 import constants from "../constants.js";
-import {
-  getPrimaryKey,
-  deepClone,
-  convertToCamelCase,
-  getLocalizedLabel,
-  getLocalizedDescription,
-} from "../utils";
-const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
+import { deepClone } from "../utils";
+import FormInput from "./FormInput.vue";
+import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
+import { convertRowToPrimaryKey } from "../../client/client";
+
+const { AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
-  data: function () {
+  data() {
     return {
-      internalValues: deepClone(this.modelValue),
-      errorPerColumn: {},
+      internalValues: deepClone(
+        this.defaultValue ? this.defaultValue : this.modelValue
+      ),
+      refFilter: {} as Record<string, any>,
     };
   },
   props: {
@@ -57,8 +58,8 @@ export default {
       type: String,
       required: true,
     },
-    // tableName: name of the molgenis table loaded
-    tableName: {
+    // tableId: name of the molgenis table loaded
+    tableId: {
       type: String,
       required: true,
     },
@@ -75,6 +76,7 @@ export default {
       required: false,
     },
     // visibleColumns:  visible columns, useful if you only want to allow partial edit (column of object)
+    // examples ['name','description']
     visibleColumns: {
       type: Array,
       required: false,
@@ -94,9 +96,13 @@ export default {
       required: false,
       default: () => true,
     },
-    locale: {
-      type: String,
-      default: () => "en",
+    errorPerColumn: {
+      type: Object,
+      default: () => ({}),
+    },
+    applyDefaultValues: {
+      type: Boolean,
+      default: () => false,
     },
   },
   emits: ["update:modelValue"],
@@ -104,260 +110,149 @@ export default {
     FormInput,
   },
   computed: {
-    columnsWithoutMeta() {
-      return this?.tableMetaData?.columns
+    shownColumnsWithoutMeta() {
+      const columnsWithoutMeta = this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.name?.startsWith("mg_")
+            (column: IColumn) =>
+              !column.id?.startsWith("mg_") && column.id !== "_mg_top_of_form"
           )
         : [];
-    },
-    graphqlFilter() {
-      if (this.tableMetaData && this.pkey) {
-        return this.tableMetaData.columns
-          .filter((column) => column.key == 1)
-          .reduce((accum, column) => {
-            accum[column.id] = { equals: this.pkey[column.id] };
-            return accum;
-          }, {});
-      } else {
-        return {};
-      }
+      return columnsWithoutMeta.filter(this.showColumn);
     },
   },
   methods: {
-    getPrimaryKey,
-    getColumnLabel(column) {
-      return getLocalizedLabel(column, this.locale);
-    },
-    getColumnDescription(column) {
-      return getLocalizedDescription(column, this.locale);
-    },
-    showColumn(column) {
-      if (column.reflink) {
-        return this.internalValues[convertToCamelCase(column.refLink)];
+    showColumn(column: IColumn) {
+      if (column.refLinkId) {
+        return this.internalValues[column.refLinkId];
       } else {
-        const isColumnVisible = Array.isArray(this.visibleColumns)
-          ? this.visibleColumns.find((col) => col.name === column.name)
+        const isColumnVisible = this.visibleColumns
+          ? this.visibleColumns.includes(column.id)
           : true;
         return (
           isColumnVisible &&
-          this.visible(column.visible, column.id) &&
-          column.name !== "mg_tableclass"
+          this.isVisible(column) &&
+          column.id !== "mg_tableclass"
         );
       }
     },
-    visible(expression, columnId) {
-      if (expression) {
-        try {
-          return executeExpression(
-            expression,
-            this.internalValues,
-            this.tableMetaData
-          );
-        } catch (error) {
-          this.errorPerColumn[
-            columnId
-          ] = `Invalid visibility expression, reason: ${error}`;
-          return true;
-        }
-      } else {
+    isVisible(column: IColumn) {
+      try {
+        return isColumnVisible(
+          column,
+          this.internalValues,
+          this.tableMetaData as ITableMetaData
+        );
+      } catch (error: any) {
+        console.log("isVisible expression error: ", error);
+        this.errorPerColumn[column.id] = error;
         return true;
       }
     },
-    validateTable() {
-      this.tableMetaData?.columns
-        ?.filter((column) => {
-          if (this.visibleColumns) {
-            return this.visibleColumns.find(
-              (visibleColumn) => column.name === visibleColumn.name
-            );
-          } else {
-            return true;
-          }
-        })
-        .forEach((column) => {
-          this.errorPerColumn[column.id] = getColumnError(
-            column,
-            this.internalValues,
-            this.tableMetaData
-          );
-        });
-    },
     applyComputed() {
-      //apply computed
-      this.tableMetaData.columns.forEach((c) => {
-        if (c.computed) {
+      this.tableMetaData.columns.forEach((column: IColumn) => {
+        if (column.computed && column.columnType !== AUTO_ID) {
           try {
-            this.internalValues[c.id] = executeExpression(
-              c.computed,
+            this.internalValues[column.id] = executeExpression(
+              column.computed,
               this.internalValues,
-              this.tableMetaData
+              this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            this.errorPerColumn[c.id] = "Computation failed: " + error;
+            console.log("Computed expression failed: ", error);
+            this.errorPerColumn[column.id] =
+              "Computed expression failed: " + error;
           }
         }
       });
     },
-    //create a filter in case inputs are linked by overlapping refs
-    refLinkFilter(c) {
-      //need to figure out what refs overlap
-      if (
-        c.refLink &&
-        this.showColumn(c) &&
-        this.internalValues[convertToCamelCase(c.refLink)]
-      ) {
-        let filter = {};
-        this.tableMetaData.columns.forEach((c2) => {
-          if (c2.name === c.refLink) {
-            this.schemaMetaData.tables.forEach((t) => {
-              //check how the reftable overlaps with columns in our column
-              if (t.name === c.refTable) {
-                t.columns.forEach((c3) => {
-                  if (c3.key === 1 && c3.refTable === c2.refTable) {
-                    filter[c3.name] = {
-                      equals:
-                        this.internalValues[convertToCamelCase(c.refLink)],
-                    };
-                  }
-                });
-              }
-            });
-          }
-        });
-        return filter;
+    //update reflink filters and reset values if reflink changes
+    async updateRefLinks(changedColumn: IColumn) {
+      const refLinkColumns = this.tableMetaData.columns.filter(
+        (col: IColumn) =>
+          this.internalValues[changedColumn.id] &&
+          col.refLinkId === changedColumn.id
+      );
+      for (const refLinkColumn of refLinkColumns) {
+        const refTable = this.schemaMetaData.tables.find(
+          (table: ITableMetaData) => table.id === refLinkColumn.refTableId
+        );
+        const overlappingRefColumns = refTable.columns.filter(
+          (col: IColumn) =>
+            col.key === 1 && col.refTableId === changedColumn.refTableId
+        );
+        for (const overlappingKey of overlappingRefColumns) {
+          //reset the value and the filter
+          this.internalValues[refLinkColumn.id] = null;
+          //and then define new filter setting
+          this.refFilter[refLinkColumn.id] = {
+            [overlappingKey.id]: {
+              equals: await convertRowToPrimaryKey(
+                this.internalValues[changedColumn.id],
+                overlappingKey.refTableId,
+                overlappingKey.refSchemaId || this.schemaMetaData.schemaId
+              ),
+            },
+          };
+        }
       }
+    },
+    handleModelValueUpdate(newValue: any, column: IColumn) {
+      this.internalValues[column.id] = newValue;
+      this.updateRefLinks(column);
+      this.onValuesUpdate();
+    },
+    onValuesUpdate() {
+      this.applyComputed();
+      this.$emit("update:modelValue", this.internalValues);
     },
   },
   watch: {
-    internalValues: {
-      handler() {
-        //clean up errors
-        this.errorPerColumn = {};
-        this.validateTable();
-        this.applyComputed();
-        this.$emit("update:modelValue", this.internalValues);
-      },
-      deep: true,
-    },
     tableMetaData: {
       handler() {
-        this.validateTable();
-        this.applyComputed();
+        this.onValuesUpdate();
       },
       deep: true,
     },
   },
   created() {
-    if (this.defaultValue) {
-      this.internalValues = deepClone(this.defaultValue);
-    }
-    this.validateTable();
-    this.applyComputed();
+    this.tableMetaData.columns.forEach((column: IColumn) => {
+      if (
+        this.applyDefaultValues &&
+        column.defaultValue &&
+        !this.internalValues[column.id]
+      ) {
+        if (column.defaultValue.startsWith("=")) {
+          try {
+            this.internalValues[column.id] = executeExpression(
+              "(" + column.defaultValue.substr(1) + ")",
+              this.internalValues,
+              this.tableMetaData as ITableMetaData
+            );
+          } catch (error) {
+            this.errorPerColumn[column.id] =
+              "Default value expression failed: " + error;
+          }
+        } else if (column.columnType === "BOOL") {
+          this.internalValues[column.id] = getBooleanDefaultValue(
+            column.defaultValue
+          );
+        } else {
+          this.internalValues[column.id] = column.defaultValue;
+        }
+      }
+    });
+    this.onValuesUpdate();
   },
 };
 
-function getColumnError(column, values, tableMetaData) {
-  const value = values[column.id];
-  const isInvalidNumber = typeof value === "number" && isNaN(value);
-  const missesValue = value === undefined || value === null || value === "";
-  const type = column.columnType;
-
-  if (column.required && (missesValue || isInvalidNumber)) {
-    return column.name + " is required ";
-  }
-  if (missesValue) {
+function getBooleanDefaultValue(value: any): boolean | undefined {
+  if (value === "TRUE" || value === "true" || value === true) {
+    return true;
+  } else if (value === "FALSE" || value === "false" || value === false) {
+    return false;
+  } else {
     return undefined;
   }
-  if (type === "EMAIL" && !isValidEmail(value)) {
-    return "Invalid email address";
-  }
-  if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
-    return "Invalid email address";
-  }
-  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
-    return "Invalid hyperlink";
-  }
-  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
-    return "Invalid hyperlink";
-  }
-  if (column.validation) {
-    return getColumnValidationError(column, values, tableMetaData);
-  }
-  if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
-    return `value should match your selection in column '${column.refLink}' `;
-  }
-
-  return undefined;
-}
-
-function getColumnValidationError(column, values, tableMetaData) {
-  try {
-    //use the keys as variables
-    const result = executeExpression(column.validation, values, tableMetaData);
-    if (result === false) {
-      return `Applying validation rule returned error: ${column.validation}`;
-    } else if (result === true || result === undefined) {
-      return undefined;
-    } else {
-      return `Applying validation rule returned error: ${result}`;
-    }
-  } catch (error) {
-    return `Invalid validation expression '${column.validation}', reason: ${error}`;
-  }
-}
-
-function executeExpression(expression, values, tableMetaData) {
-  //make sure all columns have keys to prevent reference errors
-  const copy = deepClone(values);
-  tableMetaData.columns.forEach((c) => {
-    if (!copy.hasOwnProperty(c.id)) {
-      copy[c.id] = null;
-    }
-  });
-
-  const func = new Function(
-    Object.keys(copy),
-    `return eval('${expression.replaceAll("'", '"')}');`
-  );
-  return func(...Object.values(copy));
-}
-
-function isRefLinkWithoutOverlap(column, tableMetaData, values) {
-  if (!column.refLink) {
-    return false;
-  }
-  const columnRefLink = column.refLink;
-  const refLinkId = convertToCamelCase(columnRefLink);
-
-  const value = values[column.id];
-  const refValue = values[refLinkId];
-
-  if (typeof value === "string" && typeof refValue === "string") {
-    return value && refValue && value !== refValue;
-  } else {
-    return (
-      value &&
-      refValue &&
-      !JSON.stringify(value).includes(JSON.stringify(refValue))
-    );
-  }
-}
-
-function isValidHyperlink(value) {
-  return HYPERLINK_REGEX.test(String(value).toLowerCase());
-}
-
-function containsInvalidHyperlink(hyperlinks) {
-  return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
-}
-
-function isValidEmail(value) {
-  return EMAIL_REGEX.test(String(value).toLowerCase());
-}
-
-function containsInvalidEmail(emails) {
-  return emails.find((email) => !this.isValidEmail(email));
 }
 </script>
 
@@ -371,10 +266,10 @@ function containsInvalidEmail(emails) {
             v-if="showRowEdit"
             id="row-edit"
             v-model="rowData"
-            :tableName="tableName"
-            :tableMetaData="tableMetaData"
-            :locale="locale"
-            :schemaMetaData="schemaMetaData"
+            :tableId="tableId"
+            :tableMetaData="tableMetadata"
+            :schemaMetaData="schemaMetadata"
+            :applyDefaultValues="true"
         />
       </div>
       <div class="col-6 border-left">
@@ -382,19 +277,18 @@ function containsInvalidEmail(emails) {
         <dl id="create-mode-config">
           <dt>Table name</dt>
           <dd>
-            <select v-model="tableName">
+            <select v-model="tableId">
               <option>Pet</option>
               <option>Order</option>
               <option>Category</option>
               <option>User</option>
             </select>
           </dd>
-          <InputString v-model="locale" label="locale" id="locale"/>
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
-          <dt>MetaData</dt>
-          <dd>{{ tableMetaData }}</dd>
+          <dt>Metadata</dt>
+          <dd>{{ tableMetadata }}</dd>
         </dl>
       </div>
     </div>
@@ -402,27 +296,20 @@ function containsInvalidEmail(emails) {
 </template>
 <script>
   export default {
-    data: function() {
+    data: function () {
       return {
         showRowEdit: true,
-        locale: 'en',
-        tableName: 'Pet',
-        tableMetaData: {
+        tableId: 'Pet',
+        tableMetadata: {
           columns: [],
         },
-        schemaMetaData: {},
+        schemaMetadata: {},
         rowData: {},
-        schemaName: 'pet store',
+        schemaId: 'pet store',
       };
     },
     watch: {
-      async tableName(newValue, oldValue) {
-        if (newValue !== oldValue) {
-          this.rowData = {};
-          await this.reload();
-        }
-      },
-      async locale(newValue, oldValue) {
+      async tableId(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.rowData = {};
           await this.reload();
@@ -433,10 +320,9 @@ function containsInvalidEmail(emails) {
       async reload() {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
-        const client = this.$Client.newClient(this.schemaName);
-        this.schemaMetaData = await client.fetchSchemaMetaData();
-        this.tableMetaData = await client.fetchTableMetaData(this.tableName);
-        // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
+        const client = this.$Client.newClient(this.schemaId);
+        this.schemaMetadata = await client.fetchSchemaMetaData();
+        this.tableMetadata = await client.fetchTableMetaData(this.tableId);
         this.showRowEdit = true;
       },
     },

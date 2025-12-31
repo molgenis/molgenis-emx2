@@ -8,17 +8,18 @@
   >
     <div>
       <div>
-        <div v-if="count > maxNum">
+        <div>
           <FilterWell
-            v-for="(item, key) in selection"
-            :key="JSON.stringify(item)"
-            :label="flattenObject(item)"
-            @click="deselect(key)"
+            v-for="selectedRow in selection"
+            :key="JSON.stringify(selectedRow)"
+            :label="applyJsTemplate(selectedRow, refLabel)"
+            @click="deselect(selectedRow)"
           />
         </div>
         <ButtonAlt
-          v-if="modelValue && modelValue.length"
+          v-if="Array.isArray(modelValue) && modelValue.length"
           class="pl-1"
+          icon="fa fa-clear"
           @click="clearValue"
         >
           clear selection
@@ -29,48 +30,69 @@
           showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
         "
       >
+        <Spinner v-if="loading" />
         <div
+          v-else-if="data.length"
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          v-for="(row, index) in data"
+          v-for="(keyObject, index) in data"
           :key="index"
         >
           <input
-            :id="`${id}-${row.name}`"
+            :id="`${id}-${JSON.stringify(keyObject)}`"
             :name="id"
             type="checkbox"
-            :value="getPrimaryKey(row, tableMetaData)"
+            :value="keyObject"
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label class="form-check-label" :for="`${id}-${row.name}`">
-            {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
+          <label
+            class="form-check-label"
+            :for="`${id}-${JSON.stringify(keyObject)}`"
+            @click.prevent="toggle(keyObject)"
+          >
+            {{ applyJsTemplate(keyObject, refLabel) }}
           </label>
         </div>
-        <ButtonAlt
-          class="pl-0"
+        <div v-else>No entries found for {{ label }}</div>
+      </div>
+      <div class="m-1">
+        <RowButtonAdd
+          id="add-entry"
+          v-if="canEdit"
+          :label="`Add new ${label}`"
+          :tableId="tableId"
+          :schemaId="schemaId"
+          @update:newRow="selectNew"
+          class="mr-1"
+        />
+        <ButtonOutline
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
         >
-          {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
-        </ButtonAlt>
+          {{
+            count > maxNum
+              ? `Show all ${count} options with details `
+              : "More details "
+          }}
+        </ButtonOutline>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
             v-model:selection="selection"
-            @update:selection="$emit('update:modelValue', $event)"
-            :lookupTableName="tableName"
-            :filter="filter"
-            @select="emitSelection"
-            @deselect="deselect"
-            :schemaName="schemaName"
-            :showSelect="true"
-            :limit="10"
+            :schemaId="schemaId"
+            :tableId="tableId"
             :canEdit="canEdit"
+            :showSelect="true"
+            :filter="filter"
+            :limit="10"
+            @select="select"
+            @deselect="deselect"
+            @update:newRow="selectNew"
           />
         </template>
         <template v-slot:footer>
@@ -81,26 +103,42 @@
   </FormGroup>
 </template>
 
-<script>
-import Client from "../../client/client.ts";
-import BaseInput from "./baseInputs/BaseInput.vue";
-import TableSearch from "../tables/TableSearch.vue";
-import LayoutModal from "../layout/LayoutModal.vue";
-import FormGroup from "./FormGroup.vue";
-import ButtonAlt from "./ButtonAlt.vue";
+<script lang="ts">
+import {
+  KeyObject,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
+import { IRow } from "../../Interfaces/IRow";
+import { INewClient } from "../../client/IClient";
+import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
+import Client from "../../client/client";
 import FilterWell from "../filters/FilterWell.vue";
-import { convertToPascalCase, flattenObject, getPrimaryKey } from "../utils";
+import LayoutModal from "../layout/LayoutModal.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButtonAdd from "../tables/RowButtonAdd.vue";
+import TableSearch from "../tables/TableSearch.vue";
+import {
+  applyJsTemplate,
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+} from "../utils";
+import ButtonOutline from "./ButtonOutline.vue";
+import FormGroup from "./FormGroup.vue";
+import Tooltip from "./Tooltip.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
 export default {
   extends: BaseInput,
   data: function () {
     return {
-      client: null,
+      client: null as null | INewClient,
       showSelect: false,
-      data: [],
-      selection: this.modelValue,
+      data: [] as any[],
+      selection: deepClone(this.modelValue),
       count: 0,
-      tableMetaData: null,
+      tableMetadata: null as null | ITableMetaData,
+      loading: false,
     };
   },
   components: {
@@ -108,35 +146,38 @@ export default {
     TableSearch,
     LayoutModal,
     FormGroup,
-    ButtonAlt,
+    ButtonOutline,
+    Spinner,
+    RowButtonAdd,
+    Tooltip,
   },
   props: {
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
+      default: "",
     },
     filter: Object,
+    orderby: Object,
     multipleColumns: Boolean,
     maxNum: { type: Number, default: 11 },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    /**
-     * Whether or not the buttons are show to edit the referenced table
-     *  */
+    refLabel: {
+      type: String,
+      required: true,
+    },
     canEdit: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
-      return "Select " + this.tableName;
+      const label = this.tableMetadata?.label || this.tableId;
+      return "Select " + label;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;
@@ -144,14 +185,34 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
-    deselect(key) {
-      this.selection.splice(key, 1);
+    applyJsTemplate,
+    deselect(key: KeyObject) {
+      this.selection = this.selection.filter(
+        (row: IRow) => !deepEqual(row, key)
+      );
       this.emitSelection();
     },
     clearValue() {
       this.selection = [];
       this.emitSelection();
+    },
+    handleUpdateSelection(newSelection: KeyObject[]) {
+      this.selection = [...newSelection];
+      this.emitSelection();
+    },
+    select(newRow: KeyObject) {
+      this.selection = [...this.selection, newRow];
+      this.emitSelection();
+    },
+    async selectNew(newRow: KeyObject) {
+      const rowKey = await convertRowToPrimaryKey(
+        newRow,
+        this.tableId,
+        this.schemaId
+      );
+      this.selection = [...this.selection, rowKey];
+      this.emitSelection();
+      this.loadOptions();
     },
     emitSelection() {
       this.$emit("update:modelValue", this.selection);
@@ -159,64 +220,103 @@ export default {
     openSelect() {
       this.showSelect = true;
     },
+    toggle(value: KeyObject) {
+      if (
+        this.selection?.some((selection: KeyObject) =>
+          deepEqual(selection, value)
+        )
+      ) {
+        this.selection = this.selection.filter(
+          (selectedValue: KeyObject) => !deepEqual(selectedValue, value)
+        );
+      } else {
+        this.selection = [...this.selection, value];
+      }
+      this.emitSelection();
+    },
     closeSelect() {
       this.loadOptions();
       this.showSelect = false;
     },
-    flattenObject,
     async loadOptions() {
-      const options = {
-        limit: this.maxNum,
-      };
-      if (this.filter) {
-        options["filter"] = this.filter;
+      if (!this.client) {
+        console.error("Tried loading options before client is initialised");
+        return;
       }
+      this.loading = true;
+      const options: IQueryMetaData = {
+        limit: this.maxNum,
+        filter: this.filter,
+        orderby: this.orderby,
+      };
       const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
+      const responseRows = response[this.tableId] || [];
+      const keyList = responseRows.map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
       this.count = response[this.tableId + "_agg"].count;
+      this.data = await Promise.all(keyList);
+      this.loading = false;
+      this.$emit("optionsLoaded", this.data);
     },
   },
   watch: {
-    modelValue() {
-      this.selection = this.modelValue;
+    async modelValue() {
+      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
+      this.selection = await Promise.all(keyList);
     },
     filter() {
-      this.loadOptions();
+      if (!this.loading) {
+        this.loadOptions();
+      }
     },
   },
-  async mounted() {
-    this.client = Client.newClient(this.schemaName);
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
+  async created() {
+    this.loading = true;
+    this.client = Client.newClient(this.schemaId);
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
     await this.loadOptions();
+    this.loading = true;
     if (!this.modelValue) {
       this.selection = [];
+    } else {
+      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
+      this.selection = await Promise.all(keyList);
     }
+
+    this.loading = false;
   },
+  emits: ["optionsLoaded", "update:modelValue"],
 };
 </script>
 
 <docs>
-<template>
+  <template>
   <div>
     You have to be have server running and be signed in for this to work
     <div class="border-bottom mb-3 p-2">
-      <h5>synced demo props: </h5>
-        <div>
-          <label for="canEdit" class="pr-1">can edit: </label>
-          <input type="checkbox" id="canEdit" v-model="canEdit">
-        </div>
-        <p class="font-italic">view in table mode to see edit action buttons</p>
+      <h5>synced demo props:</h5>
+      <div>
+        <label for="canEdit" class="pr-1">can edit: </label>
+        <input type="checkbox" id="canEdit" v-model="canEdit" />
+      </div>
+      <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaName, it will use graphql on current path-->
+      <!-- normally you don't need schemaId, it will use graphql on current path-->
       <InputRefList
         id="input-ref-list"
         label="Standard ref input list"
         v-model="value"
-        tableName="Pet"
+        tableId="Pet"
         description="Standard input"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ value }}
     </DemoItem>
@@ -225,11 +325,11 @@ export default {
         id="input-ref-list-default"
         label="Ref input list with default value"
         v-model="defaultValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a default value"
-        :defaultValue="defaultValue"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
@@ -238,11 +338,12 @@ export default {
         id="input-ref-list-filter"
         label="Ref input list with pre set filter"
         v-model="filterValue"
-        tableName="Pet"
+        tableId="Pet"
         description="Filter by name"
-        :filter="{ category: { name: { equals: 'pooky' } } }"
-        schemaName="pet store"
+        :filter="{ category: { name: { equals: 'dog' } } }"
+        schemaId="pet store"
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ filterValue }}
     </DemoItem>
@@ -251,13 +352,28 @@ export default {
         id="input-ref-list"
         label="Ref input list with multiple columns"
         v-model="multiColumnValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a multi column input"
-        schemaName="pet store"
+        schemaId="pet store"
         multipleColumns
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ multiColumnValue }}
+    </DemoItem>
+    <DemoItem>
+      <InputRefList
+        id="input-ref-list"
+        label="Ref input list more than the max number shown"
+        v-model="maxNumValue"
+        tableId="Pet"
+        description="This is a multi column input"
+        schemaId="pet store"
+        :maxNum="3"
+        :canEdit="canEdit"
+        refLabel="${name}"
+      />
+      Selection: {{ maxNumValue }}
     </DemoItem>
   </div>
 </template>
@@ -267,10 +383,11 @@ export default {
   data: function () {
     return {
       value: null,
-      defaultValue: [{ name: "pooky" }, { name: "spike" }],
+      defaultValue: [{ name: "pooky", someNoneKeyColumn: "foobar" }, { name: "spike" }],
       filterValue: [{ name: "spike" }],
       multiColumnValue: null,
-      canEdit: false
+      maxNumValue: null,
+      canEdit: false,
     };
   },
 };

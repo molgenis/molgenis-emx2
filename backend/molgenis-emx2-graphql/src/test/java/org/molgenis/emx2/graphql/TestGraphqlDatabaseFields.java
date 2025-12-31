@@ -1,23 +1,23 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
-import junit.framework.TestCase;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
@@ -30,12 +30,12 @@ public class TestGraphqlDatabaseFields {
   private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, false);
+    PET_STORE.getImportTask(schema, false).run();
     grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 
@@ -55,7 +55,7 @@ public class TestGraphqlDatabaseFields {
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(schemaName + "B"));
 
-    execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
+    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
     assertNull(database.getSchema(schemaName + "B"));
   }
 
@@ -63,12 +63,12 @@ public class TestGraphqlDatabaseFields {
   public void testCreateDatabaseSetting() throws IOException {
     String createSettingQuery =
         """
-            mutation {
-              change(settings:{key: "db-key-1", value: "db-value-1" }){
-                    message
-              }
-            }
-            """;
+                        mutation {
+                          change(settings:{key: "db-key-1", value: "db-value-1" }){
+                                message
+                          }
+                        }
+                        """;
 
     var result = execute(createSettingQuery);
 
@@ -85,12 +85,12 @@ public class TestGraphqlDatabaseFields {
   public void testDeleteDatabaseSetting() throws IOException {
     String createSettingQuery =
         """
-                mutation {
-                  drop(settings:{key: "db-key-1"}){
-                        message
-                  }
-                }
-                """;
+                        mutation {
+                          drop(settings:{key: "db-key-1"}){
+                                message
+                          }
+                        }
+                        """;
 
     var result = execute(createSettingQuery);
 
@@ -114,43 +114,64 @@ public class TestGraphqlDatabaseFields {
         (String)
             EnvironmentProperty.getParameter(
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+    GraphqlSessionHandlerInterface sessionManager =
+        new GraphqlSessionHandlerInterface() {
+          private String user;
+
+          @Override
+          public void createSession(String username) {
+            this.user = username;
+          }
+
+          @Override
+          public void destroySession() {
+            this.user = null;
+          }
+
+          @Override
+          public String getCurrentUser() {
+            return user;
+          }
+        };
     execute(
         "mutation { signin(email: \""
             + database.getAdminUserName()
             + "\",password:\""
             + adminPass
-            + "\") {message}}");
-    Assert.assertTrue(database.isAdmin());
+            + "\") {message}}",
+        sessionManager);
+    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     assertTrue(database.hasUser("pietje"));
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
 
-    TestCase.assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
+    assertTrue(
+        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}", sessionManager)
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
     // still admin
-    Assert.assertTrue(database.isAdmin());
+    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
 
-    TestCase.assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
+    assertTrue(
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    Assert.assertEquals("pietje", database.getActiveUser());
+    assertEquals("pietje", sessionManager.getCurrentUser());
 
-    TestCase.assertTrue(
+    database.setActiveUser("pietje");
+    assertTrue(
         execute("mutation{changePassword(password:\"blaat124\"){message}}")
             .at("/data/changePassword/message")
             .textValue()
             .contains("Password changed"));
     assertTrue(database.checkUserPassword("pietje", "blaat124"));
 
-    execute("mutation{signout{message}}");
-    Assert.assertEquals("anonymous", database.getActiveUser());
+    execute("mutation{signout{message}}", sessionManager);
+    assertNull(sessionManager.getCurrentUser());
 
     // back to superuser
     database.becomeAdmin();
@@ -201,8 +222,23 @@ public class TestGraphqlDatabaseFields {
   }
 
   private JsonNode execute(String query) throws IOException {
+    return execute(query, null);
+  }
+
+  private JsonNode execute(String query, GraphqlSessionHandlerInterface sessionManager)
+      throws IOException {
+    Map graphQLContext =
+        sessionManager != null
+            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
+            : Map.of();
     JsonNode result =
-        new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
+        new ObjectMapper()
+            .readTree(
+                convertExecutionResultToJson(
+                    grapql.execute(
+                        ExecutionInput.newExecutionInput(query)
+                            .graphQLContext(graphQLContext)
+                            .build())));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }

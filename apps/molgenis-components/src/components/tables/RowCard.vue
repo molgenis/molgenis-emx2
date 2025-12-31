@@ -7,7 +7,7 @@
             v-if="canEdit"
             type="edit"
             class="d-inline"
-            :table="tableName"
+            :tableId="tableId"
             :pkey="getKey(row)"
             @close="$emit('reload')"
             @edit="$emit('edit', row)"
@@ -16,7 +16,7 @@
             v-if="canEdit"
             type="delete"
             class="mt-0"
-            :table="tableName"
+            :tableId="tableId"
             :pkey="getKey(row)"
             @close="$emit('reload')"
             @delete="$emit('delete', row)"
@@ -24,20 +24,16 @@
         </span>
         <VueTemplate v-if="template" :template="template" :row="row" />
         <dl v-else>
-          <div v-for="col in columns" :key="col.id">
-            <dt
-              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
-              class="pr-3"
-            >
-              {{ col.name }}
-            </dt>
-            <dd
-              class="pl-3"
-              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
-            >
-              <RenderValue :col="col" :row="row" />
-            </dd>
-          </div>
+          <template v-for="col in columns" :key="col.id">
+            <template v-if="showItem(row, col)">
+              <dt v-if="showItem(row, col)" class="pr-3 pb-1">
+                {{ col.label }}
+              </dt>
+              <dd class="pl-3" v-if="showItem(row, col)">
+                <RenderValue :col="col" :row="row" />
+              </dd>
+            </template>
+          </template>
         </dl>
       </div>
     </div>
@@ -54,6 +50,7 @@ dt {
   float: left;
   width: 35%;
   text-align: right;
+  clear: both;
 }
 
 dd {
@@ -78,7 +75,7 @@ export default {
   },
   props: {
     columns: Array,
-    tableName: String,
+    tableId: String,
     row: Object,
     template: String,
     canEdit: Boolean,
@@ -88,8 +85,11 @@ export default {
       let result = {};
       this.columns
         .filter((c) => c.key == 1)
-        .map((c) => (result[c.name] = row[c.name]));
+        .map((c) => (result[c.id] = row[c.id]));
       return result;
+    },
+    showItem(row, col) {
+      return col.showColumn && row[col.id] && col.id != "mg_tableclass";
     },
   },
 };

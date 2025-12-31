@@ -4,10 +4,11 @@
     <EditModal
       v-if="isModalShown"
       :id="id + 'edit-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="pkey"
       :isModalShown="isModalShown"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
+      :visibleColumns="visibleColumns"
       @close="handleClose"
     />
   </span>
@@ -15,24 +16,34 @@
 
 <script>
 import RowButton from "./RowButton.vue";
+import { defineAsyncComponent } from "vue";
+
 export default {
   name: "RowButtonEdit",
-  components: { RowButton },
+  components: {
+    RowButton,
+    EditModal: defineAsyncComponent(() => import("../forms/EditModal.vue")),
+  },
   props: {
     id: {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
     pkey: {
       type: Object,
+    },
+    visibleColumns: {
+      type: Array,
+      required: false,
+      default: () => null,
     },
   },
   data() {
@@ -50,17 +61,30 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
     <div>
-      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
-      <div>
-        <RowButtonEdit 
-          id="row-edit-btn-sample" 
-          tableName="Pet"
+      <RowButtonEdit
+          id="row-edit-btn-sample"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
-        />
-      </div>
+          schemaId="pet store"
+      />
     </div>
-  </template>
+  </div>
+  <p>With only few columns visible</p>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+    <div>
+      <RowButtonEdit
+          id="row-edit-btn-sample"
+          tableId="Pet"
+          :pkey="{name: 'pooky'}"
+          schemaId="pet store"
+          :visibleColumns="['name']"
+      />
+    </div>
+  </div>
+</template>
 </docs>

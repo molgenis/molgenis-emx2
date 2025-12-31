@@ -1,18 +1,56 @@
 package org.molgenis.emx2.graphql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import graphql.schema.*;
+import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import javax.servlet.http.Part;
 import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.utils.MolgenisObjectMapper;
 
 public class GraphqlCustomTypes {
+  private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
 
   private GraphqlCustomTypes() {
     // hide constructor
   }
+
+  public static final GraphQLScalarType GraphQLJsonAsString =
+      GraphQLScalarType.newScalar()
+          .name("JsonString")
+          .description("A JSON represented as string")
+          .coercing(
+              new Coercing<String, String>() {
+
+                @Override
+                public String serialize(Object dataFetcherResult) {
+                  // Convert Java object to JSON string
+                  try {
+                    return objectMapper.getWriter().writeValueAsString(dataFetcherResult);
+                  } catch (JsonProcessingException e) {
+                    throw new CoercingSerializeException(
+                        "Unable to serialize to JSON string: " + e.getMessage());
+                  }
+                }
+
+                @Override
+                public String parseValue(Object input) {
+                  // Pass-through parsing (only used for input values)
+                  return input.toString();
+                }
+
+                @Override
+                public String parseLiteral(Object input) {
+                  // Pass-through literal parsing
+                  if (input instanceof graphql.language.StringValue) {
+                    return ((graphql.language.StringValue) input).getValue();
+                  }
+                  throw new CoercingParseLiteralException("Value is not a valid JSON string");
+                }
+              })
+          .build();
 
   // thanks to https://stackoverflow.com/questions/57372259/how-to-upload-files-with-graphql-java
   public static final GraphQLScalarType GraphQLFileUpload =

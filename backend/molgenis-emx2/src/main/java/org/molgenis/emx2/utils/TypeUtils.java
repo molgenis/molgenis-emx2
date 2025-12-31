@@ -1,15 +1,10 @@
 package org.molgenis.emx2.utils;
 
-import static org.jooq.impl.DSL.cast;
-
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
@@ -20,10 +15,12 @@ import java.util.stream.Stream;
 import org.jooq.DataType;
 import org.jooq.JSONB;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
+import org.jooq.types.YearToSecond;
+import org.molgenis.emx2.*;
 
 public class TypeUtils {
+  private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
+
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
@@ -77,7 +74,9 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) {
+    if (v instanceof Long longValue) {
+      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE)
+        throw new MolgenisException("Cannot cast '" + v + " to integer, it is too large");
       return ((Long) v).intValue();
     }
     if (v instanceof Double) return (int) Math.round((Double) v);
@@ -140,10 +139,10 @@ public class TypeUtils {
       if (value == null) {
         return null; // NOSONAR
       }
-      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value)) {
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || value.equals("1")) {
         return true;
       }
-      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value)) {
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || value.equals("0")) {
         return false;
       }
     }
@@ -159,16 +158,30 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        return Double.parseDouble(value);
-      } else {
+    switch (v) {
+      case null -> {
         return null;
       }
+      case String string -> {
+        if (string.isBlank()) {
+          return null;
+        } else {
+          return Double.parseDouble(string);
+        }
+      }
+      case BigDecimal bigDecimal -> {
+        return bigDecimal.doubleValue();
+      }
+      case Integer integer -> {
+        return Double.valueOf(integer);
+      }
+      case Long decimal -> {
+        return Double.valueOf(decimal);
+      }
+      default -> {
+        return (Double) v;
+      }
     }
-    if (v instanceof BigDecimal) return ((BigDecimal) v).doubleValue();
-    return (Double) v;
   }
 
   public static Double[] toDecimalArray(Object v) {
@@ -182,13 +195,40 @@ public class TypeUtils {
     // otherwise try to use string value
     String value = toString(v);
     if (value != null) {
-      return LocalDate.parse(v.toString());
+      LocalDateTime ldt = toDateTime(v);
+      if (ldt != null) return ldt.toLocalDate();
     }
     return null;
   }
 
   public static LocalDate[] toDateArray(Object v) {
     return (LocalDate[]) processArray(v, TypeUtils::toDate, LocalDate[]::new, LocalDate.class);
+  }
+
+  public static YearToSecond toYearToSecond(Object v) {
+    if (v == null) return null;
+    if (v instanceof YearToSecond yearToSecond) return yearToSecond;
+    if (v instanceof Period period) return YearToSecond.valueOf(period);
+    return YearToSecond.valueOf(toPeriod(v));
+  }
+
+  public static YearToSecond[] toYearToSecondArray(Object v) {
+    return (YearToSecond[])
+        processArray(v, TypeUtils::toYearToSecond, YearToSecond[]::new, YearToSecond.class);
+  }
+
+  public static Period toPeriod(Object v) {
+    if (v == null) return null;
+    if (v instanceof Period) return (Period) v;
+    String value = toString(v);
+    if (value != null) {
+      return Period.parse(value);
+    }
+    return null;
+  }
+
+  public static Period[] toPeriodArray(Object v) {
+    return (Period[]) processArray(v, TypeUtils::toPeriod, Period[]::new, Period.class);
   }
 
   public static LocalDateTime toDateTime(Object v) {
@@ -224,37 +264,31 @@ public class TypeUtils {
 
   public static JSONB toJsonb(Object v) {
     if (v == null) return null;
+    if (v instanceof JSONB) { // Ensures JSONB is validated
+      v = v.toString();
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
-        return org.jooq.JSONB.valueOf(value);
+        try {
+          v = objectMapper.getReader().readTree(value);
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json", e);
+        }
       } else {
         return null;
       }
     }
-    return (JSONB) v;
+    if (v instanceof JsonNode) {
+      return org.jooq.JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
+    }
+
+    // Other input is invalid (no casting due to ensuring validateJson() is executed).
+    throw new ClassCastException("Cannot cast '" + v.toString() + "' to JSONB");
   }
 
   public static JSONB[] toJsonbArray(Object v) {
-    // non standard so not using the generic function
-    if (v == null) return null; // NOSONAR
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        v = List.of(JSONB.valueOf(value));
-      } else {
-        return null;
-      }
-    }
-    if (v instanceof String[]) {
-      v = toStringArray(v);
-    }
-    if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
-    if (v instanceof Object[]) v = List.of((Object[]) v);
-    if (v instanceof List) {
-      return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
-    }
-    return (JSONB[]) v;
+    return (JSONB[]) processArray(v, TypeUtils::toJsonb, JSONB[]::new, JSONB.class);
   }
 
   public static String toText(Object v) {
@@ -285,28 +319,23 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
-    switch (columnType.getBaseType()) {
-      case UUID:
-        return ColumnType.UUID_ARRAY;
-      case STRING:
-        return ColumnType.STRING_ARRAY;
-      case BOOL:
-        return ColumnType.BOOL_ARRAY;
-      case INT:
-        return ColumnType.INT_ARRAY;
-      case DECIMAL:
-        return ColumnType.DECIMAL_ARRAY;
-      case TEXT:
-        return ColumnType.TEXT_ARRAY;
-      case DATE:
-        return ColumnType.DATE_ARRAY;
-      case DATETIME:
-        return ColumnType.DATETIME_ARRAY;
-      case JSONB:
-        return ColumnType.JSONB_ARRAY;
-      default:
-        throw new UnsupportedOperationException("Unsupported array columnType found:" + columnType);
-    }
+    if (columnType.isArray()) return columnType;
+    return switch (columnType.getBaseType()) {
+      case UUID -> ColumnType.UUID_ARRAY;
+      case STRING -> ColumnType.STRING_ARRAY;
+      case BOOL -> ColumnType.BOOL_ARRAY;
+      case INT -> ColumnType.INT_ARRAY;
+      case LONG -> ColumnType.LONG_ARRAY;
+      case DECIMAL -> ColumnType.DECIMAL_ARRAY;
+      case TEXT -> ColumnType.TEXT_ARRAY;
+      case DATE -> ColumnType.DATE_ARRAY;
+      case DATETIME -> ColumnType.DATETIME_ARRAY;
+      case PERIOD -> ColumnType.PERIOD_ARRAY;
+      case JSON -> ColumnType.STRING_ARRAY; // only used for filters
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported array columnType found:" + columnType);
+    };
   }
 
   private static String joinCsvString(Object[] v) {
@@ -322,19 +351,26 @@ public class TypeUtils {
   }
 
   private static List<String> splitCsvString(String value) {
-    // thanks stackoverflow
     ArrayList<String> result = new ArrayList<>();
     boolean notInsideComma = true;
     int start = 0;
-    for (int i = 0; i < value.length() - 1; i++) {
+    for (int i = 0; i < value.length(); i++) {
       if (value.charAt(i) == ',' && notInsideComma) {
         String v = trimQuotes(value.substring(start, i));
-        if (!"".equals(v)) result.add(v != null ? v.trim() : null);
+        if (v != null && !v.trim().isEmpty()) {
+          result.add(v.trim());
+        }
         start = i + 1;
-      } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
+      } else if (value.charAt(i) == '"') {
+        notInsideComma = !notInsideComma;
+      }
     }
-    String v = trimQuotes(value.substring(start));
-    if (v != null && !"".equals(v)) result.add(v.trim());
+    if (start < value.length()) {
+      String v = trimQuotes(value.substring(start));
+      if (v != null && !v.trim().isEmpty()) {
+        result.add(v.trim());
+      }
+    }
     return result;
   }
 
@@ -354,8 +390,8 @@ public class TypeUtils {
       case UUID -> SQLDataType.UUID;
       case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
       case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> SQLDataType.VARCHAR(255)
-          .getArrayDataType();
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY ->
+          SQLDataType.VARCHAR(255).getArrayDataType();
       case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
@@ -370,70 +406,45 @@ public class TypeUtils {
       case DATE_ARRAY -> SQLDataType.DATE.getArrayDataType();
       case DATETIME -> SQLDataType.TIMESTAMP;
       case DATETIME_ARRAY -> SQLDataType.TIMESTAMP.getArrayDataType();
-      case JSONB -> SQLDataType.JSONB;
-      case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
+      case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
+      case PERIOD_ARRAY ->
+          SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
+      case JSON -> SQLDataType.JSONB;
+
       default ->
-      // should never happen
-      throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
+          // should never happen
+          throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
     };
   }
 
   public static Object getTypedValue(Object v, ColumnType columnType) {
-    switch (columnType.getBaseType()) {
-      case UUID:
-        return TypeUtils.toUuid(v);
-      case UUID_ARRAY:
-        return TypeUtils.toUuidArray(v);
-      case STRING, EMAIL, HYPERLINK:
-        return TypeUtils.toString(v);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY:
-        return TypeUtils.toStringArray(v);
-      case BOOL:
-        return TypeUtils.toBool(v);
-      case BOOL_ARRAY:
-        return TypeUtils.toBoolArray(v);
-      case INT:
-        return TypeUtils.toInt(v);
-      case INT_ARRAY:
-        return TypeUtils.toIntArray(v);
-      case LONG:
-        return TypeUtils.toLong(v);
-      case LONG_ARRAY:
-        return TypeUtils.toLongArray(v);
-      case DECIMAL:
-        return TypeUtils.toDecimal(v);
-      case DECIMAL_ARRAY:
-        return TypeUtils.toDecimalArray(v);
-      case TEXT:
-        String text = TypeUtils.toText(v);
-        if (text != null) {
-          return cast(text, SQLDataType.VARCHAR);
-        } else {
-          return null;
-        }
-      case TEXT_ARRAY:
-        String[] textArray = TypeUtils.toTextArray(v);
-        if (textArray != null) {
-          return cast(textArray, SQLDataType.VARCHAR.getArrayDataType());
-        } else {
-          return null;
-        }
-      case DATE:
-        return TypeUtils.toDate(v);
-      case DATE_ARRAY:
-        return TypeUtils.toDateArray(v);
-      case DATETIME:
-        return TypeUtils.toDateTime(v);
-      case DATETIME_ARRAY:
-        return TypeUtils.toDateTimeArray(v);
-      case JSONB:
-        return TypeUtils.toJsonb(v);
-      case JSONB_ARRAY:
-        return TypeUtils.toJsonbArray(v);
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported columnType columnType found:" + columnType);
-    }
+    return switch (columnType.getBaseType()) {
+      case UUID -> TypeUtils.toUuid(v);
+      case UUID_ARRAY -> TypeUtils.toUuidArray(v);
+      case STRING, EMAIL, HYPERLINK, FILE -> TypeUtils.toString(v);
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> TypeUtils.toStringArray(v);
+      case BOOL -> TypeUtils.toBool(v);
+      case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
+      case INT -> TypeUtils.toInt(v);
+      case INT_ARRAY -> TypeUtils.toIntArray(v);
+      case LONG -> TypeUtils.toLong(v);
+      case LONG_ARRAY -> TypeUtils.toLongArray(v);
+      case DECIMAL -> TypeUtils.toDecimal(v);
+      case DECIMAL_ARRAY -> TypeUtils.toDecimalArray(v);
+      case TEXT -> TypeUtils.toText(v);
+      case TEXT_ARRAY -> TypeUtils.toTextArray(v);
+      case DATE -> TypeUtils.toDate(v);
+      case DATE_ARRAY -> TypeUtils.toDateArray(v);
+      case DATETIME -> TypeUtils.toDateTime(v);
+      case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
+      case PERIOD -> TypeUtils.toPeriod(v);
+      case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
+      case JSON -> TypeUtils.toJsonb(v);
+
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported columnType columnType found:" + columnType);
+    };
   }
 
   public static String convertToCamelCase(String value) {
@@ -474,6 +485,120 @@ public class TypeUtils {
       return result.toString().trim();
     } else {
       return null;
+    }
+  }
+
+  public static boolean isNull(Object value, ColumnType type) {
+    Object typedValue = getTypedValue(value, type);
+    if (type.isArray()) {
+      return typedValue == null || ((Object[]) typedValue).length == 0;
+    }
+    return typedValue == null;
+  }
+
+  public static LocalDateTime millisecondsToLocalDateTime(long milliseconds) {
+    if (milliseconds > 0) {
+      return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
+    } else {
+      return null;
+    }
+  }
+
+  public static List<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, false);
+  }
+
+  public static List<Row> convertToPrimaryKeyRows(
+      TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, true);
+  }
+
+  private static List<Row> convertToRows(
+      TableMetadata metadata, List<Map<String, Object>> map, boolean primaryKeyOnly) {
+    List<Row> rows = new ArrayList<>();
+    for (Map<String, Object> field : map) {
+      Row row = new Row();
+      List<Column> columns =
+          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
+      for (Column column : columns) {
+        if (field.containsKey(column.getIdentifier())) {
+          Object fieldValue = field.get(column.getIdentifier());
+          addFieldObjectToRow(column, fieldValue, row);
+        }
+      }
+      rows.add(row);
+    }
+    return rows;
+  }
+
+  public static void addFieldObjectToRow(Column column, Object object, Row row) {
+    if (column.isRef()) {
+      convertRefToRow((Map<String, Object>) object, row, column);
+    } else if (column.isReference()) {
+      // REFBACK, REF_ARRAY
+      convertRefArrayToRow((List<Map<String, Object>>) object, row, column);
+    } else if (column.isFile()) {
+      BinaryFileWrapper bfw = (BinaryFileWrapper) object;
+      if (bfw == null || !bfw.isSkip()) {
+        // also necessary in case of 'null' to ensure all file metadata fields are made empty
+        // skip is used when use submitted only metadata (that they received in query)
+        row.setBinary(column.getName(), (BinaryFileWrapper) object);
+      }
+    } else {
+      row.set(column.getName(), object);
+    }
+  }
+
+  protected static void convertRefArrayToRow(
+      List<Map<String, Object>> list, Row row, Column column) {
+    if (list == null) return;
+    List<Reference> refs = column.getReferences();
+    for (Reference ref : refs) {
+      if (!ref.isOverlapping()) {
+        if (!list.isEmpty()) {
+          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
+        } else {
+          row.set(ref.getName(), new ArrayList<>());
+        }
+      }
+    }
+  }
+
+  private static List<Object> getRefValueFromList(
+      List<String> path, List<Map<String, Object>> list) {
+    List<Object> result = new ArrayList<>();
+    for (Map<String, Object> map : list) {
+      Object value = getRefValueFromMap(path, map);
+      if (value != null) {
+        result.add(value);
+      }
+    }
+    return result;
+  }
+
+  private static Object getRefValueFromMap(List<String> path, Map<String, Object> map) {
+    if (path.size() == 1) {
+      return map.get(path.get(0));
+    } else {
+      // should be > 1 and value should be of type map
+      Object value = map.get(path.get(0));
+      if (value != null) {
+        return getRefValueFromMap(path.subList(1, path.size()), (Map<String, Object>) value);
+      }
+      return null;
+    }
+  }
+
+  protected static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
+    for (Reference ref : column.getReferences()) {
+      if (!ref.isOverlapping()) {
+        String name = ref.getName();
+        if (map == null) {
+          row.set(name, null);
+        } else {
+          row.set(ref.getName(), getRefValueFromMap(ref.getPath(), map));
+        }
+      }
     }
   }
 }

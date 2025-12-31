@@ -1,36 +1,42 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
+import static org.molgenis.emx2.settings.ReportUtils.getReportAsJson;
+import static org.molgenis.emx2.settings.ReportUtils.getReportCount;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
+import org.molgenis.emx2.tasks.Task;
+import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisSettingsInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ID)
+                  .type(Scalars.GraphQLString)
+                  .description("Optional, if a setting should be applied on level of tableId"))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .field(
@@ -104,7 +110,9 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLInputObjectType.Builder()
           .name("DropSettingsInput")
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ID)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
@@ -116,6 +124,17 @@ public class GraphqlSchemaFieldFactory {
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
           .build();
+
+  static final GraphQLType userRolesType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisUserRolesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
+          .build();
+
   private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMembersType")
@@ -134,6 +153,22 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.SECTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.HEADING)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(LABELS)
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
@@ -144,6 +179,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTIONS)
                   .type(GraphQLList.list(outputLanguageValueType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.COLUMN_FORM_LABEL)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_POSITION)
@@ -163,7 +202,15 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REQUIRED)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(DEFAULT_VALUE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_SCHEMA_NAME)
@@ -174,11 +221,23 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_LINK)
+                  .name(REF_TABLE_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_BACK)
+                  .name(REF_LINK_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_LINK_ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_BACK_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_BACK_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -223,6 +282,14 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(LABELS)
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
@@ -231,11 +298,15 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.EXTERNAL_SCHEMA)
+                  .name(SCHEMA_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.INHERIT)
+                  .name(GraphqlConstants.INHERIT_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INHERIT_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -258,27 +329,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLObjectType outputMetadataType =
-      new GraphQLObjectType.Builder()
-          .name("MolgenisSchema")
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(TABLES)
-                  .type(GraphQLList.list(outputTableType)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(MEMBERS)
-                  .type(GraphQLList.list(outputMembersMetadataType)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(SETTINGS)
-                  .type(GraphQLList.list(outputSettingsType)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(ROLES)
-                  .type(GraphQLList.list(outputRolesType)))
-          .build();
+
   private final GraphQLInputObjectType inputMembersMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisMembersInput")
@@ -302,7 +353,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.ID)
+                  .name(COLUMN_FORM_LABEL)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -319,7 +370,11 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(REQUIRED)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(DEFAULT_VALUE)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(REF_SCHEMA_NAME)
@@ -330,11 +385,11 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_LINK)
+                  .name(REF_LINK_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_BACK)
+                  .name(REF_BACK_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -342,16 +397,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_LABEL_DEFAULT)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(INHERITED)
-                  .type(Scalars.GraphQLBoolean))
           // TODO
           //          .field(
           //              GraphQLInputObjectField.newInputObjectField()
@@ -397,17 +444,13 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.ID)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(INHERIT)
+                  .name(INHERIT_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -428,10 +471,6 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(EXTERNAL_SCHEMA)
                   .type(Scalars.GraphQLString))
           .build();
 
@@ -464,7 +503,10 @@ public class GraphqlSchemaFieldFactory {
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
 
       // add name
+      result.put(
+          ID, schema.getMetadata().getName()); // todo, think if we want to switch to identifier
       result.put(NAME, schema.getMetadata().getName());
+      result.put(LABEL, schema.getMetadata().getName());
       return result;
     };
   }
@@ -491,30 +533,57 @@ public class GraphqlSchemaFieldFactory {
     };
   }
 
-  private static DataFetcher<?> truncateFetcher(Schema schema) {
+  private static DataFetcher<?> truncateFetcher(Schema schema, TaskService taskService) {
     return dataFetchingEnvironment -> {
-      StringBuilder message = new StringBuilder();
-      schema
-          .getDatabase()
-          .tx(
-              db -> {
-                Schema s = db.getSchema(schema.getName());
-                List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-                if (tables != null) {
-                  for (String tableName : tables) {
-                    Table table = s.getTable(tableName);
-                    if (table == null) {
-                      throw new GraphqlException(
-                          "Truncate failed: table " + tableName + " unknown");
-                    } else {
-                      table.truncate();
-                    }
-                    message.append("Truncated table '" + tableName + "'\n");
+      List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
+      boolean async = dataFetchingEnvironment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
+      GraphqlApiMutationResult result =
+          new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
+
+      if (async) {
+        Task task =
+            new Task() {
+              @Override
+              public void run() {
+                this.start();
+                this.setDescription("Truncating table: " + String.join(", ", tables));
+                try {
+                  truncateTables(schema, tables);
+                } catch (MolgenisException e) {
+                  this.completeWithError(e.getMessage());
+                  throw (e);
+                }
+                this.setDescription("Completed truncating table");
+                this.complete();
+              }
+            };
+        task.setDescription("Truncating table");
+        String id = taskService.submit(task);
+        result.setTaskId(id);
+      } else {
+        truncateTables(schema, tables);
+      }
+      return result;
+    };
+  }
+
+  private static void truncateTables(Schema schema, List<String> tables) {
+    schema
+        .getDatabase()
+        .tx(
+            db -> {
+              Schema s = db.getSchema(schema.getName());
+              if (tables != null) {
+                for (String tableName : tables) {
+                  Table table = s.getTable(tableName);
+                  if (table == null) {
+                    throw new GraphqlException("Truncate failed: table " + tableName + " unknown");
+                  } else {
+                    table.truncate();
                   }
                 }
-              });
-      return new GraphqlApiMutationResult(SUCCESS, message.toString());
-    };
+              }
+            });
   }
 
   private static void dropColumns(
@@ -547,8 +616,8 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
       for (Map<String, String> setting : settings) {
-        if (setting.get(TABLE) != null) {
-          Table table = schema.getTable(setting.get(TABLE));
+        if (setting.get(TABLE_ID) != null) {
+          Table table = schema.getTableById(setting.get(TABLE_ID));
           if (table == null) {
             throw new MolgenisException(
                 "Cannot remove setting because table " + setting.get(TABLE + " does not exist"));
@@ -575,9 +644,39 @@ public class GraphqlSchemaFieldFactory {
   }
 
   public GraphQLFieldDefinition.Builder schemaQuery(Schema schema) {
+    GraphQLObjectType.Builder builder =
+        new GraphQLObjectType.Builder()
+            .name("MolgenisSchema")
+            .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition().name(LABEL).type(Scalars.GraphQLString))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(TABLES)
+                    .type(GraphQLList.list(outputTableType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(SETTINGS)
+                    .type(GraphQLList.list(outputSettingsType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(ROLES)
+                    .type(GraphQLList.list(outputRolesType)));
+
+    List<String> roles = schema.getInheritedRolesForActiveUser();
+    if (roles.contains(Privileges.MANAGER.toString())
+        || roles.contains(Privileges.OWNER.toString())) {
+      builder.field(
+          GraphQLFieldDefinition.newFieldDefinition()
+              .name(MEMBERS)
+              .type(GraphQLList.list(outputMembersMetadataType)));
+    }
+
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schema")
-        .type(outputMetadataType)
+        .type(builder)
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
   }
 
@@ -730,9 +829,30 @@ public class GraphqlSchemaFieldFactory {
     if (settings != null) {
       settings.forEach(
           entry -> {
-            schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            if (entry.get(TABLE_ID) != null) {
+              Table table = schema.getTableById(entry.get(TABLE_ID));
+              if (table == null)
+                throw new MolgenisException(
+                    "changeSettings failed: Table with id="
+                        + entry.get(TABLE_ID)
+                        + " cannot be found");
+              table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            } else {
+              schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            }
           });
     }
+  }
+
+  private Map<String, String> convertKeyValueListToMap(List<Map<String, String>> keyValueList) {
+    Map<String, String> keyValueMap = new LinkedHashMap<>();
+    if (keyValueList != null) {
+      keyValueList.forEach(
+          entry -> {
+            keyValueMap.put(entry.get(KEY), entry.get(VALUE));
+          });
+    }
+    return keyValueMap;
   }
 
   public GraphQLFieldDefinition dropMutation(Schema schema) {
@@ -759,16 +879,19 @@ public class GraphqlSchemaFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition truncateMutation(Schema schema) {
+  public GraphQLFieldDefinition.Builder truncateMutation(Schema schema, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("truncate")
+        .dataFetcher(truncateFetcher(schema, taskService))
         .type(typeForMutationResult)
-        .dataFetcher(truncateFetcher(schema))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.TABLES)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
-        .build();
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.ASYNC)
+                .type(Scalars.GraphQLBoolean));
   }
 
   public GraphQLFieldDefinition schemaReportsField(Schema schema) {
@@ -785,47 +908,25 @@ public class GraphqlSchemaFieldFactory {
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(COUNT)
                         .type(Scalars.GraphQLInt)))
-        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLInt))
+        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(PARAMETERS)
+                .type(GraphQLList.list(inputSettingsMetadataType)))
         .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              Integer id = null;
               Map<String, Object> result = new LinkedHashMap<>();
-              try {
-                String reportsJson = schema.getMetadata().getSetting("reports");
-                logger.info("REPORT value: " + reportsJson);
-                if (reportsJson != null) {
-                  id = dataFetchingEnvironment.getArgument(ID);
-                  Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
-                  Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
-                  List<Map<String, String>> reportList =
-                      new ObjectMapper().readValue(reportsJson, List.class);
-                  Map<String, String> report = reportList.get(id);
-                  String sql = report.get("sql") + "LIMIT " + limit + " OFFSET " + offset;
-                  String countSql =
-                      String.format("select count(*) from (%s) as count", report.get("sql"));
-                  result.put(DATA, convertToJson(schema.retrieveSql(sql)));
-                  result.put(
-                      COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
-                }
-                return result;
-              } catch (Exception e) {
-                throw new MolgenisException("Retrieve of report '" + id + "' failed ", e);
-              }
+              final String id = dataFetchingEnvironment.getArgument(ID);
+              Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
+              Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
+              Map<String, String> parameters =
+                  convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
+              result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
+              result.put(COUNT, getReportCount(id, schema, parameters));
+              return result;
             })
         .build();
-  }
-
-  private String convertToJson(List<Row> rows) {
-    try {
-      List<Map<String, Object>> result = new ArrayList<>();
-      for (Row row : rows) {
-        result.add(row.getValueMap());
-      }
-      return new ObjectMapper().writeValueAsString(result);
-    } catch (Exception e) {
-      throw new MolgenisException("Cannot convert sql result set to json", e);
-    }
   }
 }

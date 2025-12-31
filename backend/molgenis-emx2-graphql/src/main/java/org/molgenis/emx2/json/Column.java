@@ -4,22 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
-  private String table;
+  private String table; // name
   private String id;
   private String name;
+  private String label;
+  private String section;
+  private String heading;
+  private String description;
   private List<LanguageValue> labels = new ArrayList<>();
+  private String formLabel;
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
-  private Boolean required = false;
+  private String required = null;
   private Boolean readonly = false;
-  private String refSchema = null;
-  private String refTable = null;
-  private String refLink = null;
-  private String refBack = null;
+  private String defaultValue;
+  private String refSchemaId = null;
+  private String refSchemaName = null;
+  private String refTableId = null;
+  private String refTableName = null;
+  private String refLinkId = null;
+  private String refLinkName = null;
+  private String refBackId = null;
+  private String refBackName = null;
   private String refLabel;
   private String refLabelDefault;
   private Integer position = null;
@@ -31,6 +42,7 @@ public class Column {
   private List<LanguageValue> descriptions = new ArrayList<>();
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
+  private String[] profiles = null;
 
   private boolean inherited = false;
 
@@ -46,38 +58,64 @@ public class Column {
       this.position = column.getPosition();
     }
     this.id = column.getIdentifier();
+    this.label = column.getLabel();
+    this.description = column.getDescriptions().get("en");
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
+    this.formLabel = column.getFormLabel();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
     this.key = column.getKey();
     if (!minimal || !ColumnType.STRING.equals(column.getColumnType())) {
       this.columnType = column.getColumnType();
     }
-    this.refSchema =
-        column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
-    this.refTable = column.getRefTableName();
-    this.refLink = column.getRefLink();
+    if (column.isReference()) {
+      if (column.getSchema().getDatabase() != null) {
+        this.refSchemaId = column.getRefSchemaName();
+        this.refSchemaName = column.getRefSchemaName();
+        this.refTableId = column.getRefTable().getIdentifier();
+        this.refLabelDefault = column.getRefLabelDefault();
+      }
+      this.refTableName = column.getRefTableName();
+      if (column.getRefLinkColumn() != null) {
+        if (column.getTable().getSchema().getDatabase() != null) {
+          this.refLinkId = column.getRefLinkColumn().getIdentifier();
+        }
+        this.refLinkName = column.getRefLink();
+      }
+      if (column.getRefBack() != null) {
+        if (column.getTable().getSchema().getDatabase() != null) {
+          org.molgenis.emx2.Column refBackColumn = column.getRefBackColumn();
+          if (refBackColumn == null)
+            throw new MolgenisException(
+                "Cannot find refback for " + column.getTableName() + "." + column.getName());
+          this.refBackId = refBackColumn.getIdentifier();
+        }
+        this.refBackName = column.getRefBack();
+      }
+    }
     this.refLabel = column.getRefLabel();
-    this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
-    this.refBack = column.getRefBack();
     this.validation = column.getValidation();
-    this.required = column.isRequired();
+    this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
+    this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
     this.computed = column.getComputed();
+    this.profiles = column.getProfiles();
 
     // calculated field
-    if (table.getInherit() != null)
+    if (table.getInheritName() != null)
       this.inherited = table.getInheritedTable().getColumnNames().contains(column.getName());
   }
 
@@ -91,14 +129,15 @@ public class Column {
     c.setType(columnType);
     if (drop) c.drop();
     c.setRequired(required);
-    c.setRefSchema(refSchema);
-    c.setRefTable(refTable);
-    c.setRefLink(refLink);
+    c.setDefaultValue(defaultValue);
+    c.setRefSchemaName(refSchemaName);
+    c.setRefTable(refTableName);
+    c.setRefLink(refLinkName);
     c.setRefLabel(refLabel);
     c.setKey(key);
     c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
-    c.setRefBack(refBack);
+    c.setRefBack(refBackName);
     c.setValidation(validation);
     c.setDescriptions(
         descriptions.stream()
@@ -108,6 +147,8 @@ public class Column {
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
+    c.setProfiles(profiles);
+    c.setFormLabel(formLabel);
 
     // ignore inherited
     return c;
@@ -137,20 +178,28 @@ public class Column {
     this.key = key;
   }
 
-  public Boolean getRequired() {
-    return required;
+  public boolean isRequired() {
+    return required != null && required.equals("true");
   }
 
   public void setRequired(Boolean required) {
+    this.required = required.toString();
+  }
+
+  public void setRequired(String required) {
     this.required = required;
   }
 
-  public String getRefTable() {
-    return refTable;
+  public String getRequired() {
+    return this.required;
   }
 
-  public void setRefTable(String refTable) {
-    this.refTable = refTable;
+  public String getRefTableId() {
+    return refTableId;
+  }
+
+  public void setRefTableId(String refTableId) {
+    this.refTableId = refTableId;
   }
 
   //  public Boolean getCascadeDelete() {
@@ -177,12 +226,12 @@ public class Column {
     this.validation = validation;
   }
 
-  public String getRefBack() {
-    return refBack;
+  public String getRefBackId() {
+    return refBackId;
   }
 
-  public void setRefBack(String refBack) {
-    this.refBack = refBack;
+  public void setRefBackId(String refBackId) {
+    this.refBackId = refBackId;
   }
 
   public List<LanguageValue> getDescriptions() {
@@ -201,12 +250,12 @@ public class Column {
     this.semantics = semantics;
   }
 
-  public String getRefLink() {
-    return refLink;
+  public String getRefLinkId() {
+    return refLinkId;
   }
 
-  public void setRefLink(String refLink) {
-    this.refLink = refLink;
+  public void setRefLinkId(String refLinkId) {
+    this.refLinkId = refLinkId;
   }
 
   public String getRefLabel() {
@@ -233,12 +282,12 @@ public class Column {
     this.inherited = inherited;
   }
 
-  public String getRefSchema() {
-    return refSchema;
+  public String getRefSchemaId() {
+    return refSchemaId;
   }
 
-  public void setRefSchema(String refSchema) {
-    this.refSchema = refSchema;
+  public void setRefSchemaId(String refSchemaId) {
+    this.refSchemaId = refSchemaId;
   }
 
   public String getVisible() {
@@ -303,5 +352,93 @@ public class Column {
 
   public void setLabels(List<LanguageValue> labels) {
     this.labels = labels;
+  }
+
+  public String getDefaultValue() {
+    return defaultValue;
+  }
+
+  public void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
+  }
+
+  public String getRefSchemaName() {
+    return refSchemaName;
+  }
+
+  public void setRefSchemaName(String refSchemaName) {
+    this.refSchemaName = refSchemaName;
+  }
+
+  public String getRefTableName() {
+    return refTableName;
+  }
+
+  public void setRefTableName(String refTableName) {
+    this.refTableName = refTableName;
+  }
+
+  public String getRefLinkName() {
+    return refLinkName;
+  }
+
+  public void setRefLinkName(String refLinkName) {
+    this.refLinkName = refLinkName;
+  }
+
+  public String getRefBackName() {
+    return refBackName;
+  }
+
+  public void setRefBackName(String refBackName) {
+    this.refBackName = refBackName;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public void setProfiles(String[] profiles) {
+    this.profiles = profiles;
+  }
+
+  public String getSection() {
+    return section;
+  }
+
+  public void setSection(String section) {
+    this.section = section;
+  }
+
+  public String getHeading() {
+    return heading;
+  }
+
+  public void setHeading(String heading) {
+    this.heading = heading;
+  }
+
+  public String getFormLabel() {
+    return formLabel;
+  }
+
+  public void setFormLabel(String formLabel) {
+    this.formLabel = formLabel;
   }
 }

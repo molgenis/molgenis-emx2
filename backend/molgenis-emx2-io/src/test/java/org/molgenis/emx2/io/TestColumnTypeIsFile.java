@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 
@@ -9,26 +9,28 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+@Tag("slow")
 public class TestColumnTypeIsFile {
 
   private static final String SCHEMA_NAME = "TestColumnTypeIsFile";
   static Database database;
   static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(SCHEMA_NAME);
-    new PetStoreLoader().load(schema, false);
+    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
 
     schema
         .getTable("User")
@@ -83,7 +85,7 @@ public class TestColumnTypeIsFile {
         new String(
             userTable
                 .query()
-                .select(s("picture", s("contents"), s("mimetype"), s("extension")))
+                .select(s("picture", s("contents"), s("mimetype"), s("filename"), s("extension")))
                 .retrieveRows()
                 .get(0)
                 .getBinary("picture_contents")));
@@ -104,10 +106,11 @@ public class TestColumnTypeIsFile {
     Row result =
         userTable
             .query()
-            .select(s("picture", s("contents"), s("mimetype"), s("extension")))
+            .select(s("picture", s("contents"), s("mimetype"), s("filename"), s("extension")))
             .retrieveRows()
             .get(0);
     assertEquals("test", new String(result.getBinary("picture_contents")));
+    assertEquals("test.txt", result.getString("picture_filename"));
     assertEquals("txt", result.getString("picture_extension"));
     assertEquals("text/plain", result.getString("picture_mimetype"));
   }

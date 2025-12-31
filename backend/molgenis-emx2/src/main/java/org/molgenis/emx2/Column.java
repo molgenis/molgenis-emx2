@@ -3,7 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
@@ -17,7 +17,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   // basics
   private TableMetadata table; // table this column is part of
-  private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
+  private String columnName; // short name, should adhere to: Constants.COLUMN_NAME_REGEX
+  private String formLabel; // option label to be used in forms (else default to columnName)
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -25,7 +26,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   @DiffIgnore private boolean drop; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
 
   // relationships
-  private String refSchema; // for cross schema references
+  private String refSchemaName; // for cross schema references
   private String refTable; // table referenced
   private String refLink; // to allow a reference value to depend on another reference.
   private String refLabel; // template string influencing how ref value is shown
@@ -36,12 +37,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       null; // column order within the table. During import/export these may change
 
   private int key = 0; // 1 is primary key 2..n is secondary keys
-  private boolean required = false;
+  private String required = null;
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String[] semantics = null; // json ld expression
-  // todo implement below, or remove
+  private String[] semantics = null; // absolute IRI or prefixed name
+  private String[] profiles = null; // comma-separated strings
+
   private Boolean readonly = false;
   private String defaultValue = null;
   private boolean indexed = false;
@@ -83,15 +85,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!skipValidation && !columnName.matches(COLUMN_NAME_REGEX)) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
-    }
-    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
-      throw new MolgenisException(
-          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+              + "': Column name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.");
     }
     return columnName.trim();
   }
@@ -105,10 +103,20 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public Column setProfiles(String... profiles) {
+    this.profiles = profiles;
+    return this;
+  }
+
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
     labels = column.labels;
+    formLabel = column.formLabel;
     oldName = column.oldName;
     drop = column.drop;
     columnType = column.columnType;
@@ -120,7 +128,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     indexed = column.indexed;
     refTable = column.refTable;
     refLink = column.refLink;
-    refSchema = column.refSchema;
+    refSchemaName = column.refSchemaName;
     refBack = column.refBack;
     validation = column.validation;
     refLabel = column.refLabel;
@@ -128,6 +136,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     descriptions = column.descriptions;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
+    profiles = column.profiles;
     visible = column.visible;
   }
 
@@ -153,6 +162,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
+  public String getFormLabel() {
+    return formLabel;
+  }
+
+  public Column setFormLabel(String formLabel) {
+    this.formLabel = formLabel;
+    return this;
+  }
+
   public String getQualifiedName() {
     return getTableName() + "." + getName();
   }
@@ -175,13 +193,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public TableMetadata getRefTable() {
     SchemaMetadata schema = getSchema();
-    if (this.refSchema != null) {
+    if (this.refSchemaName != null) {
       try {
-        schema = getSchema().getDatabase().getSchema(this.refSchema).getMetadata();
+        schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
       } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
-                + this.refSchema
+                + this.refSchemaName
                 + "' cannot be found for column '"
                 + getTableName()
                 + "."
@@ -191,17 +209,19 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
 
     if (this.refTable != null && getTable() != null) {
-      // self relation
-      if (this.refTable.equals(getTable().getTableName())) {
+      // self relation (same name, same schema), prevent endless loop
+      if ((schema == null || getSchema().getName().equals(schema.getName()))
+          && this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }
 
       // other relation
-      if (schema != null) {
+      else if (schema != null) {
         return schema.getTableMetadata(this.refTable);
       }
     }
-    return null;
+    throw new MolgenisException(
+        "refTable " + this.refTable + " could not be found for column " + this.getQualifiedName());
   }
 
   public Column setRefTable(String refTable) {
@@ -228,12 +248,29 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required;
+    return required != null && required.equalsIgnoreCase("true");
   }
 
-  public Column setRequired(boolean required) {
-    this.required = required;
+  public Column setRequired(Boolean required) {
+    this.required = required.toString();
     return this;
+  }
+
+  public Column setRequired(String required) {
+    if ("true".equalsIgnoreCase(required) || "false".equalsIgnoreCase(required)) {
+      this.required = required.toLowerCase();
+    } else {
+      this.required = required;
+    }
+    return this;
+  }
+
+  public String getRequired() {
+    return this.required;
+  }
+
+  public boolean isConditionallyRequired() {
+    return !isRequired() && getRequired() != null && !"false".equalsIgnoreCase(getRequired());
   }
 
   public Boolean isCascadeDelete() {
@@ -266,7 +303,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public Column setCascadeDelete(Boolean cascadeDelete) {
     if (cascadeDelete && !isRef()) {
       throw new MolgenisException(
-          "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
+          "Set casecadeDelete=true failed: columnn " + getName() + " must be of type REF");
     }
     this.cascadeDelete = cascadeDelete;
     return this;
@@ -294,7 +331,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public Column setType(ColumnType type) {
     if (type == null) {
-      throw new MolgenisException("Add column failed", "Type was null for column " + getName());
+      throw new MolgenisException("Add column failed: type was null for column " + getName());
     }
     this.columnType = type;
     return this;
@@ -341,6 +378,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return field(name(getName()), getJooqType());
   }
 
+  public List<Field> getCompositeFields() {
+    if (this.isReference()) {
+      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+    } else {
+      return List.of(getJooqField());
+    }
+  }
+
   public org.jooq.Table getJooqTable() {
     return getTable().getJooqTable();
   }
@@ -351,6 +396,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public boolean isReference() {
     return getColumnType().isReference();
+  }
+
+  public Column getReferenceRefback() {
+    if (!this.isReference()) {
+      return null;
+    }
+    // in complex table rename scenarios the refTable might not be available
+    // todo, never have to check if null
+    if (this.getRefTable() != null) {
+      for (Column c : this.getRefTable().getColumns()) {
+        if (c.isRefback()
+            && c.getRefTableName().equals(this.getTableName())
+            && c.getRefSchemaName().equals(this.getSchemaName())
+            && this.getName().equals(c.getRefBack())) {
+          return c;
+        }
+      }
+    }
+    return null;
   }
 
   public String getSchemaName() {
@@ -379,6 +443,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return List.of(
         field(name(getName()), SQLDataType.VARCHAR),
         field(name(getName() + "_mimetype"), SQLDataType.VARCHAR),
+        field(name(getName() + "_filename"), SQLDataType.VARCHAR),
         field(name(getName() + "_extension"), SQLDataType.VARCHAR),
         field(name(getName() + "_size"), SQLDataType.INTEGER),
         field(name(getName() + "_contents"), SQLDataType.BINARY));
@@ -392,8 +457,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public List<Reference> getReferences() {
 
     // no ref
-    if (getRefTable() == null) {
-      return new ArrayList<>();
+    if (getRefTableName() == null) {
+      throw new MolgenisException(
+          "getReferences failed: column " + getQualifiedName() + " is not a reference");
     }
 
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
@@ -431,7 +497,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           }
           if (name == null) {
             name = getName();
-            if (pkeys.size() > 1) {
+            // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
+            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
               name += COMPOSITE_REF_SEPARATOR + ref.getName();
             }
           }
@@ -531,16 +598,16 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
-  public String getRefSchema() {
-    if (refSchema != null) {
-      return refSchema;
-    } else if (getRefTable() != null) {
-      return getRefTable().getSchemaName();
-    } else return getSchemaName();
+  public String getRefSchemaName() {
+    if (refSchemaName != null) {
+      return refSchemaName;
+    } else {
+      return getSchemaName();
+    }
   }
 
-  public Column setRefSchema(String refSchema) {
-    this.refSchema = refSchema;
+  public Column setRefSchemaName(String refSchemaName) {
+    this.refSchemaName = refSchemaName;
     return this;
   }
 
@@ -575,8 +642,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return refLink;
   }
 
-  public void setRefLink(String refLink) {
+  public Column setRefLink(String refLink) {
     this.refLink = refLink;
+    return this;
   }
 
   public Column getRefLinkColumn() {
@@ -602,6 +670,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return getColumnType().isFile();
   }
 
+  public boolean isSystemColumn() {
+    return this.getName().startsWith(SYS_COLUMN_NAME_PREFIX);
+  }
+
+  public boolean isSystemAddUpdateByUserColumn() {
+    return this.getName().equals(MG_INSERTEDBY) || this.getName().equals(MG_UPDATEDBY);
+  }
+
   public boolean isHeading() {
     return this.getColumnType().isHeading();
   }
@@ -622,11 +698,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getRootTableName() {
-    TableMetadata table = this.getTable();
-    while (table.getInherit() != null) {
-      table = table.getInheritedTable();
-    }
-    return table.getTableName();
+    return getTable().getRootTable().getTableName();
   }
 
   @Override
@@ -642,5 +714,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   @Override
   public int hashCode() {
     return Objects.hash(table, columnName);
+  }
+
+  public String getLabel() {
+    if (getLabels().get("en") != null && !getLabels().get("en").trim().equals("")) {
+      return getLabels().get("en");
+    } else {
+      return getName();
+    }
   }
 }

@@ -1,5 +1,0 @@
-name,code,order,definition,comments,parent,ontologyTermURI
-no restriction,DUO_0000004,1,This data use permission indicates there is no restriction on use.,,,http://purl.obolibrary.org/obo/DUO_0000004
-general research use,DUO_0000042,2,This data use permission indicates that use is allowed for general research use for any research purpose.,,,http://purl.obolibrary.org/obo/DUO_0000042
-health or medical or biomedical research,DUO_0000006,3,This data use permission indicates that use is allowed for health/medical/biomedical purposes; does not include the study of population origins or ancestry.,,,http://purl.obolibrary.org/obo/DUO_0000006
-disease specific research,DUO_0000007,4,This data use permission indicates that use is allowed provided it is related to the specified disease.,,,http://purl.obolibrary.org/obo/DUO_0000007

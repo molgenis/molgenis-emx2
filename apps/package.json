@@ -1,19 +1,16 @@
 {
   "private": true,
-  "workspaces": [
-    "catalogue",
-    "catalogue3",
-    "settings",
-    "central",
-    "schema",
-    "tables",
-    "updownload",
-    "pages",
-    "graphql-playground",
-    "nuxt3-ssr",
-    "molgenis-components",
-    "helloworld",
-    "reports"
-   ]
+  "name": "emx2-frontend",
+  "packageManager": "pnpm@10.24.0",
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint --filter=tailwind-components --filter=catalogue --filter=ui",
+    "format": "turbo run format",
+    "checkFormat": "turbo run checkFormat",
+    "test-ci": "turbo run test-ci",
+    "e2e": "turbo run e2e"
+  },
+  "dependencies": {
+    "turbo": "2.6.1"
+  }
 }
-

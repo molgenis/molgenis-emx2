@@ -10,9 +10,9 @@ module.exports = {
 
   extends: ["plugin:vue/essential", "eslint:recommended"],
 
+  parser: "@babel/eslint-parser",
   parserOptions: {
     ecmaVersion: 2020,
-    parser: "babel-eslint",
   },
 
   overrides: [

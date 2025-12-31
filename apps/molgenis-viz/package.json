@@ -1,0 +1,51 @@
+{
+  "name": "molgenis-viz",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/molgenis-viz.umd.js",
+  "module": "./dist/molgenis-viz.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/molgenis-viz.es.js",
+      "require": "./dist/molgenis-viz.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build:lib": "vite build -m lib",
+    "build:showcase": "vite build -m app --outDir showCase",
+    "build": "npm-run-all build:lib build:showcase",
+    "serve": "vite serve",
+    "preview": "vite preview",
+    "docs": "vuese gen",
+    "docs:serve": "vuese serve",
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+  },
+  "dependencies": {
+    "@heroicons/vue": "2.0.18",
+    "d3": "7.8.5",
+    "d3-scale-chromatic": "3.0.0",
+    "graphql-request": "^6.1.0",
+    "heroicons": "^2.0.18",
+    "molgenis-components": "workspace:*",
+    "graphql-tag": "2.12.6",
+    "vue": "3.5.22"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.6.2",
+    "@vuese/cli": "2.14.3",
+    "npm-run-all": "4.1.5",
+    "prettier": "2.8.8",
+    "sass": "1.70.0",
+    "vite": "5.4.21",
+    "vue-router": "4.4.3"
+  }
+}

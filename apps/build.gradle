@@ -1,175 +1,179 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
 plugins {
-    id "base"
-    id "com.github.node-gradle.node" version "3.5.1"
+    id "java"
+    id "com.github.node-gradle.node" version "7.1.0"
 }
 
-def nodeSpec = {
-    version = '18.14.2'
-    yarnVersion = '1.22.19'
-    npmVersion = "9.5.1"
-    download = true
+java {
+    targetCompatibility = rootProject.ext.javaVersion
+    sourceCompatibility = rootProject.ext.javaVersion
 }
+
+def isCI = System.getenv('CI') ? true : false
+
 
 node {
-    with nodeSpec
+    version = '22.17.0'
+    pnpmVersion = "10.24.0"
+    download = true
+    workDir = file("build/node")
 }
 
-subprojects {
-    apply plugin: "com.github.node-gradle.node"
+// we want the javascript build/lint/format to fire on changes in the project folders
+// excluding build and node_modules folders
+def excludeFolders = ["node_modules",".gradle","build",".turbo",".vscode"]
 
-    //subprojects will reuse the yarn installed in parent task
-    node {
-        with nodeSpec
+ext.listProjectFolders = { List<String> excludeNames = excludeFolders ->
+    def base = project.projectDir
+    def children = base.listFiles()
+    if (children == null) {
+        return []
     }
+    return children.findAll { f ->
+        f.isDirectory() && !excludeNames.contains(f.name) && new File(f,"package.json").exists()
+    }.collect { it.name }
+}
+def workspaceDirs = listProjectFolders()
+println "Workspace dirs = $workspaceDirs"
 
-    //disable yarn_install, only parent should run install in yarn workspaces
-    yarn_install.enabled = false;
-    yarnSetup.dependsOn parent.yarnSetup
-    npmSetup.dependsOn parent.npmSetup
-    nodeSetup.dependsOn parent.nodeSetup
-
-    task format(type: YarnTask, dependsOn: parent.yarn_install) {
-        args = ['run', 'format']
-        if(project.name == 'nuxt3-ssr') {
-            outputs.dir('components')
-            outputs.dir('composables')
-            outputs.dir('gql')
-            outputs.dir('interfaces')
-            outputs.dir('pages')
-            outputs.dir('plugins')
-            outputs.dir('utils')
-            inputs.files(fileTree('components'))
-            inputs.files(fileTree('composables'))
-            inputs.files(fileTree('gql'))
-            inputs.files(fileTree('interfaces'))
-            inputs.files(fileTree('pages'))
-            inputs.files(fileTree('plugins'))
-            inputs.files(fileTree('utils'))
-        } else {
-            inputs.files(fileTree('src'))
-            outputs.dir('src')
-        }
+def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+    //include all files in root
+    project.projectDir.listFiles().findAll { it.isFile() }.each {file ->
+            task.inputs.file(file);
     }
-
-    task build(type: YarnTask, dependsOn: format) {
-        // force build order: molgenis-components > ...apps
-        if (project.name != 'molgenis-components') {
-            dependsOn ":apps:molgenis-components:build"
-        }
-
-        // set input out out put for each app type
-        if (project.name == 'molgenis-components') {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('lib'))
-            inputs.file('vite.config.js')
-            inputs.file('docs-plugin.js')
-            outputs.dir('dist')
-            outputs.dir('gen-docs')
-            outputs.dir('showCase')
-        } else if (project.name == 'nuxt3-ssr') {
-            inputs.file('package.json')
-            inputs.files(fileTree('assets'))
-            inputs.files(fileTree('components'))
-            inputs.files(fileTree('composables'))
-            inputs.files(fileTree('middleware'))
-            inputs.files(fileTree('layouts'))
-            inputs.files(fileTree('pages'))
-            inputs.files(fileTree('static'))
-            inputs.files(fileTree('store'))
-            inputs.file('nuxt.config.ts')
-            inputs.file('app.vue')
-            inputs.file('router.options.ts')
-            inputs.file('tailwind.config.ts')
-            outputs.dir('.nuxt')
-            outputs.dir('.output')
-        } else {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('assets'))
-            inputs.file('vite.config.js')
-            inputs.file('index.html')
-            outputs.dir('dist')
-        }
-
-        outputs.cacheIf { false }
-
-        args = ['run', 'build']
-
-        delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
+    //include all files in the app folders except build files
+    workspaceDirs.each { f ->
+        def dir = project.file(f)
+        task.inputs.files(
+                task.project.fileTree(f) {
+                    include "**/*"
+                    exclude excludeFolders
+                }
+        )
     }
+    task.outputs.upToDateWhen { true }
+}
 
-    if (project.name == 'molgenis-components') {
-        task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            if (project.name == 'molgenis-components') {
-                inputs.file('package.json')
-                inputs.files(fileTree('src'))
-                inputs.files(fileTree('public'))
-                inputs.files(fileTree('lib'))
-                inputs.file('vite.config.js')
-                outputs.dir('showCase')
-                outputs.cacheIf { true }
-                args = ['run', 'build-showcase']
+tasks.register('pnpm_install', PnpmTask) {
+    args = ['install']
+    inputs.file("package.json")
+    def optionalFile = file("pnpm-lock.yaml")
+    if(optionalFile.exists())     inputs.file(optionalFile)
+    workspaceDirs.each { dir ->
+        inputs.file("${project.projectDir}/${dir}/package.json")
+    }
+    outputs.file("${project.projectDir}/node_modules/.pnpm-workspace-state-v1.json")
+}
+
+tasks.register('pnpm_build', PnpmTask) {
+    dependsOn 'pnpm_install'
+    args = ['run', 'build']
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+// Util task to clean up all apps files created during build
+tasks.register("cleanApps", Delete) {
+    doFirst {
+        // delete build directory as before
+        delete(project.layout.buildDirectory)
+        delete file("${project.projectDir}/node_modules")
+        delete file("${project.projectDir}/.turbo")
+
+
+        // delete only known workspace folders' generated things; no global fileTree over repo
+        workspaceDirs.each { dirName ->
+            def dir = project.file(dirName)
+            if (dir.exists()) {
+                delete new File(dir, ".turbo")
+                delete new File(dir, "dist")
+                delete new File(dir, "showCase")
+                delete new File(dir, "node_modules") // optional
+                delete new File(dir, "build")
             }
         }
-        task test(type: YarnTask, dependsOn: parent.yarn_install) {
-            args = ['run', 'test-ci']
+    }
+
+    outputs.upToDateWhen { false } // still always run when invoked
+}
+clean.dependsOn 'cleanApps';
+
+// Custom task to collect all dist folders into the resources directory
+// Need because gradle cannot properly detect dynamic folders created by npm workspaces
+abstract class CollectDistTask extends DefaultTask {
+    @TaskAction
+    void collect() {
+        File targetDir = project.layout.buildDirectory
+                .dir("generated/resources/public_html/apps")
+                .get()
+                .asFile
+
+        project.copy { spec ->
+            project.file(".").eachDir { dir ->
+                def showCaseDir = new File(dir, "showCase")
+                def distDir = new File(dir, "dist")
+                if (showCaseDir.exists()) {
+                    spec.from(showCaseDir) {
+                        into(dir.name)
+                    }
+                }
+                else if (distDir.exists()) {
+                    spec.from(distDir) {
+                        into(dir.name)
+                    }
+                }
+
+            }
+            spec.into(targetDir)
+        }
+
+        println "✅ Collected dist folders into $targetDir"
+    }
+}
+
+tasks.register("collectDist", CollectDistTask) {
+    dependsOn("pnpm_build")
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+tasks.register('format', PnpmTask) {
+    dependsOn 'pnpm_install'
+    if (!isCI) {
+        args = ['run', 'format']
+    } else {
+        args = ['run', 'checkFormat']
+    }
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+tasks.register('lint', PnpmTask) {
+    dependsOn 'pnpm_build'
+    args = ['run', 'lint']
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+tasks.register('testJavascript', PnpmTask) {
+    dependsOn 'pnpm_build'
+    args = ['run', 'test-ci']
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+}
+
+test.dependsOn 'testJavascript'
+
+sourceSets {
+    main {
+        resources {
+            srcDir "${buildDir}/generated/main/resources"
         }
     }
-
-    task copyDistFiles(type: Copy) {
-        if (project.name == 'molgenis-components') {
-            dependsOn buildComponentsShowcase
-        } else {
-            dependsOn build
-        }
-        if (project.name == 'molgenis-components') {
-            from "showCase"
-            inputs.dir("showCase")
-        } else {
-            from "dist"
-            inputs.dir("dist")
-        }
-
-        into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-        outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-        outputs.cacheIf { true }
-    }
-
-    clean.doLast {
-        project.delete(files("dist"))
-        project.delete(files("build"))
-        project.delete(files("node_modules"))
-        project.delete(files(".nuxt"))
-        project.delete(files(".output"))
-        project.delete(files("showCase"))
-    }
-
 }
 
-/* convert build files into one apps.jar that we can use as a dependency in the java part */
-task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
-    archiveBaseName = 'molgenis-emx2-apps'
-    archiveExtension = 'jar'
-    destinationDirectory = file("${buildDir}/build/libs")
-    from('build/resources/main')
-}
+// Link the app build to the java jar
+tasks.named("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn("collectDist")
 
-configurations {
-    appResources
-}
-configurations.default.extendsFrom(configurations.appResources)
-
-/* expose as artifact that can be used as dependency by other modules*/
-artifacts {
-    appResources(createJar.getArchiveFile()) {
-        builtBy createJar
-        type "jar"
+    from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
+        into("public_html/apps")
     }
 }
-
-

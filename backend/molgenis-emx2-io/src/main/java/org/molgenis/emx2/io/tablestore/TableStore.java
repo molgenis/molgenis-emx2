@@ -14,5 +14,5 @@ public interface TableStore {
 
   boolean containsTable(String name);
 
-  Collection<String> tableNames();
+  Collection<String> getTableNames();
 }

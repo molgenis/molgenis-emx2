@@ -1,14 +1,14 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ChangeLogUtilsTest {
-    @Test
-    public void testBuildProcessAuditFunction() {
-        String expectedFunction =
-                """
+class ChangeLogUtilsTest {
+  @Test
+  void testBuildProcessAuditFunction() {
+    String expectedFunction =
+        """
                         CREATE OR REPLACE FUNCTION "pet store"."process_Pet_audit"() RETURNS TRIGGER AS $Pet_audit$
                                BEGIN
                                    IF (TG_OP = 'DELETE') THEN
@@ -25,46 +25,46 @@ public class ChangeLogUtilsTest {
                                END;
                                $Pet_audit$ LANGUAGE plpgsql;
                         """;
-        assertEquals(
-                expectedFunction.strip(),
-                ChangeLogUtils.buildProcessAuditFunction("pet store", "Pet").strip());
-    }
+    assertEquals(
+        expectedFunction.strip(),
+        ChangeLogUtils.buildProcessAuditFunction("pet store", "Pet").strip());
+  }
 
-    @Test
-    public void testBuildAuditTrigger() {
-        String expectedTrigger =
-                """
+  @Test
+  void testBuildAuditTrigger() {
+    String expectedTrigger =
+        """
                         CREATE TRIGGER Pet_audit
                         AFTER INSERT OR UPDATE OR DELETE ON "pet store"."Pet"
                             FOR EACH ROW EXECUTE FUNCTION "pet store"."process_Pet_audit"();
                           """;
-        assertEquals(
-                expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "Pet").strip());
-    }
+    assertEquals(
+        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "Pet").strip());
+  }
 
-    @Test
-    public void testBuildAuditTriggerWithSpaceInTableName() {
-        String expectedTrigger =
-                """
+  @Test
+  void testBuildAuditTriggerWithSpaceInTableName() {
+    String expectedTrigger =
+        """
                         CREATE TRIGGER My_pets_audit
                         AFTER INSERT OR UPDATE OR DELETE ON "pet store"."My pets"
                             FOR EACH ROW EXECUTE FUNCTION "pet store"."process_My_pets_audit"();
                           """;
-        assertEquals(
-                expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "My pets").strip());
-    }
+    assertEquals(
+        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "My pets").strip());
+  }
 
-    @Test
-    public void testRemoveProcessAuditFunction() {
-        assertEquals(
-                "DROP FUNCTION IF EXISTS \"my schema\".\"process_my_table_audit\"() CASCADE",
-                ChangeLogUtils.buildProcessAuditFunctionRemove("my schema", "my table").strip());
-    }
+  @Test
+  void testRemoveProcessAuditFunction() {
+    assertEquals(
+        "DROP FUNCTION IF EXISTS \"my schema\".\"process_my_table_audit\"() CASCADE",
+        ChangeLogUtils.buildProcessAuditFunctionRemove("my schema", "my table").strip());
+  }
 
-    @Test
-    public void testRemoveAuditTrigger() {
-        assertEquals(
-                "DROP TRIGGER IF EXISTS my_table_audit ON \"my schema\".\"my table\" CASCADE",
-                ChangeLogUtils.buildAuditTriggerRemove("my schema", "my table").strip());
-    }
+  @Test
+  void testRemoveAuditTrigger() {
+    assertEquals(
+        "DROP TRIGGER IF EXISTS my_table_audit ON \"my schema\".\"my table\" CASCADE",
+        ChangeLogUtils.buildAuditTriggerRemove("my schema", "my table").strip());
+  }
 }

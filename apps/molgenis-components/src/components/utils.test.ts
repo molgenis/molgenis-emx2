@@ -1,8 +1,34 @@
-import { describe, assert, test } from "vitest";
+import { describe, assert, test, expect, vi, it } from "vitest";
 import constants from "./constants";
-import { deepClone, flattenObject, isNumericKey, isRefType } from "./utils";
+import {
+  applyJsTemplate,
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+  flattenObject,
+  isNumericKey,
+  isRefType,
+  getKeyValue,
+} from "./utils";
+import { contactsMetadata, resourcesMetadata } from "./mockDatasets";
+import { CellValueType } from "metadata-utils/src/types";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS, CODE_DELETE } = constants;
+vi.mock("../client/client", () => {
+  // For use with convertRowToPrimaryKey
+  return {
+    default: {
+      newClient: () => ({
+        fetchTableMetaData: (tableId: string) => {
+          if (tableId === "Resources") return resourcesMetadata;
+          else if (tableId === "Contacts") return contactsMetadata;
+          else return {};
+        },
+      }),
+    },
+  };
+});
+
+const { CODE_0, CODE_9, CODE_MINUS, CODE_PERIOD } = constants;
 
 describe("isRefType", () => {
   test("it should return true for REF, REF_ARRAY, REFBACK, ONTOLOGY, and ONTOLOGY_ARRAY types", () => {
@@ -11,6 +37,23 @@ describe("isRefType", () => {
     assert.isTrue(isRefType("REFBACK"));
     assert.isTrue(isRefType("ONTOLOGY"));
     assert.isTrue(isRefType("ONTOLOGY_ARRAY"));
+  });
+
+  test("it should return false for other types", () => {
+    assert.isFalse(isRefType("SOME_OTHER_TYPE"));
+  });
+});
+
+describe("getKeyValue", () => {
+  test("it should return the value if the cellValue is of type number", async () => {
+    const column = {
+      columnType: "INT" as CellValueType,
+      id: "someId",
+      label: "someId",
+    };
+    const actualValue = await getKeyValue(1, column);
+
+    assert.deepEqual(actualValue, 1);
   });
 
   test("it should return false for other types", () => {
@@ -34,13 +77,8 @@ describe("isNumericKey", () => {
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
-  test("code is CODE_BACKSPACE (8)", () => {
-    const keyboardEvent = { which: CODE_BACKSPACE } as KeyboardEvent;
-    assert.isTrue(isNumericKey(keyboardEvent));
-  });
-
-  test("code is CODE_DELETE (46)", () => {
-    const keyboardEvent = { which: CODE_DELETE } as KeyboardEvent;
+  test("code is CODE_PERIOD (46)", () => {
+    const keyboardEvent = { which: CODE_PERIOD } as KeyboardEvent;
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
@@ -73,13 +111,118 @@ describe("flattenObject", () => {
   });
 });
 
-test("deepClone", () => {
-  const input = {
-    foo: "hello",
-    bar: "world",
-  };
+describe("deepClone", () => {
+  test("it should make a clone of the input", () => {
+    const input = {
+      foo: "hello",
+      bar: "world",
+    };
 
-  const output = deepClone(input);
+    const output = deepClone(input);
 
-  assert.deepEqual(output, input, "matches original");
+    assert.deepEqual(output, input, "matches original");
+  });
+});
+
+describe("deepEqual", () => {
+  test("it should return true if 2 objects are equal", () => {
+    const object1 = { id: "someId", some: "property" };
+    const object2 = { id: "someId", some: "property" };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return true if 2 complex objects are equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return false if 2 complex objects are not  equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop", additional: "but it has more" },
+    };
+    assert.isFalse(deepEqual(object1, object2));
+  });
+});
+
+describe("convertRowToPrimaryKey", () => {
+  test("it should convert a IRow object to only its primaryKey", async () => {
+    const row = {
+      resource: {
+        id: "TEST",
+        name: "TEST Study",
+        description: "TEST description",
+        mg_tableclass: "Catalogue.Cohorts",
+      },
+      firstName: "Jan",
+      lastName: "Modal",
+      email: "Jan@modal.nl",
+      orcid: "0000-0000-0000-0000",
+      photo: {},
+      mg_draft: false,
+    };
+    const expectedPrimaryKey = {
+      resource: {
+        id: "TEST",
+      },
+      firstName: "Jan",
+      lastName: "Modal",
+    };
+    expect(await convertRowToPrimaryKey(row, "Contacts", "")).toStrictEqual(
+      expectedPrimaryKey
+    );
+  });
+
+  test("it should fail if there is not metadata found", async () => {
+    try {
+      await convertRowToPrimaryKey({}, "Unknown table", "");
+    } catch (error) {
+      expect((error as Error).message).toBe("Empty columns in metadata");
+    }
+  });
+});
+
+describe("applyJsTemplate", () => {
+  test("it should return the label according to the template", () => {
+    const object = { id: "someid", name: "naam", otherField: "bla" };
+    const labelTemplate = "${otherField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual("bla");
+  });
+
+  test("it should return the name if the label is empty and there is no primaryKey", () => {
+    const object = { id: "someid", primaryKey: { id: "primKey" } };
+    const labelTemplate = "${nonExistantField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual(" primKey");
+  });
+
+  test("it should return the name if the label is empty and there is no primaryKey", () => {
+    const object = { id: "someid", name: "naam" };
+    const labelTemplate = "${nonExistantField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual("naam");
+  });
+
+  test("it should return the id if the label is empty and there is no primaryKey or name", () => {
+    const object = { id: "someid" };
+    const labelTemplate = "${nonExistantField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual("someid");
+  });
 });

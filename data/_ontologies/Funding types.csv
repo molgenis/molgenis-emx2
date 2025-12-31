@@ -1,0 +1,8 @@
+﻿order,name,code,parent,ontologyTermURI,definition
+1,Funding by own institution,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030063,
+2,"National, regional, or municipal public funding",,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030064,
+3,European public funding,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030065,
+4,Funding from industry or contract research,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030067,
+5,Funding from public-private partnership,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030068,
+6,"Funds from patients organisations, charity and foundations",,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030069,
+7,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000031044,

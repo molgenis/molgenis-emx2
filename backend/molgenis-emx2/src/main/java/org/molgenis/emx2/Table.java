@@ -44,7 +44,7 @@ public interface Table {
 
   Query groupBy();
 
-  List<Row> retrieveRows();
+  List<Row> retrieveRows(Query.Option... options);
 
   Table getInheritedTable();
 

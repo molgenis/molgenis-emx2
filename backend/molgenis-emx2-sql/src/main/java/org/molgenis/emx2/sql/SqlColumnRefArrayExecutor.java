@@ -1,7 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.validateColumn;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.getRolePrefix;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,17 +25,16 @@ class SqlColumnRefArrayExecutor {
   static void createRefArrayConstraints(DSLContext jooq, Column column) {
     validateColumn(column);
     createReferenceExistsCheck(jooq, column);
-    createReferedCheck(jooq, column);
+    createReferredCheck(jooq, column);
     // createUpdateReferedCheck(jooq, column);
   }
 
   static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
         "DROP TRIGGER {0} ON {1}", name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
+    jooq.execute("DROP FUNCTION {0} ", name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
     jooq.execute(
-        "DROP FUNCTION  {0} ", name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
-    jooq.execute(
-        "DROP TRIGGER  {0} ON {1}",
+        "DROP TRIGGER {0} ON {1}",
         name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
     jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
   }
@@ -81,7 +82,7 @@ class SqlColumnRefArrayExecutor {
   }
 
   /** update check; in case of composite key this consists of multiple Column */
-  private static void createReferedCheck(DSLContext jooq, Column ref) {
+  private static void createReferredCheck(DSLContext jooq, Column ref) {
     String deleteTrigger = getReferedCheckName(ref);
     Collection<Reference> references = ref.getReferences();
 
@@ -175,6 +176,11 @@ class SqlColumnRefArrayExecutor {
         ref.getRefTable().getJooqTable(),
         name(ref.getTable().getSchema().getName(), deleteTrigger),
         keyword(keyColumns));
+
+    jooq.execute(
+        "ALTER FUNCTION {0}() OWNER TO {1}",
+        name(ref.getSchemaName(), deleteTrigger),
+        name(getRolePrefix(ref.getSchemaName()) + MANAGER));
   }
 
   private static String getReferedCheckName(Column column) {
@@ -199,7 +205,7 @@ class SqlColumnRefArrayExecutor {
   private static void createReferenceExistsCheck(DSLContext jooq, Column column) {
     String schemaName = column.getSchema().getName();
     Name thisTable = name(schemaName, column.getTable().getTableName());
-    Name toTable = name(column.getRefSchema(), column.getRefTableName());
+    Name toTable = name(column.getRefSchemaName(), column.getRefTableName());
     String functionName = getReferenceExistsCheckName(column);
     List<Reference> references = column.getReferences();
 
@@ -296,6 +302,10 @@ class SqlColumnRefArrayExecutor {
         thisTable,
         toTable,
         name(column.getTable().getSchema().getName(), functionName));
+
+    jooq.execute(
+        "ALTER FUNCTION {0}() OWNER TO {1}",
+        name(schemaName, functionName), name(getRolePrefix(schemaName) + MANAGER));
   }
 
   private static String getReferenceExistsCheckName(Column column) {

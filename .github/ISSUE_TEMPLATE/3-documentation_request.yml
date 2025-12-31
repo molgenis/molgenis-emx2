@@ -1,0 +1,20 @@
+name: Documentation request
+description: Suggest a change to our documentation
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: Request
+      description: A clear and concise description of what documentation you would like to see added/changed.
+      placeholder: |
+        Currently the documentation is lacking information regarding '....'
+        Please include the following: '....'
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots about the feature request here (such as a relevant project you're involved in).
+      placeholder: "I'm involved in project '....' and using the documentation we could not have figured this out."

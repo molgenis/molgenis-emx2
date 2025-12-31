@@ -1,0 +1,9 @@
+﻿order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,Appendix,,,,C18.1,,
+,Colon,,,,C18,,
+,Esophagus,,,,C15,,
+,Stomach,,,C16,,
+,Pancreas,,,,C25,,
+,Rectum,,,,C20,,
+,Small intestine,,,,C17,,
+,Unknown Primary,,,,C80,,

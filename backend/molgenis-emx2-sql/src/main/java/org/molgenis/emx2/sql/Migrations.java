@@ -4,7 +4,9 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
+import static org.molgenis.emx2.sql.SqlDatabase.MAX_EXECUTION_TIME_IN_SECONDS;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.updateSearchIndexTriggerFunction;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,7 +15,6 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.slf4j.Logger;
@@ -21,7 +22,8 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 8;
+  private static final int SOFTWARE_DATABASE_VERSION = 30;
+  public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -76,6 +78,114 @@ public class Migrations {
                 "refactor settings, rename molgenis_version table to database_metadata");
 
           if (version < 8) executeMigrationFile(tdb, "migration8.sql", "add labels column");
+
+          if (version < 9)
+            executeMigrationFile(
+                tdb, "migration9.sql", "update row level policy for schema metadata");
+
+          if (version < 10)
+            executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
+
+          if (version < 11) executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
+
+          if (version < 12)
+            executeMigrationFile(tdb, "migration12.sql", "add defaultValue in metadata schema");
+
+          if (version < 13)
+            executeMigrationFile(
+                tdb, "migration13.sql", "remove default value for mg_tableclass columns");
+
+          if (version < 14) {
+            executeMigrationFile(tdb, "migration14.sql", "cleanup column_metadata ref column");
+          }
+
+          if (version < 15) {
+            executeMigrationFile(tdb, "migration15.sql", "changed required field to varchar");
+          }
+
+          if (version < 16) {
+            executeMigrationFile(tdb, "migration16.sql", "make required nullable");
+          }
+
+          if (version < 17) {
+            executeMigrationFile(tdb, "migration17.sql", "add fkey to inherit table");
+          }
+
+          if (version < 18) {
+            executeMigrationFile(
+                tdb, "migration18.sql", "add filename to tables contain FILE datatype");
+          }
+
+          if (version < 19) {
+            executeMigrationFile(tdb, "migration19.sql", "add numeric collation");
+          }
+
+          if (version < 20) {
+            executeMigrationFile(tdb, "migration20.sql", "function to convert interval to period");
+          }
+
+          if (version < 21)
+            executeMigrationFile(
+                tdb, "migration21.sql", "add exist and range role to schemas and metadata");
+
+          if (version < 22) {
+            executeMigrationFile(
+                tdb,
+                "migration22.sql",
+                "remove physical refback triggerfunctions (cascade to include triggers) and then the columns");
+
+            // doing this in java here might make next migrations impossible
+            // however the migration is impossible in sql because of the complex composite key name
+            // logic
+            for (String schemaName : tdb.getSchemaNames()) {
+              Schema schema = tdb.getSchema(schemaName);
+              for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
+                {
+                  updateSearchIndexTriggerFunction(
+                      ((SqlDatabase) tdb).getJooq(), tableMetadata, tableMetadata.getTableName());
+                }
+              }
+            }
+          }
+
+          if (version < 23) {
+            executeMigrationFile(tdb, "migration23.sql", "add enable state to user metadata");
+          }
+
+          // we skip 24 because there was an bug in the migration that is now 25
+
+          if (version < 25) {
+            executeMigrationFile(
+                tdb,
+                "migration24.sql",
+                "add function to retrieve child terms from ontology to enable query expansion");
+          }
+
+          if (version < 26) {
+            executeMigrationFile(
+                tdb,
+                "migration25.sql",
+                "migrate page settings to advanced page editor data object");
+          }
+
+          if (version < 27) {
+            executeMigrationFile(
+                tdb,
+                "migration26.sql",
+                "set ownership of all trigger function to the manager role");
+          }
+
+          if (version < 28) {
+            executeMigrationFile(tdb, "migration27.sql", "Add admin column to user metadata");
+          }
+
+          if (version < 29) {
+            executeMigrationFile(tdb, "migration28.sql", "Update admin field original admin user");
+          }
+
+          if (version < 30) {
+            executeMigrationFile(tdb, "migration29.sql", "add formLabel column to column metadata");
+          }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
@@ -140,12 +250,16 @@ public class Migrations {
   }
 
   static void executeMigrationFile(Database db, String sqlFile, String message) {
+    DSLContext jooq = ((SqlDatabase) db).getJooq();
     try {
+      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
-      ((SqlDatabase) db).getJooq().execute(sql);
+      jooq.execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
-      throw new MolgenisException(e.getMessage());
+      throw new MolgenisException("Execute migration failed", e);
+    } finally {
+      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
     }
   }
 

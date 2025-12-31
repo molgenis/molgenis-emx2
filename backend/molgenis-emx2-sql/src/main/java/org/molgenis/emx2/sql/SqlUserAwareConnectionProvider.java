@@ -14,6 +14,7 @@ import org.jooq.impl.DataSourceConnectionProvider;
 
 public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
   private String activeUser;
+  private boolean isAdmin = false;
 
   public SqlUserAwareConnectionProvider(DataSource source) {
     super(source);
@@ -24,13 +25,14 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     Connection connection = null;
     try {
       connection = super.acquire();
-      if (getActiveUser().equals(ADMIN_USER)) {
+      if (getActiveUser().equals(ADMIN_USER) || this.isAdmin) {
         // as admin you are actually session user
-        DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE;");
+        DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE; SET jit='off';");
       } else {
         // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
-            .execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + getActiveUser()));
+            .execute(
+                "RESET ROLE; SET jit='off'; SET ROLE {0}", name(MG_USER_PREFIX + getActiveUser()));
       }
       return connection;
     } catch (DataAccessException dae) {
@@ -61,7 +63,16 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     this.activeUser = activeUser;
   }
 
+  public boolean isAdmin() {
+    return isAdmin;
+  }
+
+  public void setAdmin(boolean admin) {
+    isAdmin = admin;
+  }
+
   public void clearActiveUser() {
     this.activeUser = null;
+    this.isAdmin = false;
   }
 }

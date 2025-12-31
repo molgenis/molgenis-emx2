@@ -2,8 +2,10 @@ package org.molgenis.emx2.tasks;
 
 import static org.molgenis.emx2.tasks.TaskStatus.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 import org.molgenis.emx2.MolgenisException;
@@ -17,10 +19,13 @@ import org.slf4j.LoggerFactory;
 public class Task implements Runnable, Iterable<Task> {
   // some unique id
   private final String id = UUID.randomUUID().toString();
+
   // for the toString method
+  @JsonIgnore
   private static final ObjectMapper mapper =
-      new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-  private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+      new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+  @JsonIgnore private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
   // human readable description
   private String description;
   // status of the tas
@@ -29,25 +34,34 @@ public class Task implements Runnable, Iterable<Task> {
   private Integer total;
   // position in the total size, if available, used for progress monitoring
   private Integer progress;
+  // user who submitted
+  private String submitUser;
   // start time to measure run time
-  private long startTimeMilliseconds = System.currentTimeMillis();
+  private long submitTimeMilliseconds = System.currentTimeMillis();
+  // start time to measure run time
+  private long startTimeMilliseconds;
   // end time to calculate run time
-  long endTimeMilliseconds;
+  private long endTimeMilliseconds;
+  private boolean includeDemoData;
   // subtasks/steps in this task
   private List<Task> subTasks = new ArrayList<>();
+  // parent task
+  @JsonIgnore private Task parentTask;
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
   // try to complete
-  private boolean strict = false;
+  @JsonIgnore private boolean strict = false;
+  // this handler is used to notify that relevant things happened
+  @JsonIgnore private TaskChangedHandler changedHandler;
+  private String cronExpression;
+  private String cronUserName;
+  private boolean disabled = false;
+  private String failureAddress;
+
+  public Task() {}
 
   public Task(String description) {
     Objects.requireNonNull(description, "description cannot be null");
     this.description = description;
-  }
-
-  public Task(String description, TaskStatus status) {
-    this(description);
-    Objects.requireNonNull(status, "status cannot be null");
-    this.status = status;
   }
 
   public Task(String description, boolean strict) {
@@ -57,19 +71,29 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task addSubTask(String message) {
     Task step = new Task(message);
+    step.setParentTask(this);
     this.subTasks.add(step);
     return step;
   }
 
   public Task addSubTask(String message, TaskStatus status) {
-    Task step = new Task(message, status);
+    Task step = new Task(message);
     this.subTasks.add(step);
+    step.setStatus(status);
     return step;
   }
 
   public void addSubTask(Task task) {
     Objects.requireNonNull(task, "task cannot be null");
     this.subTasks.add(task);
+  }
+
+  public void setParentTask(Task parentTask) {
+    this.parentTask = parentTask;
+  }
+
+  public Task getParentTask() {
+    return this.parentTask;
   }
 
   public List<Task> getSubTasks() {
@@ -136,35 +160,35 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public Task start() {
-    this.startTimeMilliseconds = System.currentTimeMillis();
-    this.status = RUNNING;
+    this.setStatus(RUNNING);
     this.logger.info(getDescription() + ": started");
     return this;
   }
 
   public Task complete() {
-    this.status = COMPLETED;
-    this.endTimeMilliseconds = System.currentTimeMillis();
+    this.setStatus(COMPLETED);
     this.logger.info(getDescription());
     return this;
   }
 
   public Task complete(String description) {
-    this.setDescription(description);
-    complete();
+    this.description = description;
+    setStatus(COMPLETED);
     return this;
   }
 
   public void completeWithError(String message) {
-    this.setDescription(message);
-    this.complete();
-    this.status = ERROR;
+    this.description = message;
+    this.setStatus(ERROR);
     logger.error(message);
     throw new MolgenisException(message);
   }
 
+  @JsonIgnore
   public long getDuration() {
-    if (endTimeMilliseconds == 0) {
+    if (startTimeMilliseconds == 0) {
+      return 0;
+    } else if (endTimeMilliseconds == 0) {
       return System.currentTimeMillis() - startTimeMilliseconds;
     } else {
       return endTimeMilliseconds - startTimeMilliseconds;
@@ -173,35 +197,42 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task setStatus(TaskStatus status) {
     Objects.requireNonNull(status, "status can not be null");
+    if (RUNNING.equals(status)) {
+      this.startTimeMilliseconds = System.currentTimeMillis();
+    } else if (ERROR.equals(status) || COMPLETED.equals(status) || SKIPPED.equals(status)) {
+      if (startTimeMilliseconds == 0) {
+        this.startTimeMilliseconds = System.currentTimeMillis();
+      }
+      this.endTimeMilliseconds = System.currentTimeMillis();
+    }
     this.status = status;
+    this.handleChange();
     return this;
   }
 
   public void setSkipped(String description) {
-    this.setSkipped();
-    this.setDescription(description);
+    this.description = description;
+    this.setStatus(SKIPPED);
   }
 
   public void setSkipped() {
-    this.complete();
     this.setStatus(SKIPPED);
   }
 
   public void setError() {
-    this.complete();
     this.setStatus(ERROR);
   }
 
   public void setError(String description) {
-    this.setError();
-    this.setDescription(description);
+    this.description = description;
+    this.setStatus(ERROR);
   }
 
   @Override
   public void run() {}
 
   @Override
-  public Iterator iterator() {
+  public Iterator<Task> iterator() {
     return this.subTasks.iterator();
   }
 
@@ -211,7 +242,7 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   @Override
-  public Spliterator spliterator() {
+  public Spliterator<Task> spliterator() {
     return this.subTasks.spliterator();
   }
 
@@ -221,7 +252,7 @@ public class Task implements Runnable, Iterable<Task> {
 
   public String toString() {
     try {
-      return mapper.writeValueAsString(this);
+      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
     } catch (Exception e) {
       throw new MolgenisException("internal error", e);
     }
@@ -231,12 +262,70 @@ public class Task implements Runnable, Iterable<Task> {
     return id;
   }
 
+  public void setChangedHandler(TaskChangedHandler changedHandler) {
+    this.changedHandler = changedHandler;
+  }
+
+  public long getSubmitTimeMilliseconds() {
+    return submitTimeMilliseconds;
+  }
+
+  public long getStartTimeMilliseconds() {
+    return startTimeMilliseconds;
+  }
+
+  public String getSubmitUser() {
+    return submitUser;
+  }
+
+  public Task submitUser(String submitUser) {
+    this.submitUser = submitUser;
+    return this;
+  }
+
+  public Task cronExpression(String cronExpression) {
+    this.cronExpression = cronExpression;
+    return this;
+  }
+
+  public String getCronExpression() {
+    return this.cronExpression;
+  }
+
+  public Task cronUserName(String cronUserName) {
+    this.cronUserName = cronUserName;
+    return this;
+  }
+
+  public Task failureAddress(String failureAddress) {
+    this.failureAddress = failureAddress;
+    return this;
+  }
+
+  public String getCronUserName() {
+    return this.cronUserName;
+  }
+
+  public Task disabled(boolean disabled) {
+    this.disabled = disabled;
+    return this;
+  }
+
+  public boolean isDisabled() {
+    return this.disabled;
+  }
+
+  public String getFailureAddress() {
+    return failureAddress;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Task)) return false;
     Task task = (Task) o;
-    return startTimeMilliseconds == task.startTimeMilliseconds
+    return submitTimeMilliseconds == task.submitTimeMilliseconds
+        && startTimeMilliseconds == task.startTimeMilliseconds
         && endTimeMilliseconds == task.endTimeMilliseconds
         && strict == task.strict
         && id.equals(task.id)
@@ -255,9 +344,49 @@ public class Task implements Runnable, Iterable<Task> {
         status,
         total,
         progress,
+        submitTimeMilliseconds,
         startTimeMilliseconds,
         endTimeMilliseconds,
         subTasks,
         strict);
+  }
+
+  public void handleChange() {
+    // currently we only log at setStatus changes to not overload database
+    if (this.parentTask != null) {
+      this.parentTask.handleChange();
+    }
+    if (this.changedHandler
+        != null) { // todo: do we want this? changed it because task run from scripts can have a
+      // parent and need to be updated in the db
+      this.changedHandler.handleChange(this);
+    }
+  }
+
+  public void handleOutput(File outputFile) {
+    if (this.changedHandler != null) {
+      this.changedHandler.handleOutputFile(this, outputFile);
+    }
+  }
+
+  public void stop() {
+    // will stop if implemented
+  }
+
+  public long getEndTimeMilliseconds() {
+    return this.endTimeMilliseconds;
+  }
+
+  @JsonIgnore
+  public boolean isRunning() {
+    return !status.equals(ERROR) && !status.equals(COMPLETED);
+  }
+
+  public boolean isIncludeDemoData() {
+    return includeDemoData;
+  }
+
+  public void setIncludeDemoData(boolean includeDemoData) {
+    this.includeDemoData = includeDemoData;
   }
 }

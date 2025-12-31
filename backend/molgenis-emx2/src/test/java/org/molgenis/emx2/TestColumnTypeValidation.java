@@ -1,10 +1,10 @@
 package org.molgenis.emx2;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.ColumnType.EMAIL;
 import static org.molgenis.emx2.ColumnType.HYPERLINK;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestColumnTypeValidation {
   @Test
@@ -15,8 +15,10 @@ public class TestColumnTypeValidation {
       assertEquals("Validation failed: test is not valid EMAIL", e.getMessage());
     }
 
-    EMAIL.validate("test@home.nl");
+    EMAIL.validate("c.stroomberg@rug.com");
+    EMAIL.validate("teSt@hoMe.nL");
     EMAIL.validate("test+test@home.nl");
+    EMAIL.validate("üse@bar.com");
   }
 
   @Test

@@ -1,10 +1,13 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Privileges.VIEWER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
+import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import java.io.IOException;
@@ -18,85 +21,12 @@ import org.slf4j.LoggerFactory;
 public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
 
-  static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
-    List<Row> rows = new ArrayList<>();
-    for (Map<String, Object> object : map) {
-      Row row = new Row();
-      for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getIdentifier())) {
-          if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isReference()) {
-            // REFBACK, REF_ARRAY
-            convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isFile()) {
-            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
-            if (bfw == null || !bfw.isSkip()) {
-              // also necessary in case of 'null' to ensure all file metadata fields are made empty
-              // skip is used when use submitted only metadata (that they received in query)
-              row.setBinary(
-                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
-            }
-          } else {
-            row.set(column.getName(), object.get(column.getIdentifier()));
-          }
-        }
-      }
-      rows.add(row);
-    }
-    return rows;
-  }
-
-  private static void convertRefArrayToRow(List<Map<String, Object>> list, Row row, Column column) {
-
-    List<Reference> refs = column.getReferences();
-    for (Reference ref : refs) {
-      if (!ref.isOverlapping()) {
-        if (!list.isEmpty()) {
-          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
-        } else {
-          row.set(ref.getName(), new ArrayList<>());
-        }
-      }
-    }
-  }
-
-  private static List<Object> getRefValueFromList(
-      List<String> path, List<Map<String, Object>> list) {
-    List<Object> result = new ArrayList<>();
-    for (Map<String, Object> map : list) {
-      Object value = getRefValueFromMap(path, map);
-      if (value != null) {
-        result.add(value);
-      }
-    }
-    return result;
-  }
-
-  private static Object getRefValueFromMap(List<String> path, Map<String, Object> map) {
-    if (path.size() == 1) {
-      return map.get(path.get(0));
-    } else {
-      // should be > 1 and value should be of type map
-      Object value = map.get(path.get(0));
-      if (value != null) {
-        return getRefValueFromMap(path.subList(1, path.size()), (Map<String, Object>) value);
-      }
-      return null;
-    }
-  }
-
-  private static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
-    for (Reference ref : column.getReferences()) {
-      if (!ref.isOverlapping()) {
-        String name = ref.getName();
-        if (map == null) {
-          row.set(name, null);
-        } else {
-          row.set(ref.getName(), getRefValueFromMap(ref.getPath(), map));
-        }
-      }
+  public GraphqlApiFactory() {
+    if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
+      ParserOptions.setDefaultParserOptions(
+          ParserOptions.newParserOptions().maxTokens(1000000).build());
+      ParserOptions.setDefaultOperationParserOptions(
+          ParserOptions.newParserOptions().maxTokens(1000000).build());
     }
   }
 
@@ -130,7 +60,10 @@ public class GraphqlApiFactory {
 
     // admin operations
     if (database.isAdmin()) {
-      queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
+      queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.removeUser(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.setEnabledUser(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.updateUser(database));
     }
 
     // database operations
@@ -138,8 +71,12 @@ public class GraphqlApiFactory {
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
+    // todo need to allow for owner ? ( need to filter the query to include only owned schema's)
+    if (database.isAdmin()) {
+      queryBuilder.field(db.lastUpdateQuery(database));
+    }
 
-    mutationBuilder.field(db.createMutation(database));
+    mutationBuilder.field(db.createMutation(database, taskService));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
     mutationBuilder.field(db.dropMutation(database));
@@ -202,7 +139,7 @@ public class GraphqlApiFactory {
 
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
-    mutationBuilder.field(schemaFields.truncateMutation(schema));
+    mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
     if ((schema.getRoleForActiveUser() != null
             && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
         || schema.getDatabase().isAdmin()) {
@@ -214,7 +151,10 @@ public class GraphqlApiFactory {
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
       if (table.getColumns().size() > 0) {
-        queryBuilder.field(tableField.tableQueryField(table));
+        if (table.getTableType().equals(TableType.ONTOLOGIES)
+            || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+          queryBuilder.field(tableField.tableQueryField(table));
+        }
         queryBuilder.field(tableField.tableAggField(table));
         queryBuilder.field(tableField.tableGroupByField(table));
       }
@@ -227,10 +167,7 @@ public class GraphqlApiFactory {
     // assemble and return
     GraphQL result =
         GraphQL.newGraphQL(
-                GraphQLSchema.newSchema()
-                    .query(queryBuilder.build())
-                    .mutation(mutationBuilder.build())
-                    .build())
+                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
             .mutationExecutionStrategy(
                 new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
             .build();

@@ -1,0 +1,6 @@
+name,definition,codesystem,code,ontologyTermURI
+"general research use","This data use limitation indicates that use is allowed for general research use for any research purpose.","DUO","0000042","http://purl.obolibrary.org/obo/DUO_0000042"
+"health or medical or biomedical research","This data use limitation indicates that use is allowed for health/medical/biomedical purposes; does not include the study of population origins or ancestry.","DUO","0000006","http://purl.obolibrary.org/obo/DUO_0000006"
+"disease-specific research","This data use limitation indicates that use is allowed provided it is related to the specified disease.","DUO","0000007","http://purl.obolibrary.org/obo/DUO_0000007"
+"no restriction","This data use limitation indicates there is no restriction on use.","DUO","0000004","http://purl.obolibrary.org/obo/DUO_0000004"
+"population origins or ancestry research only","This data use limitation indicates that use of the data is limited to the study of population origins or ancestry.","DUO","0000011","http://purl.obolibrary.org/obo/DUO_0000011"

@@ -3,7 +3,7 @@
     v-if="!isEmpty"
     :is="cellTypeComponentName"
     :data="data"
-    :metaData="metaData"
+    :metadata="metadata"
   />
 </template>
 
@@ -20,8 +20,13 @@ import HyperlinkDisplay from "./cellTypes/HyperlinkDisplay.vue";
 const typeMap: { [key: string]: string } = {
   FILE: "FileDisplay",
   TEXT: "TextDisplay",
+  JSON: "TextDisplay",
   REFBACK: "ListDisplay",
+  MULTISELECT: "ListDisplay",
+  CHECKBOX: "ListDisplay",
   REF: "ObjectDisplay",
+  SELECT: "ObjectDisplay",
+  RADIO: "ObjectDisplay",
   ONTOLOGY: "ObjectDisplay",
   EMAIL: "EmailDisplay",
   HYPERLINK: "HyperlinkDisplay",
@@ -43,7 +48,7 @@ export default defineComponent({
       type: [String, Object, Array, Number, Boolean],
       required: false,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },
@@ -52,10 +57,14 @@ export default defineComponent({
     cellTypeComponentName() {
       return this.isArrayType
         ? "ListDisplay"
-        : typeMap[this.metaData.columnType] || "StringDisplay";
+        : typeMap[this.metadata.columnType] || "StringDisplay";
     },
     isArrayType() {
-      return this.metaData.columnType.includes("ARRAY") > 0;
+      return (
+        this.metadata.columnType.includes("ARRAY") ||
+        this.metadata.columnType === "MULTISELECT" ||
+        this.metadata.columnType === "CHECKBOX"
+      );
     },
     isEmpty() {
       return (

@@ -1,13 +1,16 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
 public class Schema {
+
   private List<Table> tables = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
 
@@ -22,15 +25,16 @@ public class Schema {
   public Schema(SchemaMetadata schema, boolean minimal) {
     this.settings =
         schema.getSettings().entrySet().stream()
+            .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
     List<TableMetadata> list = new ArrayList<>();
-    list.addAll(schema.getTablesIncludingExternal());
+    list.addAll(schema.getTables());
     // deterministic order is important for all kinds of comparisons
     Collections.sort(list);
     // add these tables
     for (TableMetadata t : list) {
-      tables.add(new Table(schema, t, minimal));
+      tables.add(new Table(t, minimal));
     }
   }
 
@@ -42,7 +46,7 @@ public class Schema {
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
-      tm.setInherit(t.getInherit());
+      tm.setInheritName(t.getInheritName());
       tm.setSettings(
           t.getSettings().stream()
               .filter(d -> d.value() != null)
@@ -62,8 +66,9 @@ public class Schema {
               .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
-        int i = 1;
-        if (!c.isInherited()) {
+        if (c.getName().equals(Constants.MG_TOP_OF_FORM)) {
+          // skip
+        } else if (!c.isInherited()) {
           // we remove clearly inherited columns here
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
           tm.add(cm);

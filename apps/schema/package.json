@@ -6,21 +6,25 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "vite lint",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.29.1",
+    "core-js": "3.34.0",
     "graphql-request": "5.2.0",
-    "molgenis-components": "*",
-    "vue": "3.2.47",
-    "vue-router": "4.1.6",
+    "graphql-tag": "2.12.6",
+    "mermaid": "11.10.0",
+    "metadata-utils": "workspace:*",
+    "molgenis-components": "workspace:*",
+    "nomnoml": "1.6.2",
+    "vue": "3.5.22",
+    "vue-router": "4.4.3",
     "vue-scrollto": "2.20.0",
-    "vuedraggable": "4.1.0",
-    "nomnoml": "1.5.3"
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "vite": "4.1.4",
-    "@vitejs/plugin-vue": "3.2.0",
-    "prettier": "2.8.7"
+    "@vitejs/plugin-vue": "4.6.2",
+    "prettier": "2.8.8",
+    "vite": "5.4.21"
   }
 }

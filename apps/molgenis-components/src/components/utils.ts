@@ -1,23 +1,31 @@
-import { IColumn } from "../Interfaces/IColumn";
-import { IRow } from "../Interfaces/IRow";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import type {
+  IColumn,
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
+import Client from "../client/client";
+import type { IRow } from "../Interfaces/IRow";
 import constants from "./constants";
+import { executeExpression } from "./forms/formUtils/formUtils";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
-  constants;
+const { CODE_0, CODE_9, CODE_PERIOD, AUTO_ID } = constants;
 
 export function isRefType(columnType: string): boolean {
-  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-    columnType
-  );
+  return [
+    "REF",
+    "REF_ARRAY",
+    "REFBACK",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+    "RADIO",
+    "SELECT",
+    "CHECKBOX",
+    "MULTISELECT",
+  ].includes(columnType);
 }
+
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
-  return (
-    (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-    keyCode === CODE_BACKSPACE ||
-    keyCode === CODE_DELETE
-  );
+  return (keyCode >= CODE_0 && keyCode <= CODE_9) || keyCode === CODE_PERIOD;
 }
 
 export function flattenObject(object: Record<string, any>): string {
@@ -39,32 +47,55 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-export function getPrimaryKey(
+export async function convertRowToPrimaryKey(
   row: IRow,
-  tableMetaData: ITableMetaData
-): Record<string, any> | null {
-  //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetaData?.columns) {
-    return null;
+  tableId: string,
+  schemaId?: string
+): Promise<Record<string, any>> {
+  const client = Client.newClient(schemaId);
+  const tableMetadata = await client.fetchTableMetaData(tableId);
+  if (!tableMetadata?.columns) {
+    throw new Error("Empty columns in metadata");
   } else {
-    return tableMetaData.columns.reduce(
-      (accum: Record<string, any>, column: IColumn) => {
-        if (column.key === 1 && row[column.id]) {
-          accum[column.id] = row[column.id];
+    return await tableMetadata.columns.reduce(
+      async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
+        let accum: IRow = await accumPromise;
+        const cellValue = row[column.id];
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
+          accum[column.id] = await getKeyValue(
+            cellValue,
+            column,
+            column.refSchemaId || schemaId
+          );
         }
         return accum;
       },
-      {}
+      Promise.resolve({})
     );
   }
 }
 
+export async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaId?: string
+) {
+  if (typeof cellValue === "string" || typeof cellValue === "number") {
+    return cellValue;
+  } else {
+    if (column.refTableId) {
+      return await convertRowToPrimaryKey(
+        cellValue,
+        column.refTableId,
+        schemaId
+      );
+    } else {
+      throw new Error("Unexpected key type");
+    }
+  }
+}
+
 export function deepClone(original: any): any {
-  // node js may not have structuredClone function, then fallback to deep clone via JSON
-  // return typeof structuredClone === "function"
-  //   ? structuredClone(original)
-  //   :
-  //structuredClone doesn't work in vue 3
   return JSON.parse(JSON.stringify(original));
 }
 
@@ -83,93 +114,111 @@ export function filterObject(
   );
 }
 
-export function flipSign(value: string): string | null {
+export function flipSign(value: string | null): string {
   switch (value) {
     case "-":
-      return null;
+      return "";
     case null:
       return "-";
     default:
-      if (value.toString().charAt(0) === "-") {
-        return value.toString().substring(1);
+      if (value.charAt(0) === "-") {
+        return value.substring(1);
       } else {
         return "-" + value;
       }
   }
 }
 
-const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
-
-export function getBigIntError(value: string): string | undefined {
-  if (value === "-" || isInvalidBigInt(value)) {
-    return BIG_INT_ERROR;
-  } else {
-    return undefined;
-  }
-}
-
-export function isInvalidBigInt(value: string): boolean {
-  return (
-    value !== null &&
-    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
-  );
-}
-
-export function convertToCamelCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string, index: number) => {
-    if (index === 0) {
-      result += word.charAt(0).toLowerCase();
-    } else {
-      result += word.charAt(0).toUpperCase();
-    }
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-}
-
-export function convertToPascalCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string) => {
-    result += word.charAt(0).toUpperCase();
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-}
-
-export function getLocalizedLabel(
-  tableOrColumnMetadata: ITableMetaData | IColumn,
-  locale: string | undefined
-): string {
-  let label;
-  if (tableOrColumnMetadata?.labels) {
-    label = tableOrColumnMetadata.labels.find(
-      (el) => el.locale === locale
-    )?.value;
-    if (!label) {
-      label = tableOrColumnMetadata.labels.find(
-        (el) => el.locale === "en"
-      )?.value;
-    }
-  }
-  if (!label) {
-    label = tableOrColumnMetadata.name;
-  }
-  return label;
-}
-
-export function getLocalizedDescription(
-  tableOrColumnMetadata: ITableMetaData | IColumn,
-  locale: string
+export function applyJsTemplate(
+  object: Record<string, any>,
+  labelTemplate: string
 ): string | undefined {
-  if (tableOrColumnMetadata.descriptions) {
-    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
-      ?.value;
+  if (object === undefined || object === null) {
+    return "";
   }
+  const ids = Object.keys(object);
+  const vals = Object.values(object);
+  try {
+    const label = new Function(...ids, "return `" + labelTemplate + "`;")(
+      ...vals
+    );
+    if (label) {
+      return label;
+    }
+  } catch (err: any) {
+    // The template is not working, lets try and fail gracefully
+    console.log(
+      err.message +
+        " we got keys:" +
+        JSON.stringify(ids) +
+        " vals:" +
+        JSON.stringify(vals) +
+        " and template: " +
+        labelTemplate
+    );
+  }
+  if (object.hasOwnProperty("primaryKey")) {
+    return flattenObject(object.primaryKey);
+  }
+
+  if (object.hasOwnProperty("name")) {
+    return object.name;
+  }
+
+  if (object.hasOwnProperty("id")) {
+    return object.id;
+  }
+  return flattenObject(object);
+}
+
+/** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
+export function deepEqual(
+  object1: Record<string, any>,
+  object2: Record<string, any>
+): boolean {
+  const keys1 = Object.keys(object1);
+  const keys2 = Object.keys(object2);
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+  for (const key of keys1) {
+    const val1 = object1[key];
+    const val2 = object2[key];
+    const areObjects = isObject(val1) && isObject(val2);
+    if (
+      (areObjects && !deepEqual(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isObject(object: Record<string, any> | null): object is Object {
+  return object !== null && typeof object === "object";
+}
+
+export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
+  return rows?.map((row) => {
+    return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
+      if (column.computed && column.columnType !== AUTO_ID) {
+        try {
+          accum[column.id] = executeExpression(
+            column.computed,
+            row,
+            tableMetadata
+          );
+        } catch (error) {
+          console.log("Computed expression failed: ", error);
+          accum[column.id] = "error: could not compute value: " + error;
+        }
+      } else if (row.hasOwnProperty(column.id)) {
+        accum[column.id] = row[column.id];
+      } else {
+        // don't add empty property that didn't exist before
+      }
+      return accum;
+    }, {});
+  });
 }

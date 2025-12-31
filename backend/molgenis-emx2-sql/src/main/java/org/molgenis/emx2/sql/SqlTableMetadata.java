@@ -8,8 +8,10 @@ import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
+import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsUnique;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
+import java.util.List;
 import java.util.Map;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -38,12 +40,13 @@ class SqlTableMetadata extends TableMetadata {
     // first per-column actions, then multi-column action such as composite keys/refs
     int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
     for (Column c : column) {
+      validateColumnIdentifierIsUnique(tm, c);
       long start = System.currentTimeMillis();
       if (tm.getLocalColumn(c.getName()) != null) {
         tm.alterColumn(c);
       } else {
         Column newColumn = new Column(tm, c);
-        if (tm.getInherit() != null
+        if (tm.getInheritName() != null
             && tm.getInheritedTable().getColumn(c.getName()) != null
             // this column is replicated in all subclass tables
             && !c.getName().equals(MG_TABLECLASS)) {
@@ -53,8 +56,10 @@ class SqlTableMetadata extends TableMetadata {
                   + "."
                   + c.getName()
                   + ": column exists in inherited class "
-                  + tm.getInherit());
+                  + tm.getInheritName());
         }
+        checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
+
         if (!newColumn.isHeading()) {
           validateColumn(newColumn);
           if (newColumn.getPosition() == null) {
@@ -81,6 +86,20 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
+  private static void validateColumnIdentifierIsUnique(
+      SqlTableMetadata existingTableMetadata, Column column) {
+    for (Column existingColumn : existingTableMetadata.getColumns()) {
+      if (!column.getName().equals(MG_TABLECLASS)
+          && !column.getName().equals(existingColumn.getName())
+          && existingColumn.getIdentifier().equals(column.getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot create/alter column because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                column.getName(), existingColumn.getName(), column.getIdentifier()));
+      }
+    }
+  }
+
   @Override
   public TableMetadata alterName(String newName) {
     long start = System.currentTimeMillis();
@@ -88,6 +107,7 @@ class SqlTableMetadata extends TableMetadata {
     if (!getTableName().equals(newName)) {
       getDatabase()
           .tx(db -> sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName)));
+      ((SqlSchemaMetadata) getSchema()).reload();
       getDatabase().getListener().schemaChanged(getSchemaName());
       log(start, "altered table from '" + oldName + "' to  " + getTableName());
     }
@@ -97,13 +117,26 @@ class SqlTableMetadata extends TableMetadata {
   // ensure the transaction has no side effects on 'this' until completed
   private static SqlTableMetadata alterNameTransaction(
       Database db, String schemaName, String tableName, String newName) {
-    SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
+    SqlTableMetadata tm = sm.getTableMetadata(tableName);
+
+    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
 
     // drop triggers for this table
     for (Column column : tm.getStoredColumns()) {
       SqlColumnExecutor.executeRemoveRefConstraints(tm.getJooq(), column);
     }
+
+    // get references pointing to 'me'
+    List<Column> refColumns =
+        MetadataUtils.getReferencesToTable(tm.getJooq(), schemaName, tableName);
+
+    // get refbacks pointing to 'me'
+    List<Column> refbackColumns =
+        tm.getColumns().stream()
+            .filter(c -> c.getReferenceRefback() != null)
+            .map(c -> c.getReferenceRefback())
+            .toList();
 
     // rename table and triggers
     SqlTableMetadataExecutor.executeAlterName(tm.getJooq(), tm, newName);
@@ -111,6 +144,22 @@ class SqlTableMetadata extends TableMetadata {
     // update metadata
     MetadataUtils.alterTableName(tm.getJooq(), tm, newName);
     tm.tableName = newName;
+
+    // rename refs.refTable
+    refColumns.forEach(
+        ref -> {
+          ref.setRefTable(newName);
+          MetadataUtils.saveColumnMetadata(tm.getJooq(), ref);
+          db.getListener().schemaChanged(ref.getSchemaName());
+        });
+
+    // rename refbacks.refTable
+    refbackColumns.forEach(
+        refBack -> {
+          refBack.setRefTable(newName);
+          MetadataUtils.saveColumnMetadata(tm.getJooq(), refBack);
+          db.getListener().schemaChanged(refBack.getSchemaName());
+        });
 
     // recreate triggers for this table
     for (Column column : tm.getStoredColumns()) {
@@ -123,9 +172,12 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata alterColumn(String columnName, Column column) {
     // ignore mg_ columns
-    if (column.getName().startsWith("mg_")) return this;
+    if (column.isSystemColumn()) return this;
 
     Column oldColumn = getColumn(columnName);
+
+    validateColumnIdentifierIsUnique(this, column);
+
     if (oldColumn == null) {
       throw new MolgenisException(
           "Alter column failed: Column  '"
@@ -134,16 +186,16 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    if (getInherit() != null && getInheritedTable().getColumn(columnName) != null) {
+    if (getInheritName() != null && getInheritedTable().getColumn(columnName) != null) {
       throw new MolgenisException(
           "Alter column "
               + getTableName()
               + "."
               + columnName
               + " failed: column is part of inherited table "
-              + getInherit());
+              + getInheritName());
     }
-    if (getInherit() != null && getInheritedTable().getColumn(column.getName()) != null) {
+    if (getInheritName() != null && getInheritedTable().getColumn(column.getName()) != null) {
       throw new MolgenisException(
           "Rename column from "
               + getTableName()
@@ -156,7 +208,7 @@ class SqlTableMetadata extends TableMetadata {
               + " failed: column '"
               + column.getName()
               + "' is part of inherited table "
-              + getInherit());
+              + getInheritName());
     }
     getDatabase()
         .tx(
@@ -183,6 +235,9 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     validateColumn(newColumn);
+    if (!columnName.equals(column.getName())) {
+      checkNoColumnWithSameNameExistsInSubclass(column.getName(), tm, tm.getJooq());
+    }
 
     // check if reference and of different size
     if (newColumn.isRefArray()
@@ -196,11 +251,6 @@ class SqlTableMetadata extends TableMetadata {
               + newColumn.getRefTableName());
     }
 
-    // if changing 'ref' then check if not refBack exists
-    if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-      tm.checkNotRefback(columnName, oldColumn);
-    }
-
     // drop old key, if touched
     if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
       executeDropKey(tm.getJooq(), oldColumn.getTable(), oldColumn.getKey());
@@ -208,9 +258,6 @@ class SqlTableMetadata extends TableMetadata {
 
     // drop referential constraints around this column
     executeRemoveRefConstraints(tm.getJooq(), oldColumn);
-
-    // remove refBacks if exist
-    executeRemoveRefback(oldColumn, newColumn);
 
     // add ontology table if needed
     if (newColumn.isOntology()) {
@@ -237,11 +284,24 @@ class SqlTableMetadata extends TableMetadata {
     // add the new
     tm.columns.put(column.getName(), newColumn);
 
+    // if changing 'ref' then check if not refBack exists
+    Column referenceRefBack = oldColumn.getReferenceRefback();
+    if (referenceRefBack != null) {
+      // delete if changed to non ref
+      if (!newColumn.isReference()) {
+        referenceRefBack.getTable().dropColumn(referenceRefBack.getName());
+      }
+      // else update refback if renamed
+      else if (!oldColumn.getName().equals(newColumn.getName())) {
+        referenceRefBack
+            .getTable()
+            .alterColumn(
+                referenceRefBack.getName(), referenceRefBack.setRefBack(newColumn.getName()));
+      }
+    }
+
     // reapply ref constrainst
     executeCreateRefConstraints(tm.getJooq(), newColumn);
-
-    // check if refBack constraints need updating
-    reapplyRefbackContraints(oldColumn, newColumn);
 
     // create/update key, if touched
     if (newColumn.getKey() != oldColumn.getKey()) {
@@ -255,32 +315,12 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
-  private void checkNotRefback(String name, Column oldColumn) {
-    if (oldColumn.isReference()) {
-      for (Column c : oldColumn.getRefTable().getColumns()) {
-        if (c.isRefback()
-            && c.getRefTableName().equals(oldColumn.getTableName())
-            && oldColumn.getName().equals(c.getRefBack())) {
-          throw new MolgenisException(
-              "Drop/alter column '"
-                  + name
-                  + "' failed: cannot remove reference while refBack for it exists ("
-                  + c.getTableName()
-                  + "."
-                  + c.getRefBackColumn());
-        }
-      }
-    }
-  }
-
   @Override
   public void dropColumn(String name) {
     Column column = getColumn(name);
     if (column == null) {
       throw new MolgenisException("Drop column " + name + " failed: column does not exist");
     }
-    // if changing 'ref' then check if not refBack exists
-    checkNotRefback(name, column);
 
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent
@@ -295,23 +335,24 @@ class SqlTableMetadata extends TableMetadata {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     SqlColumnExecutor.executeRemoveColumn(jooq, tm.getColumn(columnName));
     tm.columns.remove(columnName);
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, tm, tableName);
     return tm;
   }
 
   @Override
-  public TableMetadata setInherit(String otherTable) {
+  public TableMetadata setInheritName(String otherTable) {
     long start = System.currentTimeMillis();
-    if (getInherit() != null && getInherit().equals(otherTable)) {
+    if (getInheritName() != null && getInheritName().equals(otherTable)) {
       return this; // nothing to do
     }
-    if (getInherit() != null) {
+    if (getInheritName() != null) {
       throw new MolgenisException(
           "Table '"
               + getTableName()
               + "'can only extend one table. Therefore it cannot extend '"
               + otherTable
               + "' because it already extends other table '"
-              + getInherit()
+              + getInheritName()
               + "'");
     }
     TableMetadata other;
@@ -353,7 +394,7 @@ class SqlTableMetadata extends TableMetadata {
                         getImportSchema() != null ? getImportSchema() : getSchemaName(),
                         otherTable)));
     log(start, "set inherit on ");
-    super.setInherit(otherTable);
+    super.setInheritName(otherTable);
     return this;
   }
 
@@ -369,7 +410,7 @@ class SqlTableMetadata extends TableMetadata {
         (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
     TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
     executeSetInherit(jooq, tm, om);
-    tm.inherit = inheritedName;
+    tm.inheritName = inheritedName;
     MetadataUtils.saveTableMetadata(jooq, tm);
     return tm;
   }

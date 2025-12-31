@@ -1,10 +1,13 @@
 package org.molgenis.emx2.io;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.nio.file.Path;
-import org.junit.Test;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
@@ -25,6 +28,17 @@ public class TestTypesImport {
 
       assertEquals("1", r.getString("int"));
       assertEquals(Integer.valueOf(1), r.getInteger("int"));
+    }
+  }
+
+  @Test
+  public void testExcelDate() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Path path = new File(classLoader.getResource("DateExample.xlsx").getFile()).toPath();
+    TableStore store = new TableStoreForXlsxFile(path);
+    for (Row r : store.readTable("Sheet1")) {
+      assertEquals(LocalDate.of(2022, Month.FEBRUARY, 2), r.getDate("mydate"));
+      assertEquals(LocalDateTime.of(2022, Month.FEBRUARY, 2, 12, 2), r.getDateTime("mydatetime"));
     }
   }
 

@@ -4,21 +4,29 @@
 
 plugins {
     id "java"
-    id "org.sonarqube" version "3.5.0.2730"
-    id "de.gliderpilot.semantic-release" version "1.4.2"
+    id "org.sonarqube" version "4.4.1.3373"
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
-    id 'com.google.cloud.tools.jib' version '3.3.1'
-    id 'org.unbroken-dome.helm' version '1.7.0'
-    id 'org.unbroken-dome.helm-publish' version '1.7.0'
-    id 'org.unbroken-dome.helm-commands' version '1.7.0'
-    id 'com.palantir.docker' version '0.34.0'
+    id 'com.palantir.docker' version '0.36.0'
 }
 
+ext {
+    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
+    javaVersion = JavaVersion.VERSION_21
+}
 
-targetCompatibility = '17'
-sourceCompatibility = '17'
+allprojects {
+    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
+        version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
+    }
+    else {
+        version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
+    }
+}
+println "Corrected version checking for optional snapshot: " + rootProject.version
+
+nyxPublish.dependsOn assemble
 
 sonarqube {
     properties {
@@ -28,22 +36,13 @@ sonarqube {
     }
 }
 
-allprojects {
-    group = 'org.molgenis'
-}
-
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors();
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
 repositories {
     mavenLocal()
-    maven {
-        url = 'https://repo.maven.apache.org/maven2'
-    }
-    maven {
-        url = "https://registry.molgenis.org/repository/maven-public"
-    }
+    mavenCentral()
 }
 
 dependencies {
@@ -52,8 +51,22 @@ dependencies {
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
+    zip64 = true
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
+    archiveVersion = project.version.replace("v","")
+
+    // Multi-release is needed for graalvm lib
+    manifest {
+        attributes(
+                "Main-Class": "org.molgenis.emx2.RunMolgenisEmx2",
+                "Multi-Release": "true"
+        )
+    }
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
 }
 
 publishing {
@@ -66,85 +79,28 @@ publishing {
 }
 
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
-semanticRelease {
-    repo {
-        releaseAsset shadowJar
-        ghToken = project.ghToken
-    }
-}
 
 def imageName = 'docker.io/molgenis/molgenis-emx2'
-def tagName = project.version.toString()
+def tagName = project.version.toString().replace("v","")
 if (version.toString().endsWith('-SNAPSHOT')) {
     ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
     imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
-    tagName = "${project.version.toString()}-${ext.hash}"
+    tagName = "${project.version.toString().replace("v","")}-${ext.hash}"
 }
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
     outputFile file('build/ci.properties')
-    property 'tagName', tagName
-}
-
-jib {
-    from {
-        image = 'eclipse-temurin:17-jdk-focal'
-    }
-    to {
-        image = imageName
-        tags = [tagName.toString()]
-    }
-    container {
-        mainClass = mainClassName
-        ports = ['8080']
-    }
-}
-
-def ssrImageName = 'docker.io/molgenis/ssr-catalogue'
-def ssrTagName = project.version.toString()
-if (version.toString().endsWith('-SNAPSHOT')) {
-    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
-    ssrImageName = "docker.io/molgenis/ssr-catalogue-snapshot"
-    ssrTagName = "${project.version.toString()}-${ext.hash}"
+    property 'TAG_NAME', tagName
+    property 'FILE_NAME', shadowJar.archiveFile.get().asFile.name
 }
 
 docker {
-    name ssrImageName
-    tags 'latest', ssrTagName
-    dockerfile file('Dockerfile')
-    files 'apps'
+    name imageName
+    tags tagName, 'latest'
+    files shadowJar.archiveFile.get()
+    buildArgs(['JAR_FILE': shadowJar.archiveFile.get().asFile.name])
 }
-
-def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
-def nexusPassword = System.getenv('NEXUS_PWD') ? System.getenv('NEXUS_PWD') : null
-helm {
-    downloadClient {
-        enabled = true
-    }
-
-    publishing {
-        repositories {
-            nexus {
-                url = uri('https://registry.molgenis.org/')
-                repository = 'helm'
-                apiVersion = 'v1'
-                credentials {
-                    username = "${nexusUser}"
-                    password = "${nexusPassword}"
-                }
-            }
-        }
-    }
-
-    charts {
-        main {
-            sourceDir = file('helm-chart')
-            lint {
-                strict = false
-            }
-        }
-    }
-}
+tasks.dockerPrepare.dependsOn(shadowJar)
 
 String getGitHash() {
     // git hash
@@ -157,10 +113,6 @@ String getGitHash() {
     String gitCommitHash = command.inputStream.text.trim()
 
     return gitCommitHash
-}
-
-ext {
-    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
 }
 
 application {
@@ -180,9 +132,10 @@ jar {
     }
 }
 
-task cleandb(type: JavaExec) {
-    group = "Execution"
-    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
-    classpath = sourceSets.main.runtimeClasspath
-    main = "org.molgenis.emx2.AToolToCleanDatabase"
+//task to install pre-commit hook that applies formatting
+task installPreCommitGitFormatApplyHook(type: Copy) {
+    from new File(rootProject.rootDir, 'pre-commit-format-apply')
+    rename 'pre-commit-format-apply', 'pre-commit'
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    fileMode 0775
 }

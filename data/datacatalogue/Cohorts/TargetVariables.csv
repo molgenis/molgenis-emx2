@@ -1,8 +1,0 @@
-dataDictionary.resource,dataDictionary.version,table,name,collectionEvent,topics,label,format,unit,mandatory,description,exampleValues,notes,codes(TODO)
-EUChildNetworkCDM,1.0.0,core,income,,EUSILC-based household income,some label,categorical,cm,true,some description,"true,false",some other notes as demo,
-EUChildNetworkCDM,1.0.0,core,age,,Recruitment age,,,,,,,,
-EUChildNetworkCDM,1.0.0,core,smoking,,Passive smoking,,,,,,,,
-EUChildNetworkCDM,1.0.0,core,diabetes,,Maternal diabetes,,,,,,,,
-EUChildNetworkCDM,1.0.0,core,cohab_0,y0-1,Socio-demographic characteristics,Cohabitation status of the mother,,,,,,,
-EUChildNetworkCDM,1.0.0,core,cohab_1,y1-2,,,,,,,,,
-EUChildNetworkCDM,1.0.0,core,cohab_2,y2-3,,,,,,,,,

@@ -8,20 +8,21 @@
       >
         <InputSearch
           id="input-search"
-          v-if="lookupTableIdentifier"
+          v-if="tableId"
           v-model="searchTerms"
+          ref="inputSearch"
         />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
       <Spinner v-if="loading" />
       <div v-else>
         <TableMolgenis
+          :schemaId="schemaId"
           :selection="selection"
           :tableMetadata="tableMetadata"
           :columns="columnsVisible"
           :data="data"
           :showSelect="showSelect"
-          @update:selection="$emit('update:selection', $event)"
           @select="select"
           @deselect="deselect"
         >
@@ -32,20 +33,21 @@
           <template v-slot:rowcolheader>
             <RowButtonAdd
               v-if="canEdit"
-              :id="'row-button-add-' + lookupTableName"
-              :tableName="lookupTableName"
-              :schemaName="schemaName"
+              :id="'row-button-add-' + tableId"
+              :tableId="tableId"
+              :schemaId="schemaId"
               @close="loadData"
+              @update:newRow="selectNew"
               class="d-inline p-0"
             />
           </template>
-          <template v-slot:colheader="slotProps">
+          <template v-slot:colheader>
             <slot
               name="colheader"
               v-bind="$props"
               :canEdit="canEdit"
               :reload="loadData"
-              :schemaName="schemaName"
+              :schemaId="schemaId"
             />
           </template>
           <template v-slot:rowheader="slotProps">
@@ -53,23 +55,24 @@
               name="rowheader"
               :row="slotProps.row"
               :metadata="tableMetadata"
-              :rowkey="slotProps.rowkey"
+              :rowKey="slotProps.rowKey"
             />
             <RowButtonEdit
               v-if="canEdit"
-              :id="'row-button-edit-' + lookupTableName"
-              :tableName="lookupTableName"
-              :schemaName="schemaName"
-              :pkey="slotProps.rowkey"
+              :id="'row-button-edit-' + tableId"
+              :tableId="tableId"
+              :schemaId="schemaId"
+              :pkey="slotProps.rowKey"
               @close="loadData"
               class="text-left"
             />
             <RowButtonDelete
               v-if="canEdit"
-              :id="'row-button-del-' + lookupTableName"
-              :tableName="lookupTableName"
-              :schemaName="schemaName"
-              :pkey="slotProps.rowkey"
+              :id="'row-button-del-' + tableId"
+              :tableId="tableId"
+              :tableLabel="tableMetadata.label"
+              :schemaId="schemaId"
+              :pkey="slotProps.rowKey"
               @close="loadData"
             />
           </template>
@@ -79,17 +82,18 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import TableMolgenis from "./TableMolgenis.vue";
 import MessageError from "../forms/MessageError.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
-import Client from "../../client/client.ts";
+import Client from "../../client/client";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
-import { convertToPascalCase } from "../utils";
+import { IColumn, ITableMetaData } from "metadata-utils";
+import { IRow } from "../../Interfaces/IRow";
 
 export default {
   name: "TableSearch",
@@ -104,15 +108,14 @@ export default {
     RowButtonDelete,
   },
   props: {
-    lookupTableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: true,
     },
-    /** two-way binding of the selection */
     selection: { type: Array, default: () => [] },
     /** enables checkbox to select rows */
     showSelect: {
@@ -141,31 +144,36 @@ export default {
       limit: 20,
       count: 0,
       loading: true,
-      graphqlError: null,
+      graphqlError: "",
       searchTerms: "",
+      tableMetadata: {} as ITableMetaData,
+      data: undefined,
     };
   },
   computed: {
-    lookupTableIdentifier() {
-      return convertToPascalCase(this.lookupTableName);
-    },
     showHeaderIfNeeded() {
       return this.showHeader || this.count > this.limit;
     },
     columnsVisible() {
-      return this.tableMetadata.columns.filter(
-        (column) =>
-          (this.showColumns == null && !column.name.startsWith("mg_")) ||
-          (this.showColumns != null && this.showColumns.includes(column.name))
+      return this.tableMetadata?.columns.filter(
+        (column: IColumn) =>
+          (this.showColumns == null && !column.id.startsWith("mg_")) ||
+          (this.showColumns != null && this.showColumns.includes(column.id))
       );
     },
   },
   methods: {
-    select(value) {
+    select(value: IRow) {
       this.$emit("select", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
-    deselect(value) {
+    selectNew(value: IRow) {
+      this.$emit("update:newRow", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
+    },
+    deselect(value: IRow) {
       this.$emit("deselect", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
     async loadData() {
       this.loading = true;
@@ -176,15 +184,13 @@ export default {
         filter: this.filter,
       };
 
-      const client = Client.newClient(this.schemaName);
+      const client = Client.newClient(this.schemaId);
       const gqlResponse = await client
-        .fetchTableData(this.lookupTableName, queryOptions)
+        .fetchTableData(this.tableId, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
-      this.tableMetadata = await client.fetchTableMetaData(
-        this.lookupTableName
-      );
-      this.data = gqlResponse[this.lookupTableIdentifier];
-      this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
+      this.tableMetadata = await client.fetchTableMetaData(this.tableId);
+      this.data = gqlResponse[this.tableId];
+      this.count = gqlResponse[`${this.tableId}_agg`].count;
       this.loading = false;
     },
   },
@@ -199,6 +205,7 @@ export default {
   async mounted() {
     this.loadData();
   },
+  emits: ["select", "update:newRow", "deselect"],
 };
 </script>
 
@@ -211,18 +218,22 @@ export default {
         <label for="canEdit" class="pr-1">can edit: </label>
         <input type="checkbox" id="canEdit" v-model="canEdit">
       </div>
+      <div>
+        <label for="canSelect" class="pr-1">can select: </label>
+        <input type="checkbox" id="canSelect" v-model="canSelect">
+      </div>
+      <div v-show="canSelect">
+      {{ selected }}
+      </div>
     </div>
     <table-search
         id="my-search-table"
-        :selection.sync="selected"
-        :columns.sync="columns"
-        :lookupTableName="'Pet'"
-        :showSelect="false"
-        schemaName="pet store"
+        v-model:selection="selected"
+        v-model:columns="columns"
+        :tableId="'Pet'"
+        schemaId="pet store"
         :canEdit="canEdit"
-        @select="click"
-        @deselect="click"
-        @click="click"
+        :showSelect="canSelect"
     >
     </table-search>
   </demo-item>
@@ -252,12 +263,8 @@ export default {
         remoteColumns: [],
         remoteTableData: null,
         canEdit: false,
+        canSelect: false,
       };
-    },
-    methods: {
-      click(value) {
-        alert('click ' + JSON.stringify(value));
-      },
     },
   };
 </script>

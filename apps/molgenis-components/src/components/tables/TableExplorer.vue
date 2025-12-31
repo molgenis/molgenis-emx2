@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div v-if="tableMetadata">
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ localizedLabel }}</h1>
+    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.label }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ localizedDescription }}
+      {{ tableMetadata.label }}
     </p>
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
@@ -11,7 +11,7 @@
           :columns="columns"
           @update:columns="emitFilters"
           checkAttribute="showFilter"
-          :exclude="['HEADING', 'FILE']"
+          :exclude="['HEADING', 'FILE', 'SECTION']"
           label="filters"
           icon="filter"
         />
@@ -21,13 +21,19 @@
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
+          :exclude="['HEADING', 'SECTION']"
           label="columns"
           icon="columns"
           id="showColumn"
           :defaultValue="true"
         />
 
-        <ButtonDropdown label="download" icon="download" v-slot="scope">
+        <ButtonDropdown
+          v-if="canView"
+          label="download"
+          icon="download"
+          v-slot="scope"
+        >
           <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
@@ -35,21 +41,21 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId">
+                  all rows
+                </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId">
+                  all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
                     :href="
                       '/' +
-                      schemaName +
+                      schemaId +
                       '/api/csv/' +
                       tableId +
                       '?filter=' +
@@ -62,15 +68,15 @@
               </div>
               <div>
                 <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
+                  >all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
                     :href="
                       '/' +
-                      schemaName +
+                      schemaId +
                       '/api/excel/' +
                       tableId +
                       '?filter=' +
@@ -83,20 +89,20 @@
               </div>
               <div>
                 <span class="fixed-width">jsonld</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId">
+                <ButtonAlt :href="'/' + schemaId + '/api/jsonld/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">ttl</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/ttl/' + tableId">
+                  all rows
+                </ButtonAlt>
               </div>
             </div>
           </form>
         </ButtonDropdown>
-        <span>
+        <span v-if="canView">
           <ButtonDropdown
             :closeOnClick="true"
             :label="ViewButtons[view].label"
@@ -117,6 +123,7 @@
       <!-- end first btn group -->
 
       <InputSearch
+        v-if="canView"
         class="mx-1 inline-form-group"
         :id="'explorer-table-search' + Date.now()"
         :modelValue="searchTerms"
@@ -140,6 +147,7 @@
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
@@ -154,7 +162,7 @@
         <TableSettings
           v-if="tableMetadata"
           :tableMetadata="tableMetadata"
-          :schemaName="schemaName"
+          :schemaId="schemaId"
           @update:settings="reloadMetadata"
         />
 
@@ -165,16 +173,16 @@
     </div>
 
     <div class="d-flex">
-      <div v-if="countFilters" class="col-3 pl-0">
+      <div v-if="filterCount" class="col-3 pl-0">
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
-          :schemaName="schemaName"
+          :schemaId="schemaId"
         />
       </div>
       <div
         class="flex-grow-1 pr-0 pl-0"
-        :class="countFilters > 0 ? 'col-9' : 'col-12'"
+        :class="filterCount ? 'col-9' : 'col-12'"
       >
         <FilterWells
           :filters="columns"
@@ -187,9 +195,10 @@
         <div v-if="!loading">
           <AggregateTable
             v-if="view === View.AGGREGATE"
+            :canView="canView"
             :allColumns="columns"
-            :tableName="tableName"
-            :schemaName="schemaName"
+            :tableId="tableId"
+            :schemaId="schemaId"
             :minimumValue="1"
             :graphqlFilter="graphqlFilter"
           />
@@ -197,45 +206,56 @@
             v-if="view === View.CARDS"
             class="card-columns"
             id="cards"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :columns="columns"
-            :table-name="tableName"
+            :tableId="tableId"
             :canEdit="canEdit"
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
             "
             @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
             "
           />
           <RecordCards
             v-if="view === View.RECORD"
             id="records"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :columns="columns"
-            :table-name="tableName"
+            :tableId="tableId"
             :canEdit="canEdit"
             :template="recordTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
             "
             @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
             "
           />
           <TableMolgenis
-            v-if="view == View.TABLE"
+            v-if="view === View.TABLE"
+            :schemaId="schemaId"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"
-            @update:colums="columns = $event"
+            @update:columns="columns = $event"
             :table-metadata="tableMetadata"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :showSelect="showSelect"
             @column-click="onColumnClick"
             @rowClick="$emit('rowClick', $event)"
@@ -248,11 +268,12 @@
               <RowButton
                 v-if="canEdit"
                 type="add"
-                :table="tableName"
-                :schemaName="schemaName"
+                :tableId="tableId"
+                :schemaId="schemaId"
                 @add="handleRowAction('add')"
                 class="d-inline p-0"
               />
+              <slot name="rowcolheader" />
             </template>
             <template v-slot:colheader="slotProps">
               <IconAction
@@ -268,7 +289,11 @@
                 @edit="
                   handleRowAction(
                     'edit',
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.id,
+                      schemaId
+                    )
                   )
                 "
               />
@@ -278,7 +303,11 @@
                 @clone="
                   handleRowAction(
                     'clone',
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.id,
+                      schemaId
+                    )
                   )
                 "
               />
@@ -287,7 +316,24 @@
                 type="delete"
                 @delete="
                   handleDeleteRowRequest(
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.id,
+                      schemaId
+                    )
+                  )
+                "
+              />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowKey="
+                  convertRowToPrimaryKey(
+                    slotProps.row,
+                    tableMetadata.id,
+                    schemaId
                   )
                 "
               />
@@ -300,21 +346,23 @@
     <EditModal
       v-if="isEditModalShown"
       :isModalShown="true"
-      :id="tableName + '-edit-modal'"
-      :tableName="tableName"
+      :id="tableId + '-edit-modal'"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       @close="handleModalClose"
-      :locale="locale"
+      :apply-default-values="editMode === 'add'"
     />
 
     <ConfirmModal
       v-if="isDeleteModalShown"
-      :title="'Delete from ' + tableName"
+      :title="'Delete from ' + tableMetadata.label"
       actionLabel="Delete"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
       @confirmed="handleExecuteDelete"
@@ -322,29 +370,39 @@
 
     <ConfirmModal
       v-if="isDeleteAllModalShown"
-      :title="'Truncate ' + tableName"
+      :title="'Truncate ' + tableMetadata.label"
       actionLabel="Truncate"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >
       <p>
-        Truncate <strong>{{ tableName }}</strong>
+        Truncate <strong>{{ tableMetadata.label }}</strong>
       </p>
       <p>
         Are you sure that you want to delete ALL rows in table '{{
-          tableName
+          tableMetadata.label
         }}'?
       </p>
     </ConfirmModal>
+
+    <LayoutModal
+      v-if="isTaskModalShown"
+      title="Truncating table"
+      @close="isTaskModalShown = false"
+    >
+      <template #body>
+        <Task :taskId="taskId" @taskUpdated="taskUpdated" />
+      </template>
+    </LayoutModal>
+
     <RefSideModal
       v-if="refSideModalProps"
-      :table-id="refSideModalProps.table"
-      :label="refSideModalProps.label"
+      :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
-      :schema="this.schemaName"
-      :refSchema="refSideModalProps.schema"
+      :schema="schemaId"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -358,8 +416,9 @@
 }
 </style>
 
-<script>
-import Client from "../../client/client.ts";
+<script lang="ts">
+import { IColumn, ISetting, ITableMetaData } from "metadata-utils";
+import Client from "../../client/client";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -374,11 +433,9 @@ import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import {
-  convertToPascalCase,
+  applyComputed,
+  convertRowToPrimaryKey,
   deepClone,
-  getLocalizedDescription,
-  getLocalizedLabel,
-  getPrimaryKey,
   isRefType,
 } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
@@ -389,15 +446,18 @@ import SelectionBox from "./SelectionBox.vue";
 import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
+import Task from "../task/Task.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import { buildGraphqlFilter } from "../forms/formUtils/formUtils";
 
-const View = {
+const View: Record<string, string> = {
   TABLE: "table",
   CARDS: "cards",
   RECORD: "record",
   AGGREGATE: "aggregate",
 };
 
-const ViewButtons = {
+const ViewButtons: Record<string, any> = {
   table: { id: View.TABLE, label: "Table", icon: "th" },
   cards: { id: View.CARDS, label: "Card", icon: "list-alt" },
   record: {
@@ -416,6 +476,8 @@ const ViewButtons = {
 export default {
   name: "TableExplorer",
   components: {
+    LayoutModal,
+    Task,
     ShowHide,
     Pagination,
     ButtonAlt,
@@ -440,38 +502,42 @@ export default {
   },
   data() {
     return {
-      cardTemplate: null,
-      client: null,
-      columns: [],
+      cardTemplate: "",
+      client: null as any,
+      columns: [] as IColumn[],
       count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
-      editRowPrimaryKey: null,
-      graphqlError: null,
+      editRowPrimaryKey: undefined,
+      graphqlError: "",
+      taskId: String,
+      taskDone: false,
+      success: false,
       isDeleteAllModalShown: false,
+      isTaskModalShown: false,
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
-      loading: true,
+      loading: false,
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,
-      recordTemplate: null,
+      recordTemplate: "",
       searchTerms: "",
       selectedItems: [],
-      tableMetadata: null,
-      view: this.showView,
-      refSideModalProps: undefined,
+      tableMetadata: null as ITableMetaData | null,
+      view: this.canView ? this.showView : View.AGGREGATE,
+      refSideModalProps: undefined as Record<string, any> | undefined,
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
-      required: false,
+      default: () => "",
     },
     showSelect: {
       type: Boolean,
@@ -499,7 +565,7 @@ export default {
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 10,
     },
     urlConditions: {
       type: Object,
@@ -517,6 +583,10 @@ export default {
       type: String,
       default: () => "ASC",
     },
+    canView: {
+      type: Boolean,
+      default: () => true,
+    },
     canEdit: {
       type: Boolean,
       default: () => false,
@@ -525,91 +595,98 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
-    localizedLabel() {
-      return getLocalizedLabel(this.tableMetadata, this.locale);
-    },
-    localizedDescription() {
-      return getLocalizedDescription(this.tableMetadata, this.locale);
-    },
     View() {
       return View;
     },
     ViewButtons() {
       return ViewButtons;
     },
-    countFilters() {
-      return this.columns
-        ? this.columns.filter((filter) => filter.showFilter).length
-        : null;
+    filterCount() {
+      return (
+        this.columns?.filter((filter: Record<string, any>) => filter.showFilter)
+          .length || 0
+      );
     },
     graphqlFilter() {
       let filter = this.filter;
-      const errorCallback = (msg) => {
+      const errorCallback = (msg: string) => {
         this.graphqlError = msg;
       };
-      return graphqlFilter(filter, this.columns, errorCallback);
+      return buildGraphqlFilter(filter, this.columns, errorCallback);
+    },
+    rowsWithComputed() {
+      return this.tableMetadata
+        ? applyComputed(this.dataRows, this.tableMetadata)
+        : [];
     },
   },
   methods: {
-    getPrimaryKey,
-    setSearchTerms(newSearchValue) {
+    convertRowToPrimaryKey,
+    setSearchTerms(newSearchValue: string) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    handleRowAction(type, key) {
+    taskUpdated(task: any) {
+      if (["COMPLETED", "ERROR"].includes(task.status)) {
+        this.success = true;
+        this.taskDone = true;
+        this.reload();
+      }
+    },
+    async handleRowAction(type: any, key?: Promise<any>) {
       this.editMode = type;
-      this.editRowPrimaryKey = key;
+      this.editRowPrimaryKey = await key;
       this.isEditModalShown = true;
     },
     handleModalClose() {
       this.isEditModalShown = false;
       this.reload();
     },
-    handleDeleteRowRequest(key) {
-      this.editRowPrimaryKey = key;
+    async handleDeleteRowRequest(key: Promise<any>) {
+      this.editRowPrimaryKey = await key;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableId)
+        ?.deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
       }
     },
     async handelExecuteDeleteAll() {
-      this.isDeleteAllModalShown = false;
-      const resp = await this.client
-        .deleteAllTableData(this.tableId)
-        .catch(this.handleError);
-      if (resp) {
-        this.reload();
-      }
+      await this.client
+        .deleteAllTableData(this.tableMetadata?.id)
+        .then((data: any) => {
+          if (data.data.data.truncate.taskId) {
+            this.taskId = data.data.data.truncate.taskId;
+            this.isTaskModalShown = true;
+            this.isDeleteAllModalShown = false;
+          } else {
+            this.success = data.data.data.truncate.message;
+            this.loading = false;
+          }
+        })
+        .catch((error: any) => {
+          this.isDeleteAllModalShown = false;
+          this.handleError(error);
+        });
     },
-    handleCellClick(event) {
+    handleCellClick(event: any) {
       const { column, cellValue } = event;
-      const rows = [cellValue].flat();
+      const rowsInRefTable = [cellValue].flat();
       if (isRefType(column?.columnType)) {
         this.refSideModalProps = {
-          label: column.name,
-          table: column.refTable,
-          schema: column.refSchema,
-          rows,
+          column,
+          rows: rowsInRefTable,
         };
       }
     },
-    setView(button) {
+    setView(button: Record<string, any>) {
       this.view = button.id;
       if (button.limitOverride) {
         this.limit = button.limitOverride;
@@ -620,7 +697,7 @@ export default {
       this.$emit("updateShowView", button.id, this.limit);
       this.reload();
     },
-    onColumnClick(column) {
+    onColumnClick(column: IColumn) {
       const oldOrderByColumn = this.orderByColumn;
       let order = this.order;
       if (oldOrderByColumn !== column.id) {
@@ -638,28 +715,25 @@ export default {
       });
       this.reload();
     },
-    emitColumns(event) {
+    emitColumns(event: any) {
       this.columns = event;
-      this.$emit(
-        "updateShowColumns",
-        getColumnNames(this.columns, "showColumn")
-      );
+      this.$emit("updateShowColumns", getColumnIds(this.columns, "showColumn"));
     },
-    emitFilters(event) {
+    emitFilters(event: any) {
       this.columns = event;
-      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
+      this.$emit("updateShowFilters", getColumnIds(event, "showFilter"));
     },
     emitConditions() {
       this.page = 1;
       this.$emit("updateConditions", this.columns);
       this.reload();
     },
-    setPage(page) {
+    setPage(page: any) {
       this.page = page;
       this.$emit("updateShowPage", page);
       this.reload();
     },
-    setLimit(limit) {
+    setLimit(limit: any) {
       this.limit = parseInt(limit);
       if (!Number.isInteger(this.limit) || this.limit < 1) {
         this.limit = 20;
@@ -668,7 +742,7 @@ export default {
       this.$emit("updateShowLimit", limit);
       this.reload();
     },
-    handleError(error) {
+    handleError(error: any) {
       if (Array.isArray(error?.response?.data?.errors)) {
         this.graphqlError = error.response.data.errors[0].message;
       } else {
@@ -676,24 +750,24 @@ export default {
       }
       this.loading = false;
     },
-    setTableMetadata(newTableMetadata) {
-      this.columns = newTableMetadata.columns.map((column) => {
+    setTableMetadata(newTableMetadata: ITableMetaData) {
+      this.columns = newTableMetadata.columns.map((column: IColumn) => {
         const showColumn = this.showColumns.length
-          ? this.showColumns.includes(column.name)
-          : !column.name.startsWith("mg_");
+          ? this.showColumns.includes(column.id)
+          : !column.id.startsWith("mg_");
         const conditions = getCondition(
           column.columnType,
-          this.urlConditions[column.name]
+          this.urlConditions[column.id]
         );
         return {
           ...column,
           showColumn,
-          showFilter: this.showFilters.includes(column.name),
+          showFilter: this.showFilters.includes(column.id),
           conditions,
         };
       });
       //table settings
-      newTableMetadata.settings?.forEach((setting) => {
+      newTableMetadata.settings?.forEach((setting: ISetting) => {
         if (setting.key === "cardTemplate") {
           this.cardTemplate = setting.value;
         } else if (setting.key === "recordTemplate") {
@@ -703,22 +777,24 @@ export default {
       this.tableMetadata = newTableMetadata;
     },
     async reloadMetadata() {
-      this.client = Client.newClient(this.schemaName);
+      this.client = Client.newClient(this.schemaId);
       const newTableMetadata = await this.client
-        .fetchTableMetaData(this.tableName)
+        .fetchTableMetaData(this.tableId)
         .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
-      this.reload();
+      if (this.canView) {
+        this.reload();
+      }
     },
     async reload() {
       this.loading = true;
-      this.graphqlError = null;
+      this.graphqlError = "";
       const offset = this.limit * (this.page - 1);
       const orderBy = this.orderByColumn
         ? { [this.orderByColumn]: this.order }
         : {};
       const dataResponse = await this.client
-        .fetchTableData(this.tableName, {
+        .fetchTableData(this.tableId, {
           limit: this.limit,
           offset: offset,
           filter: this.graphqlFilter,
@@ -747,13 +823,24 @@ export default {
   ],
 };
 
-function getColumnNames(columns, property) {
-  return columns
-    .filter((column) => column[property] && column.columnType !== "HEADING")
-    .map((column) => column.name);
+function getColumnIds(
+  columns: IColumn[],
+  property: "showColumn" | "showFilter"
+) {
+  return (
+    columns
+      //@ts-ignore TODO: remove column input modification in TableMolgenis
+      .filter(
+        (column) =>
+          column[property] &&
+          column.columnType !== "HEADING" &&
+          column.columnType !== "SECTION"
+      )
+      .map((column) => column.id)
+  );
 }
 
-function getCondition(columnType, condition) {
+function getCondition(columnType: string, condition: string) {
   if (condition) {
     switch (columnType) {
       case "REF":
@@ -761,67 +848,23 @@ function getCondition(columnType, condition) {
       case "REFBACK":
       case "ONTOLOGY":
       case "ONTOLOGY_ARRAY":
+      case "RADIO":
+      case "SELECT":
+      case "MULTISELECT":
+      case "CHECKBOX":
         return JSON.parse(condition);
       case "DATE":
       case "DATETIME":
       case "INT":
       case "LONG":
       case "DECIMAL":
-        return condition.split(",").map((v) => v.split(".."));
+        return condition.split(",").map((v: string) => v.split(".."));
       default:
         return condition.split(",");
     }
   } else {
     return [];
   }
-}
-
-function graphqlFilter(defaultFilter, columns, errorCallback) {
-  let filter = deepClone(defaultFilter);
-  if (columns) {
-    columns.forEach((col) => {
-      const conditions = col.conditions
-        ? col.conditions.filter(
-            (condition) => condition !== "" && condition !== undefined
-          )
-        : [];
-      if (conditions.length) {
-        if (
-          col.columnType.startsWith("STRING") ||
-          col.columnType.startsWith("TEXT")
-        ) {
-          filter[col.id] = { like: conditions };
-        } else if (col.columnType.startsWith("BOOL")) {
-          filter[col.id] = { equals: conditions };
-        } else if (
-          col.columnType.startsWith("REF") ||
-          col.columnType.startsWith("ONTOLOGY")
-        ) {
-          filter[col.id] = { equals: conditions };
-        } else if (
-          [
-            "LONG",
-            "LONG_ARRAY",
-            "DECIMAL",
-            "DECIMAL_ARRAY",
-            "INT",
-            "INT_ARRAY",
-            "DATE",
-            "DATE_ARRAY",
-          ].includes(col.columnType)
-        ) {
-          filter[col.id] = {
-            between: conditions.flat(),
-          };
-        } else {
-          errorCallback(
-            `filter unsupported for column type ${col.columnType} (please report a bug)`
-          );
-        }
-      }
-    });
-  }
-  return filter;
 }
 </script>
 
@@ -833,11 +876,13 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
+
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
+
 .inline-form-group {
   margin-bottom: 0;
 }
@@ -849,19 +894,19 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <table-explorer
-        id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
-        :showColumns="showColumns"
-        :showFilters="showFilters"
-        :urlConditions="urlConditions"
-        :showPage="page"
-        :showLimit="limit"
-        :showOrderBy="showOrderBy"
-        :showOrder="showOrder"
-        :canEdit="canEdit"
-        :canManage="canManage"
-        :locale="locale"
+          id="my-table-explorer"
+          tableId="Pet"
+          schemaId="pet store"
+          :showColumns="showColumns"
+          :showFilters="showFilters"
+          :urlConditions="urlConditions"
+          :showPage="page"
+          :showLimit="limit"
+          :showOrderBy="showOrderBy"
+          :showOrder="showOrder"
+          :canEdit="canEdit"
+          :canManage="canManage"
+          :canView="true"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -890,7 +935,6 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         showOrderBy: 'name',
         canEdit: false,
         canManage: false,
-        locale: 'en'
       }
     },
   }

@@ -1,0 +1,31 @@
+import "ontology.jslt" as ontology
+import "response_summary.jslt" as responseSummary
+import "meta.jslt" as meta
+{
+    "meta": meta(.),
+    "responseSummary": responseSummary(.),
+    "response": {
+        "collections":
+        [for (.resultSets[0].results)
+            {
+                "id": .cohortId,
+                "name": .cohortName,
+                "cohortType": .cohortType,
+                "cohortDesign": ontology(.cohortDesign),
+                "cohortSize": .cohortSize,
+                "inclusionCriteria": {
+                    "ageRange": {
+                        "start": {
+                            "iso8601duration": .inclusionCriteria_ageRange_start_iso8601duration
+                        },
+                        "end": {
+                            "iso8601duration": .inclusionCriteria_ageRange_end_iso8601duration
+                        }
+                    }
+                },
+                "locations": [for (.locations) ontology(.) ],
+                "genders": [for (.genders) ontology(.) ],
+                "cohortDataTypes": [for (.cohortDataTypes) ontology(.) ]
+            }]
+    }
+}

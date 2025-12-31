@@ -1,8 +1,9 @@
 <template>
   <div>
     <TableExplorer
-      :tableName="tableName"
-      :schemaName="schemaName"
+      :tableId="tableId"
+      :schemaId="schemaId"
+      :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
       @updateConditions="updateConditions"
@@ -20,9 +21,20 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
-      :locale="locale"
       @rowClick="$emit('rowClick', $event)"
-    />
+    >
+      <template v-slot:rowcolheader>
+        <slot name="rowcolheader" />
+      </template>
+      <template v-slot:rowheader="slotProps">
+        <slot
+          name="rowheader"
+          :row="slotProps.row"
+          :metadata="slotProps.metadata"
+          :rowKey="slotProps.rowKey"
+        />
+      </template>
+    </TableExplorer>
   </div>
 </template>
 
@@ -41,13 +53,17 @@ export default {
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
+    },
+    canView: {
+      type: Boolean,
+      default: () => true,
     },
     canEdit: {
       type: Boolean,
@@ -57,9 +73,13 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    locale: {
+    showOrderBy: {
       type: String,
-      default: () => "en",
+      default: "",
+    },
+    showOrder: {
+      type: String,
+      default: "ASC",
     },
     showFilters: {
       type: Array,
@@ -75,14 +95,14 @@ export default {
       if (this.$route.query._orderBy) {
         return this.$route.query._orderBy;
       } else {
-        return "";
+        return this.showOrderBy;
       }
     },
     getOrder() {
       if (this.$route.query._order) {
         return this.$route.query._order;
       } else {
-        return "ASC";
+        return this.showOrder;
       }
     },
     getColumns() {
@@ -194,7 +214,7 @@ export default {
             case "REFBACK":
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
-              query[column.name] = JSON.stringify(conditions);
+              query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":
             case "DATETIME":
@@ -203,16 +223,16 @@ export default {
             case "DECIMAL":
               const result = conditions.map((v) => v.join("..")).join(",");
               if (result !== "..") {
-                query[column.name] = result;
+                query[column.id] = result;
               } else {
-                delete query[column.name];
+                delete query[column.id];
               }
               break;
             default:
-              query[column.name] = conditions.join(",");
+              query[column.id] = conditions.join(",");
           }
         } else {
-          delete query[column.name];
+          delete query[column.id];
         }
       });
       this.updateRoute(query);
@@ -231,14 +251,55 @@ export default {
 <template>
   <div>
     <div class="border p-1 my-1">
-      <label>Read only example</label>
+    <div>
+     <label for="routed-table-explorer-can-edit">Can edit</label>
+     <input class="ml-1" id='routed-table-explorer-can-edit' type="checkbox" v-model="canEdit" />
+    </div>
+    <div>
+      <label for="routed-table-explorer-can-edit">Can view</label>
+      <input class="ml-1" id='routed-table-explorer-can-view' type="checkbox" v-model="canView" />
+    </div>
+    <div>
+     <label for="routed-table-explorer-schema">Schema</label>
+     <input class="ml-1" id='routed-table-explorer-schema' v-model="schema" />
+    </div>
+
+    <div>
+     <label for="routed-table-explorer-table">Table</label>
+     <input class="ml-1" id='routed-table-explorer-table' v-model="table" />
+    </div>
+
+    {{ schema }}  
+     
       <routed-table-explorer
         id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
+        :key="dynamicKey"
+        :tableId="table"
+        :schemaId="schema"
+        :canEdit="canEdit"
+        :canView="canView"
       />
     </div>
   </div>
 </template>
+
+<script>
+export default {
+    data() {
+      return {
+        canEdit: false,
+        canView: false,
+        schema: "pet store",
+        table: "Pet"
+      }
+    },
+    computed: {
+      dynamicKey() {
+        return "my-table-explorer" + this.schema + "_" + this.table +"_"+this.canView
+      },
+     
+    },
+  }
+</script>
 
 </docs>

@@ -1,30 +1,31 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
-import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.Constants.*;
-import static spark.Spark.*;
+import static org.molgenis.emx2.web.Constants.TABLE;
+import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.javalin.Javalin;
+import io.javalin.http.ContentType;
+import io.javalin.http.Context;
+import io.javalin.http.HttpResponseException;
+import io.javalin.json.JavalinJackson;
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Version;
+import java.net.URL;
+import java.util.*;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.utils.URIUtils;
+import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
-import spark.Response;
-import spark.Spark;
 
 public class MolgenisWebservice {
   public static final String SCHEMA = "schema";
@@ -32,119 +33,148 @@ public class MolgenisWebservice {
   public static final String MANAGER = "Manager";
   public static final String ROLE = "role";
   public static final String VIEWER = "Viewer";
+  public static final long MAX_REQUEST_SIZE = 10_000_000L;
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+  public static final String NUXT_OIDC_LOGOUT_PATH =
+      "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  static MolgenisSessionManager sessionManager;
-  static OIDCController oidcController;
+  public static final ApplicationCachePerUser applicationCache =
+      ApplicationCachePerUser.getInstance();
+  public static OIDCController oidcController;
+  static URL hostUrl;
 
   private MolgenisWebservice() {
     // hide constructor
   }
 
   public static void start(int port) {
+    oidcController = new OIDCController();
+    Javalin app =
+        Javalin.create(
+                config -> {
+                  config.http.maxRequestSize = MAX_REQUEST_SIZE;
+                  config.router.ignoreTrailingSlashes = true;
+                  config.router.treatMultipleSlashesAsSingleSlash = true;
+                  config.jsonMapper(
+                      new JavalinJackson()
+                          .updateMapper(
+                              mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
+                })
+            .start(port);
 
-    sessionManager = new MolgenisSessionManager();
-    oidcController = new OIDCController(sessionManager, new SecurityConfigFactory().build());
-    port(port);
+    try {
+      hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
+    } catch (Exception ignored) {
+      // should we handle this?
+    }
 
-    staticFiles.location("/public_html");
+    if (MetricsController.METRICS_ENABLED) {
+      logger.info("Enabling metrics endpoint /{}", MetricsController.METRICS_PATH);
+      JvmMetrics.builder().register();
+      MetricsController metricsController = new MetricsController();
+      app.get("/" + MetricsController.METRICS_PATH, metricsController::handleRequest);
+    }
 
-    /*
-     * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
-     */
+    MessageApi.create(app);
 
-    get(
-        ("/" + OIDC_CALLBACK_PATH),
-        (request, response) -> oidcController.handleLoginCallback(request, response));
-    get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
-    get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
+    app.get("/" + OIDC_CALLBACK_PATH, MolgenisWebservice::handleLoginCallback);
+    app.get("/" + OIDC_LOGIN_PATH, oidcController::handleLoginRequest);
+    app.get("/" + NUXT_OIDC_LOGOUT_PATH, oidcController::handleLoginRequest);
+    app.get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
-    // get setting for home
-    get(
+    app.get(
         "/",
-        ACCEPT_HTML,
-        (request, response) -> {
+        ctx -> {
           // check for setting
-          String ladingPagePath =
-              sessionManager.getSession(request).getDatabase().getSetting(LANDING_PAGE);
-          if (ladingPagePath != null) {
-            response.redirect(ladingPagePath);
+          String landingPagePath =
+              applicationCache.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
+          if (landingPagePath != null) {
+            ctx.redirect(landingPagePath);
           } else {
-            response.redirect("/apps/central/");
+            ctx.redirect("/apps/central/");
           }
-          return response;
         });
 
-    redirect.get("/api", "/api/");
+    app.get(
+        "/api",
+        ctx -> {
+          ctx.contentType("text/html");
+          ctx.result("Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(ctx));
+        });
 
-    get(
-        "/api/",
-        ACCEPT_HTML,
-        (request, response) ->
-            "Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(request, response));
     // documentation operations
-    get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
+    app.get("/api/openapi", ctx -> ctx.result(MolgenisWebservice.listSchemas(ctx)));
     // docs per schema
-    get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
-    get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
-    get(
-        "/:schema/api",
-        (request, response) -> "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>");
+    app.get("/{schema}/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
+    app.get("/{schema}/api/openapi.yaml", MolgenisWebservice::openApiYaml);
+    app.get(
+        "/{schema}/api",
+        ctx -> ctx.result("Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>"));
 
-    SiteMapService.create();
-    CsvApi.create();
-    ZipApi.create();
-    ExcelApi.create();
-    FileApi.create();
-    JsonYamlApi.create();
-    TaskApi.create();
-    GraphqlApi.createGraphQLservice(sessionManager);
-    LinkedDataFragmentsApi.create(sessionManager);
-    RDFApi.create(sessionManager);
-    GraphGenomeApi.create(sessionManager);
-    BeaconApi.create(sessionManager);
-    FAIRDataPointApi.create(sessionManager);
-    BootstrapThemeService.create();
+    SiteMapService.create(app);
+    CsvApi.create(app);
+    ZipApi.create(app);
+    ExcelApi.create(app);
+    JsonApi.create(app);
+    FileApi.create(app);
+    JsonYamlApi.create(app);
+    TaskApi.create(app);
+    GraphqlApi.createGraphqlService(app);
+    RDFApi.create(app);
+    BeaconApi.create(app);
+    CafeVariomeApi.create(app);
+    BootstrapThemeService.create(app);
+    ProfilesApi.create(app);
+    AnalyticsApi.create(app);
+    PodiumApi.create(app);
 
-    get(
-        "/:schema",
-        (req, res) -> {
-          final String redirectLocation = "/" + req.params(SCHEMA) + "/";
-          logger.debug(
-              String.format(
-                  "handle '/:schema' redirect: from: %s to: %s", req.pathInfo(), redirectLocation));
-          res.redirect(redirectLocation);
-          return "";
-        });
-
-    get("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    app.get("/{schema}/index", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     // greedy proxy stuff, always put last!
-    GroupPathMapper.create();
+    StaticFileMapper.create(app);
 
     // schema members operations
 
-    // handling of exceptions
-    exception(
+    // handling of EMX2 exceptions
+    app.exception(
         Exception.class,
-        (e, req, res) -> {
+        (e, ctx) -> {
           logger.error(e.getMessage(), e);
-          res.status(400);
-          res.type(ACCEPT_JSON);
-          res.body(molgenisExceptionToJson(e));
+          ctx.status(400);
+          ctx.json(molgenisExceptionToJson(e));
+        });
+
+    // handling of Javalin exceptions
+    // Override default behavior for more consistency with EMX2 exceptions.
+    // See also: https://javalin.io/documentation#default-responses
+    app.exception(
+        HttpResponseException.class,
+        (e, ctx) -> {
+          ctx.contentType(ContentType.JSON);
+          ctx.status(e.getStatus());
+          ctx.json(molgenisExceptionToJson(e));
         });
   }
 
-  private static String robotsDotTxt(Request request, Response response) {
-    response.type("text/plain;charset=UTF-8");
-    return USER_AGENT_ALLOW;
+  private static void handleLoginCallback(Context ctx) {
+    oidcController.handleLoginCallback(ctx);
   }
 
-  private static String redirectSchemaToFirstMenuItem(Request request, Response response) {
+  private static void robotsDotTxt(Context ctx) {
+    ctx.contentType("text/plain;charset=UTF-8");
+    ctx.result(USER_AGENT_ALLOW);
+  }
+
+  private static void redirectSchemaToFirstMenuItem(Context ctx) {
     try {
-      Schema schema = getSchema(request);
+      Schema schema = getSchema(ctx);
+      if (schema == null) {
+        throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
+      }
       String role = schema.getRoleForActiveUser();
       Optional<String> menuSettingValue = schema.getMetadata().findSettingValue("menu");
       if (menuSettingValue.isPresent()) {
@@ -164,32 +194,31 @@ public class MolgenisWebservice {
                             || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
                 .toList();
         if (!menu.isEmpty()) {
-          response.redirect(
-              "/" + request.params(SCHEMA) + "/" + menu.get(0).get("href").replace("../", ""));
+          String location =
+              "/"
+                  + encodePathSegment(ctx.pathParam(SCHEMA))
+                  + "/"
+                  + menu.get(0).get("href").replace("../", "");
+          ctx.redirect(location);
         }
+      } else {
+        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
       }
-
     } catch (Exception e) {
-      // silly default
       logger.debug(e.getMessage());
+      ctx.redirect("/");
     }
-    response.redirect("/" + request.params(SCHEMA) + "/tables");
-    return "";
   }
 
-  public static void stop() {
-    Spark.stop();
-  }
-
-  private static String listSchemas(Request request, Response response) {
+  private static String listSchemas(Context ctx) {
     StringBuilder result = new StringBuilder();
     result.append("Schema independent API:");
     result.append(
         "graphql: <a href=\"/api/graphql/\">/api/graphql    </a> <a href=\"/api/playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
-    for (String name : sessionManager.getSession(request).getDatabase().getSchemaNames()) {
-      result.append("<li>" + name);
+    for (String name : applicationCache.getDatabaseForUser(ctx).getSchemaNames()) {
+      result.append("<li>").append(name);
       result.append(" <a href=\"/" + name + "/api/openapi\">openapi</a>");
       result.append(
           " graphql: <a href=\"/"
@@ -204,38 +233,46 @@ public class MolgenisWebservice {
     return result.toString();
   }
 
-  private static String openApiYaml(Request request, Response response) throws IOException {
-    OpenAPI api = OpenApiYamlGenerator.createOpenApi(getSchema(request).getMetadata());
-    response.status(200);
+  private static String openApiYaml(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema is null");
+    }
+    OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
+    ctx.status(200);
     return Yaml.mapper()
         .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
         .writeValueAsString(api);
   }
 
-  /** get database either from session or based on token */
-  // helper method used in multiple places
-  public static Table getTable(Request request) {
-    String schemaName = request.params(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
-    if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
-    }
-    Table table = schema.getTable(sanitize(request.params(TABLE)));
-    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
-    return table;
+  /**
+   * Get the table specified in the request parameter "table".
+   *
+   * @param ctx the request
+   * @return the table object corresponding to the table id. Never null.
+   * @throws MolgenisException if the table or the schema is not found or accessible.
+   */
+  public static Table getTableByIdOrName(Context ctx) {
+    return getTableByIdOrName(ctx, ctx.pathParam(TABLE));
   }
 
-  /** alternative version for getTable */
-  public static Table getTable(Request request, String tableName) {
-    String schemaName = request.params(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
+  /**
+   * Get the table by its id.
+   *
+   * @param ctx the request
+   * @return the table object corresponding to the table id or name. Never null.
+   * @throws MolgenisException if the schema is not found or accessible.
+   */
+  public static Table getTableByIdOrName(Context ctx, String tableName) {
+    Schema schema = getSchema(ctx);
     if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
-    } else {
-      return schema.getTable(sanitize(tableName));
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
     }
+    Table table = schema.getTableByNameOrIdCaseInsensitive(tableName);
+    if (table == null) {
+      throw new MolgenisException("Table " + tableName + " unknown");
+    }
+    return table;
   }
 
   public static String sanitize(String string) {
@@ -246,14 +283,15 @@ public class MolgenisWebservice {
     }
   }
 
-  public static Schema getSchema(Request request) {
-    return sessionManager
-        .getSession(request)
-        .getDatabase()
-        .getSchema(sanitize(request.params(SCHEMA)));
+  public static Schema getSchema(Context ctx) {
+    String schemaName = ctx.pathParamMap().get(SCHEMA);
+    if (schemaName == null) {
+      return null;
+    }
+    return applicationCache.getSchemaForUser(sanitize(schemaName), ctx);
   }
 
-  public static Collection<String> getSchemaNames(Request request) {
-    return sessionManager.getSession(request).getDatabase().getSchemaNames();
+  public static Collection<String> getSchemaNames(Context ctx) {
+    return applicationCache.getDatabaseForUser(ctx).getSchemaNames();
   }
 }

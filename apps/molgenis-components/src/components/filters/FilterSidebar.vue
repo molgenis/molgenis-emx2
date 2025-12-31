@@ -2,17 +2,18 @@
   <div class="sidebar-container">
     <FilterContainer
       v-for="(filter, index) in visibleFilters"
-      :key="filter.name"
-      :title="filter.name"
+      :key="filter.id"
+      :title="filter.label"
       :conditions="filter.conditions"
     >
       <FilterInput
-        :id="'filter-' + filter.name"
+        :id="'filter-' + filter.id"
         :conditions="visibleFilters[index].conditions"
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
-        :tableName="filter.refTable"
-        :schemaName="filter.refSchema ? filter.refSchema : schemaName"
+        :tableId="filter.refTableId"
+        :schemaId="filter.refSchemaId ? filter.refSchemaId : schemaId"
+        :refLabel="filter.refLabel ? filter.refLabel : filter.refLabelDefault"
       />
     </FilterContainer>
   </div>
@@ -39,7 +40,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -47,7 +48,9 @@ export default {
   computed: {
     visibleFilters() {
       return this.filters.filter(
-        (column) => column.showFilter && column.columnType !== "HEADING"
+        (column) =>
+          column.showFilter &&
+          !["HEADING", "SECTION"].includes(column.columnType)
       );
     },
   },
@@ -66,10 +69,10 @@ export default {
   <demo-item>
     <div class="row">
       <div class="col-4">
-        <FilterSidebar :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
+        <FilterSidebar :filters="filters" schemaId="pet store" @updateFilters="onUpdate"/>
       </div>
       <div class="col-8">
-        <FilterWells :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
+        <FilterWells :filters="filters" schemaId="pet store" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
     </div>
@@ -81,14 +84,16 @@ export default {
       return {
         filters: [
           {
-            name: "orderId",
+            id: "orderId",
+            label: "Order id",
             pkey: true,
             columnType: "STRING",
             showFilter: true,
-            conditions: ["test123"]
+            conditions: ["test123"],
           },
           {
-            name: "pets",
+            id: "pets",
+            label: "Pets",
             columnType: "REF",
             showFilter: false,
             expanded: true,
@@ -96,54 +101,63 @@ export default {
             refTable: "Pet",
           },
           {
-            name: "quantity",
+            id: "quantity",
+            label: "Quantity",
             columnType: "INT",
             showFilter: true,
             conditions: []
           },
           {
-            name: "longQuantity",
+            id: "longQuantity",
+            label: "Long quantity",
             columnType: "LONG",
             showFilter: true,
             conditions: []
           },
           {
-            name: "price",
+            id: "price",
+            label: "Price",
             columnType: "DECIMAL",
             showFilter: true,
             conditions: []
           },
           {
-            name: "complete",
+            id: "complete",
+            label: "Complete",
             columnType: "BOOL",
             showFilter: true,
             conditions: []
           },
           {
-            name: "status",
+            id: "status",
+            label: "Status",
             columnType: "STRING",
             showFilter: true,
             conditions: []
           },
           {
-            name: "birthday",
+            id: "birthday",
+            label: "Birthday",
             columnType: "DATE",
             showFilter: true,
             conditions: []
           },
           {
-            name: "tags",
+            id: "tags",
+            label: "Tags",
             columnType: "ONTOLOGY_ARRAY",
             showFilter: true,
             conditions: [],
-            refTable: "Tag",
+            refTableId: "Tag",
           },
           {
-            name: "orders",
+            id: "orders",
+            label: "Orders",
             columnType: "REF_ARRAY",
             showFilter: true,
             conditions: [],
-            refTable: "Order",
+            refTableId: "Order",
+            refLabel: "${orderId}"
           },
         ],
       };

@@ -21,9 +21,10 @@ public class SqlSchema implements Schema {
   @Override
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
-    if (tableMetadata == null) return null;
-    if (tableMetadata.exists()) return new SqlTable(db, tableMetadata);
-    else return null;
+    if (tableMetadata == null) return getTableById(name);
+    if (tableMetadata.exists()) {
+      return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
+    } else return null;
   }
 
   @Override
@@ -32,7 +33,9 @@ public class SqlSchema implements Schema {
     sortTableByDependency(tableMetadata);
     List<Table> result = new ArrayList<>();
     for (TableMetadata tm : tableMetadata) {
-      result.add(new SqlTable(db, (SqlTableMetadata) tm));
+      result.add(
+          new SqlTable(
+              db, (SqlTableMetadata) tm, db.getTableListener(getName(), tm.getTableName())));
     }
     return result;
   }
@@ -92,7 +95,7 @@ public class SqlSchema implements Schema {
     if (user.equals(ADMIN_USER) || user == null) {
       return getRoles();
     } else {
-      return getMetadata().getIneritedRolesForUser(user);
+      return getMetadata().getInheritedRolesForUser(user);
     }
   }
 
@@ -104,6 +107,11 @@ public class SqlSchema implements Schema {
   @Override
   public List<String> getInheritedRolesForActiveUser() {
     return getMetadata().getInheritedRolesForActiveUser();
+  }
+
+  @Override
+  public boolean hasActiveUserRole(Privileges privileges) {
+    return getInheritedRolesForActiveUser().contains(privileges.toString());
   }
 
   @Override
@@ -139,8 +147,13 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Row> retrieveSql(String sql) {
+    return retrieveSql(sql, Map.of());
+  }
+
+  @Override
+  public List<Row> retrieveSql(String sql, Map<String, ?> parameters) {
     if (getRoles().contains("Viewer")) {
-      return new SqlRawQueryForSchema(this).executeSql(sql);
+      return new SqlRawQueryForSchema(this).executeSql(sql, parameters);
     } else {
       throw new MolgenisException("No view permissions on this schema");
     }
@@ -170,60 +183,16 @@ public class SqlSchema implements Schema {
 
   @Override
   public void discard(SchemaMetadata discardSchema) {
-    // check if all tables and columns are known
-    List<String> errors = new ArrayList<>();
-    for (TableMetadata discardTable : discardSchema.getTables()) {
-      TableMetadata existingTable = getMetadata().getTableMetadata(discardTable.getTableName());
-      if (existingTable == null) {
-        errors.add("Table '" + discardTable.getTableName() + " not found");
-      } else {
-        for (String discardColumn : discardTable.getLocalColumnNames()) {
-          if (!existingTable.getLocalColumnNames().contains(discardColumn))
-            errors.add(
-                "Column '" + discardTable.getTableName() + "." + discardColumn + " not found");
-        }
-      }
-    }
-    if (!errors.isEmpty()) {
-      throw new MolgenisException(
-          "Discard failed: Discard of tables out of schema "
-              + getMetadata().getName()
-              + " failed: "
-              + String.join("\n", errors));
-    }
-
-    // get all tables, sorted and use that as scaffold
-    tx(db -> discardTransaction((SqlDatabase) db, discardSchema.getName()));
-    this.getDatabase().getListener().schemaChanged(this.getName());
-  }
-
-  private static void discardTransaction(SqlDatabase db, String schemaName) {
-    Schema schema = db.getSchema(schemaName);
-    SchemaMetadata schemaMetadata = db.getSchema(schemaName).getMetadata();
-    List<TableMetadata> tables = schemaMetadata.getTables();
-    Collections.reverse(tables);
-
-    // remove whole tables unless columns attached
-    for (TableMetadata existingTable : tables) {
-      // if no coluns then we delete whole table
-      if (schemaMetadata.getTableMetadata(existingTable.getTableName()) != null) {
-        TableMetadata discardTable = schemaMetadata.getTableMetadata(existingTable.getTableName());
-        if (discardTable.getLocalColumnNames().isEmpty()
-            || discardTable
-                .getLocalColumnNames()
-                .containsAll(existingTable.getLocalColumnNames())) {
-          schema.dropTable(existingTable.getTableName());
-          MetadataUtils.deleteTable(db.getJooq(), existingTable);
-        } else {
-          // or column names
-          for (String discardColumn : discardTable.getLocalColumnNames()) {
-            Column existingColumn = existingTable.getColumn(discardColumn);
-            existingTable.dropColumn(discardColumn);
-            MetadataUtils.deleteColumn(db.getJooq(), existingColumn);
-          }
-        }
-      }
-    }
+    // use migrate
+    SchemaMetadata mergeSchema = new SchemaMetadata(discardSchema);
+    mergeSchema
+        .getTables()
+        .forEach(
+            t -> {
+              t.drop();
+              t.getColumns().forEach(c -> c.drop());
+            });
+    migrate(mergeSchema);
   }
 
   @Override
@@ -238,7 +207,8 @@ public class SqlSchema implements Schema {
 
   private static void migrateTransaction(
       String targetSchemaName, SchemaMetadata mergeSchema, Database database) {
-    SqlSchema targetSchema = (SqlSchema) database.getSchema(targetSchemaName);
+    SqlSchemaMetadata targetSchema =
+        (SqlSchemaMetadata) database.getSchema(targetSchemaName).getMetadata();
 
     // create list, sort dependency order
     List<TableMetadata> mergeTableList = new ArrayList<>();
@@ -255,11 +225,10 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
 
       // get the old table, if exists
-      Table oldTableSource =
+      TableMetadata oldTable =
           mergeTable.getOldName() == null
-              ? targetSchema.getTable(mergeTable.getTableName())
-              : targetSchema.getTable(mergeTable.getOldName());
-      TableMetadata oldTable = oldTableSource != null ? oldTableSource.getMetadata() : null;
+              ? targetSchema.getTableMetadata(mergeTable.getTableName())
+              : targetSchema.getTableMetadata(mergeTable.getOldName());
 
       // set oldName in case table does exist, and oldName was not provided
       if (mergeTable.getOldName() == null && oldTable != null) {
@@ -268,11 +237,21 @@ public class SqlSchema implements Schema {
 
       // create table if not exists
       if (oldTable == null && !mergeTable.isDrop()) {
-        targetSchema.create(
-            new TableMetadata(mergeTable.getTableName())
-                .setTableType(mergeTable.getTableType())); // only the name and type
+        TableMetadata table =
+            new TableMetadata(mergeTable.getTableName()).setTableType(mergeTable.getTableType());
+        if (mergeTable.getImportSchema() != null) {
+          table.setImportSchema(mergeTable.getImportSchema());
+        }
+        table.setInheritName(mergeTable.getInheritName());
+        TableMetadata newTable = targetSchema.create(table);
+        // create primary keys immediately to prevent foreign key dependency issues
+        if (mergeTable.getInheritName() == null) {
+          mergeTable.getColumns().stream()
+              .filter(c -> c.isPrimaryKey())
+              .forEach(c -> newTable.add(c));
+        }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
-        targetSchema.getMetadata().renameTable(oldTable, mergeTable.getTableName());
+        targetSchema.getTableMetadata(oldTable.getTableName()).alterName(mergeTable.getTableName());
       }
     }
 
@@ -284,15 +263,15 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
 
       if (!mergeTable.isDrop()) {
-        TableMetadata oldTable = targetSchema.getTable(mergeTable.getTableName()).getMetadata();
+        TableMetadata oldTable = targetSchema.getTableMetadata(mergeTable.getTableName());
 
         // set inheritance
-        if (mergeTable.getInherit() != null) {
+        if (mergeTable.getInheritName() != null) {
           if (mergeTable.getImportSchema() != null) {
             oldTable.setImportSchema(mergeTable.getImportSchema());
           }
-          oldTable.setInherit(mergeTable.getInherit());
-        } else if (oldTable.getInherit() != null) {
+          oldTable.setInheritName(mergeTable.getInheritName());
+        } else if (oldTable.getInheritName() != null) {
           oldTable.removeInherit();
         }
 
@@ -311,26 +290,23 @@ public class SqlSchema implements Schema {
         }
         // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());
-        MetadataUtils.saveTableMetadata(targetSchema.getMetadata().getJooq(), oldTable);
+        MetadataUtils.saveTableMetadata(targetSchema.getJooq(), oldTable);
 
         // add missing (except refback),
         // remove triggers if existing column if type changed
         // drop columns marked with 'drop'
-        for (Column newColumn : mergeTable.getColumns()) {
+        for (Column newColumn : mergeTable.getNonInheritedColumns()) {
           Column oldColumn =
               newColumn.getOldName() != null
-                  ? oldTable.getColumn(newColumn.getOldName())
-                  : oldTable.getColumn(newColumn.getName());
+                  ? oldTable.getLocalColumn(newColumn.getOldName())
+                  : oldTable.getLocalColumn(newColumn.getName());
 
           // drop columns that need dropping
           if (newColumn.isDrop()) {
             oldTable.dropColumn(oldColumn.getName());
           } else
           // if new column and not inherited
-          if (oldColumn == null
-              && !(oldTable.getInherit() != null
-                  && oldTable.getInheritedTable().getColumn(newColumn.getName()) != null)
-              && !newColumn.isRefback()) {
+          if (oldColumn == null && !newColumn.isRefback()) {
             oldTable.add(newColumn);
             created.add(newColumn.getTableName() + "." + newColumn.getName());
           } else
@@ -340,7 +316,7 @@ public class SqlSchema implements Schema {
                   .getColumnType()
                   .getBaseType()
                   .equals(oldColumn.getColumnType().getBaseType())) {
-            executeRemoveRefConstraints(targetSchema.getMetadata().getJooq(), oldColumn);
+            executeRemoveRefConstraints(targetSchema.getJooq(), oldColumn);
           }
         }
       }
@@ -350,7 +326,7 @@ public class SqlSchema implements Schema {
     // update existing columns to the new types, and new names, reconnect refback
     for (TableMetadata newTable : mergeTableList) {
       if (!newTable.isDrop()) {
-        TableMetadata oldTable = targetSchema.getTable(newTable.getTableName()).getMetadata();
+        TableMetadata oldTable = targetSchema.getTableMetadata(newTable.getTableName());
         for (Column newColumn : newTable.getNonInheritedColumns()) {
           Column oldColumn =
               newColumn.getOldName() != null
@@ -364,7 +340,7 @@ public class SqlSchema implements Schema {
           } else
           // don't forget to add the refbacks
           if (oldColumn == null && newColumn.isRefback()) {
-            targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
+            targetSchema.getTableMetadata(newTable.getTableName()).add(newColumn);
           }
         }
       }
@@ -374,13 +350,15 @@ public class SqlSchema implements Schema {
     Collections.reverse(mergeTableList);
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
-      if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
-        targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
+      if (mergeTable.isDrop() && targetSchema.getTableMetadata(mergeTable.getOldName()) != null) {
+        targetSchema.getTableMetadata(mergeTable.getOldName()).drop();
       }
     }
 
-    // finally update settings
-    targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    // finally, update settings if changes are provided
+    if (!mergeSchema.getSettings().isEmpty()) {
+      targetSchema.setSettings(mergeSchema.getSettings());
+    }
   }
 
   public String getName() {
@@ -395,6 +373,61 @@ public class SqlSchema implements Schema {
   @Override
   public Integer getChangesCount() {
     return metadata.getChangesCount();
+  }
+
+  @Override
+  public String getSettingValue(String key) {
+    String setting = metadata.getSetting(key);
+    if (setting == null) {
+      throw new MolgenisException("Setting " + key + " not found");
+    }
+    return setting;
+  }
+
+  public boolean hasSetting(String key) {
+    return metadata.getSetting(key) != null;
+  }
+
+  @Override
+  public SqlTable getTableById(String id) {
+    Optional<Table> table =
+        getTablesSorted().stream().filter(t -> t.getIdentifier().equals(id)).findFirst();
+    if (table.isPresent()) return (SqlTable) table.get();
+    else return null;
+  }
+
+  @Override
+  public Table getTableByNameOrIdCaseInsensitive(String tableName) {
+    Table table = getTable(tableName);
+    if (table == null) {
+      table = getTableById(tableName);
+    }
+    if (table == null) {
+      Optional<String> name =
+          getTableNames().stream()
+              .filter(
+                  value ->
+                      value
+                          .toLowerCase()
+                          .replace(" ", "")
+                          .equals(tableName.replace(" ", "").toLowerCase()))
+              .findFirst();
+      if (name.isPresent()) {
+        table = getTable(name.get());
+      }
+    }
+    return table;
+  }
+
+  @Override
+  public boolean hasTableWithNameOrIdCaseInsensitive(String tableName) {
+    return getTableNames().stream()
+        .anyMatch(
+            value ->
+                value
+                    .toLowerCase()
+                    .replace(" ", "")
+                    .equals(tableName.replace(" ", "").toLowerCase()));
   }
 
   public DSLContext getJooq() {

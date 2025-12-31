@@ -1,0 +1,19 @@
+{
+  "name": "molgenis-emx2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:molgenis/molgenis-emx2.git",
+  "license": "LGPLv3",
+  "devDependencies": {
+    "@types/node": "22.5.5"
+  },
+  "scripts": {
+    "e2e": "playwright test",
+    "test:tw": "playwright test --grep '@tw-components' --reporter=line",
+    "test:tw-forms": "playwright test --grep '@tw-forms' --reporter=line"
+  },
+  "dependencies": {
+    "@playwright/test": "1.57.0",
+    "install": "0.13.0"
+  }
+}

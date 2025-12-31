@@ -1,0 +1,6 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,alive,Alive,,NCIT,C37987,http://purl.obolibrary.org/obo/NCIT_C37987,Showing characteristics of life; displaying signs of life.
+2,dead,Dead,,NCIT,C28554,http://purl.obolibrary.org/obo/NCIT_C28554,The cessation of life.
+3,lostInFollow_up,Lost in follow-up,,NCIT,C159824,http://purl.obolibrary.org/obo/NCIT_C159824,The loss or lack of continuation of subject participation after a study has officially closed.
+4,opted_out,Opted-out,,HL7,C3858493,http://purl.bioontology.org/ontology/HL7/C3858493,A grantor's dissent to the terms of agreement offered by a grantee without an opportunity for to assent to any terms.
+5,unknown,Unknown,,,,,

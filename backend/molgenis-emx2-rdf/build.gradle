@@ -1,0 +1,16 @@
+dependencies {
+    implementation project(':backend:molgenis-emx2')
+    implementation project(':backend:molgenis-emx2-graphql')
+    implementation project(':backend:molgenis-emx2-sql')
+    testImplementation project(':backend:molgenis-emx2-io')
+    testImplementation project(':backend:molgenis-emx2-tasks')
+    testImplementation project(':backend:molgenis-emx2-datamodels')
+
+    testFixturesImplementation project(':backend:molgenis-emx2')
+}
+//we use shacls from data folder
+processResources{
+    from("$rootDir/data/_shacl"){
+        into ("_shacl")
+    }
+}

@@ -5,7 +5,7 @@ client code is written in vue and can be found in 'apps'. Most interaction betwe
 
 ## Uses postgresql schemas
 
-The core of EMX2 is that data is organised using Postgresql schemas. Each schema has the roles 'manager', 'editor', 'viewer'.
+The core of EMX2 is that data is organised using Postgresql schemas. Each schema has the roles 'manager', 'editor', 'viewer','aggregator'.
 Each schema is served on its own path. E.g. http://localhost:8080/pet%20store
 
 ## Graphql is automatically served per schema
