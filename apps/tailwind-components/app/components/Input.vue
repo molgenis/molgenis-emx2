@@ -108,7 +108,9 @@
   <InputLong
     v-else-if="
       'LONG' === typeUpperCase &&
-      (typeof modelValue === 'string' || modelValue === undefined)
+      (typeof modelValue === 'string' ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     :id="id"
     v-model="modelValue"
