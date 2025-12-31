@@ -263,7 +263,7 @@
     :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :align="align"
+    :is-array="false"
   />
   <InputRef
     v-else-if="
