@@ -242,13 +242,13 @@ async function getStats() {
       .sort((current: any[], next: any[]) => (current[1] < next[1] ? 1 : -1))
   );
 
-    // prepare data for age at last follow up chart
-    const age = data.filter((row: IComponent) => row.name === "barchart-age");
-    ageAtInclusion.value = age[0]["statistics"];
-    ageAtInclusionYAxis.value = generateAxisTickData(
-      ageAtInclusion.value!,
-      "value"
-    );
+  // prepare data for age at last follow up chart
+  const age = data.filter((row: IComponent) => row.name === "barchart-age");
+  ageAtInclusion.value = age[0]["statistics"];
+  ageAtInclusionYAxis.value = generateAxisTickData(
+    ageAtInclusion.value!,
+    "value"
+  );
 
   enrollmentData.value = data
     .filter(
