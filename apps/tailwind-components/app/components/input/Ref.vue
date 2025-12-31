@@ -262,12 +262,6 @@ function loadMore() {
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
 
-// Close dropdown when clicking outside
-const wrapperRef: Ref<HTMLElement | null> = ref(null);
-useClickOutside(wrapperRef, () => {
-  showSelect.value = false;
-});
-
 onMounted(() => {
   init();
 });
