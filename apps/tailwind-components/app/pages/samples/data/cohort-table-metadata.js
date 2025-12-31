@@ -845,7 +845,6 @@ export default {
       id: "informedConsentType",
       label: "informed consent type",
       columnType: "ONTOLOGY",
-      refSchemaId: "catalogue-demo",
       refTableId: "InformedConsentTypes",
       refSchemaId: "CatalogueOntologies",
       refLabelDefault: "${name}",
