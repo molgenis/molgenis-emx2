@@ -27,7 +27,7 @@ const props = withDefaults(
 
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
-const modelValue = defineModel<string[] | string | undefined>();
+const modelValue = defineModel<string[] | string | undefined | null>();
 //labels for the selected values
 const valueLabels: Ref<Record<string, string>> = ref({});
 //state of the tree that is shown
@@ -376,14 +376,14 @@ function deselect(name: string) {
   if (props.isArray && Array.isArray(modelValue.value)) {
     modelValue.value = modelValue.value.filter((value) => value != name);
   } else {
-    modelValue.value = undefined;
+    modelValue.value = null;
   }
   updateSearch("");
 }
 
 function clearSelection() {
   if (props.disabled) return;
-  modelValue.value = props.isArray ? [] : undefined;
+  modelValue.value = props.isArray ? [] : null;
 }
 
 async function updateSearch(value: string) {
