@@ -175,7 +175,9 @@
     v-else-if="
       ['CHECKBOX'].includes(typeUpperCase) &&
       options &&
-      (Array.isArray(modelValue) || modelValue === undefined)
+      (Array.isArray(modelValue) ||
+        modelValue === undefined ||
+        modelValue === null)
     "
     v-model="modelValue"
     :id="id"
@@ -245,7 +247,8 @@
       'SELECT' === typeUpperCase &&
       ((Array.isArray(modelValue) && isColumnValueObjectArray(modelValue)) ||
         isColumnValueObject(modelValue) ||
-        modelValue === undefined) &&
+        modelValue === undefined ||
+        modelValue === null) &&
       refSchemaId &&
       refTableId &&
       refLabel
