@@ -48,8 +48,6 @@ const filteredCount = ref<number>(0);
 const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
 
-const wrapperRef = useTemplateRef<HTMLDivElement>("wrapperRef");
-
 function reset() {
   ontologyTree.value = [];
   valueLabels.value = {};
@@ -324,7 +322,6 @@ async function toggleTermSelect(node: ITreeNodeState) {
         .filter((child) => child.name != node.name)
         .every((child) => child.selected === "selected")
     ) {
-      console.log("select parent");
       await toggleTermSelect(node.parentNode);
     }
     // if we simply select a node
@@ -422,6 +419,7 @@ async function toggleSelect() {
 }
 
 // Close dropdown when clicking outside
+const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
@@ -530,7 +528,7 @@ onMounted(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
+          'absolute z-20 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
         v-show="showSelect || !displayAsSelect"
