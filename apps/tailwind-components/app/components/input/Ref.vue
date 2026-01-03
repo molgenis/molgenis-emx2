@@ -20,6 +20,7 @@ import BaseIcon from "../BaseIcon.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { useTemplateRef } from "vue";
 
 const props = withDefaults(
   defineProps<
@@ -152,32 +153,42 @@ async function loadOptions(filter: IQueryMetaData) {
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
-  if (searchTerms.value) updateSearch("");
+  if (searchTerms.value) {
+    updateSearch("");
+  }
 }
 
-const sentinel = ref<HTMLElement | null>(null);
+const wrapperRef = useTemplateRef("wrapperRef");
+// Close dropdown when clicking outside
+useClickOutside(wrapperRef, () => {
+  showSelect.value = false;
+});
+
+const sentinel = useTemplateRef("sentinel");
 let loadMoreObserver: IntersectionObserver | null = null;
+onMounted(() => {
+  loadMoreObserver = new IntersectionObserver(
+    async (entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting) {
+        loadMore();
+      }
+    },
+    {
+      root: wrapperRef.value, // the container
+      threshold: 0.25,
+      rootMargin: "100px", //more smooth
+    }
+  );
+});
+
 function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
     loadMoreObserver?.disconnect();
-    loadMoreObserver = null;
   } else {
     showSelect.value = true;
-    loadMoreObserver = new IntersectionObserver(
-      async (entries) => {
-        const entry = entries[0];
-        if (entry?.isIntersecting) {
-          loadMore();
-        }
-      },
-      {
-        root: wrapperRef.value, // the container
-        threshold: 0.1,
-        rootMargin: "100px", //more smooth
-      }
-    );
-    loadMoreObserver.observe(sentinel.value);
+    loadMoreObserver?.observe(sentinel.value!);
   }
 }
 
@@ -192,8 +203,21 @@ async function select(label: string) {
   if (!props.isArray) {
     selectionMap.value = {};
   }
-  selectionMap.value[label] = await extractPrimaryKey(optionMap.value[label]);
-  if (searchTerms.value) toggleSearch();
+  const optionValue = optionMap.value[label];
+  if (
+    optionValue !== undefined &&
+    optionValue !== null &&
+    typeof optionValue === "object" &&
+    !Array.isArray(optionValue)
+  ) {
+    selectionMap.value[label] = await extractPrimaryKey(optionValue);
+  } else {
+    throw new Error("Invalid option value for label: " + label);
+  }
+
+  if (searchTerms.value) {
+    toggleSearch();
+  }
   emitValue();
 }
 
@@ -232,12 +256,6 @@ function loadMore() {
 }
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
-
-// Close dropdown when clicking outside
-const wrapperRef = ref<HTMLElement | null>(null);
-useClickOutside(wrapperRef, () => {
-  showSelect.value = false;
-});
 
 onMounted(() => {
   init();
@@ -343,7 +361,7 @@ onMounted(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
+          'max-h-[50vh] top-4 rounded-theme bg-input overflow-y-auto w-full pt-2 pb-6 pl-4 ':
             displayAsSelect,
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
@@ -384,12 +402,13 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="isArray ? selection.length : selection && !displayAsSelect"
     @click="clearSelection"
     type="text"
     size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
+    :class="{ 'pl-2': displayAsSelect }"
   >
     Clear
   </Button>
