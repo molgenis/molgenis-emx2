@@ -1,5 +1,0 @@
-imports: ../archetypes
-tables:
-  Cohorts: ~
-  Data sources: ~
-  # using the archetypes as is

@@ -63,8 +63,14 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (row.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setInheritName(row.getString(TABLE_EXTENDS));
-        schema.getTableMetadata(tableName).setImportSchema(row.getString(REF_SCHEMA));
+        // in the csv we just assume singular extends for now
+        if (row.getString(TABLE_EXTENDS) != null) {
+          schema
+              .getTableMetadata(tableName)
+              .setInherits(
+                  List.of(
+                      new TableReference(row.getString(REF_SCHEMA), row.getString(TABLE_EXTENDS))));
+        }
         schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS, false));
         schema.getTableMetadata(tableName).setProfiles(row.getStringArray(PROFILES, false));
         if (row.getString(TABLE_TYPE) != null) {
@@ -245,7 +251,15 @@ public class Emx2 {
       Row row = new Row();
       // set null columns to ensure sensible order
       row.setString(TABLE_NAME, table.getTableName());
-      row.setString(TABLE_EXTENDS, table.getInheritName());
+      if (table.getInherits().size() > 1) {
+        throw new MolgenisException("Multiple inheritance not yet supported in csv");
+      }
+      if (table.getInherits().size() == 1) {
+        row.setString(TABLE_EXTENDS, table.getInherits().get(0).tableName());
+        if (!table.getInherits().get(0).schemaName().equals(table.getSchemaName())) {
+          row.setString(REF_SCHEMA, table.getInherits().get(0).schemaName());
+        }
+      }
       row.setString(
           TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
       row.setString(COLUMN_NAME, null);

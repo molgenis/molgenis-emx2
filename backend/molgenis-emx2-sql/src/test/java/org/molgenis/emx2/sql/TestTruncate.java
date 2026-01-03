@@ -6,10 +6,12 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableReference;
 
 public class TestTruncate {
 
@@ -36,7 +38,11 @@ public class TestTruncate {
     assertEquals(0, table1.retrieveRows().size());
 
     // create with subclass
-    Table table2 = schema.create(table("Table2").setInheritName("Table1").add(column("col1")));
+    Table table2 =
+        schema.create(
+            table("Table2")
+                .setInherits(List.of(new TableReference(null, "Table1")))
+                .add(column("col1")));
     table1.insert(row("name", "a"));
     table2.insert(row("name", "b", "col1", "checkb"));
     assertEquals(2, table1.retrieveRows().size());
@@ -53,7 +59,11 @@ public class TestTruncate {
     assertEquals(0, table2.retrieveRows().size());
 
     // create with subclass of a subclass
-    Table table3 = schema.create(table("Table3").setInheritName("Table2").add(column("col2")));
+    Table table3 =
+        schema.create(
+            table("Table3")
+                .setInherits(List.of(new TableReference(null, "Table2")))
+                .add(column("col2")));
     table1.insert(row("name", "a"));
     table2.insert(row("name", "b", "col1", "checkb"));
     table3.insert(row("name", "c", "col1", "checkc", "col2", "checkc"));

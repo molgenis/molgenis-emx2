@@ -1,6 +1,0 @@
-name: Identifiable
-description: just a thing
-columns:
-  identifier:
-    uri: adms:Identifier
-    key: 1

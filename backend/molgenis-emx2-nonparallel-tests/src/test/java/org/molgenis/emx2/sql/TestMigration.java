@@ -93,7 +93,7 @@ public class TestMigration {
     // create test schema and run migration 5
     Schema testSchemm = database.dropCreateSchema(TestMigration.class.getSimpleName());
     testSchemm.getMetadata().create(table("pet", column("name").setPkey()));
-    testSchemm.getMetadata().create(table("cat").setInheritName("pet"));
+    testSchemm.getMetadata().create(table("cat").setInherits("pet"));
 
     executeMigrationFile(
         database, "migration9.sql", "database migration: schema metadata visible for aggregator");

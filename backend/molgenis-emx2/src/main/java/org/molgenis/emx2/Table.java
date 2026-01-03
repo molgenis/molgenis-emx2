@@ -46,7 +46,9 @@ public interface Table {
 
   List<Row> retrieveRows(Query.Option... options);
 
-  Table getInheritedTable();
+  List<Table> getInheritedTables();
+
+  Table getBaseTable();
 
   String getIdentifier();
 }

@@ -1,3 +1,7 @@
 package org.molgenis.emx2.io.yaml;
 
-public class YamlIncludes {}
+import java.util.List;
+import lombok.Builder;
+
+@Builder
+public record YamlIncludes(String table, List<String> columns) {}

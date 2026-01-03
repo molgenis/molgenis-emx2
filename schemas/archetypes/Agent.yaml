@@ -1,8 +1,0 @@
-name: Agent
-uri: foaf:Agent
-description: Description of a user or group of actors involved.
-columns:
-  name:
-    uri: foaf:name
-  type:
-    uri: dct:type

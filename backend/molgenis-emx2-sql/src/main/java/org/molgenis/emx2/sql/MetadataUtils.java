@@ -4,6 +4,9 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.jooq.*;
 import org.jooq.DSLContext;
@@ -16,6 +19,9 @@ public class MetadataUtils {
   private static final String MATCHES = "matches";
   private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
   private static Integer version;
+  private static ObjectMapper jsonMapper = new ObjectMapper();
+  private static JavaType listOfTableReferenceType =
+      jsonMapper.getTypeFactory().constructCollectionType(List.class, TableReference.class);
 
   static final String MOLGENIS = "MOLGENIS";
   static final String NOT_PROVIDED = "NOT_PROVIDED";
@@ -46,8 +52,10 @@ public class MetadataUtils {
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
   static final Field<String> TABLE_NAME = field(name("table_name"), VARCHAR.nullable(false));
-  private static final Field<String> TABLE_INHERITS =
+  private static final Field<String> TABLE_INHERITS_OLD =
       field(name("table_inherits"), VARCHAR.nullable(true));
+  private static final Field<JSONB> TABLE_INHERITS =
+      field(name("table_inherits"), JSONB.nullable(true));
   private static final Field<String> TABLE_IMPORT_SCHEMA =
       field(name("import_schema"), VARCHAR.nullable(true));
   private static final Field<JSON> TABLE_DESCRIPTION =
@@ -211,7 +219,7 @@ public class MetadataUtils {
                 t.columns(
                         TABLE_SCHEMA,
                         TABLE_NAME,
-                        TABLE_INHERITS,
+                        TABLE_INHERITS_OLD,
                         TABLE_IMPORT_SCHEMA,
                         TABLE_DESCRIPTION,
                         TABLE_SEMANTICS,
@@ -349,13 +357,15 @@ public class MetadataUtils {
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     try {
+      List<TableReference> inherits = table.getInherits();
+      JSONB inheritsJsonb =
+          inherits == null ? null : JSONB.convert(jsonMapper.writeValueAsString(inherits));
       jooq.insertInto(TABLE_METADATA)
           .columns(
               TABLE_SCHEMA,
               TABLE_NAME,
               TABLE_LABEL,
               TABLE_INHERITS,
-              TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
               TABLE_TYPE,
@@ -364,8 +374,7 @@ public class MetadataUtils {
               table.getSchema().getName(),
               table.getTableName(),
               table.getLabels(),
-              table.getInheritName(),
-              table.getImportSchema(),
+              inheritsJsonb,
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
@@ -373,8 +382,7 @@ public class MetadataUtils {
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_LABEL, table.getLabels())
-          .set(TABLE_INHERITS, table.getInheritName())
-          .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
+          .set(TABLE_INHERITS, inheritsJsonb)
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
@@ -495,19 +503,25 @@ public class MetadataUtils {
   }
 
   private static TableMetadata recordToTable(org.jooq.Record r) {
-    TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-    table.setInheritName(r.get(TABLE_INHERITS, String.class));
-    table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
-    table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
-    table.setDescriptions(
-        r.get(TABLE_DESCRIPTION) != null ? r.get(TABLE_DESCRIPTION, Map.class) : new TreeMap<>());
-    table.setSemantics(r.get(TABLE_SEMANTICS, String[].class));
-    table.setSettingsWithoutReload(
-        r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new TreeMap<>());
-    if (r.get(TABLE_TYPE, String.class) != null) {
-      table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
+    try {
+      TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
+      JSONB jsonb = r.get(TABLE_INHERITS, JSONB.class);
+      if (jsonb != null) {
+        table.setInherits(jsonMapper.readValue(jsonb.data(), listOfTableReferenceType));
+      }
+      table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
+      table.setDescriptions(
+          r.get(TABLE_DESCRIPTION) != null ? r.get(TABLE_DESCRIPTION, Map.class) : new TreeMap<>());
+      table.setSemantics(r.get(TABLE_SEMANTICS, String[].class));
+      table.setSettingsWithoutReload(
+          r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new TreeMap<>());
+      if (r.get(TABLE_TYPE, String.class) != null) {
+        table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
+      }
+      return table;
+    } catch (JacksonException je) {
+      throw new MolgenisException("Parsing of inherits failed", je);
     }
-    return table;
   }
 
   protected static void deleteTable(DSLContext jooq, TableMetadata table) {
