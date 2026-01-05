@@ -218,6 +218,10 @@ async function select(label: string) {
   if (searchTerms.value) {
     toggleSearch();
   }
+  // close select dropdown for single select once an option is selected
+  if (!props.isArray && showSelect.value === true) {
+    toggleSelect();
+  }
   emitValue();
 }
 
@@ -236,7 +240,12 @@ async function extractPrimaryKey(row: recordValue) {
 
 function deselect(label: string) {
   delete selectionMap.value[label];
-  if (searchTerms.value) toggleSearch();
+  if (searchTerms.value) {
+    toggleSearch();
+  }
+  if (!props.isArray && showSelect.value === true) {
+    toggleSelect();
+  }
   emitValue();
 }
 
@@ -297,8 +306,8 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 m-2"
-        @click.stop="toggleSelect"
+        class="flex items-center justify-between gap-2 px-2 h-[56px]"
+        @click.stop.self="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="isArray ? selection.length : selection" role="group">
@@ -308,6 +317,7 @@ onMounted(() => {
               iconPosition="right"
               type="filterWell"
               size="tiny"
+              class="h-[36px]"
               :class="{
                 'text-disabled cursor-not-allowed': disabled,
                 'text-valid bg-valid': valid,
@@ -330,7 +340,7 @@ onMounted(() => {
               class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
               placeholder="Search in terms"
               autocomplete="off"
-              @click.stop="toggleSelect"
+              @click.stop.self="toggleSelect"
             />
           </div>
         </div>
@@ -344,7 +354,7 @@ onMounted(() => {
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-            @click.stop="toggleSelect"
+            @click.stop.self="toggleSelect"
           />
           <BaseIcon
             v-show="!showSelect"
@@ -355,6 +365,7 @@ onMounted(() => {
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
+            @click.stop.self="toggleSelect"
           />
         </div>
       </div>
