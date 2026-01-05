@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center border rounded-input p-2"
+    class="flex items-center border rounded-input px-2 h-[56px]"
     :class="{
       'cursor-pointer duration-default ease-in-out hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid,

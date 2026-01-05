@@ -457,7 +457,7 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 m-2"
+        class="flex items-center justify-between gap-2 px-2 h-[56px]"
         @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
@@ -524,7 +524,7 @@ onMounted(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
+          'absolute z-50 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
         v-show="showSelect || !displayAsSelect"
