@@ -1193,42 +1193,31 @@ public class SqlQuery extends QueryBean {
                   ? getTypedValue(values, columnType)
                   : getTypedValue(values, getArrayType(columnType)));
     }
-    switch (operator) {
-      case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
-        return whereContainsAnyOrEquals(tableAlias, columnName, column, values);
-      case MATCH_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
-        return or(
-            whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
-            not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
-      case MATCH_ALL:
-        return whereColumnContainsAll(tableAlias, columnName, column, values);
-      case IS_NULL:
-        return whereColumnIsNullOrNotNull(tableAlias, columnName, column, values);
-      case LIKE:
-        return whereColumnLike(columnName, columnType.isArray(), values);
-      case NOT_LIKE:
-        return not(whereColumnLike(columnName, columnType.isArray(), values));
-      case TRIGRAM_SEARCH:
-        return whereColumnTrigramSearch(columnName, columnType.isArray(), values);
-      case TEXT_SEARCH:
-        return whereColumnTextSearch(columnName, columnType.isArray(), (String[]) values);
-      case NOT_BETWEEN:
-        return not(whereColumnBetween(columnName, values));
-      case BETWEEN:
-        return whereColumnBetween(columnName, values);
-      case MATCH_ANY_INCLUDING_PARENTS:
-        return whereColumnMatchAnyIncludingParents(column, values);
-      case SEARCH_INCLUDING_PARENTS:
-        return whereColumnSearchIncludingParents(column, values);
-      case MATCH_ANY_INCLUDING_CHILDREN:
-        return whereColumnMatchAnyIncludingChilderen(column, values);
-      case MATCH_PATH:
-        return or(
-            whereColumnMatchAnyIncludingParents(column, values),
-            whereColumnMatchAnyIncludingChilderen(column, values));
-      default:
-        throw new MolgenisException("Unknown operator: " + operator);
-    }
+    return switch (operator) {
+      case MATCH_ANY, EQUALS -> // equals to be deprecated for ref columns,
+          whereContainsAnyOrEquals(tableAlias, columnName, column, values);
+      case MATCH_NONE, NOT_EQUALS -> // non_equals to be deprecated for ref columns,
+          or(
+              whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
+              not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
+      case MATCH_ALL -> whereColumnContainsAll(tableAlias, columnName, column, values);
+      case IS_NULL -> whereColumnIsNullOrNotNull(tableAlias, columnName, column, values);
+      case LIKE -> whereColumnLike(columnName, columnType.isArray(), values);
+      case NOT_LIKE -> not(whereColumnLike(columnName, columnType.isArray(), values));
+      case TRIGRAM_SEARCH -> whereColumnTrigramSearch(columnName, columnType.isArray(), values);
+      case TEXT_SEARCH ->
+          whereColumnTextSearch(columnName, columnType.isArray(), (String[]) values);
+      case NOT_BETWEEN -> not(whereColumnBetween(columnName, values));
+      case BETWEEN -> whereColumnBetween(columnName, values);
+      case MATCH_ANY_INCLUDING_PARENTS -> whereColumnMatchAnyIncludingParents(column, values);
+      case SEARCH_INCLUDING_PARENTS -> whereColumnSearchIncludingParents(column, values);
+      case MATCH_ANY_INCLUDING_CHILDREN -> whereColumnMatchAnyIncludingChilderen(column, values);
+      case MATCH_PATH ->
+          or(
+              whereColumnMatchAnyIncludingParents(column, values),
+              whereColumnMatchAnyIncludingChilderen(column, values));
+      default -> throw new MolgenisException("Unknown operator: " + operator);
+    };
   }
 
   private Condition whereColumnMatchAnyIncludingChilderen(Column column, Object[] values) {
