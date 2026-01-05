@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refBack,visible,validation,defaultValue,semantics,description,profiles
-Page,,,,,,,,,,,http://semanticscience.org/resource/SIO_000302,"Overview of ""editable"" pages and ""developer"" pages.",pages
+Page,,,,,,,,,,,http://semanticscience.org/resource/SIO_000302,"Overview of ""interactive"" pages and ""developer"" pages.",pages
 Page,,Page information,heading,,,,,,,,,,pages
 Page,,name,string,1,TRUE,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,http://semanticscience.org/resource/SIO_000116,"A unique name for the page. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
 Page,,description,text,,,,,,,,http://semanticscience.org/resource/SIO_000136,,pages
@@ -21,3 +21,15 @@ Dependencies CSS,Dependencies,,,,,,,,,,,External CSS dependencies used in custom
 Dependencies JS,Dependencies,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
 Dependencies JS,,async,bool,,,,,,,false,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
 Dependencies JS,,defer,bool,,,,,,,false,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
+Interactive page,Page,,,,,,,,,,,Pages built with the drag-and-drop interface,pages
+Interactive page,,Page header,section,,,,,,,,,,pages
+Interactive page,,banner,select,,,Page banners,,,,,,"The heading (title, subtitle) that will be displayed at the top of the page",pages
+Page banners,,title,string,1,TRUE,,,,,,,"A unique title for the page (e.g., ""About us"", ""Contact"")",pages
+Page banners,,subtitle,string,,,,,,,,,"A subtitle that describes the page (e.g., ""Learn more about what we do"", etc.)",pages
+Page banners,,background image,select,,,Page images,,,,,,An image to be displayed in the background of the page banner,pages
+Page assets,,,,,,,,,,,,"Static content that is used in an interactive page (e.g., images, documents, etc.)",pages
+Page assets,,name,string,1,,,,,,,,A unique name for the file,pages
+Page assets,,label,string,,,,,,,,,An optional label that will be displayed in the browser,pages
+Page assets,,file,file,,,,,,,,,,pages
+Page images,Page assets,,,,,,,,,,,Images that are displayed in an interactive page,pages
+Page documents,Page assets,,,,,,,,,,,Documents that are displayed in an interactive page,pages
