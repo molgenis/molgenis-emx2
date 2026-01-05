@@ -12,7 +12,7 @@
         :type="getNonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
         @focus="emit('focus')"
-        @update:model-value="setValues($event, index)"
+        @update:model-value="setValues($event as columnValue, index)"
       />
       <Button
         iconOnly
@@ -43,7 +43,6 @@ import type {
 import { ref } from "vue";
 import Input from "../Input.vue";
 import Button from "../Button.vue";
-import { defineEmits, defineProps } from "vue";
 
 const props = defineProps<
   IInputProps & {
@@ -52,12 +51,18 @@ const props = defineProps<
   }
 >();
 
-const values = ref<any[]>(handleUndefined(props.modelValue));
+const values = ref<columnValue[]>(handleUndefined(props.modelValue));
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
-function handleUndefined(inputValues: columnValue[] | undefined) {
-  if (inputValues === undefined) {
-    return [undefined];
+function handleUndefined(
+  inputValues: columnValue[] | undefined | null
+): columnValue[] {
+  if (
+    inputValues === undefined ||
+    inputValues === null ||
+    (Array.isArray(inputValues) && inputValues.length === 0)
+  ) {
+    return [null];
   }
   return inputValues;
 }
@@ -67,12 +72,12 @@ function setValues(value: columnValue, index: number) {
   emit("update:modelValue", values.value);
 }
 
-function addItem(values: any) {
-  values.push(undefined);
+function addItem(values: columnValue[]) {
+  values.push(null);
   emit("update:modelValue", values);
 }
 
-function clearInput(values: any, index: number) {
+function clearInput(values: columnValue[], index: number) {
   if (values.length > 1) {
     values.splice(index, 1);
   }

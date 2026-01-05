@@ -135,7 +135,7 @@ export type columnValue =
   | null
   | undefined
   | columnValueObject
-  | columnValue[]
+  | columnValueObject[]
   | fileValue;
 
 export type recordValue = Record<string, columnValue>;
