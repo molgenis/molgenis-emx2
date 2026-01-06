@@ -50,6 +50,7 @@ and understand what they are seeing when viewing a resource in detail.
 | 27c | License | `https://license-placeholder.nl` | | |
 | 28 | POPULATION | | | |
 | 29 | Countries | United Kingdom of Great Britain and Northern Ireland (the) | | |
+| 29a | Continents | Europe | | |
 | 30 | Regions | Bradford | | |
 | 31 | Number of participants | 100 | | |
 | 32 | Number of participants with samples | 50 | | |
