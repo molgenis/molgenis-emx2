@@ -37,3 +37,20 @@ task dev(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.molgenis.emx2.RunMolgenisEmx2'
 }
+
+tasks.register('testStarterKit', Test) {
+    jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "-XX:+EnableDynamicAgentLoading")
+    useJUnitPlatform {
+        includeTags "starter-kit"
+    }
+    testLogging {
+        events "passed", "skipped", "failed" //, "standardOut", "standardError"
+
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+
+        showStandardStreams = false
+    }
+}

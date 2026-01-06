@@ -121,7 +121,9 @@ subprojects {
 
     test {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "-XX:+EnableDynamicAgentLoading")
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeTags "starter-kit"
+        }
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
@@ -138,7 +140,7 @@ subprojects {
     tasks.register('testFast', Test) {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
         useJUnitPlatform {
-            excludeTags "slow"
+            excludeTags "slow", "starter-kit"
         }
         failFast true
         testLogging {
@@ -155,7 +157,7 @@ subprojects {
     tasks.register('testWindows', Test) {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
         useJUnitPlatform {
-            excludeTags "windowsFail"
+            excludeTags "windowsFail", "starter-kit"
         }
         failFast true
         testLogging {

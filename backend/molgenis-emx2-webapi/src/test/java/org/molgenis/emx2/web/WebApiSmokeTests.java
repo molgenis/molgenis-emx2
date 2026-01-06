@@ -76,8 +76,6 @@ abstract class WebApiSmokeTests {
   public static final String PET_STORE_SCHEMA = "pet store";
   private static final String CSV_TEST_SCHEMA = "pet store csv";
 
-  private static final int PORT = 8081; // other than default so we can see effect
-
   private static String sessionId; // to toss around a session for the tests
   protected static Database db;
   protected static Schema schema;
@@ -89,7 +87,7 @@ abstract class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // set default rest assured settings
-    RestAssured.port = PORT;
+    RestAssured.port = 8081; // other than default so we can see effect
     RestAssured.baseURI = "http://localhost";
 
     // Always create test database from scratch to avoid instability due to side effects.
