@@ -1,3 +1,19 @@
+# design notes (remove later)
+
+Requirements (to be validated, not all yet implemented)
+* package will be used as single entry point for creating all the apps we build
+* we want to make a registry with 'generic' and 'specific' packages to distinghuis reusable and non-reusable packages
+* a package should be able to configure all molgenis aspects (schema, settings, scripts, migrations, data, ontologies, demo data, also custom apps)
+* we use 'name: xxx' instead of using the names as keys
+* we enable custom package structure, using the 'imports' to clarify what goes where (instead we could do default folder structure)
+* we can use imports to define what we currently do with profiles (do we like that or prefer the profile tags still?)
+* imports can only select, not alter the imported table/column definitions
+* we want multi inheritance so we can combine at runtime
+* in theory, an import could also be remote (e.g. to load from an external ontology server)
+* we want to be able to pass a github repository and then all packages from that repository should be choosable
+* demo data and ontologies should also be possible to load as yaml (I see us struggling with demo data maintenance, would that be easier in yaml?)
+* table hierarchies should be in one file, not split, so we can enforce column order
+
 # MOLGENIS 'package' format
 
 MOLGENIS platform allows to fully customize behavior. The results of such customization have great value to be shared. Therefore MOLGENIS comes with a

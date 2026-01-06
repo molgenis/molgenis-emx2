@@ -1,0 +1,125 @@
+---
+schema:
+- imports:
+    path: catalogue.yaml
+    includes:
+    - table: Collection events
+      columns:
+      - resource
+      - name
+      - pid
+      - description
+      - subpopulations
+      - keywords
+      - start date
+      - end date
+      - age groups
+      - number of participants
+      - areas of information
+      - data categories
+      - sample categories
+      - standardized tools
+      - standardized tools other
+      - core variables
+      - issued
+      - modified
+      - theme
+      - access rights
+      - applicable legislation
+    - table: Publications
+      columns:
+      - resource
+      - doi
+      - title
+      - is design publication
+      - reference
+    - table: Documentation
+      columns:
+      - resource
+      - name
+      - type
+      - description
+      - url
+      - file
+    - table: Agents
+      columns:
+      - resource
+      - id
+      - type
+      - name
+      - organisation
+      - other organisation
+      - department
+      - website
+      - email
+      - logo
+      - role
+    - table: Resource counts
+      columns:
+      - resource
+      - age group
+      - population size
+      - median age
+      - proportion female
+    - table: External identifiers
+      columns:
+      - resource
+      - identifier
+      - external identifier type
+      - external identifier type other
+    - table: Subpopulations
+      columns:
+      - resource
+      - name
+      - pid
+      - description
+      - keywords
+      - number of participants
+      - inclusion start
+      - inclusion end
+      - age groups
+      - age min
+      - age max
+      - main medical condition
+      - comorbidity
+      - countries
+      - regions
+      - inclusion criteria
+      - other inclusion criteria
+      - exclusion criteria
+      - other exclusion criteria
+      - issued
+      - modified
+      - theme
+      - access rights
+      - applicable legislation
+    - table: Organisations
+      columns:
+      - resource
+      - id
+      - type
+      - name
+      - organisation
+      - other organisation
+      - department
+      - website
+      - email
+      - logo
+      - role
+      - is lead organisation
+    - table: Contacts
+      columns:
+      - resource
+      - role
+      - role description
+      - first name
+      - last name
+      - prefix
+      - initials
+      - title
+      - organisation
+      - email
+      - orcid
+      - homepage
+      - expertise
+    - table: Version

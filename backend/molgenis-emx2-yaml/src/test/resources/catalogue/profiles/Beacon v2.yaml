@@ -1,0 +1,11 @@
+---
+schema:
+- imports:
+    path: catalogue.yaml
+    includes:
+    - table: Endpoint
+      columns:
+      - id
+      - name
+      - description
+      - publisher

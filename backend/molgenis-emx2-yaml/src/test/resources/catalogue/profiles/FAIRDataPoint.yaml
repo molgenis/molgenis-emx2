@@ -1,0 +1,22 @@
+---
+schema:
+- imports:
+    path: catalogue.yaml
+    includes:
+    - table: Endpoint
+      columns:
+      - id
+      - type
+      - name
+      - description
+      - publisher
+      - language
+      - license
+      - conformsTo
+      - rights
+      - accessRights
+      - keyword
+      - theme
+      - endPointDescription
+      - EJP_RD_personalData
+      - EJP_RD_vpConnection

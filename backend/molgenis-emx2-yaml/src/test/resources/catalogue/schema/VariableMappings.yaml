@@ -1,0 +1,61 @@
+---
+table:
+  table: Variable mappings
+  description: "Mappings from collected or source variables to target or harmonised\
+    \ variables, optionally including ETL syntax"
+  columns:
+  - name: source
+    type: ref
+    key: 1
+    description: Id of the resource that contains the source variable(s)
+    refTable: Resources
+  - name: source dataset
+    type: ref
+    key: 1
+    description: Name of the dataset that contains the source variable(s)
+    refTable: Datasets
+  - name: source variables
+    type: ref_array
+    description: "Optional, source variable that was mapped from. You may also indicate\
+      \ that a mapping to a target variable was not done and leave this field empty\
+      \ (match = not available)"
+    refTable: Variables
+  - name: source variables other datasets
+    type: ref_array
+    description: "Optional, variables from other source datasets. Initially one may\
+      \ only define mapping between releases"
+    refTable: Variables
+  - name: target
+    type: ref
+    key: 1
+    description: Id of the resource that contains the target variable
+    refTable: Resources
+  - name: target dataset
+    type: ref
+    key: 1
+    description: Name of the dataset that contains the target variable
+    refTable: Datasets
+  - name: target variable
+    type: ref
+    key: 1
+    description: Target variable that was mapped to
+    refTable: Variables
+  - name: repeats
+    type: text
+    key: 1
+    description: "In case of mapping to a repeated variable, specify which repeats\
+      \ were mapped to"
+  - name: match
+    type: ontology
+    description: "Harmonisation match, i.e., complete, partial, na"
+    refTable: Status details
+    refSchema: CatalogueOntologies
+  - name: description
+    type: text
+    description: Human readible description of the mapping
+  - name: syntax
+    type: text
+    description: "Formal definition of the mapping, ideally in executable code"
+  - name: comments
+    type: text
+    description: Additional notes or comments

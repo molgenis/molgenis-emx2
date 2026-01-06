@@ -37,7 +37,7 @@ public class DataModels {
 
     private final String template;
 
-    private String getTemplate() {
+    public String getTemplate() {
       return template;
     }
 

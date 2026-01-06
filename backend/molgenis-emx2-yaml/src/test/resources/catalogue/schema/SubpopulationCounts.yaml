@@ -1,0 +1,31 @@
+---
+table:
+  table: Subpopulation counts
+  description: "Number of participants per cohort age group, optionally divided per\
+    \ sex"
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource id
+    refTable: Resources
+  - name: subpopulation
+    type: ref
+    key: 1
+    description: Subpopulations for these counts
+    refTable: Subpopulations
+  - name: age group
+    type: ontology
+    key: 1
+    description: Select the age group for these counts
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+  - name: N total
+    type: int
+    description: Total number
+  - name: N female
+    type: int
+    description: Number of females
+  - name: N male
+    type: int
+    description: Number of males

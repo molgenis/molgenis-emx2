@@ -1,0 +1,4 @@
+molgenis:
+  import: ../catalogue/catalogue.yaml
+  include:
+    - table:

@@ -1,0 +1,39 @@
+---
+table:
+  table: Variable values
+  description: Listing of categorical value+label definition in case of a categorical
+    variable
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource the variable belongs to
+    refTable: Resources
+  - name: dataset
+    type: ref
+    key: 1
+    description: Dataset the variable belongs to
+    refTable: Datasets
+  - name: variable
+    type: ref
+    key: 1
+    description: Variable name
+    refTable: Variables
+  - name: value
+    key: 1
+    description: "Variable value, e.g. '1'"
+  - name: label
+    description: "Variable label, e.g. 'Yes'"
+  - name: order
+    type: int
+    description: Order that the variable values should be displayed in
+  - name: is missing
+    type: bool
+    description: "Whether this variable value indicates that data is missing, e.g.\
+      \ '-1' for 'NA'"
+  - name: ontology term URI
+    description: Reference to ontology term that defines this categorical value
+  - name: since version
+    description: "When this variable value was introduced, if applicable"
+  - name: until version
+    description: "When this variable value was removed, if applicable"

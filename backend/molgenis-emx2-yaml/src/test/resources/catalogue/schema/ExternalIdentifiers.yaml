@@ -1,0 +1,22 @@
+---
+table:
+  table: External identifiers
+  description: External identifier(s) for this resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource that this external identifier belongs to
+    refTable: Resources
+  - name: identifier
+    type: text
+    key: 1
+    description: External identifier
+  - name: external identifier type
+    type: ontology
+    description: External identifier type
+    refTable: External identifier types
+    refSchema: CatalogueOntologies
+  - name: external identifier type other
+    type: text
+    description: "If 'other', enter external identifier type"

@@ -1,0 +1,27 @@
+---
+table:
+  table: Documentation
+  description: Documentation attached to a resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: The resource this documentation is for
+    refTable: Resources
+  - name: name
+    key: 1
+    description: Document name
+  - name: type
+    type: ontology
+    description: Type of documentation
+    refTable: Document types
+    refSchema: CatalogueOntologies
+  - name: description
+    type: text
+    description: Description of the document
+  - name: url
+    type: hyperlink
+    description: Hyperlink to the source of the documentation
+  - name: file
+    type: file
+    description: Optional file attachment containing the documentation
