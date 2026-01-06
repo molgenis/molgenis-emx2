@@ -1,3 +1,7 @@
+plugins {
+    id "com.avast.gradle.docker-compose" version "0.17.20"
+}
+
 dependencies {
     implementation project(':backend:molgenis-emx2-sql')
     implementation project(':backend:molgenis-emx2-io')
@@ -54,3 +58,12 @@ tasks.register('testStarterKit', Test) {
         showStandardStreams = false
     }
 }
+
+dockerCompose {
+    useComposeFiles = ['../../docker-compose.yml'] // Docker-compose in project root
+    isRequiredBy(tasks.named('testStarterKit'))
+    removeVolumes = false
+    captureContainersOutput = true // Log container output for CI debugging
+    projectName = "emx2-starterkit-tests"
+}
+
