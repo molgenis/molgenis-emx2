@@ -1,0 +1,42 @@
+tableName,tableExtends,columnName,columnType,key,required,refTable,refBack,visible,validation,defaultValue,semantics,description,profiles
+Container,,,,,,,,,,,,,
+Container,,name,string,1,,,,,,,,,
+Container,,description,text,,,,,,,,,,
+Container,,blocks,refback,,,Blocks,in container,,,,,,
+Blocks,,,,,,,,,,,,,
+Blocks,,id,auto_id,1,,,,,,,,,
+Blocks,,in container,ref,,,Container,,,,,,,
+Blocks,,components,refback,,,Components,in block,,,,,,
+Blocks,,enable full screen width,bool,,,,,,,FALSE,,,
+Components,,,,,,,,,,,,,
+Components,,id,auto_id,1,,,,,,,,,
+Components,,in block,ref,,,Blocks,,,,,,,
+Header,components,,,,,,,,,,,Header elements,pages
+Header,,title,string,,,,,,,,,,pages
+Header,,subtitle,string,,,,,,,,,,pages
+Header,,background image,select,,,Img,,,,,,,pages
+Header,,text is centered,bool,,,,,,,FALSE,,,pages
+Heading elements,components,,,,,,,,,,,,pages
+H1,Heading elements,,,,,,,,,,,<h1> elements,pages
+H1,,text,string,,,,,,,,,,pages
+H2,Heading elements,,,,,,,,,,,<h2> elements,pages
+H2,,text,string,,,,,,,,,,pages
+H3,Heading elements,,,,,,,,,,,<h3> elements,pages
+H3,,text,string,,,,,,,,,,pages
+H4,Heading elements,,,,,,,,,,,<h4> elements,pages
+H4,,text,string,,,,,,,,,,pages
+H5,Heading elements,,,,,,,,,,,<h5> elements,pages
+H5,,text,string,,,,,,,,,,pages
+H6,Heading elements,,,,,,,,,,,<h6> elements,pages
+H6,,text,string,,,,,,,,,,pages
+Heading elements,,text is centered,bool,,,,,,,FALSE,,,pages
+Paragraph,components,,,,,,,,,,,P elements,pages
+Paragraph,,text,text,,,,,,,,,,pages
+Paragraph,,text is centered,bool,,,,,,,FALSE,,,pages
+Img,components,,,,,,,,,,,<img> elements,pages
+Img,,display name,string,,,,,,,,,,pages
+Img,,image,file,,,,,,,,,,pages
+Ordered list,components,,,,,,,,,,,ol elements,pages
+Ordered list,,items,text_array,,,,,,,,,ol elements,pages
+Unordered list,components,,,,,,,,,,,ul elements,pages
+Unordered list,,items,text_array,,,,,,,,,ul elements,pages
