@@ -1,5 +1,23 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import BaseIcon from "./BaseIcon.vue";
+
+const manifest = ref(await getAppManifest());
+
+async function getAppManifest() {
+  return $fetch("/api/graphql", {
+    method: "POST",
+    body: JSON.stringify({
+      query: `{
+        _manifest { SpecificationVersion,DatabaseVersion }
+        }`,
+    }),
+  })
+    .then((result) => result.data._manifest)
+    .catch((error) => {
+      throw error;
+    });
+}
 </script>
 
 <template>
@@ -10,7 +28,7 @@ import BaseIcon from "./BaseIcon.vue";
       <div>
         <h3 class="mb-2 text-title font-bold">Created with MOLGENIS</h3>
         <ul class="list-style-none flex flex-col gap-1.5 text-link-inverted">
-          <li class="flex items-ceter">
+          <li class="flex items-center">
             <a
               class="flex items-center hover:underline"
               href="http://molgenis.org"
@@ -110,6 +128,10 @@ import BaseIcon from "./BaseIcon.vue";
           </li>
         </ul>
       </div>
+    </div>
+    <div v-if="manifest" class="text-center">
+      Software version: {{ manifest?.SpecificationVersion }}. Database version:
+      {{ manifest?.DatabaseVersion }}.
     </div>
     <slot></slot>
   </div>
