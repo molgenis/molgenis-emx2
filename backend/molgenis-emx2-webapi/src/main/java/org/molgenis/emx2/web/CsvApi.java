@@ -26,6 +26,7 @@ import org.molgenis.emx2.io.emx2.Emx2Members;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.sql.SqlTypeUtils;
@@ -106,14 +107,14 @@ public class CsvApi {
   }
 
   private static void getMembers(Context ctx) throws IOException {
-    var schema = getSchema(ctx);
+    Schema schema = getSchema(ctx);
     if (!exportMembersAllowed(ctx, schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
-    var writer = new StringWriter();
+    StringWriter writer = new StringWriter();
     Character separator = getSeparator(ctx);
-    var tableStore = new TableStoreForCsvInMemory(separator);
+    TableStore tableStore = new TableStoreForCsvInMemory(separator);
 
     Emx2Members.outputRoles(tableStore, schema);
 
@@ -132,12 +133,20 @@ public class CsvApi {
     ctx.result(writer.toString());
   }
 
-  private static void getSettings(Context ctx) throws IOException {
-    var schema = getSchema(ctx);
+  private static boolean exportMembersAllowed(Context ctx, Schema schema) {
+    var currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+    var sqlSchemaMetadata = new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
+    var roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
+    return roles.contains(Privileges.MANAGER.toString())
+        || roles.contains(Privileges.OWNER.toString());
+  }
 
-    var writer = new StringWriter();
+  private static void getSettings(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+
+    StringWriter writer = new StringWriter();
     Character separator = getSeparator(ctx);
-    var tableStore = new TableStoreForCsvInMemory(separator);
+    TableStore tableStore = new TableStoreForCsvInMemory(separator);
 
     Emx2Settings.outputSettings(tableStore, schema);
 
@@ -153,15 +162,6 @@ public class CsvApi {
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
-  }
-
-  private static boolean exportMembersAllowed(Context ctx, Schema schema) {
-    var currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
-    var sqlSchemaMetadata = new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
-    var roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
-    return schema.getDatabase().isAdmin()
-        || roles.contains(Privileges.MANAGER.toString())
-        || roles.contains(Privileges.OWNER.toString());
   }
 
   private static void tableRetrieve(Context ctx) throws IOException {

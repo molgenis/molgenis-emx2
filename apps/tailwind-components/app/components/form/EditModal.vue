@@ -1,6 +1,6 @@
 <template>
   <template v-if="showButton">
-    <slot :setVisible="setVisible">
+    <slot>
       <Button
         class="m-10"
         type="primary"
@@ -12,6 +12,7 @@
       </Button>
     </slot>
   </template>
+
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
@@ -38,9 +39,9 @@
     <Form
       v-if="visible"
       ref="edit-modal-form"
-      :metadata="props.metadata"
+      :metadata="metadata"
       :formValues="formValues"
-      :constantValues="props.constantValues"
+      :constantValues="constantValues"
     />
 
     <TransitionSlideUp>
@@ -148,28 +149,24 @@ const props = withDefaults(
   }
 );
 
+type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
+const form = useTemplateRef<FormType>("edit-modal-form");
+
+const saving = ref(false);
+const isInsert = ref(props.isInsert);
+const formValues = ref<Record<string, columnValue>>(initFormValues());
+
 const emit = defineEmits([
   "update:added",
   "update:updated",
   "update:cancelled",
 ]);
 
-const visible = defineModel("visible", {
-  type: Boolean,
-  default: false,
-});
+const visible = defineModel<boolean>("visible");
 
-const form = useTemplateRef<FormType>("edit-modal-form");
-
-type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
-
-const saving = ref(false);
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
-
-const isInsert = ref(props.isInsert);
-const formValues = ref<Record<string, columnValue>>(initFormValues());
 
 watch(formValues.value, () => {
   formMessage.value = "";
@@ -182,10 +179,6 @@ const showReAuthenticateButton = ref<boolean>(false);
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
-
-function setVisible() {
-  visible.value = true;
-}
 
 function initFormValues() {
   const values =
@@ -226,9 +219,6 @@ const errorMessage = computed(() => {
 
 function onCancel() {
   visible.value = false;
-  saveErrorMessage.value = "";
-  formMessage.value = "";
-  formValues.value = initFormValues();
   emit("update:cancelled");
 }
 

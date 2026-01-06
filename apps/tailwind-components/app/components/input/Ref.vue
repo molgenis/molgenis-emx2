@@ -10,9 +10,8 @@ import type {
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import logger from "../../utils/logger";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import { ref, type Ref, computed, watch, onMounted } from "vue";
+import { ref, type Ref, computed, watch, onMounted, nextTick } from "vue";
 import fetchTableData from "../../composables/fetchTableData";
-import type { IColumn } from "../../../../metadata-utils/src/types";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
 import InputGroupContainer from "../input/InputGroupContainer.vue";
@@ -20,6 +19,8 @@ import Button from "../Button.vue";
 import BaseIcon from "../BaseIcon.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { useTemplateRef } from "vue";
 
 const props = withDefaults(
   defineProps<
@@ -76,14 +77,20 @@ async function init() {
   );
 
   if (
-    modelValue.value && Array.isArray(modelValue.value)
+    modelValue.value &&
+    (Array.isArray(modelValue.value)
       ? modelValue.value.length > 0
-      : modelValue.value
+      : modelValue.value)
   ) {
+    const keys = Array.isArray(modelValue.value)
+      ? await Promise.all(
+          (modelValue.value as []).map((row) => extractPrimaryKey(row))
+        )
+      : await extractPrimaryKey(modelValue.value as columnValueObject);
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: extractPrimaryKey(modelValue.value) } }
+      { filter: { equals: keys }, expandLevel: 1 }
     );
     if (data.rows) {
       hasNoResults.value = false;
@@ -108,32 +115,9 @@ watch(
 );
 
 // the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-// todo: move the options fetch to the outside of the component and pass it as a (synchronous) prop
 watch(
   () => modelValue.value,
-  () => {
-    if (props.isArray === false) {
-      const key = Object.keys(selectionMap.value)[0];
-      if (key !== undefined) {
-        delete selectionMap.value[key];
-      }
-      if (modelValue.value) {
-        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
-          modelValue.value;
-      }
-    } else {
-      selectionMap.value = {};
-      if (
-        modelValue.value &&
-        Array.isArray(modelValue.value) &&
-        modelValue.value.length > 0
-      ) {
-        modelValue.value.forEach((value) => {
-          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
-        });
-      }
-    }
-  }
+  () => init
 );
 
 function applyTemplate(template: string, row: Record<string, any>): string {
@@ -145,6 +129,7 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 
 async function loadOptions(filter: IQueryMetaData) {
   hasNoResults.value = true;
+  filter.expandLevel = 1;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
@@ -168,32 +153,42 @@ async function loadOptions(filter: IQueryMetaData) {
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
-  if (searchTerms.value) updateSearch("");
+  if (searchTerms.value) {
+    updateSearch("");
+  }
 }
 
-const sentinel = ref<HTMLElement | null>(null);
+const wrapperRef = useTemplateRef("wrapperRef");
+// Close dropdown when clicking outside
+useClickOutside(wrapperRef, () => {
+  showSelect.value = false;
+});
+
+const sentinel = useTemplateRef("sentinel");
 let loadMoreObserver: IntersectionObserver | null = null;
+onMounted(() => {
+  loadMoreObserver = new IntersectionObserver(
+    async (entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting) {
+        loadMore();
+      }
+    },
+    {
+      root: wrapperRef.value, // the container
+      threshold: 0.25,
+      rootMargin: "100px", //more smooth
+    }
+  );
+});
+
 function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
     loadMoreObserver?.disconnect();
-    loadMoreObserver = null;
   } else {
     showSelect.value = true;
-    loadMoreObserver = new IntersectionObserver(
-      async (entries) => {
-        const entry = entries[0];
-        if (entry?.isIntersecting) {
-          loadMore();
-        }
-      },
-      {
-        root: wrapperRef.value, // the container
-        threshold: 0.1,
-        rootMargin: "100px", //more smooth
-      }
-    );
-    loadMoreObserver.observe(sentinel.value);
+    loadMoreObserver?.observe(sentinel.value!);
   }
 }
 
@@ -204,43 +199,54 @@ function updateSearch(newSearchTerms: string) {
   loadOptions({ limit: props.limit, searchTerms: searchTerms.value });
 }
 
-function select(label: string) {
+async function select(label: string) {
   if (!props.isArray) {
     selectionMap.value = {};
   }
-  selectionMap.value[label] = optionMap.value[label];
-  if (searchTerms.value) toggleSearch();
+  const optionValue = optionMap.value[label];
+  if (
+    optionValue !== undefined &&
+    optionValue !== null &&
+    typeof optionValue === "object" &&
+    !Array.isArray(optionValue)
+  ) {
+    selectionMap.value[label] = await extractPrimaryKey(optionValue);
+  } else {
+    throw new Error("Invalid option value for label: " + label);
+  }
+
+  if (searchTerms.value) {
+    toggleSearch();
+  }
+  // close select dropdown for single select once an option is selected
+  if (!props.isArray && showSelect.value === true) {
+    toggleSelect();
+  }
+  emitValue();
+}
+
+function emitValue() {
   emit(
     "update:modelValue",
     props.isArray
-      ? Object.values(selectionMap.value).map((value) =>
-          extractPrimaryKey(value)
-        )
-      : extractPrimaryKey(optionMap.value[label])
+      ? Object.values(selectionMap.value)
+      : Object.values(selectionMap.value)[0]
   );
 }
 
-function extractPrimaryKey(value: any) {
-  const result = {} as columnValueObject;
-  tableMetadata.value?.columns
-    .filter((column: IColumn) => column.key === 1)
-    .forEach((column: IColumn) => {
-      result[column.id] = value[column.id];
-    });
-  return result;
+async function extractPrimaryKey(row: recordValue) {
+  return await fetchRowPrimaryKey(row, props.refTableId, props.refSchemaId);
 }
 
 function deselect(label: string) {
   delete selectionMap.value[label];
-  if (searchTerms.value) toggleSearch();
-  emit(
-    "update:modelValue",
-    props.isArray
-      ? Object.values(selectionMap.value).map((value) =>
-          extractPrimaryKey(value)
-        )
-      : undefined
-  );
+  if (searchTerms.value) {
+    toggleSearch();
+  }
+  if (!props.isArray && showSelect.value === true) {
+    toggleSelect();
+  }
+  emitValue();
 }
 
 function clearSelection() {
@@ -259,12 +265,6 @@ function loadMore() {
 }
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
-
-// Close dropdown when clicking outside
-const wrapperRef = ref<HTMLElement | null>(null);
-useClickOutside(wrapperRef, () => {
-  showSelect.value = false;
-});
 
 onMounted(() => {
   init();
@@ -306,8 +306,8 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 m-2"
-        @click.stop="toggleSelect"
+        class="flex items-center justify-between gap-2 px-2 h-[56px]"
+        @click.stop.self="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="isArray ? selection.length : selection" role="group">
@@ -317,6 +317,7 @@ onMounted(() => {
               iconPosition="right"
               type="filterWell"
               size="tiny"
+              class="h-[36px]"
               :class="{
                 'text-disabled cursor-not-allowed': disabled,
                 'text-valid bg-valid': valid,
@@ -339,7 +340,7 @@ onMounted(() => {
               class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
               placeholder="Search in terms"
               autocomplete="off"
-              @click.stop="toggleSelect"
+              @click.stop.self="toggleSelect"
             />
           </div>
         </div>
@@ -353,7 +354,7 @@ onMounted(() => {
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-            @click.stop="toggleSelect"
+            @click.stop.self="toggleSelect"
           />
           <BaseIcon
             v-show="!showSelect"
@@ -364,13 +365,14 @@ onMounted(() => {
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
+            @click.stop.self="toggleSelect"
           />
         </div>
       </div>
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
+          'max-h-[50vh] top-4 rounded-theme bg-input overflow-y-auto w-full pt-2 pb-6 pl-4 ':
             displayAsSelect,
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
@@ -411,12 +413,13 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="isArray ? selection.length : selection && !displayAsSelect"
     @click="clearSelection"
     type="text"
     size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
+    :class="{ 'pl-2': displayAsSelect }"
   >
     Clear
   </Button>
