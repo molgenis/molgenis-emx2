@@ -6,10 +6,8 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableReference;
 
 public class CrossSchemaReferenceExample {
 
@@ -46,8 +44,7 @@ public class CrossSchemaReferenceExample {
     petLover.insert(row("name", "x", "pets", new String[] {"pooky", "spike"}));
 
     Table cat =
-        schema2.create(
-            table("Mouse").setInherits(List.of(new TableReference(schema1.getName(), "Pet"))));
+        schema2.create(table("Mouse").setImportSchema(schema1.getName()).setInheritName("Pet"));
     cat.insert(row("name", "mickey", "species", "mouse"));
 
     // for test if tables can have same name but different structure between schemas

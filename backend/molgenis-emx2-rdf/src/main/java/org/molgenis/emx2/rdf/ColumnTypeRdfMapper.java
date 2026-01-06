@@ -251,7 +251,7 @@ public abstract class ColumnTypeRdfMapper {
                         ? mappedNames.get(i)
                         : rowIRI(
                             rdfMapData.getBaseURL(),
-                            column.getRefTable().getBaseTable(),
+                            column.getRefTable().getRootTable(),
                             new PrimaryKey(Map.of("name", i)))))
             .collect(Collectors.toUnmodifiableSet());
       }
@@ -335,7 +335,7 @@ public abstract class ColumnTypeRdfMapper {
         values.add(
             rowIRI(
                 rdfMapData.getBaseURL(),
-                tableColumn.getRefTable().getBaseTable(),
+                tableColumn.getRefTable().getRootTable(),
                 new PrimaryKey(item)));
       }
       return Set.copyOf(values);

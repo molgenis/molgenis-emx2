@@ -6,10 +6,12 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 
 public class TestMgColumns {
   private static Schema schema;
@@ -52,7 +54,7 @@ public class TestMgColumns {
     t =
         schema.create(
             table("MgDraftSub", column("required").setRequired(true), column("notrequired"))
-                .setInherits(List.of(new TableReference(null, "MgDraftSuper"))));
+                .setInheritName("MgDraftSuper"));
 
     try {
       t.insert(row("id", 1, "notrequired", "somevalue1"));
@@ -84,9 +86,7 @@ public class TestMgColumns {
     assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
 
     // to make sure also test with subclass
-    t =
-        schema.create(
-            table("UpdatedOnSub").setInherits(List.of(new TableReference(null, "UpdatedOn"))));
+    t = schema.create(table("UpdatedOnSub").setInheritName("UpdatedOn"));
 
     t.insert(row("id", 2));
     r = t.retrieveRows().get(0);

@@ -698,7 +698,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getRootTableName() {
-    return getTable().getBaseTable().getTableName();
+    return getTable().getRootTable().getTableName();
   }
 
   @Override

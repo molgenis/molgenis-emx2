@@ -130,7 +130,6 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.database = database;
   }
 
-  // used for typescript generator
   public List<TableMetadata> getTablesIncludingExternal() {
     Map<String, TableMetadata> tables = new LinkedHashMap<>();
     for (String tableName : getTableNames()) {
@@ -146,20 +145,16 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   private void addExternalTablesRecursive(
       Map<String, TableMetadata> tables, TableMetadata current) {
-    // all inherited tables
-    current
-        .getAllInheritedTables()
-        .forEach(
-            inheritedTable -> {
-              String scopeTableName = inheritedTable.getTableName();
-              if (!inheritedTable.getSchemaName().equals(current.getTableName())) {
-                scopeTableName = inheritedTable.getSchemaName() + "_" + scopeTableName;
-              }
-              if (!tables.containsKey(scopeTableName)) {
-                tables.put(scopeTableName, inheritedTable);
-              }
-            });
-    // all refered tables
+    if (current.getInheritedTable() != null) {
+      String scopeTableName = current.getInheritName();
+      if (!current.getInheritedTable().getSchemaName().equals(getName())) {
+        scopeTableName = current.getInheritedTable().getSchemaName() + "_" + scopeTableName;
+      }
+      if (!tables.containsKey(scopeTableName)) {
+        tables.put(scopeTableName, current.getInheritedTable());
+        addExternalTablesRecursive(tables, current.getInheritedTable());
+      }
+    }
     for (Column c : current.getColumns()) {
       if (c.isReference()) {
         String scopeTableName = c.getRefTableName();

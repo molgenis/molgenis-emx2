@@ -271,12 +271,12 @@ public class RDFTest {
             "Root",
             column("id", ColumnType.STRING).setKey(1),
             column("rootColumn", ColumnType.STRING)));
-    tableInherTest.create(table("Child", column("childColumn")).setInherits("Root"));
+    tableInherTest.create(table("Child", column("childColumn")).setInheritName("Root"));
     // Same column name but not in shared parent, so test how this is handled.
     tableInherTest.create(
-        table("GrandchildTypeA", column("grandchildColumn")).setInherits("Child"));
+        table("GrandchildTypeA", column("grandchildColumn")).setInheritName("Child"));
     tableInherTest.create(
-        table("GrandchildTypeB", column("grandchildColumn")).setInherits("Child"));
+        table("GrandchildTypeB", column("grandchildColumn")).setInheritName("Child"));
     tableInherTest.getTable("Root").insert(row("id", "1", "rootColumn", "id1 data"));
     tableInherTest.getTable("Child").insert(row("id", "2", "childColumn", "id2 data"));
     tableInherTest
@@ -300,10 +300,10 @@ public class RDFTest {
     tableInherExtTest.create(
         table("ExternalChild", column("externalChildColumn"))
             .setImportSchema(tableInherTest.getName())
-            .setInherits("Root"));
+            .setInheritName("Root"));
     tableInherExtTest.create(
         table("ExternalGrandchild", column("externalGrandchildColumn"))
-            .setInherits("ExternalChild"));
+            .setInheritName("ExternalChild"));
     tableInherExtTest.create(
         table(
             "ExternalUnrelated",
@@ -1181,7 +1181,7 @@ public class RDFTest {
   void testSubClassesForInheritedTable() throws IOException {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_InheritTable");
     Table root = schema.create(table("root", column("id").setPkey()));
-    Table child = schema.create(table("child", column("name")).setInherits("root"));
+    Table child = schema.create(table("child", column("name")).setInheritName("root"));
     InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
     var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
     var childIRI = Values.iri(getApi(schema) + child.getIdentifier());
@@ -1206,7 +1206,7 @@ public class RDFTest {
   void testSubClassRootTables() throws IOException {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_RootTable");
     Table root = schema.create(table("root", column("id").setPkey()));
-    Table child = schema.create(table("child", column("name")).setInherits("root"));
+    Table child = schema.create(table("child", column("name")).setInheritName("root"));
     InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
     var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
     var childIRI = Values.iri(getApi(schema) + child.getIdentifier());

@@ -100,7 +100,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     final IRI subject = tableIRI(getBaseURL(), table);
     getWriter().processTriple(subject, RDF.TYPE, OWL.CLASS);
     getWriter().processTriple(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS);
-    Table parent = table.getInheritedTables();
+    Table parent = table.getInheritedTable();
     // A table is a subclass of owl:Thing or of it's direct parent
     if (parent == null) {
       getWriter().processTriple(subject, RDFS.SUBCLASSOF, OWL.THING);

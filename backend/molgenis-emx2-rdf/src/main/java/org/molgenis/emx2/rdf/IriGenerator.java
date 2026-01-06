@@ -68,10 +68,10 @@ public class IriGenerator {
     return Values.iri(
         baseURL
             + "/"
-            + escaper.escape(table.getBaseTable().getSchemaName())
+            + escaper.escape(table.getRootTable().getSchemaName())
             + API_RDF
             + "/"
-            + escaper.escape(table.getBaseTable().getIdentifier())
+            + escaper.escape(table.getRootTable().getIdentifier())
             + "/"
             + primaryKey.getEncodedString());
   }

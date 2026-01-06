@@ -88,7 +88,7 @@ public abstract class RdfGenerator {
       tablesToDescribe.add(currentTable);
       return true;
     }
-    if (processInheritedTable(tableFilter, tablesToDescribe, currentTable.getInheritedTables())) {
+    if (processInheritedTable(tableFilter, tablesToDescribe, currentTable.getInheritedTable())) {
       tablesToDescribe.add(currentTable);
       return true;
     }

@@ -42,7 +42,7 @@ class IriGeneratorTest {
     TableMetadata tableMetadata = mock(TableMetadata.class);
     when(tableMetadata.getSchemaName()).thenReturn(SCHEMA_NAME);
     when(tableMetadata.getIdentifier()).thenReturn(TABLE_ID);
-    when(tableMetadata.getBaseTable()).thenReturn(tableMetadata);
+    when(tableMetadata.getRootTable()).thenReturn(tableMetadata);
 
     Table table = mock(Table.class);
     when(table.getMetadata()).thenReturn(tableMetadata);
@@ -65,7 +65,7 @@ class IriGeneratorTest {
     TableMetadata childTableMetadata = mock(TableMetadata.class);
     when(childTableMetadata.getSchemaName()).thenReturn(CHILD_SCHEMA_NAME);
     when(childTableMetadata.getIdentifier()).thenReturn(CHILD_TABLE_ID);
-    when(childTableMetadata.getBaseTable()).thenReturn(tableMetadata); // return parent!
+    when(childTableMetadata.getRootTable()).thenReturn(tableMetadata); // return parent!
 
     Table childTable = mock(Table.class);
     when(childTable.getMetadata()).thenReturn(childTableMetadata);

@@ -13,7 +13,6 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -37,14 +36,14 @@ public class TestInherits {
 
     // test if fails if no primary key
     try {
-      s.create(table("Employee").setInherits(List.of(new TableReference(null, person.getName()))));
+      s.create(table("Employee").setInheritName(person.getName()));
       fail("Should fail because does not have pkey");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     try {
-      s.create(table("Employee").setInherits(List.of(new TableReference(null, "fake_table"))));
+      s.create(table("Employee").setInheritName("fake_table"));
       fail("Should fail");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -57,9 +56,7 @@ public class TestInherits {
     // create first extended table
     Table employee =
         s.create(
-            table("Employee")
-                .setInherits(List.of(new TableReference(null, person.getName())))
-                .add(column("salary").setType(INT)));
+            table("Employee").setInheritName(person.getName()).add(column("salary").setType(INT)));
 
     // check that mg_tableclass column doesn't have a default (regression #2936)
     assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
@@ -80,14 +77,15 @@ public class TestInherits {
     Table manager =
         s.create(
             table("Manager")
-                .setInherits(List.of(new TableReference(null, "Employee")))
+                .setInheritName("Employee")
                 .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
     Schema otherSchema = db.createSchema(TestInherits.class.getSimpleName() + "1");
     Table ceo =
         otherSchema.create(
             table("CEO")
-                .setInherits(List.of(new TableReference(s.getName(), "Manager")))
+                .setInheritName("Manager")
+                .setImportSchema(s.getName())
                 .add(column("title")));
 
     // try to add column that already exists in parent
@@ -125,7 +123,7 @@ public class TestInherits {
 
     // try to extend twice
     try {
-      manager.getMetadata().setInherits(List.of(new TableReference(null, "Student")));
+      manager.getMetadata().setInheritName("Student");
       fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -133,9 +131,7 @@ public class TestInherits {
 
     // create another extended table
     s.create(
-        table("Student")
-            .setInherits(List.of(new TableReference(null, person.getName())))
-            .add(column("averageGrade").setType(INT)));
+        table("Student").setInheritName(person.getName()).add(column("averageGrade").setType(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");

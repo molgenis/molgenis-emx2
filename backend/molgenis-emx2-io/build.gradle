@@ -3,23 +3,8 @@ dependencies {
     implementation 'com.github.pjfanning:excel-streaming-reader:4.4.0'
     implementation 'org.apache.commons:commons-lang3:3.13.0'
     implementation 'commons-io:commons-io:2.15.1'
-    implementation 'com.networknt:json-schema-validator:1.0.72'
-    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
-    compileOnly("org.projectlombok:lombok:1.18.42")
-    annotationProcessor("org.projectlombok:lombok:1.18.42")
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
-}
-
-//we use data models from schemas folder for yaml testing
-sourceSets {
-    test {
-        resources {
-            srcDirs += [
-                    "$rootDir/schemas"
-            ]
-        }
-    }
 }

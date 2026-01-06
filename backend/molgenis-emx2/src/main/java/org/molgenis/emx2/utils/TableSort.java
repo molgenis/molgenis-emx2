@@ -36,12 +36,11 @@ public class TableSort {
         boolean depends = false;
 
         for (int j = 0; j < todo.size(); j++) {
-          for (TableMetadata inheritedTable : current.getInheritedTables()) {
-            if (inheritedTable.getSchemaName().equals(current.getSchemaName())
-                && inheritedTable.getTableName().equals(current.getTableName())) {
-              depends = true;
-              break;
-            }
+          if (current.getInheritName() != null
+              && current.getImportSchema() == null
+              && todo.get(j).equals(current.getInheritedTable())) {
+            depends = true;
+            break;
           }
         }
         if (!depends)

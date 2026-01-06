@@ -33,7 +33,7 @@ public class TestTableQueriesWithInheritance {
     schema = database.dropCreateSchema(schemaName);
     schema.create(table("Person", column("name").setPkey()));
     schema.create(
-        table("Employee", column("salary").setType(ColumnType.INT)).setInherits("Person"));
+        table("Employee", column("salary").setType(ColumnType.INT)).setInheritName("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);

@@ -269,9 +269,7 @@ public class TestRefBack {
             column("id").setPkey(),
             column("partOfSubject").setType(REF).setRefTable("subject")));
     // inherit
-    schema.create(
-        table("treatmentxyz", column("xyz"))
-            .setInherits(List.of(new TableReference(null, "treatments"))));
+    schema.create(table("treatmentxyz", column("xyz")).setInheritName("treatments"));
     // add the refback
     schema
         .getTable("subject")
