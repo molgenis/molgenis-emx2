@@ -1,7 +1,3 @@
-todo:
-- I would like to create multiple schema in one package
-- I would like to be able to define cross schema (global) roles
-
 # MOLGENIS 'package' format
 
 MOLGENIS platform allows to fully customize behavior. The results of such customization have great value to be shared. Therefore MOLGENIS comes with a
@@ -15,7 +11,7 @@ The customizations that can be shared are:
 * queries (custom SQL or graphql queries that can be shared as a service)
 * services (e.g. adapters between your data schema and external standard APIs, such as DCAT (RDF) and Beacon (web service based))
 
-## Minimal example
+## Basic structure
 
 Below a minimal example
 
@@ -27,15 +23,36 @@ molgenis:
     version: 1.0.0
     homepage: https://github.com/some/place
   schema:
-  - table: Pets
-    columns:
-      - name: name
-        key: 1
-      - name: description
-        type: text
-  permissions:
-  - role: anonymous
-    view: [all]
+    ${schemaName}:
+      test
+    tables:
+    - name: Pets
+      columns:
+        - name: name
+          key: 1
+        - name: description
+          type: text
+        - name: category
+          type: ref
+          refSchema: lookups
+          refTable: categories
+    permissions:
+    - role: anonymous
+      view: [all]
+    - role: pet shop manager
+      edit: [all]
+    data: ./data
+    demoData: ./demodata
+  additionalSchemas:
+  - name: lookups
+    tables: 
+      - name: categories
+        columns:
+          - name: name
+            key: 1
+    permissions:
+      - role: anonymous
+        view: [all]
   settings:
     menu:
     - label: home
@@ -162,9 +179,9 @@ molgenis:
       logo: /${schema}/catalogue/logo.png
       colors:
         primary: #673bb7
-  sharedSchema: 
-    # this indicates this package will use a sharedSchema for some things.
-    name: CatalogueOntologies
+  namedSchemas: 
+    # can create named schemas
+    - name: CatalogueOntologies
   schema:
   - table: Catalogues
     semantics: dcat:Catalog
@@ -628,6 +645,18 @@ This feature allows data modelers to create a modular table, where depending on
       - label: About
         link: /${schema}/about
         # about is a custom app, see below
+
+
+
+
+
+
+
+```
+
+## UI and pages
+
+```yaml
     ui:
     # this is ui specific to this schema. UI can also be 'global'
     # ui can either be a configuration or simply link to a html/js dist bundle
@@ -666,10 +695,12 @@ This feature allows data modelers to create a modular table, where depending on
           settings:
             contents:
               Some background comes here.
-
-
-
-
-
-
 ```
+
+# Feature checklist
+
+Not to forget:
+
+- [] when having  multiple imports mixed with my own fields I would like to sort in one go
+- [] can create multiple schemas
+- [x] can define cross schema (global) roles
