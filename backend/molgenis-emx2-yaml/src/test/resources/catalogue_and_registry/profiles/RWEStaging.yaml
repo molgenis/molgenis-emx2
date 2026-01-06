@@ -1,168 +1,167 @@
 ---
 schema:
-- imports:
-    path: ../catalogue_and_registry.yaml
-    includes:
-    - table: Variable values
-      columns:
-      - resource
-      - dataset
-      - variable
-      - value
-      - label
-      - order
-      - is missing
-      - ontology term URI
-      - since version
-      - until version
-    - table: Publications
-      columns:
-      - resource
-      - doi
-      - title
-      - is design publication
-      - reference
-    - table: Documentation
-      columns:
-      - resource
-      - name
-      - type
-      - description
-      - url
-      - file
-    - table: Internal identifiers
-      columns:
-      - resource
-      - identifier
-      - internal identifier type
-      - internal identifier type other
-    - table: Agents
-      columns:
-      - resource
-      - id
-      - type
-      - name
-      - organisation
-      - other organisation
-      - department
-      - website
-      - email
-      - logo
-      - role
-    - table: Dataset mappings
-      columns:
-      - source
-      - source dataset
-      - target
-      - target dataset
-      - order
-      - description
-      - syntax
-    - table: Datasets
-      columns:
-      - resource
-      - name
-      - label
-      - dataset type
-      - unit of observation
-      - keywords
-      - description
-      - number of rows
-      - mapped to
-      - mapped from
-      - since version
-      - until version
-    - table: Resource counts
-      columns:
-      - resource
-      - age group
-      - population size
-      - active size
-      - no individuals with samples
-      - mean observation years
-      - mean years active
-      - median age
-      - proportion female
-    - table: Variable mappings
-      columns:
-      - source
-      - source dataset
-      - source variables
-      - source variables other datasets
-      - repeats
-      - match
-      - description
-      - syntax
-      - comments
-    - table: Samplesets
-      columns:
-      - resource
-      - name
-      - sample types
-    - table: External identifiers
-      columns:
-      - resource
-      - identifier
-      - external identifier type
-      - external identifier type other
-    - table: Linkages
-      columns:
-      - resource
-      - linked resource
-      - linkage strategy
-      - linkage variable
-      - linkage variable unique
-      - linkage completeness
-      - pre linked
-    - table: Organisations
-      columns:
-      - resource
-      - id
-      - type
-      - name
-      - organisation
-      - other organisation
-      - department
-      - website
-      - email
-      - logo
-      - role
-      - is lead organisation
-    - table: Contacts
-      columns:
-      - resource
-      - role
-      - role description
-      - first name
-      - last name
-      - prefix
-      - initials
-      - title
-      - organisation
-      - email
-      - orcid
-      - homepage
-      - photo
-      - expertise
-    - table: Version
-    - table: Variables
-      columns:
-      - resource
-      - dataset
-      - name
-      - useExternalDefinition
-      - label
-      - description
-      - format
-      - unit
-      - since version
-      - until version
-      - repeat unit
-      - repeat min
-      - repeat max
-      - example values
-      - permitted values
-      - keywords
-      - vocabularies
-      - notes
-      - mappings
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Variable values
+    columns:
+    - resource
+    - dataset
+    - variable
+    - value
+    - label
+    - order
+    - is missing
+    - ontology term URI
+    - since version
+    - until version
+  - table: Publications
+    columns:
+    - resource
+    - doi
+    - title
+    - is design publication
+    - reference
+  - table: Documentation
+    columns:
+    - resource
+    - name
+    - type
+    - description
+    - url
+    - file
+  - table: Internal identifiers
+    columns:
+    - resource
+    - identifier
+    - internal identifier type
+    - internal identifier type other
+  - table: Agents
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - department
+    - website
+    - email
+    - logo
+    - role
+  - table: Dataset mappings
+    columns:
+    - source
+    - source dataset
+    - target
+    - target dataset
+    - order
+    - description
+    - syntax
+  - table: Datasets
+    columns:
+    - resource
+    - name
+    - label
+    - dataset type
+    - unit of observation
+    - keywords
+    - description
+    - number of rows
+    - mapped to
+    - mapped from
+    - since version
+    - until version
+  - table: Resource counts
+    columns:
+    - resource
+    - age group
+    - population size
+    - active size
+    - no individuals with samples
+    - mean observation years
+    - mean years active
+    - median age
+    - proportion female
+  - table: Variable mappings
+    columns:
+    - source
+    - source dataset
+    - source variables
+    - source variables other datasets
+    - repeats
+    - match
+    - description
+    - syntax
+    - comments
+  - table: Samplesets
+    columns:
+    - resource
+    - name
+    - sample types
+  - table: External identifiers
+    columns:
+    - resource
+    - identifier
+    - external identifier type
+    - external identifier type other
+  - table: Linkages
+    columns:
+    - resource
+    - linked resource
+    - linkage strategy
+    - linkage variable
+    - linkage variable unique
+    - linkage completeness
+    - pre linked
+  - table: Organisations
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - department
+    - website
+    - email
+    - logo
+    - role
+    - is lead organisation
+  - table: Contacts
+    columns:
+    - resource
+    - role
+    - role description
+    - first name
+    - last name
+    - prefix
+    - initials
+    - title
+    - organisation
+    - email
+    - orcid
+    - homepage
+    - photo
+    - expertise
+  - table: Version
+  - table: Variables
+    columns:
+    - resource
+    - dataset
+    - name
+    - useExternalDefinition
+    - label
+    - description
+    - format
+    - unit
+    - since version
+    - until version
+    - repeat unit
+    - repeat min
+    - repeat max
+    - example values
+    - permitted values
+    - keywords
+    - vocabularies
+    - notes
+    - mappings

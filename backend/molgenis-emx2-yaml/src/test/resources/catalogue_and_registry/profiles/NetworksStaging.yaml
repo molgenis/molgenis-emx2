@@ -1,120 +1,119 @@
 ---
 schema:
-- imports:
-    path: ../catalogue_and_registry.yaml
-    includes:
-    - table: Variable values
-      columns:
-      - resource
-      - dataset
-      - variable
-      - value
-      - label
-      - order
-      - is missing
-      - ontology term URI
-      - since version
-      - until version
-    - table: Publications
-      columns:
-      - resource
-      - doi
-      - title
-      - is design publication
-      - reference
-    - table: Documentation
-      columns:
-      - resource
-      - name
-      - type
-      - description
-      - url
-      - file
-    - table: Internal identifiers
-      columns:
-      - resource
-      - identifier
-      - internal identifier type
-      - internal identifier type other
-    - table: Agents
-      columns:
-      - resource
-      - id
-      - type
-      - name
-      - organisation
-      - other organisation
-      - department
-      - website
-      - email
-      - logo
-      - role
-    - table: Datasets
-      columns:
-      - resource
-      - name
-      - label
-      - dataset type
-      - unit of observation
-      - keywords
-      - description
-      - number of rows
-      - since version
-      - until version
-    - table: External identifiers
-      columns:
-      - resource
-      - identifier
-      - external identifier type
-      - external identifier type other
-    - table: Organisations
-      columns:
-      - resource
-      - id
-      - type
-      - name
-      - organisation
-      - other organisation
-      - department
-      - website
-      - email
-      - logo
-      - role
-      - is lead organisation
-    - table: Contacts
-      columns:
-      - resource
-      - role
-      - role description
-      - first name
-      - last name
-      - prefix
-      - initials
-      - title
-      - organisation
-      - email
-      - orcid
-      - homepage
-      - photo
-      - expertise
-    - table: Version
-    - table: Variables
-      columns:
-      - resource
-      - dataset
-      - name
-      - useExternalDefinition
-      - label
-      - description
-      - format
-      - unit
-      - since version
-      - until version
-      - repeat unit
-      - repeat min
-      - repeat max
-      - example values
-      - permitted values
-      - keywords
-      - vocabularies
-      - notes
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Variable values
+    columns:
+    - resource
+    - dataset
+    - variable
+    - value
+    - label
+    - order
+    - is missing
+    - ontology term URI
+    - since version
+    - until version
+  - table: Publications
+    columns:
+    - resource
+    - doi
+    - title
+    - is design publication
+    - reference
+  - table: Documentation
+    columns:
+    - resource
+    - name
+    - type
+    - description
+    - url
+    - file
+  - table: Internal identifiers
+    columns:
+    - resource
+    - identifier
+    - internal identifier type
+    - internal identifier type other
+  - table: Agents
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - department
+    - website
+    - email
+    - logo
+    - role
+  - table: Datasets
+    columns:
+    - resource
+    - name
+    - label
+    - dataset type
+    - unit of observation
+    - keywords
+    - description
+    - number of rows
+    - since version
+    - until version
+  - table: External identifiers
+    columns:
+    - resource
+    - identifier
+    - external identifier type
+    - external identifier type other
+  - table: Organisations
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - department
+    - website
+    - email
+    - logo
+    - role
+    - is lead organisation
+  - table: Contacts
+    columns:
+    - resource
+    - role
+    - role description
+    - first name
+    - last name
+    - prefix
+    - initials
+    - title
+    - organisation
+    - email
+    - orcid
+    - homepage
+    - photo
+    - expertise
+  - table: Version
+  - table: Variables
+    columns:
+    - resource
+    - dataset
+    - name
+    - useExternalDefinition
+    - label
+    - description
+    - format
+    - unit
+    - since version
+    - until version
+    - repeat unit
+    - repeat min
+    - repeat max
+    - example values
+    - permitted values
+    - keywords
+    - vocabularies
+    - notes

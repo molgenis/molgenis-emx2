@@ -17,5 +17,4 @@ public record YamlColumn(
     String defaultValue,
     String validation,
     String visible,
-    String subclass,
-    YamlImport imports) {}
+    String subclass) {}

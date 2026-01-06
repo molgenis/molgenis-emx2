@@ -4,51 +4,27 @@ description:
   description: just a test package
   version: 8.0.0
 schema:
-- imports:
-    path: schema/CollectionEvents.yaml
-- imports:
-    path: schema/VariableValues.yaml
-- imports:
-    path: schema/Publications.yaml
-- imports:
-    path: schema/Documentation.yaml
-- imports:
-    path: schema/InternalIdentifiers.yaml
-- imports:
-    path: schema/ReusedVariables.yaml
-- imports:
-    path: schema/Agents.yaml
-- imports:
-    path: schema/DatasetMappings.yaml
-- imports:
-    path: schema/Endpoint.yaml
-- imports:
-    path: schema/Datasets.yaml
-- imports:
-    path: schema/ResourceCounts.yaml
-- imports:
-    path: schema/Profiles.yaml
-- imports:
-    path: schema/Resources.yaml
-- imports:
-    path: schema/ResourceMappings.yaml
-- imports:
-    path: schema/VariableMappings.yaml
-- imports:
-    path: schema/Samplesets.yaml
-- imports:
-    path: schema/ExternalIdentifiers.yaml
-- imports:
-    path: schema/Subpopulations.yaml
-- imports:
-    path: schema/Linkages.yaml
-- imports:
-    path: schema/Organisations.yaml
-- imports:
-    path: schema/SubpopulationCounts.yaml
-- imports:
-    path: schema/Contacts.yaml
-- imports:
-    path: schema/Version.yaml
-- imports:
-    path: schema/Variables.yaml
+- import: schema/CollectionEvents.yaml
+- import: schema/VariableValues.yaml
+- import: schema/Publications.yaml
+- import: schema/Documentation.yaml
+- import: schema/InternalIdentifiers.yaml
+- import: schema/ReusedVariables.yaml
+- import: schema/Agents.yaml
+- import: schema/DatasetMappings.yaml
+- import: schema/Endpoint.yaml
+- import: schema/Datasets.yaml
+- import: schema/ResourceCounts.yaml
+- import: schema/Profiles.yaml
+- import: schema/Resources.yaml
+- import: schema/ResourceMappings.yaml
+- import: schema/VariableMappings.yaml
+- import: schema/Samplesets.yaml
+- import: schema/ExternalIdentifiers.yaml
+- import: schema/Subpopulations.yaml
+- import: schema/Linkages.yaml
+- import: schema/Organisations.yaml
+- import: schema/SubpopulationCounts.yaml
+- import: schema/Contacts.yaml
+- import: schema/Version.yaml
+- import: schema/Variables.yaml

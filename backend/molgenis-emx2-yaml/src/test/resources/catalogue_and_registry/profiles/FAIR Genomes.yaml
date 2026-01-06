@@ -1,4 +1,3 @@
 ---
 schema:
-- imports:
-    path: ../catalogue_and_registry.yaml
+- import: ../catalogue_and_registry.yaml

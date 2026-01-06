@@ -1,11 +1,10 @@
 ---
 schema:
-- imports:
-    path: ../catalogue_and_registry.yaml
-    includes:
-    - table: Endpoint
-      columns:
-      - id
-      - name
-      - description
-      - publisher
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Endpoint
+    columns:
+    - id
+    - name
+    - description
+    - publisher

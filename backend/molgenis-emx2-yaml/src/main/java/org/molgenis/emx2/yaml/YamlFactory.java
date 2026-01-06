@@ -87,26 +87,24 @@ public class YamlFactory {
 
   public YamlMolgenisPackage toYamlPackage(
       YamlPackageDescription description, SchemaMetadata schemaMetadata, Options options) {
-    List<YamlTable> yamlTableList;
     if (options.tableAsImports()) {
-      yamlTableList =
+      List<YamlTable> yamlImportList =
           schemaMetadata.getTables().stream()
               .map(
                   tableMetadata ->
                       YamlTable.builder()
-                          .imports(
-                              YamlImport.builder()
-                                  .path(TABLES_PATH + tableMetadata.getIdentifier() + ".yaml")
-                                  .build())
+                          .imports(TABLES_PATH + tableMetadata.getIdentifier() + ".yaml")
                           .build())
               .toList();
+      return YamlMolgenisPackage.builder().description(description).schema(yamlImportList).build();
     } else {
+      List<YamlTable> yamlTableList;
       yamlTableList =
           schemaMetadata.getTables().stream()
               .map(tableMetadata -> toYamlTable(tableMetadata, options))
               .toList();
+      return YamlMolgenisPackage.builder().description(description).schema(yamlTableList).build();
     }
-    return YamlMolgenisPackage.builder().description(description).schema(yamlTableList).build();
   }
 
   public YamlMolgenisPackage toYamlProfilePackage(SchemaMetadata schemaMetadata, Options options) {
@@ -120,11 +118,8 @@ public class YamlFactory {
             .toList();
     YamlTable tableImports =
         YamlTable.builder()
-            .imports(
-                YamlImport.builder()
-                    .path("../" + options.packageName() + ".yaml")
-                    .includes(includes)
-                    .build())
+            .imports("../" + options.packageName() + ".yaml")
+            .include(includes)
             .build();
     return YamlMolgenisPackage.builder().schema(List.of(tableImports)).build();
   }
