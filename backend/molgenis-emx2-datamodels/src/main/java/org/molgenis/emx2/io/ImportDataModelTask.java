@@ -14,12 +14,6 @@ public class ImportDataModelTask extends Task {
   @JsonIgnore private final Schema schema;
   private final boolean includeDemoData;
 
-  public ImportDataModelTask(
-      Database database, String schemaName, String description, Boolean includeDemoData) {
-    this.schema = database.createSchema(schemaName, description);
-    this.includeDemoData = includeDemoData;
-  }
-
   public ImportDataModelTask(SchemaLoaderSettings schemaLoaderSettings) {
     Database database = schemaLoaderSettings.database();
     String schemaName = schemaLoaderSettings.schemaName();
