@@ -10,23 +10,33 @@ Developer page,,css,text,,,,,,,,,,pages
 Developer page,,javascript,text,,,,,,,,,,pages
 Developer page,,Settings,section,,,,,,,,,,pages
 Developer page,,dependencies,ref_array,,,Dependencies,,,,,,,pages
-Developer page,,enable base styles,bool,,,,,,,true,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
-Developer page,,enable button styles,bool,,,,,,,true,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
-Developer page,,enable full screen,bool,,,,,,,false,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
+Developer page,,enable base styles,bool,,,,,,,TRUE,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
+Developer page,,enable button styles,bool,,,,,,,TRUE,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
+Developer page,,enable full screen,bool,,,,,,,FALSE,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
 Dependencies,,,,,,,,,,,,External dependencies used in the developer pages,pages
 Dependencies,,name,string,1,,,,,,,http://semanticscience.org/resource/SIO_000116,A name is a label used to identify an entity.,pages
 Dependencies,,url,hyperlink,,,,,,,,http://semanticscience.org/resource/SIO_000811,URL to the dependency,pages
 Dependencies,,fetch priority,ontology,,,Web fetch priority,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
 Dependencies CSS,Dependencies,,,,,,,,,,,External CSS dependencies used in custom pages,pages
 Dependencies JS,Dependencies,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
-Dependencies JS,,async,bool,,,,,,,false,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
-Dependencies JS,,defer,bool,,,,,,,false,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
+Dependencies JS,,async,bool,,,,,,,FALSE,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
+Dependencies JS,,defer,bool,,,,,,,FALSE,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
 Interactive page,Page,,,,,,,,,,,Pages built with the drag-and-drop interface,pages
 Interactive page,,Page header,section,,,,,,,,,,pages
-Interactive page,,banner,select,,,Page banners,,,,,,"The heading (title, subtitle) that will be displayed at the top of the page",pages
+Interactive page,,banner,select,,TRUE,Page banners,,,,,,"The heading (title, subtitle) that will be displayed at the top of the page",pages
+Interactive page,,content,ref,,,Page content,,,,,,The content displayed on the page,pages
 Page banners,,title,string,1,TRUE,,,,,,,"A unique title for the page (e.g., ""About us"", ""Contact"")",pages
 Page banners,,subtitle,string,,,,,,,,,"A subtitle that describes the page (e.g., ""Learn more about what we do"", etc.)",pages
-Page banners,,background image,select,,,Page images,,,,,,An image to be displayed in the background of the page banner,pages
+Page banners,,background image,select,,,Page images,,,,,,"Choose an image that will be displayed in the background of the page banner (i.e., behind the title and subtitle)",pages
+Page banners,,text is centered,bool,,,,,,,,,"If true, the title and subtitle will be horizontally and vertically centered in the page banner",pages
+Page content,,,,,,,,,,,,Content displayed on a page,pages
+Page content,,id,auto_id,1,,,,,,,,,pages
+Page content,,order,int,,,,,,,,,A interger that specifies the order in which content is displayed on a page after the page banner,pages
+Page content,,text is centered,bool,,,,,,,,,"If true, content will be horizontally and vertically centered",pages
+Page content,,displayed on page,refback,,,Interactive page,,,,,,The page(s) where the content is displayed,pages
+Text section,Page content,,,,,,,,,,,Sections that only display text elements,pages
+Text section,,heading,string,1,TRUE,,,,,,,A title for the section,pages
+Text section,,paragraphs,string_array,,,,,,,,,The actual text that is part of a section,pages
 Page assets,,,,,,,,,,,,"Static content that is used in an interactive page (e.g., images, documents, etc.)",pages
 Page assets,,name,string,1,,,,,,,,A unique name for the file,pages
 Page assets,,label,string,,,,,,,,,An optional label that will be displayed in the browser,pages
