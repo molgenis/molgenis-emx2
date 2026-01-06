@@ -50,7 +50,6 @@ public class DataModels {
   }
 
   public enum Regular {
-    DIRECTORY(DirectoryLoader::new),
     ERN_DASHBOARD(DashboardLoader::new),
     UI_DASHBOARD(UiDashboardLoader::new),
     PATIENT_REGISTRY_DEMO(PatientRegistryDemoLoader::new),
