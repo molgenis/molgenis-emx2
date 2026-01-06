@@ -27,7 +27,7 @@
       >
         <FileList
           table="Files"
-          filter='(filter: { tags: { not_equals: "private" } })'
+          filter='filter: { tags: { not_equals: "private" } }'
           labelsColumn="name"
           fileColumn="file"
         />
