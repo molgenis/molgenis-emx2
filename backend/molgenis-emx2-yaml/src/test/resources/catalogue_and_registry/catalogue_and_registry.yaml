@@ -1,6 +1,6 @@
 ---
 description:
-  id: catalogue
+  id: catalogue_and_registry
   description: just a test package
   version: 8.0.0
 schema:

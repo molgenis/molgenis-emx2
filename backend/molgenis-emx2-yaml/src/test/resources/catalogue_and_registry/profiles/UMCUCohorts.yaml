@@ -1,7 +1,7 @@
 ---
 schema:
 - imports:
-    path: catalogue.yaml
+    path: ../catalogue_and_registry.yaml
     includes:
     - table: Collection events
       columns:
@@ -67,18 +67,9 @@ schema:
       - name
       - organisation
       - other organisation
-      - department
       - website
       - email
-      - logo
       - role
-    - table: Dataset mappings
-      columns:
-      - source
-      - source dataset
-      - order
-      - description
-      - syntax
     - table: Datasets
       columns:
       - resource
@@ -89,8 +80,6 @@ schema:
       - keywords
       - description
       - number of rows
-      - mapped to
-      - mapped from
       - since version
       - until version
     - table: Variable mappings
@@ -104,11 +93,6 @@ schema:
       - description
       - syntax
       - comments
-    - table: Samplesets
-      columns:
-      - resource
-      - name
-      - sample types
     - table: External identifiers
       columns:
       - resource
@@ -150,10 +134,8 @@ schema:
       - name
       - organisation
       - other organisation
-      - department
       - website
       - email
-      - logo
       - role
       - is lead organisation
     - table: Subpopulation counts
@@ -178,15 +160,12 @@ schema:
       - email
       - orcid
       - homepage
-      - photo
-      - expertise
     - table: Version
     - table: Variables
       columns:
       - resource
       - dataset
       - name
-      - useExternalDefinition
       - label
       - description
       - collection event
@@ -201,5 +180,4 @@ schema:
       - permitted values
       - keywords
       - vocabularies
-      - notes
       - mappings

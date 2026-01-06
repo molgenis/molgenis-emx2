@@ -1,13 +1,16 @@
 ---
 schema:
 - imports:
-    path: catalogue.yaml
+    path: ../catalogue_and_registry.yaml
     includes:
     - table: Collection events
       columns:
       - resource
       - name
+      - pid
       - description
+      - subpopulations
+      - keywords
       - start date
       - end date
       - age groups
@@ -20,6 +23,9 @@ schema:
       - core variables
       - issued
       - modified
+      - theme
+      - access rights
+      - applicable legislation
     - table: Variable values
       columns:
       - resource
@@ -70,8 +76,6 @@ schema:
       columns:
       - source
       - source dataset
-      - target
-      - target dataset
       - order
       - description
       - syntax
@@ -89,17 +93,6 @@ schema:
       - mapped from
       - since version
       - until version
-    - table: Resource counts
-      columns:
-      - resource
-      - age group
-      - population size
-      - active size
-      - no individuals with samples
-      - mean observation years
-      - mean years active
-      - median age
-      - proportion female
     - table: Variable mappings
       columns:
       - source
@@ -122,6 +115,33 @@ schema:
       - identifier
       - external identifier type
       - external identifier type other
+    - table: Subpopulations
+      columns:
+      - resource
+      - name
+      - pid
+      - description
+      - keywords
+      - number of participants
+      - counts
+      - inclusion start
+      - inclusion end
+      - age groups
+      - age min
+      - age max
+      - main medical condition
+      - comorbidity
+      - countries
+      - regions
+      - inclusion criteria
+      - other inclusion criteria
+      - exclusion criteria
+      - other exclusion criteria
+      - issued
+      - modified
+      - theme
+      - access rights
+      - applicable legislation
     - table: Organisations
       columns:
       - resource
@@ -136,6 +156,14 @@ schema:
       - logo
       - role
       - is lead organisation
+    - table: Subpopulation counts
+      columns:
+      - resource
+      - subpopulation
+      - age group
+      - N total
+      - N female
+      - N male
     - table: Contacts
       columns:
       - resource

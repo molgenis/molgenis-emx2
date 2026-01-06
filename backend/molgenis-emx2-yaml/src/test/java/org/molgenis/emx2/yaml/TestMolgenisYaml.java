@@ -27,12 +27,15 @@ public class TestMolgenisYaml {
     Map<String, String> bundle =
         yamlFactory.toYamlBundle(
             YamlPackageDescription.builder()
-                .id("catalogue")
+                .id("catalogue_and_registry")
                 .description("just a test package")
                 .version("8.0.0")
                 .build(),
             schema,
-            YamlFactory.Options.builder().packageName("catalogue").tableAsImports(true).build());
+            YamlFactory.Options.builder()
+                .packageName("catalogue_and_registry")
+                .tableAsImports(true)
+                .build());
 
     assertEquals(37, bundle.size());
 
@@ -44,7 +47,7 @@ public class TestMolgenisYaml {
 
     System.out.println(bundle.keySet());
 
-    writeToTestResources("catalogue", bundle);
+    writeToTestResources("catalogue_and_registry", bundle);
   }
 
   public static void writeToTestResources(String packageName, Map<String, String> files)

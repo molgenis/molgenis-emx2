@@ -1,7 +1,7 @@
 ---
 schema:
 - imports:
-    path: catalogue.yaml
+    path: ../catalogue_and_registry.yaml
     includes:
     - table: Collection events
       columns:

@@ -122,7 +122,7 @@ public class YamlFactory {
         YamlTable.builder()
             .imports(
                 YamlImport.builder()
-                    .path(options.packageName() + ".yaml")
+                    .path("../" + options.packageName() + ".yaml")
                     .includes(includes)
                     .build())
             .build();
