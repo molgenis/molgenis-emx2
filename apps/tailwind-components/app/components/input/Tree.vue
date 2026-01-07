@@ -3,7 +3,6 @@ import type { ITreeNode, ITreeNodeState } from "../../../types/types";
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 import InputSearch from "./Search.vue";
-import { defineProps, defineEmits } from "vue";
 import ButtonText from "../button/Text.vue";
 
 const props = withDefaults(

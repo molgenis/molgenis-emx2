@@ -40,7 +40,9 @@ const props = withDefaults(
 );
 
 const initLoading = ref(true);
-const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const modelValue = defineModel<
+  columnValueObject[] | columnValueObject | null
+>();
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
@@ -188,7 +190,10 @@ function toggleSelect() {
     loadMoreObserver?.disconnect();
   } else {
     showSelect.value = true;
-    loadMoreObserver?.observe(sentinel.value!);
+
+    if (sentinel.value) {
+      loadMoreObserver?.observe(sentinel.value!);
+    }
   }
 }
 

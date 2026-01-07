@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { IInputProps } from "../../../types/types";
 
-const modelValue = defineModel<string | number | undefined>({ required: true });
+const modelValue = defineModel<string | number | undefined | null>({
+  required: true,
+});
 
 defineProps<
   IInputProps & {
