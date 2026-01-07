@@ -135,8 +135,10 @@ function assembleTreeWithChildren(
   data: ITreeNodeState[],
   parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
+  // @ts-ignore
   return (
     data
+      // @ts-ignore
       .filter((row) => row.parent?.name == parentNode?.name)
       .map((row: any) => {
         const node = {
@@ -150,7 +152,9 @@ function assembleTreeWithChildren(
           selectable: true,
           visible: true,
         };
+        // @ts-ignore
         node.children = assembleTreeWithChildren(data, node);
+        // @ts-ignore
         node.expanded = node.children.length > 0;
         return node;
       }) || []

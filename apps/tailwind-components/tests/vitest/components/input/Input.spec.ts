@@ -22,7 +22,7 @@ vi.mock("../../../../app/composables/fetchTableData", () => {
 });
 
 describe("input", () => {
-  it("should render a select with select with radio component( single select)", () => {
+  it("should render a select with select with radio component(single select)", () => {
     const wrapper = mount(Input, {
       props: {
         id: "test-select",
