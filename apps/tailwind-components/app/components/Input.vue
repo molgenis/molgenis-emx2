@@ -223,7 +223,7 @@
 
   <InputOntology
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
-    :modelValue="modelValue as string | undefined"
+    :modelValue="modelValue && typeof modelValue === 'object' && 'name' in modelValue ? (modelValue as Record<string, any>)['name'] : undefined"
     @update:modelValue="
       $event ? (modelValue = { name: $event }) : (modelValue = undefined)
     "
@@ -320,11 +320,9 @@ import InputFile from "./input/File.vue";
 import InputInt from "./input/Int.vue";
 import InputLong from "./input/Long.vue";
 import InputOntology from "./input/Ontology.vue";
-import InputPlaceHolder from "./input/PlaceHolder.vue";
 import InputRadioGroup from "./input/RadioGroup.vue";
 import InputRef from "./input/Ref.vue";
 import InputRefBack from "./input/RefBack.vue";
-import InputRefSelect from "./input/RefSelect.vue";
 import InputString from "./input/String.vue";
 import InputTextArea from "./input/TextArea.vue";
 
