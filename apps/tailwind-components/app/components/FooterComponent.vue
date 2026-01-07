@@ -1,29 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { useSettings } from "../composables/useSettings";
 import BaseIcon from "./BaseIcon.vue";
 
-const manifest = ref(await getAppManifest());
-
-async function getAppManifest() {
-  return $fetch("/api/graphql", {
-    method: "POST",
-    body: JSON.stringify({
-      query: `{
-        _manifest { SpecificationVersion,DatabaseVersion }
-        }`,
-    }),
-  })
-    .then((result) => result.data._manifest)
-    .catch((error) => {
-      throw error;
-    });
-}
+const { manifest } = await useSettings();
 </script>
 
 <template>
   <div class="bg-footer p-6">
     <div
-      class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center max-w-lg mx-auto px-6 py-6"
+      class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-4 items-start justify-center max-w-lg mx-auto px-6 py-6"
     >
       <div>
         <h3 class="mb-2 text-title font-bold">Created with MOLGENIS</h3>
@@ -128,10 +113,25 @@ async function getAppManifest() {
           </li>
         </ul>
       </div>
-    </div>
-    <div v-if="manifest" class="text-center">
-      Software version: {{ manifest?.SpecificationVersion }}. Database version:
-      {{ manifest?.DatabaseVersion }}.
+      <div>
+        <h3 class="mb-2 text-title font-bold">Version information</h3>
+        <ul class="list-style-none flex flex-col gap-1.5 text-link-inverted">
+          <li>
+            <a
+              class="hover:underline flex items-center"
+              :href="`https://github.com/molgenis/molgenis-emx2/releases/tag/${manifest?.SpecificationVersion}`"
+            >
+              <BaseIcon name="CaretRight" :width="16" />
+              <span>Software: {{ manifest?.SpecificationVersion }}</span>
+              <BaseIcon name="ExternalLink" :width="16" />
+            </a>
+          </li>
+          <li class="flex items-center">
+            <BaseIcon name="CaretRight" :width="16" />
+            <span>Database: {{ manifest?.DatabaseVersion }}</span>
+          </li>
+        </ul>
+      </div>
     </div>
     <slot></slot>
   </div>
