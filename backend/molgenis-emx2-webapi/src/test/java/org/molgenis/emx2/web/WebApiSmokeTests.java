@@ -1193,7 +1193,7 @@ class WebApiSmokeTests {
                       version: 3.0.0
                       sources:
                       - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v1""")));
+                    - id: hri-v2.0.2""")));
   }
 
   /**
