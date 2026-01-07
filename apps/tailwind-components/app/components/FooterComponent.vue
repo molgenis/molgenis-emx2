@@ -8,7 +8,7 @@ const { manifest } = await useSettings();
 <template>
   <div class="bg-footer p-6">
     <div
-      class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-4 items-start justify-center max-w-lg mx-auto px-6 py-6"
+      class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center max-w-lg mx-auto px-6 py-6"
     >
       <div>
         <h3 class="mb-2 text-title font-bold">Created with MOLGENIS</h3>
@@ -16,7 +16,8 @@ const { manifest } = await useSettings();
           <li class="flex items-center">
             <a
               class="flex items-center hover:underline"
-              href="http://molgenis.org"
+              href="https://molgenis.org"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>About Molgenis</span>
@@ -25,7 +26,8 @@ const { manifest } = await useSettings();
           <li>
             <a
               class="flex items-center hover:underline"
-              href="http://molgenis.org"
+              href="https://molgenis.org"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>MOLGENIS.org</span>
@@ -50,6 +52,7 @@ const { manifest } = await useSettings();
             <a
               class="flex items-center hover:underline"
               href="https://github.com/molgenis/molgenis-emx2"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>MOLGENIS on GitHub</span>
@@ -70,6 +73,7 @@ const { manifest } = await useSettings();
             <a
               class="flex items-center hover:underline"
               href="https://molgenis.org/MOLGENIS_Privacy_Policy.pdf"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Privacy Policy</span>
@@ -95,6 +99,7 @@ const { manifest } = await useSettings();
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Van der Velde et al (2018)</span>
@@ -105,6 +110,7 @@ const { manifest } = await useSettings();
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/21210979"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Swertz et al (2010)</span>
@@ -113,25 +119,18 @@ const { manifest } = await useSettings();
           </li>
         </ul>
       </div>
-      <div>
-        <h3 class="mb-2 text-title font-bold">Version information</h3>
-        <ul class="list-style-none flex flex-col gap-1.5 text-link-inverted">
-          <li>
-            <a
-              class="hover:underline flex items-center"
-              :href="`https://github.com/molgenis/molgenis-emx2/releases/tag/${manifest?.SpecificationVersion}`"
-            >
-              <BaseIcon name="CaretRight" :width="16" />
-              <span>Software: {{ manifest?.SpecificationVersion }}</span>
-              <BaseIcon name="ExternalLink" :width="16" />
-            </a>
-          </li>
-          <li class="flex items-center">
-            <BaseIcon name="CaretRight" :width="16" />
-            <span>Database: {{ manifest?.DatabaseVersion }}</span>
-          </li>
-        </ul>
-      </div>
+    </div>
+    <div class="flex justify-center text-link-inverted">
+      Software version:&nbsp;
+      <a
+        class="flex items-center hover:underline"
+        :href="`https://github.com/molgenis/molgenis-emx2/releases/tag/${manifest?.SpecificationVersion}`"
+        target="_blank"
+      >
+        <span>{{ manifest?.SpecificationVersion }}</span>
+        <BaseIcon name="ExternalLink" :width="16" />
+      </a>
+      - Database version: {{ manifest?.DatabaseVersion }}
     </div>
     <slot></slot>
   </div>
