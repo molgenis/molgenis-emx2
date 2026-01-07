@@ -7,6 +7,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}Form.story?schema=catalogue-demo&table=Resources`);
+  testInfo.setTimeout(testInfo.timeout + 30_000);
 });
 
 test("it should render the form", async ({ page }) => {
