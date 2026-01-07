@@ -1,3 +1,305 @@
 ---
 schema:
 - import: ../catalogue_and_registry.yaml
+  include:
+  - table: Processes
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Additional Process Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Analyses
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Analyses Information
+    - date started
+    - date completed
+    - persons involved
+    - Additional Process Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Observations
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Observations Information
+    - date of observation
+    - age at observation
+    - type of visit
+    - location of observation
+    - Additional Process Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Experiments
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - storage conditions
+    - storage location
+    - date of expiration
+    - platform model
+    - instrument id
+    - persons involved
+    - reference genome used
+    - observed insert size
+    - other quality metrics
+    - run id
+    - Additional Process Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: NGS sequencing
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - extraction kit
+    - extraction date
+    - storage conditions
+    - storage location
+    - date of expiration
+    - Library Preparation
+    - library source
+    - library selection
+    - library strategy
+    - library layout
+    - sequencer barcode
+    - library preparation kit
+    - PCR free
+    - target enrichment kit
+    - UMIs present
+    - intended insert size
+    - intended read length
+    - barcode
+    - Sequencing
+    - platform model
+    - instrument id
+    - persons involved
+    - date of sequencing
+    - reference genome used
+    - mean read depth
+    - median read depth
+    - observed read length
+    - observed insert size
+    - other quality metrics
+    - run id
+    - platform
+    - percentage Q30
+    - percentage Tr20
+    - flow cell ID
+    - sequencing lane identifier
+    - Additional Process Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Clinical observations
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Observations Information
+    - date of observation
+    - age at observation
+    - type of visit
+    - location of observation
+    - Clinical Observations
+    - observation performed by
+    - phenotypes
+    - diseases
+    - measurements
+    - age group at onset
+    - age at onset
+    - consanguinity
+    - molecular diagnosis gene
+    - molecular diagnosis other
+    - medication
+    - drug regimen
+    - medical history
+    - date of first contact
+    - classification of functioning
+    - material used in diagnosis
+    - Additional Process Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Phenotype observations
+    columns:
+    - part of clinical observation
+    - type
+    - excluded
+    - modifiers
+    - severity
+  - table: Disease history
+    columns:
+    - part of clinical observation
+    - disease
+    - age group at onset
+    - age at onset
+    - age group at diagnosis
+    - age at diagnosis
+    - disease severity
+    - disease stage
+  - table: Clinical measurements
+    columns:
+    - part of clinical observation
+    - code
+    - variable
+    - value
+    - unit
+  - table: Pedigree
+    columns:
+    - id
+    - alternate ids
+    - disease
+    - members
+  - table: Pedigree members
+    columns:
+    - pedigree
+    - individual
+    - relative
+    - relation
+    - affected
+  - table: Consent documents
+    columns:
+    - id
+    - type of document
+    - title
+    - version
+    - date of approval
+    - date valid from
+    - date valid until
+    - authors
+    - related to documents
+  - table: Individuals
+    columns:
+    - id
+    - year of birth
+    - month of birth
+    - gender at birth
+    - gender identity
+    - administrative gender
+    - genotypic sex
+    - country of birth
+    - country of residence
+    - ancestry
+    - consents
+    - individual status
+    - age at death
+    - affiliated organisations
+    - pedigree
+  - table: Materials
+    columns:
+    - General Information
+    - id
+    - produced by process
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Additional Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Individual consent
+    columns:
+    - General Information
+    - id
+    - produced by process
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Individual Consent
+    - consent form used
+    - collected by
+    - signing date
+    - valid from
+    - valid until
+    - represented by
+    - data use permissions
+    - data use modifiers
+    - data use specification
+    - allow recontacting
+    - Additional Information
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments

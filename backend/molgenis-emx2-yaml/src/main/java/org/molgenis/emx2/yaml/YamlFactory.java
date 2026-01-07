@@ -62,7 +62,10 @@ public class YamlFactory {
   private void addTablesToBundle(
       Map<String, String> packageYamlBundle, SchemaMetadata schemaMetadata, Options options)
       throws JsonProcessingException {
-    for (TableMetadata tableMetadata : schemaMetadata.getTables()) {
+    for (TableMetadata tableMetadata :
+        schemaMetadata.getTables().stream()
+            .filter(table -> table.getInheritName() == null)
+            .toList()) {
       YamlMolgenisPackage table =
           YamlMolgenisPackage.builder().table(toYamlTable(tableMetadata, options)).build();
       packageYamlBundle.put(
@@ -138,22 +141,36 @@ public class YamlFactory {
 
   public YamlTable toYamlTable(TableMetadata tableMetadata, Options options) {
     List<YamlColumn> yamlColumnList =
-        tableMetadata.getColumns().stream()
+        tableMetadata.getColumnsIncludingSubclasses().stream()
             .filter(
                 column ->
                     options.profile() == null
                         || column.getProfiles() == null
                         || List.of(column.getProfiles()).contains(options.profile()))
-            .map(column -> toYamlColumn(column, options))
+            .map(column -> toYamlColumn(tableMetadata, column, options))
+            .toList();
+    List<YamlSubclass> subclasses =
+        tableMetadata.getSubclassTables().stream()
+            .map(
+                subclass ->
+                    YamlSubclass.builder()
+                        .name(subclass.getTableName())
+                        .description(subclass.getDescription())
+                        .inherits(
+                            subclass.getInheritName().equals(tableMetadata.getTableName())
+                                ? null
+                                : List.of(subclass.getInheritName()))
+                        .build())
             .toList();
     return YamlTable.builder()
         .table(tableMetadata.getTableName())
+        .subclasses(subclasses)
         .description(tableMetadata.getDescription())
         .columns(yamlColumnList)
         .build();
   }
 
-  private YamlColumn toYamlColumn(Column column, Options options) {
+  private YamlColumn toYamlColumn(TableMetadata tableMetadata, Column column, Options options) {
     return YamlColumn.builder()
         .name(column.getName())
         .key(column.getKey() == 0 ? null : column.getKey())
@@ -163,6 +180,10 @@ public class YamlFactory {
             column.getColumnType().equals(ColumnType.STRING)
                 ? null
                 : column.getColumnType().name().toLowerCase())
+        .subclass(
+            tableMetadata.getTableName().equals(column.getTableName())
+                ? null
+                : column.getTableName())
         .refSchema(column.getRefSchemaName())
         .refTable(column.getRefTableName())
         .refBack(column.getRefBack())
