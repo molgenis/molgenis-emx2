@@ -186,4 +186,8 @@ public enum ColumnType {
         || TEXT.equals(getBaseType())
         || TEXT_ARRAY.equals(getBaseType());
   }
+
+  public boolean isNumericType() {
+    return INT.equals(getBaseType()) || DECIMAL.equals(getBaseType()) || LONG.equals(getBaseType());
+  }
 }

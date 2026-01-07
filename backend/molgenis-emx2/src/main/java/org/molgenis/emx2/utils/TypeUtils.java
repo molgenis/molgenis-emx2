@@ -325,6 +325,7 @@ public class TypeUtils {
       case STRING -> ColumnType.STRING_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
+      case NON_NEGATIVE_INT -> ColumnType.NON_NEGATIVE_INT_ARRAY;
       case LONG -> ColumnType.LONG_ARRAY;
       case DECIMAL -> ColumnType.DECIMAL_ARRAY;
       case TEXT -> ColumnType.TEXT_ARRAY;
@@ -392,8 +393,8 @@ public class TypeUtils {
       case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
       case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY ->
           SQLDataType.VARCHAR(255).getArrayDataType();
-      case INT -> SQLDataType.INTEGER;
-      case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
+      case INT, NON_NEGATIVE_INT -> SQLDataType.INTEGER;
+      case INT_ARRAY, NON_NEGATIVE_INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
       case LONG_ARRAY -> SQLDataType.BIGINT.getArrayDataType();
       case BOOL -> SQLDataType.BOOLEAN;

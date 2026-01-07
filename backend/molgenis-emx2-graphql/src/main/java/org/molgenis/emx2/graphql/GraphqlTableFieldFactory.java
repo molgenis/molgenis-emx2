@@ -315,10 +315,7 @@ public class GraphqlTableFieldFactory {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(
-                  c ->
-                      ColumnType.INT.equals(c.getColumnType())
-                          || ColumnType.DECIMAL.equals(c.getColumnType())
-                          || ColumnType.LONG.equals(c.getColumnType()))
+                  c -> c.getColumnType().isNumericType())
               .toList();
       if (aggCols.size() > 0) {
         GraphQLObjectType.Builder sumBuilder =
