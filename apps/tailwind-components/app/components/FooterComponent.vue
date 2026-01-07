@@ -63,6 +63,7 @@ const { manifest } = await useSettings();
             <a
               class="flex items-center hover:underline"
               href="https://molgenis.org/LICENSE-LGPLv3.html"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Open Source LGPLv3 License</span>
@@ -89,6 +90,7 @@ const { manifest } = await useSettings();
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/36463884"
+              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Swertz & Gini (2022)</span>
