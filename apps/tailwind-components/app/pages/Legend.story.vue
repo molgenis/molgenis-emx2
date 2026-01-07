@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import type {
   LegendHeading,
   LegendSection,
@@ -19,12 +19,12 @@ import type {
 
 const mockActiveElem = ref("main");
 
-const mainSectionFields = [
+const mainSectionFields: LegendHeading[] = [
   {
     label: "Overview",
     id: "overview",
     errorCount: computed(() => 1),
-    type: "HEADING" as LegendHeading["type"],
+    type: "HEADING",
     isActive: computed(() => mockActiveElem.value === "overview"),
     isVisible: computed(() => true),
   },
@@ -32,7 +32,7 @@ const mainSectionFields = [
     label: "Population",
     id: "population",
     errorCount: computed(() => 2),
-    type: "HEADING" as LegendHeading["type"],
+    type: "HEADING",
     isActive: computed(() => mockActiveElem.value === "population"),
     isVisible: computed(() => true),
   },
@@ -40,18 +40,18 @@ const mainSectionFields = [
     label: "Contents",
     id: "contents",
     errorCount: computed(() => 0),
-    type: "HEADING" as LegendHeading["type"],
+    type: "HEADING",
     isActive: computed(() => mockActiveElem.value === "contents"),
     isVisible: computed(() => true),
   },
 ];
 
-const accessSectionFields = [
+const accessSectionFields: LegendHeading[] = [
   {
     label: "Registration",
     id: "data-registration",
     errorCount: computed(() => 16),
-    type: "HEADING" as LegendHeading["type"],
+    type: "HEADING",
     isActive: computed(() => mockActiveElem.value === "data-registration"),
     isVisible: computed(() => true),
   },
@@ -59,13 +59,13 @@ const accessSectionFields = [
     label: "Information",
     id: "information",
     errorCount: computed(() => 0),
-    type: "HEADING" as LegendHeading["type"],
+    type: "HEADING",
     isActive: computed(() => mockActiveElem.value === "information"),
     isVisible: computed(() => true),
   },
 ];
 
-const sections = ref<LegendSection[]>([
+const sections: LegendSection[] = [
   {
     label: "Main",
     id: "main",
@@ -92,14 +92,14 @@ const sections = ref<LegendSection[]>([
     ),
     isVisible: computed(() => true),
   },
-]);
+];
 
 function handleGoToRequest(id: string) {
   mockActiveElem.value = id;
 }
 
 const activeHeader = computed(() => {
-  for (const section of sections.value) {
+  for (const section of sections) {
     if (section.isActive) {
       return section;
     }

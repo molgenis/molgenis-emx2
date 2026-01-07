@@ -40,7 +40,9 @@ const props = withDefaults(
 );
 
 const initLoading = ref(true);
-const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const modelValue = defineModel<
+  columnValueObject[] | columnValueObject | null
+>();
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
@@ -188,7 +190,10 @@ function toggleSelect() {
     loadMoreObserver?.disconnect();
   } else {
     showSelect.value = true;
-    loadMoreObserver?.observe(sentinel.value!);
+
+    if (sentinel.value) {
+      loadMoreObserver?.observe(sentinel.value!);
+    }
   }
 }
 
@@ -306,7 +311,7 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 px-2 h-[56px]"
+        class="flex items-center justify-between gap-2 px-2 h-input"
         @click.stop.self="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
