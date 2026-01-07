@@ -127,6 +127,9 @@ public class Constants {
       "^(([^<>()[\\\\]\\\\.,;:\\s@\"]+(\\.[^<>()[\\\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@"
           + "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|"
           + "(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$|^$";
+
+  protected static final String NON_NEGATIVE_INT_REGEX = "^[0-9]*$";
+
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   // updated to also allow localhost / localhost:8080 as valid hyperlink, needed to testing
