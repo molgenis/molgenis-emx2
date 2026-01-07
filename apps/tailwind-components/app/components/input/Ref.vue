@@ -240,7 +240,6 @@ async function extractPrimaryKey(row: recordValue) {
 }
 
 function deselect(label: string) {
-  console.log("deselecting label: " + label);
   if (searchTerms.value) {
     toggleSearch();
   }
