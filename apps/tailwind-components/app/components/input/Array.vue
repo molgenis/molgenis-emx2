@@ -51,7 +51,7 @@ const props = defineProps<
   }
 >();
 
-const values = ref<columnValue[]>(props.modelValue ?? []);
+const values = ref<columnValue[]>(handleUndefined(props.modelValue));
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
 function handleUndefined(
