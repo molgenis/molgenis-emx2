@@ -116,7 +116,6 @@ import ValueEmail from "../value/Email.vue";
 import ValueHyperlink from "../value/Hyperlink.vue";
 import ValueRefBack from "../value/RefBack.vue";
 import ValueFile from "../value/File.vue";
-import { defineProps, defineEmits } from "vue";
 
 defineProps<{
   metadata?: IColumn;
