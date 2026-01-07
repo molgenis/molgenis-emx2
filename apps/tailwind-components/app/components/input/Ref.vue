@@ -313,7 +313,7 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 px-2 h-[56px]"
+        class="flex items-center justify-between gap-2 px-2 h-input"
         @click.stop.self="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
