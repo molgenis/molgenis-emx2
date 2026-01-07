@@ -163,7 +163,7 @@ class TestTypeUtils {
 
   @Test
   void testAllColumnTypesCoveredGetArrayType() {
-    Set<ColumnType> arrayTypeExclude =
+    Set<ColumnType> exclusions =
         Set.of(
             ColumnType.FILE,
             ColumnType.REF, // todo: ask why not included
@@ -178,13 +178,13 @@ class TestTypeUtils {
             ColumnType.CHECKBOX);
 
     Arrays.stream(ColumnType.values())
-        .filter((i) -> !arrayTypeExclude.contains(i))
+        .filter((i) -> !exclusions.contains(i))
         .forEach(TypeUtils::getArrayType);
   }
 
   @Test
   void testAllColumnTypesCoveredToJooqType() {
-    Set<ColumnType> arrayTypeExclude =
+    Set<ColumnType> exclusions =
         Set.of(
             ColumnType.REF,
             ColumnType.REF_ARRAY,
@@ -200,13 +200,13 @@ class TestTypeUtils {
             ColumnType.CHECKBOX);
 
     Arrays.stream(ColumnType.values())
-        .filter((i) -> !arrayTypeExclude.contains(i))
+        .filter((i) -> !exclusions.contains(i))
         .forEach(TypeUtils::toJooqType);
   }
 
   @Test
   void testAllColumnTypesCoveredTypedValue() {
-    Set<ColumnType> arrayTypeExclude =
+    Set<ColumnType> exclusions =
         Set.of(
             ColumnType.FILE,
             ColumnType.REF,
@@ -222,8 +222,21 @@ class TestTypeUtils {
             ColumnType.RADIO,
             ColumnType.CHECKBOX);
 
-    Arrays.stream(ColumnType.values())
-        .filter((i) -> !arrayTypeExclude.contains(i))
-        .forEach(TypeUtils::toJooqType);
+    Object object = new Object();
+
+    ColumnType[] columnTypes =
+        Arrays.stream(ColumnType.values())
+            .filter((i) -> !exclusions.contains(i))
+            .toArray(ColumnType[]::new);
+
+    for (ColumnType columnType : columnTypes) {
+      try {
+        TypeUtils.getTypedValue(object, columnType);
+      } catch (RuntimeException e) {
+        if (e instanceof UnsupportedOperationException) {
+          fail("ColumnType not covered: " + columnType);
+        }
+      }
+    }
   }
 }
