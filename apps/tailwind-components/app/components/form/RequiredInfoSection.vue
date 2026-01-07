@@ -28,7 +28,6 @@
 <script setup lang="ts">
 import ButtonBar from "../ButtonBar.vue";
 import BaseIcon from "../BaseIcon.vue";
-import { defineProps, defineEmits } from "vue";
 defineProps<{
   message: string;
 }>();
