@@ -30,43 +30,42 @@ public class TestGraphqlDatabaseFields {
   private static GraphQL graphql;
   private static Database database;
   private static TaskService taskService;
-  private static final String schemaName = TestGraphqlDatabaseFields.class.getSimpleName();
+  private static final String SCHEMA_NAME = TestGraphqlDatabaseFields.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists(schemaName);
+    database.dropSchemaIfExists(SCHEMA_NAME);
     taskService = new TaskServiceInMemory();
-    //    PET_STORE.getImportTask(database, schemaName, "", false).run();
     graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
     // ensure schema doesn't exist
-    database.dropSchemaIfExists(schemaName + "B");
+    database.dropSchemaIfExists(SCHEMA_NAME + "B");
 
-    assertNull(database.getSchema(schemaName + "B"));
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertFalse(result.contains(schemaName + "B"));
+    assertFalse(result.contains(SCHEMA_NAME + "B"));
 
-    execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
-    assertNotNull(database.getSchema(schemaName + "B"));
+    execute("mutation{createSchema(name:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNotNull(database.getSchema(SCHEMA_NAME + "B"));
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertTrue(result.contains(schemaName + "B"));
+    assertTrue(result.contains(SCHEMA_NAME + "B"));
 
-    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
-    assertNull(database.getSchema(schemaName + "B"));
+    execute("mutation{deleteSchema(id:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
   }
 
   @Test
   public void testCreateSchemaFromTemplate() throws IOException, InterruptedException {
-    database.dropSchemaIfExists(schemaName + "B");
-    assertNull(database.getSchema(schemaName + "B"));
+    database.dropSchemaIfExists(SCHEMA_NAME + "B");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
     JsonNode executeResult =
         execute(
             "mutation{createSchema(name:\""
-                + schemaName
+                + SCHEMA_NAME
                 + "B\", description: \"test\", template: \"ERN_DASHBOARD\", includeDemoData: false){message taskId}}");
     String taskId = executeResult.get("data").get("createSchema").get("taskId").asText();
     Task mutationTask = taskService.getTask(taskId);
@@ -76,35 +75,35 @@ public class TestGraphqlDatabaseFields {
       mutationTaskStatus = mutationTask.getStatus();
     }
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertTrue(result.contains(schemaName + "B"));
-    assertEquals(9, database.getSchema(schemaName + "B").getTableNames().size());
+    assertTrue(result.contains(SCHEMA_NAME + "B"));
+    assertEquals(9, database.getSchema(SCHEMA_NAME + "B").getTableNames().size());
 
-    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
-    assertNull(database.getSchema(schemaName + "B"));
+    execute("mutation{deleteSchema(id:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
   }
 
   @Test
   public void testUpdateSchema() throws IOException {
-    database.dropSchemaIfExists(schemaName + "B");
+    database.dropSchemaIfExists(SCHEMA_NAME + "B");
 
-    assertNull(database.getSchema(schemaName + "B"));
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertFalse(result.contains(schemaName + "B"));
+    assertFalse(result.contains(SCHEMA_NAME + "B"));
 
-    execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
-    assertNotNull(database.getSchema(schemaName + "B"));
+    execute("mutation{createSchema(name:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNotNull(database.getSchema(SCHEMA_NAME + "B"));
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertTrue(result.contains(schemaName + "B"));
+    assertTrue(result.contains(SCHEMA_NAME + "B"));
 
     execute(
         "mutation{updateSchema(name:\""
-            + schemaName
+            + SCHEMA_NAME
             + "B\", description: \"updated description\"){message}}");
-    String description = database.getSchemaInfo(schemaName + "B").description();
+    String description = database.getSchemaInfo(SCHEMA_NAME + "B").description();
     assertEquals("updated description", description);
 
-    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
-    assertNull(database.getSchema(schemaName + "B"));
+    execute("mutation{deleteSchema(id:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
   }
 
   @Test

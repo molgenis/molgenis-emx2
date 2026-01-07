@@ -56,7 +56,7 @@ public class DataModels {
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     BIOBANK_DIRECTORY_STAGING(
-        ((schemaLoaderSettings) ->
+        (schemaLoaderSettings ->
             new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true)));
 
     @FunctionalInterface

@@ -18,12 +18,12 @@ public class TestImportTableTask {
 
   private static Database database;
   private static Schema schema;
-  private static final String schemaName = TestImportTableTask.class.getSimpleName();
+  private static final String SCHEMA_NAME = TestImportTableTask.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(schemaName);
+    schema = database.dropCreateSchema(SCHEMA_NAME);
   }
 
   @Test
@@ -72,9 +72,9 @@ public class TestImportTableTask {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("TestImportTableDelete").getFile()).toPath();
 
-    database.dropSchemaIfExists(schemaName);
-    PET_STORE.getImportTask(database, schemaName, "", true).run();
-    schema = database.getSchema(schemaName);
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
+    schema = database.getSchema(SCHEMA_NAME);
     List<Row> rows = schema.getTable("Pet").retrieveRows();
     assertEquals(9, rows.size());
 
@@ -101,8 +101,8 @@ public class TestImportTableTask {
     Path path =
         new File(classLoader.getResource("TestImportTableDelete/DeleteWithError").getFile())
             .toPath();
-    database.dropSchemaIfExists(schemaName);
-    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
     ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
     assertThrows(MolgenisException.class, t::run, "should have failed on reference deletion");
   }

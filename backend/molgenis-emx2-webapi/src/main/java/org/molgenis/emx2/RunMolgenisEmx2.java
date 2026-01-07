@@ -17,6 +17,7 @@ public class RunMolgenisEmx2 {
 
   public static final String CATALOGUE_DEMO = "catalogue-demo";
   public static final String DIRECTORY_DEMO = "directory-demo";
+  public static final String PET_STORE = "pet store";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
@@ -68,9 +69,9 @@ public class RunMolgenisEmx2 {
         db -> {
           db.becomeAdmin();
 
-          if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
-            DataModels.Profile.PET_STORE.getImportTask(db, "pet store", "", true).run();
-            Schema schema = db.getSchema("pet store");
+          if (!EXCLUDE_PETSTORE_DEMO && db.getSchema(PET_STORE) == null) {
+            DataModels.Profile.PET_STORE.getImportTask(db, PET_STORE, "", true).run();
+            Schema schema = db.getSchema(PET_STORE);
             schema.getDatabase().setUserPassword("customer", "customer");
             schema.getDatabase().setUserPassword("shopmanager", "shopmanager");
             schema.getDatabase().setUserPassword("shopowner", "shopowner");
