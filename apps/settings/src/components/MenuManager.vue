@@ -23,17 +23,16 @@
       Help:
       <ul>
         <li>
-          use 'label' to set the name how your menu item should be displayed
+          Use 'label' to set the name how your menu item should be displayed
         </li>
         <li>
-          use 'href' to define where your menu item links to. Simply use name of
-          an apps to link to it within this schema (e.g. 'tables' links to
-          tables app). You can also make cross-links to other schema using a
-          fully qualified path like '/otherschema/tables'. And you can link to
-          other servers using http://otherserver.com/.
+          <p>Use 'href' to define where your menu item links to. </p>
+          <p>You can link on the same schema by using a relative path like 'tables/' or even with a filter set 'tables/#/Pet?_filter=name&name=spike' </p>
+          <p>You can also make cross-links to other schema using a fully qualified path like '/otherschema/tables/'.  </p>
+          <p>And you can link to other servers using http://otherserver.com/.</p>
         </li>
         <li>
-          use 'role' to indicate if menu item should be shown only in case user
+          Use 'role' to indicate if menu item should be shown only in case user
           has particular role (optional).
         </li>
       </ul>
