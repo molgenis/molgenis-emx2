@@ -13,7 +13,7 @@
   >
     <div class="grow">
       <button
-        v-if="modelValue"
+        v-if="modelValue?.filename"
         ref="selectedFileButton"
         class="flex justify-center items-center h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display duration-default ease-in-out border rounded-input"
         :class="{
