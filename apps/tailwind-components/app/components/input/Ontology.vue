@@ -1,16 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  defineEmits,
-  defineModel,
-  defineProps,
-  ref,
-  useTemplateRef,
-  watch,
-  withDefaults,
-  type Ref,
-  onMounted,
-} from "vue";
+import { computed, ref, useTemplateRef, watch, type Ref, onMounted } from "vue";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
@@ -58,8 +47,6 @@ const counterOffset = ref<number>(0);
 const filteredCount = ref<number>(0);
 const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
-
-const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
 
 function reset() {
   ontologyTree.value = [];
@@ -223,7 +210,7 @@ async function retrieveTerms(
 async function applyModelValue(data: any = undefined): Promise<void> {
   valueLabels.value = {};
   intermediates.value = [];
-  if (data === undefined) {
+  if (data === undefined && modelValue.value) {
     data = await fetchGraphql(
       props.ontologySchemaId,
       `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
@@ -232,12 +219,17 @@ async function applyModelValue(data: any = undefined): Promise<void> {
       }
     );
   }
-  valueLabels.value = Object.fromEntries(
-    data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
-  );
-  intermediates.value = data.ontologyPaths.map(
-    (term: { name: string }) => term.name
-  );
+  if (data.ontologyPaths) {
+    valueLabels.value = Object.fromEntries(
+      data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
+    );
+    intermediates.value = data.ontologyPaths.map(
+      (term: { name: string }) => term.name
+    );
+  } else {
+    valueLabels.value = {};
+    intermediates.value = [];
+  }
   applySelectedStates();
 }
 
@@ -326,7 +318,6 @@ async function toggleTermSelect(node: ITreeNodeState) {
         .filter((child) => child.name != node.name)
         .every((child) => child.selected === "selected")
     ) {
-      console.log("select parent");
       await toggleTermSelect(node.parentNode);
     }
     // if we simply select a node
@@ -424,7 +415,7 @@ async function toggleSelect() {
 }
 
 // Close dropdown when clicking outside
-const wrapperRef = ref<HTMLElement | null>(null);
+const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
@@ -533,7 +524,7 @@ onMounted(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
+          'absolute z-20 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
         v-show="showSelect || !displayAsSelect"

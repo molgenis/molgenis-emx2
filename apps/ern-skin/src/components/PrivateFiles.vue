@@ -9,7 +9,7 @@
   <p v-if="user !== 'anonymous' && user">
     <FileList
       table="Files"
-      filter='(filter: { tags: { equals: "private" } })'
+      filter='filter: { tags: { equals: "private" } }'
       labelsColumn="name"
       fileColumn="file"
     />

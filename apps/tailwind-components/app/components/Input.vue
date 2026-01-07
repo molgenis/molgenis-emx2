@@ -190,7 +190,7 @@
     :refLabel="refLabel"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :align="align"
+    :is-array="false"
   />
   <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
@@ -217,7 +217,7 @@
     :refSchemaId="refSchemaId"
     :refTableId="refTableId"
     :refLabel="refLabel"
-    :refBackColumn="refBackId"
+    :refBackColumn="refBackColumn"
     :refBackPrimaryKey="rowKey"
   />
 

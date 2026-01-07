@@ -28,12 +28,22 @@
       "cache": true
     },
     "format": {
-      "dependsOn": [],
+      "inputs": [
+        "**/*.{ts,tsx,js,jsx,vue,json,md,yml,yaml}",
+        ".prettierrc.*",
+        "../.prettierrc.*",
+        "package.json"
+      ],
       "outputs": [],
       "cache": true
     },
     "checkFormat": {
-      "dependsOn": [],
+      "inputs": [
+        "**/*.{ts,tsx,js,jsx,vue,json,md,yml,yaml}",
+        ".prettierrc.*",
+        "../.prettierrc.*",
+        "package.json"
+      ],
       "outputs": [],
       "cache": true
     },

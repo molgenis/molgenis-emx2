@@ -425,12 +425,18 @@ public class GraphqlTableFieldFactory {
           tableFilterInputType, GraphQLTypeReference.typeRef(tableFilterInputType));
       GraphQLInputObjectType.Builder filterBuilder =
           GraphQLInputObjectType.newInputObject().name(tableFilterInputType);
-      if (table.getPrimaryKeyColumns().size() > 0) {
-        filterBuilder.field(
-            GraphQLInputObjectField.newInputObjectField()
-                .name(FILTER_EQUALS)
-                .type(GraphQLList.list(getPrimaryKeyInput(table)))
-                .build());
+      if (!table.getPrimaryKeyColumns().isEmpty()) {
+        filterBuilder
+            .field(
+                GraphQLInputObjectField.newInputObjectField()
+                    .name(FILTER_EQUALS)
+                    .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                    .build())
+            .field(
+                GraphQLInputObjectField.newInputObjectField()
+                    .name(FILTER_NOT_EQUALS)
+                    .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                    .build());
       }
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
         filterBuilder.field(
@@ -614,13 +620,21 @@ public class GraphqlTableFieldFactory {
                   Arrays.stream(entry.getValue().toString().split(" ")).toArray(String[]::new)));
         }
       } else if (entry.getKey().equals(FILTER_EQUALS)) {
-        //  complex filter, should be an list of maps per graphql contract
+        //  complex filter, should be a list of maps per graphql contract
         if (entry.getValue() != null) {
           subFilters.add(
               or(
                   ((List<Map<String, Object>>) entry.getValue())
-                      .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
+                      .stream().map(v -> createKeyFilter(table, v, Operator.EQUALS)).toList()));
         }
+      } else if (entry.getKey().equals(FILTER_NOT_EQUALS)) {
+        if (entry.getValue() != null) {
+          subFilters.add(
+              or(
+                  ((List<Map<String, Object>>) entry.getValue())
+                      .stream().map(v -> createKeyFilter(table, v, Operator.NOT_EQUALS)).toList()));
+        }
+
       } else if (entry.getKey().equals(FILTER_MATCH_INCLUDING_CHILDREN)
           || entry.getKey().equals(FILTER_MATCH_INCLUDING_PARENTS)
           || entry.getKey().equals(FILTER_MATCH_PATH)
@@ -714,7 +728,8 @@ public class GraphqlTableFieldFactory {
     return subFilters.toArray(new FilterBean[subFilters.size()]);
   }
 
-  private static Filter createKeyFilter(TableMetadata table, Map<String, Object> map) {
+  private static Filter createKeyFilter(
+      TableMetadata table, Map<String, Object> map, Operator operator) {
     Objects.requireNonNull(table);
     Objects.requireNonNull(map);
     List<Filter> result = new ArrayList<>();
@@ -729,9 +744,9 @@ public class GraphqlTableFieldFactory {
             f(
                 column.get().getName(),
                 createKeyFilter(
-                    column.get().getRefTable(), (Map<String, Object>) entry.getValue())));
+                    column.get().getRefTable(), (Map<String, Object>) entry.getValue(), operator)));
       } else {
-        result.add(f(column.get().getName(), Operator.EQUALS, entry.getValue()));
+        result.add(f(column.get().getName(), operator, entry.getValue()));
       }
     }
     return and(result);
