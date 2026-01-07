@@ -18,7 +18,7 @@ withDefaults(
   }
 );
 
-const modelValue = defineModel<columnValue[]>();
+const modelValue = defineModel<columnValue[] | undefined | null>();
 const emit = defineEmits([
   "update:modelValue",
   "select",
