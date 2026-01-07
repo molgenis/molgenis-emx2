@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
@@ -158,5 +159,71 @@ class TestTypeUtils {
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(trailingData)),
         // invalid: Java type int
         () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(invalidJavaType)));
+  }
+
+  @Test
+  void testAllColumnTypesCoveredGetArrayType() {
+    Set<ColumnType> arrayTypeExclude =
+        Set.of(
+            ColumnType.FILE,
+            ColumnType.REF, // todo: ask why not included
+            ColumnType.REFBACK,
+            ColumnType.HEADING,
+            ColumnType.SECTION,
+            ColumnType.AUTO_ID,
+            ColumnType.ONTOLOGY, // todo: ask why not included
+            ColumnType.SELECT,
+            ColumnType.MULTISELECT,
+            ColumnType.RADIO,
+            ColumnType.CHECKBOX);
+
+    Arrays.stream(ColumnType.values())
+        .filter((i) -> !arrayTypeExclude.contains(i))
+        .forEach(TypeUtils::getArrayType);
+  }
+
+  @Test
+  void testAllColumnTypesCoveredToJooqType() {
+    Set<ColumnType> arrayTypeExclude =
+        Set.of(
+            ColumnType.REF,
+            ColumnType.REF_ARRAY,
+            ColumnType.REFBACK,
+            ColumnType.HEADING,
+            ColumnType.SECTION,
+            ColumnType.AUTO_ID,
+            ColumnType.ONTOLOGY,
+            ColumnType.ONTOLOGY_ARRAY,
+            ColumnType.SELECT,
+            ColumnType.MULTISELECT,
+            ColumnType.RADIO,
+            ColumnType.CHECKBOX);
+
+    Arrays.stream(ColumnType.values())
+        .filter((i) -> !arrayTypeExclude.contains(i))
+        .forEach(TypeUtils::toJooqType);
+  }
+
+  @Test
+  void testAllColumnTypesCoveredTypedValue() {
+    Set<ColumnType> arrayTypeExclude =
+        Set.of(
+            ColumnType.FILE,
+            ColumnType.REF,
+            ColumnType.REF_ARRAY,
+            ColumnType.REFBACK,
+            ColumnType.HEADING,
+            ColumnType.SECTION,
+            ColumnType.AUTO_ID,
+            ColumnType.ONTOLOGY,
+            ColumnType.ONTOLOGY_ARRAY,
+            ColumnType.SELECT,
+            ColumnType.MULTISELECT,
+            ColumnType.RADIO,
+            ColumnType.CHECKBOX);
+
+    Arrays.stream(ColumnType.values())
+        .filter((i) -> !arrayTypeExclude.contains(i))
+        .forEach(TypeUtils::toJooqType);
   }
 }
