@@ -46,12 +46,12 @@ import Button from "../Button.vue";
 
 const props = defineProps<
   IInputProps & {
-    modelValue: columnValue[] | undefined;
+    modelValue: columnValue[] | undefined | null;
     type: string;
   }
 >();
 
-const values = ref<columnValue[]>(handleUndefined(props.modelValue));
+const values = ref<columnValue[]>(props.modelValue ?? []);
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
 function handleUndefined(
