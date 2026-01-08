@@ -77,7 +77,7 @@
             </TableCell>
             <TableCell>
               <div
-                v-if="user.tokens && user.tokens?.length > 0"
+                v-if="user.tokens && user.tokens.length > 0"
                 class="flex gap-1"
               >
                 <Button
