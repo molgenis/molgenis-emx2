@@ -109,19 +109,33 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, DEFAULT_JOOQ_SETTINGS);
+
     if (init) {
       try {
         // elevate privileges for init (prevent reload)
         this.connectionProvider.setActiveUser(ADMIN_USER);
+        verifyVersion();
         this.init();
       } finally {
         // always sure to return to anonymous
         this.connectionProvider.clearActiveUser();
       }
+    } else {
+      verifyVersion();
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
     logger.info("Database was created using version: {} ", this.databaseVersion);
+  }
+
+  private void verifyVersion() {
+    PostgresVersion version = PostgresVersion.fromDslContext(jooq);
+    if (!version.isSupported()) {
+      throw new MolgenisException(
+          "Unsupported PostgreSQL database version: "
+              + version
+              + ", only PostgreSQL version 15 is supported");
+    }
   }
 
   private static void initDataSource() {
