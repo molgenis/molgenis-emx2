@@ -7,14 +7,8 @@ Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
 Make sure to install the dependencies:
 
 ```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
 # pnpm
-pnpm install --shamefully-hoist
+pnpm install
 ```
 
 ## Development Server
@@ -25,7 +19,7 @@ set non default (api)proxy target with
 `NUXT_PUBLIC_API_BASE`
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ## Production
@@ -36,13 +30,13 @@ set api-proxy target with
 Build the application for production:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Locally preview production build:
 
 ```bash
-npm run preview
+pnpm run preview
 ```
 
 Checkout the [deployment documentation](https://v3.nuxtjs.org/guide/deploy/presets) for more information.
@@ -59,7 +53,7 @@ A non default emx2 theme is loaded by passing the `EMX2_THEME` environment varia
 For example during development
 
 ```sh
-EMX2_THEME=umcg npm run dev
+EMX2_THEME=umcg pnpm run dev
 ```
 
 ##### feature flags
