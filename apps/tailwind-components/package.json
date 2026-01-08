@@ -41,7 +41,6 @@
     "vue-router": "4.4.3"
   },
   "devDependencies": {
-    "@nuxt/image": "1.11.0",
     "@nuxt/test-utils": "3.20.1",
     "@nuxtjs/tailwindcss": "6.14.0",
     "@playwright/test": "1.57.0",
@@ -57,6 +56,6 @@
     "tailwindcss": "3.4.17",
     "typescript": "5.6.2",
     "vitest": "3.0.7",
-    "vue-tsc": "2.2.0"
+    "vue-tsc": "3.2.1"
   }
 }
