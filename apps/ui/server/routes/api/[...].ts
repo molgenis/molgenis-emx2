@@ -21,7 +21,7 @@ export default defineEventHandler((event) => {
   const path: string[] = (event._path as string).split("/");
   let target: string;
 
-  target = joinURL(host, "api", path[path.length - 1]);
+  target = joinURL(host, "api", path[path.length - 1] || "");
 
   logger.info("to : ", target);
 

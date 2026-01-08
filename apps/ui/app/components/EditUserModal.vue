@@ -132,7 +132,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-expect-error
 import _ from "lodash";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { isValidPassword, updateUser } from "~/util/adminUtils";
