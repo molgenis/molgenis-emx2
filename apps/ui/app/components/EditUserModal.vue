@@ -49,7 +49,7 @@
             </TableHeadRow>
           </template>
           <template #body>
-            <TableRow v-if="!userRoles.length">
+            <TableRow v-if="!Object.keys(userRoles).length">
               <TableCell></TableCell>
               <TableCell> no roles found </TableCell>
               <TableCell></TableCell>
