@@ -116,7 +116,7 @@
   />
   <InputRadioGroup
     v-else-if="['RADIO'].includes(typeUpperCase) && options"
-    v-model="modelValue"
+    v-model="modelValue as string | number | boolean | columnValueObject | undefined"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -225,7 +225,9 @@
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
     :modelValue="modelValue && typeof modelValue === 'object' && 'name' in modelValue ? (modelValue as Record<string, any>)['name'] : undefined"
     @update:modelValue="
-      $event ? (modelValue = { name: $event }) : (modelValue = undefined)
+      $event
+        ? (modelValue = { name: $event as string })
+        : (modelValue = undefined)
     "
     :id="id"
     :valid="valid"
