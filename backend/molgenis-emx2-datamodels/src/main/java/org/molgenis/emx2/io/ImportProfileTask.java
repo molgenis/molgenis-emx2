@@ -1,5 +1,9 @@
 package org.molgenis.emx2.io;
 
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.*;
+import java.util.function.Function;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
@@ -9,11 +13,6 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.tasks.Task;
-
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.*;
-import java.util.function.Function;
 
 public class ImportProfileTask extends Task {
 
@@ -32,11 +31,7 @@ public class ImportProfileTask extends Task {
       String description,
       String configLocation,
       boolean includeDemoData) {
-    this(
-        database,
-            configLocation,
-        includeDemoData,
-        db -> db.createSchema(schemaName, description));
+    this(database, configLocation, includeDemoData, db -> db.createSchema(schemaName, description));
   }
 
   ImportProfileTask(

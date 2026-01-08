@@ -2,6 +2,7 @@ package org.molgenis.emx2.datamodels;
 
 import java.util.Arrays;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.io.SchemaLoaderSettings;
@@ -59,6 +60,10 @@ public class DataModels {
         (schemaLoaderSettings ->
             new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true)));
 
+    public static boolean hasRegular(String nameOther) {
+      return Arrays.stream(values()).anyMatch(regular -> regular.name().equals(nameOther));
+    }
+
     @FunctionalInterface
     private interface TaskFactory {
       ImportDataModelTask createTask(SchemaLoaderSettings schemaLoaderSettings);
@@ -92,11 +97,13 @@ public class DataModels {
     if (Profile.hasProfile(template)) {
       Profile profile = Profile.valueOf(template);
       task = profile.getImportTask(database, schemaName, description, includeDemoData);
-    } else {
+    } else if (Regular.hasRegular(template)) {
       task =
           Regular.valueOf(template)
               .getImportTask(
                   new SchemaLoaderSettings(database, schemaName, description, includeDemoData));
+    } else {
+      throw new MolgenisException("Cannot create schema from template '" + template + "'.");
     }
     return task.setDescription("Loading data model: " + template + " onto " + schemaName);
   }
