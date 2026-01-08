@@ -48,6 +48,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Order",
@@ -128,6 +129,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Pet",
@@ -226,6 +228,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Tag",
@@ -255,8 +258,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -266,8 +268,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           refTableId: "Tag",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -275,8 +276,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -284,8 +284,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -312,8 +311,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -347,6 +345,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "User",
@@ -442,6 +441,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
   ],
 };
@@ -478,8 +478,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -489,8 +488,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ATC",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -498,8 +496,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -507,8 +504,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -535,8 +531,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -570,6 +565,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "AgeGroups",
@@ -599,8 +595,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -610,8 +605,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AgeGroups",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -619,8 +613,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -628,8 +621,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -656,8 +648,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -691,6 +682,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "AllVariables",
@@ -743,8 +735,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "CollectionEvents",
           refLabelDefault: "${resource.id}.${name}",
-          description:
-            "in case of protocolised data collection this defines the moment in time this variable is collected on",
+          description: "in case of protocolised data collection this defines the moment in time this variable is collected on",
           position: 325,
         },
         {
@@ -766,11 +757,9 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mappings",
           columnType: "REFBACK",
           refTableId: "VariableMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}.${targetVariable.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}.${targetVariable.name}",
           refBackId: "targetVariable",
-          description:
-            "in case of protocolised data collection this defines the moment in time this variable is collected on",
+          description: "in case of protocolised data collection this defines the moment in time this variable is collected on",
           position: 340,
         },
         {
@@ -811,6 +800,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "AreasOfInformationCohorts",
@@ -840,8 +830,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -851,8 +840,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AreasOfInformationCohorts",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -860,8 +848,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -869,8 +856,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -897,8 +883,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -932,6 +917,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "AreasOfInformationDs",
@@ -961,8 +947,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -972,8 +957,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AreasOfInformationDs",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -981,8 +965,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -990,8 +973,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -1018,8 +1000,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -1053,6 +1034,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Biospecimens",
@@ -1082,8 +1064,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -1093,8 +1074,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Biospecimens",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -1102,8 +1082,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -1111,8 +1090,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -1139,8 +1117,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -1174,6 +1151,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "CohortDesigns",
@@ -1203,8 +1181,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -1214,8 +1191,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "CohortDesigns",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -1223,8 +1199,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -1232,8 +1207,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -1260,8 +1234,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -1295,6 +1268,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Cohorts",
@@ -1352,8 +1326,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "keywords",
           label: "keywords",
           columnType: "TEXT",
-          description:
-            "Keywords to increase findability of this resource. Try to use words that are not used in the description",
+          description: "Keywords to increase findability of this resource. Try to use words that are not used in the description",
           position: 25,
         },
         {
@@ -1369,8 +1342,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -1379,8 +1351,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
@@ -1397,8 +1368,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -1442,8 +1412,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "CohortDesigns",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "The study design of this cohort, i.e. cross-sectional or longitudinal",
+          description: "The study design of this cohort, i.e. cross-sectional or longitudinal",
           position: 44,
         },
         {
@@ -1457,8 +1426,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "designSchematic",
           label: "design schematic",
           columnType: "FILE",
-          description:
-            "A schematic depiction of the study design of this cohort",
+          description: "A schematic depiction of the study design of this cohort",
           position: 46,
         },
         {
@@ -1468,8 +1436,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "CollectionTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "The data collection type of this cohort, i.e. retrospective or prospective; if both, select both",
+          description: "The data collection type of this cohort, i.e. retrospective or prospective; if both, select both",
           position: 47,
         },
         {
@@ -1483,16 +1450,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "population",
           label: "population",
           columnType: "HEADING",
-          description:
-            "Description of the population that can potentially be captured in the resource",
+          description: "Description of the population that can potentially be captured in the resource",
           position: 49,
         },
         {
           id: "numberOfParticipants",
           label: "number of participants",
           columnType: "INT",
-          description:
-            "Total number of individuals for which data is collected",
+          description: "Total number of individuals for which data is collected",
           position: 50,
         },
         {
@@ -1509,8 +1474,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -1520,8 +1484,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Regions",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Geographical regions where data from this resource largely originate from",
+          description: "Geographical regions where data from this resource largely originate from",
           position: 54,
         },
         {
@@ -1531,8 +1494,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AgeGroups",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which population age groups are captured in this resource? Select all that are relevant.",
+          description: "Which population age groups are captured in this resource? Select all that are relevant.",
           position: 55,
         },
         {
@@ -1542,16 +1504,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InclusionCriteria",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Inclusion criteria applied to the participants of this resource",
+          description: "Inclusion criteria applied to the participants of this resource",
           position: 56,
         },
         {
           id: "otherInclusionCriteria",
           label: "other inclusion criteria",
           columnType: "TEXT",
-          description:
-            "Other inclusion criteria applied to the participants of this resource",
+          description: "Other inclusion criteria applied to the participants of this resource",
           position: 57,
         },
         {
@@ -1565,8 +1525,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "endYear",
           label: "end year",
           columnType: "INT",
-          description:
-            "Year when last data was collected. Leave empty if collection is ongoing",
+          description: "Year when last data was collected. Leave empty if collection is ongoing",
           position: 59,
         },
         {
@@ -1576,8 +1535,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
+          description: "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
           position: 66,
         },
         {
@@ -1587,8 +1545,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOTopologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
           position: 67,
         },
         {
@@ -1598,8 +1555,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOMorphologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
           position: 68,
         },
         {
@@ -1645,8 +1601,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ReleaseTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis",
+          description: "Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis",
           position: 103,
         },
         {
@@ -1660,8 +1615,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "linkageOptions",
           label: "linkage options",
           columnType: "TEXT",
-          description:
-            "Linkage options with additional data sources that are available for this resource",
+          description: "Linkage options with additional data sources that are available for this resource",
           position: 105,
         },
         {
@@ -1677,8 +1631,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "The name of the organisation that is responsible for governance of the data bank",
+          description: "The name of the organisation that is responsible for governance of the data bank",
           position: 107,
         },
         {
@@ -1688,8 +1641,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DAPs",
           refLabelDefault: "${organisation.id}.${resource.id}",
           refBackId: "resource",
-          description:
-            "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
+          description: "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
           position: 108,
         },
         {
@@ -1723,8 +1675,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "dataAccessFee",
           label: "data access fee",
           columnType: "BOOL",
-          description:
-            "Does a fee apply to gain access to data of this cohort?",
+          description: "Does a fee apply to gain access to data of this cohort?",
           position: 113,
         },
         {
@@ -1740,8 +1691,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Publications",
           refLabelDefault: "${doi}",
-          description:
-            "Publication(s) that describe(s) the design of this resource",
+          description: "Publication(s) that describe(s) the design of this resource",
           position: 157,
         },
         {
@@ -1760,24 +1710,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsentTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "What type of informed consent was given for data collection?",
+          description: "What type of informed consent was given for data collection?",
           position: 159,
         },
         {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -1787,16 +1734,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
           id: "supplementaryInformation",
           label: "supplementary information",
           columnType: "TEXT",
-          description:
-            "Any other information that needs to be disclosed for this resource",
+          description: "Any other information that needs to be disclosed for this resource",
           position: 165,
         },
         {
@@ -1823,8 +1768,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Networks",
           refLabelDefault: "${id}",
           refBackId: "cohorts",
-          description:
-            "The consortia or networks that this cohort is involved in",
+          description: "The consortia or networks that this cohort is involved in",
           position: 168,
         },
         {
@@ -1865,6 +1809,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "CollectionEvents",
@@ -1936,8 +1881,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Years",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "End year of data collection. Leave empty if collection is ongoing",
+          description: "End year of data collection. Leave empty if collection is ongoing",
           position: 228,
         },
         {
@@ -1947,8 +1891,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Months",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "End month of data collection. Leave empty if collection is ongoing",
+          description: "End month of data collection. Leave empty if collection is ongoing",
           position: 229,
         },
         {
@@ -1965,8 +1908,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "numberOfParticipants",
           label: "number of participants",
           columnType: "INT",
-          description:
-            "Number of participants sampled in this data collection event",
+          description: "Number of participants sampled in this data collection event",
           position: 231,
         },
         {
@@ -1976,8 +1918,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AreasOfInformationCohorts",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Areas of information that were extracted in this data collection event",
+          description: "Areas of information that were extracted in this data collection event",
           position: 232,
         },
         {
@@ -1987,8 +1928,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DataCategories",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Methods of data collection used in this collection event",
+          description: "Methods of data collection used in this collection event",
           position: 233,
         },
         {
@@ -2008,8 +1948,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StandardizedTools",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event",
+          description: "Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event",
           position: 235,
         },
         {
@@ -2023,16 +1962,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "coreVariables",
           label: "core variables",
           columnType: "STRING_ARRAY",
-          description:
-            "Name 10-20 relevant variables that were collected in this collection event",
+          description: "Name 10-20 relevant variables that were collected in this collection event",
           position: 237,
         },
         {
           id: "supplementaryInformation",
           label: "supplementary information",
           columnType: "TEXT",
-          description:
-            "Any other information that needs to be disclosed for this collection event",
+          description: "Any other information that needs to be disclosed for this collection event",
           position: 238,
         },
         {
@@ -2066,6 +2003,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "CollectionTypes",
@@ -2095,8 +2033,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -2106,8 +2043,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "CollectionTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -2115,8 +2051,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -2124,8 +2059,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -2152,8 +2086,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -2187,6 +2120,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Contacts",
@@ -2339,6 +2273,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ContributionTypes",
@@ -2368,8 +2303,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -2379,8 +2313,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ContributionTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -2388,8 +2321,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -2397,8 +2329,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -2425,8 +2356,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -2460,6 +2390,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Countries",
@@ -2489,8 +2420,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -2500,8 +2430,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -2509,8 +2438,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -2518,8 +2446,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -2546,8 +2473,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -2581,6 +2507,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DAPInformation",
@@ -2610,8 +2537,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -2621,8 +2547,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DAPInformation",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -2630,8 +2555,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -2639,8 +2563,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -2667,8 +2590,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -2702,6 +2624,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DAPs",
@@ -2728,16 +2651,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Resources",
           refLabelDefault: "${id}",
           required: true,
-          description:
-            "Resource that is access or has experience with provided to",
+          description: "Resource that is access or has experience with provided to",
           position: 399,
         },
         {
           id: "populationSubsetOther",
           label: "population subset other",
           columnType: "TEXT",
-          description:
-            "If 'other' is selected above, describe the subset that can be accessed",
+          description: "If 'other' is selected above, describe the subset that can be accessed",
           position: 400,
         },
         {
@@ -2747,24 +2668,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DAPInformation",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Description of population subset, data access levels, completeness, reason for access",
+          description: "Description of population subset, data access levels, completeness, reason for access",
           position: 401,
         },
         {
           id: "reasonAccessOther",
           label: "reason access other",
           columnType: "TEXT",
-          description:
-            "If reason access is 'other', reason for being able to access (an extract of) the data source",
+          description: "If reason access is 'other', reason for being able to access (an extract of) the data source",
           position: 402,
         },
         {
           id: "processTime",
           label: "process time",
           columnType: "INT",
-          description:
-            "On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",
+          description: "On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",
           position: 403,
         },
         {
@@ -2798,6 +2716,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DataAccessConditions",
@@ -2827,8 +2746,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -2838,8 +2756,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DataAccessConditions",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -2847,8 +2764,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -2856,8 +2772,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -2884,8 +2799,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -2919,6 +2833,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DataCategories",
@@ -2948,8 +2863,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -2959,8 +2873,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DataCategories",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -2968,8 +2881,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -2977,8 +2889,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -3005,8 +2916,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -3040,6 +2950,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DataResources",
@@ -3097,8 +3008,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "keywords",
           label: "keywords",
           columnType: "TEXT",
-          description:
-            "Keywords to increase findability of this resource. Try to use words that are not used in the description",
+          description: "Keywords to increase findability of this resource. Try to use words that are not used in the description",
           position: 25,
         },
         {
@@ -3114,8 +3024,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -3124,8 +3033,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
@@ -3142,8 +3050,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -3167,16 +3074,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "population",
           label: "population",
           columnType: "HEADING",
-          description:
-            "Description of the population that can potentially be captured in the resource",
+          description: "Description of the population that can potentially be captured in the resource",
           position: 49,
         },
         {
           id: "numberOfParticipants",
           label: "number of participants",
           columnType: "INT",
-          description:
-            "Total number of individuals for which data is collected",
+          description: "Total number of individuals for which data is collected",
           position: 50,
         },
         {
@@ -3193,8 +3098,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -3204,8 +3108,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Regions",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Geographical regions where data from this resource largely originate from",
+          description: "Geographical regions where data from this resource largely originate from",
           position: 54,
         },
         {
@@ -3215,8 +3118,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AgeGroups",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which population age groups are captured in this resource? Select all that are relevant.",
+          description: "Which population age groups are captured in this resource? Select all that are relevant.",
           position: 55,
         },
         {
@@ -3226,8 +3128,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
+          description: "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
           position: 66,
         },
         {
@@ -3237,8 +3138,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOTopologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
           position: 67,
         },
         {
@@ -3248,8 +3148,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOMorphologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
           position: 68,
         },
         {
@@ -3281,8 +3180,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "The name of the organisation that is responsible for governance of the data bank",
+          description: "The name of the organisation that is responsible for governance of the data bank",
           position: 107,
         },
         {
@@ -3292,8 +3190,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DAPs",
           refLabelDefault: "${organisation.id}.${resource.id}",
           refBackId: "resource",
-          description:
-            "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
+          description: "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
           position: 108,
         },
         {
@@ -3309,8 +3206,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Publications",
           refLabelDefault: "${doi}",
-          description:
-            "Publication(s) that describe(s) the design of this resource",
+          description: "Publication(s) that describe(s) the design of this resource",
           position: 157,
         },
         {
@@ -3329,24 +3225,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsentTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "What type of informed consent was given for data collection?",
+          description: "What type of informed consent was given for data collection?",
           position: 159,
         },
         {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -3356,16 +3249,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
           id: "supplementaryInformation",
           label: "supplementary information",
           columnType: "TEXT",
-          description:
-            "Any other information that needs to be disclosed for this resource",
+          description: "Any other information that needs to be disclosed for this resource",
           position: 165,
         },
         {
@@ -3413,6 +3304,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "DataSources",
@@ -3473,8 +3365,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DatasourceTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which of the following families of databanks best describe this data source",
+          description: "Which of the following families of databanks best describe this data source",
           position: 23,
         },
         {
@@ -3488,8 +3379,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "keywords",
           label: "keywords",
           columnType: "TEXT",
-          description:
-            "Keywords to increase findability of this resource. Try to use words that are not used in the description",
+          description: "Keywords to increase findability of this resource. Try to use words that are not used in the description",
           position: 25,
         },
         {
@@ -3505,8 +3395,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -3515,8 +3404,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
@@ -3530,32 +3418,28 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "dataCollectionDescription",
           label: "data collection description",
           columnType: "TEXT",
-          description:
-            "Describe the process of collection and recording of data.",
+          description: "Describe the process of collection and recording of data.",
           position: 32,
         },
         {
           id: "dateEstablished",
           label: "date established",
           columnType: "DATE",
-          description:
-            "Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 33,
         },
         {
           id: "startDataCollection",
           label: "start data collection",
           columnType: "DATE",
-          description:
-            "The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 34,
         },
         {
           id: "endDataCollection",
           label: "end data collection",
           columnType: "DATE",
-          description:
-            "If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 35,
         },
         {
@@ -3572,8 +3456,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -3597,16 +3480,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "population",
           label: "population",
           columnType: "HEADING",
-          description:
-            "Description of the population that can potentially be captured in the resource",
+          description: "Description of the population that can potentially be captured in the resource",
           position: 49,
         },
         {
           id: "numberOfParticipants",
           label: "number of participants",
           columnType: "INT",
-          description:
-            "Total number of individuals for which data is collected",
+          description: "Total number of individuals for which data is collected",
           position: 50,
         },
         {
@@ -3623,8 +3504,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -3634,8 +3514,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Regions",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Geographical regions where data from this resource largely originate from",
+          description: "Geographical regions where data from this resource largely originate from",
           position: 54,
         },
         {
@@ -3645,8 +3524,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AgeGroups",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which population age groups are captured in this resource? Select all that are relevant.",
+          description: "Which population age groups are captured in this resource? Select all that are relevant.",
           position: 55,
         },
         {
@@ -3656,16 +3534,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationEntry",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Select the possible causes / events that trigger the registration of a person in the data source",
+          description: "Select the possible causes / events that trigger the registration of a person in the data source",
           position: 62,
         },
         {
           id: "populationEntryOther",
           label: "population entry other",
           columnType: "TEXT",
-          description:
-            "If other, specify the causes of entry to the underlying population",
+          description: "If other, specify the causes of entry to the underlying population",
           position: 63,
         },
         {
@@ -3675,16 +3551,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationExit",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Select the possible causes / events that trigger the de-registration of a person in the data source",
+          description: "Select the possible causes / events that trigger the de-registration of a person in the data source",
           position: 64,
         },
         {
           id: "populationExitOther",
           label: "population exit other",
           columnType: "TEXT",
-          description:
-            "If other, specify the causes of exit from the underlying population",
+          description: "If other, specify the causes of exit from the underlying population",
           position: 65,
         },
         {
@@ -3694,8 +3568,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
+          description: "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
           position: 66,
         },
         {
@@ -3705,8 +3578,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOTopologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
           position: 67,
         },
         {
@@ -3716,24 +3588,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOMorphologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
           position: 68,
         },
         {
           id: "populationCoverage",
           label: "population coverage",
           columnType: "TEXT",
-          description:
-            "Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.",
+          description: "Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.",
           position: 69,
         },
         {
           id: "populationNotCovered",
           label: "population not covered",
           columnType: "TEXT",
-          description:
-            "Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",
+          description: "Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",
           position: 70,
         },
         {
@@ -3767,8 +3636,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mappings to data models",
           columnType: "REFBACK",
           refTableId: "DatasetMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
           refBackId: "source",
           description: "overview of dataset mappings available",
           position: 75,
@@ -3801,8 +3669,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "indicationVocabularyOther",
           label: "indication vocabulary other",
           columnType: "TEXT",
-          description:
-            "If 'other,' what indication for use vocabulary is used?",
+          description: "If 'other,' what indication for use vocabulary is used?",
           position: 79,
         },
         {
@@ -3823,8 +3690,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "medicinalProductVocabularyOther",
           label: "medicinal product vocabulary other",
           columnType: "TEXT",
-          description:
-            "If 'other,' description of the medicinal product vocabulary",
+          description: "If 'other,' description of the medicinal product vocabulary",
           position: 82,
         },
         {
@@ -3869,8 +3735,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "MedDRA",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If data on a specific disease is collected, which diseases does the data source collect information on",
+          description: "If data on a specific disease is collected, which diseases does the data source collect information on",
           position: 89,
         },
         {
@@ -3887,8 +3752,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Biospecimens",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If the data bank contains biospecimens, what types of specimen",
+          description: "If the data bank contains biospecimens, what types of specimen",
           position: 91,
         },
         {
@@ -3898,16 +3762,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Languages",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",
+          description: "Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",
           position: 92,
         },
         {
           id: "recordTrigger",
           label: "record trigger",
           columnType: "TEXT",
-          description:
-            "What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",
+          description: "What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",
           position: 93,
         },
         {
@@ -3921,8 +3783,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "linkageDescription",
           label: "linkage description",
           columnType: "TEXT",
-          description:
-            "Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source",
+          description: "Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source",
           position: 100,
         },
         {
@@ -3939,8 +3800,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "LinkedResources",
           refLabelDefault: "${mainResource.id}.${linkedResource.id}",
           refBackId: "mainResource",
-          description:
-            "List of resources that are linked into this main resource",
+          description: "List of resources that are linked into this main resource",
           position: 102,
         },
         {
@@ -3956,8 +3816,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "The name of the organisation that is responsible for governance of the data bank",
+          description: "The name of the organisation that is responsible for governance of the data bank",
           position: 107,
         },
         {
@@ -3967,8 +3826,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DAPs",
           refLabelDefault: "${organisation.id}.${resource.id}",
           refBackId: "resource",
-          description:
-            "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
+          description: "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
           position: 108,
         },
         {
@@ -3978,96 +3836,84 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsents",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Is informed consent required for use of the data for research purposes?",
+          description: "Is informed consent required for use of the data for research purposes?",
           position: 114,
         },
         {
           id: "informedConsentOther",
           label: "informed consent other",
           columnType: "TEXT",
-          description:
-            "If other, describe the conditions when informed consent is required",
+          description: "If other, describe the conditions when informed consent is required",
           position: 115,
         },
         {
           id: "accessIdentifiableData",
           label: "access identifiable data",
           columnType: "TEXT",
-          description:
-            "Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?",
+          description: "Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?",
           position: 116,
         },
         {
           id: "accessIdentifiableDataRoute",
           label: "access identifiable data route",
           columnType: "TEXT",
-          description:
-            "If yes above, what is the route to access or process this information? What permission is required?",
+          description: "If yes above, what is the route to access or process this information? What permission is required?",
           position: 117,
         },
         {
           id: "accessSubjectDetails",
           label: "access subject details",
           columnType: "BOOL",
-          description:
-            "Can individual patients/practitioners/practices be contacted in the data bank?",
+          description: "Can individual patients/practitioners/practices be contacted in the data bank?",
           position: 118,
         },
         {
           id: "accessSubjectDetailsRoute",
           label: "access subject details route",
           columnType: "TEXT",
-          description:
-            "If yes above, what is the route to access or process this information? What permission is required?",
+          description: "If yes above, what is the route to access or process this information? What permission is required?",
           position: 119,
         },
         {
           id: "auditPossible",
           label: "audit possible",
           columnType: "BOOL",
-          description:
-            "Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",
+          description: "Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",
           position: 120,
         },
         {
           id: "standardOperatingProcedures",
           label: "standard operating procedures",
           columnType: "BOOL",
-          description:
-            "Is there a standard operating procedure document that defines the processes and procedures for data capture and management?",
+          description: "Is there a standard operating procedure document that defines the processes and procedures for data capture and management?",
           position: 125,
         },
         {
           id: "biospecimenAccess",
           label: "biospecimen access",
           columnType: "BOOL",
-          description:
-            "If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",
+          description: "If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",
           position: 126,
         },
         {
           id: "biospecimenAccessConditions",
           label: "biospecimen access conditions",
           columnType: "TEXT",
-          description:
-            "If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",
+          description: "If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",
           position: 127,
         },
         {
           id: "governanceDetails",
           label: "governance details",
           columnType: "TEXT",
-          description:
-            "If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",
+          description: "If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",
           position: 128,
         },
         {
           id: "approvalForPublication",
           label: "approval for publication",
           columnType: "BOOL",
-          description:
-            "Is an approval needed to publish the results of a study using the data",
+          description: "Is an approval needed to publish the results of a study using the data",
           position: 129,
         },
         {
@@ -4088,8 +3934,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "preservationDuration",
           label: "preservation duration",
           columnType: "INT",
-          description:
-            "If no to the above, for how long (in years) are records preserved in the data bank?",
+          description: "If no to the above, for how long (in years) are records preserved in the data bank?",
           position: 134,
         },
         {
@@ -4099,8 +3944,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "RefreshPeriods",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",
+          description: "If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",
           position: 135,
         },
         {
@@ -4121,56 +3965,49 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "qualification",
           label: "qualification",
           columnType: "BOOL",
-          description:
-            "Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",
+          description: "Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",
           position: 138,
         },
         {
           id: "qualificationsDescription",
           label: "qualifications description",
           columnType: "TEXT",
-          description:
-            "Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",
+          description: "Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",
           position: 139,
         },
         {
           id: "accessForValidation",
           label: "access for validation",
           columnType: "BOOL",
-          description:
-            "Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",
+          description: "Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",
           position: 146,
         },
         {
           id: "qualityValidationFrequency",
           label: "quality validation frequency",
           columnType: "TEXT",
-          description:
-            "How often are data quality checks and validation steps conducted on the data bank?",
+          description: "How often are data quality checks and validation steps conducted on the data bank?",
           position: 147,
         },
         {
           id: "qualityValidationMethods",
           label: "quality validation methods",
           columnType: "TEXT",
-          description:
-            "What methods or processes are applied for data quality checks and validation steps conducted on the data bank?",
+          description: "What methods or processes are applied for data quality checks and validation steps conducted on the data bank?",
           position: 148,
         },
         {
           id: "correctionMethods",
           label: "correction methods",
           columnType: "TEXT",
-          description:
-            "What methods or processes are applied to correct illogical values in the data bank?",
+          description: "What methods or processes are applied to correct illogical values in the data bank?",
           position: 149,
         },
         {
           id: "qualityValidationResults",
           label: "quality validation results",
           columnType: "STRING",
-          description:
-            "If available, provide a link to a publication of the data quality check and validation results",
+          description: "If available, provide a link to a publication of the data quality check and validation results",
           position: 150,
         },
         {
@@ -4187,16 +4024,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Mappings",
           refLabelDefault: "${source.id}.${target.id}",
           refBackId: "source",
-          description:
-            "Common data models used or ETL-ed to by this data source",
+          description: "Common data models used or ETL-ed to by this data source",
           position: 152,
         },
         {
           id: "cdmsOther",
           label: "cdms other",
           columnType: "TEXT",
-          description:
-            "If not in list above, give the name of cdm(s) used by this data source",
+          description: "If not in list above, give the name of cdm(s) used by this data source",
           position: 153,
         },
         {
@@ -4212,8 +4047,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Publications",
           refLabelDefault: "${doi}",
-          description:
-            "Publication(s) that describe(s) the design of this resource",
+          description: "Publication(s) that describe(s) the design of this resource",
           position: 157,
         },
         {
@@ -4232,8 +4066,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsentTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "What type of informed consent was given for data collection?",
+          description: "What type of informed consent was given for data collection?",
           position: 159,
         },
         {
@@ -4243,24 +4076,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "FundingTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Specify the main financial support sources for the data source in the last 3 years. Select all that apply",
+          description: "Specify the main financial support sources for the data source in the last 3 years. Select all that apply",
           position: 160,
         },
         {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -4270,16 +4100,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
           id: "supplementaryInformation",
           label: "supplementary information",
           columnType: "TEXT",
-          description:
-            "Any other information that needs to be disclosed for this resource",
+          description: "Any other information that needs to be disclosed for this resource",
           position: 165,
         },
         {
@@ -4296,8 +4124,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Networks",
           refLabelDefault: "${id}",
           refBackId: "dataSources",
-          description:
-            "List of networks that this datasource is associated with",
+          description: "List of networks that this datasource is associated with",
           position: 171,
         },
         {
@@ -4307,8 +4134,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Studies",
           refLabelDefault: "${id}",
           refBackId: "dataSources",
-          description:
-            "List of studies that this datasource is associated with",
+          description: "List of studies that this datasource is associated with",
           position: 172,
         },
         {
@@ -4349,6 +4175,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "DataUseConditions",
@@ -4378,8 +4205,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -4389,8 +4215,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DataUseConditions",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -4398,8 +4223,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -4407,8 +4231,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -4435,8 +4258,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -4470,6 +4292,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Databanks",
@@ -4530,8 +4353,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DatasourceTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which of the following families of databanks best describe this data source",
+          description: "Which of the following families of databanks best describe this data source",
           position: 23,
         },
         {
@@ -4545,8 +4367,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "keywords",
           label: "keywords",
           columnType: "TEXT",
-          description:
-            "Keywords to increase findability of this resource. Try to use words that are not used in the description",
+          description: "Keywords to increase findability of this resource. Try to use words that are not used in the description",
           position: 25,
         },
         {
@@ -4562,8 +4383,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -4572,8 +4392,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
@@ -4587,32 +4406,28 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "dataCollectionDescription",
           label: "data collection description",
           columnType: "TEXT",
-          description:
-            "Describe the process of collection and recording of data.",
+          description: "Describe the process of collection and recording of data.",
           position: 32,
         },
         {
           id: "dateEstablished",
           label: "date established",
           columnType: "DATE",
-          description:
-            "Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 33,
         },
         {
           id: "startDataCollection",
           label: "start data collection",
           columnType: "DATE",
-          description:
-            "The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 34,
         },
         {
           id: "endDataCollection",
           label: "end data collection",
           columnType: "DATE",
-          description:
-            "If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 35,
         },
         {
@@ -4629,8 +4444,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -4654,16 +4468,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "population",
           label: "population",
           columnType: "HEADING",
-          description:
-            "Description of the population that can potentially be captured in the resource",
+          description: "Description of the population that can potentially be captured in the resource",
           position: 49,
         },
         {
           id: "numberOfParticipants",
           label: "number of participants",
           columnType: "INT",
-          description:
-            "Total number of individuals for which data is collected",
+          description: "Total number of individuals for which data is collected",
           position: 50,
         },
         {
@@ -4677,8 +4489,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "underlyingPopulation",
           label: "underlying population",
           columnType: "TEXT",
-          description:
-            "Provide a summary description of the underlying population (maximum 100 words) or URL to a description",
+          description: "Provide a summary description of the underlying population (maximum 100 words) or URL to a description",
           position: 52,
         },
         {
@@ -4688,8 +4499,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -4699,8 +4509,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Regions",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Geographical regions where data from this resource largely originate from",
+          description: "Geographical regions where data from this resource largely originate from",
           position: 54,
         },
         {
@@ -4710,8 +4519,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AgeGroups",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which population age groups are captured in this resource? Select all that are relevant.",
+          description: "Which population age groups are captured in this resource? Select all that are relevant.",
           position: 55,
         },
         {
@@ -4721,16 +4529,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationEntry",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Select the possible causes / events that trigger the registration of a person in the data source",
+          description: "Select the possible causes / events that trigger the registration of a person in the data source",
           position: 62,
         },
         {
           id: "populationEntryOther",
           label: "population entry other",
           columnType: "TEXT",
-          description:
-            "If other, specify the causes of entry to the underlying population",
+          description: "If other, specify the causes of entry to the underlying population",
           position: 63,
         },
         {
@@ -4740,16 +4546,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationExit",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Select the possible causes / events that trigger the de-registration of a person in the data source",
+          description: "Select the possible causes / events that trigger the de-registration of a person in the data source",
           position: 64,
         },
         {
           id: "populationExitOther",
           label: "population exit other",
           columnType: "TEXT",
-          description:
-            "If other, specify the causes of exit from the underlying population",
+          description: "If other, specify the causes of exit from the underlying population",
           position: 65,
         },
         {
@@ -4759,8 +4563,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
+          description: "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
           position: 66,
         },
         {
@@ -4770,8 +4573,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOTopologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
           position: 67,
         },
         {
@@ -4781,24 +4583,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOMorphologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
           position: 68,
         },
         {
           id: "populationCoverage",
           label: "population coverage",
           columnType: "TEXT",
-          description:
-            "Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.",
+          description: "Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.",
           position: 69,
         },
         {
           id: "populationNotCovered",
           label: "population not covered",
           columnType: "TEXT",
-          description:
-            "Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",
+          description: "Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",
           position: 70,
         },
         {
@@ -4832,8 +4631,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mappings to data models",
           columnType: "REFBACK",
           refTableId: "DatasetMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
           refBackId: "source",
           description: "overview of dataset mappings available",
           position: 75,
@@ -4866,8 +4664,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "indicationVocabularyOther",
           label: "indication vocabulary other",
           columnType: "TEXT",
-          description:
-            "If 'other,' what indication for use vocabulary is used?",
+          description: "If 'other,' what indication for use vocabulary is used?",
           position: 79,
         },
         {
@@ -4888,8 +4685,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "medicinalProductVocabularyOther",
           label: "medicinal product vocabulary other",
           columnType: "TEXT",
-          description:
-            "If 'other,' description of the medicinal product vocabulary",
+          description: "If 'other,' description of the medicinal product vocabulary",
           position: 82,
         },
         {
@@ -4941,8 +4737,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "MedDRA",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If data on a specific disease is collected, which diseases does the data source collect information on",
+          description: "If data on a specific disease is collected, which diseases does the data source collect information on",
           position: 89,
         },
         {
@@ -4959,8 +4754,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Biospecimens",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If the data bank contains biospecimens, what types of specimen",
+          description: "If the data bank contains biospecimens, what types of specimen",
           position: 91,
         },
         {
@@ -4970,32 +4764,28 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Languages",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",
+          description: "Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",
           position: 92,
         },
         {
           id: "recordTrigger",
           label: "record trigger",
           columnType: "TEXT",
-          description:
-            "What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",
+          description: "What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",
           position: 93,
         },
         {
           id: "unitOfObservation",
           label: "unit of observation",
           columnType: "TEXT",
-          description:
-            "Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",
+          description: "Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",
           position: 95,
         },
         {
           id: "multipleEntries",
           label: "multiple entries",
           columnType: "BOOL",
-          description:
-            "Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",
+          description: "Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",
           position: 96,
         },
         {
@@ -5009,24 +4799,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "hasIdentifier",
           label: "has identifier",
           columnType: "BOOL",
-          description:
-            "Is there a unique identifier for a person in the data bank?",
+          description: "Is there a unique identifier for a person in the data bank?",
           position: 98,
         },
         {
           id: "identifierDescription",
           label: "identifier description",
           columnType: "TEXT",
-          description:
-            "Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level",
+          description: "Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level",
           position: 99,
         },
         {
           id: "linkageDescription",
           label: "linkage description",
           columnType: "TEXT",
-          description:
-            "Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source",
+          description: "Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source",
           position: 100,
         },
         {
@@ -5043,8 +4830,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "LinkedResources",
           refLabelDefault: "${mainResource.id}.${linkedResource.id}",
           refBackId: "mainResource",
-          description:
-            "List of resources that are linked into this main resource",
+          description: "List of resources that are linked into this main resource",
           position: 102,
         },
         {
@@ -5060,8 +4846,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "The name of the organisation that is responsible for governance of the data bank",
+          description: "The name of the organisation that is responsible for governance of the data bank",
           position: 107,
         },
         {
@@ -5071,16 +4856,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DAPs",
           refLabelDefault: "${organisation.id}.${resource.id}",
           refBackId: "resource",
-          description:
-            "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
+          description: "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
           position: 108,
         },
         {
           id: "reasonSustained",
           label: "reason sustained",
           columnType: "TEXT",
-          description:
-            "Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",
+          description: "Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",
           position: 109,
         },
         {
@@ -5090,128 +4873,112 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsents",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Is informed consent required for use of the data for research purposes?",
+          description: "Is informed consent required for use of the data for research purposes?",
           position: 114,
         },
         {
           id: "informedConsentOther",
           label: "informed consent other",
           columnType: "TEXT",
-          description:
-            "If other, describe the conditions when informed consent is required",
+          description: "If other, describe the conditions when informed consent is required",
           position: 115,
         },
         {
           id: "accessIdentifiableData",
           label: "access identifiable data",
           columnType: "TEXT",
-          description:
-            "Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?",
+          description: "Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?",
           position: 116,
         },
         {
           id: "accessIdentifiableDataRoute",
           label: "access identifiable data route",
           columnType: "TEXT",
-          description:
-            "If yes above, what is the route to access or process this information? What permission is required?",
+          description: "If yes above, what is the route to access or process this information? What permission is required?",
           position: 117,
         },
         {
           id: "accessSubjectDetails",
           label: "access subject details",
           columnType: "BOOL",
-          description:
-            "Can individual patients/practitioners/practices be contacted in the data bank?",
+          description: "Can individual patients/practitioners/practices be contacted in the data bank?",
           position: 118,
         },
         {
           id: "accessSubjectDetailsRoute",
           label: "access subject details route",
           columnType: "TEXT",
-          description:
-            "If yes above, what is the route to access or process this information? What permission is required?",
+          description: "If yes above, what is the route to access or process this information? What permission is required?",
           position: 119,
         },
         {
           id: "auditPossible",
           label: "audit possible",
           columnType: "BOOL",
-          description:
-            "Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",
+          description: "Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",
           position: 120,
         },
         {
           id: "accessThirdParty",
           label: "access third party",
           columnType: "BOOL",
-          description:
-            "Can (an extract of) the data bank be accessed with permission by a third party?",
+          description: "Can (an extract of) the data bank be accessed with permission by a third party?",
           position: 121,
         },
         {
           id: "accessThirdPartyConditions",
           label: "access third party conditions",
           columnType: "TEXT",
-          description:
-            "If above is 'yes', describe the conditions under which third-party access may be granted",
+          description: "If above is 'yes', describe the conditions under which third-party access may be granted",
           position: 122,
         },
         {
           id: "accessNonEU",
           label: "access non EU",
           columnType: "BOOL",
-          description:
-            "Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?",
+          description: "Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?",
           position: 123,
         },
         {
           id: "accessNonEUConditions",
           label: "access non EU conditions",
           columnType: "TEXT",
-          description:
-            "If yes above, describe the conditions under which non-EU/EEA access may be granted",
+          description: "If yes above, describe the conditions under which non-EU/EEA access may be granted",
           position: 124,
         },
         {
           id: "standardOperatingProcedures",
           label: "standard operating procedures",
           columnType: "BOOL",
-          description:
-            "Is there a standard operating procedure document that defines the processes and procedures for data capture and management?",
+          description: "Is there a standard operating procedure document that defines the processes and procedures for data capture and management?",
           position: 125,
         },
         {
           id: "biospecimenAccess",
           label: "biospecimen access",
           columnType: "BOOL",
-          description:
-            "If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",
+          description: "If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",
           position: 126,
         },
         {
           id: "biospecimenAccessConditions",
           label: "biospecimen access conditions",
           columnType: "TEXT",
-          description:
-            "If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",
+          description: "If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",
           position: 127,
         },
         {
           id: "governanceDetails",
           label: "governance details",
           columnType: "TEXT",
-          description:
-            "If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",
+          description: "If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",
           position: 128,
         },
         {
           id: "approvalForPublication",
           label: "approval for publication",
           columnType: "BOOL",
-          description:
-            "Is an approval needed to publish the results of a study using the data",
+          description: "Is an approval needed to publish the results of a study using the data",
           position: 129,
         },
         {
@@ -5225,16 +4992,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "refresh",
           label: "refresh",
           columnType: "INT",
-          description:
-            "Average number of days between refresh of data bank with new records",
+          description: "Average number of days between refresh of data bank with new records",
           position: 131,
         },
         {
           id: "lagTime",
           label: "lag time",
           columnType: "INT",
-          description:
-            "How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",
+          description: "How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",
           position: 132,
         },
         {
@@ -5248,8 +5013,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "preservationDuration",
           label: "preservation duration",
           columnType: "INT",
-          description:
-            "If no to the above, for how long (in years) are records preserved in the data bank?",
+          description: "If no to the above, for how long (in years) are records preserved in the data bank?",
           position: 134,
         },
         {
@@ -5259,8 +5023,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "RefreshPeriods",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",
+          description: "If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",
           position: 135,
         },
         {
@@ -5281,104 +5044,91 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "qualification",
           label: "qualification",
           columnType: "BOOL",
-          description:
-            "Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",
+          description: "Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",
           position: 138,
         },
         {
           id: "qualificationsDescription",
           label: "qualifications description",
           columnType: "TEXT",
-          description:
-            "Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",
+          description: "Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",
           position: 139,
         },
         {
           id: "numberOfRecords",
           label: "number of records",
           columnType: "INT",
-          description:
-            "Total number of unique records captured in the data bank (most recent count)",
+          description: "Total number of unique records captured in the data bank (most recent count)",
           position: 140,
         },
         {
           id: "completeness",
           label: "completeness",
           columnType: "TEXT",
-          description:
-            "Describe the completeness of the data bank (e.g., variables with more or fewer missing values)",
+          description: "Describe the completeness of the data bank (e.g., variables with more or fewer missing values)",
           position: 141,
         },
         {
           id: "completenessOverTime",
           label: "completeness over time",
           columnType: "TEXT",
-          description:
-            "Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time",
+          description: "Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time",
           position: 142,
         },
         {
           id: "completenessResults",
           label: "completeness results",
           columnType: "TEXT",
-          description:
-            "What methods or processes are applied to check completeness of the data bank?",
+          description: "What methods or processes are applied to check completeness of the data bank?",
           position: 143,
         },
         {
           id: "qualityDescription",
           label: "quality description",
           columnType: "TEXT",
-          description:
-            "Describe the quality of the data bank (e.g., variables with more or fewer missing values)",
+          description: "Describe the quality of the data bank (e.g., variables with more or fewer missing values)",
           position: 144,
         },
         {
           id: "qualityOverTime",
           label: "quality over time",
           columnType: "TEXT",
-          description:
-            "Describe any changes in quality of the data bank that have occurred  over time",
+          description: "Describe any changes in quality of the data bank that have occurred  over time",
           position: 145,
         },
         {
           id: "accessForValidation",
           label: "access for validation",
           columnType: "BOOL",
-          description:
-            "Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",
+          description: "Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",
           position: 146,
         },
         {
           id: "qualityValidationFrequency",
           label: "quality validation frequency",
           columnType: "TEXT",
-          description:
-            "How often are data quality checks and validation steps conducted on the data bank?",
+          description: "How often are data quality checks and validation steps conducted on the data bank?",
           position: 147,
         },
         {
           id: "qualityValidationMethods",
           label: "quality validation methods",
           columnType: "TEXT",
-          description:
-            "What methods or processes are applied for data quality checks and validation steps conducted on the data bank?",
+          description: "What methods or processes are applied for data quality checks and validation steps conducted on the data bank?",
           position: 148,
         },
         {
           id: "correctionMethods",
           label: "correction methods",
           columnType: "TEXT",
-          description:
-            "What methods or processes are applied to correct illogical values in the data bank?",
+          description: "What methods or processes are applied to correct illogical values in the data bank?",
           position: 149,
         },
         {
           id: "qualityValidationResults",
           label: "quality validation results",
           columnType: "STRING",
-          description:
-            "If available, provide a link to a publication of the data quality check and validation results",
+          description: "If available, provide a link to a publication of the data quality check and validation results",
           position: 150,
         },
         {
@@ -5395,16 +5145,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Mappings",
           refLabelDefault: "${source.id}.${target.id}",
           refBackId: "source",
-          description:
-            "Common data models used or ETL-ed to by this data source",
+          description: "Common data models used or ETL-ed to by this data source",
           position: 152,
         },
         {
           id: "cdmsOther",
           label: "cdms other",
           columnType: "TEXT",
-          description:
-            "If not in list above, give the name of cdm(s) used by this data source",
+          description: "If not in list above, give the name of cdm(s) used by this data source",
           position: 153,
         },
         {
@@ -5414,8 +5162,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Vocabularies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",
+          description: "Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",
           position: 154,
         },
         {
@@ -5438,8 +5185,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Publications",
           refLabelDefault: "${doi}",
-          description:
-            "Publication(s) that describe(s) the design of this resource",
+          description: "Publication(s) that describe(s) the design of this resource",
           position: 157,
         },
         {
@@ -5458,8 +5204,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsentTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "What type of informed consent was given for data collection?",
+          description: "What type of informed consent was given for data collection?",
           position: 159,
         },
         {
@@ -5469,24 +5214,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "FundingTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Specify the main financial support sources for the data source in the last 3 years. Select all that apply",
+          description: "Specify the main financial support sources for the data source in the last 3 years. Select all that apply",
           position: 160,
         },
         {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -5496,16 +5238,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
           id: "supplementaryInformation",
           label: "supplementary information",
           columnType: "TEXT",
-          description:
-            "Any other information that needs to be disclosed for this resource",
+          description: "Any other information that needs to be disclosed for this resource",
           position: 165,
         },
         {
@@ -5522,8 +5262,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Networks",
           refLabelDefault: "${id}",
           refBackId: "dataSources",
-          description:
-            "List of networks that this datasource is associated with",
+          description: "List of networks that this datasource is associated with",
           position: 171,
         },
         {
@@ -5533,8 +5272,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Studies",
           refLabelDefault: "${id}",
           refBackId: "dataSources",
-          description:
-            "List of studies that this datasource is associated with",
+          description: "List of studies that this datasource is associated with",
           position: 172,
         },
         {
@@ -5575,6 +5313,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "DatasetMappings",
@@ -5613,8 +5352,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExtendedResources",
           refLabelDefault: "${id}",
           required: true,
-          description:
-            "model being mapped to, i.e. toModel.resource + toModel.version",
+          description: "model being mapped to, i.e. toModel.resource + toModel.version",
           position: 359,
         },
         {
@@ -5633,8 +5371,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "order",
           label: "order",
           columnType: "INT",
-          description:
-            "Order in which table ETLs should be executed for this source-target combination",
+          description: "Order in which table ETLs should be executed for this source-target combination",
           position: 361,
         },
         {
@@ -5648,8 +5385,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "syntax",
           label: "syntax",
           columnType: "TEXT",
-          description:
-            "formal definition of the mapping, ideally executable code",
+          description: "formal definition of the mapping, ideally executable code",
           position: 363,
         },
         {
@@ -5683,6 +5419,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Datasets",
@@ -5734,8 +5471,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Keywords",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "enables grouping of table list into topic and to display tables in a tree",
+          description: "enables grouping of table list into topic and to display tables in a tree",
           position: 314,
         },
         {
@@ -5757,11 +5493,9 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mapped to",
           columnType: "REFBACK",
           refTableId: "DatasetMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
           refBackId: "sourceDataset",
-          description:
-            "common dataset models this dataset has been mapped into",
+          description: "common dataset models this dataset has been mapped into",
           position: 317,
         },
         {
@@ -5769,11 +5503,9 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mapped from",
           columnType: "REFBACK",
           refTableId: "DatasetMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
           refBackId: "targetDataset",
-          description:
-            "source datasets that have been mapped to this harmonised dataset",
+          description: "source datasets that have been mapped to this harmonised dataset",
           position: 318,
         },
         {
@@ -5821,6 +5553,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DatasourceTypes",
@@ -5850,8 +5583,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -5861,8 +5593,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DatasourceTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -5870,8 +5601,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -5879,8 +5609,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -5907,8 +5636,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -5942,6 +5670,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Diseases",
@@ -5971,8 +5700,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -5982,8 +5710,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -5991,8 +5718,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -6000,8 +5726,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -6028,8 +5753,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -6063,6 +5787,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DocumentTypes",
@@ -6092,8 +5817,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -6103,8 +5827,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DocumentTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -6112,8 +5835,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -6121,8 +5843,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -6149,8 +5870,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -6184,6 +5904,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Documentation",
@@ -6273,6 +5994,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ExtendedResources",
@@ -6332,8 +6054,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -6342,8 +6063,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
@@ -6360,8 +6080,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -6388,8 +6107,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -6414,16 +6132,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -6433,8 +6149,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
@@ -6475,6 +6190,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "ExternalIdentifierTypes",
@@ -6504,8 +6220,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -6515,8 +6230,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifierTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -6524,8 +6238,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -6533,8 +6246,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -6561,8 +6273,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -6596,6 +6307,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ExternalIdentifiers",
@@ -6671,6 +6383,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Formats",
@@ -6700,8 +6413,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -6711,8 +6423,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Formats",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -6720,8 +6431,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -6729,8 +6439,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -6757,8 +6466,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -6792,6 +6500,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "FundingTypes",
@@ -6821,8 +6530,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -6832,8 +6540,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "FundingTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -6841,8 +6548,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -6850,8 +6556,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -6878,8 +6583,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -6913,6 +6617,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ICDOMorphologies",
@@ -6942,8 +6647,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -6953,8 +6657,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOMorphologies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -6962,8 +6665,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -6971,8 +6673,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -6999,8 +6700,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7034,6 +6734,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ICDOTopologies",
@@ -7063,8 +6764,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7074,8 +6774,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOTopologies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7083,8 +6782,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7092,8 +6790,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7120,8 +6817,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7155,6 +6851,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "INN",
@@ -7184,8 +6881,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7195,8 +6891,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "INN",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7204,8 +6899,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7213,8 +6907,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7241,8 +6934,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7276,6 +6968,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "InclusionCriteria",
@@ -7305,8 +6998,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7316,8 +7008,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InclusionCriteria",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7325,8 +7016,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7334,8 +7024,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7362,8 +7051,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7397,6 +7085,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "InformedConsentTypes",
@@ -7426,8 +7115,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7437,8 +7125,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsentTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7446,8 +7133,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7455,8 +7141,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7483,8 +7168,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7518,6 +7202,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "InformedConsents",
@@ -7547,8 +7232,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7558,8 +7242,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsents",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7567,8 +7250,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7576,8 +7258,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7604,8 +7285,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7639,6 +7319,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Keywords",
@@ -7668,8 +7349,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7679,8 +7359,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Keywords",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7688,8 +7367,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7697,8 +7375,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7725,8 +7402,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7760,6 +7436,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Languages",
@@ -7789,8 +7466,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7800,8 +7476,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Languages",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7809,8 +7484,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7818,8 +7492,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7846,8 +7519,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -7881,6 +7553,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "LinkageStrategies",
@@ -7910,8 +7583,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -7921,8 +7593,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "LinkageStrategies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -7930,8 +7601,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -7939,8 +7609,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -7967,8 +7636,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -8002,6 +7670,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "LinkedResources",
@@ -8033,8 +7702,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "otherLinkedResource",
           label: "other linked resource",
           columnType: "TEXT",
-          description:
-            "If other linked data source, enter the name of the data source",
+          description: "If other linked data source, enter the name of the data source",
           position: 207,
         },
         {
@@ -8044,40 +7712,35 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "LinkageStrategies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "The linkage method that was used to link data banks. One entry per data bank",
+          description: "The linkage method that was used to link data banks. One entry per data bank",
           position: 208,
         },
         {
           id: "linkageVariable",
           label: "linkage variable",
           columnType: "TEXT",
-          description:
-            "If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",
+          description: "If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",
           position: 209,
         },
         {
           id: "linkageVariableUnique",
           label: "linkage variable unique",
           columnType: "BOOL",
-          description:
-            "If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank",
+          description: "If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank",
           position: 210,
         },
         {
           id: "linkageCompleteness",
           label: "linkage completeness",
           columnType: "TEXT",
-          description:
-            "Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words)",
+          description: "Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words)",
           position: 211,
         },
         {
           id: "preLinked",
           label: "pre linked",
           columnType: "BOOL",
-          description:
-            "Does the data source constitute of linked data sources?",
+          description: "Does the data source constitute of linked data sources?",
           position: 212,
         },
         {
@@ -8111,6 +7774,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "MappingStatus",
@@ -8140,8 +7804,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -8151,8 +7814,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "MappingStatus",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -8160,8 +7822,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -8169,8 +7830,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -8197,8 +7857,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -8232,6 +7891,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Mappings",
@@ -8247,8 +7907,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExtendedResources",
           refLabelDefault: "${id}",
           required: true,
-          description:
-            "Data source that is being mapped to a (common) data model",
+          description: "Data source that is being mapped to a (common) data model",
           position: 351,
         },
         {
@@ -8285,8 +7944,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "MappingStatus",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes",
+          description: "Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes",
           position: 355,
         },
         {
@@ -8327,6 +7985,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "MedDRA",
@@ -8356,8 +8015,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -8367,8 +8025,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "MedDRA",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -8376,8 +8033,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -8385,8 +8041,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -8413,8 +8068,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -8448,6 +8102,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Models",
@@ -8507,8 +8162,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -8517,8 +8171,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
@@ -8535,8 +8188,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -8570,8 +8222,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -8596,16 +8247,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -8615,8 +8264,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
@@ -8657,6 +8305,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "Months",
@@ -8686,8 +8335,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -8697,8 +8345,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Months",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -8706,8 +8353,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -8715,8 +8361,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -8743,8 +8388,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -8778,6 +8422,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "NetworkFeatures",
@@ -8807,8 +8452,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -8818,8 +8462,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "NetworkFeatures",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -8827,8 +8470,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -8836,8 +8478,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -8864,8 +8505,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -8899,6 +8539,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "NetworkTypes",
@@ -8928,8 +8569,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -8939,8 +8579,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "NetworkTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -8948,8 +8587,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -8957,8 +8595,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -8985,8 +8622,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -9020,6 +8656,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "NetworkVariables",
@@ -9078,6 +8715,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Networks",
@@ -9157,8 +8795,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -9167,16 +8804,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
           id: "otherOrganisations",
           label: "other organisations",
           columnType: "TEXT",
-          description:
-            "List the names of any other organisations that are not listed and contributed to this resource",
+          description: "List the names of any other organisations that are not listed and contributed to this resource",
           position: 30,
         },
         {
@@ -9193,8 +8828,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -9221,8 +8855,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -9261,16 +8894,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -9280,8 +8911,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
@@ -9364,6 +8994,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "ObservationTargets",
@@ -9393,8 +9024,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -9404,8 +9034,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ObservationTargets",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -9413,8 +9042,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -9422,8 +9050,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -9450,8 +9077,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -9485,6 +9111,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "OrganisationFeatures",
@@ -9514,8 +9141,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -9525,8 +9151,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "OrganisationFeatures",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -9534,8 +9159,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -9543,8 +9167,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -9571,8 +9194,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -9606,6 +9228,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "OrganisationRoles",
@@ -9635,8 +9258,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -9646,8 +9268,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "OrganisationRoles",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -9655,8 +9276,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -9664,8 +9284,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -9692,8 +9311,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -9727,6 +9345,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "OrganisationTypes",
@@ -9756,8 +9375,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -9767,8 +9385,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "OrganisationTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -9776,8 +9393,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -9785,8 +9401,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -9813,8 +9428,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -9848,6 +9462,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Organisations",
@@ -9901,24 +9516,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "OrganisationTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Type of organisation; in which sector is the organisation active?",
+          description: "Type of organisation; in which sector is the organisation active?",
           position: 6,
         },
         {
           id: "typeOther",
           label: "type other",
           columnType: "TEXT",
-          description:
-            "If type is 'other', a description of type of organisation",
+          description: "If type is 'other', a description of type of organisation",
           position: 7,
         },
         {
           id: "institution",
           label: "institution",
           columnType: "TEXT",
-          description:
-            "University, company, medical centre or research institutes this organisation is part of",
+          description: "University, company, medical centre or research institutes this organisation is part of",
           position: 8,
         },
         {
@@ -9932,8 +9544,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "email",
           label: "email",
           columnType: "EMAIL",
-          description:
-            "Contact email address for person responsible for organization entry in catalogue",
+          description: "Contact email address for person responsible for organization entry in catalogue",
           position: 10,
         },
         {
@@ -9954,8 +9565,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "expertise",
           label: "expertise",
           columnType: "TEXT",
-          description:
-            "A short description of the expertise of this institution",
+          description: "A short description of the expertise of this institution",
           position: 13,
         },
         {
@@ -9965,8 +9575,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Country in which the institution head office or coordinating centre is located",
+          description: "Country in which the institution head office or coordinating centre is located",
           position: 14,
         },
         {
@@ -9986,8 +9595,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "OrganisationRoles",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:",
+          description: "Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:",
           position: 16,
         },
         {
@@ -10072,6 +9680,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "PopulationEntry",
@@ -10101,8 +9710,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -10112,8 +9720,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationEntry",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -10121,8 +9728,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -10130,8 +9736,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -10158,8 +9763,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -10193,6 +9797,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "PopulationExit",
@@ -10222,8 +9827,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -10233,8 +9837,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationExit",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -10242,8 +9845,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -10251,8 +9853,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -10279,8 +9880,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -10314,6 +9914,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "PopulationOfInterest",
@@ -10343,8 +9944,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -10354,8 +9954,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationOfInterest",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -10363,8 +9962,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -10372,8 +9970,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -10400,8 +9997,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -10435,6 +10031,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Publications",
@@ -10469,8 +10066,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "year",
           label: "year",
           columnType: "INT",
-          description:
-            "Year of publication (or, if unpublished, year of creation)",
+          description: "Year of publication (or, if unpublished, year of creation)",
           position: 176,
         },
         {
@@ -10498,8 +10094,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "pagination",
           label: "pagination",
           columnType: "STRING",
-          description:
-            "Page numbers, separated either by commas or double-hyphens",
+          description: "Page numbers, separated either by commas or double-hyphens",
           position: 180,
         },
         {
@@ -10513,8 +10108,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "school",
           label: "school",
           columnType: "STRING",
-          description:
-            "School where the thesis was written (in case of thesis)",
+          description: "School where the thesis was written (in case of thesis)",
           position: 182,
         },
         {
@@ -10565,6 +10159,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "QuantitativeInformation",
@@ -10591,48 +10186,42 @@ export const catalogueMetadata: ISchemaMetaData = {
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
           required: true,
-          description:
-            "Select the relevant age group for this quantitative information",
+          description: "Select the relevant age group for this quantitative information",
           position: 214,
         },
         {
           id: "populationSize",
           label: "population size",
           columnType: "INT",
-          description:
-            "Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",
+          description: "Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",
           position: 215,
         },
         {
           id: "activeSize",
           label: "active size",
           columnType: "INT",
-          description:
-            "Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",
+          description: "Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",
           position: 216,
         },
         {
           id: "noIndividualsWithSamples",
           label: "no individuals with samples",
           columnType: "INT",
-          description:
-            "Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year",
+          description: "Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year",
           position: 217,
         },
         {
           id: "meanObservationYears",
           label: "mean observation years",
           columnType: "INT",
-          description:
-            "Median years for which unique individuals with records captured in the data source are observable (most recent count)",
+          description: "Median years for which unique individuals with records captured in the data source are observable (most recent count)",
           position: 218,
         },
         {
           id: "meanYearsActive",
           label: "mean years active",
           columnType: "INT",
-          description:
-            "Median time for which unique individuals with records captured in the data source are observable (most recent count)",
+          description: "Median time for which unique individuals with records captured in the data source are observable (most recent count)",
           position: 219,
         },
         {
@@ -10680,6 +10269,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "RWEResources",
@@ -10740,8 +10330,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DatasourceTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which of the following families of databanks best describe this data source",
+          description: "Which of the following families of databanks best describe this data source",
           position: 23,
         },
         {
@@ -10755,8 +10344,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "keywords",
           label: "keywords",
           columnType: "TEXT",
-          description:
-            "Keywords to increase findability of this resource. Try to use words that are not used in the description",
+          description: "Keywords to increase findability of this resource. Try to use words that are not used in the description",
           position: 25,
         },
         {
@@ -10772,8 +10360,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -10782,8 +10369,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
@@ -10797,32 +10383,28 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "dataCollectionDescription",
           label: "data collection description",
           columnType: "TEXT",
-          description:
-            "Describe the process of collection and recording of data.",
+          description: "Describe the process of collection and recording of data.",
           position: 32,
         },
         {
           id: "dateEstablished",
           label: "date established",
           columnType: "DATE",
-          description:
-            "Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 33,
         },
         {
           id: "startDataCollection",
           label: "start data collection",
           columnType: "DATE",
-          description:
-            "The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 34,
         },
         {
           id: "endDataCollection",
           label: "end data collection",
           columnType: "DATE",
-          description:
-            "If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
+          description: "If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",
           position: 35,
         },
         {
@@ -10839,8 +10421,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -10864,16 +10445,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "population",
           label: "population",
           columnType: "HEADING",
-          description:
-            "Description of the population that can potentially be captured in the resource",
+          description: "Description of the population that can potentially be captured in the resource",
           position: 49,
         },
         {
           id: "numberOfParticipants",
           label: "number of participants",
           columnType: "INT",
-          description:
-            "Total number of individuals for which data is collected",
+          description: "Total number of individuals for which data is collected",
           position: 50,
         },
         {
@@ -10890,8 +10469,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -10901,8 +10479,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Regions",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Geographical regions where data from this resource largely originate from",
+          description: "Geographical regions where data from this resource largely originate from",
           position: 54,
         },
         {
@@ -10912,8 +10489,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AgeGroups",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Which population age groups are captured in this resource? Select all that are relevant.",
+          description: "Which population age groups are captured in this resource? Select all that are relevant.",
           position: 55,
         },
         {
@@ -10923,16 +10499,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationEntry",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Select the possible causes / events that trigger the registration of a person in the data source",
+          description: "Select the possible causes / events that trigger the registration of a person in the data source",
           position: 62,
         },
         {
           id: "populationEntryOther",
           label: "population entry other",
           columnType: "TEXT",
-          description:
-            "If other, specify the causes of entry to the underlying population",
+          description: "If other, specify the causes of entry to the underlying population",
           position: 63,
         },
         {
@@ -10942,16 +10516,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationExit",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Select the possible causes / events that trigger the de-registration of a person in the data source",
+          description: "Select the possible causes / events that trigger the de-registration of a person in the data source",
           position: 64,
         },
         {
           id: "populationExitOther",
           label: "population exit other",
           columnType: "TEXT",
-          description:
-            "If other, specify the causes of exit from the underlying population",
+          description: "If other, specify the causes of exit from the underlying population",
           position: 65,
         },
         {
@@ -10961,8 +10533,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
+          description: "Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",
           position: 66,
         },
         {
@@ -10972,8 +10543,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOTopologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",
           position: 67,
         },
         {
@@ -10983,24 +10553,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ICDOMorphologies",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
+          description: "Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",
           position: 68,
         },
         {
           id: "populationCoverage",
           label: "population coverage",
           columnType: "TEXT",
-          description:
-            "Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.",
+          description: "Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.",
           position: 69,
         },
         {
           id: "populationNotCovered",
           label: "population not covered",
           columnType: "TEXT",
-          description:
-            "Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",
+          description: "Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",
           position: 70,
         },
         {
@@ -11034,8 +10601,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mappings to data models",
           columnType: "REFBACK",
           refTableId: "DatasetMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
           refBackId: "source",
           description: "overview of dataset mappings available",
           position: 75,
@@ -11068,8 +10634,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "indicationVocabularyOther",
           label: "indication vocabulary other",
           columnType: "TEXT",
-          description:
-            "If 'other,' what indication for use vocabulary is used?",
+          description: "If 'other,' what indication for use vocabulary is used?",
           position: 79,
         },
         {
@@ -11090,8 +10655,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "medicinalProductVocabularyOther",
           label: "medicinal product vocabulary other",
           columnType: "TEXT",
-          description:
-            "If 'other,' description of the medicinal product vocabulary",
+          description: "If 'other,' description of the medicinal product vocabulary",
           position: 82,
         },
         {
@@ -11136,8 +10700,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "MedDRA",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If data on a specific disease is collected, which diseases does the data source collect information on",
+          description: "If data on a specific disease is collected, which diseases does the data source collect information on",
           position: 89,
         },
         {
@@ -11154,8 +10717,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Biospecimens",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If the data bank contains biospecimens, what types of specimen",
+          description: "If the data bank contains biospecimens, what types of specimen",
           position: 91,
         },
         {
@@ -11165,16 +10727,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Languages",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",
+          description: "Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",
           position: 92,
         },
         {
           id: "recordTrigger",
           label: "record trigger",
           columnType: "TEXT",
-          description:
-            "What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",
+          description: "What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",
           position: 93,
         },
         {
@@ -11188,8 +10748,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "linkageDescription",
           label: "linkage description",
           columnType: "TEXT",
-          description:
-            "Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source",
+          description: "Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source",
           position: 100,
         },
         {
@@ -11206,8 +10765,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "LinkedResources",
           refLabelDefault: "${mainResource.id}.${linkedResource.id}",
           refBackId: "mainResource",
-          description:
-            "List of resources that are linked into this main resource",
+          description: "List of resources that are linked into this main resource",
           position: 102,
         },
         {
@@ -11223,8 +10781,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "The name of the organisation that is responsible for governance of the data bank",
+          description: "The name of the organisation that is responsible for governance of the data bank",
           position: 107,
         },
         {
@@ -11234,8 +10791,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "DAPs",
           refLabelDefault: "${organisation.id}.${resource.id}",
           refBackId: "resource",
-          description:
-            "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
+          description: "List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource",
           position: 108,
         },
         {
@@ -11245,96 +10801,84 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsents",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Is informed consent required for use of the data for research purposes?",
+          description: "Is informed consent required for use of the data for research purposes?",
           position: 114,
         },
         {
           id: "informedConsentOther",
           label: "informed consent other",
           columnType: "TEXT",
-          description:
-            "If other, describe the conditions when informed consent is required",
+          description: "If other, describe the conditions when informed consent is required",
           position: 115,
         },
         {
           id: "accessIdentifiableData",
           label: "access identifiable data",
           columnType: "TEXT",
-          description:
-            "Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?",
+          description: "Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?",
           position: 116,
         },
         {
           id: "accessIdentifiableDataRoute",
           label: "access identifiable data route",
           columnType: "TEXT",
-          description:
-            "If yes above, what is the route to access or process this information? What permission is required?",
+          description: "If yes above, what is the route to access or process this information? What permission is required?",
           position: 117,
         },
         {
           id: "accessSubjectDetails",
           label: "access subject details",
           columnType: "BOOL",
-          description:
-            "Can individual patients/practitioners/practices be contacted in the data bank?",
+          description: "Can individual patients/practitioners/practices be contacted in the data bank?",
           position: 118,
         },
         {
           id: "accessSubjectDetailsRoute",
           label: "access subject details route",
           columnType: "TEXT",
-          description:
-            "If yes above, what is the route to access or process this information? What permission is required?",
+          description: "If yes above, what is the route to access or process this information? What permission is required?",
           position: 119,
         },
         {
           id: "auditPossible",
           label: "audit possible",
           columnType: "BOOL",
-          description:
-            "Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",
+          description: "Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",
           position: 120,
         },
         {
           id: "standardOperatingProcedures",
           label: "standard operating procedures",
           columnType: "BOOL",
-          description:
-            "Is there a standard operating procedure document that defines the processes and procedures for data capture and management?",
+          description: "Is there a standard operating procedure document that defines the processes and procedures for data capture and management?",
           position: 125,
         },
         {
           id: "biospecimenAccess",
           label: "biospecimen access",
           columnType: "BOOL",
-          description:
-            "If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",
+          description: "If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",
           position: 126,
         },
         {
           id: "biospecimenAccessConditions",
           label: "biospecimen access conditions",
           columnType: "TEXT",
-          description:
-            "If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",
+          description: "If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",
           position: 127,
         },
         {
           id: "governanceDetails",
           label: "governance details",
           columnType: "TEXT",
-          description:
-            "If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",
+          description: "If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",
           position: 128,
         },
         {
           id: "approvalForPublication",
           label: "approval for publication",
           columnType: "BOOL",
-          description:
-            "Is an approval needed to publish the results of a study using the data",
+          description: "Is an approval needed to publish the results of a study using the data",
           position: 129,
         },
         {
@@ -11355,8 +10899,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "preservationDuration",
           label: "preservation duration",
           columnType: "INT",
-          description:
-            "If no to the above, for how long (in years) are records preserved in the data bank?",
+          description: "If no to the above, for how long (in years) are records preserved in the data bank?",
           position: 134,
         },
         {
@@ -11366,8 +10909,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "RefreshPeriods",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",
+          description: "If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",
           position: 135,
         },
         {
@@ -11388,56 +10930,49 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "qualification",
           label: "qualification",
           columnType: "BOOL",
-          description:
-            "Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",
+          description: "Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",
           position: 138,
         },
         {
           id: "qualificationsDescription",
           label: "qualifications description",
           columnType: "TEXT",
-          description:
-            "Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",
+          description: "Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",
           position: 139,
         },
         {
           id: "accessForValidation",
           label: "access for validation",
           columnType: "BOOL",
-          description:
-            "Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",
+          description: "Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",
           position: 146,
         },
         {
           id: "qualityValidationFrequency",
           label: "quality validation frequency",
           columnType: "TEXT",
-          description:
-            "How often are data quality checks and validation steps conducted on the data bank?",
+          description: "How often are data quality checks and validation steps conducted on the data bank?",
           position: 147,
         },
         {
           id: "qualityValidationMethods",
           label: "quality validation methods",
           columnType: "TEXT",
-          description:
-            "What methods or processes are applied for data quality checks and validation steps conducted on the data bank?",
+          description: "What methods or processes are applied for data quality checks and validation steps conducted on the data bank?",
           position: 148,
         },
         {
           id: "correctionMethods",
           label: "correction methods",
           columnType: "TEXT",
-          description:
-            "What methods or processes are applied to correct illogical values in the data bank?",
+          description: "What methods or processes are applied to correct illogical values in the data bank?",
           position: 149,
         },
         {
           id: "qualityValidationResults",
           label: "quality validation results",
           columnType: "STRING",
-          description:
-            "If available, provide a link to a publication of the data quality check and validation results",
+          description: "If available, provide a link to a publication of the data quality check and validation results",
           position: 150,
         },
         {
@@ -11454,16 +10989,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Mappings",
           refLabelDefault: "${source.id}.${target.id}",
           refBackId: "source",
-          description:
-            "Common data models used or ETL-ed to by this data source",
+          description: "Common data models used or ETL-ed to by this data source",
           position: 152,
         },
         {
           id: "cdmsOther",
           label: "cdms other",
           columnType: "TEXT",
-          description:
-            "If not in list above, give the name of cdm(s) used by this data source",
+          description: "If not in list above, give the name of cdm(s) used by this data source",
           position: 153,
         },
         {
@@ -11479,8 +11012,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Publications",
           refLabelDefault: "${doi}",
-          description:
-            "Publication(s) that describe(s) the design of this resource",
+          description: "Publication(s) that describe(s) the design of this resource",
           position: 157,
         },
         {
@@ -11499,8 +11031,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "InformedConsentTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "What type of informed consent was given for data collection?",
+          description: "What type of informed consent was given for data collection?",
           position: 159,
         },
         {
@@ -11510,24 +11041,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "FundingTypes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Specify the main financial support sources for the data source in the last 3 years. Select all that apply",
+          description: "Specify the main financial support sources for the data source in the last 3 years. Select all that apply",
           position: 160,
         },
         {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -11537,16 +11065,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
           id: "supplementaryInformation",
           label: "supplementary information",
           columnType: "TEXT",
-          description:
-            "Any other information that needs to be disclosed for this resource",
+          description: "Any other information that needs to be disclosed for this resource",
           position: 165,
         },
         {
@@ -11563,8 +11089,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Networks",
           refLabelDefault: "${id}",
           refBackId: "dataSources",
-          description:
-            "List of networks that this datasource is associated with",
+          description: "List of networks that this datasource is associated with",
           position: 171,
         },
         {
@@ -11574,8 +11099,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Studies",
           refLabelDefault: "${id}",
           refBackId: "dataSources",
-          description:
-            "List of studies that this datasource is associated with",
+          description: "List of studies that this datasource is associated with",
           position: 172,
         },
         {
@@ -11616,6 +11140,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "RefreshPeriods",
@@ -11645,8 +11170,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -11656,8 +11180,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "RefreshPeriods",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -11665,8 +11188,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -11674,8 +11196,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -11702,8 +11223,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -11737,6 +11257,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Regions",
@@ -11766,8 +11287,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -11777,8 +11297,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Regions",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -11786,8 +11305,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -11795,8 +11313,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -11823,8 +11340,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -11858,6 +11374,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ReleaseTypes",
@@ -11887,8 +11404,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -11898,8 +11414,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ReleaseTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -11907,8 +11422,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -11916,8 +11430,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -11944,8 +11457,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -11979,6 +11491,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "RepeatedVariables",
@@ -12031,8 +11544,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "CollectionEvents",
           refLabelDefault: "${resource.id}.${name}",
-          description:
-            "in case of protocolised data collection this defines the moment in time this variable is collected on",
+          description: "in case of protocolised data collection this defines the moment in time this variable is collected on",
           position: 325,
         },
         {
@@ -12054,11 +11566,9 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mappings",
           columnType: "REFBACK",
           refTableId: "VariableMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}.${targetVariable.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}.${targetVariable.name}",
           refBackId: "targetVariable",
-          description:
-            "in case of protocolised data collection this defines the moment in time this variable is collected on",
+          description: "in case of protocolised data collection this defines the moment in time this variable is collected on",
           position: 340,
         },
         {
@@ -12069,8 +11579,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLinkId: "resource",
           refLabelDefault: "${dataset.name}.${name}",
           required: true,
-          description:
-            "reference to the definition of the sourceVariable that is being repeated",
+          description: "reference to the definition of the sourceVariable that is being repeated",
           position: 350,
         },
         {
@@ -12111,6 +11620,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "ResourceTypes",
@@ -12140,8 +11650,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -12151,8 +11660,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ResourceTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -12160,8 +11668,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -12169,8 +11676,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -12197,8 +11703,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -12232,6 +11737,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Resources",
@@ -12340,6 +11846,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "SampleCategories",
@@ -12369,8 +11876,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -12380,8 +11886,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "SampleCategories",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -12389,8 +11894,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -12398,8 +11902,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -12426,8 +11929,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -12461,6 +11963,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StandardizedTools",
@@ -12490,8 +11993,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -12501,8 +12003,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StandardizedTools",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -12510,8 +12011,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -12519,8 +12019,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -12547,8 +12046,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -12582,6 +12080,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Status",
@@ -12611,8 +12110,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -12622,8 +12120,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Status",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -12631,8 +12128,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -12640,8 +12136,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -12668,8 +12163,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -12703,6 +12197,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StatusDetails",
@@ -12732,8 +12227,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -12743,8 +12237,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StatusDetails",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -12752,8 +12245,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -12761,8 +12253,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -12789,8 +12280,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -12824,6 +12314,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Studies",
@@ -12900,8 +12391,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "lead organisation (e.g. research department or group) for this resource",
+          description: "lead organisation (e.g. research department or group) for this resource",
           position: 27,
         },
         {
@@ -12910,16 +12400,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF_ARRAY",
           refTableId: "Organisations",
           refLabelDefault: "${id}",
-          description:
-            "List the names of any additional organisations that contributed to the resource",
+          description: "List the names of any additional organisations that contributed to the resource",
           position: 28,
         },
         {
           id: "otherOrganisations",
           label: "other organisations",
           columnType: "TEXT",
-          description:
-            "List the names of any other organisations that are not listed and contributed to this resource",
+          description: "List the names of any other organisations that are not listed and contributed to this resource",
           position: 29,
         },
         {
@@ -12936,8 +12424,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "ExternalIdentifiers",
           refLabelDefault: "${resource.id}.${identifier}",
           refBackId: "resource",
-          description:
-            "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
+          description: "External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",
           position: 37,
         },
         {
@@ -12974,8 +12461,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this resource largely originate from",
+          description: "Countries where data from this resource largely originate from",
           position: 53,
         },
         {
@@ -13003,24 +12489,21 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyFunding",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "The source of funding for the study. Select all that apply",
+          description: "The source of funding for the study. Select all that apply",
           position: 161,
         },
         {
           id: "fundingStatement",
           label: "funding statement",
           columnType: "TEXT",
-          description:
-            "Statement listing funding that was obtained for this resource",
+          description: "Statement listing funding that was obtained for this resource",
           position: 162,
         },
         {
           id: "acknowledgements",
           label: "acknowledgements",
           columnType: "TEXT",
-          description:
-            "Acknowledgement statement and citation regulation for this resource",
+          description: "Acknowledgement statement and citation regulation for this resource",
           position: 163,
         },
         {
@@ -13030,8 +12513,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Documentation",
           refLabelDefault: "${resource.id}.${name}",
           refBackId: "resource",
-          description:
-            "Descriptive document(s) available for this resource, e.g. informed consent",
+          description: "Descriptive document(s) available for this resource, e.g. informed consent",
           position: 164,
         },
         {
@@ -13047,8 +12529,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "networksOther",
           label: "networks other",
           columnType: "TEXT",
-          description:
-            "List the names of any other networks that are not listed and this resource is involved in",
+          description: "List the names of any other networks that are not listed and this resource is involved in",
           position: 170,
         },
         {
@@ -13065,8 +12546,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "regulatoryProcedureNumber",
           label: "regulatory procedure number",
           columnType: "STRING",
-          description:
-            "Regulatory procedure number, for RMP Category 1 and 2 studies only",
+          description: "Regulatory procedure number, for RMP Category 1 and 2 studies only",
           position: 259,
         },
         {
@@ -13159,8 +12639,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "dataSourcesOther",
           label: "data sources other",
           columnType: "TEXT",
-          description:
-            "Other not listed data sources that provided data into this study",
+          description: "Other not listed data sources that provided data into this study",
           position: 272,
         },
         {
@@ -13176,8 +12655,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "databanksOther",
           label: "databanks other",
           columnType: "TEXT",
-          description:
-            "Other not listed databanks that provided data into this study",
+          description: "Other not listed databanks that provided data into this study",
           position: 274,
         },
         {
@@ -13213,8 +12691,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "dataCharacterisationDetails",
           label: "data characterisation details",
           columnType: "TEXT",
-          description:
-            "Provide a summary description of the data characterisation or quality check process",
+          description: "Provide a summary description of the data characterisation or quality check process",
           position: 278,
         },
         {
@@ -13275,8 +12752,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "medicinesStudiedOther",
           label: "medicines studied other",
           columnType: "TEXT",
-          description:
-            "If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here",
+          description: "If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here",
           position: 285,
         },
         {
@@ -13321,8 +12797,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "analysisPlan",
           label: "analysis plan",
           columnType: "TEXT",
-          description:
-            "A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)",
+          description: "A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)",
           position: 291,
         },
         {
@@ -13388,8 +12863,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "results",
           label: "results",
           columnType: "TEXT",
-          description:
-            "A brief summary of the results of the study on study completion (from abstract)",
+          description: "A brief summary of the results of the study on study completion (from abstract)",
           position: 300,
         },
         {
@@ -13406,8 +12880,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "topicOther",
           label: "topic other",
           columnType: "TEXT",
-          description:
-            "If the study is not concerning any of the proposed categories, please specify the details",
+          description: "If the study is not concerning any of the proposed categories, please specify the details",
           position: 302,
         },
         {
@@ -13417,8 +12890,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyTrialRegulatoryScopes",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Classification of the clinical trial in relation to the medicines authorisation",
+          description: "Classification of the clinical trial in relation to the medicines authorisation",
           position: 303,
         },
         {
@@ -13462,16 +12934,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "PopulationOfInterest",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "If population of interest is 'Other', please specify which other population has been studied",
+          description: "If population of interest is 'Other', please specify which other population has been studied",
           position: 308,
         },
         {
           id: "populationOfInterestOther",
           label: "population of interest other",
           columnType: "TEXT",
-          description:
-            "If population of interest is 'Other', please specify which other population has been studied",
+          description: "If population of interest is 'Other', please specify which other population has been studied",
           position: 309,
         },
         {
@@ -13512,6 +12982,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "StudyDatasourceTypes",
@@ -13541,8 +13012,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -13552,8 +13022,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyDatasourceTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -13561,8 +13030,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -13570,8 +13038,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -13598,8 +13065,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -13633,6 +13099,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyDesignClassification",
@@ -13662,8 +13129,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -13673,8 +13139,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyDesignClassification",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -13682,8 +13147,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -13691,8 +13155,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -13719,8 +13182,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -13754,6 +13216,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyFeatures",
@@ -13783,8 +13246,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -13794,8 +13256,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyFeatures",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -13803,8 +13264,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -13812,8 +13272,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -13840,8 +13299,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -13875,6 +13333,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyFunding",
@@ -13904,8 +13363,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -13915,8 +13373,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyFunding",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -13924,8 +13381,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -13933,8 +13389,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -13961,8 +13416,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -13996,6 +13450,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyQualityMarks",
@@ -14025,8 +13480,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -14036,8 +13490,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyQualityMarks",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -14045,8 +13498,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -14054,8 +13506,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -14082,8 +13533,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -14117,6 +13567,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyRequirements",
@@ -14146,8 +13597,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -14157,8 +13607,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyRequirements",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -14166,8 +13615,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -14175,8 +13623,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -14203,8 +13650,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -14238,6 +13684,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyScopes",
@@ -14267,8 +13714,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -14278,8 +13724,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyScopes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -14287,8 +13732,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -14296,8 +13740,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -14324,8 +13767,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -14359,6 +13801,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyStatus",
@@ -14388,8 +13831,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -14399,8 +13841,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyStatus",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -14408,8 +13849,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -14417,8 +13857,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -14445,8 +13884,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -14480,6 +13918,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyTopics",
@@ -14509,8 +13948,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -14520,8 +13958,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyTopics",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -14529,8 +13966,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -14538,8 +13974,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -14566,8 +14001,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -14601,6 +14035,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyTrialRegulatoryScopes",
@@ -14630,8 +14065,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -14641,8 +14075,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyTrialRegulatoryScopes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -14650,8 +14083,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -14659,8 +14091,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -14687,8 +14118,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -14722,6 +14152,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyTypes",
@@ -14751,8 +14182,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -14762,8 +14192,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "StudyTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -14771,8 +14200,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -14780,8 +14208,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -14808,8 +14235,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -14843,6 +14269,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "SubcohortCounts",
@@ -14920,6 +14347,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Subcohorts",
@@ -14944,8 +14372,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "STRING",
           key: 1,
           required: true,
-          description:
-            "Subcohort name, e.g. 'mothers in first trimester','newborns'",
+          description: "Subcohort name, e.g. 'mothers in first trimester','newborns'",
           position: 240,
         },
         {
@@ -14967,11 +14394,9 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "counts",
           columnType: "REFBACK",
           refTableId: "SubcohortCounts",
-          refLabelDefault:
-            "${subcohort.resource.id}.${subcohort.name}.${ageGroup.name}",
+          refLabelDefault: "${subcohort.resource.id}.${subcohort.name}.${ageGroup.name}",
           refBackId: "subcohort",
-          description:
-            "Total number of unique individuals per age(group), gender and year",
+          description: "Total number of unique individuals per age(group), gender and year",
           position: 243,
         },
         {
@@ -14985,8 +14410,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "inclusionEnd",
           label: "inclusion end",
           columnType: "INT",
-          description:
-            "Year of last included participant. Leave empty if collection is ongoing",
+          description: "Year of last included participant. Leave empty if collection is ongoing",
           position: 245,
         },
         {
@@ -15006,8 +14430,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications",
+          description: "Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications",
           position: 247,
         },
         {
@@ -15017,8 +14440,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Diseases",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Comorbidity within this subcohort, based on ICD-10 classification",
+          description: "Comorbidity within this subcohort, based on ICD-10 classification",
           position: 248,
         },
         {
@@ -15028,8 +14450,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Countries",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Countries where data from this subcohort largely originate from",
+          description: "Countries where data from this subcohort largely originate from",
           position: 249,
         },
         {
@@ -15039,8 +14460,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Regions",
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
-          description:
-            "Geographical regions where data from this subcohort largely originate from",
+          description: "Geographical regions where data from this subcohort largely originate from",
           position: 250,
         },
         {
@@ -15054,8 +14474,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "supplementaryInformation",
           label: "supplementary information",
           columnType: "TEXT",
-          description:
-            "Any other information that needs to be disclosed for this subcohort",
+          description: "Any other information that needs to be disclosed for this subcohort",
           position: 252,
         },
         {
@@ -15089,6 +14508,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "SubmissionTypes",
@@ -15118,8 +14538,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -15129,8 +14548,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "SubmissionTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -15138,8 +14556,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -15147,8 +14564,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -15175,8 +14591,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -15210,6 +14625,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Submissions",
@@ -15341,6 +14757,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "SubmitterRoles",
@@ -15370,8 +14787,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -15381,8 +14797,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "SubmitterRoles",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -15390,8 +14805,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -15399,8 +14813,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -15427,8 +14840,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -15462,6 +14874,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Titles",
@@ -15491,8 +14904,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -15502,8 +14914,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Titles",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -15511,8 +14922,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -15520,8 +14930,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -15548,8 +14957,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -15583,6 +14991,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Units",
@@ -15612,8 +15021,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -15623,8 +15031,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Units",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -15632,8 +15039,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -15641,8 +15047,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -15669,8 +15074,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -15704,6 +15108,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "VariableMappings",
@@ -15739,8 +15144,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AllVariables",
           refLinkId: "sourceDataset",
           refLabelDefault: "${name}",
-          description:
-            "Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)",
+          description: "Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)",
           position: 366,
         },
         {
@@ -15750,8 +15154,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AllVariables",
           refLinkId: "source",
           refLabelDefault: "${dataset.name}.${name}",
-          description:
-            "optional, variable from other source datasets. Initially one may only define mapping between releases",
+          description: "optional, variable from other source datasets. Initially one may only define mapping between releases",
           position: 367,
         },
         {
@@ -15784,8 +15187,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLinkId: "targetDataset",
           refLabelDefault: "${name}",
           required: true,
-          description:
-            "in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",
+          description: "in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",
           position: 370,
         },
         {
@@ -15820,8 +15222,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "syntax",
           label: "syntax",
           columnType: "TEXT",
-          description:
-            "formal definition of the mapping, ideally executable code",
+          description: "formal definition of the mapping, ideally executable code",
           position: 374,
         },
         {
@@ -15862,6 +15263,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "VariableValues",
@@ -15923,8 +15325,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "ontologyTermURI",
           label: "ontology term URI",
           columnType: "STRING",
-          description:
-            "reference to ontology term that defines this categorical value",
+          description: "reference to ontology term that defines this categorical value",
           position: 347,
         },
         {
@@ -15972,6 +15373,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Variables",
@@ -16024,8 +15426,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           columnType: "REF",
           refTableId: "CollectionEvents",
           refLabelDefault: "${resource.id}.${name}",
-          description:
-            "in case of protocolised data collection this defines the moment in time this variable is collected on",
+          description: "in case of protocolised data collection this defines the moment in time this variable is collected on",
           position: 325,
         },
         {
@@ -16068,16 +15469,14 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "AllVariables",
           refLinkId: "resource",
           refLabelDefault: "${dataset.name}.${name}",
-          description:
-            "to define foreign key relationships between variables within or across tables",
+          description: "to define foreign key relationships between variables within or across tables",
           position: 330,
         },
         {
           id: "mandatory",
           label: "mandatory",
           columnType: "BOOL",
-          description:
-            "whether this variable is required within this collection",
+          description: "whether this variable is required within this collection",
           position: 331,
         },
         {
@@ -16090,8 +15489,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           id: "order",
           label: "order",
           columnType: "INT",
-          description:
-            "to sort variables you can optionally add an order value",
+          description: "to sort variables you can optionally add an order value",
           position: 333,
         },
         {
@@ -16105,8 +15503,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "permitted values",
           columnType: "REFBACK",
           refTableId: "VariableValues",
-          refLabelDefault:
-            "${resource.id}.${variable.dataset.name}.${variable.name}.${value}",
+          refLabelDefault: "${resource.id}.${variable.dataset.name}.${variable.name}.${value}",
           refBackId: "variable",
           position: 335,
         },
@@ -16126,8 +15523,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "RepeatedVariables",
           refLabelDefault: "${resource.id}.${dataset.name}.${name}",
           refBackId: "isRepeatOf",
-          description:
-            "listing of all repeated variables defined for this variable",
+          description: "listing of all repeated variables defined for this variable",
           position: 337,
         },
         {
@@ -16151,11 +15547,9 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "mappings",
           columnType: "REFBACK",
           refTableId: "VariableMappings",
-          refLabelDefault:
-            "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}.${targetVariable.name}",
+          refLabelDefault: "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}.${targetVariable.name}",
           refBackId: "targetVariable",
-          description:
-            "in case of protocolised data collection this defines the moment in time this variable is collected on",
+          description: "in case of protocolised data collection this defines the moment in time this variable is collected on",
           position: 340,
         },
         {
@@ -16196,6 +15590,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: ""
     },
     {
       id: "Version",
@@ -16234,6 +15629,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Vocabularies",
@@ -16263,8 +15659,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -16274,8 +15669,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Vocabularies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -16283,8 +15677,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -16292,8 +15685,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -16320,8 +15712,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -16355,6 +15746,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Years",
@@ -16384,8 +15776,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -16395,8 +15786,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refTableId: "Years",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -16404,8 +15794,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -16413,8 +15802,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -16441,8 +15829,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -16476,6 +15863,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
   ],
 };
@@ -16512,8 +15900,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -16523,8 +15910,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ATC",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -16532,8 +15918,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -16541,8 +15926,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -16569,8 +15953,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -16604,6 +15987,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "AgeGroups",
@@ -16633,8 +16017,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -16644,8 +16027,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "AgeGroups",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -16653,8 +16035,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -16662,8 +16043,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -16690,8 +16070,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -16725,6 +16104,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "AreasOfInformationCohorts",
@@ -16754,8 +16134,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -16765,8 +16144,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "AreasOfInformationCohorts",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -16774,8 +16152,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -16783,8 +16160,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -16811,8 +16187,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -16846,6 +16221,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "AreasOfInformationDs",
@@ -16875,8 +16251,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -16886,8 +16261,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "AreasOfInformationDs",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -16895,8 +16269,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -16904,8 +16277,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -16932,8 +16304,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -16967,6 +16338,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Biospecimens",
@@ -16996,8 +16368,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17007,8 +16378,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Biospecimens",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17016,8 +16386,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17025,8 +16394,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17053,8 +16421,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17088,6 +16455,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "CohortDesigns",
@@ -17117,8 +16485,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17128,8 +16495,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "CohortDesigns",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17137,8 +16503,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17146,8 +16511,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17174,8 +16538,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17209,6 +16572,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "CollectionTypes",
@@ -17238,8 +16602,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17249,8 +16612,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "CollectionTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17258,8 +16620,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17267,8 +16628,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17295,8 +16655,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17330,6 +16689,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ContributionTypes",
@@ -17359,8 +16719,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17370,8 +16729,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ContributionTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17379,8 +16737,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17388,8 +16745,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17416,8 +16772,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17451,6 +16806,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Countries",
@@ -17480,8 +16836,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17491,8 +16846,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Countries",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17500,8 +16854,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17509,8 +16862,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17537,8 +16889,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17572,6 +16923,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DAPInformation",
@@ -17601,8 +16953,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17612,8 +16963,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "DAPInformation",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17621,8 +16971,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17630,8 +16979,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17658,8 +17006,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17693,6 +17040,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DataAccessConditions",
@@ -17722,8 +17070,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17733,8 +17080,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "DataAccessConditions",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17742,8 +17088,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17751,8 +17096,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17779,8 +17123,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17814,6 +17157,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DataCategories",
@@ -17843,8 +17187,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17854,8 +17197,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "DataCategories",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17863,8 +17205,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17872,8 +17213,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -17900,8 +17240,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -17935,6 +17274,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DataUseConditions",
@@ -17964,8 +17304,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -17975,8 +17314,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "DataUseConditions",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -17984,8 +17322,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -17993,8 +17330,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18021,8 +17357,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18056,6 +17391,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DatasourceTypes",
@@ -18085,8 +17421,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18096,8 +17431,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "DatasourceTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18105,8 +17439,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18114,8 +17447,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18142,8 +17474,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18177,6 +17508,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Diseases",
@@ -18206,8 +17538,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18217,8 +17548,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Diseases",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18226,8 +17556,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18235,8 +17564,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18263,8 +17591,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18298,6 +17625,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "DocumentTypes",
@@ -18327,8 +17655,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18338,8 +17665,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "DocumentTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18347,8 +17673,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18356,8 +17681,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18384,8 +17708,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18419,6 +17742,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ExternalIdentifierTypes",
@@ -18448,8 +17772,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18459,8 +17782,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ExternalIdentifierTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18468,8 +17790,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18477,8 +17798,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18505,8 +17825,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18540,6 +17859,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Formats",
@@ -18569,8 +17889,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18580,8 +17899,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Formats",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18589,8 +17907,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18598,8 +17915,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18626,8 +17942,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18661,6 +17976,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "FundingTypes",
@@ -18690,8 +18006,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18701,8 +18016,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "FundingTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18710,8 +18024,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18719,8 +18032,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18747,8 +18059,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18782,6 +18093,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ICDOMorphologies",
@@ -18811,8 +18123,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18822,8 +18133,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ICDOMorphologies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18831,8 +18141,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18840,8 +18149,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18868,8 +18176,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -18903,6 +18210,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ICDOTopologies",
@@ -18932,8 +18240,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -18943,8 +18250,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ICDOTopologies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -18952,8 +18258,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -18961,8 +18266,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -18989,8 +18293,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19024,6 +18327,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "INN",
@@ -19053,8 +18357,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19064,8 +18367,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "INN",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19073,8 +18375,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19082,8 +18383,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19110,8 +18410,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19145,6 +18444,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "InclusionCriteria",
@@ -19174,8 +18474,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19185,8 +18484,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "InclusionCriteria",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19194,8 +18492,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19203,8 +18500,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19231,8 +18527,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19266,6 +18561,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "InformedConsentTypes",
@@ -19295,8 +18591,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19306,8 +18601,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "InformedConsentTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19315,8 +18609,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19324,8 +18617,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19352,8 +18644,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19387,6 +18678,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "InformedConsents",
@@ -19416,8 +18708,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19427,8 +18718,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "InformedConsents",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19436,8 +18726,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19445,8 +18734,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19473,8 +18761,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19508,6 +18795,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Keywords",
@@ -19537,8 +18825,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19548,8 +18835,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Keywords",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19557,8 +18843,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19566,8 +18851,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19594,8 +18878,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19629,6 +18912,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Languages",
@@ -19658,8 +18942,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19669,8 +18952,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Languages",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19678,8 +18960,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19687,8 +18968,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19715,8 +18995,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19750,6 +19029,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "LinkageStrategies",
@@ -19779,8 +19059,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19790,8 +19069,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "LinkageStrategies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19799,8 +19077,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19808,8 +19085,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19836,8 +19112,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19871,6 +19146,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "MappingStatus",
@@ -19900,8 +19176,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -19911,8 +19186,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "MappingStatus",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -19920,8 +19194,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -19929,8 +19202,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -19957,8 +19229,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -19992,6 +19263,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "MedDRA",
@@ -20021,8 +19293,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20032,8 +19303,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "MedDRA",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20041,8 +19311,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20050,8 +19319,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20078,8 +19346,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20113,6 +19380,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Months",
@@ -20142,8 +19410,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20153,8 +19420,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Months",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20162,8 +19428,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20171,8 +19436,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20199,8 +19463,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20234,6 +19497,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "NetworkFeatures",
@@ -20263,8 +19527,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20274,8 +19537,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "NetworkFeatures",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20283,8 +19545,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20292,8 +19553,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20320,8 +19580,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20355,6 +19614,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "NetworkTypes",
@@ -20384,8 +19644,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20395,8 +19654,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "NetworkTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20404,8 +19662,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20413,8 +19670,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20441,8 +19697,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20476,6 +19731,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ObservationTargets",
@@ -20505,8 +19761,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20516,8 +19771,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ObservationTargets",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20525,8 +19779,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20534,8 +19787,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20562,8 +19814,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20597,6 +19848,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "OrganisationFeatures",
@@ -20626,8 +19878,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20637,8 +19888,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "OrganisationFeatures",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20646,8 +19896,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20655,8 +19904,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20683,8 +19931,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20718,6 +19965,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "OrganisationRoles",
@@ -20747,8 +19995,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20758,8 +20005,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "OrganisationRoles",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20767,8 +20013,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20776,8 +20021,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20804,8 +20048,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20839,6 +20082,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "OrganisationTypes",
@@ -20868,8 +20112,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -20879,8 +20122,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "OrganisationTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -20888,8 +20130,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -20897,8 +20138,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -20925,8 +20165,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -20960,6 +20199,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "PopulationEntry",
@@ -20989,8 +20229,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21000,8 +20239,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "PopulationEntry",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21009,8 +20247,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21018,8 +20255,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21046,8 +20282,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21081,6 +20316,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "PopulationExit",
@@ -21110,8 +20346,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21121,8 +20356,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "PopulationExit",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21130,8 +20364,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21139,8 +20372,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21167,8 +20399,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21202,6 +20433,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "PopulationOfInterest",
@@ -21231,8 +20463,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21242,8 +20473,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "PopulationOfInterest",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21251,8 +20481,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21260,8 +20489,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21288,8 +20516,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21323,6 +20550,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "RefreshPeriods",
@@ -21352,8 +20580,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21363,8 +20590,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "RefreshPeriods",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21372,8 +20598,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21381,8 +20606,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21409,8 +20633,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21444,6 +20667,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Regions",
@@ -21473,8 +20697,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21484,8 +20707,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Regions",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21493,8 +20715,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21502,8 +20723,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21530,8 +20750,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21565,6 +20784,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ReleaseTypes",
@@ -21594,8 +20814,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21605,8 +20824,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ReleaseTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21614,8 +20832,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21623,8 +20840,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21651,8 +20867,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21686,6 +20901,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "ResourceTypes",
@@ -21715,8 +20931,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21726,8 +20941,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "ResourceTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21735,8 +20949,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21744,8 +20957,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21772,8 +20984,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21807,6 +21018,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "SampleCategories",
@@ -21836,8 +21048,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21847,8 +21058,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "SampleCategories",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21856,8 +21066,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21865,8 +21074,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -21893,8 +21101,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -21928,6 +21135,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StandardizedTools",
@@ -21957,8 +21165,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -21968,8 +21175,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StandardizedTools",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -21977,8 +21183,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -21986,8 +21191,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22014,8 +21218,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22049,6 +21252,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Status",
@@ -22078,8 +21282,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22089,8 +21292,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Status",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22098,8 +21300,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22107,8 +21308,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22135,8 +21335,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22170,6 +21369,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StatusDetails",
@@ -22199,8 +21399,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22210,8 +21409,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StatusDetails",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22219,8 +21417,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22228,8 +21425,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22256,8 +21452,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22291,6 +21486,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyDatasourceTypes",
@@ -22320,8 +21516,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22331,8 +21526,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyDatasourceTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22340,8 +21534,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22349,8 +21542,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22377,8 +21569,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22412,6 +21603,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyDesignClassification",
@@ -22441,8 +21633,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22452,8 +21643,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyDesignClassification",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22461,8 +21651,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22470,8 +21659,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22498,8 +21686,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22533,6 +21720,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyFeatures",
@@ -22562,8 +21750,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22573,8 +21760,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyFeatures",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22582,8 +21768,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22591,8 +21776,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22619,8 +21803,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22654,6 +21837,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyFunding",
@@ -22683,8 +21867,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22694,8 +21877,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyFunding",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22703,8 +21885,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22712,8 +21893,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22740,8 +21920,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22775,6 +21954,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyQualityMarks",
@@ -22804,8 +21984,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22815,8 +21994,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyQualityMarks",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22824,8 +22002,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22833,8 +22010,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22861,8 +22037,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -22896,6 +22071,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyRequirements",
@@ -22925,8 +22101,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -22936,8 +22111,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyRequirements",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -22945,8 +22119,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -22954,8 +22127,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -22982,8 +22154,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23017,6 +22188,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyScopes",
@@ -23046,8 +22218,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23057,8 +22228,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyScopes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23066,8 +22236,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23075,8 +22244,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23103,8 +22271,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23138,6 +22305,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyStatus",
@@ -23167,8 +22335,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23178,8 +22345,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyStatus",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23187,8 +22353,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23196,8 +22361,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23224,8 +22388,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23259,6 +22422,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyTopics",
@@ -23288,8 +22452,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23299,8 +22462,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyTopics",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23308,8 +22470,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23317,8 +22478,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23345,8 +22505,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23380,6 +22539,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyTrialRegulatoryScopes",
@@ -23409,8 +22569,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23420,8 +22579,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyTrialRegulatoryScopes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23429,8 +22587,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23438,8 +22595,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23466,8 +22622,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23501,6 +22656,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "StudyTypes",
@@ -23530,8 +22686,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23541,8 +22696,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "StudyTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23550,8 +22704,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23559,8 +22712,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23587,8 +22739,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23622,6 +22773,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "SubmissionTypes",
@@ -23651,8 +22803,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23662,8 +22813,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "SubmissionTypes",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23671,8 +22821,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23680,8 +22829,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23708,8 +22856,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23743,6 +22890,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "SubmitterRoles",
@@ -23772,8 +22920,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23783,8 +22930,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "SubmitterRoles",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23792,8 +22938,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23801,8 +22946,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23829,8 +22973,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23864,6 +23007,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Titles",
@@ -23893,8 +23037,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -23904,8 +23047,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Titles",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -23913,8 +23055,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -23922,8 +23063,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -23950,8 +23090,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -23985,6 +23124,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Units",
@@ -24014,8 +23154,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -24025,8 +23164,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Units",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -24034,8 +23172,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -24043,8 +23180,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -24071,8 +23207,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -24106,6 +23241,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Vocabularies",
@@ -24135,8 +23271,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -24146,8 +23281,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Vocabularies",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -24155,8 +23289,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -24164,8 +23297,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -24192,8 +23324,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -24227,6 +23358,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
     {
       id: "Years",
@@ -24256,8 +23388,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          description:
-            "User-friendly label for this term. Should be unique in parent",
+          description: "User-friendly label for this term. Should be unique in parent",
           position: 2,
         },
         {
@@ -24267,8 +23398,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refTableId: "Years",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          description:
-            "The parent term, in case this code exists in a hierarchy",
+          description: "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
         {
@@ -24276,8 +23406,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "codesystem",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C70895"],
-          description:
-            "Abbreviation of the code system/ontology this term belongs to",
+          description: "Abbreviation of the code system/ontology this term belongs to",
           position: 4,
         },
         {
@@ -24285,8 +23414,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           label: "code",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C25162"],
-          description:
-            "Identifier used for this term within this code system/ontology",
+          description: "Identifier used for this term within this code system/ontology",
           position: 5,
         },
         {
@@ -24313,8 +23441,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          description:
-            "Child terms, in case this term is the parent of other terms",
+          description: "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
         {
@@ -24348,6 +23475,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: ""
     },
   ],
 };
