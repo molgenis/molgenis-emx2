@@ -23,6 +23,5 @@ test.describe(
         (inputValueContainer as unknown as HTMLInputElement).children
       ).toBeFalsy();
     });
-
   }
 );
