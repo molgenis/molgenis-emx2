@@ -62,7 +62,7 @@
             listboxOptions[0] &&
             listboxOptions[0].value === null
           "
-          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0"
+          class="flex justify-center items-center h-input pl-3 py-1 bg-input border-b-[1px] last:border-b-0"
         >
           <TextNoResultsMessage />
         </li>
