@@ -31,18 +31,18 @@ These libraries need to be built as it creates a library that can be used in oth
 # if not already in apps/
 cd apps
 
-# build both component libraries
-npm run build:libs
+# build all apps including the component libraries
+pnpm build
 ```
 
 The component libraries are also apps. They create a 'showCase' app that is served as the app code. To view this run:
 
 ```bash
-cd apps
-npm run build --workspace=molgenis-components
+cd apps/molgenis-components
+pnpm dev
 ```
 
-**Note**: The `molgenis-viz` library requires a database as the charts require a dataset to generate. You can use `npm run dev` in the molgenis-viz folder, but you may get an error that the data is missing.
+**Note**: The `molgenis-viz` library requires a database as the charts require a dataset to generate. You can use `pnpm dev` in the molgenis-viz folder, but you may get an error that the data is missing.
 
 ## Getting started
 
@@ -99,11 +99,11 @@ In the apps folder, there are several core frontend applications (e.g., settings
 docker-compose up
 ```
 
-The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `npm run dev`. For example, to preview the app `apps/schema`, run the following command.
+The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `pnpm dev`. For example, to preview the app `apps/schema`, run the following command.
 
 ```bash
 cd apps/schema
-npm run dev
+pnpm dev
 ```
 
 ## Deploying your application
@@ -123,7 +123,7 @@ First, start the development server.
 cd apps/<your-app>
 
 # start the dev server
-npm run dev
+pnpm dev
 ```
 
 Once started, the app is served at [http://localhost:5173](http://localhost:5173). If the server is running and the app cannot be found, check the `vite.config.js` file to see if the port has changed.
@@ -139,7 +139,7 @@ If you continue to have issues, make sure your app has been merged with the main
 It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
 
 ```bash
-npm run build:libs
+npm build
 ```
 
 If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
@@ -154,7 +154,7 @@ rm -rf node_modules
 npm
 
 # rebuild component libraries
-npm run build:libs
+npm build
 ```
 
 ### I would like to use the molgenis-viz library, but the styles aren't loading
@@ -401,7 +401,7 @@ cp ../aggregates/index.html .
 
 Open the index.html file, add update the message with the name of your app. In addition, make sure the script tag points to the `main.ts` file.
 
-By this point, you should have enough to view your app. Run the `npm run dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
+By this point, you should have enough to view your app. Run the `pnpm dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
 
 ### Generate typescript types for an app
 

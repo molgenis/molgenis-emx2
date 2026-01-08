@@ -85,7 +85,7 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
 - Serve only the app you want to look at
   ```console
   cd molgenis-emx2/apps/<yourapp>
-  npm run dev
+  pnpm dev
   ```
   Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
 

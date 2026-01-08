@@ -9,7 +9,7 @@ We use:
     * `gradle build` => builds all
     * `gradle clean` => removes all build artifacts
     * `gradle run` => launches the app including user interface
-    * `gradle dev` => launches only the backend (useful when developing frontend using npm run dev)
+    * `gradle dev` => launches only the backend (useful when developing frontend using p dev)
     * `gradle cleandb` => will empty your postgresql database (MAKE SURE YOU WANT IT)
     * `gradle generateTypes --args='<schema> <file>'` => generates typescript types for schema to file
     * `gradle test` => runs all tests.
