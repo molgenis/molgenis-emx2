@@ -29,6 +29,7 @@ const emit = defineEmits([
   "toggleSelect",
   "toggleExpand",
   "showOutsideResults",
+  "loadMore",
 ]);
 
 function toggleSelect(node: ITreeNodeState) {
@@ -37,6 +38,10 @@ function toggleSelect(node: ITreeNodeState) {
 
 function toggleExpand(node: ITreeNodeState) {
   emit("toggleExpand", node);
+}
+
+function loadMore(node: ITreeNodeState) {
+  emit("loadMore", node);
 }
 
 const hasChildren = computed(() =>
@@ -158,20 +163,46 @@ const hasChildren = computed(() =>
           </div>
         </div>
       </div>
-      <TreeNode
-        :id="id"
-        v-if="node.children?.length && node.expanded"
-        class="ml-[31px]"
-        :nodes="node.children"
-        :isRoot="false"
-        :inverted="inverted"
-        :invalid="invalid"
-        :valid="valid"
-        :disabled="disabled"
-        :multiselect="multiselect"
-        @toggleSelect="toggleSelect"
-        @toggleExpand="toggleExpand"
-      />
+      <template v-if="node.children?.length && node.expanded">
+        <TreeNode
+          :id="id"
+          class="ml-[31px]"
+          :nodes="node.children"
+          :isRoot="false"
+          :inverted="inverted"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+          :multiselect="multiselect"
+          @toggleSelect="toggleSelect"
+          @toggleExpand="toggleExpand"
+          @loadMore="loadMore"
+        />
+        <div v-if="node.loadMoreHasMore" class="ml-[31px] mt-2.5 relative">
+          <template>
+            <BaseIcon
+              name="collapsible-list-item"
+              :width="20"
+              class="text-blue-200 absolute -top-[9px] -left-1"
+            />
+          </template>
+          <div class="ml-6 flex items-center gap-2">
+            <ButtonText
+              class="text-body-sm italic text-input-description text-underline"
+              @click.stop="loadMore(node)"
+            >
+              (load
+              {{
+                Math.min(
+                  (node.loadMoreTotal || 0) - (node.children?.length || 0),
+                  20
+                )
+              }}
+              of {{ node.loadMoreTotal || 0 }} terms)
+            </ButtonText>
+          </div>
+        </div>
+      </template>
     </li>
     <li
       v-if="nodes.some((child) => child.visible === false)"
