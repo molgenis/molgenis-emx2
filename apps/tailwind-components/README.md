@@ -4,7 +4,7 @@ The `tailwind-components` library is a reimplementation of the existing emx2 com
 
 ## About the components
 
-All components are stored in the `components` folder and stories are located in `pages`. To view the components, take a look at the [components showcase](https://emx2.dev.molgenis.org/apps/tailwind-components) or run the `npm run dev` command.
+All components are stored in the `components` folder and stories are located in `pages`. To view the components, take a look at the [components showcase](https://emx2.dev.molgenis.org/apps/tailwind-components) or run the `pnpm dev` command.
 
 In the component folder, we've arranged the components into categories. To use the components, you will need to prefix the component name using the name of the subfolder. For example, if you wanted to use the checkbox component (`components/input/Checkbox.vue`), you would write the component as `<InputCheckbox>`. There are some folders that do not require the path prefix. This is summarised in the following table.
 
