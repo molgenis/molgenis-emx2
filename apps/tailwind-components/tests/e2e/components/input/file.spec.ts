@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
-import * as path from "path";
-import { setTimeout } from "timers/promises";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
