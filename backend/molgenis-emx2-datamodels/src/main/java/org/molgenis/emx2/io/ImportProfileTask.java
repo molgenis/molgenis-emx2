@@ -1,10 +1,5 @@
 package org.molgenis.emx2.io;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.*;
-import java.util.function.Function;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
@@ -15,13 +10,16 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.tasks.Task;
 
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.*;
+import java.util.function.Function;
+
 public class ImportProfileTask extends Task {
 
   private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
-  @JsonIgnore private final String schemaName;
-  private final String description;
   private final String configLocation;
   private final boolean includeDemoData;
   private final Database database;
@@ -36,23 +34,17 @@ public class ImportProfileTask extends Task {
       boolean includeDemoData) {
     this(
         database,
-        schemaName,
-        description,
-        configLocation,
+            configLocation,
         includeDemoData,
         db -> db.createSchema(schemaName, description));
   }
 
   ImportProfileTask(
       Database database,
-      String schemaName,
-      String description,
       String configLocation,
       boolean includeDemoData,
       Function<Database, Schema> importSchemaFunction) {
     this.database = database;
-    this.schemaName = schemaName;
-    this.description = description;
     this.configLocation = configLocation;
     this.includeDemoData = includeDemoData;
     this.importSchemaFunction = importSchemaFunction;
@@ -92,7 +84,7 @@ public class ImportProfileTask extends Task {
     Profiles profiles = getProfiles(schema, schemaFromProfile);
 
     // create the schema using the selected profile tags within the big model
-    SchemaMetadata schemaMetadata = null;
+    SchemaMetadata schemaMetadata;
     try {
       schemaMetadata = schemaFromProfile.create();
     } catch (Exception e) {
