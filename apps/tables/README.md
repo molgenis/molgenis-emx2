@@ -7,17 +7,17 @@ pnpm install
 
 ### Compiles and hot-reloads for development
 ```
-pnpm run serve
+pnpm serve
 ```
 
 ### Compiles and minifies for production
 ```
-pnpm run build
+pnpm build
 ```
 
 ### Lints and fixes files
 ```
-pnpm run lint
+pnpm lint
 ```
 
 ### Customize configuration

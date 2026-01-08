@@ -38,11 +38,11 @@ During the setupAnalytics call 3 steps are taken
 
 ## Development
 
-includes playground 'app', run via `pnpm run dev`
+includes playground 'app', run via `pnpm dev`
 
 ## Build
 
-`pnpm run build`
+`pnpm build`
 
 ## Release 
 

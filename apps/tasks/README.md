@@ -7,10 +7,10 @@ pnpm install
 
 ### Compiles and hot-reloads for development
 ```
-pnpm run dev
+pnpm dev
 ```
 
 ### Compiles and minifies for production
 ```
-pnpm run build
+pnpm build
 ```

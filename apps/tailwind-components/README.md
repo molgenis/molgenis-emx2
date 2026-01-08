@@ -41,7 +41,7 @@ Alternatively, you can import the icons directly. Please note that the default i
 Before adding a new icon to the component library, make sure there isn't a similar icon in `/global/icons` folder. If an appropriate icon isn't available, download the svg from [https://fonts.google.com/icons](https://fonts.google.com/icons) and [https://www.flaticon.com/authors/special/lineal](https://www.flaticon.com/authors/special/lineal). Place the file in the `assets/icons` folder and run the parse icons command.
 
 ```bash
-pnpm run parse-icons
+pnpm parse-icons
 ```
 
 This script uses the [sgvo](https://github.com/svg/svgo) module to clean the icons and transform them into vue components. These files are then saved in the `global/icons/` folder.
@@ -74,7 +74,7 @@ pnpm install <package-name> # add the -D flag if needed
 To start the development server, run the following command. By default, the application will be served at `http://localhost:3000`.
 
 ```bash
-pnpm run dev
+pnpm dev
 ```
 
 ### Production
@@ -82,8 +82,8 @@ pnpm run dev
 You can also build the application for production and preview it locally before creating a PR. To do so, run the following commands.
 
 ```bash
-pnpm run build
-pnpm run preview
+pnpm build
+pnpm preview
 ```
 
 ### Running tests
@@ -92,9 +92,9 @@ pnpm run preview
 
 [pa11y-ci](https://github.com/pa11y/pa11y-ci) is used for local accessibility testing. We have configured the tests to evaluate components individually against the WCAG2AA standard. To run the tests, follow these steps.
 
-1. Start the development server for the tailwind components: `pnpm run dev`
-2. In a separate terminal window, run the accessibility tests: `pnpm run wcag:test`. This will not only test the stories located in `pages` but will regenerate the site map from the `sourceCodeMap.json` file.
-3. When the tests are complete, view the report: `pnpm run wcag:serve` (the report will be served at `http://localhost:1234`)
+1. Start the development server for the tailwind components: `pnpm dev`
+2. In a separate terminal window, run the accessibility tests: `pnpm wcag:test`. This will not only test the stories located in `pages` but will regenerate the site map from the `sourceCodeMap.json` file.
+3. When the tests are complete, view the report: `pnpm wcag:serve` (the report will be served at `http://localhost:1234`)
 
 It is recommended to address all errors and warnings identified by this tool. In addition, it is also recommended to install the [WAVE Browser extension](https://wave.webaim.org/extension/) for in-browser accessibility testing as this can help identify issues earlier in the development process. If errors unrelated to the component are detected, please note this in a new issue.
 
@@ -103,10 +103,10 @@ It is recommended to address all errors and warnings identified by this tool. In
 We warmly welcome PRs to the molgenis-emx2 repository. To get started, please see our Contributing Guidelines (tbd). Before you create a new PR, please complete the following steps.
 
 1. Make sure all typescript issues are resolved
-2. If applicable, write tests and make sure all tests pass. In the `tailwind-components` directory, run `pnpm run test`
-3. Run the end-to-end tests. Navigate to the `e2e` folder and run `pnpm run e2e`
+2. If applicable, write tests and make sure all tests pass. In the `tailwind-components` directory, run `pnpm test`
+3. Run the end-to-end tests. Navigate to the `e2e` folder and run `pnpm e2e`
 4. If you are adding a new feature, please provide documentation on how to use it.
-5. Run prettier in the `tailwind-components` folder: `pnpm run format`
+5. Run prettier in the `tailwind-components` folder: `pnpm format`
 
 When you are ready, create a new draft PR.
 

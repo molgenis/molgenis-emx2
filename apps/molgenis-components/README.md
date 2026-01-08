@@ -19,15 +19,15 @@ This module helps developers create and share vue components for use with the mo
 
 ### Run dev server to view component gallery
 
-```pnpm run dev ```
+```pnpm dev ```
 
 ### Build component library
 
-```pnpm run build ```
+```pnpm build ```
 
 ### Build component library show case app
 
-```pnpm run build-showcase ```
+```pnpm build-showcase ```
 
 ### Adding a new component
 

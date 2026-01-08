@@ -45,5 +45,5 @@ Navigate to your app and start the development server.
 
 ```sh
 cd <app-name>
-pnpm run dev
+pnpm dev
 ```

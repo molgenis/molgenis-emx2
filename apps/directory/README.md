@@ -39,7 +39,7 @@ If you want to use Matomo to track how users use the app, you can in the setting
 When you do
 
 ```sh
-pnpm run dev
+pnpm dev
 ```
 
 open http://127.0.0.1:5173/apps/central/#/ and login
@@ -59,19 +59,19 @@ pnpm install
 ### Compile and Hot-Reload for Development
 
 ```sh
-pnpm run dev
+pnpm dev
 ```
 
 ### Compile and Minify for Production
 
 ```sh
-pnpm run build
+pnpm build
 ```
 
 ### Run Unit Tests with [Vitest](https://vitest.dev/)
 
 ```sh
-pnpm run test:unit
+pnpm test:unit
 ```
 
 ### Lint with [ESLint](https://eslint.org/)

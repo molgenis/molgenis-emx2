@@ -19,7 +19,7 @@ set non default (api)proxy target with
 `NUXT_PUBLIC_API_BASE`
 
 ```bash
-pnpm run dev
+pnpm dev
 ```
 
 ## Production
@@ -30,13 +30,13 @@ set api-proxy target with
 Build the application for production:
 
 ```bash
-pnpm run build
+pnpm build
 ```
 
 Locally preview production build:
 
 ```bash
-pnpm run preview
+pnpm preview
 ```
 
 Checkout the [deployment documentation](https://v3.nuxtjs.org/guide/deploy/presets) for more information.
@@ -53,7 +53,7 @@ A non default emx2 theme is loaded by passing the `EMX2_THEME` environment varia
 For example during development
 
 ```sh
-EMX2_THEME=umcg pnpm run dev
+EMX2_THEME=umcg pnpm dev
 ```
 
 ##### feature flags
