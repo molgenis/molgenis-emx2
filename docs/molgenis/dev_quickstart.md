@@ -74,7 +74,7 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
 - Build the app workspace as a whole (once)
   ```console
   cd molgenis-emx2/apps
-  npm install
+  pnpm install
   ```
 - Start molgenis 'headless' (i.e. without apps) using gradle (restart on java changes)
   ```console

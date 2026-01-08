@@ -25,7 +25,7 @@ All frontend applications are located in the `apps` folder. In this folder are t
 - 'molgenis-components': general layout and styling
 - 'molgenis-viz': a number of D3 components for creating visualizations and dashboards
 
-These libraries need to be built as it creates a library that can be used in other applications. From time to time, you may need to rebuild the libraries if a library is changed. To build the component libraries, run the following npm workspace script.
+These libraries need to be built as it creates a library that can be used in other applications. From time to time, you may need to rebuild the libraries if a library is changed. To build the component libraries, run the following pnpm workspace script.
 
 ```bash
 # if not already in apps/
@@ -67,25 +67,14 @@ If you would like to create a new vue app. There are few ways to get started. Yo
 
 1. Copy the `hello-world` demo: a demo application that can be used as a starting for new applications.
 2. Copy an existing app and delete any unecessary files
-3. Create a new vue app using `npm init vue@latest`
+3. Create a new vue app using `pnpm init vue@latest`
 4. Manually create folder and required files. `mkdir my-app`
 
 The first three options allow you to create apps fairly quickly, but it also requires you to delete files and adjust the configurations. If you would like to create an app manually, follow the [manually creating a frontend application](#manually-creating-a-frontend-application) guide at the end of this page. Before you get started, have a look at the other applications to see how they are structured and configured.
 
-#### Register your application in the npm workspace
+#### Register your application in the pnpm workspace
 
-In the apps folder, you will find a `package.json` file. This is where the workspace configurations are defined and all the apps are added to the workspace. Add your application to the list of workspaces so that you have access to all local dependencies.
-
-```json
-{
-  "private": true,
-  "workspaces": [
-    // ...
-    "my-app"
-  ]
-  // ...
-}
-```
+In the apps folder, you will find a `pnpm-workspace.yaml` file. This is where the workspace configurations are defined and all the apps are added to the workspace. Add your application to the list of workspaces so that you have access to all local dependencies.
 
 ### Contributing to an existing app
 
@@ -139,7 +128,7 @@ If you continue to have issues, make sure your app has been merged with the main
 It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
 
 ```bash
-npm build
+pnpm build
 ```
 
 If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
@@ -151,10 +140,10 @@ cd apps/
 rm -rf node_modules
 
 # reinstall dependencies
-npm
+pnpm install
 
 # rebuild component libraries
-npm build
+pnpm build
 ```
 
 ### I would like to use the molgenis-viz library, but the styles aren't loading
@@ -222,17 +211,17 @@ cd *my-app*
 
 #### Create the package.json file
 
-First, create a `package.json` file in your new app. It is easier to create this using npm. Follow the prompts and provide as much details as possible.
+First, create a `package.json` file in your new app. It is easier to create this using pnpm. Follow the prompts and provide as much details as possible.
 
 ```bash
-npm init
+pnpm init
 ```
 
-Once the file is created, add the npm scripts, browserlists, and minimum dependencies. Copy the following code and paste it into the `package.json` file. In the dependencies list, you will need to add the `molgenis-components` library. Rather than specifying a specific version, use `*` to target any local build. If you would like to use the visualization library, add `"molgenis-viz": "*"` to the list of dependencies.
+Once the file is created, add the pnpm scripts, browserlists, and minimum dependencies. Copy the following code and paste it into the `package.json` file. In the dependencies list, you will need to add the `molgenis-components` library. Rather than specifying a specific version, use `*` to target any local build. If you would like to use the visualization library, add `"molgenis-viz": "*"` to the list of dependencies.
 
 ```json
 {
-  // .... content created by npm init
+  // .... content created by pnpm init
   "dependencies": {
     "molgenis-components": "*"
   },
@@ -254,14 +243,14 @@ Our frontend applications do not use that many dependencies. We try to keep the 
 At the very least, you will need the following dependencies to your project.
 
 ```bash
-npm add vue vue-router
-npm add -D @vitejs/plugin-vue prettier vite
+pnpm add vue vue-router
+pnpm add -D @vitejs/plugin-vue prettier vite
 ```
 
 If you would like to interact with the MOLGENIS GraphQL API, install the following dependency:
 
 ```bash
-npm install graphql-request
+pnpm install graphql-request
 ```
 
 #### Add vite.config.js file
