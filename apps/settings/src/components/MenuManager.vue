@@ -26,10 +26,19 @@
           Use 'label' to set the name how your menu item should be displayed
         </li>
         <li>
-          <p>Use 'href' to define where your menu item links to. </p>
-          <p>You can link on the same schema by using a relative path like 'tables/' or even with a filter set 'tables/#/Pet?_filter=name&name=spike' </p>
-          <p>You can also make cross-links to other schema using a fully qualified path like '/otherschema/tables/'.  </p>
-          <p>And you can link to other servers using http://otherserver.com/.</p>
+          <p>Use 'href' to define where your menu item links to.</p>
+          <p>
+            You can link on the same schema by using a relative path like
+            'tables/' or even with a filter set
+            'tables/#/Pet?_filter=name&name=spike'
+          </p>
+          <p>
+            You can also make cross-links to other schema using a fully
+            qualified path like '/otherschema/tables/'.
+          </p>
+          <p>
+            And you can link to other servers using http://otherserver.com/.
+          </p>
         </li>
         <li>
           Use 'role' to indicate if menu item should be shown only in case user
