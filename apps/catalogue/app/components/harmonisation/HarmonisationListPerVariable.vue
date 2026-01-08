@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { IMapping } from "../../../interfaces/types";
 import HarmonisationStatusIcon from "./HarmonisationStatusIcon.vue";
 import HarmonisationLegendDetailed from "./HarmonisationLegendDetailed.vue";
+import type { IVariableMappings } from "../../../interfaces/catalogue";
+import type { HarmonisationStatus } from "../../../interfaces/types";
 
 defineProps<{
-  mappings: IMapping[] | undefined;
+  mappings: IVariableMappings[] | undefined;
 }>();
 </script>
 <template>
@@ -18,7 +19,10 @@ defineProps<{
       class="pb-2"
     >
       <div class="flex items-center gap-2">
-        <HarmonisationStatusIcon :status="mapping.match.name" size="large" />
+        <HarmonisationStatusIcon
+          :status="mapping.match.name as HarmonisationStatus"
+          size="large"
+        />
         <span>{{ mapping.source.id }}</span>
       </div>
     </li>

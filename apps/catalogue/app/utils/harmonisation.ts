@@ -1,18 +1,15 @@
+import type { IVariables } from "../../interfaces/catalogue";
 import type {
   HarmonisationStatus,
-  IVariableWithMappings,
-  IVariableBase,
+  IVariableMappings,
 } from "../../interfaces/types";
-
-type IRepeatingVariableWithMapping = IVariableWithMappings;
-type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 
 /**
  * Returns a matrix of harmonisation status for each variable and source
  * In case of a repeated variable, the status for toplevel variable is based on the combined status of all its repeats
  */
 export const calcAggregatedHarmonisationStatus = (
-  variables: IVariableWithMappings[],
+  variables: (IVariableMappings & IVariables)[],
   resources: { id: string }[]
 ) => {
   return variables.map((v) => {
@@ -32,7 +29,7 @@ export const calcAggregatedHarmonisationStatus = (
 };
 
 export const calcIndividualVariableHarmonisationStatus = (
-  variable: IVariableWithMappings,
+  variable: IVariableMappings,
   resources: { id: string }[]
 ) => {
   return resources.map((resource) => {
@@ -42,10 +39,7 @@ export const calcIndividualVariableHarmonisationStatus = (
     } else if (variable.repeats) {
       // handle repeats
       return [variable, ...variable.repeats].map((v) =>
-        calcStatusForSingleVariable(
-          variable as INonRepeatingVariableWithMapping,
-          resource
-        )
+        calcStatusForSingleVariable(variable as IVariableMappings, resource)
       );
     } else {
       // handle non repeating
@@ -54,12 +48,12 @@ export const calcIndividualVariableHarmonisationStatus = (
   });
 };
 
-const hasAnyMapping = (variable: IVariableWithMappings) => {
+const hasAnyMapping = (variable: IVariableMappings) => {
   return Array.isArray(variable.mappings);
 };
 
 const calcStatusForSingleVariable = (
-  variable: INonRepeatingVariableWithMapping,
+  variable: IVariableMappings,
   resource: { id: string }
 ): HarmonisationStatus => {
   const resourceMapping = variable.mappings?.find((mapping) => {
@@ -79,7 +73,7 @@ const calcStatusForSingleVariable = (
 };
 
 const calcStatusForAggregatedRepeatingVariable = (
-  variable: IRepeatingVariableWithMapping,
+  variable: IVariableMappings & IVariables,
   resource: { id: string }
 ): HarmonisationStatus => {
   const statusList = !variable.repeats
