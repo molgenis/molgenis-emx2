@@ -6,7 +6,7 @@ const { manifest } = await useSettings();
 </script>
 
 <template>
-  <div class="bg-footer p-6">
+  <footer class="bg-footer p-6">
     <div
       class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center max-w-lg mx-auto px-6 py-6"
     >
@@ -122,7 +122,10 @@ const { manifest } = await useSettings();
         </ul>
       </div>
     </div>
-    <div class="flex justify-center text-link-inverted">
+    <slot></slot>
+  </footer>
+  <footer class="bg-footer p-6">
+    <div class="flex justify-left text-link-inverted">
       Software version:&nbsp;
       <a
         class="flex items-center hover:underline"
@@ -134,6 +137,5 @@ const { manifest } = await useSettings();
       </a>
       - Database version: {{ manifest?.DatabaseVersion }}
     </div>
-    <slot></slot>
-  </div>
+  </footer>
 </template>
