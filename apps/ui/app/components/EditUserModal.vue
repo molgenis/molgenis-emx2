@@ -49,7 +49,7 @@
             </TableHeadRow>
           </template>
           <template #body>
-            <TableRow v-if="_.isEmpty(userRoles)">
+            <TableRow v-if="!userRoles.length">
               <TableCell></TableCell>
               <TableCell> no roles found </TableCell>
               <TableCell></TableCell>
@@ -85,27 +85,6 @@
         </Button>
       </div>
     </div>
-    <!--
-    <div v-if="userTokens.length" class="p-5">
-      <b>Tokens</b>
-      <Table>
-        <template #head>
-          <TableHeadRow>
-            <TableHead class="w-0"></TableHead>
-            <TableHead>Token</TableHead>
-          </TableHeadRow>
-        </template>
-        <template #body>
-          <TableRow v-for="token in userTokens">
-            <TableCell>
-              <Button iconOnly size="tiny" icon="trash" label="remove" @click="removeToken(token)" />
-            </TableCell>
-            <TableCell>{{ token }}</TableCell>
-          </TableRow>
-        </template>
-      </Table>
-    </div>
--->
 
     <template #footer>
       <div class="m-1">
@@ -132,7 +111,6 @@
 </template>
 
 <script setup lang="ts">
-import _ from "lodash";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { isValidPassword, updateUser } from "~/util/adminUtils";
 import { computed, ref, watch } from "vue";
@@ -203,10 +181,6 @@ function addRole() {
 function removeRole(role: IRole) {
   revokedRoles.value[role.schemaId] = role;
   delete userRoles.value[role.schemaId];
-}
-
-function removeToken(token: string) {
-  userTokens.value = _.reject(userTokens.value, (tok: string) => tok === token);
 }
 
 function getRoles(roles: IRole[]): Record<string, IRole> {
