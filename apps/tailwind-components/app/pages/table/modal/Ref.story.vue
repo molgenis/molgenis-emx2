@@ -34,7 +34,10 @@ refTableRow.value = {
   name: "pooky",
   category: { name: "cat" },
   photoUrls: [
-    "https://emx2.dev.molgenis.org/pet%20store/tables/#/Pet%27%22%3E%3Cimg%20src=x%20onerror=alert(%22xss_reflected%22)%3E2",
+    {
+      value:
+        "https://emx2.dev.molgenis.org/pet%20store/tables/#/Pet%27%22%3E%3Cimg%20src=x%20onerror=alert(%22xss_reflected%22)%3E2",
+    },
   ],
   status: "available",
   weight: 9.4,

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from "#app/composables/router";
 import { computed, ref } from "vue";
-import type { IResources } from "../../../interfaces/catalogue";
-import type { IVariableWithMappings } from "../../../interfaces/types";
+import type { IResources, IVariables } from "../../../interfaces/catalogue";
 import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
 import { getKey } from "../../utils/variableUtils";
 import { resourceIdPath } from "../../utils/urlHelpers";
@@ -11,11 +10,12 @@ import SideModal from "../../../../tailwind-components/app/components/SideModal.
 import TableSticky from "../table/Sticky.vue";
 import HarmonisationTableCellAvailableIcon from "./HarmonisationTableCellAvailableIcon.vue";
 import VariableDisplay from "../VariableDisplay.vue";
+import type { IVariableMappings } from "~~/interfaces/types";
 
 const route = useRoute();
 
 const props = defineProps<{
-  variables: IVariableWithMappings[];
+  variables: (IVariables & IVariableMappings)[];
   resources: IResources[];
 }>();
 
