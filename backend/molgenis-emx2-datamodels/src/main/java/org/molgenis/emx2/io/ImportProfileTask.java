@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
@@ -24,6 +25,7 @@ public class ImportProfileTask extends Task {
   private final String configLocation;
   private final boolean includeDemoData;
   private final Database database;
+  private final Function<Database, Schema> importSchemaFunction;
   private Schema schema;
 
   public ImportProfileTask(
@@ -32,11 +34,28 @@ public class ImportProfileTask extends Task {
       String description,
       String configLocation,
       boolean includeDemoData) {
+    this(
+        database,
+        schemaName,
+        description,
+        configLocation,
+        includeDemoData,
+        db -> db.createSchema(schemaName, description));
+  }
+
+  ImportProfileTask(
+      Database database,
+      String schemaName,
+      String description,
+      String configLocation,
+      boolean includeDemoData,
+      Function<Database, Schema> importSchemaFunction) {
     this.database = database;
     this.schemaName = schemaName;
     this.description = description;
     this.configLocation = configLocation;
     this.includeDemoData = includeDemoData;
+    this.importSchemaFunction = importSchemaFunction;
   }
 
   @Override
@@ -46,7 +65,7 @@ public class ImportProfileTask extends Task {
     try {
       this.database.tx(
           db -> {
-            Schema s = db.createSchema(this.schemaName, this.description);
+            Schema s = importSchemaFunction.apply(db);
             this.schema = s;
             load(s);
             this.addSubTask(commitTask);
