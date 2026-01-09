@@ -28,7 +28,10 @@ import org.molgenis.emx2.TableMetadata;
  * IMPORTANT: {@link PrimaryKey} still uses `+`.
  */
 public class IriGenerator {
-  static final PercentEscaper escaper = new PercentEscaper("-._~", false);
+  static final PercentEscaper escaper =
+
+
+    new PercentEscaper("-._~", false);
 
   public static IRI schemaIRI(String baseURL, SchemaMetadata schema) {
     return Values.iri(baseURL + "/" + escaper.escape(schema.getName()) + API_RDF);
