@@ -1,8 +1,8 @@
-import { onMounted, onUnmounted, type Ref } from 'vue';
+import { onMounted, onUnmounted, type Ref } from "vue";
 
 export function useClickOutside(
-    elementRef: Ref<HTMLElement | any>,
-    callback: () => void
+  elementRef: Ref<HTMLElement | any>,
+  callback: () => void
 ) {
   const handler = (event: MouseEvent) => {
     // Get the actual DOM element
@@ -11,7 +11,7 @@ export function useClickOutside(
     const el = elementRef.value?.$el || elementRef.value;
 
     // Only proceed if we have a valid element with contains method
-    if (!el || typeof el.contains !== 'function') {
+    if (!el || typeof el.contains !== "function") {
       return;
     }
 
@@ -24,10 +24,10 @@ export function useClickOutside(
   onMounted(() => {
     // Use mousedown instead of click for better UX
     // (prevents issues with select/input focus)
-    document.addEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
   });
 
   onUnmounted(() => {
-    document.removeEventListener('mousedown', handler);
+    document.removeEventListener("mousedown", handler);
   });
 }
