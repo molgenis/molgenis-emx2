@@ -32,7 +32,7 @@ const props = withDefaults(
   }
 );
 
-const modelValue = defineModel<columnValueObject[]>();
+const modelValue = defineModel<columnValueObject[] | null>();
 
 const hasPrimaryKey = computed(() =>
   props.refBackPrimaryKey

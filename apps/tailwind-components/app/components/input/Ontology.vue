@@ -27,7 +27,7 @@ const props = withDefaults(
 
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
-const modelValue = defineModel<string[] | string | undefined>();
+const modelValue = defineModel<string[] | string | undefined | null>();
 //labels for the selected values
 const valueLabels: Ref<Record<string, string>> = ref({});
 //state of the tree that is shown
@@ -135,8 +135,10 @@ function assembleTreeWithChildren(
   data: ITreeNodeState[],
   parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
+  // @ts-ignore
   return (
     data
+      // @ts-ignore
       .filter((row) => row.parent?.name == parentNode?.name)
       .map((row: any) => {
         const node = {
@@ -150,7 +152,9 @@ function assembleTreeWithChildren(
           selectable: true,
           visible: true,
         };
+        // @ts-ignore
         node.children = assembleTreeWithChildren(data, node);
+        // @ts-ignore
         node.expanded = node.children.length > 0;
         return node;
       }) || []
@@ -376,14 +380,14 @@ function deselect(name: string) {
   if (props.isArray && Array.isArray(modelValue.value)) {
     modelValue.value = modelValue.value.filter((value) => value != name);
   } else {
-    modelValue.value = undefined;
+    modelValue.value = null;
   }
   updateSearch("");
 }
 
 function clearSelection() {
   if (props.disabled) return;
-  modelValue.value = props.isArray ? [] : undefined;
+  modelValue.value = props.isArray ? [] : null;
 }
 
 async function updateSearch(value: string) {
@@ -457,7 +461,7 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 m-2"
+        class="flex items-center justify-between gap-2 px-2 h-input"
         @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
@@ -524,7 +528,7 @@ onMounted(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
+          'absolute z-50 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
         v-show="showSelect || !displayAsSelect"

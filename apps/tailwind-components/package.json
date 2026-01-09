@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "vue-tsc --noEmit",
+    "lint": "nuxi typecheck",
     "generate-source-map": "node ./app/utils/generateSourceMap.js",
     "build": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
@@ -28,18 +28,19 @@
     "@vueuse/core": "12.8.2",
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
+    "graphql": "16.12.0",
     "install": "^0.13.0",
     "monaco-editor": "0.53.0",
     "ofetch": "1.4.1",
     "pa11y-ci": "^4.0.1",
     "pa11y-ci-reporter-html": "^8.0.1",
+    "ufo": "1.6.2",
     "vue": "3.5.22",
     "vue-draggable-next": "2.3.0",
     "vue-flatpickr-component": "12.0.0",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
-    "@nuxt/image": "1.11.0",
     "@nuxt/test-utils": "3.20.1",
     "@nuxtjs/tailwindcss": "6.14.0",
     "@playwright/test": "1.57.0",
@@ -55,6 +56,6 @@
     "tailwindcss": "3.4.17",
     "typescript": "5.6.2",
     "vitest": "3.0.7",
-    "vue-tsc": "2.2.0"
+    "vue-tsc": "3.2.1"
   }
 }
