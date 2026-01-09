@@ -92,8 +92,8 @@ function insertInto() {
 }
 </script>
 <template>
-  <div class="grid grid-cols-4 gap-1 min-h-0">
-    <div class="col-span-1 bg-form-legend overflow-y-auto h-full min-h-0">
+  <div class="grid grid-cols-4 gap-1 min-h-0 flex-1">
+    <div class="col-span-1 bg-form-legend overflow-y-auto min-h-0">
       <FormLegend
         v-if="sections"
         class="sticky top-0"
