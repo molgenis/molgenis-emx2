@@ -23,8 +23,8 @@
         :refLabel="refLabel"
         :refBackColumn="refBackColumn"
         :refBackPrimaryKey="[
-          'ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919',
-          'ORDER:7ztyXho2Qi',
+          { orderId: 'ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919' },
+          { orderId: 'ORDER:7ztyXho2Qi' },
         ]"
         :canEdit="canEdit"
       />

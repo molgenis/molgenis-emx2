@@ -1,5 +1,5 @@
 import type { INode } from "../../tailwind-components/types/types";
-import type { IResources } from "../interfaces/catalogue";
+import type { IResources, IVariables } from "../interfaces/catalogue";
 
 export interface IPublication {
   doi: string;
@@ -32,21 +32,10 @@ export interface IVariableBase {
   mg_tableclass?: string;
 }
 
-export interface IVariableDetails {
-  unit?: IOntologyNode;
-  format?: IOntologyNode;
-  repeatUnit: IOntologyItem;
-  repeatMin: number;
-  repeatMax: number;
-}
-
 export interface IVariableMappings {
   mappings?: IMapping[];
   repeats?: string;
 }
-
-export type IVariable = IVariableBase & IVariableDetails;
-export type IVariableWithMappings = IVariable & IVariableMappings;
 
 export interface IOrganisation extends IPartner {
   email: string;
@@ -175,9 +164,9 @@ export interface IMapping {
     };
     name: string;
   };
-  sourceVariables: IVariableBase[] | IVariable[];
-  sourceVariablesOtherDatasets: IVariableBase[] | IVariable[];
-  targetVariable: IVariableBase | IVariable;
+  sourceVariables: IVariableBase[] | IVariables[];
+  sourceVariablesOtherDatasets: IVariableBase[] | IVariables[];
+  targetVariable: IVariableBase | IVariables;
 }
 
 export type HarmonisationStatus =

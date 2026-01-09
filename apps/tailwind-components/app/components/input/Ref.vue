@@ -227,10 +227,6 @@ async function select(label: string) {
   if (!props.isArray && showSelect.value === true) {
     toggleSelect();
   }
-  emitValue();
-}
-
-function emitValue() {
   emit(
     "update:modelValue",
     props.isArray
@@ -244,19 +240,25 @@ async function extractPrimaryKey(row: recordValue) {
 }
 
 function deselect(label: string) {
-  delete selectionMap.value[label];
   if (searchTerms.value) {
     toggleSearch();
   }
-  if (!props.isArray && showSelect.value === true) {
-    toggleSelect();
+
+  if (props.isArray) {
+    delete selectionMap.value[label];
+    emit("update:modelValue", Object.values(selectionMap.value));
+  } else {
+    if (showSelect.value === true) {
+      toggleSelect();
+    }
+    selectionMap.value = {};
+    emit("update:modelValue", null);
   }
-  emitValue();
 }
 
 function clearSelection() {
   selectionMap.value = {};
-  emit("update:modelValue", props.isArray ? [] : undefined);
+  emit("update:modelValue", props.isArray ? [] : null);
   updateSearch(""); //reset
 }
 
@@ -317,6 +319,7 @@ onMounted(() => {
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="isArray ? selection.length : selection" role="group">
             <Button
+              id="dsfdsdf"
               v-for="label in isArray ? selection : [selection]"
               icon="cross"
               iconPosition="right"

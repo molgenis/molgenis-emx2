@@ -1,6 +1,7 @@
 <template>
   <div
     class="flex items-center border rounded-input px-2 h-input"
+    data-elem="container"
     :class="{
       'cursor-pointer duration-default ease-in-out hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid,
@@ -11,9 +12,11 @@
     }"
     @click="onInputClick"
   >
-    <div class="grow">
+    <div class="grow" data-elem="current-file-container">
       <button
-        v-if="modelValue"
+        v-if="modelValue?.filename"
+        :id="`${id}-current-file`"
+        data-elem="current-value-btn"
         ref="selectedFileButton"
         class="flex justify-center items-center h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display duration-default ease-in-out border rounded-input"
         :class="{
@@ -34,6 +37,7 @@
     </div>
     <div class="flex-none">
       <button
+        :id="`${id}-file-open-btn`"
         class="flex justify-center items-center h-10 px-5 text-heading-xl tracking-widest uppercase font-display duration-default ease-in-out border rounded-input bg-button-filter text-button-filter border-button-filter"
         :class="{
           'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid':
