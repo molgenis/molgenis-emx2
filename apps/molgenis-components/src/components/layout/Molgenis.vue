@@ -123,7 +123,6 @@ const props = withDefaults(
     title: string;
     menuItems?: MenuItem[];
     showCrumbs?: boolean;
-    footer?: string;
   }>(),
   { menuItems: () => [], showCrumbs: true }
 );
