@@ -1,23 +1,19 @@
 <script setup lang="ts">
-import { useSettings } from "../composables/useSettings";
 import BaseIcon from "./BaseIcon.vue";
-
-const { manifest } = await useSettings();
 </script>
 
 <template>
-  <footer class="bg-footer p-6">
+  <div class="bg-footer p-6">
     <div
       class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center max-w-lg mx-auto px-6 py-6"
     >
       <div>
         <h3 class="mb-2 text-title font-bold">Created with MOLGENIS</h3>
         <ul class="list-style-none flex flex-col gap-1.5 text-link-inverted">
-          <li class="flex items-center">
+          <li class="flex items-ceter">
             <a
               class="flex items-center hover:underline"
-              href="https://molgenis.org"
-              target="_blank"
+              href="http://molgenis.org"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>About Molgenis</span>
@@ -26,8 +22,7 @@ const { manifest } = await useSettings();
           <li>
             <a
               class="flex items-center hover:underline"
-              href="https://molgenis.org"
-              target="_blank"
+              href="http://molgenis.org"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>MOLGENIS.org</span>
@@ -52,7 +47,6 @@ const { manifest } = await useSettings();
             <a
               class="flex items-center hover:underline"
               href="https://github.com/molgenis/molgenis-emx2"
-              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>MOLGENIS on GitHub</span>
@@ -63,7 +57,6 @@ const { manifest } = await useSettings();
             <a
               class="flex items-center hover:underline"
               href="https://molgenis.org/LICENSE-LGPLv3.html"
-              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Open Source LGPLv3 License</span>
@@ -74,7 +67,6 @@ const { manifest } = await useSettings();
             <a
               class="flex items-center hover:underline"
               href="https://molgenis.org/MOLGENIS_Privacy_Policy.pdf"
-              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Privacy Policy</span>
@@ -90,7 +82,6 @@ const { manifest } = await useSettings();
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/36463884"
-              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Swertz & Gini (2022)</span>
@@ -101,7 +92,6 @@ const { manifest } = await useSettings();
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
-              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Van der Velde et al (2018)</span>
@@ -112,7 +102,6 @@ const { manifest } = await useSettings();
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/21210979"
-              target="_blank"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Swertz et al (2010)</span>
@@ -122,18 +111,6 @@ const { manifest } = await useSettings();
         </ul>
       </div>
     </div>
-    <div class="flex justify-center text-link-inverted">
-      Software version:&nbsp;
-      <a
-        class="flex items-center hover:underline"
-        :href="`https://github.com/molgenis/molgenis-emx2/releases/tag/${manifest?.SpecificationVersion}`"
-        target="_blank"
-      >
-        <span>{{ manifest?.SpecificationVersion }}</span>
-        <BaseIcon name="ExternalLink" :width="16" />
-      </a>
-      - Database version: {{ manifest?.DatabaseVersion }}
-    </div>
     <slot></slot>
-  </footer>
+  </div>
 </template>
