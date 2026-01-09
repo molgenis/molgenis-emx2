@@ -55,9 +55,7 @@ const { data } = await useFetch(`/${schema}/graphql`, {
   body: { query, variables: { variableFilter, resourceFilter } },
 });
 
-const variable = computed(
-  () => data.value.data.Variables[0] as VariableDetailsWithMappingAndRepeats
-);
+const variable = computed(() => data.value.data.Variables[0]);
 const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
