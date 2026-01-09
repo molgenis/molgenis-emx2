@@ -183,30 +183,43 @@ function assembleTreeWithChildren(
 /* retrieves terms, optionally as children to a parent */
 async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined,
-  offset: number = 0
+  offset: number = 0,
+  searchValue: string | undefined = undefined
 ): Promise<{ terms: ITreeNodeState[]; count: number }> {
+  // Use explicit searchValue parameter if provided, otherwise use current searchTerms
+  const effectiveSearchValue =
+    searchValue !== undefined ? searchValue : searchTerms.value;
+
   const variables: any = {
     termFilter: parentNode
       ? { parent: { name: { equals: parentNode.name } } }
       : { parent: { _is_null: true } },
   };
 
-  if (searchTerms.value) {
+  if (effectiveSearchValue) {
+    // Combine parent filter with search filter
     variables.searchFilter = Object.assign({}, variables.termFilter, {
-      _search_including_parents: searchTerms.value,
+      _search_including_parents: effectiveSearchValue,
     });
   }
 
-  let query = searchTerms.value
-    ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+  let query = effectiveSearchValue
+    ? `query myquery($searchFilter:${props.ontologyTableId}Filter) {
+        retrieveTerms: ${props.ontologyTableId}(filter:$searchFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         searchMatch: ${props.ontologyTableId}(filter:$searchFilter, orderby:{order:ASC,name:ASC}){name}
-        count: ${props.ontologyTableId}_agg(filter:$termFilter){count}
+        count: ${props.ontologyTableId}_agg(filter:$searchFilter){count}
        }`
     : `query myquery($termFilter:${props.ontologyTableId}Filter) {
         retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         count: ${props.ontologyTableId}_agg(filter:$termFilter){count}
        }`;
+
+  console.log("📡 GraphQL Query:", {
+    isSearch: !!effectiveSearchValue,
+    searchValue: effectiveSearchValue,
+    offset,
+    variables: JSON.stringify(variables, null, 2),
+  });
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
@@ -223,7 +236,7 @@ async function retrieveTerms(
         selectable: true,
         children: row.children,
         //visibility is used for search hiding
-        visible: searchTerms.value
+        visible: effectiveSearchValue
           ? data.searchMatch?.some(
               (match: boolean) => (match as any).name === row.name
             ) || false
@@ -365,7 +378,8 @@ async function toggleTermSelect(node: ITreeNodeState) {
     }
   }
   if (searchTerms.value) {
-    await updateSearch("");
+    // Clear search - just set to empty, watcher will handle the update
+    searchTerms.value = "";
   }
   emit("focus");
 }
@@ -415,10 +429,12 @@ async function loadMoreTerms(node: ITreeNodeState) {
 
   // Prevent duplicate loads for the same node
   if (loadingNodes.value.has(nodeKey)) {
+    console.log("⚠️ Already loading for node:", nodeKey);
     return;
   }
 
   if (!node.loadMoreHasMore) {
+    console.log("⚠️ No more items to load for node:", nodeKey);
     return;
   }
 
@@ -426,7 +442,21 @@ async function loadMoreTerms(node: ITreeNodeState) {
 
   try {
     const parentNode = node.name === "__root__" ? undefined : node;
-    const { terms } = await retrieveTerms(parentNode, node.loadMoreOffset || 0);
+
+    // Pass current search value to maintain search context when loading more
+    const searchValue = searchTerms.value || undefined;
+    const { terms } = await retrieveTerms(
+      parentNode,
+      node.loadMoreOffset || 0,
+      searchValue
+    );
+
+    console.log("📄 Loaded more terms:", {
+      nodeKey,
+      offset: node.loadMoreOffset,
+      termsLoaded: terms.length,
+      searchActive: !!searchValue,
+    });
 
     const newChildren = terms.map((child) => {
       return {
@@ -452,8 +482,17 @@ async function loadMoreTerms(node: ITreeNodeState) {
 
     node.children = [...(node.children || []), ...newChildren];
     node.loadMoreOffset = (node.loadMoreOffset || 0) + props.limit;
+
+    // Trust the count from API and compare with current offset
     node.loadMoreHasMore =
       (node.loadMoreOffset || 0) < (node.loadMoreTotal || 0);
+
+    console.log("📄 Load more complete:", {
+      totalChildren: node.children.length,
+      nextOffset: node.loadMoreOffset,
+      totalAvailable: node.loadMoreTotal,
+      hasMore: node.loadMoreHasMore,
+    });
 
     applySelectedStates();
   } finally {
@@ -468,7 +507,8 @@ function deselect(name: string) {
   } else {
     modelValue.value = null;
   }
-  updateSearch("");
+  // Clear search - just set to empty, watcher will handle the update
+  searchTerms.value = "";
 }
 
 function clearSelection() {
@@ -476,47 +516,124 @@ function clearSelection() {
   modelValue.value = props.isArray ? [] : null;
 }
 
-async function updateSearch(value: string) {
-  searchTerms.value = value;
-  counterOffset.value = 0;
+// Debounced search watcher
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+let lastSearchValue: string = "";
+let isSearching = false; // Flag to prevent watcher from triggering during search
 
-  // When searching, we need to load ALL matching results, not just the first batch
-  const isSearching = !!value;
-
+watch(searchTerms, (newValue, oldValue) => {
+  // Don't trigger if we're currently executing a search
   if (isSearching) {
-    // For search, fetch all matching results
-    const { terms, count } = await retrieveTerms(undefined, 0);
-
-    // If there are more results than the limit, keep fetching
-    if (count > props.limit) {
-      const allTerms = [...terms];
-      let offset = props.limit;
-
-      while (offset < count) {
-        const { terms: moreTerms } = await retrieveTerms(undefined, offset);
-        allTerms.push(...moreTerms);
-        offset += props.limit;
-      }
-
-      rootNode.value.children = allTerms;
-    } else {
-      rootNode.value.children = terms;
-    }
-
-    // Disable pagination during search
-    rootNode.value.loadMoreOffset = count;
-    rootNode.value.loadMoreTotal = count;
-    rootNode.value.loadMoreHasMore = false;
-  } else {
-    // Normal mode: enable pagination
-    const { terms, count } = await retrieveTerms(undefined, 0);
-    rootNode.value.children = [...terms];
-    rootNode.value.loadMoreOffset = props.limit;
-    rootNode.value.loadMoreTotal = count;
-    rootNode.value.loadMoreHasMore = count > props.limit;
+    console.log("🔍 Watcher blocked: search in progress");
+    return;
   }
 
-  applySelectedStates();
+  // Don't trigger on initial mount
+  if (oldValue === undefined) {
+    lastSearchValue = newValue;
+    console.log("🔍 Watcher blocked: initial mount");
+    return;
+  }
+
+  // Don't trigger if value hasn't actually changed
+  if (newValue === lastSearchValue) {
+    console.log("🔍 Watcher blocked: value unchanged");
+    return;
+  }
+
+  // Only search if dropdown is open or not in select mode
+  if (displayAsSelect.value && !showSelect.value) {
+    console.log("🔍 Watcher blocked: dropdown not open");
+    return;
+  }
+
+  console.log("🔍 Search watcher triggered:", {
+    newValue,
+    oldValue,
+    lastSearchValue,
+  });
+
+  // Clear existing timer
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+  }
+
+  // Debounce the actual search
+  searchDebounceTimer = setTimeout(() => {
+    lastSearchValue = newValue;
+    updateSearch(newValue);
+  }, 500); // Increased to 500ms for large tables
+});
+
+async function updateSearch(value: string) {
+  console.log(
+    "🔎 updateSearch called with:",
+    value,
+    "isSearching flag:",
+    isSearching
+  );
+
+  if (isSearching) {
+    console.error("🚨 BLOCKED: updateSearch called while already searching!");
+    return;
+  }
+
+  // Set flag to prevent watcher from triggering during this search
+  isSearching = true;
+  console.log("🔎 isSearching flag set to TRUE");
+
+  try {
+    counterOffset.value = 0;
+
+    // When searching, we need to load ALL matching results, not just the first batch
+    const isSearchMode = !!value;
+
+    if (isSearchMode) {
+      console.log("🔎 Search mode (LAZY): loading first page for:", value);
+
+      // For search, load ONLY the first page - not all results!
+      const { terms, count } = await retrieveTerms(undefined, 0, value);
+
+      console.log("🔎 First page loaded:", {
+        termsCount: terms.length,
+        totalCount: count,
+      });
+
+      // Trust the count from the API (it should be correct with searchFilter)
+      const hasMore = count > props.limit;
+
+      rootNode.value.children = terms;
+      rootNode.value.loadMoreOffset = props.limit;
+      rootNode.value.loadMoreTotal = count;
+      rootNode.value.loadMoreHasMore = hasMore;
+
+      console.log("🔎 Search results loaded with pagination:", {
+        itemsLoaded: terms.length,
+        totalCount: count,
+        hasMore,
+        nextOffset: props.limit,
+      });
+    } else {
+      console.log("🔎 Normal mode: loading first page");
+      // Normal mode: enable pagination - explicitly pass empty string
+      const { terms, count } = await retrieveTerms(undefined, 0, "");
+      rootNode.value.children = [...terms];
+      rootNode.value.loadMoreOffset = props.limit;
+      rootNode.value.loadMoreTotal = count;
+      rootNode.value.loadMoreHasMore = count > props.limit;
+      console.log("🔎 First page loaded:", {
+        termsCount: terms.length,
+        totalCount: count,
+      });
+    }
+
+    applySelectedStates();
+    console.log("🔎 Search complete");
+  } finally {
+    // Always clear the flag, even if there's an error
+    console.log("🔎 isSearching flag set to FALSE");
+    isSearching = false;
+  }
 }
 
 const hasChildren = computed(() =>
@@ -624,7 +741,6 @@ onMounted(() => {
               :id="`search-for-${id}`"
               type="text"
               v-model="searchTerms"
-              @input="updateSearch(searchTerms)"
               class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
               placeholder="Search in terms"
               autocomplete="off"

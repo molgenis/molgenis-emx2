@@ -493,3 +493,279 @@ describe("OntologyInput - Selection", () => {
     }
   });
 });
+
+describe("OntologyInput - Search Functionality", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    // Re-setup the IntersectionObserver mock for each test
+    // @ts-ignore
+    global.IntersectionObserver = vi
+      .fn()
+      .mockImplementation(() => createMockObserver());
+
+    // Setup document for click outside tests
+    if (!document.body) {
+      document.body = document.createElement("body");
+    }
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  it("should debounce search input", async () => {
+    vi.useFakeTimers();
+    const mockFetch = vi.mocked(fetchGraphql);
+
+    mockFetch.mockResolvedValueOnce({
+      ...mockOntologyData,
+    });
+
+    const wrapper = mount(OntologyInput, {
+      props: {
+        id: "test-ontology",
+        ontologySchemaId: "test-schema",
+        ontologyTableId: "test-table",
+        isArray: true,
+      },
+    });
+
+    await flushPromises();
+
+    // Mock initial dropdown load
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 20),
+      count: { count: 100 },
+    });
+
+    await (wrapper.vm as any).toggleSelect();
+    await flushPromises();
+
+    const initialCallCount = mockFetch.mock.calls.length;
+
+    // Find the search input
+    const searchInput = wrapper.find('input[type="text"]');
+
+    // Type multiple times quickly (this sets searchTerms via v-model)
+    // Each setValue updates the v-model which triggers the watcher
+    await searchInput.setValue("c");
+    await searchInput.setValue("ca");
+    await searchInput.setValue("can");
+    await searchInput.setValue("canc");
+    await searchInput.setValue("cance");
+    await searchInput.setValue("cancer");
+
+    // Should not have triggered search yet (debounced)
+    expect(mockFetch.mock.calls.length).toBe(initialCallCount);
+
+    // Mock search results for when timer fires
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 10, "Cancer"),
+      searchMatch: createMockTerms(0, 10, "Cancer"),
+      count: { count: 10 },
+    });
+
+    // Fast forward past debounce time
+    vi.advanceTimersByTime(350);
+    await flushPromises();
+
+    // Now search should have been called
+    expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCallCount);
+
+    vi.useRealTimers();
+  });
+
+  it("should load all search results when count exceeds limit", async () => {
+    const mockFetch = vi.mocked(fetchGraphql);
+
+    mockFetch.mockResolvedValueOnce({
+      ...mockOntologyData,
+    });
+
+    const wrapper = mount(OntologyInput, {
+      props: {
+        id: "test-ontology",
+        ontologySchemaId: "test-schema",
+        ontologyTableId: "test-table",
+        isArray: true,
+        limit: 20,
+      },
+    });
+
+    await flushPromises();
+
+    // Mock initial load
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 20),
+      count: { count: 100 },
+    });
+
+    await (wrapper.vm as any).toggleSelect();
+    await flushPromises();
+
+    // Mock search results - 45 total results
+    // First batch (offset 0)
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 20, "SearchResult"),
+      searchMatch: createMockTerms(0, 20, "SearchResult"),
+      count: { count: 45 },
+    });
+
+    // Second batch (offset 20)
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(20, 20, "SearchResult"),
+      searchMatch: createMockTerms(20, 20, "SearchResult"),
+      count: { count: 45 },
+    });
+
+    // Third batch (offset 40)
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(40, 5, "SearchResult"),
+      searchMatch: createMockTerms(40, 5, "SearchResult"),
+      count: { count: 45 },
+    });
+
+    // Trigger search directly (bypass debounce)
+    await (wrapper.vm as any).updateSearch("search term");
+    await flushPromises();
+
+    const rootNode = (wrapper.vm as any).rootNode;
+
+    // Should have loaded all 45 results
+    expect(rootNode.children.length).toBe(45);
+    expect(rootNode.loadMoreHasMore).toBe(false);
+  });
+
+  it("should restore pagination when clearing search", async () => {
+    const mockFetch = vi.mocked(fetchGraphql);
+
+    mockFetch.mockResolvedValueOnce({
+      ...mockOntologyData,
+    });
+
+    const wrapper = mount(OntologyInput, {
+      props: {
+        id: "test-ontology",
+        ontologySchemaId: "test-schema",
+        ontologyTableId: "test-table",
+        isArray: true,
+        limit: 20,
+      },
+    });
+
+    await flushPromises();
+
+    // Mock initial load
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 20),
+      count: { count: 100 },
+    });
+
+    await (wrapper.vm as any).toggleSelect();
+    await flushPromises();
+
+    // Perform search
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 10, "SearchResult"),
+      searchMatch: createMockTerms(0, 10, "SearchResult"),
+      count: { count: 10 },
+    });
+
+    await (wrapper.vm as any).updateSearch("search");
+    await flushPromises();
+
+    // Verify search state
+    let rootNode = (wrapper.vm as any).rootNode;
+    expect(rootNode.children.length).toBe(10);
+    expect(rootNode.loadMoreHasMore).toBe(false);
+
+    // Clear search
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 20),
+      count: { count: 100 },
+    });
+
+    await (wrapper.vm as any).updateSearch("");
+    await flushPromises();
+
+    rootNode = (wrapper.vm as any).rootNode;
+
+    // Should restore pagination
+    expect(rootNode.children.length).toBe(20);
+    expect(rootNode.loadMoreHasMore).toBe(true);
+    expect(rootNode.loadMoreOffset).toBe(20);
+  });
+
+  it("should handle search with no results", async () => {
+    const mockFetch = vi.mocked(fetchGraphql);
+
+    mockFetch.mockResolvedValueOnce({
+      ...mockOntologyData,
+    });
+
+    const wrapper = mount(OntologyInput, {
+      props: {
+        id: "test-ontology",
+        ontologySchemaId: "test-schema",
+        ontologyTableId: "test-table",
+        isArray: true,
+      },
+    });
+
+    await flushPromises();
+
+    // Mock initial load
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: createMockTerms(0, 20),
+      count: { count: 100 },
+    });
+
+    await (wrapper.vm as any).toggleSelect();
+    await flushPromises();
+
+    // Mock search with no results
+    mockFetch.mockResolvedValueOnce({
+      retrieveTerms: [],
+      searchMatch: [],
+      count: { count: 0 },
+    });
+
+    await (wrapper.vm as any).updateSearch("nonexistent");
+    await flushPromises();
+
+    const rootNode = (wrapper.vm as any).rootNode;
+
+    expect(rootNode.children.length).toBe(0);
+    expect(rootNode.loadMoreHasMore).toBe(false);
+  });
+
+  it("should update searchTerms value on input", async () => {
+    const mockFetch = vi.mocked(fetchGraphql);
+
+    mockFetch.mockResolvedValueOnce({
+      ...mockOntologyData,
+    });
+
+    const wrapper = mount(OntologyInput, {
+      props: {
+        id: "test-ontology",
+        ontologySchemaId: "test-schema",
+        ontologyTableId: "test-table",
+        isArray: true,
+      },
+    });
+
+    await flushPromises();
+
+    // Find the search input
+    const searchInput = wrapper.find('input[type="text"]');
+
+    // Simulate typing
+    await searchInput.setValue("test search");
+
+    // searchTerms should be updated immediately
+    expect((wrapper.vm as any).searchTerms).toBe("test search");
+  });
+});

@@ -120,7 +120,6 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
           if (
             entry.isIntersecting &&
             hasMoreTerms.value &&
-            !props.isSearching &&
             !isLoading.value &&
             props.parentNode
           ) {
@@ -334,11 +333,7 @@ onUnmounted(() => {
     </li>
 
     <!-- Load More trigger - now auto-loads when visible -->
-    <li
-      v-if="hasMoreTerms && !isSearching"
-      ref="loadMoreTrigger"
-      class="mt-2.5 relative"
-    >
+    <li v-if="hasMoreTerms" ref="loadMoreTrigger" class="mt-2.5 relative">
       <div class="flex items-center">
         <template v-if="!isRoot">
           <BaseIcon
