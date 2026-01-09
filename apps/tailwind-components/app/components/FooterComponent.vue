@@ -122,10 +122,7 @@ const { manifest } = await useSettings();
         </ul>
       </div>
     </div>
-    <slot></slot>
-  </footer>
-  <footer class="bg-footer p-6">
-    <div class="flex justify-left text-link-inverted">
+    <div class="flex justify-center text-link-inverted">
       Software version:&nbsp;
       <a
         class="flex items-center hover:underline"
@@ -137,5 +134,6 @@ const { manifest } = await useSettings();
       </a>
       - Database version: {{ manifest?.DatabaseVersion }}
     </div>
+    <slot></slot>
   </footer>
 </template>
