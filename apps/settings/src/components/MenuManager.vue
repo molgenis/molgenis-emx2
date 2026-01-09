@@ -26,13 +26,15 @@
           Use 'label' to set the name how your menu item should be displayed
         </li>
         <li>
-          <p>Use 'href' to define where your menu item links to.<br/>
+          <p>
+            Use 'href' to define where your menu item links to.<br />
             You can link on the same schema by using a relative path like
             '<code>tables/</code>' or even with a filter set
-            '<code>tables/#/Pet?_filter=name&name=spike</code>'<br/>
+            '<code>tables/#/Pet?_filter=name&name=spike</code>'<br />
             You can also make cross-links to other schema using a fully
-            qualified path like '<code>/otherschema/tables/</code>'.<br/>
-            And you can link to other servers using '<code>http://otherserver.com/</code>'.
+            qualified path like '<code>/otherschema/tables/</code>'.<br />
+            And you can link to other servers using
+            '<code>http://otherserver.com/</code>'.
           </p>
         </li>
         <li>
