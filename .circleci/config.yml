@@ -224,11 +224,11 @@ jobs:
     - run:
         name: <backend> check code format
         command: |
-          ./gradlew spotlessCheck
+          ./gradlew --continue spotlessCheck
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
-          ./gradlew pmdMain pmdTest
+          ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and push to sonar
         command: |
