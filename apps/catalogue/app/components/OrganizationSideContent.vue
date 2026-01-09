@@ -26,13 +26,11 @@ const props = defineProps<{
         },
         {
           label: 'acronym',
-          content: props.organisation?.acronym,
+          content: props.organisation?.organisation?.acronym,
         },
         {
           label: 'country',
-          content: props.organisation?.country
-            ? props.organisation?.country.map((c) => c.name).join(', ')
-            : undefined,
+          content: props.organisation?.organisation?.country,
         },
         {
           label: 'logo',

@@ -7,7 +7,13 @@ export interface Settings {
   isOidcEnabled: boolean;
 }
 
+export interface Manifest {
+  SpecificationVersion: string;
+  DatabaseVersion: string;
+}
+
 const settings = ref<Settings | null>();
+const manifest = ref<Manifest | null>(null);
 
 async function fetchServerSettings() {
   return await $fetch<Resp<{ _settings: { key: string; value: any }[] }>>(
@@ -15,7 +21,10 @@ async function fetchServerSettings() {
     {
       method: "POST",
       body: JSON.stringify({
-        query: `{_settings (keys: ["isOidcEnabled"]){ key, value }}`,
+        query: `{
+          _settings (keys: ["isOidcEnabled"]){ key, value }
+          _manifest { SpecificationVersion,DatabaseVersion }
+        }`,
       }),
     }
   );
@@ -24,11 +33,10 @@ async function fetchServerSettings() {
 export const useSettings = async () => {
   if (!settings.value) {
     await fetchServerSettings().then((response) => {
-      const settingsArray: { key: string; value: any }[] = Array.isArray(
-        response.data
-      )
-        ? response.data[0]._settings
-        : response.data._settings;
+      const data = Array.isArray(response.data)
+        ? response.data[0]
+        : response.data;
+      const settingsArray: { key: string; value: any }[] = data._settings;
       const isOidcEnabledSetting = settingsArray.find(
         (item) => item.key === "isOidcEnabled"
       );
@@ -38,8 +46,11 @@ export const useSettings = async () => {
             isOidcEnabledSetting.value === "true"
           : false,
       };
+      manifest.value = data._manifest;
     });
   }
-
-  return useState("settings", () => settings);
+  return {
+    settings: useState("settings", () => settings),
+    manifest: useState("manifest", () => manifest),
+  };
 };
