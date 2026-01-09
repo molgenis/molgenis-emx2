@@ -9,18 +9,14 @@
     />
 
     <div class="flex gap-[10px]">
-      <EditModal
+      <Button
         v-if="props.isEditable && data?.tableMetadata"
-        :metadata="data.tableMetadata"
-        :schemaId="props.schemaId"
-        :isInsert="true"
-        v-slot="{ setVisible }"
-        @update:added="afterRowAdded"
+        type="primary"
+        icon="add-circle"
+        @click="onAddRowClicked"
       >
-        <Button type="primary" icon="add-circle" @click="setVisible">
-          Add {{ tableId }}
-        </Button>
-      </EditModal>
+        Add {{ tableId }}
+      </Button>
 
       <TableControlColumns
         :columns="columns"
@@ -174,14 +170,26 @@
   />
 
   <EditModal
-    v-if="data?.tableMetadata && rowDataForModal"
+    v-if="data?.tableMetadata && showEditModal"
+    :key="`edit-modal-${useId()}`"
     :showButton="false"
-    :schemaId="props.schemaId"
+    :schemaId="schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
     :isInsert="false"
     v-model:visible="showEditModal"
-    @update:updated="afterRowUpdated"
+    @update:cancelled="afterClose"
+  />
+
+  <EditModal
+    v-if="data?.tableMetadata && showAddModal"
+    :key="`add-modal-${useId()}`"
+    :showButton="false"
+    :schemaId="schemaId"
+    :metadata="data.tableMetadata"
+    :isInsert="true"
+    v-model:visible="showAddModal"
+    @update:cancelled="afterClose"
   />
 </template>
 
@@ -229,8 +237,9 @@ const props = withDefaults(
   }
 );
 
-const showDeleteModal = ref<boolean>(false);
+const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
+const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 const refTableRow = ref<IRow>();
@@ -376,17 +385,25 @@ function onShowEditModal(row: Record<string, columnValue>) {
   showEditModal.value = true;
 }
 
-function afterRowAdded() {
+function onAddRowClicked() {
+  showAddModal.value = true;
+}
+
+async function afterRowAdded() {
   // todo reset filters and search, goto page with added item, flash row with add item
-  refresh();
+  await refresh();
 }
 
-function afterRowUpdated() {
-  refresh();
+async function afterRowUpdated() {
+  await refresh();
 }
 
-function afterRowDeleted() {
+async function afterClose() {
+  await refresh();
+}
+
+async function afterRowDeleted() {
   // maybe notify user, and do more stuff
-  refresh();
+  await refresh();
 }
 </script>

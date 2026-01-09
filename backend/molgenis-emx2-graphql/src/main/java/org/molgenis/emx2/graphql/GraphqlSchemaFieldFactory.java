@@ -329,30 +329,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLObjectType outputMetadataType =
-      new GraphQLObjectType.Builder()
-          .name("MolgenisSchema")
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(LABEL).type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(TABLES)
-                  .type(GraphQLList.list(outputTableType)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(MEMBERS)
-                  .type(GraphQLList.list(outputMembersMetadataType)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(SETTINGS)
-                  .type(GraphQLList.list(outputSettingsType)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(ROLES)
-                  .type(GraphQLList.list(outputRolesType)))
-          .build();
+
   private final GraphQLInputObjectType inputMembersMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisMembersInput")
@@ -667,9 +644,39 @@ public class GraphqlSchemaFieldFactory {
   }
 
   public GraphQLFieldDefinition.Builder schemaQuery(Schema schema) {
+    GraphQLObjectType.Builder builder =
+        new GraphQLObjectType.Builder()
+            .name("MolgenisSchema")
+            .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition().name(LABEL).type(Scalars.GraphQLString))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(TABLES)
+                    .type(GraphQLList.list(outputTableType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(SETTINGS)
+                    .type(GraphQLList.list(outputSettingsType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(ROLES)
+                    .type(GraphQLList.list(outputRolesType)));
+
+    List<String> roles = schema.getInheritedRolesForActiveUser();
+    if (roles.contains(Privileges.MANAGER.toString())
+        || roles.contains(Privileges.OWNER.toString())) {
+      builder.field(
+          GraphQLFieldDefinition.newFieldDefinition()
+              .name(MEMBERS)
+              .type(GraphQLList.list(outputMembersMetadataType)));
+    }
+
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schema")
-        .type(outputMetadataType)
+        .type(builder)
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
   }
 

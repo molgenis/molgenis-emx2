@@ -35,7 +35,7 @@ const {
   nextSection,
   insertInto: insert,
   updateInto,
-  errorMap,
+  visibleColumnErrors,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
@@ -76,12 +76,12 @@ function onLeaveView(column: IColumn) {
 
 function isValid() {
   validateAllColumns();
-  return Object.keys(errorMap.value).length < 1;
+  return Object.keys(visibleColumnErrors.value).length < 1;
 }
 
 function isDraftValid() {
   validateKeyColumns();
-  return Object.keys(errorMap.value).length < 1;
+  return Object.keys(visibleColumnErrors.value).length < 1;
 }
 
 // wrapper to update rowKey after insert because we keep the from open
@@ -108,7 +108,7 @@ function insertInto() {
         :rowKey="rowKey"
         :columns="visibleColumns"
         :constantValues="constantValues"
-        :errorMap="errorMap"
+        :visibleColumnErrors="visibleColumnErrors"
         v-model="formValues"
         @update="onUpdateColumn"
         @blur="onBlurColumn"
