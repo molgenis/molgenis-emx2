@@ -48,6 +48,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Order",
@@ -128,6 +129,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Pet",
@@ -226,6 +228,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Tag",
@@ -347,6 +350,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "User",
@@ -442,6 +446,7 @@ export const petStoreMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
   ],
 };
@@ -570,6 +575,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "AgeGroups",
@@ -691,6 +697,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "AllVariables",
@@ -811,6 +818,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "AreasOfInformationCohorts",
@@ -932,6 +940,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "AreasOfInformationDs",
@@ -1053,6 +1062,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Biospecimens",
@@ -1174,6 +1184,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "CohortDesigns",
@@ -1295,6 +1306,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Cohorts",
@@ -1865,6 +1877,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "CollectionEvents",
@@ -2066,6 +2079,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "CollectionTypes",
@@ -2187,6 +2201,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Contacts",
@@ -2339,6 +2354,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ContributionTypes",
@@ -2460,6 +2476,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Countries",
@@ -2581,6 +2598,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DAPInformation",
@@ -2702,6 +2720,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DAPs",
@@ -2798,6 +2817,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DataAccessConditions",
@@ -2919,6 +2939,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DataCategories",
@@ -3040,6 +3061,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DataResources",
@@ -3413,6 +3435,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "DataSources",
@@ -4349,6 +4372,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "DataUseConditions",
@@ -4470,6 +4494,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Databanks",
@@ -5575,6 +5600,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "DatasetMappings",
@@ -5683,6 +5709,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Datasets",
@@ -5821,6 +5848,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DatasourceTypes",
@@ -5942,6 +5970,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Diseases",
@@ -6063,6 +6092,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DocumentTypes",
@@ -6184,6 +6214,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Documentation",
@@ -6273,6 +6304,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ExtendedResources",
@@ -6475,6 +6507,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "ExternalIdentifierTypes",
@@ -6596,6 +6629,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ExternalIdentifiers",
@@ -6671,6 +6705,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Formats",
@@ -6792,6 +6827,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "FundingTypes",
@@ -6913,6 +6949,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ICDOMorphologies",
@@ -7034,6 +7071,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ICDOTopologies",
@@ -7155,6 +7193,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "INN",
@@ -7276,6 +7315,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "InclusionCriteria",
@@ -7397,6 +7437,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "InformedConsentTypes",
@@ -7518,6 +7559,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "InformedConsents",
@@ -7639,6 +7681,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Keywords",
@@ -7760,6 +7803,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Languages",
@@ -7881,6 +7925,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "LinkageStrategies",
@@ -8002,6 +8047,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "LinkedResources",
@@ -8111,6 +8157,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "MappingStatus",
@@ -8232,6 +8279,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Mappings",
@@ -8327,6 +8375,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "MedDRA",
@@ -8448,6 +8497,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Models",
@@ -8657,6 +8707,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "Months",
@@ -8778,6 +8829,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "NetworkFeatures",
@@ -8899,6 +8951,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "NetworkTypes",
@@ -9020,6 +9073,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "NetworkVariables",
@@ -9078,6 +9132,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Networks",
@@ -9364,6 +9419,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "ObservationTargets",
@@ -9485,6 +9541,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "OrganisationFeatures",
@@ -9606,6 +9663,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "OrganisationRoles",
@@ -9727,6 +9785,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "OrganisationTypes",
@@ -9848,6 +9907,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Organisations",
@@ -10072,6 +10132,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "PopulationEntry",
@@ -10193,6 +10254,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "PopulationExit",
@@ -10314,6 +10376,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "PopulationOfInterest",
@@ -10435,6 +10498,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Publications",
@@ -10565,6 +10629,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "QuantitativeInformation",
@@ -10680,6 +10745,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "RWEResources",
@@ -11616,6 +11682,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "RefreshPeriods",
@@ -11737,6 +11804,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Regions",
@@ -11858,6 +11926,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ReleaseTypes",
@@ -11979,6 +12048,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "RepeatedVariables",
@@ -12111,6 +12181,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "ResourceTypes",
@@ -12232,6 +12303,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Resources",
@@ -12340,6 +12412,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "SampleCategories",
@@ -12461,6 +12534,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StandardizedTools",
@@ -12582,6 +12656,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Status",
@@ -12703,6 +12778,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StatusDetails",
@@ -12824,6 +12900,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Studies",
@@ -13512,6 +13589,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "StudyDatasourceTypes",
@@ -13633,6 +13711,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyDesignClassification",
@@ -13754,6 +13833,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyFeatures",
@@ -13875,6 +13955,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyFunding",
@@ -13996,6 +14077,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyQualityMarks",
@@ -14117,6 +14199,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyRequirements",
@@ -14238,6 +14321,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyScopes",
@@ -14359,6 +14443,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyStatus",
@@ -14480,6 +14565,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyTopics",
@@ -14601,6 +14687,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyTrialRegulatoryScopes",
@@ -14722,6 +14809,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyTypes",
@@ -14843,6 +14931,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "SubcohortCounts",
@@ -14920,6 +15009,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Subcohorts",
@@ -15089,6 +15179,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "SubmissionTypes",
@@ -15210,6 +15301,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Submissions",
@@ -15341,6 +15433,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "SubmitterRoles",
@@ -15462,6 +15555,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Titles",
@@ -15583,6 +15677,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Units",
@@ -15704,6 +15799,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "VariableMappings",
@@ -15862,6 +15958,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "VariableValues",
@@ -15972,6 +16069,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Variables",
@@ -16196,6 +16294,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: 10005,
         },
       ],
+      name: "",
     },
     {
       id: "Version",
@@ -16234,6 +16333,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Vocabularies",
@@ -16355,6 +16455,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Years",
@@ -16476,6 +16577,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
   ],
 };
@@ -16604,6 +16706,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "AgeGroups",
@@ -16725,6 +16828,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "AreasOfInformationCohorts",
@@ -16846,6 +16950,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "AreasOfInformationDs",
@@ -16967,6 +17072,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Biospecimens",
@@ -17088,6 +17194,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "CohortDesigns",
@@ -17209,6 +17316,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "CollectionTypes",
@@ -17330,6 +17438,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ContributionTypes",
@@ -17451,6 +17560,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Countries",
@@ -17572,6 +17682,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DAPInformation",
@@ -17693,6 +17804,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DataAccessConditions",
@@ -17814,6 +17926,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DataCategories",
@@ -17935,6 +18048,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DataUseConditions",
@@ -18056,6 +18170,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DatasourceTypes",
@@ -18177,6 +18292,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Diseases",
@@ -18298,6 +18414,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "DocumentTypes",
@@ -18419,6 +18536,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ExternalIdentifierTypes",
@@ -18540,6 +18658,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Formats",
@@ -18661,6 +18780,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "FundingTypes",
@@ -18782,6 +18902,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ICDOMorphologies",
@@ -18903,6 +19024,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ICDOTopologies",
@@ -19024,6 +19146,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "INN",
@@ -19145,6 +19268,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "InclusionCriteria",
@@ -19266,6 +19390,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "InformedConsentTypes",
@@ -19387,6 +19512,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "InformedConsents",
@@ -19508,6 +19634,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Keywords",
@@ -19629,6 +19756,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Languages",
@@ -19750,6 +19878,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "LinkageStrategies",
@@ -19871,6 +20000,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "MappingStatus",
@@ -19992,6 +20122,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "MedDRA",
@@ -20113,6 +20244,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Months",
@@ -20234,6 +20366,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "NetworkFeatures",
@@ -20355,6 +20488,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "NetworkTypes",
@@ -20476,6 +20610,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ObservationTargets",
@@ -20597,6 +20732,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "OrganisationFeatures",
@@ -20718,6 +20854,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "OrganisationRoles",
@@ -20839,6 +20976,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "OrganisationTypes",
@@ -20960,6 +21098,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "PopulationEntry",
@@ -21081,6 +21220,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "PopulationExit",
@@ -21202,6 +21342,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "PopulationOfInterest",
@@ -21323,6 +21464,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "RefreshPeriods",
@@ -21444,6 +21586,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Regions",
@@ -21565,6 +21708,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ReleaseTypes",
@@ -21686,6 +21830,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "ResourceTypes",
@@ -21807,6 +21952,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "SampleCategories",
@@ -21928,6 +22074,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StandardizedTools",
@@ -22049,6 +22196,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Status",
@@ -22170,6 +22318,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StatusDetails",
@@ -22291,6 +22440,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyDatasourceTypes",
@@ -22412,6 +22562,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyDesignClassification",
@@ -22533,6 +22684,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyFeatures",
@@ -22654,6 +22806,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyFunding",
@@ -22775,6 +22928,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyQualityMarks",
@@ -22896,6 +23050,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyRequirements",
@@ -23017,6 +23172,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyScopes",
@@ -23138,6 +23294,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyStatus",
@@ -23259,6 +23416,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyTopics",
@@ -23380,6 +23538,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyTrialRegulatoryScopes",
@@ -23501,6 +23660,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "StudyTypes",
@@ -23622,6 +23782,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "SubmissionTypes",
@@ -23743,6 +23904,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "SubmitterRoles",
@@ -23864,6 +24026,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Titles",
@@ -23985,6 +24148,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Units",
@@ -24106,6 +24270,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Vocabularies",
@@ -24227,6 +24392,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
     {
       id: "Years",
@@ -24348,6 +24514,7 @@ export const catalogueOntologies: ISchemaMetaData = {
           position: -1,
         },
       ],
+      name: "",
     },
   ],
 };

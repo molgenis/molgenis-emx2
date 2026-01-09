@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ICollectionEvents } from "../../../interfaces/catalogue";
-import { defineProps } from "vue";
 import { buildTree } from "../../utils/ontologyUtils";
 import ListCollapsible from "../ListCollapsible.vue";
 import ContentOntology from "./Ontology.vue";

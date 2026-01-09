@@ -59,11 +59,11 @@
             </TableCell>
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
-              <div v-if="user.roles?.length > 3">
+              <div v-if="user.roles && user.roles.length > 3">
                 <ShowMore>
                   <template v-slot:button>
                     <Button type="secondary" size="tiny">
-                      show all {{ user.roles?.length }} roles
+                      show all {{ user.roles.length }} roles
                     </Button>
                   </template>
                   <div v-for="role in user.roles">
@@ -76,7 +76,10 @@
               </div>
             </TableCell>
             <TableCell>
-              <div v-if="user.tokens?.length > 0" class="flex gap-1">
+              <div
+                v-if="user.tokens && user.tokens.length > 0"
+                class="flex gap-1"
+              >
                 <Button
                   type="secondary"
                   size="tiny"

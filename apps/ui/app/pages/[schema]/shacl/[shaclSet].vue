@@ -34,10 +34,11 @@ useHead({
   title: `${routeShaclSet} - SHACL - ${routeSchema}  - Molgenis`,
 });
 
-const crumbs: Record<string, string> = {};
-crumbs[routeSchema] = `/${routeSchema}`;
-crumbs["shacl"] = `/${routeSchema}/shacl`;
-crumbs[`${routeShaclSet}`] = "";
+const crumbs = [
+  { url: `/${routeSchema}`, label: routeSchema },
+  { url: `/${routeSchema}/shacl`, label: "shacl" },
+  { url: "", label: routeShaclSet },
+];
 
 const processData = getProcessData(routeSchema, routeShaclSet);
 if (processData.status === "UNKNOWN") runShacl(routeSchema, routeShaclSet);
@@ -59,7 +60,7 @@ if (processData.status === "UNKNOWN") runShacl(routeSchema, routeShaclSet);
           size="large"
           :iconOnly="true"
           icon="arrow-left"
-          @click="navigateTo(crumbs['shacl'])"
+          @click="navigateTo(`/${routeSchema}/shacl`)"
         />
       </template>
       <template #description>

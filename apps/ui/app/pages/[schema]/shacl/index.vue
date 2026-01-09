@@ -32,9 +32,10 @@ const routeSchema = (
 
 useHead({ title: `SHACL - ${routeSchema}  - Molgenis` });
 
-const crumbs: Record<string, string> = {};
-crumbs[routeSchema] = `/${routeSchema}`;
-crumbs["shacl"] = `/${routeSchema}/shacl`;
+const crumbs = [
+  { url: `/${routeSchema}`, label: routeSchema },
+  { url: `/${routeSchema}/shacl`, label: "shacl" },
+];
 
 const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
   key: "shaclSets",
