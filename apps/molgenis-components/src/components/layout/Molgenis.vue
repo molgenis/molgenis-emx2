@@ -33,9 +33,9 @@
       <div
         v-if="session?.settings?.additionalFooterHtml"
         v-html="session?.settings?.additionalFooterHtml"
-      ></div>
+      />
       <slot v-if="$slots.footer" name="footer" />
-      <MolgenisFooter>
+      <MolgenisFooter v-else>
         <span v-if="session?.manifest">
           Software version:
           <a
@@ -44,8 +44,9 @@
               session.manifest.SpecificationVersion
             "
           >
-            {{ session.manifest.SpecificationVersion }} </a
-          >.
+            {{ session.manifest.SpecificationVersion }}
+          </a>
+          .
           <span v-if="session.manifest.DatabaseVersion">
             Database version: {{ session.manifest.DatabaseVersion }}.
           </span>
@@ -122,6 +123,7 @@ const props = withDefaults(
     title: string;
     menuItems?: MenuItem[];
     showCrumbs?: boolean;
+    footer?: string;
   }>(),
   { menuItems: () => [], showCrumbs: true }
 );
