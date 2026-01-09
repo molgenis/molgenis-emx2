@@ -62,7 +62,7 @@ commands:
   pre_steps:
     steps:
     - run:
-        name: Fresh Git Checkout to prevend missing objects
+        name: Fresh Git Checkout to prevent missing objects
         command: |
           rm -rf .git
           git init
