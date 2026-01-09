@@ -83,4 +83,9 @@ For additional information and examples, please consult the [ARIA Patterns guide
 Types of refs:
 ```const myprop = ref<"option1" | "option2">("option2")```
 
+## For java development
+
+### We don't use var
+
+Within our code base we decided to not use the java 'var' syntax but always use explicity typing.
 

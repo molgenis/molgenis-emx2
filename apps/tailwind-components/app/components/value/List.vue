@@ -10,7 +10,6 @@ import ValueHyperlink from "./Hyperlink.vue";
 import ValueObject from "./Object.vue";
 import ValueDate from "./Date.vue";
 import ValueDateTime from "./DateTime.vue";
-import { defineProps, withDefaults } from "vue";
 
 const props = withDefaults(
   defineProps<{

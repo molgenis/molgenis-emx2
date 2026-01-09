@@ -14,7 +14,6 @@ export default defineNuxtConfig({
     watcher: "parcel",
   },
   modules: [
-    "@nuxt/image",
     "@nuxt/test-utils/module",
     "floating-vue/nuxt",
     "@nuxtjs/tailwindcss",

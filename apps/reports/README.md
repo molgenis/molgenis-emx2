@@ -2,15 +2,15 @@
 
 ## Project setup
 ```
-npm install
+pnpm install
 ```
 
 ### Compiles and hot-reloads for development
 ```
-npm run dev
+pnpm dev
 ```
 
 ### Compiles and minifies for production
 ```
-npm run build
+pnpm build
 ```

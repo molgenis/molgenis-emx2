@@ -14,9 +14,11 @@
       aria-labelledby="section-documents-title"
       :verticalPadding="2"
     >
-    <h2 id="section-documents-title"></h2>
+      <h2 id="section-documents-title"></h2>
       <nav class="navbar">
-      <router-link class="nav-item" :to="{ name: 'studies' }">Studies</router-link>
+        <router-link class="nav-item" :to="{ name: 'studies' }"
+          >Studies</router-link
+        >
       </nav>
       <Accordion
         id="accReq-nav"
@@ -24,10 +26,11 @@
         :isOpenByDefault="false"
       >
         <FileList
-         table="Files"
-         filter='(filter: { tags: { not_equals: "private" } })'
-         labelsColumn="name"
-         fileColumn="file" />
+          table="Files"
+          filter='filter: { tags: { not_equals: "private" } }'
+          labelsColumn="name"
+          fileColumn="file"
+        />
       </Accordion>
       <Accordion
         id="patient-nav"
@@ -53,7 +56,7 @@
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <PrivateFiles/>
+        <PrivateFiles />
         <strong>Publications</strong>
         <Publications
           table="Publications"
@@ -67,7 +70,13 @@
 
 <script setup lang="ts">
 // @ts-ignore
-import { Accordion, Page, PageSection, FileList, MessageBox } from "molgenis-viz";
+import {
+  Accordion,
+  Page,
+  PageSection,
+  FileList,
+  MessageBox,
+} from "molgenis-viz";
 import CustomPageHeader from "../components/CustomPageHeader.vue";
 import PrivateFiles from "../components/PrivateFiles.vue";
 import Publications from "../components/Publications.vue";

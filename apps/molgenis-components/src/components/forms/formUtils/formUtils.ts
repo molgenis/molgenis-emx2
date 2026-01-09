@@ -121,7 +121,7 @@ export function getColumnError(
   }
   if (
     type === "LONG_ARRAY" &&
-    (value as string[]).some((val) => getBigIntError(val))
+    (value as unknown as string[])?.some((val) => getBigIntError(val))
   ) {
     return BIG_INT_ERROR;
   }
@@ -130,7 +130,9 @@ export function getColumnError(
   }
   if (
     type === "DECIMAL_ARRAY" &&
-    (value as string[]).some((val) => val && isNaN(parseFloat(val as string)))
+    (value as unknown as string[])?.some(
+      (val) => val && isNaN(parseFloat(val as string))
+    )
   ) {
     return "Invalid number";
   }
@@ -141,7 +143,9 @@ export function getColumnError(
     }
   }
   if (type === "INT_ARRAY") {
-    const errorInt = (value as number[]).find((val) => getIntError(val));
+    const errorInt = (value as unknown as number[])?.find((val) =>
+      getIntError(val)
+    );
     if (errorInt) {
       return getIntError(errorInt as number);
     }
@@ -299,7 +303,7 @@ function isInvalidHyperlink(value: any) {
 }
 
 function containsInvalidHyperlink(hyperlinks: any) {
-  return hyperlinks.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
+  return hyperlinks?.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
 }
 
 function isInvalidEmail(value: any) {
@@ -307,7 +311,7 @@ function isInvalidEmail(value: any) {
 }
 
 function containsInvalidEmail(emails: any) {
-  return emails.some((email: any) => isInvalidEmail(email));
+  return emails?.some((email: any) => isInvalidEmail(email));
 }
 
 function isInvalidPeriod(value: any) {
@@ -315,7 +319,7 @@ function isInvalidPeriod(value: any) {
 }
 
 function containsInvalidPeriod(periods: any) {
-  return periods.some((period: any) => isInvalidPeriod(period));
+  return periods?.some((period: any) => isInvalidPeriod(period));
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {

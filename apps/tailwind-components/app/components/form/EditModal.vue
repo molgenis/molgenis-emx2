@@ -1,6 +1,6 @@
 <template>
   <template v-if="showButton">
-    <slot :setVisible="setVisible">
+    <slot>
       <Button
         class="m-10"
         type="primary"
@@ -12,9 +12,12 @@
       </Button>
     </slot>
   </template>
+
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
-      <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
+      <header
+        class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
+      >
         <div class="mb-5 relative flex items-center">
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
@@ -38,9 +41,9 @@
     <Form
       v-if="visible"
       ref="edit-modal-form"
-      :metadata="props.metadata"
+      :metadata="metadata"
       :formValues="formValues"
-      :constantValues="props.constantValues"
+      :constantValues="constantValues"
     />
 
     <TransitionSlideUp>
@@ -77,7 +80,7 @@
     </TransitionSlideUp>
 
     <template #footer>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center flex-none">
         <FormRequiredInfoSection
           :message="requiredMessage"
           @required-next="gotoNextRequiredField"
@@ -112,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, useTemplateRef, watch } from "vue";
+import { computed, ref, toRaw, useTemplateRef, watch, nextTick } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
@@ -148,28 +151,24 @@ const props = withDefaults(
   }
 );
 
+type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
+const form = useTemplateRef<FormType>("edit-modal-form");
+
+const saving = ref(false);
+const isInsert = ref(props.isInsert);
+const formValues = ref<Record<string, columnValue>>(initFormValues());
+
 const emit = defineEmits([
   "update:added",
   "update:updated",
   "update:cancelled",
 ]);
 
-const visible = defineModel("visible", {
-  type: Boolean,
-  default: false,
-});
+const visible = defineModel<boolean>("visible");
 
-const form = useTemplateRef<FormType>("edit-modal-form");
-
-type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
-
-const saving = ref(false);
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
-
-const isInsert = ref(props.isInsert);
-const formValues = ref<Record<string, columnValue>>(initFormValues());
 
 watch(formValues.value, () => {
   formMessage.value = "";
@@ -182,10 +181,6 @@ const showReAuthenticateButton = ref<boolean>(false);
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
-
-function setVisible() {
-  visible.value = true;
-}
 
 function initFormValues() {
   const values =
@@ -226,9 +221,6 @@ const errorMessage = computed(() => {
 
 function onCancel() {
   visible.value = false;
-  saveErrorMessage.value = "";
-  formMessage.value = "";
-  formValues.value = initFormValues();
   emit("update:cancelled");
 }
 
@@ -246,34 +238,42 @@ function handleError(err: unknown, defaultMessage: string) {
 async function onSave(draft: boolean) {
   saveErrorMessage.value = "";
   formMessage.value = "";
-  if (!draft && !form.value?.isValid()) {
-    // do not proceed if not valid
-    return;
-  }
-  try {
-    formValues.value["mg_draft"] = draft;
-    saving.value = true;
-    if (!form.value) {
-      throw new Error("Form reference is not available");
+  saving.value = true;
+  await nextTick();
+
+  const isReadyForSubmit = draft
+    ? form.value?.isDraftValid()
+    : form.value?.isValid();
+
+  if (isReadyForSubmit) {
+    try {
+      formValues.value["mg_draft"] = draft;
+
+      if (!form.value) {
+        throw new Error("Form reference is not available");
+      }
+      const resp = (await isInsert.value)
+        ? form.value.insertInto()
+        : form.value.updateInto();
+
+      if (!resp) {
+        throw new Error(
+          `No response from server on ${isInsert.value ? "insert" : "update"}`
+        );
+      }
+      formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+        rowType.value
+      } ${draft ? "as draft" : ""}`;
+      showFormMessage.value = true;
+      emit(isInsert.value ? "update:added" : "update:updated", resp);
+      isInsert.value = false;
+    } catch (err) {
+      handleError(err, "Error saving data");
+    } finally {
+      saving.value = false;
     }
-    const resp = await (isInsert.value
-      ? form.value.insertInto()
-      : form.value.updateInto()
-    ).catch(() => (saving.value = false));
+  } else {
     saving.value = false;
-    if (!resp) {
-      throw new Error(
-        `No response from server on ${isInsert.value ? "insert" : "update"}`
-      );
-    }
-    formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
-      rowType.value
-    } ${draft ? "as draft" : ""}`;
-    showFormMessage.value = true;
-    emit(isInsert.value ? "update:added" : "update:updated", resp);
-    isInsert.value = false;
-  } catch (err) {
-    handleError(err, "Error saving data");
   }
 }
 

@@ -5,7 +5,7 @@
         id="form-hyperlink"
         :columns="metadata.columns"
         v-model="model"
-        :error-map="errorMap"
+        :visibleColumnErrors="visibleColumnErrors"
         @update="onUpdateColumn"
         @blur="onBlurColumn"
       />
@@ -32,5 +32,8 @@ const metadata = {
     },
   ],
 };
-const { errorMap, onUpdateColumn, onBlurColumn } = useForm(metadata, model);
+const { visibleColumnErrors, onUpdateColumn, onBlurColumn } = useForm(
+  metadata,
+  model
+);
 </script>
