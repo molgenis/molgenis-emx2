@@ -102,7 +102,7 @@ function insertInto() {
       />
     </div>
 
-    <div id="fields-container" class="col-span-3 px-4 py-50px overflow-y-auto">
+    <div id="fields-container" class="col-span-3 p-12.5 overflow-y-auto">
       <FormFields
         ref="formFields"
         :rowKey="rowKey"
