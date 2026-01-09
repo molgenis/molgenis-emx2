@@ -10,19 +10,19 @@ import { useClickOutside } from "../../composables/useClickOutside";
 import fetchGraphql from "../../composables/fetchGraphql";
 
 const props = withDefaults(
-  defineProps<
-    IInputProps & {
+    defineProps<
+        IInputProps & {
       isArray?: boolean;
       ontologySchemaId: string;
       ontologyTableId: string;
       limit?: number;
       selectCutOff?: number;
     }
-  >(),
-  {
-    limit: 20,
-    selectCutOff: 25,
-  }
+    >(),
+    {
+      limit: 20,
+      selectCutOff: 25,
+    }
 );
 
 const emit = defineEmits(["focus", "blur"]);
@@ -30,8 +30,6 @@ const emit = defineEmits(["focus", "blur"]);
 const modelValue = defineModel<string[] | string | undefined | null>();
 //labels for the selected values
 const valueLabels: Ref<Record<string, string>> = ref({});
-//state of the tree that is shown
-const ontologyTree: Ref<ITreeNodeState[]> = ref([]);
 //intermediate selected values
 const intermediates: Ref<string[]> = ref([]);
 //toggle for showing search
@@ -48,13 +46,32 @@ const filteredCount = ref<number>(0);
 const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
 
-// Track loaded counts and offsets per node
-const nodeLoadState = ref<
-  Map<string, { offset: number; total: number; hasMore: boolean }>
->(new Map());
+// Track loading state per node to prevent duplicates
+const loadingNodes = ref<Set<string>>(new Set());
+
+// Virtual root node to hold the ontology tree and its pagination state
+const rootNode = ref<ITreeNodeState>({
+  name: '__root__',
+  label: 'Root',
+  selectable: false,
+  visible: true,
+  children: [],
+  loadMoreOffset: 0,
+  loadMoreTotal: 0,
+  loadMoreHasMore: false,
+});
 
 function reset() {
-  ontologyTree.value = [];
+  rootNode.value = {
+    name: '__root__',
+    label: 'Root',
+    selectable: false,
+    visible: true,
+    children: [],
+    loadMoreOffset: 0,
+    loadMoreTotal: 0,
+    loadMoreHasMore: false,
+  };
   valueLabels.value = {};
   intermediates.value = [];
   showSearch.value = false;
@@ -65,17 +82,17 @@ function reset() {
   filteredCount.value = 0;
   totalCount.value = 0;
   rootCount.value = 0;
-  nodeLoadState.value.clear();
+  loadingNodes.value.clear();
   reload();
 }
 
 watch(() => props.ontologySchemaId, reset);
 watch(() => props.ontologyTableId, reset);
 watch(
-  () => modelValue.value,
-  () => {
-    applyModelValue();
-  }
+    () => modelValue.value,
+    () => {
+      applyModelValue();
+    }
 );
 
 /*initial state. Will load the labels for selection, and the whole ontology when small.
@@ -88,9 +105,9 @@ async function reload() {
 
   //query for the labels for the modelValue if needed
   const reloadSelectionLabels =
-    props.isArray && Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value;
+      props.isArray && Array.isArray(modelValue.value)
+          ? modelValue.value.length > 0
+          : modelValue.value;
   if (reloadSelectionLabels) {
     //retrieve paths of all selected terms
     query = `ontologyPaths: ${props.ontologyTableId}(filter:$pathFilter,limit:1000){name,label}`;
@@ -107,19 +124,15 @@ async function reload() {
   }
 
   //query for whole ontology, if not too large
-  if (
-    !ontologyTree.value.length &&
-    totalCount.value <= props.selectCutOff &&
-    rootCount.value <= props.limit
-  ) {
-    //retrieve whole ontology if not too big
-    query += `allTerms: ${props.ontologyTableId}(limit: ${props.limit}, orderby:{order:ASC,name:ASC}){name,parent{name},label,definition,code,codesystem,ontologyTermURI}`;
+  if (!ontologyTree.value.length && totalCount.value < props.selectCutOff) {
+    //retrieve whole ontology if not too big - load ALL terms, not limited by props.limit
+    query += `allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){name,parent{name},label,definition,code,codesystem,ontologyTermURI}`;
   }
 
   //execute the query with the variables
   query = reloadSelectionLabels
-    ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
-    : `query myquery{${query}}`;
+      ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
+      : `query myquery{${query}}`;
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
   // update new counts if there
@@ -128,7 +141,7 @@ async function reload() {
 
   //update the tree if we have whole ontology (otherwise that will work via retrieveTerms on showSelect
   if (!displayAsSelect.value) {
-    ontologyTree.value = assembleTreeWithChildren(data.allTerms || []);
+    rootNode.value.children = assembleTreeWithChildren(data.allTerms || []);
   }
 
   if (reloadSelectionLabels) {
@@ -138,44 +151,44 @@ async function reload() {
 }
 
 function assembleTreeWithChildren(
-  data: ITreeNodeState[],
-  parentNode: ITreeNodeState | undefined = undefined
+    data: ITreeNodeState[],
+    parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
   // @ts-ignore
   return (
-    data
-      // @ts-ignore
-      .filter((row) => row.parent?.name == parentNode?.name)
-      .map((row: any) => {
-        const node = {
-          name: row.name,
-          parentNode: parentNode,
-          label: row.label,
-          description: row.definition,
-          code: row.code,
-          codeSystem: row.codesystem,
-          uri: row.ontologyTermURI,
-          selectable: true,
-          visible: true,
-        };
-        // @ts-ignore
-        node.children = assembleTreeWithChildren(data, node);
-        // @ts-ignore
-        node.expanded = node.children.length > 0;
-        return node;
-      }) || []
+      data
+          // @ts-ignore
+          .filter((row) => row.parent?.name == parentNode?.name)
+          .map((row: any) => {
+            const node = {
+              name: row.name,
+              parentNode: parentNode,
+              label: row.label,
+              description: row.definition,
+              code: row.code,
+              codeSystem: row.codesystem,
+              uri: row.ontologyTermURI,
+              selectable: true,
+              visible: true,
+            };
+            // @ts-ignore
+            node.children = assembleTreeWithChildren(data, node);
+            // @ts-ignore
+            node.expanded = node.children.length > 0;
+            return node;
+          }) || []
   );
 }
 
 /* retrieves terms, optionally as children to a parent */
 async function retrieveTerms(
-  parentNode: ITreeNodeState | undefined = undefined,
-  offset: number = 0
+    parentNode: ITreeNodeState | undefined = undefined,
+    offset: number = 0
 ): Promise<{ terms: ITreeNodeState[]; count: number }> {
   const variables: any = {
     termFilter: parentNode
-      ? { parent: { name: { equals: parentNode.name } } }
-      : { parent: { _is_null: true } },
+        ? { parent: { name: { equals: parentNode.name } } }
+        : { parent: { _is_null: true } },
   };
 
   if (searchTerms.value) {
@@ -185,12 +198,12 @@ async function retrieveTerms(
   }
 
   let query = searchTerms.value
-    ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
+      ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
         retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         searchMatch: ${props.ontologyTableId}(filter:$searchFilter, orderby:{order:ASC,name:ASC}){name}
         count: ${props.ontologyTableId}_agg(filter:$termFilter){count}
        }`
-    : `query myquery($termFilter:${props.ontologyTableId}Filter) {
+      : `query myquery($termFilter:${props.ontologyTableId}Filter) {
         retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         count: ${props.ontologyTableId}_agg(filter:$termFilter){count}
        }`;
@@ -198,25 +211,25 @@ async function retrieveTerms(
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
   const terms =
-    data.retrieveTerms?.map((row: any) => {
-      return {
-        name: row.name,
-        parentNode: parentNode,
-        label: row.label,
-        description: row.definition,
-        code: row.code,
-        codeSystem: row.codeSystem,
-        uri: row.ontologyTermURI,
-        selectable: true,
-        children: row.children,
-        //visibility is used for search hiding
-        visible: searchTerms.value
-          ? data.searchMatch?.some(
+      data.retrieveTerms?.map((row: any) => {
+        return {
+          name: row.name,
+          parentNode: parentNode,
+          label: row.label,
+          description: row.definition,
+          code: row.code,
+          codeSystem: row.codeSystem,
+          uri: row.ontologyTermURI,
+          selectable: true,
+          children: row.children,
+          //visibility is used for search hiding
+          visible: searchTerms.value
+              ? data.searchMatch?.some(
               (match: boolean) => (match as any).name === row.name
-            ) || false
-          : true,
-      };
-    }) || [];
+          ) || false
+              : true,
+        };
+      }) || [];
 
   return {
     terms,
@@ -229,19 +242,19 @@ async function applyModelValue(data: any = undefined): Promise<void> {
   intermediates.value = [];
   if (data === undefined && modelValue.value) {
     data = await fetchGraphql(
-      props.ontologySchemaId,
-      `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
-      {
-        filter: { _match_any_including_parents: modelValue.value },
-      }
+        props.ontologySchemaId,
+        `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
+        {
+          filter: { _match_any_including_parents: modelValue.value },
+        }
     );
   }
   if (data.ontologyPaths) {
     valueLabels.value = Object.fromEntries(
-      data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
+        data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
     );
     intermediates.value = data.ontologyPaths.map(
-      (term: { name: string }) => term.name
+        (term: { name: string }) => term.name
     );
   } else {
     valueLabels.value = {};
@@ -252,16 +265,16 @@ async function applyModelValue(data: any = undefined): Promise<void> {
 
 /** apply selection UI state on selection changes */
 function applySelectedStates() {
-  ontologyTree.value?.forEach((term) => {
+  rootNode.value.children?.forEach((term) => {
     applyStateToNode(term);
   });
 }
 
 function applyStateToNode(node: ITreeNodeState): void {
   if (
-    props.isArray
-      ? modelValue.value?.includes(node.name)
-      : modelValue.value === node.name
+      props.isArray
+          ? modelValue.value?.includes(node.name)
+          : modelValue.value === node.name
   ) {
     node.selected = "selected";
     getAllChildren(node).forEach((child) => (child.selected = "selected"));
@@ -277,7 +290,7 @@ function applyStateToNode(node: ITreeNodeState): void {
 function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
   const result: ITreeNodeState[] = [];
   node.children?.forEach((child) =>
-    result.push(child, ...getAllChildren(child))
+      result.push(child, ...getAllChildren(child))
   );
   return result;
 }
@@ -299,53 +312,53 @@ async function toggleTermSelect(node: ITreeNodeState) {
     //if a selected value then simply deselect
     if (modelValue.value.includes(node.name)) {
       modelValue.value = modelValue.value.filter(
-        (value) => value !== node.name
+          (value) => value !== node.name
       );
     }
-    //if deselection of a node in a selected parent
-    //then select all siblings except current node
+        //if deselection of a node in a selected parent
+        //then select all siblings except current node
     //recursively!
     else if (
-      node.parentNode &&
-      getAllParents(node).some((parent) =>
-        modelValue.value?.includes(parent.name)
-      )
+        node.parentNode &&
+        getAllParents(node).some((parent) =>
+            modelValue.value?.includes(parent.name)
+        )
     ) {
       const itemsToBeRemoved = [
         node.name,
         ...getAllParents(node).map((parent) => parent.name),
       ];
       const itemsToBeAdded: string[] = getAllParents(node)
-        .map((parent) =>
-          parent.selected === "selected"
-            ? parent.children.map((child) => child.name)
-            : []
-        )
-        .flat();
+          .map((parent) =>
+              parent.selected === "selected"
+                  ? parent.children.map((child) => child.name)
+                  : []
+          )
+          .flat();
       //remove parent node from select and add all siblings
       modelValue.value = [...modelValue.value, ...itemsToBeAdded].filter(
-        (name) => !itemsToBeRemoved.includes(name)
+          (name) => !itemsToBeRemoved.includes(name)
       );
     }
-    // if we select last selected child
+        // if we select last selected child
     // then we need toggle select on parent instead
     else if (
-      node.parentNode &&
-      node.parentNode.children
-        .filter((child) => child.name != node.name)
-        .every((child) => child.selected === "selected")
+        node.parentNode &&
+        node.parentNode.children
+            .filter((child) => child.name != node.name)
+            .every((child) => child.selected === "selected")
     ) {
       await toggleTermSelect(node.parentNode);
     }
-    // if we simply select a node
+        // if we simply select a node
     // then make sure to deselect all its children
     else {
       const itemsToBeRemoved: string[] = getAllChildren(node).map(
-        (child) => child.name
+          (child) => child.name
       );
       modelValue.value = [
         ...modelValue.value.filter(
-          (value) => !itemsToBeRemoved.includes(value)
+            (value) => !itemsToBeRemoved.includes(value)
         ),
         node.name,
       ];
@@ -359,7 +372,9 @@ async function toggleTermSelect(node: ITreeNodeState) {
 
 async function toggleTermExpand(node: ITreeNodeState) {
   if (!node.expanded) {
+    // Initialize load state for this node
     const { terms, count } = await retrieveTerms(node, 0);
+
     node.children = terms.map((child) => {
       return {
         name: child.name,
@@ -371,21 +386,18 @@ async function toggleTermExpand(node: ITreeNodeState) {
         visible: child.visible,
         children: child.children,
         selected: props.isArray
-          ? modelValue.value?.includes(child.name)
-            ? "selected"
-            : node.selected
-          : modelValue.value === child.name
-          ? "selected"
-          : "unselected",
+            ? modelValue.value?.includes(child.name)
+                ? "selected"
+                : node.selected
+            : modelValue.value === child.name
+                ? "selected"
+                : "unselected",
         selectable: true,
         parentNode: node,
-        loadMoreOffset: props.limit,
-        loadMoreTotal: count,
-        loadMoreHasMore: count > props.limit,
       };
     });
 
-    // Store load state on the node itself
+    // Store load state on the node itself - same pattern as root
     node.loadMoreOffset = props.limit;
     node.loadMoreTotal = count;
     node.loadMoreHasMore = count > props.limit;
@@ -397,39 +409,55 @@ async function toggleTermExpand(node: ITreeNodeState) {
   }
 }
 
+// Unified loadMoreTerms - works the same for root and all child nodes
 async function loadMoreTerms(node: ITreeNodeState) {
-  if (!node.loadMoreHasMore) return;
+  const nodeKey = node.name || '__root__';
 
-  const { terms } = await retrieveTerms(node, node.loadMoreOffset || 0);
+  // Prevent duplicate loads for the same node
+  if (loadingNodes.value.has(nodeKey)) {
+    return;
+  }
 
-  const newChildren = terms.map((child) => {
-    return {
-      name: child.name,
-      label: child.label,
-      code: child.code,
-      codeSystem: child.codesystem,
-      uri: child.uri,
-      description: child.description,
-      visible: child.visible,
-      children: child.children,
-      selected: props.isArray
-        ? modelValue.value?.includes(child.name)
-          ? "selected"
-          : node.selected || "unselected"
-        : modelValue.value === child.name
-        ? "selected"
-        : "unselected",
-      selectable: true,
-      parentNode: node,
-    };
-  });
+  if (!node.loadMoreHasMore) {
+    return;
+  }
 
-  node.children = [...(node.children || []), ...newChildren];
+  loadingNodes.value.add(nodeKey);
 
-  node.loadMoreOffset = (node.loadMoreOffset || 0) + props.limit;
-  node.loadMoreHasMore = (node.loadMoreOffset || 0) < (node.loadMoreTotal || 0);
+  try {
+    const parentNode = node.name === '__root__' ? undefined : node;
+    const { terms } = await retrieveTerms(parentNode, node.loadMoreOffset || 0);
 
-  applySelectedStates();
+    const newChildren = terms.map((child) => {
+      return {
+        name: child.name,
+        label: child.label,
+        code: child.code,
+        codeSystem: child.codesystem,
+        uri: child.uri,
+        description: child.description,
+        visible: child.visible,
+        children: child.children,
+        selected: props.isArray
+            ? modelValue.value?.includes(child.name)
+                ? "selected"
+                : parentNode?.selected || "unselected"
+            : modelValue.value === child.name
+                ? "selected"
+                : "unselected",
+        selectable: true,
+        parentNode: parentNode,
+      };
+    });
+
+    node.children = [...(node.children || []), ...newChildren];
+    node.loadMoreOffset = (node.loadMoreOffset || 0) + props.limit;
+    node.loadMoreHasMore = (node.loadMoreOffset || 0) < (node.loadMoreTotal || 0);
+
+    applySelectedStates();
+  } finally {
+    loadingNodes.value.delete(nodeKey);
+  }
 }
 
 function deselect(name: string) {
@@ -450,100 +478,71 @@ function clearSelection() {
 async function updateSearch(value: string) {
   searchTerms.value = value;
   counterOffset.value = 0;
-  nodeLoadState.value.clear();
-  ontologyTree.value = [];
 
-  const { terms, count } = await retrieveTerms(undefined, 0);
-
-  // When searching, we show all matching results without pagination
-  // This is because search results may be scattered across the tree
+  // When searching, we need to load ALL matching results, not just the first batch
   const isSearching = !!value;
 
-  ontologyTree.value = terms.map((term) => ({
-    ...term,
-    loadMoreOffset: isSearching ? count : props.limit,
-    loadMoreTotal: count,
-    loadMoreHasMore: isSearching ? false : count > props.limit,
-  }));
+  if (isSearching) {
+    // For search, fetch all matching results
+    const { terms, count } = await retrieveTerms(undefined, 0);
+
+    // If there are more results than the limit, keep fetching
+    if (count > props.limit) {
+      const allTerms = [...terms];
+      let offset = props.limit;
+
+      while (offset < count) {
+        const { terms: moreTerms } = await retrieveTerms(undefined, offset);
+        allTerms.push(...moreTerms);
+        offset += props.limit;
+      }
+
+      rootNode.value.children = allTerms;
+    } else {
+      rootNode.value.children = terms;
+    }
+
+    // Disable pagination during search
+    rootNode.value.loadMoreOffset = count;
+    rootNode.value.loadMoreTotal = count;
+    rootNode.value.loadMoreHasMore = false;
+  } else {
+    // Normal mode: enable pagination
+    const { terms, count } = await retrieveTerms(undefined, 0);
+    rootNode.value.children = [...terms];
+    rootNode.value.loadMoreOffset = props.limit;
+    rootNode.value.loadMoreTotal = count;
+    rootNode.value.loadMoreHasMore = count > props.limit;
+  }
 
   applySelectedStates();
 }
 
 const hasChildren = computed(() =>
-  ontologyTree.value?.some((node) => node.children?.length)
+    rootNode.value.children?.some((node) => node.children?.length)
 );
 
 const displayAsSelect = computed(() => {
   return (
-    totalCount.value >= props.selectCutOff || rootCount.value >= props.limit
+      totalCount.value >= props.selectCutOff || rootCount.value >= props.limit
   );
 });
 
-const hasMoreRootItems = computed(() => {
-  return (
-    ontologyTree.value.length > 0 &&
-    (ontologyTree.value[0].loadMoreHasMore || false)
-  );
-});
+const ontologyTree = computed(() => rootNode.value.children || []);
 
 async function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
   } else {
     const { terms, count } = await retrieveTerms(undefined, 0);
-    ontologyTree.value = terms.map((term) => ({
-      ...term,
-      loadMoreOffset: props.limit,
-      loadMoreTotal: count,
-      loadMoreHasMore: count > props.limit,
-    }));
+    rootNode.value.children = [...terms];
+    rootNode.value.loadMoreOffset = props.limit;
+    rootNode.value.loadMoreTotal = count;
+    rootNode.value.loadMoreHasMore = count > props.limit;
 
     applySelectedStates();
     showSelect.value = true;
   }
-}
-
-async function loadMoreRootTerms() {
-  if (!ontologyTree.value.length || !ontologyTree.value[0].loadMoreHasMore)
-    return;
-
-  const offset = ontologyTree.value[0].loadMoreOffset || 0;
-  const { terms } = await retrieveTerms(undefined, offset);
-
-  const newTerms = terms.map((child) => {
-    return {
-      name: child.name,
-      label: child.label,
-      code: child.code,
-      codeSystem: child.codesystem,
-      uri: child.uri,
-      description: child.description,
-      visible: child.visible,
-      children: child.children,
-      selected: props.isArray
-        ? modelValue.value?.includes(child.name)
-          ? "selected"
-          : "unselected"
-        : modelValue.value === child.name
-        ? "selected"
-        : "unselected",
-      selectable: true,
-      parentNode: undefined,
-    };
-  });
-
-  ontologyTree.value = [...ontologyTree.value, ...newTerms];
-
-  const newOffset = offset + props.limit;
-  const total = ontologyTree.value[0].loadMoreTotal || 0;
-
-  // Update load state for all root nodes
-  ontologyTree.value.forEach((node) => {
-    node.loadMoreOffset = newOffset;
-    node.loadMoreHasMore = newOffset < total;
-  });
-
-  applySelectedStates();
 }
 
 // Close dropdown when clicking outside
@@ -551,6 +550,9 @@ const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
+
+// Ref for the scroll container
+const scrollContainerRef = useTemplateRef<HTMLElement>("scrollContainerRef");
 
 onMounted(() => {
   reload();
@@ -563,8 +565,8 @@ onMounted(() => {
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
   <div
-    v-else-if="!initLoading && totalCount"
-    :class="{
+      v-else-if="!initLoading && totalCount"
+      :class="{
       'flex items-center border outline-none rounded-input cursor-pointer ':
         displayAsSelect,
       'bg-input ': displayAsSelect && !disabled,
@@ -579,35 +581,36 @@ onMounted(() => {
       'text-input hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid && !valid,
     }"
-    @click.stop="displayAsSelect ? (showSelect = true) : null"
+      @click.stop="displayAsSelect ? (showSelect = true) : null"
   >
     <InputGroupContainer
-      :id="`${id}-ontology`"
-      class="border-transparent w-full relative"
-      @focus="emit('focus')"
-      @blur="emit('blur')"
+        ref="wrapperRef"
+        :id="`${id}-ontology`"
+        class="border-transparent w-full relative"
+        @focus="emit('focus')"
+        @blur="emit('blur')"
     >
       <div
-        v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 px-2 h-input"
-        @click.stop="toggleSelect"
+          v-show="displayAsSelect"
+          class="flex items-center justify-between gap-2 px-2 h-input"
+          @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="modelValue" role="group">
             <Button
-              v-for="name in Array.isArray(modelValue)
+                v-for="name in Array.isArray(modelValue)
               ? (modelValue as string[]).sort()
               : modelValue ? [modelValue] : []"
-              icon="cross"
-              iconPosition="right"
-              type="filterWell"
-              size="tiny"
-              :class="{
+                icon="cross"
+                iconPosition="right"
+                type="filterWell"
+                size="tiny"
+                :class="{
                 'text-disabled cursor-not-allowed': disabled,
                 'text-valid bg-valid': valid,
                 'text-invalid bg-invalid': invalid,
               }"
-              @click.stop="deselect(name as string)"
+                @click.stop="deselect(name as string)"
             >
               {{ valueLabels[name] }}
             </Button>
@@ -617,123 +620,91 @@ onMounted(() => {
               search in ontology
             </label>
             <input
-              :id="`search-for-${id}`"
-              type="text"
-              v-model="searchTerms"
-              @input="updateSearch(searchTerms)"
-              class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
-              placeholder="Search in terms"
-              autocomplete="off"
-              @click.stop="showSelect ? null : toggleSelect()"
+                :id="`search-for-${id}`"
+                type="text"
+                v-model="searchTerms"
+                @input="updateSearch(searchTerms)"
+                class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
+                placeholder="Search in terms"
+                autocomplete="off"
+                @click.stop="showSelect ? null : toggleSelect()"
             />
           </div>
         </div>
         <div class="flex items-center gap-2">
           <BaseIcon
-            v-show="showSelect"
-            name="caret-up"
-            :class="{
+              v-show="showSelect"
+              name="caret-up"
+              :class="{
               'text-valid': valid,
               'text-invalid': invalid,
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-            @click.stop="toggleSelect"
+              @click.stop="toggleSelect"
           />
           <BaseIcon
-            v-show="!showSelect"
-            name="caret-down"
-            :class="{
+              v-show="!showSelect"
+              name="caret-down"
+              :class="{
               'text-valid': valid,
               'text-invalid': invalid,
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-            @click.stop="toggleSelect"
+              @click.stop="toggleSelect"
           />
         </div>
       </div>
       <div
-        ref="wrapperRef"
-        :class="{
+          ref="scrollContainerRef"
+          :class="{
           'absolute z-50 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
-        v-show="showSelect || !displayAsSelect"
+          v-show="showSelect || !displayAsSelect"
       >
         <fieldset ref="treeContainer">
           <legend class="sr-only">select ontology terms</legend>
           <TreeNode
-            :id="id"
-            ref="tree"
-            :nodes="ontologyTree"
-            :isRoot="true"
-            :valid="valid"
-            :invalid="invalid"
-            :disabled="disabled"
-            :multiselect="isArray"
-            @toggleExpand="toggleTermExpand"
-            @toggleSelect="toggleTermSelect"
-            @loadMore="loadMoreTerms"
-            class="pb-2"
-            :class="{ 'pl-4': hasChildren }"
-            aria-live="polite"
-            aria-atomic="true"
+              :id="id"
+              ref="tree"
+              :parentNode="rootNode"
+              :isRoot="true"
+              :valid="valid"
+              :invalid="invalid"
+              :disabled="disabled"
+              :multiselect="isArray"
+              :isSearching="!!searchTerms"
+              :scrollContainer="scrollContainerRef"
+              @toggleExpand="toggleTermExpand"
+              @toggleSelect="toggleTermSelect"
+              @loadMore="loadMoreTerms"
+              class="pb-2"
+              :class="{ 'pl-4': hasChildren }"
+              aria-live="polite"
+              aria-atomic="true"
           />
-          <Button
-            v-if="
-              hasMoreRootItems &&
-              !searchTerms &&
-              (showSelect || !displayAsSelect)
-            "
-            @click="loadMoreRootTerms"
-            type="text"
-            size="small"
-            class="ml-2 mt-2 flex items-center gap-2"
-          >
-            <span class="text-body-sm italic text-input-description">
-              Showing {{ ontologyTree.length }} of
-              {{ ontologyTree[0]?.loadMoreTotal || 0 }} terms
-            </span>
-            <span class="text-input underline">
-              (load
-              {{
-                Math.min(
-                  (ontologyTree[0]?.loadMoreTotal || 0) - ontologyTree.length,
-                  props.limit
-                )
-              }}
-              more)
-            </span>
-          </Button>
-          <div
-            v-if="searchTerms && ontologyTree.length > 0"
-            class="ml-2 mt-2 text-body-sm italic text-input-description"
-          >
-            Found {{ ontologyTree.length }} matching term{{
-              ontologyTree.length !== 1 ? "s" : ""
-            }}
-          </div>
         </fieldset>
       </div>
     </InputGroupContainer>
   </div>
   <div
-    v-else
-    class="py-4 flex justify-start items-center text-input-description"
+      v-else
+      class="py-4 flex justify-start items-center text-input-description"
   >
     <TextNoResultsMessage
-      :label="`Ontology '${props.ontologyTableId}' in schema '${props.ontologySchemaId}' is empty`"
+        :label="`Ontology '${props.ontologyTableId}' in schema '${props.ontologySchemaId}' is empty`"
     />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
-    @click="clearSelection"
-    type="text"
-    size="tiny"
-    iconPosition="right"
-    class="mr-2 underline cursor-pointer"
-    :class="{ 'pl-4': hasChildren && !displayAsSelect }"
+      v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+      @click="clearSelection"
+      type="text"
+      size="tiny"
+      iconPosition="right"
+      class="mr-2 underline cursor-pointer"
+      :class="{ 'pl-4': hasChildren && !displayAsSelect }"
   >
     Clear
   </Button>
