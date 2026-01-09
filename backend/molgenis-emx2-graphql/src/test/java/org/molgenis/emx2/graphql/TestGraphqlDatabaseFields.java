@@ -70,7 +70,7 @@ public class TestGraphqlDatabaseFields {
                         }
                         """;
 
-    var result = execute(createSettingQuery);
+    JsonNode result = execute(createSettingQuery);
 
     // verify
     ObjectNode expected =
@@ -92,7 +92,7 @@ public class TestGraphqlDatabaseFields {
                         }
                         """;
 
-    var result = execute(createSettingQuery);
+    JsonNode result = execute(createSettingQuery);
 
     // verify
     ObjectNode expected =

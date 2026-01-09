@@ -890,7 +890,7 @@ public class GraphqlTableFieldFactory {
       TableMetadata aTable, Map<String, Object> args) {
     Map<String, Order> orderBy = (Map<String, Order>) args.get(ORDERBY);
     Map<String, Order> unescapedMap = new HashMap<>();
-    for (var entry : orderBy.entrySet()) {
+    for (Map.Entry<String, Order> entry : orderBy.entrySet()) {
       Optional<Column> column = findColumnById(aTable, entry.getKey());
       if (column.isPresent()) {
         unescapedMap.put(column.get().getName(), entry.getValue());

@@ -521,7 +521,7 @@ class WebApiSmokeTests {
   void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(
@@ -540,14 +540,15 @@ class WebApiSmokeTests {
   void testCsvApi_downloadMembers() throws IOException {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response =
+    Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_members_\\d{12}\\.csv\"");
     assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
 
-    var path = Path.of(Objects.requireNonNull(getClass().getResource("csv/members.csv")).getPath());
+    Path path =
+        Path.of(Objects.requireNonNull(getClass().getResource("csv/members.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
   }
@@ -556,14 +557,14 @@ class WebApiSmokeTests {
   void testCsvApi_downloadSettings() throws IOException {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response =
+    Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_settings_\\d{12}\\.csv\"");
     assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
 
-    var path =
+    Path path =
         Path.of(Objects.requireNonNull(getClass().getResource("csv/settings.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
@@ -1708,7 +1709,7 @@ class WebApiSmokeTests {
 
   @Test
   void testThatTablesWithSpaceCanBeDownloaded() {
-    var table = schema.getTable(TABLE_WITH_SPACES);
+    Table table = schema.getTable(TABLE_WITH_SPACES);
 
     given()
         .sessionId(sessionId)

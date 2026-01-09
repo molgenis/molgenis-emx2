@@ -83,8 +83,8 @@ public class PrimaryKey {
       throw new IllegalArgumentException("The encoded String does not contain sorted values");
     } else {
       SortedMap<String, String> pairs = new TreeMap<>();
-      for (var pair : encodedPairs) {
-        var parts = pair.split(NAME_VALUE_SEPARATOR);
+      for (String pair : encodedPairs) {
+        String[] parts = pair.split(NAME_VALUE_SEPARATOR);
         if (parts.length != 2) {
           throw new IllegalArgumentException(
               "Can't decode the key, name value pair is incomplete.");
@@ -128,9 +128,9 @@ public class PrimaryKey {
   String getEncodedString() {
     try {
       List<String> encodedPairs = new ArrayList<>();
-      for (var pair : keys.entrySet()) {
-        var name = escaper.escape(convertToCamelCase(pair.getKey()));
-        var value = escaper.escape(pair.getValue());
+      for (Map.Entry<String, String> pair : keys.entrySet()) {
+        String name = escaper.escape(convertToCamelCase(pair.getKey()));
+        String value = escaper.escape(pair.getValue());
         encodedPairs.add(name + NAME_VALUE_SEPARATOR + value);
       }
       return String.join(KEY_PARTS_SEPARATOR, encodedPairs);
