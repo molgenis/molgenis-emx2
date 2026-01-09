@@ -213,15 +213,22 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
-        name: check apps code format
+        name: [apps] check code format
         command: ./gradlew :apps:format
 
     - run:
-        name: lint the code
+        name: [apps] lint the code
         command: |
           ./gradlew lint ci --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
-
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+    - run:
+        name: [backend] check code format
+        command: |
+          ./gradlew spotlessCheck
+    - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
+        name: [backend] check for programming flaws
+        command: |
+          ./gradlew pmdMain pmdTest
     - run:
         name: run tests and push to sonar
         command: |
