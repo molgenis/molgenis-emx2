@@ -14,8 +14,8 @@ const route = useRoute();
 
 definePageMeta({
   middleware: [
-    async function (to, from) {
-      const settings = await useSettings();
+    async function (to, _from) {
+      const { settings } = await useSettings();
       const router = useRouter();
       if (settings.value?.isOidcEnabled) {
         let redirectAfterLogin = window.location.href;
