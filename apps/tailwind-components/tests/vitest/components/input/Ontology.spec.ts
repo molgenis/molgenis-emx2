@@ -1,683 +1,691 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { mount, flushPromises } from '@vue/test-utils';
-import { nextTick } from 'vue';
-import OntologyInput from '../../../../app/components/input/Ontology.vue';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { mount, flushPromises } from "@vue/test-utils";
+import { nextTick } from "vue";
+import OntologyInput from "../../../../app/components/input/Ontology.vue";
 
 // Setup IntersectionObserver mock BEFORE any imports
 const createMockObserver = () => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-    takeRecords: vi.fn(() => []),
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+  takeRecords: vi.fn(() => []),
 });
 
 // @ts-ignore
-global.IntersectionObserver = vi.fn().mockImplementation(() => createMockObserver());
+global.IntersectionObserver = vi
+  .fn()
+  .mockImplementation(() => createMockObserver());
 
 // Mock the fetchGraphql function BEFORE importing it
-vi.mock('../../../../app/composables/fetchGraphql', () => ({
-    default: vi.fn(),
+vi.mock("../../../../app/composables/fetchGraphql", () => ({
+  default: vi.fn(),
 }));
 
 // Mock the useClickOutside composable
-vi.mock('../../../../app/composables/useClickOutside', () => ({
-    useClickOutside: vi.fn((elementRef, callback) => {
-        const handler = (event: MouseEvent) => {
-            const el = elementRef.value;
-            if (!el) return;
-            const targetElement = (el as any).$el || el;
-            if (targetElement && typeof targetElement.contains === 'function') {
-                if (!targetElement.contains(event.target as Node)) {
-                    callback();
-                }
-            }
-        };
-        setTimeout(() => {
-            document.addEventListener('mousedown', handler);
-        }, 0);
-        return () => {
-            document.removeEventListener('mousedown', handler);
-        };
-    }),
+vi.mock("../../../../app/composables/useClickOutside", () => ({
+  useClickOutside: vi.fn((elementRef, callback) => {
+    const handler = (event: MouseEvent) => {
+      const el = elementRef.value;
+      if (!el) return;
+      const targetElement = (el as any).$el || el;
+      if (targetElement && typeof targetElement.contains === "function") {
+        if (!targetElement.contains(event.target as Node)) {
+          callback();
+        }
+      }
+    };
+    setTimeout(() => {
+      document.addEventListener("mousedown", handler);
+    }, 0);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  }),
 }));
 
 // Import the mocked function AFTER setting up the mock
-import fetchGraphql from '../../../../app/composables/fetchGraphql';
+import fetchGraphql from "../../../../app/composables/fetchGraphql";
 
 // Test data helpers
 const mockOntologyData = {
-    totalCount: { count: 100 },
-    rootCount: { count: 20 },
+  totalCount: { count: 100 },
+  rootCount: { count: 20 },
 };
 
-const createMockTerms = (offset: number, limit: number, prefix = 'Term') => {
-    return Array.from({ length: limit }, (_, i) => ({
-        name: `${prefix}${offset + i + 1}`,
-        label: `${prefix} ${offset + i + 1}`,
-        definition: `Definition for ${prefix} ${offset + i + 1}`,
-        code: `CODE${offset + i + 1}`,
-        codesystem: 'TEST',
-        ontologyTermURI: `http://example.com/${prefix}${offset + i + 1}`,
-        children: i % 3 === 0 ? [{ name: `Child${i}` }] : [],
-    }));
+const createMockTerms = (offset: number, limit: number, prefix = "Term") => {
+  return Array.from({ length: limit }, (_, i) => ({
+    name: `${prefix}${offset + i + 1}`,
+    label: `${prefix} ${offset + i + 1}`,
+    definition: `Definition for ${prefix} ${offset + i + 1}`,
+    code: `CODE${offset + i + 1}`,
+    codesystem: "TEST",
+    ontologyTermURI: `http://example.com/${prefix}${offset + i + 1}`,
+    children: i % 3 === 0 ? [{ name: `Child${i}` }] : [],
+  }));
 };
 
 // Helper to create mock response for loadPage
-const createMockLoadPageResponse = (terms: any[], count: number, totalCount?: number) => ({
-    retrieveTerms: terms,
-    count: { count },
-    totalCount: { count: totalCount ?? count },
+const createMockLoadPageResponse = (
+  terms: any[],
+  count: number,
+  totalCount?: number
+) => ({
+  retrieveTerms: terms,
+  count: { count },
+  totalCount: { count: totalCount ?? count },
 });
 
-describe('OntologyInput - Unified loadPage Architecture', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        // @ts-ignore
-        global.IntersectionObserver = vi.fn().mockImplementation(() => createMockObserver());
-        if (!document.body) {
-            document.body = document.createElement('body');
-        }
+describe("OntologyInput - Unified loadPage Architecture", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // @ts-ignore
+    global.IntersectionObserver = vi
+      .fn()
+      .mockImplementation(() => createMockObserver());
+    if (!document.body) {
+      document.body = document.createElement("body");
+    }
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  describe("Small Ontology (< selectCutOff)", () => {
+    it("should load entire small ontology and auto-expand", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      // Initial counts (total < 25 = small ontology)
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 15 },
+        rootCount: { count: 5 },
+      });
+
+      // Load all terms at once for small ontology
+      mockFetch.mockResolvedValueOnce({
+        allTerms: [
+          { name: "Parent1", parent: null, label: "Parent 1" },
+          { name: "Child1", parent: { name: "Parent1" }, label: "Child 1" },
+          { name: "Parent2", parent: null, label: "Parent 2" },
+        ],
+      });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
+
+      await flushPromises();
+
+      const rootNode = (wrapper.vm as any).rootNode;
+      expect(rootNode.children.length).toBe(2); // 2 root parents
+      expect(rootNode.children[0].children.length).toBe(1); // Child1 under Parent1
+      expect(rootNode.children[0].expanded).toBe(true); // Auto-expanded
     });
 
-    afterEach(() => {
-        vi.restoreAllMocks();
-        document.body.innerHTML = '';
+    it("should use paginated loading when forceList is true even for small ontology", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 15 },
+        rootCount: { count: 15 },
+      });
+
+      // First page only
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 15)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          forceList: true,
+          limit: 5,
+        },
+      });
+
+      await flushPromises();
+
+      const rootNode = (wrapper.vm as any).rootNode;
+      expect(rootNode.children.length).toBe(5); // First page only
+      expect(rootNode.loadMoreHasMore).toBe(true); // Has more to load
+    });
+  });
+
+  describe("Large Ontology (>= selectCutOff)", () => {
+    it("should load first page only for large ontology", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 500 },
+        rootCount: { count: 100 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
+
+      await flushPromises();
+
+      const rootNode = (wrapper.vm as any).rootNode;
+      expect(rootNode.children.length).toBe(20);
+      expect(rootNode.loadMoreOffset).toBe(20);
+      expect(rootNode.loadMoreTotal).toBe(100);
+      expect(rootNode.loadMoreHasMore).toBe(true);
     });
 
-    describe('Small Ontology (< selectCutOff)', () => {
-        it('should load entire small ontology and auto-expand', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+    it("should load more terms when clicking load more", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            // Initial counts (total < 25 = small ontology)
-            mockFetch.mockResolvedValueOnce({
-                totalCount: { count: 15 },
-                rootCount: { count: 5 },
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            // Load all terms at once for small ontology
-            mockFetch.mockResolvedValueOnce({
-                allTerms: [
-                    { name: 'Parent1', parent: null, label: 'Parent 1' },
-                    { name: 'Child1', parent: { name: 'Parent1' }, label: 'Child 1' },
-                    { name: 'Parent2', parent: null, label: 'Parent 2' },
-                ],
-            });
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
 
-            const rootNode = (wrapper.vm as any).rootNode;
-            expect(rootNode.children.length).toBe(2); // 2 root parents
-            expect(rootNode.children[0].children.length).toBe(1); // Child1 under Parent1
-            expect(rootNode.children[0].expanded).toBe(true); // Auto-expanded
-        });
+      // Load more
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(20, 20), 100)
+      );
 
-        it('should use paginated loading when forceList is true even for small ontology', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+      const rootNode = (wrapper.vm as any).rootNode;
+      await (wrapper.vm as any).loadMoreTerms(rootNode);
+      await flushPromises();
 
-            mockFetch.mockResolvedValueOnce({
-                totalCount: { count: 15 },
-                rootCount: { count: 15 },
-            });
-
-            // First page only
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5), 15)
-            );
-
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                    forceList: true,
-                    limit: 5,
-                },
-            });
-
-            await flushPromises();
-
-            const rootNode = (wrapper.vm as any).rootNode;
-            expect(rootNode.children.length).toBe(5); // First page only
-            expect(rootNode.loadMoreHasMore).toBe(true); // Has more to load
-        });
+      expect(rootNode.children.length).toBe(40);
+      expect(rootNode.loadMoreOffset).toBe(40);
     });
 
-    describe('Large Ontology (>= selectCutOff)', () => {
-        it('should load first page only for large ontology', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+    it("should stop loading when reaching end", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                totalCount: { count: 500 },
-                rootCount: { count: 100 },
-            });
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 25 },
+        rootCount: { count: 25 },
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 100)
-            );
+      // First page
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 25)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          limit: 20,
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
 
-            const rootNode = (wrapper.vm as any).rootNode;
-            expect(rootNode.children.length).toBe(20);
-            expect(rootNode.loadMoreOffset).toBe(20);
-            expect(rootNode.loadMoreTotal).toBe(100);
-            expect(rootNode.loadMoreHasMore).toBe(true);
-        });
+      // Load remaining 5 items (partial batch)
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(20, 5), 25)
+      );
 
-        it('should load more terms when clicking load more', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+      const rootNode = (wrapper.vm as any).rootNode;
+      await (wrapper.vm as any).loadMoreTerms(rootNode);
+      await flushPromises();
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      expect(rootNode.children.length).toBe(25);
+      expect(rootNode.loadMoreHasMore).toBe(false); // No more to load
+    });
+  });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 100)
-            );
+  describe("Search Functionality", () => {
+    it("should search and load first page of results", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            await flushPromises();
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
 
-            // Load more
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(20, 20), 100)
-            );
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
 
-            const rootNode = (wrapper.vm as any).rootNode;
-            await (wrapper.vm as any).loadMoreTerms(rootNode);
-            await flushPromises();
+      await flushPromises();
 
-            expect(rootNode.children.length).toBe(40);
-            expect(rootNode.loadMoreOffset).toBe(40);
-        });
+      // Search returns filtered results (20 out of 45 total)
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20, "Match"), 45, 100)
+      );
 
-        it('should stop loading when reaching end', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+      await (wrapper.vm as any).updateSearch("search term");
+      await flushPromises();
 
-            mockFetch.mockResolvedValueOnce({
-                totalCount: { count: 25 },
-                rootCount: { count: 25 },
-            });
-
-            // First page
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 25)
-            );
-
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                    limit: 20,
-                },
-            });
-
-            await flushPromises();
-
-            // Load remaining 5 items (partial batch)
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(20, 5), 25)
-            );
-
-            const rootNode = (wrapper.vm as any).rootNode;
-            await (wrapper.vm as any).loadMoreTerms(rootNode);
-            await flushPromises();
-
-            expect(rootNode.children.length).toBe(25);
-            expect(rootNode.loadMoreHasMore).toBe(false); // No more to load
-        });
+      const rootNode = (wrapper.vm as any).rootNode;
+      expect(rootNode.children.length).toBe(20);
+      expect(rootNode.loadMoreTotal).toBe(45); // Filtered count
+      expect(rootNode.loadMoreHasMore).toBe(true); // 20 < 45, so has more
     });
 
-    describe('Search Functionality', () => {
-        it('should search and load first page of results', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+    it("should clear search and reload first page", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 100)
-            );
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
 
-            // Search returns filtered results (20 out of 45 total)
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20, 'Match'), 45, 100)
-            );
+      // Search
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5, "Match"), 5, 100)
+      );
+      await (wrapper.vm as any).updateSearch("test");
+      await flushPromises();
 
-            await (wrapper.vm as any).updateSearch('search term');
-            await flushPromises();
+      // Clear search
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
+      await (wrapper.vm as any).updateSearch("");
+      await flushPromises();
 
-            const rootNode = (wrapper.vm as any).rootNode;
-            expect(rootNode.children.length).toBe(20);
-            expect(rootNode.loadMoreTotal).toBe(45); // Filtered count
-            expect(rootNode.loadMoreHasMore).toBe(true); // 20 < 45, so has more
-        });
+      const rootNode = (wrapper.vm as any).rootNode;
+      expect(rootNode.children.length).toBe(20);
+      expect(rootNode.loadMoreTotal).toBe(100);
+    });
+  });
 
-        it('should clear search and reload first page', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+  describe("Child Node Expansion", () => {
+    it("should load children when expanding node", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 100)
-            );
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 20)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          limit: 10,
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
 
-            // Search
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5, 'Match'), 5, 100)
-            );
-            await (wrapper.vm as any).updateSearch('test');
-            await flushPromises();
+      const nodeToExpand = (wrapper.vm as any).rootNode.children[0];
 
-            // Clear search
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 100)
-            );
-            await (wrapper.vm as any).updateSearch('');
-            await flushPromises();
+      // Load children
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(100, 10, "Child"), 50)
+      );
 
-            const rootNode = (wrapper.vm as any).rootNode;
-            expect(rootNode.children.length).toBe(20);
-            expect(rootNode.loadMoreTotal).toBe(100);
-        });
+      await (wrapper.vm as any).toggleTermExpand(nodeToExpand);
+      await flushPromises();
+
+      expect(nodeToExpand.expanded).toBe(true);
+      expect(nodeToExpand.children.length).toBe(10);
+      expect(nodeToExpand.loadMoreTotal).toBe(50);
+      expect(nodeToExpand.loadMoreHasMore).toBe(true);
     });
 
-    describe('Child Node Expansion', () => {
-        it('should load children when expanding node', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+    it("should show exact hidden count when expanding during search", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5), 20)
-            );
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 20)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                    limit: 10,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
 
-            const nodeToExpand = (wrapper.vm as any).rootNode.children[0];
+      // Search
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5, "Match"), 10, 20)
+      );
+      await (wrapper.vm as any).updateSearch("health");
+      await flushPromises();
 
-            // Load children
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(100, 10, 'Child'), 50)
-            );
+      const nodeToExpand = (wrapper.vm as any).rootNode.children[0];
 
-            await (wrapper.vm as any).toggleTermExpand(nodeToExpand);
-            await flushPromises();
+      // Expand node - 5 matching out of 50 total children
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(100, 5, "ChildMatch"), 5, 50)
+      );
 
-            expect(nodeToExpand.expanded).toBe(true);
-            expect(nodeToExpand.children.length).toBe(10);
-            expect(nodeToExpand.loadMoreTotal).toBe(50);
-            expect(nodeToExpand.loadMoreHasMore).toBe(true);
-        });
+      await (wrapper.vm as any).toggleTermExpand(nodeToExpand);
+      await flushPromises();
 
-        it('should show exact hidden count when expanding during search', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
-
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
-
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5), 20)
-            );
-
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
-
-            await flushPromises();
-
-            // Search
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5, 'Match'), 10, 20)
-            );
-            await (wrapper.vm as any).updateSearch('health');
-            await flushPromises();
-
-            const nodeToExpand = (wrapper.vm as any).rootNode.children[0];
-
-            // Expand node - 5 matching out of 50 total children
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(100, 5, 'ChildMatch'), 5, 50)
-            );
-
-            await (wrapper.vm as any).toggleTermExpand(nodeToExpand);
-            await flushPromises();
-
-            expect(nodeToExpand.loadMoreTotal).toBe(5); // Filtered count
-            expect((nodeToExpand as any).unfilteredTotal).toBe(50); // Total count
-            // Hidden count = 50 - 5 = 45
-        });
-
-        it('should support "show all" to bypass search filter', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
-
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
-
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5), 20)
-            );
-
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
-
-            await flushPromises();
-
-            // Search
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5, 'Match'), 10, 20)
-            );
-            await (wrapper.vm as any).updateSearch('health');
-            await flushPromises();
-
-            const nodeToExpand = (wrapper.vm as any).rootNode.children[0];
-
-            // Show all (bypass filter) - loads all 50 children
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(100, 10, 'Child'), 50)
-            );
-
-            await (wrapper.vm as any).toggleTermExpand(nodeToExpand, true); // showAll = true
-            await flushPromises();
-
-            expect((nodeToExpand as any).showingAll).toBe(true);
-            expect(nodeToExpand.children.length).toBe(10);
-            expect(nodeToExpand.loadMoreTotal).toBe(50); // All children, not filtered
-        });
+      expect(nodeToExpand.loadMoreTotal).toBe(5); // Filtered count
+      expect((nodeToExpand as any).unfilteredTotal).toBe(50); // Total count
+      // Hidden count = 50 - 5 = 45
     });
 
-    describe('Selection Behavior', () => {
-        it('should apply selection states when loading more items', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+    it('should support "show all" to bypass search filter', async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                totalCount: { count: 100 },
-                rootCount: { count: 50 },
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 50)
-            );
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 20)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                    modelValue: [],
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
 
-            await flushPromises();
-            await nextTick();
+      await flushPromises();
 
-            const rootNode = (wrapper.vm as any).rootNode;
-            
-            // Select Term1 manually
-            await (wrapper.vm as any).toggleTermSelect(rootNode.children[0]);
-            await flushPromises();
+      // Search
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5, "Match"), 10, 20)
+      );
+      await (wrapper.vm as any).updateSearch("health");
+      await flushPromises();
 
-            // Verify Term1 is selected
-            expect(rootNode.children[0].selected).toBe('selected');
+      const nodeToExpand = (wrapper.vm as any).rootNode.children[0];
 
-            // Load more
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(20, 20), 50)
-            );
+      // Show all (bypass filter) - loads all 50 children
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(100, 10, "Child"), 50)
+      );
 
-            await (wrapper.vm as any).loadMoreTerms(rootNode);
-            await flushPromises();
-            await nextTick();
+      await (wrapper.vm as any).toggleTermExpand(nodeToExpand, true); // showAll = true
+      await flushPromises();
 
-            // Term1 should still be selected after loading more
-            expect(rootNode.children[0].selected).toBe('selected');
-            
-            // Now select Term21 (first item in second batch)
-            await (wrapper.vm as any).toggleTermSelect(rootNode.children[20]);
-            await flushPromises();
-            
-            // Both should be selected
-            expect(rootNode.children[0].selected).toBe('selected');
-            expect(rootNode.children[20].selected).toBe('selected');
-        });
+      expect((nodeToExpand as any).showingAll).toBe(true);
+      expect(nodeToExpand.children.length).toBe(10);
+      expect(nodeToExpand.loadMoreTotal).toBe(50); // All children, not filtered
+    });
+  });
 
-        it('should not auto-select parent when children not fully loaded', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+  describe("Selection Behavior", () => {
+    it("should apply selection states when loading more items", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 50 },
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5), 20)
-            );
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 50)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                    modelValue: [],
-                    limit: 5,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          modelValue: [],
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
+      await nextTick();
 
-            const parentNode = (wrapper.vm as any).rootNode.children[0];
+      const rootNode = (wrapper.vm as any).rootNode;
 
-            // Expand parent - has 20 children total, only loads 5
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(100, 5, 'Child'), 20)
-            );
+      // Select Term1 manually
+      await (wrapper.vm as any).toggleTermSelect(rootNode.children[0]);
+      await flushPromises();
 
-            await (wrapper.vm as any).toggleTermExpand(parentNode);
-            await flushPromises();
+      // Verify Term1 is selected
+      expect(rootNode.children[0].selected).toBe("selected");
 
-            // Select all 5 visible children
-            for (const child of parentNode.children) {
-                await (wrapper.vm as any).toggleTermSelect(child);
-            }
+      // Load more
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(20, 20), 50)
+      );
 
-            // Parent should NOT be selected because loadMoreHasMore = true (15 more children not loaded)
-            expect(parentNode.selected).not.toBe('selected');
-            expect(parentNode.loadMoreHasMore).toBe(true);
-        });
+      await (wrapper.vm as any).loadMoreTerms(rootNode);
+      await flushPromises();
+      await nextTick();
 
-        it('should keep all children selected when loadMoreHasMore is false', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+      // Term1 should still be selected after loading more
+      expect(rootNode.children[0].selected).toBe("selected");
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      // Now select Term21 (first item in second batch)
+      await (wrapper.vm as any).toggleTermSelect(rootNode.children[20]);
+      await flushPromises();
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5), 20)
-            );
-
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                    modelValue: [],
-                    limit: 5,
-                },
-            });
-
-            await flushPromises();
-
-            const parentNode = (wrapper.vm as any).rootNode.children[0];
-
-            // Expand parent - only 3 children total (all loaded in one page)
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(100, 3, 'Child'), 3)
-            );
-
-            await (wrapper.vm as any).toggleTermExpand(parentNode);
-            await flushPromises();
-
-            expect(parentNode.loadMoreHasMore).toBe(false); // All children loaded
-            expect(parentNode.children.length).toBe(3);
-
-            // Select all 3 children one by one
-            await (wrapper.vm as any).toggleTermSelect(parentNode.children[0]);
-            await (wrapper.vm as any).toggleTermSelect(parentNode.children[1]);
-            await (wrapper.vm as any).toggleTermSelect(parentNode.children[2]);
-            await flushPromises();
-
-            // Check the final modelValue
-            const emissions = wrapper.emitted('update:modelValue');
-            const lastValue = emissions?.[emissions.length - 1]?.[0] as string[];
-            
-            // All children should be selected
-            expect(lastValue).toContain('Child101');
-            expect(lastValue).toContain('Child102');
-            expect(lastValue).toContain('Child103');
-            expect(lastValue.length).toBe(3);
-            
-            // Verify loadMoreHasMore is false (all children are loaded)
-            expect(parentNode.loadMoreHasMore).toBe(false);
-        });
+      // Both should be selected
+      expect(rootNode.children[0].selected).toBe("selected");
+      expect(rootNode.children[20].selected).toBe("selected");
     });
 
-    describe('IntersectionObserver and forceList', () => {
-        it('should NOT enable auto-load when forceList is true', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+    it("should not auto-select parent when children not fully loaded", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 5), 20)
-            );
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 20)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                    forceList: true,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          modelValue: [],
+          limit: 5,
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
 
-            // enableAutoLoad should be false
-            expect((wrapper.vm as any).enableAutoLoad).toBe(false);
-        });
+      const parentNode = (wrapper.vm as any).rootNode.children[0];
+
+      // Expand parent - has 20 children total, only loads 5
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(100, 5, "Child"), 20)
+      );
+
+      await (wrapper.vm as any).toggleTermExpand(parentNode);
+      await flushPromises();
+
+      // Select all 5 visible children
+      for (const child of parentNode.children) {
+        await (wrapper.vm as any).toggleTermSelect(child);
+      }
+
+      // Parent should NOT be selected because loadMoreHasMore = true (15 more children not loaded)
+      expect(parentNode.selected).not.toBe("selected");
+      expect(parentNode.loadMoreHasMore).toBe(true);
     });
 
-    describe('Prevent Duplicate Loads', () => {
-        it('should prevent simultaneous load more calls on same node', async () => {
-            const mockFetch = vi.mocked(fetchGraphql);
+    it("should keep all children selected when loadMoreHasMore is false", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
 
-            mockFetch.mockResolvedValueOnce({
-                ...mockOntologyData,
-            });
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
 
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(0, 20), 100)
-            );
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 20)
+      );
 
-            const wrapper = mount(OntologyInput, {
-                props: {
-                    ontologySchemaId: 'test-schema',
-                    ontologyTableId: 'test-table',
-                    isArray: true,
-                },
-            });
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          modelValue: [],
+          limit: 5,
+        },
+      });
 
-            await flushPromises();
+      await flushPromises();
 
-            // Mock second page (only once)
-            mockFetch.mockResolvedValueOnce(
-                createMockLoadPageResponse(createMockTerms(20, 20), 100)
-            );
+      const parentNode = (wrapper.vm as any).rootNode.children[0];
 
-            const rootNode = (wrapper.vm as any).rootNode;
+      // Expand parent - only 3 children total (all loaded in one page)
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(100, 3, "Child"), 3)
+      );
 
-            // Call loadMore twice simultaneously
-            const promise1 = (wrapper.vm as any).loadMoreTerms(rootNode);
-            const promise2 = (wrapper.vm as any).loadMoreTerms(rootNode);
+      await (wrapper.vm as any).toggleTermExpand(parentNode);
+      await flushPromises();
 
-            await Promise.all([promise1, promise2]);
-            await flushPromises();
+      expect(parentNode.loadMoreHasMore).toBe(false); // All children loaded
+      expect(parentNode.children.length).toBe(3);
 
-            // Should only load once (40 items, not 60)
-            expect(rootNode.children.length).toBe(40);
-            // mockFetch called 3 times: counts + first page + second page (NOT duplicate)
-            expect(mockFetch).toHaveBeenCalledTimes(3);
-        });
+      // Select all 3 children one by one
+      await (wrapper.vm as any).toggleTermSelect(parentNode.children[0]);
+      await (wrapper.vm as any).toggleTermSelect(parentNode.children[1]);
+      await (wrapper.vm as any).toggleTermSelect(parentNode.children[2]);
+      await flushPromises();
+
+      // Check the final modelValue
+      const emissions = wrapper.emitted("update:modelValue");
+      const lastValue = emissions?.[emissions.length - 1]?.[0] as string[];
+
+      // All children should be selected
+      expect(lastValue).toContain("Child101");
+      expect(lastValue).toContain("Child102");
+      expect(lastValue).toContain("Child103");
+      expect(lastValue.length).toBe(3);
+
+      // Verify loadMoreHasMore is false (all children are loaded)
+      expect(parentNode.loadMoreHasMore).toBe(false);
     });
+  });
+
+  describe("IntersectionObserver and forceList", () => {
+    it("should NOT enable auto-load when forceList is true", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          forceList: true,
+        },
+      });
+
+      await flushPromises();
+
+      // enableAutoLoad should be false
+      expect((wrapper.vm as any).enableAutoLoad).toBe(false);
+    });
+  });
+
+  describe("Prevent Duplicate Loads", () => {
+    it("should prevent simultaneous load more calls on same node", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+        },
+      });
+
+      await flushPromises();
+
+      // Mock second page (only once)
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(20, 20), 100)
+      );
+
+      const rootNode = (wrapper.vm as any).rootNode;
+
+      // Call loadMore twice simultaneously
+      const promise1 = (wrapper.vm as any).loadMoreTerms(rootNode);
+      const promise2 = (wrapper.vm as any).loadMoreTerms(rootNode);
+
+      await Promise.all([promise1, promise2]);
+      await flushPromises();
+
+      // Should only load once (40 items, not 60)
+      expect(rootNode.children.length).toBe(40);
+      // mockFetch called 3 times: counts + first page + second page (NOT duplicate)
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    });
+  });
 });

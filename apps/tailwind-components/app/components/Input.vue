@@ -240,7 +240,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
-    :limit="5"
+    :limit="10"
   />
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
@@ -263,7 +263,7 @@
     :ontologyTableId="refTableId!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :limit="5"
+    :limit="10"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
