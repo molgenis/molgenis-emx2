@@ -20,6 +20,7 @@ const props = withDefaults(
       disabled?: boolean;
       isSearching?: boolean;
       scrollContainer?: HTMLElement | null;
+      enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
     }>(),
     {
       inverted: false,
@@ -27,6 +28,7 @@ const props = withDefaults(
       multiselect: true,
       isSearching: false,
       scrollContainer: null,
+      enableAutoLoad: true, // Default to enabled for backward compatibility
     }
 );
 const emit = defineEmits([
@@ -80,11 +82,36 @@ const remainingTermsCount = computed(() =>
 const isShowingAll = computed(() => isNodeShowingAll(props.parentNode));
 
 const canShowAll = computed(() => {
-  // Can show all if:
-  // 1. We're searching AND
-  // 2. This node is NOT already showing all AND
-  // 3. This node has children
-  return props.isSearching && !isShowingAll.value && (props.parentNode?.children?.length || 0) > 0;
+  if (!props.isSearching || isShowingAll.value) return false;
+  if ((props.parentNode?.children?.length || 0) === 0) return false;
+
+  // If we have the exact count and it's > 0, definitely show
+  if (hiddenBySearchCount.value > 0) return true;
+
+  // If we're searching but don't have unfilteredTotal yet,
+  // still offer "show all" as there might be hidden children
+  const unfilteredTotal = (props.parentNode as any)?.unfilteredTotal;
+  if (unfilteredTotal === undefined && props.isSearching) return true;
+
+  return false;
+});
+
+const showAllMessage = computed(() => {
+  if (hiddenBySearchCount.value > 0) {
+    return `${hiddenBySearchCount.value} term${hiddenBySearchCount.value !== 1 ? 's' : ''} hidden by search filter`;
+  }
+  return 'Some children may be hidden by search filter';
+});
+
+const hiddenBySearchCount = computed(() => {
+  if (!props.isSearching || isShowingAll.value) return 0;
+
+  const unfilteredTotal = (props.parentNode as any)?.unfilteredTotal;
+  const filteredCount = props.parentNode?.loadMoreTotal || 0;
+
+  if (unfilteredTotal === undefined) return 0;
+
+  return Math.max(0, unfilteredTotal - filteredCount);
 });
 
 // Track if we're currently loading to prevent duplicate requests
@@ -115,20 +142,26 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
     observer = new IntersectionObserver(
         async (entries) => {
           for (const entry of entries) {
+            console.log('🔭 IntersectionObserver triggered:', {
+              isIntersecting: entry.isIntersecting,
+              hasMoreTerms: hasMoreTerms.value,
+              isLoading: isLoading.value,
+              hasParentNode: !!props.parentNode
+            });
+
             // Only trigger if:
             // 1. Element is intersecting
             // 2. We have more terms to load
-            // 3. Not currently searching
-            // 4. Not already loading
-            // 5. Parent node exists
+            // 3. Not already loading
+            // 4. Parent node exists
             if (
                 entry.isIntersecting &&
                 hasMoreTerms.value &&
-                !props.isSearching &&
                 !isLoading.value &&
                 props.parentNode
             ) {
               isLoading.value = true;
+              console.log('🔭 Auto-loading more items...');
 
               // Disconnect observer immediately to prevent duplicate triggers
               if (observer && typeof observer.disconnect === 'function') {
@@ -168,25 +201,28 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
 }
 
 onMounted(() => {
-  // Set up observer when component mounts
-  watch(
-      [loadMoreTrigger, () => props.scrollContainer],
-      ([trigger, container]) => {
-        if (!trigger) return;
-        setupObserver(trigger, container);
-      },
-      { immediate: true }
-  );
+  // Only set up IntersectionObserver if auto-loading is enabled
+  if (props.enableAutoLoad) {
+    // Set up observer when component mounts
+    watch(
+        [loadMoreTrigger, () => props.scrollContainer],
+        ([trigger, container]) => {
+          if (!trigger) return;
+          setupObserver(trigger, container);
+        },
+        { immediate: true }
+    );
 
-  // Also watch hasMoreTerms to re-setup when it changes
-  watch(hasMoreTerms, (newValue, oldValue) => {
-    const trigger = loadMoreTrigger.value;
-    const container = props.scrollContainer;
-    // Only setup if transitioning from false to true (new data available)
-    if (trigger && newValue && !oldValue) {
-      setupObserver(trigger, container);
-    }
-  });
+    // Also watch hasMoreTerms to re-setup when it changes
+    watch(hasMoreTerms, (newValue, oldValue) => {
+      const trigger = loadMoreTrigger.value;
+      const container = props.scrollContainer;
+      // Only setup if transitioning from false to true (new data available)
+      if (trigger && newValue && !oldValue) {
+        setupObserver(trigger, container);
+      }
+    });
+  }
 });
 
 onUnmounted(() => {
@@ -330,6 +366,7 @@ onUnmounted(() => {
             :multiselect="multiselect"
             :isSearching="isSearching"
             :scrollContainer="scrollContainer"
+            :enableAutoLoad="enableAutoLoad"
             @toggleSelect="toggleSelect"
             @toggleExpand="toggleExpand"
             @loadMore="loadMore"
@@ -381,7 +418,7 @@ onUnmounted(() => {
         </template>
         <div class="ml-6 flex items-center gap-1">
           <span class="text-body-sm italic text-input-description">
-            Some children may be hidden by search filter
+            {{ showAllMessage }}
           </span>
           <ButtonText
               class="text-input underline"

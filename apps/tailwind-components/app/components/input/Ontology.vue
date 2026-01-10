@@ -17,11 +17,13 @@ const props = withDefaults(
       ontologyTableId: string;
       limit?: number;
       selectCutOff?: number;
+      forceList?: boolean; // Force list display (no select dropdown) with manual load more only
     }
     >(),
     {
       limit: 20,
       selectCutOff: 25,
+      forceList: false,
     }
 );
 
@@ -123,8 +125,8 @@ async function reload() {
     query += `rootCount:  ${props.ontologyTableId}_agg(filter: {parent: { _is_null: true } }){count}`;
   }
 
-  //query for whole ontology, if not too large
-  if (!ontologyTree.value.length && totalCount.value < props.selectCutOff) {
+  //query for whole ontology, if not too large AND not forcing list mode
+  if (!ontologyTree.value.length && totalCount.value < props.selectCutOff && !props.forceList) {
     //retrieve whole ontology if not too big - load ALL terms, not limited by props.limit
     query += `allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){name,parent{name},label,definition,code,codesystem,ontologyTermURI}`;
   }
@@ -139,9 +141,29 @@ async function reload() {
   totalCount.value = data.totalCount?.count || totalCount.value;
   rootCount.value = data.rootCount?.count || rootCount.value;
 
-  //update the tree if we have whole ontology (otherwise that will work via retrieveTerms on showSelect
-  if (!displayAsSelect.value) {
+  //update the tree if we have whole ontology (otherwise that will work via retrieveTerms on showSelect)
+  // BUT if forceList is true, we want to load first page via retrieveTerms instead
+  if (!displayAsSelect.value && !props.forceList) {
     rootNode.value.children = assembleTreeWithChildren(data.allTerms || []);
+  } else if (props.forceList && !ontologyTree.value.length) {
+    // For forceList mode, load just the first page
+    const { terms, count } = await retrieveTerms(undefined, 0, "");
+
+    // Use rootCount if available (more accurate for root level)
+    const actualRootCount = rootCount.value || count;
+
+    console.log('🔧 forceList initial load:', {
+      termsLoaded: terms.length,
+      countFromAPI: count,
+      rootCountFromReload: rootCount.value,
+      usingCount: actualRootCount,
+      limit: props.limit,
+      hasMore: actualRootCount > props.limit
+    });
+    rootNode.value.children = terms;
+    rootNode.value.loadMoreOffset = props.limit;
+    rootNode.value.loadMoreTotal = actualRootCount;
+    rootNode.value.loadMoreHasMore = actualRootCount > props.limit;
   }
 
   if (reloadSelectionLabels) {
@@ -186,7 +208,7 @@ async function retrieveTerms(
     offset: number = 0,
     searchValue: string | undefined = undefined,
     forceShowAll: boolean = false // New parameter to show all children regardless of search
-): Promise<{ terms: ITreeNodeState[]; count: number }> {
+): Promise<{ terms: ITreeNodeState[]; count: number; totalCount?: number }> {
   // Use explicit searchValue parameter if provided, otherwise use current searchTerms
   const effectiveSearchValue = searchValue !== undefined ? searchValue : searchTerms.value;
 
@@ -209,13 +231,15 @@ async function retrieveTerms(
   }
 
   let query = shouldApplySearch
-      ? `query myquery($searchFilter:${props.ontologyTableId}Filter) {
+      ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
         retrieveTerms: ${props.ontologyTableId}(filter:$searchFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         count: ${props.ontologyTableId}_agg(filter:$searchFilter){count}
+        totalCount: ${props.ontologyTableId}_agg(filter:$termFilter){count}
        }`
       : `query myquery($termFilter:${props.ontologyTableId}Filter) {
         retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         count: ${props.ontologyTableId}_agg(filter:$termFilter){count}
+        totalCount: ${props.ontologyTableId}_agg(filter:$termFilter){count}
        }`;
 
   console.log('📡 GraphQL Query:', {
@@ -223,11 +247,23 @@ async function retrieveTerms(
     searchValue: effectiveSearchValue,
     forceShowAll,
     hasParent: !!parentNode,
+    parentNodeName: parentNode?.name,
     offset,
     variables: JSON.stringify(variables, null, 2)
   });
 
+  console.log('📡 Full Query:', query);
+
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+
+  console.log('📡 Response from API:', {
+    termsCount: data.retrieveTerms?.length || 0,
+    count: data.count?.count,
+    totalCount: data.totalCount?.count,
+    hasParent: !!parentNode,
+    isSearch: shouldApplySearch,
+    fullData: data
+  });
 
   const terms =
       data.retrieveTerms?.map((row: any) => {
@@ -248,6 +284,7 @@ async function retrieveTerms(
   return {
     terms,
     count: data.count?.count || 0,
+    totalCount: data.totalCount?.count, // Only present when searching
   };
 }
 
@@ -389,7 +426,7 @@ async function toggleTermExpand(node: ITreeNodeState, showAll: boolean = false) 
   if (!node.expanded) {
     // Initialize load state for this node
     // Use forceShowAll=true when user explicitly requests to see all children
-    const { terms, count } = await retrieveTerms(node, 0, searchTerms.value, showAll);
+    const { terms, count, totalCount } = await retrieveTerms(node, 0, searchTerms.value, showAll);
 
     node.children = terms.map((child) => {
       return {
@@ -420,6 +457,19 @@ async function toggleTermExpand(node: ITreeNodeState, showAll: boolean = false) 
 
     // Store whether this node is showing all (bypassing search filter)
     (node as any).showingAll = showAll;
+
+    // Store total count (unfiltered) to calculate hidden count
+    if (totalCount !== undefined) {
+      (node as any).unfilteredTotal = totalCount;
+      console.log('📊 Stored unfilteredTotal for node:', {
+        nodeName: node.name,
+        filteredCount: count,
+        unfilteredTotal: totalCount,
+        hidden: totalCount - count
+      });
+    } else {
+      console.warn('⚠️ No totalCount received for node:', node.name);
+    }
 
     node.expanded = true;
     applySelectedStates();
@@ -506,15 +556,19 @@ async function loadMoreTerms(node: ITreeNodeState) {
     });
 
     node.children = [...(node.children || []), ...newChildren];
-    node.loadMoreOffset = (node.loadMoreOffset || 0) + props.limit;
+    node.loadMoreOffset = (node.loadMoreOffset || 0) + terms.length; // Use actual terms loaded
 
-    // Trust the count from API and compare with current offset
-    node.loadMoreHasMore = (node.loadMoreOffset || 0) < (node.loadMoreTotal || 0);
+    // Check if we have more by comparing with total OR if we got a full batch
+    // If we got fewer terms than expected, we've reached the end
+    const gotFullBatch = terms.length >= props.limit;
+    node.loadMoreHasMore = gotFullBatch && ((node.loadMoreOffset || 0) < (node.loadMoreTotal || 0));
 
     console.log('📄 Load more complete:', {
       totalChildren: node.children.length,
+      termsJustLoaded: terms.length,
       nextOffset: node.loadMoreOffset,
       totalAvailable: node.loadMoreTotal,
+      gotFullBatch,
       hasMore: node.loadMoreHasMore
     });
 
@@ -665,9 +719,19 @@ const searchResultsSummary = computed(() => {
 });
 
 const displayAsSelect = computed(() => {
+  // If forceList is true, never display as select
+  if (props.forceList) {
+    return false;
+  }
+
   return (
       totalCount.value >= props.selectCutOff || rootCount.value >= props.limit
   );
+});
+
+const enableAutoLoad = computed(() => {
+  // Disable auto-loading when forceList is true (manual load more only)
+  return !props.forceList;
 });
 
 const ontologyTree = computed(() => rootNode.value.children || []);
@@ -818,6 +882,7 @@ onMounted(() => {
               :multiselect="isArray"
               :isSearching="!!searchTerms"
               :scrollContainer="scrollContainerRef"
+              :enableAutoLoad="enableAutoLoad"
               @toggleExpand="toggleTermExpand"
               @toggleSelect="toggleTermSelect"
               @loadMore="loadMoreTerms"
