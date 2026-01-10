@@ -26,11 +26,8 @@ const modelValueArray3 = ref([
 
 const ontologySchemaId4 = ref<string>("CatalogueOntologies");
 const ontologyTableId4 = ref<string>("Keywords");
-const modelValue4 = ref({ name: "Maternal height" });
-const modelValueArray4 = ref([
-  { name: "Maternal height" },
-  { name: "Country of cohort" },
-]);
+const modelValue4 = ref( "Maternal height" );
+const modelValueArray4 = ref(["Maternal height","Country of cohort"]);
 </script>
 
 <template>
@@ -40,7 +37,7 @@ const modelValueArray4 = ref([
     showFocusCount
     v-slot="{ invalid, valid, disabled, onBlur, onFocus }"
   >
-    <!--<div class="m-4">
+    <div class="m-4">
       <FormField
         type="ONTOLOGY"
         id="test-ontology-input-id"
@@ -184,7 +181,7 @@ const modelValueArray4 = ref([
       <p class="mt-4 text-input-description">
         modelValueArray = {{ modelValueArray3 }}
       </p>
-    </div>-->
+    </div>
     <p>Large ontologies forced to show without select (outside of the form field)</p>
       <div class="m-4">
         <InputOntology
@@ -202,7 +199,7 @@ const modelValueArray4 = ref([
         />
         <p class="mt-4 text-input-description">modelValue = {{ modelValue4 }}</p>
       </div>
-      <!---div class="m-4">
+      <div class="m-4">
         <InputOntology
             id="test-ontology-array-input-id3"
             :isArray="true"
@@ -220,6 +217,6 @@ const modelValueArray4 = ref([
         <p class="mt-4 text-input-description">
           modelValueArray = {{ modelValueArray4 }}
         </p>
-    </div-->
+    </div>
   </InputTestContainer>
 </template>

@@ -97,8 +97,11 @@ watch(
     }
 );
 
-/*initial state. Will load the labels for selection, and the whole ontology when small.
- * (large ontologies are loaded on showSelect)
+/*initial state. Will load the labels for selection, and the first page of root items.
+ * NOTE: This makes TWO queries:
+ * 1. reload() - Loads counts (totalCount, rootCount) and selected item labels
+ * 2. loadPage() - Loads first page of root items
+ * This is intentional to keep the queries separate and maintainable.
  */
 async function reload() {
   //goal is to have only one query to server as the network has most performance impact
@@ -119,16 +122,10 @@ async function reload() {
     intermediates.value = [];
   }
 
-  //query for counts
+  //query for counts (always needed)
   if (!totalCount.value || !rootCount.value) {
     query += `totalCount:  ${props.ontologyTableId}_agg{count}`;
     query += `rootCount:  ${props.ontologyTableId}_agg(filter: {parent: { _is_null: true } }){count}`;
-  }
-
-  //query for whole ontology, if not too large AND not forcing list mode
-  if (!ontologyTree.value.length && totalCount.value < props.selectCutOff && !props.forceList) {
-    //retrieve whole ontology if not too big - load ALL terms, not limited by props.limit
-    query += `allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){name,parent{name},label,definition,code,codesystem,ontologyTermURI}`;
   }
 
   //execute the query with the variables
@@ -141,48 +138,41 @@ async function reload() {
   totalCount.value = data.totalCount?.count || totalCount.value;
   rootCount.value = data.rootCount?.count || rootCount.value;
 
-  //update the tree if we have whole ontology (otherwise that will work via retrieveTerms on showSelect)
-  // BUT if forceList is true, we want to load first page via retrieveTerms instead
-  if (!displayAsSelect.value && !props.forceList) {
-    rootNode.value.children = assembleTreeWithChildren(data.allTerms || []);
-  } else if (props.forceList && !ontologyTree.value.length) {
-    // For forceList mode, load just the first page
-    const { terms, count } = await retrieveTerms(undefined, 0, "");
-
-    // Use rootCount if available (more accurate for root level)
-    const actualRootCount = rootCount.value || count;
-
-    console.log('🔧 forceList initial load:', {
-      termsLoaded: terms.length,
-      countFromAPI: count,
-      rootCountFromReload: rootCount.value,
-      usingCount: actualRootCount,
-      limit: props.limit,
-      hasMore: actualRootCount > props.limit
-    });
-    rootNode.value.children = terms;
-    rootNode.value.loadMoreOffset = props.limit;
-    rootNode.value.loadMoreTotal = actualRootCount;
-    rootNode.value.loadMoreHasMore = actualRootCount > props.limit;
-  }
-
   if (reloadSelectionLabels) {
     await applyModelValue(data);
   }
+
+  // For small ontologies (below cutoff) and NOT forceList: load everything expanded
+  // For large ontologies or forceList: load first page paginated
+  if (totalCount.value < props.selectCutOff && !props.forceList && !ontologyTree.value.length) {
+    // Load entire small ontology in one go
+    const query = `query {
+      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){
+        name,parent{name},label,definition,code,codesystem,ontologyTermURI
+      }
+    }`;
+
+    const allData = await fetchGraphql(props.ontologySchemaId, query, {});
+    rootNode.value.children = assembleTree(allData.allTerms || []);
+    applySelectedStates(); // Apply selection to the assembled tree
+  } else {
+    // Load first page using unified loadPage function
+    await loadPage(rootNode.value, 0);
+  }
+
   initLoading.value = false;
 }
 
-function assembleTreeWithChildren(
-    data: ITreeNodeState[],
+// Assemble tree from flat data (for small ontologies loaded all at once)
+function assembleTree(
+    data: any[],
     parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
-  // @ts-ignore
   return (
       data
-          // @ts-ignore
           .filter((row) => row.parent?.name == parentNode?.name)
           .map((row: any) => {
-            const node = {
+            const node: ITreeNodeState = {
               name: row.name,
               parentNode: parentNode,
               label: row.label,
@@ -192,101 +182,130 @@ function assembleTreeWithChildren(
               uri: row.ontologyTermURI,
               selectable: true,
               visible: true,
+              children: [],
+              expanded: false,
             };
-            // @ts-ignore
-            node.children = assembleTreeWithChildren(data, node);
-            // @ts-ignore
-            node.expanded = node.children.length > 0;
+            node.children = assembleTree(data, node);
+            node.expanded = node.children.length > 0; // Auto-expand if has children
             return node;
           }) || []
   );
 }
 
-/* retrieves terms, optionally as children to a parent */
-async function retrieveTerms(
-    parentNode: ITreeNodeState | undefined = undefined,
+// UNIFIED PAGE LOADING - replaces retrieveTerms and handles all cases
+async function loadPage(
+    node: ITreeNodeState,
     offset: number = 0,
     searchValue: string | undefined = undefined,
-    forceShowAll: boolean = false // New parameter to show all children regardless of search
-): Promise<{ terms: ITreeNodeState[]; count: number; totalCount?: number }> {
-  // Use explicit searchValue parameter if provided, otherwise use current searchTerms
-  const effectiveSearchValue = searchValue !== undefined ? searchValue : searchTerms.value;
+    forceShowAll: boolean = false
+): Promise<void> {
+  // Determine parent node (undefined for root)
+  const parentNode = node.name === '__root__' ? undefined : node;
 
+  // Build filter for this specific parent level
   const variables: any = {
     termFilter: parentNode
         ? { parent: { name: { equals: parentNode.name } } }
         : { parent: { _is_null: true } },
   };
 
-  // Only apply search filter if:
-  // 1. There's a search value AND
-  // 2. We're NOT forcing to show all children (forceShowAll === false)
-  const shouldApplySearch = effectiveSearchValue && !forceShowAll;
-
+  // Apply search filter if searching and not forcing show all
+  const shouldApplySearch = searchValue && !forceShowAll;
   if (shouldApplySearch) {
-    // Combine parent filter with search filter
     variables.searchFilter = Object.assign({}, variables.termFilter, {
-      _search_including_parents: effectiveSearchValue,
+      _search_including_parents: searchValue,
     });
   }
 
-  let query = shouldApplySearch
-      ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$searchFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
-        count: ${props.ontologyTableId}_agg(filter:$searchFilter){count}
-        totalCount: ${props.ontologyTableId}_agg(filter:$termFilter){count}
-       }`
-      : `query myquery($termFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
-        count: ${props.ontologyTableId}_agg(filter:$termFilter){count}
-        totalCount: ${props.ontologyTableId}_agg(filter:$termFilter){count}
-       }`;
+  // Build query - use inline filters for aggregates to avoid backend variable bug
+  const filterToUse = shouldApplySearch ? '$searchFilter' : '$termFilter';
+  const variableDeclaration = shouldApplySearch
+      ? `$termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter`
+      : `$termFilter:${props.ontologyTableId}Filter`;
 
-  console.log('📡 GraphQL Query:', {
-    isSearch: shouldApplySearch,
-    searchValue: effectiveSearchValue,
-    forceShowAll,
-    hasParent: !!parentNode,
-    parentNodeName: parentNode?.name,
+  // Convert filter objects to inline strings for aggregate queries
+  // count: filtered by parent (and search if applicable)
+  const countFilter = shouldApplySearch ? variables.searchFilter : variables.termFilter;
+  const countFilterInline = JSON.stringify(countFilter)
+      .replace(/"([^"]+)":/g, '$1:')  // Remove quotes from keys
+      .replace(/true/g, 'true')       // Keep boolean true
+      .replace(/false/g, 'false');    // Keep boolean false
+
+  // totalCount: same parent filter but WITHOUT search (to show how many hidden by search)
+  // This is the total available at this parent level, regardless of search
+  const totalCountFilterInline = JSON.stringify(variables.termFilter)
+      .replace(/"([^"]+)":/g, '$1:')
+      .replace(/true/g, 'true')
+      .replace(/false/g, 'false');
+
+  const query = `query myquery(${variableDeclaration}) {
+    retrieveTerms: ${props.ontologyTableId}(filter:${filterToUse}, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+    count: ${props.ontologyTableId}_agg(filter:${countFilterInline}){count}
+    totalCount: ${props.ontologyTableId}_agg(filter:${totalCountFilterInline}){count}
+  }`;
+
+  console.log('📡 loadPage query:', {
+    nodeName: node.name || 'root',
     offset,
+    searchValue,
+    forceShowAll,
+    filterToUse,
     variables: JSON.stringify(variables, null, 2)
   });
 
-  console.log('📡 Full Query:', query);
-
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
-  console.log('📡 Response from API:', {
+  console.log('📡 loadPage response:', {
+    nodeName: node.name || 'root',
     termsCount: data.retrieveTerms?.length || 0,
     count: data.count?.count,
     totalCount: data.totalCount?.count,
-    hasParent: !!parentNode,
-    isSearch: shouldApplySearch,
-    fullData: data
   });
 
-  const terms =
-      data.retrieveTerms?.map((row: any) => {
-        return {
-          name: row.name,
-          parentNode: parentNode,
-          label: row.label,
-          description: row.definition,
-          code: row.code,
-          codeSystem: row.codeSystem,
-          uri: row.ontologyTermURI,
-          selectable: true,
-          children: row.children,
-          visible: true, // All loaded terms are visible
-        };
-      }) || [];
+  // Map results to tree nodes
+  const newTerms = data.retrieveTerms?.map((row: any) => ({
+    name: row.name,
+    parentNode: parentNode,
+    label: row.label,
+    description: row.definition,
+    code: row.code,
+    codeSystem: row.codesystem,
+    uri: row.ontologyTermURI,
+    selectable: true,
+    children: row.children,
+    visible: true,
+  })) || [];
 
-  return {
-    terms,
-    count: data.count?.count || 0,
-    totalCount: data.totalCount?.count, // Only present when searching
-  };
+  // Update node's children
+  if (offset === 0) {
+    node.children = newTerms;
+  } else {
+    node.children = [...(node.children || []), ...newTerms];
+  }
+
+  // Update pagination state
+  const itemsLoaded = offset + newTerms.length;
+  const totalAvailable = data.count?.count || 0;
+
+  node.loadMoreOffset = itemsLoaded;
+  node.loadMoreTotal = totalAvailable;
+  node.loadMoreHasMore = newTerms.length >= props.limit && itemsLoaded < totalAvailable;
+
+  // Store unfilteredTotal for "show all" feature
+  if (data.totalCount?.count !== undefined) {
+    (node as any).unfilteredTotal = data.totalCount.count;
+  }
+
+  // Apply selection states to loaded items
+  if (node.name === '__root__') {
+    // For root level, apply to all root children
+    applySelectedStates();
+  } else {
+    // For nested nodes, apply to this node (which recursively applies to its children)
+    applyStateToNode(node);
+  }
 }
+
 
 async function applyModelValue(data: any = undefined): Promise<void> {
   valueLabels.value = {};
@@ -300,7 +319,7 @@ async function applyModelValue(data: any = undefined): Promise<void> {
         }
     );
   }
-  if (data.ontologyPaths) {
+  if (data && data.ontologyPaths) {
     valueLabels.value = Object.fromEntries(
         data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
     );
@@ -322,14 +341,15 @@ function applySelectedStates() {
 }
 
 function applyStateToNode(node: ITreeNodeState): void {
-  if (
-      props.isArray
-          ? modelValue.value?.includes(node.name)
-          : modelValue.value === node.name
-  ) {
+  const isSelected = props.isArray
+      ? modelValue.value?.includes(node.name)
+      : modelValue.value === node.name;
+  const isIntermediate = intermediates.value.includes(node.name);
+
+  if (isSelected) {
     node.selected = "selected";
     getAllChildren(node).forEach((child) => (child.selected = "selected"));
-  } else if (intermediates.value.includes(node.name)) {
+  } else if (isIntermediate) {
     node.selected = "intermediate";
     node.children?.forEach((child) => applyStateToNode(child));
   } else {
@@ -391,10 +411,12 @@ async function toggleTermSelect(node: ITreeNodeState) {
           (name) => !itemsToBeRemoved.includes(name)
       );
     }
-        // if we select last selected child
-    // then we need toggle select on parent instead
+        // if we select last child that wasn't selected yet
+        // then we need to toggle select on parent instead
+    // BUT ONLY if all children are loaded (no more to load)
     else if (
         node.parentNode &&
+        !node.parentNode.loadMoreHasMore && // All children are loaded
         node.parentNode.children
             .filter((child) => child.name != node.name)
             .every((child) => child.selected === "selected")
@@ -424,55 +446,13 @@ async function toggleTermSelect(node: ITreeNodeState) {
 
 async function toggleTermExpand(node: ITreeNodeState, showAll: boolean = false) {
   if (!node.expanded) {
-    // Initialize load state for this node
-    // Use forceShowAll=true when user explicitly requests to see all children
-    const { terms, count, totalCount } = await retrieveTerms(node, 0, searchTerms.value, showAll);
-
-    node.children = terms.map((child) => {
-      return {
-        name: child.name,
-        label: child.label,
-        code: child.code,
-        codeSystem: child.codesystem,
-        uri: child.uri,
-        description: child.description,
-        visible: child.visible,
-        children: child.children,
-        selected: props.isArray
-            ? modelValue.value?.includes(child.name)
-                ? "selected"
-                : node.selected
-            : modelValue.value === child.name
-                ? "selected"
-                : "unselected",
-        selectable: true,
-        parentNode: node,
-      };
-    });
-
-    // Store load state on the node itself - same pattern as root
-    node.loadMoreOffset = props.limit;
-    node.loadMoreTotal = count;
-    node.loadMoreHasMore = count > props.limit;
-
     // Store whether this node is showing all (bypassing search filter)
     (node as any).showingAll = showAll;
 
-    // Store total count (unfiltered) to calculate hidden count
-    if (totalCount !== undefined) {
-      (node as any).unfilteredTotal = totalCount;
-      console.log('📊 Stored unfilteredTotal for node:', {
-        nodeName: node.name,
-        filteredCount: count,
-        unfilteredTotal: totalCount,
-        hidden: totalCount - count
-      });
-    } else {
-      console.warn('⚠️ No totalCount received for node:', node.name);
-    }
+    // Load first page of children using unified loadPage
+    await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
 
     node.expanded = true;
-    applySelectedStates();
   } else {
     node.expanded = false;
   }
@@ -497,7 +477,7 @@ async function showAllChildrenOfNode(node: ITreeNodeState) {
   await toggleTermExpand(node, true);
 }
 
-// Unified loadMoreTerms - works the same for root and all child nodes
+// Unified loadMoreTerms - just calls loadPage with offset
 async function loadMoreTerms(node: ITreeNodeState) {
   const nodeKey = node.name || '__root__';
 
@@ -515,68 +495,20 @@ async function loadMoreTerms(node: ITreeNodeState) {
   loadingNodes.value.add(nodeKey);
 
   try {
-    const parentNode = node.name === '__root__' ? undefined : node;
-
     // Check if this node is showing all children (bypassing search)
     const showingAll = (node as any).showingAll || false;
 
     // Pass current search value to maintain search context when loading more
     // Unless this node is explicitly showing all children
     const searchValue = showingAll ? undefined : (searchTerms.value || undefined);
-    const { terms } = await retrieveTerms(parentNode, node.loadMoreOffset || 0, searchValue, showingAll);
 
-    console.log('📄 Loaded more terms:', {
-      nodeKey,
-      offset: node.loadMoreOffset,
-      termsLoaded: terms.length,
-      searchActive: !!searchValue,
-      showingAll
-    });
-
-    const newChildren = terms.map((child) => {
-      return {
-        name: child.name,
-        label: child.label,
-        code: child.code,
-        codeSystem: child.codesystem,
-        uri: child.uri,
-        description: child.description,
-        visible: child.visible,
-        children: child.children,
-        selected: props.isArray
-            ? modelValue.value?.includes(child.name)
-                ? "selected"
-                : parentNode?.selected || "unselected"
-            : modelValue.value === child.name
-                ? "selected"
-                : "unselected",
-        selectable: true,
-        parentNode: parentNode,
-      };
-    });
-
-    node.children = [...(node.children || []), ...newChildren];
-    node.loadMoreOffset = (node.loadMoreOffset || 0) + terms.length; // Use actual terms loaded
-
-    // Check if we have more by comparing with total OR if we got a full batch
-    // If we got fewer terms than expected, we've reached the end
-    const gotFullBatch = terms.length >= props.limit;
-    node.loadMoreHasMore = gotFullBatch && ((node.loadMoreOffset || 0) < (node.loadMoreTotal || 0));
-
-    console.log('📄 Load more complete:', {
-      totalChildren: node.children.length,
-      termsJustLoaded: terms.length,
-      nextOffset: node.loadMoreOffset,
-      totalAvailable: node.loadMoreTotal,
-      gotFullBatch,
-      hasMore: node.loadMoreHasMore
-    });
-
-    applySelectedStates();
+    // Use unified loadPage function
+    await loadPage(node, node.loadMoreOffset || 0, searchValue, showingAll);
   } finally {
     loadingNodes.value.delete(nodeKey);
   }
 }
+
 
 function deselect(name: string) {
   if (props.disabled) return;
@@ -654,43 +586,9 @@ async function updateSearch(value: string) {
   try {
     counterOffset.value = 0;
 
-    // When searching, we need to load ALL matching results, not just the first batch
-    const isSearchMode = !!value;
+    // Use unified loadPage - pass search value (or empty string for normal mode)
+    await loadPage(rootNode.value, 0, value || "");
 
-    if (isSearchMode) {
-      console.log('🔎 Search mode (LAZY): loading first page for:', value);
-
-      // For search, load ONLY the first page - not all results!
-      const { terms, count } = await retrieveTerms(undefined, 0, value);
-
-      console.log('🔎 First page loaded:', { termsCount: terms.length, totalCount: count });
-
-      // Trust the count from the API (it should be correct with searchFilter)
-      const hasMore = count > terms.length; // More results if count > what we got
-
-      rootNode.value.children = terms;
-      rootNode.value.loadMoreOffset = terms.length; // Use actual items loaded, not props.limit
-      rootNode.value.loadMoreTotal = count;
-      rootNode.value.loadMoreHasMore = hasMore;
-
-      console.log('🔎 Search results loaded with pagination:', {
-        itemsLoaded: terms.length,
-        totalCount: count,
-        hasMore,
-        nextOffset: terms.length
-      });
-    } else {
-      console.log('🔎 Normal mode: loading first page');
-      // Normal mode: enable pagination - explicitly pass empty string
-      const { terms, count } = await retrieveTerms(undefined, 0, "");
-      rootNode.value.children = [...terms];
-      rootNode.value.loadMoreOffset = props.limit;
-      rootNode.value.loadMoreTotal = count;
-      rootNode.value.loadMoreHasMore = count > props.limit;
-      console.log('🔎 First page loaded:', { termsCount: terms.length, totalCount: count });
-    }
-
-    applySelectedStates();
     console.log('🔎 Search complete');
   } finally {
     // Always clear the flag, even if there's an error
@@ -698,6 +596,7 @@ async function updateSearch(value: string) {
     isSearching = false;
   }
 }
+
 
 const hasChildren = computed(() =>
     rootNode.value.children?.some((node) => node.children?.length)
@@ -740,13 +639,10 @@ async function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
   } else {
-    const { terms, count } = await retrieveTerms(undefined, 0);
-    rootNode.value.children = [...terms];
-    rootNode.value.loadMoreOffset = props.limit;
-    rootNode.value.loadMoreTotal = count;
-    rootNode.value.loadMoreHasMore = count > props.limit;
-
-    applySelectedStates();
+    // Load first page if not already loaded
+    if (!rootNode.value.children || rootNode.value.children.length === 0) {
+      await loadPage(rootNode.value, 0);
+    }
     showSelect.value = true;
   }
 }
