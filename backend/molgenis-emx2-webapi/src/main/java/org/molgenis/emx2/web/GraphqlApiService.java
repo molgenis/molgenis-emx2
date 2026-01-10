@@ -37,7 +37,7 @@ public class GraphqlApiService {
     // hide constructor
   }
 
-  public static void createGraphQLservice(Javalin app) {
+  public static void createGraphqlService(Javalin app) {
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
