@@ -395,6 +395,17 @@ In this case, `not_equals` compares primary keys, `name` for Pet.
 }
 ```
 
+To ease standard queries the api also implements graphql fragments for each table that will expand to all fields plus the key=1 of nested 
+refs/ref_array/ontolgy/ontology_array.
+
+```graqphl
+{
+  Pet (filter: { not_equals: { name: "pooky" } }) {
+    ...PetAllFields
+  }
+}
+```
+
 ### mutation example
 
 Every mutation accepts the same object that you can retrieve via queries. This makes it easy to implement retrieve, and

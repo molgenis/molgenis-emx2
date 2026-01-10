@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
 import static graphql.scalars.ExtendedScalars.GraphQLLong;
-import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.Privileges.*;
@@ -121,11 +120,11 @@ public class GraphqlTableFieldFactory {
     return AstPrinter.printAst(getGraphqlFragments(table, false)) + "\n";
   }
 
+  // suggeste improvement: have AllField1, AllField2 indicating depth
   private FragmentDefinition getGraphqlFragments(TableMetadata table, boolean pkeyOnly) {
     String fragmentName =
-        pkeyOnly ? table.getIdentifier() + "KeyFields" : "All" + table.getIdentifier() + "Fields";
+        pkeyOnly ? table.getIdentifier() + "KeyFields" : table.getIdentifier() + "AllFields";
     List<Column> columns = pkeyOnly ? table.getPrimaryKeyColumns() : table.getStoredColumns();
-    if (pkeyOnly && table.getColumn(MG_ID) != null) columns.add(table.getColumn(MG_ID));
 
     GraphQLNamedOutputType tableType = createTableObjectType(table);
     List<Selection<?>> selections = new ArrayList<>();

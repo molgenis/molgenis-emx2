@@ -35,7 +35,6 @@ public class Constants {
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";
 
-  public static final String MG_ID = "mg_id";
   public static final String MG_TABLECLASS = "mg_tableclass";
   public static final String MG_DRAFT = "mg_draft";
   public static final String MG_DELETE = "mg_delete";

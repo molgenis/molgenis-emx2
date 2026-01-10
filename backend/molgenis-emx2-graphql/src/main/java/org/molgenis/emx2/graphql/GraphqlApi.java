@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Privileges.VIEWER;
-import static org.molgenis.emx2.jsonld.JsonLdSchemaGenerator.generateJsonLdSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -189,7 +188,7 @@ public class GraphqlApi {
         queryBuilder.field(tableField.tableGroupByField(table));
       }
       this.graphqlQueryFragments.put(
-          "All" + table.getIdentifier() + "Fields", tableField.getGraphqlFragments(table));
+          table.getIdentifier() + "AllFields", tableField.getGraphqlFragments(table));
     }
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));
@@ -309,10 +308,6 @@ public class GraphqlApi {
             .collect(Collectors.joining("\n"));
     query = "{" + query + "}";
     return query;
-  }
-
-  public String getJsonLdSchema(String schemaUrl) {
-    return generateJsonLdSchema(schema.getMetadata(), schemaUrl);
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {

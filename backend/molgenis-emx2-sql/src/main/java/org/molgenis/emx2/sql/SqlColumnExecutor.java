@@ -9,7 +9,6 @@ import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
-import static org.molgenis.emx2.sql.SqlSchemaMetadata.addMgIdColumn;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
@@ -295,68 +294,62 @@ public class SqlColumnExecutor {
 
   public static TableMetadata getOntologyTableDefinition(
       String name, Map<String, String> labels, Map<String, String> descriptions) {
-    TableMetadata result =
-        new TableMetadata(name)
-            .setLabels(labels)
-            .setDescriptions(descriptions)
-            .setTableType(TableType.ONTOLOGIES)
-            .add(
-                column("order")
-                    .setType(INT)
-                    .setDescription("Order of this term within the code system")
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42680"),
-                column("name")
-                    .setPkey()
-                    .setRequired(true)
-                    .setDescription("Unique name of the term within this table")
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
-                column("label")
-                    // .setKey(2) when we upgrade to psql 15 so we can allow parent == null in
-                    // constraint so we can ensure unique labels on each level
-                    .setDescription("User-friendly label for this term. Should be unique in parent")
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
-                column("tags")
-                    .setType(STRING_ARRAY)
-                    .setDescription("Any tags that you might need to slice and dice the ontology"),
-                column("parent")
-                    // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
-                    // constraint
-                    .setType(REF)
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
-                    .setRefTable(name)
-                    .setDescription("The parent term, in case this code exists in a hierarchy"),
-                column("codesystem")
-                    // we allow that multiple terms link to same code
-                    // however, in principle we might have cases where we need multiple codes or
-                    // even
-                    // more complex semantics?
-                    .setRequired(false)
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
-                    .setDescription(
-                        "Abbreviation of the code system/ontology this term belongs to"),
-                column("code")
-                    .setRequired(false)
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
-                    .setDescription(
-                        "Identifier used for this term within this code system/ontology"),
-                column("ontologyTermURI")
-                    // we allow that multiple terms link to same purl
-                    .setType(HYPERLINK)
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
-                    .setRequired(false)
-                    .setDescription("Reference to structured definition of this term"),
-                column("definition")
-                    .setType(TEXT)
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42777")
-                    .setDescription("A concise explanation of the meaning of this term"),
-                column("children")
-                    .setType(REFBACK)
-                    .setSemantics("http://purl.obolibrary.org/obo/NCIT_C90504")
-                    .setRefTable(name)
-                    .setDescription("Child terms, in case this term is the parent of other terms")
-                    .setRefBack("parent"));
-    addMgIdColumn(result);
-    return result;
+    return new TableMetadata(name)
+        .setLabels(labels)
+        .setDescriptions(descriptions)
+        .setTableType(TableType.ONTOLOGIES)
+        .add(
+            column("order")
+                .setType(INT)
+                .setDescription("Order of this term within the code system")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42680"),
+            column("name")
+                .setPkey()
+                .setRequired(true)
+                .setDescription("Unique name of the term within this table")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
+            column("label")
+                // .setKey(2) when we upgrade to psql 15 so we can allow parent == null in
+                // constraint so we can ensure unique labels on each level
+                .setDescription("User-friendly label for this term. Should be unique in parent")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
+            column("tags")
+                .setType(STRING_ARRAY)
+                .setDescription("Any tags that you might need to slice and dice the ontology"),
+            column("parent")
+                // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
+                // constraint
+                .setType(REF)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
+                .setRefTable(name)
+                .setDescription("The parent term, in case this code exists in a hierarchy"),
+            column("codesystem")
+                // we allow that multiple terms link to same code
+                // however, in principle we might have cases where we need multiple codes or even
+                // more complex semantics?
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
+                .setDescription("Abbreviation of the code system/ontology this term belongs to"),
+            column("code")
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
+                .setDescription("Identifier used for this term within this code system/ontology"),
+            column("ontologyTermURI")
+                // we allow that multiple terms link to same purl
+                .setType(HYPERLINK)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
+                .setRequired(false)
+                .setDescription("Reference to structured definition of this term"),
+            column("definition")
+                .setType(TEXT)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42777")
+                .setDescription("A concise explanation of the meaning of this term"),
+            column("children")
+                .setType(REFBACK)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C90504")
+                .setRefTable(name)
+                .setDescription("Child terms, in case this term is the parent of other terms")
+                .setRefBack("parent"));
   }
 
   static void validateColumn(Column c) {

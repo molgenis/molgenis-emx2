@@ -110,14 +110,6 @@ public enum ColumnType {
     }
   }
 
-  public Class<?> getNonArrayType() {
-    if (isArray()) {
-      return getType().getComponentType();
-    } else {
-      return getType();
-    }
-  }
-
   public Operator[] getOperators() {
     return this.operators;
   }

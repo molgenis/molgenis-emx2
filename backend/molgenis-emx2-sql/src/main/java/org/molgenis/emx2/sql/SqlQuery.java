@@ -39,9 +39,8 @@ public class SqlQuery extends QueryBean {
 
   private static final String QUERY_FAILED = "Query failed: ";
   private static final String ANY_SQL = "{0} = ANY ({1})";
-  private static final String JSON_AGG_SQL =
-      "COALESCE(jsonb_agg(item), '[]'::jsonb)"; // jsonld doesn't accept null
-  private static final String ROW_TO_JSON_SQL = "COALESCE(to_jsonb(item), '{}'::jsonb)";
+  private static final String JSON_AGG_SQL = "jsonb_agg(item)";
+  private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
   private static final String ITEM = "item";
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
@@ -258,15 +257,6 @@ public class SqlQuery extends QueryBean {
     Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
     Field<String> functionCallField =
         function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
-    return functionCallField.as(name(column.getIdentifier()));
-  }
-
-  private Field<String[]> intervalArrayField(String tableAlias, Column column) {
-    Field<?> intervalArrayField = field(name(alias(tableAlias), column.getName()));
-    Field<String[]> functionCallField =
-        field(
-            "array(SELECT \"MOLGENIS\".interval_to_iso8601(x) FROM unnest({0}) AS t(x))",
-            String[].class, intervalArrayField);
     return functionCallField.as(name(column.getIdentifier()));
   }
 
@@ -637,11 +627,6 @@ public class SqlQuery extends QueryBean {
          */
       } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
         fields.add(intervalField(tableAlias, column));
-      } else if (column
-          .getJooqType()
-          .getSQLDataType()
-          .equals(SQLDataType.INTERVAL.getArrayDataType())) {
-        fields.add(intervalArrayField(tableAlias, column));
       } else {
         // primitive fields
         fields.add(
