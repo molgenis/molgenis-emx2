@@ -526,6 +526,210 @@ describe('OntologyInput - Unified loadPage Architecture', () => {
       expect(summary.hasMore).toBe(true); // 10 items loaded, 45 total, limit 10
       expect(summary.showingAll).toBe(false);
     });
+
+    it('should show "show filtered" option when expanding node with filtered children', async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 100 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: 'test-schema',
+          ontologyTableId: 'test-table',
+          isArray: true,
+        },
+      });
+
+      await flushPromises();
+
+      // Start searching
+      (wrapper.vm as any).searchTerms = 'health';
+      await nextTick();
+
+      const parentNode = (wrapper.vm as any).rootNode.children[0];
+
+      // Expand parent during search - 5 match filter, 15 total children
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse(createMockTerms(0, 5, 'Match'), 5, 15)
+      );
+
+      await (wrapper.vm as any).toggleTermExpand(parentNode);
+      await flushPromises();
+
+      // Should have unfilteredTotal set
+      expect((parentNode as any).unfilteredTotal).toBe(15);
+
+      // Should have 5 visible children
+      expect(parentNode.children.length).toBe(5);
+
+      // loadMoreTotal should be 5 (filtered count)
+      expect(parentNode.loadMoreTotal).toBe(5);
+    });
+
+    it('should show "All children hidden by filter" when all children filtered out', async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 100 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: 'test-schema',
+          ontologyTableId: 'test-table',
+          isArray: true,
+        },
+      });
+
+      await flushPromises();
+
+      // Start searching
+      (wrapper.vm as any).searchTerms = 'health';
+      await nextTick();
+
+      const parentNode = (wrapper.vm as any).rootNode.children[0];
+
+      // Expand parent during search - 0 match filter, 10 total children
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse([], 0, 10)
+      );
+
+      await (wrapper.vm as any).toggleTermExpand(parentNode);
+      await flushPromises();
+
+      // Should have unfilteredTotal set
+      expect((parentNode as any).unfilteredTotal).toBe(10);
+
+      // Should have 0 visible children
+      expect(parentNode.children.length).toBe(0);
+
+      // loadMoreTotal should be 0 (no matches)
+      expect(parentNode.loadMoreTotal).toBe(0);
+
+      // Node should still be expanded (to show the message)
+      expect(parentNode.expanded).toBe(true);
+    });
+
+    it('should bypass search filter when clicking "show filtered"', async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 100 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: 'test-schema',
+          ontologyTableId: 'test-table',
+          isArray: true,
+        },
+      });
+
+      await flushPromises();
+
+      // Start searching
+      (wrapper.vm as any).searchTerms = 'health';
+      await nextTick();
+
+      const parentNode = (wrapper.vm as any).rootNode.children[0];
+
+      // Expand parent during search - 0 match filter, 10 total children
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse([], 0, 10)
+      );
+
+      await (wrapper.vm as any).toggleTermExpand(parentNode);
+      await flushPromises();
+
+      // Node should not be showing all yet
+      expect((parentNode as any).showingAll).toBeFalsy();
+
+      // Click "show filtered" - should load all 10 children bypassing filter
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse(createMockTerms(0, 10, 'All'), 10, 10)
+      );
+
+      await (wrapper.vm as any).showAllChildrenOfNode(parentNode);
+      await flushPromises();
+
+      // Should now have 10 children loaded
+      expect(parentNode.children.length).toBe(10);
+
+      // Should be marked as showing all
+      expect((parentNode as any).showingAll).toBe(true);
+
+      // loadMoreTotal should be 10 (all children)
+      expect(parentNode.loadMoreTotal).toBe(10);
+    });
+
+    it('should show combined message "X more (Y hidden by filter)"', async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 100 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse(createMockTerms(0, 20), 100)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: 'test-schema',
+          ontologyTableId: 'test-table',
+          isArray: true,
+          limit: 5, // Small limit to trigger "load more"
+        },
+      });
+
+      await flushPromises();
+
+      // Start searching
+      (wrapper.vm as any).searchTerms = 'health';
+      await nextTick();
+
+      const parentNode = (wrapper.vm as any).rootNode.children[0];
+
+      // Expand parent during search
+      // 5 loaded (limit reached), 15 match filter, 25 total children
+      mockFetch.mockResolvedValueOnce(
+          createMockLoadPageResponse(createMockTerms(0, 5, 'Match'), 15, 25)
+      );
+
+      await (wrapper.vm as any).toggleTermExpand(parentNode);
+      await flushPromises();
+
+      // Should have both hasMore and hiddenBySearch
+      expect(parentNode.loadMoreHasMore).toBe(true); // 5 >= 5 && 5 < 15
+      expect((parentNode as any).unfilteredTotal).toBe(25);
+      expect(parentNode.loadMoreTotal).toBe(15);
+
+      // Hidden count should be: 25 - 15 = 10
+      const hiddenCount = 25 - 15;
+      expect(hiddenCount).toBe(10);
+
+      // Remaining to load: 15 - 5 = 10
+      const remainingCount = 15 - 5;
+      expect(remainingCount).toBe(10);
+    });
   });
 
   describe('Child Node Expansion', () => {

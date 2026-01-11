@@ -701,7 +701,7 @@ onMounted(() => {
   >
     <!-- forceList search button -->
     <template v-if="forceList">
-      <div class="w-full flex items-center gap-2 px-2 py-2 border-b border-input-border">
+      <div class="w-full flex items-center gap-2 px-2 py-2">
         <Button icon="Search" type="text" size="tiny" @click.stop="toggleSearch">
           {{ showSearch ? 'Hide' : 'Show' }} search
         </Button>
@@ -819,30 +819,6 @@ onMounted(() => {
               aria-live="polite"
               aria-atomic="true"
           />
-
-          <!-- Search results summary -->
-          <div
-              v-if="searchResultsSummary"
-              class="mt-3 px-2 pb-2 text-body-sm text-input-description border-t border-input-border pt-2"
-          >
-            <div class="flex items-center justify-between">
-              <span class="italic">
-                Showing {{ searchResultsSummary.loaded }} matching term{{
-                  searchResultsSummary.loaded !== 1 ? "s" : ""
-                }}
-                <template v-if="searchResultsSummary.hasMore">
-                  of {{ searchResultsSummary.total }} total
-                </template>
-              </span>
-              <button
-                  @click="searchTerms = ''"
-                  class="text-input hover:text-input-hover underline cursor-pointer text-body-sm"
-                  type="button"
-              >
-                Show all terms
-              </button>
-            </div>
-          </div>
         </fieldset>
       </div>
     </InputGroupContainer>

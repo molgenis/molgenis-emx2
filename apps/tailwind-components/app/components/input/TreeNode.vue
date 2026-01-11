@@ -2,41 +2,34 @@
 import type { ITreeNodeState } from "../../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 import CustomTooltip from "../CustomTooltip.vue";
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  ref,
-  useTemplateRef,
-  watch,
-} from "vue";
+import {computed, onMounted, onUnmounted, ref, useTemplateRef, watch} from "vue";
 import InputCheckboxIcon from "../input/CheckboxIcon.vue";
 import InputRadioIcon from "../input/RadioIcon.vue";
 import InputLabel from "../input/Label.vue";
 import ButtonText from "../button/Text.vue";
 
 const props = withDefaults(
-  defineProps<{
-    id: string;
-    parentNode: ITreeNodeState;
-    inverted?: boolean;
-    isRoot: boolean;
-    multiselect?: boolean;
-    valid?: boolean;
-    invalid?: boolean;
-    disabled?: boolean;
-    isSearching?: boolean;
-    scrollContainer?: HTMLElement | null;
-    enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
-  }>(),
-  {
-    inverted: false,
-    isRoot: false,
-    multiselect: true,
-    isSearching: false,
-    scrollContainer: null,
-    enableAutoLoad: true, // Default to enabled for backward compatibility
-  }
+    defineProps<{
+      id: string;
+      parentNode: ITreeNodeState;
+      inverted?: boolean;
+      isRoot: boolean;
+      multiselect?: boolean;
+      valid?: boolean;
+      invalid?: boolean;
+      disabled?: boolean;
+      isSearching?: boolean;
+      scrollContainer?: HTMLElement | null;
+      enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
+    }>(),
+    {
+      inverted: false,
+      isRoot: false,
+      multiselect: true,
+      isSearching: false,
+      scrollContainer: null,
+      enableAutoLoad: true, // Default to enabled for backward compatibility
+    }
 );
 const emit = defineEmits([
   "toggleSelect",
@@ -66,58 +59,98 @@ function isNodeShowingAll(node: ITreeNodeState): boolean {
   return (node as any).showingAll || false;
 }
 
-const hasChildren = computed(
-  () =>
-    props.parentNode?.children?.some((node) => node.children?.length) || false
+const hasChildren = computed(() =>
+    props.parentNode.children?.some((node) => node.children?.length) || false
 );
 
-const hiddenNodesCount = computed(
-  () =>
-    props.parentNode?.children?.filter((child) => child.visible === false)
-      .length || 0
+const hiddenNodesCount = computed(() =>
+    props.parentNode.children?.filter((child) => child.visible === false).length || 0
 );
 
-const hiddenSelectedCount = computed(
-  () =>
-    props.parentNode?.children?.filter(
-      (node) => node.visible === false && node.selected === "selected"
-    ).length || 0
+const hiddenSelectedCount = computed(() =>
+    props.parentNode.children?.filter((node) => node.visible === false && node.selected === "selected").length || 0
 );
 
-const nodes = computed(() => props.parentNode?.children || []);
+const nodes = computed(() => props.parentNode.children || []);
 
-const hasMoreTerms = computed(() => props.parentNode?.loadMoreHasMore || false);
+const hasMoreTerms = computed(() => props.parentNode.loadMoreHasMore || false);
 
-const remainingTermsCount = computed(
-  () =>
-    (props.parentNode?.loadMoreTotal || 0) -
-    (props.parentNode?.children?.length || 0)
+const remainingTermsCount = computed(() =>
+    (props.parentNode.loadMoreTotal || 0) - (props.parentNode.children?.length || 0)
 );
 
 const isShowingAll = computed(() => isNodeShowingAll(props.parentNode));
 
 const canShowAll = computed(() => {
   if (!props.isSearching || isShowingAll.value) return false;
-  if ((props.parentNode?.children?.length || 0) === 0) return false;
 
   // If we have the exact count and it's > 0, definitely show
   if (hiddenBySearchCount.value > 0) return true;
 
   // If we're searching but don't have unfilteredTotal yet,
-  // still offer "show all" as there might be hidden children
+  // still offer "show filtered" as there might be hidden children
   const unfilteredTotal = (props.parentNode as any)?.unfilteredTotal;
   if (unfilteredTotal === undefined && props.isSearching) return true;
+
+  // If node has been expanded (has children array) but all are filtered out
+  // and we know there's an unfilteredTotal, show the option
+  if (props.parentNode?.children !== undefined && unfilteredTotal > 0) return true;
 
   return false;
 });
 
 const showAllMessage = computed(() => {
+  const visibleCount = props.parentNode.children?.filter((c: any) => c.visible).length || 0;
+
   if (hiddenBySearchCount.value > 0) {
-    return `${hiddenBySearchCount.value} term${
-      hiddenBySearchCount.value !== 1 ? "s" : ""
-    } hidden by search filter`;
+    return `${hiddenBySearchCount.value} term${hiddenBySearchCount.value !== 1 ? 's' : ''} hidden by filter`;
   }
-  return "Some children may be hidden by search filter";
+
+  // If no visible children and we're searching, assume all are hidden
+  if (visibleCount === 0 && props.isSearching) {
+    return 'All children hidden by filter';
+  }
+
+  // Otherwise, some might be hidden but we don't know exact count yet
+  return 'Some children may be hidden by filter';
+});
+
+// Combined message for load more + show all (when both conditions exist)
+const combinedLoadMessage = computed(() => {
+  const hasMoreToLoad = hasMoreTerms.value;
+  const hasHiddenBySearch = canShowAll.value && !isShowingAll.value;
+
+  // Both conditions true - combine the messages
+  if (hasMoreToLoad && hasHiddenBySearch) {
+    return {
+      show: true,
+      message: `${remainingTermsCount.value} more (${hiddenBySearchCount.value} hidden by filter)`,
+      showLoadMore: true,
+      showShowAll: true,
+    };
+  }
+
+  // Only load more
+  if (hasMoreToLoad) {
+    return {
+      show: true,
+      message: `${remainingTermsCount.value} more term${remainingTermsCount.value !== 1 ? 's' : ''}`,
+      showLoadMore: true,
+      showShowAll: false,
+    };
+  }
+
+  // Only show all
+  if (hasHiddenBySearch) {
+    return {
+      show: true,
+      message: showAllMessage.value,
+      showLoadMore: false,
+      showShowAll: true,
+    };
+  }
+
+  return { show: false, message: '', showLoadMore: false, showShowAll: false };
 });
 
 const hiddenBySearchCount = computed(() => {
@@ -135,7 +168,7 @@ const hiddenBySearchCount = computed(() => {
 const isLoading = ref(false);
 
 // Template ref for the load more trigger element
-const loadMoreTrigger = useTemplateRef<HTMLElement>("loadMoreTrigger");
+const loadMoreTrigger = useTemplateRef<HTMLElement>('loadMoreTrigger');
 
 // Set up intersection observer manually to handle dynamic scroll container
 let observer: IntersectionObserver | null = null;
@@ -144,11 +177,11 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
   // Clean up previous observer safely
   if (observer) {
     try {
-      if (typeof observer.disconnect === "function") {
+      if (typeof observer.disconnect === 'function') {
         observer.disconnect();
       }
     } catch (e) {
-      console.warn("Error disconnecting observer:", e);
+      console.warn('Error disconnecting observer:', e);
     }
     observer = null;
   }
@@ -157,62 +190,62 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
 
   try {
     observer = new IntersectionObserver(
-      async (entries) => {
-        for (const entry of entries) {
-          console.log("🔭 IntersectionObserver triggered:", {
-            isIntersecting: entry.isIntersecting,
-            hasMoreTerms: hasMoreTerms.value,
-            isLoading: isLoading.value,
-            hasParentNode: !!props.parentNode,
-          });
+        async (entries) => {
+          for (const entry of entries) {
+            console.log('🔭 IntersectionObserver triggered:', {
+              isIntersecting: entry.isIntersecting,
+              hasMoreTerms: hasMoreTerms.value,
+              isLoading: isLoading.value,
+              hasParentNode: !!props.parentNode
+            });
 
-          // Only trigger if:
-          // 1. Element is intersecting
-          // 2. We have more terms to load
-          // 3. Not already loading
-          // 4. Parent node exists
-          if (
-            entry.isIntersecting &&
-            hasMoreTerms.value &&
-            !isLoading.value &&
-            props.parentNode
-          ) {
-            isLoading.value = true;
-            console.log("🔭 Auto-loading more items...");
+            // Only trigger if:
+            // 1. Element is intersecting
+            // 2. We have more terms to load
+            // 3. Not already loading
+            // 4. Parent node exists
+            if (
+                entry.isIntersecting &&
+                hasMoreTerms.value &&
+                !isLoading.value &&
+                props.parentNode
+            ) {
+              isLoading.value = true;
+              console.log('🔭 Auto-loading more items...');
 
-            // Disconnect observer immediately to prevent duplicate triggers
-            if (observer && typeof observer.disconnect === "function") {
-              try {
-                observer.disconnect();
-              } catch (e) {
-                console.warn("Error disconnecting during load:", e);
+              // Disconnect observer immediately to prevent duplicate triggers
+              if (observer && typeof observer.disconnect === 'function') {
+                try {
+                  observer.disconnect();
+                } catch (e) {
+                  console.warn('Error disconnecting during load:', e);
+                }
+              }
+
+              await loadMore(props.parentNode);
+              isLoading.value = false;
+
+              // Re-setup observer after loading completes
+              // Need to check if we still have more and the trigger still exists
+              if (hasMoreTerms.value && loadMoreTrigger.value) {
+                setupObserver(loadMoreTrigger.value, props.scrollContainer);
               }
             }
-
-            await loadMore(props.parentNode);
-            isLoading.value = false;
-
-            // Re-setup observer after loading completes
-            // Need to check if we still have more and the trigger still exists
-            if (hasMoreTerms.value && loadMoreTrigger.value) {
-              setupObserver(loadMoreTrigger.value, props.scrollContainer);
-            }
           }
+        },
+        {
+          root: container || null,
+          rootMargin: '200px', // Increased margin for earlier loading
+          threshold: 0,
         }
-      },
-      {
-        root: container || null,
-        rootMargin: "200px", // Increased margin for earlier loading
-        threshold: 0,
-      }
     );
 
     // Only observe if we successfully created the observer
-    if (observer && typeof observer.observe === "function") {
+    if (observer && typeof observer.observe === 'function') {
       observer.observe(trigger);
     }
   } catch (e) {
-    console.warn("Error setting up IntersectionObserver:", e);
+    console.warn('Error setting up IntersectionObserver:', e);
     observer = null;
   }
 }
@@ -222,12 +255,12 @@ onMounted(() => {
   if (props.enableAutoLoad) {
     // Set up observer when component mounts
     watch(
-      [loadMoreTrigger, () => props.scrollContainer],
-      ([trigger, container]) => {
-        if (!trigger) return;
-        setupObserver(trigger, container);
-      },
-      { immediate: true }
+        [loadMoreTrigger, () => props.scrollContainer],
+        ([trigger, container]) => {
+          if (!trigger) return;
+          setupObserver(trigger, container);
+        },
+        { immediate: true }
     );
 
     // Also watch hasMoreTerms to re-setup when it changes
@@ -245,7 +278,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (observer) {
     try {
-      if (typeof observer.disconnect === "function") {
+      if (typeof observer.disconnect === 'function') {
         observer.disconnect();
       }
     } catch (e) {
@@ -258,214 +291,200 @@ onUnmounted(() => {
 
 <template>
   <ul
-    :class="[
+      :class="[
       inverted
         ? 'text-search-filter-group-title-inverted'
         : 'text-search-filter-group-title',
     ]"
   >
     <li
-      v-for="node in nodes.filter((node2) => node2.visible === true)"
-      :key="id + node.name"
-      class="mt-2.5 relative"
+        v-for="node in nodes.filter((node2) => node2.visible === true)"
+        :key="id + node.name"
+        class="mt-2.5 relative"
     >
       <div class="flex items-center">
         <button
-          v-if="node.children?.length"
-          @click.stop="toggleExpand(node)"
-          class="-left-[15px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
-          :class="{
+            v-if="node.children?.length"
+            @click.stop="toggleExpand(node)"
+            class="-left-[15px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
+            :class="{
             'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
               inverted,
             'text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover':
               !inverted,
           }"
-          :aria-expanded="node.expanded"
-          :aria-controls="node.name"
+            :aria-expanded="node.expanded"
+            :aria-controls="node.name"
         >
           <BaseIcon
-            :name="node.expanded ? 'caret-down' : 'caret-right'"
-            :width="20"
+              :name="node.expanded ? 'caret-down' : 'caret-right'"
+              :width="20"
           />
           <span class="sr-only">expand {{ node.name }}</span>
         </button>
         <template v-if="!isRoot">
           <BaseIcon
-            v-if="node.children?.length"
-            name="collapsible-list-item-sub"
-            :width="20"
-            class="text-blue-200 absolute -top-[9px] -left-[5px]"
+              v-if="node.children?.length"
+              name="collapsible-list-item-sub"
+              :width="20"
+              class="text-blue-200 absolute -top-[9px] -left-[5px]"
           />
           <BaseIcon
-            v-else
-            name="collapsible-list-item"
-            :width="20"
-            class="text-blue-200 absolute -top-[9px] -left-1"
+              v-else
+              name="collapsible-list-item"
+              :width="20"
+              class="text-blue-200 absolute -top-[9px] -left-1"
           />
         </template>
       </div>
       <div
-        class="flex justify-start items-center"
-        :class="{ 'ml-4': !isRoot || hasChildren }"
+          class="flex justify-start items-center"
+          :class="{ 'ml-4': !isRoot || hasChildren }"
       >
         <InputLabel
-          :for="id + '-' + node.name + '-input'"
-          class="group flex justify-center items-start"
-          :class="{
+            :for="id + '-' + node.name + '-input'"
+            class="group flex justify-center items-start"
+            :class="{
             'text-disabled cursor-not-allowed': disabled,
             'text-title cursor-pointer ': !disabled,
           }"
         >
           <input
-            v-if="node.selectable"
-            type="checkbox"
-            :indeterminate="node.selected === 'intermediate'"
-            :id="id + '-' + node.name + '-input'"
-            :name="node.name"
-            :checked="node.selected === 'selected'"
-            @click.stop="toggleSelect(node)"
-            class="sr-only"
+              v-if="node.selectable"
+              type="checkbox"
+              :indeterminate="node.selected === 'intermediate'"
+              :id="id + '-' + node.name + '-input'"
+              :name="node.name"
+              :checked="node.selected === 'selected'"
+              @click.stop="toggleSelect(node)"
+              class="sr-only"
           />
           <InputCheckboxIcon
-            v-if="node.selectable && multiselect"
-            :indeterminate="node.selected === 'intermediate'"
-            :checked="node.selected === 'selected'"
-            class="min-w-[20px]"
-            :class="{
+              v-if="node.selectable && multiselect"
+              :indeterminate="node.selected === 'intermediate'"
+              :checked="node.selected === 'selected'"
+              class="min-w-[20px]"
+              :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
-            :invalid="invalid"
-            :valid="valid"
-            :disabled="disabled"
+              :invalid="invalid"
+              :valid="valid"
+              :disabled="disabled"
           />
           <InputRadioIcon
-            v-else-if="node.selectable"
-            :indeterminate="node.selected === 'intermediate'"
-            :checked="node.selected === 'selected'"
-            class="min-w-[20px] mr-[6px] mt-[2px]"
-            :class="{
+              v-else-if="node.selectable"
+              :indeterminate="node.selected === 'intermediate'"
+              :checked="node.selected === 'selected'"
+              class="min-w-[20px] mr-[6px] mt-[2px]"
+              :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
-            :invalid="invalid"
-            :valid="valid"
-            :disabled="disabled"
+              :invalid="invalid"
+              :valid="valid"
+              :disabled="disabled"
           />
           <span
-            class="block text-body-sm leading-normal pl-1"
-            :class="inverted ? 'text-title-contrast' : 'text-title'"
+              class="block text-body-sm leading-normal pl-1"
+              :class="inverted ? 'text-title-contrast' : 'text-title'"
           >
             {{ node.label || node.name }}
           </span>
         </InputLabel>
         <div
-          class="inline-flex items-center whitespace-nowrap"
-          v-if="node.description"
+            class="inline-flex items-center whitespace-nowrap"
+            v-if="node.description"
         >
           <div class="inline-block pl-1">
             <CustomTooltip
-              label="Read more"
-              :hoverColor="inverted ? 'none' : 'white'"
-              :content="node.description"
+                label="Read more"
+                :hoverColor="inverted ? 'none' : 'white'"
+                :content="node.description"
             />
           </div>
         </div>
       </div>
-      <template v-if="node.children?.length && node.expanded">
+      <template v-if="node.expanded && node.children !== undefined">
         <TreeNode
-          :id="id"
-          class="ml-[31px]"
-          :parentNode="node"
-          :isRoot="false"
-          :inverted="inverted"
-          :invalid="invalid"
-          :valid="valid"
-          :disabled="disabled"
-          :multiselect="multiselect"
-          :isSearching="isSearching"
-          :scrollContainer="scrollContainer"
-          :enableAutoLoad="enableAutoLoad"
-          @toggleSelect="toggleSelect"
-          @toggleExpand="toggleExpand"
-          @loadMore="loadMore"
-          @showAllChildren="showAllChildren"
+            :id="id"
+            class="ml-[31px]"
+            :parentNode="node"
+            :isRoot="false"
+            :inverted="inverted"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
+            :multiselect="multiselect"
+            :isSearching="isSearching"
+            :scrollContainer="scrollContainer"
+            :enableAutoLoad="enableAutoLoad"
+            @toggleSelect="toggleSelect"
+            @toggleExpand="toggleExpand"
+            @loadMore="loadMore"
+            @showAllChildren="showAllChildren"
         />
       </template>
     </li>
 
-    <!-- Load More trigger - shows during search too (lazy loading) -->
-    <li v-if="hasMoreTerms" ref="loadMoreTrigger" class="mt-2.5 relative">
+    <!-- Combined load more / show all message -->
+    <li
+        v-if="combinedLoadMessage.show"
+        ref="loadMoreTrigger"
+        class="mt-2.5 relative"
+    >
       <div class="flex items-center">
         <template v-if="!isRoot">
           <BaseIcon
-            name="collapsible-list-item"
-            :width="20"
-            class="text-blue-200 absolute -top-[9px] -left-1"
+              name="collapsible-list-item"
+              :width="20"
+              class="text-blue-200 absolute -top-[9px] -left-1"
           />
         </template>
         <div class="ml-6 flex items-center gap-1">
           <span class="text-body-sm italic text-input-description">
-            {{ remainingTermsCount }} more term{{
-              remainingTermsCount !== 1 ? "s" : ""
-            }}
+            {{ combinedLoadMessage.message }}
           </span>
           <ButtonText
-            class="text-input underline"
-            @click.stop="loadMore(parentNode)"
+              v-if="combinedLoadMessage.showLoadMore"
+              class="text-input underline"
+              @click.stop="loadMore(parentNode)"
           >
             (load more)
           </ButtonText>
-        </div>
-      </div>
-    </li>
-
-    <!-- Show all children (bypass search filter) -->
-    <li v-if="canShowAll && !isShowingAll" class="mt-2.5 relative">
-      <div class="flex items-center">
-        <template v-if="!isRoot">
-          <BaseIcon
-            name="collapsible-list-item"
-            :width="20"
-            class="text-blue-200 absolute -top-[9px] -left-1"
-          />
-        </template>
-        <div class="ml-6 flex items-center gap-1">
-          <span class="text-body-sm italic text-input-description">
-            {{ showAllMessage }}
-          </span>
           <ButtonText
-            class="text-input underline"
-            @click.stop="showAllChildren(parentNode)"
+              v-if="combinedLoadMessage.showShowAll"
+              class="text-input underline"
+              @click.stop="showAllChildren(parentNode)"
           >
-            (show all)
+            (show filtered)
           </ButtonText>
         </div>
       </div>
     </li>
 
-    <!-- Search hidden terms -->
-    <li v-if="hiddenNodesCount > 0" class="mt-2.5 relative">
+    <!-- Search hidden terms (siblings) -->
+    <li
+        v-if="hiddenNodesCount > 0"
+        class="mt-2.5 relative"
+    >
       <div class="flex items-center">
         <template v-if="!isRoot">
           <BaseIcon
-            name="collapsible-list-item"
-            :width="20"
-            class="text-blue-200 absolute -top-[9px] -left-1"
+              name="collapsible-list-item"
+              :width="20"
+              class="text-blue-200 absolute -top-[9px] -left-1"
           />
         </template>
         <div class="ml-6 flex items-center gap-1">
           <span class="text-body-sm italic text-input-description">
-            {{ hiddenNodesCount }} term{{
-              hiddenNodesCount !== 1 ? "s" : ""
-            }}
-            hidden by search{{
+            {{ hiddenNodesCount }} term{{ hiddenNodesCount !== 1 ? 's' : '' }} hidden by search{{
               hiddenSelectedCount > 0
-                ? ` (including ${hiddenSelectedCount} selected)`
-                : ""
+                  ? ` (including ${hiddenSelectedCount} selected)`
+                  : ""
             }}
           </span>
           <ButtonText
-            class="text-input underline"
-            @click.stop="
+              class="text-input underline"
+              @click.stop="
               nodes.forEach((node) => (node.visible = true));
               emit('showOutsideResults');
             "
