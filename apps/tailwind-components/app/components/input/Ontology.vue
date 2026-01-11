@@ -250,23 +250,7 @@ async function loadPage(
     totalCount: ${props.ontologyTableId}_agg(filter:${totalCountFilterInline}){count}
   }`;
 
-  console.log("📡 loadPage query:", {
-    nodeName: node.name || "root",
-    offset,
-    searchValue,
-    forceShowAll,
-    filterToUse,
-    variables: JSON.stringify(variables, null, 2),
-  });
-
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
-
-  console.log("📡 loadPage response:", {
-    nodeName: node.name || "root",
-    termsCount: data.retrieveTerms?.length || 0,
-    count: data.count?.count,
-    totalCount: data.totalCount?.count,
-  });
 
   // Map results to tree nodes
   const newTerms =
@@ -493,12 +477,10 @@ async function loadMoreTerms(node: ITreeNodeState) {
 
   // Prevent duplicate loads for the same node
   if (loadingNodes.value.has(nodeKey)) {
-    console.log("⚠️ Already loading for node:", nodeKey);
     return;
   }
 
   if (!node.loadMoreHasMore) {
-    console.log("⚠️ No more items to load for node:", nodeKey);
     return;
   }
 
@@ -543,34 +525,24 @@ let isSearching = false; // Flag to prevent watcher from triggering during searc
 watch(searchTerms, (newValue, oldValue) => {
   // Don't trigger if we're currently executing a search
   if (isSearching) {
-    console.log("🔍 Watcher blocked: search in progress");
     return;
   }
 
   // Don't trigger on initial mount
   if (oldValue === undefined) {
     lastSearchValue = newValue;
-    console.log("🔍 Watcher blocked: initial mount");
     return;
   }
 
   // Don't trigger if value hasn't actually changed
   if (newValue === lastSearchValue) {
-    console.log("🔍 Watcher blocked: value unchanged");
     return;
   }
 
   // Only search if dropdown is open or not in select mode
   if (displayAsSelect.value && !showSelect.value) {
-    console.log("🔍 Watcher blocked: dropdown not open");
     return;
   }
-
-  console.log("🔍 Search watcher triggered:", {
-    newValue,
-    oldValue,
-    lastSearchValue,
-  });
 
   // Clear existing timer
   if (searchDebounceTimer) {
@@ -584,13 +556,16 @@ watch(searchTerms, (newValue, oldValue) => {
   }, 500); // Increased to 500ms for large tables
 });
 
+function toggleSearch() {
+  if(showSearch.value) {
+    showSearch.value = false;
+    updateSearch("");
+  } else {
+    showSearch.value = true;
+  }
+}
+
 async function updateSearch(value: string) {
-  console.log(
-    "🔎 updateSearch called with:",
-    value,
-    "isSearching flag:",
-    isSearching
-  );
 
   if (isSearching) {
     console.error("🚨 BLOCKED: updateSearch called while already searching!");
@@ -599,7 +574,6 @@ async function updateSearch(value: string) {
 
   // Set flag to prevent watcher from triggering during this search
   isSearching = true;
-  console.log("🔎 isSearching flag set to TRUE");
 
   try {
     counterOffset.value = 0;
@@ -607,10 +581,8 @@ async function updateSearch(value: string) {
     // Use unified loadPage - pass search value (or empty string for normal mode)
     await loadPage(rootNode.value, 0, value || "");
 
-    console.log("🔎 Search complete");
   } finally {
     // Always clear the flag, even if there's an error
-    console.log("🔎 isSearching flag set to FALSE");
     isSearching = false;
   }
 }
@@ -702,6 +674,10 @@ onMounted(() => {
     }"
     @click.stop="displayAsSelect ? (showSelect = true) : null"
   >
+    <template v-if="forceList">
+      <Button icon="search" type="text" size="tiny" @click.stop="toggleSearch">search for options</Button>
+      <InputSearch v-if="showSearch" size="tiny" v-model="searchTerms"/>
+    </template>
     <InputGroupContainer
       ref="wrapperRef"
       :id="`${id}-ontology`"
