@@ -18,7 +18,13 @@
       >
         Holub et al. (2016)
       </a>
-      on use.
+      on directory use, or 
+      <a
+        href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
+        target="_blank"
+      >
+        Van der Velde et al. (2016)
+      </a> for MOLGENIS use.
     </div>
     <div v-if="session?.manifest">
       Software version:
