@@ -183,7 +183,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       </p>
     </div>
     <p>
-      Large ontologies forced to show without select (outside of the form field)
+      Large ontologies forced to show without select and limit=5 (outside of the form field)
     </p>
     <div class="m-4">
       <InputOntology
