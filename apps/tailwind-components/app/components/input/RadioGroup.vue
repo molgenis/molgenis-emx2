@@ -6,7 +6,6 @@ import InputLabel from "../input/Label.vue";
 import InputRadio from "../input/Radio.vue";
 import InputRadioIcon from "../input/RadioIcon.vue";
 import ButtonText from "../button/Text.vue";
-import { defineEmits, defineModel, defineProps, withDefaults } from "vue";
 
 withDefaults(
   defineProps<
