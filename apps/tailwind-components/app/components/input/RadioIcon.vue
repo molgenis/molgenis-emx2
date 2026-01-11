@@ -10,7 +10,7 @@
       cx="10"
       cy="10"
       r="9"
-      :style="{ 'stroke-width': invalid ? 2 : 1 }"
+      :style="{ 'stroke-width': invalid || indeterminate ? 2 : 1 }"
       fill="none"
       :class="{
         'fill-input': !checked,
@@ -22,6 +22,7 @@
           !checked && !disabled && !invalid && !valid,
         'stroke-valid': valid,
         'stroke-invalid': invalid,
+        '!stroke-check-border': indeterminate,
         'stroke-disabled fill-disabled': disabled,
       }"
     />
@@ -42,6 +43,7 @@
 <script lang="ts" setup>
 defineProps<{
   checked?: boolean;
+  indeterminate: boolean;
   invalid?: boolean;
   valid?: boolean;
   disabled?: boolean;

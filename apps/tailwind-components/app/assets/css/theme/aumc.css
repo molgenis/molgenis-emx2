@@ -62,4 +62,9 @@
   --border-width-theme: 0px;
 
   --text-color-input-description: var(--color-white);
+  --border-color-button-primary: var(--color-orange-500);
+  --border-color-button-primary-hover: var(--color-orange-200);
+  --background-color-input-focused: var(--color-orange-500);
+  --border-color-input-focused: var(--color-orange-500);
+  --text-color-input-focused: var(--color-white);
 }
