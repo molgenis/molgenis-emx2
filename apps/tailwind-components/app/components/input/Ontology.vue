@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch, type Ref, onMounted } from "vue";
+import {
+  computed,
+  ref,
+  useTemplateRef,
+  watch,
+  type Ref,
+  onMounted,
+  nextTick,
+} from "vue";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
@@ -376,7 +384,6 @@ async function toggleTermSelect(node: ITreeNodeState) {
   if (props.disabled) return;
   if (!props.isArray) {
     modelValue.value = modelValue.value === node.name ? undefined : node.name;
-    showSelect.value = false;
   } else if (Array.isArray(modelValue.value)) {
     //if a selected value then simply deselect
     if (modelValue.value.includes(node.name)) {
@@ -435,10 +442,7 @@ async function toggleTermSelect(node: ITreeNodeState) {
       ];
     }
   }
-  if (searchTerms.value) {
-    // Clear search - just set to empty, watcher will handle the update
-    searchTerms.value = "";
-  }
+  await toggleSelect();
   emit("focus");
 }
 
@@ -681,22 +685,29 @@ const enableAutoLoad = computed(() => {
 
 const ontologyTree = computed(() => rootNode.value.children || []);
 
+const searchInput = ref<HTMLInputElement | null>(null);
 async function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
+    searchTerms.value = "";
   } else {
     // Load first page if not already loaded
     if (!rootNode.value.children || rootNode.value.children.length === 0) {
       await loadPage(rootNode.value, 0);
     }
     showSelect.value = true;
+    nextTick(() => {
+      searchInput.value?.focus();
+    });
   }
 }
 
 // Close dropdown when clicking outside
 const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
 useClickOutside(wrapperRef, () => {
-  showSelect.value = false;
+  if (showSelect.value) {
+    toggleSelect();
+  }
 });
 
 // Ref for the scroll container
@@ -749,6 +760,30 @@ onMounted(() => {
           class="flex-1"
         />
       </div>
+      <div
+        v-if="modelValue"
+        role="group"
+        class="flex flex-wrap items-center gap-2"
+      >
+        <Button
+          v-for="name in Array.isArray(modelValue)
+              ? (modelValue as string[]).sort()
+              : modelValue ? [modelValue] : []"
+          :key="name"
+          icon="cross"
+          iconPosition="right"
+          type="filterWell"
+          size="tiny"
+          :class="{
+            'text-disabled cursor-not-allowed': disabled,
+            'text-valid bg-valid': valid,
+            'text-invalid bg-invalid': invalid,
+          }"
+          @click.stop="deselect(name as string)"
+        >
+          {{ valueLabels[name] }}
+        </Button>
+      </div>
     </template>
 
     <InputGroupContainer
@@ -760,11 +795,11 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 px-2 h-input cursor-pointer"
+        class="flex items-center justify-between gap-2 p-2 min-h-input h-auto cursor-text"
         @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
-          <template v-if="modelValue" role="group">
+          <template v-if="modelValue && isArray" role="group">
             <Button
               v-for="name in Array.isArray(modelValue)
               ? (modelValue as string[]).sort()
@@ -784,16 +819,20 @@ onMounted(() => {
               {{ valueLabels[name] }}
             </Button>
           </template>
-          <div v-if="!disabled">
+          <template v-else-if="modelValue && !showSelect">
+            {{ valueLabels[modelValue as string] }}
+          </template>
+          <div v-if="!disabled && showSelect">
             <label :for="`search-for-${id}`" class="sr-only">
               search in ontology
             </label>
             <input
               :id="`search-for-${id}`"
               type="text"
+              ref="searchInput"
               v-model="searchTerms"
-              class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
-              placeholder="Search in terms"
+              class="flex-grow basis-0 min-w-[10px] bg-transparent focus:outline-none"
+              :placeholder="showSelect ? 'Search in terms' : ''"
               autocomplete="off"
               @click.stop="showSelect ? null : toggleSelect()"
             />
