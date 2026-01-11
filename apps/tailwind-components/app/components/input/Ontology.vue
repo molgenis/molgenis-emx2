@@ -11,8 +11,8 @@ import { useClickOutside } from "../../composables/useClickOutside";
 import fetchGraphql from "../../composables/fetchGraphql";
 
 const props = withDefaults(
-    defineProps<
-        IInputProps & {
+  defineProps<
+    IInputProps & {
       isArray?: boolean;
       ontologySchemaId: string;
       ontologyTableId: string;
@@ -20,12 +20,12 @@ const props = withDefaults(
       selectCutOff?: number;
       forceList?: boolean; // Force list display (no select dropdown) with manual load more only
     }
-    >(),
-    {
-      limit: 20,
-      selectCutOff: 25,
-      forceList: false,
-    }
+  >(),
+  {
+    limit: 20,
+    selectCutOff: 25,
+    forceList: false,
+  }
 );
 
 const emit = defineEmits(["focus", "blur"]);
@@ -92,10 +92,10 @@ function reset() {
 watch(() => props.ontologySchemaId, reset);
 watch(() => props.ontologyTableId, reset);
 watch(
-    () => modelValue.value,
-    () => {
-      applyModelValue();
-    }
+  () => modelValue.value,
+  () => {
+    applyModelValue();
+  }
 );
 
 /*initial state. Will load the labels for selection, and the first page of root items.
@@ -111,9 +111,9 @@ async function reload() {
 
   //query for the labels for the modelValue if needed
   const reloadSelectionLabels =
-      props.isArray && Array.isArray(modelValue.value)
-          ? modelValue.value.length > 0
-          : modelValue.value;
+    props.isArray && Array.isArray(modelValue.value)
+      ? modelValue.value.length > 0
+      : modelValue.value;
   if (reloadSelectionLabels) {
     //retrieve paths of all selected terms
     query = `ontologyPaths: ${props.ontologyTableId}(filter:$pathFilter,limit:1000){name,label}`;
@@ -131,8 +131,8 @@ async function reload() {
 
   //execute the query with the variables
   query = reloadSelectionLabels
-      ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
-      : `query myquery{${query}}`;
+    ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
+    : `query myquery{${query}}`;
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
   // update new counts if there
@@ -146,9 +146,9 @@ async function reload() {
   // For small ontologies (below cutoff) and NOT forceList: load everything expanded
   // For large ontologies or forceList: load first page paginated
   if (
-      totalCount.value < props.selectCutOff &&
-      !props.forceList &&
-      !ontologyTree.value.length
+    totalCount.value < props.selectCutOff &&
+    !props.forceList &&
+    !ontologyTree.value.length
   ) {
     // Load entire small ontology in one go
     const query = `query {
@@ -170,39 +170,39 @@ async function reload() {
 
 // Assemble tree from flat data (for small ontologies loaded all at once)
 function assembleTree(
-    data: any[],
-    parentNode: ITreeNodeState | undefined = undefined
+  data: any[],
+  parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
   return (
-      data
-          .filter((row) => row.parent?.name == parentNode?.name)
-          .map((row: any) => {
-            const node: ITreeNodeState = {
-              name: row.name,
-              parentNode: parentNode,
-              label: row.label,
-              description: row.definition,
-              code: row.code,
-              codesystem: row.codesystem,
-              uri: row.ontologyTermURI,
-              selectable: true,
-              visible: true,
-              children: [],
-              expanded: false,
-            };
-            node.children = assembleTree(data, node);
-            node.expanded = node.children.length > 0; // Auto-expand if has children
-            return node;
-          }) || []
+    data
+      .filter((row) => row.parent?.name == parentNode?.name)
+      .map((row: any) => {
+        const node: ITreeNodeState = {
+          name: row.name,
+          parentNode: parentNode,
+          label: row.label,
+          description: row.definition,
+          code: row.code,
+          codesystem: row.codesystem,
+          uri: row.ontologyTermURI,
+          selectable: true,
+          visible: true,
+          children: [],
+          expanded: false,
+        };
+        node.children = assembleTree(data, node);
+        node.expanded = node.children.length > 0; // Auto-expand if has children
+        return node;
+      }) || []
   );
 }
 
 // UNIFIED PAGE LOADING - replaces retrieveTerms and handles all cases
 async function loadPage(
-    node: ITreeNodeState,
-    offset: number = 0,
-    searchValue: string | undefined = undefined,
-    forceShowAll: boolean = false
+  node: ITreeNodeState,
+  offset: number = 0,
+  searchValue: string | undefined = undefined,
+  forceShowAll: boolean = false
 ): Promise<void> {
   // Determine parent node (undefined for root)
   const parentNode = node.name === "__root__" ? undefined : node;
@@ -210,8 +210,8 @@ async function loadPage(
   // Build filter for this specific parent level
   const variables: any = {
     termFilter: parentNode
-        ? { parent: { name: { equals: parentNode.name } } }
-        : { parent: { _is_null: true } },
+      ? { parent: { name: { equals: parentNode.name } } }
+      : { parent: { _is_null: true } },
   };
 
   // Apply search filter if searching and not forcing show all
@@ -225,29 +225,31 @@ async function loadPage(
   // Build query
   // For retrieveTerms: use GraphQL variables (backend handles these correctly)
   // For aggregates: use inline filters (workaround for backend bug with variables in aggregates)
-  const retrieveTermsFilter = shouldApplySearch ? "$searchFilter" : "$termFilter";
+  const retrieveTermsFilter = shouldApplySearch
+    ? "$searchFilter"
+    : "$termFilter";
 
   // Only declare the variable we're actually using in the query
   const variableDeclaration = shouldApplySearch
-      ? `$searchFilter:${props.ontologyTableId}Filter`
-      : `$termFilter:${props.ontologyTableId}Filter`;
+    ? `$searchFilter:${props.ontologyTableId}Filter`
+    : `$termFilter:${props.ontologyTableId}Filter`;
 
   // Convert filter objects to inline strings for aggregate queries
   // count: filtered by parent (and search if applicable)
   const countFilter = shouldApplySearch
-      ? variables.searchFilter
-      : variables.termFilter;
+    ? variables.searchFilter
+    : variables.termFilter;
   const countFilterInline = JSON.stringify(countFilter)
-      .replace(/"([^"]+)":/g, "$1:") // Remove quotes from keys
-      .replace(/true/g, "true") // Keep boolean true
-      .replace(/false/g, "false"); // Keep boolean false
+    .replace(/"([^"]+)":/g, "$1:") // Remove quotes from keys
+    .replace(/true/g, "true") // Keep boolean true
+    .replace(/false/g, "false"); // Keep boolean false
 
   // totalCount: same parent filter but WITHOUT search (to show how many hidden by search)
   // This is the total available at this parent level, regardless of search
   const totalCountFilterInline = JSON.stringify(variables.termFilter)
-      .replace(/"([^"]+)":/g, "$1:")
-      .replace(/true/g, "true")
-      .replace(/false/g, "false");
+    .replace(/"([^"]+)":/g, "$1:")
+    .replace(/true/g, "true")
+    .replace(/false/g, "false");
 
   const query = `query myquery(${variableDeclaration}) {
     retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
@@ -259,18 +261,18 @@ async function loadPage(
 
   // Map results to tree nodes
   const newTerms =
-      data.retrieveTerms?.map((row: any) => ({
-        name: row.name,
-        parentNode: parentNode,
-        label: row.label,
-        description: row.definition,
-        code: row.code,
-        codesystem: row.codesystem,
-        uri: row.ontologyTermURI,
-        selectable: true,
-        children: row.children,
-        visible: true,
-      })) || [];
+    data.retrieveTerms?.map((row: any) => ({
+      name: row.name,
+      parentNode: parentNode,
+      label: row.label,
+      description: row.definition,
+      code: row.code,
+      codesystem: row.codesystem,
+      uri: row.ontologyTermURI,
+      selectable: true,
+      children: row.children,
+      visible: true,
+    })) || [];
 
   // Update node's children
   if (offset === 0) {
@@ -286,7 +288,7 @@ async function loadPage(
   node.loadMoreOffset = itemsLoaded;
   node.loadMoreTotal = totalAvailable;
   node.loadMoreHasMore =
-      newTerms.length >= props.limit && itemsLoaded < totalAvailable;
+    newTerms.length >= props.limit && itemsLoaded < totalAvailable;
 
   // Store unfilteredTotal for "show all" feature
   if (data.totalCount?.count !== undefined) {
@@ -308,19 +310,19 @@ async function applyModelValue(data: any = undefined): Promise<void> {
   intermediates.value = [];
   if (data === undefined && modelValue.value) {
     data = await fetchGraphql(
-        props.ontologySchemaId,
-        `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
-        {
-          filter: { _match_any_including_parents: modelValue.value },
-        }
+      props.ontologySchemaId,
+      `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
+      {
+        filter: { _match_any_including_parents: modelValue.value },
+      }
     );
   }
   if (data && data.ontologyPaths) {
     valueLabels.value = Object.fromEntries(
-        data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
+      data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
     );
     intermediates.value = data.ontologyPaths.map(
-        (term: { name: string }) => term.name
+      (term: { name: string }) => term.name
     );
   } else {
     valueLabels.value = {};
@@ -338,8 +340,8 @@ function applySelectedStates() {
 
 function applyStateToNode(node: ITreeNodeState): void {
   const isSelected = props.isArray
-      ? modelValue.value?.includes(node.name)
-      : modelValue.value === node.name;
+    ? modelValue.value?.includes(node.name)
+    : modelValue.value === node.name;
   const isIntermediate = intermediates.value.includes(node.name);
 
   if (isSelected) {
@@ -357,7 +359,7 @@ function applyStateToNode(node: ITreeNodeState): void {
 function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
   const result: ITreeNodeState[] = [];
   node.children?.forEach((child) =>
-      result.push(child, ...getAllChildren(child))
+    result.push(child, ...getAllChildren(child))
   );
   return result;
 }
@@ -379,55 +381,55 @@ async function toggleTermSelect(node: ITreeNodeState) {
     //if a selected value then simply deselect
     if (modelValue.value.includes(node.name)) {
       modelValue.value = modelValue.value.filter(
-          (value) => value !== node.name
+        (value) => value !== node.name
       );
     }
-        //if deselection of a node in a selected parent
-        //then select all siblings except current node
+    //if deselection of a node in a selected parent
+    //then select all siblings except current node
     //recursively!
     else if (
-        node.parentNode &&
-        getAllParents(node).some((parent) =>
-            modelValue.value?.includes(parent.name)
-        )
+      node.parentNode &&
+      getAllParents(node).some((parent) =>
+        modelValue.value?.includes(parent.name)
+      )
     ) {
       const itemsToBeRemoved = [
         node.name,
         ...getAllParents(node).map((parent) => parent.name),
       ];
       const itemsToBeAdded: string[] = getAllParents(node)
-          .map((parent) =>
-              parent.selected === "selected"
-                  ? parent.children.map((child) => child.name)
-                  : []
-          )
-          .flat();
+        .map((parent) =>
+          parent.selected === "selected"
+            ? parent.children.map((child) => child.name)
+            : []
+        )
+        .flat();
       //remove parent node from select and add all siblings
       modelValue.value = [...modelValue.value, ...itemsToBeAdded].filter(
-          (name) => !itemsToBeRemoved.includes(name)
+        (name) => !itemsToBeRemoved.includes(name)
       );
     }
-        // if we select last child that wasn't selected yet
-        // then we need to toggle select on parent instead
+    // if we select last child that wasn't selected yet
+    // then we need to toggle select on parent instead
     // BUT ONLY if all children are loaded (no more to load)
     else if (
-        node.parentNode &&
-        !node.parentNode.loadMoreHasMore && // All children are loaded
-        node.parentNode.children
-            .filter((child) => child.name != node.name)
-            .every((child) => child.selected === "selected")
+      node.parentNode &&
+      !node.parentNode.loadMoreHasMore && // All children are loaded
+      node.parentNode.children
+        .filter((child) => child.name != node.name)
+        .every((child) => child.selected === "selected")
     ) {
       await toggleTermSelect(node.parentNode);
     }
-        // if we simply select a node
+    // if we simply select a node
     // then make sure to deselect all its children
     else {
       const itemsToBeRemoved: string[] = getAllChildren(node).map(
-          (child) => child.name
+        (child) => child.name
       );
       modelValue.value = [
         ...modelValue.value.filter(
-            (value) => !itemsToBeRemoved.includes(value)
+          (value) => !itemsToBeRemoved.includes(value)
         ),
         node.name,
       ];
@@ -441,8 +443,8 @@ async function toggleTermSelect(node: ITreeNodeState) {
 }
 
 async function toggleTermExpand(
-    node: ITreeNodeState,
-    showAll: boolean = false
+  node: ITreeNodeState,
+  showAll: boolean = false
 ) {
   if (!node.expanded) {
     // Store whether this node is showing all (bypassing search filter)
@@ -464,6 +466,10 @@ async function showAllChildrenOfNode(node: ITreeNodeState) {
     return;
   }
 
+  // Store the current filtered count before showing all
+  // This is the number of children that match the search filter
+  (node as any).filteredCount = node.loadMoreTotal || 0;
+
   // If node is already expanded, we need to reload its children
   if (node.expanded) {
     // Collapse first
@@ -474,6 +480,24 @@ async function showAllChildrenOfNode(node: ITreeNodeState) {
 
   // Now expand with showAll=true
   await toggleTermExpand(node, true);
+}
+
+// Handler for when user clicks "apply filter" to reapply search filter
+async function applyFilterToNode(node: ITreeNodeState) {
+  // If node is not showing all, nothing to do
+  if (!(node as any).showingAll) {
+    return;
+  }
+
+  // Collapse first
+  node.expanded = false;
+  // Clear the showingAll flag
+  (node as any).showingAll = false;
+  // Wait a tick for UI to update
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  // Re-expand with search filter applied
+  await toggleTermExpand(node, false);
 }
 
 // Unified loadMoreTerms - just calls loadPage with offset
@@ -528,24 +552,29 @@ let lastSearchValue: string = "";
 let isSearching = false; // Flag to prevent watcher from triggering during search
 
 watch(searchTerms, (newValue, oldValue) => {
-  console.log('🔍 Search watcher triggered:', { newValue, oldValue, isSearching, lastSearchValue });
+  console.log("🔍 Search watcher triggered:", {
+    newValue,
+    oldValue,
+    isSearching,
+    lastSearchValue,
+  });
 
   // Don't trigger if we're currently executing a search
   if (isSearching) {
-    console.log('🔍 Blocked: isSearching=true');
+    console.log("🔍 Blocked: isSearching=true");
     return;
   }
 
   // Don't trigger on initial mount
   if (oldValue === undefined) {
-    console.log('🔍 Blocked: initial mount');
+    console.log("🔍 Blocked: initial mount");
     lastSearchValue = newValue;
     return;
   }
 
   // Don't trigger if value hasn't actually changed
   if (newValue === lastSearchValue) {
-    console.log('🔍 Blocked: value unchanged');
+    console.log("🔍 Blocked: value unchanged");
     return;
   }
 
@@ -553,20 +582,21 @@ watch(searchTerms, (newValue, oldValue) => {
   // - In select mode AND dropdown is open, OR
   // - Not in select mode (list mode), OR
   // - forceList is enabled
-  const selectModeCheck = displayAsSelect.value && !showSelect.value && !props.forceList;
-  console.log('🔍 Select mode check:', {
+  const selectModeCheck =
+    displayAsSelect.value && !showSelect.value && !props.forceList;
+  console.log("🔍 Select mode check:", {
     displayAsSelect: displayAsSelect.value,
     showSelect: showSelect.value,
     forceList: props.forceList,
-    blocked: selectModeCheck
+    blocked: selectModeCheck,
   });
 
   if (selectModeCheck) {
-    console.log('🔍 Blocked: dropdown not open in select mode');
+    console.log("🔍 Blocked: dropdown not open in select mode");
     return;
   }
 
-  console.log('🔍 Scheduling search with debounce...');
+  console.log("🔍 Scheduling search with debounce...");
 
   // Clear existing timer
   if (searchDebounceTimer) {
@@ -575,7 +605,7 @@ watch(searchTerms, (newValue, oldValue) => {
 
   // Debounce the actual search
   searchDebounceTimer = setTimeout(() => {
-    console.log('🔍 Executing search:', newValue);
+    console.log("🔍 Executing search:", newValue);
     lastSearchValue = newValue;
     updateSearch(newValue);
   }, 500);
@@ -590,32 +620,32 @@ function toggleSearch() {
 }
 
 async function updateSearch(value: string) {
-  console.log('🔎 updateSearch called with:', value);
+  console.log("🔎 updateSearch called with:", value);
 
   if (isSearching) {
-    console.log('🔎 Blocked: already searching');
+    console.log("🔎 Blocked: already searching");
     return;
   }
 
   // Set flag to prevent watcher from triggering during this search
   isSearching = true;
-  console.log('🔎 Set isSearching=true, calling loadPage...');
+  console.log("🔎 Set isSearching=true, calling loadPage...");
 
   try {
     counterOffset.value = 0;
 
     // Use unified loadPage - pass search value (or empty string for normal mode)
     await loadPage(rootNode.value, 0, value || "");
-    console.log('🔎 loadPage completed');
+    console.log("🔎 loadPage completed");
   } finally {
     // Always clear the flag, even if there's an error
     isSearching = false;
-    console.log('🔎 Set isSearching=false');
+    console.log("🔎 Set isSearching=false");
   }
 }
 
 const hasChildren = computed(() =>
-    rootNode.value.children?.some((node) => node.children?.length)
+  rootNode.value.children?.some((node) => node.children?.length)
 );
 
 const searchResultsSummary = computed(() => {
@@ -640,7 +670,7 @@ const displayAsSelect = computed(() => {
   }
 
   return (
-      totalCount.value >= props.selectCutOff || rootCount.value >= props.limit
+    totalCount.value >= props.selectCutOff || rootCount.value >= props.limit
   );
 });
 
@@ -682,8 +712,8 @@ onMounted(() => {
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
   <div
-      v-else-if="!initLoading && totalCount"
-      :class="{
+    v-else-if="!initLoading && totalCount"
+    :class="{
       'flex flex-col items-start border outline-none rounded-input':
         displayAsSelect,
       'bg-input ': displayAsSelect && !disabled,
@@ -702,48 +732,54 @@ onMounted(() => {
     <!-- forceList search button -->
     <template v-if="forceList">
       <div class="w-full flex items-center gap-2 px-2 py-2">
-        <Button icon="Search" type="text" size="tiny" @click.stop="toggleSearch">
-          {{ showSearch ? 'Hide' : 'Show' }} search
+        <Button
+          icon="Search"
+          type="text"
+          size="tiny"
+          @click.stop="toggleSearch"
+        >
+          {{ showSearch ? "Hide" : "Show" }} search
         </Button>
         <InputSearch
-            v-if="showSearch"
-            size="tiny"
-            v-model="searchTerms"
-            placeholder="Type to search..."
-            class="flex-1"
+          :id="`${id}-search-list`"
+          v-if="showSearch"
+          size="tiny"
+          v-model="searchTerms"
+          placeholder="Type to search..."
+          class="flex-1"
         />
       </div>
     </template>
 
     <InputGroupContainer
-        ref="wrapperRef"
-        :id="`${id}-ontology`"
-        class="border-transparent w-full relative"
-        @focus="emit('focus')"
-        @blur="emit('blur')"
+      ref="wrapperRef"
+      :id="`${id}-ontology`"
+      class="border-transparent w-full relative"
+      @focus="emit('focus')"
+      @blur="emit('blur')"
     >
       <div
-          v-show="displayAsSelect"
-          class="flex items-center justify-between gap-2 px-2 h-input cursor-pointer"
-          @click.stop="toggleSelect"
+        v-show="displayAsSelect"
+        class="flex items-center justify-between gap-2 px-2 h-input cursor-pointer"
+        @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="modelValue" role="group">
             <Button
-                v-for="name in Array.isArray(modelValue)
+              v-for="name in Array.isArray(modelValue)
               ? (modelValue as string[]).sort()
               : modelValue ? [modelValue] : []"
-                :key="name"
-                icon="cross"
-                iconPosition="right"
-                type="filterWell"
-                size="tiny"
-                :class="{
+              :key="name"
+              icon="cross"
+              iconPosition="right"
+              type="filterWell"
+              size="tiny"
+              :class="{
                 'text-disabled cursor-not-allowed': disabled,
                 'text-valid bg-valid': valid,
                 'text-invalid bg-invalid': invalid,
               }"
-                @click.stop="deselect(name as string)"
+              @click.stop="deselect(name as string)"
             >
               {{ valueLabels[name] }}
             </Button>
@@ -753,92 +789,93 @@ onMounted(() => {
               search in ontology
             </label>
             <input
-                :id="`search-for-${id}`"
-                type="text"
-                v-model="searchTerms"
-                class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
-                placeholder="Search in terms"
-                autocomplete="off"
-                @click.stop="showSelect ? null : toggleSelect()"
+              :id="`search-for-${id}`"
+              type="text"
+              v-model="searchTerms"
+              class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
+              placeholder="Search in terms"
+              autocomplete="off"
+              @click.stop="showSelect ? null : toggleSelect()"
             />
           </div>
         </div>
         <div class="flex items-center gap-2">
           <BaseIcon
-              v-show="showSelect"
-              name="caret-up"
-              :class="{
+            v-show="showSelect"
+            name="caret-up"
+            :class="{
               'text-valid': valid,
               'text-invalid': invalid,
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-              @click.stop="toggleSelect"
+            @click.stop="toggleSelect"
           />
           <BaseIcon
-              v-show="!showSelect"
-              name="caret-down"
-              :class="{
+            v-show="!showSelect"
+            name="caret-down"
+            :class="{
               'text-valid': valid,
               'text-invalid': invalid,
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-              @click.stop="toggleSelect"
+            @click.stop="toggleSelect"
           />
         </div>
       </div>
       <div
-          ref="scrollContainerRef"
-          :class="{
+        ref="scrollContainerRef"
+        :class="{
           'absolute z-50 max-h-[50vh] border bg-input overflow-y-auto w-full':
             displayAsSelect,
         }"
-          v-show="showSelect || !displayAsSelect"
+        v-show="showSelect || !displayAsSelect"
       >
         <fieldset ref="treeContainer" class="pl-4">
           <legend class="sr-only">select ontology terms</legend>
           <TreeNode
-              :id="id"
-              ref="tree"
-              :parentNode="rootNode"
-              :isRoot="true"
-              :valid="valid"
-              :invalid="invalid"
-              :disabled="disabled"
-              :multiselect="isArray"
-              :isSearching="!!searchTerms"
-              :scrollContainer="scrollContainerRef"
-              :enableAutoLoad="enableAutoLoad"
-              @toggleExpand="toggleTermExpand"
-              @toggleSelect="toggleTermSelect"
-              @loadMore="loadMoreTerms"
-              @showAllChildren="showAllChildrenOfNode"
-              class="pb-2"
-              :class="{ 'pl-4': hasChildren }"
-              aria-live="polite"
-              aria-atomic="true"
+            :id="id"
+            ref="tree"
+            :parentNode="rootNode"
+            :isRoot="true"
+            :valid="valid"
+            :invalid="invalid"
+            :disabled="disabled"
+            :multiselect="isArray"
+            :isSearching="!!searchTerms"
+            :scrollContainer="scrollContainerRef"
+            :enableAutoLoad="enableAutoLoad"
+            @toggleExpand="toggleTermExpand"
+            @toggleSelect="toggleTermSelect"
+            @loadMore="loadMoreTerms"
+            @showAllChildren="showAllChildrenOfNode"
+            @applyFilter="applyFilterToNode"
+            class="pb-2"
+            :class="{ 'pl-4': hasChildren }"
+            aria-live="polite"
+            aria-atomic="true"
           />
         </fieldset>
       </div>
     </InputGroupContainer>
   </div>
   <div
-      v-else
-      class="py-4 flex justify-start items-center text-input-description"
+    v-else
+    class="py-4 flex justify-start items-center text-input-description"
   >
     <TextNoResultsMessage
-        :label="`Ontology '${props.ontologyTableId}' in schema '${props.ontologySchemaId}' is empty`"
+      :label="`Ontology '${props.ontologyTableId}' in schema '${props.ontologySchemaId}' is empty`"
     />
   </div>
   <Button
-      v-if="isArray ? (modelValue || []).length > 0 : modelValue"
-      @click="clearSelection"
-      type="text"
-      size="tiny"
-      iconPosition="right"
-      class="mr-2 underline cursor-pointer"
-      :class="{ 'pl-4': hasChildren && !displayAsSelect }"
+    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    @click="clearSelection"
+    type="text"
+    size="tiny"
+    iconPosition="right"
+    class="mr-2 underline cursor-pointer"
+    :class="{ 'pl-4': hasChildren && !displayAsSelect }"
   >
     Clear
   </Button>

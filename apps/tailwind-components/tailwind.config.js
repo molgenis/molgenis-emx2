@@ -387,7 +387,7 @@ module.exports = {
         invalid: "var(--color-invalid-foreground)",
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
-        'check-border': 'var(--border-color-button-primary)',
+        "check-border": "var(--border-color-button-primary)",
       }),
       fill: () => ({
         input: "var(--background-color-input)",
@@ -432,4 +432,3 @@ module.exports = {
   },
   plugins: ["@tailwindcss/typography", "@tailwindcss/forms"],
 };
-

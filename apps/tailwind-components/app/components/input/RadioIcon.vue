@@ -43,7 +43,7 @@
 <script lang="ts" setup>
 defineProps<{
   checked?: boolean;
-  indeterminate: boolean;
+  indeterminate?: boolean;
   invalid?: boolean;
   valid?: boolean;
   disabled?: boolean;
