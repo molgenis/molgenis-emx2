@@ -184,16 +184,20 @@ onMounted(() => {
   );
 });
 
+const searchInput = ref<HTMLInputElement | null>(null);
 function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
+    searchTerms.value = "";
     loadMoreObserver?.disconnect();
   } else {
     showSelect.value = true;
-
     if (sentinel.value) {
       loadMoreObserver?.observe(sentinel.value!);
     }
+    nextTick(() => {
+      searchInput.value?.focus();
+    });
   }
 }
 
@@ -313,11 +317,11 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 px-2 h-input"
-        @click.stop.self="toggleSelect"
+        class="flex items-center justify-between gap-2 p-2 min-h-input h-auto"
+        @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
-          <template v-if="isArray ? selection.length : selection" role="group">
+          <template v-if="isArray && selection?.length" role="group">
             <Button
               id="dsfdsdf"
               v-for="label in isArray ? selection : [selection]"
@@ -336,6 +340,9 @@ onMounted(() => {
               {{ label }}
             </Button>
           </template>
+          <template v-else-if="selection">
+            {{ selection }}
+          </template>
           <div v-if="!disabled">
             <label :for="`search-for-${id}`" class="sr-only">
               search in ontology
@@ -343,12 +350,13 @@ onMounted(() => {
             <input
               :id="`search-for-${id}`"
               type="text"
+              ref="searchInput"
               v-model="searchTerms"
               @input="updateSearch(searchTerms)"
-              class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
-              placeholder="Search in terms"
+              class="flex-1 min-w-[10px] bg-transparent focus:outline-none"
+              :placeholder="showSelect ? 'Search in terms' : ''"
               autocomplete="off"
-              @click.stop.self="toggleSelect"
+              @click.stop="showSelect ? null : toggleSelect()"
             />
           </div>
         </div>
@@ -411,6 +419,7 @@ onMounted(() => {
           />
         </fieldset>
         <div ref="sentinel" class="h-1"></div>
+        <div v-if="!listOptions?.length">No options found</div>
       </div>
     </InputGroupContainer>
   </div>
