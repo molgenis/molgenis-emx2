@@ -221,6 +221,15 @@ PetStoreNr1:Tag a owl:Class;
   rdfs:domain PetStoreNr1:User;
   rdfs:isDefinedBy <http://example.com/petstore#hasPets> .
 
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/address> a owl:DatatypeProperty;
+rdfs:range xsd:string;
+rdfs:label "address";
+rdfs:domain PetStoreNr1:User .
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/street> a owl:DatatypeProperty;
+   rdfs:range xsd:string;
+   rdfs:label "street";
+   rdfs:domain PetStoreNr1:User .
+
 <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_draft> a owl:DatatypeProperty;
   rdfs:range xsd:boolean;
   rdfs:label "mg_draft";

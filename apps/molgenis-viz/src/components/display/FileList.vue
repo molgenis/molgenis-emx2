@@ -1,6 +1,6 @@
 <template>
   <MessageBox type="error" v-if="error" class="file-list-error">
-    <p><strong>Unable to retrieve files</strong></p>
+    <p><strong>Unable to retrieve files:</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
   <MessageBox type="error" v-else-if="!data" class="file-list-error">
@@ -108,7 +108,7 @@ const data = ref<FilesData[]>();
 
 async function getFiles() {
   const query = gql`query {
-    ${props.table} ${props.filter || ""} {
+     ${props.table} ( ${props.filter || ""}, orderby: {order: ASC}) {
       ${props.labelsColumn || ""}
       ${props.fileColumn} {
         id
@@ -120,17 +120,19 @@ async function getFiles() {
     }
   }`;
 
+  console.log("QUERY", query);
   const response: FilesResponse = await request("../api/graphql", query);
+  console.log("RESPONSE", response);
   const files = response[props.table as keyof FilesResponse];
   data.value = files as unknown as FilesData[];
 }
 
 onMounted(() => {
   getFiles().catch((err) => {
-    if (!err.response.errors.length) {
-      error.value = err;
-    } else {
+    if (err?.response?.errors?.length > 0 && err.response.errors[0].message) {
       error.value = err.response.errors[0].message;
+    } else {
+      error.value = err?.message || "An unexpected error occurred.";
     }
   });
 });

@@ -42,16 +42,18 @@ const emitSelectedChildren = ref(true);
   <h1 class="text-heading-2xl pb-4">InputTree</h1>
   <div class="flex flex-row gap-2 mb-4">
     <div class="basis-3/5">
-      <InputTree
-        id="tree-story-input"
-        :nodes="nodes"
-        v-model="selectedNodesNames"
-        :expandSelected="expandSelected"
-        class="p-4"
-        :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
-        :inverted="inverted"
-        :emitSelectedChildren="emitSelectedChildren"
-      />
+      <ClientOnly>
+        <InputTree
+          id="tree-story-input"
+          :nodes="nodes"
+          v-model="selectedNodesNames"
+          :expandSelected="expandSelected"
+          class="p-4"
+          :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
+          :inverted="inverted"
+          :emitSelectedChildren="emitSelectedChildren"
+        />
+      </ClientOnly>
     </div>
 
     <div class="basis-2/5 p-2 text-title">
