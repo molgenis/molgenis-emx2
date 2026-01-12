@@ -813,6 +813,26 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
+    def get_schema_settings(self, name: str = None):
+        """Retrieves the schema's settings and returns it as TODO"""
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        query = queries.list_schema_settings()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
+
+        response_json = response.json()
+        settings = response_json.get('data').get('_schema').get('settings')
+
+        return settings
+
+
     def _prepare_filter(self, expr: str, _table: str, _schema: str) -> dict | None:
         """Prepares a GraphQL filter based on the expression passed into `get`."""
         if expr in [None, ""]:

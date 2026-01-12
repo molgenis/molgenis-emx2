@@ -18,7 +18,6 @@ username = os.environ.get("MG_USERNAME")
 password = os.environ.get("MG_PASSWORD")
 token = os.environ.get("MOLGENIS_TOKEN")
 
-RESOURCES_DIR = Path(__file__).parent / "resources"
 
 def test_catalogue_demo_resources():
     """Tests the `get` method on the Resources table in the catalogue-demo schema."""
