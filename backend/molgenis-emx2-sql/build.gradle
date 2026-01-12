@@ -21,7 +21,7 @@ tasks.register('initDatabase', JavaExec) {
     description = 'Initialize database for testing'
 
     mainClass.set('org.molgenis.emx2.sql.InitDatabase')
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.test.runtimeClasspath
 
     def outputFile = layout.buildDirectory.file('initDatabase.txt')
     outputs.file(outputFile)
