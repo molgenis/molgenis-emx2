@@ -5,7 +5,6 @@ build/
 !gradle-wrapper.jar
 out
 dist
-# Ignore JAR files in root directory (copied by dockerBuild task)
 /*.jar
 
 .DS_Store
