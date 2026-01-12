@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, \
-    NoSuchTableException
+    NoSuchTableException, PermissionDeniedException
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -30,3 +30,19 @@ def test_get_schema_settings():
         client.set_schema("catalogue-demo")
         schema_settings = client.get_schema_settings()
         assert len(schema_settings) == 2
+
+def test_get_schema_members():
+    """Tests the `get_schema_members` method."""
+    with Client(url=server_url) as client:
+        client.set_schema("catalogue-demo")
+        with pytest.raises(PermissionDeniedException) as excinfo:
+            schema_members = client.get_schema_members()
+        assert excinfo.value.msg == "Cannot access members on this schema."
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+        client.set_schema("catalogue-demo")
+        schema_members: list[dict] = client.get_schema_members()
+        assert len(schema_members) == 1
+        assert schema_members[0].get('email') == "anonymous"
+        assert schema_members[0].get('role') == "Viewer"
