@@ -58,6 +58,10 @@ function handleUpdate(newValue: string) {
   if (newValue !== props.modelValue) {
     emit("update:modelValue", newValue);
   }
+
+  if (!newValue) {
+    setPlaceholder();
+  }
 }
 
 function handleBlur() {
