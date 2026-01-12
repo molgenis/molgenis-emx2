@@ -104,7 +104,8 @@ public class ChangeLogExecutor {
                 table.getSchemaName(), table.getTableName()));
   }
 
-  static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema, int limit) {
+  static List<Change> executeGetChanges(
+      DSLContext jooq, SchemaMetadata schema, int limit, int offset) {
     if (!hasChangeLogTable(jooq, schema)) {
       return Collections.emptyList();
     }
@@ -113,6 +114,7 @@ public class ChangeLogExecutor {
             .from(table(name(schema.getName(), Constants.CHANGELOG_TABLE)))
             .orderBy(STAMP.desc())
             .limit(limit)
+            .offset(offset)
             .fetch();
 
     return result.stream()
