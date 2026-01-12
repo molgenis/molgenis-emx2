@@ -103,15 +103,9 @@ const isShowingAll = computed(() => isNodeShowingAll(props.parentNode));
 
 const canShowAll = computed(() => {
   if (!props.isSearching || isShowingAll.value) return false;
-
-  // If we have the exact count and it's > 0, check if anything is actually hidden
   if (hiddenBySearchCount.value > 0) return true;
-
-  // If we're searching but don't have unfilteredTotal yet,
-  // still offer "show filtered" as there might be hidden children
   const unfilteredTotal = (props.parentNode as any)?.unfilteredTotal;
   if (unfilteredTotal === undefined && props.isSearching) {
-    // But only if there are some children - if empty, definitely don't show
     if (
       (props.parentNode?.children?.length || 0) === 0 &&
       props.parentNode?.loadMoreTotal === 0
@@ -120,16 +114,10 @@ const canShowAll = computed(() => {
     }
     return true;
   }
-
-  // If node has been expanded (has children array) and we know unfilteredTotal
-  // Check if filtered count equals unfiltered count (nothing hidden)
   const filteredCount = props.parentNode?.loadMoreTotal || 0;
   if (unfilteredTotal !== undefined && filteredCount === unfilteredTotal) {
-    // Nothing is hidden by the filter
     return false;
   }
-
-  // If node has been expanded but all are filtered out and we know there's an unfilteredTotal
   if (props.parentNode?.children !== undefined && unfilteredTotal > 0)
     return true;
 
@@ -146,28 +134,21 @@ const showAllMessage = computed(() => {
     } hidden by filter`;
   }
 
-  // If no visible children and we're searching, assume all are hidden
   if (visibleCount === 0 && props.isSearching) {
     return "All children hidden by filter";
   }
 
-  // Otherwise, some might be hidden but we don't know exact count yet
   return "Some children may be hidden by filter";
 });
 
-// Combined message for load more + show all (when both conditions exist)
 const combinedLoadMessage = computed(() => {
   const hasMoreToLoad = hasMoreTerms.value;
   const hasHiddenBySearch = canShowAll.value && !isShowingAll.value;
   const isCurrentlyShowingAll = isShowingAll.value;
 
-  // If showing all (bypassing filter), show option to reapply filter
   if (isCurrentlyShowingAll && props.isSearching) {
     const visibleCount =
       props.parentNode.children?.filter((c: any) => c.visible).length || 0;
-
-    // Use the stored filteredCount from before we did "show all"
-    // This tells us how many children match the search filter
     const filteredCount = (props.parentNode as any)?.filteredCount || 0;
 
     return {
@@ -181,7 +162,6 @@ const combinedLoadMessage = computed(() => {
     };
   }
 
-  // Both conditions true - combine the messages
   if (hasMoreToLoad && hasHiddenBySearch) {
     return {
       show: true,
@@ -192,7 +172,6 @@ const combinedLoadMessage = computed(() => {
     };
   }
 
-  // Only load more
   if (hasMoreToLoad) {
     return {
       show: true,
@@ -205,7 +184,6 @@ const combinedLoadMessage = computed(() => {
     };
   }
 
-  // Only show all
   if (hasHiddenBySearch) {
     return {
       show: true,
@@ -227,26 +205,17 @@ const combinedLoadMessage = computed(() => {
 
 const hiddenBySearchCount = computed(() => {
   if (!props.isSearching || isShowingAll.value) return 0;
-
   const unfilteredTotal = (props.parentNode as any)?.unfilteredTotal;
   const filteredCount = props.parentNode?.loadMoreTotal || 0;
-
   if (unfilteredTotal === undefined) return 0;
-
   return Math.max(0, unfilteredTotal - filteredCount);
 });
 
-// Track if we're currently loading to prevent duplicate requests
 const isLoading = ref(false);
-
-// Template ref for the load more trigger element
 const loadMoreTrigger = useTemplateRef<HTMLElement>("loadMoreTrigger");
-
-// Set up intersection observer manually to handle dynamic scroll container
 let observer: IntersectionObserver | null = null;
 
 function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
-  // Clean up previous observer safely
   if (observer) {
     try {
       if (typeof observer.disconnect === "function") {
@@ -271,11 +240,6 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
             hasParentNode: !!props.parentNode,
           });
 
-          // Only trigger if:
-          // 1. Element is intersecting
-          // 2. We have more terms to load
-          // 3. Not already loading
-          // 4. Parent node exists
           if (
             entry.isIntersecting &&
             hasMoreTerms.value &&
@@ -283,9 +247,6 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
             props.parentNode
           ) {
             isLoading.value = true;
-            console.log("🔭 Auto-loading more items...");
-
-            // Disconnect observer immediately to prevent duplicate triggers
             if (observer && typeof observer.disconnect === "function") {
               try {
                 observer.disconnect();
@@ -293,12 +254,8 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
                 console.warn("Error disconnecting during load:", e);
               }
             }
-
             await loadMore(props.parentNode);
             isLoading.value = false;
-
-            // Re-setup observer after loading completes
-            // Need to check if we still have more and the trigger still exists
             if (hasMoreTerms.value && loadMoreTrigger.value) {
               setupObserver(loadMoreTrigger.value, props.scrollContainer);
             }
@@ -307,12 +264,11 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
       },
       {
         root: container || null,
-        rootMargin: "200px", // Increased margin for earlier loading
+        rootMargin: "200px",
         threshold: 0,
       }
     );
 
-    // Only observe if we successfully created the observer
     if (observer && typeof observer.observe === "function") {
       observer.observe(trigger);
     }
@@ -323,9 +279,7 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
 }
 
 onMounted(() => {
-  // Only set up IntersectionObserver if auto-loading is enabled
   if (props.enableAutoLoad) {
-    // Set up observer when component mounts
     watch(
       [loadMoreTrigger, () => props.scrollContainer],
       ([trigger, container]) => {
@@ -335,11 +289,9 @@ onMounted(() => {
       { immediate: true }
     );
 
-    // Also watch hasMoreTerms to re-setup when it changes
     watch(hasMoreTerms, (newValue, oldValue) => {
       const trigger = loadMoreTrigger.value;
       const container = props.scrollContainer;
-      // Only setup if transitioning from false to true (new data available)
       if (trigger && newValue && !oldValue) {
         setupObserver(trigger, container);
       }
@@ -497,8 +449,6 @@ onUnmounted(() => {
         />
       </template>
     </li>
-
-    <!-- Combined load more / show all message -->
     <li
       v-if="combinedLoadMessage.show"
       ref="loadMoreTrigger"
@@ -540,8 +490,6 @@ onUnmounted(() => {
         </div>
       </div>
     </li>
-
-    <!-- Search hidden terms (siblings) -->
     <li v-if="hiddenNodesCount > 0" class="mt-2.5 relative">
       <div class="flex items-center">
         <template v-if="!isRoot">

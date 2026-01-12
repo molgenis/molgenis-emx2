@@ -25,10 +25,18 @@ test("performance should not degrade when filling form fields in on a large form
     .getByRole("textbox", { name: "1.1 SPIDER ID (Individual ID" })
     .press("Tab");
 
-    //check that ontology loading is not slow anymore
-  await page.getByRole('link', { name: 'Clinical Diagnostic' }).click();
-  await page.locator('#hpo-form-field-input-ontology > .flex.items-center.justify-between').click();
-  await page.getByRole('listitem').filter({ hasText: 'Abnormality of body height' }).locator('rect').click();
+  //check that ontology loading is not slow anymore
+  await page.getByRole("link", { name: "Clinical Diagnostic" }).click();
+  await page
+    .locator(
+      "#hpo-form-field-input-ontology > .flex.items-center.justify-between"
+    )
+    .click();
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "Abnormality of body height" })
+    .locator("rect")
+    .click();
 
   await page
     .getByRole("textbox", { name: "Alternative ID" })
@@ -41,7 +49,9 @@ test("performance should not degrade when filling form fields in on a large form
   await expect(
     page.getByRole("textbox", { name: "1.1 SPIDER ID (Individual ID" })
   ).toHaveValue("i like typing ");
-  await expect(page.getByRole('button', { name: 'Abnormality of body height' })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Abnormality of body height" })
+  ).toBeVisible();
 
   await expect(
     page.getByRole("textbox", { name: "Alternative ID" })

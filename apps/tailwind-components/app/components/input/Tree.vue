@@ -247,7 +247,6 @@ const rootNodes = computed(() => {
   return Object.values(nodeMap.value).filter((node) => !node.parent);
 });
 
-/* Create a virtual root node that contains all root nodes as children */
 const virtualRootNode = computed<ITreeNodeState>(() => ({
   name: "__root__",
   label: "Root",

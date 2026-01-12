@@ -106,12 +106,6 @@ watch(
   }
 );
 
-/*initial state. Will load the labels for selection, and the first page of root items.
- * NOTE: This makes TWO queries:
- * 1. reload() - Loads counts (totalCount, rootCount) and selected item labels
- * 2. loadPage() - Loads first page of root items
- * This is intentional to keep the queries separate and maintainable.
- */
 async function reload() {
   //goal is to have only one query to server as the network has most performance impact
   let query = "";
@@ -131,13 +125,12 @@ async function reload() {
     intermediates.value = [];
   }
 
-  //query for counts (always needed)
+  //query for counts
   if (!totalCount.value || !rootCount.value) {
     query += `totalCount:  ${props.ontologyTableId}_agg{count}`;
     query += `rootCount:  ${props.ontologyTableId}_agg(filter: {parent: { _is_null: true } }){count}`;
   }
 
-  //execute the query with the variables
   query = reloadSelectionLabels
     ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
     : `query myquery{${query}}`;
@@ -151,8 +144,6 @@ async function reload() {
     await applyModelValue(data);
   }
 
-  // For small ontologies (below cutoff) and NOT forceList: load everything expanded
-  // For large ontologies or forceList: load first page paginated
   if (
     totalCount.value < props.selectCutOff &&
     !props.forceList &&
@@ -167,16 +158,14 @@ async function reload() {
 
     const allData = await fetchGraphql(props.ontologySchemaId, query, {});
     rootNode.value.children = assembleTree(allData.allTerms || []);
-    applySelectedStates(); // Apply selection to the assembled tree
+    applySelectedStates();
   } else {
-    // Load first page using unified loadPage function
     await loadPage(rootNode.value, 0);
   }
 
   initLoading.value = false;
 }
 
-// Assemble tree from flat data (for small ontologies loaded all at once)
 function assembleTree(
   data: any[],
   parentNode: ITreeNodeState | undefined = undefined
@@ -199,30 +188,26 @@ function assembleTree(
           expanded: false,
         };
         node.children = assembleTree(data, node);
-        node.expanded = node.children.length > 0; // Auto-expand if has children
+        node.expanded = node.children.length > 0;
         return node;
       }) || []
   );
 }
 
-// UNIFIED PAGE LOADING - replaces retrieveTerms and handles all cases
 async function loadPage(
   node: ITreeNodeState,
   offset: number = 0,
   searchValue: string | undefined = undefined,
   forceShowAll: boolean = false
 ): Promise<void> {
-  // Determine parent node (undefined for root)
   const parentNode = node.name === "__root__" ? undefined : node;
 
-  // Build filter for this specific parent level
   const variables: any = {
     termFilter: parentNode
       ? { parent: { name: { equals: parentNode.name } } }
       : { parent: { _is_null: true } },
   };
 
-  // Apply search filter if searching and not forcing show all
   const shouldApplySearch = searchValue && !forceShowAll;
   if (shouldApplySearch) {
     variables.searchFilter = Object.assign({}, variables.termFilter, {
@@ -230,20 +215,14 @@ async function loadPage(
     });
   }
 
-  // Build query
-  // For retrieveTerms: use GraphQL variables (backend handles these correctly)
-  // For aggregates: use inline filters (workaround for backend bug with variables in aggregates)
   const retrieveTermsFilter = shouldApplySearch
     ? "$searchFilter"
     : "$termFilter";
 
-  // Only declare the variable we're actually using in the query
   const variableDeclaration = shouldApplySearch
     ? `$searchFilter:${props.ontologyTableId}Filter`
     : `$termFilter:${props.ontologyTableId}Filter`;
 
-  // Convert filter objects to inline strings for aggregate queries
-  // count: filtered by parent (and search if applicable)
   const countFilter = shouldApplySearch
     ? variables.searchFilter
     : variables.termFilter;
@@ -252,8 +231,6 @@ async function loadPage(
     .replace(/true/g, "true") // Keep boolean true
     .replace(/false/g, "false"); // Keep boolean false
 
-  // totalCount: same parent filter but WITHOUT search (to show how many hidden by search)
-  // This is the total available at this parent level, regardless of search
   const totalCountFilterInline = JSON.stringify(variables.termFilter)
     .replace(/"([^"]+)":/g, "$1:")
     .replace(/true/g, "true")
@@ -267,7 +244,6 @@ async function loadPage(
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
-  // Map results to tree nodes
   const newTerms =
     data.retrieveTerms?.map((row: any) => ({
       name: row.name,
@@ -298,12 +274,10 @@ async function loadPage(
   node.loadMoreHasMore =
     newTerms.length >= props.limit && itemsLoaded < totalAvailable;
 
-  // Store unfilteredTotal for "show all" feature
   if (data.totalCount?.count !== undefined) {
     (node as any).unfilteredTotal = data.totalCount.count;
   }
 
-  // Apply selection states to loaded items
   if (node.name === "__root__") {
     // For root level, apply to all root children
     applySelectedStates();
@@ -415,11 +389,7 @@ async function toggleTermSelect(node: ITreeNodeState) {
       modelValue.value = [...modelValue.value, ...itemsToBeAdded].filter(
         (name) => !itemsToBeRemoved.includes(name)
       );
-    }
-    // if we select last child that wasn't selected yet
-    // then we need to toggle select on parent instead
-    // BUT ONLY if all children are loaded (no more to load)
-    else if (
+    } else if (
       node.parentNode &&
       !node.parentNode.loadMoreHasMore && // All children are loaded
       node.parentNode.children
@@ -454,7 +424,6 @@ async function toggleTermExpand(
     // Store whether this node is showing all (bypassing search filter)
     (node as any).showingAll = showAll;
 
-    // Load first page of children using unified loadPage
     await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
 
     node.expanded = true;
@@ -463,71 +432,44 @@ async function toggleTermExpand(
   }
 }
 
-// Handler for when user clicks "show all" on a specific node during search
 async function showAllChildrenOfNode(node: ITreeNodeState) {
-  // If node is already showing all, do nothing
   if ((node as any).showingAll) {
     return;
   }
 
-  // Store the current filtered count before showing all
-  // This is the number of children that match the search filter
   (node as any).filteredCount = node.loadMoreTotal || 0;
 
-  // If node is already expanded, we need to reload its children
   if (node.expanded) {
-    // Collapse first
     node.expanded = false;
-    // Wait a tick for UI to update
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
-  // Now expand with showAll=true
   await toggleTermExpand(node, true);
 }
 
-// Handler for when user clicks "apply filter" to reapply search filter
 async function applyFilterToNode(node: ITreeNodeState) {
-  // If node is not showing all, nothing to do
   if (!(node as any).showingAll) {
     return;
   }
-
-  // Collapse first
   node.expanded = false;
-  // Clear the showingAll flag
   (node as any).showingAll = false;
-  // Wait a tick for UI to update
   await new Promise((resolve) => setTimeout(resolve, 0));
-
-  // Re-expand with search filter applied
   await toggleTermExpand(node, false);
 }
 
-// Unified loadMoreTerms - just calls loadPage with offset
 async function loadMoreTerms(node: ITreeNodeState) {
   const nodeKey = node.name || "__root__";
-
-  // Prevent duplicate loads for the same node
   if (loadingNodes.value.has(nodeKey)) {
     return;
   }
-
   if (!node.loadMoreHasMore) {
     return;
   }
-
   loadingNodes.value.add(nodeKey);
 
   try {
-    // Check if this node is showing all children (bypassing search)
     const showingAll = (node as any).showingAll || false;
-
-    // Pass current search value to maintain search context when loading more
-    // Unless this node is explicitly showing all children
     const searchValue = showingAll ? undefined : searchTerms.value || undefined;
-
-    // Use unified loadPage function
     await loadPage(node, node.loadMoreOffset || 0, searchValue, showingAll);
   } finally {
     loadingNodes.value.delete(nodeKey);
@@ -541,7 +483,6 @@ function deselect(name: string) {
   } else {
     modelValue.value = null;
   }
-  // Clear search - just set to empty, watcher will handle the update
   searchTerms.value = "";
 }
 
@@ -550,11 +491,9 @@ function clearSelection() {
   modelValue.value = props.isArray ? [] : null;
 }
 
-// Debounced search watcher
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 let lastSearchValue: string = "";
-let isSearching = false; // Flag to prevent watcher from triggering during search
-
+let isSearching = false;
 watch(searchTerms, (newValue, oldValue) => {
   console.log("🔍 Search watcher triggered:", {
     newValue,
@@ -563,29 +502,22 @@ watch(searchTerms, (newValue, oldValue) => {
     lastSearchValue,
   });
 
-  // Don't trigger if we're currently executing a search
   if (isSearching) {
     console.log("🔍 Blocked: isSearching=true");
     return;
   }
 
-  // Don't trigger on initial mount
   if (oldValue === undefined) {
     console.log("🔍 Blocked: initial mount");
     lastSearchValue = newValue;
     return;
   }
 
-  // Don't trigger if value hasn't actually changed
   if (newValue === lastSearchValue) {
     console.log("🔍 Blocked: value unchanged");
     return;
   }
 
-  // Only search if:
-  // - In select mode AND dropdown is open, OR
-  // - Not in select mode (list mode), OR
-  // - forceList is enabled
   const selectModeCheck =
     displayAsSelect.value && !showSelect.value && !props.forceList;
   console.log("🔍 Select mode check:", {
@@ -602,12 +534,10 @@ watch(searchTerms, (newValue, oldValue) => {
 
   console.log("🔍 Scheduling search with debounce...");
 
-  // Clear existing timer
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
   }
 
-  // Debounce the actual search
   searchDebounceTimer = setTimeout(() => {
     console.log("🔍 Executing search:", newValue);
     lastSearchValue = newValue;
@@ -618,7 +548,6 @@ watch(searchTerms, (newValue, oldValue) => {
 function toggleSearch() {
   showSearch.value = !showSearch.value;
   if (!showSearch.value) {
-    // When closing search, clear it
     searchTerms.value = "";
   }
 }
@@ -631,18 +560,14 @@ async function updateSearch(value: string) {
     return;
   }
 
-  // Set flag to prevent watcher from triggering during this search
   isSearching = true;
   console.log("🔎 Set isSearching=true, calling loadPage...");
 
   try {
     counterOffset.value = 0;
-
-    // Use unified loadPage - pass search value (or empty string for normal mode)
     await loadPage(rootNode.value, 0, value || "");
     console.log("🔎 loadPage completed");
   } finally {
-    // Always clear the flag, even if there's an error
     isSearching = false;
     console.log("🔎 Set isSearching=false");
   }
@@ -652,23 +577,7 @@ const hasChildren = computed(() =>
   rootNode.value.children?.some((node) => node.children?.length)
 );
 
-const searchResultsSummary = computed(() => {
-  if (!searchTerms.value) return null;
-
-  const loaded = rootNode.value.children?.length || 0;
-  const total = rootNode.value.loadMoreTotal || 0;
-  const hasMore = rootNode.value.loadMoreHasMore;
-
-  return {
-    loaded,
-    total,
-    hasMore,
-    showingAll: loaded >= total,
-  };
-});
-
 const displayAsSelect = computed(() => {
-  // If forceList is true, never display as select
   if (props.forceList) {
     return false;
   }
@@ -679,7 +588,6 @@ const displayAsSelect = computed(() => {
 });
 
 const enableAutoLoad = computed(() => {
-  // Disable auto-loading when forceList is true (manual load more only)
   return !props.forceList;
 });
 
@@ -691,7 +599,6 @@ async function toggleSelect() {
     showSelect.value = false;
     searchTerms.value = "";
   } else {
-    // Load first page if not already loaded
     if (!rootNode.value.children || rootNode.value.children.length === 0) {
       await loadPage(rootNode.value, 0);
     }
@@ -702,7 +609,6 @@ async function toggleSelect() {
   }
 }
 
-// Close dropdown when clicking outside
 const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
 useClickOutside(wrapperRef, () => {
   if (showSelect.value) {
@@ -710,7 +616,6 @@ useClickOutside(wrapperRef, () => {
   }
 });
 
-// Ref for the scroll container
 const scrollContainerRef = useTemplateRef<HTMLElement>("scrollContainerRef");
 
 onMounted(() => {
@@ -740,7 +645,6 @@ onMounted(() => {
         !disabled && !invalid && !valid,
     }"
   >
-    <!-- forceList search button -->
     <template v-if="forceList">
       <div class="w-full flex items-center gap-2 px-2 py-2">
         <Button

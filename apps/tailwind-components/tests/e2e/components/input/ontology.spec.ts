@@ -25,7 +25,6 @@ test.describe("Input Ontology", () => {
   });
 
   test("large ontologies are shown as select", async ({ page }) => {
-    // Use the array version which displays buttons for selected values
     const ontologyContainer = page.locator(
       "#test-ontology-array-input-id2-input-ontology"
     );
@@ -34,10 +33,8 @@ test.describe("Input Ontology", () => {
       ontologyContainer.getByRole("button", { name: "Andorra" })
     ).toBeVisible();
 
-    // Click on the select container to open the dropdown
     await ontologyContainer.locator("svg.text-input").last().click();
 
-    // Wait for the dropdown to open and select American Samoa
     await ontologyContainer.getByText("American Samoa").click();
 
     await expect(
