@@ -46,6 +46,19 @@ class SqlTable implements Table {
     return metadata;
   }
 
+  @Override
+  public Table getBaseTable() {
+    if (!metadata.getInherits().isEmpty()) {
+      TableMetadata baseTable = metadata.getBaseTable();
+      return getSchema()
+          .getDatabase()
+          .getSchema(baseTable.getSchemaName())
+          .getTable(baseTable.getTableName());
+    } else {
+      return this;
+    }
+  }
+
   public void copyOut(Writer writer) {
     db.getJooq()
         .connection(
@@ -169,7 +182,7 @@ class SqlTable implements Table {
       SqlDatabase database, String schemaName, String tableName) {
     SqlTable t = database.getSchema(schemaName).getTable(tableName);
     if (t.getMetadata().getColumn(MG_TABLECLASS) != null) {
-      SqlTable rootTable = (SqlTable) t.getMetadata().getRootTable().getTable();
+      SqlTable rootTable = (SqlTable) t.getMetadata().getBaseTable().getTable();
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
@@ -329,13 +342,12 @@ class SqlTable implements Table {
       List<Row> rows =
           applyValidationAndComputed(
               table.getMetadata().getColumns(), subclassRows.get(subclassName));
-      count.set(count.get() + table.updateBatch(table, rows, updateColumns));
+      count.set(count.get() + updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
       List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
       count.set(
-          count.get()
-              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));
+          count.get() + insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
@@ -378,11 +390,21 @@ class SqlTable implements Table {
 
   private static int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
+    boolean inherit = !table.getMetadata().getInherits().isEmpty();
     int count = 0;
     if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+      // first insert into base table
+      SqlTable baseTable = (SqlTable) table.getBaseTable();
+      count = insertBatch(baseTable, rows, updateOnConflict, updateColumns);
+      // then all other subclass tables if exists
+      table
+          .getInheritedTables()
+          .forEach(
+              inheritedTable -> {
+                if (!inheritedTable.getInheritedTables().isEmpty()) { // exclude base table
+                  insertBatch((SqlTable) inheritedTable, rows, updateOnConflict, updateColumns);
+                }
+              });
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
@@ -439,11 +461,21 @@ class SqlTable implements Table {
   }
 
   private static int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
+    boolean inherit = !table.getMetadata().getInherits().isEmpty();
     int count = 0;
     if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
+      // first update into base table
+      SqlTable baseTable = (SqlTable) table.getBaseTable();
+      count = updateBatch(baseTable, rows, updateColumns);
+      // then all other subclass tables if exists
+      table
+          .getInheritedTables()
+          .forEach(
+              inheritedTable -> {
+                if (!inheritedTable.getInheritedTables().isEmpty()) { // exclude base table
+                  updateBatch((SqlTable) inheritedTable, rows, updateColumns);
+                }
+              });
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
@@ -509,7 +541,9 @@ class SqlTable implements Table {
     try {
       db.tx(
           db2 -> {
-            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
+            // simply use base class to cascade delete
+            SqlTable table =
+                (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName()).getBaseTable();
 
             // delete in batches
             int batchSize = 1000;
@@ -521,14 +555,6 @@ class SqlTable implements Table {
                 deleteBatch(table, batch);
                 batch.clear();
               }
-            }
-
-            // delete remaining elements
-            deleteBatch(table, batch);
-
-            // finally delete in superclass
-            if (table.getMetadata().getInheritName() != null) {
-              table.getInheritedTable().delete(rows);
             }
 
             // notify handlers
@@ -671,16 +697,19 @@ class SqlTable implements Table {
   }
 
   @Override
-  public SqlTable getInheritedTable() {
-    if (getMetadata().getImportSchema() != null) {
-      return (SqlTable)
-          getSchema()
-              .getDatabase()
-              .getSchema(getMetadata().getImportSchema())
-              .getTable(getMetadata().getInheritName());
-    } else {
-      return (SqlTable) getSchema().getTable(getMetadata().getInheritName());
-    }
+  public List<Table> getInheritedTables() {
+    List<Table> result = new ArrayList<>();
+    getMetadata()
+        .getInherits()
+        .forEach(
+            inheritedTable -> {
+              result.add(
+                  getSchema()
+                      .getDatabase()
+                      .getSchema(inheritedTable.schemaName())
+                      .getTable(inheritedTable.tableName()));
+            });
+    return result;
   }
 
   private static void log(
