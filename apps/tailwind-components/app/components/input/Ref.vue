@@ -340,7 +340,7 @@ onMounted(() => {
               {{ label }}
             </Button>
           </template>
-          <template v-else-if="selection">
+          <template v-else-if="!isArray && selection">
             {{ selection }}
           </template>
           <div v-if="!disabled">
@@ -354,7 +354,7 @@ onMounted(() => {
               v-model="searchTerms"
               @input="updateSearch(searchTerms)"
               class="flex-1 min-w-[10px] bg-transparent focus:outline-none"
-              :placeholder="showSelect ? 'Search in terms' : ''"
+              :placeholder="showSelect ? 'Search in options' : ''"
               autocomplete="off"
               @click.stop="showSelect ? null : toggleSelect()"
             />
@@ -430,7 +430,7 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection && !displayAsSelect"
+    v-if="isArray ? selection.length : selection"
     @click="clearSelection"
     type="text"
     size="tiny"
