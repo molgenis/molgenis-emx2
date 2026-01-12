@@ -208,15 +208,40 @@ def list_schema_meta():
                     computed
                     semantics
                 }
-                settings {
-                    key
-                    value
-                }
                 semantics
                 tableType
             }
         }
       }
+    """
+
+def list_schema_settings():
+    return """
+    {
+      _schema {
+        settings {
+          key value
+        }
+      }
+    }
+    """
+
+def list_schema_members():
+    return """
+    {
+      _schema {
+        members {email role}
+      }
+    }
+    """
+
+def list_schema_roles():
+    return """
+    {
+      _schema {
+        roles {name}
+      }
+    }
     """
 
 
