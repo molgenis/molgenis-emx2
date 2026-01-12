@@ -8,8 +8,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW;
-import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
@@ -26,10 +26,7 @@ import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -574,6 +571,55 @@ class WebApiSmokeTests {
         Path.of(Objects.requireNonNull(getClass().getResource("csv/settings.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
+  }
+
+  @Test
+  void testCsvApi_changelogDownload() {
+    db.dropCreateSchema(PET_STORE_SCHEMA);
+    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
+    schema.create(table("test", column("A").setPkey(), column("B")));
+    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
+
+    try {
+      Response response =
+          given()
+              .sessionId(sessionId)
+              .accept(ACCEPT_CSV)
+              .when()
+              .get("/pet store/api/csv/changelog");
+
+      Pattern contentDisposition =
+          Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
+      assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+      String formatted =
+          """
+              operation,stamp,userid,tablename,old,new
+              I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
+              .formatted(schema.getChanges(1).getFirst().stamp());
+
+      assertTrue(response.body().asString().startsWith(formatted));
+    } finally {
+      db.dropCreateSchema(PET_STORE_SCHEMA);
+    }
+  }
+
+  @Test
+  void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
+    db.dropCreateSchema(PET_STORE_SCHEMA);
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+            {
+              "errors" : [
+                {
+                  "message" : "Unauthorized to get schema changelog"
+                }
+              ]
+            }""",
+        response.body().asString());
   }
 
   @Test
