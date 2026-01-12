@@ -1,7 +1,7 @@
 certifi==2026.1.4
 charset-normalizer==3.4.4
 idna==3.11
-numpy==2.2.6
+numpy==2.4.1
 python-dateutil==2.9.0
 python-decouple==3.8
 pytz==2025.2
