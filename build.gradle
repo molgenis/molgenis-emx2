@@ -6,9 +6,11 @@ plugins {
     id "java"
     id "org.sonarqube" version "4.4.1.3373"
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '9.3.1'
     id 'application'
-    id 'com.palantir.docker' version '0.36.0'
+    // Temporarily disabled - not compatible with Gradle 9
+    // TODO: Migrate to com.bmuschko.docker-remote-api version 10.0.0
+    // id 'com.palantir.docker' version '0.36.0'
 }
 
 ext {
@@ -49,7 +51,6 @@ dependencies {
     implementation project(':backend:molgenis-emx2-run')
 }
 
-mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
     zip64 = true
     archiveBaseName = 'molgenis-emx2'
@@ -89,18 +90,39 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 }
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
-    outputFile file('build/ci.properties')
+    destinationFile.set(file('build/ci.properties'))
     property 'TAG_NAME', tagName
     property 'FILE_NAME', shadowJar.archiveFile.get().asFile.name
 }
 
-docker {
-    name imageName
-    tags tagName, 'latest'
-    files shadowJar.archiveFile.get()
-    buildArgs(['JAR_FILE': shadowJar.archiveFile.get().asFile.name])
+// Docker build and push tasks using Docker CLI (Gradle 9 compatible)
+task dockerBuild(type: Exec) {
+    dependsOn shadowJar
+    description = 'Build Docker image using Docker CLI'
+
+    doFirst {
+        def jarFile = shadowJar.archiveFile.get().asFile.name
+        logger.lifecycle("Building Docker image: ${imageName}:${tagName} and ${imageName}:latest")
+        logger.lifecycle("Using JAR file: ${jarFile}")
+    }
+
+    commandLine 'docker', 'build',
+        '--build-arg', "JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",
+        '-t', "${imageName}:${tagName}",
+        '-t', "${imageName}:latest",
+        '.'
 }
-tasks.dockerPrepare.dependsOn(shadowJar)
+
+task dockerPush(type: Exec) {
+    dependsOn dockerBuild
+    description = 'Push Docker image to registry using Docker CLI'
+
+    doFirst {
+        logger.lifecycle("Pushing Docker image: ${imageName} with tags: ${tagName}, latest")
+    }
+
+    commandLine 'docker', 'push', imageName, '--all-tags'
+}
 
 String getGitHash() {
     // git hash
@@ -137,5 +159,7 @@ task installPreCommitGitFormatApplyHook(type: Copy) {
     from new File(rootProject.rootDir, 'pre-commit-format-apply')
     rename 'pre-commit-format-apply', 'pre-commit'
     into { new File(rootProject.rootDir, '.git/hooks') }
-    fileMode 0775
+    filePermissions {
+        unix(0775)
+    }
 }
