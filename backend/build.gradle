@@ -103,8 +103,10 @@ subprojects {
         }
     }
 
-    targetCompatibility = rootProject.ext.javaVersion
-    sourceCompatibility = rootProject.ext.javaVersion
+    java {
+        targetCompatibility = rootProject.ext.javaVersion
+        sourceCompatibility = rootProject.ext.javaVersion
+    }
 
     jar {
         reproducibleFileOrder = true
@@ -176,7 +178,7 @@ project(":backend:molgenis-emx2-nonparallel-tests").test.dependsOn subprojects.f
 
 /* task to init database */
 task initDatabase(type: JavaExec, dependsOn: ':backend:molgenis-emx2-sql:compileJava') {
-    main = 'org.molgenis.emx2.sql.InitDatabase'
+    mainClass.set('org.molgenis.emx2.sql.InitDatabase')
     classpath = project("molgenis-emx2-sql").sourceSets.test.runtimeClasspath
     def outputFile = file("$buildDir/initDatabase.txt")
     doLast {

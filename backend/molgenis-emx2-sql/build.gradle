@@ -12,5 +12,5 @@ dependencies {
 task cleandb(type: JavaExec) {
     group = 'application'
     classpath = sourceSets.main.runtimeClasspath
-    main = 'org.molgenis.emx2.sql.AToolToCleanDatabase'
+    mainClass.set('org.molgenis.emx2.sql.AToolToCleanDatabase')
 }

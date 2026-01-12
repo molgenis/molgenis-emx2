@@ -35,5 +35,5 @@ dependencies {
 task dev(type: JavaExec) {
     group = 'application'
     classpath = sourceSets.main.runtimeClasspath
-    main = 'org.molgenis.emx2.RunMolgenisEmx2'
+    mainClass.set('org.molgenis.emx2.RunMolgenisEmx2')
 }
