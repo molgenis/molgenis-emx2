@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { useHead } from "#app";
 import { definePageMeta } from "#imports";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import type {
-  columnId,
   columnValue,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
@@ -14,6 +13,12 @@ import BreadCrumbs from "../../components/BreadCrumbs.vue";
 import Button from "../../components/Button.vue";
 import Container from "../../components/Container.vue";
 import PageHeader from "../../components/PageHeader.vue";
+import FormLegend from "../../components/form/Legend.vue";
+import FormFields from "../../components/form/Fields.vue";
+import FormError from "../../components/form/Error.vue";
+import FormRequiredInfoSection from "../../components/form/RequiredInfoSection.vue";
+import DraftLabel from "../../components/label/DraftLabel.vue";
+import type { Crumb } from "../../../types/types";
 
 definePageMeta({
   layout: "full-page",
@@ -25,13 +30,11 @@ useHead({
   },
 });
 
-const crumbs = computed(() => {
-  let crumb: { [key: string]: string } = {};
-  crumb["Catalogue example"] = `/catalogue-example`;
-  crumb["Cohorts"] = `/catalogue-example/cohorts`;
-  crumb["Edit cohort: CONSTANCES"] = "";
-  return crumb;
-});
+const crumbs: Crumb[] = [
+  { label: "Catalogue example", url: "/catalogue-example" },
+  { label: "Cohorts", url: "/catalogue-example/cohorts" },
+  { label: "Edit cohort: CONSTANCES", url: "" },
+];
 const formValues = ref<Record<string, columnValue>>({});
 const metadata = cohortTableMetadata as ITableMetaData;
 const PAGE_OFF_SET = 200;
@@ -50,7 +53,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
-  errorMap,
+  visibleColumnErrors,
   sections,
   onViewColumn,
   onBlurColumn,
@@ -72,24 +75,12 @@ function onCancel() {
 </script>
 <template>
   <Container>
-    <PageHeader title="Edit cohort: CONSTANCES" align="left">
+    <PageHeader title="Edit cohort: CONSTANCES" align="left" backPath="/">
       <template #prefix>
         <BreadCrumbs :align="'left'" :crumbs="crumbs" />
       </template>
-      <template #title-prefix>
-        <Button
-          class="mr-4"
-          type="filterWell"
-          :iconOnly="true"
-          icon="arrow-left"
-          size="large"
-          label="back"
-        ></Button>
-      </template>
       <template #title-suffix>
-        <span class="ml-3 bg-gray-400 px-2 py-2 rounded text-white font-bold"
-          >Draft</span
-        >
+        <DraftLabel />
       </template>
     </PageHeader>
     <section class="grid grid-cols-4 gap-3">
@@ -131,7 +122,7 @@ function onCancel() {
           class="px-32 bg-form"
           schemaId="catalogue-demo"
           :columns="visibleColumns"
-          :errorMap="errorMap"
+          :visibleColumnErrors="visibleColumnErrors"
           v-model="formValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"

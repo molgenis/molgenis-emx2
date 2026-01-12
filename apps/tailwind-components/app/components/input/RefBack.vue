@@ -32,7 +32,7 @@ const props = withDefaults(
   }
 );
 
-const modelValue = defineModel<columnValueObject[]>();
+const modelValue = defineModel<columnValueObject[] | null>();
 
 const hasPrimaryKey = computed(() =>
   props.refBackPrimaryKey
@@ -174,6 +174,7 @@ const addModalConstantValues = computed(() => {
       :schemaId="props.refSchemaId"
       :metadata="metadata"
       :constantValues="addModalConstantValues"
+      :isInsert="true"
       @update:added="afterRowAdded"
       v-model:visible="showAddModal"
     />
@@ -192,6 +193,7 @@ const addModalConstantValues = computed(() => {
       :schemaId="props.refSchemaId"
       :metadata="metadata"
       :formValues="crudRow"
+      :isInsert="false"
       @update:updated="afterRowEdited"
       v-model:visible="showEditModal"
     />

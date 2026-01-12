@@ -260,6 +260,13 @@ public class SqlQuery extends QueryBean {
     return functionCallField.as(name(column.getIdentifier()));
   }
 
+  private Field<String[]> intervalFieldArray(String tableAlias, Column column) {
+    Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
+    Field<String[]> functionCallField =
+        function("\"MOLGENIS\".interval_array_to_iso8601", String[].class, intervalField);
+    return functionCallField.as(name(column.getIdentifier()));
+  }
+
   @Override
   public String retrieveJSON() {
     SelectColumn select = getSelect();
@@ -627,6 +634,8 @@ public class SqlQuery extends QueryBean {
          */
       } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
         fields.add(intervalField(tableAlias, column));
+      } else if (column.getColumnType().getBaseType() == ColumnType.PERIOD_ARRAY) {
+        fields.add(intervalFieldArray(tableAlias, column));
       } else {
         // primitive fields
         fields.add(

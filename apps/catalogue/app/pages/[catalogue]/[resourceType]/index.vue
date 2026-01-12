@@ -34,6 +34,7 @@ import {
 import { buildQueryFilter } from "../../../utils/buildQueryFilter";
 import { computed, ref } from "vue";
 import { logError } from "../../../utils/errorLogger";
+import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -97,7 +98,7 @@ if (route.params.resourceType === "collections") {
       // @ts-ignore
       filter: { tags: { equals: "collection" } },
       columnId: "type",
-      initialCollapsed: false,
+      initialCollapsed: true,
     },
     conditions: [],
   });
@@ -105,14 +106,13 @@ if (route.params.resourceType === "collections") {
 
 pageFilterTemplate = pageFilterTemplate.concat([
   {
-    id: "areasOfInformation",
+    id: "cohortTypes",
     config: {
-      label: "Areas of information",
+      label: "Cohort types",
       type: "ONTOLOGY",
-      ontologyTableId: "AreasOfInformationCohorts",
+      ontologyTableId: "CohortStudyTypes",
       ontologySchema: "CatalogueOntologies",
-      columnId: "areasOfInformation",
-      filterTable: "collectionEvents",
+      columnId: "cohortType",
     },
     conditions: [],
   },
@@ -124,18 +124,6 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologyTableId: "DataCategories",
       ontologySchema: "CatalogueOntologies",
       columnId: "dataCategories",
-      filterTable: "collectionEvents",
-    },
-    conditions: [],
-  },
-  {
-    id: "populationAgeGroups",
-    config: {
-      label: "Population age groups",
-      type: "ONTOLOGY",
-      ontologyTableId: "AgeGroups",
-      ontologySchema: "CatalogueOntologies",
-      columnId: "ageGroups",
       filterTable: "collectionEvents",
     },
     conditions: [],
@@ -153,24 +141,26 @@ pageFilterTemplate = pageFilterTemplate.concat([
     conditions: [],
   },
   {
-    id: "cohortTypes",
+    id: "areasOfInformation",
     config: {
-      label: "Cohort types",
+      label: "Areas of information",
       type: "ONTOLOGY",
-      ontologyTableId: "CohortStudyTypes",
+      ontologyTableId: "AreasOfInformationCohorts",
       ontologySchema: "CatalogueOntologies",
-      columnId: "cohortType",
+      columnId: "areasOfInformation",
+      filterTable: "collectionEvents",
     },
     conditions: [],
   },
   {
-    id: "cohortDesigns",
+    id: "populationAgeGroups",
     config: {
-      label: "Design",
+      label: "Population age groups",
       type: "ONTOLOGY",
-      ontologyTableId: "CohortDesigns",
+      ontologyTableId: "AgeGroups",
       ontologySchema: "CatalogueOntologies",
-      columnId: "design",
+      columnId: "ageGroups",
+      filterTable: "collectionEvents",
     },
     conditions: [],
   },
@@ -330,11 +320,13 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const crumbs: any = {};
-crumbs[
-  cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.catalogue}`;
-crumbs[route.params.resourceType as string] = "";
+const crumbs: Crumb[] = [
+  {
+    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
+    url: `/${route.params.catalogue}`,
+  },
+  { label: route.params.resourceType as string, url: "" },
+];
 </script>
 
 <template>
@@ -409,7 +401,7 @@ crumbs[route.params.resourceType as string] = "";
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
+              <span class="py-15 text-link">
                 No resources found with current filters
               </span>
             </div>

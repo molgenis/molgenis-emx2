@@ -38,10 +38,11 @@
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "graphql-request": "6.1.0",
-    "metadata-utils": "*",
+    "metadata-utils": "workspace:*",
     "universal-cookie": "4.0.4",
-    "vue": "3.5.13",
+    "vue": "3.5.22",
     "vue-flatpickr-component": "11.0.5",
+    "flatpickr": "4.6.13",
     "vue-gtag": "2.0.1",
     "vue3-cookies": "^1.0.6",
     "vuedraggable": "4.1.0"
@@ -51,7 +52,7 @@
     "@vue/test-utils": "2.4.6",
     "npm-run-all": "4.1.5",
     "prettier": "2.8.8",
-    "vite": "5.4.16",
+    "vite": "5.4.21",
     "vitest": "3.0.7",
     "vue-router": "4.4.3",
     "vue-scrollto": "2.20.0"

@@ -32,13 +32,11 @@ test("the row should be removed from the table after deletion", async ({
   ).toBeVisible();
   await page.getByRole("button", { name: "Add Category" }).click();
   await expect(
-    page.getByRole("button", { name: "Save Category", exact: true })
+    page.getByRole("button", { name: "Save", exact: true })
   ).toBeVisible();
   await page.getByRole("textbox", { name: "name Required" }).click();
   await page.getByRole("textbox", { name: "name Required" }).fill("testdel");
-  await page
-    .getByRole("button", { name: "Save Category", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
 
   // delete
   await page.getByRole("button", { name: "Close modal", exact: true }).click();

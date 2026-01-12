@@ -177,6 +177,9 @@ N.B. to enable localized labels you must change database setting 'locale' to val
 
 Text value that describes the column, or when columnName is empty, the table.
 
+### form label
+
+Optional string value that defines a label to shown when the field is used within the context of a form.
 ## Cross-references
 
 You can define cross-references from one table to another by using the types listed in the [relationship types](#relationships) section. In postgresql, these cross-references translate, and array of foreign key with triggers protecting foreign key constraints respectively. When using cross-references, the name of the reference table (_refTable_) is required.

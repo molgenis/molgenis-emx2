@@ -9,7 +9,7 @@
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
-      :label="column.label"
+      :label="column.formLabel ?? column.label"
       :schemaId="column.refSchemaId || schemaMetaData.id"
       :pkey="pkey"
       :readonly="

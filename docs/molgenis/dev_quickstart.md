@@ -62,7 +62,7 @@ Alternatively you can run inside [IntelliJ IDEA](https://www.jetbrains.com/idea/
 
 - Open IntelliJ and open molgenis-emx2 directory
 - IntelliJ will recognise this is a gradle project and will build
-- navigate to `backend/molgenis-emx2-run/src/main/java/org/molgenis/emx2'
+- navigate to `backend/molgenis-emx2-run/src/main/java/org/molgenis/emx2`
 - Right click on `RunMolgenisEmx2Full` and select 'run'
 
 ## Build one 'app'
@@ -74,7 +74,7 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
 - Build the app workspace as a whole (once)
   ```console
   cd molgenis-emx2/apps
-  npm install
+  pnpm install
   ```
 - Start molgenis 'headless' (i.e. without apps) using gradle (restart on java changes)
   ```console
@@ -85,7 +85,7 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
 - Serve only the app you want to look at
   ```console
   cd molgenis-emx2/apps/<yourapp>
-  npm run dev
+  pnpm dev
   ```
   Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
 
@@ -100,6 +100,7 @@ When setting up WSL, there are a few things to keep in mind:
 - Install the correct version of [postgres](https://www.postgresql.org/download/linux/ubuntu/#apt) within the Linux subsystem.
 - Make sure to put your git repository on the Linux files system, using a mounted Windows folder is very slow.
 - When using VSCode, turn off the `security.restrictUNCAccess` setting
+- When using VSCode, install the WSL extension and after this, add all other extensions to the WSL window. This is needed for extensions and intellisense to properly work.
 
 ## Tips
 
@@ -126,16 +127,16 @@ push stuff that breaks the build. We have included a gradle task for this if you
 
 To enable gradle to run tests you must set the test runner to gradle.
 
-Go to IntelliJ Preferences -> Build tools -> Gradle and then set Run tests using 'IntelliJ' (counter intuitive, don't choose gradle).
+In Intellij, go to settings -> Build, Execution, Deployment -> Build tools -> Gradle and then set Run tests using 'IntelliJ' (counter intuitive, don't choose gradle).
 
 See https://linked2ev.github.io/devsub/2019/09/30/Intellij-junit4-gradle-issue/
 
-To skip slow tests that are marked in junit @Tag('slow') switch from 'All in package' to 'tags' and set to '!slow' via the 'edit configuration' of your test runner in 'build configuration'
+To skip slow tests that are marked in junit `@Tag('slow')` switch from 'All in package' to 'tags' and set to '!slow' via the 'edit configuration' of your test runner in 'build configuration'
 
 When you get error "java.lang.reflect.InaccessibleObjectException: Unable to make field private final java.util.Map java.util.Collections$UnmodifiableMap.m accessible: module java.base does not "opens java.util" to unnamed module @5cee5251"
 that is because you need JVM parameter `--add-opens=java.base/java.util=ALL-UNNAMED`
 
-### Reset cache/deamon
+### Reset cache/daemon
 
 Sometimes it helps to stop the gradle daemon and reset the gradle cache.
 

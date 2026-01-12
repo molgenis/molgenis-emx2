@@ -298,11 +298,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             String demoScript =
                 """
 import os;
-import numpy as np
 import sys
 # you can get parameters via sys.argv[1]
 print('Hello, world!')
-a = np.array([1, 2, 3, 4, 5, 6])
 print("MOLGENIS_TOKEN="+os.environ['MOLGENIS_TOKEN']);
 if len(sys.argv) >= 2:
     print("sys.argv[1]="+sys.argv[1]);
@@ -318,8 +316,6 @@ f.close()
                     "hello world",
                     "script",
                     demoScript,
-                    "dependencies",
-                    "numpy==2.2.4",
                     "type",
                     "python",
                     "outputFileExtension",
@@ -360,7 +356,7 @@ f.close()
               .setSetting(
                   "menu",
                   """
-[{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
+[{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Tables","href":"tables","role":"Editor","key":"eq1fcr","submenu":[]},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
         });
   }

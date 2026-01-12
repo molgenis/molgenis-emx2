@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     logLevel: 4,
   },
+
   tailwindcss: {
     cssPath: "../tailwind-components/app/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",

@@ -195,6 +195,7 @@ const metadataQuery = `{
         id,
         name,
         label,
+        formLabel,
         description,
         columnType,
         key,

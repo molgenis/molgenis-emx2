@@ -70,7 +70,7 @@ Barcelona Supercomputing Center,BSC,ROR,ROR:05sd8tv96,https://ror.org/05sd8tv96,
 Utrecht University,,ROR,ROR:04pp8hn57,https://ror.org/04pp8hn57,,Rijksuniversiteit Utrecht,Netherlands (the),Utrecht,52.09083,5.12222,https://www.uu.nl,"education, funder"
 University of British Columbia,UBC,ROR,ROR:03rmrcq20,https://ror.org/03rmrcq20,,,Canada,Vancouver,49.24966,-123.11934,https://www.ubc.ca/,"education, funder"
 University of Oulu,,ROR,ROR:03yj89h83,https://ror.org/03yj89h83,,,Finland,Oulu,65.01236,25.46816,https://www.oulu.fi,"education, funder"
-Máxima Medisch Centrum,MMC,ROR,ROR:02x6rcb77,https://ror.org/02x6rcb77,,,Netherlands (the),Veldhoven,51.41833,5.40278,http://expats.mmc.nl/,healthcare
+Máxima Medisch Centrum,MMC,ROR,ROR:02x6rcb77,https://ror.org/02x6rcb77,,"Maxima Medical Centre,MMC",Netherlands (the),Veldhoven,51.41833,5.40278,http://expats.mmc.nl/,healthcare
 The Netherlands Cancer Institute,NKI; NKI-AVL,ROR,ROR:03xqtf034,https://ror.org/03xqtf034,,Nederlands Kanker Instituut - Antoni van Leeuwenhoekziekenhuis; Netherlands Cancer Institute; Netherlands Cancer Institute - Antoni van Leeuwenhoek Hospital,Netherlands (the),Amsterdam,52.37403,4.88969,https://www.nki.nl,healthcare
 "i3S - Instituto de Investigação e Inovação em Saúde, Universidade do Porto",,ROR,ROR:04wjk1035,https://ror.org/04wjk1035,,,Portugal,Porto,41.14961,-8.61099,https://www.i3s.up.pt,facility
 Children's Hospital Agia Sophia,,ROR,ROR:0315ea826,https://ror.org/0315ea826,,,Greece,Athens,37.98376,23.72784,http://www.paidon-agiasofia.gr/,healthcare
@@ -287,7 +287,7 @@ Health-RI,,ROR,ROR:02xcmp898,https://ror.org/02xcmp898,,,Netherlands (the),Utrec
 Radiotherapeutisch Instituut Friesland,RIF,ROR,ROR:05f7htr55,https://ror.org/05f7htr55,,,Netherlands (the),Leeuwarden,53.20139,5.80859,http://www.radiotherapiefriesland.nl/,nonprofit
 Radiotherapiegroep,,ROR,ROR:048338z54,https://ror.org/048338z54,,,Netherlands (the),Arnhem,51.98,5.91111,https://www.radiotherapiegroep.nl,healthcare
 Royal Marsden Hospital,RM,ROR,ROR:034vb5t35,https://ror.org/034vb5t35,,,United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,http://www.nhs.uk/Services/hospitals/Overview/DefaultView.aspx?id=1416,"healthcare, funder"
-Sunnybrook Hospital,,ROR,ROR:008kn1a71,https://ror.org/008kn1a71,,,Canada,Toronto,43.70643,-79.39864,,healthcare
+Sunnybrook Hospital,,ROR,ROR:008kn1a71,https://ror.org/008kn1a71,,,Canada,Toronto,43.70643,-79.39864,https://sunnybrook.ca/,healthcare
 The Christie Hospital,,ROR,ROR:03nd63441,https://ror.org/03nd63441,,,United Kingdom of Great Britain and Northern Ireland (the),Manchester,53.48095,-2.23743,http://www.christie.nhs.uk/,healthcare
 University of Brescia,,ROR,ROR:02q2d2610,https://ror.org/02q2d2610,,,Italy,Brescia,45.53558,10.21472,https://www.unibs.it,"education, funder"
 Bravis Ziekenhuis,,ROR,ROR:05564wx43,https://ror.org/05564wx43,,,Netherlands (the),Roosendaal,51.53083,4.46528,https://www.bravisziekenhuis.nl/,healthcare
@@ -297,7 +297,7 @@ IJsselland Ziekenhuis,YSL,ROR,ROR:03qh1f279,https://ror.org/03qh1f279,,,Netherla
 Isala,,ROR,ROR:046a2wj10,https://ror.org/046a2wj10,,,Netherlands (the),Zwolle,52.5125,6.09444,https://www.isala.nl,healthcare
 Ziekenhuis Nij Smellinghe,,ROR,ROR:030gj2p37,https://ror.org/030gj2p37,,,Netherlands (the),Drachten,53.11254,6.0989,https://www.nijsmellinghe.nl/,healthcare
 Haga Hospital,,ROR,ROR:03q4p1y48,https://ror.org/03q4p1y48,,,Netherlands (the),The Hague,52.07667,4.29861,https://www.hagaziekenhuis.nl/,healthcare
-Meander Medisch Centrum,,ROR,ROR:04n1xa154,https://ror.org/04n1xa154,,,Netherlands (the),Amersfoort,52.155,5.3875,https://www.meandermc.nl/wps/portal/patientenportaal/home/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOK9DM0sPByDDbz8TT3MDByd3czMXV28jQxCzIAKIoEKDHAARwNC-sP1o8BK_P1dLDy8vQ283H3dHA08w7x8HMOcPA0s_M2gCvBYUZAbYZDpqKgIAOY-6DY!/dl5/d5/L2dBISEvZ0FBIS9nQSEh/,healthcare
+Meander Medisch Centrum,,ROR,ROR:04n1xa154,https://ror.org/04n1xa154,,,Netherlands (the),Amersfoort,52.155,5.3875,https://www.meandermc.nl/,healthcare
 Tergooi,,ROR,ROR:045nawc23,https://ror.org/045nawc23,,,Netherlands (the),Blaricum,52.2725,5.24167,https://www.tergooi.nl/,healthcare
 Wilhelmina Children's Hospital,WKZ,ROR,ROR:05fqypv61,https://ror.org/05fqypv61,,,Netherlands (the),Utrecht,52.09083,5.12222,https://www.hetwkz.nl/en/en,"healthcare, funder"
 Allegheny Health Network,"AHN, WPAHS",ROR,ROR:0101kry21,https://ror.org/0101kry21,,West Penn Allegheny Health System,United States of America (the),Pittsburgh,40.44062,-79.99589,https://www.ahn.org/,"healthcare, funder"
@@ -308,3 +308,20 @@ Medical College of Wisconsin,MCW,ROR,ROR:00qqv6244,https://ror.org/00qqv6244,,,U
 Ospedale Sacro Cuore Don Calabria,,ROR,ROR:010hq5p48,https://ror.org/010hq5p48,,,Italy,Negrar,45.52918,10.93899,https://www.sacrocuore.it/index-en.php,healthcare
 Princess Margaret Cancer Centre,,ROR,ROR:03zayce58,https://ror.org/03zayce58,,Princess Margaret Hospital,Canada,Toronto,43.70643,-79.39864,http://www.uhn.ca/PrincessMargaret,healthcare
 St. Antonius Ziekenhuis,,ROR,ROR:01jvpb595,https://ror.org/01jvpb595,,,Netherlands (the),Nieuwegein,52.02917,5.08056,https://www.antoniusziekenhuis.nl,"funder, healthcare"
+Lifelines,,ROR,ROR:01ja6ps71,https://ror.org/01ja6ps71,,"LifeLines Cohort Study, LifeLines Cohort Study & Biobank, Lifelines Databeheer BV",Netherlands (the),Groningen,53.21917,6.56667,https://www.lifelines.nl,nonprofit
+Princess Máxima Center,,ROR,ROR:02aj7yc53,https://ror.org/02aj7yc53,,Prinses Máxima Centrum,Netherlands (the),Utrecht,52.09083,5.12222,https://www.prinsesmaximacentrum.nl,"funder, healthcare"
+ZorgSaam,,ROR,ROR:01qkq7780,https://ror.org/01qkq7780,,"ZorgSaam Ziekenhuis,Zorgsaam Hospital",Netherlands (the),Terneuzen,51.33583,3.82778,https://www.zorgsaam.org/,healthcare
+Frisius MC,,ROR,ROR:01jbjwx18,https://ror.org/01jbjwx18,,Frisius Medical Center,Netherlands (the),Leeuwarden,53.20271,5.80973,https://www.frisiusmc.nl/,healthcare
+Antonius Ziekenhuis,,ROR,ROR:0489xrh07,https://ror.org/0489xrh07,,"Antonius,Stichting Antonius Zorggroep",Netherlands (the),Sneek,53.03297,5.6589,https://www.mijnantonius.nl/,healthcare
+Synaeda Psycho Medisch Centrum,,ROR,ROR:0338da144,https://ror.org/0338da144,,Synaeda,Netherlands (the),Leeuwarden,53.20271,5.80973,https://www.synaeda.nl/,healthcare
+Tjongerschans,,ROR,ROR:021dfp132,https://ror.org/021dfp132,,"Tjongerschans ziekenhuis Heerenveen,Ziekenhuis Tjongerschans",Netherlands (the),Heerenveen,52.95929,5.91854,https://www.tjongerschans.nl,healthcare
+Aalborg University,AAU,ROR,ROR:04m5j1k67,https://ror.org/04m5j1k67,,Aalborg Universitet,Denmark,Aalborg,57.048,9.9187,https://www.aau.dk,"education,funder"
+European Research and Project Office,EURICE,ROR,ROR:00vqwjw35,https://ror.org/00vqwjw35,,EURICE,Germany,Saarbrücken,49.23262,7.00982,http://eurice.eu/,other
+Norwegian University of Science and Technology,NTNU,ROR,ROR:05xg72x27,https://ror.org/05xg72x27,,"Norges Teknisk-Naturvitenskapelige Universitet,Norjan teknis-luonnontieteellinen yliopisto",Norway,Trondheim,63.43049,10.39506,https://www.ntnu.edu,"education,funder"
+National Medical Institute of the Ministry of Interior and Administration,PIM MSWiA,ROR,ROR:004z7y014,https://ror.org/004z7y014,,Państwowy Instytut Medyczny Ministerstwa Spraw Wewnętrznych i Administracji,Poland,Warsaw,52.22977,21.01178,http://pimmswia.gov.pl,healthcare
+Hospital da Luz,,ROR,ROR:03jpm9j23,https://ror.org/03jpm9j23,,,Portugal,Lisbon,38.72509,-9.1498,http://www.hospitaldaluz.pt/lisboa/en/,healthcare
+Örebro University,,ROR,ROR:05kytsw45,https://ror.org/05kytsw45,,"Örebro universitet,Örebron yliopisto,Örebro Universitet",Sweden,Örebro,59.27412,15.2066,https://www.oru.se,"education,funder"
+Celltrion (South Korea),,ROR,ROR:05k84m754,https://ror.org/05k84m754,,,Korea (the Republic of),Incheon,37.45646,126.70515,https://www.celltrion.com,"company,funder"
+University of Oxford,,ROR,ROR:052gg0110,https://ror.org/052gg0110,,"Prifysgol Rhydychen,Oxford University",United Kingdom of Great Britain and Northern Ireland (the),Oxford,51.75222,-1.25596,https://www.ox.ac.uk,"education,funder"
+Ludger (United Kingdom),,ROR,ROR:05bm86k51,https://ror.org/05bm86k51,,,United Kingdom of Great Britain and Northern Ireland (the),Abingdon,51.67109,-1.28278,https://www.ludger.com/,company
+Icahn School of Medicine at Mount Sinai,ISMMS,ROR,ROR:04a9tmd77,https://ror.org/04a9tmd77,,Mount Sinai School of Medicine,United States of America (the),New York,40.71427,-74.00597,https://icahn.mssm.edu,"education,funder"

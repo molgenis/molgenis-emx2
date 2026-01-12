@@ -24,8 +24,8 @@ interface Schema {
 
 const route = useRoute();
 const router = useRouter();
-const schemaId = ref((route.query.schema as string) ?? "type test");
-const tableId = ref((route.query.table as string) ?? "Types");
+const schemaId = ref((route.query.schema as string) ?? "pet store");
+const tableId = ref((route.query.table as string) ?? "Category");
 const rowIndex = ref<null | number>(null);
 if (route.query.rowIndex) {
   rowIndex.value = parseInt(route.query.rowIndex as string);
@@ -163,16 +163,19 @@ const {
   previousSection,
   nextSection,
   visibleColumns,
-  errorMap,
+  visibleColumnErrors,
   gotoSection,
   validateAllColumns,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
+  visibleColumnIds,
 } = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(
-  () => Object.values(errorMap.value).filter((error) => error.length > 0).length
+  () =>
+    Object.values(visibleColumnErrors.value).filter((error) => error.length > 0)
+      .length
 );
 </script>
 
@@ -188,7 +191,7 @@ const numberOfFieldsWithErrors = computed(
         />
         <div
           id="forms-story-fields-container"
-          class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
+          class="bg-form p-4"
           :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
         >
           <Button
@@ -205,7 +208,7 @@ const numberOfFieldsWithErrors = computed(
           <FormFields
             class="grow"
             :columns="visibleColumns"
-            :errorMap="errorMap"
+            :visibleColumnErrors="visibleColumnErrors"
             :row-key="rowKey"
             v-model="formValues"
             @update="onUpdateColumn"
@@ -292,11 +295,11 @@ const numberOfFieldsWithErrors = computed(
             <div>
               <div>number of error: {{ numberOfFieldsWithErrors }}</div>
             </div>
-            <div v-if="Object.keys(errorMap).length">
+            <div v-if="Object.keys(visibleColumnErrors).length">
               <h3 class="text-label">Errors</h3>
 
               <dl class="flex flex-col">
-                <template v-for="(value, key) in errorMap">
+                <template v-for="(value, key) in visibleColumnErrors">
                   <dt class="font-bold">{{ key }}:</dt>
                   <dd v-if="value.length" class="ml-1">{{ value }}</dd>
                 </template>
