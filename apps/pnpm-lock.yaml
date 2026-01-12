@@ -298,7 +298,7 @@ importers:
         version: 1.57.0
       '@vitejs/plugin-vue':
         specifier: 4.6.2
-        version: 4.6.2(vite@4.5.11(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        version: 4.6.2(vite@5.4.21(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
       '@vue/test-utils':
         specifier: 2.4.6
         version: 2.4.6
@@ -309,11 +309,11 @@ importers:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 4.5.11
-        version: 4.5.11(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1)
+        specifier: 5.4.21
+        version: 5.4.21(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1)
       vite-plugin-html:
         specifier: 3.2.2
-        version: 3.2.2(vite@4.5.11(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1))
+        version: 3.2.2(vite@5.4.21(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1))
       vite-plugin-monaco-editor:
         specifier: 1.1.0
         version: 1.1.0(monaco-editor@0.53.0)
@@ -18628,22 +18628,6 @@ snapshots:
       - '@types/node'
       - rollup
       - supports-color
-
-  vite-plugin-html@3.2.2(vite@4.5.11(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1)):
-    dependencies:
-      '@rollup/pluginutils': 4.2.1
-      colorette: 2.0.20
-      connect-history-api-fallback: 1.6.0
-      consola: 2.15.3
-      dotenv: 16.6.1
-      dotenv-expand: 8.0.3
-      ejs: 3.1.10
-      fast-glob: 3.3.3
-      fs-extra: 10.1.0
-      html-minifier-terser: 6.1.0
-      node-html-parser: 5.4.2
-      pathe: 0.2.0
-      vite: 4.5.11(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1)
 
   vite-plugin-html@3.2.2(vite@5.4.21(@types/node@24.10.1)(sass@1.70.0)(terser@5.44.1)):
     dependencies:
