@@ -14,7 +14,7 @@ class TestImportProfileTask {
   private Database db;
 
   @Test
-  void whenCreateSchemaFailsWithMolgenisException_thenRollback() {
+  void testImportProfileWithMolgenisException() {
     db = TestDatabaseFactory.getTestDatabase();
     db.dropSchemaIfExists("testFail");
     ImportProfileTask task =
@@ -31,7 +31,7 @@ class TestImportProfileTask {
   }
 
   @Test
-  void whenCreateSchemaFailsWithRunTimeException_thenRollback() {
+  void testImportProfileWithRuntimeException() {
     db = TestDatabaseFactory.getTestDatabase();
     db.dropSchemaIfExists("testFail");
     ImportProfileTask task =
@@ -48,7 +48,7 @@ class TestImportProfileTask {
   }
 
   @Test
-  void whenCreateSchemaFailsWithNonExistentTemplate_thenRollback() {
+  void testSchemaCreationWithIncorrectTemplateFail() {
     db = TestDatabaseFactory.getTestDatabase();
     db.dropSchemaIfExists("testFail");
     assertThrows(
