@@ -3,7 +3,6 @@ Tests the Pyclient `get` method.
 """
 
 import os
-from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv

@@ -3,14 +3,12 @@ Tests for methods concerning schema metadata.
 """
 
 import os
-from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
-from src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, \
-    NoSuchTableException, PermissionDeniedException
+from src.molgenis_emx2_pyclient.exceptions import PermissionDeniedException
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
