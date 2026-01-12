@@ -116,12 +116,20 @@ export function getColumnError(
       return `Please enter valid JSON`;
     }
   }
-  if (type === "LONG" && value !== null && getBigIntError(value as string | undefined)) {
+  if (
+    type === "LONG" &&
+    value !== null &&
+    getBigIntError(value as string | undefined)
+  ) {
     return getBigIntError(value as string | undefined);
   }
   if (
-    type === "LONG_ARRAY" && Array.isArray(value) && (value as unknown as Array<string>)?.length &&
-    (value as unknown as string[])?.some((val) => getBigIntError(val) && val !== null)
+    type === "LONG_ARRAY" &&
+    Array.isArray(value) &&
+    (value as unknown as Array<string>)?.length &&
+    (value as unknown as string[])?.some(
+      (val) => getBigIntError(val) && val !== null
+    )
   ) {
     console.log(value);
     return BIG_INT_ERROR;
