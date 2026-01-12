@@ -1,7 +1,5 @@
 package org.molgenis.emx2.beaconv2;
 
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlApi;
 
 public class Templates {
 
   public static void addTemplatesToDb(Database database) {
     database.becomeAdmin();
     Schema schema = database.getSchema("_SYSTEM_");
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    GraphqlApi graphQL = new GraphqlApi(schema);
 
     for (EntryType entryType : EntryType.values()) {
       String query =
@@ -31,7 +29,7 @@ public class Templates {
       try {
         String jslt = readJsltFile(jsltPath);
         variables.put("template", jslt);
-        graphQL.execute(ExecutionInput.newExecutionInput(query).variables(variables));
+        graphQL.execute(query, variables);
       } catch (IOException e) {
         System.out.println("Could not read jslt file " + jsltPath);
       }
