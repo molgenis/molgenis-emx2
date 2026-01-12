@@ -131,7 +131,6 @@ export function getColumnError(
       (val) => getBigIntError(val) && val !== null
     )
   ) {
-    console.log(value);
     return BIG_INT_ERROR;
   }
   if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {
