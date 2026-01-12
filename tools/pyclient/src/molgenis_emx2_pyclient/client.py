@@ -832,7 +832,7 @@ class Client:
 
         return settings
 
-    def get_schema_members(self, name: str = None):
+    def get_schema_members(self, name: str = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as a list of dictionaries."""
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
@@ -851,7 +851,7 @@ class Client:
 
         return members
 
-    def get_schema_roles(self, name: str = None):
+    def get_schema_roles(self, name: str = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as a list of dictionaries."""
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
