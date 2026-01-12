@@ -101,9 +101,15 @@ task dockerBuild(type: Exec) {
     description = 'Build Docker image using Docker CLI'
 
     doFirst {
-        def jarFile = shadowJar.archiveFile.get().asFile.name
+        // Copy JAR to project root for Docker build context (mimics Palantir plugin 'files' behavior)
+        def jarFile = shadowJar.archiveFile.get().asFile
+        def targetFile = new File(project.projectDir, jarFile.name)
+        logger.lifecycle("Copying JAR to Docker build context: ${jarFile.name}")
+        java.nio.file.Files.copy(jarFile.toPath(), targetFile.toPath(),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+
         logger.lifecycle("Building Docker image: ${imageName}:${tagName} and ${imageName}:latest")
-        logger.lifecycle("Using JAR file: ${jarFile}")
+        logger.lifecycle("Using JAR file: ${jarFile.name}")
     }
 
     commandLine 'docker', 'build',
