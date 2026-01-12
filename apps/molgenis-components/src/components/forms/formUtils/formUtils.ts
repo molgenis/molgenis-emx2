@@ -315,6 +315,9 @@ function containsInvalidEmail(emails: any) {
 }
 
 function isInvalidPeriod(value: any) {
+  if (value === null || value === undefined || value === "") {
+    return false;
+  }
   return !PERIOD_REGEX.test(value);
 }
 
