@@ -46,3 +46,11 @@ def test_get_schema_members():
         assert len(schema_members) == 1
         assert schema_members[0].get('email') == "anonymous"
         assert schema_members[0].get('role') == "Viewer"
+
+def test_get_schema_roles():
+    """Tests the `get_schema_roles` method."""
+
+    with Client(url=server_url) as client:
+        client.set_schema("catalogue-demo")
+        schema_roles = client.get_schema_roles()
+        assert len(schema_roles) == 8
