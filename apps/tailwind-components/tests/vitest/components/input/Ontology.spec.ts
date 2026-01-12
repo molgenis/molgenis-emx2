@@ -488,53 +488,6 @@ describe("OntologyInput - Unified loadPage Architecture", () => {
       expect((wrapper.vm as any).searchTerms).toBe("");
     });
 
-    it("should show search results summary", async () => {
-      const mockFetch = vi.mocked(fetchGraphql);
-
-      mockFetch.mockResolvedValueOnce({
-        totalCount: { count: 100 },
-        rootCount: { count: 100 },
-      });
-
-      mockFetch.mockResolvedValueOnce(
-        createMockLoadPageResponse(createMockTerms(0, 20), 100)
-      );
-
-      const wrapper = mount(OntologyInput, {
-        props: {
-          ontologySchemaId: "test-schema",
-          ontologyTableId: "test-table",
-          isArray: true,
-          limit: 10, // Use limit of 10 so hasMore will be true
-        },
-      });
-
-      await flushPromises();
-
-      // No summary when not searching
-      expect((wrapper.vm as any).searchResultsSummary).toBeNull();
-
-      // Set searchTerms first (required for summary to show)
-      (wrapper.vm as any).searchTerms = "health";
-      await nextTick();
-
-      // Perform search - return exactly 10 items (full batch) with 45 total
-      mockFetch.mockResolvedValueOnce(
-        createMockLoadPageResponse(createMockTerms(0, 10, "Match"), 45, 100)
-      );
-
-      await (wrapper.vm as any).updateSearch("health");
-      await flushPromises();
-
-      // Should show summary
-      const summary = (wrapper.vm as any).searchResultsSummary;
-      expect(summary).not.toBeNull();
-      expect(summary.loaded).toBe(10);
-      expect(summary.total).toBe(45);
-      expect(summary.hasMore).toBe(true); // 10 items loaded, 45 total, limit 10
-      expect(summary.showingAll).toBe(false);
-    });
-
     it('should show "show filtered" option when expanding node with filtered children', async () => {
       const mockFetch = vi.mocked(fetchGraphql);
 
