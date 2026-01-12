@@ -22,6 +22,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
 import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.io.emx2.Emx2Changelog;
 import org.molgenis.emx2.io.emx2.Emx2Members;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.readers.CsvTableReader;
@@ -47,12 +48,46 @@ public class CsvApi {
 
     app.get("/{schema}/api/csv/members", CsvApi::getMembers);
     app.get("/{schema}/api/csv/settings", CsvApi::getSettings);
+    app.get("/{schema}/api/csv/changelog", CsvApi::getChangelog);
 
     // table level operations
     final String tablePath = "/{schema}/api/csv/{table}";
     app.get(tablePath, CsvApi::tableRetrieve);
     app.post(tablePath, CsvApi::tableUpdate);
     app.delete(tablePath, CsvApi::tableDelete);
+  }
+
+  private static void getChangelog(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
+      throw new MolgenisException("Unauthorized to get schema changelog");
+    }
+
+    StringWriter writer = new StringWriter();
+    Character separator = getSeparator(ctx);
+    TableStore store = new TableStoreForCsvInMemory();
+
+    Emx2Changelog.outputChangelog(store, schema);
+
+    CsvTableWriter.write(
+        store.readTable(CHANGELOG_TABLE),
+        List.of(
+            CHANGELOG_OPERATION,
+            CHANGELOG_STAMP,
+            CHANGELOG_USERID,
+            CHANGELOG_TABLENAME,
+            CHANGELOG_OLD,
+            CHANGELOG_NEW),
+        writer,
+        separator);
+
+    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_changelog_" + date + ".csv\"");
+    ctx.contentType(ACCEPT_CSV);
+    ctx.status(200);
+    ctx.result(writer.toString());
   }
 
   private static void discardMetadata(Context ctx) {
@@ -108,7 +143,7 @@ public class CsvApi {
 
   private static void getMembers(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!exportMembersAllowed(ctx, schema)) {
+    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
@@ -133,7 +168,7 @@ public class CsvApi {
     ctx.result(writer.toString());
   }
 
-  private static boolean exportMembersAllowed(Context ctx, Schema schema) {
+  private static boolean isManagerOrOwnerOfSchema(Context ctx, Schema schema) {
     var currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
     var sqlSchemaMetadata = new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
     var roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
