@@ -19,11 +19,11 @@ import { useForm } from "#imports";
 
 const model = ref({});
 const metadata = {
-  label: "Hyperlink",
+  label: "NonNegativeInt",
   id: "Types",
   name: "Types",
   schemaId: "Types",
-  tableType: "my kind of table",
+  tableType: "Form",
   columns: [
     {
       id: "nonNegativeIntType",
