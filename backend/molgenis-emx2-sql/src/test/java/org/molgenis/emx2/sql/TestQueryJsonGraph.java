@@ -28,10 +28,10 @@ public class TestQueryJsonGraph {
   @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
-
-    schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName());
-
-    PET_STORE.getImportTask(schema, true).run();
+    String schemaName = TestQueryJsonGraph.class.getSimpleName();
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", true).run();
+    schema = db.getSchema(schemaName);
 
     schema.create(
         table("Person")
@@ -111,7 +111,7 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testSearch() {
-    Query s = this.schema.getTable("Person").query();
+    Query s = schema.getTable("Person").query();
     s.select(s("name"));
     s.search("opa");
 
@@ -174,10 +174,12 @@ public class TestQueryJsonGraph {
 
   @Test
   public void testAgg() {
-    Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testAgg");
-    PET_STORE.getImportTask(schema, true).run();
+    String aggSchemaName = TestQueryJsonGraph.class.getSimpleName() + "_testAgg";
+    db.dropSchemaIfExists(aggSchemaName);
+    PET_STORE.getImportTask(db, aggSchemaName, "", true).run();
+    Schema aggSchema = db.getSchema(aggSchemaName);
 
-    String json = schema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
+    String json = aggSchema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
     assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));
   }
 

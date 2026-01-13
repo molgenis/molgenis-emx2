@@ -20,6 +20,7 @@ import BaseIcon from "../BaseIcon.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { useTemplateRef } from "vue";
 
 const props = withDefaults(
   defineProps<
@@ -39,7 +40,9 @@ const props = withDefaults(
 );
 
 const initLoading = ref(true);
-const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const modelValue = defineModel<
+  columnValueObject[] | columnValueObject | null
+>();
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
@@ -89,7 +92,7 @@ async function init() {
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: keys }, expandLevel: 0 }
+      { filter: { equals: keys }, expandLevel: 1 }
     );
     if (data.rows) {
       hasNoResults.value = false;
@@ -128,7 +131,7 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 
 async function loadOptions(filter: IQueryMetaData) {
   hasNoResults.value = true;
-  filter.expandLevel = 0;
+  filter.expandLevel = 1;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
@@ -152,32 +155,45 @@ async function loadOptions(filter: IQueryMetaData) {
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
-  if (searchTerms.value) updateSearch("");
+  if (searchTerms.value) {
+    updateSearch("");
+  }
 }
 
-const sentinel = ref<HTMLElement | null>(null);
+const wrapperRef = useTemplateRef("wrapperRef");
+// Close dropdown when clicking outside
+useClickOutside(wrapperRef, () => {
+  showSelect.value = false;
+});
+
+const sentinel = useTemplateRef("sentinel");
 let loadMoreObserver: IntersectionObserver | null = null;
+onMounted(() => {
+  loadMoreObserver = new IntersectionObserver(
+    async (entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting) {
+        loadMore();
+      }
+    },
+    {
+      root: wrapperRef.value, // the container
+      threshold: 0.25,
+      rootMargin: "100px", //more smooth
+    }
+  );
+});
+
 function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
     loadMoreObserver?.disconnect();
-    loadMoreObserver = null;
   } else {
     showSelect.value = true;
-    loadMoreObserver = new IntersectionObserver(
-      async (entries) => {
-        const entry = entries[0];
-        if (entry?.isIntersecting) {
-          loadMore();
-        }
-      },
-      {
-        root: wrapperRef.value, // the container
-        threshold: 0.1,
-        rootMargin: "100px", //more smooth
-      }
-    );
-    loadMoreObserver.observe(sentinel.value);
+
+    if (sentinel.value) {
+      loadMoreObserver?.observe(sentinel.value!);
+    }
   }
 }
 
@@ -192,12 +208,25 @@ async function select(label: string) {
   if (!props.isArray) {
     selectionMap.value = {};
   }
-  selectionMap.value[label] = await extractPrimaryKey(optionMap.value[label]);
-  if (searchTerms.value) toggleSearch();
-  emitValue();
-}
+  const optionValue = optionMap.value[label];
+  if (
+    optionValue !== undefined &&
+    optionValue !== null &&
+    typeof optionValue === "object" &&
+    !Array.isArray(optionValue)
+  ) {
+    selectionMap.value[label] = await extractPrimaryKey(optionValue);
+  } else {
+    throw new Error("Invalid option value for label: " + label);
+  }
 
-function emitValue() {
+  if (searchTerms.value) {
+    toggleSearch();
+  }
+  // close select dropdown for single select once an option is selected
+  if (!props.isArray && showSelect.value === true) {
+    toggleSelect();
+  }
   emit(
     "update:modelValue",
     props.isArray
@@ -211,14 +240,25 @@ async function extractPrimaryKey(row: recordValue) {
 }
 
 function deselect(label: string) {
-  delete selectionMap.value[label];
-  if (searchTerms.value) toggleSearch();
-  emitValue();
+  if (searchTerms.value) {
+    toggleSearch();
+  }
+
+  if (props.isArray) {
+    delete selectionMap.value[label];
+    emit("update:modelValue", Object.values(selectionMap.value));
+  } else {
+    if (showSelect.value === true) {
+      toggleSelect();
+    }
+    selectionMap.value = {};
+    emit("update:modelValue", null);
+  }
 }
 
 function clearSelection() {
   selectionMap.value = {};
-  emit("update:modelValue", props.isArray ? [] : undefined);
+  emit("update:modelValue", props.isArray ? [] : null);
   updateSearch(""); //reset
 }
 
@@ -232,12 +272,6 @@ function loadMore() {
 }
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
-
-// Close dropdown when clicking outside
-const wrapperRef = ref<HTMLElement | null>(null);
-useClickOutside(wrapperRef, () => {
-  showSelect.value = false;
-});
 
 onMounted(() => {
   init();
@@ -279,17 +313,19 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 m-2"
-        @click.stop="toggleSelect"
+        class="flex items-center justify-between gap-2 px-2 h-input"
+        @click.stop.self="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="isArray ? selection.length : selection" role="group">
             <Button
+              id="dsfdsdf"
               v-for="label in isArray ? selection : [selection]"
               icon="cross"
               iconPosition="right"
               type="filterWell"
               size="tiny"
+              class="h-[36px]"
               :class="{
                 'text-disabled cursor-not-allowed': disabled,
                 'text-valid bg-valid': valid,
@@ -312,7 +348,7 @@ onMounted(() => {
               class="flex-1 min-w-[100px] bg-transparent focus:outline-none"
               placeholder="Search in terms"
               autocomplete="off"
-              @click.stop="toggleSelect"
+              @click.stop.self="toggleSelect"
             />
           </div>
         </div>
@@ -326,7 +362,7 @@ onMounted(() => {
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
-            @click.stop="toggleSelect"
+            @click.stop.self="toggleSelect"
           />
           <BaseIcon
             v-show="!showSelect"
@@ -337,13 +373,14 @@ onMounted(() => {
               'text-disabled cursor-not-allowed': disabled,
               'text-input': !disabled,
             }"
+            @click.stop.self="toggleSelect"
           />
         </div>
       </div>
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
+          'max-h-[50vh] top-4 rounded-theme bg-input overflow-y-auto w-full pt-2 pb-6 pl-4 ':
             displayAsSelect,
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
@@ -384,12 +421,13 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="isArray ? selection.length : selection && !displayAsSelect"
     @click="clearSelection"
     type="text"
     size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
+    :class="{ 'pl-2': displayAsSelect }"
   >
     Clear
   </Button>

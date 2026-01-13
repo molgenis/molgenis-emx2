@@ -1,16 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  defineEmits,
-  defineModel,
-  defineProps,
-  ref,
-  useTemplateRef,
-  watch,
-  withDefaults,
-  type Ref,
-  onMounted,
-} from "vue";
+import { computed, ref, useTemplateRef, watch, type Ref, onMounted } from "vue";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
@@ -38,7 +27,7 @@ const props = withDefaults(
 
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
-const modelValue = defineModel<string[] | string | undefined>();
+const modelValue = defineModel<string[] | string | undefined | null>();
 //labels for the selected values
 const valueLabels: Ref<Record<string, string>> = ref({});
 //state of the tree that is shown
@@ -58,8 +47,6 @@ const counterOffset = ref<number>(0);
 const filteredCount = ref<number>(0);
 const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
-
-const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
 
 function reset() {
   ontologyTree.value = [];
@@ -148,8 +135,10 @@ function assembleTreeWithChildren(
   data: ITreeNodeState[],
   parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
+  // @ts-ignore
   return (
     data
+      // @ts-ignore
       .filter((row) => row.parent?.name == parentNode?.name)
       .map((row: any) => {
         const node = {
@@ -163,7 +152,9 @@ function assembleTreeWithChildren(
           selectable: true,
           visible: true,
         };
+        // @ts-ignore
         node.children = assembleTreeWithChildren(data, node);
+        // @ts-ignore
         node.expanded = node.children.length > 0;
         return node;
       }) || []
@@ -223,7 +214,7 @@ async function retrieveTerms(
 async function applyModelValue(data: any = undefined): Promise<void> {
   valueLabels.value = {};
   intermediates.value = [];
-  if (data === undefined) {
+  if (data === undefined && modelValue.value) {
     data = await fetchGraphql(
       props.ontologySchemaId,
       `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
@@ -232,12 +223,17 @@ async function applyModelValue(data: any = undefined): Promise<void> {
       }
     );
   }
-  valueLabels.value = Object.fromEntries(
-    data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
-  );
-  intermediates.value = data.ontologyPaths.map(
-    (term: { name: string }) => term.name
-  );
+  if (data.ontologyPaths) {
+    valueLabels.value = Object.fromEntries(
+      data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
+    );
+    intermediates.value = data.ontologyPaths.map(
+      (term: { name: string }) => term.name
+    );
+  } else {
+    valueLabels.value = {};
+    intermediates.value = [];
+  }
   applySelectedStates();
 }
 
@@ -326,7 +322,6 @@ async function toggleTermSelect(node: ITreeNodeState) {
         .filter((child) => child.name != node.name)
         .every((child) => child.selected === "selected")
     ) {
-      console.log("select parent");
       await toggleTermSelect(node.parentNode);
     }
     // if we simply select a node
@@ -385,14 +380,14 @@ function deselect(name: string) {
   if (props.isArray && Array.isArray(modelValue.value)) {
     modelValue.value = modelValue.value.filter((value) => value != name);
   } else {
-    modelValue.value = undefined;
+    modelValue.value = null;
   }
   updateSearch("");
 }
 
 function clearSelection() {
   if (props.disabled) return;
-  modelValue.value = props.isArray ? [] : undefined;
+  modelValue.value = props.isArray ? [] : null;
 }
 
 async function updateSearch(value: string) {
@@ -424,7 +419,7 @@ async function toggleSelect() {
 }
 
 // Close dropdown when clicking outside
-const wrapperRef = ref<HTMLElement | null>(null);
+const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
 useClickOutside(wrapperRef, () => {
   showSelect.value = false;
 });
@@ -466,7 +461,7 @@ onMounted(() => {
     >
       <div
         v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 m-2"
+        class="flex items-center justify-between gap-2 px-2 h-input"
         @click.stop="toggleSelect"
       >
         <div class="flex flex-wrap items-center gap-2">
@@ -533,7 +528,7 @@ onMounted(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'absolute z-20 max-h-[50vh] border bg-white overflow-y-auto w-full pl-4':
+          'absolute z-50 max-h-[50vh] border bg-input overflow-y-auto w-full pl-4':
             displayAsSelect,
         }"
         v-show="showSelect || !displayAsSelect"
