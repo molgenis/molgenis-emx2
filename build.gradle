@@ -95,7 +95,6 @@ task dockerBuild(type: Exec) {
     description = 'Build Docker image using Docker CLI'
 
     doFirst {
-        // Copy JAR to project root for Docker build context (mimics Palantir plugin 'files' behavior)
         def jarFile = shadowJar.archiveFile.get().asFile
         def targetFile = new File(project.projectDir, jarFile.name)
         logger.lifecycle("Copying JAR to Docker build context: ${jarFile.name}")
