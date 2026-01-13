@@ -1065,9 +1065,7 @@ public class GraphqlTableFieldFactory {
               DATE_ARRAY,
               DATETIME_ARRAY,
               PERIOD_ARRAY,
-              UUID_ARRAY,
-              EMAIL_ARRAY,
-              HYPERLINK_ARRAY ->
+              UUID_ARRAY ->
           GraphQLList.list(Scalars.GraphQLString);
       default ->
           throw new MolgenisException(
