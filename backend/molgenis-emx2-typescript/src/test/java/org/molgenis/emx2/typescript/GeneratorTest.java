@@ -72,12 +72,13 @@ class GeneratorTest {
     return Files.readString(Path.of(file));
   }
 
-//  @Test
+  //  @Test
   void testAllColumnTypesCovered() {
     // Should probably write a test that validates all possible column types, but might be good
     // to write some generic code that allows generating such a table together with what is already
     // done in ColumnTypeRdfMapperTest to reduce duplicate code.
 
-//    Schema schema = db.dropCreateSchema(GeneratorTest.class.getSimpleName() + "_allColumnTypes");
+    //    Schema schema = db.dropCreateSchema(GeneratorTest.class.getSimpleName() +
+    // "_allColumnTypes");
   }
 }
