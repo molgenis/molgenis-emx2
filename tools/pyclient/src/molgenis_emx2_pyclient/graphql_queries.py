@@ -153,8 +153,7 @@ def list_schemas():
 
 
 def list_schema_meta():
-    """GraphQL query to view metadata about a schema including
-    the definition of tables and columns, as well as schema settings and members.
+    """GraphQL query to view metadata about a schema including the definition of tables and columns.
     """
     return """
       { 
@@ -209,26 +208,40 @@ def list_schema_meta():
                     computed
                     semantics
                 }
-                settings {
-                    key
-                    value
-                }
                 semantics
                 tableType
             }
-            members {
-                email
-                role
-            }
-            settings {
-                key
-                value
-            }
-            roles {
-                name
-            }
         }
       }
+    """
+
+def list_schema_settings():
+    return """
+    {
+      _schema {
+        settings {
+          key value
+        }
+      }
+    }
+    """
+
+def list_schema_members():
+    return """
+    {
+      _schema {
+        members {email role}
+      }
+    }
+    """
+
+def list_schema_roles():
+    return """
+    {
+      _schema {
+        roles {name}
+      }
+    }
     """
 
 
