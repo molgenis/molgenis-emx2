@@ -6,9 +6,6 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}input/Email.story`);
-  await page
-    .getByRole("textbox", { name: "Input an email address" })
-    .click({ delay: 500 });
 });
 
 test("the inputEmail", async ({ page }) => {

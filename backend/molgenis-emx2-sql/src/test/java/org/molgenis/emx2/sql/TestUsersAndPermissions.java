@@ -230,6 +230,10 @@ public class TestUsersAndPermissions {
       assertTrue(database.checkUserPassword("donald", "blaat"));
       assertFalse(database.checkUserPassword("donald", "blaat2"));
 
+      // test empty password returns false
+      database.addUser("nopassworduser");
+      assertFalse(database.checkUserPassword("nopassworduser", "nopassword"));
+
       // ensure otherwise fails
       database.becomeAdmin();
       database.addUser("katrien");
@@ -244,6 +248,7 @@ public class TestUsersAndPermissions {
       database.becomeAdmin();
       database.removeUser("donald");
       database.removeUser("katrien");
+      database.removeUser("nopassworduser");
     }
   }
 }

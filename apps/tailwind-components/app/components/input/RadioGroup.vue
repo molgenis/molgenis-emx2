@@ -6,7 +6,6 @@ import InputLabel from "../input/Label.vue";
 import InputRadio from "../input/Radio.vue";
 import InputRadioIcon from "../input/RadioIcon.vue";
 import ButtonText from "../button/Text.vue";
-import { defineEmits, defineModel, defineProps, withDefaults } from "vue";
 
 withDefaults(
   defineProps<
@@ -93,10 +92,10 @@ function resetModelValue() {
       </InputLabel>
     </div>
     <ButtonText
-      v-if="showClearButton"
+      v-if="showClearButton && modelValue !== undefined"
       type="reset"
       :id="`${id}-radio-group-clear`"
-      class="w-8 ml-3"
+      class="w-8"
       :form="`${id}-radio-group`"
       @click.prevent="resetModelValue"
       :disabled="disabled || null"

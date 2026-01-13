@@ -2,7 +2,7 @@
 
 Steps:
 
-* Install Postgres 15, you can find it here [Postgresql](https://www.postgresql.org/download/)
+* Install [Postgresql 15](https://www.postgresql.org/download/)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     psql postgres
@@ -33,11 +33,11 @@ Steps:
 
 Optionally, you can change defaults using either java properties or using env variables:
 
-* MOLGENIS_POSTGRES_URI
-* MOLGENIS_POSTGRES_USER
-* MOLGENIS_POSTGRES_PASS
-* MOLGENIS_HTTP_PORT
-* MOLGENIS_ADMIN_PW
+* `MOLGENIS_POSTGRES_URI`
+* `MOLGENIS_POSTGRES_USER`
+* `MOLGENIS_POSTGRES_PASS`
+* `MOLGENIS_HTTP_PORT`
+* `MOLGENIS_ADMIN_PW`
 
 For example:
 
