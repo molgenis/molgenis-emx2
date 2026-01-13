@@ -20,9 +20,10 @@ from the latest version of Molgenis EMX2.
 
 
 
-### 13.75.2
+### 13.75.3
 
 - Improved error handling in 'columns' filter in `get` method
+- Fixed asynchronous API calls in `export`
 - Fixed issue with 'equals' filter for references in `get` method
 - Fixed `greater_than` and `smaller_than` filters for LONG type values in `get` method
 - Renamed `__prepare_unequal_filter` to `__prepare_not_equals_filter` and added NotImplementedError for certain data types
