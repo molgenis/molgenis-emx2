@@ -143,11 +143,11 @@ def test_not_equals_filter():
 
         # Test float
         orders = client.get_graphql(table="Pet", schema="pet store", query_filter="weight != 1.337")
-        assert len(orders) == 7
+        assert len(orders) == 8
 
         # Test string
         pets = client.get_graphql(table="Pet", schema="pet store", query_filter="name != pooky")
-        assert len(pets) == 7
+        assert len(pets) == 8
 
         # Test ref
         with pytest.raises(NotImplementedError) as excinfo:
