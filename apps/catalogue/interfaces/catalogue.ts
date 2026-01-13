@@ -1,4 +1,4 @@
-// Generated (on: 2025-10-13T15:09:32.484667) from Generator.java for schema: catalogue
+// Generated (on: 2026-01-13T22:56:42.537567) from Generator.java for schema: catalogue-demo
 
 export interface IFile {
   id?: string;
@@ -252,9 +252,10 @@ export interface ICollectionEvents {
   creator?: IOrganisations[];
   issued?: string;
   modified?: string;
-  theme?: string[];
+  theme?: IOntologyNode[];
   accessRights?: IOntologyNode;
-  applicableLegislation?: string[];
+  applicableLegislation?: IOntologyNode[];
+  provenanceStatement?: string;
 }
 
 export interface ICollectionEvents_agg {
@@ -719,6 +720,23 @@ export interface ILanguages_agg {
   count: number;
 }
 
+export interface ILegislations {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ILegislations;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ILegislations[];
+}
+
+export interface ILegislations_agg {
+  count: number;
+}
+
 export interface ILinkageStrategies {
   order?: number;
   name: string;
@@ -835,22 +853,12 @@ export interface IOrganisationRoles_agg {
   count: number;
 }
 
-export interface IOntologyOrganisations extends IOntologyNode {
-  name: string;
-  acronym?: string;
-  country?: IOntologyNode;
-  city?: string;
-  latitude?: number;
-  longitude?: number;
-  website?: string;
-}
-
 export interface IOrganisations {
   resource: IResources;
   id: string;
   type: IOntologyNode;
   name?: string;
-  organisation?: IOntologyOrganisations;
+  organisation?: IOrganisations;
   otherOrganisation?: string;
   department?: string;
   website?: string;
@@ -860,11 +868,31 @@ export interface IOrganisations {
   organisationName?: string;
   organisationPid?: string;
   organisationWebsite?: string;
-  isLeadOrganisation: boolean;
+  isLeadOrganisation?: boolean;
 }
 
 export interface IOrganisations_agg {
   count: number;
+}
+
+export interface IOrganisations {
+  name: string;
+  label?: string;
+  acronym?: string;
+  parent?: any;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  semantics?: string;
+  type?: string[];
+  definition?: string;
+  aliases?: string[];
+  website?: string;
+  country?: IOntologyNode;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  children?: IOrganisations[];
 }
 
 export interface IOrganisations_agg {
@@ -1046,6 +1074,7 @@ export interface IResources {
   rdfType?: string;
   fdpEndpoint?: IEndpoint;
   ldpMembershipRelation?: string;
+  hricore?: boolean;
   id: string;
   pid?: string;
   name: string;
@@ -1054,6 +1083,7 @@ export interface IResources {
   type: IOntologyNode[];
   typeOther?: string;
   catalogueType?: IOntologyNode;
+  mainCatalogue?: boolean;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
   rWDType?: IOntologyNode[];
@@ -1092,8 +1122,6 @@ export interface IResources {
   populationOfInterestOther?: string;
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
-  minimumAge?: number;
-  maximumAge?: number;
   populationAgeGroups?: IOntologyNode[];
   ageMin?: number;
   ageMax?: number;
@@ -1198,10 +1226,11 @@ export interface IResources {
   fundingStatement?: string;
   citationRequirements?: string;
   acknowledgements?: string;
+  provenanceStatement?: string;
   documentation?: IDocumentation[];
   supplementaryInformation?: string;
-  theme?: string[];
-  applicableLegislation?: string[];
+  theme?: IOntologyNode[];
+  applicableLegislation?: IOntologyNode[];
   collectionStartPlanned?: string;
   collectionStartActual?: string;
   analysisStartPlanned?: string;
@@ -1378,12 +1407,30 @@ export interface ISubpopulations {
   creator?: IOrganisations[];
   issued?: string;
   modified?: string;
-  theme?: string[];
+  theme?: IOntologyNode[];
   accessRights?: IOntologyNode;
-  applicableLegislation?: string[];
+  applicableLegislation?: IOntologyNode[];
+  provenanceStatement?: string;
 }
 
 export interface ISubpopulations_agg {
+  count: number;
+}
+
+export interface IThemes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: IThemes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IThemes[];
+}
+
+export interface IThemes_agg {
   count: number;
 }
 
