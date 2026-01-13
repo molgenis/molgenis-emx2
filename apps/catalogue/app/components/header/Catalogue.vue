@@ -99,9 +99,7 @@ if (!cohortOnly.value) {
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${catalogueRouteParam}`"
-          :image="
-             catalogue?.logo?.url ?? logoSrc
-          "
+          :image="catalogue?.logo?.url ?? logoSrc"
           :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />
@@ -122,9 +120,7 @@ if (!cohortOnly.value) {
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
               :link="`/${catalogueRouteParam}`"
-              :image="
-                catalogue?.logo?.url ?? logoSrc
-              "
+              :image="catalogue?.logo?.url ?? logoSrc"
             />
           </div>
 
