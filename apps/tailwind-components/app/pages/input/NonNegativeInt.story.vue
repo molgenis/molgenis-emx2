@@ -2,12 +2,12 @@
   <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
     <ClientOnly>
       <FormFields
-          id="form-non-negative-int"
-          :columns="metadata.columns"
-          v-model="model"
-          :visibleColumnErrors="visibleColumnErrors"
-          @update="onUpdateColumn"
-          @blur="onBlurColumn"
+        id="form-non-negative-int"
+        :columns="metadata.columns"
+        v-model="model"
+        :visibleColumnErrors="visibleColumnErrors"
+        @update="onUpdateColumn"
+        @blur="onBlurColumn"
       />
     </ClientOnly>
   </div>
@@ -33,7 +33,7 @@ const metadata = {
   ],
 };
 const { visibleColumnErrors, onUpdateColumn, onBlurColumn } = useForm(
-    metadata,
-    model
+  metadata,
+  model
 );
 </script>

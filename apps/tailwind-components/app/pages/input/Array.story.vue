@@ -96,13 +96,13 @@
     />
     <div class="my-4">Non negative int array</div>
     <InputArray
-        id="input-array-non-negative-int"
-        type="NON_NEGATIVE_INT_ARRAY"
-        v-model="numberValue"
-        :placeholder="placeholder"
-        :valid="valid"
-        :invalid="invalid"
-        :disabled="disabled"
+      id="input-array-non-negative-int"
+      type="NON_NEGATIVE_INT_ARRAY"
+      v-model="numberValue"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
     />
     <div class="my-4">Long array</div>
     <InputArray
