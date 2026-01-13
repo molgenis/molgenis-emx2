@@ -1,28 +1,29 @@
 <script setup lang="ts">
+import type { HtmlHeadingLevels } from "../../../types/types";
+
 const props = withDefaults(
   defineProps<{
-    headingLevel: number;
+    headingLevel: HtmlHeadingLevels;
     isCentered?: boolean;
   }>(),
   {
-    headingLevel: 2,
+    headingLevel: "H2",
     isCentered: false,
   }
 );
-
-const h = `h${props.headingLevel}`;
 </script>
 
 <template>
   <component
-    :is="h"
+    :is="headingLevel"
+    class="text-title"
     :class="{
-      'text-title text-heading-6xl': h === 'h1',
-      'text-title text-heading-5xl': h === 'h2',
-      'text-title text-heading-4xl': h === 'h3',
-      'text-title text-heading-3xl': h === 'h4',
-      'text-title text-heading-2xl': h === 'h5',
-      'text-title text-heading-xl': h === 'h6',
+      'text-heading-6xl': headingLevel === 'H1',
+      'text-heading-5xl': headingLevel === 'H2',
+      'text-heading-4xl': headingLevel === 'H3',
+      'text-heading-3xl': headingLevel === 'H4',
+      'text-heading-2xl': headingLevel === 'H5',
+      'text-heading-xl': headingLevel === 'H6',
       'text-center': isCentered,
     }"
   >
