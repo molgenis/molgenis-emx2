@@ -32,7 +32,7 @@ if (logoFileName) {
     <img
       v-else-if="image"
       :src="image"
-      class="bg-white object-contain h-16 w-96"
+      class="object-contain h-16 w-96"
     />
     <svg
       v-else
