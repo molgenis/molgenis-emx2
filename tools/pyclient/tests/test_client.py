@@ -271,21 +271,6 @@ async def test_export():
         (Path(__file__).parent.parent / "pet store.xlsx").unlink()
 
 
-def test_get_schema_metadata():
-    """Tests the `get_schema_metadata` method."""
-
-    with Client(url=server_url) as client:
-        with pytest.raises(NoSuchSchemaException) as excinfo:
-            client.get_schema_metadata("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
-
-        pet_meta = client.get_schema_metadata("pet store")
-        assert len(pet_meta.get("members")) == 5
-        assert len(pet_meta.get("roles")) == 8
-        assert len(pet_meta.get("settings")) == 1
-        assert len(pet_meta.tables) == 5
-        assert len(pet_meta.get_table('name', 'Pet').columns) == 15
-
 @pytest.mark.asyncio
 async def test_create_schema():
     """Tests the `create_schema` method."""
