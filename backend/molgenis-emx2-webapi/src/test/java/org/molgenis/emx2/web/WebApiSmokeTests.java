@@ -105,8 +105,8 @@ class WebApiSmokeTests {
 
     // Always create test database from scratch to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    schema = db.createSchema(PET_STORE_SCHEMA);
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(db, PET_STORE_SCHEMA, "", true).run();
+    schema = db.getSchema(PET_STORE_SCHEMA);
 
     // grant a user permission
     db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
@@ -287,8 +287,8 @@ class WebApiSmokeTests {
   @Test
   void testReports() throws IOException {
     // create a new schema for report
-    Schema schema = db.dropCreateSchema("pet store reports");
-    PET_STORE.getImportTask(schema, true).run();
+    db.dropSchemaIfExists("pet store reports");
+    PET_STORE.getImportTask(db, "pet store reports", "", true).run();
 
     // check if reports work
     byte[] zipContents =
@@ -1194,14 +1194,14 @@ class WebApiSmokeTests {
                       version: 3.0.0
                       sources:
                       - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v1""")));
+                    - id: hri-v2.0.2""")));
   }
 
   /**
    * Request that does not define a content type but does validate on this.
    *
    * @param expectStatusCode
-   * @param contentType
+   * @param expectContentType
    * @return
    */
   private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
@@ -1228,7 +1228,7 @@ class WebApiSmokeTests {
    * Request that defines given & expected content types individually and validates on this.
    *
    * @param expectStatusCode
-   * @param contentType
+   * @param expectedContentType
    * @return
    */
   private RequestSender rdfApiContentTypeRequest(

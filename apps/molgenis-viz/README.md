@@ -18,7 +18,7 @@ Navigate to the `apps` folder and install the dependencies.
 
 ```sh
 cd apps
-npm
+pnpm install
 ```
 
 Copy the `hello-world` example app.
@@ -45,5 +45,5 @@ Navigate to your app and start the development server.
 
 ```sh
 cd <app-name>
-npm run dev
+pnpm dev
 ```
