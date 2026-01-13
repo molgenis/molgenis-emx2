@@ -121,7 +121,7 @@ export function getColumnError(
   }
   if (
     type === "LONG_ARRAY" &&
-    (value as string[])?.some((val) => getBigIntError(val))
+    (value as unknown as string[])?.some((val) => getBigIntError(val))
   ) {
     return BIG_INT_ERROR;
   }
@@ -130,7 +130,9 @@ export function getColumnError(
   }
   if (
     type === "DECIMAL_ARRAY" &&
-    (value as string[])?.some((val) => val && isNaN(parseFloat(val as string)))
+    (value as unknown as string[])?.some(
+      (val) => val && isNaN(parseFloat(val as string))
+    )
   ) {
     return "Invalid number";
   }
@@ -141,7 +143,9 @@ export function getColumnError(
     }
   }
   if (type === "INT_ARRAY") {
-    const errorInt = (value as number[])?.find((val) => getIntError(val));
+    const errorInt = (value as unknown as number[])?.find((val) =>
+      getIntError(val)
+    );
     if (errorInt) {
       return getIntError(errorInt as number);
     }
