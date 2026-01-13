@@ -5,7 +5,6 @@ import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RunWebApi {
@@ -22,8 +21,7 @@ public class RunWebApi {
 
     // setup
     Database db = TestDatabaseFactory.getTestDatabase();
-    Schema schema = db.dropCreateSchema("pet store");
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(db, "pet store", "", true).run();
 
     MolgenisWebservice.start(8080);
   }
