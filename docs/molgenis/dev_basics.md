@@ -5,11 +5,11 @@
 We use:
 
 * [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code is in [this](http://github.com/molgenis/molgenis-emx2) repository (it is not a monolith).
-* [gradle](https://gradle.org/) for build (with npm 'workspaces' for web app)
+* [gradle](https://gradle.org/) for build (with pnpm 'workspaces' for web app)
     * `gradle build` => builds all
     * `gradle clean` => removes all build artifacts
     * `gradle run` => launches the app including user interface
-    * `gradle dev` => launches only the backend (useful when developing frontend using npm run dev)
+    * `gradle dev` => launches only the backend (useful when developing frontend using p dev)
     * `gradle cleandb` => will empty your postgresql database (MAKE SURE YOU WANT IT)
     * `gradle generateTypes --args='<schema> <file>'` => generates typescript types for schema to file
     * `gradle test` => runs all tests.
@@ -62,7 +62,7 @@ We use [Semantic Release](https://github.com/semantic-release/semantic-release) 
 
 * postresql
 * java
-* npm (on mac, brew install npm)
+* pnpm (on mac, brew install pnpm)
 * gradle (on mac, brew install gradle)
 * git (on mac, install xcode dev tools)
 * IntelliJ (kindly provided by JetBrains under open source status)

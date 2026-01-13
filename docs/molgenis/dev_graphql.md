@@ -706,9 +706,9 @@ add the following to the dependancies section
   }
 ```
 
-Then open a terminal and type in `npm`.
+Then open a terminal and type in `pnpm install`.
 
-> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `npm run build`
+> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `pnpm build`
 
 Now you can import the library as follows:
 

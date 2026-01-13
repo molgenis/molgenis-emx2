@@ -57,8 +57,9 @@ public class PerformanceTest {
         .post("api/graphql")
         .sessionId();
 
-    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
-    DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    DataModels.Profile.DATA_CATALOGUE.getImportTask(database, SCHEMA_NAME, "", true).run();
+    Schema schema = database.getSchema(SCHEMA_NAME);
 
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
   }

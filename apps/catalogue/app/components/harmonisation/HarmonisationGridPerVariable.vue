@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type {
-  IVariableDetails,
-  IVariableMappings,
-} from "../../../interfaces/types";
 import HarmonisationLegendDetailed from "./HarmonisationLegendDetailed.vue";
 import TableSticky from "../table/Sticky.vue";
 import HarmonisationTableCellStatusIcon from "./HarmonisationTableCellStatusIcon.vue";
+import type {
+  IVariableMappings,
+  IVariables,
+} from "../../../interfaces/catalogue";
+import type { HarmonisationStatus } from "~~/interfaces/types";
 
 const props = defineProps<{
-  variable: IVariableDetails & IVariableMappings;
+  variable: IVariables & IVariableMappings;
 }>();
 
 const relevantMappings = computed(() =>
@@ -25,8 +26,8 @@ const sourceIds = computed(() => [
   ),
 ]);
 const repeats = computed(() => {
-  const min = props.variable.repeatMin | 0;
-  const max = props.variable.repeatMax | 0;
+  const min = props.variable.repeatMin ?? 0;
+  const max = props.variable.repeatMax ?? 0;
   return Array.from({ length: max - min + 1 }, (_, i) => min + i);
 });
 </script>
@@ -56,7 +57,7 @@ const repeats = computed(() => {
             class="text-body-base font-normal px-2 truncate hover:text-clip hover:overflow-visible"
           >
             <span class="hover:inline-block z-50">
-              {{ variable.repeatUnit.name }} {{ rowProps.value.row }}
+              {{ variable.repeatUnit?.name }} {{ rowProps.value.row }}
             </span>
           </div>
         </template>
@@ -71,7 +72,7 @@ const repeats = computed(() => {
                     .split(',')
                     .map((repeatIndex) => repeatIndex?.trim())
                     .includes('' + cell.value.row)
-              )?.match.name || 'unmapped'
+              )?.match.name as HarmonisationStatus || 'unmapped' as HarmonisationStatus
             "
           />
         </template>
