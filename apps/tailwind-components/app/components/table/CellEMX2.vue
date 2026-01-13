@@ -18,7 +18,8 @@
             metadata.columnType === 'STRING' ||
             metadata.columnType === 'DATE' ||
             metadata.columnType === 'DATETIME' ||
-            metadata.columnType === 'AUTO_ID'
+            metadata.columnType === 'AUTO_ID' ||
+            metadata.columnType === 'PERIOD'
           "
           :metadata="metadata"
           :data="data"

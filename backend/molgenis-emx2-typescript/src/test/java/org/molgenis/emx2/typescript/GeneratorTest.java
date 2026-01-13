@@ -25,12 +25,13 @@ class GeneratorTest {
 
   @Test
   void generateTypes() throws IOException {
-
-    Schema schema = db.dropCreateSchema(GeneratorTest.class.getSimpleName() + "-PetStore");
+    String schemaName = GeneratorTest.class.getSimpleName() + "-PetStore";
+    db.dropSchemaIfExists(schemaName);
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);
 
-    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
+    DataModels.Profile.PET_STORE.getImportTask(db, schemaName, "", false).run();
+    Schema schema = db.getSchema(schemaName);
     new Generator().generate(schema, printWriter, false);
 
     // now compare generated with expected
