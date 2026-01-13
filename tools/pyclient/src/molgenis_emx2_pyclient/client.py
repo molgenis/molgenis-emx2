@@ -1177,7 +1177,7 @@ class Client:
                 msg = response.json().get("errors", [])[0].get('message', '')
                 log.error(msg)
                 raise ReferenceException(msg)
-            if "No enum constant org.molgenis.emx2.datamodels.DataModels" in response.text:
+            if "Cannot create schema from template" in response.text:
                 msg = response.json().get("errors", [])[0].get('message', '')
                 log.error(msg)
                 raise NonExistentTemplateException("Selected template does not exist.")
