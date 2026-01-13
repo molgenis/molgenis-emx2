@@ -358,6 +358,7 @@ async function toggleTermSelect(node: ITreeNodeState) {
   if (props.disabled) return;
   if (!props.isArray) {
     modelValue.value = modelValue.value === node.name ? undefined : node.name;
+    await toggleSelect();
   } else if (Array.isArray(modelValue.value)) {
     //if a selected value then simply deselect
     if (modelValue.value.includes(node.name)) {
@@ -412,7 +413,6 @@ async function toggleTermSelect(node: ITreeNodeState) {
       ];
     }
   }
-  await toggleSelect();
   emit("focus");
 }
 
@@ -695,12 +695,11 @@ onMounted(() => {
       :id="`${id}-ontology`"
       class="border-transparent w-full relative"
       @focus="emit('focus')"
-      @blur="emit('blur')"
     >
       <div
         v-show="displayAsSelect"
         class="flex items-center justify-between gap-2 p-2 min-h-input h-auto cursor-text"
-        @click.stop="toggleSelect"
+        @click.stop="!showSelect && toggleSelect()"
       >
         <div class="flex flex-wrap items-center gap-2">
           <template v-if="modelValue && isArray" role="group">
