@@ -30,10 +30,6 @@ const generalDesign: IDefinitionListItem[] = [
       : undefined,
   },
   {
-    label: "Type other",
-    content: props.resource.typeOther ? props.resource.typeOther : undefined,
-  },
-  {
     label: "Cohort type",
     content: props.resource.cohortType
       ? props.resource.cohortType
@@ -43,8 +39,8 @@ const generalDesign: IDefinitionListItem[] = [
   },
   {
     label: "RWD type",
-    content: props.resource.rWDType
-      ? props.resource.rWDType.map((type: INameObject) => type?.name).join(", ")
+    content: props.resource.registryOrHealthRecordType
+      ? props.resource.registryOrHealthRecordType.map((type: INameObject) => type?.name).join(", ")
       : undefined,
   },
   {
