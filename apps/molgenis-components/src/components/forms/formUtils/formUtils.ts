@@ -16,12 +16,14 @@ const {
   HEADING,
   SECTION,
   MIN_INT,
+  MIN_NON_NEGATIVE_INT,
   MAX_INT,
   MIN_LONG,
   MAX_LONG,
 } = constants;
 const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 const INT_ERROR = `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
+const NON_NEGATIVE_INT_ERROR = `Invalid value: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
@@ -142,6 +144,12 @@ export function getColumnError(
       return intError;
     }
   }
+  if (type === "NON_NEGATIVE_INT") {
+    const nonNegativeIntError = getNonNegativeIntError(value as number);
+    if (nonNegativeIntError) {
+      return nonNegativeIntError;
+    }
+  }
   if (type === "INT_ARRAY") {
     const errorInt = (value as unknown as number[])?.find((val) =>
       getIntError(val)
@@ -183,6 +191,15 @@ function getIntError(value: number): string | undefined {
   }
   if (value < MIN_INT || value > MAX_INT) {
     return INT_ERROR;
+  }
+}
+
+function getNonNegativeIntError(value: number): string | undefined {
+  if (isNaN(value)) {
+    return "Invalid number";
+  }
+  if (value < MIN_NON_NEGATIVE_INT || value > MAX_INT) {
+    return NON_NEGATIVE_INT_ERROR;
   }
 }
 
