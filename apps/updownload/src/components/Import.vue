@@ -82,8 +82,11 @@
                 <li>
                   Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
                 </li>
-                <li v-if="canExportMembers">
+                <li v-if="isManagerOrOwner">
                   Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                </li>
+                <li v-if="isManagerOrOwner">
+                  Changelog: <a :href="`/${schema}/api/csv/changelog`">csv</a>
                 </li>
               </ul>
             </div>
@@ -156,7 +159,7 @@ export default {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
     },
-    canExportMembers() {
+    isManagerOrOwner() {
       return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
     },
     tablesHash() {
