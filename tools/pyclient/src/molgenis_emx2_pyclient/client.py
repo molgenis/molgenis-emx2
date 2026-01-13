@@ -668,22 +668,11 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        try:
-            self._validate_graphql_response(
-                response=response,
-                mutation='createSchema',
-                fallback_error_message=f"Failed to create schema {name!r}"
-            )
-        except NonExistentTemplateException:
-            # Catch process URL
-            process_id = response.json().get('data').get('createSchema').get('taskId')
-
-            if process_id:
-                # Report on task progress
-                await self._report_task_progress(process_id)
-            await self.delete_schema(name)
-            raise NonExistentTemplateException(f"Could not create schema with template {template!r}.")
-
+        self._validate_graphql_response(
+            response=response,
+            mutation='createSchema',
+            fallback_error_message=f"Failed to create schema {name!r}"
+        )
         # Catch process URL
         process_id = response.json().get('data').get('createSchema').get('taskId')
 

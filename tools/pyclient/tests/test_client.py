@@ -538,4 +538,6 @@ def test_validate_graphql_response(caplog):
 async def test_create_fail():
     with Client(url=server_url) as client:
         client.signin(username, password)
-        await client.create_schema(name="pet store 2", template="PET_STORE123")
+        with pytest.raises(NonExistentTemplateException) as excinfo:
+            await client.create_schema(name="pet store 2", template="PET_STORE123")
+        assert excinfo.value.msg == "Selected template does not exist."
