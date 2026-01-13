@@ -49,6 +49,9 @@ P,Text elements,,,,,,,,,,,,<p> elements,pages
 Img,Components,,,,,,,,,,,,<img> elements,pages
 Img,,display name,string,,,,,,,,,,An optional name to display in place of the filename,pages
 Img,,image,file,,,,,,,,,,Select an image file,pages
+Img,,alt,string,,,,,,,,,,,
+Img,,width,string,,,,,,,,,,,
+Img,,height,string,,,,,,,,,,,
 Img,,is centered,bool,,,,,,,,,,"If true, the image will be centered aligned",pages
 Ordered list,Components,,,,,,,,,,,,<ol> elements,pages
 Ordered list,,items,text_array,,,,,,,,,,,pages
