@@ -100,7 +100,7 @@ if (!cohortOnly.value) {
         <Logo
           :link="`/${catalogueRouteParam}`"
           :image="
-            catalogueRouteParam === 'all' ? logoSrc : catalogue?.logo?.url
+             catalogue?.logo?.url ?? logoSrc
           "
           :inverted="true"
         />
@@ -123,7 +123,7 @@ if (!cohortOnly.value) {
             <LogoMobile
               :link="`/${catalogueRouteParam}`"
               :image="
-                catalogueRouteParam === 'all' ? logoSrc : catalogue?.logo?.url
+                catalogue?.logo?.url ?? logoSrc
               "
             />
           </div>

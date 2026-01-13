@@ -31,7 +31,7 @@ Medication,ONTOLOGIES,http://edamontology.org/data_3103
 Metabolomic analysis type,ONTOLOGIES,http://purl.obolibrary.org/obo/IAO_0000030
 Metabolomic assay type,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000070
 Metabolomic processing type,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000094
-Organisations,ONTOLOGIES,"http://semanticscience.org/resource/SIO_000688,http://purl.obolibrary.org/obo/NCIT_C25412"
+ROR Organisations,ONTOLOGIES,"http://semanticscience.org/resource/SIO_000688,http://purl.obolibrary.org/obo/NCIT_C25412"
 Pathological state,ONTOLOGIES,"http://purl.obolibrary.org/obo/NCIT_C164617,http://purl.obolibrary.org/obo/GO_0001894"
 Phenotypes,ONTOLOGIES,"https://www.wikidata.org/wiki/Property:P3841,http://purl.obolibrary.org/obo/NCIT_C16977"
 Sequencing enrichment kits,ONTOLOGIES,http://purl.obolibrary.org/obo/GENEPIO_0000081

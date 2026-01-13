@@ -19,7 +19,7 @@ export async function useHeaderData() {
   const route = useRoute();
   const config = useRuntimeConfig();
   const schema = config.public.schema as string;
-  const scoped = route.params.catalogue !== "all";
+  const scoped = route.params.catalogue && route.params.catalogue !== "all";
   const catalogueRouteParam = route.params.catalogue;
 
   const { data, error } = await $fetch<Resp<IHeaderQuery>>(
@@ -52,7 +52,7 @@ export async function useHeaderData() {
         variables: {
           networksFilter: scoped
             ? { id: { equals: catalogueRouteParam } }
-            : undefined,
+            : { mainCatalogue : { equals: true} },
           collectionsFilter: scoped
             ? {
                 type: { tags: { equals: "collection" } },
@@ -111,11 +111,13 @@ export async function useHeaderData() {
   const variableCount = data.Variables_agg.count || 0;
   const collectionCount = data.Collections_agg.count || 0;
   const networkCount = data.Networks_agg.count || 0;
-  const logoSrc = (
+  const logoSrc = catalogue?.logo.url ?? (
     data._settings.find((setting) => setting.key === "CATALOGUE_LOGO_SRC") || {
       value: "",
     }
   ).value;
+
+  console.log(catalogue)
 
   return { catalogue, variableCount, collectionCount, networkCount, logoSrc };
 }
