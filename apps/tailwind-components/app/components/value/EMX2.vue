@@ -65,7 +65,10 @@ defineEmits<{
   />
 
   <ValueInt
-    v-else-if="metadata.columnType === 'INT' || metadata.columnType === 'NON_NEGATIVE_INT'"
+    v-else-if="
+      metadata.columnType === 'INT' ||
+      metadata.columnType === 'NON_NEGATIVE_INT'
+    "
     :metadata="metadata"
     :data="typeof data === 'number' ? data : Number(data)"
   />
