@@ -1,9 +1,6 @@
 package org.molgenis.emx2.rdf;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -198,6 +195,10 @@ class ColumnTypeRdfMapperTest {
                 "https://molgenis.org",
                 ColumnType.HYPERLINK_ARRAY.name(),
                 "https://molgenis.org, https://github.com/molgenis",
+                ColumnType.NON_NEGATIVE_INT.name(),
+                "6",
+                ColumnType.NON_NEGATIVE_INT_ARRAY.name(),
+                "4,8",
                 // Extra columns for composite key testing
                 // -- no manual entry: COLUMN_COMPOSITE_REFBACK
                 COLUMN_COMPOSITE_REF + ".ids",
@@ -374,6 +375,10 @@ class ColumnTypeRdfMapperTest {
             assertTrue(
                 retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI(),
                 ColumnType.HYPERLINK.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.NON_NEGATIVE_INT_ARRAY.name()).isLiteral(),
+                ColumnType.NON_NEGATIVE_INT_ARRAY.name() + " failed"),
 
         // Composite keys
         () ->
@@ -550,6 +555,16 @@ class ColumnTypeRdfMapperTest {
                 Set.of(
                     Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
                 retrieveValues(ColumnType.HYPERLINK_ARRAY.name())),
+        () ->
+            assertEquals(
+                Set.of(Values.literal("6", CoreDatatype.XSD.NON_NEGATIVE_INTEGER)),
+                retrieveValues(ColumnType.NON_NEGATIVE_INT.name())),
+        () ->
+            assertEquals(
+                Set.of(
+                    Values.literal("4", CoreDatatype.XSD.NON_NEGATIVE_INTEGER),
+                    Values.literal("8", CoreDatatype.XSD.NON_NEGATIVE_INTEGER)),
+                retrieveValues(ColumnType.NON_NEGATIVE_INT_ARRAY.name())),
         // Composite reference / refback
         () ->
             assertEquals(

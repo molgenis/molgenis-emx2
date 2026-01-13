@@ -209,7 +209,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static String getPsqlType(ColumnType type) {
-    return switch (type) {
+    return switch (type.getBaseType()) {
       case STRING, EMAIL, HYPERLINK, TEXT -> "character varying";
       case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY, TEXT_ARRAY -> "character varying[]";
       case UUID -> "uuid";

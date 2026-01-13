@@ -314,8 +314,7 @@ public class GraphqlTableFieldFactory {
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
-              .filter(
-                  c -> c.getColumnType().isNumericType())
+              .filter(c -> c.getColumnType().isNumericType())
               .toList();
       if (aggCols.size() > 0) {
         GraphQLObjectType.Builder sumBuilder =
@@ -368,11 +367,7 @@ public class GraphqlTableFieldFactory {
     if (schema.hasActiveUserRole(VIEWER) || table.getTableType().equals(ONTOLOGIES)) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
-              .filter(
-                  c ->
-                      ColumnType.INT.equals(c.getColumnType())
-                          || ColumnType.DECIMAL.equals(c.getColumnType())
-                          || ColumnType.LONG.equals(c.getColumnType()))
+              .filter(c -> c.getColumnType().isNumericType())
               .toList();
 
       if (!aggCols.isEmpty()) {

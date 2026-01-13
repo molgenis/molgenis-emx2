@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.ColumnTypeGroups.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,7 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
@@ -163,73 +163,19 @@ class TestTypeUtils {
 
   @Test
   void testAllColumnTypesCoveredGetArrayType() {
-    Set<ColumnType> exclusions =
-        Set.of(
-            ColumnType.FILE,
-            ColumnType.REF, // todo: ask why not included
-            ColumnType.REFBACK,
-            ColumnType.HEADING,
-            ColumnType.SECTION,
-            ColumnType.AUTO_ID,
-            ColumnType.ONTOLOGY, // todo: ask why not included
-            ColumnType.SELECT,
-            ColumnType.MULTISELECT,
-            ColumnType.RADIO,
-            ColumnType.CHECKBOX);
-
-    Arrays.stream(ColumnType.values())
-        .filter((i) -> !exclusions.contains(i))
-        .forEach(TypeUtils::getArrayType);
+    EXCLUDE_ARRAY_FILE_REFERENCE_HEADING.forEach(TypeUtils::getArrayType);
   }
 
   @Test
   void testAllColumnTypesCoveredToJooqType() {
-    Set<ColumnType> exclusions =
-        Set.of(
-            ColumnType.REF,
-            ColumnType.REF_ARRAY,
-            ColumnType.REFBACK,
-            ColumnType.HEADING,
-            ColumnType.SECTION,
-            ColumnType.AUTO_ID,
-            ColumnType.ONTOLOGY,
-            ColumnType.ONTOLOGY_ARRAY,
-            ColumnType.SELECT,
-            ColumnType.MULTISELECT,
-            ColumnType.RADIO,
-            ColumnType.CHECKBOX);
-
-    Arrays.stream(ColumnType.values())
-        .filter((i) -> !exclusions.contains(i))
-        .forEach(TypeUtils::toJooqType);
+    EXCLUDE_REFERENCE_HEADING.forEach(TypeUtils::toJooqType);
   }
 
   @Test
   void testAllColumnTypesCoveredTypedValue() {
-    Set<ColumnType> exclusions =
-        Set.of(
-            ColumnType.FILE,
-            ColumnType.REF,
-            ColumnType.REF_ARRAY,
-            ColumnType.REFBACK,
-            ColumnType.HEADING,
-            ColumnType.SECTION,
-            ColumnType.AUTO_ID,
-            ColumnType.ONTOLOGY,
-            ColumnType.ONTOLOGY_ARRAY,
-            ColumnType.SELECT,
-            ColumnType.MULTISELECT,
-            ColumnType.RADIO,
-            ColumnType.CHECKBOX);
-
     Object object = new Object();
 
-    ColumnType[] columnTypes =
-        Arrays.stream(ColumnType.values())
-            .filter((i) -> !exclusions.contains(i))
-            .toArray(ColumnType[]::new);
-
-    for (ColumnType columnType : columnTypes) {
+    for (ColumnType columnType : EXCLUDE_FILE_REFERENCE_HEADING) {
       try {
         TypeUtils.getTypedValue(object, columnType);
       } catch (RuntimeException e) {
