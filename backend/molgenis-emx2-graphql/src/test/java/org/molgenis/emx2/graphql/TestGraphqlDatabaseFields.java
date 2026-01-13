@@ -2,9 +2,10 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
+import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,46 +18,92 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.molgenis.emx2.tasks.TaskStatus;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static GraphQL grapql;
+  private static GraphQL graphql;
   private static Database database;
   private static TaskService taskService;
-  private static final String schemaName = "TestGraphqlDatabaseFields";
+  private static final String SCHEMA_NAME = TestGraphqlDatabaseFields.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchemaIfExists(SCHEMA_NAME);
     taskService = new TaskServiceInMemory();
-    Schema schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, false).run();
-    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
+    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
     // ensure schema doesn't exist
-    if (database.getSchema(schemaName + "B") != null) {
-      database.dropSchema(schemaName + "B");
-    }
+    database.dropSchemaIfExists(SCHEMA_NAME + "B");
 
-    assertNull(database.getSchema(schemaName + "B"));
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertFalse(result.contains(schemaName + "B"));
+    assertFalse(result.contains(SCHEMA_NAME + "B"));
 
-    execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
-    assertNotNull(database.getSchema(schemaName + "B"));
+    execute("mutation{createSchema(name:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNotNull(database.getSchema(SCHEMA_NAME + "B"));
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
-    assertTrue(result.contains(schemaName + "B"));
+    assertTrue(result.contains(SCHEMA_NAME + "B"));
 
-    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
-    assertNull(database.getSchema(schemaName + "B"));
+    execute("mutation{deleteSchema(id:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
+  }
+
+  @Test
+  public void testCreateSchemaFromTemplate() throws IOException, InterruptedException {
+    database.dropSchemaIfExists(SCHEMA_NAME + "B");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
+    JsonNode executeResult =
+        execute(
+            "mutation{createSchema(name:\""
+                + SCHEMA_NAME
+                + "B\", description: \"test\", template: \"ERN_DASHBOARD\", includeDemoData: false){message taskId}}");
+    String taskId = executeResult.get("data").get("createSchema").get("taskId").asText();
+    Task mutationTask = taskService.getTask(taskId);
+    TaskStatus mutationTaskStatus = mutationTask.getStatus();
+    while (mutationTaskStatus != COMPLETED && mutationTaskStatus != ERROR) {
+      Thread.sleep(50);
+      mutationTaskStatus = mutationTask.getStatus();
+    }
+    String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
+    assertTrue(result.contains(SCHEMA_NAME + "B"));
+    assertEquals(9, database.getSchema(SCHEMA_NAME + "B").getTableNames().size());
+
+    execute("mutation{deleteSchema(id:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
+  }
+
+  @Test
+  public void testUpdateSchema() throws IOException {
+    database.dropSchemaIfExists(SCHEMA_NAME + "B");
+
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
+    String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
+    assertFalse(result.contains(SCHEMA_NAME + "B"));
+
+    execute("mutation{createSchema(name:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNotNull(database.getSchema(SCHEMA_NAME + "B"));
+    result = execute("{_schemas{name}}").at("/data/_schemas").toString();
+    assertTrue(result.contains(SCHEMA_NAME + "B"));
+
+    execute(
+        "mutation{updateSchema(name:\""
+            + SCHEMA_NAME
+            + "B\", description: \"updated description\"){message}}");
+    String description = database.getSchemaInfo(SCHEMA_NAME + "B").description();
+    assertEquals("updated description", description);
+
+    execute("mutation{deleteSchema(id:\"" + SCHEMA_NAME + "B\"){message}}");
+    assertNull(database.getSchema(SCHEMA_NAME + "B"));
   }
 
   @Test
@@ -235,7 +282,7 @@ public class TestGraphqlDatabaseFields {
         new ObjectMapper()
             .readTree(
                 convertExecutionResultToJson(
-                    grapql.execute(
+                    graphql.execute(
                         ExecutionInput.newExecutionInput(query)
                             .graphQLContext(graphQLContext)
                             .build())));

@@ -29,8 +29,9 @@ public class TestColumnTypeIsFile {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(SCHEMA_NAME);
-    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    DataModels.Profile.PET_STORE.getImportTask(database, SCHEMA_NAME, "", false).run();
+    schema = database.getSchema(SCHEMA_NAME);
 
     schema
         .getTable("User")

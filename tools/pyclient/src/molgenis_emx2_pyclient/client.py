@@ -813,6 +813,64 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
+    def get_schema_settings(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as list of dictionaries."""
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        query = queries.list_schema_settings()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
+
+        response_json = response.json()
+        settings = response_json.get('data').get('_schema').get('settings')
+
+        return settings
+
+    def get_schema_members(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as a list of dictionaries."""
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        query = queries.list_schema_members()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
+
+        response_json = response.json()
+        members = response_json.get('data').get('_schema').get('members')
+
+        return members
+
+    def get_schema_roles(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as a list of dictionaries."""
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        query = queries.list_schema_roles()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
+
+        response_json = response.json()
+        roles = response_json.get('data').get('_schema').get('roles')
+
+        return roles
+
+
     def _prepare_filter(self, expr: str, _table: str, _schema: str) -> dict | None:
         """Prepares a GraphQL filter based on the expression passed into `get`."""
         if expr in [None, ""]:
@@ -1091,6 +1149,10 @@ class Client:
                 msg = response.json().get("errors", [])[0].get('message', '')
                 log.error(msg)
                 raise ReferenceException(msg)
+            if "Field \'members\' in type \'MolgenisSchema\' is undefined" in response.text:
+                msg = response.json().get("errors", [])[0].get('message')
+                log.error(msg)
+                raise PermissionDeniedException("Cannot access members on this schema.")
 
             msg = response.json().get("errors", [])[0].get('message', '')
             log.error(msg)
