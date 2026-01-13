@@ -10,6 +10,7 @@ public class GraphqlConstants {
   public static final String DEFAULT_VALUE = "defaultValue";
   public static final String COLUMN_POSITION = "position";
   public static final String COLUMN_TYPE = "columnType";
+  public static final String COLUMN_FORM_LABEL = "formLabel";
   public static final String TABLE_TYPE = "tableType";
   public static final String VALIDATION_EXPRESSION = "validation";
   public static final String FILTER_ARGUMENT = "filter";
@@ -36,6 +37,7 @@ public class GraphqlConstants {
   public static final String TYPE = "type";
   public static final String VALUE = "value";
   public static final String FILTER_EQUALS = "equals";
+  public static final String FILTER_NOT_EQUALS = "not_equals";
   public static final String FILTER_MATCH_ANY = "_match_any";
   public static final String FILTER_MATCH_ALL = "_match_all";
   public static final String FILTER_SEARCH = "_search";

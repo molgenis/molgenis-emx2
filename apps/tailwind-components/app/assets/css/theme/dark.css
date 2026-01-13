@@ -1,4 +1,6 @@
 :root[data-theme="dark"] {
+  --color-gray-50: #c0c0c0;
+  --color-gray-600: #2c2c2c;
   --background-color-navigation: var(--color-gray-800);
   --background-image-sidebar-gradient: linear-gradient(
     180deg,
@@ -31,13 +33,11 @@
   --background-color-button-outline-hover: var(--color-gray-900);
 
   --background-color-content: var(--color-gray-700);
-
   --background-color-form: var(--color-gray-900);
   --background-color-form-legend: var(--color-gray-900);
   --background-color-footer: var(--color-gray-700);
   --background-color-modal: var(--color-gray-900);
   --background-color-modal-footer: var(--color-gray-900);
-
   --background-color-input: var(--gray-800);
   --background-color-input-focused: var(--color-green-200);
   --background-color-input-checked: var(--color-green-500);
@@ -45,12 +45,12 @@
   --background-color-pagination-hover: var(--color-gray-700);
   --background-color-hover: var(--color-gray-900);
   --background-color-input: var(--color-gray-600);
-
   --background-color-table: var(--color-gray-700);
-
   --background-color-ref-dropdown-toolbar: var(--color-gray-900);
+  --background-color-code-output: var(--color-gray-600);
 
   --text-color-link: var(--color-green-500);
+  --text-color-link-inverted: var(--color-green-500);
   --text-color-button-primary: var(--color-gray-800);
   --text-color-button-primary-hover: var(--color-gray-800);
   --text-color-button-secondary: var(--color-green-500);
@@ -81,6 +81,8 @@
 
   --text-color-button-toggle-active: var(--text-color-button-secondary);
   --text-color-button-toggle-inactive: var(--color-green-200);
+
+  --text-color-required: var(--color-gray-50);
 
   --border-color-button-primary: var(--color-green-500);
   --border-color-button-primary-hover: var(--color-white);
@@ -114,4 +116,8 @@
   --border-color-button-switch: var(--color-gray-900);
   --border-color-button-switch-selected: var(--color-green-200);
   --border-color-button-switch-hover: var(--color-green-200);
+
+  /** labels */
+  --background-color-label-draft: var(--color-stroke-light);
+  --text-color-label-draft: var(--color-white);
 }

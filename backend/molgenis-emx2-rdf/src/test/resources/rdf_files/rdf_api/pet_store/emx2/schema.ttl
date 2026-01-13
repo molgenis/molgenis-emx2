@@ -221,6 +221,15 @@ PetStoreNr1:Tag a owl:Class;
   rdfs:domain PetStoreNr1:User;
   rdfs:isDefinedBy <http://example.com/petstore#hasPets> .
 
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/address> a owl:DatatypeProperty;
+rdfs:range xsd:string;
+rdfs:label "address";
+rdfs:domain PetStoreNr1:User .
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/street> a owl:DatatypeProperty;
+   rdfs:range xsd:string;
+   rdfs:label "street";
+   rdfs:domain PetStoreNr1:User .
+
 <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_draft> a owl:DatatypeProperty;
   rdfs:range xsd:boolean;
   rdfs:label "mg_draft";
@@ -426,6 +435,19 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.5"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=yakul>
+ a PetStoreNr1:Pet,qb:Observation;
+dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=yakul>;
+qb:dataSet PetStoreNr1:Pet;
+rdfs:label "yakul";
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "yakul";
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals>;
+<http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals>;
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_draft> "true"^^xsd:boolean;
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-10-17T11:43:32"^^xsd:dateTime;
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-10-17T11:43:32"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant> a PetStoreNr1:Pet,
     qb:Observation;

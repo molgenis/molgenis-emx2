@@ -250,7 +250,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description
         >Welcome to the catalogue of
-        <NuxtLink class="underline hover:bg-blue-50" :to="aboutLink">{{
+        <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
           network.id
         }}</NuxtLink
         >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select

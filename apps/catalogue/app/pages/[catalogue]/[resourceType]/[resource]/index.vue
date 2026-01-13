@@ -13,10 +13,12 @@ import type {
   IOntologyItem,
   linkTarget,
   DefinitionListItemType,
-  IVariable,
 } from "../../../../../interfaces/types";
 import dateUtils from "../../../../utils/dateUtils";
-import type { IResources } from "../../../../../interfaces/catalogue";
+import type {
+  IResources,
+  IVariables,
+} from "../../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
 import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
@@ -44,6 +46,7 @@ import ContentBlock from "../../../../../../tailwind-components/app/components/c
 import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
 import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
 import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
+import type { Crumb } from "../../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -318,7 +321,7 @@ function subpopulationMapper(subpopulation: any) {
   };
 }
 
-function variableMapper(variable: IVariable) {
+function variableMapper(variable: IVariables) {
   const key = getKey(variable);
 
   return {
@@ -640,23 +643,35 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const crumbs: any = {};
+const crumbs: Crumb[] = [];
 if (route.params.catalogue) {
-  crumbs[
-    cohortOnly.value ? "home" : (route.params.catalogue as string)
-  ] = `/${route.params.catalogue}`;
+  crumbs.push({
+    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
+    url: `/${route.params.catalogue}`,
+  });
   if (route.params.resourceType !== "about")
-    crumbs[
-      route.params.resourceType as string
-    ] = `/${route.params.catalogue}/${route.params.resourceType}`;
-  crumbs[route.params.resource as string] = "";
+    crumbs.push({
+      label: route.params.resourceType as string,
+      url: `/${route.params.catalogue}/${route.params.resourceType}`,
+    });
+  crumbs.push({
+    label: route.params.resource as string,
+    url: "",
+  });
 } else {
-  crumbs["Home"] = `/`;
-  crumbs["Browse"] = `/all`;
+  crumbs.push({
+    label: "Home",
+    url: `/`,
+  });
+  crumbs.push({
+    label: "Browse",
+    url: `/all`,
+  });
   if (route.params.resourceType !== "about")
-    crumbs[
-      route.params.resourceType as string
-    ] = `/all/${route.params.resourceType}`;
+    crumbs.push({
+      label: route.params.resourceType as string,
+      url: `/all/${route.params.resourceType}`,
+    });
 }
 
 const peopleInvolvedSortedByRoleAndName = computed(() =>

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from "#app/composables/router";
 import { computed, ref } from "vue";
-import type { IResources } from "../../../interfaces/catalogue";
-import type { IVariableWithMappings } from "../../../interfaces/types";
+import type { IResources, IVariables } from "../../../interfaces/catalogue";
 import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
 import { getKey } from "../../utils/variableUtils";
 import { resourceIdPath } from "../../utils/urlHelpers";
@@ -11,11 +10,12 @@ import SideModal from "../../../../tailwind-components/app/components/SideModal.
 import TableSticky from "../table/Sticky.vue";
 import HarmonisationTableCellAvailableIcon from "./HarmonisationTableCellAvailableIcon.vue";
 import VariableDisplay from "../VariableDisplay.vue";
+import type { IVariableMappings } from "~~/interfaces/types";
 
 const route = useRoute();
 
 const props = defineProps<{
-  variables: IVariableWithMappings[];
+  variables: (IVariables & IVariableMappings)[];
   resources: IResources[];
 }>();
 
@@ -55,7 +55,7 @@ let activeVariablePath = computed(() =>
       >
         <template #column="columnProps">
           <div
-            class="hover:bg-gray-100 text-blue-500 font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] max-h-title min-h-title hover:max-h-none truncate hover:text-clip hover:overflow-visible"
+            class="hover:bg-gray-100 text-link font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] max-h-title min-h-title hover:max-h-none truncate hover:text-clip hover:overflow-visible"
           >
             <span
               class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
@@ -67,7 +67,7 @@ let activeVariablePath = computed(() =>
 
         <template #row="rowProps">
           <div
-            class="text-body-base text-blue-500 font-normal hover:underline px-2 cursor-pointer truncate hover:text-clip hover:overflow-visible"
+            class="text-body-base text-link font-normal hover:underline px-2 cursor-pointer truncate hover:text-clip hover:overflow-visible"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
             <span

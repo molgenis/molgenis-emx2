@@ -6,7 +6,10 @@ import type {
   IRefArrayFilter,
 } from "../../../../interfaces/types";
 import mappingsFragment from "../../../gql/fragments/mappings";
-import type { INode } from "../../../../../tailwind-components/types/types";
+import type {
+  Crumb,
+  INode,
+} from "../../../../../tailwind-components/types/types";
 import {
   useRoute,
   useRouter,
@@ -14,6 +17,7 @@ import {
   navigateTo,
   useAsyncData,
   useRuntimeConfig,
+  createError,
 } from "#app";
 import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
 import { buildQueryFilter } from "../../../utils/buildQueryFilter";
@@ -187,12 +191,14 @@ async function fetchResourceOptions(): Promise<INode[]> {
     },
   });
 
-  return data.Resources.map((option: { id: string; name?: string }) => {
-    return {
-      name: option.id,
-      description: option.name,
-    } as INode;
-  });
+  return data?.Resources?.length
+    ? data.Resources.map((option: { id: string; name?: string }) => {
+        return {
+          name: option.id,
+          description: option.name,
+        } as INode;
+      })
+    : [];
 }
 
 const filters = computed(() => {
@@ -247,7 +253,7 @@ const query = computed(() => {
 });
 
 const numberOfVariables = computed(
-  () => data?.value.data?.Variables_agg.count || 0
+  () => variableRecords?.value?.data?.Variables_agg.count || 0
 );
 
 const graphqlURL = computed(() => `/${schema}/graphql`);
@@ -353,11 +359,22 @@ const fetchData = async () => {
 
 // We need to use the useAsyncData hook to fetch the data because sadly multiple backendend calls need to be synchronized to create the final query
 // todo: update datamodel to allow for single fetch from single indexed table
-const { data, error, pending } = await useAsyncData<any, IMgError>(
-  `variables-page-${catalogueRouteParam}-${route.query}`,
+const {
+  data: variableRecords,
+  error,
+  pending,
+} = await useAsyncData<any, IMgError>(
+  `variables-page-${catalogueRouteParam}-${JSON.stringify(route.query)}`,
   fetchData,
   { watch: [computed(() => route.query.conditions), offset] }
 );
+
+if (error.value) {
+  throw createError({
+    statusCode: error.value.statusCode || 500,
+    message: error.value.message || "An error occurred while fetching data.",
+  });
+}
 
 function onFilterChange(filters: IFilter[]) {
   const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
@@ -368,9 +385,10 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-let crumbs: any = {};
-crumbs[`${route.params.catalogue}`] = `/${route.params.catalogue}`;
-crumbs["variables"] = "";
+const crumbs: Crumb[] = [
+  { label: `${route.params.catalogue}`, url: `/${route.params.catalogue}` },
+  { label: "variables", url: "" },
+];
 </script>
 
 <template>
@@ -450,16 +468,16 @@ crumbs["variables"] = "";
             :class="{ 'opacity-25 ease-out': pending }"
           >
             <div
-              v-if="data?.data?.Variables_agg.count === 0"
+              v-if="variableRecords?.data?.Variables_agg.count === 0"
               class="flex justify-center pt-3"
             >
-              <span class="py-15 text-blue-500">
+              <span class="py-15 text-link">
                 No variables found with current filters
               </span>
             </div>
             <CardList v-else-if="activeName === 'list'">
               <CardListItem
-                v-for="variable in data?.data?.Variables"
+                v-for="variable in variableRecords?.data?.Variables"
                 :key="variable.name"
               >
                 <VariableCard
@@ -471,17 +489,22 @@ crumbs["variables"] = "";
             </CardList>
             <HarmonisationTable
               v-else
-              :variables="data?.data?.Variables"
-              :resources="data?.data?.Resources"
+              :variables="variableRecords?.data?.Variables"
+              :resources="variableRecords?.data?.Resources"
             >
             </HarmonisationTable>
           </SearchResultsList>
         </template>
 
-        <template #pagination v-if="data?.data?.Variables?.length > 0">
+        <template
+          #pagination
+          v-if="variableRecords?.data?.Variables?.length > 0"
+        >
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Variables_agg.count / pageSize)"
+            :totalPages="
+              Math.ceil(variableRecords?.data?.Variables_agg.count / pageSize)
+            "
             @update="setCurrentPage($event)"
           />
         </template>

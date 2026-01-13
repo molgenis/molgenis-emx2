@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputLabel from "../../components/input/Label.vue";
 const label = "Search for patients";
 </script>
 

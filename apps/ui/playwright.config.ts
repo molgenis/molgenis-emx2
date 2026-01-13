@@ -34,17 +34,23 @@ export default defineConfig<ConfigOptions>({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-      testIgnore: "*/admin!*.spec.ts",
+      name: "auth.setup",
+      testMatch: /auth\.setup\.ts/, // <-- only runs this file
     },
     {
       name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: "typetest/types/create.spec.ts",
+    },
+    {
+      name: "with-auth",
       use: {
         ...devices["Desktop Chrome"],
-        storageState: "e2e/.auth/user.json",
+        storageState: "playwright/.auth/user.json",
       },
-      testMatch: "*/admin!*.spec.ts",
+      testIgnore: "tests/e2e/re-authtest.spec.ts",
+      testMatch: "typetest/types/create.spec.ts",
+      dependencies: ["auth.setup"],
     },
   ],
 });

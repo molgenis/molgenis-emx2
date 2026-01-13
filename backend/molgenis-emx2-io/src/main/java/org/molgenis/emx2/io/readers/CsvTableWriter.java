@@ -18,7 +18,8 @@ public class CsvTableWriter {
     CsvWriter.CsvWriterDSL<Map> writerDsl =
         CsvWriter.from(Map.class).columns(columnNames.toArray(new String[columnNames.size()]));
 
-    CsvWriter<Map> csvWriter = writerDsl.separator(seperator).to(writer);
+    CsvWriter<Map> csvWriter = writerDsl.separator(seperator).endOfLine("\n").to(writer);
+
     for (Row r : rows) {
       // fromReader all values into strings first
       Map<String, String> values = new LinkedHashMap<>();

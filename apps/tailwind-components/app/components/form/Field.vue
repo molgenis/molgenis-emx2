@@ -6,7 +6,6 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import Input from "../Input.vue";
 import Message from "../Message.vue";
-import { defineProps, defineEmits, defineModel } from "vue";
 
 const modelValue = defineModel<columnValue>({ required: true });
 
@@ -36,7 +35,7 @@ const emit = defineEmits(["focus", "blur"]);
     <template v-if="label">
       <label :for="`${id}-input`">
         <span class="text-title-contrast font-bold">{{ label }}</span>
-        <span class="text-disabled text-body-sm ml-3" v-if="required">
+        <span class="text-required text-body-sm ml-3" v-if="required">
           Required
         </span>
       </label>

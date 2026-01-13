@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 import type { RefPayload } from "../../../types/types";
-import { defineProps, withDefaults, defineEmits } from "vue";
 import ValueList from "./List.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
@@ -110,6 +109,18 @@ defineEmits<{
 
   <ValueFile
     v-else-if="metadata.columnType === 'FILE'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueString
+    v-else-if="metadata.columnType === 'AUTO_ID'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueString
+    v-else-if="metadata.columnType === 'PERIOD'"
     :metadata="metadata"
     :data="data"
   />

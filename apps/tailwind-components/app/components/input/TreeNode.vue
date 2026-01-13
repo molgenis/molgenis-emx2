@@ -138,29 +138,12 @@ const hasChildren = computed(() =>
             :valid="valid"
             :disabled="disabled"
           />
-          <span class="block text-body-sm leading-normal pl-1"
-            >{{ node.label || node.name }}
-            <template
-              v-if="node.code || (node.label && node.label !== node.name)"
-              >(<a
-                v-if="node.uri"
-                :href="node.uri"
-                target="_blank"
-                class="underline"
-                >{{
-                  node.codesystem
-                    ? `${node.codesystem}:${node.code}`
-                    : node.code || node.name
-                }}</a
-              ><template v-else
-                >{{
-                  node.codesystem
-                    ? `${node.codesystem}:${node.code}`
-                    : node.code || node.name
-                }})</template
-              >)</template
-            ></span
+          <span
+            class="block text-body-sm leading-normal pl-1"
+            :class="inverted ? 'text-title-contrast' : 'text-title'"
           >
+            {{ node.label || node.name }}
+          </span>
         </InputLabel>
         <div
           class="inline-flex items-center whitespace-nowrap"
@@ -222,7 +205,7 @@ const hasChildren = computed(() =>
         >
         <ButtonText
           class="ml-2"
-          @click="
+          @click.stop="
             nodes.forEach((node) => (node.visible = true));
             emit('showOutsideResults');
           "

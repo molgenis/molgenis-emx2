@@ -89,10 +89,12 @@ public class RDFTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    petStore_nr1 = database.dropCreateSchema("petStoreNr1");
-    petStore_nr2 = database.dropCreateSchema("petStoreNr2");
-    DataModels.Profile.PET_STORE.getImportTask(petStore_nr1, true).run();
-    DataModels.Profile.PET_STORE.getImportTask(petStore_nr2, true).run();
+    database.dropSchemaIfExists("petStoreNr1");
+    database.dropSchemaIfExists("petStoreNr2");
+    DataModels.Profile.PET_STORE.getImportTask(database, "petStoreNr1", "", true).run();
+    DataModels.Profile.PET_STORE.getImportTask(database, "petStoreNr2", "", true).run();
+    petStore_nr1 = database.getSchema("petStoreNr1");
+    petStore_nr2 = database.getSchema("petStoreNr2");
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
     // Test schema for composite keys

@@ -52,6 +52,8 @@ const props = withDefaults(
   { isClearBtnShown: false, isEmitOnType: false, placeholder: "Search" }
 );
 
+defineExpose({ clearInput });
+
 const input = ref<string>(props.modelValue || "");
 
 const emit = defineEmits(["update:modelValue"]);
