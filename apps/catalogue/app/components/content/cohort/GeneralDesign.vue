@@ -40,7 +40,9 @@ const generalDesign: IDefinitionListItem[] = [
   {
     label: "RWD type",
     content: props.resource.registryOrHealthRecordType
-      ? props.resource.registryOrHealthRecordType.map((type: INameObject) => type?.name).join(", ")
+      ? props.resource.registryOrHealthRecordType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
       : undefined,
   },
   {
