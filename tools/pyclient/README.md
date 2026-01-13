@@ -19,7 +19,8 @@ Therefore, releases of the Pyclient are less frequent than those of EMX2 and the
 from the latest version of Molgenis EMX2.
 
 
-### 13.60.1
+
+### 13.75.2
 
 - Improved error handling in 'columns' filter in `get` method
 - Fixed issue with 'equals' filter for references in `get` method
@@ -28,6 +29,13 @@ from the latest version of Molgenis EMX2.
 - Fixed issue with incorrect column names in `get_graphql`
 - Removed default value None for 'name' in `create_schema` as schema name cannot be null
 - Fixed parameter `include_demo_data` in `recreate_schema` to default to `False` in stead of `None`
+
+### 13.75.1
+
+- Fixed: issue when running `get_schema_metadata` on a schema with insufficient permissions to see members
+- Added: methods `get_schema_settings`
+- Added: methods `get_schema_members`
+- Added: methods `get_schema_roles`
 
 ### 13.55.4
 
