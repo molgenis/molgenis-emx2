@@ -1060,12 +1060,7 @@ public class GraphqlTableFieldFactory {
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
       case JSON -> GraphqlCustomTypes.GraphQLJsonAsString;
-      case STRING_ARRAY,
-              TEXT_ARRAY,
-              DATE_ARRAY,
-              DATETIME_ARRAY,
-              PERIOD_ARRAY,
-              UUID_ARRAY ->
+      case STRING_ARRAY, TEXT_ARRAY, DATE_ARRAY, DATETIME_ARRAY, PERIOD_ARRAY, UUID_ARRAY ->
           GraphQLList.list(Scalars.GraphQLString);
       default ->
           throw new MolgenisException(
