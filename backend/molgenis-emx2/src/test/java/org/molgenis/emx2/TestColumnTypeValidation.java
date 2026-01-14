@@ -32,7 +32,7 @@ public class TestColumnTypeValidation {
   }
 
   @Test
-  public void testNonNegativeIntegerValidation() {
+  public void testNonNegativeIntValidation() {
     try {
       NON_NEGATIVE_INT.validate(-1);
     } catch (MolgenisException e) {
