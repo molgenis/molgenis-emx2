@@ -61,47 +61,52 @@ public class CsvTableReader {
               .mapTo(Map.class)
               .iterator(bufferedReader);
 
-      return () ->
-          new Iterator<>() {
-            final Iterator<Map> it = iterator;
-            final AtomicInteger line = new AtomicInteger(1);
+      return () -> new CsvTableIterator(iterator);
+    } catch (IOException ioe) {
+      throw new MolgenisException("Import failed", ioe);
+    }
+  }
 
-            public boolean hasNext() {
-              try {
-                return it.hasNext();
-              } catch (Exception e) {
-                throw new MolgenisException(
-                    "Import failed: "
+  private static class CsvTableIterator implements Iterator<Row> {
+    final Iterator<Map> it;
+    final AtomicInteger line = new AtomicInteger(1);
+
+    public CsvTableIterator(Iterator<Map> iterator) {
+      this.it = iterator;
+    }
+
+    public boolean hasNext() {
+      try {
+        return it.hasNext();
+      } catch (Exception e) {
+        throw new MolgenisException(
+                "Import failed: "
                         + e.getClass().getName()
                         + ": "
                         + e.getMessage()
                         + ". Error at line "
                         + line.get()
                         + ".",
-                    e);
-              }
-            }
+                e);
+      }
+    }
 
-            public Row next() {
-              HashMap<String, Object> next = (HashMap<String, Object>) it.next();
-              boolean isEmpty =
-                  next.values().stream()
+    public Row next() {
+      HashMap<String, Object> next = (HashMap<String, Object>) it.next();
+      boolean isEmpty =
+              next.values().stream()
                       .allMatch(
-                          v -> v == null || (v instanceof String && ((String) v).trim().isEmpty()));
-              while (isEmpty && it.hasNext()) {
-                next = (HashMap<String, Object>) it.next();
-                isEmpty = next.values().stream().allMatch(Objects::isNull);
-              }
-              return new Row(next);
-            }
+                              v -> v == null || (v instanceof String && ((String) v).trim().isEmpty()));
+      while (isEmpty && it.hasNext()) {
+        next = (HashMap<String, Object>) it.next();
+        isEmpty = next.values().stream().allMatch(Objects::isNull);
+      }
+      return new Row(next);
+    }
 
-            @Override
-            public void remove() {
-              throw new UnsupportedOperationException();
-            }
-          };
-    } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe);
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
     }
   }
 }
