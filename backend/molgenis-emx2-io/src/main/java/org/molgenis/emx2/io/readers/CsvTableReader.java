@@ -96,7 +96,7 @@ public class CsvTableReader {
       boolean isEmpty =
               next.values().stream()
                       .allMatch(
-                              v -> v == null || (v instanceof String && ((String) v).trim().isEmpty()));
+                              v -> v == null || (v instanceof String string && string.trim().isEmpty()));
       while (isEmpty && it.hasNext()) {
         next = (HashMap<String, Object>) it.next();
         isEmpty = next.values().stream().allMatch(Objects::isNull);
