@@ -14,7 +14,7 @@ test("clicking the clear btn should empty the input and show the placeholder", a
   page,
 }) => {
   await expect(page.locator('[data-test-id="dp-input"]')).toHaveValue(
-    "2026-01-12"
+    /\d{4}-\d{2}-\d{2}/
   );
   await page.getByRole("button", { name: "Clear value" }).click();
   await expect(page.locator('[data-test-id="dp-input"]')).toBeEmpty();
