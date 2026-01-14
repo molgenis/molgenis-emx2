@@ -1,4 +1,3 @@
-import csv
 import json
 import logging
 import pathlib
@@ -11,7 +10,6 @@ import pandas as pd
 import requests
 
 from . import graphql_queries as queries
-from . import utils
 from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
@@ -19,7 +17,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
                          NoSuchColumnException, ReferenceException)
 from .metadata import Schema, Table
-from .utils import parse_nested_pkeys, convert_dtypes, prepare_filter
+from .utils import parse_nested_pkeys, convert_dtypes, prepare_filter, format_optional_params, prep_data_or_file
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -241,7 +239,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        import_data = self._prep_data_or_file(file_path=file, data=data)
+        import_data = prep_data_or_file(file_path=file, data=data)
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
@@ -353,7 +351,7 @@ class Client:
             table = file_name.split(file_path.suffix)[0]
             return self.save_table(table=table, schema=schema, file=str(file_path))
         api_url = f"{self.url}/{schema}/api/csv"
-        data = self._prep_data_or_file(file_path=str(file_path))
+        data = prep_data_or_file(file_path=str(file_path))
 
         if self._job:
             api_url += "?parentJob=" + self._job
@@ -398,7 +396,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        import_data = self._prep_data_or_file(file_path=file, data=data)
+        import_data = prep_data_or_file(file_path=file, data=data)
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
@@ -659,7 +657,7 @@ class Client:
         if name in self.schema_names:
             raise PyclientException(f"Schema with name {name!r} already exists.")
         query = queries.create_schema()
-        variables = self._format_optional_params(name=name, description=description,
+        variables = format_optional_params(name=name, description=description,
                                                  template=template, include_demo_data=include_demo_data,
                                                  parent_job=self._job)
 
@@ -873,32 +871,6 @@ class Client:
 
         return roles
 
-    @staticmethod
-    def _prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.DataFrame = None) -> str | None:
-        """Prepares the data from memory or loaded from disk for addition or deletion action.
-
-        :param file_path: path to the file to be prepared
-        :type file_path: str
-        :param data: data to be prepared
-        :type data: list
-
-        :returns: prepared data in dataframe format
-        :rtype: pd.DataFrame
-        """
-
-        if file_path is not None:
-            return utils.read_file(file_path=file_path)
-
-        if data is not None:
-            if isinstance(data, pd.DataFrame):
-                return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-            else:
-                return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-
-        message = "No data to import. Specify a file location or a dataset."
-        log.error(message)
-        raise FileNotFoundError(message)
-
     def set_schema(self, name: str) -> str:
         """Sets the default schema to the schema supplied as argument.
         Raises NoSuchSchemaException if the schema cannot be found on the server.
@@ -1041,19 +1013,6 @@ class Client:
             else:
                 message = f"Failed to validate response for {mutation!r}"
                 log.error(message)
-
-    @staticmethod
-    def _format_optional_params(**kwargs):
-        """Parses optional keyword arguments to a format suitable for GraphQL queries."""
-        keys = kwargs.keys()
-        args = {key: kwargs[key] for key in keys if (key != 'self') and (key is not None)}
-        if 'name' in args.keys():
-            args['name'] = args.pop('name')
-        if 'include_demo_data' in args.keys():
-            args['includeDemoData'] = args.pop('include_demo_data')
-        if 'parent_job' in args.keys():
-            args['parentJob'] = args.pop('parent_job')
-        return args
 
     def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
         """Checks whether the requested table is present in the schema.

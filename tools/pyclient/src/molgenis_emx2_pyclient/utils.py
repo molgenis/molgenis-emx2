@@ -1,12 +1,17 @@
 """
 Utility functions for the Molgenis EMX2 Pyclient package
 """
+import csv
 import json
 import logging
+import pathlib
+
+import pandas as pd
 
 from .constants import INT, DECIMAL, BOOL, LONG, STRING
 from .metadata import Table, Schema
 
+log = logging.getLogger("Molgenis EMX2 Pyclient")
 
 def read_file(file_path: str) -> str:
     """Reads and imports data from a file.
@@ -220,3 +225,39 @@ def prepare_value(value: str):
     if value.startswith('[') and value.endswith(']'):
         return json.loads(value.replace('\'', '"'))
     return value
+
+def format_optional_params(**kwargs):
+    """Parses optional keyword arguments to a format suitable for GraphQL queries."""
+    args = {key: kwargs[key] for key in kwargs.keys() if key not in ('self', None)}
+    if 'name' in args.keys():
+        args['name'] = args.pop('name')
+    if 'include_demo_data' in args.keys():
+        args['includeDemoData'] = args.pop('include_demo_data')
+    if 'parent_job' in args.keys():
+        args['parentJob'] = args.pop('parent_job')
+    return args
+
+def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.DataFrame = None) -> str | None:
+    """Prepares the data from memory or loaded from disk for addition or deletion action.
+
+    :param file_path: path to the file to be prepared
+    :type file_path: str
+    :param data: data to be prepared
+    :type data: list
+
+    :returns: prepared data in dataframe format
+    :rtype: pd.DataFrame
+    """
+
+    if file_path is not None:
+        return read_file(file_path=file_path)
+
+    if data is not None:
+        if isinstance(data, pd.DataFrame):
+            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+        else:
+            return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+
+    message = "No data to import. Specify a file location or a dataset."
+    log.error(message)
+    raise FileNotFoundError(message)
