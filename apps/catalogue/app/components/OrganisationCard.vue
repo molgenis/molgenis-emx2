@@ -1,9 +1,18 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IOrganisations } from "../../interfaces/catalogue";
 
-defineProps<{
+const props = defineProps<{
   organisation: IOrganisations;
 }>();
+
+const organisationName = computed(() => {
+  console.log("organisation", props.organisation);
+  return (
+    props.organisation.organisation?.name ||
+    props.organisation.otherOrganisation
+  );
+});
 </script>
 
 <template>
@@ -13,11 +22,11 @@ defineProps<{
   >
     <div class="flex items-start flex-col h-full">
       <span class="block">
-        <span class="font-bold" v-if="organisation.organisation?.name">
-          {{ organisation.organisation.name
-          }}<template v-if="organisation?.organisation?.acronym">
-            ({{ organisation.organisation.acronym }})</template
-          >
+        <span class="font-bold" v-if="organisationName">
+          {{ organisationName }}
+          <template v-if="organisation?.organisation?.acronym">
+            ({{ organisation.organisation.acronym }})
+          </template>
         </span>
         <div v-if="organisation?.organisation?.country">
           {{ organisation?.organisation?.country.name }}
