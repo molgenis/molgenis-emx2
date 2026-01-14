@@ -14,7 +14,7 @@
   >
     <div class="grow" data-elem="current-file-container">
       <button
-        v-if="modelValue?.filename"
+        v-if="fileName"
         :id="`${id}-current-file`"
         data-elem="current-value-btn"
         ref="selectedFileButton"
@@ -31,7 +31,7 @@
         }"
         :disabled="disabled"
       >
-        <span>{{ modelValue.filename }}</span>
+        <span>{{ fileName }}</span>
         <BaseIcon name="Trash" class="w-4" />
       </button>
     </div>
@@ -68,11 +68,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useTemplateRef } from "vue";
+import { computed, useTemplateRef } from "vue";
 import type { IInputProps, IFile } from "../../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 
-const modelValue = defineModel<IFile | null>();
+const modelValue = defineModel<IFile | null | File>();
 const fileInputElem = useTemplateRef<HTMLInputElement>("fileInput");
 const selectedFileButton =
   useTemplateRef<HTMLButtonElement>("selectedFileButton");
@@ -107,11 +107,15 @@ function onFileInput(event: Event) {
 
   if (files.length) {
     const file = files?.item(0) as File;
-    modelValue.value = {
-      filename: file.name,
-      size: file.size,
-      extension: file.type,
-    };
+    modelValue.value = file;
   }
 }
+
+const fileName = computed(() => {
+  const value = modelValue.value;
+  if (value instanceof File) {
+    return value.name;
+  }
+  return value?.filename || "";
+});
 </script>
