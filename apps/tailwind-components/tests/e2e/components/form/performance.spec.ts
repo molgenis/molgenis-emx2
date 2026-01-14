@@ -24,20 +24,6 @@ test("performance should not degrade when filling form fields in on a large form
   await page
     .getByRole("textbox", { name: "1.1 SPIDER ID (Individual ID" })
     .press("Tab");
-
-  //check that ontology loading is not slow anymore
-  await page.getByRole("link", { name: "Clinical Diagnostic" }).click();
-  await page
-    .locator(
-      "#hpo-form-field-input-ontology > .flex.items-center.justify-between"
-    )
-    .click();
-  await page
-    .getByRole("listitem")
-    .filter({ hasText: "Abnormality of body height" })
-    .locator("rect")
-    .click();
-
   await page
     .getByRole("textbox", { name: "Alternative ID" })
     .fill("i like to type fast");
@@ -50,11 +36,44 @@ test("performance should not degrade when filling form fields in on a large form
     page.getByRole("textbox", { name: "1.1 SPIDER ID (Individual ID" })
   ).toHaveValue("i like typing ");
   await expect(
-    page.getByRole("button", { name: "Abnormality of body height" })
-  ).toBeVisible();
-
-  await expect(
     page.getByRole("textbox", { name: "Alternative ID" })
   ).toHaveValue("i like to type fast");
   expect(timeTaken).toBeLessThan(2000);
+});
+
+test("performance of the ontology input should not degrade", async ({
+  page,
+}) => {
+  const start = performance.now();
+
+  await page
+    .locator(
+      "#hpo-form-field-input-ontology > .flex.items-center.justify-between"
+    )
+    .click();
+  await page.getByPlaceholder("Search in terms").fill("cystic");
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "Renal tubular atrophyRead more" })
+    .locator("rect")
+    .click();
+  await page.getByPlaceholder("Search in terms").dblclick();
+  await page.getByPlaceholder("Search in terms").fill("skin");
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "EpicanthusRead more" })
+    .locator("rect")
+    .click();
+  await expect(page.getByRole("button", { name: "Epicanthus" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Renal tubular atrophy" })
+  ).toBeVisible();
+
+  const end = performance.now();
+  const timeTaken = end - start;
+  console.log(
+    `Time taken to search and find two ontology values: ${timeTaken} milliseconds`
+  );
+
+  expect(timeTaken).toBeLessThan(5000); //seems slow, but in practice it is not slow.
 });

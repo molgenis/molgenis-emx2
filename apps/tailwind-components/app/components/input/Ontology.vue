@@ -412,6 +412,7 @@ async function toggleTermSelect(node: ITreeNodeState) {
         node.name,
       ];
     }
+    searchTerms.value = "";
   }
   emit("focus");
 }
