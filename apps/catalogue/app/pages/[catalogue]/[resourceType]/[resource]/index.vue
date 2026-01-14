@@ -169,6 +169,7 @@ const query = `
         website
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
+        otherOrganisation
         organisation {
           name
           acronym
