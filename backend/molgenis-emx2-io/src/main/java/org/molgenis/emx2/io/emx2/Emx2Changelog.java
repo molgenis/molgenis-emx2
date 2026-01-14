@@ -13,14 +13,16 @@ public class Emx2Changelog {
   }
 
   public static void outputChangelog(TableStore store, Schema schema) {
+    outputChangelog(store, schema, 1000, 0);
+  }
+
+  public static void outputChangelog(TableStore store, Schema schema, int limit, int offset) {
     if (!canAccessChangelog(schema)) {
       return;
     }
 
     List<Row> rows =
-        schema.getChanges(schema.getChangesCount()).stream()
-            .map(Emx2Changelog::changeToRow)
-            .toList();
+        schema.getChanges(limit, offset).stream().map(Emx2Changelog::changeToRow).toList();
 
     store.writeTable(
         Constants.CHANGELOG_TABLE,

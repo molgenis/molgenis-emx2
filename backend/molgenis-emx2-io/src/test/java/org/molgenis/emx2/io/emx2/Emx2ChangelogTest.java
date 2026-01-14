@@ -48,27 +48,63 @@ class Emx2ChangelogTest {
   }
 
   @Test
+  void givenOffset_thenOutputChangelogAfterOffset() {
+    schema.getTable("test").insert(List.of(row("A", "a2", "B", "B2")));
+    Emx2Changelog.outputChangelog(store, schema, 1, 1);
+
+    Change change =
+        schema.getChanges(1, 1).stream()
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No changes found"));
+    assertChangelogIsChange(change);
+  }
+
+  @Test
+  void givenLimit_thenOutputSpecifiedNumberOfRows() {
+    schema.getTable("test").insert(List.of(row("A", "a2", "B", "B2")));
+    Emx2Changelog.outputChangelog(store, schema, 2, 0);
+
+    List<Map<String, Object>> expected =
+        schema.getChanges(2, 0).stream().map(this::changeAsValueMap).toList();
+
+    List<Map<String, Object>> actual =
+        IteratorUtils.toList(store.readTable(Constants.CHANGELOG_TABLE).iterator()).stream()
+            .map(Row::getValueMap)
+            .toList();
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
   void givenAuthorizedUser_thenOutputChangelog() {
     for (Privileges privilege : AUTHORIZED_PRIVILEGES) {
+      store = new TableStoreForCsvInMemory();
+
       schema.getDatabase().becomeAdmin();
       schema.removeMember("test-user");
       schema.addMember("test-user", privilege.toString());
       schema.getDatabase().setActiveUser("test-user");
 
-      Emx2Changelog.outputChangelog(store, schema);
-      assertChangelogIsOutput();
+      Emx2Changelog.outputChangelog(store, schema, 1, 0);
+      Change change =
+          schema.getChanges(1, 0).stream()
+              .findFirst()
+              .orElseThrow(() -> new AssertionError("No changes found"));
+      assertChangelogIsChange(change);
     }
   }
 
   @Test
   void givenUnauthorizedUser_thenDontOutputChangelog() {
     for (Privileges privilege : unauthorizedPrivileges()) {
+      store = new TableStoreForCsvInMemory();
+
       schema.getDatabase().becomeAdmin();
       schema.removeMember("test-user");
       schema.addMember("test-user", privilege.toString());
       schema.getDatabase().setActiveUser("test-user");
 
-      Emx2Changelog.outputChangelog(store, schema);
+      Emx2Changelog.outputChangelog(store, schema, 1, 0);
       assertFalse(store.containsTable(Constants.CHANGELOG_TABLE));
     }
   }
@@ -77,12 +113,15 @@ class Emx2ChangelogTest {
     return Arrays.stream(Privileges.values()).filter(not(AUTHORIZED_PRIVILEGES::contains)).toList();
   }
 
-  private void assertChangelogIsOutput() {
-    Change change =
-        schema.getChanges(schema.getChangesCount()).stream()
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("No changes found"));
+  private void assertChangelogIsChange(Change change) {
+    Map<String, Object> expected = changeAsValueMap(change);
+    List<Row> actual = IteratorUtils.toList(store.readTable(Constants.CHANGELOG_TABLE).iterator());
 
+    assertEquals(1, actual.size());
+    assertEquals(expected, actual.getFirst().getValueMap());
+  }
+
+  private Map<String, Object> changeAsValueMap(Change change) {
     Map<String, Object> expected = new HashMap<>();
     expected.put(Constants.CHANGELOG_NEW, change.newRowData());
     expected.put(Constants.CHANGELOG_OLD, change.oldRowData());
@@ -90,11 +129,6 @@ class Emx2ChangelogTest {
     expected.put(Constants.CHANGELOG_TABLENAME, change.tableName());
     expected.put(Constants.CHANGELOG_OPERATION, String.valueOf(change.operation()));
     expected.put(Constants.CHANGELOG_USERID, change.userId());
-
-    Emx2Changelog.outputChangelog(store, schema);
-    List<Row> actual = IteratorUtils.toList(store.readTable(Constants.CHANGELOG_TABLE).iterator());
-
-    assertEquals(1, actual.size());
-    assertEquals(expected, actual.getFirst().getValueMap());
+    return expected;
   }
 }
