@@ -259,14 +259,16 @@ query {
   _permissions {
     groupName
     users
-    tableSchema
-    tableName
-    isRowLevel
-    hasSelect
-    hasInsert
-    hasUpdate
-    hasDelete
-    hasAdmin
+    permissions {
+      tableSchema
+      tableName
+      isRowLevel
+      hasSelect
+      hasInsert
+      hasUpdate
+      hasDelete
+      hasAdmin
+    }
   }
 }
 ```
