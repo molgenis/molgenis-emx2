@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refBack,refLabel,visible,validation,defaultValue,semantics,description,profiles
 Container,,,,,,,,,,,,,"All page types (configurable, developer, etc.)",pages
-Container,,name,string,1,true,,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,,"A unique name for the container. Only letters or hypens are allowed. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
+Container,,name,string,1,TRUE,,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,,"A unique name for the container. Only letters or hypens are allowed. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
 Container,,description,text,,,,,,,,,,,pages
 Developer page,Container,,,,,,,,,,,,"Pages built with the html, css, and javascript.",pages
 Developer page,,Code,section,,,,,,,,,,,pages
@@ -13,7 +13,7 @@ Developer page,,enable base styles,bool,,,,,,,,TRUE,,"If true (default), minimal
 Developer page,,enable button styles,bool,,,,,,,,TRUE,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
 Developer page,,enable full screen,bool,,,,,,,,FALSE,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
 Dependencies,,,,,,,,,,,,,External dependencies used in the developer pages,pages
-Dependencies,,name,string,1,true,,,,,,,,A name is a label used to identify a dependency,pages
+Dependencies,,name,string,1,TRUE,,,,,,,,A name is a label used to identify a dependency,pages
 Dependencies,,url,hyperlink,,,,,,,,,,URL to the dependency,pages
 Dependencies,,fetch priority,ontology,,,Web fetch priority,,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
 Dependencies CSS,Dependencies,,,,,,,,,,,,External CSS dependencies used in custom pages,pages
@@ -23,13 +23,13 @@ Dependencies JS,,defer,bool,,,,,,,,FALSE,,"If true, the dependency will be loade
 Configurable page,Container,,,,,,,,,,,,Pages built with the drag-and-drop interface,pages
 Configurable page,,blocks,refback,,,Blocks,in container,,,,,,,pages
 Blocks,,,,,,,,,,,,,Subcontainers with in a page used to group components,pages
-Blocks,,id,auto_id,1,true,,,,false,,,,A name or label used to identify the block,pages
+Blocks,,id,auto_id,1,TRUE,,,,FALSE,,,,A name or label used to identify the block,pages
 Blocks,,in container,multiselect,,,Container,,,,,,,A link to the configurable page where the block is displayed,pages
 Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
 Blocks,,enable full screen width,bool,,,,,,,,FALSE,,"If true, content will be expanded to the fit the full width of the screen",pages
 Sections,Blocks,,,,,,,,,,,,Subcontainers for providing context to components,pages
 Components,,,,,,,,,,,,,Content and configuration for frontend components,pages
-Components,,id,auto_id,1,true,,,,false,,,,,pages
+Components,,id,auto_id,1,TRUE,,,,FALSE,,,,,pages
 Components,,in block,multiselect,,,Blocks,,,,,,,A link to the block where the component is used,pages
 Header,Blocks,,,,,,,,,,,,<header> elements,pages
 Header,,title,string,,,,,,,,,,A title for the page,pages
