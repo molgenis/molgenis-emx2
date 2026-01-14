@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Img } from "~~/types/pages";
+import type { Img } from "../../types/pages";
 
 withDefaults(defineProps<Img>(), {
   isCentered: false,

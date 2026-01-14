@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import type { HtmlHeadingLevels } from "../../../types/pages";
+import type { Headings } from "../../../types/pages";
 
-const props = withDefaults(
-  defineProps<{
-    headingLevel: HtmlHeadingLevels;
-    isCentered?: boolean;
-  }>(),
-  {
-    headingLevel: "H2",
-    isCentered: false,
-  }
-);
+withDefaults(defineProps<Headings>(), {
+  headingLevel: "H2",
+  isCentered: false,
+});
 </script>
 
 <template>

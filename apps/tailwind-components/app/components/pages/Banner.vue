@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Header } from "../../../types/pages";
-const props = withDefaults(defineProps<Header>(), {
+
+withDefaults(defineProps<Header>(), {
   enableFullScreenWidth: true,
 });
 </script>

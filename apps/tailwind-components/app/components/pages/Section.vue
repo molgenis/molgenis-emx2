@@ -1,13 +1,9 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    id: string;
-    enableFullScreenWidth?: boolean;
-  }>(),
-  {
-    enableFullScreenWidth: false,
-  }
-);
+import type { Section } from "../../../types/pages";
+
+withDefaults(defineProps<Section>(), {
+  enableFullScreenWidth: false,
+});
 </script>
 
 <template>

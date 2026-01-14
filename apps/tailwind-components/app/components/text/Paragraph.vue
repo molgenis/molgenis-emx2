@@ -1,5 +1,9 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ isCentered?: boolean }>(), { isCentered: false });
+import type { TextElements } from "../../../types/pages";
+
+withDefaults(defineProps<TextElements>(), {
+  isCentered: false,
+});
 </script>
 
 <template>
