@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HtmlHeadingLevels } from "../../../types/types";
+import type { HtmlHeadingLevels } from "../../../types/pages";
 
 const props = withDefaults(
   defineProps<{

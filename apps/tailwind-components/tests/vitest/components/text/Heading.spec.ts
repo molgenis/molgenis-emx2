@@ -5,7 +5,7 @@ import TextHeading from "../../../../app/components/text/Heading.vue";
 
 const wrapper = mount(TextHeading, {
   props: {
-    headingLevel: 2,
+    headingLevel: "H2",
     isCentered: true,
   },
   slots: {

@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { Header } from "../../../types/pages";
-import Heading from "../text/Heading.vue";
-
 const props = withDefaults(defineProps<Header>(), {
   enableFullScreenWidth: true,
 });
@@ -9,9 +7,9 @@ const props = withDefaults(defineProps<Header>(), {
 
 <template>
   <header
-    class="relative flex justify-start items-center bg-cover bg-center h-72"
+    class="relative flex justify-start items-center h-72"
     :class="{
-      'text-gray-100': backgroundImage,
+      'text-gray-100 bg-cover bg-center': backgroundImage,
       'text-title bg-gray-100': !backgroundImage,
     }"
     :style="backgroundImage ? `background-image: url(${backgroundImage})` : ''"
