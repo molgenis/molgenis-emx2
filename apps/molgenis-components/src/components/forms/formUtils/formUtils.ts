@@ -116,12 +116,20 @@ export function getColumnError(
       return `Please enter valid JSON`;
     }
   }
-  if (type === "LONG" && getBigIntError(value as string | undefined)) {
+  if (
+    type === "LONG" &&
+    value !== null &&
+    getBigIntError(value as string | undefined)
+  ) {
     return getBigIntError(value as string | undefined);
   }
   if (
     type === "LONG_ARRAY" &&
-    (value as unknown as string[])?.some((val) => getBigIntError(val))
+    Array.isArray(value) &&
+    (value as unknown as Array<string>)?.length &&
+    (value as unknown as string[])?.some(
+      (val) => getBigIntError(val) && val !== null
+    )
   ) {
     return BIG_INT_ERROR;
   }
@@ -315,6 +323,9 @@ function containsInvalidEmail(emails: any) {
 }
 
 function isInvalidPeriod(value: any) {
+  if (value === null || value === undefined || value === "") {
+    return false;
+  }
   return !PERIOD_REGEX.test(value);
 }
 
