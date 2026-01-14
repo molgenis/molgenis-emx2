@@ -288,7 +288,6 @@ async def test_create_schema():
         assert excinfo.value.msg == "Selected template does not exist."
 
         # Test description
-        await client.delete_schema("pet store 2")
         await client.create_schema(name="pet store 2", description="The second pet store.")
         schemas: list[Schema] = client.get_schemas()
         pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
@@ -316,7 +315,7 @@ async def test_create_schema():
         pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
         assert len(pet_meta) == 1
         assert len(client.get_schema_metadata("pet store 2").tables) == 5
-        assert len(client.get(table="Pet", schema="pet store 2")) == 8
+        assert len(client.get(table="Pet", schema="pet store 2")) == 9
         await client.delete_schema("pet store 2")
 
 
@@ -386,7 +385,7 @@ async def test_recreate_schema():
                                      description="The second pet store.",
                                      template="PET_STORE",
                                      include_demo_data=True)
-        assert len(client.get(table="Pet", schema="pet store 2")) == 8
+        assert len(client.get(table="Pet", schema="pet store 2")) == 9
 
         await client.delete_schema("pet store 2")
 
