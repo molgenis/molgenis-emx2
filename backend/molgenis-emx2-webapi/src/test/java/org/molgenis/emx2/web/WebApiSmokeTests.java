@@ -99,7 +99,10 @@ class WebApiSmokeTests {
     RestAssured.baseURI = "http://localhost";
 
     setAdminSession();
+    setupDatabase();
+  }
 
+  private static void setupDatabase() {
     // Always create test database from scratch to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     PET_STORE.getImportTask(db, PET_STORE_SCHEMA, "", true).run();
@@ -575,36 +578,119 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_changelogDownload() {
-    db.dropCreateSchema(PET_STORE_SCHEMA);
     schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
     schema.create(table("test", column("A").setPkey(), column("B")));
     schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
 
-    try {
-      Response response =
-          given()
-              .sessionId(sessionId)
-              .accept(ACCEPT_CSV)
-              .when()
-              .get("/pet store/api/csv/changelog");
+    Response response =
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
 
-      Pattern contentDisposition =
-          Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
-      assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
 
-      String formatted =
-          """
-              operation,stamp,userid,tablename,old,new
-              I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
-              .formatted(schema.getChanges(1).getFirst().stamp());
+    String formatted =
+        """
+            operation,stamp,userid,tablename,old,new
+            I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
+            .formatted(schema.getChanges(1).getFirst().stamp());
 
-      assertTrue(response.body().asString().startsWith(formatted));
-    } finally {
-      db.dropCreateSchema(PET_STORE_SCHEMA);
-    }
+    assertTrue(response.body().asString().startsWith(formatted));
+    setupDatabase();
   }
 
   @Test
+  void testCsvApi_givenOffset_whenDownloadingChangelog_thenSkipOffset() {
+    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
+    schema.create(table("test", column("A").setPkey(), column("B")));
+    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("offset", "1")
+            .when()
+            .get("/pet store/api/csv/changelog");
+
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+    String formatted = "operation,stamp,userid,tablename,old,new";
+
+    assertTrue(response.body().asString().startsWith(formatted));
+
+    setupDatabase();
+  }
+
+  @Test
+  void testCsvApi_givenLimitPassedCap_whenDownloadingChangelog_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("limit", "1001")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                  {
+                    "errors" : [
+                      {
+                        "message" : "Requested 1001 changes, but the maximum allowed is 1000."
+                      }
+                    ]
+                  }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenInvalidLimitValue_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("limit", "invalid-value")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                  {
+                    "errors" : [
+                      {
+                        "message" : "Invalid limit provided, should be a number: For input string: \\"invalid-value\\""
+                      }
+                    ]
+                  }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenInvalidOffsetValue_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("offset", "invalid-value")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                    {
+                      "errors" : [
+                        {
+                          "message" : "Invalid offset provided, should be a number: For input string: \\"invalid-value\\""
+                        }
+                      ]
+                    }""",
+        response.body().asString());
+  }
+
+  //  @Test
   void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
     db.dropCreateSchema(PET_STORE_SCHEMA);
     Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");

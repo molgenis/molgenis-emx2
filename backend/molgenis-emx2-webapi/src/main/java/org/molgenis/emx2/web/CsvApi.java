@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
@@ -34,6 +35,9 @@ import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
+
+  private static final int DEFAULT_CHANGELOG_LIMIT = 100;
+  private static final int DEFAULT_CHANGELOG_OFFSET = 0;
 
   private CsvApi() {
     // hide constructor
@@ -63,11 +67,14 @@ public class CsvApi {
       throw new MolgenisException("Unauthorized to get schema changelog");
     }
 
+    int limit = parseIntParam(ctx, "limit").orElse(DEFAULT_CHANGELOG_LIMIT);
+    int offset = parseIntParam(ctx, "offset").orElse(DEFAULT_CHANGELOG_OFFSET);
+
     StringWriter writer = new StringWriter();
     Character separator = getSeparator(ctx);
     TableStore store = new TableStoreForCsvInMemory();
 
-    Emx2Changelog.outputChangelog(store, schema);
+    Emx2Changelog.outputChangelog(store, schema, limit, offset);
 
     CsvTableWriter.write(
         store.readTable(CHANGELOG_TABLE),
@@ -88,6 +95,19 @@ public class CsvApi {
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
+  }
+
+  private static Optional<Integer> parseIntParam(Context ctx, String param) {
+    return Optional.ofNullable(ctx.queryParam(param))
+        .map(
+            arg -> {
+              try {
+                return Integer.valueOf(arg);
+              } catch (NumberFormatException e) {
+                throw new MolgenisException(
+                    "Invalid " + param + " provided, should be a number", e);
+              }
+            });
   }
 
   private static void discardMetadata(Context ctx) {
