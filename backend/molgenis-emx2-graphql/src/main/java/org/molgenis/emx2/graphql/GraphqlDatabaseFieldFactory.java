@@ -1,11 +1,12 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.DESCRIPTION;
-import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.DESCRIPTION;
+import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
@@ -19,9 +20,9 @@ import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
 
-  public static final GraphQLObjectType permissionsMetadataType =
+  public static final GraphQLType permissionOutputType =
       new GraphQLObjectType.Builder()
-          .name("MolgenisPermissionsGroupType")
+          .name("MolgenisPermissionsOutput")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_SCHEMA)
@@ -30,14 +31,6 @@ public class GraphqlDatabaseFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_NAME)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GROUP_NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(USERS)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(IS_ROW_LEVEL)
@@ -62,6 +55,23 @@ public class GraphqlDatabaseFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(HAS_ADMIN)
                   .type(Scalars.GraphQLBoolean))
+          .build();
+
+  public static final GraphQLObjectType permissionsMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisPermissionsGroupType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GROUP_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(PERMISSIONS)
+                  .type(GraphQLList.list(permissionOutputType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(USERS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
 
   static final GraphQLType lastUpdateMetadataType =
