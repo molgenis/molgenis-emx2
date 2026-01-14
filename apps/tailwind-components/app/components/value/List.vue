@@ -28,7 +28,11 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
 <template>
   <template v-for="(listElement, index) in data">
     <ValueString
-      v-if="elementType === 'STRING'"
+      v-if="
+        elementType === 'STRING' ||
+        elementType === 'AUTO_ID' ||
+        elementType === 'PERIOD'
+      "
       :metadata="metadata"
       :data="listElement as string"
     />
