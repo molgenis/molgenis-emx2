@@ -22,6 +22,8 @@ import org.molgenis.emx2.Schema;
 
 public class ChangeLogExecutor {
 
+  static final int CHANGELOG_LIMIT_CAP = 1000;
+
   private static final Field<String> OPERATION =
       field(name(Constants.CHANGELOG_OPERATION), CHAR(1).nullable(false));
   private static final Field<Timestamp> STAMP =
@@ -106,6 +108,15 @@ public class ChangeLogExecutor {
 
   static List<Change> executeGetChanges(
       DSLContext jooq, SchemaMetadata schema, int limit, int offset) {
+    if (limit > CHANGELOG_LIMIT_CAP) {
+      throw new MolgenisException(
+          "Requested "
+              + limit
+              + " changes, but the maximum allowed is "
+              + CHANGELOG_LIMIT_CAP
+              + ".");
+    }
+
     if (!hasChangeLogTable(jooq, schema)) {
       return Collections.emptyList();
     }
