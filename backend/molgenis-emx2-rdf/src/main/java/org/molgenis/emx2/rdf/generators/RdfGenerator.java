@@ -56,7 +56,7 @@ public abstract class RdfGenerator {
     }
 
     if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
-      var tableName = table.getSchema().getName() + "." + table.getName();
+      String tableName = table.getSchema().getName() + "." + table.getName();
       query.where(f("mg_tableclass", EQUALS, tableName));
     }
 
