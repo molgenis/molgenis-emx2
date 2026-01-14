@@ -101,7 +101,7 @@ async def test_upload_file():
         # Upload without specifying schema
         with pytest.raises(NoSuchSchemaException) as excinfo:
             await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.csv")
-        assert excinfo.value.msg == f"Specify the schema where the file should be uploaded."
+        assert excinfo.value.msg == "Select an existing schema for this operation."
 
         # Upload ZIP file
         pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
@@ -177,7 +177,7 @@ def test_delete_records():
         with pytest.raises(NoSuchSchemaException) as excinfo:
             client.delete_records(table="Pet", file=RESOURCES_DIR / "insert" / "Pet.csv")
 
-        assert excinfo.value.msg == "Schema None not available."
+        assert excinfo.value.msg == "Select an existing schema for this operation."
 
         # Test fail without specifying file or data
         with pytest.raises(FileNotFoundError) as excinfo:
@@ -230,7 +230,7 @@ async def test_export():
         # Upload without specifying schema
         with pytest.raises(NoSuchSchemaException) as excinfo:
             await client.export(table="Pet", filename="pet.csv")
-        assert excinfo.value.msg == "Schema None not available."
+        assert excinfo.value.msg == "Select an existing schema for this operation."
 
         # Test incorrect file name
         with pytest.raises(ValueError) as excinfo:

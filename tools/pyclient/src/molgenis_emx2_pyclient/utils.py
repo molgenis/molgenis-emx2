@@ -9,6 +9,7 @@ import pathlib
 import pandas as pd
 
 from .constants import INT, DECIMAL, BOOL, LONG, STRING
+from .exceptions import NoSuchSchemaException
 from .metadata import Table, Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
@@ -261,3 +262,14 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
     message = "No data to import. Specify a file location or a dataset."
     log.error(message)
     raise FileNotFoundError(message)
+
+def check_schema(schema: str, default_schema: str, schema_names: list[str]):
+    """Checks whether the schema used for this action exists."""
+    if schema is not None:
+        if schema in schema_names:
+            return schema
+        else:
+            raise NoSuchSchemaException(f"Schema {schema!r} not available.")
+    if default_schema is None:
+        raise NoSuchSchemaException(f"Select an existing schema for this operation.")
+    return default_schema
