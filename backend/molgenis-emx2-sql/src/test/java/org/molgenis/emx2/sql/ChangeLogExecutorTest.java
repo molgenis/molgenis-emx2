@@ -12,10 +12,12 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.LastUpdate;
+import org.molgenis.emx2.MolgenisException;
 
 class ChangeLogExecutorTest {
 
   static SqlDatabase sqlDatabase;
+  private SqlSchema schemaA;
 
   @BeforeEach
   void setUp() {
@@ -26,7 +28,7 @@ class ChangeLogExecutorTest {
 
     Map<String, String> settings = new LinkedHashMap<>();
     settings.put(IS_CHANGELOG_ENABLED, "true");
-    SqlSchema schemaA = sqlDatabase.getSchema("ChangeLogExecutorTestA");
+    schemaA = sqlDatabase.getSchema("ChangeLogExecutorTestA");
     schemaA.getMetadata().setSettings(settings);
     sqlDatabase.getSchema("ChangeLogExecutorTestB").getMetadata().setSettings(settings);
 
@@ -49,5 +51,16 @@ class ChangeLogExecutorTest {
     assertEquals(1, lastUpdates.size());
     LastUpdate lastUpdate = lastUpdates.get(0);
     assertEquals("ChangeLogExecutorTestA", lastUpdate.schemaName());
+  }
+
+  @Test
+  void testChangelogLimitCap() {
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            ChangeLogExecutor.executeGetChanges(
+                sqlDatabase.getJooq(), schemaA.getMetadata(), 1001, 0),
+        "Requested 1001 changes, but the maximum allowed is "
+            + ChangeLogExecutor.CHANGELOG_LIMIT_CAP);
   }
 }
