@@ -6,13 +6,11 @@ const props = defineProps<{
   organisation: IOrganisations;
 }>();
 
-const organisationName = computed(() => {
-  console.log("organisation", props.organisation);
-  return (
+const organisationName = computed(
+  () =>
     props.organisation.organisation?.name ||
     props.organisation.otherOrganisation
-  );
-});
+);
 </script>
 
 <template>
