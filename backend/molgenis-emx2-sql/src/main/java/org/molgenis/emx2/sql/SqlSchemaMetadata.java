@@ -278,6 +278,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 result.addAll(
                     SqlSchemaMetadataExecutor.getInheritedRoleForUser(
                         adminJooq, getName(), username.trim())));
+
+    // TODO: move fine grained roles to db
+    boolean isCustomRole = !result.isEmpty() && result.stream().noneMatch(Privileges::contains);
+    if (isCustomRole) {
+      return List.of("Viewer", "Count", "Aggregator", "Range", "Exists");
+    }
+
     return result;
   }
 

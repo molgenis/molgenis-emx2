@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import java.util.Arrays;
+
 public enum Privileges {
   // can only see if data exists on aggregate queries
   EXISTS("Exists"),
@@ -24,6 +26,10 @@ public enum Privileges {
 
   Privileges(String name) {
     this.name = name;
+  }
+
+  public static boolean contains(String nameOther) {
+    return Arrays.stream(values()).anyMatch(e -> e.name.equals(nameOther));
   }
 
   @Override

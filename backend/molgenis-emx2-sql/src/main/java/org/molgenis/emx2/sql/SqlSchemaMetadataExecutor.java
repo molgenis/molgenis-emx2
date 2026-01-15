@@ -95,11 +95,6 @@ class SqlSchemaMetadataExecutor {
     return members;
   }
 
-  static List<GroupPermission> executeGetPermissions(DSLContext jooq, SchemaMetadata schema) {
-    List<GroupPermission> permissions = new ArrayList<>();
-    return null;
-  }
-
   static void executeRemoveMembers(SqlDatabase db, String schemaName, List<Member> members) {
     try {
       SqlSchema schema = db.getSchema(schemaName);
