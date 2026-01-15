@@ -35,21 +35,35 @@ onMounted(async () => {
   const el = paragraphRef.value;
   if (!el) return;
 
-  /**
-   * Measure without clamp
-   */
+  // Measure without clamp
   el.classList.remove("clamped");
   const fullHeight = el.scrollHeight;
 
-  /**
-   * Reapply clamp
-   */
+  // Reapply clamp
   el.classList.add("clamped");
   const clampedHeight = el.clientHeight;
 
   showButton.value = fullHeight > clampedHeight;
   measured.value = true;
 });
+
+/**
+ * Collapse and scroll paragraph into view
+ */
+async function collapseAndScrollToTop() {
+  const el = paragraphRef.value;
+
+  expanded.value = false;
+
+  await nextTick();
+
+  if (el) {
+    el.scrollIntoView({
+      block: "start",
+      behavior: "smooth"
+    });
+  }
+}
 </script>
 
 <template>
@@ -72,7 +86,7 @@ onMounted(async () => {
           v-if="expanded"
           type="text"
           class="inline-less"
-          @click="expanded = false"
+          @click="collapseAndScrollToTop"
       >
         {{ showLabels.less }}
       </Button>
