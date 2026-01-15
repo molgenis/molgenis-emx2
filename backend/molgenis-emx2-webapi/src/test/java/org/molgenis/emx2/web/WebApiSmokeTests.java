@@ -527,7 +527,7 @@ class WebApiSmokeTests {
   void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(
@@ -1841,7 +1841,7 @@ class WebApiSmokeTests {
 
   @Test
   void testThatTablesWithSpaceCanBeDownloaded() {
-    var table = schema.getTable(TABLE_WITH_SPACES);
+    Table table = schema.getTable(TABLE_WITH_SPACES);
 
     given()
         .sessionId(sessionId)
