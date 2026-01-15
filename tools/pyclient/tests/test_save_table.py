@@ -1,5 +1,5 @@
 """
-Tests the Pyclient `save_schema` method.
+Tests the Pyclient `save_table` method.
 """
 
 import os

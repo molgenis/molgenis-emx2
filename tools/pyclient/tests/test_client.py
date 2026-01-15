@@ -159,7 +159,7 @@ def test_truncate():
         users_after = len(client.get_graphql(schema="pet store", table="User", columns=["username"]))
         assert users_after == 0
 
-        client.save_schema(table="User", name="pet store", file=RESOURCES_DIR / "petstore" / "User.csv")
+        client.save_table(table="User", schema="pet store", file=RESOURCES_DIR / "petstore" / "User.csv")
 
 
 def test_delete_records():
@@ -187,7 +187,7 @@ def test_delete_records():
 
         # Test delete with file
         tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        client.save_schema(name="pet store", table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
+        client.save_table(table="Tag", schema="pet store", file=RESOURCES_DIR / "insert" / "Tag.csv")
         tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
         assert tag_between == tag_before + 2
@@ -201,7 +201,7 @@ def test_delete_records():
         tags_list = list(tags_df.to_dict(orient='index').values())
 
         tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        client.save_schema(name="pet store", table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
+        client.save_table(table="Tag", schema="pet store", file=RESOURCES_DIR / "insert" / "Tag.csv")
         tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
         assert tag_between == tag_before + 2
@@ -212,7 +212,7 @@ def test_delete_records():
 
         # Test delete with data as DataFrame
         tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        client.save_schema(name="pet store", table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
+        client.save_table(table="Tag", schema="pet store", file=RESOURCES_DIR / "insert" / "Tag.csv")
         tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
         assert tag_between == tag_before + 2
