@@ -101,8 +101,8 @@ export default function useForm(
   const requiredMap = metadata.value.columns.reduce((acc, column) => {
     if (
       typeof column.required === "boolean" ||
-      column.required === "true" ||
-      column.required === "false"
+      column.required?.toLocaleLowerCase() === "true" ||
+      column.required?.toLocaleLowerCase() === "false"
     ) {
       acc[column.id] = computed(() => !!column.required);
     } else if (typeof column.required === "string") {

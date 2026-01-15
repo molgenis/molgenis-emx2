@@ -209,6 +209,7 @@ const numberOfFieldsWithErrors = computed(
             class="grow"
             :columns="visibleColumns"
             :visibleColumnErrors="visibleColumnErrors"
+            :requiredFields="{}"
             :row-key="rowKey"
             v-model="formValues"
             @update="onUpdateColumn"

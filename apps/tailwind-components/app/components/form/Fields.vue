@@ -46,7 +46,6 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
 </script>
 
 <template>
-  {{ requiredFields }}
   <template v-for="column in columns" :key="column.id">
     <div
       v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
