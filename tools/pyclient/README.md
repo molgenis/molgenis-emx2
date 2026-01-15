@@ -26,7 +26,7 @@ from the latest version of Molgenis EMX2.
 - Fixed asynchronous API calls in `export`
 - Fixed issue with 'equals' filter for references in `get` method
 - Fixed `greater_than` and `smaller_than` filters for LONG type values in `get` method
-- Renamed `__prepare_unequal_filter` to `__prepare_not_equals_filter` and added NotImplementedError for certain data types
+- Renamed `__prepare_unequal_filter` to `prepare_not_equals_filter` and added NotImplementedError for certain data types
 - Fixed issue with incorrect column names in `get_graphql`
 - Removed default value None for 'name' in `create_schema` as schema name cannot be null
 - Fixed parameter `include_demo_data` in `recreate_schema` to default to `False` instead of `None`
