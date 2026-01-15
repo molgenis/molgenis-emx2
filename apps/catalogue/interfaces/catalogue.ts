@@ -1056,7 +1056,7 @@ export interface IResources {
   catalogueType?: IOntologyNode;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
-  rWDType?: IOntologyNode[];
+  registryOrHealthRecordType?: IOntologyNode[];
   networkType?: IOntologyNode[];
   website?: string;
   description?: string;
