@@ -65,6 +65,9 @@
       />
     </div>
   </div>
+  <div v-if="downLoadUrl" class="ml-4">
+    <a :href="downLoadUrl" class="text-link underline">{{ fileName }}</a>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -117,5 +120,24 @@ const fileName = computed(() => {
     return value.name;
   }
   return value?.filename || "";
+});
+
+const downLoadUrl = computed(() => {
+  const value = modelValue.value;
+  if (
+    value !== null &&
+    value !== undefined &&
+    !(value instanceof File) &&
+    "url" in value
+  ) {
+    // the file is stored remotely
+    return value.url;
+  } else if (value instanceof File && window && window.URL) {
+    // the file is moved to the browser from local system
+    return URL.createObjectURL(value);
+  } else {
+    // no file selected or file is cleared
+    return null;
+  }
 });
 </script>
