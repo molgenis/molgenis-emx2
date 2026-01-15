@@ -43,6 +43,7 @@ class Transformer:
         7. Add biobank labels (biobank name) to collections
         8. Adds the combined qualities to collections
         9. Sets the collections' categories
+        10. Adds all non-withdrawn collections to the main FDP catalog
 
         """
         self._set_national_node_code()
@@ -54,6 +55,7 @@ class Transformer:
         self._set_biobank_labels()
         self._set_combined_qualities()
         self._set_collection_categories()
+        self._set_catalog_membership()
         return self.warnings
 
     def _set_commercial_use_bool(self):
@@ -188,3 +190,12 @@ class Transformer:
             ):
                 for row in table.rows:
                     row["withdrawn"] = True
+
+    def _set_catalog_membership(self):
+        """
+        Adds all non-withdrawn collections to the main FDP catalog
+        """
+        self.printer.print("Setting FDP catalog membership")
+        for row in self.node_data.collections.rows:
+            if not row['withdrawn']:
+                row['catalog'] = 'directory_catalog'
