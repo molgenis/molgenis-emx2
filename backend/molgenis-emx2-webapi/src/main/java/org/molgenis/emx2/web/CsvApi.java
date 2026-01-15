@@ -134,9 +134,10 @@ public class CsvApi {
   }
 
   private static boolean exportMembersAllowed(Context ctx, Schema schema) {
-    var currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
-    var sqlSchemaMetadata = new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
-    var roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
+    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+    SqlSchemaMetadata sqlSchemaMetadata =
+        new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
+    List<String> roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
     return roles.contains(Privileges.MANAGER.toString())
         || roles.contains(Privileges.OWNER.toString());
   }
