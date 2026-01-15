@@ -20,7 +20,7 @@ from the latest version of Molgenis EMX2.
 
 
 
-### 13.76.2
+### 13.76.3
 
 - Improved error handling in 'columns' filter in `get` method
 - Fixed asynchronous API calls in `export`
@@ -187,6 +187,7 @@ with Client('https://example.molgeniscloud.org', token=token) as client:
 
 ## Development
 
+The Pyclient requires a Python installation with version 3.10 or higher.
 Clone the `molgenis-emx2` repository from GitHub
 
 ```console
@@ -206,13 +207,13 @@ python -m venv venv
 On Linux:
 
 ```console
-python3.11 -m venv venv
+python3.10 -m venv venv
 ```
 
 On Windows:
 
 ```console
-py -3.11 venv venv
+py -3.10 venv venv
 ```
 
 ### Activate the virtual environment
@@ -245,4 +246,15 @@ Before building the source, the package `build` needs to be installed.
 (venv) $ python -m build
 
 (venv) $ pip install dist/molgenis_emx2_pyclient*.whl
+```
+
+## Test
+
+Tests for the Pyclient have been created with the Pytest framework.
+In order to test the functionality of the Pyclient copy the '.env-example' file to '.env' and modify the parameters for the server you want to test on.
+
+Then execute the following to run all the tests
+
+```console
+(venv) molgenis-emx2/tools/pyclient$ pytest
 ```
