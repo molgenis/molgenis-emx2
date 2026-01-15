@@ -106,10 +106,10 @@ export function getColumnError(
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
   if (type === "UUID" && isInvalidUUID(value)) {
-    return "Invalid UUID: should be a valid UUID format";
+    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
   }
   if (type === "UUID_ARRAY" && containsInvalidUUID(value)) {
-    return "Invalid UUID: should be a valid UUID format";
+    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
   }
   if (type === "JSON") {
     try {
@@ -340,7 +340,7 @@ function isInvalidUUID(value: any) {
 }
 
 function containsInvalidUUID(uuids: any) {
-  return uuids?.some((uuid: any) => isInvalidPeriod(uuid));
+  return uuids?.some((uuid: any) => isInvalidUUID(uuid));
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {
