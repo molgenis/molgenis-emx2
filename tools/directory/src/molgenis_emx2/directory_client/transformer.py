@@ -46,6 +46,7 @@ class Transformer:
         8. Adds the combined qualities to collections
         9. Sets the collections' categories
         10. Adds all non-withdrawn collections to the main FDP catalog
+        11. Fill in FDP-related fields for collections
 
         """
         self._set_national_node_code()
@@ -58,6 +59,7 @@ class Transformer:
         self._set_combined_qualities()
         self._set_collection_categories()
         self._set_catalog_membership()
+        self._set_collection_fdp_fields()
         return self.warnings
 
     def _set_commercial_use_bool(self):
@@ -195,9 +197,17 @@ class Transformer:
 
     def _set_catalog_membership(self):
         """
-        Adds all non-withdrawn collections to the main FDP catalog
+        Adds all non-withdrawn collections to the FDP catalog
         """
         self.printer.print("Setting FDP catalog membership")
         for row in self.node_data.collections.rows:
             if not row['withdrawn']:
                 row['catalog'] = self.catalog_id
+
+    def _set_collection_fdp_fields(self):
+        """
+        Fill in FDP-related fields for collections
+        """
+        self.printer.print("Setting FDP-related fields for collections")
+        for row in self.node_data.collections.rows:
+            row['publisher'] = 'BBMRI-ERIC'
