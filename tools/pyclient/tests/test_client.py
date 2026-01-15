@@ -461,12 +461,12 @@ def test_validate_graphql_response(caplog):
         response = MockResponse(503)
         with pytest.raises(ServiceUnavailableError) as excinfo:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Server with url 'http://localhost:8080' (temporarily) unavailable."
+        assert excinfo.value.msg == f"Server with url '{server_url}' (temporarily) unavailable."
 
         response = MockResponse(404)
         with pytest.raises(ServerNotFoundError) as excinfo:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Server with url 'http://localhost:8080' not found."
+        assert excinfo.value.msg == f"Server with url '{server_url}' not found."
 
         response = MockResponse(400, text="Invalid token or token expired")
         with pytest.raises(InvalidTokenException) as excinfo:
