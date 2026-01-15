@@ -55,7 +55,7 @@ class PublicationPreparer:
                 existing_biobanks=state.existing_data.biobanks,
                 eu_node_data=state.eu_node_data,
                 diseases=state.diseases,
-                catalog_name=state.catalog_name,
+                catalog_id=state.catalog_id,
             ).transform()
             if warnings:
                 state.report.add_node_warnings(node_data.node, warnings)

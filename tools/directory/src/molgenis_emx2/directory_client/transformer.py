@@ -21,7 +21,7 @@ class Transformer:
         existing_biobanks: Table,
         eu_node_data: NodeData,
         diseases: OntologyTable,
-        catalog_name: Table,
+        catalog_id: Table,
     ):
         self.node_data = node_data
         self.quality = quality
@@ -29,7 +29,7 @@ class Transformer:
         self.existing_biobanks = existing_biobanks.rows_by_id
         self.eu_node_data = eu_node_data
         self.category_mapper = CategoryMapper(diseases)
-        self.catalog_name = catalog_name
+        self.catalog_id = catalog_id
 
         self.warnings = []
 
@@ -200,4 +200,4 @@ class Transformer:
         self.printer.print("Setting FDP catalog membership")
         for row in self.node_data.collections.rows:
             if not row['withdrawn']:
-                row['catalog'] = self.catalog_name
+                row['catalog'] = self.catalog_id
