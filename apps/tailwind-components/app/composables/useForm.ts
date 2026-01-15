@@ -58,20 +58,27 @@ export default function useForm(
 
   const formValueKeys = metadata.value.columns.map((col) => col.id);
 
+  const extractParamsFromExpression = (expression: string) => {
+    const params: string[] = [];
+    if (expression === "") {
+      return params;
+    }
+    for (const key of formValueKeys) {
+      // regex finds formValue keys used inside the expression
+      const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
+      if (regex.test(expression)) {
+        params.push(key);
+      }
+    }
+    return params;
+  };
+
   // setup visibility signals
   const visibilityMap = metadata.value.columns.reduce((acc, column) => {
     const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
 
     const exprString = column.visible;
-    const params: string[] = [];
-
-    for (const key of formValueKeys) {
-      // regex finds formValue keys used inside the expression
-      const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
-      if (regex.test(exprString || "")) {
-        params.push(key);
-      }
-    }
+    const params: string[] = extractParamsFromExpression(exprString || "");
 
     const paramsString = params.join(", ");
     const visibilityFunction = new Function(
@@ -88,6 +95,56 @@ export default function useForm(
         )
     );
 
+    return acc;
+  }, {} as Record<columnId, ComputedRef<boolean>>);
+
+  const requiredMap = metadata.value.columns.reduce((acc, column) => {
+    if (
+      typeof column.required === "boolean" ||
+      column.required === "true" ||
+      column.required === "false"
+    ) {
+      acc[column.id] = computed(() => !!column.required);
+    } else if (typeof column.required === "string") {
+      const requiredExpression = column.required;
+      const cleanExpression =
+        requiredExpression.replaceAll('"', "'") || "false";
+      const params: string[] = extractParamsFromExpression(requiredExpression);
+      const paramsString = params.join(", ");
+      let requiredFunction: Function;
+
+      try {
+        requiredFunction = new Function(
+          paramsString,
+          "return eval(`" + cleanExpression + "`)"
+        );
+        computed(
+          () =>
+            !!requiredFunction.apply(
+              null,
+              params.map((p) => formValues.value[p])
+            )
+        );
+      } catch (e) {
+        console.error(
+          "Error creating required function for column",
+          column.id,
+          e
+        );
+        requiredFunction = () => false;
+      }
+
+      acc[column.id] = computed(
+        () =>
+          !!requiredFunction.apply(
+            null,
+            params.map((p) => formValues.value[p])
+          )
+      );
+    } else {
+      // default to not required
+      acc[column.id] = computed(() => false);
+    }
     return acc;
   }, {} as Record<columnId, ComputedRef<boolean>>);
 
@@ -192,7 +249,7 @@ export default function useForm(
     return metadata.value?.columns.filter(
       (column: IColumn) =>
         visibilityMap[column.id]?.value === true &&
-        isRequired(column.required) &&
+        requiredMap[column.id]?.value === true &&
         column.columnType !== "AUTO_ID"
     );
   });
@@ -536,5 +593,6 @@ export default function useForm(
     validateKeyColumns,
     lastScrollTo, //for debug
     visibleColumnIds,
+    requiredMap,
   };
 }

@@ -45,6 +45,7 @@ const {
   sections,
   visibleColumns,
   visibleColumnIds,
+  requiredMap,
 } = useForm(props.metadata, formValues, "fields-container");
 
 defineExpose({
@@ -109,6 +110,7 @@ function insertInto() {
         :columns="visibleColumns"
         :constantValues="constantValues"
         :visibleColumnErrors="visibleColumnErrors"
+        :requiredFields="requiredMap"
         v-model="formValues"
         @update="onUpdateColumn"
         @blur="onBlurColumn"

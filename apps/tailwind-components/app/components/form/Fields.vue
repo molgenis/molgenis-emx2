@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { vIntersectionObserver } from "@vueuse/components";
-import { useTemplateRef } from "vue";
+import { useTemplateRef, type ComputedRef } from "vue";
 import type {
   columnId,
   columnValue,
@@ -14,6 +14,7 @@ const props = defineProps<{
   rowKey?: columnValue;
   constantValues?: IRow;
   visibleColumnErrors: Record<columnId, string>;
+  requiredFields: Record<columnId, ComputedRef<boolean>>;
 }>();
 
 const modelValue = defineModel<IRow>("modelValue", {
@@ -42,13 +43,10 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
     if (col) emit("leaving-view", col);
   }
 }
-
-const isRequired = (value: string | boolean): boolean =>
-  (typeof value === "string" && value.toLowerCase() === "true") ||
-  value === true;
 </script>
 
 <template>
+  {{ requiredFields }}
   <template v-for="column in columns" :key="column.id">
     <div
       v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
@@ -84,7 +82,7 @@ const isRequired = (value: string | boolean): boolean =>
         )
       "
       :rowKey="rowKey"
-      :required="isRequired(column.required ?? false)"
+      :required="requiredFields[column.id]?.value"
       :error-message="visibleColumnErrors[column.id]"
       :ref-schema-id="column.refSchemaId"
       :ref-table-id="column.refTableId"
