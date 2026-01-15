@@ -30,6 +30,7 @@ class Transformer:
         self.eu_node_data = eu_node_data
         self.category_mapper = CategoryMapper(diseases)
         self.catalog_id = catalog_id
+        self.diseases = diseases
 
         self.warnings = []
 
@@ -211,3 +212,11 @@ class Transformer:
         self.printer.print("Setting FDP-related fields for collections")
         for row in self.node_data.collections.rows:
             row['publisher'] = 'BBMRI-ERIC'
+            row['language'] = 'English'
+            row[
+                'license'
+            ] = 'https://ejp-rd-vp.github.io/resource-metadata-schema/license/v1.0.txt'
+            keywords = []
+            for diagnosis in row['diagnosis_available']:
+                keywords.append(self.diseases.rows_by_id[diagnosis]['label'])
+            row['keywords'] = keywords
