@@ -121,7 +121,5 @@ export async function useHeaderData() {
       }
     ).value;
 
-  console.log(catalogue);
-
   return { catalogue, variableCount, collectionCount, networkCount, logoSrc };
 }

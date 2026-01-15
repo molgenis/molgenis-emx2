@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-8">
     <h3 class="text-2xl text-title">Show more button</h3>
-    <ShowMore>
+    <ShowMore lines="0">
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
       veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
@@ -10,7 +10,7 @@
       cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
       est laborum.
     </ShowMore>
-    <ShowMore>
+    <ShowMore lines="1">
       <template v-slot:button>
         <Button type="secondary" size="tiny">custom show more button</Button>
       </template>
