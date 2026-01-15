@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick, computed } from "vue";
 import Button from "./Button.vue";
 
 const props = withDefaults(
     defineProps<{
       lines?: number;
       showLabels?: { more: string; less: string };
-      ssrHeight?: string; // e.g. '120px' for SSR render
+      ssrHeight?: string;
     }>(),
     {
       lines: 3,
@@ -15,19 +15,40 @@ const props = withDefaults(
     }
 );
 
-const expanded = ref(false);
-const clientMounted = ref(false);
-const showButton = ref(true);
 const paragraphRef = ref<HTMLElement | null>(null);
 
-onMounted(() => {
-  clientMounted.value = true;
+const expanded = ref(false);
+const showButton = ref(false);
+const measured = ref(false);
 
-  if (paragraphRef.value) {
-    // Check if content overflows
-    const el = paragraphRef.value;
-    showButton.value = el.scrollHeight > el.clientHeight;
-  }
+/**
+ * CSS variable for line clamp
+ */
+const paragraphStyle = computed(() => ({
+  "--lines": String(props.lines)
+}));
+
+onMounted(async () => {
+  await nextTick();
+  await document.fonts?.ready;
+
+  const el = paragraphRef.value;
+  if (!el) return;
+
+  /**
+   * Measure without clamp
+   */
+  el.classList.remove("clamped");
+  const fullHeight = el.scrollHeight;
+
+  /**
+   * Reapply clamp
+   */
+  el.classList.add("clamped");
+  const clampedHeight = el.clientHeight;
+
+  showButton.value = fullHeight > clampedHeight;
+  measured.value = true;
 });
 </script>
 
@@ -35,14 +56,15 @@ onMounted(() => {
   <div class="expandable-paragraph">
     <p
         ref="paragraphRef"
-        class="paragraph"
-        :class="{ clamped: !expanded && clientMounted }"
-        :style="!expanded
-        ? clientMounted
-          ? { WebkitLineClamp: lines }
-          : { maxHeight: ssrHeight, overflow: 'hidden' }
-        : {}"
-        aria-expanded="expanded"
+        class="paragraph clamped"
+        :class="{ expanded }"
+        :style="[
+        paragraphStyle,
+        !measured && !expanded
+          ? { maxHeight: ssrHeight, overflow: 'hidden' }
+          : {}
+      ]"
+        :aria-expanded="expanded"
     >
       <slot />
 
@@ -56,7 +78,7 @@ onMounted(() => {
       </Button>
     </p>
 
-    <div class="controls" v-if="!expanded && showButton">
+    <div v-if="!expanded && showButton" class="controls">
       <Button type="text" @click="expanded = true">
         {{ showLabels.more }}
       </Button>
@@ -72,12 +94,19 @@ onMounted(() => {
 .paragraph {
   margin: 0;
   word-break: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
 }
 
-.clamped {
+/* Default: clamped */
+.clamped:not(.expanded) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines);
   overflow: hidden;
+}
+
+/* Expanded: natural height */
+.expanded {
+  display: block;
 }
 
 .inline-less {
