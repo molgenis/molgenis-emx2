@@ -139,10 +139,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private void verifyVersion() {
     PostgresVersion version = PostgresVersion.fromDslContext(jooq);
     if (!version.isSupported()) {
-      throw new MolgenisException(
-          "Unsupported PostgreSQL database version: "
-              + version
-              + ", only PostgreSQL version 15 is supported");
+      logger.warn(
+          "Unsupported PostgreSQL database version: {}, only PostgreSQL version 15 is supported",
+          version);
     }
   }
 
