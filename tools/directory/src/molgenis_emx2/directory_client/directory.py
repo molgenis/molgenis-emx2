@@ -110,11 +110,17 @@ class Directory:
             matching_attrs=["exact_mapping", "ntbt_mapping"],
         )
 
+        self.printer.print("📦 Retrieving name of FDP catalog")
+        catalog_name = self.session.get(
+            table='Catalogs', schema=self.session.directory_schema
+        )[0]['id']
+
         return PublishingState(
             existing_data=published_data,
             quality_info=quality_info,
             eu_node_data=eu_node_data,
             diseases=diseases,
+            catalog_name=catalog_name,
             nodes=nodes,
             report=report,
         )
