@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.IS_CHANGELOG_ENABLED;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +23,15 @@ class ChangeLogExecutorTest {
   @BeforeEach
   void setUp() {
     sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    resetTestSchemas();
+  }
 
+  private static void resetTestSchemas() {
     sqlDatabase.dropCreateSchema("ChangeLogExecutorTestA");
     sqlDatabase.dropCreateSchema("ChangeLogExecutorTestB");
+  }
 
+  private void setupTestData() {
     Map<String, String> settings = new LinkedHashMap<>();
     settings.put(IS_CHANGELOG_ENABLED, "true");
     schemaA = sqlDatabase.getSchema("ChangeLogExecutorTestA");
@@ -38,23 +44,34 @@ class ChangeLogExecutorTest {
 
   @Test
   void getSchemasWithChangeLog() {
+    int nrSchemasWithChangeLog =
+        ChangeLogExecutor.getSchemasWithChangeLog(sqlDatabase.getJooq()).size();
+    setupTestData();
+
     List<String> schemasWithChangeLog =
         ChangeLogExecutor.getSchemasWithChangeLog(sqlDatabase.getJooq());
-    assertEquals(2, schemasWithChangeLog.size());
+    assertEquals(2, schemasWithChangeLog.size() - nrSchemasWithChangeLog);
     assertTrue(schemasWithChangeLog.contains("ChangeLogExecutorTestA"));
     assertTrue(schemasWithChangeLog.contains("ChangeLogExecutorTestB"));
   }
 
   @Test
   void executeLastUpdates() {
+    int nrLastUpdates = ChangeLogExecutor.executeLastUpdates(sqlDatabase.getJooq()).size();
+    setupTestData();
     List<LastUpdate> lastUpdates = ChangeLogExecutor.executeLastUpdates(sqlDatabase.getJooq());
-    assertEquals(1, lastUpdates.size());
-    LastUpdate lastUpdate = lastUpdates.get(0);
+    assertEquals(1, lastUpdates.size() - nrLastUpdates);
+
+    // Get newest update
+    LastUpdate lastUpdate =
+        lastUpdates.stream().sorted(Comparator.comparing(LastUpdate::stamp)).toList().getLast();
+
     assertEquals("ChangeLogExecutorTestA", lastUpdate.schemaName());
   }
 
   @Test
   void testChangelogLimitCap() {
+    setupTestData();
     assertThrows(
         MolgenisException.class,
         () ->

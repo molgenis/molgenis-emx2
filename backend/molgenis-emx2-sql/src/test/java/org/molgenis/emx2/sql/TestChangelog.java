@@ -37,7 +37,7 @@ class TestChangelog {
     database.tx(
         // prevent side effect of user changes on other tests using tx
         db -> {
-          Schema schema = setupSchemaWithTestDataAndChangelog(db, "testSchemaChangesWithOffset");
+          Schema schema = setupSchemaWithTestDataAndChangelog(db, "testSchemaChangesWithLimit");
           List<Change> changes = schema.getChanges(1);
           assertEquals(1, changes.size());
           assertEquals("Person", changes.get(0).tableName());
