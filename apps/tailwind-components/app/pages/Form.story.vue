@@ -169,7 +169,7 @@ const {
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
-  visibleColumnIds,
+  requiredMap,
 } = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(
@@ -209,7 +209,7 @@ const numberOfFieldsWithErrors = computed(
             class="grow"
             :columns="visibleColumns"
             :visibleColumnErrors="visibleColumnErrors"
-            :requiredFields="{}"
+            :requiredFields="requiredMap"
             :row-key="rowKey"
             v-model="formValues"
             @update="onUpdateColumn"
