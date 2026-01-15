@@ -14,10 +14,11 @@
               Edit cohort: CONSTANCES
             </h2>
 
-            <span
+            <div
               class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-              >Draft</span
             >
+              Draft
+            </div>
           </div>
 
           <button
@@ -47,7 +48,7 @@
           <FormFields
             schemaId="catalogue-demo"
             :columns="visibleColumns"
-            :error-map="errorMap"
+            :visibleColumnErrors="visibleColumnErrors"
             v-model="formValues"
             @update="onUpdateColumn"
             @blur="onBlurColumn"
@@ -152,7 +153,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
-  errorMap,
+  visibleColumnErrors,
   sections,
   onUpdateColumn,
   onBlurColumn,

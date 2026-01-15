@@ -116,6 +116,9 @@ const isAdmin = computed(() => session.value?.admin);
 
 const navigation = computed(() => {
   const items = [];
+  if (schema.value) {
+    items.push({ label: "SHACL", link: `/${schema.value}/shacl` });
+  }
   if (schema.value && isAdmin.value) {
     items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
     items.push({ label: "Pages", link: `/${schema.value}/pages/` });

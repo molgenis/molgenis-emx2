@@ -1,6 +1,6 @@
 <template>
   <template v-if="showButton">
-    <slot :setVisible="setVisible">
+    <slot>
       <Button
         class="m-10"
         type="primary"
@@ -12,23 +12,20 @@
       </Button>
     </slot>
   </template>
-  <Modal v-model:visible="visible" max-width="max-w-9/10">
+
+  <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
-      <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
+      <header
+        class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
+      >
         <div class="mb-5 relative flex items-center">
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
             {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
-            {{ editFormValues["mg_draft"] ? "(status=draft)" : "" }}
           </h2>
 
-          <span
-            v-show="isDraft"
-            class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-          >
-            Draft
-          </span>
+          <DraftLabel v-if="isDraft" />
         </div>
 
         <button
@@ -41,44 +38,15 @@
       </header>
     </template>
 
-    <div class="grid grid-cols-4 gap-1 min-h-0">
-      <div class="col-span-1 bg-form-legend overflow-y-auto h-full min-h-0">
-        <FormLegend
-          v-if="visible && sections"
-          class="sticky top-0"
-          :sections="sections"
-          @goToSection="gotoSection"
-        />
-      </div>
+    <Form
+      v-if="visible"
+      ref="edit-modal-form"
+      :metadata="metadata"
+      :formValues="formValues"
+      :constantValues="constantValues"
+    />
 
-      <div
-        id="fields-container"
-        class="col-span-3 px-4 py-50px overflow-y-auto"
-      >
-        <PreviousSectionNav
-          v-if="previousSection"
-          @click="gotoSection(previousSection.id)"
-        >
-          {{ previousSection.label }}
-        </PreviousSectionNav>
-        <FormFields
-          v-if="visible"
-          ref="formFields"
-          :row-key="rowKey"
-          :columns="visibleColumns"
-          :constantValues="constantValues"
-          :errorMap="errorMap"
-          v-model="editFormValues"
-          @update="onUpdateColumn"
-          @blur="onBlurColumn"
-          @view="onViewColumn"
-        />
-        <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
-          {{ nextSection.label }}
-        </NextSectionNav>
-      </div>
-    </div>
-    <Transition name="slide-up">
+    <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
@@ -86,8 +54,8 @@
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp>
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
@@ -102,17 +70,17 @@
           >Re-authenticate</Button
         >
       </FormError>
-    </Transition>
-    <Transition name="slide-up">
+    </TransitionSlideUp>
+    <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
       <FormMessage
         v-show="formMessage"
         :message="formMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
-    </Transition>
+    </TransitionSlideUp>
 
     <template #footer>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center flex-none">
         <FormRequiredInfoSection
           :message="requiredMessage"
           @required-next="gotoNextRequiredField"
@@ -120,10 +88,24 @@
         />
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
-            <Button type="secondary" @click="onCancel">Cancel</Button>
-            <Button type="outline" @click="onSave(true)">Save as draft</Button>
-            <Button type="primary" @click="onSave(false)">
-              Save {{ rowType }}
+            <Button type="secondary" :disabled="saving" @click="onCancel">
+              Cancel
+            </Button>
+            <Button type="outline" :disabled="saving" @click="onSave(true)">
+              Save as draft
+              <BaseIcon
+                v-if="savingDraft"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
+            <Button type="primary" :disabled="saving" @click="onSave(false)">
+              Save
+              <BaseIcon
+                v-if="saving"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
             </Button>
           </div>
         </menu>
@@ -133,34 +115,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watch } from "vue";
-import { getInitialFormValues } from "../../utils/typeUtils";
+import { computed, ref, toRaw, useTemplateRef, watch, nextTick } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
-import useForm from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import { getInitialFormValues } from "../../utils/typeUtils";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
-import FormError from "./Error.vue";
-import FormFields from "./Fields.vue";
-import FormLegend from "./Legend.vue";
-import FormMessage from "./Message.vue";
-import NextSectionNav from "./NextSectionNav.vue";
-import PreviousSectionNav from "./PreviousSectionNav.vue";
+import type { ComponentPublicInstance } from "vue";
+import Form from "./Form.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
+import FormError from "./Error.vue";
+import FormMessage from "./Message.vue";
+import TransitionSlideUp from "../transition/SlideUp.vue";
 
 const props = withDefaults(
   defineProps<{
     schemaId: string;
     metadata: ITableMetaData;
+    isInsert: boolean;
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
@@ -170,44 +151,73 @@ const props = withDefaults(
   }
 );
 
+type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
+const form = useTemplateRef<FormType>("edit-modal-form");
+
+const saving = ref(false);
+const isInsert = ref(props.isInsert);
+const formValues = ref<Record<string, columnValue>>(initFormValues());
+
 const emit = defineEmits([
   "update:added",
   "update:updated",
   "update:cancelled",
 ]);
-const visible = defineModel("visible", {
-  type: Boolean,
-  default: false,
-});
-const rowKey = ref<Record<string, columnValue>>();
-const isInsert = ref(true);
-const editFormValues = ref<Record<string, columnValue>>(
-  getInitialFormValues(props.metadata)
+
+const visible = defineModel<boolean>("visible");
+
+const savingDraft = computed(
+  () => saving.value && formValues.value["mg_draft"] === true
 );
 
-watch(
-  () => props.formValues,
-  () => {
-    if (props.formValues) {
-      editFormValues.value = structuredClone(toRaw(props.formValues));
-      updateRowKey();
-      isInsert.value = false;
-    }
-  },
-  { immediate: true }
-);
+watch(formValues.value, () => {
+  formMessage.value = "";
+});
 
 const session = await useSession();
 const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
-function setVisible() {
-  visible.value = true;
+const rowType = computed(() => props.metadata.id);
+const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
+
+function initFormValues() {
+  const values =
+    structuredClone(toRaw(props.formValues)) ||
+    getInitialFormValues(props.metadata);
+  return Object.assign(values, props.constantValues || {});
 }
 
-const rowType = computed(() => props.metadata.id);
-const isDraft = ref(false);
+function gotoPreviousError() {
+  form.value?.gotoPreviousError();
+}
+
+function gotoNextError() {
+  form.value?.gotoNextError();
+}
+
+function gotoPreviousRequiredField() {
+  form.value?.gotoPreviousRequiredField();
+}
+
+function gotoNextRequiredField() {
+  form.value?.gotoNextRequiredField();
+}
+
+const requiredMessage = computed(() => {
+  if (!visible.value) {
+    return "";
+  }
+  return form.value?.requiredMessage || "";
+});
+
+const errorMessage = computed(() => {
+  if (!visible.value) {
+    return "";
+  }
+  return form.value?.errorMessage || "";
+});
 
 function onCancel() {
   visible.value = false;
@@ -225,83 +235,51 @@ function handleError(err: unknown, defaultMessage: string) {
   }
 }
 
-async function updateRowKey() {
-  rowKey.value = await fetchRowPrimaryKey(
-    editFormValues.value,
-    props.metadata.id,
-    props.metadata.schemaId as string
-  );
-}
-
 async function onSave(draft: boolean) {
   saveErrorMessage.value = "";
   formMessage.value = "";
-  if (!draft) {
-    validateAllColumns();
-    if (Object.keys(errorMap.value).length > 0) {
-      return;
+  saving.value = true;
+  await nextTick();
+
+  const isReadyForSubmit = draft
+    ? form.value?.isDraftValid()
+    : form.value?.isValid();
+
+  if (isReadyForSubmit) {
+    try {
+      formValues.value["mg_draft"] = draft;
+
+      if (!form.value) {
+        throw new Error("Form reference is not available");
+      }
+      const resp = (await isInsert.value)
+        ? form.value.insertInto()
+        : form.value.updateInto();
+
+      if (!resp) {
+        throw new Error(
+          `No response from server on ${isInsert.value ? "insert" : "update"}`
+        );
+      }
+      formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
+        rowType.value
+      } ${draft ? "as draft" : ""}`;
+      showFormMessage.value = true;
+      emit(isInsert.value ? "update:added" : "update:updated", resp);
+      isInsert.value = false;
+    } catch (err) {
+      handleError(err, "Error saving data");
+    } finally {
+      saving.value = false;
     }
-  }
-  try {
-    if (draft) {
-      editFormValues.value["mg_draft"] = true;
-    } else {
-      editFormValues.value["mg_draft"] = false;
-    }
-    let resp;
-    if (isInsert.value) {
-      await insertInto();
-    } else {
-      await updateInto();
-    }
-    if (!resp) {
-      return;
-    }
-    formMessage.value =
-      (isInsert.value ? "inserted 1 " : "saved 1 ") +
-      rowType.value +
-      (draft ? " as draft" : "");
-    emit(isInsert.value ? "update:added" : "update:updated", resp);
-    if (isInsert.value) {
-      await updateRowKey();
-    }
-    isInsert.value = false;
-  } catch (err) {
-    handleError(err, "Error saving data");
+  } else {
+    saving.value = false;
   }
 }
 
-watch(visible, (newValue, oldValue) => {
-  if (newValue && !oldValue) {
-    reset();
-  }
-});
-
-watch(editFormValues.value, () => {
+watch(formValues.value, () => {
   formMessage.value = "";
 });
-
-const {
-  requiredMessage,
-  errorMessage,
-  gotoPreviousRequiredField,
-  gotoNextRequiredField,
-  gotoNextError,
-  gotoPreviousError,
-  gotoSection,
-  previousSection,
-  nextSection,
-  insertInto,
-  updateInto,
-  errorMap,
-  onUpdateColumn,
-  onBlurColumn,
-  onViewColumn,
-  validateAllColumns,
-  sections,
-  visibleColumns,
-  reset,
-} = useForm(props.metadata, editFormValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(
@@ -310,4 +288,6 @@ function reAuthenticate() {
     formMessage
   );
 }
+
+const showFormMessage = ref(false);
 </script>

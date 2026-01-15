@@ -15,6 +15,7 @@ import Button from "../Button.vue";
 import BaseIcon from "../BaseIcon.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -40,10 +41,6 @@ const deleteErrorMessage = ref<string>("");
 const session = await useSession();
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
-
-function setVisible() {
-  visible.value = true;
-}
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
@@ -89,7 +86,7 @@ function reAuthenticate() {
 
 <template>
   <template v-if="showButton">
-    <slot :setVisible="setVisible">
+    <slot>
       <Button
         class="m-10"
         type="primary"
@@ -110,11 +107,7 @@ function reAuthenticate() {
             Delete {{ rowType }}
           </h2>
 
-          <span
-            v-show="isDraft"
-            class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-            >Draft</span
-          >
+          <DraftLabel v-if="isDraft" />
         </div>
 
         <button

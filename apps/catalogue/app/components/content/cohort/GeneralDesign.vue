@@ -144,13 +144,6 @@ const generalDesign: IDefinitionListItem[] = [
           .join(", ")
       : undefined,
   },
-  {
-    label: "License",
-    content: props.resource.license
-      ? { url: props.resource.license, label: props.resource.license }
-      : undefined,
-    type: "LINK",
-  },
 ];
 
 function designPaperToItem(designPaper: any[]) {

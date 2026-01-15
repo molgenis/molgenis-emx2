@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
   modules: [
-    "@nuxt/image",
     "@nuxt/test-utils/module",
     "nuxt-gtag",
     "@pinia/nuxt",

@@ -57,7 +57,7 @@ withDefaults(defineProps<Props>(), {
         </span>
       </slot>
       <span
-        class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-blue-500"
+        class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-link"
       >
         <a
           v-if="isExternalLink"

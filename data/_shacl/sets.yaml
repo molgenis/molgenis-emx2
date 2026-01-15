@@ -1,13 +1,13 @@
-- name: fdp-v1.2
-  description: FAIR Data Point
+- id: fdp-v1.2
+  name: FAIR Data Point
   version: 1.2
   sources:
     - https://specs.fairdatapoint.org/fdp-specs-v1.2.html
   files:
     - fair_data_point/v1.2/CatalogShape.ttl
     - fair_data_point/v1.2/FAIRDataPointShape.ttl
-- name: dcat-ap-v3
-  description: DCAT-AP
+- id: dcat-ap-v3
+  name: DCAT-AP
   version: 3.0.0
   sources:
     - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
@@ -18,28 +18,15 @@
     - dcat-ap/v3.0.0/range.ttl
     - dcat-ap/v3.0.0/shapes.ttl
     - dcat-ap/v3.0.0/shapes_recommended.ttl
-- name: hri-v1
-  description: Health RI
-  version: 1
+- id: hri-v2.0.2
+  name: Health RI
+  version: 2.0.2
   sources:
-    - https://www.health-ri.nl/health-ri-roadmap-plateauplanning
-    - https://github.com/Health-RI/metadata-shacl-validation/blob/master/validator/resources/healthri/config.properties
+    - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.2
   files:
-    - health-ri/v1.0.0/Catalog.ttl
-    - health-ri/v1.0.0/DataService.ttl
-    - health-ri/v1.0.0/Dataset.ttl
-    - health-ri/v1.0.0/DatasetSeries.ttl
-    - health-ri/v1.0.0/Distribution.ttl
-    - health-ri/v1.0.0/Resource.ttl
-- name: hri-v2
-  description: Health RI
-  version: 2
-  sources:
-    - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
-  files:
-    - health-ri/v2.0.0/HRI-Datamodel-shapes.ttl
-- name: ejp-rd-vp
-  description: European Joint Programme - Rare Disease - Virtual Platform
+    - health-ri/v2.0.2/HRI-Datamodel-shapes.ttl
+- id: ejp-rd-vp
+  name: European Joint Programme - Rare Disease - Virtual Platform
   version: 01-08-2024
   sources:
     - https://vp-onboarding-doc.readthedocs.io/en/latest/level_1/index.html

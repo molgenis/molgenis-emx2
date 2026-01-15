@@ -1,5 +1,5 @@
 import "meta.jslt" as meta
-let beaconPath = .host + "/api/" + .spec.path + "/"
+let beaconUrl = .url
 {
     "$schema": "../beaconMapResponse.json",
     "meta": meta(.),
@@ -10,9 +10,9 @@ let beaconPath = .host + "/api/" + .spec.path + "/"
             .name: {
                 "entryType": .name,
                 "openAPIEndpointsDefinition": "./" + .name + "/endpoints.json",
-                "rootUrl": $beaconPath + .name,
-                "singleEntryUrl": $beaconPath + .name + "/{id}",
-                "filterTermsUrl": $beaconPath + .name + "/filtering_terms"
+                "rootUrl": $beaconUrl + .name,
+                "singleEntryUrl": $beaconUrl + .name + "/{id}",
+                "filterTermsUrl": $beaconUrl + .name + "/filtering_terms"
             }
         }
     }

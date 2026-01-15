@@ -17,12 +17,14 @@ import LayoutsDetailPage from "../../../../../components/layouts/DetailPage.vue"
 import PageHeader from "../../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import SideNavigation from "../../../../../components/SideNavigation.vue";
+import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
 
 import {
   useQueryParams,
   calcIndividualVariableHarmonisationStatus,
 } from "#imports";
 import { computed, reactive } from "vue";
+import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 const route = useRoute();
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -53,22 +55,32 @@ const { data } = await useFetch(`/${schema}/graphql`, {
   body: { query, variables: { variableFilter, resourceFilter } },
 });
 
-const variable = computed(
-  () => data.value.data.Variables[0] as VariableDetailsWithMappingAndRepeats
-);
+const variable = computed(() => data.value.data.Variables[0]);
 const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
-let crumbs: any = {};
-crumbs[`${route.params.catalogue}`] = `/${route.params.catalogue}`;
-crumbs[
-  route.params.resourceType as string
-] = `/${route.params.catalogue}/${route.params.resourceType}`;
-crumbs[
-  route.params.resource as string
-] = `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}#Variables`;
-crumbs["variables"] = "";
-crumbs[variable.value?.name] = "";
+const crumbs: Crumb[] = [
+  {
+    label: route.params.catalogue as string,
+    url: `/${route.params.catalogue}`,
+  },
+  {
+    label: route.params.resourceType as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}`,
+  },
+  {
+    label: route.params.resource as string,
+    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}#Variables`,
+  },
+  {
+    label: "Variables",
+    url: "",
+  },
+  {
+    label: variable.value?.name,
+    url: "",
+  },
+];
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];

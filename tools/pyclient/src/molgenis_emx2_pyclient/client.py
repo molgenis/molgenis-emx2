@@ -5,6 +5,7 @@ import pathlib
 import time
 from functools import cache
 from io import BytesIO
+from warnings import warn
 
 import pandas as pd
 import requests
@@ -207,12 +208,20 @@ class Client:
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
     def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
+        """
+        Imports or updates records in a table of a named schema.
+        Deprecated and replaced by `save_table`.
+        """
+        warn("`save_schema` is deprecated. Use `save_table` instead.")
+        return self.save_table(table, name, file, data)
+
+    def save_table(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
-        :param name: name of a schema
-        :type name: str
         :param table: the name of the table
         :type table: str
+        :param schema: name of a schema
+        :type schema: str
         :param file: location of the file containing records to import or update
         :type file: str
         :param data: a dataset containing records to import or update (list of dictionaries)
@@ -221,7 +230,7 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        current_schema = name
+        current_schema = schema
         if current_schema is None:
             current_schema = self.default_schema
 
@@ -341,7 +350,7 @@ class Client:
         file_name = file_path.name
         if not file_name.startswith('molgenis'):
             table = file_name.split(file_path.suffix)[0]
-            return self.save_schema(table=table, name=schema, file=str(file_path))
+            return self.save_table(table=table, schema=schema, file=str(file_path))
         api_url = f"{self.url}/{schema}/api/csv"
         data = self._prep_data_or_file(file_path=str(file_path))
 
@@ -804,6 +813,64 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
+    def get_schema_settings(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as list of dictionaries."""
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        query = queries.list_schema_settings()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
+
+        response_json = response.json()
+        settings = response_json.get('data').get('_schema').get('settings')
+
+        return settings
+
+    def get_schema_members(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as a list of dictionaries."""
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        query = queries.list_schema_members()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
+
+        response_json = response.json()
+        members = response_json.get('data').get('_schema').get('members')
+
+        return members
+
+    def get_schema_roles(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as a list of dictionaries."""
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        query = queries.list_schema_roles()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
+
+        response_json = response.json()
+        roles = response_json.get('data').get('_schema').get('roles')
+
+        return roles
+
+
     def _prepare_filter(self, expr: str, _table: str, _schema: str) -> dict | None:
         """Prepares a GraphQL filter based on the expression passed into `get`."""
         if expr in [None, ""]:
@@ -1082,6 +1149,10 @@ class Client:
                 msg = response.json().get("errors", [])[0].get('message', '')
                 log.error(msg)
                 raise ReferenceException(msg)
+            if "Field \'members\' in type \'MolgenisSchema\' is undefined" in response.text:
+                msg = response.json().get("errors", [])[0].get('message')
+                log.error(msg)
+                raise PermissionDeniedException("Cannot access members on this schema.")
 
             msg = response.json().get("errors", [])[0].get('message', '')
             log.error(msg)

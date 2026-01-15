@@ -24,7 +24,9 @@ import {
 } from "../../../../molgenis-components/src/components/utils";
 import InputString from "./String.vue";
 
-const modelValue = defineModel<string | number | undefined>({ required: true });
+const modelValue = defineModel<string | number | undefined | null>({
+  required: true,
+});
 
 defineProps<
   IInputProps & {
@@ -39,7 +41,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 function handleInputChanged(event: any) {
   const value = event.target?.value;
   if (value !== 0 && !value) {
-    emit("update:modelValue", undefined);
+    emit("update:modelValue", null);
   } else {
     const noCommaValue = value.replace(",", "");
     emit("update:modelValue", noCommaValue);

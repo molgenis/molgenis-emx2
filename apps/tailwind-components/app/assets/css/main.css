@@ -5,6 +5,7 @@
 @import url("./theme/molgenis.css");
 @import url("./theme/umcg.css");
 @import url("./theme/aumc.css");
+@import url("./theme/hdsu.css");
 @import url("./plugins/popper.css");
 @import url("./plugins/datepicker.css");
 
@@ -27,10 +28,11 @@
     --color-gray-200: #e2e2e2;
     --color-gray-300: #444444;
     --color-gray-400: #c0c0c0;
-    --color-gray-600: #2c2c2c;
+    --color-gray-600: #6d6d6d;
     --color-gray-700: #262626;
     --color-gray-800: #1e1e1e;
     --color-gray-900: #1d1d1d;
+    --color-stroke-light: #646464;
     --color-yellow-200: #fff4cb;
     --color-yellow-500: #fff500;
     --color-yellow-800: #c89b00;
@@ -75,6 +77,8 @@
 
     --opacity-background-gradient: 0;
 
+    --background-color-link-hover: var(--color-blue-50);
+
     --background-color-button-primary: var(--color-blue-500);
     --background-color-button-primary-hover: var(--color-blue-700);
     --background-color-button-secondary: var(--color-white);
@@ -95,6 +99,7 @@
     --background-color-app-wrapper: var(--color-white);
     --background-color-content: var(--color-white);
     --background-color-navigation: var(--color-white);
+    --background-color-navigation-dynamic: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
     --background-color-search-filter-group-toggle: var(--color-blue-800);
@@ -190,6 +195,7 @@
     --text-color-record-value: var(--color-blue-800);
 
     --text-code-output: var(--color-gray-800);
+    --text-color-required: var(--color-gray-600);
     --text-content-required: "*";
 
     --border-color-theme: var(--color-gray-200);
@@ -257,5 +263,16 @@
     --border-color-button-switch: var(--color-blue-900);
     --border-color-button-switch-selected: var(--color-gray-400);
     --border-color-button-switch-hover: var(--color-blue-900);
+
+    /** labels */
+    --background-color-label-draft: var(--color-gray-400);
+    --text-color-label-draft: var(--color-white);
+
+    --background-color-label-available: var(--color-blue-500);
+    --background-color-label-available-hover: var(--color-blue-700);
+    --text-color-label-available: var(--color-black);
+
+    /** tooltips */
+    --text-color-icon-neutral: var(--color-blue-200);
   }
 }

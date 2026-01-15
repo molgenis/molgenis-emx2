@@ -29,18 +29,15 @@
       :actionBarItem="true"
     />
 
-    <div class="flex gap-[10px] h-50">
-      <EditModal
+    <div class="flex gap-[10px]">
+      <Button
         v-if="props.isEditable && data?.tableMetadata"
-        :metadata="data.tableMetadata"
-        :schemaId="props.schemaId"
-        v-slot="{ setVisible }"
-        @update:added="afterRowAdded"
+        type="primary"
+        icon="add-circle"
+        @click="onAddRowClicked"
       >
-        <Button type="primary" size="medium" icon="add-circle" @click="setVisible" class="h-[50px]"
-          >Add {{ tableId }}
-        </Button>
-      </EditModal>
+        Add {{ tableId }}
+      </Button>
 
       <TableControlColumns
         :columns="columns"
@@ -56,6 +53,15 @@
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
           <tr>
+            <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
+              <TableHeaderAction
+                :column="{ id: 'mg_draft', label: 'Draft' }"
+                :schemaId="schemaId"
+                :tableId="tableId"
+                :settings="settings"
+                @sort-requested="handleSortRequest"
+              />
+            </TableHeadCell>
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
               :class="{
@@ -63,36 +69,13 @@
                 'w-60': columns.length > 5,
               }"
             >
-              <div class="flex justify-start items-center gap-1">
-                <button
-                  :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
-                  @click="handleSortRequest(column.id)"
-                  class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
-                  :ariaSort="
-                    settings.orderby.column === column.id
-                      ? mgAriaSortMappings[settings.orderby.direction]
-                      : 'none'
-                  "
-                >
-                  <span>{{ column.label }}</span>
-                </button>
-                <ArrowUp
-                  v-if="
-                    column.id === settings.orderby.column &&
-                    settings.orderby.direction === 'ASC'
-                  "
-                  aria-hidden="true"
-                  class="h-4 w-4 text-table-column-header font-normal"
-                />
-                <ArrowDown
-                  v-if="
-                    column.id === settings.orderby.column &&
-                    settings.orderby.direction === 'DESC'
-                  "
-                  aria-hidden="true"
-                  class="h-4 w-4 text-table-column-header font-normal"
-                />
-              </div>
+              <TableHeaderAction
+                :column="column"
+                :schemaId="schemaId"
+                :tableId="tableId"
+                :settings="settings"
+                @sort-requested="handleSortRequest"
+              />
             </TableHeadCell>
           </tr>
         </thead>
@@ -102,11 +85,18 @@
           <tr
             v-if="rows"
             v-for="row in rows"
-            class="group"
+            class="group h-[50px]"
             :class="{
               'hover:cursor-pointer': props.isEditable,
             }"
           >
+            <TableCellEMX2
+              v-if="showDraftColumn"
+              class="text-table-row group-hover:bg-hover"
+            >
+              <DraftLabel v-if="row?.mg_draft === true" type="inline" />
+            </TableCellEMX2>
+
             <TableCellEMX2
               v-for="(column, colIndex) in sortedVisibleColumns"
               class="text-table-row group-hover:bg-hover"
@@ -201,13 +191,26 @@
   />
 
   <EditModal
-    v-if="data?.tableMetadata && rowDataForModal"
+    v-if="data?.tableMetadata && showEditModal"
+    :key="`edit-modal-${useId()}`"
     :showButton="false"
-    :schemaId="props.schemaId"
+    :schemaId="schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
+    :isInsert="false"
     v-model:visible="showEditModal"
-    @update:updated="afterRowUpdated"
+    @update:cancelled="afterClose"
+  />
+
+  <EditModal
+    v-if="data?.tableMetadata && showAddModal"
+    :key="`add-modal-${useId()}`"
+    :showButton="false"
+    :schemaId="schemaId"
+    :metadata="data.tableMetadata"
+    :isInsert="true"
+    v-model:visible="showAddModal"
+    @update:cancelled="afterClose"
   />
 </template>
 
@@ -240,10 +243,9 @@ import InputSearch from "../input/Search.vue";
 import Button from "../Button.vue";
 import Pagination from "../Pagination.vue";
 import TableControlColumns from "./control/Columns.vue";
-import ArrowUp from "../global/icons/ArrowUp.vue";
-import ArrowDown from "../global/icons/ArrowDown.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import ActionBarButton from "./control/ActionBarButton.vue";
+import TableHeaderAction from "./TableHeaderAction.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -256,8 +258,9 @@ const props = withDefaults(
   }
 );
 
-const showDeleteModal = ref<boolean>(false);
+const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
+const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 const refTableRow = ref<IRow>();
@@ -275,11 +278,6 @@ const settings = defineModel<ITableSettings>("settings", {
     search: "",
   }),
 });
-
-const mgAriaSortMappings = {
-  ASC: "ascending",
-  DESC: "descending",
-};
 
 const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
@@ -305,11 +303,13 @@ const { data, refresh } = useAsyncData(
   }
 );
 
-const rows = computed(() => {
-  if (!data.value?.tableData) return [];
+const rows = computed(() =>
+  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+);
 
-  return data.value.tableData.rows;
-});
+const showDraftColumn = computed(() =>
+  rows.value.some((row) => row?.mg_draft === true)
+);
 
 const count = computed(() => data.value?.tableData?.count ?? 0);
 
@@ -406,17 +406,25 @@ function onShowEditModal(row: Record<string, columnValue>) {
   showEditModal.value = true;
 }
 
-function afterRowAdded() {
+function onAddRowClicked() {
+  showAddModal.value = true;
+}
+
+async function afterRowAdded() {
   // todo reset filters and search, goto page with added item, flash row with add item
-  refresh();
+  await refresh();
 }
 
-function afterRowUpdated() {
-  refresh();
+async function afterRowUpdated() {
+  await refresh();
 }
 
-function afterRowDeleted() {
+async function afterClose() {
+  await refresh();
+}
+
+async function afterRowDeleted() {
   // maybe notify user, and do more stuff
-  refresh();
+  await refresh();
 }
 </script>

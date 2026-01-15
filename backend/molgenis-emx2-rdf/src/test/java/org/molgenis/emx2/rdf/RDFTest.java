@@ -20,11 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -89,10 +85,12 @@ public class RDFTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    petStore_nr1 = database.dropCreateSchema("petStoreNr1");
-    petStore_nr2 = database.dropCreateSchema("petStoreNr2");
-    DataModels.Profile.PET_STORE.getImportTask(petStore_nr1, true).run();
-    DataModels.Profile.PET_STORE.getImportTask(petStore_nr2, true).run();
+    database.dropSchemaIfExists("petStoreNr1");
+    database.dropSchemaIfExists("petStoreNr2");
+    DataModels.Profile.PET_STORE.getImportTask(database, "petStoreNr1", "", true).run();
+    DataModels.Profile.PET_STORE.getImportTask(database, "petStoreNr2", "", true).run();
+    petStore_nr1 = database.getSchema("petStoreNr1");
+    petStore_nr2 = database.getSchema("petStoreNr2");
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
     // Test schema for composite keys
@@ -563,9 +561,9 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
-    for (var resource : handler.resources.entrySet()) {
-      var subject = resource.getKey();
-      var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
+    for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      Resource subject = resource.getKey();
+      Set<Value> types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
       if (subject.stringValue().contains("/column/")) {
 
         assertTrue(
@@ -582,11 +580,11 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
-    for (var resource : handler.resources.entrySet()) {
-      var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
+    for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      Set<Value> subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
       if (subClasses != null && subClasses.contains(BasicIRI.SIO_DATABASE_TABLE)) {
-        var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
-        var subject = resource.getKey().stringValue();
+        Set<Value> types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
+        String subject = resource.getKey().stringValue();
         assertFalse(types.isEmpty(), subject + " should have a rdf:Type.");
         assertTrue(types.contains(OWL.CLASS), subject + " should be a owl:Class.");
       }
@@ -598,10 +596,10 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
-    for (var resource : handler.resources.entrySet()) {
-      var subject = resource.getKey().stringValue();
-      var predicates = resource.getValue().keySet();
-      var types = resource.getValue().get(RDF.TYPE);
+    for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      String subject = resource.getKey().stringValue();
+      Set<IRI> predicates = resource.getValue().keySet();
+      Set<Value> types = resource.getValue().get(RDF.TYPE);
       if (types != null && types.contains(OWL.CLASS)) {
         assertFalse(
             predicates.contains(RDFS.DOMAIN),
@@ -618,9 +616,9 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
-    for (var resource : handler.resources.entrySet()) {
-      var subject = resource.getKey();
-      var predicates = resource.getValue().keySet();
+    for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      Resource subject = resource.getKey();
+      Set<IRI> predicates = resource.getValue().keySet();
       if (subject.stringValue().contains("/column/")) {
         assertTrue(predicates.contains(RDFS.DOMAIN), subject + " should define a rdfs:Domain");
         assertTrue(predicates.contains(RDFS.RANGE), subject + " should define a rdfs:Range");
@@ -633,7 +631,8 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var resource : handler.resources.keySet()) {
+
+    for (Resource resource : handler.resources.keySet()) {
       assertFalse(
           resource.toString().contains("petStoreNr2"),
           "No resources within the petStoreNr2 schema should be included.");
@@ -653,12 +652,12 @@ public class RDFTest {
             BasicIRI.SIO_DATABASE);
 
     assertFalse(handler.resources.entrySet().isEmpty());
-    for (var resource : handler.resources.entrySet()) {
-      var subject = resource.getKey().stringValue();
-      var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
+    for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      String subject = resource.getKey().stringValue();
+      Set<Value> types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
       assertFalse(types.isEmpty(), subject + " should have a rdf:type.");
       boolean isAllowedType = false;
-      for (var type : types) {
+      for (Value type : types) {
         if (allowedTypes.contains(type)) {
           isAllowedType = true;
         }
@@ -729,11 +728,11 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var iri : handler.resources.keySet()) {
+    for (Resource iri : handler.resources.keySet()) {
       // Select the triples for pooky
       if (iri.stringValue().endsWith(POOKY_ROWID)) {
 
-        var pooky = handler.resources.get(iri);
+        Map<IRI, Set<Value>> pooky = handler.resources.get(iri);
         assertTrue(
             pooky.containsKey(BasicIRI.LD_DATASET_PREDICATE),
             "An instance of a Pet should refer back to the Collection using qb:dataSet");
@@ -744,14 +743,15 @@ public class RDFTest {
 
   @Test
   void testThatColumnPredicatesAreNotSubClasses() throws IOException {
-    var database_column = Values.iri("http://semanticscience.org/resource/SIO_000757");
-    var measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
+    IRI database_column = Values.iri("http://semanticscience.org/resource/SIO_000757");
+    IRI measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
     InMemoryRDFHandler handler = parseColumnRdf(petStore_nr1, "Pet", "name");
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var subject : handler.resources.keySet()) {
+    for (Resource subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/column/name")) {
-        var subclasses = handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
+        Set<Value> subclasses =
+            handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
         assertFalse(
             subclasses.contains(database_column), "We don't model as a SIO database column.");
         assertFalse(subclasses.contains(measure_property), "Measure property should not be used");
@@ -762,13 +762,13 @@ public class RDFTest {
 
   @Test
   void testThatInstancesAreNotASIODatabaseRow() throws IOException {
-    var database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
+    IRI database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
     InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var subject : handler.resources.keySet()) {
+    for (Resource subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith(POOKY_ROWID)) {
-        var types = handler.resources.get(subject).get(RDF.TYPE);
+        Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
         assertFalse(types.contains(database_row), "We don't model as a SIO database row.");
       }
     }
@@ -785,9 +785,9 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var subject : handler.resources.keySet()) {
+    for (Resource subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/Diseases/U07.1")) {
-        var types = handler.resources.get(subject).get(RDF.TYPE);
+        Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
         assertTrue(types.contains(OWL.CLASS), "Ontology tables define classes");
       }
     }
@@ -798,9 +798,9 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var subject : handler.resources.keySet()) {
+    for (Resource subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/Diseases/U07.1")) {
-        var data = handler.resources.get(subject);
+        Map<IRI, Set<Value>> data = handler.resources.get(subject);
         assertTrue(data.containsKey(RDFS.LABEL), "The class should have a label");
         assertTrue(
             data.containsKey(RDFS.SUBCLASSOF),
@@ -826,7 +826,7 @@ public class RDFTest {
     InMemoryRDFHandler handler = parseTableRdf(petStore_nr1, "Tag");
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var subject : handler.resources.keySet()) {
+    for (Resource subject : handler.resources.keySet()) {
       assertFalse(
           subject.stringValue().contains("/Tag/column/"),
           "Ontology tables should use standard predicates from RDF Schema.");
@@ -837,12 +837,12 @@ public class RDFTest {
   void testThatURLsAreNotSplitForOntologyParentItem() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
 
-    var subject =
+    IRI subject =
         Values.iri(
             getApi(ontologyTest)
                 + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx");
 
-    var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
+    Set<Value> parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
         2, parents.size(), "This disease should only be a subclass of Diseases and C00-C75");
   }
@@ -1128,27 +1128,28 @@ public class RDFTest {
 
   @Test
   void testThatURLColumnsAreObjectProperties() throws IOException {
-    var schema = database.dropCreateSchema("Website");
-    var table = schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
+    Schema schema = database.dropCreateSchema("Website");
+    Table table =
+        schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
     table.insert(row("website", "https://www.molgenis.org/"));
     InMemoryRDFHandler handler = parseTableRdf(schema, table.getName());
     boolean isObjectProperty = false;
     boolean linkHasLabel = false;
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var subject : handler.resources.keySet()) {
+    for (Resource subject : handler.resources.keySet()) {
       if (subject.stringValue().contains("/column/website")) {
-        var types = handler.resources.get(subject).get(RDF.TYPE);
+        Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
 
-        for (var type : types) {
+        for (Value type : types) {
           if (type.equals(OWL.OBJECTPROPERTY)) {
             isObjectProperty = true;
           }
         }
       }
       if (subject.stringValue().equals("https://www.molgenis.org/")) {
-        var labels = handler.resources.get(subject).get(RDFS.LABEL);
-        for (var label : labels) {
+        Set<Value> labels = handler.resources.get(subject).get(RDFS.LABEL);
+        for (Value label : labels) {
           if (label.stringValue().equals("https://www.molgenis.org/")) {
             linkHasLabel = true;
           }
@@ -1166,8 +1167,8 @@ public class RDFTest {
     int instancesWithOutALabel = 0;
 
     assertFalse(handler.resources.keySet().isEmpty());
-    for (var resource : handler.resources.keySet()) {
-      var labels = handler.resources.get(resource).get(RDFS.LABEL);
+    for (Resource resource : handler.resources.keySet()) {
+      Set<Value> labels = handler.resources.get(resource).get(RDFS.LABEL);
       if (labels.isEmpty()) {
         System.err.println(
             "Each resource should have a label. " + resource.stringValue() + " has none.");
@@ -1183,10 +1184,10 @@ public class RDFTest {
     Table root = schema.create(table("root", column("id").setPkey()));
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
-    var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
-    var childIRI = Values.iri(getApi(schema) + child.getIdentifier());
-    var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-    var subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
+    IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+    IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
+    IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+    Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
     assertEquals(
         2,
         subclasses.size(),
@@ -1208,10 +1209,10 @@ public class RDFTest {
     Table root = schema.create(table("root", column("id").setPkey()));
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
-    var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
-    var childIRI = Values.iri(getApi(schema) + child.getIdentifier());
-    var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-    var subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
+    IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+    IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
+    IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+    Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
     assertEquals(
         2,
         subclasses.size(),
@@ -1553,7 +1554,7 @@ example,http://example.com/
 
   @Test
   void testRefLinkWorks() throws IOException {
-    var handler = new InMemoryRDFHandler() {};
+    InMemoryRDFHandler handler = new InMemoryRDFHandler() {};
     assertDoesNotThrow(() -> parseSchemaRdf(refLinkTest));
   }
 
@@ -1590,8 +1591,8 @@ example,http://example.com/
       String customPrefixes2)
       throws IOException {
     try {
-      var schema1 = database.dropCreateSchema(schemaTestprefix + "1");
-      var schema2 = database.dropCreateSchema(schemaTestprefix + "2");
+      Schema schema1 = database.dropCreateSchema(schemaTestprefix + "1");
+      Schema schema2 = database.dropCreateSchema(schemaTestprefix + "2");
       schema1.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes1);
       if (customPrefixes2 != null) {
         schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);

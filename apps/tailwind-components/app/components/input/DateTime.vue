@@ -1,28 +1,30 @@
 <template>
-  <vue-date-picker
-    :uid="id"
-    :placeholder="datePlaceholder"
-    :aria-describedby="describedBy"
-    :disabled="disabled"
-    :data-valid="valid"
-    :data-invalid="invalid"
-    type="Date"
-    v-model:="internalValue"
-    @update:modelValue="handleUpdate"
-    model-type="format"
-    month-name-format="long"
-    :format="inputDateFormat"
-    :auto-apply="true"
-    :time-picker-inline="true"
-    :enable-seconds="true"
-    :text-input="{
-      enterSubmit: true,
-      tabSubmit: true,
-      selectOnFocus: true,
-      escClose: true,
-    }"
-    @blur="handleBlur"
-  />
+  <client-only>
+    <vue-date-picker
+      :uid="id"
+      :placeholder="datePlaceholder"
+      :aria-describedby="describedBy"
+      :disabled="disabled"
+      :data-valid="valid"
+      :data-invalid="invalid"
+      type="Date"
+      v-model:="formatedInternalValue"
+      @update:modelValue="handleUpdate"
+      model-type="format"
+      month-name-format="long"
+      :format="inputDateFormat"
+      :auto-apply="true"
+      :time-picker-inline="true"
+      :enable-seconds="true"
+      :text-input="{
+        enterSubmit: true,
+        tabSubmit: true,
+        selectOnFocus: true,
+        escClose: true,
+      }"
+      @blur="handleBlur"
+    />
+  </client-only>
 </template>
 
 <script setup lang="ts">
@@ -30,7 +32,7 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../../types/types";
 import type { DateValue } from "../../../../metadata-utils/src/types";
-import { watch, ref, onMounted } from "vue";
+import { watch, ref, onMounted, computed } from "vue";
 
 const props = defineProps<
   IInputProps & {
@@ -52,9 +54,20 @@ function setPlaceholder(value?: DateValue) {
   }
 }
 
+const formatedInternalValue = computed(() => {
+  const date: string = internalValue.value?.toString().split("T")[0] ?? "";
+  const time: string =
+    internalValue.value?.toString().split("T")[1]?.split(".")[0] ?? "";
+  return [date, time].join(" ");
+});
+
 function handleUpdate(newValue: string) {
   if (newValue !== props.modelValue) {
     emit("update:modelValue", newValue);
+  }
+
+  if (!newValue) {
+    setPlaceholder();
   }
 }
 

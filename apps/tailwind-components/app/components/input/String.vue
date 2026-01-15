@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { IInputProps } from "../../../types/types";
 
-const modelValue = defineModel<string | number | undefined>({ required: true });
+const modelValue = defineModel<string | number | undefined | null>({
+  required: true,
+});
 
 defineProps<
   IInputProps & {
@@ -18,7 +20,7 @@ const emit = defineEmits(["focus", "blur"]);
     :type="type || 'text'"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full h-[56px] pr-4 pl-3 border outline-none rounded-input"
+    class="w-full h-input pr-4 pl-3 border outline-none rounded-input"
     :class="{
       'bg-input border-valid text-valid': valid && !disabled,
       'bg-input border-invalid text-invalid': invalid && !disabled,

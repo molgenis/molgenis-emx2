@@ -63,11 +63,12 @@ and understand what they are seeing when viewing a resource in detail.
 | 38 | Other inclusion criteria | Other inclusion criteria cohort 2 | | |
 | 39 | ORGANISATIONS | | | |
 | | | Lead organisations | | |
-| | | 1 card with organisation: name for test lead organisation 2 (acronym for test lead organisation 2) \| Bonaire, Sint Eustatius and Saba \| Data provider | | |
+| | | 1 card with organisation: University Medical Center Utrecht (UMCU) \| Netherlands (the) \| Data provider | | |
 | | | Additional organisations | | |
-| | | 1 card with organisation: name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina \| Data provider, Surveillance | | |
+| | | 1 card with organisation: University Medical Center Groningen (UMCG) \| Netherlands (the) \| Data provider, Surveillance | | |
+| | | 1 card with organisation: Test organisation without ROR \| Data provider, Surveillance | | |
 | 40 | CONTRIBUTORS | | | |
-| | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| name for test lead organisation 2 \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
+| | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| University Medical Center Utrecht (UMCU) \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
 | 41 | Click on the email address of the contact person | The local email system opens and an email addressed to <testemailalternative@testdomain.nl> is opened. | | |
 | 42 | Return to the resource information page | | | |
 | 43 | DATASET VARIABLES | Datasets, Datasets and their description | | |
