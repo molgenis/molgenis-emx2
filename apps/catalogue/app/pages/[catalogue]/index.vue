@@ -251,7 +251,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
   <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description>
-        <ShowMore lines="5">
+        <ShowMore :lines="5">
           Welcome to the catalogue of
           <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
             network.id
