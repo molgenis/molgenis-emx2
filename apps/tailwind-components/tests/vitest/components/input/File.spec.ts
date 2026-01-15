@@ -60,4 +60,18 @@ describe("input file", () => {
       "http://example.com/test-document.txt"
     );
   });
+
+  it("should open link in new tab/window", async () => {
+    await wrapper.setProps({
+      modelValue: {
+        id: 1,
+        filename: "test-document.txt",
+        url: "http://example.com/test-document.txt",
+      },
+    });
+    const link = wrapper.find("a");
+
+    expect(link.attributes("target")).toBe("_blank");
+    expect(link.attributes("rel")).toBe("noopener noreferrer");
+  });
 });
