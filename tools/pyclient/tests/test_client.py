@@ -7,7 +7,6 @@ import zipfile
 from io import BytesIO
 from pathlib import Path
 
-import openpyxl
 import pandas as pd
 import pytest
 from dotenv import load_dotenv
@@ -256,16 +255,16 @@ async def test_export():
 
         # Test XLSX table
         xlsx_data: BytesIO = await client.export(schema="pet store", table="Pet", as_excel=True)
-        book = openpyxl.load_workbook(xlsx_data, data_only=True)
-        assert len(book.sheetnames) == 1
+        book = pd.ExcelFile(xlsx_data)
+        assert len(book.sheet_names) == 1
         await client.export(schema="pet store", table="Pet", as_excel=True, filename="pet.xlsx")
         assert (Path(__file__).parent.parent / "pet.xlsx").exists()
         (Path(__file__).parent.parent / "pet.xlsx").unlink()
 
         # Test XLSX tables as sheets
         xlsx_data: BytesIO = await client.export(schema="pet store", as_excel=True)
-        book = openpyxl.load_workbook(xlsx_data, data_only=True)
-        assert len(book.sheetnames) == 8
+        book = pd.ExcelFile(xlsx_data)
+        assert len(book.sheet_names) == 8
         await client.export(schema="pet store", as_excel=True, filename="pet store.xlsx")
         assert (Path(__file__).parent.parent / "pet store.xlsx").exists()
         (Path(__file__).parent.parent / "pet store.xlsx").unlink()
