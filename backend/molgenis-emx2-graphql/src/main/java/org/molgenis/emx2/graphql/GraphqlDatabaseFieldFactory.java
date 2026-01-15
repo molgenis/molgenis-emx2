@@ -1,11 +1,12 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.DESCRIPTION;
-import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.DESCRIPTION;
+import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
@@ -18,6 +19,60 @@ import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
+
+  public static final GraphQLType permissionOutputType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisPermissionsOutput")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_SCHEMA)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(IS_ROW_LEVEL)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_SELECT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_ADMIN)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
+
+  public static final GraphQLObjectType permissionsMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisPermissionsGroupType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GROUP_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(PERMISSIONS)
+                  .type(GraphQLList.list(permissionOutputType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(USERS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .build();
 
   static final GraphQLType lastUpdateMetadataType =
       new GraphQLObjectType.Builder()
@@ -154,6 +209,17 @@ public class GraphqlDatabaseFieldFactory {
 
               return mapSettingsToGraphql(filtered);
             });
+  }
+
+  public GraphQLFieldDefinition.Builder permissionsQuery(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_permissions")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
+        .type(GraphQLList.list(permissionsMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> database.getPermissions());
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
