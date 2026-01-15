@@ -66,7 +66,13 @@
     </div>
   </div>
   <div v-if="downLoadUrl" class="ml-4">
-    <a :href="downLoadUrl" class="text-link underline">{{ fileName }}</a>
+    <a
+      :href="downLoadUrl"
+      class="text-link underline"
+      target="_blank"
+      rel="noopener noreferrer"
+      >{{ fileName }}</a
+    >
   </div>
 </template>
 
