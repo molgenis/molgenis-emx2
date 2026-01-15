@@ -3,16 +3,16 @@ import { ref, onMounted, nextTick, computed } from "vue";
 import Button from "./Button.vue";
 
 const props = withDefaults(
-    defineProps<{
-      lines?: number;
-      showLabels?: { more: string; less: string };
-      ssrHeight?: string;
-    }>(),
-    {
-      lines: 3,
-      showLabels: () => ({ more: "show more", less: "show less" }),
-      ssrHeight: "120px"
-    }
+  defineProps<{
+    lines?: number;
+    showLabels?: { more: string; less: string };
+    ssrHeight?: string;
+  }>(),
+  {
+    lines: 3,
+    showLabels: () => ({ more: "show more", less: "show less" }),
+    ssrHeight: "120px",
+  }
 );
 
 const paragraphRef = ref<HTMLElement | null>(null);
@@ -20,15 +20,18 @@ const paragraphRef = ref<HTMLElement | null>(null);
 const expanded = ref(false);
 const showButton = ref(false);
 const measured = ref(false);
+const hydrated = ref(false);
 
 /**
  * CSS variable for line clamp
  */
 const paragraphStyle = computed(() => ({
-  "--lines": String(props.lines)
+  "--lines": String(props.lines),
 }));
 
 onMounted(async () => {
+  hydrated.value = true;
+
   await nextTick();
   await document.fonts?.ready;
 
@@ -47,6 +50,9 @@ onMounted(async () => {
   measured.value = true;
 });
 
+/**
+ * Collapse and scroll paragraph into view
+ */
 async function collapseAndScrollToTop() {
   const el = paragraphRef.value;
 
@@ -57,7 +63,7 @@ async function collapseAndScrollToTop() {
   if (el) {
     el.scrollIntoView({
       block: "start",
-      behavior: "smooth"
+      behavior: "smooth",
     });
   }
 }
@@ -66,24 +72,24 @@ async function collapseAndScrollToTop() {
 <template>
   <div class="expandable-paragraph">
     <p
-        ref="paragraphRef"
-        class="paragraph clamped"
-        :class="{ expanded }"
-        :style="[
+      ref="paragraphRef"
+      class="paragraph clamped"
+      :class="{ expanded }"
+      :style="[
         paragraphStyle,
-        !measured && !expanded
+        !hydrated && !expanded
           ? { maxHeight: ssrHeight, overflow: 'hidden' }
-          : {}
+          : {},
       ]"
-        :aria-expanded="expanded"
+      :aria-expanded="expanded"
     >
       <slot />
 
       <Button
-          v-if="expanded"
-          type="text"
-          class="inline-less"
-          @click="collapseAndScrollToTop"
+        v-if="expanded"
+        type="text"
+        class="inline-less"
+        @click="collapseAndScrollToTop"
       >
         {{ showLabels.less }}
       </Button>

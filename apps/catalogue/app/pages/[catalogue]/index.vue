@@ -17,7 +17,6 @@ import LandingCardSecondary from "../../components/landing/CardSecondary.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
 import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
 
-
 const route = useRoute();
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -226,9 +225,8 @@ const description = computed(() => {
   if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value);
   } else if (network.value?.description) {
-    return network.value?.description
-  }
-  else {
+    return network.value?.description;
+  } else {
     return "Select one of the content categories listed below.";
   }
 });
@@ -254,10 +252,12 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description>
         <ShowMore lines="5">
-        Welcome to the catalogue of
-        <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
-          network.id
-        }}</NuxtLink>{{ network.id && network.name ? ": " : "" }}{{ network.name }}. {{description}}.
+          Welcome to the catalogue of
+          <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
+            network.id
+          }}</NuxtLink
+          >{{ network.id && network.name ? ": " : "" }}{{ network.name }}.
+          {{ description }}.
         </ShowMore>
       </template>
       <template v-else v-slot:description>
