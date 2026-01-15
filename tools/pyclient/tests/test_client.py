@@ -3,6 +3,7 @@ Tests for the Pyclient.
 """
 import logging
 import os
+import warnings
 import zipfile
 from io import BytesIO
 from pathlib import Path
@@ -223,6 +224,7 @@ def test_delete_records():
 @pytest.mark.asyncio
 async def test_export():
     """Tests the `export` method."""
+    warnings.filterwarnings("ignore", message="Workbook contains no default style")
     with Client(url=server_url) as client:
         client.signin(username, password)
 
