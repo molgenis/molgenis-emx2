@@ -47,9 +47,6 @@ onMounted(async () => {
   measured.value = true;
 });
 
-/**
- * Collapse and scroll paragraph into view
- */
 async function collapseAndScrollToTop() {
   const el = paragraphRef.value;
 
