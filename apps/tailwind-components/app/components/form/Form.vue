@@ -35,12 +35,13 @@ const {
   nextSection,
   insertInto: insert,
   updateInto,
-  errorMap,
+  visibleColumnErrors,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
   onLeaveViewColumn,
   validateAllColumns,
+  validateKeyColumns,
   sections,
   visibleColumns,
   visibleColumnIds,
@@ -48,6 +49,7 @@ const {
 
 defineExpose({
   isValid,
+  isDraftValid,
   gotoPreviousRequiredField,
   gotoNextRequiredField,
   gotoNextError,
@@ -74,7 +76,12 @@ function onLeaveView(column: IColumn) {
 
 function isValid() {
   validateAllColumns();
-  return Object.keys(errorMap.value).length < 1;
+  return Object.keys(visibleColumnErrors.value).length < 1;
+}
+
+function isDraftValid() {
+  validateKeyColumns();
+  return Object.keys(visibleColumnErrors.value).length < 1;
 }
 
 // wrapper to update rowKey after insert because we keep the from open
@@ -85,8 +92,8 @@ function insertInto() {
 }
 </script>
 <template>
-  <div class="grid grid-cols-4 gap-1 min-h-0">
-    <div class="col-span-1 bg-form-legend overflow-y-auto h-full min-h-0">
+  <div class="grid grid-cols-4 gap-1 min-h-0 flex-1">
+    <div class="col-span-1 bg-form-legend overflow-y-auto min-h-0">
       <FormLegend
         v-if="sections"
         class="sticky top-0"
@@ -95,28 +102,19 @@ function insertInto() {
       />
     </div>
 
-    <div id="fields-container" class="col-span-3 px-4 py-50px overflow-y-auto">
-      <PreviousSectionNav
-        v-if="previousSection"
-        @click="gotoSection(previousSection.id)"
-      >
-        {{ previousSection.label }}
-      </PreviousSectionNav>
+    <div id="fields-container" class="col-span-3 p-12.5 overflow-y-auto">
       <FormFields
         ref="formFields"
         :rowKey="rowKey"
         :columns="visibleColumns"
         :constantValues="constantValues"
-        :errorMap="errorMap"
+        :visibleColumnErrors="visibleColumnErrors"
         v-model="formValues"
         @update="onUpdateColumn"
         @blur="onBlurColumn"
         @view="onViewColumn"
         @leaving-view="onLeaveView"
       />
-      <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
-        {{ nextSection.label }}
-      </NextSectionNav>
     </div>
   </div>
 </template>

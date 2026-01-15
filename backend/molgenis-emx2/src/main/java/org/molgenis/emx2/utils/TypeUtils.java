@@ -158,17 +158,30 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    if (v == null) return null;
-    if (v instanceof String string) {
-      if ("".equals(string)) {
+    switch (v) {
+      case null -> {
         return null;
-      } else {
-        return Double.parseDouble(string);
+      }
+      case String string -> {
+        if (string.isBlank()) {
+          return null;
+        } else {
+          return Double.parseDouble(string);
+        }
+      }
+      case BigDecimal bigDecimal -> {
+        return bigDecimal.doubleValue();
+      }
+      case Integer integer -> {
+        return Double.valueOf(integer);
+      }
+      case Long decimal -> {
+        return Double.valueOf(decimal);
+      }
+      default -> {
+        return (Double) v;
       }
     }
-    if (v instanceof BigDecimal bigDecimal) return bigDecimal.doubleValue();
-    if (v instanceof Integer integer) return Double.valueOf(integer);
-    return (Double) v;
   }
 
   public static Double[] toDecimalArray(Object v) {

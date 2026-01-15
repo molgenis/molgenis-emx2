@@ -1,15 +1,15 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
+import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../app/composables/useForm";
-import { type Ref, ref } from "vue";
 
 describe("useForm", () => {
   const tableMetadata: Ref<ITableMetaData> = ref({
     id: "vi test table metadata",
     name: "vi test table metadata",
     schemaId: "vi test table metadata",
-    label: "vi test table metadata",
+    label: "vi test table metadata label",
     tableType: "some table type",
     columns: [
       {
@@ -150,43 +150,26 @@ describe("useForm", () => {
     expect(requiredMessage.value).toBe("1/3 required field left");
   });
 
-  test("setting an error should update the message", () => {
-    const formValues = ref<Record<string, columnValue>>({});
-    const { errorMessage, errorMap } = useForm(tableMetadata, formValues);
-    expect(errorMessage.value).toBe("");
-
-    errorMap.value["col2"] = "some error";
-    expect(errorMessage.value).toBe(
-      "1 field requires attention before you can save this cohort"
-    );
-  });
-
   test("should go to the next error", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const { gotoNextError, errorMap, lastScrollTo } = useForm(
+    const { gotoNextError, lastScrollTo, validateAllColumns } = useForm(
       tableMetadata,
       formValues
     );
-    errorMap.value = {
-      col2: "some error",
-      col4: "some error",
-    };
+    validateAllColumns();
     gotoNextError();
     expect(lastScrollTo.value).equals("col2-form-field");
   });
 
   test("should go to the previous error", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const { gotoPreviousError, errorMap, lastScrollTo } = useForm(
+    const { gotoPreviousError, lastScrollTo, validateAllColumns } = useForm(
       tableMetadata,
       formValues
     );
-    errorMap.value = {
-      col2: "some error",
-      col4: "some error",
-    };
+    validateAllColumns();
     gotoPreviousError();
-    expect(lastScrollTo.value).equals("col4-form-field");
+    expect(lastScrollTo.value).equals("col6-form-field");
   });
 
   test("should return empty list in case of table meta without columns", () => {
@@ -243,17 +226,17 @@ describe("useForm", () => {
           label: "columns 4",
           heading: "h2",
           section: "mg_top_of_form",
+          required: true,
         },
       ],
     });
 
-    const { sections, errorMap, gotoSection } = useForm(
+    const { sections, gotoSection, validateAllColumns } = useForm(
       tableMetadata,
       formValues
     );
-    errorMap.value = {
-      col4: "error",
-    };
+
+    validateAllColumns();
 
     expect(sections.value.length).toEqual(1);
     expect(sections.value[0]).toEqual({
@@ -427,5 +410,52 @@ describe("useForm", () => {
     expect(previousSection.value).toEqual(null);
     expect(currentSection.value).toEqual("main");
     expect(nextSection.value?.id).toEqual("next");
+  });
+
+  describe("validateKeyColumns", () => {
+    const meta = ref({
+      id: "table id",
+      name: "table name",
+      schemaId: "table schema id",
+      label: "table label",
+      tableType: "some table type",
+      columns: [
+        {
+          id: "my_key",
+          label: "My key",
+          columnType: "STRING",
+          key: 1,
+          required: true,
+        },
+        {
+          id: "other_column",
+          label: "other column",
+          columnType: "STRING",
+          required: true,
+        },
+      ],
+    });
+
+    test("should only evaluate key columns", () => {
+      const formValues = ref({
+        my_key: "value",
+      });
+      const { validateKeyColumns, visibleColumnErrors } = useForm(
+        meta,
+        formValues
+      );
+      validateKeyColumns();
+      expect(Object.keys(visibleColumnErrors.value).length).toBe(0);
+    });
+
+    test("should set error when a key column is empty", () => {
+      const formValues = ref({});
+      const { validateKeyColumns, visibleColumnErrors } = useForm(
+        meta,
+        formValues
+      );
+      validateKeyColumns();
+      expect(visibleColumnErrors.value["my_key"]).toBe("My key is required");
+    });
   });
 });

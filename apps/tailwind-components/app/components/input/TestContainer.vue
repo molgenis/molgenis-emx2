@@ -107,14 +107,17 @@ const emits = defineEmits<{
 
 const label = ref<string>("");
 const placeholder = ref("");
-const state = ref([] as string[]);
+const state = ref([]);
 const errorMessage = ref("");
 const required = ref(false);
 const focusCount = ref(0);
 const blurCount = ref(0);
 const multiple = ref(false);
+// @ts-ignore
 const valid = computed(() => state.value.includes("valid"));
+// @ts-ignore
 const invalid = computed(() => state.value.includes("invalid"));
+// @ts-ignore
 const disabled = computed(() => state.value.includes("disabled"));
 
 function handleBlur() {

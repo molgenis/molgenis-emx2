@@ -18,7 +18,8 @@
             metadata.columnType === 'STRING' ||
             metadata.columnType === 'DATE' ||
             metadata.columnType === 'DATETIME' ||
-            metadata.columnType === 'AUTO_ID'
+            metadata.columnType === 'AUTO_ID' ||
+            metadata.columnType === 'PERIOD'
           "
           :metadata="metadata"
           :data="data"
@@ -116,7 +117,6 @@ import ValueEmail from "../value/Email.vue";
 import ValueHyperlink from "../value/Hyperlink.vue";
 import ValueRefBack from "../value/RefBack.vue";
 import ValueFile from "../value/File.vue";
-import { defineProps, defineEmits } from "vue";
 
 defineProps<{
   metadata?: IColumn;

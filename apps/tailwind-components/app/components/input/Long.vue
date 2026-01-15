@@ -11,7 +11,7 @@
       v-model="modelValue"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="handleInput"
       @keypress="handleKeyValidity"
     />
   </div>
@@ -26,7 +26,7 @@ import {
 import type { IInputProps } from "../../../types/types";
 import InputString from "./String.vue";
 
-const modelValue = defineModel<string | undefined>("modelValue", {
+const modelValue = defineModel<string | undefined | null>("modelValue", {
   required: true,
 });
 
@@ -53,5 +53,11 @@ function handleKeyValidity(event: any) {
   ) {
     event.preventDefault();
   }
+}
+
+function handleInput(event: any) {
+  const inputValue = event.target?.value;
+  const numericValue = inputValue !== "" ? inputValue : null;
+  emit("update:modelValue", numericValue);
 }
 </script>
