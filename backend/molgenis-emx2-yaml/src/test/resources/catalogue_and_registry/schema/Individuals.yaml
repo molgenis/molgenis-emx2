@@ -1,0 +1,231 @@
+---
+table:
+  table: Individuals
+  description: "Data, facts or figures about an individual; the set of relevant items\
+    \ would depend on the use case"
+  columns:
+  - name: id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164337
+    description: A unique proper name or character sequence that identifies this individual
+  - name: alternate ids
+    type: string_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C90353
+    description: Additional identifiers that identify an individual
+  - name: age group
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C20587
+    description: "A categorical value that groups this individual by age (e.g., \"\
+      Adult\", \"18-24 years\", etc.)"
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+  - name: year of birth
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C83164
+    description: The year on which this individual was born
+  - name: month of birth
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C83090
+    description: The month on which this individual was born
+    refTable: Month of the year
+    refSchema: CatalogueOntologies
+  - name: date of birth
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C68615
+    description: The calendar date on which this individual was born
+  - name: gender at birth
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GSSO_009418
+    description: "Assigned gender is this individual's gender which was assigned at\
+      \ birth, typically by a medical and/or legal organization, and then later registered\
+      \ with other organizations. Such a designation is typically based off of the\
+      \ superficial appearance of external genitalia present at birth."
+    refTable: Gender at birth
+    refSchema: CatalogueOntologies
+  - name: gender identity
+    type: ontology
+    semantics:
+    - http://purl.bioontology.org/ontology/MESH/D005783
+    description: "This individual's concept of self as being male and masculine or\
+      \ female and feminine, or ambivalent, based in part on physical characteristics,\
+      \ parental responses, and psychological and social pressures. It is the internal\
+      \ experience of gender role. For practical reasons the lookups are limited to\
+      \ first and second-level entries, but can be expanded when needed. Note that\
+      \ 'Gender at birth', 'Genotypic sex' and any (gender-related) hormone therapies\
+      \ in 'Medication' are usually medically more relevant than this term."
+    refTable: Gender identity
+    refSchema: CatalogueOntologies
+  - name: administrative gender
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GSSO_009316
+    description: The gender of this individual used for administrative purposes
+    refTable: Gender identity
+    refSchema: CatalogueOntologies
+  - name: genotypic sex
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/PATO_0020000
+    description: A biological sex quality inhering in an individual based upon genotypic
+      composition of sex chromosomes
+    refTable: Genotypic sex
+    refSchema: CatalogueOntologies
+  - name: country of birth
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001094
+    description: The country that this individual was born in
+    refTable: Countries
+    refSchema: CatalogueOntologies
+  - name: country of residence
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C177579
+    description: The country that this individual reported as residing in at the time
+      of enrollment
+    refTable: Countries
+    refSchema: CatalogueOntologies
+  - name: ancestry
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C176763
+    description: "An individual's descent or lineage, from another individual or from\
+      \ a population using ancestry informative markers (AIMs) based on genetic/genomic\
+      \ data"
+    refTable: Ancestry
+    refSchema: CatalogueOntologies
+  - name: age at enrolment
+    type: period
+    semantics:
+    - http://snomed.info/id/709491003
+    - http://purl.obolibrary.org/obo/NCIT_C25150
+    description: "The age of the individual at the time they enroll in the study (e.g.,\
+      \ \"P32Y6M1D\")"
+  - name: date at enrolment
+    type: date
+    semantics:
+    - http://snomed.info/id/709491003
+    - http://purl.obolibrary.org/obo/NCIT_C25164
+    description: The date of the enrolment of the individual in the study
+  - name: processes
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C29862
+    description: "A reference to an event (an experiment, an observation, etc.) relating\
+      \ to this individual"
+    refTable: Processes
+    refBack: individuals
+  - name: materials
+    type: refback
+    semantics:
+    - http://semanticscience.org/resource/SIO_000015
+    description: "A reference to materials (files, consent, etc) relating to this\
+      \ individual"
+    refTable: Materials
+    refBack: individuals
+  - name: consents
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C16735
+    description: "Consent given by a patient to a surgical or medical procedure or\
+      \ participation in a study, examination or analysis after achieving an understanding\
+      \ of the relevant medical facts and the risks involved."
+    refTable: Individual consent
+    refBack: individuals
+  - name: individual status
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C71470
+    description: The status of an individual in relationship to participation in a
+      given activty
+    refTable: Individual status
+    refSchema: CatalogueOntologies
+  - name: age at death
+    type: period
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C135383
+    description: The age at which death occurred
+  - name: affiliated organisations
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25412
+    description: One or more associations between the individual and an organisation.
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+  - name: providers of additional resources
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C19012
+    description: "Information related to this individual that is not captured by this\
+      \ system, but is available or provided by one or more organisations."
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+  - name: analyses
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/FBcv_0003108
+    description: Reference to one or more results that were produced from detailed
+      examination of data derived from this individual
+    refTable: Analyses
+    refBack: individuals
+  - name: pedigree
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C27957
+    description: "A record of descent or ancestry, particularly of a specific condition\
+      \ or trait, indicating individual family members, their relationships, and their\
+      \ status with respect to the trait or condition."
+    refTable: Pedigree
+  - name: included in resources
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/HSO_0000370
+    description: "A reference to one or more resources that organises records in a\
+      \ meaningful way (e.g., data releases, subpopulations, cohorts, etc.)"
+    refTable: Resources
+  - name: data source
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: "The source or origin of the record. For example, an organisation,\
+      \ database, system, etc."
+    refTable: Resources
+  - name: date created at source
+    type: date
+    semantics:
+    - dcterms:created
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The date the record was created at the source
+  - name: created at source by
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The person who created the record at the source
+    refTable: Contacts
+  - name: date updated at source
+    type: date
+    semantics:
+    - dcterms:modified
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The date the record was updated at the source
+  - name: updated at source by
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The person who updated the record at the source
+    refTable: Contacts
+  - name: comments
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25393
+    description: "A written explanation, observation or criticism added to textual\
+      \ material."

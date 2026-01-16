@@ -1,0 +1,51 @@
+---
+table:
+  table: File locations
+  description: File locations refers to the specific places or paths where files are
+    stored on a computer or within a file system
+  columns:
+  - name: file
+    type: select
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C171191
+    description: The literal identifier for an electronic file
+    refTable: Files
+  - name: storage location
+    type: select
+    key: 1
+    description: "The location a file is stored (e.g., server, building, filing cabinet,\
+      \ etc.)"
+    refTable: File storage location
+  - name: path
+    key: 1
+    semantics:
+    - http://purl.allotrope.org/ontologies/result#AFR_0001927
+    description: "A file path is an identifier for a file in a file system or network\
+      \ (e.g., a scp compatible <host>:<path>)"
+  - name: included in resources
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/HSO_0000370
+    description: "A reference to one or more resources that organises records for\
+      \ in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)"
+    refTable: Resources
+  - name: date created at location
+    type: date
+    semantics:
+    - dcterms:created
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The date the record was created at the storage location
+  - name: created at location by
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The person who created the record at the storage location
+    refTable: Contacts
+  - name: comments
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25393
+    description: "A written explanation, observation or criticism added to textual\
+      \ material"

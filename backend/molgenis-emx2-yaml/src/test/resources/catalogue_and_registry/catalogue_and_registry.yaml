@@ -1,0 +1,56 @@
+---
+description:
+  id: catalogue_and_registry
+  description: just a test package
+  version: 8.0.0
+schema:
+- import: schema/CollectionEvents.yaml
+- import: schema/VariableValues.yaml
+- import: schema/Publications.yaml
+- import: schema/GenomicVariants.yaml
+- import: schema/Documentation.yaml
+- import: schema/VariantInterpretations.yaml
+- import: schema/InterpretationConsensus.yaml
+- import: schema/InternalIdentifiers.yaml
+- import: schema/ReusedVariables.yaml
+- import: schema/Agents.yaml
+- import: schema/DatasetMappings.yaml
+- import: schema/Endpoint.yaml
+- import: schema/Datasets.yaml
+- import: schema/ResourceCounts.yaml
+- import: schema/Profiles.yaml
+- import: schema/Processes.yaml
+- import: schema/Analyses.yaml
+- import: schema/VariantInterpretationAnalyses.yaml
+- import: schema/Observations.yaml
+- import: schema/Experiments.yaml
+- import: schema/NGSSequencing.yaml
+- import: schema/ExperimentsOGM.yaml
+- import: schema/ExperimentsRNA.yaml
+- import: schema/ExperimentsLrGS.yaml
+- import: schema/ExperimentsSrDNA.yaml
+- import: schema/ClinicalObservations.yaml
+- import: schema/PhenotypeObservations.yaml
+- import: schema/DiseaseHistory.yaml
+- import: schema/ClinicalMeasurements.yaml
+- import: schema/Resources.yaml
+- import: schema/Pedigree.yaml
+- import: schema/PedigreeMembers.yaml
+- import: schema/ResourceMappings.yaml
+- import: schema/VariableMappings.yaml
+- import: schema/Samplesets.yaml
+- import: schema/ExternalIdentifiers.yaml
+- import: schema/Subpopulations.yaml
+- import: schema/Linkages.yaml
+- import: schema/Organisations.yaml
+- import: schema/SubpopulationCounts.yaml
+- import: schema/ConsentDocuments.yaml
+- import: schema/Individuals.yaml
+- import: schema/Contacts.yaml
+- import: schema/Version.yaml
+- import: schema/Materials.yaml
+- import: schema/IndividualConsent.yaml
+- import: schema/Files.yaml
+- import: schema/FileLocations.yaml
+- import: schema/FileStorageLocation.yaml
+- import: schema/Variables.yaml

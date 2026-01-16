@@ -1,0 +1,46 @@
+---
+table:
+  table: Phenotype observations
+  description: Beacon v2 Individuals PhenotypicFeatures
+  columns:
+  - name: part of clinical observation
+    type: select
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C87853
+    description: "A reference to a specific clinical observation (e.g., \"Ind001_Phen001\"\
+      )"
+    refTable: Clinical observations
+  - name: type
+    type: ontology
+    key: 1
+    semantics:
+    - http://semanticscience.org/resource/SIO_010056
+    description: A term denoting a phenotypic feature. E.g. "Abnormality of body height"
+    refTable: Phenotypes
+    refSchema: CatalogueOntologies
+  - name: excluded
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/HP_0040285
+    description: "An indication if the phenotype was observed or not. The default\
+      \ is \"false\", in other words the phenotype was observed. Therefore it is only\
+      \ required in cases to indicate that the phenotype was looked for but found\
+      \ to be absent."
+  - name: modifiers
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/HP_0012823
+    description: "Additional terms to characterize and specify the phenotypic abnormalities\
+      \ defined in the Phenotypic abnormality subontology, with respect to severity\
+      \ laterality, age of onset, and other aspects. E.g. Exacerbated by tobacco use"
+    refTable: Phenotypes
+    refSchema: CatalogueOntologies
+  - name: severity
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/HP_0012824
+    description: "A value that describes the intensity of the phenotype (e.g., \"\
+      Profound\")"
+    refTable: Severity
+    refSchema: CatalogueOntologies
