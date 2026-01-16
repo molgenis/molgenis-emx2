@@ -1,6 +1,6 @@
 <template>
   <InputString
-    v-if="['STRING', 'AUTO_ID', 'PERIOD'].includes(typeUpperCase)"
+    v-if="['STRING', 'AUTO_ID', 'PERIOD', 'UUID'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as string"
     :valid="valid"

@@ -12,6 +12,7 @@ const {
   EMAIL_REGEX,
   HYPERLINK_REGEX,
   PERIOD_REGEX,
+  UUID_REGEX,
   AUTO_ID,
   HEADING,
   SECTION,
@@ -103,6 +104,12 @@ export function getColumnError(
   }
   if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "UUID" && isInvalidUUID(value)) {
+    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
+  }
+  if (type === "UUID_ARRAY" && containsInvalidUUID(value)) {
+    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
   }
   if (type === "JSON") {
     try {
@@ -331,6 +338,17 @@ function isInvalidPeriod(value: any) {
 
 function containsInvalidPeriod(periods: any) {
   return periods?.some((period: any) => isInvalidPeriod(period));
+}
+
+function isInvalidUUID(value: any) {
+  if (value === null || value === undefined || value === "") {
+    return false;
+  }
+  return !UUID_REGEX.test(value);
+}
+
+function containsInvalidUUID(uuids: any) {
+  return uuids?.some((uuid: any) => isInvalidUUID(uuid));
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {
