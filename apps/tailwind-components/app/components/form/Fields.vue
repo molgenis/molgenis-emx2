@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { vIntersectionObserver } from "@vueuse/components";
-import { useTemplateRef } from "vue";
 import type {
   columnId,
   columnValue,
@@ -21,8 +20,6 @@ const modelValue = defineModel<IRow>("modelValue", {
 });
 
 const emit = defineEmits(["update", "view", "leaving-view", "blur"]);
-
-const container = useTemplateRef<HTMLDivElement>("container");
 
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);

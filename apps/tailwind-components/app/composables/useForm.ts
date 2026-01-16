@@ -23,6 +23,7 @@ import {
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
   formValuesRef: MaybeRef<Record<columnId, columnValue>>,
