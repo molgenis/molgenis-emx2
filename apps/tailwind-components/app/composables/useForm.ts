@@ -108,19 +108,18 @@ export default function useForm(
       const requiredBool = column.required.toLocaleLowerCase() === "true";
       acc[column.id] = computed(() => requiredBool);
     } else if (typeof column.required === "string") {
-      const requiredExpression = column.required;
-      const cleanExpression =
-        requiredExpression.replaceAll('"', "'") || "false";
-      const params: string[] = extractParamsFromExpression(requiredExpression);
-      const paramsString = params.join(", ");
-      let requiredFunction: Function;
-
       try {
-        requiredFunction = new Function(
+        const requiredExpression = column.required;
+        const cleanExpression =
+          requiredExpression.replaceAll('"', "'") || "false";
+        const params: string[] =
+          extractParamsFromExpression(requiredExpression);
+        const paramsString = params.join(", ");
+        const requiredFunction = new Function(
           paramsString,
           "return eval(`" + cleanExpression + "`)"
         );
-        computed(
+        acc[column.id] = computed(
           () =>
             !!requiredFunction.apply(
               null,
@@ -133,16 +132,8 @@ export default function useForm(
           column.id,
           e
         );
-        requiredFunction = () => false;
+        acc[column.id] = computed(() => false);
       }
-
-      acc[column.id] = computed(
-        () =>
-          !!requiredFunction.apply(
-            null,
-            params.map((p) => formValues.value[p])
-          )
-      );
     } else {
       // default to not required
       acc[column.id] = computed(() => false);
