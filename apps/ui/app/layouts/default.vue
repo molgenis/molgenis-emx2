@@ -56,11 +56,12 @@
         </template>
       </Header>
 
-      <main>
+      <main class="flex-1">
         <slot />
       </main>
 
-      <FooterComponent class="mt-[7.8125rem]" />
+      <!-- 7.8125rem (125px) spacing per design spec for consistent margin between content and footer -->
+      <FooterComponent class="mt-auto pt-[7.8125rem]" />
     </div>
   </div>
 </template>
