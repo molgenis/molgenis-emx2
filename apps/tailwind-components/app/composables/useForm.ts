@@ -99,12 +99,14 @@ export default function useForm(
   }, {} as Record<columnId, ComputedRef<boolean>>);
 
   const requiredMap = metadata.value.columns.reduce((acc, column) => {
-    if (
-      typeof column.required === "boolean" ||
+    if (typeof column.required === "boolean") {
+      acc[column.id] = computed(() => !!column.required);
+    } else if (
       column.required?.toLocaleLowerCase() === "true" ||
       column.required?.toLocaleLowerCase() === "false"
     ) {
-      acc[column.id] = computed(() => !!column.required);
+      const requiredBool = column.required.toLocaleLowerCase() === "true";
+      acc[column.id] = computed(() => requiredBool);
     } else if (typeof column.required === "string") {
       const requiredExpression = column.required;
       const cleanExpression =
