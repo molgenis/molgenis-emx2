@@ -23,7 +23,7 @@ const {
 } = constants;
 const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 const INT_ERROR = `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
-const NON_NEGATIVE_INT_ERROR = `Invalid value: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
+export const NON_NEGATIVE_INT_ERROR = `Invalid value: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
@@ -194,7 +194,7 @@ function getIntError(value: number): string | undefined {
   }
 }
 
-function getNonNegativeIntError(value: number): string | undefined {
+export function getNonNegativeIntError(value: number): string | undefined {
   if (isNaN(value)) {
     return "Invalid number";
   }

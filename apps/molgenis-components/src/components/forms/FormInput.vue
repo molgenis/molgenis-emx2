@@ -36,6 +36,7 @@ import InputEmail from "./InputEmail.vue";
 import InputHyperlink from "./InputHyperlink.vue";
 import InputJson from "./InputJson.vue";
 import InputRefList from "./InputRefList.vue";
+import InputNonNegativeInt from "./InputNonNegativeInt.vue";
 
 const typeToInputMap = {
   AUTO_ID: InputString,
@@ -47,7 +48,7 @@ const typeToInputMap = {
   TEXT: InputText,
   JSON: InputJson,
   INT: InputInt,
-  NON_NEGATIVE_INT: InputInt,
+  NON_NEGATIVE_INT: InputNonNegativeInt,
   LONG: InputLong,
   DECIMAL: InputDecimal,
   BOOL: InputBoolean,
@@ -145,6 +146,7 @@ export default {
     ArrayInput,
     InputString,
     InputInt,
+    InputNonNegativeInt,
     InputLong,
     InputDecimal,
     InputBoolean,
@@ -360,6 +362,28 @@ export default {
     <DemoItem>
       <div>
         <FormInput
+            id="non-negative-int-example"
+            columnType="NON_NEGATIVE_INT"
+            label="Example non negative integer input"
+            v-model="nonNegativeIntValue"
+        />
+      </div>
+      <div>You typed: {{ nonNegativeIntValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+            id="non-negative-int-array-example"
+            columnType="NON_NEGATIVE_INT_ARRAY"
+            label="Example non negative integer array input"
+            v-model="nonNegativeIntArrayValue"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(nonNegativeIntArrayValue, null, 2) }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
             id="text-example"
             columnType="TEXT"
             label="Example text input"
@@ -560,6 +584,8 @@ export default {
         dateTimeValueArray: [null, null],
         intValue: 42,
         intValueArray: [5, 37],
+        nonNegativeIntValue: 67,
+        nonNegativeIntArrayValue: [9,0,8],
         textValue: "example text",
         textValueArray: ["text", "more text"],
         jsonValue: '{"name":"bofke"}',
