@@ -78,7 +78,9 @@ public abstract class ColumnTypeRdfMapper {
           entry(ColumnType.EMAIL, RdfColumnType.EMAIL),
           entry(ColumnType.EMAIL_ARRAY, RdfColumnType.EMAIL),
           entry(ColumnType.HYPERLINK, RdfColumnType.URI),
-          entry(ColumnType.HYPERLINK_ARRAY, RdfColumnType.URI));
+          entry(ColumnType.HYPERLINK_ARRAY, RdfColumnType.URI),
+          entry(ColumnType.NON_NEGATIVE_INT, RdfColumnType.NON_NEGATIVE_INT),
+          entry(ColumnType.NON_NEGATIVE_INT_ARRAY, RdfColumnType.NON_NEGATIVE_INT));
 
   /** Retrieve all {@link ColumnType}{@code 's} which have a mapping available. */
   static Set<ColumnType> getMapperKeys() {
@@ -151,6 +153,13 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(row.getIntegerArray(column.getName()), Values::literal);
+      }
+    },
+    NON_NEGATIVE_INT(CoreDatatype.XSD.NON_NEGATIVE_INTEGER) {
+      @Override
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
+        return basicRetrievalString(
+            row.getStringArray(column.getName()), (i) -> Values.literal(i, getCoreDatatype()));
       }
     },
     LONG(CoreDatatype.XSD.LONG) {

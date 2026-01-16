@@ -47,6 +47,8 @@ export type CellValueType =
   | "EMAIL_ARRAY"
   | "HYPERLINK"
   | "HYPERLINK_ARRAY"
+  | "NON_NEGATIVE_INT"
+  | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
   | "MULTISELECT";
 

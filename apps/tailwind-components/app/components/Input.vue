@@ -63,7 +63,7 @@
     @blur="emit('blur')"
   />
   <InputInt
-    v-else-if="'INT' === typeUpperCase"
+    v-else-if="['INT', 'NON_NEGATIVE_INT'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as number"
     type="text"
@@ -364,6 +364,7 @@ const NON_REF_ARRAY_TYPES = [
   "EMAIL_ARRAY",
   "HYPERLINK_ARRAY",
   "INT_ARRAY",
+  "NON_NEGATIVE_INT_ARRAY",
   "LONG_ARRAY",
   "TEXT_ARRAY",
   "UUID_ARRAY",

@@ -102,6 +102,7 @@ function getNonArrayType(type: string): CellValueType {
     EMAIL_ARRAY: "EMAIL",
     HYPERLINK_ARRAY: "HYPERLINK",
     INT_ARRAY: "INT",
+    NON_NEGATIVE_INT_ARRAY: "NON_NEGATIVE_INT",
     LONG_ARRAY: "LONG",
     STRING_ARRAY: "STRING",
     TEXT_ARRAY: "TEXT",

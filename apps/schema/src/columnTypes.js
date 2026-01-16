@@ -16,6 +16,8 @@ export default [
   "HYPERLINK_ARRAY",
   "INT",
   "INT_ARRAY",
+  "NON_NEGATIVE_INT",
+  "NON_NEGATIVE_INT_ARRAY",
   "JSON",
   "LONG",
   "LONG_ARRAY",
