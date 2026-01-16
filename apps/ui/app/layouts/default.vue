@@ -61,7 +61,7 @@
       </main>
 
       <!-- 7.8125rem (125px) spacing per design spec for consistent margin between content and footer -->
-      <FooterComponent class="mt-auto pt-[7.8125rem]" />
+      <FooterComponent class="mt-[7.8125rem]" />
     </div>
   </div>
 </template>
