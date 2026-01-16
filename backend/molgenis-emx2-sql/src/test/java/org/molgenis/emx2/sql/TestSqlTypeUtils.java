@@ -86,9 +86,9 @@ class TestSqlTypeUtils {
     Row row = mock(Row.class);
 
     EXCLUDE_REFERENCE_HEADING.forEach(
-        i -> {
-          when(column.getColumnType()).thenReturn(i);
-          when(column.getPrimitiveColumnType()).thenReturn(i.getBaseType());
+        columnType -> {
+          when(column.getColumnType()).thenReturn(columnType);
+          when(column.getPrimitiveColumnType()).thenReturn(columnType.getBaseType());
           SqlTypeUtils.getTypedValue(column, row);
         });
   }

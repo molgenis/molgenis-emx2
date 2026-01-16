@@ -13,27 +13,29 @@ public class ColumnTypeGroups {
   static {
     EXCLUDE_REFERENCE_HEADING =
         Arrays.stream(ColumnType.values())
-            .filter(i -> !i.isReference())
-            .filter(i -> !i.isHeading())
+            .filter(columnType -> !columnType.isReference())
+            .filter(columnType -> !columnType.isHeading())
             .collect(Collectors.toUnmodifiableSet());
 
     EXCLUDE_FILE_REFERENCE_HEADING =
         EXCLUDE_REFERENCE_HEADING.stream()
-            .filter(i -> !i.isFile())
+            .filter(columnType -> !columnType.isFile())
             .collect(Collectors.toUnmodifiableSet());
 
     EXCLUDE_FILE_PERIOD_REFERENCE_HEADING =
         EXCLUDE_FILE_REFERENCE_HEADING.stream()
             .filter(
-                i -> !Set.of(ColumnType.PERIOD, ColumnType.PERIOD_ARRAY).contains(i.getBaseType()))
+                columnType ->
+                    !Set.of(ColumnType.PERIOD, ColumnType.PERIOD_ARRAY)
+                        .contains(columnType.getBaseType()))
             .collect(Collectors.toUnmodifiableSet());
 
     EXCLUDE_ARRAY_FILE_REFERENCE_HEADING =
         Arrays.stream(ColumnType.values())
-            .filter(i -> !i.isArray())
-            .filter(i -> !i.isFile())
-            .filter(i -> !i.isReference())
-            .filter(i -> !i.isHeading())
+            .filter(columnType -> !columnType.isArray())
+            .filter(columnType -> !columnType.isFile())
+            .filter(columnType -> !columnType.isReference())
+            .filter(columnType -> !columnType.isHeading())
             .collect(Collectors.toUnmodifiableSet());
   }
 }
