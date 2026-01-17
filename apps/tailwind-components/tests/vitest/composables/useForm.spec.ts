@@ -38,13 +38,13 @@ describe("useForm", () => {
         columnType: "AUTO_ID",
         id: "col5",
         label: "columns 5",
-        required: true,
+        required: "4 + 3 < 5",
       },
       {
         columnType: "BOOL",
         id: "col6",
         label: "columns 6",
-        required: true,
+        required: "true",
       },
     ],
   });
@@ -69,7 +69,7 @@ describe("useForm", () => {
         columnType: "BOOL",
         id: "col6",
         label: "columns 6",
-        required: true,
+        required: "true",
       },
     ]);
   });
@@ -456,6 +456,19 @@ describe("useForm", () => {
       );
       validateKeyColumns();
       expect(visibleColumnErrors.value["my_key"]).toBe("My key is required");
+    });
+  });
+
+  describe("requiredMap", () => {
+    test("should correctly compute requiredMap", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { requiredMap } = useForm(tableMetadata, formValues);
+      expect(requiredMap["col1"].value).toBe(false);
+      expect(requiredMap["col2"].value).toBe(true);
+      expect(requiredMap["col3"].value).toBe(false);
+      expect(requiredMap["col4"].value).toBe(true);
+      expect(requiredMap["col5"].value).toBe(false);
+      expect(requiredMap["col6"].value).toBe(true);
     });
   });
 });
