@@ -1090,6 +1090,7 @@ export interface IResources {
   underlyingPopulation?: string;
   populationOfInterest?: IOntologyNode[];
   populationOfInterestOther?: string;
+  continents?: IOntologyNode[];
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
   minimumAge?: number;
