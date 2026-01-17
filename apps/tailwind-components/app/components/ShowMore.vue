@@ -3,51 +3,59 @@ import { ref, onMounted, nextTick, computed } from "vue";
 import Button from "./Button.vue";
 
 const props = withDefaults(
-  defineProps<{
-    lines?: number;
-    showLabels?: { more: string; less: string };
-    ssrHeight?: string;
-  }>(),
-  {
-    lines: 3,
-    showLabels: () => ({ more: "show more", less: "show less" }),
-    ssrHeight: "120px",
-  }
+    defineProps<{
+      lines?: number;
+      showLabels?: { more: string; less: string };
+    }>(),
+    {
+      lines: 3,
+      showLabels: () => ({ more: "show more", less: "show less" }),
+    }
 );
 
 const paragraphRef = ref<HTMLElement | null>(null);
 
 const expanded = ref(false);
 const showButton = ref(false);
-const measured = ref(false);
 const hydrated = ref(false);
 
 /**
- * CSS variable for line clamp
+ * CSS vars used by clamp
  */
 const paragraphStyle = computed(() => ({
   "--lines": String(props.lines),
+}));
+
+/**
+ * SSR-only estimated collapsed height
+ * 1.2em ≈ typical line-height
+ */
+const ssrCollapsedStyle = computed(() => ({
+  maxHeight: `${props.lines * 1.2}em`,
+  overflow: "hidden",
 }));
 
 onMounted(async () => {
   hydrated.value = true;
 
   await nextTick();
-  await document.fonts?.ready;
 
   const el = paragraphRef.value;
   if (!el) return;
 
-  // Measure without clamp
-  el.classList.remove("clamped");
+  /**
+   * Measure full (unclamped) height
+   */
   const fullHeight = el.scrollHeight;
 
-  // Reapply clamp
-  el.classList.add("clamped");
+  await nextTick();
+
+  /**
+   * Measure clamped height (now that hydration enabled it)
+   */
   const clampedHeight = el.clientHeight;
 
   showButton.value = fullHeight > clampedHeight;
-  measured.value = true;
 });
 
 /**
@@ -57,39 +65,37 @@ async function collapseAndScrollToTop() {
   const el = paragraphRef.value;
 
   expanded.value = false;
-
   await nextTick();
 
-  if (el) {
-    el.scrollIntoView({
-      block: "start",
-      behavior: "smooth",
-    });
-  }
+  el?.scrollIntoView({
+    block: "start",
+    behavior: "smooth",
+  });
 }
 </script>
 
 <template>
   <div class="expandable-paragraph">
     <p
-      ref="paragraphRef"
-      class="paragraph clamped"
-      :class="{ expanded }"
-      :style="[
+        ref="paragraphRef"
+        class="paragraph"
+        :class="{
+        clamped: hydrated && !expanded,
+        expanded,
+      }"
+        :style="[
         paragraphStyle,
-        !hydrated && !expanded
-          ? { maxHeight: ssrHeight, overflow: 'hidden' }
-          : {},
+        !hydrated && !expanded ? ssrCollapsedStyle : {},
       ]"
-      :aria-expanded="expanded"
+        :aria-expanded="expanded"
     >
       <slot />
 
       <Button
-        v-if="expanded"
-        type="text"
-        class="inline-less"
-        @click="collapseAndScrollToTop"
+          v-if="expanded"
+          type="text"
+          class="inline-less"
+          @click="collapseAndScrollToTop"
       >
         {{ showLabels.less }}
       </Button>
@@ -113,8 +119,8 @@ async function collapseAndScrollToTop() {
   word-break: break-word;
 }
 
-/* Default: clamped */
-.clamped:not(.expanded) {
+/* Clamp applies ONLY after hydration */
+.clamped {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--lines);
