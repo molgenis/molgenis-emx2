@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IOntologyItem } from "../../../interfaces/types";
-import CustomTooltip from "../../../../tailwind-components/app/components/CustomTooltip.vue";
-import ContentTreeNode from "../content/TreeNode.vue";
+import type { IOntologyItem } from "../../../types/types";
+import CustomTooltip from "../CustomTooltip.vue";
+import ContentTreeNode from "./TreeNode.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -52,7 +52,7 @@ const isList = computed(() => {
     class="text-body-base"
     :class="[isList ? 'grid gap-1 pl-4 list-disc list-outside' : '']"
   >
-    <li v-if="isList" v-for="item in tree">
+    <li v-if="isList" v-for="item in tree" :key="item.name">
       <div class="flex items-center">
         <span class="flex justify-center items-start">
           {{ item.name }}
@@ -72,6 +72,7 @@ const isList = computed(() => {
     <ContentTreeNode
       v-else
       v-for="node in tree"
+      :key="node.name"
       :node="node"
       :collapse-all="collapseAll"
       :is-root-node="true"

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { IOntologyItem } from "../../../interfaces/types";
-import CustomTooltip from "../../../../tailwind-components/app/components/CustomTooltip.vue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import type { IOntologyItem } from "../../../types/types";
+import CustomTooltip from "../CustomTooltip.vue";
+import BaseIcon from "../BaseIcon.vue";
 import TreeNode from "./TreeNode.vue";
 const props = withDefaults(
   defineProps<{
@@ -76,6 +76,7 @@ const toggleCollapse = () => {
       <TreeNode
         class="pt-1 pl-8"
         v-for="child in node.children"
+        :key="child.name"
         :node="child"
       ></TreeNode>
     </ul>
