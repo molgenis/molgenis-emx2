@@ -24,7 +24,7 @@ import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class SqlTable implements Table {
+public class SqlTable implements Table {
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
