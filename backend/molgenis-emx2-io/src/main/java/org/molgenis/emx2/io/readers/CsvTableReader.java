@@ -80,23 +80,22 @@ public class CsvTableReader {
         return it.hasNext();
       } catch (Exception e) {
         throw new MolgenisException(
-                "Import failed: "
-                        + e.getClass().getName()
-                        + ": "
-                        + e.getMessage()
-                        + ". Error at line "
-                        + line.get()
-                        + ".",
-                e);
+            "Import failed: "
+                + e.getClass().getName()
+                + ": "
+                + e.getMessage()
+                + ". Error at line "
+                + line.get()
+                + ".",
+            e);
       }
     }
 
     public Row next() {
       HashMap<String, Object> next = (HashMap<String, Object>) it.next();
       boolean isEmpty =
-              next.values().stream()
-                      .allMatch(
-                              v -> v == null || (v instanceof String string && string.trim().isEmpty()));
+          next.values().stream()
+              .allMatch(v -> v == null || (v instanceof String string && string.trim().isEmpty()));
       while (isEmpty && it.hasNext()) {
         next = (HashMap<String, Object>) it.next();
         isEmpty = next.values().stream().allMatch(Objects::isNull);
