@@ -10,5 +10,5 @@ task generateTypes(type: JavaExec) {
     group = 'application'
     classpath = sourceSets.main.runtimeClasspath
     workingDir = rootProject.projectDir
-    main = 'org.molgenis.emx2.typescript.AToolToGenerateTypeScriptTypes'
+    mainClass.set('org.molgenis.emx2.typescript.AToolToGenerateTypeScriptTypes')
 }

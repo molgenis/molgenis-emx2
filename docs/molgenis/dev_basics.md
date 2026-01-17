@@ -6,14 +6,14 @@ We use:
 
 * [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code is in [this](http://github.com/molgenis/molgenis-emx2) repository (it is not a monolith).
 * [gradle](https://gradle.org/) for build (with pnpm 'workspaces' for web app)
-    * `gradle build` => builds all
-    * `gradle clean` => removes all build artifacts
-    * `gradle run` => launches the app including user interface
-    * `gradle dev` => launches only the backend (useful when developing frontend using p dev)
-    * `gradle cleandb` => will empty your postgresql database (MAKE SURE YOU WANT IT)
-    * `gradle generateTypes --args='<schema> <file>'` => generates typescript types for schema to file
-    * `gradle test` => runs all tests.
-    * `gradle testFast` => runs tests excluding those marged using @Tag("slow").
+    * `./gradlew build` => builds all
+    * `./gradlew clean` => removes all build artifacts
+    * `./gradlew run` => launches the app including user interface
+    * `./gradlew dev` => launches only the backend (useful when developing frontend using p dev)
+    * `./gradlew cleandb` => will empty your postgresql database (MAKE SURE YOU WANT IT)
+    * `./gradlew generateTypes --args='<schema> <file>'` => generates typescript types for schema to file
+    * `./gradlew test` => runs all tests.
+    * `./gradlew testFast` => runs tests excluding those marged using @Tag("slow").
 
 * [github flow](https://guides.github.com/introduction/flow/) which means every pull/merge to master will result in release if indicated in commit message
 * [Travis](https://travis-ci.org/molgenis/molgenis-emx2) and [CircleCI](https://travis-ci.org/molgenis/molgenis-emx2) to execute build+test for each commit. See .travis.yml file. Actual release is done on UMCG private Jenkins in light of secure deploy on test servers.
@@ -63,7 +63,7 @@ We use [Semantic Release](https://github.com/semantic-release/semantic-release) 
 * postresql
 * java
 * pnpm (on mac, brew install pnpm)
-* gradle (on mac, brew install gradle)
+* gradle (included, ./gradlew or ./gradlew.bat)
 * git (on mac, install xcode dev tools)
 * IntelliJ (kindly provided by JetBrains under open source status)
 * CircleCI, Travis and Jenkins (kindly providing open source status)
