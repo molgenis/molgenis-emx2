@@ -7,6 +7,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 import ValueRef from "../value/Ref.vue";
+import ValueObject from "../value/Object.vue";
 import ContentOntology from "../content/Ontology.vue";
 import RecordListView from "./RecordListView.vue";
 
@@ -31,7 +32,18 @@ const isOntology = computed(
     props.column.columnType === "ONTOLOGY_ARRAY"
 );
 
-const isRefArray = computed(() => props.column.columnType === "REF_ARRAY");
+// Single value reference types: REF, RADIO, SELECT
+const isSingleRef = computed(() =>
+  ["REF", "RADIO", "SELECT"].includes(props.column.columnType)
+);
+
+// Array reference types: REF_ARRAY, REFBACK, MULTISELECT, CHECKBOX
+const isArrayRef = computed(() =>
+  ["REF_ARRAY", "REFBACK", "MULTISELECT", "CHECKBOX"].includes(
+    props.column.columnType
+  )
+);
+
 const isRefBack = computed(() => props.column.columnType === "REFBACK");
 
 const allRows = computed(() => (Array.isArray(props.value) ? props.value : []));
@@ -65,23 +77,16 @@ function handleRefClick() {
   <span v-else-if="isEmpty(value) && showEmpty" class="text-gray-400 italic">
     not provided
   </span>
+  <!-- Single ref types: REF (clickable), RADIO, SELECT (display only) -->
   <ValueRef
     v-else-if="column.columnType === 'REF'"
     :metadata="column as IRefColumn"
     :data="value"
     @refCellClicked="handleRefClick"
   />
-  <!-- REF_ARRAY: always use RecordListView with embedded data -->
-  <RecordListView
-    v-else-if="isRefArray"
-    :rows="visibleRows"
-    :ref-column="column as IRefColumn"
-    v-model:page="listPage"
-    :page-size="pageSize"
-    :total-count="allRows.length"
-    :get-ref-click-action="getRefClickAction"
-  />
-  <!-- REFBACK: use #list slot if provided (smart fetch), else RecordListView (dumb) -->
+  <ValueObject v-else-if="isSingleRef" :metadata="column" :data="value" />
+  <!-- Array ref types: REF_ARRAY, REFBACK, MULTISELECT, CHECKBOX -->
+  <!-- REFBACK: use #list slot if provided (smart fetch), else RecordListView -->
   <slot
     v-else-if="isRefBack && $slots.list"
     name="list"
@@ -89,7 +94,7 @@ function handleRefClick() {
     :value="value"
   />
   <RecordListView
-    v-else-if="isRefBack"
+    v-else-if="isArrayRef"
     :rows="visibleRows"
     :ref-column="column as IRefColumn"
     v-model:page="listPage"

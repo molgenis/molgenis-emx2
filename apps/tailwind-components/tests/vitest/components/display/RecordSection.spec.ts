@@ -40,7 +40,7 @@ describe("RecordSection", () => {
     },
   ];
 
-  it("renders section heading with text-2xl when isSection=true", () => {
+  it("renders section heading with text-heading-4xl when isSection=true", () => {
     const wrapper = mount(RecordSection, {
       props: {
         heading: sectionHeading,
@@ -52,7 +52,7 @@ describe("RecordSection", () => {
     const h2 = wrapper.find("h2");
     expect(h2.exists()).toBe(true);
     expect(h2.text()).toBe("General Information");
-    expect(h2.classes()).toContain("text-2xl");
+    expect(h2.classes()).toContain("text-heading-4xl");
   });
 
   it("renders heading with text-xl when isSection=false", () => {

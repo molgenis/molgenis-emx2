@@ -10,6 +10,7 @@ import { rowToString } from "../../utils/rowToString";
 import InputSearch from "../input/Search.vue";
 import InlinePagination from "./InlinePagination.vue";
 import LoadingContent from "../LoadingContent.vue";
+import ValueRef from "../value/Ref.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -19,6 +20,7 @@ const props = withDefaults(
     viewColumns?: string[];
     showSearch?: boolean;
     pagingLimit?: number;
+    refLabel?: string;
     getRefClickAction?: (col: IColumn, row: IRow) => () => void;
   }>(),
   {
@@ -52,7 +54,7 @@ const errorText = computed(
     (status.value === "error" ? "Failed to load data" : undefined)
 );
 
-// construct a ref column for click handling
+// construct a ref column for ValueRef rendering
 const refColumn = computed<IRefColumn | undefined>(() => {
   if (!metadata.value) return undefined;
   const keyCol = metadata.value.columns?.find((c) => c.key === 1);
@@ -62,8 +64,8 @@ const refColumn = computed<IRefColumn | undefined>(() => {
     columnType: "REF",
     refTableId: metadata.value.id,
     refSchemaId: metadata.value.schemaId,
-    refLabel: keyCol?.refLabel || "${name}",
-    refLabelDefault: "${name}",
+    refLabel: props.refLabel || keyCol?.refLabel,
+    refLabelDefault: keyCol?.refLabelDefault || "${name}",
     refLinkId: keyCol?.id || "name",
   };
 });
@@ -73,15 +75,17 @@ watch(searchTerms, () => {
   page.value = 1;
 });
 
-function handleClick(row: IRow) {
+function handleRefClick(row: IRow) {
   if (props.getRefClickAction && refColumn.value) {
     props.getRefClickAction(refColumn.value, row)();
   }
 }
 
+// for slot: compute label using same logic as ValueRef
 function getLabel(row: IRow): string {
-  const labelTemplate = refColumn.value?.refLabel || "${name}";
-  return rowToString(row, labelTemplate) || String(row.name || row.id || "");
+  const template =
+    refColumn.value?.refLabel || refColumn.value?.refLabelDefault;
+  return template ? rowToString(row, template) || "" : "";
 }
 </script>
 
@@ -103,17 +107,16 @@ function getLabel(row: IRow): string {
       :error-text="errorText"
       :show-slot-on-error="false"
     >
-      <ul v-if="rows.length" class="space-y-1.5 list-none p-0 m-0">
+      <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
         <li v-for="(row, index) in rows" :key="index">
-          <!-- default slot with current impl as fallback -->
+          <!-- default slot with ValueRef as fallback -->
           <slot :row="row" :column="refColumn" :label="getLabel(row)">
-            <a
-              href="#"
-              class="text-link hover:text-link-hover hover:underline transition-colors"
-              @click.prevent="handleClick(row)"
-            >
-              {{ getLabel(row) }}
-            </a>
+            <ValueRef
+              v-if="refColumn"
+              :metadata="refColumn"
+              :data="row"
+              @refCellClicked="handleRefClick(row)"
+            />
           </slot>
         </li>
       </ul>

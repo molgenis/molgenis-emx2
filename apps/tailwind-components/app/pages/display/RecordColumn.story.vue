@@ -65,6 +65,40 @@ const refColumn: IRefColumn = {
   refLinkId: "name",
 };
 
+// RADIO and SELECT render same as REF (single object value)
+const radioColumn: IColumn = {
+  id: "status",
+  label: "Status",
+  columnType: "RADIO",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+};
+
+const selectColumn: IColumn = {
+  id: "priority",
+  label: "Priority",
+  columnType: "SELECT",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+};
+
+// CHECKBOX and MULTISELECT render same as REF_ARRAY (array of objects)
+const checkboxColumn: IColumn = {
+  id: "features",
+  label: "Features",
+  columnType: "CHECKBOX",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+};
+
+const multiselectColumn: IColumn = {
+  id: "categories",
+  label: "Categories",
+  columnType: "MULTISELECT",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+};
+
 const refArrayColumn: IRefColumn = {
   id: "pets",
   label: "Pets",
@@ -173,283 +207,358 @@ function clearLog() {
       <label for="showEmpty">Show empty values as "not provided"</label>
     </div>
 
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Primitive Types</h2>
+    <!-- Wrap examples in bg-content to match RecordView/RecordSection -->
+    <div
+      class="bg-content p-6 rounded shadow-primary space-y-6 text-record-value"
+    >
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">
+          Primitive Types
+        </h2>
 
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">STRING:</span>
-        <DisplayRecordColumn
-          :column="stringColumn"
-          value="John Doe"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">INT:</span>
-        <DisplayRecordColumn
-          :column="intColumn"
-          :value="42"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">BOOL (true):</span>
-        <DisplayRecordColumn
-          :column="boolColumn"
-          :value="true"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">BOOL (false):</span>
-        <DisplayRecordColumn
-          :column="boolColumn"
-          :value="false"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">DECIMAL:</span>
-        <DisplayRecordColumn
-          :column="decimalColumn"
-          :value="19.99"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">DATE:</span>
-        <DisplayRecordColumn
-          :column="dateColumn"
-          value="2024-01-15"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">TEXT:</span>
-        <DisplayRecordColumn
-          :column="textColumn"
-          value="A longer description text that demonstrates how text values are displayed."
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">EMAIL:</span>
-        <DisplayRecordColumn
-          :column="emailColumn"
-          value="john@example.com"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">HYPERLINK:</span>
-        <DisplayRecordColumn
-          :column="hyperlinkColumn"
-          value="https://molgenis.org"
-          :show-empty="showEmpty"
-        />
-      </div>
-    </div>
-
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">REF Type (Clickable)</h2>
-      <p class="text-sm text-gray-500">Click the link to see the event log.</p>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">REF:</span>
-        <DisplayRecordColumn
-          :column="refColumn"
-          :value="{ name: 'Fluffy' }"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
-        />
-      </div>
-
-      <div class="mt-4 p-4 bg-gray-50 rounded border">
-        <div class="flex justify-between items-center mb-2">
-          <span class="font-medium">Click Event Log:</span>
-          <button
-            class="text-sm text-blue-600 hover:underline"
-            @click="clearLog"
-          >
-            Clear
-          </button>
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">STRING:</span>
+          <DisplayRecordColumn
+            :column="stringColumn"
+            value="John Doe"
+            :show-empty="showEmpty"
+          />
         </div>
-        <div v-if="clickLog.length === 0" class="text-gray-400 italic">
-          No clicks yet
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">INT:</span>
+          <DisplayRecordColumn
+            :column="intColumn"
+            :value="42"
+            :show-empty="showEmpty"
+          />
         </div>
-        <ul v-else class="space-y-1 text-sm font-mono">
-          <li
-            v-for="(log, index) in clickLog"
-            :key="index"
-            class="text-gray-700"
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">BOOL (true):</span>
+          <DisplayRecordColumn
+            :column="boolColumn"
+            :value="true"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">BOOL (false):</span>
+          <DisplayRecordColumn
+            :column="boolColumn"
+            :value="false"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">DECIMAL:</span>
+          <DisplayRecordColumn
+            :column="decimalColumn"
+            :value="19.99"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">DATE:</span>
+          <DisplayRecordColumn
+            :column="dateColumn"
+            value="2024-01-15"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">TEXT:</span>
+          <DisplayRecordColumn
+            :column="textColumn"
+            value="A longer description text that demonstrates how text values are displayed."
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">EMAIL:</span>
+          <DisplayRecordColumn
+            :column="emailColumn"
+            value="john@example.com"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">HYPERLINK:</span>
+          <DisplayRecordColumn
+            :column="hyperlinkColumn"
+            value="https://molgenis.org"
+            :show-empty="showEmpty"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">
+          Single Value Types (REF, RADIO, SELECT)
+        </h2>
+        <p class="text-sm text-gray-500">
+          REF is clickable, RADIO and SELECT display the same way but without
+          click action.
+        </p>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">REF:</span>
+          <DisplayRecordColumn
+            :column="refColumn"
+            :value="{ name: 'Fluffy' }"
+            :show-empty="showEmpty"
+            :get-ref-click-action="getRefClickAction"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">RADIO:</span>
+          <DisplayRecordColumn
+            :column="radioColumn"
+            :value="{ name: 'Active' }"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">SELECT:</span>
+          <DisplayRecordColumn
+            :column="selectColumn"
+            :value="{ name: 'High' }"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="mt-4 p-4 bg-gray-50 rounded border">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-medium text-record-label">Click Event Log:</span>
+            <button
+              class="text-sm text-blue-600 hover:underline"
+              @click="clearLog"
+            >
+              Clear
+            </button>
+          </div>
+          <div v-if="clickLog.length === 0" class="text-gray-400 italic">
+            No clicks yet
+          </div>
+          <ul v-else class="space-y-1 text-sm font-mono">
+            <li
+              v-for="(log, index) in clickLog"
+              :key="index"
+              class="text-gray-700"
+            >
+              {{ log }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">
+          Array Types (REF_ARRAY, REFBACK, CHECKBOX, MULTISELECT)
+        </h2>
+        <p class="text-sm text-gray-500">
+          All array types render as paginated lists. Click any link to see the
+          event log.
+        </p>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label"
+            >REF_ARRAY (3 items):</span
           >
-            {{ log }}
-          </li>
-        </ul>
+          <DisplayRecordColumn
+            :column="refArrayColumn"
+            :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
+            :show-empty="showEmpty"
+            :get-ref-click-action="getRefClickAction"
+          />
+        </div>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label"
+            >REF_ARRAY (15 items):</span
+          >
+          <DisplayRecordColumn
+            :column="refArrayLargeColumn"
+            :value="largeRefArrayValue"
+            :show-empty="showEmpty"
+            :get-ref-click-action="getRefClickAction"
+          />
+        </div>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label">REFBACK:</span>
+          <DisplayRecordColumn
+            :column="refBackColumn"
+            :value="[
+              { firstName: 'John', lastName: 'Doe', id: 1 },
+              { firstName: 'Jane', lastName: 'Smith', id: 2 },
+            ]"
+            :show-empty="showEmpty"
+            :get-ref-click-action="getRefClickAction"
+          />
+        </div>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label">CHECKBOX:</span>
+          <DisplayRecordColumn
+            :column="checkboxColumn"
+            :value="[{ name: 'WiFi' }, { name: 'Parking' }, { name: 'Pool' }]"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label">MULTISELECT:</span>
+          <DisplayRecordColumn
+            :column="multiselectColumn"
+            :value="[
+              { name: 'Electronics' },
+              { name: 'Books' },
+              { name: 'Clothing' },
+              { name: 'Home' },
+              { name: 'Sports' },
+              { name: 'Toys' },
+            ]"
+            :show-empty="showEmpty"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">
+          Custom Slot Example
+        </h2>
+        <p class="text-sm text-gray-500">
+          REF_ARRAY/REFBACK columns support a #list slot for custom rendering.
+          This example shows a custom styled list using the slot.
+        </p>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label"
+            >REF_ARRAY (Custom Slot):</span
+          >
+          <DisplayRecordColumn
+            :column="slotRefArrayColumn"
+            :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
+            :show-empty="showEmpty"
+            :get-ref-click-action="getRefClickAction"
+          >
+            <template #list="{ column, value }">
+              <div class="p-3 bg-blue-50 border border-blue-200 rounded">
+                <p class="text-sm font-semibold text-blue-900 mb-2">
+                  Custom list rendering for {{ column.label }}
+                </p>
+                <ul class="list-disc list-inside text-blue-700">
+                  <li v-for="(item, idx) in value" :key="idx">
+                    {{ item.name }} (custom style)
+                  </li>
+                </ul>
+              </div>
+            </template>
+          </DisplayRecordColumn>
+        </div>
+
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
+          <strong>Note:</strong> When no #list slot is provided, the default
+          RecordListView component is used with pagination.
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">
+          Ontology Types
+        </h2>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label">ONTOLOGY (single):</span>
+          <DisplayRecordColumn
+            :column="ontologyColumn"
+            :value="{
+              name: 'Dog',
+              definition: 'A domesticated carnivorous mammal',
+            }"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label"
+            >ONTOLOGY_ARRAY (flat list):</span
+          >
+          <DisplayRecordColumn
+            :column="ontologyArrayColumn"
+            :value="[
+              { name: 'Friendly', definition: 'Good with people' },
+              { name: 'Trained', definition: 'Has basic obedience training' },
+              { name: 'Vaccinated' },
+            ]"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+          <span class="font-medium text-record-label"
+            >ONTOLOGY (tree with children):</span
+          >
+          <DisplayRecordColumn
+            :column="ontologyColumn"
+            :value="ontologyTreeValue"
+            :show-empty="showEmpty"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">Empty Values</h2>
+        <p class="text-sm text-gray-500">
+          Toggle "Show empty values" above to see the difference.
+        </p>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">null value:</span>
+          <DisplayRecordColumn
+            :column="emptyColumn"
+            :value="null"
+            :show-empty="showEmpty"
+          />
+          <span v-if="!showEmpty" class="col-start-2 text-xs text-gray-400">
+            (nothing rendered)
+          </span>
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">undefined value:</span>
+          <DisplayRecordColumn
+            :column="emptyColumn"
+            :value="undefined"
+            :show-empty="showEmpty"
+          />
+          <span v-if="!showEmpty" class="col-start-2 text-xs text-gray-400">
+            (nothing rendered)
+          </span>
+        </div>
+
+        <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+          <span class="font-medium text-record-label">empty string:</span>
+          <DisplayRecordColumn
+            :column="emptyColumn"
+            value=""
+            :show-empty="showEmpty"
+          />
+          <span v-if="!showEmpty" class="col-start-2 text-xs text-gray-400">
+            (nothing rendered)
+          </span>
+        </div>
       </div>
     </div>
-
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">REF_ARRAY Types (with pagination)</h2>
-      <p class="text-sm text-gray-500">Click any link to see the event log.</p>
-
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">REF_ARRAY (3 items):</span>
-        <DisplayRecordColumn
-          :column="refArrayColumn"
-          :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
-        />
-      </div>
-
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">REF_ARRAY (15 items, paginated):</span>
-        <DisplayRecordColumn
-          :column="refArrayLargeColumn"
-          :value="largeRefArrayValue"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
-        />
-      </div>
-
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">REFBACK:</span>
-        <DisplayRecordColumn
-          :column="refBackColumn"
-          :value="[
-            { firstName: 'John', lastName: 'Doe', id: 1 },
-            { firstName: 'Jane', lastName: 'Smith', id: 2 },
-          ]"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
-        />
-      </div>
-    </div>
-
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Custom Slot Example</h2>
-      <p class="text-sm text-gray-500">
-        REF_ARRAY/REFBACK columns support a #list slot for custom rendering.
-        This example shows a custom styled list using the slot.
-      </p>
-
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">REF_ARRAY (Custom Slot):</span>
-        <DisplayRecordColumn
-          :column="slotRefArrayColumn"
-          :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
-        >
-          <template #list="{ column, value }">
-            <div class="p-3 bg-blue-50 border border-blue-200 rounded">
-              <p class="text-sm font-semibold text-blue-900 mb-2">
-                Custom list rendering for {{ column.label }}
-              </p>
-              <ul class="list-disc list-inside text-blue-700">
-                <li v-for="(item, idx) in value" :key="idx">
-                  {{ item.name }} (custom style)
-                </li>
-              </ul>
-            </div>
-          </template>
-        </DisplayRecordColumn>
-      </div>
-
-      <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
-        <strong>Note:</strong> When no #list slot is provided, the default
-        RecordListView component is used with pagination.
-      </div>
-    </div>
-
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Ontology Types</h2>
-
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">ONTOLOGY (single):</span>
-        <DisplayRecordColumn
-          :column="ontologyColumn"
-          :value="{
-            name: 'Dog',
-            definition: 'A domesticated carnivorous mammal',
-          }"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">ONTOLOGY_ARRAY (flat list):</span>
-        <DisplayRecordColumn
-          :column="ontologyArrayColumn"
-          :value="[
-            { name: 'Friendly', definition: 'Good with people' },
-            { name: 'Trained', definition: 'Has basic obedience training' },
-            { name: 'Vaccinated' },
-          ]"
-          :show-empty="showEmpty"
-        />
-      </div>
-
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">ONTOLOGY (tree with children):</span>
-        <DisplayRecordColumn
-          :column="ontologyColumn"
-          :value="ontologyTreeValue"
-          :show-empty="showEmpty"
-        />
-      </div>
-    </div>
-
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Empty Values</h2>
-      <p class="text-sm text-gray-500">
-        Toggle "Show empty values" above to see the difference.
-      </p>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">null value:</span>
-        <DisplayRecordColumn
-          :column="emptyColumn"
-          :value="null"
-          :show-empty="showEmpty"
-        />
-        <span v-if="!showEmpty" class="col-start-2 text-xs text-gray-400">
-          (nothing rendered)
-        </span>
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">undefined value:</span>
-        <DisplayRecordColumn
-          :column="emptyColumn"
-          :value="undefined"
-          :show-empty="showEmpty"
-        />
-        <span v-if="!showEmpty" class="col-start-2 text-xs text-gray-400">
-          (nothing rendered)
-        </span>
-      </div>
-
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">empty string:</span>
-        <DisplayRecordColumn
-          :column="emptyColumn"
-          value=""
-          :show-empty="showEmpty"
-        />
-        <span v-if="!showEmpty" class="col-start-2 text-xs text-gray-400">
-          (nothing rendered)
-        </span>
-      </div>
-    </div>
+    <!-- close bg-content wrapper -->
   </div>
 </template>

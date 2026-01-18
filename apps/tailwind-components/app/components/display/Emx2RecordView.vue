@@ -169,6 +169,7 @@ watch(
           :filter="buildRefbackFilter(column, rowId)"
           :show-search="false"
           :paging-limit="5"
+          :ref-label="(column as IRefColumn).refLabel || (column as IRefColumn).refLabelDefault"
           :get-ref-click-action="getRefClickAction"
         />
       </template>

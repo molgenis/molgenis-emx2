@@ -6,7 +6,7 @@ import type {
   IRow,
 } from "../../../../metadata-utils/src/types";
 import InlinePagination from "./InlinePagination.vue";
-import { rowToString } from "../../utils/rowToString";
+import ValueRef from "../value/Ref.vue";
 
 const props = defineProps<{
   rows: IRow[];
@@ -24,31 +24,22 @@ const emit = defineEmits<{
 const totalPages = computed(() => Math.ceil(props.totalCount / props.pageSize));
 const showPagination = computed(() => props.totalCount > props.pageSize);
 
-function handleClick(row: IRow) {
+function handleRefClick(row: IRow) {
   if (props.getRefClickAction) {
     props.getRefClickAction(props.refColumn, row)();
   }
-}
-
-function getLabel(row: IRow): string {
-  return (
-    rowToString(row, props.refColumn.refLabel) ||
-    String(row.name || row.id || "")
-  );
 }
 </script>
 
 <template>
   <div class="record-list-view">
-    <ul v-if="rows.length" class="space-y-1.5 list-none p-0 m-0">
+    <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
       <li v-for="(row, index) in rows" :key="index">
-        <a
-          href="#"
-          class="text-link hover:text-link-hover hover:underline transition-colors"
-          @click.prevent="handleClick(row)"
-        >
-          {{ getLabel(row) }}
-        </a>
+        <ValueRef
+          :metadata="refColumn"
+          :data="row"
+          @refCellClicked="handleRefClick(row)"
+        />
       </li>
     </ul>
     <p v-else class="text-gray-400 dark:text-gray-500 italic">No items</p>
