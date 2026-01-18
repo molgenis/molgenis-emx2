@@ -9,7 +9,6 @@ import ValueEMX2 from "../value/EMX2.vue";
 import ValueRef from "../value/Ref.vue";
 import ContentOntology from "../content/Ontology.vue";
 import RecordListView from "./RecordListView.vue";
-import Emx2ListView from "./Emx2ListView.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -17,9 +16,6 @@ const props = withDefaults(
     value: any;
     showEmpty?: boolean;
     getRefClickAction?: (col: IColumn, row: IRow) => () => void;
-    schemaId?: string;
-    parentRowId?: Record<string, any>;
-    filter?: object;
   }>(),
   {
     showEmpty: false,
@@ -37,19 +33,6 @@ const isOntology = computed(
 
 const isRefArray = computed(() => props.column.columnType === "REF_ARRAY");
 const isRefBack = computed(() => props.column.columnType === "REFBACK");
-
-// smart mode: use Emx2ListView when schemaId provided
-const useSmartMode = computed(
-  () => props.schemaId && (isRefArray.value || isRefBack.value)
-);
-
-// construct filter for refback: { refBackId: { equals: parentRowPk } }
-const refbackFilter = computed(() => {
-  if (!props.parentRowId || !isRefBack.value) return props.filter;
-  const col = props.column as IRefColumn;
-  if (!col.refBackId) return props.filter;
-  return { [col.refBackId]: { equals: props.parentRowId } };
-});
 
 const allRows = computed(() => (Array.isArray(props.value) ? props.value : []));
 
@@ -88,19 +71,25 @@ function handleRefClick() {
     :data="value"
     @refCellClicked="handleRefClick"
   />
-  <!-- Smart mode: use Emx2ListView when schemaId provided -->
-  <Emx2ListView
-    v-else-if="useSmartMode"
-    :schema-id="(column as IRefColumn).refSchemaId || schemaId!"
-    :table-id="(column as IRefColumn).refTableId!"
-    :filter="refbackFilter"
-    :show-search="false"
-    :paging-limit="5"
+  <!-- REF_ARRAY: always use RecordListView with embedded data -->
+  <RecordListView
+    v-else-if="isRefArray"
+    :rows="visibleRows"
+    :ref-column="column as IRefColumn"
+    v-model:page="listPage"
+    :page-size="pageSize"
+    :total-count="allRows.length"
     :get-ref-click-action="getRefClickAction"
   />
-  <!-- Dumb mode: use RecordListView when no schemaId (existing behavior) -->
+  <!-- REFBACK: use #list slot if provided (smart fetch), else RecordListView (dumb) -->
+  <slot
+    v-else-if="isRefBack && $slots.list"
+    name="list"
+    :column="column"
+    :value="value"
+  />
   <RecordListView
-    v-else-if="isRefArray || isRefBack"
+    v-else-if="isRefBack"
     :rows="visibleRows"
     :ref-column="column as IRefColumn"
     v-model:page="listPage"

@@ -31,26 +31,26 @@ const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
 
-const { metadata, rows, count, status } = useTableData(
-  props.schemaId,
-  props.tableId,
-  {
-    pageSize: props.pagingLimit,
-    page,
-    filter: props.filter,
-    searchTerms,
-  }
-);
-
-const totalPages = computed(() => Math.ceil(count.value / props.pagingLimit));
-const showPagination = computed(() => count.value > props.pagingLimit);
-
-const errorText = computed(() => {
-  if (status.value === "error") {
-    return "Failed to load data";
-  }
-  return undefined;
+const {
+  metadata,
+  rows,
+  count,
+  status,
+  totalPages,
+  showPagination,
+  errorMessage,
+} = useTableData(props.schemaId, props.tableId, {
+  pageSize: props.pagingLimit,
+  page,
+  filter: props.filter,
+  searchTerms,
 });
+
+const errorText = computed(
+  () =>
+    errorMessage.value ||
+    (status.value === "error" ? "Failed to load data" : undefined)
+);
 
 // construct a ref column for click handling
 const refColumn = computed<IRefColumn | undefined>(() => {
@@ -105,13 +105,16 @@ function getLabel(row: IRow): string {
     >
       <ul v-if="rows.length" class="space-y-1.5 list-none p-0 m-0">
         <li v-for="(row, index) in rows" :key="index">
-          <a
-            href="#"
-            class="text-link hover:text-link-hover hover:underline transition-colors"
-            @click.prevent="handleClick(row)"
-          >
-            {{ getLabel(row) }}
-          </a>
+          <!-- default slot with current impl as fallback -->
+          <slot :row="row" :column="refColumn" :label="getLabel(row)">
+            <a
+              href="#"
+              class="text-link hover:text-link-hover hover:underline transition-colors"
+              @click.prevent="handleClick(row)"
+            >
+              {{ getLabel(row) }}
+            </a>
+          </slot>
         </li>
       </ul>
       <p v-else class="text-gray-400 dark:text-gray-500 italic">No items</p>

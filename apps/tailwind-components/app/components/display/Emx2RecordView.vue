@@ -3,10 +3,12 @@ import { computed, watch, type Component } from "vue";
 import { useAsyncData } from "#app";
 import type {
   IColumn,
+  IRefColumn,
   ITableMetaData,
   IRow,
 } from "../../../../metadata-utils/src/types";
 import RecordView from "./RecordView.vue";
+import Emx2ListView from "./Emx2ListView.vue";
 import LoadingContent from "../LoadingContent.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import fetchRowData from "../../composables/fetchRowData";
@@ -25,6 +27,14 @@ const props = withDefaults(
     showEmpty: false,
   }
 );
+
+function buildRefbackFilter(column: IColumn, rowId: Record<string, any>) {
+  const refCol = column as IRefColumn;
+  if (refCol.columnType === "REFBACK" && refCol.refBackId) {
+    return { [refCol.refBackId]: { equals: rowId } };
+  }
+  return undefined;
+}
 
 const {
   data: metadata,
@@ -152,6 +162,16 @@ watch(
       :show-empty="showEmpty"
       :get-ref-click-action="getRefClickAction"
     >
+      <template #list="{ column, value }">
+        <Emx2ListView
+          :schema-id="(column as IRefColumn).refSchemaId || schemaId"
+          :table-id="(column as IRefColumn).refTableId!"
+          :filter="buildRefbackFilter(column, rowId)"
+          :show-search="false"
+          :paging-limit="5"
+          :get-ref-click-action="getRefClickAction"
+        />
+      </template>
       <template #header>
         <slot name="header" />
       </template>

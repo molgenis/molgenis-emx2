@@ -19,6 +19,9 @@ export interface UseTableDataReturn {
   count: ComputedRef<number>;
   refresh: () => Promise<void>;
   status: Ref<TableDataStatus>;
+  totalPages: ComputedRef<number>;
+  showPagination: ComputedRef<boolean>;
+  errorMessage: ComputedRef<string | undefined>;
 }
 
 export function useTableData(
@@ -32,9 +35,11 @@ export function useTableData(
   const metadataRef = ref<ITableMetaData | undefined>(undefined);
   const rowsRef = ref<IRow[]>([]);
   const countRef = ref<number>(0);
+  const errorRef = ref<string | undefined>(undefined);
 
   async function fetchData(): Promise<void> {
     status.value = "pending";
+    errorRef.value = undefined;
     try {
       const [tableMetadata, tableData] = await Promise.all([
         fetchTableMetadata(schemaId, tableId),
@@ -55,6 +60,7 @@ export function useTableData(
       status.value = "success";
     } catch (error) {
       console.error("useTableData fetch error:", error);
+      errorRef.value = error instanceof Error ? error.message : "Unknown error";
       status.value = "error";
     }
   }
@@ -78,6 +84,9 @@ export function useTableData(
   const metadata = computed(() => metadataRef.value);
   const rows = computed(() => rowsRef.value);
   const count = computed(() => countRef.value);
+  const totalPages = computed(() => Math.ceil(countRef.value / pageSize));
+  const showPagination = computed(() => countRef.value > pageSize);
+  const errorMessage = computed(() => errorRef.value);
 
   return {
     metadata,
@@ -85,5 +94,8 @@ export function useTableData(
     count,
     refresh: fetchData,
     status,
+    totalPages,
+    showPagination,
+    errorMessage,
   };
 }

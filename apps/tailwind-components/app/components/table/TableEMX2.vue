@@ -140,10 +140,10 @@
   </div>
 
   <Pagination
-    v-if="count > settings.pageSize"
+    v-if="showPagination"
     class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
-    :totalPages="Math.ceil(count / settings.pageSize)"
+    :totalPages="totalPages"
     :jump-to-edge="true"
     @update="handlePagingRequest($event)"
   />
@@ -279,16 +279,13 @@ watch(
   { immediate: true, deep: true }
 );
 
-const { metadata, rows, count, refresh } = useTableData(
-  props.schemaId,
-  props.tableId,
-  {
+const { metadata, rows, count, refresh, totalPages, showPagination } =
+  useTableData(props.schemaId, props.tableId, {
     pageSize: settings.value.pageSize,
     page: pageRef,
     searchTerms: searchTermsRef,
     orderby: orderbyRef,
-  }
-);
+  });
 
 const showDraftColumn = computed(() =>
   rows.value.some((row) => row?.mg_draft === true)

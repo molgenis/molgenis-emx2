@@ -81,7 +81,7 @@ onUnmounted(() => {
 
 <template>
   <nav
-    class="text-body-base bg-content rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary mb-18"
+    class="text-body-base text-title-contrast bg-content rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary mb-18"
     aria-label="Section navigation"
   >
     <div v-if="title || image" class="mb-6 font-display text-heading-4xl">

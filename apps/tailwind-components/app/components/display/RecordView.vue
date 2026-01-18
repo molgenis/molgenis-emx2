@@ -134,7 +134,11 @@ const sections = computed<SectionGroup[]>(() => {
       :columns="section.columns"
       :show-empty="showEmpty"
       :get-ref-click-action="getRefClickAction"
-    />
+    >
+      <template #list="slotProps">
+        <slot name="list" v-bind="slotProps" />
+      </template>
+    </RecordSection>
 
     <slot name="footer"></slot>
   </article>

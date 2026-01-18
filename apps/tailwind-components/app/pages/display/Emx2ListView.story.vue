@@ -221,5 +221,32 @@ const mockVisibleRows = computed(() => {
         />
       </div>
     </div>
+
+    <!-- Custom slot example -->
+    <div v-if="!useMockData" class="space-y-4">
+      <h2 class="text-xl font-semibold">Custom Slot Example</h2>
+      <p class="text-sm text-gray-500">
+        Customize item rendering using the default slot. This example shows
+        custom styling for each item.
+      </p>
+      <div class="p-4 border rounded dark:border-gray-600">
+        <Emx2ListView
+          :key="`${schemaId}-${tableId}-custom-${pagingLimit}`"
+          :schema-id="schemaId"
+          :table-id="tableId"
+          :show-search="false"
+          :paging-limit="5"
+          :get-ref-click-action="getRefClickAction"
+        >
+          <template #default="{ row, label }">
+            <div class="flex items-center gap-2 p-2 bg-green-50 rounded">
+              <span class="text-green-700 font-mono">→</span>
+              <span class="text-green-900 font-medium">{{ label }}</span>
+              <span class="text-xs text-green-600">(custom)</span>
+            </div>
+          </template>
+        </Emx2ListView>
+      </div>
+    </div>
   </div>
 </template>

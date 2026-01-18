@@ -14,6 +14,8 @@ import ValueEmail from "./Email.vue";
 import ValueHyperlink from "./Hyperlink.vue";
 import ValueRefBack from "./RefBack.vue";
 import ValueFile from "./File.vue";
+import ValueDate from "./Date.vue";
+import ValueDateTime from "./DateTime.vue";
 
 withDefaults(
   defineProps<{
@@ -121,6 +123,18 @@ defineEmits<{
 
   <ValueString
     v-else-if="metadata.columnType === 'PERIOD'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueDate
+    v-else-if="metadata.columnType === 'DATE'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueDateTime
+    v-else-if="metadata.columnType === 'DATETIME'"
     :metadata="metadata"
     :data="data"
   />

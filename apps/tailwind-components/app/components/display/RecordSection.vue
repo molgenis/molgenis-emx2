@@ -23,7 +23,9 @@ const props = withDefaults(
 );
 
 const headingClasses = computed(() =>
-  props.isSection ? "text-2xl font-bold mb-4" : "text-xl font-semibold mb-3"
+  props.isSection
+    ? "mb-5 uppercase text-heading-4xl font-display text-record-heading"
+    : "text-xl font-semibold mb-3 text-record-heading"
 );
 
 const visibleColumns = computed(() => {
@@ -51,30 +53,34 @@ const listColumns = computed(() =>
 </script>
 
 <template>
-  <section class="mb-6">
+  <section
+    :id="heading?.id"
+    class="bg-content py-18 lg:px-12.5 px-5 xl:rounded-3px shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden mb-6"
+  >
     <h2 v-if="heading" :class="headingClasses">
       {{ heading.label || heading.id }}
     </h2>
-    <p
-      v-if="heading?.description"
-      class="text-gray-600 dark:text-gray-400 mb-4"
-    >
+    <p v-if="heading?.description" class="text-definition-list-term mb-4">
       {{ heading.description }}
     </p>
 
     <!-- Regular columns in definition list grid -->
     <DefinitionList v-if="regularColumns.length">
       <template v-for="col in regularColumns" :key="col.meta.id">
-        <DefinitionListTerm>{{
-          col.meta.label || col.meta.id
-        }}</DefinitionListTerm>
-        <DefinitionListDefinition>
+        <DefinitionListTerm class="text-record-label"
+          >{{ col.meta.label || col.meta.id }}:</DefinitionListTerm
+        >
+        <DefinitionListDefinition class="text-record-value">
           <RecordColumn
             :column="col.meta"
             :value="col.value"
             :show-empty="showEmpty"
             :get-ref-click-action="getRefClickAction"
-          />
+          >
+            <template #list="slotProps">
+              <slot name="list" v-bind="slotProps" />
+            </template>
+          </RecordColumn>
         </DefinitionListDefinition>
       </template>
     </DefinitionList>
@@ -86,16 +92,20 @@ const listColumns = computed(() =>
         :key="col.meta.id"
         class="record-list-section"
       >
-        <dt class="font-bold text-body-base mb-2">
-          {{ col.meta.label || col.meta.id }}
+        <dt class="font-bold text-body-base mb-2 text-record-label">
+          {{ col.meta.label || col.meta.id }}:
         </dt>
-        <dd>
+        <dd class="text-record-value">
           <RecordColumn
             :column="col.meta"
             :value="col.value"
             :show-empty="showEmpty"
             :get-ref-click-action="getRefClickAction"
-          />
+          >
+            <template #list="slotProps">
+              <slot name="list" v-bind="slotProps" />
+            </template>
+          </RecordColumn>
         </dd>
       </div>
     </div>

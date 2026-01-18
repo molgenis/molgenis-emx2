@@ -98,10 +98,10 @@ const refBackColumn: IRefColumn = {
   refLinkId: "id",
 };
 
-// Smart mode columns (for live data fetching via Emx2ListView)
-const smartRefArrayColumn: IRefColumn = {
+// Column for slot usage example
+const slotRefArrayColumn: IRefColumn = {
   id: "pets",
-  label: "Pets (Smart Mode)",
+  label: "Pets (Custom Slot)",
   columnType: "REF_ARRAY",
   refTableId: "Pet",
   refSchemaId: "pet store",
@@ -109,21 +109,6 @@ const smartRefArrayColumn: IRefColumn = {
   refLabelDefault: "${name}",
   refLinkId: "name",
 };
-
-const smartRefBackColumn: IRefColumn = {
-  id: "pets",
-  label: "Pets (Smart REFBACK)",
-  columnType: "REFBACK",
-  refTableId: "Pet",
-  refSchemaId: "pet store",
-  refLabel: "${name}",
-  refLabelDefault: "${name}",
-  refLinkId: "name",
-  refBackId: "category",
-};
-
-// Mock parent row ID for refback filter
-const parentRowId = { name: "cat" };
 
 const ontologyColumn: IColumn = {
   id: "species",
@@ -351,41 +336,38 @@ function clearLog() {
     </div>
 
     <div class="space-y-4">
-      <h2 class="text-xl font-semibold">
-        Smart Mode (Emx2ListView with live data)
-      </h2>
+      <h2 class="text-xl font-semibold">Custom Slot Example</h2>
       <p class="text-sm text-gray-500">
-        When schemaId is provided, REF_ARRAY/REFBACK use Emx2ListView to fetch
-        data from backend. Requires running backend with "pet store" schema.
+        REF_ARRAY/REFBACK columns support a #list slot for custom rendering.
+        This example shows a custom styled list using the slot.
       </p>
 
       <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">REF_ARRAY (Smart):</span>
+        <span class="font-medium">REF_ARRAY (Custom Slot):</span>
         <DisplayRecordColumn
-          :column="smartRefArrayColumn"
-          :value="null"
-          schema-id="pet store"
+          :column="slotRefArrayColumn"
+          :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
           :show-empty="showEmpty"
           :get-ref-click-action="getRefClickAction"
-        />
+        >
+          <template #list="{ column, value }">
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded">
+              <p class="text-sm font-semibold text-blue-900 mb-2">
+                Custom list rendering for {{ column.label }}
+              </p>
+              <ul class="list-disc list-inside text-blue-700">
+                <li v-for="(item, idx) in value" :key="idx">
+                  {{ item.name }} (custom style)
+                </li>
+              </ul>
+            </div>
+          </template>
+        </DisplayRecordColumn>
       </div>
 
-      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-        <span class="font-medium">REFBACK (Smart with filter):</span>
-        <DisplayRecordColumn
-          :column="smartRefBackColumn"
-          :value="null"
-          schema-id="pet store"
-          :parent-row-id="parentRowId"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
-        />
-      </div>
-
-      <div class="p-4 bg-yellow-50 border border-yellow-200 rounded text-sm">
-        <strong>Note:</strong> Smart mode examples require a running backend
-        with the "pet store" schema. Without backend, they will show loading or
-        error state.
+      <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
+        <strong>Note:</strong> When no #list slot is provided, the default
+        RecordListView component is used with pagination.
       </div>
     </div>
 

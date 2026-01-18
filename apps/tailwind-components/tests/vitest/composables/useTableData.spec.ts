@@ -259,4 +259,60 @@ describe("useTableData", () => {
 
     expect(status.value).toBe("success");
   });
+
+  test("should compute totalPages correctly", async () => {
+    mockFetchTableData.mockResolvedValueOnce({ rows: mockRows, count: 25 });
+    const page = ref(1);
+    const { totalPages } = useTableData("TestSchema", "TestTable", {
+      pageSize: 10,
+      page,
+    });
+    await flushPromises();
+    expect(totalPages.value).toBe(3); // ceil(25/10) = 3
+  });
+
+  test("should compute showPagination correctly", async () => {
+    mockFetchTableData.mockResolvedValueOnce({ rows: mockRows, count: 5 });
+    const page = ref(1);
+    const { showPagination } = useTableData("TestSchema", "TestTable", {
+      pageSize: 10,
+      page,
+    });
+    await flushPromises();
+    expect(showPagination.value).toBe(false); // 5 <= 10
+  });
+
+  test("should set errorMessage on fetch failure", async () => {
+    mockFetchTableData.mockRejectedValueOnce(new Error("Network error"));
+    const page = ref(1);
+    const { status, errorMessage } = useTableData("TestSchema", "TestTable", {
+      pageSize: 10,
+      page,
+    });
+    await flushPromises();
+    expect(status.value).toBe("error");
+    expect(errorMessage.value).toBe("Network error");
+  });
+
+  test("should clear errorMessage on successful refetch", async () => {
+    mockFetchTableData.mockRejectedValueOnce(new Error("Network error"));
+    const page = ref(1);
+    const { status, errorMessage, refresh } = useTableData(
+      "TestSchema",
+      "TestTable",
+      {
+        pageSize: 10,
+        page,
+      }
+    );
+    await flushPromises();
+    expect(errorMessage.value).toBe("Network error");
+
+    // reset mock to succeed
+    mockFetchTableData.mockResolvedValueOnce({ rows: mockRows, count: 2 });
+    await refresh();
+
+    expect(status.value).toBe("success");
+    expect(errorMessage.value).toBeUndefined();
+  });
 });
