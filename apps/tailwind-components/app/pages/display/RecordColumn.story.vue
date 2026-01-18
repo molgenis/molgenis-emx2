@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
-import DisplayRecordField from "../../components/display/RecordField.vue";
+import DisplayRecordColumn from "../../components/display/RecordColumn.vue";
 
 const showEmpty = ref(false);
 const clickLog = ref<string[]>([]);
@@ -65,16 +65,37 @@ const refColumn: IRefColumn = {
   refLinkId: "name",
 };
 
-const refArrayColumn: IColumn = {
+const refArrayColumn: IRefColumn = {
   id: "pets",
   label: "Pets",
   columnType: "REF_ARRAY",
+  refTableId: "Pet",
+  refSchemaId: "pet store",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+  refLinkId: "name",
 };
 
-const refBackColumn: IColumn = {
+const refArrayLargeColumn: IRefColumn = {
+  id: "orders",
+  label: "Orders (15 items, paginated)",
+  columnType: "REF_ARRAY",
+  refTableId: "Order",
+  refSchemaId: "pet store",
+  refLabel: "${orderId} - ${status}",
+  refLabelDefault: "${orderId}",
+  refLinkId: "orderId",
+};
+
+const refBackColumn: IRefColumn = {
   id: "owner",
   label: "Owner",
   columnType: "REFBACK",
+  refTableId: "Owner",
+  refSchemaId: "pet store",
+  refLabel: "${firstName} ${lastName}",
+  refLabelDefault: "${firstName}",
+  refLinkId: "id",
 };
 
 const ontologyColumn: IColumn = {
@@ -87,6 +108,22 @@ const ontologyArrayColumn: IColumn = {
   id: "tags",
   label: "Tags",
   columnType: "ONTOLOGY_ARRAY",
+};
+
+// Mock data for REF_ARRAY with pagination (15 items)
+const largeRefArrayValue = Array.from({ length: 15 }, (_, i) => ({
+  orderId: `ORD-${String(i + 1).padStart(3, "0")}`,
+  status: ["Pending", "Shipped", "Delivered"][i % 3],
+}));
+
+// Mock ontology data with tree structure
+const ontologyTreeValue = {
+  name: "Mammal",
+  definition: "Warm-blooded vertebrates",
+  children: [
+    { name: "Canine", definition: "Dog family" },
+    { name: "Feline", definition: "Cat family" },
+  ],
 };
 
 const emptyColumn: IColumn = {
@@ -114,7 +151,7 @@ function clearLog() {
 
 <template>
   <div class="p-5 space-y-6">
-    <h1 class="text-2xl font-bold">RecordField Component</h1>
+    <h1 class="text-2xl font-bold">RecordColumn Component</h1>
     <p class="text-gray-600">
       Renders a single column value with type-based dispatch.
     </p>
@@ -129,7 +166,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">STRING:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="stringColumn"
           value="John Doe"
           :show-empty="showEmpty"
@@ -138,7 +175,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">INT:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="intColumn"
           :value="42"
           :show-empty="showEmpty"
@@ -147,7 +184,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">BOOL (true):</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="boolColumn"
           :value="true"
           :show-empty="showEmpty"
@@ -156,7 +193,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">BOOL (false):</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="boolColumn"
           :value="false"
           :show-empty="showEmpty"
@@ -165,7 +202,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">DECIMAL:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="decimalColumn"
           :value="19.99"
           :show-empty="showEmpty"
@@ -174,7 +211,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">DATE:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="dateColumn"
           value="2024-01-15"
           :show-empty="showEmpty"
@@ -183,7 +220,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">TEXT:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="textColumn"
           value="A longer description text that demonstrates how text values are displayed."
           :show-empty="showEmpty"
@@ -192,7 +229,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">EMAIL:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="emailColumn"
           value="john@example.com"
           :show-empty="showEmpty"
@@ -201,7 +238,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">HYPERLINK:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="hyperlinkColumn"
           value="https://molgenis.org"
           :show-empty="showEmpty"
@@ -215,7 +252,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">REF:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="refColumn"
           :value="{ name: 'Fluffy' }"
           :show-empty="showEmpty"
@@ -249,40 +286,76 @@ function clearLog() {
     </div>
 
     <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Placeholder Types</h2>
+      <h2 class="text-xl font-semibold">REF_ARRAY Types (with pagination)</h2>
+      <p class="text-sm text-gray-500">Click any link to see the event log.</p>
 
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">REF_ARRAY:</span>
-        <DisplayRecordField
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+        <span class="font-medium">REF_ARRAY (3 items):</span>
+        <DisplayRecordColumn
           :column="refArrayColumn"
-          :value="[{ name: 'Pet1' }, { name: 'Pet2' }]"
+          :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
           :show-empty="showEmpty"
+          :get-ref-click-action="getRefClickAction"
         />
       </div>
 
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+        <span class="font-medium">REF_ARRAY (15 items, paginated):</span>
+        <DisplayRecordColumn
+          :column="refArrayLargeColumn"
+          :value="largeRefArrayValue"
+          :show-empty="showEmpty"
+          :get-ref-click-action="getRefClickAction"
+        />
+      </div>
+
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
         <span class="font-medium">REFBACK:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="refBackColumn"
-          :value="[{ name: 'Owner1' }]"
+          :value="[
+            { firstName: 'John', lastName: 'Doe', id: 1 },
+            { firstName: 'Jane', lastName: 'Smith', id: 2 },
+          ]"
           :show-empty="showEmpty"
+          :get-ref-click-action="getRefClickAction"
         />
       </div>
+    </div>
 
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">ONTOLOGY:</span>
-        <DisplayRecordField
+    <div class="space-y-4">
+      <h2 class="text-xl font-semibold">Ontology Types</h2>
+
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+        <span class="font-medium">ONTOLOGY (single):</span>
+        <DisplayRecordColumn
           :column="ontologyColumn"
-          :value="{ name: 'Dog' }"
+          :value="{
+            name: 'Dog',
+            definition: 'A domesticated carnivorous mammal',
+          }"
           :show-empty="showEmpty"
         />
       </div>
 
-      <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
-        <span class="font-medium">ONTOLOGY_ARRAY:</span>
-        <DisplayRecordField
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+        <span class="font-medium">ONTOLOGY_ARRAY (flat list):</span>
+        <DisplayRecordColumn
           :column="ontologyArrayColumn"
-          :value="[{ name: 'Tag1' }, { name: 'Tag2' }]"
+          :value="[
+            { name: 'Friendly', definition: 'Good with people' },
+            { name: 'Trained', definition: 'Has basic obedience training' },
+            { name: 'Vaccinated' },
+          ]"
+          :show-empty="showEmpty"
+        />
+      </div>
+
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+        <span class="font-medium">ONTOLOGY (tree with children):</span>
+        <DisplayRecordColumn
+          :column="ontologyColumn"
+          :value="ontologyTreeValue"
           :show-empty="showEmpty"
         />
       </div>
@@ -296,7 +369,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">null value:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="emptyColumn"
           :value="null"
           :show-empty="showEmpty"
@@ -308,7 +381,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">undefined value:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="emptyColumn"
           :value="undefined"
           :show-empty="showEmpty"
@@ -320,7 +393,7 @@ function clearLog() {
 
       <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
         <span class="font-medium">empty string:</span>
-        <DisplayRecordField
+        <DisplayRecordColumn
           :column="emptyColumn"
           value=""
           :show-empty="showEmpty"

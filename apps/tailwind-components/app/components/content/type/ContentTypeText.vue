@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ISectionField } from "../../../../types/types";
+import type { ISectionColumn } from "../../../../types/types";
 import ContentReadMore from "../../ContentReadMore.vue";
 
 defineProps<{
-  field: ISectionField;
+  field: ISectionColumn;
 }>();
 </script>
 

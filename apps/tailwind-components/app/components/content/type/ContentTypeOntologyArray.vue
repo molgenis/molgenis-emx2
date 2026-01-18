@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ISectionField } from "../../../../types/types";
+import type { ISectionColumn } from "../../../../types/types";
 
 const { field } = defineProps<{
-  field: ISectionField;
+  field: ISectionColumn;
 }>();
 
 interface Item {

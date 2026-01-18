@@ -95,14 +95,14 @@ export interface ITableSettings {
   search: string;
 }
 
-export interface ISectionField {
+export interface ISectionColumn {
   meta: IColumn;
   value: any;
 }
 
 export interface ISection {
   meta: IColumn;
-  fields: ISectionField[];
+  fields: ISectionColumn[];
 }
 
 export interface IFile {

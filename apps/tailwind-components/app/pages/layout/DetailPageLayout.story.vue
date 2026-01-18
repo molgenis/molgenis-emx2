@@ -6,7 +6,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import BreadCrumbs from "../../components/BreadCrumbs.vue";
 import ContentBlocks from "../../components/content/ContentBlocks.vue";
 import ContentBlock from "../../components/content/ContentBlock.vue";
-import RecordField from "../../components/display/RecordField.vue";
+import RecordColumn from "../../components/display/RecordColumn.vue";
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 
 const showSideNav = ref(true);
@@ -111,7 +111,7 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
     <p class="text-body-base mb-4">
       This layout matches the catalogue detail pages. Toggle the checkbox to
       hide/show the side navigation. The General Design, Population, and Access
-      Conditions sections use RecordField components.
+      Conditions sections use RecordColumn components.
     </p>
 
     <fieldset class="border border-gray-400 p-4 mb-6 rounded">
@@ -184,7 +184,7 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
               >
                 <dt class="font-semibold min-w-40">{{ col.label }}:</dt>
                 <dd>
-                  <RecordField
+                  <RecordColumn
                     :column="col"
                     :value="designRow[col.id]"
                     :get-ref-click-action="getRefClickAction"
@@ -203,7 +203,7 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
               >
                 <dt class="font-semibold min-w-40">{{ col.label }}:</dt>
                 <dd>
-                  <RecordField
+                  <RecordColumn
                     :column="col"
                     :value="populationRow[col.id]"
                     :get-ref-click-action="getRefClickAction"
@@ -268,7 +268,7 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
               >
                 <dt class="font-semibold min-w-40">{{ col.label }}:</dt>
                 <dd>
-                  <RecordField
+                  <RecordColumn
                     :column="col"
                     :value="accessRow[col.id]"
                     :get-ref-click-action="getRefClickAction"

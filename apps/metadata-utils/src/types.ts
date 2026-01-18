@@ -86,6 +86,7 @@ export interface IRefColumn extends IColumn {
   refLabel: string;
   refLabelDefault: string;
   refLinkId: string;
+  refTableMetadata?: ITableMetaData;
 }
 
 export interface ITableMetaData {
