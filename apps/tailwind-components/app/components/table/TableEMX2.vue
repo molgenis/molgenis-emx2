@@ -10,7 +10,7 @@
 
     <div class="flex gap-[10px]">
       <Button
-        v-if="props.isEditable && data?.tableMetadata"
+        v-if="props.isEditable && metadata"
         type="primary"
         icon="add-circle"
         @click="onAddRowClicked"
@@ -160,21 +160,21 @@
   />
 
   <DeleteModal
-    v-if="data?.tableMetadata && rowDataForModal"
+    v-if="metadata && rowDataForModal"
     :showButton="false"
     :schemaId="props.schemaId"
-    :metadata="data.tableMetadata"
+    :metadata="metadata"
     :formValues="rowDataForModal"
     v-model:visible="showDeleteModal"
     @update:deleted="afterRowDeleted"
   />
 
   <EditModal
-    v-if="data?.tableMetadata && showEditModal"
+    v-if="metadata && showEditModal"
     :key="`edit-modal-${useId()}`"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="data.tableMetadata"
+    :metadata="metadata"
     :formValues="rowDataForModal"
     :isInsert="false"
     v-model:visible="showEditModal"
@@ -182,11 +182,11 @@
   />
 
   <EditModal
-    v-if="data?.tableMetadata && showAddModal"
+    v-if="metadata && showAddModal"
     :key="`add-modal-${useId()}`"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="data.tableMetadata"
+    :metadata="metadata"
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
@@ -208,8 +208,7 @@ import type {
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
-import { useAsyncData } from "#app/composables/asyncData";
-import { fetchTableData, fetchTableMetadata } from "#imports";
+import { useTableData } from "../../composables/useTableData";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
@@ -258,39 +257,42 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-const { data, refresh } = useAsyncData(
-  `tableEMX2-${props.schemaId}-${props.tableId}`,
-  async () => {
-    const tableMetadata = await fetchTableMetadata(
-      props.schemaId,
-      props.tableId
-    );
+// reactive refs for useTableData options
+const pageRef = ref(settings.value.page);
+const searchTermsRef = ref(settings.value.search);
+const orderbyRef = ref(settings.value.orderby);
 
-    const tableData = await fetchTableData(props.schemaId, props.tableId, {
-      limit: settings.value.pageSize,
-      offset: (settings.value.page - 1) * settings.value.pageSize,
-      orderby: settings.value.orderby.column
-        ? { [settings.value.orderby.column]: settings.value.orderby.direction }
-        : {},
-      searchTerms: settings.value.search,
-    });
-
-    return {
-      tableMetadata,
-      tableData,
-    };
-  }
+// sync settings to refs
+watch(
+  () => settings.value.page,
+  (val) => (pageRef.value = val),
+  { immediate: true }
+);
+watch(
+  () => settings.value.search,
+  (val) => (searchTermsRef.value = val),
+  { immediate: true }
+);
+watch(
+  () => settings.value.orderby,
+  (val) => (orderbyRef.value = val),
+  { immediate: true, deep: true }
 );
 
-const rows = computed(() =>
-  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+const { metadata, rows, count, refresh } = useTableData(
+  props.schemaId,
+  props.tableId,
+  {
+    pageSize: settings.value.pageSize,
+    page: pageRef,
+    searchTerms: searchTermsRef,
+    orderby: orderbyRef,
+  }
 );
 
 const showDraftColumn = computed(() =>
   rows.value.some((row) => row?.mg_draft === true)
 );
-
-const count = computed(() => data.value?.tableData?.count ?? 0);
 
 const primaryKeys = computed(() => {
   return columns.value
@@ -303,7 +305,7 @@ const primaryKeys = computed(() => {
 });
 
 watch(
-  () => data.value?.tableMetadata,
+  metadata,
   (newMetadata) => {
     if (newMetadata) {
       columns.value = newMetadata.columns.filter(

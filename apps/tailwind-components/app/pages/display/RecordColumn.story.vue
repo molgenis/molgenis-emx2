@@ -98,6 +98,33 @@ const refBackColumn: IRefColumn = {
   refLinkId: "id",
 };
 
+// Smart mode columns (for live data fetching via Emx2ListView)
+const smartRefArrayColumn: IRefColumn = {
+  id: "pets",
+  label: "Pets (Smart Mode)",
+  columnType: "REF_ARRAY",
+  refTableId: "Pet",
+  refSchemaId: "pet store",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+  refLinkId: "name",
+};
+
+const smartRefBackColumn: IRefColumn = {
+  id: "pets",
+  label: "Pets (Smart REFBACK)",
+  columnType: "REFBACK",
+  refTableId: "Pet",
+  refSchemaId: "pet store",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+  refLinkId: "name",
+  refBackId: "category",
+};
+
+// Mock parent row ID for refback filter
+const parentRowId = { name: "cat" };
+
 const ontologyColumn: IColumn = {
   id: "species",
   label: "Species",
@@ -320,6 +347,45 @@ function clearLog() {
           :show-empty="showEmpty"
           :get-ref-click-action="getRefClickAction"
         />
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h2 class="text-xl font-semibold">
+        Smart Mode (Emx2ListView with live data)
+      </h2>
+      <p class="text-sm text-gray-500">
+        When schemaId is provided, REF_ARRAY/REFBACK use Emx2ListView to fetch
+        data from backend. Requires running backend with "pet store" schema.
+      </p>
+
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+        <span class="font-medium">REF_ARRAY (Smart):</span>
+        <DisplayRecordColumn
+          :column="smartRefArrayColumn"
+          :value="null"
+          schema-id="pet store"
+          :show-empty="showEmpty"
+          :get-ref-click-action="getRefClickAction"
+        />
+      </div>
+
+      <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+        <span class="font-medium">REFBACK (Smart with filter):</span>
+        <DisplayRecordColumn
+          :column="smartRefBackColumn"
+          :value="null"
+          schema-id="pet store"
+          :parent-row-id="parentRowId"
+          :show-empty="showEmpty"
+          :get-ref-click-action="getRefClickAction"
+        />
+      </div>
+
+      <div class="p-4 bg-yellow-50 border border-yellow-200 rounded text-sm">
+        <strong>Note:</strong> Smart mode examples require a running backend
+        with the "pet store" schema. Without backend, they will show loading or
+        error state.
       </div>
     </div>
 
