@@ -53,7 +53,7 @@ public class Emx2Changelog {
   }
 
   private static boolean canAccessChangelog(Schema schema) {
-    var roles = schema.getInheritedRolesForActiveUser();
+    List<String> roles = schema.getInheritedRolesForActiveUser();
     return roles.contains(Privileges.MANAGER.toString())
         || roles.contains(Privileges.OWNER.toString());
   }
