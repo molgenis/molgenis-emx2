@@ -25,7 +25,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   test_config: &test_config
@@ -39,7 +39,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   release_config: &release_config
@@ -53,7 +53,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
 
