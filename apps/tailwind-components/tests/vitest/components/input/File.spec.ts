@@ -48,7 +48,7 @@ describe("input file", () => {
   it("should show a link to download the file", async () => {
     await wrapper.setProps({
       modelValue: {
-        id: 1,
+        id: "1",
         filename: "test-document.txt",
         url: "http://example.com/test-document.txt",
       },
@@ -64,7 +64,7 @@ describe("input file", () => {
   it("should open link in new tab/window", async () => {
     await wrapper.setProps({
       modelValue: {
-        id: 1,
+        id: "1",
         filename: "test-document.txt",
         url: "http://example.com/test-document.txt",
       },
