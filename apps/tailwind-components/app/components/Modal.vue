@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
+import { registerModal } from "../utils/modalManager";
 
 withDefaults(
   defineProps<{
@@ -39,23 +40,16 @@ onBeforeUnmount(() => {
   document.body.style.overflow = "";
 });
 
-function handleKeydown(e: KeyboardEvent) {
-  if (e.key === "Escape") {
-    visible.value = false;
-  }
-}
+let unregister: (() => void) | undefined;
 
 onMounted(() => {
-  if (window) {
-    window.addEventListener("keydown", handleKeydown);
-  }
+  unregister = registerModal(() => {
+    visible.value = false;
+  });
 });
 
 onUnmounted(() => {
-  emit("closed");
-  if (window) {
-    window.removeEventListener("keydown", handleKeydown);
-  }
+  unregister?.();
 });
 
 function hide() {
