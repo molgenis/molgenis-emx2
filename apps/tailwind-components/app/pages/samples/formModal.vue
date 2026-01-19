@@ -49,6 +49,7 @@
             schemaId="catalogue-demo"
             :columns="visibleColumns"
             :visibleColumnErrors="visibleColumnErrors"
+            :requiredFields="{}"
             v-model="formValues"
             @update="onUpdateColumn"
             @blur="onBlurColumn"
