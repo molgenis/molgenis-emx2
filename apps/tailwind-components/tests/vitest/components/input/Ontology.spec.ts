@@ -1117,7 +1117,6 @@ describe("OntologyInput - Unified loadPage Architecture", () => {
       const wrapper = mount(OntologyInput, {
         props: {
           id: "ontology-input",
-
           ontologySchemaId: "test-schema",
           ontologyTableId: "test-table",
           isArray: true,
