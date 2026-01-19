@@ -413,7 +413,7 @@ describe("useForm", () => {
   });
 
   describe("validateKeyColumns", () => {
-    const meta = ref({
+    const meta: Ref<ITableMetaData> = ref({
       id: "table id",
       name: "table name",
       schemaId: "table schema id",
