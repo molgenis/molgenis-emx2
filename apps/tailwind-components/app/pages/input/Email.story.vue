@@ -6,6 +6,7 @@
         v-model="model"
         :columns="metadata.columns"
         :visibleColumnErrors="visibleColumnErrors"
+        :requiredFields="{}"
         @update="onUpdateColumn"
         @blur="onBlurColumn"
       />
