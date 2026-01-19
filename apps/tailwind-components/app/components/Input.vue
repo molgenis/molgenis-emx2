@@ -103,7 +103,7 @@
     @blur="emit('blur')"
   />
   <InputTextArea
-    v-else-if="['TEXT'].includes(typeUpperCase)"
+    v-else-if="['TEXT', 'JSON'].includes(typeUpperCase)"
     v-model="modelValue as string"
     :id="id"
     :valid="valid"
