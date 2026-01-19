@@ -233,13 +233,6 @@ function setupObserver(trigger: HTMLElement, container: HTMLElement | null) {
     observer = new IntersectionObserver(
       async (entries) => {
         for (const entry of entries) {
-          console.log("🔭 IntersectionObserver triggered:", {
-            isIntersecting: entry.isIntersecting,
-            hasMoreTerms: hasMoreTerms.value,
-            isLoading: isLoading.value,
-            hasParentNode: !!props.parentNode,
-          });
-
           if (
             entry.isIntersecting &&
             hasMoreTerms.value &&
