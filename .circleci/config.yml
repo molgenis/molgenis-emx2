@@ -15,7 +15,7 @@ parameters:
     default: ""
 
 orbs:
-  slack: circleci/slack@4.15.0
+  slack: circleci/slack@6.1.2
   queue: eddiewebb/queue@3.1.4
 
 definitions:
