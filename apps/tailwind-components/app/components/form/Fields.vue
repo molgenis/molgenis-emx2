@@ -23,8 +23,6 @@ const modelValue = defineModel<IRow>("modelValue", {
 
 const emit = defineEmits(["update", "view", "leaving-view", "blur"]);
 
-const container = useTemplateRef<HTMLDivElement>("container");
-
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);
 
