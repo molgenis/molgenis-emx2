@@ -690,9 +690,8 @@ class WebApiSmokeTests {
         response.body().asString());
   }
 
-  //  @Test
+  @Test
   void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
-    db.dropCreateSchema(PET_STORE_SCHEMA);
     Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
 
     assertEquals(400, response.getStatusCode());

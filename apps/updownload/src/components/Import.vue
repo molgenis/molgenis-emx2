@@ -86,7 +86,7 @@
                   Members: <a :href="`/${schema}/api/csv/members`">csv</a>
                 </li>
                 <li v-if="isManagerOrOwner">
-                  Changelog: <a :href="`/${schema}/api/csv/changelog`">csv</a>
+                  Changelog: <a :href="`/${schema}/api/csv/changelog?limit=100&offset=0`">csv</a>
                 </li>
               </ul>
             </div>
