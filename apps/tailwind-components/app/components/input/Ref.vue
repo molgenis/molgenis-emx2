@@ -263,6 +263,7 @@ function deselect(label: string) {
 function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : null);
+  emit("blur");
   updateSearch(""); //reset
 }
 
