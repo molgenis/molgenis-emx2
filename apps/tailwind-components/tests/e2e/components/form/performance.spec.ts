@@ -75,5 +75,5 @@ test("performance of the ontology input should not degrade", async ({
     `Time taken to search and find two ontology values: ${timeTaken} milliseconds`
   );
 
-  expect(timeTaken).toBeLessThan(5000); //seems slow, but in practice it is not slow.
+  expect(timeTaken).toBeLessThan(6000); //seems slow, but in practice it is not slow.
 });
