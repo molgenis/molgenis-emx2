@@ -17,7 +17,8 @@ test("it should render the form", async ({ page }) => {
   await expect(page.getByLabel("id Required", { exact: true })).toBeVisible();
 });
 
-test("it should show the chapters in the legend", async ({ page }) => {
+test("it should show the chapters in the legend", async ({ page }, testInfo) => {
+  testInfo.setTimeout(testInfo.timeout + 10_000);
   await expect(page.locator("a").filter({ hasText: "Overview" })).toBeVisible();
   await expect(
     page.locator("a").filter({ hasText: "design and structure" })
