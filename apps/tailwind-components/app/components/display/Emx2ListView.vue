@@ -64,7 +64,7 @@ const refColumn = computed<IRefColumn | undefined>(() => {
     columnType: "REF",
     refTableId: metadata.value.id,
     refSchemaId: metadata.value.schemaId,
-    refLabel: props.refLabel || keyCol?.refLabel,
+    refLabel: props.refLabel || keyCol?.refLabel || "",
     refLabelDefault: keyCol?.refLabelDefault || "${name}",
     refLinkId: keyCol?.id || "name",
   };
