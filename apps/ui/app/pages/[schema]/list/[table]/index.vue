@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { encodeRecordId } from "../../../../../../tailwind-components/app/utils/recordIdEncoder";
+import { extractPrimaryKey } from "../../../../../../tailwind-components/app/utils/extractPrimaryKey";
 import fetchTableMetadata from "../../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import Emx2ListView from "../../../../../../tailwind-components/app/components/display/Emx2ListView.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
@@ -9,32 +10,33 @@ import type {
   IColumn,
   IRow,
   IRefColumn,
+  ITableMetaData,
 } from "../../../../../../metadata-utils/src/types";
-import { useRoute, useRouter } from "#app/composables/router";
+import { useRoute } from "#app/composables/router";
 import { useHead } from "#app";
 
 const route = useRoute();
-const router = useRouter();
 const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId} - Molgenis` });
 
-const tableMetadata = await fetchTableMetadata(schemaId, tableId);
+const tableMetadata: ITableMetaData = await fetchTableMetadata(
+  schemaId,
+  tableId
+);
 
 const crumbs: Crumb[] = [
   { label: schemaId, url: `/${schemaId}` },
   { label: tableMetadata?.label || tableId, url: "" },
 ];
 
-function handleRefClick(col: IColumn, row: IRow) {
+function getHref(col: IColumn, row: IRow): string {
   const refCol = col as IRefColumn;
   const targetSchema = refCol.refSchemaId || schemaId;
   const targetTable = refCol.refTableId || tableId;
-
-  const pk = row;
-  const encodedPk = encodeRecordId(pk);
-  router.push(`/${targetSchema}/view/${targetTable}/${encodedPk}`);
+  const pk = extractPrimaryKey(row, tableMetadata);
+  return `/${targetSchema}/view/${targetTable}?${encodeRecordId(pk)}`;
 }
 </script>
 
@@ -51,7 +53,7 @@ function handleRefClick(col: IColumn, row: IRow) {
       :table-id="tableId"
       :show-search="true"
       :paging-limit="10"
-      :click-action="handleRefClick"
+      :get-href="getHref"
     />
   </section>
 </template>

@@ -21,6 +21,7 @@ const props = withDefaults(
     pagingLimit?: number;
     refLabel?: string;
     clickAction?: (col: IColumn, row: IRow) => void;
+    getHref?: (col: IColumn, row: IRow) => string;
   }>(),
   {
     showSearch: true,
@@ -101,8 +102,15 @@ function getLabel(row: IRow): string {
       <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
         <li v-for="(row, index) in rows" :key="index">
           <slot :row="row" :column="refColumn" :label="getLabel(row)">
+            <NuxtLink
+              v-if="props.getHref && refColumn"
+              :to="props.getHref(refColumn, row)"
+              class="underline text-link"
+            >
+              {{ getLabel(row) }}
+            </NuxtLink>
             <span
-              v-if="props.clickAction && refColumn"
+              v-else-if="props.clickAction && refColumn"
               class="underline hover:cursor-pointer text-link"
               @click="props.clickAction(refColumn, row)"
             >

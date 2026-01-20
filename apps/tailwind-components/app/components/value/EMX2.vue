@@ -136,8 +136,17 @@ function handleRefClick() {
 
   <!-- Single refs: REF, RADIO, SELECT -->
   <template v-else-if="isSingleRef">
+    <NuxtLink
+      v-if="metadata.displayConfig?.getHref"
+      :to="metadata.displayConfig.getHref(metadata, data as IRow)"
+      class="underline text-link"
+    >
+      {{
+        rowToString(data, metadata.refLabel || metadata.refLabelDefault || "")
+      }}
+    </NuxtLink>
     <span
-      v-if="metadata.displayConfig?.clickAction"
+      v-else-if="metadata.displayConfig?.clickAction"
       class="underline hover:cursor-pointer text-link"
       @click="handleRefClick"
     >
@@ -170,8 +179,15 @@ function handleRefClick() {
       class="grid gap-1 pl-4 list-disc list-outside"
     >
       <li v-for="(row, index) in paginatedRows" :key="index">
+        <NuxtLink
+          v-if="metadata.displayConfig?.getHref"
+          :to="metadata.displayConfig.getHref(metadata, row)"
+          class="underline text-link"
+        >
+          {{ rowToString(row, refLabelTemplate) }}
+        </NuxtLink>
         <span
-          v-if="metadata.displayConfig?.clickAction"
+          v-else-if="metadata.displayConfig?.clickAction"
           class="underline hover:cursor-pointer text-link"
           @click="handleArrayItemClick(row)"
         >

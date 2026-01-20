@@ -15,6 +15,7 @@ export interface IDisplayConfig {
   visibleColumns?: string[];
   pageSize?: number;
   clickAction?: (col: IColumn, row: IRow) => void;
+  getHref?: (col: IColumn, row: IRow) => string;
 }
 
 export type CellValueType =
