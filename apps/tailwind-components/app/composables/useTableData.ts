@@ -1,4 +1,4 @@
-import { computed, ref, watch, type ComputedRef, type Ref } from "vue";
+import { computed, ref, watch, unref, type ComputedRef, type Ref } from "vue";
 import type { ITableMetaData, IRow } from "../../../metadata-utils/src/types";
 import fetchTableMetadata from "./fetchTableMetadata";
 import fetchTableData from "./fetchTableData";
@@ -8,7 +8,7 @@ export type TableDataStatus = "idle" | "pending" | "success" | "error";
 export interface UseTableDataOptions {
   pageSize: number;
   page: Ref<number>;
-  filter?: object;
+  filter?: object | ComputedRef<object>;
   searchTerms?: Ref<string>;
   orderby?: Ref<{ column: string; direction: "ASC" | "DESC" }>;
 }
@@ -50,7 +50,7 @@ export function useTableData(
             ? { [orderby.value.column]: orderby.value.direction }
             : {},
           searchTerms: searchTerms?.value || "",
-          filter: filter,
+          filter: unref(filter),
         }),
       ]);
 
@@ -74,6 +74,11 @@ export function useTableData(
   );
   watch(
     () => orderby?.value,
+    () => fetchData(),
+    { immediate: false, deep: true }
+  );
+  watch(
+    () => unref(filter),
     () => fetchData(),
     { immediate: false, deep: true }
   );

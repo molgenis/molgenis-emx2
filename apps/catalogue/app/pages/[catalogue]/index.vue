@@ -33,7 +33,7 @@ const cohortOnly = computed(() => {
 
 //networksfilter retrieves the catalogues
 //resources are within the current catalogue
-const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
+const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter,$datasetsFilter:DatasetsFilter){
         Resources(filter:$networksFilter) {
               id,
               acronym,
@@ -52,6 +52,9 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
           }
         }
         Networks_agg: Resources_agg(filter:$networkFilter) {
+          count
+        }
+        Datasets_agg(filter:$datasetsFilter) {
           count
         }
         Design_groupBy: Resources_groupBy(filter:$collectionsFilter) {
@@ -128,6 +131,22 @@ const networkFilter = scoped
     }
   : { type: { tags: { equals: "network" } } };
 
+const datasetsFilter = scoped
+  ? {
+      resource: {
+        _or: [
+          { id: { equals: catalogueRouteParam } },
+          { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+          {
+            partOfNetworks: {
+              parentNetworks: { id: { equals: catalogueRouteParam } },
+            },
+          },
+        ],
+      },
+    }
+  : undefined;
+
 const { data, error } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
   key: `lading-page-${catalogueRouteParam}`,
@@ -137,6 +156,7 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
       networksFilter,
       collectionsFilter,
       networkFilter,
+      datasetsFilter,
       variablesFilter: scoped
         ? {
             _or: [
@@ -241,6 +261,7 @@ useHead({
 
 const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
 const networkCount = computed(() => data.value.data?.Networks_agg?.count);
+const datasetCount = computed(() => data.value.data?.Datasets_agg?.count);
 
 const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
@@ -304,6 +325,15 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
           getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
         :link="`/${catalogueRouteParam}/variables`"
+      />
+      <LandingCardPrimary
+        v-if="datasetCount && !cohortOnly"
+        image="image-table"
+        title="Datasets"
+        description="Data structures and tables"
+        :count="datasetCount"
+        callToAction="Datasets"
+        :link="`/${catalogueRouteParam}/datasets`"
       />
       <LandingCardPrimary
         v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"

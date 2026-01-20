@@ -20,6 +20,7 @@ const props = withDefaults(
     rowId: Record<string, any>;
     viewColumns?: string[];
     displayConfig?: Map<string, IDisplayConfig>;
+    extraColumns?: IColumn[];
     showEmpty?: boolean;
   }>(),
   {
@@ -28,6 +29,10 @@ const props = withDefaults(
 );
 
 function buildRefbackFilter(column: IColumn, rowId: Record<string, any>) {
+  // use filter from displayConfig if provided (for virtual columns)
+  if (column.displayConfig?.filter) {
+    return column.displayConfig.filter;
+  }
   const refCol = column as IRefColumn;
   if (refCol.columnType === "REFBACK" && refCol.refBackId) {
     return { [refCol.refBackId]: { equals: rowId } };
@@ -80,6 +85,11 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
   if (!metadata.value) return undefined;
 
   let columns = [...metadata.value.columns];
+
+  // Add extra columns (e.g., virtual refback columns)
+  if (props.extraColumns && props.extraColumns.length > 0) {
+    columns = [...columns, ...props.extraColumns];
+  }
 
   if (props.viewColumns && props.viewColumns.length > 0) {
     const viewColumnSet = new Set(props.viewColumns);
@@ -159,8 +169,10 @@ watch(
           :table-id="(column as IRefColumn).refTableId!"
           :filter="buildRefbackFilter(column, rowId)"
           :show-search="false"
-          :paging-limit="5"
+          :paging-limit="column.displayConfig?.pageSize || 5"
           :ref-label="(column as IRefColumn).refLabel || (column as IRefColumn).refLabelDefault"
+          :display-config="column.displayConfig"
+          :get-href="column.displayConfig?.getHref"
           :click-action="column.displayConfig?.clickAction"
         />
       </template>

@@ -14,6 +14,7 @@ export interface IDisplayConfig {
   component?: string | Component;
   visibleColumns?: string[];
   pageSize?: number;
+  filter?: object;
   clickAction?: (col: IColumn, row: IRow) => void;
   getHref?: (col: IColumn, row: IRow) => string;
 }
