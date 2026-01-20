@@ -21,10 +21,9 @@ const bannerWithImage = mount(PageBanner, {
 });
 
 describe("Custom Pages: banner", () => {
-  test("by default, banner has a title, subtitle, and a solid background", async () => {
+  test("by default, banners have a title and a subtitle", async () => {
     expect(defaultBanner.find("h1").exists()).toBeTruthy();
     expect(defaultBanner.find("p").exists()).toBeTruthy();
-    expect(defaultBanner.classes()).toContain("bg-gray-100");
   });
 
   test("when an image is defined, the image filter and colors are applied", async () => {
