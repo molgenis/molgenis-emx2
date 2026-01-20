@@ -27,17 +27,14 @@ const crumbs: Crumb[] = [
   { label: tableMetadata?.label || tableId, url: "" },
 ];
 
-function getRefClickAction(col: IColumn, row: IRow) {
-  return () => {
-    const refCol = col as IRefColumn;
-    const targetSchema = refCol.refSchemaId || schemaId;
-    const targetTable = refCol.refTableId || tableId;
+function handleRefClick(col: IColumn, row: IRow) {
+  const refCol = col as IRefColumn;
+  const targetSchema = refCol.refSchemaId || schemaId;
+  const targetTable = refCol.refTableId || tableId;
 
-    // row contains the full record data, use it as pk
-    const pk = row;
-    const encodedPk = encodeRecordId(pk);
-    router.push(`/${targetSchema}/view/${targetTable}/${encodedPk}`);
-  };
+  const pk = row;
+  const encodedPk = encodeRecordId(pk);
+  router.push(`/${targetSchema}/view/${targetTable}/${encodedPk}`);
 }
 </script>
 
@@ -54,7 +51,7 @@ function getRefClickAction(col: IColumn, row: IRow) {
       :table-id="tableId"
       :show-search="true"
       :paging-limit="10"
-      :get-ref-click-action="getRefClickAction"
+      :click-action="handleRefClick"
     />
   </section>
 </template>
