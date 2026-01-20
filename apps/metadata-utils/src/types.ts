@@ -10,6 +10,13 @@ export interface ISetting {
 
 export type HeadingType = "HEADING" | "SECTION";
 
+export interface IDisplayConfig {
+  component?: string | object;
+  visibleColumns?: string[];
+  pageSize?: number;
+  clickAction?: (col: IColumn, row: IRow) => void;
+}
+
 export type CellValueType =
   | "BOOL"
   | "BOOL_ARRAY"
@@ -60,6 +67,7 @@ export interface IColumn {
   computed?: string;
   conditions?: string[];
   description?: string;
+  displayConfig?: IDisplayConfig;
   formLabel?: string;
   key?: number;
   position?: number;

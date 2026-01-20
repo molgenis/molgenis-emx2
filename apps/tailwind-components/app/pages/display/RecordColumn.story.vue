@@ -1,10 +1,26 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
+import { ref, computed } from "vue";
+import type {
+  IColumn,
+  IRefColumn,
+  IRow,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
 import DisplayRecordColumn from "../../components/display/RecordColumn.vue";
 
 const showEmpty = ref(false);
 const clickLog = ref<string[]>([]);
+
+// Click handler for logging
+function handleRefClick(col: IColumn, row: IRow) {
+  const message = `Clicked REF: column="${col.id}", value=${JSON.stringify(
+    row
+  )}`;
+  clickLog.value.unshift(message);
+  if (clickLog.value.length > 5) {
+    clickLog.value.pop();
+  }
+}
 
 const stringColumn: IColumn = {
   id: "name",
@@ -54,7 +70,7 @@ const hyperlinkColumn: IColumn = {
   columnType: "HYPERLINK",
 };
 
-const refColumn: IRefColumn = {
+const refColumn = computed<IRefColumn>(() => ({
   id: "pet",
   label: "Pet",
   columnType: "REF",
@@ -63,7 +79,8 @@ const refColumn: IRefColumn = {
   refLabel: "${name}",
   refLabelDefault: "${name}",
   refLinkId: "name",
-};
+  displayConfig: { clickAction: handleRefClick },
+}));
 
 // RADIO and SELECT render same as REF (single object value)
 const radioColumn: IColumn = {
@@ -99,7 +116,7 @@ const multiselectColumn: IColumn = {
   refLabelDefault: "${name}",
 };
 
-const refArrayColumn: IRefColumn = {
+const refArrayColumn = computed<IRefColumn>(() => ({
   id: "pets",
   label: "Pets",
   columnType: "REF_ARRAY",
@@ -108,9 +125,10 @@ const refArrayColumn: IRefColumn = {
   refLabel: "${name}",
   refLabelDefault: "${name}",
   refLinkId: "name",
-};
+  displayConfig: { clickAction: handleRefClick },
+}));
 
-const refArrayLargeColumn: IRefColumn = {
+const refArrayLargeColumn = computed<IRefColumn>(() => ({
   id: "orders",
   label: "Orders (15 items, paginated)",
   columnType: "REF_ARRAY",
@@ -119,9 +137,10 @@ const refArrayLargeColumn: IRefColumn = {
   refLabel: "${orderId} - ${status}",
   refLabelDefault: "${orderId}",
   refLinkId: "orderId",
-};
+  displayConfig: { clickAction: handleRefClick },
+}));
 
-const refBackColumn: IRefColumn = {
+const refBackColumn = computed<IRefColumn>(() => ({
   id: "owner",
   label: "Owner",
   columnType: "REFBACK",
@@ -130,7 +149,8 @@ const refBackColumn: IRefColumn = {
   refLabel: "${firstName} ${lastName}",
   refLabelDefault: "${firstName}",
   refLinkId: "id",
-};
+  displayConfig: { clickAction: handleRefClick },
+}));
 
 // Column for slot usage example
 const slotRefArrayColumn: IRefColumn = {
@@ -143,6 +163,69 @@ const slotRefArrayColumn: IRefColumn = {
   refLabelDefault: "${name}",
   refLinkId: "name",
 };
+
+// Mock ref table metadata for table display mode
+const petTableMetadata: ITableMetaData = {
+  id: "Pet",
+  schemaId: "pet store",
+  name: "Pet",
+  label: "Pet",
+  tableType: "DATA",
+  columns: [
+    { id: "name", label: "Name", columnType: "STRING", key: 1 },
+    { id: "species", label: "Species", columnType: "STRING" },
+    { id: "age", label: "Age", columnType: "INT" },
+    { id: "vaccinated", label: "Vaccinated", columnType: "BOOL" },
+  ],
+};
+
+// Column with table display mode
+const tableDisplayColumn = computed<IRefColumn>(() => ({
+  id: "pets",
+  label: "Pets (Table Mode)",
+  columnType: "REF_ARRAY",
+  refTableId: "Pet",
+  refSchemaId: "pet store",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+  refLinkId: "name",
+  refTableMetadata: petTableMetadata,
+  displayConfig: {
+    component: "table",
+    visibleColumns: ["name", "species", "age"],
+    clickAction: handleRefClick,
+  },
+}));
+
+// Column with table display mode and custom page size
+const tableDisplayLargeColumn = computed<IRefColumn>(() => ({
+  id: "pets",
+  label: "Pets (Table Mode, pageSize=3)",
+  columnType: "REF_ARRAY",
+  refTableId: "Pet",
+  refSchemaId: "pet store",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+  refLinkId: "name",
+  refTableMetadata: petTableMetadata,
+  displayConfig: {
+    component: "table",
+    visibleColumns: ["name", "species", "age", "vaccinated"],
+    pageSize: 3,
+    clickAction: handleRefClick,
+  },
+}));
+
+// Mock pet data for table mode
+const petTableData = [
+  { name: "Fluffy", species: "Cat", age: 3, vaccinated: true },
+  { name: "Buddy", species: "Dog", age: 5, vaccinated: true },
+  { name: "Max", species: "Dog", age: 2, vaccinated: false },
+  { name: "Whiskers", species: "Cat", age: 4, vaccinated: true },
+  { name: "Charlie", species: "Bird", age: 1, vaccinated: false },
+  { name: "Luna", species: "Cat", age: 2, vaccinated: true },
+  { name: "Rocky", species: "Dog", age: 7, vaccinated: true },
+];
 
 const ontologyColumn: IColumn = {
   id: "species",
@@ -177,18 +260,6 @@ const emptyColumn: IColumn = {
   label: "Empty Field",
   columnType: "STRING",
 };
-
-function getRefClickAction(col: IColumn, row: any) {
-  return () => {
-    const message = `Clicked REF: column="${col.id}", value=${JSON.stringify(
-      row
-    )}`;
-    clickLog.value.unshift(message);
-    if (clickLog.value.length > 5) {
-      clickLog.value.pop();
-    }
-  };
-}
 
 function clearLog() {
   clickLog.value = [];
@@ -313,7 +384,6 @@ function clearLog() {
             :column="refColumn"
             :value="{ name: 'Fluffy' }"
             :show-empty="showEmpty"
-            :get-ref-click-action="getRefClickAction"
           />
         </div>
 
@@ -377,7 +447,6 @@ function clearLog() {
             :column="refArrayColumn"
             :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
             :show-empty="showEmpty"
-            :get-ref-click-action="getRefClickAction"
           />
         </div>
 
@@ -389,7 +458,6 @@ function clearLog() {
             :column="refArrayLargeColumn"
             :value="largeRefArrayValue"
             :show-empty="showEmpty"
-            :get-ref-click-action="getRefClickAction"
           />
         </div>
 
@@ -402,7 +470,6 @@ function clearLog() {
               { firstName: 'Jane', lastName: 'Smith', id: 2 },
             ]"
             :show-empty="showEmpty"
-            :get-ref-click-action="getRefClickAction"
           />
         </div>
 
@@ -449,7 +516,6 @@ function clearLog() {
             :column="slotRefArrayColumn"
             :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
             :show-empty="showEmpty"
-            :get-ref-click-action="getRefClickAction"
           >
             <template #list="{ column, value }">
               <div class="p-3 bg-blue-50 border border-blue-200 rounded">
@@ -468,7 +534,52 @@ function clearLog() {
 
         <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
           <strong>Note:</strong> When no #list slot is provided, the default
-          RecordListView component is used with pagination.
+          bullet list rendering with pagination is used.
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">
+          Table Display Mode (displayConfig.component='table')
+        </h2>
+        <p class="text-sm text-gray-500">
+          REF_ARRAY columns can use displayConfig to render as a table. Requires
+          refTableMetadata and visibleColumns to be set.
+        </p>
+
+        <div class="space-y-2">
+          <span class="font-medium text-record-label"
+            >REF_ARRAY with table mode (3 columns):</span
+          >
+          <DisplayRecordColumn
+            :column="tableDisplayColumn"
+            :value="petTableData.slice(0, 3)"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <span class="font-medium text-record-label"
+            >REF_ARRAY with table mode (7 items, pageSize=3):</span
+          >
+          <DisplayRecordColumn
+            :column="tableDisplayLargeColumn"
+            :value="petTableData"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
+          <strong>Note:</strong> Table mode requires:
+          <ul class="list-disc list-inside mt-2">
+            <li>
+              <code>displayConfig.component = 'table'</code>
+            </li>
+            <li>
+              <code>displayConfig.visibleColumns</code> array of column IDs
+            </li>
+            <li><code>refTableMetadata</code> with column definitions</li>
+          </ul>
         </div>
       </div>
 

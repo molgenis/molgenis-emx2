@@ -3,7 +3,6 @@ import { computed } from "vue";
 import type {
   IColumn,
   ITableMetaData,
-  IRow,
 } from "../../../../metadata-utils/src/types";
 import type { ISectionColumn } from "../../../types/types";
 import RecordSection from "./RecordSection.vue";
@@ -13,7 +12,6 @@ const props = withDefaults(
     metadata: ITableMetaData;
     row: Record<string, any>;
     showEmpty?: boolean;
-    getRefClickAction?: (col: IColumn, row: IRow) => () => void;
   }>(),
   {
     showEmpty: false,
@@ -133,7 +131,6 @@ const sections = computed<SectionGroup[]>(() => {
       :is-section="section.isSection"
       :columns="section.columns"
       :show-empty="showEmpty"
-      :get-ref-click-action="getRefClickAction"
     >
       <template #list="slotProps">
         <slot name="list" v-bind="slotProps" />

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { ISectionColumn } from "../../../types/types";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
@@ -13,7 +13,6 @@ const props = withDefaults(
     isSection?: boolean;
     columns: ISectionColumn[];
     showEmpty?: boolean;
-    getRefClickAction?: (col: IColumn, row: IRow) => () => void;
   }>(),
   {
     heading: null,
@@ -75,7 +74,6 @@ const listColumns = computed(() =>
             :column="col.meta"
             :value="col.value"
             :show-empty="showEmpty"
-            :get-ref-click-action="getRefClickAction"
           >
             <template #list="slotProps">
               <slot name="list" v-bind="slotProps" />
@@ -100,7 +98,6 @@ const listColumns = computed(() =>
             :column="col.meta"
             :value="col.value"
             :show-empty="showEmpty"
-            :get-ref-click-action="getRefClickAction"
           >
             <template #list="slotProps">
               <slot name="list" v-bind="slotProps" />

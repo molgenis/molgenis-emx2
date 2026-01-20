@@ -10,7 +10,6 @@ import { rowToString } from "../../utils/rowToString";
 import InputSearch from "../input/Search.vue";
 import InlinePagination from "./InlinePagination.vue";
 import LoadingContent from "../LoadingContent.vue";
-import ValueRef from "../value/Ref.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -21,7 +20,6 @@ const props = withDefaults(
     showSearch?: boolean;
     pagingLimit?: number;
     refLabel?: string;
-    getRefClickAction?: (col: IColumn, row: IRow) => () => void;
   }>(),
   {
     showSearch: true,
@@ -54,7 +52,7 @@ const errorText = computed(
     (status.value === "error" ? "Failed to load data" : undefined)
 );
 
-// construct a ref column for ValueRef rendering
+// construct a ref column for label rendering and slot
 const refColumn = computed<IRefColumn | undefined>(() => {
   if (!metadata.value) return undefined;
   const keyCol = metadata.value.columns?.find((c) => c.key === 1);
@@ -70,18 +68,10 @@ const refColumn = computed<IRefColumn | undefined>(() => {
   };
 });
 
-// reset page on search
 watch(searchTerms, () => {
   page.value = 1;
 });
 
-function handleRefClick(row: IRow) {
-  if (props.getRefClickAction && refColumn.value) {
-    props.getRefClickAction(refColumn.value, row)();
-  }
-}
-
-// for slot: compute label using same logic as ValueRef
 function getLabel(row: IRow): string {
   const template =
     refColumn.value?.refLabel || refColumn.value?.refLabelDefault;
@@ -109,14 +99,15 @@ function getLabel(row: IRow): string {
     >
       <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
         <li v-for="(row, index) in rows" :key="index">
-          <!-- default slot with ValueRef as fallback -->
           <slot :row="row" :column="refColumn" :label="getLabel(row)">
-            <ValueRef
-              v-if="refColumn"
-              :metadata="refColumn"
-              :data="row"
-              @refCellClicked="handleRefClick(row)"
-            />
+            <span
+              v-if="clickAction && refColumn"
+              class="underline hover:cursor-pointer text-link"
+              @click="clickAction(refColumn, row)"
+            >
+              {{ getLabel(row) }}
+            </span>
+            <span v-else>{{ getLabel(row) }}</span>
           </slot>
         </li>
       </ul>

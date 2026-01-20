@@ -1,74 +1,68 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import type {
-  IColumn,
-  IRefColumn,
-  IRow,
-} from "../../../../metadata-utils/src/types";
+import { ref, computed, useSlots } from "vue";
+import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
-import ValueRef from "../value/Ref.vue";
-import ValueObject from "../value/Object.vue";
-import ContentOntology from "../content/Ontology.vue";
-import RecordListView from "./RecordListView.vue";
+import RecordTableView from "./RecordTableView.vue";
 
 const props = withDefaults(
   defineProps<{
     column: IColumn;
     value: any;
     showEmpty?: boolean;
-    getRefClickAction?: (col: IColumn, row: IRow) => () => void;
   }>(),
   {
     showEmpty: false,
   }
 );
 
+const slots = useSlots();
+
 const listPage = ref(1);
-const pageSize = 5;
+const defaultPageSize = 5;
 
-const isOntology = computed(
-  () =>
-    props.column.columnType === "ONTOLOGY" ||
-    props.column.columnType === "ONTOLOGY_ARRAY"
-);
+const displayComponent = computed(() => {
+  const comp = props.column.displayConfig?.component;
+  return typeof comp === "string" ? comp : comp ? "custom" : "bullets";
+});
 
-// Single value reference types: REF, RADIO, SELECT
-const isSingleRef = computed(() =>
-  ["REF", "RADIO", "SELECT"].includes(props.column.columnType)
-);
+const effectivePageSize = computed(() => {
+  return props.column.displayConfig?.pageSize || defaultPageSize;
+});
 
-// Array reference types: REF_ARRAY, REFBACK, MULTISELECT, CHECKBOX
-const isArrayRef = computed(() =>
-  ["REF_ARRAY", "REFBACK", "MULTISELECT", "CHECKBOX"].includes(
-    props.column.columnType
-  )
-);
+const visibleColumns = computed(() => {
+  const config = props.column.displayConfig;
+  if (!config?.visibleColumns) return [];
+  const refCol = props.column as IRefColumn;
+  if (!refCol.refTableMetadata?.columns) return [];
+  return refCol.refTableMetadata.columns.filter((c) =>
+    config.visibleColumns!.includes(c.id)
+  );
+});
 
 const isRefBack = computed(() => props.column.columnType === "REFBACK");
+
+const useTableMode = computed(() => {
+  return (
+    (props.column.columnType === "REF_ARRAY" || isRefBack.value) &&
+    displayComponent.value === "table" &&
+    visibleColumns.value.length > 0 &&
+    !slots.list
+  );
+});
 
 const allRows = computed(() => (Array.isArray(props.value) ? props.value : []));
 
 const visibleRows = computed(() =>
   allRows.value.slice(
-    (listPage.value - 1) * pageSize,
-    listPage.value * pageSize
+    (listPage.value - 1) * effectivePageSize.value,
+    listPage.value * effectivePageSize.value
   )
-);
-
-const ontologyTree = computed(() =>
-  Array.isArray(props.value) ? props.value : props.value ? [props.value] : []
 );
 
 function isEmpty(val: any): boolean {
   if (val === null || val === undefined || val === "") return true;
   if (Array.isArray(val) && val.length === 0) return true;
   return false;
-}
-
-function handleRefClick() {
-  if (props.getRefClickAction) {
-    props.getRefClickAction(props.column, props.value)();
-  }
 }
 </script>
 
@@ -77,31 +71,23 @@ function handleRefClick() {
   <span v-else-if="isEmpty(value) && showEmpty" class="text-gray-400 italic">
     not provided
   </span>
-  <!-- Single ref types: REF (clickable), RADIO, SELECT (display only) -->
-  <ValueRef
-    v-else-if="column.columnType === 'REF'"
-    :metadata="column as IRefColumn"
-    :data="value"
-    @refCellClicked="handleRefClick"
-  />
-  <ValueObject v-else-if="isSingleRef" :metadata="column" :data="value" />
-  <!-- Array ref types: REF_ARRAY, REFBACK, MULTISELECT, CHECKBOX -->
-  <!-- REFBACK: use #list slot if provided (smart fetch), else RecordListView -->
+  <!-- REFBACK: use #list slot if provided (smart fetch), else delegate to ValueEMX2 -->
   <slot
     v-else-if="isRefBack && $slots.list"
     name="list"
     :column="column"
     :value="value"
   />
-  <RecordListView
-    v-else-if="isArrayRef"
+  <!-- Table mode for REF_ARRAY/REFBACK with displayConfig.component='table' (with pagination) -->
+  <RecordTableView
+    v-else-if="useTableMode"
     :rows="visibleRows"
+    :columns="visibleColumns"
     :ref-column="column as IRefColumn"
     v-model:page="listPage"
-    :page-size="pageSize"
+    :page-size="effectivePageSize"
     :total-count="allRows.length"
-    :get-ref-click-action="getRefClickAction"
   />
-  <ContentOntology v-else-if="isOntology" :tree="ontologyTree" />
+  <!-- Everything else: delegate to ValueEMX2 -->
   <ValueEMX2 v-else :metadata="column" :data="value" />
 </template>

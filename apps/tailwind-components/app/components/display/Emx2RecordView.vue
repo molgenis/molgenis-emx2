@@ -79,7 +79,18 @@ const errorText = computed(() => {
   return undefined;
 });
 
-// Process metadata: filter by viewColumns and apply columnOverrides
+// Ref column types that should get click action
+const REF_TYPES = [
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "RADIO",
+  "SELECT",
+  "MULTISELECT",
+  "CHECKBOX",
+];
+
+// Process metadata: filter by viewColumns, apply columnOverrides, and set clickAction
 const processedMetadata = computed<ITableMetaData | undefined>(() => {
   if (!metadata.value) return undefined;
 
@@ -131,6 +142,22 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
     });
   }
 
+  // Apply clickAction to ref columns via displayConfig
+  if (props.getRefClickAction) {
+    columns = columns.map((col) => {
+      if (!REF_TYPES.includes(col.columnType)) return col;
+      return {
+        ...col,
+        displayConfig: {
+          ...col.displayConfig,
+          clickAction: (c: IColumn, row: IRow) => {
+            props.getRefClickAction!(c, row)();
+          },
+        },
+      };
+    });
+  }
+
   return {
     ...metadata.value,
     columns,
@@ -160,7 +187,6 @@ watch(
       :metadata="processedMetadata"
       :row="rowData"
       :show-empty="showEmpty"
-      :get-ref-click-action="getRefClickAction"
     >
       <template #list="{ column, value }">
         <Emx2ListView
@@ -170,7 +196,7 @@ watch(
           :show-search="false"
           :paging-limit="5"
           :ref-label="(column as IRefColumn).refLabel || (column as IRefColumn).refLabelDefault"
-          :get-ref-click-action="getRefClickAction"
+          :click-action="column.displayConfig?.clickAction"
         />
       </template>
       <template #header>

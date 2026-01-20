@@ -13,6 +13,8 @@ export {
 
 export type {
   IColumn,
+  IDisplayConfig,
+  IRefColumn,
   ISetting,
   ISchemaMetaData,
   ITableMetaData,

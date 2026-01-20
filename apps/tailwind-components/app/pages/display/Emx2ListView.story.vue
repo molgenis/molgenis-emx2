@@ -8,7 +8,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import Emx2ListView from "../../components/display/Emx2ListView.vue";
-import RecordListView from "../../components/display/RecordListView.vue";
+import ValueEMX2 from "../../components/value/EMX2.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -32,12 +32,10 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   });
 });
 
-function getRefClickAction(col: IColumn, row: IRow) {
-  return () => {
-    const message = `Clicked: ${col.id || "row"} -> ${JSON.stringify(row)}`;
-    clickLog.value.unshift(message);
-    if (clickLog.value.length > 5) clickLog.value.pop();
-  };
+function handleRefClick(col: IColumn, row: IRow) {
+  const message = `Clicked: ${col.id || "row"} -> ${JSON.stringify(row)}`;
+  clickLog.value.unshift(message);
+  if (clickLog.value.length > 5) clickLog.value.pop();
 }
 
 function clearLog() {
@@ -45,7 +43,7 @@ function clearLog() {
 }
 
 // Mock data for offline testing
-const mockRefColumn = {
+const mockRefColumn = computed(() => ({
   id: "pets",
   label: "Pets",
   columnType: "REF_ARRAY" as const,
@@ -54,7 +52,11 @@ const mockRefColumn = {
   refLabel: "${name} - ${species}",
   refLabelDefault: "${name}",
   refLinkId: "name",
-};
+  displayConfig: {
+    clickAction: handleRefClick,
+    pageSize: pagingLimit.value,
+  },
+}));
 
 const mockRows: IRow[] = [
   { name: "Fluffy", species: "Dog", breed: "Golden Retriever" },
@@ -70,12 +72,6 @@ const mockRows: IRow[] = [
   { name: "Charlie", species: "Dog", breed: "Poodle" },
   { name: "Tiger", species: "Cat", breed: "Bengal" },
 ];
-
-const mockPage = ref(1);
-const mockVisibleRows = computed(() => {
-  const start = (mockPage.value - 1) * pagingLimit.value;
-  return mockRows.slice(start, start + pagingLimit.value);
-});
 </script>
 
 <template>
@@ -159,7 +155,7 @@ const mockVisibleRows = computed(() => {
           :table-id="tableId"
           :show-search="showSearch"
           :paging-limit="pagingLimit"
-          :get-ref-click-action="getRefClickAction"
+          :click-action="handleRefClick"
         />
       </div>
     </div>
@@ -168,18 +164,11 @@ const mockVisibleRows = computed(() => {
     <div v-else class="space-y-4">
       <h2 class="text-xl font-semibold">Mock Data (Offline Mode)</h2>
       <p class="text-sm text-gray-500">
-        Using static mock data. Uncheck "Use mock data" to connect to backend.
+        Using static mock data with ValueEMX2 component.
       </p>
 
       <div class="p-4 border rounded dark:border-gray-600">
-        <RecordListView
-          :rows="mockVisibleRows"
-          :ref-column="mockRefColumn"
-          v-model:page="mockPage"
-          :page-size="pagingLimit"
-          :total-count="mockRows.length"
-          :get-ref-click-action="getRefClickAction"
-        />
+        <ValueEMX2 :metadata="mockRefColumn" :data="mockRows" />
       </div>
     </div>
 
@@ -197,7 +186,7 @@ const mockVisibleRows = computed(() => {
           :table-id="tableId"
           :show-search="false"
           :paging-limit="3"
-          :get-ref-click-action="getRefClickAction"
+          :click-action="handleRefClick"
         />
       </div>
     </div>
@@ -211,14 +200,7 @@ const mockVisibleRows = computed(() => {
       <div
         class="p-4 border rounded bg-white dark:bg-gray-900 dark:border-gray-600"
       >
-        <RecordListView
-          :rows="mockVisibleRows"
-          :ref-column="mockRefColumn"
-          v-model:page="mockPage"
-          :page-size="pagingLimit"
-          :total-count="mockRows.length"
-          :get-ref-click-action="getRefClickAction"
-        />
+        <ValueEMX2 :metadata="mockRefColumn" :data="mockRows" />
       </div>
     </div>
 
@@ -236,7 +218,7 @@ const mockVisibleRows = computed(() => {
           :table-id="tableId"
           :show-search="false"
           :paging-limit="5"
-          :get-ref-click-action="getRefClickAction"
+          :click-action="handleRefClick"
         >
           <template #default="{ row, label }">
             <div class="flex items-center gap-2 p-2 bg-green-50 rounded">
