@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, watch, type Component } from "vue";
+import { computed, watch } from "vue";
 import { useAsyncData } from "#app";
 import type {
   IColumn,
   IRefColumn,
   ITableMetaData,
-  IRow,
+  IDisplayConfig,
 } from "../../../../metadata-utils/src/types";
 import RecordView from "./RecordView.vue";
 import Emx2ListView from "./Emx2ListView.vue";
@@ -19,8 +19,7 @@ const props = withDefaults(
     tableId: string;
     rowId: Record<string, any>;
     viewColumns?: string[];
-    columnOverrides?: Map<string, Component>;
-    getRefClickAction?: (col: IColumn, row: IRow) => () => void;
+    displayConfig?: Map<string, IDisplayConfig>;
     showEmpty?: boolean;
   }>(),
   {
@@ -40,7 +39,6 @@ const {
   data: metadata,
   status: metadataStatus,
   error: metadataError,
-  refresh: refreshMetadata,
 } = useAsyncData(
   `metadata-${props.schemaId}-${props.tableId}`,
   () => fetchTableMetadata(props.schemaId, props.tableId),
@@ -58,7 +56,6 @@ const {
   { watch: [() => props.schemaId, () => props.tableId, () => props.rowId] }
 );
 
-// Combined status for loading state
 const combinedStatus = computed(() => {
   if (metadataStatus.value === "pending" || rowStatus.value === "pending") {
     return "pending";
@@ -79,27 +76,13 @@ const errorText = computed(() => {
   return undefined;
 });
 
-// Ref column types that should get click action
-const REF_TYPES = [
-  "REF",
-  "REF_ARRAY",
-  "REFBACK",
-  "RADIO",
-  "SELECT",
-  "MULTISELECT",
-  "CHECKBOX",
-];
-
-// Process metadata: filter by viewColumns, apply columnOverrides, and set clickAction
 const processedMetadata = computed<ITableMetaData | undefined>(() => {
   if (!metadata.value) return undefined;
 
   let columns = [...metadata.value.columns];
 
-  // Filter and order by viewColumns if provided
   if (props.viewColumns && props.viewColumns.length > 0) {
     const viewColumnSet = new Set(props.viewColumns);
-    // Keep sections/headings that contain visible columns
     const visibleSections = new Set<string>();
     const visibleHeadings = new Set<string>();
 
@@ -120,7 +103,6 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
       return viewColumnSet.has(col.id);
     });
 
-    // Order by viewColumns (preserve section/heading positions)
     const orderMap = new Map(props.viewColumns.map((id, idx) => [id, idx]));
     columns.sort((a, b) => {
       const aOrder = orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER;
@@ -129,32 +111,16 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
     });
   }
 
-  // Apply columnOverrides if provided
-  if (props.columnOverrides) {
+  if (props.displayConfig) {
     columns = columns.map((col) => {
-      const override = props.columnOverrides?.get(col.id);
-      if (override) {
-        return { ...col, displayComponent: override } as IColumn & {
-          displayComponent: Component;
+      const config = props.displayConfig?.get(col.id);
+      if (config) {
+        return {
+          ...col,
+          displayConfig: { ...col.displayConfig, ...config },
         };
       }
       return col;
-    });
-  }
-
-  // Apply clickAction to ref columns via displayConfig
-  if (props.getRefClickAction) {
-    columns = columns.map((col) => {
-      if (!REF_TYPES.includes(col.columnType)) return col;
-      return {
-        ...col,
-        displayConfig: {
-          ...col.displayConfig,
-          clickAction: (c: IColumn, row: IRow) => {
-            props.getRefClickAction!(c, row)();
-          },
-        },
-      };
     });
   }
 
@@ -164,7 +130,6 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
   };
 });
 
-// Refresh both data sources
 watch(
   () => props.rowId,
   () => {

@@ -257,23 +257,5 @@ const mockRow = {
         </RecordView>
       </div>
     </div>
-
-    <!-- Dark mode test -->
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Dark Mode Test</h2>
-      <p class="text-sm text-gray-500">
-        Toggle dark mode in your browser/OS to verify styling.
-      </p>
-      <div
-        class="p-4 border rounded bg-white dark:bg-gray-900 dark:border-gray-600"
-      >
-        <RecordView
-          :metadata="mockMetadata"
-          :row="mockRow"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
-        />
-      </div>
-    </div>
   </div>
 </template>
