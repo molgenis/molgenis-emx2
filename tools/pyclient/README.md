@@ -20,7 +20,7 @@ from the latest version of Molgenis EMX2.
 
 
 
-### 13.76.3
+### 13.77.1
 
 - Improved error handling in 'columns' filter in `get` method
 - Fixed asynchronous API calls in `export`
