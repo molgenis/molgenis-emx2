@@ -15,6 +15,7 @@ import type {
   IRow,
   IRefColumn,
   ITableMetaData,
+  IDisplayConfig,
 } from "../../../../../../../metadata-utils/src/types";
 import { useRoute, useRouter } from "#app/composables/router";
 import { useHead } from "#app";
@@ -84,27 +85,37 @@ const crumbs: Crumb[] = [
   { label: "Record", url: "" },
 ];
 
-// Extract primary key from referenced row data
-function extractPrimaryKey(col: IColumn, row: IRow): Record<string, any> {
-  const refCol = col as IRefColumn;
-  // For refs, the row IS the referenced data (pk fields included)
-  // Extract key columns from the ref table
-  return row;
-}
+const REF_TYPES = [
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "RADIO",
+  "SELECT",
+  "MULTISELECT",
+  "CHECKBOX",
+];
 
-// Navigate to another record view when ref is clicked
-function getRefClickAction(col: IColumn, row: IRow) {
-  return () => {
-    const refCol = col as IRefColumn;
-    const targetSchema = refCol.refSchemaId || schemaId;
-    const targetTable = refCol.refTableId;
-    if (!targetTable) return;
+const displayConfig = computed(() => {
+  const config = new Map<string, IDisplayConfig>();
+  if (!tableMetadata?.columns) return config;
 
-    const pk = extractPrimaryKey(col, row);
-    const encodedPk = encodeRecordId(pk);
-    router.push(`/${targetSchema}/view/${targetTable}/${encodedPk}`);
-  };
-}
+  for (const col of tableMetadata.columns) {
+    if (REF_TYPES.includes(col.columnType)) {
+      config.set(col.id, {
+        clickAction: (column: IColumn, row: IRow) => {
+          const refCol = column as IRefColumn;
+          const targetSchema = refCol.refSchemaId || schemaId;
+          const targetTable = refCol.refTableId;
+          if (!targetTable) return;
+          router.push(
+            `/${targetSchema}/view/${targetTable}/${encodeRecordId(row)}`
+          );
+        },
+      });
+    }
+  }
+  return config;
+});
 </script>
 
 <template>
@@ -132,7 +143,7 @@ function getRefClickAction(col: IColumn, row: IRow) {
         :schema-id="schemaId"
         :table-id="tableId"
         :row-id="rowId"
-        :get-ref-click-action="getRefClickAction"
+        :display-config="displayConfig"
       />
     </template>
   </DetailPageLayout>
