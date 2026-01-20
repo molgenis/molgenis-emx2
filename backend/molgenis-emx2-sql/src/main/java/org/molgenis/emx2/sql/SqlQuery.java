@@ -1211,10 +1211,11 @@ public class SqlQuery extends QueryBean {
     return switch (operator) {
       case MATCH_ANY, EQUALS -> // equals to be deprecated for ref columns,
           whereContainsAnyOrEquals(tableAlias, columnName, column, values);
-      case MATCH_NONE, NOT_EQUALS -> // non_equals to be deprecated for ref columns,
+      case NOT_EQUALS -> // non_equals to be deprecated for ref columns,
           or(
               whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
               not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
+      case MATCH_NONE -> whereMatchNone(tableAlias, columnName, column, values);
       case MATCH_ALL -> whereColumnContainsAll(tableAlias, columnName, column, values);
       case IS_NULL -> whereColumnIsNullOrNotNull(tableAlias, columnName, column, values);
       case LIKE -> whereColumnLike(columnName, columnType.isArray(), values);
@@ -1233,6 +1234,16 @@ public class SqlQuery extends QueryBean {
               whereColumnMatchAnyIncludingChilderen(column, values));
       default -> throw new MolgenisException("Unknown operator: " + operator);
     };
+  }
+
+  private Condition whereMatchNone(
+      SqlAlias tableAlias, Name columnName, Column column, Object[] values) {
+    Name parentName = name(alias(tableAlias.getParent().get()), tableAlias.getName());
+    var condition =
+        DSL.condition(
+            "NOT EXISTS(SELECT 1 FROM UNNEST({0}) AS x WHERE x = ANY({1}))",
+            parentName, DSL.val(values));
+    return condition;
   }
 
   private Condition whereColumnMatchAnyIncludingChilderen(Column column, Object[] values) {
