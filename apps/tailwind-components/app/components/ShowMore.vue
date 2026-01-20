@@ -16,7 +16,7 @@ const props = withDefaults(
 const paragraphRef = ref<HTMLElement | null>(null);
 const expanded = ref(false);
 const showButton = ref(false);
-const hydrated = ref(!import.meta.env.SSR);
+const hydrated = ref(false);
 
 const paragraphStyle = computed(() => ({
   "--lines": String(props.lines),
@@ -74,7 +74,7 @@ async function collapseAndScrollToTop() {
       </Button>
     </p>
 
-    <div v-if="!expanded && showButton" class="controls">
+    <div v-if="!expanded && (!hydrated || showButton)" class="controls">
       <Button type="text" @click="expanded = true">
         {{ showLabels.more }}
       </Button>
