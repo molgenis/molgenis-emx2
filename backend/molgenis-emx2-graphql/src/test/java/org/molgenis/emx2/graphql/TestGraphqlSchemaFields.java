@@ -43,21 +43,21 @@ public class TestGraphqlSchemaFields {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";
-    final String costumer = "costumer";
+    final String customer = "customer";
 
     // initialize users
     database.setUserPassword(shopmanager, shopmanager);
     database.setUserPassword(shopviewer, shopviewer);
     database.setUserPassword(shopowner, shopowner);
-    database.setUserPassword(costumer, costumer);
+    database.setUserPassword(customer, customer);
 
-    schema = database.dropCreateSchema(schemaName);
+    database.dropSchemaIfExists(schemaName);
+    DataModels.getImportTask(database, schemaName, "", PET_STORE.name(), true).run();
+    schema = database.getSchema(schemaName);
     schema.addMember(shopmanager, "Manager");
     schema.addMember(shopviewer, "Viewer");
     schema.addMember(shopowner, "Owner");
-    schema.addMember(costumer, "Range");
-    DataModels.getImportTask(schema, PET_STORE.name(), true).run();
-    schema = database.getSchema(schemaName);
+    schema.addMember(customer, "Range");
 
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
@@ -966,8 +966,8 @@ public class TestGraphqlSchemaFields {
     assertTrue(result.size() > 0 && result2.size() == 0);
 
     // restore
-    schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
   }
 
   @Test
@@ -997,16 +997,16 @@ public class TestGraphqlSchemaFields {
     assertTrue(!preTruncatedResult.isEmpty() && truncatedResult.isEmpty());
 
     // restore
-    schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
     grapql =
         new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test
   public void testReport() throws IOException {
-    schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));

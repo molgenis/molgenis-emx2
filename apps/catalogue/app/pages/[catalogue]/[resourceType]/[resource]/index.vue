@@ -13,10 +13,12 @@ import type {
   IOntologyItem,
   linkTarget,
   DefinitionListItemType,
-  IVariable,
 } from "../../../../../interfaces/types";
 import dateUtils from "../../../../utils/dateUtils";
-import type { IResources } from "../../../../../interfaces/catalogue";
+import type {
+  IResources,
+  IVariables,
+} from "../../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
 import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
@@ -167,6 +169,7 @@ const query = `
         website
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
+        otherOrganisation
         organisation {
           name
           acronym
@@ -319,7 +322,7 @@ function subpopulationMapper(subpopulation: any) {
   };
 }
 
-function variableMapper(variable: IVariable) {
+function variableMapper(variable: IVariables) {
   const key = getKey(variable);
 
   return {

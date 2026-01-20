@@ -1,13 +1,16 @@
 <template>
   <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
-    <FormFields
-      id="form-hyperlink"
-      :columns="metadata.columns"
-      v-model="model"
-      :error-map="errorMap"
-      @update="onUpdateColumn"
-      @blur="onBlurColumn"
-    />
+    <ClientOnly>
+      <FormFields
+        id="form-hyperlink"
+        :columns="metadata.columns"
+        v-model="model"
+        :visibleColumnErrors="visibleColumnErrors"
+        :requiredFields="{}"
+        @update="onUpdateColumn"
+        @blur="onBlurColumn"
+      />
+    </ClientOnly>
   </div>
 </template>
 <script setup lang="ts">
@@ -30,5 +33,8 @@ const metadata = {
     },
   ],
 };
-const { errorMap, onUpdateColumn, onBlurColumn } = useForm(metadata, model);
+const { visibleColumnErrors, onUpdateColumn, onBlurColumn } = useForm(
+  metadata,
+  model
+);
 </script>

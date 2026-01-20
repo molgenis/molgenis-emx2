@@ -34,9 +34,10 @@ public class OntologyTableSemantics {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema petStore = database.dropCreateSchema("semanticPetStore");
-    PET_STORE.getImportTask(petStore, true).run();
-    petStoreSchema = petStore;
+    String schemaName = "semanticPetStore";
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    petStoreSchema = database.getSchema("semanticPetStore");
   }
 
   @Test
