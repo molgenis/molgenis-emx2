@@ -28,13 +28,18 @@ const ssrCollapsedStyle = computed(() => ({
 }));
 
 onMounted(async () => {
-  hydrated.value = true;
-  await nextTick(); //have it resize
+  await nextTick();
   const el = paragraphRef.value;
-  if (!el) return;
+  if (!el) {
+    hydrated.value = true;
+    return;
+  }
+  // Measure while ssrCollapsedStyle (max-height) is still active
   const fullHeight = el.scrollHeight;
   const clampedHeight = el.clientHeight;
   showButton.value = fullHeight > clampedHeight;
+  // Now switch to CSS-based clamping
+  hydrated.value = true;
 });
 
 async function collapseAndScrollToTop() {

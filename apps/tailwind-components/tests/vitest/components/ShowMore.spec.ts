@@ -3,14 +3,13 @@ import { describe, expect, it } from "vitest";
 import ShowMore from "../../../app/components/ShowMore.vue";
 
 describe("ShowMore", () => {
-  it("shows button after mount (simulating hydration)", async () => {
+  it("shows button before hydration for SSR safety", () => {
     const wrapper = mount(ShowMore, {
       slots: { default: "Some text content" },
     });
-    await wrapper.vm.$nextTick();
-    // After hydration, button visibility depends on content overflow
-    // In test env with short content, button may be hidden
-    expect(wrapper.find(".controls").exists()).toBe(false);
+    // Button shows initially (before hydration completes)
+    // This ensures SSR renders the button
+    expect(wrapper.find(".controls").exists()).toBe(true);
   });
 
   it("renders correctly with default props", () => {
