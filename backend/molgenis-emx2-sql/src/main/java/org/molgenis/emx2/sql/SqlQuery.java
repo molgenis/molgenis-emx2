@@ -62,15 +62,18 @@ public class SqlQuery extends QueryBean {
   }
 
   /** Create alias that is short enough for postgresql to not complain */
-  public String alias(String label) {
-    if (!label.contains(SUBSELECT_SEPARATOR)) {
+  public String alias(SqlAlias alias) {
+    String qualifiedName = alias.getQualifiedName();
+
+    if (!alias.allowsAlias()) {
       // we only need aliases for subquery tables
-      return label;
+      return qualifiedName;
     }
-    if (!tableAliasList.contains(label)) {
-      tableAliasList.add(label);
+
+    if (!tableAliasList.contains(qualifiedName)) {
+      tableAliasList.add(qualifiedName);
     }
-    return "a" + tableAliasList.indexOf(label);
+    return "a" + tableAliasList.indexOf(qualifiedName);
   }
 
   @Override
@@ -88,7 +91,7 @@ public class SqlQuery extends QueryBean {
               + schema.getName());
     }
     checkHasViewPermission(table);
-    String tableAlias = "root-" + table.getTableName();
+    SqlAlias tableAlias = SqlAlias.withAlias("root-" + table.getTableName());
 
     // if empty selection, we will add the default selection here, incl File and Refback
     // will generally be all you need
@@ -133,7 +136,6 @@ public class SqlQuery extends QueryBean {
                     .filter(name -> name.contains("."))
                     .collect(Collectors.joining(","))));
       }
-      ;
     }
 
     // basequery
@@ -191,7 +193,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private List<Field<?>> rowSelectFields(
-      TableMetadata table, String tableAlias, SelectColumn selection) {
+      TableMetadata table, SqlAlias tableAlias, SelectColumn selection) {
 
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
@@ -231,7 +233,9 @@ public class SqlQuery extends QueryBean {
                     ref ->
                         field(
                             name(
-                                alias(tableAlias + "-refbackjoin-" + column.getName()),
+                                alias(
+                                    SqlAlias.withAlias(
+                                        "refbackjoin-" + column.getName(), tableAlias)),
                                 ref.getName())))
                 .toList());
       } else if (!column.isHeading()) {
@@ -253,14 +257,14 @@ public class SqlQuery extends QueryBean {
             });
   }
 
-  private Field<String> intervalField(String tableAlias, Column column) {
+  private Field<String> intervalField(SqlAlias tableAlias, Column column) {
     Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
     Field<String> functionCallField =
         function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
     return functionCallField.as(name(column.getIdentifier()));
   }
 
-  private Field<String[]> intervalFieldArray(String tableAlias, Column column) {
+  private Field<String[]> intervalFieldArray(SqlAlias tableAlias, Column column) {
     Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
     Field<String[]> functionCallField =
         function("\"MOLGENIS\".interval_array_to_iso8601", String[].class, intervalField);
@@ -289,7 +293,7 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
-    String tableAlias = "gql_" + table.getTableName();
+    SqlAlias tableAlias = SqlAlias.withoutAlias("gql_" + table.getTableName());
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
           jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
@@ -328,12 +332,16 @@ public class SqlQuery extends QueryBean {
   private Field<?> jsonSubselect(
       SqlTableMetadata table,
       Column parentColumn,
-      String tableAlias,
+      SqlAlias tableAlias,
       SelectColumn select,
       Filter filters,
       String[] searchTerms) {
     checkHasViewPermission(table);
-    String subAlias = tableAlias + (parentColumn != null ? "-" + parentColumn.getName() : "");
+    //    String subAlias = tableAlias + (parentColumn != null ? "-" + parentColumn.getName() : "");
+    SqlAlias subAlias =
+        (parentColumn != null)
+            ? SqlAlias.withAlias(parentColumn.getName(), tableAlias)
+            : tableAlias;
     Collection<Field<?>> selection = jsonSubselectFields(table, subAlias, select);
     return jsonField(
         table, parentColumn, tableAlias, select, filters, searchTerms, subAlias, selection);
@@ -342,11 +350,11 @@ public class SqlQuery extends QueryBean {
   private Field<?> jsonField(
       SqlTableMetadata table,
       Column column,
-      String tableAlias,
+      SqlAlias tableAlias,
       SelectColumn select,
       Filter filters,
       String[] searchTerms,
-      String subAlias,
+      SqlAlias subAlias,
       Collection<Field<?>> selection) {
     DSLContext jooq = table.getJooq();
 
@@ -376,8 +384,8 @@ public class SqlQuery extends QueryBean {
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
       SqlTableMetadata table,
       Column column,
-      String tableAlias,
-      String subAlias,
+      SqlAlias tableAlias,
+      SqlAlias subAlias,
       Filter filters,
       String[] searchTerms) {
     return jsonFilterQuery(
@@ -394,12 +402,12 @@ public class SqlQuery extends QueryBean {
       SqlTableMetadata table,
       List<SelectFieldOrAsterisk> selection,
       Column column,
-      String tableAlias,
-      String subAlias,
+      SqlAlias tableAlias,
+      SqlAlias subAlias,
       Filter filters,
       String[] searchTerms) {
 
-    String filterAlias = subAlias + "_filter";
+    SqlAlias filterAlias = SqlAlias.withoutAlias("filter", subAlias);
 
     List<Condition> conditions = new ArrayList<>();
     if (filters != null) {
@@ -414,7 +422,9 @@ public class SqlQuery extends QueryBean {
       conditions.add(refJoinCondition(column, tableAlias, filterAlias));
     }
 
-    // create the subquery
+    // create the subquery // HERE filterAlias = "gql_Person_filter". Calling alias(filterAlias) on
+    // second call!!!!!!
+    // results in NO mapping
     if (!conditions.isEmpty()) {
       return table
           .getJooq()
@@ -433,8 +443,8 @@ public class SqlQuery extends QueryBean {
   private List<Condition> jsonFilterQueryConditions(
       SqlTableMetadata table,
       Column column,
-      String tableAlias,
-      String subAlias,
+      SqlAlias tableAlias,
+      SqlAlias subAlias,
       Filter filters,
       String[] searchTerms) {
     List<Condition> conditions = new ArrayList<>();
@@ -467,8 +477,8 @@ public class SqlQuery extends QueryBean {
   private Condition jsonFilterQueryConditions(
       SqlTableMetadata table,
       Column column,
-      String tableAlias,
-      String subAlias,
+      SqlAlias tableAlias,
+      SqlAlias subAlias,
       String[] searchTerms,
       Filter filter) {
     if (filter.getOperator() != null)
@@ -511,7 +521,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Condition jsonSearchConditions(
-      SqlTableMetadata table, String subAlias, String[] searchTerms) {
+      SqlTableMetadata table, SqlAlias subAlias, String[] searchTerms) {
     // create search
     List<Condition> searchCondition = new ArrayList<>();
     for (String term : searchTerms) {
@@ -571,7 +581,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Collection<Field<?>> jsonSubselectFields(
-      TableMetadata table, String tableAlias, SelectColumn selection) {
+      TableMetadata table, SqlAlias tableAlias, SelectColumn selection) {
     List<Field<?>> fields = new ArrayList<>();
 
     // if no subselect, we will select primary keys
@@ -646,7 +656,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Field<Object> jsonFileField(
-      SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
+      SqlTableMetadata table, SqlAlias tableAlias, SelectColumn select, Column column) {
     DSLContext jooq = table.getJooq();
     List<Field<?>> subFields = new ArrayList<>();
     for (String ext :
@@ -678,11 +688,12 @@ public class SqlQuery extends QueryBean {
   private Field<?> jsonAggregateSelect(
       SqlTableMetadata table,
       Column column,
-      String tableAlias,
+      SqlAlias tableAlias,
       SelectColumn select,
       Filter filters,
       String[] searchTerms) {
-    String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
+    SqlAlias subAlias =
+        column != null ? SqlAlias.withAlias(column.getName(), tableAlias) : tableAlias;
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
@@ -736,12 +747,13 @@ public class SqlQuery extends QueryBean {
   private Field<Object> jsonGroupBySelect(
       SqlTableMetadata table,
       Column column,
-      String tableAlias,
+      SqlAlias tableAlias,
       SelectColumn groupBy,
       Filter filter,
       String[] searchTerms) {
     DSLContext jooq = table.getJooq();
-    String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
+    SqlAlias subAlias =
+        column != null ? SqlAlias.withAlias(column.getName(), tableAlias) : tableAlias;
 
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("COUNt or SUM is required when using group by");
@@ -791,7 +803,7 @@ public class SqlQuery extends QueryBean {
         if (!col.isOntology()) {
           checkHasViewPermission(table);
         }
-        String subQueryAlias = tableAlias + "_" + col.getIdentifier();
+        SqlAlias subQueryAlias = SqlAlias.withoutAlias(col.getIdentifier(), tableAlias);
         // in case of 'ref' we need a subselect
         if (col.isReference()) {
           Column copy = new Column(col.getTable(), col);
@@ -877,7 +889,7 @@ public class SqlQuery extends QueryBean {
             jooq.select(field(JSON_AGG_SQL))
                 .from(
                     jooq.select(selectFields)
-                        .from(sourceQuery.asTable(name(tableAlias)))
+                        .from(sourceQuery.asTable(name(tableAlias.getQualifiedName())))
                         .groupBy(groupByFields)
                         .orderBy(orderByFields)
                         .asTable(ITEM)))
@@ -916,11 +928,11 @@ public class SqlQuery extends QueryBean {
 
   private SelectJoinStep<org.jooq.Record> refJoins(
       TableMetadata table,
-      String tableAlias,
+      SqlAlias tableAlias,
       SelectJoinStep<org.jooq.Record> join,
       Filter filters,
       SelectColumn selection,
-      List<String> aliasList) {
+      List<SqlAlias> aliasList) {
 
     // filter based joins
     if (filters != null) {
@@ -930,7 +942,7 @@ public class SqlQuery extends QueryBean {
         } else {
           Column column = getColumnByName(table, filter.getColumn());
           if (column.isReference() && !filter.getSubfilters().isEmpty()) {
-            String subAlias = tableAlias + "-" + column.getName();
+            SqlAlias subAlias = SqlAlias.withAlias(column.getName(), tableAlias);
             if (!aliasList.contains(subAlias)) {
               // to ensure only join once
               aliasList.add(subAlias);
@@ -957,7 +969,7 @@ public class SqlQuery extends QueryBean {
         // check if is refback for join (cut of the part behind .)
         Column column = getColumnByName(table, select.getColumn());
         if (column.isRefback()) {
-          String subAlias = alias(tableAlias + "-refbackjoin-" + column.getName());
+          SqlAlias subAlias = SqlAlias.withAlias("refbackjoin-" + column.getName(), tableAlias);
           if (!aliasList.contains(subAlias)) {
             // to ensure only join once
             aliasList.add(subAlias);
@@ -995,12 +1007,12 @@ public class SqlQuery extends QueryBean {
                                 refBack.getReferences().stream()
                                     .map(ref -> field(name("_refback_" + ref.getRefTo())))
                                     .toList())
-                            .asTable(name(subAlias)))
+                            .asTable(name(alias(subAlias))))
                     .on(
                         refBack.getReferences().stream()
                             .map(
                                 ref ->
-                                    field(name(subAlias, "_refback_" + ref.getRefTo()))
+                                    field(name(alias(subAlias), "_refback_" + ref.getRefTo()))
                                         .eq(field(name(alias(tableAlias), ref.getRefTo()))))
                             .toArray(Condition[]::new));
           }
@@ -1010,7 +1022,7 @@ public class SqlQuery extends QueryBean {
     return join;
   }
 
-  private Condition refJoinCondition(Column column, String tableAlias, String subAlias) {
+  private Condition refJoinCondition(Column column, SqlAlias tableAlias, SqlAlias subAlias) {
     List<Condition> foreignKeyMatch = new ArrayList<>();
 
     if (column.isRef()) {
@@ -1097,7 +1109,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Condition whereConditions(
-      TableMetadata table, String tableAlias, Filter filter, String[] searchTerms) {
+      TableMetadata table, SqlAlias tableAlias, Filter filter, String[] searchTerms) {
     Condition searchCondition = whereConditionSearch(table, tableAlias, searchTerms);
     Condition filterCondition = whereConditionsFilter(table, tableAlias, filter);
 
@@ -1112,7 +1124,8 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition whereConditionsFilter(TableMetadata table, String tableAlias, Filter filters) {
+  private Condition whereConditionsFilter(
+      TableMetadata table, SqlAlias tableAlias, Filter filters) {
     List<Condition> conditions = new ArrayList<>();
     if (Operator.OR.equals(filters.getOperator())) {
       conditions.add(
@@ -1142,7 +1155,9 @@ public class SqlQuery extends QueryBean {
           if (column.isReference()) {
             conditions.add(
                 whereConditionsFilter(
-                    column.getRefTable(), tableAlias + "-" + column.getName(), subfilter));
+                    column.getRefTable(),
+                    SqlAlias.withAlias(column.getName(), tableAlias),
+                    subfilter));
           } else if (column.isFile()) {
             Filter sub = filters.getSubfilter("id");
             if (sub != null && EQUALS.equals(sub.getOperator())) {
@@ -1161,7 +1176,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Condition whereCondition(
-      String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
+      SqlAlias tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
     Name columnName = name(alias(tableAlias), column.getName());
     ColumnType columnType = column.getColumnType();
     if (!List.of(columnType.getOperators()).contains(operator)) {
@@ -1339,7 +1354,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Condition whereColumnIsNullOrNotNull(
-      String tableAlias, Name columnName, Column columnMetadata, Object[] values) {
+      SqlAlias tableAlias, Name columnName, Column columnMetadata, Object[] values) {
     ColumnType type = columnMetadata.getColumnType().getBaseType();
     if (type.isRefback()) {
       // check if any reference (not)exist
@@ -1354,7 +1369,10 @@ public class SqlQuery extends QueryBean {
       if (type.isReference() && columnMetadata.getReferences().size() > 1) {
         return and(
             columnMetadata.getReferences().stream()
-                .map(ref -> condition(sqlTemplate, field(name(tableAlias, ref.getName()))))
+                .map(
+                    ref ->
+                        condition(
+                            sqlTemplate, field(name(tableAlias.getQualifiedName(), ref.getName()))))
                 .toList());
       } else {
         return condition(sqlTemplate, field(columnName));
@@ -1384,7 +1402,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static @NotNull Condition whereContainsAnyOrEquals(
-      String tableAlias, Name columnName, Column columnDefinition, Object[] values) {
+      SqlAlias tableAlias, Name columnName, Column columnDefinition, Object[] values) {
     ColumnType type = columnDefinition.getColumnType().getBaseType();
     if (type.isRef()) {
       if (columnDefinition.getReferences().size() == 1) {
@@ -1393,7 +1411,7 @@ public class SqlQuery extends QueryBean {
         Table<Record> compositeKeyValuesTempTable =
             getCompositeKeyValuesAsTempTable(tableAlias, columnDefinition, values);
         return row(columnDefinition.getReferences().stream()
-                .map(ref -> field(name(tableAlias, ref.getName())))
+                .map(ref -> field(name(tableAlias.getQualifiedName(), ref.getName())))
                 .toList())
             .in(selectFrom(compositeKeyValuesTempTable));
       }
@@ -1442,7 +1460,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static @NotNull Condition whereColumnContainsAll(
-      String tableAlias, Name columnName, Column columnMetadata, Object[] values) {
+      SqlAlias tableAlias, Name columnName, Column columnMetadata, Object[] values) {
     ColumnType type = columnMetadata.getColumnType().getBaseType();
     if (type.isRefArray()) {
       if (columnMetadata.getReferences().size() == 1) {
@@ -1494,7 +1512,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static @NotNull SelectConditionStep<Record> getRefbackQuery(
-      String tableAlias, Column columnMetadata) {
+      SqlAlias tableAlias, Column columnMetadata) {
     Column refBack = columnMetadata.getRefBackColumn();
     Condition refBackFilter =
         refBack.isRef()
@@ -1505,11 +1523,14 @@ public class SqlQuery extends QueryBean {
                     .map(
                         ref ->
                             field(name(ref.getName()))
-                                .eq(field(name(tableAlias, ref.getTargetColumn()))))
+                                .eq(
+                                    field(
+                                        name(
+                                            tableAlias.getQualifiedName(), ref.getTargetColumn()))))
                     .toList())
             // refBack is an array so unnest
             : row(refBack.getReferences().stream()
-                    .map(ref -> field(name(tableAlias, ref.getTargetColumn())))
+                    .map(ref -> field(name(tableAlias.getQualifiedName(), ref.getTargetColumn())))
                     .toList())
                 .in(
                     DSL.select(getUnnestedRefArrayFields(refBack))
@@ -1550,7 +1571,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Condition whereConditionSearch(
-      TableMetadata table, String tableAlias, String[] searchTerms) {
+      TableMetadata table, SqlAlias tableAlias, String[] searchTerms) {
     List<Condition> searchConditions = new ArrayList<>();
     while (table != null) {
       List<Condition> subConditions = new ArrayList<>();
@@ -1633,8 +1654,8 @@ public class SqlQuery extends QueryBean {
       TableMetadata table,
       SelectColumn select,
       SelectConnectByStep<org.jooq.Record> query,
-      String tableAlias) {
-    query = SqlQueryBuilderHelpers.orderBy(table, select, query, tableAlias);
+      SqlAlias tableAlias) {
+    query = SqlQueryBuilderHelpers.orderBy(table, select, query, tableAlias.getQualifiedName());
     if (select.getLimit() > 0) {
       query = (SelectConditionStep) query.limit(select.getLimit());
     }
@@ -1658,7 +1679,8 @@ public class SqlQuery extends QueryBean {
     return refBackSelect;
   }
 
-  private static Table<Record> getUnnestedRefArrayAsTable(String subAlias, Column contains_column) {
+  private static Table<Record> getUnnestedRefArrayAsTable(
+      SqlAlias subAlias, Column contains_column) {
     Table<Record> unnestedRefArrayAsTable =
         contains_column.getReferences().stream()
             .map(
@@ -1666,7 +1688,7 @@ public class SqlQuery extends QueryBean {
                     unnest(field(name(ref.getName()), ref.getJooqType()))
                         .withOrdinality()
                         .as(
-                            subAlias + "_" + ref.getName() + "_unnested",
+                            subAlias.getQualifiedName() + "_" + ref.getName() + "_unnested",
                             "unnested_" + ref.getName(),
                             "ordinality"))
             .reduce((table1, table2) -> table1.naturalJoin(table2))
@@ -1685,7 +1707,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static @NotNull Table<Record> getCompositeKeyValuesAsTempTable(
-      String subAlias, Column refColumn, Object[] values) {
+      SqlAlias subAlias, Column refColumn, Object[] values) {
     return DSL.values(
             Arrays.stream(values)
                 .map(
@@ -1706,7 +1728,7 @@ public class SqlQuery extends QueryBean {
                                 .toArray(Field[]::new)))
                 .toArray(RowN[]::new))
         .as(
-            subAlias + "_" + refColumn.getName() + "_values",
+            subAlias.getQualifiedName() + "_" + refColumn.getName() + "_values",
             refColumn.getReferences().stream()
                 .map(ref -> ref.getTargetColumn())
                 .toArray(String[]::new));
