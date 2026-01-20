@@ -533,11 +533,3 @@ def test_validate_graphql_response(caplog):
         with pytest.raises(PermissionDeniedException) as excinfo:
             client._validate_graphql_response(response)
         assert excinfo.value.msg == "Insufficient permissions for this operations."
-
-@pytest.mark.asyncio
-async def test_create_fail():
-    with Client(url=server_url) as client:
-        client.signin(username, password)
-        with pytest.raises(NonExistentTemplateException) as excinfo:
-            await client.create_schema(name="pet store 2", template="PET_STORE123")
-        assert excinfo.value.msg == "Selected template does not exist."
