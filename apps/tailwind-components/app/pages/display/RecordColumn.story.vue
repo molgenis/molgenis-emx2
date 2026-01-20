@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, defineComponent, h } from "vue";
 import type {
   IColumn,
   IRefColumn,
@@ -7,6 +7,38 @@ import type {
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
 import DisplayRecordColumn from "../../components/display/RecordColumn.vue";
+
+// Custom component for testing displayConfig.component with Vue Component
+const CustomPetDisplay = defineComponent({
+  name: "CustomPetDisplay",
+  props: {
+    column: { type: Object as () => IColumn, required: true },
+    value: { type: Array as () => any[], required: true },
+  },
+  setup(props) {
+    return () =>
+      h(
+        "div",
+        { class: "p-3 bg-purple-100 border-2 border-purple-400 rounded-lg" },
+        [
+          h("p", { class: "font-bold text-purple-800 mb-2" }, [
+            "🎨 Custom Component: ",
+            props.column.label,
+          ]),
+          h(
+            "ul",
+            { class: "list-none space-y-1" },
+            props.value.map((item: any, idx: number) =>
+              h("li", { key: idx, class: "flex items-center gap-2" }, [
+                h("span", { class: "text-purple-600" }, "★"),
+                h("span", {}, item.name),
+              ])
+            )
+          ),
+        ]
+      );
+  },
+});
 
 const showEmpty = ref(false);
 const clickLog = ref<string[]>([]);
@@ -213,6 +245,21 @@ const tableDisplayLargeColumn = computed<IRefColumn>(() => ({
     visibleColumns: ["name", "species", "age", "vaccinated"],
     pageSize: 3,
     clickAction: handleRefClick,
+  },
+}));
+
+// Column with custom Vue Component for display
+const customComponentColumn = computed<IRefColumn>(() => ({
+  id: "pets",
+  label: "Pets (Custom Component)",
+  columnType: "REF_ARRAY",
+  refTableId: "Pet",
+  refSchemaId: "pet store",
+  refLabel: "${name}",
+  refLabelDefault: "${name}",
+  refLinkId: "name",
+  displayConfig: {
+    component: CustomPetDisplay,
   },
 }));
 
@@ -579,6 +626,36 @@ function clearLog() {
               <code>displayConfig.visibleColumns</code> array of column IDs
             </li>
             <li><code>refTableMetadata</code> with column definitions</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-record-heading">
+          Custom Vue Component (displayConfig.component=Component)
+        </h2>
+        <p class="text-sm text-gray-500">
+          Instead of a string like 'table', you can pass an actual Vue Component
+          to displayConfig.component. The component receives column and value as
+          props.
+        </p>
+
+        <div class="space-y-2">
+          <span class="font-medium text-record-label"
+            >REF_ARRAY with custom component:</span
+          >
+          <DisplayRecordColumn
+            :column="customComponentColumn"
+            :value="petTableData.slice(0, 4)"
+            :show-empty="showEmpty"
+          />
+        </div>
+
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
+          <strong>Note:</strong> Custom component receives:
+          <ul class="list-disc list-inside mt-2">
+            <li><code>column: IColumn</code> - the column metadata</li>
+            <li><code>value: any</code> - the data value</li>
           </ul>
         </div>
       </div>

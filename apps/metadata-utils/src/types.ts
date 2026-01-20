@@ -1,4 +1,4 @@
-import type { ComputedRef } from "vue";
+import type { ComputedRef, Component } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -11,7 +11,7 @@ export interface ISetting {
 export type HeadingType = "HEADING" | "SECTION";
 
 export interface IDisplayConfig {
-  component?: string | object;
+  component?: string | Component;
   visibleColumns?: string[];
   pageSize?: number;
   clickAction?: (col: IColumn, row: IRow) => void;

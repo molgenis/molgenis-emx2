@@ -20,6 +20,7 @@ const props = withDefaults(
     showSearch?: boolean;
     pagingLimit?: number;
     refLabel?: string;
+    clickAction?: (col: IColumn, row: IRow) => void;
   }>(),
   {
     showSearch: true,
@@ -101,9 +102,9 @@ function getLabel(row: IRow): string {
         <li v-for="(row, index) in rows" :key="index">
           <slot :row="row" :column="refColumn" :label="getLabel(row)">
             <span
-              v-if="clickAction && refColumn"
+              v-if="props.clickAction && refColumn"
               class="underline hover:cursor-pointer text-link"
-              @click="clickAction(refColumn, row)"
+              @click="props.clickAction(refColumn, row)"
             >
               {{ getLabel(row) }}
             </span>

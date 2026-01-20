@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, useSlots } from "vue";
+import { ref, computed, useSlots, type Component } from "vue";
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 import RecordTableView from "./RecordTableView.vue";
@@ -23,6 +23,11 @@ const defaultPageSize = 5;
 const displayComponent = computed(() => {
   const comp = props.column.displayConfig?.component;
   return typeof comp === "string" ? comp : comp ? "custom" : "bullets";
+});
+
+const customComponent = computed<Component | undefined>(() => {
+  const comp = props.column.displayConfig?.component;
+  return typeof comp !== "string" ? comp : undefined;
 });
 
 const effectivePageSize = computed(() => {
@@ -87,6 +92,13 @@ function isEmpty(val: any): boolean {
     v-model:page="listPage"
     :page-size="effectivePageSize"
     :total-count="allRows.length"
+  />
+  <!-- Custom component mode: render user-provided Vue component -->
+  <component
+    v-else-if="customComponent"
+    :is="customComponent"
+    :column="column"
+    :value="value"
   />
   <!-- Everything else: delegate to ValueEMX2 -->
   <ValueEMX2 v-else :metadata="column" :data="value" />
