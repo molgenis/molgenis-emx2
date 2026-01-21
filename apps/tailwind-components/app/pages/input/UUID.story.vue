@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { ColumnType } from "../../../../metadata-utils/src/types";
-import { useForm } from "../../../.nuxt/imports";
+import useForm from "../../composables/useForm";
 
 const model = ref({});
 const metadata = ref({
