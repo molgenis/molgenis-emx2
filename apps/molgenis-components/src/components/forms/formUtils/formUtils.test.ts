@@ -198,6 +198,31 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ email: "Invalid email address" });
   });
 
+  test("it should return no error for a valid UUID ARRAY", () => {
+    const rowData = {
+      uuid: [
+        "123e4567-e89b-12d3-a456-426614174000",
+        "223e4567-e89b-12d3-a456-426614174001",
+      ],
+    };
+    const metadata = {
+      columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid UUID array", () => {
+    const rowData = { uuid: ["invalid", "not valid", null, ""] };
+    const metadata = {
+      columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      uuid: "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'",
+    });
+  });
+
   test("it should return no error for a valid hyperlink array", () => {
     const rowData = {
       hyperlink: ["https://google.com", "https://molgenis.org"],
