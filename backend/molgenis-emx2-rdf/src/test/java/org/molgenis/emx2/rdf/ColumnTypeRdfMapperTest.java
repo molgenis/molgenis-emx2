@@ -377,8 +377,8 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.HYPERLINK.name() + " failed"),
         () ->
             assertTrue(
-                retrieveFirstValue(ColumnType.NON_NEGATIVE_INT_ARRAY.name()).isLiteral(),
-                ColumnType.NON_NEGATIVE_INT_ARRAY.name() + " failed"),
+                retrieveFirstValue(ColumnType.NON_NEGATIVE_INT.name()).isLiteral(),
+                ColumnType.NON_NEGATIVE_INT.name() + " failed"),
 
         // Composite keys
         () ->
