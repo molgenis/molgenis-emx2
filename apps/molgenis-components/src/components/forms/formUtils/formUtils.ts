@@ -21,9 +21,9 @@ const {
   MIN_LONG,
   MAX_LONG,
 } = constants;
-const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
-const INT_ERROR = `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
-export const NON_NEGATIVE_INT_ERROR = `Invalid value: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
+const BIG_INT_ERROR = `Invalid long: must be value from ${MIN_LONG} to ${MAX_LONG}`;
+const INT_ERROR = `Invalid integer: must be value from ${MIN_INT} to ${MAX_INT}`;
+export const NON_NEGATIVE_INT_ERROR = `Invalid non negative integer: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
