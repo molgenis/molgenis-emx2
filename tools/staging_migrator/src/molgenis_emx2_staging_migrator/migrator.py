@@ -4,22 +4,19 @@ import zipfile
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
-from typing import TypeAlias, Literal
 
 import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient import Client
-from molgenis_emx2_pyclient.constants import DATE, DATETIME
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
-from molgenis_emx2_pyclient.utils import convert_dtypes
 
-from .constants import BASE_DIR, changelog_query
-from .utils import prepare_primary_keys, has_statement_of_consent, process_statement, resource_ref_cols
+from .constants import BASE_DIR, changelog_query, SchemaType
+from .utils import prepare_primary_keys, has_statement_of_consent, process_statement, resource_ref_cols, load_table, \
+    set_all_delete
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
-SchemaType: TypeAlias = Literal['source', 'target']
 CATALOGUE = "catalogue"
 
 
@@ -172,7 +169,7 @@ class StagingMigrator(Client):
                     log.debug(f"Skipping file {file_name!r}.")
                     continue
                 log.debug(f"Preparing table {table.name!r} for deletion.")
-                updated_table: pd.DataFrame = self._set_all_delete(table)
+                updated_table: pd.DataFrame = set_all_delete(table)
                 if len(updated_table.index) != 0:
                     upload_archive.writestr(file_name, updated_table.to_csv(index=False))
                     updated_tables.append(Path(file_name).stem)
@@ -196,8 +193,8 @@ class StagingMigrator(Client):
         ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
 
         # Load the data for the table from the ZIP files
-        source_df = self._load_table('source', table)
-        target_df = self._load_table('target', table)
+        source_df = load_table('source', table)
+        target_df = load_table('target', table)
 
         # Filter the rows in the target table that reference the Resource identifiers
         target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
@@ -229,15 +226,6 @@ class StagingMigrator(Client):
 
         return filtered_df
 
-    def _set_all_delete(self, table: Table) -> pd.DataFrame:
-        """
-        Adds an `mg_delete` column to the table and sets its values to `true`.
-        """
-        source_df = self._load_table('source', table)
-        source_df["mg_delete"] = True
-        return source_df
-
-
     @staticmethod
     def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
         """
@@ -266,33 +254,6 @@ class StagingMigrator(Client):
         else:
             log.error("Error: download failed.")
         return filepath
-
-    @staticmethod
-    def _load_table(schema_type: SchemaType, table: Table) -> pd.DataFrame:
-        """Loads the table from a zip file into a DataFrame.
-        Then parses the data by converting the columns' dtypes.
-        """
-        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
-            raw_df = pd.read_csv(BytesIO(archive.read(f"{table.name}.csv")), nrows=1)
-
-        columns = raw_df.columns
-        dtypes = {c: convert_dtypes(table).get(c, "string") for c in columns}
-
-        bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
-        date_columns = [c.name for c in table.columns
-                        if c.get('columnType') in (DATE, DATETIME) and c.name in columns]
-
-        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
-            df = pd.read_csv(filepath_or_buffer=BytesIO(archive.read(f"{table.name}.csv")),
-                             dtype=dtypes,
-                             na_values=[""],
-                             keep_default_na=False,
-                             parse_dates=date_columns)
-
-        df[bool_columns] = df[bool_columns].replace({'true': True, 'false': False})
-        df = df.astype(dtypes)
-
-        return df
 
 
     def _verify_schemas(self):
