@@ -147,15 +147,16 @@ export function getColumnError(
   if (type === "INT" && isInvalidInt(value as number)) {
     return INT_ERROR;
   }
-  if (type === "INT_ARRAY" &&
-    (value as number[])?.some(isInvalidInt)) {
+  if (type === "INT_ARRAY" && (value as number[])?.some(isInvalidInt)) {
     return INT_ERROR;
   }
   if (type === "NON_NEGATIVE_INT" && isInvalidNonNegativeInt(value as number)) {
     return NON_NEGATIVE_INT_ERROR;
   }
-  if (type === "NON_NEGATIVE_INT_ARRAY" &&
-    (value as number[])?.some(isInvalidNonNegativeInt)) {
+  if (
+    type === "NON_NEGATIVE_INT_ARRAY" &&
+    (value as number[])?.some(isInvalidNonNegativeInt)
+  ) {
     return NON_NEGATIVE_INT_ERROR;
   }
   if (column.validation) {
@@ -177,16 +178,20 @@ export function isInvalidBigInt(value?: string): boolean {
   }
 }
 
-function isInvalidInteger(value: number, minInt: number, maxInt: number): boolean {
+function isInvalidInteger(
+  value: number,
+  minInt: number,
+  maxInt: number
+): boolean {
   return isNaN(value) || value < minInt || value > maxInt;
 }
 
 function isInvalidInt(value: number): boolean {
-  return isInvalidInteger(value, MIN_INT, MAX_INT)
+  return isInvalidInteger(value, MIN_INT, MAX_INT);
 }
 
 export function isInvalidNonNegativeInt(value: number): boolean {
-  return isInvalidInteger(value, MIN_NON_NEGATIVE_INT, MAX_INT)
+  return isInvalidInteger(value, MIN_NON_NEGATIVE_INT, MAX_INT);
 }
 
 export function isMissingValue(value: any): boolean {

@@ -10,7 +10,8 @@ import {
   isMissingValue,
   isRequired,
   isJsonObjectOrArray,
-  buildGraphqlFilter, isInvalidBigInt,
+  buildGraphqlFilter,
+  isInvalidBigInt,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "metadata-utils";
 const { AUTO_ID, HEADING } = constants;
@@ -308,7 +309,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "integer", columnType: "INT" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ integer: "Invalid integer: must be value from -2147483648 to 2147483647" });
+    expect(result).to.deep.equal({
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
+    });
   });
 
   test("it should return an error for an integer that is too large", () => {
@@ -348,7 +351,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "integer", columnType: "INT_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ integer: "Invalid integer: must be value from -2147483648 to 2147483647" });
+    expect(result).to.deep.equal({
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
+    });
   });
 
   test("it should return an error for an invalid integer array", () => {
@@ -377,7 +382,10 @@ describe("getRowErrors", () => {
       columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ nonNegativeInteger: "Invalid non negative integer: must be value from 0 to 2147483647" });
+    expect(result).to.deep.equal({
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
+    });
   });
 
   test("it should return an error for an non negative integer that is too large", () => {
@@ -387,7 +395,8 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer: must be value from 0 to 2147483647",
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
     });
   });
 
@@ -398,14 +407,17 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer: must be value from 0 to 2147483647",
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
     });
   });
 
   test("it should return no error for a valid non negative integer array", () => {
     const rowData = { nonNegativeInteger: [0, 3] };
     const metadata = {
-      columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" }],
+      columns: [
+        { id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" },
+      ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
@@ -414,20 +426,28 @@ describe("getRowErrors", () => {
   test("it should return an error for an invalid non negative integer array", () => {
     const rowData = { nonNegativeInteger: [".", 2] };
     const metadata = {
-      columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" }],
+      columns: [
+        { id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" },
+      ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ nonNegativeInteger: "Invalid non negative integer: must be value from 0 to 2147483647" });
+    expect(result).to.deep.equal({
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
+    });
   });
 
   test("it should return an error for an invalid non negative integer array", () => {
     const rowData = { nonNegativeInteger: [-1, 2] };
     const metadata = {
-      columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" }],
+      columns: [
+        { id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" },
+      ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer: must be value from 0 to 2147483647",
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
     });
   });
 

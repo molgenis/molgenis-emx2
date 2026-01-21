@@ -1,20 +1,20 @@
 <template>
   <FormGroup
-      :id="id"
-      :label="label"
-      :required="required"
-      :description="description"
-      :errorMessage="nonNegativeIntError"
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="nonNegativeIntError"
   >
     <InputGroup>
       <BaseInputInt
-          :id="id"
-          :modelValue="modelValue"
-          :placeholder="placeholder"
-          :readonly="readonly"
-          :required="required"
-          :class="{ 'is-invalid': nonNegativeIntError }"
-          @update:modelValue="$emit('update:modelValue', $event)"
+        :id="id"
+        :modelValue="modelValue"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        :required="required"
+        :class="{ 'is-invalid': nonNegativeIntError }"
+        @update:modelValue="$emit('update:modelValue', $event)"
       />
       <template v-slot:append>
         <slot name="append" />
@@ -29,9 +29,9 @@ import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 import {
   isInvalidNonNegativeInt,
-  NON_NEGATIVE_INT_ERROR
+  NON_NEGATIVE_INT_ERROR,
 } from "./formUtils/formUtils";
-import {computed} from "vue";
+import { computed } from "vue";
 
 const props = defineProps<{
   id: string;
@@ -41,7 +41,7 @@ const props = defineProps<{
   errorMessage?: string;
   placeholder?: string;
   readonly?: boolean;
-}>()
+}>();
 
 const modelValue = defineModel<Number>("modelValue", {
   required: true,
@@ -57,7 +57,7 @@ const nonNegativeIntError = computed(() => {
   } else {
     return props.errorMessage;
   }
-})
+});
 </script>
 
 <docs>
