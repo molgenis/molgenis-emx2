@@ -19,10 +19,7 @@ const isExpanded = ref<boolean>(props.openByDefault);
 </script>
 
 <template>
-  <div
-    :id="`accordion__${id}`"
-    class="border border-input hover:border-input-focused focus-within:border-input-focused"
-  >
+  <div :id="`accordion__${id}`" class="">
     <div
       class="group flex justify-between items-center gap-5 text-button-text p-5 px-7.5"
     >
