@@ -14,6 +14,7 @@ from molgenis_emx2_pyclient import Client as Session
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
 from molgenis_emx2_pyclient.metadata import NoSuchTableException, Schema
 from molgenis_emx2_pyclient.metadata import Table as MetaTable
+from molgenis_emx2_pyclient.utils import prepare_filter
 
 from .errors import MolgenisRequestError
 from .model import (
@@ -105,8 +106,7 @@ class DirectorySession(Session):
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by="name", value=table).id
-
-        filter_part = self._prepare_filter(query_filter, table, schema)
+        filter_part = prepare_filter(query_filter, table, schema_metadata)
         if filter_part:
             filter_part = "?filter=" + json.dumps(filter_part)
         else:
