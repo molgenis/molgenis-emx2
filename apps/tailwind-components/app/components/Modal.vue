@@ -31,7 +31,6 @@ watchEffect(() => {
     document.body.style.overflow = "hidden";
   } else {
     document.body.style.overflow = "";
-    emit("closed");
   }
 });
 
@@ -45,6 +44,7 @@ let unregister: (() => void) | undefined;
 onMounted(() => {
   unregister = registerModal(() => {
     visible.value = false;
+    emit("closed");
   });
 });
 
