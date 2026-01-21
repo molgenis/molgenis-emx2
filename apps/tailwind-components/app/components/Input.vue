@@ -103,7 +103,7 @@
     @blur="emit('blur')"
   />
   <InputTextArea
-    v-else-if="['TEXT'].includes(typeUpperCase)"
+    v-else-if="['TEXT', 'JSON'].includes(typeUpperCase)"
     v-model="modelValue as string"
     :id="id"
     :valid="valid"
@@ -225,9 +225,7 @@
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
     :modelValue="modelValue && typeof modelValue === 'object' && 'name' in modelValue ? (modelValue as Record<string, any>)['name'] : undefined"
     @update:modelValue="
-      $event
-        ? (modelValue = { name: $event as string })
-        : (modelValue = undefined)
+      $event ? (modelValue = { name: $event as string }) : (modelValue = null)
     "
     :id="id"
     :valid="valid"
@@ -240,6 +238,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
+    :limit="10"
   />
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
@@ -262,6 +261,7 @@
     :ontologyTableId="refTableId!"
     @focus="emit('focus')"
     @blur="emit('blur')"
+    :limit="10"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
