@@ -14,7 +14,7 @@ test("the inputUUID", async ({ page }) => {
   await expect(
     page.getByText("Invalid UUID: should be a valid UUID format")
   ).toBeVisible();
-  await page.getByPlaceholder("Please enter a UUID").clear();
+  await page.getByRole("textbox", { name: "Please enter a UUID" }).clear();
   await page
     .getByRole("textbox", { name: "Please enter a UUID" })
     .fill("123e4567-e89b-12d3-a456-426614174000");
