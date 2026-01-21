@@ -494,33 +494,33 @@ describe("getRowErrors", () => {
 });
 
 describe("isInvalidBigInt", () => {
-  const BIG_INT_ERROR = `Invalid value: must be value from -9223372036854775807 to 9223372036854775807`;
+  // Accepted range: -9223372036854775807 to 9223372036854775807
 
-  test("it should return undefined for a valid positive long", () => {
+  test("it should return false for a valid positive long", () => {
     expect(isInvalidBigInt("9223372036854775807")).toBe(false);
   });
 
-  test("it should return undefined for a valid negative long", () => {
+  test("it should return false for a valid negative long", () => {
     expect(isInvalidBigInt("-9223372036854775807")).toBe(false);
   });
 
-  test("it should return an error string for a too large long", () => {
+  test("it should return true for a too large long", () => {
     expect(isInvalidBigInt("9223372036854775808")).toBe(true);
   });
 
-  test("it should return an error string for a too small long", () => {
+  test("it should return true for a too small long", () => {
     expect(isInvalidBigInt("-9223372036854775808")).toBe(true);
   });
 
-  test("it should return an error for invalid input", () => {
+  test("it should return true for invalid input", () => {
     expect(isInvalidBigInt("randomtext")).toBe(true);
   });
 
-  test("it should return an error for empty inputs", () => {
+  test("it should return true for empty inputs", () => {
     expect(isInvalidBigInt("")).toBe(true);
   });
 
-  test("it should return an error for only a minus", () => {
+  test("it should return true for only a minus", () => {
     expect(isInvalidBigInt("-")).toBe(true);
   });
 });
