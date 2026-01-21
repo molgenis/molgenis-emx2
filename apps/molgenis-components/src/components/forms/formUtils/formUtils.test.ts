@@ -234,7 +234,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      long: "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
+      long: "Invalid long: must be value from -9223372036854775807 to 9223372036854775807",
     });
   });
 
@@ -254,7 +254,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      long: "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
+      long: "Invalid long: must be value from -9223372036854775807 to 9223372036854775807",
     });
   });
 

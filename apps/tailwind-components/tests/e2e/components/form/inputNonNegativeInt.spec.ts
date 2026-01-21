@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto(`${route}input/NonNegativeInt.story`);
 });
 
-const errMessage = "Invalid value: must be value from 0 to 2147483647";
+const errMessage = "Invalid non negative integer: must be value from 0 to 2147483647";
 const textBoxName = "Input a non negative int";
 
 test("the non negative int", async ({ page }) => {
