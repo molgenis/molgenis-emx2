@@ -19,7 +19,7 @@ const isExpanded = ref<boolean>(props.openByDefault);
 </script>
 
 <template>
-  <div :id="`accordion__${id}`" class="">
+  <div :id="`accordion__${id}`">
     <div
       class="group flex justify-between items-center gap-5 text-button-text p-5 px-7.5"
     >
