@@ -2,7 +2,7 @@ plugins {
     id "jacoco"
     id "java"
     id 'java-test-fixtures'
-    id "com.diffplug.spotless" version "6.25.0" apply false
+    id "com.diffplug.spotless" version "8.1.0" apply false
     id 'pmd'
 }
 
