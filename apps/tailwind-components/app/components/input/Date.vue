@@ -60,9 +60,12 @@ function handleUpdate(newValue: string) {
 }
 
 function handleBlur() {
-  //check that actually something relevant happened
   if (internalValue.value !== props.modelValue) {
     emit("blur");
+  }
+
+  if (!internalValue.value) {
+    setPlaceholder();
   }
 }
 

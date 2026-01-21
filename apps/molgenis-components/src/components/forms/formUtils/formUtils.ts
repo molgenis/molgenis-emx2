@@ -118,11 +118,19 @@ export function getColumnError(
       return `Please enter valid JSON`;
     }
   }
-  if (type === "LONG" && isInvalidBigInt(value as string)) {
+  if (
+    type === "LONG" &&
+    value !== null &&
+    isInvalidBigInt(value as string | undefined)
+  ) {
     return BIG_INT_ERROR;
   }
   if (
-    type === "LONG_ARRAY" && (value as string[])?.some(isInvalidBigInt)) {
+    type === "LONG_ARRAY" &&
+    Array.isArray(value) &&
+    (value as unknown as Array<string>)?.length &&
+    (value as string[])?.some(isInvalidBigInt)
+  ) {
     return BIG_INT_ERROR;
   }
   if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {

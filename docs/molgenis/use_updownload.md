@@ -23,7 +23,21 @@ You can download a [schema](use_schema.md) in the following formats:
 Each table provides its own dedicated download links.
 
 > **[Permissions](use_permissions.md):**  
-> Only admin users or users with the **Owner** or **Manager** role are allowed to download member data.
+> Only admin users or users with the **Owner** or **Manager** role are allowed to download the changelog and member data.
+
+### Changelog
+
+When downloading the changelog, you can control pagination using URL query parameters.
+
+#### Query parameters
+- **`limit`**: The maximum number of changelog entries to include. Defaults to 100.
+- **`offset`**: The number of most recent entries to skip. Defaults to 0.
+
+#### Example
+```text
+http://{SERVER_NAME}/{SCHEMA}/api/csv/changelog?limit=200&offset=20
+```
+This request returns a CSV file with up to 200 changelog entries, excluding the 20 most recent ones.
 
 ## Upload
 
