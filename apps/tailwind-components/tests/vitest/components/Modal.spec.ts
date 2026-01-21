@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import Modal from "../../../app/components/Modal.vue";
 
-export function mountModal(visible = true) {
+function mountModal(visible = true) {
   let setVisible!: (v: boolean) => void;
 
   const wrapper = mount(Modal, {
