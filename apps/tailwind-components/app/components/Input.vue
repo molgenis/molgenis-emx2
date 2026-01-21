@@ -225,9 +225,7 @@
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
     :modelValue="modelValue && typeof modelValue === 'object' && 'name' in modelValue ? (modelValue as Record<string, any>)['name'] : undefined"
     @update:modelValue="
-      $event
-        ? (modelValue = { name: $event as string })
-        : (modelValue = undefined)
+      $event ? (modelValue = { name: $event as string }) : (modelValue = null)
     "
     :id="id"
     :valid="valid"
