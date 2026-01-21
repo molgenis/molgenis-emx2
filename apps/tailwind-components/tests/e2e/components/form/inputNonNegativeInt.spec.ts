@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 const errMessage = "Invalid value: must be value from 0 to 2147483647";
-const textBoxName = "Input a non negative int"
+const textBoxName = "Input a non negative int";
 
 test("the non negative int", async ({ page }) => {
   await expect(page.getByText(errMessage)).not.toBeVisible();

@@ -23,38 +23,41 @@
   </FormGroup>
 </template>
 
-<script>
-import BaseInput from "./baseInputs/BaseInput.vue";
+<script setup lang="ts">
 import BaseInputInt from "./baseInputs/BaseInputInt.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import constants from "../constants";
-import {getNonNegativeIntError, NON_NEGATIVE_INT_ERROR} from "./formUtils/formUtils";
-import InputInt from "./InputInt.vue";
-import InputNonNegativeInt from "./InputNonNegativeInt.vue";
+import {
+  isInvalidNonNegativeInt,
+  NON_NEGATIVE_INT_ERROR
+} from "./formUtils/formUtils";
+import {computed} from "vue";
 
-export default {
-  extends: BaseInput,
-  components: {
-    InputInt,
-    FormGroup,
-    BaseInputInt,
-    InputGroup,
-  },
-  computed: {
-    nonNegativeIntError() {
-      if (typeof this.modelValue === "number") {
-        if (getNonNegativeIntError(this.modelValue)) {
-          return NON_NEGATIVE_INT_ERROR;
-        } else {
-          return this.errorMessage;
-        }
-      } else {
-        return this.errorMessage;
-      }
-    },
-  },
-};
+const props = defineProps<{
+  id: string;
+  label?: string;
+  required?: boolean;
+  description?: string;
+  errorMessage?: string;
+  placeholder?: string;
+  readonly?: boolean;
+}>()
+
+const modelValue = defineModel<Number>("modelValue", {
+  required: true,
+});
+
+const nonNegativeIntError = computed(() => {
+  if (typeof modelValue.value === "number") {
+    if (isInvalidNonNegativeInt(modelValue.value)) {
+      return NON_NEGATIVE_INT_ERROR;
+    } else {
+      return props.errorMessage;
+    }
+  } else {
+    return props.errorMessage;
+  }
+})
 </script>
 
 <docs>

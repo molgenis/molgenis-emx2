@@ -118,13 +118,11 @@ export function getColumnError(
       return `Please enter valid JSON`;
     }
   }
-  if (type === "LONG" && getBigIntError(value as string | undefined)) {
-    return getBigIntError(value as string | undefined);
+  if (type === "LONG" && isInvalidBigInt(value as string)) {
+    return BIG_INT_ERROR;
   }
   if (
-    type === "LONG_ARRAY" &&
-    (value as unknown as string[])?.some((val) => getBigIntError(val))
-  ) {
+    type === "LONG_ARRAY" && (value as string[])?.some(isInvalidBigInt)) {
     return BIG_INT_ERROR;
   }
   if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {
@@ -138,39 +136,25 @@ export function getColumnError(
   ) {
     return "Invalid number";
   }
-  if (type === "INT") {
-    const intError = getIntError(value as number);
-    if (intError) {
-      return intError;
-    }
+  if (type === "INT" && isInvalidInt(value as number)) {
+    return INT_ERROR;
   }
-  if (type === "NON_NEGATIVE_INT") {
-    const nonNegativeIntError = getNonNegativeIntError(value as number);
-    if (nonNegativeIntError) {
-      return nonNegativeIntError;
-    }
+  if (type === "INT_ARRAY" &&
+    (value as number[])?.some(isInvalidInt)) {
+    return INT_ERROR;
   }
-  if (type === "INT_ARRAY") {
-    const errorInt = (value as unknown as number[])?.find((val) =>
-      getIntError(val)
-    );
-    if (errorInt) {
-      return getIntError(errorInt as number);
-    }
+  if (type === "NON_NEGATIVE_INT" && isInvalidNonNegativeInt(value as number)) {
+    return NON_NEGATIVE_INT_ERROR;
+  }
+  if (type === "NON_NEGATIVE_INT_ARRAY" &&
+    (value as number[])?.some(isInvalidNonNegativeInt)) {
+    return NON_NEGATIVE_INT_ERROR;
   }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
 
   return undefined;
-}
-
-export function getBigIntError(value?: string): string | undefined {
-  if (isInvalidBigInt(value)) {
-    return BIG_INT_ERROR;
-  } else {
-    return undefined;
-  }
 }
 
 export function isInvalidBigInt(value?: string): boolean {
@@ -185,22 +169,16 @@ export function isInvalidBigInt(value?: string): boolean {
   }
 }
 
-function getIntError(value: number): string | undefined {
-  if (isNaN(value)) {
-    return "Invalid number";
-  }
-  if (value < MIN_INT || value > MAX_INT) {
-    return INT_ERROR;
-  }
+function isInvalidInteger(value: number, minInt: number, maxInt: number): boolean {
+  return isNaN(value) || value < minInt || value > maxInt;
 }
 
-export function getNonNegativeIntError(value: number): string | undefined {
-  if (isNaN(value)) {
-    return "Invalid number";
-  }
-  if (value < MIN_NON_NEGATIVE_INT || value > MAX_INT) {
-    return NON_NEGATIVE_INT_ERROR;
-  }
+function isInvalidInt(value: number): boolean {
+  return isInvalidInteger(value, MIN_INT, MAX_INT)
+}
+
+export function isInvalidNonNegativeInt(value: number): boolean {
+  return isInvalidInteger(value, MIN_NON_NEGATIVE_INT, MAX_INT)
 }
 
 export function isMissingValue(value: any): boolean {
@@ -343,10 +321,7 @@ function containsInvalidPeriod(periods: any) {
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {
-  if (typeof parsedJson === "object" && parsedJson !== null) {
-    return true;
-  }
-  return false;
+  return typeof parsedJson === "object" && parsedJson !== null;
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {

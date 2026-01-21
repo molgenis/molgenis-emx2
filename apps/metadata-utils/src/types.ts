@@ -132,7 +132,9 @@ export interface LegendHeading extends LegendItem {
 export type columnId = string;
 export type columnValue =
   | string
+  | string[]
   | number
+  | number[]
   | boolean
   | null
   | undefined
