@@ -91,7 +91,7 @@ public class SqlQuery extends QueryBean {
               + schema.getName());
     }
     checkHasViewPermission(table);
-    SqlAlias tableAlias = SqlAlias.withAlias("root-" + table.getTableName());
+    SqlAlias tableAlias = SqlAlias.withAlias(table.getTableName());
 
     // if empty selection, we will add the default selection here, incl File and Refback
     // will generally be all you need
@@ -293,7 +293,7 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
-    SqlAlias tableAlias = SqlAlias.withoutAlias("gql_" + table.getTableName());
+    SqlAlias tableAlias = SqlAlias.withoutAlias(table.getTableName());
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
           jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
@@ -407,7 +407,8 @@ public class SqlQuery extends QueryBean {
       Filter filters,
       String[] searchTerms) {
 
-    SqlAlias filterAlias = SqlAlias.withoutAlias("filter", subAlias);
+    String filterName = Optional.ofNullable(filters.getColumn()).orElse("filter");
+    SqlAlias filterAlias = SqlAlias.withoutAlias(filterName, subAlias);
 
     List<Condition> conditions = new ArrayList<>();
     if (filters != null) {
@@ -1238,6 +1239,24 @@ public class SqlQuery extends QueryBean {
 
   private Condition whereMatchNone(
       SqlAlias tableAlias, Name columnName, Column column, Object[] values) {
+    List<String> names =
+        Arrays.stream(tableAlias.getQualifiedName().split("-"))
+            .filter(s -> !s.equals("filter"))
+            .toList();
+
+    TableMetadata tableMetadata = schema.getTableMetadata(names.getFirst());
+    Column c;
+    if (names.size() > 1) {
+      for (String name : names.subList(1, names.size())) {
+        c = tableMetadata.getColumn(name);
+        if (!c.isReference()) {
+          break;
+        }
+
+        tableMetadata = c.getTable();
+      }
+    }
+
     Name parentName = name(alias(tableAlias.getParent().get()), tableAlias.getName());
     var condition =
         DSL.condition(
