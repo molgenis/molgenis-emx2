@@ -234,6 +234,44 @@ See the description of the [Schema](use_usingpyclient.md#schema) metadata object
 | `name`    | str  | the name of the schema | True     | None    |
 
 
+### get_schema_settings
+```python
+def get_schema_settings(self, name: str = None) -> list[dict]:
+    ...
+```
+Retrieves the settings of a schema and returns them in a list of dictionaries.
+
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| `name`    | str  | the name of the schema | True     | None    |
+
+
+### get_schema_members
+```python
+def get_schema_members(self, name: str = None) -> list[dict]:
+    ...
+```
+Retrieves the members of a schema and returns them in a list of dictionaries.
+Raises a PermissionDeniedException if the user has insufficient permissions for viewing the members of the schema.
+
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| `name`    | str  | the name of the schema | True     | None    |
+
+
+### get_schema_roles
+```python
+def get_schema_roles(self, name: str = None) -> list[dict]:
+    ...
+```
+Retrieves the roles of a schema and returns them in a list of dictionaries.
+
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| `name`    | str  | the name of the schema | True     | None    |
+
+
+
 ### export
 ```python
 async def export(self, 
@@ -459,7 +497,7 @@ async def recreate_schema(self,
                           name: str = None,
                           description: str = None,
                           template: str = None,
-                          include_demo_data: bool = None):
+                          include_demo_data: bool = False):
     ...
 ```
 Recreates a schema on the EMX2 server by deleting and subsequently creating it without data on the EMX2 server.

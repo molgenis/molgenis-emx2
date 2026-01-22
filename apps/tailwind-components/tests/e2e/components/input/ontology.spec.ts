@@ -11,35 +11,34 @@ test.describe("Input Ontology", () => {
   });
 
   test("small ontologies are shown expanded", async ({ page }) => {
+    // Small ontologies should be visible (expanded by default)
     await expect(
       page
-        .locator("#test-ontology-array-input-id-ontology")
+        .locator("#test-ontology-array-input-id-input-ontology")
         .filter({ hasText: "green" })
-    ).toHaveCount(0);
+    ).toBeVisible();
     await expect(
       page
-        .locator("#test-ontology-array-input-id-ontology")
+        .locator("#test-ontology-array-input-id-input-ontology")
         .filter({ hasText: "blue" })
-    ).toHaveCount(0);
+    ).toBeVisible();
   });
 
   test("large ontologies are shown as select", async ({ page }) => {
+    const ontologyContainer = page.locator(
+      "#test-ontology-array-input-id2-input-ontology"
+    );
+
     await expect(
-      page
-        .locator("#test-ontology-input-id2-input-ontology")
-        .getByRole("button", { name: "Andorra" })
+      ontologyContainer.getByRole("button", { name: "Andorra" })
     ).toBeVisible();
-    await page
-      .locator(
-        "#test-ontology-input-id2-input-ontology > .flex.items-center.justify-between > div:nth-child(2) > svg:nth-child(2)"
-      )
-      .click();
-    await page
-      .locator("#test-ontology-input-id2-input-ontology")
-      .getByText("American Samoa")
-      .click();
+
+    await ontologyContainer.locator("svg.text-input").last().click();
+
+    await ontologyContainer.getByText("American Samoa").click();
+
     await expect(
-      page.getByRole("button", { name: "American Samoa" })
+      ontologyContainer.getByRole("button", { name: "American Samoa" })
     ).toBeVisible();
   });
 

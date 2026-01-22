@@ -18,6 +18,27 @@ Releases of the Molgenis EMX2 Pyclient follow the release number of the accompan
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ
 from the latest version of Molgenis EMX2.
 
+
+
+### 13.77.1
+
+- Improved error handling in 'columns' filter in `get` method
+- Fixed asynchronous API calls in `export`
+- Fixed issue with 'equals' filter for references in `get` method
+- Fixed `greater_than` and `smaller_than` filters for LONG type values in `get` method
+- Renamed `__prepare_unequal_filter` to `prepare_not_equals_filter` and added NotImplementedError for certain data types
+- Fixed issue with incorrect column names in `get_graphql`
+- Removed default value None for 'name' in `create_schema` as schema name cannot be null
+- Fixed parameter `include_demo_data` in `recreate_schema` to default to `False` instead of `None`
+- Improved error handling when creating schema with non-existent template
+
+### 13.75.1
+
+- Fixed: issue when running `get_schema_metadata` on a schema with insufficient permissions to see members
+- Added: methods `get_schema_settings`
+- Added: methods `get_schema_members`
+- Added: methods `get_schema_roles`
+
 ### 13.55.4
 
 Added: method `save_table`. Replaces `save_schema` which is now deprecated.
@@ -166,6 +187,7 @@ with Client('https://example.molgeniscloud.org', token=token) as client:
 
 ## Development
 
+The Pyclient requires a Python installation with version 3.10 or higher.
 Clone the `molgenis-emx2` repository from GitHub
 
 ```console
@@ -185,13 +207,13 @@ python -m venv venv
 On Linux:
 
 ```console
-python3.11 -m venv venv
+python3.10 -m venv venv
 ```
 
 On Windows:
 
 ```console
-py -3.11 venv venv
+py -3.10 venv venv
 ```
 
 ### Activate the virtual environment
@@ -224,4 +246,15 @@ Before building the source, the package `build` needs to be installed.
 (venv) $ python -m build
 
 (venv) $ pip install dist/molgenis_emx2_pyclient*.whl
+```
+
+## Test
+
+Tests for the Pyclient have been created with the Pytest framework.
+In order to test the functionality of the Pyclient copy the '.env-example' file to '.env' and modify the parameters for the server you want to test on.
+
+Then execute the following to run all the tests
+
+```console
+(venv) molgenis-emx2/tools/pyclient$ pytest
 ```

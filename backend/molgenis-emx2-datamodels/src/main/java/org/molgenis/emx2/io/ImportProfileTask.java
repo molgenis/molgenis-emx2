@@ -1,9 +1,9 @@
 package org.molgenis.emx2.io;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
@@ -19,14 +19,30 @@ public class ImportProfileTask extends Task {
   private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
-  @JsonIgnore private final Schema schema;
   private final String configLocation;
   private final boolean includeDemoData;
+  private final Database database;
+  private final Function<Database, Schema> importSchemaFunction;
+  private Schema schema;
 
-  public ImportProfileTask(Schema schema, String configLocation, boolean includeDemoData) {
-    this.schema = schema;
+  public ImportProfileTask(
+      Database database,
+      String schemaName,
+      String description,
+      String configLocation,
+      boolean includeDemoData) {
+    this(database, configLocation, includeDemoData, db -> db.createSchema(schemaName, description));
+  }
+
+  ImportProfileTask(
+      Database database,
+      String configLocation,
+      boolean includeDemoData,
+      Function<Database, Schema> importSchemaFunction) {
+    this.database = database;
     this.configLocation = configLocation;
     this.includeDemoData = includeDemoData;
+    this.importSchemaFunction = importSchemaFunction;
   }
 
   @Override
@@ -34,9 +50,10 @@ public class ImportProfileTask extends Task {
     this.start();
     Task commitTask = new Task();
     try {
-      schema.tx(
+      this.database.tx(
           db -> {
-            Schema s = db.getSchema(schema.getName());
+            Schema s = importSchemaFunction.apply(db);
+            this.schema = s;
             load(s);
             this.addSubTask(commitTask);
             commitTask.setDescription("Committing");
@@ -62,7 +79,7 @@ public class ImportProfileTask extends Task {
     Profiles profiles = getProfiles(schema, schemaFromProfile);
 
     // create the schema using the selected profile tags within the big model
-    SchemaMetadata schemaMetadata = null;
+    SchemaMetadata schemaMetadata;
     try {
       schemaMetadata = schemaFromProfile.create();
     } catch (Exception e) {
@@ -150,22 +167,25 @@ public class ImportProfileTask extends Task {
     // special option: if there are createSchemasIfMissing, import those first
     if (profiles.getFirstCreateSchemasIfMissing() != null) {
       for (CreateSchemas createSchemasIfMissing : profiles.getFirstCreateSchemasIfMissing()) {
-        String schemaName = createSchemasIfMissing.getName();
+        String missingSchemaName = createSchemasIfMissing.getName();
         Database db = schema.getDatabase();
-        Schema createNewSchema = db.getSchema(schemaName);
+        Schema createNewSchema = db.getSchema(missingSchemaName);
         // if schema exists by this name, stop and continue with next
         if (createNewSchema != null) {
           continue;
         }
-        createNewSchema = db.createSchema(schemaName);
         String profileLocation = createSchemasIfMissing.getProfile();
         ImportProfileTask profileLoader =
             new ImportProfileTask(
-                createNewSchema, profileLocation, createSchemasIfMissing.isImportDemoData());
+                db,
+                missingSchemaName,
+                "",
+                profileLocation,
+                createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
         profileLoader.run();
-        // profileLoader.load(createNewSchema, createSchemasIfMissing.isImportDemoData());
+        profileLoader.load(profileLoader.schema);
       }
     }
     return profiles;

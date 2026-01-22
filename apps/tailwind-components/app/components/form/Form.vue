@@ -1,17 +1,15 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import type {
   columnId,
   columnValue,
   IColumn,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import useForm from "../../composables/useForm";
 import FormFields from "./Fields.vue";
 import FormLegend from "./Legend.vue";
-import NextSectionNav from "./NextSectionNav.vue";
-import PreviousSectionNav from "./PreviousSectionNav.vue";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
-import { ref } from "vue";
 
 const props = defineProps<{
   metadata: ITableMetaData;
@@ -31,20 +29,18 @@ const {
   gotoNextError,
   gotoPreviousError,
   gotoSection,
-  previousSection,
-  nextSection,
   insertInto: insert,
   updateInto,
   visibleColumnErrors,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
-  onLeaveViewColumn,
   validateAllColumns,
   validateKeyColumns,
   sections,
   visibleColumns,
   visibleColumnIds,
+  requiredMap,
 } = useForm(props.metadata, formValues, "fields-container");
 
 defineExpose({
@@ -92,8 +88,8 @@ function insertInto() {
 }
 </script>
 <template>
-  <div class="grid grid-cols-4 gap-1 min-h-0">
-    <div class="col-span-1 bg-form-legend overflow-y-auto h-full min-h-0">
+  <div class="grid grid-cols-4 gap-1 min-h-0 flex-1">
+    <div class="col-span-1 bg-form-legend overflow-y-auto min-h-0">
       <FormLegend
         v-if="sections"
         class="sticky top-0"
@@ -102,13 +98,14 @@ function insertInto() {
       />
     </div>
 
-    <div id="fields-container" class="col-span-3 px-4 py-50px overflow-y-auto">
+    <div id="fields-container" class="col-span-3 p-12.5 overflow-y-auto">
       <FormFields
         ref="formFields"
         :rowKey="rowKey"
         :columns="visibleColumns"
         :constantValues="constantValues"
         :visibleColumnErrors="visibleColumnErrors"
+        :requiredFields="requiredMap"
         v-model="formValues"
         @update="onUpdateColumn"
         @blur="onBlurColumn"

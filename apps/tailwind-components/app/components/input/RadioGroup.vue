@@ -39,7 +39,7 @@ function toggleSelect(event: Event) {
 }
 
 function resetModelValue() {
-  modelValue.value = undefined;
+  modelValue.value = null;
 }
 </script>
 

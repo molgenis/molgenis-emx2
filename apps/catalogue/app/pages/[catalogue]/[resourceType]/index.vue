@@ -230,43 +230,50 @@ const gqlFilter = computed(() => {
   result = buildQueryFilter(filters.value);
 
   if (!result.type) {
-    if (route.params.resourceType == "collections") {
+    if (route.params.resourceType === "collections") {
       result.type = { tags: { equals: "collection" } };
     }
-    if (route.params.resourceType == "networks") {
+    if (route.params.resourceType === "networks") {
       result.type = { tags: { equals: "network" } };
     }
   }
 
-  const collectionPartOf = [
-    { partOfNetworks: { id: { equals: route.params.catalogue } } },
-    {
-      partOfNetworks: {
-        parentNetworks: { id: { equals: route.params.catalogue } },
-      },
-    },
-  ];
-
-  const networkParentOf = [
-    { parentNetworks: { id: { equals: route.params.catalogue } } },
-  ];
-
   // add hard coded page specific filters
-  if ("all" !== route.params.catalogue) {
-    result = {
+  if ("all" === route.params.catalogue) {
+    return result;
+  } else {
+    return {
       _and: [
         result,
         {
-          _or:
-            route.params.resourceType == "collections"
-              ? collectionPartOf
-              : networkParentOf,
+          _or: getParentOrPartOfFilter(),
         },
       ],
     };
   }
-  return result;
 });
+
+function getParentOrPartOfFilter() {
+  if (route.params.resourceType === "collections") {
+    return [
+      { partOfNetworks: { id: { equals: route.params.catalogue } } },
+      {
+        partOfNetworks: {
+          parentNetworks: { id: { equals: route.params.catalogue } },
+        },
+      },
+    ];
+  } else {
+    return [
+      { parentNetworks: { id: { equals: route.params.catalogue } } },
+      {
+        parentNetworks: {
+          parentNetworks: { id: { equals: route.params.catalogue } },
+        },
+      },
+    ];
+  }
+}
 
 const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   key: `${query}-${JSON.stringify(gqlFilter.value)}-${currentPage.value}`,

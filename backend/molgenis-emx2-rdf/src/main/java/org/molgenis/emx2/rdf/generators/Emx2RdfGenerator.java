@@ -9,6 +9,7 @@ import static org.molgenis.emx2.rdf.IriGenerator.tableIRI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
@@ -138,7 +139,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     getWriter().processTriple(subject, RDFS.LABEL, Values.literal(table.getName()));
 
     if (table.getMetadata().getDescriptions() != null) {
-      for (final var entry : table.getMetadata().getDescriptions().entrySet()) {
+      for (final Map.Entry<String, String> entry :
+          table.getMetadata().getDescriptions().entrySet()) {
         if (!entry.getValue().isEmpty()) {
           getWriter()
               .processTriple(
@@ -171,7 +173,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       getWriter().processTriple(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       getWriter().processTriple(subject, RDFS.RANGE, tableIRI(getBaseURL(), column.getRefTable()));
     } else {
-      var type = column.getColumnType();
+      ColumnType type = column.getColumnType();
       if (type == ColumnType.HYPERLINK || type == ColumnType.HYPERLINK_ARRAY) {
         getWriter().processTriple(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       } else {
@@ -201,7 +203,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       }
     }
     if (column.getDescriptions() != null) {
-      for (var entry : column.getDescriptions().entrySet()) {
+      for (Map.Entry<String, String> entry : column.getDescriptions().entrySet()) {
         getWriter()
             .processTriple(
                 subject, DC.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
@@ -220,7 +222,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     getWriter().processTriple(subject, RDFS.SUBCLASSOF, tableIRI);
     if (row.getString("parent") != null) {
       Set<Value> parents = retrieveValues(rdfMapData, row, table.getMetadata().getColumn("parent"));
-      for (var parent : parents) {
+      for (Value parent : parents) {
         getWriter().processTriple(subject, RDFS.SUBCLASSOF, parent);
       }
     }
@@ -300,7 +302,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
           case ONTOLOGY, ONTOLOGY_ARRAY -> {} // skipped due to custom behaviour above
           case HYPERLINK, HYPERLINK_ARRAY -> {
             getWriter().processTriple(subject, columnIRI, value);
-            var resource = Values.iri(value.stringValue());
+            IRI resource = Values.iri(value.stringValue());
             getWriter().processTriple(resource, RDFS.LABEL, Values.literal(value.stringValue()));
           }
           case FILE -> {

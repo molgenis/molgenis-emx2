@@ -10,6 +10,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.web.MolgenisSessionHandler;
 import org.molgenis.emx2.web.SecurityConfigFactory;
+import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
@@ -48,7 +49,7 @@ public class OIDCController {
     WebContext context =
         securityConfig.getWebContextFactory().newContext(new JavalinFrameworkParameters(ctx));
     sessionStore.set(context, Pac4jConstants.REQUESTED_URL, ctx.queryParams("redirect"));
-    final var client =
+    final Client client =
         securityConfig
             .getClients()
             .findClient(OIDC_CLIENT_NAME)

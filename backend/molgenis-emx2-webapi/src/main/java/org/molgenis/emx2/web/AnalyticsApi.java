@@ -44,7 +44,7 @@ public class AnalyticsApi {
 
   private static void deleteTrigger(Context ctx) {
     ctx.contentType("application/json");
-    var action = new DeleteTriggerAction(sanitize(ctx.pathParam(TRIGGER_PARAM)));
+    DeleteTriggerAction action = new DeleteTriggerAction(sanitize(ctx.pathParam(TRIGGER_PARAM)));
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
     Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);

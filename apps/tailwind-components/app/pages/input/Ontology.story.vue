@@ -23,6 +23,11 @@ const modelValueArray3 = ref([
   { name: "Maternal height" },
   { name: "Country of cohort" },
 ]);
+
+const ontologySchemaId4 = ref<string>("CatalogueOntologies");
+const ontologyTableId4 = ref<string>("Keywords");
+const modelValue4 = ref("Maternal height");
+const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
 </script>
 
 <template>
@@ -175,6 +180,45 @@ const modelValueArray3 = ref([
       />
       <p class="mt-4 text-input-description">
         modelValueArray = {{ modelValueArray3 }}
+      </p>
+    </div>
+    <p>
+      Large ontologies forced to show without select and limit=5 (outside of the
+      form field)
+    </p>
+    <div class="m-4">
+      <InputOntology
+        id="test-ontology-input-id3"
+        v-model="modelValue4"
+        :ontology-schema-id="ontologySchemaId4"
+        :ontology-table-id="ontologyTableId4"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+        @blur="onBlur"
+        @focus="onBlur"
+        :force-list="true"
+        :limit="5"
+      />
+      <p class="mt-4 text-input-description">modelValue = {{ modelValue4 }}</p>
+    </div>
+    <div class="m-4">
+      <InputOntology
+        id="test-ontology-array-input-id3"
+        :isArray="true"
+        v-model="modelValueArray4"
+        :ontology-schema-id="ontologySchemaId4"
+        :ontology-table-id="ontologyTableId4"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+        @blur="onBlur"
+        @focus="onFocus"
+        :force-list="true"
+        :limit="5"
+      />
+      <p class="mt-4 text-input-description">
+        modelValueArray = {{ modelValueArray4 }}
       </p>
     </div>
   </InputTestContainer>

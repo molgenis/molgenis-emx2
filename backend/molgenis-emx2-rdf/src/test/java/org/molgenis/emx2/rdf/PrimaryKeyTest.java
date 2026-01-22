@@ -185,7 +185,7 @@ public class PrimaryKeyTest {
 
     boolean filterComplex = false;
     boolean filterLast = false;
-    for (var filter : filters.getSubfilters()) {
+    for (Filter filter : filters.getSubfilters()) {
       if (filter.getColumn().equals("complex pair")
           && filter.getOperator() == EQUALS
           && Arrays.stream(filter.getValues()).toList().contains("me, myself & I")

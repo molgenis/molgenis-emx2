@@ -64,7 +64,11 @@ public interface Schema {
 
   String getName();
 
-  List<Change> getChanges(int limit);
+  default List<Change> getChanges(int limit) {
+    return getChanges(limit, 0);
+  }
+
+  List<Change> getChanges(int limit, int offset);
 
   Integer getChangesCount();
 

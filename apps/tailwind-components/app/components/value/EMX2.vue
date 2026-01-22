@@ -119,5 +119,17 @@ defineEmits<{
     :data="data"
   />
 
+  <ValueString
+    v-else-if="metadata.columnType === 'PERIOD'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueString
+    v-else-if="metadata.columnType === 'UUID'"
+    :metadata="metadata"
+    :data="data"
+  />
+
   <template v-else> {{ metadata.columnType }} </template>
 </template>

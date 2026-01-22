@@ -82,3 +82,4 @@ apps/**/test-results/
 apps/tailwind-components/playwright/.auth/user.json
 
 .turbo
+.claude
