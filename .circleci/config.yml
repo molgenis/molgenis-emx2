@@ -393,16 +393,39 @@ jobs:
             name: Save test results for stats
             command: |
                 find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
-      - run:
-          name: Restart preview in limited resources mode
-          command: |
-            export $( cat build/ci.properties | xargs )
-            bash ci/set_kubectl_config-azure.sh
-            bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:
           path: /root/project/e2e/test-results
+
+  pr-preview:
+    <<: *build_config
+
+    steps:
+    - run: |
+        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+
+    - pre_steps
+
+    - run:
+        name: Restart preview in limited resources mode
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config-azure.sh
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
+        working_directory: repo
+
+    - run:
+        name: message slack about pr-preview ready
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -d "token=${SLACK_TOKEN}" \
+          -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+          PR Preview (limited resources) available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
+          -d "channel=C02AZDG6QQ7" \
+          -X POST https://slack.com/api/chat.postMessage
+
+    - post_steps
 
   emx2-pyclient:
     <<: *build_config
@@ -512,6 +535,12 @@ workflows:
         filters:
             branches:
               ignore: master
+    - pr-preview:
+        requires:
+          - e2e-test
+        filters:
+          branches:
+            ignore: master
     - test:
        filters:
          branches:
