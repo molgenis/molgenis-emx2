@@ -2,11 +2,14 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import org.jooq.DSLContext;
 import org.jooq.ForeignKey;
 import org.jooq.Schema;
 import org.jooq.Table;
+import org.molgenis.emx2.MolgenisException;
 
 public class AToolToCleanDatabase {
   private static DSLContext jooq;
@@ -19,10 +22,24 @@ public class AToolToCleanDatabase {
     SqlDatabase db = new SqlDatabase(true);
     jooq = db.getJooq();
     db.becomeAdmin();
-    jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
-    deleteAllForeignKeyConstraints();
-    deleteAllSchemas();
-    deleteAllRoles();
+
+    String sql = null;
+    try {
+      sql =
+          new String(
+              Objects.requireNonNull(
+                      Migrations.class.getResourceAsStream(
+                          "/utility-sql/clean-molgenis-database.sql"))
+                  .readAllBytes());
+    } catch (IOException e) {
+      throw new MolgenisException("Clean database failed", e);
+    }
+    jooq.execute(sql);
+
+    //    jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
+    //  deleteAllForeignKeyConstraints();
+    //  deleteAllSchemas();
+    //  deleteAllRoles();
     MetadataUtils.resetVersion();
     new SqlDatabase(true);
   }
