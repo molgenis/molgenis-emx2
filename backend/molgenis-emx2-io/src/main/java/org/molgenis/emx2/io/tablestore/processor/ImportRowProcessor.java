@@ -1,23 +1,22 @@
 package org.molgenis.emx2.io.tablestore.processor;
 
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.ImportTableTask;
-import org.molgenis.emx2.io.tablestore.TableAndFileStore;
-import org.molgenis.emx2.io.tablestore.TableStore;
+import static org.molgenis.emx2.Constants.MG_DELETE;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static org.molgenis.emx2.Constants.MG_DELETE;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.tablestore.TableAndFileStore;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.tasks.Task;
 
 /** executes the import */
 public class ImportRowProcessor implements RowProcessor {
 
   private final Table table;
-  private final ImportTableTask task;
+  private final Task task;
 
-  public ImportRowProcessor(Table table, ImportTableTask task) {
+  public ImportRowProcessor(Table table, Task task) {
     this.table = table;
     this.task = task;
   }
