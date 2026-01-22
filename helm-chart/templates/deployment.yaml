@@ -27,7 +27,7 @@ spec:
             limits:
               memory: {{ .Values.image.resourceLimitMemory | quote }}
             requests:
-              memory: {{ .Values.image.resourceLimitMemory | quote }}
+              memory: {{ .Values.image.resourceRequestMemory | quote }}
           ports:
             - containerPort: 8080
           env:
@@ -110,7 +110,7 @@ spec:
             limits:
               memory: {{ .Values.image.pgResourceLimitMemory | quote }}
             requests:
-              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
+              memory: {{ .Values.image.pgResourceRequestMemory | quote }}
           ports:
             - containerPort: 3000
           env:
