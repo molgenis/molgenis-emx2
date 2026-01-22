@@ -407,9 +407,6 @@ jobs:
     <<: *build_config
 
     steps:
-    - run: |
-        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-
     - pre_steps
 
     - attach_workspace:
@@ -421,17 +418,6 @@ jobs:
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh molgenis-emx2-13.79.1-SNAPSHOT-all.jar molgenis-emx2-13.79.1-SNAPSHOT-all.jar
           bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
-        working_directory: repo
-
-    - run:
-        name: message slack about pr-preview ready
-        command: |
-          export $( cat build/ci.properties | xargs )
-          curl -d "token=${SLACK_TOKEN}" \
-          -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-          PR Preview (limited resources) available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
-          -d "channel=C02AZDG6QQ7" \
-          -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
 
