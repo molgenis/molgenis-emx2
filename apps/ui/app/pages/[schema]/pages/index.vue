@@ -19,7 +19,7 @@ const schema = Array.isArray(route.params.schema)
 useHead({ title: `Pages - ${schema} - Molgenis` });
 
 interface PagesResponse {
-  data: { Page: Pages[] };
+  data: { Container: Pages[] };
   error: Record<string, any>[];
 }
 
@@ -27,12 +27,19 @@ const error = ref<string>("");
 const { data } = await $fetch<PagesResponse>(`/${schema}/graphql`, {
   method: "POST",
   body: {
-    query: `{ Page { name mg_tableclass } }`,
+    query: `{ Container (orderby: { name: ASC }) { name mg_tableclass } }`,
   },
 }).catch((err) => {
   error.value = err;
   throw new Error(err);
 });
+
+function setEditorUrl(page: Pages) {
+  if (page.mg_tableclass === "Developer page") {
+    return `/${schema}/pages/${Container.name}/edit`;
+  }
+  return "";
+}
 
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
@@ -49,15 +56,16 @@ const crumbs: Crumb[] = [
     </PageHeader>
     <div class="flex flew-wrap justify-start items-center gap-7.5" v-if="data">
       <div
-        v-for="customPage in data.Page"
+        v-for="container in data.Container"
         class="relative group border rounded-3px w-1/3 h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
+          v-if="container.mg_tableclass === 'cms.Developer page'"
           class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
-            :to="`/${schema}/pages/${customPage.name}/edit`"
+            :to="`/${schema}/pages/${container.name}/edit`"
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
           >
             <BaseIcon name="Edit" :width="18" />
@@ -65,11 +73,13 @@ const crumbs: Crumb[] = [
           </NuxtLink>
         </div>
         <NuxtLink
-          :to="`/${schema}/pages/${customPage.name}/`"
+          v-if="container.mg_tableclass === 'cms.Developer page'"
+          :to="`/${schema}/pages/${container.name}/`"
           class="text-button-text hover:underline"
         >
-          {{ customPage.name }}
+          {{ container.name }}
         </NuxtLink>
+        <span v-else>{{ container.name }}</span>
       </div>
     </div>
     <div v-else>
