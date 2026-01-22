@@ -393,6 +393,12 @@ jobs:
             name: Save test results for stats
             command: |
                 find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
+      - run:
+          name: Restart preview in limited resources mode
+          command: |
+            export $( cat build/ci.properties | xargs )
+            bash ci/set_kubectl_config-azure.sh
+            bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:
