@@ -155,7 +155,7 @@ const addModalConstantValues = computed(() => {
     >
       Add {{ metadata.label }}
     </Button>
-    <ul>
+    <ul v-if="modelValue">
       <InputRefListItem
         v-for="(ref, index) in modelValue"
         :refData="ref"
