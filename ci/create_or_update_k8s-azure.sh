@@ -70,9 +70,9 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set oidc.callback_url=https://${NAME}.dev.molgenis.org \
 --set metrics.enabled=true \
 --set image.resourceLimitMemory=${IMAGE_RESOURCE_LIMIT_MEMORY} \
---set image.resourceLimitCpu=${IMAGE_RESOURCE_REQUEST_CPU} \
---set image.pgbResourceLimitMemory=${IMAGE_PG_RESOURCE_LIMIT_CPU} \
---set image.pgbResourceLimitCpu=${IMAGE_PG_RESOURCE_REQUEST_CPU} \
+--set image.resourceRequestMemory=${IMAGE_RESOURCE_REQUEST_MEMORY} \
+--set image.pgResourceLimitMemory=${IMAGE_RESOURCE_PG_LIMIT_MEMORY} \
+--set image.pgResourceRequestMemory=${IMAGE_RESOURCE_PG_REQUEST_MEMORY} \
 
 rm /tmp/cert_key
 rm /tmp/cert_pem
