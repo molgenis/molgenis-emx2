@@ -69,7 +69,7 @@
             </p>
 
             <p>
-              Export all data as
+              Export schema+data in one file as
               <a :href="`/${schema}/api/excel`">excel</a> /
               <a :href="`/${schema}/api/zip`">csv.zip</a> /
               <a :href="`/${schema}/api/ttl`">ttl</a> /
@@ -82,8 +82,14 @@
                 <li>
                   Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
                 </li>
-                <li v-if="canExportMembers">
+                <li v-if="isManagerOrOwner">
                   Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                </li>
+                <li v-if="isManagerOrOwner">
+                  Changelog:
+                  <a :href="`/${schema}/api/csv/changelog?limit=100&offset=0`">
+                    csv
+                  </a>
                 </li>
               </ul>
             </div>
@@ -156,7 +162,7 @@ export default {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
     },
-    canExportMembers() {
+    isManagerOrOwner() {
       return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
     },
     tablesHash() {
