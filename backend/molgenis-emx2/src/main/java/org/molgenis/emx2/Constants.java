@@ -50,6 +50,14 @@ public class Constants {
   public static final String SETTINGS_VALUE = "value";
   public static final String SETTINGS_USER = "user";
 
+  public static final String CHANGELOG_TABLE = "mg_changelog";
+  public static final String CHANGELOG_OPERATION = "operation";
+  public static final String CHANGELOG_STAMP = "stamp";
+  public static final String CHANGELOG_USERID = "userid";
+  public static final String CHANGELOG_TABLENAME = "tablename";
+  public static final String CHANGELOG_OLD = "old";
+  public static final String CHANGELOG_NEW = "new";
+
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";

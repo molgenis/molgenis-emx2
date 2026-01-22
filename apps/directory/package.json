@@ -22,7 +22,7 @@
     "@vueuse/core": "10.7.0",
     "bootstrap-icons": "1.11.3",
     "graphql-request": "5.2.0",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "molgenis-components": "workspace:*",
     "monaco-editor": "0.53.0",
     "pinia": "3.0.3",

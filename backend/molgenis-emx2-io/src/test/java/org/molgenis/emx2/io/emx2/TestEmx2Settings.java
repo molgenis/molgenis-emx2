@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io;
+package org.molgenis.emx2.io.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.*;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
