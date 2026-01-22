@@ -110,7 +110,7 @@ spec:
             limits:
               memory: {{ .Values.image.pgResourceLimitMemory | quote }}
             requests:
-              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
+              memory: {{ .Values.image.pgResourceRequestMemory | quote }}
           ports:
             - containerPort: 3000
           env:
