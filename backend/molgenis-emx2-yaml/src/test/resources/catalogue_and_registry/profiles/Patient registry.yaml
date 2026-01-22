@@ -1,0 +1,800 @@
+---
+schema:
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Genomic variants
+    columns:
+    - Variant Definition
+    - id
+    - alternative ids
+    - variant type
+    - variant effect type
+    - genomic HGVS id
+    - transcript HGVS ids
+    - protein HGVS ids
+    - genomic assembly id
+    - refseq assembly id
+    - gene id
+    - chromosome
+    - chromosomal region
+    - start position
+    - stop position
+    - reference allele
+    - alternate allele
+    - cDNA
+    - Consensus Classification
+    - used in interpretations
+  - table: Variant interpretations
+    columns:
+    - id
+    - interpretation analysis
+    - Variant Definition
+    - status
+    - variants
+    - transcript
+    - parental origin
+    - inheritance
+    - zygosity
+    - Consensus Classification
+    - disease
+    - classification
+    - classification summary
+    - consensus
+  - table: Interpretation consensus
+    columns:
+    - id
+    - variant interpretation
+    - name of commenter
+    - classification
+    - summary
+    - timestamp
+  - table: Processes
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Analyses
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Analyses Information
+    - date started
+    - date completed
+    - persons involved
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Variant interpretation analyses
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Analyses Information
+    - date started
+    - date completed
+    - persons involved
+    - Variant Interpretation Analyses
+    - experiment
+    - status
+    - solved
+    - date solved
+    - variant interpretation
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Observations
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Observations Information
+    - date of observation
+    - age at observation
+    - type of visit
+    - location of observation
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Experiments
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - storage conditions
+    - storage location
+    - date of expiration
+    - platform model
+    - instrument id
+    - instrument software
+    - persons involved
+    - output files
+    - reference genome used
+    - observed insert size
+    - other quality metrics
+    - run id
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: NGS sequencing
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - extraction kit
+    - extraction date
+    - storage conditions
+    - storage location
+    - date of expiration
+    - Library Preparation
+    - library source
+    - library selection
+    - library strategy
+    - library layout
+    - sequencer barcode
+    - library preparation kit
+    - PCR free
+    - target enrichment kit
+    - UMIs present
+    - intended insert size
+    - intended read length
+    - barcode
+    - Sequencing
+    - platform model
+    - instrument id
+    - instrument software
+    - persons involved
+    - output files
+    - date of sequencing
+    - reference genome used
+    - mean read depth
+    - median read depth
+    - observed read length
+    - observed insert size
+    - other quality metrics
+    - run id
+    - sequencing centre
+    - platform
+    - percentage Q30
+    - percentage Tr20
+    - flow cell ID
+    - sequencing lane identifier
+    - secondary analysis pipeline version
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Experiments OGM
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - number of aliquots
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - number of cells per million
+    - storage buffer
+    - storage conditions
+    - storage location
+    - date of expiration
+    - Sample Preparation
+    - processing centre
+    - cell count
+    - HMW_DNA isolation
+    - isolation date
+    - viscosity
+    - mean concentration HMW_DNA
+    - labeling protocol
+    - labeling date
+    - concentration after labeling
+    - platform model
+    - instrument id
+    - instrument software
+    - persons involved
+    - output files
+    - date of mapping
+    - reference genome used
+    - mean read length
+    - observed insert size
+    - other quality metrics
+    - run id
+    - chip id
+    - OGM Characteristics
+    - jobIDs
+    - bionano solve version
+    - bionano access version
+    - total DNA
+    - N50150kbp
+    - N5020kbp
+    - label density
+    - map rate
+    - PLV
+    - NLV
+    - secondary analysis centre
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Experiments RNA
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - number of aliquots
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - concentration
+    - concentration unit
+    - RIN QC value
+    - NMD inhibitor added
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - RNA Extraction
+    - extraction kit
+    - extraction date
+    - storage conditions
+    - storage location
+    - date of expiration
+    - Library Preparation
+    - library source
+    - library selection
+    - library strategy
+    - library layout
+    - sequencer barcode
+    - library preparation kit
+    - PCR free
+    - target enrichment kit
+    - UMIs present
+    - intended insert size
+    - intended read length
+    - barcode
+    - fragmentation method
+    - Sequencing
+    - platform model
+    - instrument id
+    - instrument software
+    - persons involved
+    - output files
+    - date of sequencing
+    - reference genome used
+    - mean read depth
+    - median read depth
+    - observed read length
+    - observed insert size
+    - other quality metrics
+    - run id
+    - sequencing centre
+    - platform
+    - percentage Q30
+    - percentage Tr20
+    - flow cell ID
+    - flow cell type
+    - sequencing lane identifier
+    - TIN
+    - targeted sequencing
+    - adaptive sequencing
+    - adaptive sequencing bed file
+    - sample batch ID
+    - secondary analysis centre
+    - secondary analysis pipeline version
+    - experiment attributes
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Experiments lrGS
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - number of aliquots
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - genomic fragment length
+    - A260 to A280 ratio
+    - A260 to A230 ratio
+    - DNA Extraction
+    - extraction kit
+    - extraction date
+    - storage buffer
+    - storage conditions
+    - storage location
+    - date of expiration
+    - concentration
+    - concentration unit
+    - concentration measurement type
+    - DIN QC value
+    - Library Preparation
+    - library source
+    - library selection
+    - library strategy
+    - library layout
+    - sequencer barcode
+    - library preparation kit
+    - PCR free
+    - target enrichment kit
+    - UMIs present
+    - intended insert size
+    - intended read length
+    - barcode
+    - Sequencing
+    - platform model
+    - instrument id
+    - instrument software
+    - persons involved
+    - output files
+    - date of sequencing
+    - reference genome used
+    - mean read depth
+    - median read depth
+    - observed read length
+    - mean read length
+    - N50 read length
+    - observed insert size
+    - map rate
+    - sequencing chemistry
+    - base rate
+    - base quality
+    - other quality metrics
+    - run id
+    - sequencing centre
+    - platform
+    - percentage Q30
+    - percentage Tr20
+    - flow cell ID
+    - samples per flow cell
+    - yield
+    - sequencing lane identifier
+    - movietime
+    - base kinetics included
+    - basecaller version
+    - secondary analysis centre
+    - secondary analysis pipeline version
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Experiments srDNA
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Sample
+    - sample id
+    - local sample id
+    - sample type
+    - sample type other
+    - tissue type
+    - aliquot id
+    - sample availability
+    - pathological state
+    - volume
+    - volume unit
+    - percentage tumor cells
+    - age group of individual at collection
+    - age of individual at collection
+    - anatomical location
+    - anatomical location other
+    - failed quality control
+    - registration timestamp
+    - input amount
+    - collected at organisation
+    - collected by
+    - date of collection
+    - DNA Extraction
+    - extraction kit
+    - extraction date
+    - storage conditions
+    - storage location
+    - date of expiration
+    - Library Preparation
+    - library source
+    - library selection
+    - library strategy
+    - library layout
+    - sequencer barcode
+    - library preparation kit
+    - PCR free
+    - target enrichment kit
+    - UMIs present
+    - intended insert size
+    - intended read length
+    - barcode
+    - Sequencing
+    - platform model
+    - instrument id
+    - instrument software
+    - persons involved
+    - output files
+    - date of sequencing
+    - reference genome used
+    - mean read depth
+    - median read depth
+    - observed read length
+    - observed insert size
+    - other quality metrics
+    - run id
+    - sequencing centre
+    - platform
+    - percentage Q30
+    - percentage Tr20
+    - flow cell ID
+    - sequencing lane identifier
+    - secondary analysis pipeline version
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Clinical observations
+    columns:
+    - General Information
+    - id
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Observations Information
+    - date of observation
+    - age at observation
+    - type of visit
+    - location of observation
+    - Clinical Observations
+    - observation performed by
+    - phenotypes
+    - diseases
+    - measurements
+    - age group at onset
+    - age at onset
+    - consanguinity
+    - molecular diagnosis gene
+    - molecular diagnosis other
+    - is solved
+    - date solved
+    - medication
+    - drug regimen
+    - medical history
+    - date of first contact
+    - date of last contact
+    - classification of functioning
+    - material used in diagnosis
+    - included in resources
+    - Additional Process Information
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Phenotype observations
+    columns:
+    - part of clinical observation
+    - type
+    - excluded
+    - modifiers
+    - severity
+  - table: Disease history
+    columns:
+    - part of clinical observation
+    - disease
+    - age group at onset
+    - age at onset
+    - age group at diagnosis
+    - age at diagnosis
+    - has family history
+    - disease severity
+    - disease stage
+    - disease status
+  - table: Clinical measurements
+    columns:
+    - part of clinical observation
+    - code
+    - variable
+    - value
+    - unit
+  - table: Pedigree
+    columns:
+    - id
+    - alternate ids
+    - disease
+    - members
+    - others affected
+  - table: Pedigree members
+    columns:
+    - pedigree
+    - individual
+    - relative
+    - relation
+    - affected
+  - table: Consent documents
+    columns:
+    - id
+    - type of document
+    - title
+    - version
+    - date of approval
+    - date valid from
+    - date valid until
+    - authors
+    - related to documents
+  - table: Individuals
+    columns:
+    - id
+    - alternate ids
+    - age group
+    - year of birth
+    - month of birth
+    - date of birth
+    - gender at birth
+    - gender identity
+    - administrative gender
+    - genotypic sex
+    - country of birth
+    - country of residence
+    - ancestry
+    - age at enrolment
+    - date at enrolment
+    - processes
+    - materials
+    - consents
+    - individual status
+    - age at death
+    - affiliated organisations
+    - providers of additional resources
+    - analyses
+    - pedigree
+    - included in resources
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Materials
+    columns:
+    - General Information
+    - id
+    - produced by process
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Additional Information
+    - included in resources
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Individual consent
+    columns:
+    - General Information
+    - id
+    - produced by process
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Individual Consent
+    - consent form used
+    - collected by
+    - signing date
+    - valid from
+    - valid until
+    - represented by
+    - data use permissions
+    - data use modifiers
+    - data use specification
+    - allow recontacting
+    - Additional Information
+    - included in resources
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: Files
+    columns:
+    - General Information
+    - id
+    - produced by process
+    - individuals
+    - alternate ids
+    - affiliated organisations
+    - Files
+    - produced by experiment
+    - file locations
+    - md5 checksum
+    - format
+    - Additional Information
+    - included in resources
+    - data source
+    - date created at source
+    - created at source by
+    - date updated at source
+    - updated at source by
+    - comments
+  - table: File locations
+    columns:
+    - file
+    - storage location
+    - path
+    - included in resources
+    - date created at location
+    - created at location by
+    - comments
+  - table: File storage location
+    columns:
+    - name
+    - type
+    - owner
+    - organisation
+    - access protocol

@@ -1,0 +1,177 @@
+---
+table:
+  table: Subpopulations
+  description: Subpopulations defined for this resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    semantics:
+    - dcterms:source
+    description: Resource this subpopulation is part of
+    refTable: Resources
+  - name: name
+    key: 1
+    semantics:
+    - dcterms:title
+    description: "Subpopulation name, e.g. 'mothers in first trimester','newborns'"
+  - name: pid
+    semantics:
+    - dcterms:identifier
+    description: Persistent identifier for this subpopulation
+  - name: description
+    type: text
+    semantics:
+    - dcterms:description
+    description: Subpopulation description
+  - name: keywords
+    type: string_array
+    semantics:
+    - dcat:keyword
+    description: Keywords to increase findability of this subpopulation. Try to use
+      words that are not used in the description. Keywords are not displayed on the
+      subpopulation page
+  - name: number of participants
+    type: int
+    semantics:
+    - healthdcatap:numberOfUniqueIndividuals
+    description: Number of participants in this subpopulation
+  - name: counts
+    type: refback
+    description: "Total number of unique individuals per age(group), gender and year"
+    refTable: Subpopulation counts
+    refBack: subpopulation
+  - name: inclusion start
+    type: int
+    semantics:
+    - dcat:startDate
+    description: Year of first included participant
+  - name: inclusion end
+    type: int
+    semantics:
+    - dcat:endDate
+    description: Year of last included participant. Leave empty if data collection
+      is ongoing
+  - name: age groups
+    type: ontology_array
+    description: Age groups within this subpopulation
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+  - name: age min
+    type: int
+    semantics:
+    - healthdcatap:minimumTypicalAge
+    description: Minimum age of participants within this subpopulation
+  - name: age max
+    type: int
+    semantics:
+    - healthdcatap:maximumTypicalAge
+    description: Maximum age of participants within this subpopulation
+  - name: main medical condition
+    type: ontology_array
+    description: "Disease groups within this subpopulation, based on ICD-10 and ORPHA\
+      \ code classifications"
+    refTable: Diseases
+    refSchema: CatalogueOntologies
+  - name: comorbidity
+    type: ontology_array
+    description: "Comorbidity within this subpopulation, based on ICD-10 classification"
+    refTable: Diseases
+    refSchema: CatalogueOntologies
+  - name: countries
+    type: ontology_array
+    semantics:
+    - dcterms:spatial
+    description: Countries where data from this subpopulation largely originate from
+    refTable: Countries
+    refSchema: CatalogueOntologies
+  - name: regions
+    type: ontology_array
+    semantics:
+    - dcterms:coverage
+    description: Geographical regions where data from this subpopulation largely originate
+      from
+    refTable: Regions
+    refSchema: CatalogueOntologies
+  - name: inclusion criteria
+    type: ontology_array
+    description: Inclusion criteria applied to this subpopulation
+    refTable: Inclusion Exclusion Criteria
+    refSchema: CatalogueOntologies
+  - name: other inclusion criteria
+    type: text
+    description: Other inclusion criteria applied to this subpopulation
+  - name: exclusion criteria
+    type: ontology_array
+    description: Exclusion criteria applied to this subpopulation
+    refTable: Inclusion Exclusion Criteria
+    refSchema: CatalogueOntologies
+  - name: other exclusion criteria
+    type: text
+    description: Other exclusion criteria applied to this subpopulation
+  - name: contact point
+    type: ref
+    semantics:
+    - dcat:contactPoint
+    description: Contact point for this subpopulation. Value copied from Resources
+      table
+    refTable: Contacts
+  - name: publisher
+    type: ref
+    semantics:
+    - dcterms:publisher
+    description: Organisation that published this subpopulation. Value copied from
+      Resources table
+    refTable: Organisations
+  - name: creator
+    type: ref_array
+    semantics:
+    - dcterms:creator
+    description: Organisation(s) that created this subpopulation. Value copied from
+      Resources table
+    refTable: Organisations
+  - name: issued
+    type: datetime
+    semantics:
+    - dcterms:issued
+    description: When the data for this subpopulation was first published
+  - name: modified
+    type: datetime
+    semantics:
+    - dcterms:modified
+    description: When the data for this subpopulation was last modified
+  - name: theme
+    type: ontology_array
+    semantics:
+    - dcat:theme
+    description: "A main category of the subpopulation. A subpopulation can have multiple\
+      \ themes, for health data theme must at least take the value 'Health', which\
+      \ is set as a default"
+    refTable: Themes
+    refSchema: CatalogueOntologies
+  - name: access rights
+    type: ontology
+    semantics:
+    - dcterms:accessRights
+    description: "Information that indicates whether the resource is publicly accessible,\
+      \ has access restrictions or is not public. A default is set for non-public\
+      \ access, because most health datasets contain sensitive information and rules\
+      \ and licenses apply to get access"
+    refTable: Access rights
+    refSchema: CatalogueOntologies
+  - name: applicable legislation
+    type: ontology_array
+    semantics:
+    - dcatap:applicableLegislation
+    description: "The legislation that mandates the creation or management of the\
+      \ subpopulation. For health datasets, the value must include the data governance\
+      \ act, which is set as a default. URI's to other legislations may be included"
+    refTable: Legislations
+    refSchema: CatalogueOntologies
+  - name: provenance statement
+    type: text
+    semantics:
+    - dct:provenance
+    description: "A statement of any changes in ownership and custody of a resource\
+      \ since its creation that are significant for its authenticity, integrity, and\
+      \ interpretation"
