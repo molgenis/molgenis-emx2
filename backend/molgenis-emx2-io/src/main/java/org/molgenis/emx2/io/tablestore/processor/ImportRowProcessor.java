@@ -35,24 +35,12 @@ public class ImportRowProcessor implements RowProcessor {
 
       // add file attachments, if applicable
       for (Column c : columns) {
-        if (c.isFile()
-            && source instanceof TableAndFileStore
-            && row.getValueMap().get(c.getName()) != null) {
-          try {
-            BinaryFileWrapper wrapper =
-                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
-            if (row.containsName(c.getName() + "_filename")) {
-              wrapper.setFileName(row.getString(c.getName() + "_filename"));
-            }
-            row.setBinary(c.getName(), wrapper);
-          } catch (Exception e) {
-            throw new MolgenisException(
-                "Failed to read file attachment for table '%s' column '%s' row '%d'"
-                    .formatted(table.getName(), c.getName(), index),
-                e);
-          }
+        if (cellRefersToAttachment(source, c, row)) {
+          BinaryFileWrapper fileWrapper = getFileWrapper((TableAndFileStore) source, c, row, index);
+          row.setBinary(c.getName(), fileWrapper);
         }
       }
+
       if (!isDrop) {
         importBatch.add(row);
       } else {
@@ -79,5 +67,28 @@ public class ImportRowProcessor implements RowProcessor {
       task.setProgress(deleteBatch.size());
       task.setDescription("Deleted " + task.getProgress() + " rows from " + table.getName());
     }
+  }
+
+  private BinaryFileWrapper getFileWrapper(
+      TableAndFileStore source, Column column, Row row, int index) {
+    try {
+      BinaryFileWrapper wrapper = source.getBinaryFileWrapper(row.getString(column.getName()));
+      if (row.containsName(column.getName() + "_filename")) {
+        wrapper.setFileName(row.getString(column.getName() + "_filename"));
+      }
+
+      return wrapper;
+    } catch (Exception e) {
+      throw new MolgenisException(
+          "Failed to read file attachment for table '%s' column '%s' row '%d'"
+              .formatted(table.getName(), column.getName(), index),
+          e);
+    }
+  }
+
+  private static boolean cellRefersToAttachment(TableStore source, Column column, Row row) {
+    return column.isFile()
+        && source instanceof TableAndFileStore
+        && row.getValueMap().get(column.getName()) != null;
   }
 }
