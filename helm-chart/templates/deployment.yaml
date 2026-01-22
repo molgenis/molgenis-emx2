@@ -25,9 +25,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "2Gi"
+              memory: {{ .Values.image.resourceLimitMemory | quote }}
             requests:
-              memory: "256Mi"
+              memory: {{ .Values.image.resourceLimitMemory | quote }}
           ports:
             - containerPort: 8080
           env:
@@ -108,9 +108,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "128Mi"
+              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
             requests:
-              memory: "64Mi"
+              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
           ports:
             - containerPort: 3000
           env:
