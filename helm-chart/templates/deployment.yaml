@@ -27,7 +27,7 @@ spec:
             limits:
               memory: {{ .Values.image.resourceLimitMemory | quote }}
             requests:
-              memory: {{ .Values.image.resourceLimitMemory | quote }}
+              memory: {{ .Values.image.resourceRequestMemory | quote }}
           ports:
             - containerPort: 8080
           env:
