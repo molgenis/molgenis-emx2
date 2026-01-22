@@ -45,6 +45,12 @@ class ImportRowProcessorTest {
     assertEquals(List.of("Lewis", "Marnie"), actual);
   }
 
+  @Test
+  void givenEmptyRow_thenSkip() {
+    List<String> actual = importRows(row("name", "Lewis"), row(), row("name", "Marnie"));
+    assertEquals(List.of("Lewis", "Marnie"), actual);
+  }
+
   private List<String> importRows(Row... rows) {
     Task task = new Task();
     ImportRowProcessor processor = new ImportRowProcessor(table, task);
