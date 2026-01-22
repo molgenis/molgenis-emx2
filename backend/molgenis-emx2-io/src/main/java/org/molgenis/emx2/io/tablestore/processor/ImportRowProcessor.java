@@ -31,6 +31,10 @@ public class ImportRowProcessor implements RowProcessor {
     while (iterator.hasNext()) {
       Row row = iterator.next();
 
+      if (row.getValueMap().isEmpty()) {
+        continue;
+      }
+
       boolean isDrop = row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
 
       // add file attachments, if applicable
