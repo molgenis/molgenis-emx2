@@ -29,7 +29,7 @@
         </div>
 
         <button
-          @click="visible = false"
+          @click="onCancel"
           aria-label="Close modal"
           class="absolute top-7 right-8 p-1"
         >
@@ -136,6 +136,7 @@ import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
+import { on } from "events";
 
 const props = withDefaults(
   defineProps<{
