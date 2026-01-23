@@ -349,7 +349,7 @@ function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
 async function toggleTermSelect(node: ITreeNodeState) {
   if (props.disabled) return;
   if (!props.isArray) {
-    modelValue.value = modelValue.value === node.name ? undefined : node.name;
+    modelValue.value = modelValue.value === node.name ? null : node.name;
     await toggleSelect();
   } else if (Array.isArray(modelValue.value)) {
     //if a selected value then simply deselect
@@ -480,8 +480,11 @@ function deselect(name: string) {
 }
 
 function clearSelection() {
-  if (props.disabled) return;
+  if (props.disabled) {
+    return;
+  }
   modelValue.value = props.isArray ? [] : null;
+
   emit("blur");
 }
 
@@ -490,37 +493,21 @@ let lastSearchValue: string = "";
 let isSearching = false;
 
 watch(searchTerms, (newValue, oldValue) => {
-  console.log("🔍 Search watcher triggered:", {
-    newValue,
-    oldValue,
-    isSearching,
-    lastSearchValue,
-  });
-
   if (isSearching) {
-    console.log("🔍 Blocked: isSearching=true");
     return;
   }
 
   if (oldValue === undefined) {
-    console.log("🔍 Blocked: initial mount");
     lastSearchValue = newValue;
     return;
   }
 
   if (newValue === lastSearchValue) {
-    console.log("🔍 Blocked: value unchanged");
     return;
   }
 
   const selectModeCheck =
     displayAsSelect.value && !showSelect.value && !props.forceList;
-  console.log("🔍 Select mode check:", {
-    displayAsSelect: displayAsSelect.value,
-    showSelect: showSelect.value,
-    forceList: props.forceList,
-    blocked: selectModeCheck,
-  });
 
   if (selectModeCheck) {
     return;
@@ -531,7 +518,6 @@ watch(searchTerms, (newValue, oldValue) => {
   }
 
   searchDebounceTimer = setTimeout(() => {
-    console.log("🔍 Executing search:", newValue);
     lastSearchValue = newValue;
     updateSearch(newValue);
   }, 500);
