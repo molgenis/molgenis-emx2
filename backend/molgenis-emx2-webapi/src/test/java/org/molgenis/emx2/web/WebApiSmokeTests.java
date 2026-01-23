@@ -8,8 +8,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW;
-import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
@@ -26,10 +26,7 @@ import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -102,7 +99,10 @@ class WebApiSmokeTests {
     RestAssured.baseURI = "http://localhost";
 
     setAdminSession();
+    setupDatabase();
+  }
 
+  private static void setupDatabase() {
     // Always create test database from scratch to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     PET_STORE.getImportTask(db, PET_STORE_SCHEMA, "", true).run();
@@ -527,7 +527,7 @@ class WebApiSmokeTests {
   void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(
@@ -574,6 +574,137 @@ class WebApiSmokeTests {
         Path.of(Objects.requireNonNull(getClass().getResource("csv/settings.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
+  }
+
+  @Test
+  void testCsvApi_changelogDownload() {
+    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
+    schema.create(table("test", column("A").setPkey(), column("B")));
+    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
+
+    Response response =
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+    String formatted =
+        """
+            operation,stamp,userid,tablename,old,new
+            I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
+            .formatted(schema.getChanges(1).getFirst().stamp());
+
+    assertTrue(response.body().asString().startsWith(formatted));
+    setupDatabase();
+  }
+
+  @Test
+  void testCsvApi_givenOffset_whenDownloadingChangelog_thenSkipOffset() {
+    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
+    schema.create(table("test", column("A").setPkey(), column("B")));
+    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("offset", "1")
+            .when()
+            .get("/pet store/api/csv/changelog");
+
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+    String formatted = "operation,stamp,userid,tablename,old,new";
+
+    assertTrue(response.body().asString().startsWith(formatted));
+
+    setupDatabase();
+  }
+
+  @Test
+  void testCsvApi_givenLimitPassedCap_whenDownloadingChangelog_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("limit", "1001")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                  {
+                    "errors" : [
+                      {
+                        "message" : "Requested 1001 changes, but the maximum allowed is 1000."
+                      }
+                    ]
+                  }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenInvalidLimitValue_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("limit", "invalid-value")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                  {
+                    "errors" : [
+                      {
+                        "message" : "Invalid limit provided, should be a number: For input string: \\"invalid-value\\""
+                      }
+                    ]
+                  }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenInvalidOffsetValue_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("offset", "invalid-value")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                    {
+                      "errors" : [
+                        {
+                          "message" : "Invalid offset provided, should be a number: For input string: \\"invalid-value\\""
+                        }
+                      ]
+                    }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+            {
+              "errors" : [
+                {
+                  "message" : "Unauthorized to get schema changelog"
+                }
+              ]
+            }""",
+        response.body().asString());
   }
 
   @Test
@@ -1709,7 +1840,7 @@ class WebApiSmokeTests {
 
   @Test
   void testThatTablesWithSpaceCanBeDownloaded() {
-    var table = schema.getTable(TABLE_WITH_SPACES);
+    Table table = schema.getTable(TABLE_WITH_SPACES);
 
     given()
         .sessionId(sessionId)
