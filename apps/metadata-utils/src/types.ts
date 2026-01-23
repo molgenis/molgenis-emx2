@@ -90,6 +90,13 @@ export interface IRefColumn extends IColumn {
   refLinkId: string;
 }
 
+export interface IOntlogyColumn extends IRefColumn {
+  refTableId: string;
+  refSchemaId: string;
+  refLabelDefault: string;
+  columnType: "ONTOLOGY" | "ONTOLOGY_ARRAY";
+}
+
 export interface ITableMetaData {
   id: string;
   schemaId: string;

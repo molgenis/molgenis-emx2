@@ -11,6 +11,7 @@
           "
           :metadata="metadata"
           :data="data"
+          @cellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueString
@@ -64,10 +65,13 @@
           @refCellClicked="$emit('cellClicked', $event)"
         />
 
-        <ValueObject
-          v-else-if="metadata.columnType === 'ONTOLOGY'"
+        <ValueOntology
+          v-else-if="isOntologyMetadata(metadata)"
           :metadata="metadata"
           :data="data"
+          @click="
+            $emit('cellClicked', { metadata: metadata as IRefColumn, data })
+          "
         />
 
         <ValueBool
@@ -115,12 +119,13 @@ import ValueDecimal from "../value/Decimal.vue";
 import ValueLong from "../value/Long.vue";
 import ValueInt from "../value/Int.vue";
 import ValueRef from "../value/Ref.vue";
-import ValueObject from "../value/Object.vue";
+import ValueOntology from "../value/Ontology.vue";
 import ValueBool from "../value/Bool.vue";
 import ValueEmail from "../value/Email.vue";
 import ValueHyperlink from "../value/Hyperlink.vue";
 import ValueRefBack from "../value/RefBack.vue";
 import ValueFile from "../value/File.vue";
+import { isOntologyMetadata } from "../../utils/typeUtils";
 
 defineProps<{
   metadata?: IColumn;

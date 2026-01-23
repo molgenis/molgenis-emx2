@@ -10,6 +10,9 @@ import ValueHyperlink from "./Hyperlink.vue";
 import ValueObject from "./Object.vue";
 import ValueDate from "./Date.vue";
 import ValueDateTime from "./DateTime.vue";
+import ValueOntology from "./Ontology.vue";
+import { isOntologyMetadataArray } from "../../utils/typeUtils";
+import type { RefPayload } from "../../../types/types";
 
 const props = withDefaults(
   defineProps<{
@@ -21,6 +24,10 @@ const props = withDefaults(
     hideListSeparator: false,
   }
 );
+
+defineEmits<{
+  (e: "cellClicked", payload: RefPayload): void;
+}>();
 
 const elementType = computed(() => props.metadata.columnType.split("_")[0]);
 </script>
@@ -80,10 +87,11 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
       :metadata="metadata"
       :data="listElement"
     />
-    <ValueObject
-      v-else-if="elementType === 'ONTOLOGY'"
+    <ValueOntology
+      v-else-if="isOntologyMetadataArray(metadata)"
       :metadata="metadata"
       :data="listElement"
+      @click="$emit('cellClicked', { metadata, data: listElement })"
     />
     <ValueDate
       v-else-if="elementType === 'DATE'"
