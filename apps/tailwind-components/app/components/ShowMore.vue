@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, computed } from "vue";
+import { ref, onMounted, onUnmounted, nextTick, computed } from "vue";
 import Button from "./Button.vue";
 
 const props = withDefaults(
@@ -15,29 +15,54 @@ const props = withDefaults(
 
 const paragraphRef = ref<HTMLElement | null>(null);
 const expanded = ref(false);
-const showButton = ref(false);
-const hydrated = ref(false);
+const measured = ref(false);
+const overflows = ref(false);
 
 const paragraphStyle = computed(() => ({
   "--lines": String(props.lines),
 }));
 
-const ssrCollapsedStyle = computed(() => ({
-  maxHeight: `${props.lines * 1.2}em`,
-  overflow: "hidden",
-}));
+const showButton = computed(() => !measured.value || overflows.value);
+
+function measureOverflow() {
+  const el = paragraphRef.value;
+  if (!el) return;
+
+  // Temporarily remove constraint via inline style to measure natural height
+  const origMaxHeight = el.style.maxHeight;
+  const origOverflow = el.style.overflow;
+  el.style.maxHeight = "none";
+  el.style.overflow = "visible";
+  const naturalHeight = el.scrollHeight;
+  el.style.maxHeight = origMaxHeight;
+  el.style.overflow = origOverflow;
+
+  // Get constrained height from CSS
+  const computedStyle = getComputedStyle(el as unknown as Element);
+  const constrainedHeight =
+    parseFloat(computedStyle.maxHeight) || el.clientHeight;
+
+  // Small tolerance for rounding differences
+  overflows.value = naturalHeight > constrainedHeight + 1;
+  measured.value = true;
+}
+
+let resizeObserver: ResizeObserver | null = null;
 
 onMounted(async () => {
   await nextTick();
+  measureOverflow();
+
+  // Re-measure on resize
   const el = paragraphRef.value;
-  if (!el) {
-    hydrated.value = false;
-    return;
+  if (el) {
+    resizeObserver = new ResizeObserver(measureOverflow);
+    resizeObserver.observe(el as unknown as Element);
   }
-  const fullHeight = el.scrollHeight;
-  const clampedHeight = el.clientHeight;
-  showButton.value = fullHeight > clampedHeight;
-  hydrated.value = true;
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
 });
 
 async function collapseAndScrollToTop() {
@@ -56,28 +81,20 @@ async function collapseAndScrollToTop() {
     <p
       ref="paragraphRef"
       class="paragraph"
-      :class="{
-        clamped: hydrated && !expanded,
-        expanded,
-      }"
-      :style="[paragraphStyle, !hydrated && !expanded ? ssrCollapsedStyle : {}]"
+      :class="{ collapsed: !expanded, faded: !expanded && showButton }"
+      :style="paragraphStyle"
       :aria-expanded="expanded"
     >
       <slot />
-
-      <Button
-        v-if="expanded"
-        type="text"
-        class="inline-less"
-        @click="collapseAndScrollToTop"
-      >
-        {{ showLabels.less }}
-      </Button>
     </p>
-
-    <div v-if="!expanded && (!hydrated || showButton)" class="controls">
-      <Button type="text" @click="expanded = true">
+    <div v-if="!expanded && showButton" class="button-container">
+      <Button type="text" size="tiny" @click="expanded = true">
         {{ showLabels.more }}
+      </Button>
+    </div>
+    <div v-if="expanded" class="button-container">
+      <Button type="text" size="tiny" @click="collapseAndScrollToTop">
+        {{ showLabels.less }}
       </Button>
     </div>
   </div>
@@ -93,25 +110,17 @@ async function collapseAndScrollToTop() {
   word-break: break-word;
 }
 
-/* Clamp applies after hydration OR immediately on CSR navigation */
-.clamped {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: var(--lines);
+.collapsed {
+  max-height: calc(var(--lines) * 1lh);
   overflow: hidden;
 }
 
-.expanded {
-  display: block;
+.collapsed.faded {
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent);
+  mask-image: linear-gradient(to bottom, black 50%, transparent);
 }
 
-.inline-less {
-  margin-left: 6px;
-}
-
-.controls {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 4px;
+.button-container {
+  margin-top: 0.25em;
 }
 </style>
