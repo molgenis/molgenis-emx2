@@ -39,12 +39,8 @@ Headers,,is centered,bool,,,,,,,,FALSE,,"If true, the title and subtitle will be
 Text elements,Components,,,,,,,,,,,,All text elements,pages
 Text elements,,text,text,,,,,,,,,,The content to display,pages
 Text elements,,is centered,bool,,,,,,,,FALSE,,"If true, the text will be centered aligned",pages
-H1,Text elements,,,,,,,,,,,,<h1> elements,pages
-H2,Text elements,,,,,,,,,,,,<h2> elements,pages
-H3,Text elements,,,,,,,,,,,,<h3> elements,pages
-H4,Text elements,,,,,,,,,,,,<h4> elements,pages
-H5,Text elements,,,,,,,,,,,,<h5> elements,pages
-H6,Text elements,,,,,,,,,,,,<h6> elements,pages
+Headings,Text elements,,,,,,,,,,,,<h*> elements,pages
+Headings,,level,int,,,,,,,level ? level >=1 && level <= 6 : false,,,Heading level 1-6,pages
 Paragraphs,Text elements,,,,,,,,,,,,<p> elements,pages
 Images,Components,,,,,,,,,,,,<img> elements,pages
 Images,,display name,string,,,,,,,,,,An optional name to display in place of the filename,pages
