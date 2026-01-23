@@ -47,6 +47,8 @@ export type CellValueType =
   | "EMAIL_ARRAY"
   | "HYPERLINK"
   | "HYPERLINK_ARRAY"
+  | "NON_NEGATIVE_INT"
+  | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
   | "MULTISELECT";
 
@@ -130,7 +132,9 @@ export interface LegendHeading extends LegendItem {
 export type columnId = string;
 export type columnValue =
   | string
+  | string[]
   | number
+  | number[]
   | boolean
   | null
   | undefined
