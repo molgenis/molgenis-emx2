@@ -12,10 +12,10 @@ export default {
   HYPERLINK_REGEX:
     /^((https?):\/\/)(www.)?[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=()]*)\/?$|^$/,
   PERIOD_REGEX: /^P(?=\d+Y|\d+M|\d+D)(\d+Y)?(\d+M)?(\d+D)?$/,
-  UUID_REGEX:
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+  UUID_REGEX: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
   MAX_INT: 2147483647,
   MIN_INT: -2147483648,
+  MIN_NON_NEGATIVE_INT: 0,
   MAX_LONG: "9223372036854775807",
   MIN_LONG: "-9223372036854775807",
   IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",
