@@ -48,7 +48,7 @@ Resources,,data resources,ref_array,,,,Resources,,,,dcat:dataset,"List of other 
 Resources,,data resources,ref_array,,,catalogue,Resources,,,,dcat:dataset,"List of other data collections included in this network, e.g. cohorts, biobanks or real world data sources. Do not list other networks or catalogues here",NetworksStaging,,,
 Resources,,part of networks,refback,,,,Resources,,data resources,,,List of other collections included in this resource,"DataCatalogueFlat,EMA",,,
 Resources,,population,heading,,,,,,,,,Description of the population that is sampled in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
-Resources,,number of participants,int,,,,,,,,healthdcatap:numberOfUniqueIndividuals,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
+Resources,,number of participants,non_negative_int,,,,,,,,healthdcatap:numberOfUniqueIndividuals,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogueFlat,CohortsStaging,RWEStaging,UMCGCohortsStaging,INTEGRATE",,,
 Resources,,underlying population,text,,,,,,,,healthdcatap:populationCoverage,Provide a summary description of the underlying population from which participants are sampled,"DataCatalogueFlat,RWEStaging",,,
 Resources,,population description,text,,,,,,,,healthdcatap:populationCoverage,A short description of the study population,EMA,,,
