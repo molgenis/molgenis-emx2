@@ -11,8 +11,11 @@ from zipfile import ZipFile
 
 import pandas as pd
 from molgenis_emx2_pyclient import Client as Session
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
-from molgenis_emx2_pyclient.metadata import NoSuchTableException, Schema
+from molgenis_emx2_pyclient.exceptions import (
+    NoSuchSchemaException,
+    NoSuchTableException,
+)
+from molgenis_emx2_pyclient.metadata import Schema
 from molgenis_emx2_pyclient.metadata import Table as MetaTable
 from molgenis_emx2_pyclient.utils import prepare_filter
 
