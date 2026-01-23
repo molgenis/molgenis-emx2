@@ -61,7 +61,7 @@ We use [Semantic Release](https://github.com/semantic-release/semantic-release) 
 ## Software we use
 
 * postresql
-* java
+* java 21
 * pnpm (on mac, brew install pnpm)
 * gradle (included, ./gradlew or ./gradlew.bat)
 * git (on mac, install xcode dev tools)

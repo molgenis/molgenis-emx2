@@ -26,6 +26,6 @@ configurations.default.extendsFrom(configurations.appResources)
 artifacts {
     appResources(createJar.getArchiveFile()) {
         builtBy createJar
-        type "jar"
+        type = "jar"
     }
 }

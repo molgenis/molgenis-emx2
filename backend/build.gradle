@@ -140,10 +140,10 @@ subprojects {
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
@@ -155,14 +155,14 @@ subprojects {
         useJUnitPlatform {
             excludeTags "slow"
         }
-        failFast true
+        failFast = true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
@@ -172,14 +172,14 @@ subprojects {
         useJUnitPlatform {
             excludeTags "windowsFail"
         }
-        failFast true
+        failFast = true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }

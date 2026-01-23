@@ -11,8 +11,8 @@ subprojects {
         } else {
             new File(projectDir, "version.txt").text = version
         }
-        group 'build'
-        description 'run python lib build'
+        group = 'build'
+        description = 'run python lib build'
         //convert version number to pep440 scheme
         commandLine'python3', '-m', 'build'
         ext.output = {
@@ -40,8 +40,8 @@ subprojects {
     tasks.register('publishPython', Exec) {
         dependsOn buildPython
         dependsOn ":backend:assemble" //should run after test succeed and assemble is ready
-        group 'release'
-        description 'publish python package'
+        group = 'release'
+        description = 'publish python package'
         //expects credentials for testpypi
         if(version.toString().contains("SNAPSHOT")) {
             commandLine 'twine', 'upload', '--repository', 'testpypi', 'dist/*'

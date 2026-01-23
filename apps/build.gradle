@@ -108,7 +108,7 @@ abstract class CollectDistTask extends DefaultTask {
                 .get()
                 .asFile
 
-        project.copy { spec ->
+        copy { spec ->
             project.file(".").eachDir { dir ->
                 def showCaseDir = new File(dir, "showCase")
                 def distDir = new File(dir, "dist")
