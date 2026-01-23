@@ -90,7 +90,7 @@ export interface IRefColumn extends IColumn {
   refLinkId: string;
 }
 
-export interface IOntlogyColumn extends IRefColumn {
+export interface IOntologyColumn extends IRefColumn {
   refTableId: string;
   refSchemaId: string;
   refLabelDefault: string;

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type {
-  IOntlogyColumn,
+  IOntologyColumn,
   IRow,
 } from "../../../../metadata-utils/src/types";
 import { getLabel } from "../../utils/refUtils";
 const props = defineProps<{
-  metadata: IOntlogyColumn;
+  metadata: IOntologyColumn;
   data: IRow;
 }>();
 

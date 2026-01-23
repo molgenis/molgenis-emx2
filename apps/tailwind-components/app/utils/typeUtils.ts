@@ -1,7 +1,7 @@
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValueObject,
-  IOntlogyColumn,
+  IOntologyColumn,
 } from "../../../metadata-utils/src/types";
 import { executeExpression } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 
@@ -53,7 +53,7 @@ export function getOntologyArrayValues(val: any): string[] {
 
 export function isOntologyMetadata(
   metadata: IColumn
-): metadata is IOntlogyColumn {
+): metadata is IOntologyColumn {
   return (
     metadata.columnType === "ONTOLOGY" &&
     metadata.refTableId !== undefined &&
@@ -64,7 +64,7 @@ export function isOntologyMetadata(
 
 export function isOntologyMetadataArray(
   metadata: IColumn
-): metadata is IOntlogyColumn {
+): metadata is IOntologyColumn {
   return (
     metadata.columnType === "ONTOLOGY_ARRAY" &&
     metadata.refTableId !== undefined &&
