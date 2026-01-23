@@ -32,7 +32,7 @@ const props = withDefaults(
   }
 );
 
-const modelValue = defineModel<columnValueObject[]>();
+const modelValue = defineModel<columnValueObject[] | null>();
 
 const hasPrimaryKey = computed(() =>
   props.refBackPrimaryKey
@@ -155,7 +155,7 @@ const addModalConstantValues = computed(() => {
     >
       Add {{ metadata.label }}
     </Button>
-    <ul>
+    <ul v-if="modelValue" class="border divide-y">
       <InputRefListItem
         v-for="(ref, index) in modelValue"
         :refData="ref"

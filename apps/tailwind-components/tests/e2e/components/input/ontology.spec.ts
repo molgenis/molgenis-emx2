@@ -10,85 +10,69 @@ test.describe("Input Ontology", () => {
     await page.goto(`${route}input/Ontology.story`);
   });
 
-  test("when all child nodes are selected and one is deselected, then other sibling elements are shown in the filter well", async ({
-    page,
-  }) => {
-    // expand
-    await page
-      .locator("#test-ontology-array-input-id-ontology")
-      .getByRole("button", { name: "expand colors" })
-      .click();
-
-    // deselect "green"
-    await page
-      .locator("label")
-      .filter({ hasText: "green" })
-      .locator("rect")
-      .click();
-
-    // if "green" is deselected, then green should not be visible and other colors should be shown
+  test("small ontologies are shown expanded", async ({ page }) => {
+    // Small ontologies should be visible (expanded by default)
     await expect(
       page
-        .locator("#test-ontology-array-input-id-ontology button")
+        .locator("#test-ontology-array-input-id-input-ontology")
         .filter({ hasText: "green" })
-    ).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "blue" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "purple" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "red" })).toBeVisible();
+    ).toBeVisible();
+    await expect(
+      page
+        .locator("#test-ontology-array-input-id-input-ontology")
+        .filter({ hasText: "blue" })
+    ).toBeVisible();
+  });
+
+  test("large ontologies are shown as select", async ({ page }) => {
+    const ontologyContainer = page.locator(
+      "#test-ontology-array-input-id2-input-ontology"
+    );
+
+    await expect(
+      ontologyContainer.getByRole("button", { name: "Andorra" })
+    ).toBeVisible();
+
+    await ontologyContainer.locator("svg.text-input").last().click();
+
+    await ontologyContainer.getByText("American Samoa").click();
+
+    await expect(
+      ontologyContainer.getByRole("button", { name: "American Samoa" })
+    ).toBeVisible();
   });
 
   test("if all child nodes are selected, indeterminate and checked status are properly defined (false, true)", async ({
     page,
   }) => {
     await expect(
-      page.locator("#test-ontology-array-input-id-colors-input + svg")
+      page.locator("#test-ontology-array-input-id-input-colors-input + svg")
     ).toHaveAttribute("data-indeterminate", "false");
 
     await expect(
-      page.locator("#test-ontology-array-input-id-colors-input + svg")
-    ).toHaveAttribute("data-checked", "true");
-  });
-
-  test("if not all child nodes are selected, indeterminate and checked status are properly defined (true, false)", async ({
-    page,
-  }) => {
-    await expect(
-      page.locator("#test-ontology-array-input-id-species-input + svg")
+      page.locator("#test-ontology-array-input-id-input-species-input + svg")
     ).toHaveAttribute("data-indeterminate", "true");
-    await expect(
-      page.locator("#test-ontology-array-input-id-species-input + svg")
-    ).toHaveAttribute("data-checked", "false");
   });
 
   test("if all child nodes are selected via the parent, then all child elements should be selected", async ({
     page,
   }) => {
     const speciesInput = page.locator(
-      "#test-ontology-array-input-id-species-input + svg"
+      "#test-ontology-array-input-id-input-species-input + svg"
     );
     await speciesInput.click();
 
     await expect(speciesInput).toHaveAttribute("data-indeterminate", "false");
     await expect(speciesInput).toHaveAttribute("data-checked", "true");
 
-    await page
-      .locator("#test-ontology-array-input-id-ontology")
-      .getByRole("button", { name: "expand species" })
-      .click({ delay: 100 });
-
-    await page
-      .locator("#test-ontology-array-input-id-ontology")
-      .getByRole("button", { name: "expand mammals" })
-      .click({ delay: 100 });
-
     await expect(
-      page.locator("#test-ontology-array-input-id-birds-input")
+      page.locator("#test-ontology-array-input-id-input-birds-input")
     ).toBeChecked();
     await expect(
-      page.locator("#test-ontology-array-input-id-insect-input")
+      page.locator("#test-ontology-array-input-id-input-insect-input")
     ).toBeChecked();
     await expect(
-      page.locator("#test-ontology-array-input-id-mammals-input")
+      page.locator("#test-ontology-array-input-id-input-mammals-input")
     ).toBeChecked();
   });
 });

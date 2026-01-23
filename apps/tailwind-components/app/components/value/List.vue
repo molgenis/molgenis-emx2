@@ -10,7 +10,6 @@ import ValueHyperlink from "./Hyperlink.vue";
 import ValueObject from "./Object.vue";
 import ValueDate from "./Date.vue";
 import ValueDateTime from "./DateTime.vue";
-import { defineProps, withDefaults } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -29,7 +28,11 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
 <template>
   <template v-for="(listElement, index) in data">
     <ValueString
-      v-if="elementType === 'STRING'"
+      v-if="
+        elementType === 'STRING' ||
+        elementType === 'AUTO_ID' ||
+        elementType === 'PERIOD'
+      "
       :metadata="metadata"
       :data="listElement as string"
     />
@@ -48,8 +51,8 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
       :metadata="metadata"
       :data="listElement as number"
     />
-    <ValueLong
-      v-else-if="elementType === 'INT'"
+    <ValueInt
+      v-else-if="elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'"
       :metadata="metadata"
       :data="listElement as number"
     />

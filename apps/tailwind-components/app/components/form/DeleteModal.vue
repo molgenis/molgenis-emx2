@@ -42,10 +42,6 @@ const session = await useSession();
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
-function setVisible() {
-  visible.value = true;
-}
-
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
 
@@ -90,7 +86,7 @@ function reAuthenticate() {
 
 <template>
   <template v-if="showButton">
-    <slot :setVisible="setVisible">
+    <slot>
       <Button
         class="m-10"
         type="primary"

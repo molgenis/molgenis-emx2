@@ -53,7 +53,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
-  errorMap,
+  visibleColumnErrors,
   sections,
   onViewColumn,
   onBlurColumn,
@@ -122,7 +122,8 @@ function onCancel() {
           class="px-32 bg-form"
           schemaId="catalogue-demo"
           :columns="visibleColumns"
-          :errorMap="errorMap"
+          :visibleColumnErrors="visibleColumnErrors"
+          :requiredFields="{}"
           v-model="formValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"

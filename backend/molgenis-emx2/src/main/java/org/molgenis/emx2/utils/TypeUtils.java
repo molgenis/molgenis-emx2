@@ -158,17 +158,30 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    if (v == null) return null;
-    if (v instanceof String string) {
-      if ("".equals(string)) {
+    switch (v) {
+      case null -> {
         return null;
-      } else {
-        return Double.parseDouble(string);
+      }
+      case String string -> {
+        if (string.isBlank()) {
+          return null;
+        } else {
+          return Double.parseDouble(string);
+        }
+      }
+      case BigDecimal bigDecimal -> {
+        return bigDecimal.doubleValue();
+      }
+      case Integer integer -> {
+        return Double.valueOf(integer);
+      }
+      case Long decimal -> {
+        return Double.valueOf(decimal);
+      }
+      default -> {
+        return (Double) v;
       }
     }
-    if (v instanceof BigDecimal bigDecimal) return bigDecimal.doubleValue();
-    if (v instanceof Integer integer) return Double.valueOf(integer);
-    return (Double) v;
   }
 
   public static Double[] toDecimalArray(Object v) {
@@ -312,6 +325,7 @@ public class TypeUtils {
       case STRING -> ColumnType.STRING_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
+      case NON_NEGATIVE_INT -> ColumnType.NON_NEGATIVE_INT_ARRAY;
       case LONG -> ColumnType.LONG_ARRAY;
       case DECIMAL -> ColumnType.DECIMAL_ARRAY;
       case TEXT -> ColumnType.TEXT_ARRAY;
@@ -376,9 +390,8 @@ public class TypeUtils {
       case FILE -> SQLDataType.BINARY;
       case UUID -> SQLDataType.UUID;
       case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
-      case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY ->
-          SQLDataType.VARCHAR(255).getArrayDataType();
+      case STRING -> SQLDataType.VARCHAR(255);
+      case STRING_ARRAY -> SQLDataType.VARCHAR(255).getArrayDataType();
       case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
@@ -408,8 +421,8 @@ public class TypeUtils {
     return switch (columnType.getBaseType()) {
       case UUID -> TypeUtils.toUuid(v);
       case UUID_ARRAY -> TypeUtils.toUuidArray(v);
-      case STRING, EMAIL, HYPERLINK, FILE -> TypeUtils.toString(v);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> TypeUtils.toStringArray(v);
+      case STRING, FILE -> TypeUtils.toString(v);
+      case STRING_ARRAY -> TypeUtils.toStringArray(v);
       case BOOL -> TypeUtils.toBool(v);
       case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
       case INT -> TypeUtils.toInt(v);
