@@ -28,22 +28,17 @@ function measureOverflow() {
   const el = paragraphRef.value;
   if (!el) return;
 
-  // Temporarily remove constraint via inline style to measure natural height
-  const origMaxHeight = el.style.maxHeight;
-  const origOverflow = el.style.overflow;
+  const { maxHeight, overflow } = el.style;
   el.style.maxHeight = "none";
   el.style.overflow = "visible";
-  const naturalHeight = el.scrollHeight;
-  el.style.maxHeight = origMaxHeight;
-  el.style.overflow = origOverflow;
+  const natural = el.scrollHeight;
+  el.style.maxHeight = maxHeight;
+  el.style.overflow = overflow;
 
-  // Get constrained height from CSS
-  const computedStyle = getComputedStyle(el as unknown as Element);
-  const constrainedHeight =
-    parseFloat(computedStyle.maxHeight) || el.clientHeight;
-
-  // Small tolerance for rounding differences
-  overflows.value = naturalHeight > constrainedHeight + 1;
+  const constrained =
+    parseFloat(getComputedStyle(el as unknown as Element).maxHeight) ||
+    el.clientHeight;
+  overflows.value = natural > constrained + 1;
   measured.value = true;
 }
 
@@ -52,8 +47,6 @@ let resizeObserver: ResizeObserver | null = null;
 onMounted(async () => {
   await nextTick();
   measureOverflow();
-
-  // Re-measure on resize
   const el = paragraphRef.value;
   if (el) {
     resizeObserver = new ResizeObserver(measureOverflow);
