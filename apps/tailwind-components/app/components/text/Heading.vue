@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import type { Headings } from "../../../types/pages";
+import type { IHeadings } from "../../../types/cms";
 
-withDefaults(defineProps<Headings>(), {
-  headingLevel: "H2",
+withDefaults(defineProps<IHeadings>(), {
+  level: 2,
   isCentered: false,
 });
 </script>
 
 <template>
   <component
-    :is="headingLevel"
+    :is="`h${level}`"
     class="text-title"
     :class="{
-      'text-heading-6xl': headingLevel === 'H1',
-      'text-heading-5xl': headingLevel === 'H2',
-      'text-heading-4xl': headingLevel === 'H3',
-      'text-heading-3xl': headingLevel === 'H4',
-      'text-heading-2xl': headingLevel === 'H5',
-      'text-heading-xl': headingLevel === 'H6',
+      'text-heading-6xl': level === 1,
+      'text-heading-5xl': level === 2,
+      'text-heading-4xl': level === 3,
+      'text-heading-3xl': level === 4,
+      'text-heading-2xl': level === 5,
+      'text-heading-xl': level === 6,
       'text-center': isCentered,
     }"
   >
+    {{ text }}
     <slot></slot>
   </component>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { TextElements } from "../../../types/pages";
+import type { IParagraphs } from "../../../types/cms";
 
-withDefaults(defineProps<TextElements>(), {
+withDefaults(defineProps<IParagraphs>(), {
   isCentered: false,
 });
 </script>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Section } from "../../../types/pages";
+import type { ISections } from "../../../types/cms";
 
-withDefaults(defineProps<Section>(), {
+withDefaults(defineProps<ISections>(), {
   enableFullScreenWidth: false,
 });
 </script>

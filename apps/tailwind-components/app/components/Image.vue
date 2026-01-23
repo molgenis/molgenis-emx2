@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { Img } from "../../types/pages";
+import type { IImages } from "../../types/cms";
 
-withDefaults(defineProps<Img>(), {
+withDefaults(defineProps<IImages & { src: string }>(), {
   isCentered: false,
 });
 </script>
 
 <template>
   <img
-    :src="src"
+    :src="image?.url || src"
     :class="[
       {
         'text-center': isCentered,
