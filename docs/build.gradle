@@ -2,18 +2,19 @@ plugins {
     id 'base'
 }
 
-task copyDistFiles(type: Copy) {
+tasks.register('copyDistFiles', Copy) {
     from "."
     exclude 'build'
-    into "${project.buildDir}/resources/main/public_html/apps/${project.name}"
-    outputs.dir("${project.buildDir}/resources/main/public_html/apps/${project.name}")
+    into "${project.layout.buildDirectory.get()}/resources/main/public_html/apps/${project.name}"
+    outputs.dir("${project.layout.buildDirectory.get()}/resources/main/public_html/apps/${project.name}")
     outputs.cacheIf { true }
 }
 
-task createJar(type: Zip, dependsOn: copyDistFiles) {
+tasks.register('createJar', Zip) {
+    dependsOn copyDistFiles
     archiveBaseName = 'molgenis-emx2-docs'
     archiveExtension = 'jar'
-    destinationDirectory =  file("${buildDir}/build/libs")
+    destinationDirectory = layout.buildDirectory.dir("build/libs").get().asFile
     from('build/resources/main')
 }
 
