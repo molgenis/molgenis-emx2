@@ -457,8 +457,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      nonNegativeInteger:
-        "Invalid non negative integer(s)",
+      nonNegativeInteger: "Invalid non negative integer(s)",
     });
   });
 
@@ -471,8 +470,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      nonNegativeInteger:
-        "Invalid non negative integer(s)",
+      nonNegativeInteger: "Invalid non negative integer(s)",
     });
   });
 
