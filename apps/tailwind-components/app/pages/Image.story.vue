@@ -4,6 +4,7 @@ import DemoImage from "../assets/img/molgenis-banner.jpg";
 
 <template>
   <Image
+    id="demo-image"
     :src="DemoImage"
     alt="MOLGENIS: open source software"
     class="mt-5"
