@@ -3,10 +3,10 @@ import TextHeading from "../../components/text/Heading.vue";
 </script>
 
 <template>
-  <TextHeading heading-level="H1">Heading 1</TextHeading>
-  <TextHeading heading-level="H2">Heading 2</TextHeading>
-  <TextHeading heading-level="H3">Heading 3</TextHeading>
-  <TextHeading heading-level="H4">Heading 4</TextHeading>
-  <TextHeading heading-level="H5">Heading 5</TextHeading>
-  <TextHeading heading-level="H6">Heading 6</TextHeading>
+  <TextHeading id="h1" :level="1">Heading 1</TextHeading>
+  <TextHeading id="h2" :level="2">Heading 2</TextHeading>
+  <TextHeading id="h3" :level="3">Heading 3</TextHeading>
+  <TextHeading id="h4" :level="4">Heading 4</TextHeading>
+  <TextHeading id="h5" :level="5">Heading 5</TextHeading>
+  <TextHeading id="h6" :level="6">Heading 6</TextHeading>
 </template>
