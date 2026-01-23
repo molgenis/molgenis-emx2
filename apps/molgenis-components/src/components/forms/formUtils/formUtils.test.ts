@@ -458,7 +458,7 @@ describe("getRowErrors", () => {
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
       nonNegativeInteger:
-        "Invalid non negative integer: must be value from 0 to 2147483647",
+        "Invalid non negative integer(s)",
     });
   });
 
@@ -472,7 +472,7 @@ describe("getRowErrors", () => {
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
       nonNegativeInteger:
-        "Invalid non negative integer: must be value from 0 to 2147483647",
+        "Invalid non negative integer(s)",
     });
   });
 
