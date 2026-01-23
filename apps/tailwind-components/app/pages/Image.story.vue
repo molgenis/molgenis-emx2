@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import Image from "../../app/components/Image.vue";
+import DemoImage from "../assets/img/molgenis-banner.jpg";
 </script>
 
 <template>
   <Image
-    src="_nuxt/assets/img/molgenis-logo-blue-small.svg"
+    :src="DemoImage"
     alt="MOLGENIS: open source software"
-    width="w-[150px]"
-    height="h-[150px]"
+    class="mt-5"
+    width="w-[350px]"
+    height="h-auto"
   />
 </template>
