@@ -42,7 +42,7 @@ subprojects {
 
     compileJava.dependsOn 'spotlessApply'
 
-    task format {
+    tasks.register('format') {
         dependsOn spotlessApply
         dependsOn pmdMain
         dependsOn pmdTest
@@ -191,7 +191,7 @@ project(":backend:molgenis-emx2-nonparallel-tests").test.dependsOn subprojects.f
 
 /* generate java test coverage report*/
 test.dependsOn subprojects.test
-task jacocoMergedReport(type: JacocoReport) {
+tasks.register('jacocoMergedReport', JacocoReport) {
     dependsOn test
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)

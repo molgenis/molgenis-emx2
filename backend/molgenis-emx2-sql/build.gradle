@@ -9,7 +9,7 @@ dependencies {
 }
 
 //tool should be here otherwise requires build of unnecessary modules
-task cleandb(type: JavaExec) {
+tasks.register('cleandb', JavaExec) {
     group = 'application'
     classpath = sourceSets.main.runtimeClasspath
     mainClass.set('org.molgenis.emx2.sql.AToolToCleanDatabase')
