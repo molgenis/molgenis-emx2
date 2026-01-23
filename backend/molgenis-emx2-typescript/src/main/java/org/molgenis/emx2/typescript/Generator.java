@@ -122,8 +122,8 @@ public class Generator {
               HYPERLINK_ARRAY,
               LONG_ARRAY ->
           "string[]";
-      case INT, DECIMAL -> "number";
-      case INT_ARRAY, DECIMAL_ARRAY -> "number[]";
+      case INT, DECIMAL, NON_NEGATIVE_INT -> "number";
+      case INT_ARRAY, DECIMAL_ARRAY, NON_NEGATIVE_INT_ARRAY -> "number[]";
       case REF -> "I" + convertToPascalCase(column.getRefTable().getTableName());
       case REF_ARRAY, REFBACK ->
           "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";

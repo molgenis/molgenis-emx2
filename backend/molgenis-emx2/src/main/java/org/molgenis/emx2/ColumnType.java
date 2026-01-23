@@ -68,6 +68,8 @@ public enum ColumnType {
   EMAIL_ARRAY(STRING_ARRAY, EMAIL_REGEX),
   HYPERLINK(STRING, HYPERLINK_REGEX),
   HYPERLINK_ARRAY(STRING_ARRAY, HYPERLINK_REGEX),
+  NON_NEGATIVE_INT(INT, NON_NEGATIVE_INT_REGEX),
+  NON_NEGATIVE_INT_ARRAY(INT_ARRAY, NON_NEGATIVE_INT_REGEX),
   SELECT(REF),
   RADIO(REF),
   MULTISELECT(REF_ARRAY),
@@ -183,5 +185,9 @@ public enum ColumnType {
         || STRING_ARRAY.equals(getBaseType())
         || TEXT.equals(getBaseType())
         || TEXT_ARRAY.equals(getBaseType());
+  }
+
+  public boolean isNumericType() {
+    return INT.equals(getBaseType()) || DECIMAL.equals(getBaseType()) || LONG.equals(getBaseType());
   }
 }

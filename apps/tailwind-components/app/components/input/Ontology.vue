@@ -37,19 +37,12 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["focus", "blur"]);
-//the selected values
 const modelValue = defineModel<string[] | string | undefined | null>();
-//labels for the selected values
 const valueLabels: Ref<Record<string, string>> = ref({});
-//intermediate selected values
 const intermediates: Ref<string[]> = ref([]);
-//toggle for showing search
 const showSearch = ref<boolean>(false);
-// the search value
 const searchTerms: Ref<string> = ref("");
-//initial loading state
 const initLoading = ref(true);
-// if the select should be shown expanded
 const showSelect = ref(false);
 
 const counterOffset = ref<number>(0);
@@ -57,7 +50,6 @@ const filteredCount = ref<number>(0);
 const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
 
-// Track loading state per node to prevent duplicates
 const loadingNodes = ref<Set<string>>(new Set());
 
 // Virtual root node to hold the ontology tree and its pagination state
@@ -357,7 +349,7 @@ function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
 async function toggleTermSelect(node: ITreeNodeState) {
   if (props.disabled) return;
   if (!props.isArray) {
-    modelValue.value = modelValue.value === node.name ? undefined : node.name;
+    modelValue.value = modelValue.value === node.name ? null : node.name;
     await toggleSelect();
   } else if (Array.isArray(modelValue.value)) {
     //if a selected value then simply deselect
@@ -488,59 +480,44 @@ function deselect(name: string) {
 }
 
 function clearSelection() {
-  if (props.disabled) return;
+  if (props.disabled) {
+    return;
+  }
   modelValue.value = props.isArray ? [] : null;
+
+  emit("blur");
 }
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 let lastSearchValue: string = "";
 let isSearching = false;
-watch(searchTerms, (newValue, oldValue) => {
-  console.log("🔍 Search watcher triggered:", {
-    newValue,
-    oldValue,
-    isSearching,
-    lastSearchValue,
-  });
 
+watch(searchTerms, (newValue, oldValue) => {
   if (isSearching) {
-    console.log("🔍 Blocked: isSearching=true");
     return;
   }
 
   if (oldValue === undefined) {
-    console.log("🔍 Blocked: initial mount");
     lastSearchValue = newValue;
     return;
   }
 
   if (newValue === lastSearchValue) {
-    console.log("🔍 Blocked: value unchanged");
     return;
   }
 
   const selectModeCheck =
     displayAsSelect.value && !showSelect.value && !props.forceList;
-  console.log("🔍 Select mode check:", {
-    displayAsSelect: displayAsSelect.value,
-    showSelect: showSelect.value,
-    forceList: props.forceList,
-    blocked: selectModeCheck,
-  });
 
   if (selectModeCheck) {
-    console.log("🔍 Blocked: dropdown not open in select mode");
     return;
   }
-
-  console.log("🔍 Scheduling search with debounce...");
 
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
   }
 
   searchDebounceTimer = setTimeout(() => {
-    console.log("🔍 Executing search:", newValue);
     lastSearchValue = newValue;
     updateSearch(newValue);
   }, 500);
@@ -554,23 +531,17 @@ function toggleSearch() {
 }
 
 async function updateSearch(value: string) {
-  console.log("🔎 updateSearch called with:", value);
-
   if (isSearching) {
-    console.log("🔎 Blocked: already searching");
     return;
   }
 
   isSearching = true;
-  console.log("🔎 Set isSearching=true, calling loadPage...");
 
   try {
     counterOffset.value = 0;
     await loadPage(rootNode.value, 0, value || "");
-    console.log("🔎 loadPage completed");
   } finally {
     isSearching = false;
-    console.log("🔎 Set isSearching=false");
   }
 }
 
