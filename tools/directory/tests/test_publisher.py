@@ -21,7 +21,7 @@ pytest_plugins = ("pytest_asyncio",)
 @pytest.fixture
 def pid_manager_factory():
     with patch(
-        "molgenis_emx2.directory_client.publisher.PidManagerFactory"
+        "src.molgenis_emx2.directory_client.publisher.PidManagerFactory"
     ) as pid_manager_factory_mock:
         yield pid_manager_factory_mock
 

@@ -13,7 +13,9 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.fixture
 def report_init():
-    with patch("molgenis_emx2.directory_client.directory.ErrorReport") as report_mock:
+    with patch(
+        "src.molgenis_emx2.directory_client.directory.ErrorReport"
+    ) as report_mock:
         yield report_mock
 
 

@@ -19,7 +19,7 @@ pytest_plugins = "pytest_asyncio"
 def external_server_init():
     with (
         patch(
-            "molgenis_emx2.directory_client.stager.ExternalServerSession"
+            "src.molgenis_emx2.directory_client.stager.ExternalServerSession"
         ) as ext_session_mock
     ):
         yield ext_session_mock
@@ -29,7 +29,7 @@ def external_server_init():
 def directory_server_init():
     with (
         patch(
-            "molgenis_emx2.directory_client.stager.DirectorySession"
+            "src.molgenis_emx2.directory_client.stager.DirectorySession"
         ) as dir_session_mock
     ):
         yield dir_session_mock
@@ -38,23 +38,24 @@ def directory_server_init():
 @pytest.mark.asyncio
 async def test_stager(mocker):
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client."
+        "src.molgenis_emx2.directory_client.directory_client."
         "DirectorySession._validate_url",
         return_value=HTTPStatus(200),
     )
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession._"
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession._"
         "validate_graphql_response",
         return_value=HTTPStatus(200),
     )
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession.get_schemas",
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
+        "get_schemas",
         return_value=[
             Schema(id="BBMRI-NL", name="None-NL", label="BBMRI-ERIC", description="")
         ],
     )
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession."
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "set_schema",
         return_value=["BBMRI-NL"],
     )
@@ -113,7 +114,7 @@ async def test_check_permissions(external_server_init):
 @pytest.mark.asyncio
 async def test_check_tables(mocker, external_server_init):
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession."
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "get_schema_metadata"
     )
     node = ExternalServerNode(
@@ -150,24 +151,24 @@ async def test_check_tables(mocker, external_server_init):
 
 def test_clear_staging_area(mocker):
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession."
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "_validate_url",
         return_value=HTTPStatus(200),
     )
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession."
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "_validate_graphql_response",
         return_value=HTTPStatus(200),
     )
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession."
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "get_schemas",
         return_value=[
             Schema(id="BBMRI-NL", name="BBMRI-NL", label="BBMRI-ERIC", description="")
         ],
     )
     mocker.patch(
-        "molgenis_emx2.directory_client.directory_client.DirectorySession."
+        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "set_schema",
         return_value=["None-NL"],
     )

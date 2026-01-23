@@ -11,7 +11,7 @@ from src.molgenis_emx2.directory_client.publication_preparer import PublicationP
 def validator_init():
     with (
         patch(
-            "molgenis_emx2.directory_client.publication_preparer.Validator"
+            "src.molgenis_emx2.directory_client.publication_preparer.Validator"
         ) as validator_mock
     ):
         yield validator_mock
@@ -20,7 +20,7 @@ def validator_init():
 @pytest.fixture
 def model_fitter_init():
     with patch(
-        "molgenis_emx2.directory_client.publication_preparer.ModelFitter"
+        "src.molgenis_emx2.directory_client.publication_preparer.ModelFitter"
     ) as model_fitter_mock:
         yield model_fitter_mock
 
@@ -28,7 +28,7 @@ def model_fitter_init():
 @pytest.fixture
 def transformer_init():
     with patch(
-        "molgenis_emx2.directory_client.publication_preparer.Transformer"
+        "src.molgenis_emx2.directory_client.publication_preparer.Transformer"
     ) as transformer_mock:
         yield transformer_mock
 
