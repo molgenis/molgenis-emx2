@@ -102,7 +102,7 @@ const sourceColumn = computed(() => {
 });
 
 const refColumnLabel = computed(() => {
-  if (props.metadata.columnType == "ONTOLOGY") {
+  if (props.metadata.columnType === "ONTOLOGY") {
     return props.metadata.label;
   }
   const labelTemplate = (
@@ -115,7 +115,7 @@ const refColumnLabel = computed(() => {
 });
 
 const refSubTitle = computed(() => {
-  if (props.metadata.columnType == "ONTOLOGY") {
+  if (props.metadata.columnType === "ONTOLOGY") {
     return "";
   }
   const column = refRowMetadata.value?.columns.find(
