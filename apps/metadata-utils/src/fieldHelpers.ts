@@ -20,6 +20,8 @@ export const fieldTypes = () => {
     "HYPERLINK_ARRAY",
     "INT",
     "INT_ARRAY",
+    "NON_NEGATIVE_INT",
+    "NON_NEGATIVE_INT_ARRAY",
     "LONG",
     "LONG_ARRAY",
     "ONTOLOGY",
@@ -61,6 +63,7 @@ export const isValueType = (column: IColumn) => {
     column.columnType === "DATE" ||
     column.columnType === "DATETIME" ||
     column.columnType === "INT" ||
+    column.columnType === "NON_NEGATIVE_INT" ||
     column.columnType === "LONG" ||
     column.columnType === "DECIMAL" ||
     column.columnType === "JSON"
