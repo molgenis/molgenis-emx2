@@ -102,6 +102,16 @@ class StagingMigrator(Client):
             # Remove any downloaded files from disk
             self.cleanup()
 
+    def migrate_cohort_staging(self, keep_zips: bool = False):
+        """Performs the migration from a cohort staging area to a catalogue schema."""
+
+        # Download data from the target schema for upload in case of an error during execution
+        self.download_schema_zip(schema=self.target, schema_type='target', include_system_columns=True)
+        # Download source data
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
+                                                    include_system_columns=True)
+
+
 
     def create_zip(self):
         """
