@@ -164,7 +164,7 @@ export function getColumnError(
     type === "NON_NEGATIVE_INT_ARRAY" &&
     (value as number[])?.some(isInvalidNonNegativeInt)
   ) {
-    return NON_NEGATIVE_INT_ERROR;
+    return "Invalid non negative integer(s)";
   }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
