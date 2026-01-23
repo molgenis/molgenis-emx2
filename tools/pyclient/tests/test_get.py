@@ -4,12 +4,16 @@ Tests the Pyclient `get` method.
 
 import os
 
+from pathlib import Path
+
+import pandas as pd
+
 import pytest
 from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, \
-    NoSuchTableException
+    NoSuchTableException, NoSuchColumnException
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -17,12 +21,8 @@ username = os.environ.get("MG_USERNAME")
 password = os.environ.get("MG_PASSWORD")
 token = os.environ.get("MOLGENIS_TOKEN")
 
+RESOURCES_DIR = Path(__file__).parent / "resources"
 
-def test_catalogue_demo_resources():
-    """Tests the `get` method on the Resources table in the catalogue-demo schema."""
-    with Client(url=server_url) as client:
-        client.set_schema("catalogue-demo")
-        client.get("Resources")
 
 def test_schema_fail():
     """Tests failing get by giving no/incorrect schema name."""
@@ -40,20 +40,19 @@ def test_table_fail():
             client.get(schema="pet store", table="Pets")
         assert excinfo.value.msg == "Table 'Pets' not found in schema 'pet store'."
 
-def test_table_signed_in_okay():
-    """Tests getting information from `get` while signed in."""
+def test_columns_fail():
+    """Tests failing get by giving incorrect column names."""
     with Client(url=server_url) as client:
         client.signin(username, password)
-        pets = client.get(schema="pet store", table="Pet")
-
-        assert len(pets) == 9
-
-def test_table_signed_out_okay():
-    """Tests getting information from `get` while signed in."""
-    with Client(url=server_url) as client:
-        pets = client.get(schema="pet store", table="Pet")
-
-        assert len(pets) == 9
+        with pytest.raises(NoSuchColumnException) as excinfo:
+            client.get(schema="pet store", table="Pet", columns=["Name"])
+        assert excinfo.value.msg == "Columns 'Name' not found."
+        with pytest.raises(NoSuchColumnException) as excinfo:
+            client.get(schema="pet store", table="Pet", columns=["Name", "name"])
+        assert excinfo.value.msg == "Columns ['Name'] not in index"
+        with pytest.raises(NoSuchColumnException) as excinfo:
+            client.get(schema="pet store", table="Pet", columns=["Name", "name2"])
+        assert excinfo.value.msg == "Columns 'Name', 'name2' not found."
 
 def test_columns_okay():
     """Tests get with specifying columns."""
@@ -107,6 +106,89 @@ def test_equals_filter():
         assert len(pets) == 4
 
 
+
+def test_greater_filter():
+    """Tests the 'greater than' filter for the query filter parameter."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity > 5")
+        assert len(orders) == 1
+
+        # Test float
+        pets = client.get(table="Pet", schema="pet store", query_filter="weight > 1.1")
+        assert len(pets) == 4
+
+def test_smaller_filter():
+    """Tests the 'smaller than' filter for the query filter parameter."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity < 5")
+        assert len(orders) == 1
+
+        # Test float
+        pets = client.get(table="Pet", schema="pet store", query_filter="weight < 1.1")
+        assert len(pets) == 4
+
+def test_not_equals_filter():
+    """Tests the 'unequal' filter for the query filter parameter."""
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test boolean
+        orders = client.get(table="Order", schema="pet store", query_filter="complete != True")
+        assert len(orders) == 1
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity != 7")
+        assert len(orders) == 1
+
+        # Test float
+        orders = client.get(table="Pet", schema="pet store", query_filter="weight != 1.337")
+        assert len(orders) == 8
+
+        # Test string
+        pets = client.get(table="Pet", schema="pet store", query_filter="name != pooky")
+        assert len(pets) == 8
+
+        # Test ref
+        with pytest.raises(NotImplementedError) as excinfo:
+            client.get(table="Pet", schema="pet store", query_filter="category != cat")
+        assert str(excinfo.value) == "The filter '!=' is not implemented for columns of type 'RADIO'."
+
+        # Test ontology
+        with pytest.raises(NotImplementedError) as excinfo:
+            client.get(table="Pet", schema="pet store", query_filter="tags != 'red'")
+        assert str(excinfo.value) == "The filter '!=' is not implemented for columns of type 'ONTOLOGY_ARRAY'."
+
+
+def test_between_filter():
+    """Tests the 'between' filter for the query filter parameter."""
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test int/long
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity between [5, 10]")
+        assert len(orders) == 1
+
+        orders = client.get(table="Order", schema="pet store", query_filter="quantity between [7.5, 10]")
+        assert len(orders) == 0
+
+        # Test float
+        orders = client.get(table="Pet", schema="pet store", query_filter="weight between [0, 2.5]")
+        assert len(orders) == 5
+
+        # Test string
+        with pytest.raises(NotImplementedError) as excinfo:
+            client.get(table="Pet", schema="pet store", query_filter="name between [0, 5]")
+        assert str(excinfo.value) == "The filter 'between' is not implemented for columns of type 'STRING'."
+
+
 def test_multiple_filters():
     """Tests the query filter parameter with multiple filters."""
 
@@ -120,3 +202,17 @@ def test_multiple_filters():
         pets = client.get(table="Pet", schema="pet store",
                             query_filter="status == available and tags.name == red")
         assert len(pets) == 3
+
+
+
+def test_as_df():
+    """Tests the method where the results are returned as pandas DataFrame."""
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        pets = client.get(table="Pet", schema="pet store", as_df=True)
+        assert type(pets) == pd.DataFrame is not None
+
+        assert sorted(pets.columns.to_list()) == ['category', 'mg_draft', 'name', 'orders', 'photoUrls', 'status', 'tags', 'weight']
+        assert len(pets['weight'].to_list()) == 9

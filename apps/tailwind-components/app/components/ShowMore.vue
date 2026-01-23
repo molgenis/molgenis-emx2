@@ -31,23 +31,19 @@ onMounted(async () => {
   await nextTick();
   const el = paragraphRef.value;
   if (!el) {
-    hydrated.value = true;
+    hydrated.value = false;
     return;
   }
-  // Measure while ssrCollapsedStyle (max-height) is still active
   const fullHeight = el.scrollHeight;
   const clampedHeight = el.clientHeight;
   showButton.value = fullHeight > clampedHeight;
-  // Now switch to CSS-based clamping
   hydrated.value = true;
 });
 
 async function collapseAndScrollToTop() {
   const el = paragraphRef.value;
-
   expanded.value = false;
   await nextTick();
-
   el?.scrollIntoView({
     block: "start",
     behavior: "smooth",
