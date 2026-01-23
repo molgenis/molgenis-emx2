@@ -69,9 +69,7 @@
           v-else-if="isOntologyMetadata(metadata)"
           :metadata="metadata"
           :data="data"
-          @click="
-            $emit('cellClicked', { metadata: metadata as IRefColumn, data })
-          "
+          @click="$emit('cellClicked', { metadata, data })"
         />
 
         <ValueBool
