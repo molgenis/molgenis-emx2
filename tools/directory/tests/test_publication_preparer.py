@@ -2,9 +2,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from molgenis_emx2.directory_client.errors import DirectoryWarning, ErrorReport
-from molgenis_emx2.directory_client.model import Node
-from molgenis_emx2.directory_client.publication_preparer import PublicationPreparer
+from src.molgenis_emx2.directory_client.errors import DirectoryWarning, ErrorReport
+from src.molgenis_emx2.directory_client.model import Node
+from src.molgenis_emx2.directory_client.publication_preparer import PublicationPreparer
 
 
 @pytest.fixture

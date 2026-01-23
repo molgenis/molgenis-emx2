@@ -2,9 +2,9 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-from molgenis_emx2.directory_client.errors import DirectoryWarning
-from molgenis_emx2.directory_client.model import Node, QualityInfo, Table, TableType
-from molgenis_emx2.directory_client.transformer import Transformer
+from src.molgenis_emx2.directory_client.errors import DirectoryWarning
+from src.molgenis_emx2.directory_client.model import Node, QualityInfo, Table, TableType
+from src.molgenis_emx2.directory_client.transformer import Transformer
 
 
 @pytest.fixture
@@ -16,6 +16,7 @@ def transformer():
         existing_biobanks=MagicMock(),
         eu_node_data=MagicMock(),
         diseases=MagicMock(),
+        catalog_id=MagicMock(),
     )
 
 

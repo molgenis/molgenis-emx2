@@ -6,11 +6,11 @@ import pandas as pd
 import pytest
 from molgenis_emx2_pyclient.metadata import Schema
 
-from molgenis_emx2.directory_client.directory_client import DirectorySession
-from molgenis_emx2.directory_client.errors import DirectoryError, DirectoryWarning
-from molgenis_emx2.directory_client.model import ExternalServerNode, NodeData
-from molgenis_emx2.directory_client.printer import Printer
-from molgenis_emx2.directory_client.stager import Stager
+from src.molgenis_emx2.directory_client.directory_client import DirectorySession
+from src.molgenis_emx2.directory_client.errors import DirectoryError, DirectoryWarning
+from src.molgenis_emx2.directory_client.model import ExternalServerNode, NodeData
+from src.molgenis_emx2.directory_client.printer import Printer
+from src.molgenis_emx2.directory_client.stager import Stager
 
 pytest_plugins = "pytest_asyncio"
 
