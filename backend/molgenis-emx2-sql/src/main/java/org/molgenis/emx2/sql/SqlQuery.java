@@ -1239,6 +1239,7 @@ public class SqlQuery extends QueryBean {
 
   private Condition whereMatchNone(
       SqlAlias tableAlias, Name columnName, Column column, Object[] values) {
+
     List<String> names =
         Arrays.stream(tableAlias.getQualifiedName().split("-"))
             .filter(s -> !s.equals("filter"))
