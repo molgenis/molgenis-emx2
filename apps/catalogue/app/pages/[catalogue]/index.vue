@@ -16,6 +16,7 @@ import LandingCardPrimary from "../../components/landing/CardPrimary.vue";
 import LandingCardSecondary from "../../components/landing/CardSecondary.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
 import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
+import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -202,13 +203,14 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
-  if (!data.value.data?.Resources) {
+  const resources = data.value.data?.Resources;
+  if (scoped && (!resources || resources.length === 0)) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
     });
   }
-  return data.value.data?.Resources[0];
+  return resources?.[0];
 });
 
 const title = computed(() => {
@@ -224,7 +226,7 @@ const title = computed(() => {
 const description = computed(() => {
   if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value);
-  } else if (network.value?.description) {
+  } else if (scoped && network.value?.description) {
     return network.value?.description;
   } else {
     return "Select one of the content categories listed below.";
@@ -310,7 +312,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         :link="`/${catalogueRouteParam}/variables`"
       />
       <LandingCardPrimary
-        v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
+        v-if="!cohortOnly && scoped && network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"
