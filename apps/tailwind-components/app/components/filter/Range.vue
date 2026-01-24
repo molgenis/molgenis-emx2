@@ -29,7 +29,7 @@ function updateMax(val: any) {
     <div class="flex items-center gap-2">
       <label
         :for="`${id}-min`"
-        class="text-body-xs text-record-label w-10 cursor-pointer"
+        class="text-body-xs w-10 cursor-pointer opacity-70"
       >
         {{ minLabel }}
       </label>
@@ -45,7 +45,7 @@ function updateMax(val: any) {
     <div class="flex items-center gap-2">
       <label
         :for="`${id}-max`"
-        class="text-body-xs text-record-label w-10 cursor-pointer"
+        class="text-body-xs w-10 cursor-pointer opacity-70"
       >
         {{ maxLabel }}
       </label>

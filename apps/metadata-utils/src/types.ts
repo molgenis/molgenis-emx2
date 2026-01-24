@@ -17,6 +17,7 @@ export interface IDisplayConfig {
   filter?: object;
   clickAction?: (col: IColumn, row: IRow) => void;
   getHref?: (col: IColumn, row: IRow) => string;
+  label?: string;
 }
 
 export type CellValueType =
