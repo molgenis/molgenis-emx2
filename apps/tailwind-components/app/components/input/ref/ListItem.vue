@@ -45,6 +45,7 @@ function toLabel(row: columnValueObject) {
     <Accordion
       :label="(label as string)"
       :open-by-default="false"
+      :in-list="true"
       @click="emits('expand', props.refData)"
     >
       <template #toolbar>

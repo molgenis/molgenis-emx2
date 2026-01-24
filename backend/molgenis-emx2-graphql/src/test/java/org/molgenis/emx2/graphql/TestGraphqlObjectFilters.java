@@ -32,14 +32,14 @@ class TestGraphqlObjectFilters {
 
   @Test
   void givenEquals_thenResultHasName() throws IOException {
-    var query =
+    String query =
         """
-          {
-            Person (filter: { equals: { name: "John" } }) {
-              name
-            }
+        {
+          Person (filter: { equals: { name: "John" } }) {
+            name
           }
-        """;
+        }
+      """;
 
     ExecutionResult execute = graphql.execute(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
@@ -50,14 +50,14 @@ class TestGraphqlObjectFilters {
 
   @Test
   void givenNotEquals_thenResultDoesntHaveName() throws IOException {
-    var query =
+    String query =
         """
-          {
-            Person (filter: { not_equals: { name: "John" } }) {
-              name
-            }
+        {
+          Person (filter: { not_equals: { name: "John" } }) {
+            name
           }
-        """;
+        }
+      """;
 
     ExecutionResult execute = graphql.execute(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
