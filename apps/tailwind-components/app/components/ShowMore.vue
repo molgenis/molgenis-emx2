@@ -18,9 +18,16 @@ const expanded = ref(false);
 const measured = ref(false);
 const overflows = ref(false);
 
-const paragraphStyle = computed(() => ({
-  "--lines": String(props.lines),
-}));
+const paragraphStyle = computed(() => {
+  const style: Record<string, string> = {
+    "--lines": String(props.lines),
+  };
+  if (!expanded.value) {
+    style.maxHeight = `calc(var(--lines) * 1lh)`;
+    style.overflow = "hidden";
+  }
+  return style;
+});
 
 const showButton = computed(() => !measured.value || overflows.value);
 
@@ -74,7 +81,7 @@ async function collapseAndScrollToTop() {
     <p
       ref="paragraphRef"
       class="paragraph"
-      :class="{ collapsed: !expanded, faded: !expanded && showButton }"
+      :class="{ faded: !expanded && showButton }"
       :style="paragraphStyle"
       :aria-expanded="expanded"
     >
@@ -103,12 +110,7 @@ async function collapseAndScrollToTop() {
   word-break: break-word;
 }
 
-.collapsed {
-  max-height: calc(var(--lines) * 1lh);
-  overflow: hidden;
-}
-
-.collapsed.faded {
+.paragraph.faded {
   -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent);
   mask-image: linear-gradient(to bottom, black 50%, transparent);
 }

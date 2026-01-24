@@ -11,13 +11,15 @@ describe("ShowMore", () => {
     expect(wrapper.find(".button-container").exists()).toBe(true);
   });
 
-  it("renders collapsed class when not expanded", () => {
+  it("applies collapsed styles when not expanded", () => {
     const wrapper = mount(ShowMore, {
       props: { lines: 3 },
       slots: { default: "Some text content" },
     });
     expect(wrapper.find(".paragraph").exists()).toBe(true);
-    expect(wrapper.find(".paragraph").classes()).toContain("collapsed");
+    const style = wrapper.find(".paragraph").attributes("style");
+    expect(style).toContain("max-height");
+    expect(style).toContain("overflow: hidden");
   });
 
   it("applies --lines CSS variable", () => {
