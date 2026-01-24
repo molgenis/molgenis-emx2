@@ -120,7 +120,6 @@ public class GraphqlTableFieldFactory {
     return AstPrinter.printAst(getGraphqlFragments(table, false)) + "\n";
   }
 
-  // suggeste improvement: have AllField1, AllField2 indicating depth
   private FragmentDefinition getGraphqlFragments(TableMetadata table, boolean pkeyOnly) {
     String fragmentName =
         pkeyOnly ? table.getIdentifier() + "KeyFields" : table.getIdentifier() + "AllFields";

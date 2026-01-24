@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class GraphqlApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
-  private GraphQL g;
+  private GraphQL graphql;
   private Schema schema;
   private Database database;
   private Map<String, String> graphqlQueryFragments = new LinkedHashMap<>();
@@ -125,7 +125,7 @@ public class GraphqlApi {
     }
 
     // notice we here add custom exception handler for mutations
-    this.g =
+    this.graphql =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
             .mutationExecutionStrategy(
@@ -197,7 +197,7 @@ public class GraphqlApi {
     mutationBuilder.field(tableField.deleteMutation(schema));
 
     // assemble and return
-    this.g =
+    this.graphql =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
             .mutationExecutionStrategy(
@@ -255,14 +255,15 @@ public class GraphqlApi {
     ExecutionResult executionResult = null;
     if (variables != null) {
       executionResult =
-          g.execute(
+          graphql.execute(
               ExecutionInput.newExecutionInput(query)
                   .graphQLContext(graphQLContext)
                   .variables(variables)
                   .build());
     } else {
       executionResult =
-          g.execute(ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
+          graphql.execute(
+              ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
     }
 
     for (GraphQLError err : executionResult.getErrors()) {
