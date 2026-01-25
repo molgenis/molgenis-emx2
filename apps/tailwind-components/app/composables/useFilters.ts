@@ -77,16 +77,14 @@ export function serializeFilterValue(
 
     case "in":
       if (Array.isArray(val)) {
-        // For refs with objects, extract primary key (usually 'name' or first key)
         if (val.length && typeof val[0] === "object") {
-          const keys = val.map((v) => {
+          const primaryKeys = val.map((v) => {
             if (typeof v === "object" && v !== null) {
-              // Use 'name' if available, otherwise first key value
               return v.name ?? Object.values(v)[0];
             }
             return String(v);
           });
-          return keys.join(MULTI_VALUE_SEPARATOR);
+          return primaryKeys.join(MULTI_VALUE_SEPARATOR);
         }
         return val.join(MULTI_VALUE_SEPARATOR);
       }
@@ -123,7 +121,6 @@ export function parseFilterValue(
 ): IFilterValue | null {
   if (!urlValue) return null;
 
-  // Special null handling
   if (urlValue === "null") {
     return { operator: "isNull", value: true };
   }
@@ -133,44 +130,37 @@ export function parseFilterValue(
 
   const columnType = column.columnType;
 
-  // REF/ONTOLOGY types - parse as primary key values
   if (REF_TYPES.includes(columnType)) {
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
-      // Multi-value: convert to array of objects with 'name' key
       const values = urlValue.split(MULTI_VALUE_SEPARATOR);
       return { operator: "in", value: values.map((v) => ({ name: v })) };
     }
-    // Single value
     return { operator: "equals", value: { name: urlValue } };
   }
 
-  // Numeric/Date types - check for range
   if (RANGE_TYPES.includes(columnType)) {
     if (urlValue.includes("..")) {
       const [minStr, maxStr] = urlValue.split("..");
-      const isDate = columnType.includes("DATE");
+      const isDateType = columnType.includes("DATE");
       return {
         operator: "between",
         value: [
-          minStr === "" ? null : isDate ? minStr : Number(minStr),
-          maxStr === "" ? null : isDate ? maxStr : Number(maxStr),
+          minStr === "" ? null : isDateType ? minStr : Number(minStr),
+          maxStr === "" ? null : isDateType ? maxStr : Number(maxStr),
         ],
       };
     }
-    // Single value equals
-    const isDate = columnType.includes("DATE");
+    const isDateType = columnType.includes("DATE");
     return {
       operator: "equals",
-      value: isDate ? urlValue : Number(urlValue),
+      value: isDateType ? urlValue : Number(urlValue),
     };
   }
 
-  // String types - pipe means multi-value
   if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
     return { operator: "in", value: urlValue.split(MULTI_VALUE_SEPARATOR) };
   }
 
-  // Default: like for strings
   return { operator: "like", value: urlValue };
 }
 
@@ -211,7 +201,6 @@ export function parseFiltersFromUrl(
       continue;
     }
 
-    // Skip reserved params (mg_*)
     if (key.startsWith(RESERVED_PREFIX)) continue;
 
     const column = columns.find((c) => c.id === key);
@@ -230,22 +219,7 @@ export function useFilters(
   columns: Ref<IColumn[]>,
   options?: UseFiltersOptions
 ) {
-  const filterStates = ref<Map<string, IFilterValue>>(new Map());
-  const searchValue = ref("");
-
-  // _gqlFilter is always current, gqlFilter is debounced for API calls
-  const _gqlFilter = computed(() =>
-    buildGraphQLFilter(filterStates.value, columns.value, searchValue.value)
-  );
-  const gqlFilter = ref(_gqlFilter.value);
-  const updateGqlFilter = useDebounceFn(() => {
-    gqlFilter.value = _gqlFilter.value;
-  }, options?.debounceMs ?? 300);
-
-  // URL sync setup
-  const urlSyncEnabled = !!options?.urlSync;
-  const updatingFromUrl = ref(false);
-
+  let urlSyncEnabled = !!options?.urlSync;
   let route: { query: Record<string, string | string[] | undefined> } | null =
     null;
   let router: {
@@ -261,124 +235,136 @@ export function useFilters(
         route = route ?? nuxt.useRoute();
         router = router ?? nuxt.useRouter();
       } catch {
-        // Nuxt not available, URL sync disabled silently
+        /* Nuxt not available */
       }
     }
-  }
-
-  function syncToUrl() {
-    if (!router || !route || updatingFromUrl.value) return;
-    const params = serializeFiltersToUrl(
-      filterStates.value,
-      searchValue.value,
-      columns.value
-    );
-
-    // Preserve reserved query params (mg_*) except mg_search
-    const newQuery: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(route.query)) {
-      if (key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM) {
-        newQuery[key] = value;
-      }
-    }
-
-    // Add filter params
-    for (const [key, value] of Object.entries(params)) {
-      newQuery[key] = value;
-    }
-
-    router.replace({ query: newQuery });
-  }
-
-  function initFromUrl() {
-    if (!route?.query) return;
-
-    updatingFromUrl.value = true;
-    try {
-      const { filters, search } = parseFiltersFromUrl(
-        route.query,
-        columns.value
-      );
-      filterStates.value = filters;
-      searchValue.value = search;
-      gqlFilter.value = _gqlFilter.value;
-    } finally {
-      updatingFromUrl.value = false;
+    if (!route || !router) {
+      urlSyncEnabled = false;
     }
   }
 
-  // Watch filterStates for external changes (e.g., v-model binding from Sidebar)
-  watch(
-    filterStates,
-    () => {
-      updateGqlFilter();
-    },
-    { deep: true }
+  const parsedUrlState = computed(() => {
+    if (!urlSyncEnabled || !route?.query) {
+      return { filters: new Map<string, IFilterValue>(), search: "" };
+    }
+    return parseFiltersFromUrl(route.query, columns.value);
+  });
+
+  const filterStatesFromUrl = computed(() => parsedUrlState.value.filters);
+  const searchValueFromUrl = computed(() => parsedUrlState.value.search);
+
+  const filterStatesRef = ref<Map<string, IFilterValue>>(new Map());
+  const searchValueRef = ref("");
+
+  const actualFilterStates = urlSyncEnabled
+    ? filterStatesFromUrl
+    : filterStatesRef;
+  const actualSearchValue = urlSyncEnabled
+    ? searchValueFromUrl
+    : searchValueRef;
+
+  const _gqlFilter = computed(() =>
+    buildGraphQLFilter(
+      actualFilterStates.value,
+      columns.value,
+      actualSearchValue.value
+    )
   );
+  const gqlFilter = ref(_gqlFilter.value);
+  const updateGqlFilter = useDebounceFn(() => {
+    gqlFilter.value = _gqlFilter.value;
+  }, options?.debounceMs ?? 300);
 
-  if (urlSyncEnabled && route) {
-    // Watch for external URL changes (browser back/forward)
+  if (urlSyncEnabled) {
     watch(
-      () => JSON.stringify(route!.query),
+      () => route?.query,
       () => {
-        if (updatingFromUrl.value) return;
-        updatingFromUrl.value = true;
-        try {
-          const { filters, search } = parseFiltersFromUrl(
-            route!.query,
-            columns.value
-          );
-          filterStates.value = filters;
-          searchValue.value = search;
-          gqlFilter.value = _gqlFilter.value;
-        } finally {
-          updatingFromUrl.value = false;
-        }
-      }
+        updateGqlFilter();
+      },
+      { deep: true }
     );
 
-    // Sync to URL after gqlFilter updates (debounced)
-    watch(gqlFilter, () => syncToUrl());
-
-    // Init from URL on mount (or immediately if no component instance)
     if (getCurrentInstance()) {
-      onMounted(() => initFromUrl());
+      onMounted(() => {
+        gqlFilter.value = _gqlFilter.value;
+      });
     } else {
-      // No component instance, init immediately (e.g., in tests)
-      initFromUrl();
+      gqlFilter.value = _gqlFilter.value;
     }
+  } else {
+    watch(
+      filterStatesRef,
+      () => {
+        updateGqlFilter();
+      },
+      { deep: true, flush: "sync" }
+    );
+    watch(searchValueRef, () => {
+      updateGqlFilter();
+    });
+  }
+
+  function updateUrl(filters: Map<string, IFilterValue>, search: string) {
+    if (!router || !route) return;
+
+    const params = serializeFiltersToUrl(filters, search, columns.value);
+
+    const preservedParams: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(route.query)) {
+      const isReservedButNotSearch =
+        key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM;
+      if (isReservedButNotSearch) {
+        preservedParams[key] = value;
+      }
+    }
+
+    router.replace({ query: { ...preservedParams, ...params } });
   }
 
   function setFilter(columnId: string, value: IFilterValue | null) {
-    if (value === null) {
-      filterStates.value.delete(columnId);
+    if (urlSyncEnabled) {
+      const newFilters = new Map(actualFilterStates.value);
+      if (value === null) {
+        newFilters.delete(columnId);
+      } else {
+        newFilters.set(columnId, value);
+      }
+      updateUrl(newFilters, actualSearchValue.value);
     } else {
-      filterStates.value.set(columnId, value);
+      const newMap = new Map(filterStatesRef.value);
+      if (value === null) {
+        newMap.delete(columnId);
+      } else {
+        newMap.set(columnId, value);
+      }
+      filterStatesRef.value = newMap;
     }
-    filterStates.value = new Map(filterStates.value);
-    updateGqlFilter();
   }
 
   function setSearch(value: string) {
-    searchValue.value = value;
-    updateGqlFilter();
+    if (urlSyncEnabled) {
+      updateUrl(actualFilterStates.value, value);
+    } else {
+      searchValueRef.value = value;
+    }
   }
 
   function clearFilters() {
-    filterStates.value = new Map();
-    searchValue.value = "";
-    updateGqlFilter();
+    if (urlSyncEnabled) {
+      updateUrl(new Map(), "");
+    } else {
+      filterStatesRef.value = new Map();
+      searchValueRef.value = "";
+    }
   }
 
   function removeFilter(columnId: string) {
-    filterStates.value.delete(columnId);
-    filterStates.value = new Map(filterStates.value);
-    updateGqlFilter();
+    setFilter(columnId, null);
   }
 
   return {
-    filterStates,
-    searchValue,
+    filterStates: actualFilterStates,
+    searchValue: actualSearchValue,
     gqlFilter,
     setFilter,
     setSearch,

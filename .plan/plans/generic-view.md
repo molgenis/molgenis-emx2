@@ -70,9 +70,103 @@ export interface UseFiltersOptions {
 
 ---
 
-2. **Infinite loop risk** - Consolidate watch handlers
-   - Current: separate watches for filterStates, gqlFilter, route.query
-   - Fix: single sync point, clear state machine for direction
+#### Fix #2: Infinite Loop Risk - Consolidate Watch Handlers (NEXT)
+
+**Problem**: Multiple separate watches risk circular updates.
+- `watch(filterStates)` → `updateGqlFilter()` (debounced)
+- `watch(gqlFilter)` → `syncToUrl()` → `router.replace()`
+- `watch(JSON.stringify(route.query))` → parse → update filterStates → loop?
+
+**Current mitigation**: `updatingFromUrl` flag, but edge cases remain:
+- Async timing: debounced gqlFilter update may fire after flag reset
+- `JSON.stringify` is inefficient and may miss reference changes
+
+**Solution**: Single consolidated watcher with direction tracking.
+
+**Design**:
+```ts
+type SyncDirection = "idle" | "toUrl" | "fromUrl";
+const syncDirection = ref<SyncDirection>("idle");
+
+// Single watch for all filter state changes
+watch(
+  [filterStates, searchValue],
+  () => {
+    if (syncDirection.value === "fromUrl") return; // Skip if updating from URL
+    updateGqlFilter(); // Always update gqlFilter (debounced)
+  },
+  { deep: true }
+);
+
+// Separate immediate URL sync (not debounced)
+watch(
+  [filterStates, searchValue],
+  () => {
+    if (syncDirection.value === "fromUrl") return;
+    syncDirection.value = "toUrl";
+    syncToUrl(); // Immediate, no debounce
+    nextTick(() => { syncDirection.value = "idle"; });
+  },
+  { deep: true, flush: "sync" }
+);
+
+// URL change watch (browser back/forward)
+watch(
+  () => route?.query,
+  (newQuery, oldQuery) => {
+    if (syncDirection.value === "toUrl") return; // We caused this change
+    if (shallowEqual(newQuery, oldQuery)) return; // No real change
+    syncDirection.value = "fromUrl";
+    parseAndApply(newQuery);
+    nextTick(() => { syncDirection.value = "idle"; });
+  }
+);
+```
+
+**Key changes**:
+1. Replace `updatingFromUrl: boolean` with `syncDirection: "idle"|"toUrl"|"fromUrl"`
+2. Replace `JSON.stringify` with shallow object comparison
+3. URL sync immediate (user feedback), gqlFilter debounced (API)
+4. Use `flush: "sync"` for URL watch to catch immediate changes
+5. `nextTick` to reset direction after Vue processes updates
+
+**Helper function** (add to utils):
+```ts
+function shallowEqualQuery(
+  a: Record<string, unknown> | undefined,
+  b: Record<string, unknown> | undefined
+): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  return keysA.every(key => a[key] === b[key]);
+}
+```
+
+**Implementation Steps**:
+1. Add `SyncDirection` type and `syncDirection` ref
+2. Add `shallowEqualQuery` helper function
+3. Consolidate watches:
+   - Remove separate `watch(filterStates, ...)` (line 311-317)
+   - Remove `watch(() => JSON.stringify(route.query), ...)` (line 321-338)
+   - Remove `watch(gqlFilter, () => syncToUrl())` (line 341)
+4. Add new consolidated watches as designed above
+5. Update `initFromUrl()` to use syncDirection
+6. Remove `updatingFromUrl` ref (replaced by syncDirection)
+
+**Test Updates**:
+- Add test: rapid filter changes don't cause infinite loop
+- Add test: browser back/forward updates filters (not URL)
+- Add test: filter change updates URL immediately (before debounce)
+- Update existing URL sync tests to use new pattern
+
+**Files to Modify**:
+- `composables/useFilters.ts`: Watch consolidation
+- `tests/vitest/composables/useFilters.spec.ts`: New tests
+
+---
 
 3. **REF primary key** - Use explicit `column.name` syntax
    - Current: `?category=Cat1|Cat2` (assumes primary key)
@@ -91,11 +185,13 @@ export interface UseFiltersOptions {
 ### Test Requirements
 
 - [x] Router injection: works with mock in tests (Fix #1)
-- [ ] Filter change updates URL (immediate) (Fix #5)
+- [ ] Filter change updates URL immediately (Fix #2, #5)
+- [ ] gqlFilter updates debounced (Fix #2)
+- [ ] Browser back/forward updates filters, not URL (Fix #2)
+- [ ] Rapid changes don't cause infinite loop (Fix #2)
 - [ ] Page load restores filters from URL (Fix #4)
 - [ ] Multiple instances with different prefixes don't conflict
 - [ ] Clear filters clears URL params
-- [ ] Browser back/forward restores filter state (Fix #2)
 - [ ] SSR hydration: no mismatch warnings (Fix #4)
 
 ## Remaining Stories

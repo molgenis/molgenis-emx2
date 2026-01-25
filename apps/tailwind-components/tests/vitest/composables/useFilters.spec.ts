@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ref, nextTick } from "vue";
+import { ref, reactive, nextTick } from "vue";
 import {
   useFilters,
   serializeFilterValue,
@@ -346,8 +346,13 @@ describe("useFilters", () => {
   });
 
   it("should update URL on filter change with injected router", async () => {
-    const mockRoute = { query: {} };
-    const mockRouter = { replace: vi.fn() };
+    const mockRoute = reactive({ query: {} as Record<string, string> });
+    const mockRouter = {
+      replace: vi.fn((opts) => {
+        // Simulate router actually updating the route
+        mockRoute.query = opts.query as Record<string, string>;
+      }),
+    };
 
     const { setFilter, setSearch } = useFilters(mockColumns, {
       debounceMs: 0,
@@ -367,7 +372,7 @@ describe("useFilters", () => {
     await nextTick();
 
     expect(mockRouter.replace).toHaveBeenCalledWith({
-      query: { name: "John", mg_search: "search term" },
+      query: { mg_search: "search term", name: "John" },
     });
   });
 
@@ -432,6 +437,106 @@ describe("useFilters", () => {
 
     expect(mockRouter.replace).toHaveBeenCalledWith({
       query: { mg_page: "2", mg_limit: "10", name: "test" },
+    });
+  });
+
+  it("should update URL immediately without waiting for debounce", async () => {
+    const mockRoute = { query: {} };
+    const mockRouter = { replace: vi.fn() };
+
+    const { setFilter } = useFilters(mockColumns, {
+      debounceMs: 300,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    setFilter("name", { operator: "like", value: "test" });
+
+    // URL should be updated immediately
+    await nextTick();
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      query: { name: "test" },
+    });
+
+    // But gqlFilter is still debounced (tested elsewhere)
+  });
+
+  it("should handle rapid filter changes", async () => {
+    const mockRoute = { query: {} };
+    const mockRouter = { replace: vi.fn() };
+
+    const { setFilter } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    // Rapidly set multiple filters
+    setFilter("name", { operator: "like", value: "test1" });
+    setFilter("name", { operator: "like", value: "test2" });
+    setFilter("name", { operator: "like", value: "test3" });
+
+    await nextTick();
+
+    // Should have called replace for each change (3 times)
+    expect(mockRouter.replace).toHaveBeenCalledTimes(3);
+    expect(mockRouter.replace).toHaveBeenLastCalledWith({
+      query: { name: "test3" },
+    });
+  });
+
+  it("should update filters when URL changes (browser back/forward)", async () => {
+    const mockRoute = reactive({ query: {} as Record<string, string> });
+    const mockRouter = { replace: vi.fn() };
+
+    const { filterStates } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    // Simulate browser back/forward by changing route.query
+    mockRoute.query = { name: "John" };
+
+    await nextTick();
+
+    // Filters should be updated (computed from URL)
+    expect(filterStates.value.get("name")).toEqual({
+      operator: "like",
+      value: "John",
+    });
+  });
+
+  it("should reactively update when URL changes", async () => {
+    const mockRoute = reactive({
+      query: { name: "test" } as Record<string, string>,
+    });
+    const mockRouter = { replace: vi.fn() };
+
+    const { filterStates } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    // Initial state from URL
+    expect(filterStates.value.get("name")).toEqual({
+      operator: "like",
+      value: "test",
+    });
+
+    // Change URL
+    mockRoute.query = { name: "updated" };
+    await nextTick();
+
+    // State should update (computed from URL)
+    expect(filterStates.value.get("name")).toEqual({
+      operator: "like",
+      value: "updated",
     });
   });
 });
