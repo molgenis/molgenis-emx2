@@ -7,6 +7,7 @@
 - v6.3.3: One-way data flow - URL as source of truth, removed bidirectional sync complexity (64 tests)
 - v6.3.4: REF path syntax - explicit `category.name=value` format, backward compat (69 tests)
 - v6.3.5: Writable computed - filterStates writable via setter, Emx2DataView urlSync prop (default true), Story markdown spec, visibleColumns auto-default (225 tests)
+- v6.3.6: E2E tests - URL sync tests (5 new), fixed route/title, removed comments
 
 ## Current Status
 
@@ -20,15 +21,7 @@ URL sync complete:
 
 ## Remaining
 
-### SSR Handling (TODO)
-
-**Problem**: URL state exists server-side but computed may not work correctly during SSR.
-
-Options:
-1. Sync init (simple): Initialize from URL immediately, not in onMounted
-2. useAsyncData (Nuxt-idiomatic): Wrap in useAsyncData for SSR support
-
-Current code already initializes immediately when no component instance (tests). May work for SSR already - needs verification.
+ActiveFilters component (horizontal tag bar showing active filters) - deferred.
 
 ## Test Coverage
 
@@ -42,15 +35,14 @@ Current code already initializes immediately when no component instance (tests).
 - [x] Serialize/parse round-trips
 - [x] REF with explicit path syntax (`category.name=value`)
 - [x] Backward compat: fallback for old format (`category=value`)
-- [ ] SSR hydration
+- [x] SSR/hydration (E2E: URL params pre-filled on initial render)
+- [x] E2E: URL updates, direct navigation, back/forward, clear
 
 ## Remaining Stories
 
 | Story | Status | Notes |
 |-------|--------|-------|
-| SSR verification | TODO | May already work |
 | ActiveFilters | DEFERRED | Horizontal tag bar |
-| E2E tests | TODO | After URL sync complete |
 
 ## Decisions
 
@@ -69,4 +61,3 @@ Current code already initializes immediately when no component instance (tests).
 ## Unresolved Questions
 
 1. Handle ontology selections that exceed URL limits?
-2. SSR pattern: verify current code works or needs adjustment?
