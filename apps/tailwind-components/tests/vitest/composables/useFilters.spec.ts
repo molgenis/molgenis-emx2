@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ref, nextTick } from "vue";
-import { useFilters } from "../../../app/composables/useFilters";
+import {
+  useFilters,
+  serializeFilterValue,
+  parseFilterValue,
+  serializeFiltersToUrl,
+  parseFiltersFromUrl,
+} from "../../../app/composables/useFilters";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 
@@ -317,5 +323,277 @@ describe("useFilters", () => {
     await nextTick();
 
     expect(gqlFilter.value).toEqual({});
+  });
+});
+
+describe("serializeFilterValue", () => {
+  const stringColumn: IColumn = { id: "name", columnType: "STRING" };
+  const intColumn: IColumn = { id: "age", columnType: "INT" };
+  const dateColumn: IColumn = { id: "birth", columnType: "DATE" };
+  const refColumn: IColumn = { id: "category", columnType: "REF" };
+
+  it("should serialize like operator for string", () => {
+    const result = serializeFilterValue(
+      { operator: "like", value: "John" },
+      stringColumn
+    );
+    expect(result).toBe("John");
+  });
+
+  it("should serialize between operator for int", () => {
+    const result = serializeFilterValue(
+      { operator: "between", value: [10, 20] },
+      intColumn
+    );
+    expect(result).toBe("10..20");
+  });
+
+  it("should serialize between with only min", () => {
+    const result = serializeFilterValue(
+      { operator: "between", value: [10, null] },
+      intColumn
+    );
+    expect(result).toBe("10..");
+  });
+
+  it("should serialize between with only max", () => {
+    const result = serializeFilterValue(
+      { operator: "between", value: [null, 20] },
+      intColumn
+    );
+    expect(result).toBe("..20");
+  });
+
+  it("should return null for empty between", () => {
+    const result = serializeFilterValue(
+      { operator: "between", value: [null, null] },
+      intColumn
+    );
+    expect(result).toBeNull();
+  });
+
+  it("should serialize in operator with simple values using pipe", () => {
+    const result = serializeFilterValue(
+      { operator: "in", value: ["a", "b", "c"] },
+      stringColumn
+    );
+    expect(result).toBe("a|b|c");
+  });
+
+  it("should serialize in operator with ref objects as pipe-separated keys", () => {
+    const result = serializeFilterValue(
+      { operator: "in", value: [{ name: "Cat1" }, { name: "Cat2" }] },
+      refColumn
+    );
+    expect(result).toBe("Cat1|Cat2");
+  });
+
+  it("should serialize notNull operator", () => {
+    const result = serializeFilterValue(
+      { operator: "notNull", value: true },
+      stringColumn
+    );
+    expect(result).toBe("!null");
+  });
+
+  it("should serialize isNull operator", () => {
+    const result = serializeFilterValue(
+      { operator: "isNull", value: true },
+      stringColumn
+    );
+    expect(result).toBe("null");
+  });
+
+  it("should serialize date range", () => {
+    const result = serializeFilterValue(
+      { operator: "between", value: ["2024-01-01", "2024-12-31"] },
+      dateColumn
+    );
+    expect(result).toBe("2024-01-01..2024-12-31");
+  });
+});
+
+describe("parseFilterValue", () => {
+  const stringColumn: IColumn = { id: "name", columnType: "STRING" };
+  const intColumn: IColumn = { id: "age", columnType: "INT" };
+  const dateColumn: IColumn = { id: "birth", columnType: "DATE" };
+  const refColumn: IColumn = { id: "category", columnType: "REF" };
+
+  it("should parse simple string as like", () => {
+    const result = parseFilterValue("John", stringColumn);
+    expect(result).toEqual({ operator: "like", value: "John" });
+  });
+
+  it("should parse pipe-separated string as in", () => {
+    const result = parseFilterValue("a|b|c", stringColumn);
+    expect(result).toEqual({ operator: "in", value: ["a", "b", "c"] });
+  });
+
+  it("should parse range for int", () => {
+    const result = parseFilterValue("10..20", intColumn);
+    expect(result).toEqual({ operator: "between", value: [10, 20] });
+  });
+
+  it("should parse range with only min for int", () => {
+    const result = parseFilterValue("10..", intColumn);
+    expect(result).toEqual({ operator: "between", value: [10, null] });
+  });
+
+  it("should parse range with only max for int", () => {
+    const result = parseFilterValue("..20", intColumn);
+    expect(result).toEqual({ operator: "between", value: [null, 20] });
+  });
+
+  it("should parse single int as equals", () => {
+    const result = parseFilterValue("25", intColumn);
+    expect(result).toEqual({ operator: "equals", value: 25 });
+  });
+
+  it("should parse date range", () => {
+    const result = parseFilterValue("2024-01-01..2024-12-31", dateColumn);
+    expect(result).toEqual({
+      operator: "between",
+      value: ["2024-01-01", "2024-12-31"],
+    });
+  });
+
+  it("should parse pipe-separated ref values as objects", () => {
+    const result = parseFilterValue("Cat1|Cat2", refColumn);
+    expect(result).toEqual({
+      operator: "in",
+      value: [{ name: "Cat1" }, { name: "Cat2" }],
+    });
+  });
+
+  it("should parse simple ref value as object", () => {
+    const result = parseFilterValue("Cat1", refColumn);
+    expect(result).toEqual({ operator: "equals", value: { name: "Cat1" } });
+  });
+
+  it("should parse null", () => {
+    const result = parseFilterValue("null", stringColumn);
+    expect(result).toEqual({ operator: "isNull", value: true });
+  });
+
+  it("should parse !null", () => {
+    const result = parseFilterValue("!null", stringColumn);
+    expect(result).toEqual({ operator: "notNull", value: true });
+  });
+
+  it("should return null for empty value", () => {
+    const result = parseFilterValue("", stringColumn);
+    expect(result).toBeNull();
+  });
+});
+
+describe("serializeFiltersToUrl", () => {
+  const columns: IColumn[] = [
+    { id: "name", columnType: "STRING" },
+    { id: "age", columnType: "INT" },
+    { id: "category", columnType: "REF" },
+  ];
+
+  it("should return empty object for empty state", () => {
+    const result = serializeFiltersToUrl(new Map(), "", columns);
+    expect(result).toEqual({});
+  });
+
+  it("should serialize search with mg_search key", () => {
+    const result = serializeFiltersToUrl(new Map(), "test search", columns);
+    expect(result).toEqual({ mg_search: "test search" });
+  });
+
+  it("should serialize filters", () => {
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "John" }],
+      ["age", { operator: "between", value: [18, 65] }],
+    ]);
+    const result = serializeFiltersToUrl(filters, "", columns);
+    expect(result).toEqual({ name: "John", age: "18..65" });
+  });
+
+  it("should serialize both search and filters", () => {
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "John" }],
+    ]);
+    const result = serializeFiltersToUrl(filters, "test", columns);
+    expect(result).toEqual({ mg_search: "test", name: "John" });
+  });
+
+  it("should skip unknown columns", () => {
+    const filters = new Map<string, IFilterValue>([
+      ["unknown", { operator: "like", value: "test" }],
+    ]);
+    const result = serializeFiltersToUrl(filters, "", columns);
+    expect(result).toEqual({});
+  });
+
+  it("should serialize ref filters as pipe-separated primary keys", () => {
+    const filters = new Map<string, IFilterValue>([
+      [
+        "category",
+        { operator: "in", value: [{ name: "Cat1" }, { name: "Cat2" }] },
+      ],
+    ]);
+    const result = serializeFiltersToUrl(filters, "", columns);
+    expect(result).toEqual({ category: "Cat1|Cat2" });
+  });
+});
+
+describe("parseFiltersFromUrl", () => {
+  const columns: IColumn[] = [
+    { id: "name", columnType: "STRING" },
+    { id: "age", columnType: "INT" },
+    { id: "category", columnType: "REF" },
+  ];
+
+  it("should return empty state for empty query", () => {
+    const result = parseFiltersFromUrl({}, columns);
+    expect(result.filters.size).toBe(0);
+    expect(result.search).toBe("");
+  });
+
+  it("should parse search from mg_search", () => {
+    const result = parseFiltersFromUrl({ mg_search: "test" }, columns);
+    expect(result.search).toBe("test");
+    expect(result.filters.size).toBe(0);
+  });
+
+  it("should parse filters", () => {
+    const result = parseFiltersFromUrl(
+      { name: "John", age: "18..65" },
+      columns
+    );
+    expect(result.filters.size).toBe(2);
+    expect(result.filters.get("name")).toEqual({
+      operator: "like",
+      value: "John",
+    });
+    expect(result.filters.get("age")).toEqual({
+      operator: "between",
+      value: [18, 65],
+    });
+  });
+
+  it("should skip reserved params (mg_*) except mg_search", () => {
+    const result = parseFiltersFromUrl(
+      { mg_search: "test", mg_page: "2", mg_limit: "10" },
+      columns
+    );
+    expect(result.search).toBe("test");
+    expect(result.filters.size).toBe(0);
+  });
+
+  it("should skip unknown columns", () => {
+    const result = parseFiltersFromUrl({ unknown: "value" }, columns);
+    expect(result.filters.size).toBe(0);
+  });
+
+  it("should parse ref filters as objects with name key", () => {
+    const result = parseFiltersFromUrl({ category: "Cat1|Cat2" }, columns);
+    expect(result.filters.get("category")).toEqual({
+      operator: "in",
+      value: [{ name: "Cat1" }, { name: "Cat2" }],
+    });
   });
 });
