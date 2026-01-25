@@ -18,10 +18,57 @@
 
 ### Review Feedback (To Fix)
 
-1. **Router injection** - Replace `require("#app/composables/router")` with optional params
-   - Accept `route` and `router` as optional constructor params
-   - Improves testability, removes runtime require
-   - Pattern: `useFilters(columns, { urlSync: true, route, router })`
+#### Fix #1: Router Injection (CURRENT)
+
+**Problem**: Runtime `require("#app/composables/router")` is fragile:
+- Breaks in test environments
+- Silent catch hides real errors
+- Can't inject mocks for testing
+
+**Solution**: Accept route/router as optional params, fallback to Nuxt composables.
+
+**Interface Change**:
+```ts
+export interface UseFiltersOptions {
+  debounceMs?: number;
+  urlSync?: boolean;
+  route?: { query: Record<string, string | string[] | undefined> };
+  router?: { replace: (opts: { query: Record<string, unknown> }) => void };
+}
+```
+
+**Implementation Steps**:
+1. Add `route` and `router` to `UseFiltersOptions` interface (line 7-10)
+2. Remove try/catch require block (lines 246-254)
+3. Use injected route/router if provided, else try Nuxt composables:
+   ```ts
+   if (urlSyncEnabled) {
+     route = options?.route ?? null;
+     router = options?.router ?? null;
+     if (!route || !router) {
+       try {
+         const nuxt = require("#app/composables/router");
+         route = route ?? nuxt.useRoute();
+         router = router ?? nuxt.useRouter();
+       } catch {
+         // Nuxt not available, URL sync disabled silently
+       }
+     }
+   }
+   ```
+4. Update type annotations for route/router variables
+
+**Test Updates**:
+- Add test: `urlSync with injected route/router`
+- Add test: `urlSync updates URL on filter change` (mock router.replace)
+- Add test: `urlSync initializes from URL` (mock route.query)
+- Add test: `urlSync without route/router provided` (graceful degradation)
+
+**Files to Modify**:
+- `composables/useFilters.ts`: Interface + init logic
+- `tests/vitest/composables/useFilters.spec.ts`: Add URL sync tests
+
+---
 
 2. **Infinite loop risk** - Consolidate watch handlers
    - Current: separate watches for filterStates, gqlFilter, route.query
@@ -43,13 +90,13 @@
 
 ### Test Requirements
 
-- [ ] Filter change updates URL (immediate)
-- [ ] Page load restores filters from URL
+- [x] Router injection: works with mock in tests (Fix #1)
+- [ ] Filter change updates URL (immediate) (Fix #5)
+- [ ] Page load restores filters from URL (Fix #4)
 - [ ] Multiple instances with different prefixes don't conflict
 - [ ] Clear filters clears URL params
-- [ ] Browser back/forward restores filter state
-- [ ] SSR hydration: no mismatch warnings
-- [ ] Router injection: works with mock in tests
+- [ ] Browser back/forward restores filter state (Fix #2)
+- [ ] SSR hydration: no mismatch warnings (Fix #4)
 
 ## Remaining Stories
 

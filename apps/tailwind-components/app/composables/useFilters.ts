@@ -1,4 +1,11 @@
-import { ref, computed, watch, type Ref, onMounted } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  type Ref,
+  onMounted,
+  getCurrentInstance,
+} from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
@@ -7,6 +14,8 @@ import { buildGraphQLFilter } from "../utils/buildFilter";
 export interface UseFiltersOptions {
   debounceMs?: number;
   urlSync?: boolean;
+  route?: { query: Record<string, string | string[] | undefined> };
+  router?: { replace: (opts: { query: Record<string, unknown> }) => void };
 }
 
 /**
@@ -244,12 +253,16 @@ export function useFilters(
   } | null = null;
 
   if (urlSyncEnabled) {
-    try {
-      const { useRoute, useRouter } = require("#app/composables/router");
-      route = useRoute();
-      router = useRouter();
-    } catch {
-      // vue-router not available, URL sync disabled
+    route = options?.route ?? null;
+    router = options?.router ?? null;
+    if (!route || !router) {
+      try {
+        const nuxt = require("#app/composables/router");
+        route = route ?? nuxt.useRoute();
+        router = router ?? nuxt.useRouter();
+      } catch {
+        // Nuxt not available, URL sync disabled silently
+      }
     }
   }
 
@@ -327,8 +340,13 @@ export function useFilters(
     // Sync to URL after gqlFilter updates (debounced)
     watch(gqlFilter, () => syncToUrl());
 
-    // Init from URL on mount
-    onMounted(() => initFromUrl());
+    // Init from URL on mount (or immediately if no component instance)
+    if (getCurrentInstance()) {
+      onMounted(() => initFromUrl());
+    } else {
+      // No component instance, init immediately (e.g., in tests)
+      initFromUrl();
+    }
   }
 
   function setFilter(columnId: string, value: IFilterValue | null) {

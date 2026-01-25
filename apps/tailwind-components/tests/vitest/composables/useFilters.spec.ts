@@ -324,6 +324,116 @@ describe("useFilters", () => {
 
     expect(gqlFilter.value).toEqual({});
   });
+
+  it("should use injected route/router for URL sync", async () => {
+    const mockRoute = { query: {} };
+    const mockRouter = { replace: vi.fn() };
+
+    const { setFilter } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    setFilter("name", { operator: "like", value: "test" });
+
+    await nextTick();
+
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      query: { name: "test" },
+    });
+  });
+
+  it("should update URL on filter change with injected router", async () => {
+    const mockRoute = { query: {} };
+    const mockRouter = { replace: vi.fn() };
+
+    const { setFilter, setSearch } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    setFilter("name", { operator: "like", value: "John" });
+    await nextTick();
+
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      query: { name: "John" },
+    });
+
+    setSearch("search term");
+    await nextTick();
+
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      query: { name: "John", mg_search: "search term" },
+    });
+  });
+
+  it("should initialize from URL with injected route", () => {
+    const mockRoute = {
+      query: {
+        name: "John",
+        age: "18..65",
+        mg_search: "test",
+      },
+    };
+    const mockRouter = { replace: vi.fn() };
+
+    const { filterStates, searchValue } = useFilters(mockColumns, {
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    expect(filterStates.value.size).toBe(2);
+    expect(filterStates.value.get("name")).toEqual({
+      operator: "like",
+      value: "John",
+    });
+    expect(filterStates.value.get("age")).toEqual({
+      operator: "between",
+      value: [18, 65],
+    });
+    expect(searchValue.value).toBe("test");
+  });
+
+  it("should gracefully degrade when urlSync enabled but no router provided", async () => {
+    const { gqlFilter, setFilter } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+    });
+
+    // Should work without router, just no URL sync
+    setFilter("name", { operator: "like", value: "test" });
+
+    await nextTick();
+
+    expect(gqlFilter.value).toEqual({
+      name: { like: "test" },
+    });
+  });
+
+  it("should preserve reserved query params when updating URL", async () => {
+    const mockRoute = { query: { mg_page: "2", mg_limit: "10" } };
+    const mockRouter = { replace: vi.fn() };
+
+    const { setFilter } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    setFilter("name", { operator: "like", value: "test" });
+
+    await nextTick();
+
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      query: { mg_page: "2", mg_limit: "10", name: "test" },
+    });
+  });
 });
 
 describe("serializeFilterValue", () => {
