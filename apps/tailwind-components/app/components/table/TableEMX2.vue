@@ -230,6 +230,7 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
+    filter?: object;
   }>(),
   {
     isEditable: () => false,
@@ -261,6 +262,7 @@ const settings = defineModel<ITableSettings>("settings", {
 const pageRef = ref(settings.value.page);
 const searchTermsRef = ref(settings.value.search);
 const orderbyRef = ref(settings.value.orderby);
+const filterComputed = computed(() => props.filter);
 
 // sync settings to refs
 watch(
@@ -285,6 +287,7 @@ const { metadata, rows, count, refresh, totalPages, showPagination } =
     page: pageRef,
     searchTerms: searchTermsRef,
     orderby: orderbyRef,
+    filter: filterComputed,
   });
 
 const showDraftColumn = computed(() =>

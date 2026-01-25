@@ -29,7 +29,8 @@ const isRangeType = computed(() =>
 );
 
 const label = computed(
-  () => props.column.label || props.column.id
+  () =>
+    props.column.displayConfig?.label || props.column.label || props.column.id
 );
 
 const rangeValue = computed({
