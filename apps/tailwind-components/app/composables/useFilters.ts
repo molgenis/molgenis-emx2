@@ -8,7 +8,7 @@ import {
 } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../metadata-utils/src/types";
-import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
+import type { IFilterValue } from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
 
 export interface UseFiltersOptions {
@@ -57,10 +57,7 @@ const MULTI_VALUE_SEPARATOR = "|";
 const RESERVED_PREFIX = "mg_";
 const SEARCH_PARAM = "mg_search";
 
-export function serializeFilterValue(
-  value: IFilterValue,
-  column: IColumn
-): string | null {
+export function serializeFilterValue(value: IFilterValue): string | null {
   const { operator, value: val } = value;
   if (val === null || val === undefined) return null;
 
@@ -111,13 +108,28 @@ export function serializeFilterValue(
         }
         return val.join(MULTI_VALUE_SEPARATOR);
       }
+      if (typeof val === "object" && val !== null) {
+        return val.name ?? Object.values(val)[0];
+      }
       return String(val);
   }
 }
 
+function extractRefField(value: IFilterValue): string {
+  const val = value.value;
+  if (Array.isArray(val) && val.length && typeof val[0] === "object") {
+    return Object.keys(val[0])[0] ?? "name";
+  }
+  if (typeof val === "object" && val !== null) {
+    return Object.keys(val)[0] ?? "name";
+  }
+  return "name";
+}
+
 export function parseFilterValue(
   urlValue: string,
-  column: IColumn
+  column: IColumn,
+  refField: string | null = null
 ): IFilterValue | null {
   if (!urlValue) return null;
 
@@ -131,11 +143,12 @@ export function parseFilterValue(
   const columnType = column.columnType;
 
   if (REF_TYPES.includes(columnType)) {
+    const field = refField ?? "name";
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       const values = urlValue.split(MULTI_VALUE_SEPARATOR);
-      return { operator: "in", value: values.map((v) => ({ name: v })) };
+      return { operator: "in", value: values.map((v) => ({ [field]: v })) };
     }
-    return { operator: "equals", value: { name: urlValue } };
+    return { operator: "equals", value: { [field]: urlValue } };
   }
 
   if (RANGE_TYPES.includes(columnType)) {
@@ -179,9 +192,14 @@ export function serializeFiltersToUrl(
     const column = columns.find((c) => c.id === columnId);
     if (!column) continue;
 
-    const serialized = serializeFilterValue(value, column);
+    const serialized = serializeFilterValue(value);
     if (serialized !== null) {
-      params[columnId] = serialized;
+      if (REF_TYPES.includes(column.columnType)) {
+        const refField = extractRefField(value);
+        params[`${columnId}.${refField}`] = serialized;
+      } else {
+        params[columnId] = serialized;
+      }
     }
   }
 
@@ -203,12 +221,16 @@ export function parseFiltersFromUrl(
 
     if (key.startsWith(RESERVED_PREFIX)) continue;
 
-    const column = columns.find((c) => c.id === key);
+    const dotIndex = key.indexOf(".");
+    const columnId = dotIndex > 0 ? key.slice(0, dotIndex) : key;
+    const refField = dotIndex > 0 ? key.slice(dotIndex + 1) : null;
+
+    const column = columns.find((c) => c.id === columnId);
     if (!column || typeof value !== "string") continue;
 
-    const filterValue = parseFilterValue(value, column);
+    const filterValue = parseFilterValue(value, column, refField);
     if (filterValue) {
-      filters.set(key, filterValue);
+      filters.set(columnId, filterValue);
     }
   }
 
@@ -256,12 +278,28 @@ export function useFilters(
   const filterStatesRef = ref<Map<string, IFilterValue>>(new Map());
   const searchValueRef = ref("");
 
-  const actualFilterStates = urlSyncEnabled
-    ? filterStatesFromUrl
-    : filterStatesRef;
   const actualSearchValue = urlSyncEnabled
     ? searchValueFromUrl
     : searchValueRef;
+
+  const actualFilterStates = computed({
+    get: () => urlSyncEnabled ? filterStatesFromUrl.value : filterStatesRef.value,
+    set: (newFilters: Map<string, IFilterValue>) => {
+      if (urlSyncEnabled) {
+        if (!router || !route) return;
+        const params = serializeFiltersToUrl(newFilters, actualSearchValue.value, columns.value);
+        const preservedParams: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(route.query)) {
+          if (key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM) {
+            preservedParams[key] = value;
+          }
+        }
+        router.replace({ query: { ...preservedParams, ...params } });
+      } else {
+        filterStatesRef.value = newFilters;
+      }
+    },
+  });
 
   const _gqlFilter = computed(() =>
     buildGraphQLFilter(
@@ -306,39 +344,24 @@ export function useFilters(
 
   function updateUrl(filters: Map<string, IFilterValue>, search: string) {
     if (!router || !route) return;
-
     const params = serializeFiltersToUrl(filters, search, columns.value);
-
     const preservedParams: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(route.query)) {
-      const isReservedButNotSearch =
-        key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM;
-      if (isReservedButNotSearch) {
+      if (key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM) {
         preservedParams[key] = value;
       }
     }
-
     router.replace({ query: { ...preservedParams, ...params } });
   }
 
   function setFilter(columnId: string, value: IFilterValue | null) {
-    if (urlSyncEnabled) {
-      const newFilters = new Map(actualFilterStates.value);
-      if (value === null) {
-        newFilters.delete(columnId);
-      } else {
-        newFilters.set(columnId, value);
-      }
-      updateUrl(newFilters, actualSearchValue.value);
+    const newFilters = new Map(actualFilterStates.value);
+    if (value === null) {
+      newFilters.delete(columnId);
     } else {
-      const newMap = new Map(filterStatesRef.value);
-      if (value === null) {
-        newMap.delete(columnId);
-      } else {
-        newMap.set(columnId, value);
-      }
-      filterStatesRef.value = newMap;
+      newFilters.set(columnId, value);
     }
+    actualFilterStates.value = newFilters;
   }
 
   function setSearch(value: string) {

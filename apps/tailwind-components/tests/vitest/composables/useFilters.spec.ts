@@ -542,88 +542,74 @@ describe("useFilters", () => {
 });
 
 describe("serializeFilterValue", () => {
-  const stringColumn: IColumn = { id: "name", columnType: "STRING" };
-  const intColumn: IColumn = { id: "age", columnType: "INT" };
-  const dateColumn: IColumn = { id: "birth", columnType: "DATE" };
-  const refColumn: IColumn = { id: "category", columnType: "REF" };
-
   it("should serialize like operator for string", () => {
-    const result = serializeFilterValue(
-      { operator: "like", value: "John" },
-      stringColumn
-    );
+    const result = serializeFilterValue({ operator: "like", value: "John" });
     expect(result).toBe("John");
   });
 
   it("should serialize between operator for int", () => {
-    const result = serializeFilterValue(
-      { operator: "between", value: [10, 20] },
-      intColumn
-    );
+    const result = serializeFilterValue({
+      operator: "between",
+      value: [10, 20],
+    });
     expect(result).toBe("10..20");
   });
 
   it("should serialize between with only min", () => {
-    const result = serializeFilterValue(
-      { operator: "between", value: [10, null] },
-      intColumn
-    );
+    const result = serializeFilterValue({
+      operator: "between",
+      value: [10, null],
+    });
     expect(result).toBe("10..");
   });
 
   it("should serialize between with only max", () => {
-    const result = serializeFilterValue(
-      { operator: "between", value: [null, 20] },
-      intColumn
-    );
+    const result = serializeFilterValue({
+      operator: "between",
+      value: [null, 20],
+    });
     expect(result).toBe("..20");
   });
 
   it("should return null for empty between", () => {
-    const result = serializeFilterValue(
-      { operator: "between", value: [null, null] },
-      intColumn
-    );
+    const result = serializeFilterValue({
+      operator: "between",
+      value: [null, null],
+    });
     expect(result).toBeNull();
   });
 
   it("should serialize in operator with simple values using pipe", () => {
-    const result = serializeFilterValue(
-      { operator: "in", value: ["a", "b", "c"] },
-      stringColumn
-    );
+    const result = serializeFilterValue({
+      operator: "in",
+      value: ["a", "b", "c"],
+    });
     expect(result).toBe("a|b|c");
   });
 
   it("should serialize in operator with ref objects as pipe-separated keys", () => {
-    const result = serializeFilterValue(
-      { operator: "in", value: [{ name: "Cat1" }, { name: "Cat2" }] },
-      refColumn
-    );
+    const result = serializeFilterValue({
+      operator: "in",
+      value: [{ name: "Cat1" }, { name: "Cat2" }],
+    });
     expect(result).toBe("Cat1|Cat2");
   });
 
   it("should serialize notNull operator", () => {
-    const result = serializeFilterValue(
-      { operator: "notNull", value: true },
-      stringColumn
-    );
+    const result = serializeFilterValue({ operator: "notNull", value: true });
     expect(result).toBe("!null");
   });
 
   it("should serialize isNull operator", () => {
-    const result = serializeFilterValue(
-      { operator: "isNull", value: true },
-      stringColumn
-    );
+    const result = serializeFilterValue({ operator: "isNull", value: true });
     expect(result).toBe("null");
   });
 
   it("should serialize date range", () => {
-    const result = serializeFilterValue(
-      { operator: "between", value: ["2024-01-01", "2024-12-31"] },
-      dateColumn
-    );
+    const result = serializeFilterValue({
+      operator: "between",
+      value: ["2024-01-01", "2024-12-31"],
+    });
     expect(result).toBe("2024-01-01..2024-12-31");
   });
 });
@@ -685,6 +671,19 @@ describe("parseFilterValue", () => {
     expect(result).toEqual({ operator: "equals", value: { name: "Cat1" } });
   });
 
+  it("should parse ref value with custom field", () => {
+    const result = parseFilterValue("123", refColumn, "id");
+    expect(result).toEqual({ operator: "equals", value: { id: "123" } });
+  });
+
+  it("should parse pipe-separated ref values with custom field", () => {
+    const result = parseFilterValue("123|456", refColumn, "id");
+    expect(result).toEqual({
+      operator: "in",
+      value: [{ id: "123" }, { id: "456" }],
+    });
+  });
+
   it("should parse null", () => {
     const result = parseFilterValue("null", stringColumn);
     expect(result).toEqual({ operator: "isNull", value: true });
@@ -743,7 +742,7 @@ describe("serializeFiltersToUrl", () => {
     expect(result).toEqual({});
   });
 
-  it("should serialize ref filters as pipe-separated primary keys", () => {
+  it("should serialize ref filters with dotted key syntax", () => {
     const filters = new Map<string, IFilterValue>([
       [
         "category",
@@ -751,7 +750,15 @@ describe("serializeFiltersToUrl", () => {
       ],
     ]);
     const result = serializeFiltersToUrl(filters, "", columns);
-    expect(result).toEqual({ category: "Cat1|Cat2" });
+    expect(result).toEqual({ "category.name": "Cat1|Cat2" });
+  });
+
+  it("should serialize ref filters with non-name field", () => {
+    const filters = new Map<string, IFilterValue>([
+      ["category", { operator: "equals", value: { id: "123" } }],
+    ]);
+    const result = serializeFiltersToUrl(filters, "", columns);
+    expect(result).toEqual({ "category.id": "123" });
   });
 });
 
@@ -804,7 +811,26 @@ describe("parseFiltersFromUrl", () => {
     expect(result.filters.size).toBe(0);
   });
 
-  it("should parse ref filters as objects with name key", () => {
+  it("should parse ref filters with dotted key syntax", () => {
+    const result = parseFiltersFromUrl(
+      { "category.name": "Cat1|Cat2" },
+      columns
+    );
+    expect(result.filters.get("category")).toEqual({
+      operator: "in",
+      value: [{ name: "Cat1" }, { name: "Cat2" }],
+    });
+  });
+
+  it("should parse ref filters with non-name field", () => {
+    const result = parseFiltersFromUrl({ "category.id": "123" }, columns);
+    expect(result.filters.get("category")).toEqual({
+      operator: "equals",
+      value: { id: "123" },
+    });
+  });
+
+  it("should parse ref filters with backward compatibility (no dot)", () => {
     const result = parseFiltersFromUrl({ category: "Cat1|Cat2" }, columns);
     expect(result.filters.get("category")).toEqual({
       operator: "in",

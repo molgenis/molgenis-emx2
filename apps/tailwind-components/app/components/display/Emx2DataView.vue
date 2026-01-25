@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, useId } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
 import { useTableData } from "../../composables/useTableData";
 import { useFilters } from "../../composables/useFilters";
@@ -29,6 +30,7 @@ const props = withDefaults(
     rowLabel?: string;
     displayOptions?: Record<string, IColumnDisplayOptions>;
     visibleColumns?: string[];
+    urlSync?: boolean;
   }>(),
   {
     layout: "list",
@@ -36,6 +38,7 @@ const props = withDefaults(
     filterPosition: "sidebar",
     showSearch: true,
     pagingLimit: 10,
+    urlSync: true,
   }
 );
 
@@ -47,6 +50,9 @@ defineSlots<{
 const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
+
+const route = useRoute();
+const router = useRouter();
 
 // compute filterable columns from metadata (initial empty state)
 const metadataRef = ref<IColumn[]>([]);
@@ -81,10 +87,12 @@ const filterableColumnsComputed = computed<IColumn[]>(() => {
   return cols;
 });
 
-// use filters composable
 const columnsRef = computed(() => filterableColumnsComputed.value);
 const { filterStates, gqlFilter } = useFilters(columnsRef, {
   debounceMs: 300,
+  urlSync: props.urlSync,
+  route,
+  router,
 });
 
 // fetch data using useTableData with filter
@@ -120,13 +128,16 @@ const rowLabelTemplate = computed(() => {
   return keyCol?.refLabel || keyCol?.refLabelDefault || "${name}";
 });
 
-// visible columns for table layout
 const visibleColumnsComputed = computed(() => {
-  const cols = props.visibleColumns || [];
-  if (!metadata.value?.columns) return cols;
-  return cols.filter((colId) =>
-    metadata.value!.columns!.some((c) => c.id === colId)
-  );
+  if (!metadata.value?.columns) return [];
+  if (props.visibleColumns && props.visibleColumns.length > 0) {
+    return props.visibleColumns.filter((colId) =>
+      metadata.value!.columns!.some((c) => c.id === colId)
+    );
+  }
+  return metadata.value.columns
+    .filter((c) => !c.id.startsWith("mg_"))
+    .map((c) => c.id);
 });
 
 const tableColumns = computed<IColumn[]>(() => {

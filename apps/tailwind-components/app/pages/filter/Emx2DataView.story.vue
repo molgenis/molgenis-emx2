@@ -1,125 +1,101 @@
 <template>
-  <div class="p-6 space-y-4">
-    <h1 class="text-heading-2xl font-bold mb-6">Emx2DataView Demo</h1>
+  <Story title="Emx2DataView" :spec="spec">
+    <DemoDataControls
+      v-model:schemaId="schemaId"
+      v-model:tableId="tableId"
+      v-model:metadata="metadata"
+    />
 
     <div class="flex gap-4 mb-4">
       <button
-        @click="layout = 'list'"
+        v-for="mode in layouts"
+        :key="mode"
+        @click="layout = mode"
         :class="[
           'px-4 py-2 rounded font-semibold',
-          layout === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-200',
+          layout === mode ? 'bg-blue-500 text-white' : 'bg-gray-200',
         ]"
       >
-        List
-      </button>
-      <button
-        @click="layout = 'table'"
-        :class="[
-          'px-4 py-2 rounded font-semibold',
-          layout === 'table' ? 'bg-blue-500 text-white' : 'bg-gray-200',
-        ]"
-      >
-        Table
-      </button>
-      <button
-        @click="layout = 'cards'"
-        :class="[
-          'px-4 py-2 rounded font-semibold',
-          layout === 'cards' ? 'bg-blue-500 text-white' : 'bg-gray-200',
-        ]"
-      >
-        Cards
+        {{ mode }}
       </button>
     </div>
 
     <Emx2DataView
+      :key="`${schemaId}-${tableId}`"
       :schema-id="schemaId"
       :table-id="tableId"
       :layout="layout"
       :show-filters="true"
       filter-position="sidebar"
-      :filterable-columns="['name', 'category', 'weight']"
       :show-search="true"
       :paging-limit="10"
-      :visible-columns="['name', 'category', 'weight']"
     />
-
-    <!-- Specification -->
-    <section class="mt-12 p-6 bg-gray-50 rounded border">
-      <h2 class="text-heading-lg font-semibold mb-4">Specification</h2>
-      <div class="text-body-sm space-y-4">
-        <p>
-          Demo of unified Emx2DataView component combining data fetching, layout
-          options, and filter support.
-        </p>
-
-        <h3 class="font-semibold">Features</h3>
-        <ul class="list-disc pl-5">
-          <li>Single component replaces FilterSidebar + ListView/TableEMX2</li>
-          <li>Three layout modes: list, table, cards</li>
-          <li>Integrated filter sidebar with debounced updates (300ms)</li>
-          <li>Auto-computed filterable columns from metadata</li>
-          <li>Search input with pagination</li>
-          <li>Uses useTableData and useFilters composables</li>
-        </ul>
-
-        <h3 class="font-semibold">Props</h3>
-        <ul class="list-disc pl-5">
-          <li>
-            <code>layout</code>: 'list' | 'table' | 'cards' (default: list)
-          </li>
-          <li><code>showFilters</code>: boolean (default: false)</li>
-          <li>
-            <code>filterPosition</code>: 'sidebar' | 'topbar' (default: sidebar)
-          </li>
-          <li>
-            <code>filterableColumns</code>: string[] (optional filter list)
-          </li>
-          <li><code>visibleColumns</code>: string[] (for table layout)</li>
-          <li><code>showSearch</code>: boolean (default: true)</li>
-          <li><code>pagingLimit</code>: number (default: 10)</li>
-          <li><code>rowLabel</code>: string template like "${name}"</li>
-          <li>
-            <code>displayOptions</code>: Record&lt;colId, {href?, onClick?}&gt;
-          </li>
-        </ul>
-
-        <h3 class="font-semibold">Slots</h3>
-        <ul class="list-disc pl-5">
-          <li><code>#default</code>: Custom list item (props: row, label)</li>
-          <li><code>#card</code>: Custom card content (props: row, label)</li>
-        </ul>
-
-        <h3 class="font-semibold">Test Checklist</h3>
-        <ul class="list-disc pl-5">
-          <li>Expand Name filter - type text - results filter</li>
-          <li>Expand Category filter - select value - results update</li>
-          <li>Set Weight min/max - between filter applies</li>
-          <li>Clear individual filter - results refresh</li>
-          <li>Switch between list/table/cards - same filters apply</li>
-          <li>Search works in all layout modes</li>
-          <li>Pagination updates correctly</li>
-          <li>Filters debounce at 300ms (no immediate flicker)</li>
-        </ul>
-
-        <h3 class="font-semibold">Schema & Table</h3>
-        <ul class="list-disc pl-5">
-          <li>Schema: "pet store"</li>
-          <li>Table: "Pet"</li>
-          <li>
-            Filterable columns: name (STRING), category (REF), weight (INT)
-          </li>
-        </ul>
-      </div>
-    </section>
-  </div>
+  </Story>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import DemoDataControls from "../../DemoDataControls.vue";
 import Emx2DataView from "../../components/display/Emx2DataView.vue";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 
-const schemaId = "pet store";
-const tableId = "Pet";
-const layout = ref<"list" | "table" | "cards">("list");
+const route = useRoute();
+const router = useRouter();
+
+const schemaId = ref<string>((route.query.schema as string) || "pet store");
+const tableId = ref<string>((route.query.table as string) || "Pet");
+const metadata = ref<ITableMetaData>();
+const layouts = ["list", "table", "cards"] as const;
+const layout = ref<(typeof layouts)[number]>("list");
+
+watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
+  router.push({
+    query: {
+      schema: newSchemaId,
+      table: newTableId,
+    },
+  });
+});
+
+const spec = `
+Unified data view combining fetching, layout options, and filter support.
+
+## Features
+- Single component replaces FilterSidebar + ListView/TableEMX2
+- Three layout modes: list, table, cards
+- Integrated filter sidebar with debounced updates (300ms)
+- Auto-computed filterable columns from metadata
+- Search input with pagination
+
+## Props
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| layout | 'list' \\| 'table' \\| 'cards' | list | Display mode |
+| showFilters | boolean | false | Show filter sidebar |
+| filterPosition | 'sidebar' \\| 'topbar' | sidebar | Filter placement |
+| filterableColumns | string[] | - | Limit which columns are filterable |
+| visibleColumns | string[] | - | Columns shown in table layout |
+| showSearch | boolean | true | Show search input |
+| pagingLimit | number | 10 | Items per page |
+| rowLabel | string | - | Template like "\${name}" |
+| displayOptions | Record<colId, {href?, onClick?}> | - | Column link options |
+| urlSync | boolean | true | Sync filters to URL |
+
+## Slots
+- \`#default\` - Custom list item (props: row, label)
+- \`#card\` - Custom card content (props: row, label)
+
+## Test Checklist
+- [ ] Select schema/table - component updates
+- [ ] All filterable columns appear in sidebar
+- [ ] Expand STRING filter - type text - results filter, URL updates
+- [ ] Expand REF filter - select value - results update, URL updates
+- [ ] Set INT/DECIMAL min/max - between filter applies, URL updates
+- [ ] Clear individual filter - results refresh, URL clears param
+- [ ] Switch between list/table/cards - same filters apply
+- [ ] Search works in all layout modes
+- [ ] Pagination updates correctly
+- [ ] Browser back/forward restores filter state
+`;
 </script>

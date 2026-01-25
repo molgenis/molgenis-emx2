@@ -1,0 +1,106 @@
+# Generic View - Specification
+
+## Filter System
+
+### Architecture
+
+**One-way data flow** with URL as source of truth:
+
+```
+URL ──────► filterStates (computed) ──────► UI
+ ▲                                          │
+ │                                          │
+ └─────────── router.replace() ◄────────────┘
+                (on user action)
+```
+
+When `urlSync` is enabled:
+- `filterStates` getter reads from URL
+- `filterStates` setter calls `router.replace()` which updates URL
+- URL change triggers computed to recalculate
+- No bidirectional sync, no race conditions
+
+When `urlSync` is disabled:
+- `filterStates` is a simple ref
+- Direct read/write, no URL involvement
+
+### URL Format
+
+```
+?name=John                    # STRING: like filter
+?age=18..65                   # INT/DECIMAL: between filter
+?age=18..                     # >= 18
+?age=..65                     # <= 65
+?birth=2024-01-01..2024-12-31 # DATE: range
+?name=John|Jane               # Multi-value: in filter
+?category.name=Cat1|Cat2      # REF: explicit field path
+?name=null                    # is null
+?name=!null                   # is not null
+?mg_search=term               # Global search
+```
+
+REF types use dotted syntax (`column.field=value`) to:
+- Be explicit about which field is filtered
+- Enable future nested queries (`parent.child.name=value`)
+- Match GraphQL filter structure
+
+Backward compatible: `?category=Cat1` defaults to `name` field.
+
+### Components
+
+| Component | Purpose |
+|-----------|---------|
+| `useFilters` | Composable: filter state, URL sync, GraphQL filter |
+| `FilterColumn` | Single filter input (auto-selects input type) |
+| `FilterSidebar` | Container for multiple FilterColumns |
+| `FilterRange` | Min/max input for numeric/date types |
+| `Emx2DataView` | Unified data view with integrated filters |
+
+### useFilters API
+
+```typescript
+const {
+  filterStates,  // Map<columnId, IFilterValue> - writable computed
+  searchValue,   // string - search term
+  gqlFilter,     // Record - debounced GraphQL filter object
+  setFilter,     // (columnId, value) => void
+  setSearch,     // (value) => void
+  clearFilters,  // () => void
+  removeFilter,  // (columnId) => void
+} = useFilters(columns, {
+  debounceMs: 300,    // gqlFilter debounce (default: 300)
+  urlSync: true,      // sync to URL (default: false)
+  route,              // vue-router route (optional, falls back to Nuxt)
+  router,             // vue-router router (optional, falls back to Nuxt)
+});
+```
+
+### IFilterValue
+
+```typescript
+interface IFilterValue {
+  operator: "like" | "equals" | "in" | "between" | "isNull" | "notNull";
+  value: any;
+}
+```
+
+### Column Type Mapping
+
+| Column Type | Input | Operator | URL Example |
+|-------------|-------|----------|-------------|
+| STRING, TEXT, EMAIL | text | like | `?name=John` |
+| INT, DECIMAL, LONG, DATE | range | between | `?age=18..65` |
+| BOOL | toggle | equals | `?active=true` |
+| REF, REF_ARRAY | dropdown | in | `?category.name=Cat1\|Cat2` |
+| ONTOLOGY, ONTOLOGY_ARRAY | tree | in | `?country.name=NL\|BE` |
+
+## Design Decisions
+
+1. **One-way data flow**: URL is single source of truth, eliminates sync bugs
+2. **Writable computed**: Convenient API while maintaining one-way flow internally
+3. **Debounced gqlFilter**: Prevents excessive API calls (300ms default)
+4. **Immediate URL updates**: User sees URL change instantly
+5. **Explicit REF paths**: `category.name=value` not `category=value`
+6. **Pipe separator**: `|` for multi-value (avoids comma conflicts in data)
+7. **Reserved prefix**: `mg_*` params preserved across filter changes
+8. **Graceful degradation**: Works without router (uses local refs)
