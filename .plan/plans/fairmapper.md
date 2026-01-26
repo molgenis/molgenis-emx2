@@ -280,7 +280,7 @@ Total: ~70 lines of changes + tests
 | Task | Priority | Status |
 |------|----------|--------|
 | Split RunFairMapper.java (891 lines) | MEDIUM | ✅ Done (6.5.1) |
-| Merge RemotePipelineExecutor + PipelineExecutor | MEDIUM | Pending (6.5.2) |
+| Merge RemotePipelineExecutor + PipelineExecutor | MEDIUM | ⏭ Skipped (minimal duplication) |
 | Share ObjectMapper instances | LOW | Pending (6.5.3) |
 | Extract magic numbers to constants | LOW | Pending (6.5.4) |
 | Add RunCommand integration test | MEDIUM | Pending (6.5.5) |
@@ -366,12 +366,343 @@ public static Path resolveConfigPath(Path bundlePath) {
 
 ---
 
-## Phase 7+: Future
+## Phase 7: Transform Engine Enhancements
 
-- Phase 7: Task framework + async execution
-- Phase 8: SQL query support
-- Phase 9: Chunking/pagination
-- Phase 10: Complete Beacon migration
+| Task | Priority | Status |
+|------|----------|--------|
+| JSONata transform engine | HIGH | ❌ Rejected (7.1) |
+| CSV source step | HIGH | Pending (7.2) |
+| RDF output step | MEDIUM | ✅ Done (7.3) |
+| Declarative field mapping | HIGH | Pending (7.4) |
+| FDP publish endpoints | MEDIUM | ✅ Done (7.5) |
+
+---
+
+## Phase 7.1: JSONata Transform Engine - REJECTED
+
+### Design Decision: Why JSONata Was Not Added
+
+**Evaluated**: JSONata as alternative to JSLT using [dashjoin/jsonata-java](https://github.com/dashjoin/jsonata-java)
+
+**Implementation**: Fully implemented and tested, then removed after comparison.
+
+**Findings**:
+
+| Aspect | JSLT | JSONata | Verdict |
+|--------|------|---------|---------|
+| Variable binding | `let x = ...` | `$x := ...` | JSLT clearer |
+| Array iteration | `[for ($arr) {...}]` | `arr.{...}` | JSLT more explicit |
+| Functions | `def name(x) ...` | `$name := function($x){...}` | JSLT cleaner |
+| String concat | `+` | `&` | JSLT intuitive |
+| Comments | `// supported` | Not supported | JSLT wins |
+
+**Also considered**: Python/JavaScript scripting
+- More readable for complex logic (`.get()` handles nulls, list comprehensions)
+- But: security concerns, sandboxing complexity, not declarative
+
+**Root cause analysis**: The DCAT `to-molgenis.jslt` transform is "ugly" not because of JSLT, but because:
+1. JSON-LD has prefixed keys (`dcterms:title`) requiring `get-key()` everywhere
+2. JSON-LD array ambiguity (single item vs array) needs normalization
+3. Significant semantic gap between DCAT ontology and MOLGENIS schema
+
+**Conclusion**: Another expression language doesn't solve the problem. The complexity should be in **declarative mapping configuration**, not transform code.
+
+**Decision**: Keep JSLT only, focus on declarative field mapping (Phase 7.4) instead.
+
+### Also Considered: Python and Rule Engines
+
+**GraalPy (Python on GraalVM)**:
+- Production ready since 2024 for pure Python code
+- ~4x faster than CPython when JIT-compiled
+- Native extensions (NumPy) still experimental
+- Data managers like Python
+- Concern: sandboxing complexity, cold start performance
+
+**Rule Engines (Drools, Easy Rules)**:
+- Drools: powerful but complex, enterprise-focused
+- Easy Rules: lightweight but limited
+- Both require learning new DSL
+- Better for business rules than data transformation
+
+**Conclusion**: Worth exploring GraalPy for complex transforms where data managers prefer Python. Rule engines less suitable for ETL use cases. Parked for future consideration.
+
+---
+
+## Phase 7.2: CSV Source Step
+
+**Goal**: Enable CSV files as data source for schema migrations.
+
+### Files to Create
+
+| File | Purpose |
+|------|---------|
+| `CsvFetcher.java` | Load CSV, convert to JSON array |
+| `CsvFetcherTest.java` | Unit tests |
+
+### fairmapper.yaml syntax
+
+```yaml
+steps:
+  - fetch-csv: data/input.csv
+    options:
+      delimiter: ","
+      headers: true
+  - transform: src/transforms/normalize.jslt
+  - mutate: src/mutations/upsert.gql
+```
+
+---
+
+## Phase 7.3: RDF Output Step ✅ COMPLETE
+
+**Goal**: Generate RDF/JSON-LD output for DCAT publishing.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `OutputRdfStep.java` | Step config record |
+| `JsonLdToRdf.java` | JSON-LD to RDF conversion using RDF4J |
+| `JsonLdToRdfTest.java` | Unit tests |
+
+### fairmapper.yaml syntax
+
+```yaml
+steps:
+  - query: src/queries/get-resources.gql
+  - transform: src/transforms/to-dcat.jslt
+  - output-rdf: turtle  # or jsonld, ntriples
+```
+
+Supported formats: turtle, jsonld, ntriples (case-insensitive)
+
+---
+
+## Phase 7.4: Declarative Field Mapping (Future Consideration)
+
+**Goal**: Simple YAML-based field mapping for 80% of use cases without writing JSLT.
+
+### Proposed Syntax
+
+```yaml
+steps:
+  - mapping:
+      source-type: "dcat:Catalog"
+      target-table: Resources
+      fields:
+        - from: "dcterms:title"
+          to: name
+        - from: "dcterms:description"
+          to: description
+        - from: "@id"
+          to: id
+          transform: extract-url-suffix
+          prefix: "catalog-"
+        - from: "@type"
+          to: type
+          lookup:
+            "dcat:Catalog": [{name: "Catalogue"}]
+            "dcat:Dataset": [{name: "Databank"}]
+        - from: "dcat:keyword"
+          to: keywords
+          ensure-array: true
+```
+
+### Benefits
+
+- No programming required for simple field mapping
+- Declarative = easier to validate and analyze
+- Lookup tables for value mapping
+- Built-in transforms (extract-url-suffix, ensure-array, prefix)
+- Falls back to JSLT for complex cases
+
+### Implementation Complexity
+
+- Need to design complete mapping DSL
+- Parse and execute mapping config
+- Define built-in transforms
+- Handle nested objects and arrays
+
+### Status
+
+**Not yet planned** - Needs requirements analysis and design. User considering options.
+
+---
+
+## Phase 7.5: FDP DCAT Publish Endpoints ✅ COMPLETE
+
+**Goal**: Add FDP-compliant endpoints to dcat-fdp bundle for DCAT publishing from MOLGENIS data.
+
+### Implementation
+
+Renamed `fair-mappings/dcat-fdp` → `fair-mappings/dcat-harvester` (for harvesting external FDP).
+Created new `fair-mappings/dcat-fdp` bundle for publishing MOLGENIS data as FDP.
+
+**Spec**: [FDP Specification](https://specs.fairdatapoint.org/) | [GitHub](https://github.com/FAIRDataTeam/FAIRDataPoint-Spec)
+
+### FDP Layer Structure
+
+| Layer | RDF Type | Parent | Required Properties |
+|-------|----------|--------|---------------------|
+| FDP Root | `r3d:Repository` | - | title, publisher, metadataIdentifier, r3d:dataCatalog |
+| Catalog | `dcat:Catalog` | FDP | title, publisher, dct:isPartOf, dcat:dataset |
+| Dataset | `dcat:Dataset` | Catalog | title, publisher, dct:isPartOf, dcat:theme |
+| Distribution | `dcat:Distribution` | Dataset | (not in scope) |
+
+### New Endpoints
+
+| Path | Method | Output | Description |
+|------|--------|--------|-------------|
+| `/{schema}/fdp` | GET | Turtle/JSON-LD | FDP root with catalog links |
+| `/{schema}/fdp/catalog/{id}` | GET | Turtle/JSON-LD | Catalog with dataset links |
+| `/{schema}/fdp/dataset/{id}` | GET | Turtle/JSON-LD | Dataset metadata |
+
+### Implementation Approach
+
+**Option A: FAIRmapper bundle** (preferred for flexibility)
+- Add mappings to `fair-mappings/dcat-fdp/`
+- Use JSLT transforms to convert MOLGENIS → DCAT RDF
+- Requires RDF output step (Phase 7.3)
+
+**Option B: Direct Java API** (faster, less flexible)
+- Add endpoints to existing `RDFApi.java`
+- Use existing `Emx2RdfGenerator` patterns
+
+### fairmapper.yaml Structure
+
+```yaml
+name: dcat-fdp
+version: 1.1.0
+
+mappings:
+  # Existing: harvest external FDP
+  - name: harvest-catalog
+    steps:
+      - fetch: ${SOURCE_URL}
+        frame: src/frames/catalog-with-datasets.jsonld
+      - transform: src/transforms/to-molgenis.jslt
+      - mutate: src/mutations/upsert-resources.gql
+
+  # NEW: publish as FDP
+  - name: fdp-root
+    endpoint: /{schema}/fdp
+    methods: [GET]
+    steps:
+      - query: src/queries/get-schema-metadata.gql
+      - transform: src/transforms/publish/to-fdp-root.jslt
+
+  - name: fdp-catalog
+    endpoint: /{schema}/fdp/catalog/{id}
+    methods: [GET]
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/publish/to-dcat-catalog.jslt
+
+  - name: fdp-dataset
+    endpoint: /{schema}/fdp/dataset/{id}
+    methods: [GET]
+    steps:
+      - query: src/queries/get-dataset.gql
+      - transform: src/transforms/publish/to-dcat-dataset.jslt
+```
+
+### Files to Create
+
+```
+fair-mappings/dcat-fdp/
+  src/
+    queries/
+      get-schema-metadata.gql      # Schema info for FDP root
+      get-catalog.gql              # Single catalog by ID
+      get-dataset.gql              # Single dataset by ID
+    transforms/publish/
+      to-fdp-root.jslt             # → r3d:Repository
+      to-dcat-catalog.jslt         # → dcat:Catalog
+      to-dcat-dataset.jslt         # → dcat:Dataset
+  test/publish/
+    fdp-root/
+    catalog/
+    dataset/
+```
+
+### JSLT Transform: to-fdp-root.jslt
+
+```jslt
+let baseUrl = .baseUrl
+let schema = .schema
+
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "r3d": "http://www.re3data.org/schema/3-0#",
+    "fdp": "https://w3id.org/fdp/fdp-o#"
+  },
+  "@id": $baseUrl + "/" + $schema.name + "/fdp",
+  "@type": "r3d:Repository",
+  "dct:title": $schema.name,
+  "dct:description": $schema.description,
+  "dct:publisher": {
+    "@id": $baseUrl,
+    "@type": "foaf:Organization"
+  },
+  "fdp:metadataIdentifier": {"@id": $baseUrl + "/" + $schema.name + "/fdp"},
+  "fdp:metadataIssued": now(),
+  "r3d:dataCatalog": [for (.catalogs) {
+    "@id": $baseUrl + "/" + $schema.name + "/fdp/catalog/" + .id
+  }]
+}
+```
+
+### Prerequisites
+
+1. **Phase 7.3 (RDF output)** - Need to serialize JSON-LD to Turtle
+2. **Content negotiation** - Return Turtle or JSON-LD based on Accept header
+3. **GraphQL queries** - Fetch Resources by type (Catalogue/Databank)
+
+### Verification
+
+```bash
+./fairmapper test fair-mappings/dcat-fdp -v
+curl -H "Accept: text/turtle" http://localhost:8080/catalogue/fdp
+curl -H "Accept: text/turtle" http://localhost:8080/catalogue/fdp/catalog/cat-1
+```
+
+### Out of Scope
+
+- `dcat:Distribution` layer (Phase 8+)
+- FDP Index registration
+- Authentication/write endpoints
+
+---
+
+## Phase 8+: Future Ideas
+
+### Transform Simplification
+- **Declarative field mapping** (Phase 7.4) - YAML-based, no-code for simple cases
+- **JSON-LD context compaction** - Simplify prefixed keys before transform
+- **SPARQL CONSTRUCT queries** - Alternative to JSON-LD framing + JSLT
+
+### Data Sources
+- **SQL query support** - Direct database queries as alternative to GraphQL
+- **CSV source step** (Phase 7.2) - For schema migrations
+
+### Output Formats
+- **RDF output step** (Phase 7.3) - For DCAT publishing
+
+### Scalability
+- **Chunking/pagination** - For large datasets
+- **Task framework + async** - Background execution
+
+### Scripting (Future Exploration)
+- **GraalPy (Python on GraalVM)** - Production ready 2024, data managers like Python
+  - Pure Python: ready, ~4x faster than CPython
+  - Native extensions: experimental
+  - Consider for complex transforms where JSLT is insufficient
+- **Rule engines** - Less suitable for ETL, better for business rules
+
+### Rejected Ideas
+- **JSONata** - Doesn't improve learnability over JSLT (see Phase 7.1)
 
 ---
 

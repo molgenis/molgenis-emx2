@@ -1,0 +1,56 @@
+let baseUrl = .baseUrl
+let schema = ._schema
+let dataset = .Resources[0]
+let fdpUrl = $baseUrl + "/" + $schema.name + "/api/fdp"
+let datasetUrl = $fdpUrl + "/dataset/" + $dataset.id
+
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "fdp-o": "https://w3id.org/fdp/fdp-o#",
+    "datacite": "http://purl.org/spar/datacite/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+  },
+  "@id": $datasetUrl,
+  "@type": "dcat:Dataset",
+  "dct:title": $dataset.name,
+  "dct:description": $dataset.description,
+  "dct:isPartOf": if ($dataset.partOf)
+    {"@id": $fdpUrl + "/catalog/" + $dataset.partOf.id}
+    else null,
+  "dct:license": {"@id": "https://creativecommons.org/licenses/by/4.0/"},
+  "dct:conformsTo": {"@id": "https://www.purl.org/fairtools/fdp/schema/0.1/datasetMetadata"},
+  "dct:publisher": if ($dataset.publisher)
+    {
+      "@id": $baseUrl + "/" + $schema.name + "/api/organisation/" + $dataset.publisher.id,
+      "@type": "foaf:Agent",
+      "foaf:name": $dataset.publisher.name
+    }
+    else {
+      "@id": $baseUrl + "/publisher",
+      "@type": "foaf:Agent",
+      "foaf:name": "MOLGENIS"
+    },
+  "fdp-o:metadataIdentifier": {
+    "@id": $datasetUrl + "#identifier",
+    "@type": "datacite:Identifier",
+    "datacite:usesIdentifierScheme": {"@id": "datacite:url"},
+    "rdfs:label": $datasetUrl
+  },
+  "fdp-o:metadataIssued": {"@type": "http://www.w3.org/2001/XMLSchema#dateTime", "@value": "2024-01-01T00:00:00Z"},
+  "fdp-o:metadataModified": {"@type": "http://www.w3.org/2001/XMLSchema#dateTime", "@value": "2024-01-01T00:00:00Z"},
+  "foaf:homepage": if ($dataset.website) {"@id": $dataset.website} else null,
+  "dcat:keyword": $dataset.keywords,
+  "dcat:theme": [for ($dataset.theme) {
+    "@id": if (.codesystem and .code)
+      .codesystem + "/" + .code
+    else if (.name)
+      "http://publications.europa.eu/resource/authority/data-theme/" + .name
+    else null
+  }],
+  "dcat:contactPoint": if ($dataset.contactPoint.email)
+    {"@id": "mailto:" + $dataset.contactPoint.email}
+    else null
+}

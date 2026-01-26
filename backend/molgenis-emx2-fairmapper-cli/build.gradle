@@ -29,6 +29,8 @@ dependencies {
     runtimeOnly 'org.slf4j:slf4j-simple:2.0.12'
     implementation 'org.skyscreamer:jsonassert:1.5.1'
     testImplementation 'org.mockito:mockito-core:5.6.0'
+    testImplementation 'org.eclipse.rdf4j:rdf4j-shacl:4.3.8'
+    testImplementation 'org.eclipse.rdf4j:rdf4j-sail-nativerdf:4.3.8'
 }
 
 configurations.all {

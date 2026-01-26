@@ -15,8 +15,10 @@ import org.molgenis.emx2.fairmapper.executor.FetchExecutor;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.step.FetchStep;
+import org.molgenis.emx2.fairmapper.model.step.OutputRdfStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
+import org.molgenis.emx2.fairmapper.rdf.JsonLdToRdf;
 import picocli.CommandLine.*;
 
 @Command(
@@ -166,6 +168,21 @@ public class RunCommand implements Callable<Integer> {
             if (verbose) {
               System.out.println(color("@|green ✓|@ Mutation executed"));
             }
+          }
+        } else if (step instanceof OutputRdfStep rdfStep) {
+          if (verbose) {
+            System.out.println(
+                color(
+                    "@|bold Step "
+                        + stepIndex
+                        + ":|@ @|blue output-rdf|@ "
+                        + rdfStep.defaultFormat()));
+          }
+          JsonLdToRdf converter = new JsonLdToRdf();
+          String rdfOutput = converter.convert(current.toString(), rdfStep.defaultFormat());
+          current = objectMapper.readTree("\"" + rdfOutput.replace("\"", "\\\"") + "\"");
+          if (verbose) {
+            System.out.println(color("@|green ✓|@ Converted to " + rdfStep.defaultFormat()));
           }
         }
         stepIndex++;
