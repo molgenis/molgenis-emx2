@@ -261,3 +261,20 @@ def test_map_categories(transformer):
     transformer._set_collection_categories()
 
     category_mapper.map.assert_has_calls([call(collection1), call(collection2)])
+
+
+def test_transformer_catalog_membership(node_data, transformer):
+    for row in node_data.collections.rows:
+        assert "catalog" not in row
+
+    node_data = MagicMock()
+    node_data.collections.rows = [
+        {"biobank": "biobank1", "name": "Collections1", "withdrawn": False},
+        {"biobank": "biobank2", "name": "Collections2", "withdrawn": True},
+    ]
+    transformer.node_data = node_data
+    transformer.catalog_id = "catalog_id"
+    transformer._set_catalog_membership()
+
+    assert node_data.collections.rows[0]["catalog"] == "catalog_id"
+    assert "catalog" not in node_data.collections.rows[1]
