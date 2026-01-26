@@ -13,16 +13,27 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.molgenis.emx2.fairmapper.FairMapperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FrameDrivenFetcher {
+  private static final Logger log = LoggerFactory.getLogger(FrameDrivenFetcher.class);
   private final RdfSource source;
   private final FrameAnalyzer analyzer;
   private final ValueFactory vf;
+  private final FetchErrorBehavior errorBehavior;
 
   public FrameDrivenFetcher(RdfSource source, FrameAnalyzer analyzer) {
+    this(source, analyzer, FetchErrorBehavior.WARN_AND_CONTINUE);
+  }
+
+  public FrameDrivenFetcher(
+      RdfSource source, FrameAnalyzer analyzer, FetchErrorBehavior errorBehavior) {
     this.source = source;
     this.analyzer = analyzer;
     this.vf = SimpleValueFactory.getInstance();
+    this.errorBehavior = errorBehavior;
   }
 
   public Model fetch(String url, JsonNode frame, int maxDepth, int maxCalls) throws IOException {
@@ -46,8 +57,7 @@ public class FrameDrivenFetcher {
         Set<String> urisToFetch = extractObjectUris(model, predicate);
         for (String uri : urisToFetch) {
           if (callCount >= maxCalls) {
-            System.err.println(
-                "Warning: maxCalls limit (" + maxCalls + ") reached, skipping remaining URIs");
+            log.warn("maxCalls limit ({}) reached, skipping remaining URIs", maxCalls);
             break;
           }
           if (fetched.contains(uri)) {
@@ -59,7 +69,10 @@ public class FrameDrivenFetcher {
             fetched.add(uri);
             callCount++;
           } catch (IOException e) {
-            System.err.println("Warning: Failed to fetch " + uri + ": " + e.getMessage());
+            if (errorBehavior == FetchErrorBehavior.FAIL_FAST) {
+              throw new FairMapperException("Failed to fetch " + uri + ": " + e.getMessage(), e);
+            }
+            log.warn("Failed to fetch {}: {}", uri, e.getMessage());
           }
         }
       }

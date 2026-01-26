@@ -12,6 +12,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.fairmapper.FairMapperException;
 
 class FrameDrivenFetcherTest {
 
@@ -323,5 +324,100 @@ class FrameDrivenFetcherTest {
 
     assertNotNull(framedResult);
     assertTrue(framedResult.has("@graph") || framedResult.has("dcterms:title"));
+  }
+
+  @Test
+  void testErrorBehaviorWarnAndContinue() throws Exception {
+    String catalogTurtle =
+        """
+        @prefix dcat: <http://www.w3.org/ns/dcat#> .
+        @prefix dcterms: <http://purl.org/dc/terms/> .
+
+        <http://example.org/catalog/1> a dcat:Catalog ;
+            dcterms:title "Test Catalog" ;
+            dcat:dataset <http://example.org/dataset/missing> .
+        """;
+
+    Model catalogModel = parseTurtle(catalogTurtle);
+
+    RdfSource mockSource =
+        url -> {
+          if ("http://example.org/catalog/1".equals(url)) {
+            return catalogModel;
+          }
+          throw new IOException("Not found: " + url);
+        };
+
+    String frameJson =
+        """
+        {
+          "@context": {
+            "dcat": "http://www.w3.org/ns/dcat#"
+          },
+          "@type": "dcat:Catalog",
+          "http://www.w3.org/ns/dcat#dataset": {
+            "@embed": "@always"
+          }
+        }
+        """;
+
+    JsonNode frame = mapper.readTree(frameJson);
+    FrameDrivenFetcher fetcher =
+        new FrameDrivenFetcher(
+            mockSource, new FrameAnalyzer(), FetchErrorBehavior.WARN_AND_CONTINUE);
+
+    Model result = fetcher.fetch("http://example.org/catalog/1", frame, 1);
+
+    assertEquals(catalogModel.size(), result.size());
+  }
+
+  @Test
+  void testErrorBehaviorFailFast() throws Exception {
+    String catalogTurtle =
+        """
+        @prefix dcat: <http://www.w3.org/ns/dcat#> .
+        @prefix dcterms: <http://purl.org/dc/terms/> .
+
+        <http://example.org/catalog/1> a dcat:Catalog ;
+            dcterms:title "Test Catalog" ;
+            dcat:dataset <http://example.org/dataset/missing> .
+        """;
+
+    Model catalogModel = parseTurtle(catalogTurtle);
+
+    RdfSource mockSource =
+        url -> {
+          if ("http://example.org/catalog/1".equals(url)) {
+            return catalogModel;
+          }
+          throw new IOException("Not found: " + url);
+        };
+
+    String frameJson =
+        """
+        {
+          "@context": {
+            "dcat": "http://www.w3.org/ns/dcat#"
+          },
+          "@type": "dcat:Catalog",
+          "http://www.w3.org/ns/dcat#dataset": {
+            "@embed": "@always"
+          }
+        }
+        """;
+
+    JsonNode frame = mapper.readTree(frameJson);
+    FrameDrivenFetcher fetcher =
+        new FrameDrivenFetcher(mockSource, new FrameAnalyzer(), FetchErrorBehavior.FAIL_FAST);
+
+    FairMapperException exception =
+        assertThrows(
+            FairMapperException.class,
+            () -> fetcher.fetch("http://example.org/catalog/1", frame, 1));
+
+    assertTrue(exception.getMessage().contains("Failed to fetch"));
+    assertTrue(exception.getMessage().contains("http://example.org/dataset/missing"));
+    assertNotNull(exception.getCause());
+    assertTrue(exception.getCause() instanceof IOException);
   }
 }
