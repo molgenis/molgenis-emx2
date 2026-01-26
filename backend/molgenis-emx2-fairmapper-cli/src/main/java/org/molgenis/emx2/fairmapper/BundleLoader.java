@@ -5,7 +5,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.model.E2eTestCase;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
@@ -27,7 +26,7 @@ public class BundleLoader {
 
   private void validateMappingFileExists(Path mappingYamlPath) {
     if (!Files.exists(mappingYamlPath)) {
-      throw new MolgenisException("Mapping file not found: " + mappingYamlPath);
+      throw new FairMapperException("Mapping file not found: " + mappingYamlPath);
     }
   }
 
@@ -35,19 +34,19 @@ public class BundleLoader {
     try {
       return yamlMapper.readValue(mappingYamlPath.toFile(), MappingBundle.class);
     } catch (IOException e) {
-      throw new MolgenisException("Failed to parse fairmapper.yaml: " + e.getMessage(), e);
+      throw new FairMapperException("Failed to parse fairmapper.yaml: " + e.getMessage(), e);
     }
   }
 
   private void validateBundle(MappingBundle bundle) {
     if (bundle.name() == null || bundle.name().isBlank()) {
-      throw new MolgenisException("Missing required field: name");
+      throw new FairMapperException("Missing required field: name");
     }
     if (bundle.version() == null || bundle.version().isBlank()) {
       logger.warn("Bundle '{}' missing version field", bundle.name());
     }
     if (bundle.endpoints() == null || bundle.endpoints().isEmpty()) {
-      throw new MolgenisException("Missing required field: endpoints (must have at least one)");
+      throw new FairMapperException("Missing required field: endpoints (must have at least one)");
     }
   }
 
@@ -73,7 +72,7 @@ public class BundleLoader {
       validateQueryFile(bundleDir, step.query());
     }
     if (step.transform() == null && step.query() == null) {
-      throw new MolgenisException("Step must have either transform or query defined");
+      throw new FairMapperException("Step must have either transform or query defined");
     }
   }
 
@@ -81,11 +80,11 @@ public class BundleLoader {
     Path fullPath = bundleDir.resolve(transformPath).normalize();
 
     if (!Files.exists(fullPath)) {
-      throw new MolgenisException("Transform file not found: " + transformPath);
+      throw new FairMapperException("Transform file not found: " + transformPath);
     }
 
     if (!transformPath.endsWith(".jslt")) {
-      throw new MolgenisException("Transform file must have .jslt extension: " + transformPath);
+      throw new FairMapperException("Transform file must have .jslt extension: " + transformPath);
     }
   }
 
@@ -93,11 +92,11 @@ public class BundleLoader {
     Path fullPath = bundleDir.resolve(queryPath).normalize();
 
     if (!Files.exists(fullPath)) {
-      throw new MolgenisException("Query file not found: " + queryPath);
+      throw new FairMapperException("Query file not found: " + queryPath);
     }
 
     if (!queryPath.endsWith(".gql")) {
-      throw new MolgenisException("Query file must have .gql extension: " + queryPath);
+      throw new FairMapperException("Query file must have .gql extension: " + queryPath);
     }
   }
 
@@ -114,12 +113,12 @@ public class BundleLoader {
 
   private void validateE2eTestFile(Path bundleDir, String filePath, String fileType) {
     if (filePath == null || filePath.isBlank()) {
-      throw new MolgenisException("E2e test " + fileType + " file path cannot be empty");
+      throw new FairMapperException("E2e test " + fileType + " file path cannot be empty");
     }
 
     Path fullPath = bundleDir.resolve(filePath).normalize();
     if (!Files.exists(fullPath)) {
-      throw new MolgenisException("E2e test " + fileType + " file not found: " + filePath);
+      throw new FairMapperException("E2e test " + fileType + " file not found: " + filePath);
     }
   }
 

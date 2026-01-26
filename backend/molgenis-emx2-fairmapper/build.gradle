@@ -1,17 +1,15 @@
 plugins {
     id 'java-library'
-    id 'application'
-}
-
-application {
-    mainClass = 'org.molgenis.emx2.fairmapper.RunFairMapper'
 }
 
 dependencies {
-    implementation 'info.picocli:picocli:4.7.6'
-    annotationProcessor 'info.picocli:picocli-codegen:4.7.6'
+    // CLI module provides models, BundleLoader, JsltTransformEngine, etc.
+    api project(':backend:molgenis-emx2-fairmapper-cli')
+
+    // For local GraphQL execution (PipelineExecutor)
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-graphql')
+
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-tasks')
 }

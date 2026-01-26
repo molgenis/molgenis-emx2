@@ -26,7 +26,8 @@
             "sex": {
               "id": "NCIT:C20197",
               "label": "Male"
-            }
+            },
+            "diseases": null
           }
         ]
       }
