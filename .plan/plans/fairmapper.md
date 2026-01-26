@@ -1,4 +1,4 @@
-# FAIRmapper - Implementation Plan v1.6.1
+# FAIRmapper - Implementation Plan v1.7.0
 
 **Spec**: `.plan/specs/fairmapper.md`
 **Branch**: `spike/etl_pilot`
@@ -13,54 +13,96 @@
 | 3 | E2e testing against remote MOLGENIS |
 | 4 | Schema v2: `mappings` replacing `endpoints`, step strategy pattern |
 | 5 | FetchStep: RDF fetch + JSON-LD framing, dcat-fdp bundle |
-
-**Key learnings**:
-- JSLT `get-key(., "@id")` required for JSON-LD keys (bracket notation fails)
-- Sealed interface pattern works well for step types
-- Local RDF source enables offline testing of fetch steps
+| 6.1 | to-molgenis.jslt transform |
+| 6.2 | MutateStep + CLI run command |
 
 ---
 
-## Phase 6 Progress
+## Phase 6.3: Documentation (DONE)
 
-| Story | Status | Notes |
-|-------|--------|-------|
-| 6.1 to-molgenis.jslt | ✅ DONE | JSLT transform complete, tests pass |
-| 6.2 MutateStep + CLI run | ✅ DONE | Full pipeline: fetch→transform→mutate |
+Created top-level docs/fairmapper/ section.
 
-### 6.1 Learnings
-- JSLT bracket notation `.["@id"]` doesn't work for special keys
-- Must use `get-key(., "@id")` for JSON-LD properties with `:` or `@`
-
-### 6.2 Implementation
-- MutateStep.java: record with path
-- StepConfigDeserializer: parses `mutate:` key
-- BundleLoader: validates .gql files
-- RemotePipelineExecutor: handles MutateStep
-- RunCommand in RunFairMapper.java
-- upsert-resources.gql: MOLGENIS insert mutation
-- fairmapper.yaml: complete pipeline
+| Task | Status | Notes |
+|------|--------|-------|
+| Create docs/fairmapper/ structure | ✅ | README, _sidebar |
+| Getting Started guide | ✅ | Step-by-step tutorial |
+| Schema Reference | ✅ | fairmapper.yaml complete reference |
+| Troubleshooting guide | ✅ | Common errors + solutions |
+| Update nav to include FAIRmapper | ✅ | _sidebar.md, _navbar.md |
+| Redirect old use_fairmapper.md | ✅ | Points to new docs |
 
 ---
 
-## NEXT: Manual Testing
+## Phase 6.4: Security Fixes
 
-### Dry run (no mutation)
-```bash
-./fairmapper run fair-mappings/dcat-fdp harvest-catalog \
-  --source https://fdp.health-ri.nl/catalog/5d6f222e-ba32-4930-9e77-d266f5ee64d9 \
-  --schema catalogue \
-  --dry-run -v
-```
+Critical issues from code review.
 
-### Full run (with mutation)
-```bash
-./fairmapper run fair-mappings/dcat-fdp harvest-catalog \
-  --source https://fdp.health-ri.nl/catalog/5d6f222e-ba32-4930-9e77-d266f5ee64d9 \
-  --server http://localhost:8080 \
-  --schema catalogue \
-  --token <token> -v
-```
+| Task | Priority | Notes |
+|------|----------|-------|
+| Path traversal protection | CRITICAL | Validate resolved paths stay within bundle |
+| SSRF protection | CRITICAL | Whitelist schemes, block private IPs |
+| LocalRdfSource validation | CRITICAL | Prevent arbitrary file reads |
+| Size limits on fetch | HIGH | Prevent OOM from large RDF |
+| Error handling in FrameDrivenFetcher | HIGH | Use logger, don't swallow errors |
+| Retry logic for transient failures | MEDIUM | 429, 503, timeouts |
+
+---
+
+## Phase 7+: Future
+
+- Phase 7: Task framework + async execution
+- Phase 8: SQL query support
+- Phase 9: Chunking/pagination
+- Phase 10: Complete Beacon migration
+
+---
+
+## Code Review Findings (2024-01-26)
+
+### Security Issues
+1. **Path traversal** - `bundlePath.resolve("../../../etc/passwd")` escapes bundle
+   - BundleLoader.java:115,128,140,178
+   - RemotePipelineExecutor.java:62,67,73
+   - JsltTransformEngine.java:51
+   - PipelineExecutor.java:43,48
+
+2. **SSRF** - RdfFetcher.java:27-34 allows internal network access
+
+3. **LocalRdfSource** - Can read arbitrary files
+
+### Error Handling
+- FrameDrivenFetcher:56-63 swallows errors silently
+- No retry logic anywhere
+- No size limits (OOM risk)
+
+### Code Quality
+- RunFairMapper.java is 891 lines (should split)
+- Code duplication: RemotePipelineExecutor vs PipelineExecutor
+- Multiple ObjectMapper instances (should share)
+- Magic numbers (maxCalls: 50)
+
+### Test Gaps
+- No security tests (path traversal, SSRF)
+- No RunCommand integration test
+- Limited JSLT edge case tests
+
+---
+
+## Documentation Review Findings (2024-01-26)
+
+### Missing
+- Getting Started tutorial
+- fairmapper.yaml complete schema reference
+- Troubleshooting guide
+- JSON-LD frames explanation
+
+### Outdated
+- use_fairmapper.md says fetch/mutate "coming soon" (they exist!)
+- CLI commands inconsistent across docs
+
+### Confusing
+- Three different ways to run commands
+- Assumes JSON-LD/RDF knowledge
 
 ---
 
@@ -70,6 +112,13 @@ FAIRmapper = YAML + JSLT config for data pipelines without Java code.
 
 **Architecture**:
 ```
+docs/fairmapper/           # NEW: Top-level docs
+  README.md                # Overview + quick start
+  getting_started.md       # Step-by-step tutorial
+  schema_reference.md      # fairmapper.yaml spec
+  troubleshooting.md       # Common errors
+  _sidebar.md              # Navigation
+
 fair-mappings/dcat-fdp/
   fairmapper.yaml           # Bundle config
   src/frames/*.jsonld       # JSON-LD frames for RDF
@@ -112,12 +161,3 @@ mappings:
 ./gradlew :backend:molgenis-emx2-fairmapper-cli:test
 ./fairmapper test fair-mappings/dcat-fdp -v
 ```
-
----
-
-## Future Phases
-
-- Phase 7: Task framework + async execution
-- Phase 8: SQL query support
-- Phase 9: Chunking/pagination
-- Phase 10: Complete Beacon migration
