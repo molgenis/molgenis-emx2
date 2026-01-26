@@ -56,7 +56,7 @@ public class GraphqlTableFieldFactory {
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableAggTypes = new LinkedHashMap<>();
-  private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap();
+  private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableOrderByInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> rowInputTypes = new LinkedHashMap<>();
@@ -352,7 +352,7 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
-    String tableGroupByType = table.getIdentifier() + "GroupBy";
+    String tableGroupByType = getTableTypeIdentifier(table) + "GroupBy";
     if (!tableGroupByTypes.containsKey(tableGroupByType)) {
       // add reference in case of self reference
       tableGroupByTypes.put(tableGroupByType, GraphQLTypeReference.typeRef(tableGroupByType));
