@@ -154,7 +154,7 @@ mappings:
     "dcterms:title": {},
     "dcterms:description": {},
     "dcterms:identifier": {},
-    "dcat:keyword": []
+    "dcat:keyword": {}
   }
 }
 ```
@@ -200,8 +200,8 @@ implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:4.3.8'
 implementation 'org.eclipse.rdf4j:rdf4j-model:4.3.8'
 implementation 'com.apicatalog:titanium-json-ld:1.7.0'
 
-// To add for JSON comparison in tests
-testImplementation 'org.skyscreamer:jsonassert:1.5.1'
+// For JSON comparison in CLI test command
+implementation 'org.skyscreamer:jsonassert:1.5.1'
 ```
 
 ## CLI Commands
@@ -233,7 +233,7 @@ testImplementation 'org.skyscreamer:jsonassert:1.5.1'
 - RdfSource interface for testability
 - Unit tests with mocks
 
-### Phase 3: Schema v2 + Fetch Step Testing (NEXT)
+### Phase 3: Schema v2 + Fetch Step Testing ✅
 - Update model classes (Mapping, StepConfig hierarchy)
 - Update BundleLoader for new schema
 - Add FetchExecutor
