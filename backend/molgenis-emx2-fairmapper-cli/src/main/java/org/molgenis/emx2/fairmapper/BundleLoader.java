@@ -7,8 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.molgenis.emx2.fairmapper.model.E2eTestCase;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
+import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.Step;
+import org.molgenis.emx2.fairmapper.model.step.FetchStep;
+import org.molgenis.emx2.fairmapper.model.step.MutateStep;
+import org.molgenis.emx2.fairmapper.model.step.QueryStep;
+import org.molgenis.emx2.fairmapper.model.step.StepConfig;
+import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,22 +51,37 @@ public class BundleLoader {
     if (bundle.version() == null || bundle.version().isBlank()) {
       logger.warn("Bundle '{}' missing version field", bundle.name());
     }
-    if (bundle.endpoints() == null || bundle.endpoints().isEmpty()) {
-      throw new FairMapperException("Missing required field: endpoints (must have at least one)");
+    if (bundle.getMappings().isEmpty()) {
+      throw new FairMapperException(
+          "Missing required field: mappings or endpoints (must have at least one)");
     }
   }
 
   private void validateStepFiles(Path mappingYamlPath, MappingBundle bundle) {
     Path bundleDir = mappingYamlPath.getParent();
 
-    for (Endpoint endpoint : bundle.endpoints()) {
-      if (endpoint.steps() != null && !endpoint.steps().isEmpty()) {
-        for (Step step : endpoint.steps()) {
-          validateStep(bundleDir, step);
+    if (bundle.mappings() != null && !bundle.mappings().isEmpty()) {
+      for (Mapping mapping : bundle.mappings()) {
+        if (mapping.steps() != null && !mapping.steps().isEmpty()) {
+          for (StepConfig step : mapping.steps()) {
+            validateStepConfig(bundleDir, step);
+          }
+        }
+
+        if (mapping.e2e() != null) {
+          validateE2eTestsForMapping(bundleDir, mapping);
         }
       }
+    } else if (bundle.endpoints() != null) {
+      for (Endpoint endpoint : bundle.endpoints()) {
+        if (endpoint.steps() != null && !endpoint.steps().isEmpty()) {
+          for (Step step : endpoint.steps()) {
+            validateStep(bundleDir, step);
+          }
+        }
 
-      validateE2eTests(bundleDir, endpoint);
+        validateE2eTests(bundleDir, endpoint);
+      }
     }
   }
 
@@ -73,6 +94,33 @@ public class BundleLoader {
     }
     if (step.transform() == null && step.query() == null) {
       throw new FairMapperException("Step must have either transform or query defined");
+    }
+  }
+
+  private void validateStepConfig(Path bundleDir, StepConfig step) {
+    if (step instanceof TransformStep transformStep) {
+      validateTransformFile(bundleDir, transformStep.path());
+    } else if (step instanceof QueryStep queryStep) {
+      validateQueryFile(bundleDir, queryStep.path());
+    } else if (step instanceof MutateStep mutateStep) {
+      validateQueryFile(bundleDir, mutateStep.path());
+    } else if (step instanceof FetchStep fetchStep) {
+      if (fetchStep.frame() != null) {
+        validateFrameFile(bundleDir, fetchStep.frame());
+      }
+    }
+  }
+
+  private void validateFrameFile(Path bundleDir, String framePath) {
+    Path fullPath = bundleDir.resolve(framePath).normalize();
+
+    if (!Files.exists(fullPath)) {
+      throw new FairMapperException("Frame file not found: " + framePath);
+    }
+
+    if (!framePath.endsWith(".json") && !framePath.endsWith(".jsonld")) {
+      throw new FairMapperException(
+          "Frame file must have .json or .jsonld extension: " + framePath);
     }
   }
 
@@ -106,6 +154,17 @@ public class BundleLoader {
     }
 
     for (E2eTestCase testCase : endpoint.e2e().tests()) {
+      validateE2eTestFile(bundleDir, testCase.input(), "input");
+      validateE2eTestFile(bundleDir, testCase.output(), "output");
+    }
+  }
+
+  private void validateE2eTestsForMapping(Path bundleDir, Mapping mapping) {
+    if (mapping.e2e() == null || mapping.e2e().tests() == null) {
+      return;
+    }
+
+    for (E2eTestCase testCase : mapping.e2e().tests()) {
       validateE2eTestFile(bundleDir, testCase.input(), "input");
       validateE2eTestFile(bundleDir, testCase.output(), "output");
     }

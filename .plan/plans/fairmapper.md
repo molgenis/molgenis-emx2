@@ -117,25 +117,43 @@ fair-mappings/fairmapper --help
 fair-mappings/fairmapper e2e beacon-v2 --server http://localhost:8080
 ```
 
-### Phase 5: DCAT Harvesting (proof of concept)
-- [ ] Design: fetch external JSON/XML → transform → GraphQL mutation
-- [ ] New step type: `fetch` with URL + optional auth
-- [ ] Mutation support in pipeline (not just queries)
-- [ ] Transaction wrapping for mutation chains
-- [ ] Task integration for async/scheduled runs
+### Phase 5: DCAT Harvesting - Schema v2 + Fetch Step ✓ (2026-01-26)
+- [x] Schema v2: `mappings` replaces `endpoints`, `name` field, backwards compat
+- [x] Step strategy pattern: `StepConfig` sealed interface
+- [x] `FetchStep`: RDF fetch with JSON-LD framing
+- [x] `TransformStep`, `QueryStep`, `MutateStep` records
+- [x] `FetchExecutor`: uses FrameDrivenFetcher + JsonLdFramer
+- [x] `LocalRdfSource`: reads .ttl files for testing
+- [x] `maxDepth` (default 5) + `maxCalls` per record (default 50)
+- [x] Deduplication: tracks fetched URIs, avoids re-fetch
+- [x] `test` command: runs fetch step tests with .ttl → .json comparison
+- [x] `dcat-fdp` bundle with test fixtures
 
-### Phase 6: SQL Query Support
+### Phase 6: DCAT Harvesting - Transform + Mutate
+- [ ] Create `to-molgenis.jslt` transform (DCAT → Resources schema)
+- [ ] Add MutateExecutor for GraphQL mutations
+- [ ] Transaction wrapping for batch imports
+- [ ] CLI `run` command: full pipeline execution
+- [ ] Variable substitution (${SOURCE_URL})
+
+### Phase 7: Task Framework Integration
+- [ ] Wrap pipeline in Task for progress tracking
+- [ ] Async execution (avoid HTTP timeouts)
+- [ ] DB persistence for audit trail
+- [ ] Quartz scheduling for cron harvests
+
+### Phase 8: SQL Query Support
 - [ ] Add `.sql` file extension support
 - [ ] Variable binding (check reports module: `${param}` syntax)
 - [ ] PostgreSQL `json_build_object` for direct JSON responses
 
-### Phase 7: Scaling / Chunking
+### Phase 9: Scaling / Chunking
 - [ ] Split large inputs into chunks
 - [ ] Process chunks with same pipeline
 - [ ] Transaction wrapper for mutation batches
 - [ ] Pagination support for queries
 
-### Phase 8: Complete Beacon Migration
+### Phase 10: Complete Beacon Migration
 - [ ] Add more entity types (biosamples, datasets)
 - [ ] Add more filter types (age, phenotype, diseases)
 
@@ -152,16 +170,29 @@ fair-mappings/fairmapper e2e beacon-v2 --server http://localhost:8080
 ## Running Tests
 
 ```bash
-# All fairmapper tests
-./gradlew :backend:molgenis-emx2-fairmapper:test
+# All fairmapper-cli tests (includes RDF, framing, bundle loading)
+./gradlew :backend:molgenis-emx2-fairmapper-cli:test
 
-# CLI commands
-./gradlew :backend:molgenis-emx2-fairmapper:run --args="validate fair-mappings/beacon-v2"
-./gradlew :backend:molgenis-emx2-fairmapper:run --args="test fair-mappings/beacon-v2 -v"
+# CLI: validate bundle structure
+fair-mappings/fairmapper validate fair-mappings/beacon-v2
+fair-mappings/fairmapper validate fair-mappings/dcat-fdp
 
-# E2e against remote server (use absolute path for bundle)
-./gradlew :backend:molgenis-emx2-fairmapper:run \
-  --args="e2e $(pwd)/fair-mappings/beacon-v2 --server http://localhost:8080 --schema fairmapperTest -v"
+# CLI: run step tests (transforms + fetch steps)
+fair-mappings/fairmapper test fair-mappings/beacon-v2 -v
+fair-mappings/fairmapper test fair-mappings/dcat-fdp -v
+
+# CLI: fetch RDF from URL with frame
+fair-mappings/fairmapper fetch-rdf https://fdp.health-ri.nl/catalog/5d6f222e-ba32-4930-9e77-d266f5ee64d9 \
+  --frame fair-mappings/dcat-fdp/src/frames/catalog-with-datasets.jsonld
+
+# E2e against remote server
+fair-mappings/fairmapper e2e fair-mappings/beacon-v2 \
+  --server http://localhost:8080 --schema fairmapperTest -v
+```
+
+### Build CLI first
+```bash
+./gradlew :backend:molgenis-emx2-fairmapper-cli:shadowJar
 ```
 
 ## Open Questions

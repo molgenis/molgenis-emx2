@@ -87,7 +87,9 @@ class BundleLoaderTest {
     FairMapperException ex =
         assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
-    assertTrue(ex.getMessage().contains("Missing required field: endpoints"));
+    assertTrue(
+        ex.getMessage().contains("mappings or endpoints"),
+        "Expected error about missing mappings or endpoints");
   }
 
   @Test

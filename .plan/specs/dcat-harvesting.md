@@ -48,7 +48,8 @@ Each step has exactly ONE of these keys:
 - fetch: string                 # URL or ${VARIABLE}
   accept: string                # content-type (default: text/turtle)
   frame: string                 # path to JSON-LD frame file (optional)
-  maxCalls: integer             # max HTTP requests (default: 10)
+  maxDepth: integer             # max depth to follow links (default: 5)
+  maxCalls: integer             # max HTTP requests per record (default: 50)
   tests: TestCase[]
 
 # Transform: JSLT JSON transformation

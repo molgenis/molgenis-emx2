@@ -1,0 +1,22 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/"
+  },
+  "@type": "dcat:Catalog",
+  "dcterms:title": {},
+  "dcterms:description": {},
+  "dcterms:publisher": {
+    "@embed": "@always",
+    "foaf:name": {}
+  },
+  "dcat:dataset": {
+    "@type": "dcat:Dataset",
+    "@embed": "@always",
+    "dcterms:title": {},
+    "dcterms:description": {},
+    "dcterms:identifier": {},
+    "dcat:keyword": {}
+  }
+}

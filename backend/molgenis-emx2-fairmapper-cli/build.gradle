@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.apicatalog:titanium-json-ld:1.7.0'
     implementation 'org.slf4j:slf4j-api:2.0.12'
     runtimeOnly 'org.slf4j:slf4j-simple:2.0.12'
+    implementation 'org.skyscreamer:jsonassert:1.5.1'
 }
 
 configurations.all {
