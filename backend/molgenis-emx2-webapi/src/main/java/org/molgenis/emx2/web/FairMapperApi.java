@@ -73,9 +73,11 @@ public class FairMapperApi {
 
   private static void registerRoutes(Javalin app, List<BundleRegistration> bundles) {
     for (BundleRegistration reg : bundles) {
-      for (Endpoint endpoint : reg.bundle.endpoints()) {
-        for (String method : endpoint.methods()) {
-          registerEndpoint(app, method, endpoint, reg.bundlePath);
+      if (reg.bundle.endpoints() != null) {
+        for (Endpoint endpoint : reg.bundle.endpoints()) {
+          for (String method : endpoint.methods()) {
+            registerEndpoint(app, method, endpoint, reg.bundlePath);
+          }
         }
       }
     }
