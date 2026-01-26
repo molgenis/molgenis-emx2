@@ -21,7 +21,9 @@ backend/molgenis-emx2-fairmapper/
   RunFairMapper.java           # Picocli CLI (validate, test, dry-run, e2e)
   BundleLoader.java            # YAML parsing + validation
   JsltTransformEngine.java     # JSLT execution (preserves empty arrays)
-  PipelineExecutor.java        # Chains steps: transform → query → transform
+  PipelineExecutor.java        # Chains steps: transform → query → transform (local)
+  GraphqlClient.java           # HTTP client for remote GraphQL
+  RemotePipelineExecutor.java  # Chains steps using GraphqlClient (remote)
   model/
     MappingBundle.java         # record(name, version, endpoints)
     Endpoint.java              # record(path, methods, steps, e2e)
@@ -47,7 +49,7 @@ backend/molgenis-emx2-fairmapper/
 - [x] Version from `Version.getVersion()`
 - [x] RunFairMapperTest (10 tests)
 
-### Phase 2.5: Schema Simplification
+### Phase 2.5: Schemca Simplification
 - [x] Rename mapping.yaml → fairmapper.yaml
 - [x] Remove apiVersion, kind, metadata wrapper
 - [x] Flat schema: name, version, endpoints
@@ -121,9 +123,13 @@ Usage:
 # All fairmapper tests
 ./gradlew :backend:molgenis-emx2-fairmapper:test
 
-# CLI only
+# CLI commands
 ./gradlew :backend:molgenis-emx2-fairmapper:run --args="validate fair-mappings/beacon-v2"
 ./gradlew :backend:molgenis-emx2-fairmapper:run --args="test fair-mappings/beacon-v2 -v"
+
+# E2e against remote server (use absolute path for bundle)
+./gradlew :backend:molgenis-emx2-fairmapper:run \
+  --args="e2e $(pwd)/fair-mappings/beacon-v2 --server http://localhost:8080 --schema fairmapperTest -v"
 ```
 
 ## Open Questions
