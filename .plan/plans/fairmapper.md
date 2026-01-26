@@ -531,142 +531,36 @@ steps:
 
 ## Phase 7.5: FDP DCAT Publish Endpoints ✅ COMPLETE
 
-**Goal**: Add FDP-compliant endpoints to dcat-fdp bundle for DCAT publishing from MOLGENIS data.
+**Goal**: Add FDP-compliant endpoints for DCAT publishing from MOLGENIS data.
 
-### Implementation
+### What Was Done
 
-Renamed `fair-mappings/dcat-fdp` → `fair-mappings/dcat-harvester` (for harvesting external FDP).
-Created new `fair-mappings/dcat-fdp` bundle for publishing MOLGENIS data as FDP.
+1. **Bundle Reorganization**
+   - Renamed `fair-mappings/dcat-fdp` → `fair-mappings/dcat-harvester` (harvests external FDP)
+   - Created new `fair-mappings/dcat-fdp` for publishing MOLGENIS as FDP
 
-**Spec**: [FDP Specification](https://specs.fairdatapoint.org/) | [GitHub](https://github.com/FAIRDataTeam/FAIRDataPoint-Spec)
+2. **Endpoints** (all at `/{schema}/api/fdp/*`)
+   | Path | Output | Description |
+   |------|--------|-------------|
+   | `/{schema}/api/fdp` | Turtle/JSON-LD | FDP root with catalog links |
+   | `/{schema}/api/fdp/catalog/{id}` | Turtle/JSON-LD | Catalog with dataset links |
+   | `/{schema}/api/fdp/dataset/{id}` | Turtle/JSON-LD | Dataset metadata |
 
-### FDP Layer Structure
+3. **Files Created**
+   - `src/queries/get-schema-metadata.gql`, `get-catalog.gql`, `get-dataset.gql`
+   - `src/transforms/publish/to-fdp-root.jslt`, `to-dcat-catalog.jslt`, `to-dcat-dataset.jslt`
+   - Test fixtures in `test/publish/` for each endpoint
 
-| Layer | RDF Type | Parent | Required Properties |
-|-------|----------|--------|---------------------|
-| FDP Root | `r3d:Repository` | - | title, publisher, metadataIdentifier, r3d:dataCatalog |
-| Catalog | `dcat:Catalog` | FDP | title, publisher, dct:isPartOf, dcat:dataset |
-| Dataset | `dcat:Dataset` | Catalog | title, publisher, dct:isPartOf, dcat:theme |
-| Distribution | `dcat:Distribution` | Dataset | (not in scope) |
+4. **Testing**
+   - Unit tests for JSLT transforms
+   - SHACL validation against `data/_shacl/fair_data_point/v1.2/` shapes
+   - Integration tests in `FairMapperApiTest.java` using DATA_CATALOGUE profile with demo data
 
-### New Endpoints
+### Data Shape Notes
 
-| Path | Method | Output | Description |
-|------|--------|--------|-------------|
-| `/{schema}/fdp` | GET | Turtle/JSON-LD | FDP root with catalog links |
-| `/{schema}/fdp/catalog/{id}` | GET | Turtle/JSON-LD | Catalog with dataset links |
-| `/{schema}/fdp/dataset/{id}` | GET | Turtle/JSON-LD | Dataset metadata |
-
-### Implementation Approach
-
-**Option A: FAIRmapper bundle** (preferred for flexibility)
-- Add mappings to `fair-mappings/dcat-fdp/`
-- Use JSLT transforms to convert MOLGENIS → DCAT RDF
-- Requires RDF output step (Phase 7.3)
-
-**Option B: Direct Java API** (faster, less flexible)
-- Add endpoints to existing `RDFApi.java`
-- Use existing `Emx2RdfGenerator` patterns
-
-### fairmapper.yaml Structure
-
-```yaml
-name: dcat-fdp
-version: 1.1.0
-
-mappings:
-  # Existing: harvest external FDP
-  - name: harvest-catalog
-    steps:
-      - fetch: ${SOURCE_URL}
-        frame: src/frames/catalog-with-datasets.jsonld
-      - transform: src/transforms/to-molgenis.jslt
-      - mutate: src/mutations/upsert-resources.gql
-
-  # NEW: publish as FDP
-  - name: fdp-root
-    endpoint: /{schema}/fdp
-    methods: [GET]
-    steps:
-      - query: src/queries/get-schema-metadata.gql
-      - transform: src/transforms/publish/to-fdp-root.jslt
-
-  - name: fdp-catalog
-    endpoint: /{schema}/fdp/catalog/{id}
-    methods: [GET]
-    steps:
-      - query: src/queries/get-catalog.gql
-      - transform: src/transforms/publish/to-dcat-catalog.jslt
-
-  - name: fdp-dataset
-    endpoint: /{schema}/fdp/dataset/{id}
-    methods: [GET]
-    steps:
-      - query: src/queries/get-dataset.gql
-      - transform: src/transforms/publish/to-dcat-dataset.jslt
-```
-
-### Files to Create
-
-```
-fair-mappings/dcat-fdp/
-  src/
-    queries/
-      get-schema-metadata.gql      # Schema info for FDP root
-      get-catalog.gql              # Single catalog by ID
-      get-dataset.gql              # Single dataset by ID
-    transforms/publish/
-      to-fdp-root.jslt             # → r3d:Repository
-      to-dcat-catalog.jslt         # → dcat:Catalog
-      to-dcat-dataset.jslt         # → dcat:Dataset
-  test/publish/
-    fdp-root/
-    catalog/
-    dataset/
-```
-
-### JSLT Transform: to-fdp-root.jslt
-
-```jslt
-let baseUrl = .baseUrl
-let schema = .schema
-
-{
-  "@context": {
-    "dcat": "http://www.w3.org/ns/dcat#",
-    "dct": "http://purl.org/dc/terms/",
-    "r3d": "http://www.re3data.org/schema/3-0#",
-    "fdp": "https://w3id.org/fdp/fdp-o#"
-  },
-  "@id": $baseUrl + "/" + $schema.name + "/fdp",
-  "@type": "r3d:Repository",
-  "dct:title": $schema.name,
-  "dct:description": $schema.description,
-  "dct:publisher": {
-    "@id": $baseUrl,
-    "@type": "foaf:Organization"
-  },
-  "fdp:metadataIdentifier": {"@id": $baseUrl + "/" + $schema.name + "/fdp"},
-  "fdp:metadataIssued": now(),
-  "r3d:dataCatalog": [for (.catalogs) {
-    "@id": $baseUrl + "/" + $schema.name + "/fdp/catalog/" + .id
-  }]
-}
-```
-
-### Prerequisites
-
-1. **Phase 7.3 (RDF output)** - Need to serialize JSON-LD to Turtle
-2. **Content negotiation** - Return Turtle or JSON-LD based on Accept header
-3. **GraphQL queries** - Fetch Resources by type (Catalogue/Databank)
-
-### Verification
-
-```bash
-./fairmapper test fair-mappings/dcat-fdp -v
-curl -H "Accept: text/turtle" http://localhost:8080/catalogue/fdp
-curl -H "Accept: text/turtle" http://localhost:8080/catalogue/fdp/catalog/cat-1
-```
+- `theme` is `ontology_array`: `[{name, code, codesystem, definition}]`
+- `contactPoint` is ref object: `{id, firstName, lastName, email}`
+- Dataset types: excludes Catalogue/Network, includes Cohort/Biobank/Registry/Databank/etc.
 
 ### Out of Scope
 
