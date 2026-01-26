@@ -25,6 +25,7 @@ export interface IBlocks {
   inContainer?: any;
   components?: IComponents[];
   enableFullScreenWidth?: boolean;
+  mg_tableclass?: string;
 }
 
 export interface IBlocks_agg {
@@ -34,15 +35,14 @@ export interface IBlocks_agg {
 export interface IComponents {
   id: string;
   inBlock?: any;
+  mg_tableclass?: string;
 }
 
 export interface IComponents_agg {
   count: number;
 }
 
-export interface IConfigurablePages {
-  name: string;
-  description?: string;
+export interface IConfigurablePages extends IContainers {
   blocks?: IBlocks[];
 }
 
@@ -86,9 +86,7 @@ export interface IDependenciesJS_agg {
   count: number;
 }
 
-export interface IDeveloperPages {
-  name: string;
-  description?: string;
+export interface IDeveloperPages extends IContainers {
   html?: string;
   css?: string;
   javascript?: string;
@@ -102,7 +100,7 @@ export interface IDeveloperPages_agg {
   count: number;
 }
 
-export interface IHeaders {
+export interface IHeaders extends IBlocks {
   id: string;
   inContainer?: any;
   components?: IComponents[];
@@ -117,7 +115,7 @@ export interface IHeaders_agg {
   count: number;
 }
 
-export interface IHeadings {
+export interface IHeadings extends IComponents {
   id: string;
   inBlock?: any;
   text?: string;
@@ -131,7 +129,6 @@ export interface IHeadings_agg {
 
 export interface IImages {
   id: string;
-  inBlock?: any;
   displayName?: string;
   image?: IFile;
   alt?: string;
@@ -154,7 +151,7 @@ export interface IOrderedLists_agg {
   count: number;
 }
 
-export interface IParagraphs {
+export interface IParagraphs extends IComponents {
   id: string;
   inBlock?: any;
   text?: string;
@@ -165,7 +162,7 @@ export interface IParagraphs_agg {
   count: number;
 }
 
-export interface ISections {
+export interface ISections extends IBlocks {
   id: string;
   inContainer?: any;
   components?: IComponents[];
@@ -176,7 +173,7 @@ export interface ISections_agg {
   count: number;
 }
 
-export interface ITextElements {
+export interface ITextElements extends IComponents {
   id: string;
   inBlock?: any;
   text?: string;

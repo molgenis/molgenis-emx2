@@ -31,34 +31,82 @@ export async function getPage(
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `query getDeveloperPages($filter:DeveloperPagesFilter) {
-        DeveloperPages(filter:$filter) {
-          name
-          description
-          html
-          css
-          javascript
-          dependencies {
-            mg_tableclass
+      query: `query getContainers($filter:ContainersFilter) {
+        Containers(filter:$filter) {
+            
+            # Containers
             name
-            url
-            defer
-            async
-            fetchPriority {
-              name
+            description
+            mg_tableclass
+            
+            # Developer pages
+            html
+            css
+            javascript
+            dependencies {
+                mg_tableclass
+                name
+                url
+                defer
+                async
+                fetchPriority {
+                    name
+                }
+                async
+                defer
             }
-            async
-            defer
-          }
-          enableBaseStyles
-          enableButtonStyles
-          enableFullScreen
+            enableBaseStyles
+            enableButtonStyles
+            enableFullScreen
+            
+            # Configurable pages
+            blocks {
+                id
+                enableFullScreenWidth
+                mg_tableclass
+                
+                # page headings
+                title
+                subtitle
+                backgroundImage {
+                    image {
+                        id
+                        url
+                    }
+                }
+                isCentered
+                
+                # page sections
+                components {
+                    id
+                    inBlock {
+                        id
+                    }
+                    mg_tableclass
+                    
+                    # TextElements
+                    text
+                    
+                    # Headings
+                    level
+                    
+                    # images
+                    displayName
+                    image {
+                        id
+                        url
+                    }
+                    alt
+                    width
+                    height
+                }
+            }
         }
       }`,
       variables: { filter: { name: { equals: page } } },
     },
   });
-  return data.DeveloperPages[0];
+  return data.Containers[0];
 }
 
 export function generateHtmlPreview(

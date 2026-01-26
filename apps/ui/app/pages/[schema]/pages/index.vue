@@ -58,7 +58,7 @@ const crumbs: Crumb[] = [
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
-            :to="`/${schema}/pages/${container.name}/edit`"
+            :to="container.mg_tableclass === 'cms.Developer pages' ? `/${schema}/pages/${container.name}/edit` : '#'"
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
           >
             <BaseIcon name="Edit" :width="18" />
@@ -66,13 +66,11 @@ const crumbs: Crumb[] = [
           </NuxtLink>
         </div>
         <NuxtLink
-          v-if="container.mg_tableclass?.includes('Developer pages')"
           :to="`/${schema}/pages/${container.name}/`"
           class="text-button-text hover:underline"
         >
           {{ container.name }}
         </NuxtLink>
-        <span v-else>{{ container.name }}</span>
       </div>
     </div>
     <div v-else>
