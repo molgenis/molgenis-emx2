@@ -16,20 +16,20 @@
 | 6.1 | to-molgenis.jslt transform |
 | 6.2 | MutateStep + CLI run command |
 | 6.3 | Documentation (docs/fairmapper/) |
-| 6.4.1 | Path traversal protection (PathValidator) |
+| 6.4 | Security: path traversal, SSRF, size limits, error handling, retry |
 
 ---
 
-## Phase 6.4: Security Fixes (Remaining)
+## Phase 6.4: Security Fixes ✅ COMPLETE
 
 | Task | Priority | Status |
 |------|----------|--------|
 | Path traversal protection | CRITICAL | ✅ Done (6.4.1) |
 | SSRF protection | CRITICAL | ✅ Done (6.4.2) |
-| LocalRdfSource validation | CRITICAL | Pending (6.4.3) |
-| Size limits on fetch | HIGH | Pending (6.4.4) |
-| Error handling in FrameDrivenFetcher | HIGH | Pending (6.4.5) |
-| Retry logic for transient failures | MEDIUM | Pending (6.4.6) |
+| LocalRdfSource validation | CRITICAL | ✅ Done (6.4.3) |
+| Size limits on fetch | HIGH | ✅ Done (6.4.4) |
+| Error handling in FrameDrivenFetcher | HIGH | ✅ Done (6.4.5) |
+| Retry logic for transient failures | MEDIUM | ✅ Done (6.4.6) |
 
 ---
 
@@ -279,11 +279,90 @@ Total: ~70 lines of changes + tests
 
 | Task | Priority | Status |
 |------|----------|--------|
-| Split RunFairMapper.java (891 lines) | MEDIUM | Pending (6.5.1) |
+| Split RunFairMapper.java (891 lines) | MEDIUM | ✅ Done (6.5.1) |
 | Merge RemotePipelineExecutor + PipelineExecutor | MEDIUM | Pending (6.5.2) |
 | Share ObjectMapper instances | LOW | Pending (6.5.3) |
 | Extract magic numbers to constants | LOW | Pending (6.5.4) |
 | Add RunCommand integration test | MEDIUM | Pending (6.5.5) |
+
+---
+
+## Phase 6.5.1: Split RunFairMapper.java (CURRENT)
+
+**Problem**: RunFairMapper.java is 891 lines with 6 nested command classes. Hard to navigate and maintain.
+
+**Solution**: Extract each command to its own file in `commands/` subpackage.
+
+### Current Structure (891 lines)
+
+| Class | Lines | Purpose |
+|-------|-------|---------|
+| `RunFairMapper` | ~50 | Main entry, color helper |
+| `ValidateCommand` | ~77 | Bundle validation |
+| `TestCommand` | ~160 | Unit test runner |
+| `DryRunCommand` | ~105 | Transform dry-run |
+| `E2eCommand` | ~173 | E2e test runner |
+| `FetchRdfCommand` | ~90 | RDF fetch utility |
+| `RunCommand` | ~171 | Live pipeline execution |
+
+### Target Structure
+
+```
+fairmapper/
+  RunFairMapper.java          (~80 lines - main + shared helpers)
+  commands/
+    ValidateCommand.java      (~80 lines)
+    TestCommand.java          (~165 lines)
+    DryRunCommand.java        (~110 lines)
+    E2eCommand.java           (~180 lines)
+    FetchRdfCommand.java      (~95 lines)
+    RunCommand.java           (~175 lines)
+```
+
+### Files to Create
+
+| File | Content |
+|------|---------|
+| `commands/ValidateCommand.java` | Extract from lines 76-157 |
+| `commands/TestCommand.java` | Extract from lines 159-323 |
+| `commands/DryRunCommand.java` | Extract from lines 325-434 |
+| `commands/E2eCommand.java` | Extract from lines 436-613 |
+| `commands/FetchRdfCommand.java` | Extract from lines 615-709 |
+| `commands/RunCommand.java` | Extract from lines 711-886 |
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `RunFairMapper.java` | Remove nested classes, update subcommands reference, add shared static helpers |
+
+### Shared Helpers (stay in RunFairMapper)
+
+```java
+public static String color(String text) {
+  return CommandLine.Help.Ansi.AUTO.string(text);
+}
+
+public static Path resolveConfigPath(Path bundlePath) {
+  return bundlePath.resolve("fairmapper.yaml");
+}
+```
+
+### Implementation Notes
+
+1. Each command becomes a top-level class
+2. Change `static class` to `public class`
+3. Import `RunFairMapper.color()` and `RunFairMapper.resolveConfigPath()`
+4. Keep `@Command` annotations as-is
+5. Update `RunFairMapper.@Command.subcommands` to use full class paths
+
+### Verification
+
+```bash
+./gradlew :backend:molgenis-emx2-fairmapper-cli:test
+./fairmapper validate fair-mappings/dcat-fdp
+./fairmapper test fair-mappings/dcat-fdp
+```
 
 ---
 
