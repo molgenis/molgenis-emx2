@@ -23,13 +23,14 @@ let totalCount = .data.Individuals_agg.count
       "id": "molgenis",
       "setType": "dataset",
       "exists": $totalCount > 0,
-      "resultsCount": $totalCount,
+      "resultsCount": size($individuals),
       "results": [for ($individuals) {
         "id": .id,
         "sex": if (.genderAtBirth) {
           "id": .genderAtBirth.codesystem + ":" + .genderAtBirth.code,
           "label": .genderAtBirth.name
-        } else null
+        } else null,
+        "diseases": null
       }]
     }]
   }

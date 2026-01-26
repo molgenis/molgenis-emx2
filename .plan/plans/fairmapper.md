@@ -43,7 +43,7 @@ backend/molgenis-emx2-fairmapper/
 - [x] `validate` - check bundle structure
 - [x] `test` - run step-level unit tests
 - [x] `dry-run` - transform input without queries
-- [x] `e2e` - stub (returns exit code 2)
+- [x] `e2e` - run e2e tests against remote MOLGENIS server
 - [x] Version from `Version.getVersion()`
 - [x] RunFairMapperTest (10 tests)
 
@@ -83,10 +83,18 @@ Test: `BeaconFairMapperComparisonTest.java` in molgenis-emx2-webapi
 
 ## Future Phases
 
-### Phase 3: CLI Remote Execution
-- [ ] Implement `e2e` command against remote MOLGENIS
-- [ ] `--server` and `--token` flags
-- [ ] Execute GraphQL via `/{schema}/api/graphql`
+### Phase 3: CLI Remote Execution ✓
+- [x] `GraphqlClient.java` - HTTP client for remote GraphQL
+- [x] `RemotePipelineExecutor.java` - pipeline using GraphqlClient
+- [x] `e2e` command: `--server`, `--token`, `--schema`, `-v` flags
+- [x] Execute GraphQL via `{baseUrl}/{schema}/api/graphql`
+- [x] Unit tests: `GraphqlClientTest.java`
+
+Usage:
+```bash
+./gradlew :backend:molgenis-emx2-fairmapper:run \
+  --args="e2e fair-mappings/beacon-v2 --server http://localhost:8080 -v"
+```
 
 ### Phase 4: SQL Query Support
 - [ ] Add `.sql` file extension support
