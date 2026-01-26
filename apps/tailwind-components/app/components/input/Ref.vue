@@ -40,6 +40,7 @@ const props = withDefaults(
 );
 
 const initLoading = ref(true);
+const isInitializing = ref(false);
 const modelValue = defineModel<
   columnValueObject[] | columnValueObject | null
 >();
@@ -73,53 +74,61 @@ const selection = computed(() =>
 );
 
 async function init() {
-  tableMetadata.value = await fetchTableMetadata(
-    props.refSchemaId,
-    props.refTableId
-  );
+  if (isInitializing.value) return;
+  isInitializing.value = true;
 
-  if (
-    modelValue.value &&
-    (Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value)
-  ) {
-    const keys = Array.isArray(modelValue.value)
-      ? await Promise.all(
-          (modelValue.value as []).map((row) => extractPrimaryKey(row))
-        )
-      : await extractPrimaryKey(modelValue.value as columnValueObject);
-    const data: ITableDataResponse = await fetchTableData(
+  try {
+    tableMetadata.value = await fetchTableMetadata(
       props.refSchemaId,
-      props.refTableId,
-      { filter: { equals: keys }, expandLevel: 1 }
+      props.refTableId
     );
-    if (data.rows) {
-      hasNoResults.value = false;
-      data.rows.forEach(
-        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
-      );
-    }
-  }
 
-  await loadOptions({ limit: props.limit });
-  initialCount.value = count.value;
-  initLoading.value = false;
+    selectionMap.value = {};
+
+    if (
+      modelValue.value &&
+      (Array.isArray(modelValue.value)
+        ? modelValue.value.length > 0
+        : modelValue.value)
+    ) {
+      const keys = Array.isArray(modelValue.value)
+        ? await Promise.all(
+            (modelValue.value as []).map((row) => extractPrimaryKey(row))
+          )
+        : await extractPrimaryKey(modelValue.value as columnValueObject);
+      const data: ITableDataResponse = await fetchTableData(
+        props.refSchemaId,
+        props.refTableId,
+        { filter: { equals: keys }, expandLevel: 1 }
+      );
+      if (data.rows) {
+        hasNoResults.value = false;
+        data.rows.forEach(
+          (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+        );
+      }
+    }
+
+    await loadOptions({ limit: props.limit });
+    initialCount.value = count.value;
+    initLoading.value = false;
+  } finally {
+    isInitializing.value = false;
+  }
 }
 
 watch(
   () => props.refSchemaId,
-  () => init
+  () => init()
 );
 watch(
   () => props.refTableId,
-  () => init
+  () => init()
 );
 
-// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
 watch(
   () => modelValue.value,
-  () => init
+  () => init()
 );
 
 function applyTemplate(template: string, row: Record<string, any>): string {

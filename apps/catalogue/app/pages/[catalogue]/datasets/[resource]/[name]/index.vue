@@ -45,18 +45,16 @@ const variablesFilter = {
 };
 
 const displayConfig = computed(() => {
-  const config = new Map<string, IDisplayConfig>();
+  const columnConfig = new Map<string, IDisplayConfig>();
 
-  // Resource ref: link to resource detail
-  config.set("resource", {
+  columnConfig.set("resource", {
     getHref: (_col: IColumn, row: IRow) => {
       const id = row?.id || row?.name;
       return `/${catalogue}/collections/${id}`;
     },
   });
 
-  // Variables: show as table with clickable links
-  config.set("variables", {
+  columnConfig.set("variables", {
     component: "table",
     visibleColumns: ["name", "label", "format", "unit"],
     pageSize: 20,
@@ -67,7 +65,7 @@ const displayConfig = computed(() => {
     },
   });
 
-  return config;
+  return columnConfig;
 });
 
 // Virtual REFBACK column for variables

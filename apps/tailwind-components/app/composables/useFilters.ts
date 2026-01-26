@@ -52,6 +52,17 @@ export interface UseFiltersOptions {
  */
 
 const REF_TYPES = ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"];
+
+
+function extractStringKey(v: unknown, depth = 0): string {
+  if (depth > 10) return String(v);
+  if (typeof v === "string") return v;
+  if (typeof v !== "object" || v === null) return String(v);
+  const obj = v as Record<string, unknown>;
+  if (typeof obj.name === "string") return obj.name;
+  const firstValue = Object.values(obj)[0];
+  return extractStringKey(firstValue, depth + 1);
+}
 const RANGE_TYPES = ["INT", "LONG", "DECIMAL", "DATE", "DATETIME"];
 const MULTI_VALUE_SEPARATOR = "|";
 const RESERVED_PREFIX = "mg_";
@@ -75,15 +86,13 @@ export function serializeFilterValue(value: IFilterValue): string | null {
     case "in":
       if (Array.isArray(val)) {
         if (val.length && typeof val[0] === "object") {
-          const primaryKeys = val.map((v) => {
-            if (typeof v === "object" && v !== null) {
-              return v.name ?? Object.values(v)[0];
-            }
-            return String(v);
-          });
+          const primaryKeys = val.map((v) => extractStringKey(v));
           return primaryKeys.join(MULTI_VALUE_SEPARATOR);
         }
         return val.join(MULTI_VALUE_SEPARATOR);
+      }
+      if (typeof val === "object" && val !== null) {
+        return extractStringKey(val);
       }
       return String(val);
 
@@ -98,18 +107,13 @@ export function serializeFilterValue(value: IFilterValue): string | null {
     default:
       if (Array.isArray(val)) {
         if (val.length && typeof val[0] === "object") {
-          const keys = val.map((v) => {
-            if (typeof v === "object" && v !== null) {
-              return v.name ?? Object.values(v)[0];
-            }
-            return String(v);
-          });
+          const keys = val.map((v) => extractStringKey(v));
           return keys.join(MULTI_VALUE_SEPARATOR);
         }
         return val.join(MULTI_VALUE_SEPARATOR);
       }
       if (typeof val === "object" && val !== null) {
-        return val.name ?? Object.values(val)[0];
+        return extractStringKey(val);
       }
       return String(val);
   }
@@ -144,11 +148,16 @@ export function parseFilterValue(
 
   if (REF_TYPES.includes(columnType)) {
     const field = refField ?? "name";
+    const isArrayType = columnType.endsWith("_ARRAY");
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       const values = urlValue.split(MULTI_VALUE_SEPARATOR);
       return { operator: "in", value: values.map((v) => ({ [field]: v })) };
     }
-    return { operator: "equals", value: { [field]: urlValue } };
+    const refValue = { [field]: urlValue };
+    return {
+      operator: isArrayType ? "in" : "equals",
+      value: isArrayType ? [refValue] : refValue,
+    };
   }
 
   if (RANGE_TYPES.includes(columnType)) {

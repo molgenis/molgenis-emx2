@@ -838,3 +838,78 @@ describe("parseFiltersFromUrl", () => {
     });
   });
 });
+
+describe("extractStringKey (via serializeFilterValue)", () => {
+  it("should extract string value directly from object", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: { name: "TestValue" },
+    });
+    expect(result).toBe("TestValue");
+  });
+
+  it("should extract nested string value", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: { data: { name: "NestedValue" } },
+    });
+    expect(result).toBe("NestedValue");
+  });
+
+  it("should handle single ONTOLOGY value (wrapped object)", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: { name: "OntologyTerm" },
+    });
+    expect(result).toBe("OntologyTerm");
+  });
+
+  it("should extract from array of objects", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: [{ name: "Term1" }, { name: "Term2" }],
+    });
+    expect(result).toBe("Term1|Term2");
+  });
+
+  it("should handle objects with id field", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: { id: "12345" },
+    });
+    expect(result).toBe("12345");
+  });
+
+  it("should handle deeply nested objects", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: { level1: { level2: { name: "DeepValue" } } },
+    });
+    expect(result).toBe("DeepValue");
+  });
+
+  it("should fallback to string conversion for primitives", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: 123,
+    });
+    expect(result).toBe("123");
+  });
+
+  it("should handle empty objects gracefully", () => {
+    const result = serializeFilterValue({
+      operator: "in",
+      value: {},
+    });
+    expect(result).toBe("undefined");
+  });
+
+  it("should handle deeply nested objects with recursion limit", () => {
+    const deepObj = { a: { b: { c: { d: { e: { f: { g: { h: { i: { j: { k: { l: "tooDeep" } } } } } } } } } } } };
+    const result = serializeFilterValue({
+      operator: "in",
+      value: deepObj,
+    });
+    expect(result).not.toBe("");
+  });
+});
