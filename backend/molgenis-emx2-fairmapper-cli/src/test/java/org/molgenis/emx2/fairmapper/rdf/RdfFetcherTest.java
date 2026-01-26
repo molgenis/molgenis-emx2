@@ -1,8 +1,13 @@
 package org.molgenis.emx2.fairmapper.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import org.eclipse.rdf4j.model.Model;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.fairmapper.FairMapperException;
@@ -91,5 +96,72 @@ class RdfFetcherTest {
 
     assertTrue(exception.getMessage().contains("Response body too large"));
     assertTrue(exception.getMessage().contains("max: 10"));
+  }
+
+  @Test
+  void testRetryOnTransient500Error() throws IOException, InterruptedException {
+    HttpClient mockClient = mock(HttpClient.class);
+    HttpResponse<String> mockResponse = mock(HttpResponse.class);
+
+    when(mockResponse.statusCode()).thenReturn(500);
+    when(mockResponse.body()).thenReturn("Internal Server Error");
+    when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+        .thenReturn(mockResponse);
+
+    RdfFetcher fetcher = createFetcherWithMockClient(mockClient);
+
+    IOException exception =
+        assertThrows(IOException.class, () -> fetcher.fetch("https://example.org/catalog"));
+
+    assertTrue(exception.getMessage().contains("status 500"));
+    verify(mockClient, times(3)).send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class));
+  }
+
+  @Test
+  void testNoRetryOn404Error() throws IOException, InterruptedException {
+    HttpClient mockClient = mock(HttpClient.class);
+    HttpResponse<String> mockResponse = mock(HttpResponse.class);
+
+    when(mockResponse.statusCode()).thenReturn(404);
+    when(mockResponse.body()).thenReturn("Not Found");
+    when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+        .thenReturn(mockResponse);
+
+    RdfFetcher fetcher = createFetcherWithMockClient(mockClient);
+
+    IOException exception =
+        assertThrows(IOException.class, () -> fetcher.fetch("https://example.org/catalog"));
+
+    assertTrue(exception.getMessage().contains("status 404"));
+    verify(mockClient, times(1)).send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class));
+  }
+
+  @Test
+  void testSuccessOnFirstAttempt() throws IOException, InterruptedException {
+    HttpClient mockClient = mock(HttpClient.class);
+    HttpResponse<String> mockResponse = mock(HttpResponse.class);
+
+    when(mockResponse.statusCode()).thenReturn(200);
+    when(mockResponse.body()).thenReturn(SAMPLE_TURTLE);
+    when(mockResponse.headers()).thenReturn(mock(java.net.http.HttpHeaders.class));
+    when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+        .thenReturn(mockResponse);
+
+    RdfFetcher fetcher = createFetcherWithMockClient(mockClient);
+
+    Model model = fetcher.fetch("https://example.org/catalog");
+
+    assertNotNull(model);
+    assertEquals(3, model.size());
+    verify(mockClient, times(1)).send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class));
+  }
+
+  private RdfFetcher createFetcherWithMockClient(HttpClient mockClient) {
+    return new RdfFetcher(new UrlValidator("https://example.org/catalog")) {
+      @Override
+      protected HttpClient createHttpClient() {
+        return mockClient;
+      }
+    };
   }
 }
