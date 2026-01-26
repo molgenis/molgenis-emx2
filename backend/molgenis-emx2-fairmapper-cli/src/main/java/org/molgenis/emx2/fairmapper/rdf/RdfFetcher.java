@@ -13,9 +13,14 @@ import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.fairmapper.FairMapperException;
 import org.molgenis.emx2.fairmapper.UrlValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RdfFetcher implements RdfSource {
+  private static final Logger log = LoggerFactory.getLogger(RdfFetcher.class);
   private static final long DEFAULT_MAX_BYTES = 10 * 1024 * 1024;
+  private static final int MAX_RETRIES = 3;
+  private static final int BASE_DELAY_MS = 1000;
   private final HttpClient httpClient;
   private final UrlValidator urlValidator;
   private final long maxBytes;
@@ -35,17 +40,43 @@ public class RdfFetcher implements RdfSource {
   public RdfFetcher(UrlValidator urlValidator, long maxBytes) {
     this.urlValidator = urlValidator;
     this.maxBytes = maxBytes;
-    this.httpClient =
-        HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(30))
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .build();
+    this.httpClient = createHttpClient();
+  }
+
+  protected HttpClient createHttpClient() {
+    return HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(30))
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build();
   }
 
   @Override
   public Model fetch(String url) throws IOException {
     urlValidator.validate(url);
 
+    IOException lastException = null;
+    for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        return doFetch(url);
+      } catch (IOException e) {
+        lastException = e;
+        if (!isTransientError(e) || attempt == MAX_RETRIES) {
+          throw e;
+        }
+        int delayMs = BASE_DELAY_MS * (1 << (attempt - 1));
+        log.warn(
+            "Fetch attempt {} failed for {}: {}, retrying in {}ms...",
+            attempt,
+            url,
+            e.getMessage(),
+            delayMs);
+        sleep(delayMs);
+      }
+    }
+    throw lastException;
+  }
+
+  private Model doFetch(String url) throws IOException {
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(URI.create(url))
@@ -70,6 +101,24 @@ public class RdfFetcher implements RdfSource {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IOException("RDF fetch interrupted", e);
+    }
+  }
+
+  private boolean isTransientError(IOException e) {
+    String msg = e.getMessage();
+    if (msg == null) return false;
+    return msg.contains("status 5")
+        || msg.contains("timed out")
+        || msg.contains("Connection reset")
+        || msg.contains("Connection refused");
+  }
+
+  private void sleep(int ms) {
+    try {
+      Thread.sleep(ms);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new FairMapperException("Retry interrupted", e);
     }
   }
 
