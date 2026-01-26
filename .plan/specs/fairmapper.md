@@ -170,6 +170,22 @@ Bundles are global. Schema is extracted from URL path (`{schema}` placeholder) a
 | RDF parsing | RDF4J + Titanium JSON-LD | Standards-compliant, frame support |
 | JSLT special keys | `get-key(., "@id")` | Bracket notation fails for `@`/`:` chars |
 
+## Security
+
+### SSRF Protection (fetch step)
+| Decision | Choice |
+|----------|--------|
+| Default policy | Same-origin: fetches only allowed to source URL domain |
+| Subdomain handling | Allowed (e.g., `api.fdp.example.org` when source is `fdp.example.org`) |
+| Bypass option | `--allow-external` CLI flag for trusted scenarios |
+| Scheme validation | Only `http://` and `https://` allowed |
+
+### Path Traversal Protection
+| Decision | Choice |
+|----------|--------|
+| Validation method | `PathValidator.validateWithinBase()` for all file path resolution |
+| Canonical path check | Prevents `../` escape attempts |
+
 ## Future Extensions
 
 - SQL step type for PostgreSQL JSON queries

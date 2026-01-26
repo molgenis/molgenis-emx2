@@ -11,11 +11,22 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
+import org.molgenis.emx2.fairmapper.UrlValidator;
 
 public class RdfFetcher implements RdfSource {
   private final HttpClient httpClient;
+  private final UrlValidator urlValidator;
 
-  public RdfFetcher() {
+  public RdfFetcher(String sourceUrl) {
+    this(sourceUrl, false);
+  }
+
+  public RdfFetcher(String sourceUrl, boolean allowExternal) {
+    this(new UrlValidator(sourceUrl, allowExternal));
+  }
+
+  public RdfFetcher(UrlValidator urlValidator) {
+    this.urlValidator = urlValidator;
     this.httpClient =
         HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(30))
@@ -25,6 +36,8 @@ public class RdfFetcher implements RdfSource {
 
   @Override
   public Model fetch(String url) throws IOException {
+    urlValidator.validate(url);
+
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(URI.create(url))
