@@ -18,7 +18,7 @@ const page = route.params.page as string;
 
 useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
 
-const container = await getPage(schema as string, page) as IContainers;
+const container = (await getPage(schema as string, page)) as IContainers;
 
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
@@ -31,6 +31,9 @@ const crumbs: Crumb[] = [
   <Container>
     <bread-crumbs align="left" :crumbs="crumbs" class="my-5" />
   </Container>
-  <HtmlPreview v-if="container.mg_tableclass === 'cms.Developer pages'" :content="container" />
+  <HtmlPreview
+    v-if="container.mg_tableclass === 'cms.Developer pages'"
+    :content="container"
+  />
   <ConfigurablePagePreview v-else :content="container" />
 </template>

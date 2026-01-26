@@ -58,7 +58,11 @@ const crumbs: Crumb[] = [
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
-            :to="container.mg_tableclass === 'cms.Developer pages' ? `/${schema}/pages/${container.name}/edit` : '#'"
+            :to="
+              container.mg_tableclass === 'cms.Developer pages'
+                ? `/${schema}/pages/${container.name}/edit`
+                : '#'
+            "
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
           >
             <BaseIcon name="Edit" :width="18" />
