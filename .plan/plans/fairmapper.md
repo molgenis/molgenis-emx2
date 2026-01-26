@@ -20,133 +20,105 @@
 
 ---
 
-## Phase 6.4.2: SSRF Protection (CURRENT)
+## Phase 6.4: Security Fixes (Remaining)
 
-**Problem**: RdfFetcher.java allows fetching from any URL including internal network addresses (localhost, 10.x.x.x, 192.168.x.x, etc.). Attackers could use this to scan internal services or access metadata endpoints (AWS 169.254.169.254).
+| Task | Priority | Status |
+|------|----------|--------|
+| Path traversal protection | CRITICAL | ✅ Done (6.4.1) |
+| SSRF protection | CRITICAL | ✅ Done (6.4.2) |
+| LocalRdfSource validation | CRITICAL | Pending (6.4.3) |
+| Size limits on fetch | HIGH | Pending (6.4.4) |
+| Error handling in FrameDrivenFetcher | HIGH | Pending (6.4.5) |
+| Retry logic for transient failures | MEDIUM | Pending (6.4.6) |
 
-**Solution**: Create UrlValidator utility that:
-1. Whitelist allowed schemes (https only, http optional for dev)
-2. Block private/reserved IP ranges by default
-3. Block localhost and loopback addresses by default
-4. Resolve hostname to IP and validate before connecting
-5. **Support configurable allowlist for dev/test environments**
+---
 
-### Allowlist Configuration
+## Phase 6.4.3: LocalRdfSource Validation (CRITICAL)
 
-**Use Cases**:
-- Local development with MOLGENIS at localhost:8080
-- Integration tests against local services
-- Docker Compose setups with internal service names
+**Problem**: `LocalRdfSource.java:20` does `basePath.resolve(pathOrUrl)` without path traversal check. Attacker could use `../../../etc/passwd` to read arbitrary files.
 
-**Configuration Options** (in order of precedence):
-1. **Constructor parameter**: `UrlValidator(Set<String> allowedHosts)` for programmatic use
-2. **Environment variable**: `FAIRMAPPER_ALLOWED_HOSTS=localhost:8080,host.docker.internal:8080`
-3. **System property**: `-Dfairmapper.allowed.hosts=localhost:8080`
-
-**Behavior**:
-- Allowlist entries match host:port exactly (e.g., `localhost:8080`)
-- Allowlist bypasses SSRF checks for matching URLs only
-- Empty allowlist = strict mode (production default)
-- Allowlist is logged at startup for audit trail
-
-### Files to Create
-
-| File | Purpose |
-|------|---------|
-| `UrlValidator.java` | URL security validation with allowlist support |
-| `UrlValidatorTest.java` | Unit tests for all validation rules + allowlist |
+**Solution**: Use existing `PathValidator.validateWithinBase()` before resolving.
 
 ### Files to Modify
 
 | File | Change |
 |------|--------|
-| `RdfFetcher.java` | Call UrlValidator.validate() before fetch |
+| `LocalRdfSource.java` | Add PathValidator call before resolve |
 
-### Implementation Details
+### Implementation
 
-**UrlValidator.java** (new):
 ```java
-package org.molgenis.emx2.fairmapper;
+// LocalRdfSource.java:19-20
+@Override
+public Model fetch(String pathOrUrl) throws IOException {
+  Path filePath = PathValidator.validateWithinBase(basePath, pathOrUrl);
+  try (InputStream in = Files.newInputStream(filePath)) {
+```
 
-public final class UrlValidator {
-  private static final Set<String> ALLOWED_SCHEMES = Set.of("https", "http");
-  private static final String ALLOWED_HOSTS_ENV = "FAIRMAPPER_ALLOWED_HOSTS";
-  private static final String ALLOWED_HOSTS_PROP = "fairmapper.allowed.hosts";
+### Test Cases
 
-  private final Set<String> allowedHosts;
+| Test | Input | Expected |
+|------|-------|----------|
+| Valid path | `test/data.ttl` | Pass |
+| Traversal attack | `../../../etc/passwd` | FairMapperException |
+| Absolute path | `/etc/passwd` | FairMapperException |
 
-  public UrlValidator() {
-    this(loadAllowedHostsFromEnv());
+### Verification
+```bash
+./gradlew :backend:molgenis-emx2-fairmapper-cli:test --tests "*LocalRdfSource*"
+```
+
+---
+
+## Phase 6.4.4: Size Limits on Fetch (HIGH)
+
+**Problem**: `RdfFetcher.java` uses `BodyHandlers.ofString()` which loads entire response into memory. No size limit → OOM risk with large/malicious responses.
+
+**Solution**: Add 10MB default limit, configurable via constructor.
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `RdfFetcher.java` | Add maxBytes parameter, check Content-Length, use limited body handler |
+
+### Implementation
+
+```java
+public class RdfFetcher implements RdfSource {
+  private static final long DEFAULT_MAX_BYTES = 10 * 1024 * 1024; // 10MB
+  private final long maxBytes;
+
+  public RdfFetcher(UrlValidator urlValidator) {
+    this(urlValidator, DEFAULT_MAX_BYTES);
   }
 
-  public UrlValidator(Set<String> allowedHosts) {
-    this.allowedHosts = allowedHosts != null ? Set.copyOf(allowedHosts) : Set.of();
-    if (!this.allowedHosts.isEmpty()) {
-      log.info("SSRF allowlist enabled for: {}", this.allowedHosts);
+  public RdfFetcher(UrlValidator urlValidator, long maxBytes) {
+    this.urlValidator = urlValidator;
+    this.maxBytes = maxBytes;
+    // ...
+  }
+
+  @Override
+  public Model fetch(String url) throws IOException {
+    // ... existing validation ...
+
+    HttpResponse<String> response = httpClient.send(request,
+        BodyHandlers.ofString());
+
+    // Check Content-Length header
+    response.headers().firstValueAsLong("Content-Length").ifPresent(len -> {
+      if (len > maxBytes) {
+        throw new FairMapperException("Response too large: " + len + " bytes (max: " + maxBytes + ")");
+      }
+    });
+
+    String body = response.body();
+    if (body.length() > maxBytes) {
+      throw new FairMapperException("Response body too large: " + body.length() + " bytes");
     }
-  }
 
-  private static Set<String> loadAllowedHostsFromEnv() {
-    String hosts = System.getProperty(ALLOWED_HOSTS_PROP);
-    if (hosts == null) {
-      hosts = System.getenv(ALLOWED_HOSTS_ENV);
-    }
-    if (hosts == null || hosts.isBlank()) {
-      return Set.of();
-    }
-    return Arrays.stream(hosts.split(","))
-        .map(String::trim)
-        .filter(s -> !s.isEmpty())
-        .collect(Collectors.toSet());
-  }
-
-  public void validate(String url) {
-    URI uri = URI.create(url);
-    validateScheme(uri);
-    if (isAllowlisted(uri)) {
-      return;
-    }
-    validateHost(uri);
-  }
-
-  private boolean isAllowlisted(URI uri) {
-    String hostPort = uri.getHost() + ":" + (uri.getPort() != -1 ? uri.getPort() : getDefaultPort(uri));
-    return allowedHosts.contains(hostPort) || allowedHosts.contains(uri.getHost());
-  }
-
-  private int getDefaultPort(URI uri) {
-    return "https".equals(uri.getScheme()) ? 443 : 80;
-  }
-
-  private void validateScheme(URI uri) {
-    if (!ALLOWED_SCHEMES.contains(uri.getScheme())) {
-      throw new FairMapperException("Blocked URL scheme: " + uri.getScheme());
-    }
-  }
-
-  private void validateHost(URI uri) {
-    String host = uri.getHost();
-    if ("localhost".equalsIgnoreCase(host)) {
-      throw new FairMapperException("Blocked localhost URL");
-    }
-    InetAddress addr = InetAddress.getByName(host);
-    if (isPrivateOrReserved(addr)) {
-      throw new FairMapperException("Blocked private/reserved IP: " + host);
-    }
-  }
-
-  private boolean isPrivateOrReserved(InetAddress addr) {
-    return addr.isLoopbackAddress()
-        || addr.isLinkLocalAddress()
-        || addr.isSiteLocalAddress()
-        || addr.isAnyLocalAddress()
-        || isAwsMetadata(addr);
-  }
-
-  private boolean isAwsMetadata(InetAddress addr) {
-    byte[] bytes = addr.getAddress();
-    return bytes[0] == (byte)169 && bytes[1] == (byte)254
-        && bytes[2] == (byte)169 && bytes[3] == (byte)254;
+    return parseTurtle(body);
   }
 }
 ```
@@ -155,57 +127,163 @@ public final class UrlValidator {
 
 | Test | Expected |
 |------|----------|
-| `https://fdp.example.org/catalog` | Pass |
-| `http://example.org/data` | Pass (http allowed) |
-| `file:///etc/passwd` | Blocked (invalid scheme) |
-| `ftp://server/file` | Blocked (invalid scheme) |
-| `http://localhost:8080/api` | Blocked (no allowlist) |
-| `http://localhost:8080/api` with allowlist `localhost:8080` | **Pass** |
-| `http://localhost:9090/api` with allowlist `localhost:8080` | Blocked (wrong port) |
-| `http://127.0.0.1/api` | Blocked (loopback) |
-| `http://10.0.0.1/internal` | Blocked (private 10.x) |
-| `http://192.168.1.1/router` | Blocked (private 192.168.x) |
-| `http://172.16.0.1/service` | Blocked (private 172.16-31.x) |
-| `http://169.254.169.254/meta` | Blocked (AWS metadata) |
-| `http://[::1]/api` | Blocked (IPv6 loopback) |
+| Normal response (1KB) | Pass |
+| Response > maxBytes | FairMapperException |
+| Content-Length > maxBytes | FairMapperException (early fail) |
 
-### Usage Examples
-
-**Local development**:
+### Verification
 ```bash
-export FAIRMAPPER_ALLOWED_HOSTS=localhost:8080
-./fairmapper run fair-mappings/dcat-fdp --target http://localhost:8080/api/graphql
+./gradlew :backend:molgenis-emx2-fairmapper-cli:test --tests "*RdfFetcher*"
 ```
-
-**Integration tests**:
-```java
-UrlValidator validator = new UrlValidator(Set.of("localhost:8080"));
-```
-
-**Docker Compose**:
-```bash
-export FAIRMAPPER_ALLOWED_HOSTS=molgenis:8080,host.docker.internal:8080
-```
-
-### Verification Steps
-
-1. Run unit tests: `./gradlew :backend:molgenis-emx2-fairmapper-cli:test --tests "*UrlValidator*"`
-2. Run all fairmapper tests: `./gradlew :backend:molgenis-emx2-fairmapper-cli:test`
-3. Test with allowlist: `FAIRMAPPER_ALLOWED_HOSTS=localhost:8080 ./fairmapper run ...`
-4. Verify real FDP URL still works without allowlist
 
 ---
 
-## Phase 6.4: Security Fixes (Remaining)
+## Phase 6.4.5: Error Handling in FrameDrivenFetcher (HIGH)
+
+**Problem**: `FrameDrivenFetcher.java:61-62` catches IOException and just prints to stderr. Silent failures are hard to debug.
+
+**Solution**: Add configurable error handling via callback/enum.
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `FrameDrivenFetcher.java` | Add ErrorHandler enum, configurable behavior |
+
+### Implementation
+
+```java
+public enum FetchErrorBehavior {
+  WARN_AND_CONTINUE,  // Current behavior (default)
+  FAIL_FAST           // Throw on first error
+}
+
+public class FrameDrivenFetcher {
+  private final FetchErrorBehavior errorBehavior;
+  private static final Logger log = LoggerFactory.getLogger(FrameDrivenFetcher.class);
+
+  public FrameDrivenFetcher(RdfSource source, FrameAnalyzer analyzer) {
+    this(source, analyzer, FetchErrorBehavior.WARN_AND_CONTINUE);
+  }
+
+  public FrameDrivenFetcher(RdfSource source, FrameAnalyzer analyzer,
+                             FetchErrorBehavior errorBehavior) {
+    this.errorBehavior = errorBehavior;
+    // ...
+  }
+
+  // In fetch(), line 61-62:
+  } catch (IOException e) {
+    if (errorBehavior == FetchErrorBehavior.FAIL_FAST) {
+      throw new FairMapperException("Failed to fetch " + uri, e);
+    }
+    log.warn("Failed to fetch {}: {}", uri, e.getMessage());
+  }
+}
+```
+
+### Test Cases
+
+| Test | ErrorBehavior | Expected |
+|------|---------------|----------|
+| Fetch failure | WARN_AND_CONTINUE | Logged, continues |
+| Fetch failure | FAIL_FAST | FairMapperException thrown |
+
+### Verification
+```bash
+./gradlew :backend:molgenis-emx2-fairmapper-cli:test --tests "*FrameDrivenFetcher*"
+```
+
+---
+
+## Phase 6.4.6: Retry Logic for Transient Failures (MEDIUM)
+
+**Problem**: No retry on transient HTTP errors (5xx, timeouts). Single failure aborts entire fetch.
+
+**Solution**: Add exponential backoff retry for transient errors.
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `RdfFetcher.java` | Add retry logic with exponential backoff |
+
+### Implementation
+
+```java
+private static final int MAX_RETRIES = 3;
+private static final int BASE_DELAY_MS = 1000;
+
+@Override
+public Model fetch(String url) throws IOException {
+  urlValidator.validate(url);
+
+  IOException lastException = null;
+  for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return doFetch(url);
+    } catch (IOException e) {
+      if (!isTransientError(e) || attempt == MAX_RETRIES) {
+        throw e;
+      }
+      lastException = e;
+      log.warn("Fetch attempt {} failed for {}: {}, retrying...",
+               attempt, url, e.getMessage());
+      sleep(BASE_DELAY_MS * (1 << (attempt - 1))); // exponential backoff
+    }
+  }
+  throw lastException;
+}
+
+private boolean isTransientError(IOException e) {
+  String msg = e.getMessage();
+  if (msg == null) return false;
+  return msg.contains("status 5")
+      || msg.contains("timed out")
+      || msg.contains("Connection reset");
+}
+
+private Model doFetch(String url) throws IOException {
+  // ... existing fetch logic ...
+}
+```
+
+### Test Cases
+
+| Test | Expected |
+|------|----------|
+| 500 error, then success | Retry succeeds |
+| 500 error x3 | Fail after 3 attempts |
+| 404 error | Fail immediately (not transient) |
+| Timeout, then success | Retry succeeds |
+
+### Verification
+```bash
+./gradlew :backend:molgenis-emx2-fairmapper-cli:test --tests "*RdfFetcher*"
+```
+
+---
+
+## Implementation Order
+
+1. **6.4.3 LocalRdfSource** (~5 lines change, trivial)
+2. **6.4.4 Size limits** (~15 lines change)
+3. **6.4.5 Error handling** (~20 lines change)
+4. **6.4.6 Retry logic** (~30 lines change)
+
+Total: ~70 lines of changes + tests
+
+---
+
+## Phase 6.5: Code Quality
 
 | Task | Priority | Status |
 |------|----------|--------|
-| Path traversal protection | CRITICAL | ✅ Done (6.4.1) |
-| SSRF protection | CRITICAL | 🔄 In Progress (6.4.2) |
-| LocalRdfSource validation | CRITICAL | Pending (6.4.3) |
-| Size limits on fetch | HIGH | Pending (6.4.4) |
-| Error handling in FrameDrivenFetcher | HIGH | Pending (6.4.5) |
-| Retry logic for transient failures | MEDIUM | Pending (6.4.6) |
+| Split RunFairMapper.java (891 lines) | MEDIUM | Pending (6.5.1) |
+| Merge RemotePipelineExecutor + PipelineExecutor | MEDIUM | Pending (6.5.2) |
+| Share ObjectMapper instances | LOW | Pending (6.5.3) |
+| Extract magic numbers to constants | LOW | Pending (6.5.4) |
+| Add RunCommand integration test | MEDIUM | Pending (6.5.5) |
 
 ---
 

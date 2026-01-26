@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.molgenis.emx2.fairmapper.PathValidator;
 
 public class LocalRdfSource implements RdfSource {
   private final Path basePath;
@@ -17,7 +18,7 @@ public class LocalRdfSource implements RdfSource {
 
   @Override
   public Model fetch(String pathOrUrl) throws IOException {
-    Path filePath = basePath.resolve(pathOrUrl);
+    Path filePath = PathValidator.validateWithinBase(basePath, pathOrUrl);
     try (InputStream in = Files.newInputStream(filePath)) {
       return Rio.parse(in, "", RDFFormat.TURTLE);
     }
