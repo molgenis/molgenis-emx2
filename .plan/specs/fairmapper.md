@@ -69,14 +69,21 @@ fairmapper test <bundle-path> [-v]
 # Dry-run: transform input without queries
 fairmapper dry-run <bundle-path> <input.json>
 
-# E2e tests against remote (not yet implemented)
-fairmapper e2e <bundle-path> --server <url> --token <token>
+# E2e tests against remote MOLGENIS server
+fairmapper e2e <bundle-path> --server <url> [--token <token>] [--schema <name>] [-v]
 ```
 
+### E2e Command Options
+| Option | Env Var | Description |
+|--------|---------|-------------|
+| `--server` | `MOLGENIS_SERVER` | Base URL (required) |
+| `--token` | `MOLGENIS_TOKEN` | API token for auth |
+| `--schema` | - | Override e2e config schema |
+| `-v` | - | Verbose output |
+
 ### Exit Codes
-- 0: Success
-- 1: Error (validation failed, test failed, etc.)
-- 2: Feature not implemented
+- 0: Success (all tests pass)
+- 1: Error (validation failed, test failed, connection error)
 
 ## Processing Flow
 

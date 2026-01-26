@@ -140,7 +140,7 @@ class BeaconFairMapperComparisonTest {
     System.out.println("=== Comparison: Sex Filter ===");
     System.out.println(
         "BeaconApi results: " + beaconResult.get("responseSummary").get("numTotalResults"));
-    System.out.println(1
+    System.out.println(
         "FAIRmapper results: " + fairmapperResult.get("responseSummary").get("numTotalResults"));
 
     // Both should filter similarly (may differ due to value mapping differences)
