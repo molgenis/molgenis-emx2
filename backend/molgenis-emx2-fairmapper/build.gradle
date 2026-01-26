@@ -3,7 +3,12 @@ plugins {
 }
 
 dependencies {
-    // Parent provides common dependencies including jackson, jslt, junit
+    // For GraphQL execution
+    implementation project(':backend:molgenis-emx2-graphql')
+
+    // For integration tests (assumes patientRegistry already loaded)
+    testImplementation project(':backend:molgenis-emx2-sql')
+    testImplementation project(':backend:molgenis-emx2-tasks')
 }
 
 test {
