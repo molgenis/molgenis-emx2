@@ -6,7 +6,7 @@
 
 ## Context
 
-FAIRmapper enables data managers to create API adapters without Java code. Configure via YAML + JSLT transforms. First use case: Beacon v2 API.
+FAIRmapper enables data managers to create API adapters without Java code. Configure via YAML + JSLT transforms. First use case: Beacon v2 API. Then DCAT
 
 ## Architecture
 
