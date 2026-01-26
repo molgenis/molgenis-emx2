@@ -26,21 +26,19 @@ class BeaconBundleTest {
 
   @Test
   void testLoadBundle() throws Exception {
-    Path mappingYaml = bundlePath.resolve("mapping.yaml");
-    MappingBundle bundle = bundleLoader.load(mappingYaml);
+    Path configPath = bundlePath.resolve("fairmapper.yaml");
+    MappingBundle bundle = bundleLoader.load(configPath);
 
     assertNotNull(bundle);
-    assertEquals("molgenis.org/v1", bundle.apiVersion());
-    assertEquals("FairMapperBundle", bundle.kind());
-    assertEquals("beacon-v2", bundle.metadata().name());
-    assertEquals("2.0.0", bundle.metadata().version());
+    assertEquals("beacon-v2", bundle.name());
+    assertEquals("2.0.0", bundle.version());
     assertFalse(bundle.endpoints().isEmpty());
   }
 
   @Test
   void testTransformSteps() throws Exception {
-    Path mappingYaml = bundlePath.resolve("mapping.yaml");
-    MappingBundle bundle = bundleLoader.load(mappingYaml);
+    Path configPath = bundlePath.resolve("fairmapper.yaml");
+    MappingBundle bundle = bundleLoader.load(configPath);
 
     for (Endpoint endpoint : bundle.endpoints()) {
       for (Step step : endpoint.steps()) {

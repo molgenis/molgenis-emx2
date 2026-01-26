@@ -35,8 +35,8 @@ public class E2eTest {
 
   @Test
   void testBeaconE2eTests() throws Exception {
-    Path mappingYaml = bundlePath.resolve("mapping.yaml");
-    MappingBundle bundle = bundleLoader.load(mappingYaml);
+    Path configPath = bundlePath.resolve("fairmapper.yaml");
+    MappingBundle bundle = bundleLoader.load(configPath);
 
     for (Endpoint endpoint : bundle.endpoints()) {
       if (endpoint.e2e() != null) {

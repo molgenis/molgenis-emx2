@@ -32,16 +32,12 @@ public class FairMapperApi {
   private FairMapperApi() {}
 
   public static void create(Javalin app) {
-    try {
-      List<BundleRegistration> bundles = loadBundles();
-      registerRoutes(app, bundles);
-      logger.info("Registered {} FAIRmapper bundle(s)", bundles.size());
-    } catch (IOException e) {
-      logger.error("Failed to load FAIRmapper bundles", e);
-    }
+    List<BundleRegistration> bundles = loadBundles();
+    registerRoutes(app, bundles);
+    logger.info("Registered {} FAIRmapper bundle(s)", bundles.size());
   }
 
-  private static List<BundleRegistration> loadBundles() throws IOException {
+  private static List<BundleRegistration> loadBundles() {
     List<BundleRegistration> bundles = new ArrayList<>();
     Path fairMappingsPath = Paths.get(FAIR_MAPPINGS_DIR);
 
@@ -52,21 +48,25 @@ public class FairMapperApi {
 
     BundleLoader loader = new BundleLoader();
 
-    Files.list(fairMappingsPath)
-        .filter(Files::isDirectory)
-        .forEach(
-            bundleDir -> {
-              Path mappingYaml = bundleDir.resolve("mapping.yaml");
-              if (Files.exists(mappingYaml)) {
-                try {
-                  MappingBundle bundle = loader.load(mappingYaml);
-                  bundles.add(new BundleRegistration(bundle, bundleDir));
-                  logger.info("Loaded bundle: {}", bundle.metadata().name());
-                } catch (IOException e) {
-                  logger.error("Failed to load bundle from {}", mappingYaml, e);
+    try {
+      Files.list(fairMappingsPath)
+          .filter(Files::isDirectory)
+          .forEach(
+              bundleDir -> {
+                Path configPath = bundleDir.resolve("fairmapper.yaml");
+                if (Files.exists(configPath)) {
+                  try {
+                    MappingBundle bundle = loader.load(configPath);
+                    bundles.add(new BundleRegistration(bundle, bundleDir));
+                    logger.info("Loaded bundle: {}", bundle.name());
+                  } catch (Exception e) {
+                    logger.error("Failed to load bundle from {}", configPath, e);
+                  }
                 }
-              }
-            });
+              });
+    } catch (IOException e) {
+      logger.error("Failed to list FAIRmapper bundles directory", e);
+    }
 
     return bundles;
   }
@@ -99,7 +99,7 @@ public class FairMapperApi {
     }
   }
 
-  private static void handleRequest(Context ctx, Endpoint endpoint, Path bundlePath) {
+  static void handleRequest(Context ctx, Endpoint endpoint, Path bundlePath) {
     try {
       Schema schema = getSchema(ctx);
       if (schema == null) {

@@ -10,8 +10,11 @@ import org.molgenis.emx2.fairmapper.model.E2eTestCase;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.Step;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BundleLoader {
+  private static final Logger logger = LoggerFactory.getLogger(BundleLoader.class);
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   public MappingBundle load(Path mappingYamlPath) {
@@ -32,19 +35,16 @@ public class BundleLoader {
     try {
       return yamlMapper.readValue(mappingYamlPath.toFile(), MappingBundle.class);
     } catch (IOException e) {
-      throw new MolgenisException("Failed to parse mapping.yaml: " + e.getMessage(), e);
+      throw new MolgenisException("Failed to parse fairmapper.yaml: " + e.getMessage(), e);
     }
   }
 
   private void validateBundle(MappingBundle bundle) {
-    if (bundle.apiVersion() == null || bundle.apiVersion().isBlank()) {
-      throw new MolgenisException("Missing required field: apiVersion");
+    if (bundle.name() == null || bundle.name().isBlank()) {
+      throw new MolgenisException("Missing required field: name");
     }
-    if (bundle.kind() == null || bundle.kind().isBlank()) {
-      throw new MolgenisException("Missing required field: kind");
-    }
-    if (bundle.metadata() == null) {
-      throw new MolgenisException("Missing required field: metadata");
+    if (bundle.version() == null || bundle.version().isBlank()) {
+      logger.warn("Bundle '{}' missing version field", bundle.name());
     }
     if (bundle.endpoints() == null || bundle.endpoints().isEmpty()) {
       throw new MolgenisException("Missing required field: endpoints (must have at least one)");

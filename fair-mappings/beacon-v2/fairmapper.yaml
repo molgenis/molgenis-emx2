@@ -1,8 +1,5 @@
-apiVersion: molgenis.org/v1
-kind: FairMapperBundle
-metadata:
-  name: beacon-v2
-  version: 2.0.0
+name: beacon-v2
+version: 2.0.0
 
 endpoints:
   - path: /{schema}/api/beacon/individuals
