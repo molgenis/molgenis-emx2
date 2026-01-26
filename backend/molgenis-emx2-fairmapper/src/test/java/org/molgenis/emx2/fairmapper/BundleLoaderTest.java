@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.fairmapper.model.HttpMethod;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 
 class BundleLoaderTest {
@@ -284,6 +285,143 @@ class BundleLoaderTest {
     Path resolved = bundleLoader.resolvePath(bundleBase, "src/transform.jslt");
 
     assertEquals(Path.of("/bundle/src/transform.jslt").normalize(), resolved);
+  }
+
+  @Test
+  void testE2eMissingInputFile() throws IOException {
+    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Files.writeString(
+        mappingYaml,
+        """
+        apiVersion: molgenis.org/v1
+        kind: FairMapperBundle
+        metadata:
+          name: test
+        endpoints:
+          - path: /test
+            methods: [GET]
+            steps: []
+            e2e:
+              schema: testSchema
+              tests:
+                - method: POST
+                  input: test/e2e/request.json
+                  output: test/e2e/expected.json
+        """);
+
+    MolgenisException ex =
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+
+    assertTrue(ex.getMessage().contains("E2e test input file not found"));
+    assertTrue(ex.getMessage().contains("test/e2e/request.json"));
+  }
+
+  @Test
+  void testE2eMissingOutputFile() throws IOException {
+    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path testDir = tempDir.resolve("test/e2e");
+    Files.createDirectories(testDir);
+    Files.writeString(testDir.resolve("request.json"), "{}");
+
+    Files.writeString(
+        mappingYaml,
+        """
+        apiVersion: molgenis.org/v1
+        kind: FairMapperBundle
+        metadata:
+          name: test
+        endpoints:
+          - path: /test
+            methods: [GET]
+            steps: []
+            e2e:
+              schema: testSchema
+              tests:
+                - method: POST
+                  input: test/e2e/request.json
+                  output: test/e2e/expected.json
+        """);
+
+    MolgenisException ex =
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+
+    assertTrue(ex.getMessage().contains("E2e test output file not found"));
+    assertTrue(ex.getMessage().contains("test/e2e/expected.json"));
+  }
+
+  @Test
+  void testE2eInvalidMethod() throws IOException {
+    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path testDir = tempDir.resolve("test/e2e");
+    Files.createDirectories(testDir);
+    Files.writeString(testDir.resolve("request.json"), "{}");
+    Files.writeString(testDir.resolve("expected.json"), "{}");
+
+    Files.writeString(
+        mappingYaml,
+        """
+        apiVersion: molgenis.org/v1
+        kind: FairMapperBundle
+        metadata:
+          name: test
+        endpoints:
+          - path: /test
+            methods: [GET]
+            steps: []
+            e2e:
+              schema: testSchema
+              tests:
+                - method: PUT
+                  input: test/e2e/request.json
+                  output: test/e2e/expected.json
+        """);
+
+    MolgenisException ex =
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+
+    assertTrue(ex.getMessage().contains("PUT"));
+  }
+
+  @Test
+  void testE2eValidConfiguration() throws IOException {
+    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path srcDir = tempDir.resolve("src");
+    Path testDir = tempDir.resolve("test/e2e");
+    Files.createDirectories(srcDir);
+    Files.createDirectories(testDir);
+
+    Files.writeString(srcDir.resolve("transform.jslt"), ".");
+    Files.writeString(testDir.resolve("request.json"), "{}");
+    Files.writeString(testDir.resolve("expected.json"), "{}");
+
+    Files.writeString(
+        mappingYaml,
+        """
+        apiVersion: molgenis.org/v1
+        kind: FairMapperBundle
+        metadata:
+          name: test
+          version: 1.0.0
+        endpoints:
+          - path: /test
+            methods: [POST]
+            steps:
+              - transform: src/transform.jslt
+            e2e:
+              schema: testSchema
+              tests:
+                - method: POST
+                  input: test/e2e/request.json
+                  output: test/e2e/expected.json
+        """);
+
+    MappingBundle bundle = bundleLoader.load(mappingYaml);
+
+    assertNotNull(bundle);
+    assertNotNull(bundle.endpoints().get(0).e2e());
+    assertEquals("testSchema", bundle.endpoints().get(0).e2e().schema());
+    assertEquals(1, bundle.endpoints().get(0).e2e().tests().size());
+    assertEquals(HttpMethod.POST, bundle.endpoints().get(0).e2e().tests().get(0).method());
   }
 
   private Path createValidBundle() throws IOException {

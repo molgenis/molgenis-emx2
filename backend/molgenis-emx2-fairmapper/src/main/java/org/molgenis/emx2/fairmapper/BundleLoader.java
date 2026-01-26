@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.fairmapper.model.E2eTestCase;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.Step;
@@ -54,13 +55,13 @@ public class BundleLoader {
     Path bundleDir = mappingYamlPath.getParent();
 
     for (Endpoint endpoint : bundle.endpoints()) {
-      if (endpoint.steps() == null || endpoint.steps().isEmpty()) {
-        continue;
+      if (endpoint.steps() != null && !endpoint.steps().isEmpty()) {
+        for (Step step : endpoint.steps()) {
+          validateStep(bundleDir, step);
+        }
       }
 
-      for (Step step : endpoint.steps()) {
-        validateStep(bundleDir, step);
-      }
+      validateE2eTests(bundleDir, endpoint);
     }
   }
 
@@ -97,6 +98,28 @@ public class BundleLoader {
 
     if (!queryPath.endsWith(".gql")) {
       throw new MolgenisException("Query file must have .gql extension: " + queryPath);
+    }
+  }
+
+  private void validateE2eTests(Path bundleDir, Endpoint endpoint) {
+    if (endpoint.e2e() == null || endpoint.e2e().tests() == null) {
+      return;
+    }
+
+    for (E2eTestCase testCase : endpoint.e2e().tests()) {
+      validateE2eTestFile(bundleDir, testCase.input(), "input");
+      validateE2eTestFile(bundleDir, testCase.output(), "output");
+    }
+  }
+
+  private void validateE2eTestFile(Path bundleDir, String filePath, String fileType) {
+    if (filePath == null || filePath.isBlank()) {
+      throw new MolgenisException("E2e test " + fileType + " file path cannot be empty");
+    }
+
+    Path fullPath = bundleDir.resolve(filePath).normalize();
+    if (!Files.exists(fullPath)) {
+      throw new MolgenisException("E2e test " + fileType + " file not found: " + filePath);
     }
   }
 

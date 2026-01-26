@@ -128,7 +128,7 @@ public class BeaconIntegrationTest {
 
     var endpoint =
         new org.molgenis.emx2.fairmapper.model.Endpoint(
-            "/test/api/beacon/individuals", java.util.List.of("POST"), steps);
+            "/test/api/beacon/individuals", java.util.List.of("POST"), steps, null);
 
     // Create beacon request
     JsonNode request =

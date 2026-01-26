@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "beaconId": "org.molgenis.beacon",
+    "apiVersion": "v2.0.0",
+    "returnedSchemas": [
+      {
+        "entityType": "individuals",
+        "schema": "beacon-v2-default-individual"
+      }
+    ]
+  },
+  "responseSummary": {
+    "exists": true,
+    "numTotalResults": 10
+  },
+  "response": {
+    "resultSets": [
+      {
+        "id": "molgenis",
+        "setType": "dataset",
+        "exists": true,
+        "resultsCount": 10,
+        "results": [
+          {
+            "id": "Case1F",
+            "sex": {
+              "id": "null:124",
+              "label": "assigned male at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case1C",
+            "sex": {
+              "id": "null:124",
+              "label": "assigned male at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case1M",
+            "sex": {
+              "id": "null:123",
+              "label": "assigned female at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case2C",
+            "sex": {
+              "id": "null:124",
+              "label": "assigned male at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case2F",
+            "sex": {
+              "id": "null:124",
+              "label": "assigned male at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case2M",
+            "sex": {
+              "id": "null:123",
+              "label": "assigned female at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case3C",
+            "sex": {
+              "id": "null:124",
+              "label": "assigned male at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case3F",
+            "sex": {
+              "id": "null:124",
+              "label": "assigned male at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case3M",
+            "sex": {
+              "id": "null:123",
+              "label": "assigned female at birth"
+            },
+            "diseases": null
+          },
+          {
+            "id": "Case4C",
+            "sex": {
+              "id": "null:124",
+              "label": "assigned male at birth"
+            },
+            "diseases": null
+          }
+        ]
+      }
+    ]
+  }
+}

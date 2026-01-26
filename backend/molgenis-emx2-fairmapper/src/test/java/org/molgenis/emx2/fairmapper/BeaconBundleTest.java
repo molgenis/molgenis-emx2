@@ -52,6 +52,10 @@ class BeaconBundleTest {
   }
 
   private void testTransformStep(Step step) throws Exception {
+    if (step.tests() == null || step.tests().isEmpty()) {
+      return;
+    }
+
     Path transformPath = bundlePath.resolve(step.transform());
 
     for (TestCase testCase : step.tests()) {

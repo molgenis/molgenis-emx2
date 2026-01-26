@@ -1,0 +1,10 @@
+query Individuals($limit: Int, $offset: Int) {
+  Individuals(limit: $limit, offset: $offset) {
+    id
+    genderAtBirth {
+      code
+      name
+    }
+    yearOfBirth
+  }
+}

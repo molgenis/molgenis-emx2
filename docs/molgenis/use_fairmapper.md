@@ -167,6 +167,31 @@ Run tests:
 ./gradlew :backend:molgenis-emx2-fairmapper:test
 ```
 
+## E2e Tests
+
+For full pipeline testing against a live database, add an `e2e` section to your endpoint:
+
+```yaml
+endpoints:
+  - path: /{schema}/api/beacon/individuals
+    methods: [GET, POST]
+    steps:
+      - transform: src/transforms/request-to-variables.jslt
+      - query: src/queries/individuals.gql
+      - transform: src/transforms/individuals-response.jslt
+
+    e2e:
+      schema: patientRegistry
+      tests:
+        - method: POST
+          input: test/e2e/request.json
+          output: test/e2e/expected.json
+```
+
+E2e tests execute the full pipeline (transform → query → transform) against real data and compare the result with expected output using JSON equivalence (key order doesn't matter).
+
+**Test data**: Data models are loaded from `/data/_models/shared`. To explore the schema on a running test server: `http://localhost:8080/fairmapperTest/api/csv`
+
 ## Use Cases
 
 ### Query Flow (e.g., Beacon API)
