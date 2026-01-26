@@ -36,7 +36,7 @@
     - [Batch API](dev_batchapi.md)
     - [Message API](dev_messageapi.md)
     - [Beacon v2](dev_beaconv2.md)
-    - [FAIRmapper](use_fairmapper.md)
+    - [FAIRmapper](/fairmapper/)
     - [Cafe Variome](dev_cafevariome.md)
     - [RDF](dev_rdf.md)
     - [Building frontend apps](dev_apps.md)
