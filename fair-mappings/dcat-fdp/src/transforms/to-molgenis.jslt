@@ -1,10 +1,16 @@
-def extract-id(url)
+def type-prefix(dcat_type)
+  if ($dcat_type == "dcat:Catalog") "catalog-"
+  else if ($dcat_type == "dcat:Dataset") "dataset-"
+  else ""
+
+def extract-id(url, dcat_type)
   let parts = split($url, "/")
-  $parts[size($parts) - 1]
+  let suffix = $parts[size($parts) - 1]
+  type-prefix($dcat_type) + $suffix
 
 def to-type(dcat_type)
   if ($dcat_type == "dcat:Catalog") [{"name": "Catalogue"}]
-  else if ($dcat_type == "dcat:Dataset") [{"name": "Dataset"}]
+  else if ($dcat_type == "dcat:Dataset") [{"name": "Databank"}]
   else []
 
 def to-keywords(kw)
@@ -13,13 +19,15 @@ def to-keywords(kw)
   else []
 
 def to-resource(item)
+  let item_type = get-key($item, "@type")
   {
-    "id": extract-id(get-key($item, "@id")),
+    "id": extract-id(get-key($item, "@id"), $item_type),
     "name": get-key($item, "dcterms:title"),
-    "type": to-type(get-key($item, "@type")),
+    "type": to-type($item_type),
     "description": get-key($item, "dcterms:description"),
     "pid": get-key($item, "dcterms:identifier"),
-    "keywords": to-keywords(get-key($item, "dcat:keyword"))
+    "keywords": to-keywords(get-key($item, "dcat:keyword")),
+    "fdpEndpoint": null
   }
 
 let datasets_raw = get-key(., "dcat:dataset")

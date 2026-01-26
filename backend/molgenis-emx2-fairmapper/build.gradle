@@ -12,6 +12,8 @@ dependencies {
 
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-tasks')
+    testImplementation project(':backend:molgenis-emx2-datamodels')
+    testImplementation(testFixtures(project(':backend:molgenis-emx2-sql')))
 }
 
 test {
