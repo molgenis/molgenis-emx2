@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import org.eclipse.rdf4j.model.Model;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.fairmapper.FairMapperException;
+import org.molgenis.emx2.fairmapper.UrlValidator;
 
 class RdfFetcherTest {
 
@@ -66,5 +68,28 @@ class RdfFetcherTest {
 
     System.out.println("Generated JSON-LD:");
     System.out.println(jsonLd);
+  }
+
+  @Test
+  void testSmallResponseWithinLimit() throws IOException {
+    UrlValidator validator = new UrlValidator("https://example.org/catalog");
+    RdfFetcher fetcher = new RdfFetcher(validator, 1000);
+
+    Model model = fetcher.parseTurtle(SAMPLE_TURTLE);
+
+    assertNotNull(model);
+    assertEquals(3, model.size());
+  }
+
+  @Test
+  void testResponseExceedingMaxBytes() {
+    UrlValidator validator = new UrlValidator("https://example.org/catalog");
+    RdfFetcher fetcher = new RdfFetcher(validator, 10);
+
+    FairMapperException exception =
+        assertThrows(FairMapperException.class, () -> fetcher.parseTurtle(SAMPLE_TURTLE));
+
+    assertTrue(exception.getMessage().contains("Response body too large"));
+    assertTrue(exception.getMessage().contains("max: 10"));
   }
 }

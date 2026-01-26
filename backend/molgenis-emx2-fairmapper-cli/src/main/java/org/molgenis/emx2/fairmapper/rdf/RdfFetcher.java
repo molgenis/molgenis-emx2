@@ -11,11 +11,14 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
+import org.molgenis.emx2.fairmapper.FairMapperException;
 import org.molgenis.emx2.fairmapper.UrlValidator;
 
 public class RdfFetcher implements RdfSource {
+  private static final long DEFAULT_MAX_BYTES = 10 * 1024 * 1024;
   private final HttpClient httpClient;
   private final UrlValidator urlValidator;
+  private final long maxBytes;
 
   public RdfFetcher(String sourceUrl) {
     this(sourceUrl, false);
@@ -26,7 +29,12 @@ public class RdfFetcher implements RdfSource {
   }
 
   public RdfFetcher(UrlValidator urlValidator) {
+    this(urlValidator, DEFAULT_MAX_BYTES);
+  }
+
+  public RdfFetcher(UrlValidator urlValidator, long maxBytes) {
     this.urlValidator = urlValidator;
+    this.maxBytes = maxBytes;
     this.httpClient =
         HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(30))
@@ -55,7 +63,10 @@ public class RdfFetcher implements RdfSource {
             "RDF fetch failed with status " + response.statusCode() + ": " + response.body());
       }
 
-      return parseTurtle(response.body());
+      response.headers().firstValueAsLong("Content-Length").ifPresent(this::validateSize);
+
+      String body = response.body();
+      return parseTurtle(body);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IOException("RDF fetch interrupted", e);
@@ -63,10 +74,18 @@ public class RdfFetcher implements RdfSource {
   }
 
   public Model parseTurtle(String turtleContent) throws IOException {
+    validateSize(turtleContent.length());
     try {
       return Rio.parse(new StringReader(turtleContent), "", RDFFormat.TURTLE);
     } catch (RDFParseException e) {
       throw new IOException("Failed to parse Turtle RDF: " + e.getMessage(), e);
+    }
+  }
+
+  private void validateSize(long size) {
+    if (size > maxBytes) {
+      throw new FairMapperException(
+          "Response body too large: " + size + " bytes (max: " + maxBytes + ")");
     }
   }
 }
