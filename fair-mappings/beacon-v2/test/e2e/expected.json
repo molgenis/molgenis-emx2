@@ -11,7 +11,7 @@
   },
   "responseSummary": {
     "exists": true,
-    "numTotalResults": 10
+    "numTotalResults": 23
   },
   "response": {
     "resultSets": [
@@ -24,7 +24,7 @@
           {
             "id": "Case1F",
             "sex": {
-              "id": "null:124",
+              "id": "GSSO:124",
               "label": "assigned male at birth"
             },
             "diseases": null
@@ -32,7 +32,7 @@
           {
             "id": "Case1C",
             "sex": {
-              "id": "null:124",
+              "id": "GSSO:124",
               "label": "assigned male at birth"
             },
             "diseases": null
@@ -40,7 +40,7 @@
           {
             "id": "Case1M",
             "sex": {
-              "id": "null:123",
+              "id": "GSSO:123",
               "label": "assigned female at birth"
             },
             "diseases": null
@@ -48,7 +48,7 @@
           {
             "id": "Case2C",
             "sex": {
-              "id": "null:124",
+              "id": "GSSO:124",
               "label": "assigned male at birth"
             },
             "diseases": null
@@ -56,7 +56,7 @@
           {
             "id": "Case2F",
             "sex": {
-              "id": "null:124",
+              "id": "GSSO:124",
               "label": "assigned male at birth"
             },
             "diseases": null
@@ -64,7 +64,7 @@
           {
             "id": "Case2M",
             "sex": {
-              "id": "null:123",
+              "id": "GSSO:123",
               "label": "assigned female at birth"
             },
             "diseases": null
@@ -72,7 +72,7 @@
           {
             "id": "Case3C",
             "sex": {
-              "id": "null:124",
+              "id": "GSSO:124",
               "label": "assigned male at birth"
             },
             "diseases": null
@@ -80,7 +80,7 @@
           {
             "id": "Case3F",
             "sex": {
-              "id": "null:124",
+              "id": "GSSO:124",
               "label": "assigned male at birth"
             },
             "diseases": null
@@ -88,7 +88,7 @@
           {
             "id": "Case3M",
             "sex": {
-              "id": "null:123",
+              "id": "GSSO:123",
               "label": "assigned female at birth"
             },
             "diseases": null
@@ -96,7 +96,7 @@
           {
             "id": "Case4C",
             "sex": {
-              "id": "null:124",
+              "id": "GSSO:124",
               "label": "assigned male at birth"
             },
             "diseases": null

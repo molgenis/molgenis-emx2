@@ -107,12 +107,12 @@ class RunFairMapperTest {
   }
 
   @Test
-  void testE2e_notImplemented() throws Exception {
+  void testE2e_noE2eTestsFound() throws Exception {
     createValidBundle();
     int exitCode =
         RunFairMapper.execute("e2e", tempDir.toString(), "--server", "http://localhost:8080");
-    assertEquals(2, exitCode);
-    assertTrue(errContent.toString().contains("not yet implemented"));
+    assertEquals(0, exitCode);
+    assertTrue(outContent.toString().contains("No e2e tests found"));
   }
 
   @Test
