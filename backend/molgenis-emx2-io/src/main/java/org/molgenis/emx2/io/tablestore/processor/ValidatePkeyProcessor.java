@@ -46,7 +46,7 @@ public class ValidatePkeyProcessor implements RowProcessor {
     while (iterator.hasNext() && errorMessage == null) {
       Row row = iterator.next();
 
-      if (row.getValueMap().isEmpty()) {
+      if (row.isEmpty()) {
         continue;
       }
 

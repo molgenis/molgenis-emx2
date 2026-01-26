@@ -31,7 +31,7 @@ public class ImportRowProcessor implements RowProcessor {
     while (iterator.hasNext()) {
       Row row = iterator.next();
 
-      if (row.getValueMap().isEmpty()) {
+      if (row.isEmpty()) {
         continue;
       }
 

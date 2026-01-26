@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.*;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,24 +42,25 @@ class ImportRowProcessorTest {
 
   @Test
   void givenRows_thenImportToSpecifiedTable() {
-    List<String> actual = importRows(row("name", "Lewis"), row("name", "Marnie"));
-    assertEquals(List.of("Lewis", "Marnie"), actual);
+    List<Map<String, Object>> actual = importRows(row("name", "Lewis"), row("name", "Marnie"));
+    List<Map<String, String>> expected = List.of(Map.of("name", "Lewis"), Map.of("name", "Marnie"));
+    assertEquals(expected, actual);
   }
 
   @Test
-  void givenEmptyRow_thenSkip() {
-    List<String> actual = importRows(row("name", "Lewis"), row(), row("name", "Marnie"));
-    assertEquals(List.of("Lewis", "Marnie"), actual);
+  void givenEmptyRows_thenSkip() {
+    List<Map<String, Object>> actual =
+        importRows(row("name", "Lewis"), row(), row("name", null), row("name", "Marnie"));
+    List<Map<String, String>> expected = List.of(Map.of("name", "Lewis"), Map.of("name", "Marnie"));
+    assertEquals(expected, actual);
   }
 
-  private List<String> importRows(Row... rows) {
+  private List<Map<String, Object>> importRows(Row... rows) {
     Task task = new Task();
     ImportRowProcessor processor = new ImportRowProcessor(table, task);
     processor.process(List.of(rows).iterator(), new TableStoreForCsvInMemory());
-    return table.retrieveRows().stream()
+    return table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS).stream()
         .map(Row::getValueMap)
-        .map(map -> map.get("name"))
-        .map(String::valueOf)
         .toList();
   }
 }
