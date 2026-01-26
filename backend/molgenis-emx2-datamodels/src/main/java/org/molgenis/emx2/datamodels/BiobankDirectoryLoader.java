@@ -5,6 +5,7 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.ImportSchemaTask;
+import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -16,8 +17,8 @@ public class BiobankDirectoryLoader extends ImportDataModelTask {
 
   private boolean staging = false;
 
-  public BiobankDirectoryLoader(Schema schema, Boolean includeDemoData) {
-    super(schema, includeDemoData);
+  public BiobankDirectoryLoader(SchemaLoaderSettings schemaLoaderSettings) {
+    super(schemaLoaderSettings);
   }
 
   @Override

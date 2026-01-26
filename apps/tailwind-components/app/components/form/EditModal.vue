@@ -15,7 +15,9 @@
 
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
-      <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
+      <header
+        class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
+      >
         <div class="mb-5 relative flex items-center">
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
@@ -27,7 +29,7 @@
         </div>
 
         <button
-          @click="visible = false"
+          @click="onCancel"
           aria-label="Close modal"
           class="absolute top-7 right-8 p-1"
         >
@@ -78,7 +80,7 @@
     </TransitionSlideUp>
 
     <template #footer>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center flex-none">
         <FormRequiredInfoSection
           :message="requiredMessage"
           @required-next="gotoNextRequiredField"
@@ -134,6 +136,7 @@ import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
+import { on } from "events";
 
 const props = withDefaults(
   defineProps<{

@@ -7,6 +7,7 @@
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
       <div v-html="footer" />
+      <Footer id="directory-footer" :session="session" />
     </template>
   </Molgenis>
 </template>
@@ -19,6 +20,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import Error from "./components/Error.vue";
+import Footer from "./components/Footer.vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
 import router from "./router";
 import { useFiltersStore } from "./stores/filtersStore";

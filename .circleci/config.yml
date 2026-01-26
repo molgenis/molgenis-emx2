@@ -15,7 +15,7 @@ parameters:
     default: ""
 
 orbs:
-  slack: circleci/slack@4.15.0
+  slack: circleci/slack@6.1.2
   queue: eddiewebb/queue@3.1.4
 
 definitions:
@@ -25,7 +25,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   test_config: &test_config
@@ -39,7 +39,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   release_config: &release_config
@@ -53,7 +53,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
 
@@ -62,7 +62,7 @@ commands:
   pre_steps:
     steps:
     - run:
-        name: Fresh Git Checkout to prevend missing objects
+        name: Fresh Git Checkout to prevent missing objects
         command: |
           rm -rf .git
           git init
@@ -165,7 +165,7 @@ jobs:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
           GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
-          MAX_RETRIES=30
+          MAX_RETRIES=40
           RETRY=0
           
           while true; do
@@ -213,15 +213,22 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
-        name: check apps code format
+        name: <apps> check code format
         command: ./gradlew :apps:format
 
     - run:
-        name: lint the code
+        name: <apps> lint the code
         command: |
           ./gradlew lint ci --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
-
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+    - run:
+        name: <backend> check code format
+        command: |
+          ./gradlew --continue spotlessCheck
+    - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
+        name: <backend> check for programming flaws
+        command: |
+          ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and push to sonar
         command: |
@@ -294,7 +301,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.57.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.58.0-jammy
     steps:
       - checkout
       - run:
