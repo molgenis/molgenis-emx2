@@ -18,3 +18,5 @@ mappings:
         tests:
           - input: test/transform/dcat-input.json
             output: test/transform/molgenis-output.json
+
+      - mutate: src/mutations/upsert-resources.gql

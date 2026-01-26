@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.Step;
+import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
@@ -49,6 +50,8 @@ public class RemotePipelineExecutor {
         current = executeTransform(transformStep.path(), current);
       } else if (step instanceof QueryStep queryStep) {
         current = executeQuery(queryStep.path(), current);
+      } else if (step instanceof MutateStep mutateStep) {
+        current = executeMutate(mutateStep.path(), current);
       }
     }
 
@@ -64,5 +67,11 @@ public class RemotePipelineExecutor {
     Path resolvedPath = bundlePath.resolve(queryPath).normalize();
     String query = Files.readString(resolvedPath);
     return client.execute(schema, query, variables);
+  }
+
+  private JsonNode executeMutate(String mutatePath, JsonNode variables) throws IOException {
+    Path resolvedPath = bundlePath.resolve(mutatePath).normalize();
+    String mutation = Files.readString(resolvedPath);
+    return client.execute(schema, mutation, variables);
   }
 }

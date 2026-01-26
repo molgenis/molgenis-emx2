@@ -155,11 +155,26 @@ Bundles are global. Schema is extracted from URL path (`{schema}` placeholder) a
 - Imports supported for shared transforms
 - Paths relative to transform file
 
+## Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Config format | YAML (`fairmapper.yaml`) | Human-readable, familiar |
+| Schema structure | Flat (name, version, mappings) | Simple, no apiVersion/kind overhead |
+| Transform engine | JSLT | Powerful, imports supported, Java native |
+| Query engine | GraphQL first, SQL later | GraphQL already in MOLGENIS |
+| CLI framework | Picocli | Colored output, subcommands, well-documented |
+| Distribution | JAR with shell wrapper | Simple deployment |
+| Multi-tenancy | `{schema}` in paths | Runtime extraction from URL |
+| Mutations | MOLGENIS `insert` | Upsert behavior (updates if key exists) |
+| RDF parsing | RDF4J + Titanium JSON-LD | Standards-compliant, frame support |
+| JSLT special keys | `get-key(., "@id")` | Bracket notation fails for `@`/`:` chars |
+
 ## Future Extensions
 
 - SQL step type for PostgreSQL JSON queries
+- Task framework integration (async, progress, scheduling)
 - Additional transform engines (JSONata, jq)
-- Mutation support for ETL ingest
 - Hot reload of bundles
 - Web UI for bundle management
 
