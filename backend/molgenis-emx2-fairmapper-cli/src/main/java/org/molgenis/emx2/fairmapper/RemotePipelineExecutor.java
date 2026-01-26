@@ -59,18 +59,18 @@ public class RemotePipelineExecutor {
   }
 
   private JsonNode executeTransform(String transformPath, JsonNode input) throws IOException {
-    Path resolvedPath = bundlePath.resolve(transformPath).normalize();
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, transformPath);
     return transformEngine.transform(resolvedPath, input);
   }
 
   private JsonNode executeQuery(String queryPath, JsonNode variables) throws IOException {
-    Path resolvedPath = bundlePath.resolve(queryPath).normalize();
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, queryPath);
     String query = Files.readString(resolvedPath);
     return client.execute(schema, query, variables);
   }
 
   private JsonNode executeMutate(String mutatePath, JsonNode variables) throws IOException {
-    Path resolvedPath = bundlePath.resolve(mutatePath).normalize();
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, mutatePath);
     String mutation = Files.readString(resolvedPath);
     return client.execute(schema, mutation, variables);
   }

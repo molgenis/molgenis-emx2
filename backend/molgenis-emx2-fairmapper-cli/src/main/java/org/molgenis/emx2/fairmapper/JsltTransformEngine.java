@@ -48,7 +48,7 @@ public class JsltTransformEngine {
     @Override
     public Reader resolve(String path) {
       try {
-        Path resolved = baseDir.resolve(path).normalize();
+        Path resolved = PathValidator.validateWithinBase(baseDir, path);
         return Files.newBufferedReader(resolved);
       } catch (IOException e) {
         throw new RuntimeException("Cannot load resource '" + path + "': not found", e);

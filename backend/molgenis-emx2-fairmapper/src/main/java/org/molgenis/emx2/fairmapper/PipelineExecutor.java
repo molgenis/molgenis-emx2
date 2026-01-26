@@ -40,12 +40,12 @@ public class PipelineExecutor {
   }
 
   private JsonNode executeTransform(String transformPath, JsonNode input) throws IOException {
-    Path resolvedPath = bundlePath.resolve(transformPath).normalize();
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, transformPath);
     return transformEngine.transform(resolvedPath, input);
   }
 
   private JsonNode executeQuery(String queryPath, JsonNode variables) throws IOException {
-    Path resolvedPath = bundlePath.resolve(queryPath).normalize();
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, queryPath);
     String query = Files.readString(resolvedPath);
 
     ExecutionInput.Builder inputBuilder = ExecutionInput.newExecutionInput().query(query);
