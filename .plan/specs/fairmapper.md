@@ -9,25 +9,30 @@ Enable data managers to create API adapters and ETL pipelines without Java code.
 ### Bundle
 Directory containing `fairmapper.yaml` + transform/query files + tests. Located in `fair-mappings/`.
 
-### Endpoint
-HTTP route with processing steps. Path supports `{schema}` placeholder for multi-tenant access.
+### Mapping
+Named processing pipeline. Can expose HTTP endpoint or run via CLI.
+- `name` - CLI identifier
+- `endpoint` - HTTP path with `{schema}` placeholder (optional)
 
 ### Step
-Single processing unit:
-- `transform` - JSLT JSON transformation. Later we will add other engines (based on file extension currently .jslt)
-- `query` - GraphQL query execution. Later we will also allow postgresql sql (based on file extension, .gql vs .sql)
+Single processing unit (strategy pattern):
+- `fetch` - HTTP GET RDF, follow links, apply JSON-LD frame
+- `transform` - JSLT JSON transformation
+- `query` - GraphQL query execution
+- `mutate` - GraphQL mutation execution (planned)
 
 ### E2e Test
 Full pipeline test against live database with JSON input/output validation.
 
-## fairmapper.yaml Schema
+## fairmapper.yaml Schema (v2)
 
 ```yaml
 name: beacon-v2         # Required: bundle identifier
 version: 2.0.0          # version of the mapping, user defined
 
-endpoints:
-  - path: /{schema}/api/beacon/individuals
+mappings:               # (was: endpoints)
+  - name: individuals   # CLI identifier (required if no endpoint)
+    endpoint: /{schema}/api/beacon/individuals  # HTTP path (optional)
     methods: [GET, POST]
     steps:
       - transform: src/request-to-variables.jslt
@@ -44,15 +49,30 @@ endpoints:
           output: test/e2e/expected.json
 ```
 
+Backwards compatibility: `endpoints` and `path` still work but are deprecated.
+
 ## Step Types
 
 | Type        | Extension | Input | Output | Engine |
 |-------------|-----------|-------|--------|--------|
+| `fetch`     | URL | RDF (Turtle) | JSON-LD (framed) | RDF4J + Titanium |
 | `transform` | `.jslt` | JSON | JSON | JSLT (schibsted) |
 | `query`     | `.gql` | Variables JSON | Query result JSON | molgenis-emx2-graphql |
+| `mutate`    | `.gql` | Variables JSON | Mutation result | molgenis-emx2-graphql |
 | `query`     | `.sql` | Variables JSON | Query result JSON | PostgreSQL (planned) |
 
-N.b we might later have other edge formats. 
+### Fetch Step Options
+
+```yaml
+- fetch: ${SOURCE_URL}      # URL or variable
+  accept: text/turtle       # Content-Type (default: text/turtle)
+  frame: src/frames/x.jsonld  # JSON-LD frame file
+  maxDepth: 5               # Max link-following depth (default: 5)
+  maxCalls: 50              # Max HTTP requests per record (default: 50)
+  tests:
+    - input: test/catalog.ttl   # Local Turtle file
+      output: test/catalog.json # Expected framed JSON
+```
 
 ## CLI Commands
 
@@ -102,13 +122,15 @@ HTTP Response (JSON)
 
 ## Validation Rules
 
-1. `fairmapper.yaml` must have: name, endpoints
-2. Each step must have exactly one of: `transform`, `query`, or `sql`
-3. Transform files must exist and have `.jslt` extension
-4. Query files must exist and have `.gql` extension
-5. E2e test method must be GET or POST
-6. E2e input/output files must exist
-7. Version field optional (warning logged if missing)
+1. `fairmapper.yaml` must have: name, mappings (or endpoints for v1)
+2. Each mapping must have: name OR endpoint (at least one)
+3. Each step must have exactly one of: `fetch`, `transform`, `query`, `mutate`
+4. Transform files must exist and have `.jslt` extension
+5. Query files must exist and have `.gql` extension
+6. Frame files must exist and have `.json` or `.jsonld` extension
+7. E2e test method must be GET or POST
+8. E2e input/output files must exist
+9. Version field optional (warning logged if missing)
 
 ## Error Handling
 
