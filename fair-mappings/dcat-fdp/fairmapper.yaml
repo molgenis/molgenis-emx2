@@ -13,3 +13,8 @@ mappings:
         tests:
           - input: test/fetch/catalog.ttl
             output: test/fetch/catalog.json
+
+      - transform: src/transforms/to-molgenis.jslt
+        tests:
+          - input: test/transform/dcat-input.json
+            output: test/transform/molgenis-output.json

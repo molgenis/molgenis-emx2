@@ -1,0 +1,34 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/"
+  },
+  "@id": "https://example.org/catalog/1",
+  "@type": "dcat:Catalog",
+  "dcterms:description": "A sample DCAT catalog for testing",
+  "dcterms:publisher": {
+    "@id": "https://example.org/org/1",
+    "@type": "foaf:Organization",
+    "foaf:name": "Example Organization"
+  },
+  "dcterms:title": "Example Catalog",
+  "dcat:dataset": [
+    {
+      "@id": "https://example.org/dataset/1",
+      "@type": "dcat:Dataset",
+      "dcterms:description": "First test dataset",
+      "dcterms:identifier": "doi:10.1234/dataset1",
+      "dcterms:title": "Dataset One",
+      "dcat:keyword": ["genetics", "health"]
+    },
+    {
+      "@id": "https://example.org/dataset/2",
+      "@type": "dcat:Dataset",
+      "dcterms:description": "Second test dataset",
+      "dcterms:identifier": "doi:10.1234/dataset2",
+      "dcterms:title": "Dataset Two",
+      "dcat:keyword": "biobank"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+def extract-id(url)
+  let parts = split($url, "/")
+  $parts[size($parts) - 1]
+
+def to-type(dcat_type)
+  if ($dcat_type == "dcat:Catalog") [{"name": "Catalogue"}]
+  else if ($dcat_type == "dcat:Dataset") [{"name": "Dataset"}]
+  else []
+
+def to-keywords(kw)
+  if (is-array($kw)) $kw
+  else if ($kw) [$kw]
+  else []
+
+def to-resource(item)
+  {
+    "id": extract-id(get-key($item, "@id")),
+    "name": get-key($item, "dcterms:title"),
+    "type": to-type(get-key($item, "@type")),
+    "description": get-key($item, "dcterms:description"),
+    "pid": get-key($item, "dcterms:identifier"),
+    "keywords": to-keywords(get-key($item, "dcat:keyword"))
+  }
+
+let datasets_raw = get-key(., "dcat:dataset")
+let datasets = if (is-array($datasets_raw)) $datasets_raw else if ($datasets_raw) [$datasets_raw] else []
+
+let catalog_resource = to-resource(.)
+let dataset_resources = [for ($datasets) to-resource(.)]
+
+let publisher = get-key(., "dcterms:publisher")
+let publisher_name = get-key($publisher, "foaf:name")
+let organisations = if ($publisher_name) [{
+  "resource": {"id": $catalog_resource.id},
+  "id": $publisher_name
+}] else []
+
+{
+  "Resources": flatten([[$catalog_resource], $dataset_resources]),
+  "Organisations": $organisations
+}
