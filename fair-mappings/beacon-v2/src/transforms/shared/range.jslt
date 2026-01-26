@@ -1,0 +1,7 @@
+if (.role == "Range")
+    {
+        "resultCountDescription" : {
+            "minRange" : .count - 9,
+            "maxRange" : .count
+        }
+    }

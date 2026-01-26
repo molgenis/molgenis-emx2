@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
+import com.schibsted.spt.data.jslt.ResourceResolver;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,9 +19,15 @@ public class JsltTransformEngine {
       throw new IOException("JSLT template not found: " + jsltTemplatePath);
     }
 
+    Path baseDir = jsltTemplatePath.getParent();
     String jsltTemplate = Files.readString(jsltTemplatePath);
-    // preserve empty arrays/objects in output
-    Expression jslt = new Parser(new StringReader(jsltTemplate)).withObjectFilter("true").compile();
+
+    ResourceResolver resolver = new FileResourceResolver(baseDir);
+    Expression jslt =
+        new Parser(new StringReader(jsltTemplate))
+            .withResourceResolver(resolver)
+            .withObjectFilter("true")
+            .compile();
     return jslt.apply(input);
   }
 
@@ -28,5 +36,23 @@ public class JsltTransformEngine {
       throw new IOException("JSON file not found: " + jsonPath);
     }
     return objectMapper.readTree(jsonPath.toFile());
+  }
+
+  private static class FileResourceResolver implements ResourceResolver {
+    private final Path baseDir;
+
+    FileResourceResolver(Path baseDir) {
+      this.baseDir = baseDir;
+    }
+
+    @Override
+    public Reader resolve(String path) {
+      try {
+        Path resolved = baseDir.resolve(path).normalize();
+        return Files.newBufferedReader(resolved);
+      } catch (IOException e) {
+        throw new RuntimeException("Cannot load resource '" + path + "': not found", e);
+      }
+    }
   }
 }

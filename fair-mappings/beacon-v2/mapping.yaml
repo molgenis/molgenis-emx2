@@ -27,6 +27,19 @@ endpoints:
           - input: test/individuals-response/empty.input.json
             output: test/individuals-response/empty.output.json
 
+  - path: /{schema}/api/beacon/individuals-full
+    methods: [GET, POST]
+    steps:
+      - transform: src/transforms/request-to-variables.jslt
+      - query: src/queries/individuals-full.gql
+      - transform: src/transforms/individuals.jslt
+    e2e:
+      schema: patientRegistry
+      tests:
+        - method: POST
+          input: test/e2e/individuals-full.input.json
+          output: test/e2e/individuals-full.output.json
+
   - path: /{schema}/api/beacon/individuals-minimal
     methods: [GET, POST]
     steps:

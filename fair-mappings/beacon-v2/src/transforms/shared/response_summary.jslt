@@ -1,0 +1,4 @@
+{
+        "exists": size(.resultSets) > 0,
+        "numTotalResults": number(.numTotalResults)
+}
