@@ -1,54 +1,11 @@
-export interface TreeNode {
-  name: string;
-  children?: TreeNode[];
-  parent?: {
-    name: string;
-  };
-}
+import type {
+  IDeveloperPages,
+  IDependencies,
+  IDependenciesCSS,
+  IDependenciesJS,
+} from "../../types/cms";
 
-export interface OntologyNode extends TreeNode {
-  code?: string;
-  definition?: string;
-  ontologyTermURI?: string;
-  order?: number;
-}
-
-export interface Dependency {
-  name: string;
-  url?: string;
-  fetchPriority?: OntologyNode;
-  mg_tableclass: string;
-}
-
-export interface DependencyCSS extends Dependency {
-  type?: OntologyNode;
-}
-
-export interface DependencyJS extends Dependency {
-  type?: OntologyNode;
-  async?: boolean;
-  defer?: boolean;
-}
-
-export interface DeveloperPage {
-  name: string;
-  description?: string;
-  html?: string;
-  css?: string;
-  javascript?: string;
-  dependencies?: DependencyCSS[] | DependencyJS[];
-  enableBaseStyles?: boolean;
-  enableButtonStyles?: boolean;
-  enableFullScreen?: boolean;
-}
-
-export interface Pages {
-  name: string;
-  description?: string;
-  mg_tableclass: string;
-}
-
-export function newDeveloperPage(): DeveloperPage {
+export function newDeveloperPage(): IDeveloperPages {
   return {
     name: "",
     description: "",
@@ -70,12 +27,12 @@ export function newPageDate(): string {
 export async function getPage(
   schema: string,
   page: string
-): Promise<DeveloperPage> {
+): Promise<IDeveloperPages> {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `query getDeveloperPage($filter:DeveloperPageFilter) {
-        DeveloperPage(filter:$filter) {
+      query: `query getDeveloperPages($filter:DeveloperPagesFilter) {
+        DeveloperPages(filter:$filter) {
           name
           description
           html
@@ -101,11 +58,11 @@ export async function getPage(
       variables: { filter: { name: { equals: page } } },
     },
   });
-  return data.DeveloperPage[0];
+  return data.DeveloperPages[0];
 }
 
 export function generateHtmlPreview(
-  content: DeveloperPage,
+  content: IDeveloperPages,
   ref: HTMLDivElement
 ) {
   if (content && typeof content === "object" && Object.keys(content).length) {
@@ -116,17 +73,17 @@ export function generateHtmlPreview(
       "head"
     )[0] as HTMLHeadElement;
 
-    content.dependencies?.forEach(
-      (dependency: DependencyCSS | DependencyJS) => {
-        if (dependency.mg_tableclass.endsWith("CSS") && dependency.url) {
+    (content.dependencies as IDependencies[])?.forEach(
+      (dependency: IDependenciesCSS | IDependenciesJS) => {
+        if (dependency.mg_tableclass?.endsWith("CSS") && dependency.url) {
           const elem = document.createElement("link");
           elem.href = dependency.url;
           elem.rel = "stylesheet";
           documentHead.appendChild(elem);
         }
 
-        if (dependency.mg_tableclass.endsWith("JS") && dependency.url) {
-          const jsDependency = dependency as DependencyJS;
+        if (dependency.mg_tableclass?.endsWith("JS") && dependency.url) {
+          const jsDependency = dependency as IDependenciesJS;
 
           const elem = document.createElement("script") as HTMLScriptElement;
           elem.src = jsDependency.url as string;

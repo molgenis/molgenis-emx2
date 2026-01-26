@@ -1,5 +1,3 @@
-// Generated (on: 2026-01-23T15:05:52.322381) from Generator.java for schema: cms
-
 export interface IFile {
   id?: string;
   size?: number;
@@ -55,6 +53,7 @@ export interface IConfigurablePages_agg {
 export interface IContainers {
   name: string;
   description?: string;
+  mg_tableclass?: string;
 }
 
 export interface IContainers_agg {
@@ -65,26 +64,20 @@ export interface IDependencies {
   name: string;
   url?: string;
   fetchPriority?: IOntologyNode;
+  mg_tableclass?: string;
 }
 
 export interface IDependencies_agg {
   count: number;
 }
 
-export interface IDependenciesCSS {
-  name: string;
-  url?: string;
-  fetchPriority?: IOntologyNode;
-}
+export interface IDependenciesCSS extends IDependencies {}
 
 export interface IDependenciesCSS_agg {
   count: number;
 }
 
-export interface IDependenciesJS {
-  name: string;
-  url?: string;
-  fetchPriority?: IOntologyNode;
+export interface IDependenciesJS extends IDependencies {
   async?: boolean;
   defer?: boolean;
 }
