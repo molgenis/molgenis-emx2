@@ -3,6 +3,9 @@ plugins {
 }
 
 dependencies {
+    // Core EMX2 types (MolgenisException, etc.)
+    implementation project(':backend:molgenis-emx2')
+
     // For GraphQL execution
     implementation project(':backend:molgenis-emx2-graphql')
 
