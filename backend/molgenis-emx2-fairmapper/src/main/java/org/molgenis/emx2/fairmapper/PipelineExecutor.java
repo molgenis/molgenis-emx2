@@ -46,11 +46,6 @@ public class PipelineExecutor {
 
   private JsonNode executeQuery(String queryPath, JsonNode variables) throws IOException {
     Path resolvedPath = bundlePath.resolve(queryPath).normalize();
-
-    if (!Files.exists(resolvedPath)) {
-      throw new IOException("Query file not found: " + resolvedPath);
-    }
-
     String query = Files.readString(resolvedPath);
 
     ExecutionInput.Builder inputBuilder = ExecutionInput.newExecutionInput().query(query);
