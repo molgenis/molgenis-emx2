@@ -14,6 +14,8 @@ endpoints:
             output: test/request-to-variables/basic.output.json
           - input: test/request-to-variables/with-filter.input.json
             output: test/request-to-variables/with-filter.output.json
+          - input: test/request-to-variables/with-sex-filter.input.json
+            output: test/request-to-variables/with-sex-filter.output.json
 
       - query: src/queries/individuals.gql
         tests:

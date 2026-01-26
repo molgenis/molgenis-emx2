@@ -2,8 +2,8 @@
   "query": {
     "filters": [
       {
-        "id": "genderAtBirth",
-        "value": "male"
+        "id": "unknown_filter",
+        "value": "test"
       }
     ],
     "pagination": {
