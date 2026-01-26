@@ -25,13 +25,18 @@ public class FrameDrivenFetcher {
     this.vf = SimpleValueFactory.getInstance();
   }
 
-  public Model fetch(String url, JsonNode frame, int maxDepth) throws IOException {
+  public Model fetch(String url, JsonNode frame, int maxDepth, int maxCalls) throws IOException {
     Map<Integer, List<String>> predicatesByDepth = analyzer.analyze(frame, maxDepth);
 
     Model model = new TreeModel();
-    model.addAll(source.fetch(url));
+    Set<String> fetched = new HashSet<>();
+    int callCount = 0;
 
-    for (int depth = 0; depth <= maxDepth; depth++) {
+    model.addAll(source.fetch(url));
+    fetched.add(url);
+    callCount++;
+
+    for (int depth = 0; depth <= maxDepth && callCount < maxCalls; depth++) {
       List<String> predicates = predicatesByDepth.get(depth);
       if (predicates == null || predicates.isEmpty()) {
         continue;
@@ -40,9 +45,19 @@ public class FrameDrivenFetcher {
       for (String predicate : predicates) {
         Set<String> urisToFetch = extractObjectUris(model, predicate);
         for (String uri : urisToFetch) {
+          if (callCount >= maxCalls) {
+            System.err.println(
+                "Warning: maxCalls limit (" + maxCalls + ") reached, skipping remaining URIs");
+            break;
+          }
+          if (fetched.contains(uri)) {
+            continue;
+          }
           try {
             Model linkedModel = source.fetch(uri);
             model.addAll(linkedModel);
+            fetched.add(uri);
+            callCount++;
           } catch (IOException e) {
             System.err.println("Warning: Failed to fetch " + uri + ": " + e.getMessage());
           }
@@ -51,6 +66,10 @@ public class FrameDrivenFetcher {
     }
 
     return model;
+  }
+
+  public Model fetch(String url, JsonNode frame, int maxDepth) throws IOException {
+    return fetch(url, frame, maxDepth, 50);
   }
 
   private Set<String> extractObjectUris(Model model, String predicateUri) {

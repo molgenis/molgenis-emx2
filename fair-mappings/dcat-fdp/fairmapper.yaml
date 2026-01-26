@@ -1,0 +1,15 @@
+name: dcat-fdp
+version: 1.0.0
+
+mappings:
+  - name: harvest-catalog
+    endpoint: /{schema}/api/harvest
+    methods: [POST]
+    steps:
+      - fetch: ${SOURCE_URL}
+        frame: src/frames/catalog-with-datasets.jsonld
+        maxDepth: 5
+        maxCalls: 50
+        tests:
+          - input: test/fetch/catalog.ttl
+            output: test/fetch/catalog.json

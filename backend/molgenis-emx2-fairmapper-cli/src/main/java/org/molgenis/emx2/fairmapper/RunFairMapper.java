@@ -7,11 +7,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.molgenis.emx2.fairmapper.executor.FetchExecutor;
 import org.molgenis.emx2.fairmapper.model.E2eTestCase;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
+import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.TestCase;
+import org.molgenis.emx2.fairmapper.model.step.FetchStep;
+import org.molgenis.emx2.fairmapper.model.step.StepConfig;
+import org.molgenis.emx2.fairmapper.model.step.TransformStep;
+import org.molgenis.emx2.fairmapper.rdf.LocalRdfSource;
+import org.skyscreamer.jsonassert.JSONCompare;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 
@@ -88,26 +96,28 @@ public class RunFairMapper implements Runnable {
 
         System.out.println(color("  @|bold Name:|@     " + bundle.name()));
         System.out.println(color("  @|bold Version:|@  " + bundle.version()));
-        System.out.println(color("  @|bold Endpoints:|@ " + bundle.endpoints().size()));
+        System.out.println(color("  @|bold Mappings:|@ " + bundle.getMappings().size()));
         System.out.println();
 
-        for (Endpoint endpoint : bundle.endpoints()) {
+        for (Mapping mapping : bundle.getMappings()) {
+          String displayPath =
+              mapping.endpoint() != null ? mapping.endpoint() : mapping.getEffectiveName();
           System.out.println(
               color(
                   "  @|yellow "
-                      + endpoint.path()
+                      + displayPath
                       + "|@ ["
-                      + String.join(", ", endpoint.methods())
+                      + String.join(", ", mapping.methods())
                       + "]"));
-          System.out.println("    Steps: " + endpoint.steps().size());
+          System.out.println("    Steps: " + mapping.steps().size());
 
-          int testCount = countStepTests(endpoint);
+          int testCount = countMappingStepTests(mapping);
           if (testCount > 0) {
             System.out.println("    Unit tests: " + testCount);
           }
 
-          if (endpoint.e2e() != null && endpoint.e2e().tests() != null) {
-            System.out.println("    E2e tests: " + endpoint.e2e().tests().size());
+          if (mapping.e2e() != null && mapping.e2e().tests() != null) {
+            System.out.println("    E2e tests: " + mapping.e2e().tests().size());
           }
         }
 
@@ -127,6 +137,16 @@ public class RunFairMapper implements Runnable {
     private int countStepTests(Endpoint endpoint) {
       int count = 0;
       for (Step step : endpoint.steps()) {
+        if (step.tests() != null) {
+          count += step.tests().size();
+        }
+      }
+      return count;
+    }
+
+    private int countMappingStepTests(Mapping mapping) {
+      int count = 0;
+      for (StepConfig step : mapping.steps()) {
         if (step.tests() != null) {
           count += step.tests().size();
         }
@@ -163,18 +183,22 @@ public class RunFairMapper implements Runnable {
         JsltTransformEngine engine = new JsltTransformEngine();
         MappingBundle bundle = loader.load(configPath);
 
+        LocalRdfSource rdfSource = new LocalRdfSource(bundlePath);
+        FetchExecutor fetchExecutor = new FetchExecutor(rdfSource, bundlePath);
+        ObjectMapper objectMapper = new ObjectMapper();
+
         int passed = 0;
         int failed = 0;
         List<String> failures = new ArrayList<>();
 
-        for (Endpoint endpoint : bundle.endpoints()) {
-          for (Step step : endpoint.steps()) {
-            if (step.transform() != null && step.tests() != null) {
-              Path transformPath = bundlePath.resolve(step.transform());
+        for (Mapping mapping : bundle.getMappings()) {
+          for (StepConfig step : mapping.steps()) {
+            if (step instanceof TransformStep transformStep && transformStep.tests() != null) {
+              Path transformPath = bundlePath.resolve(transformStep.path());
 
-              for (TestCase testCase : step.tests()) {
+              for (TestCase testCase : transformStep.tests()) {
                 String testName =
-                    shortenPath(step.transform()) + " ← " + shortenPath(testCase.input());
+                    shortenPath(transformStep.path()) + " ← " + shortenPath(testCase.input());
                 try {
                   Path inputPath = bundlePath.resolve(testCase.input());
                   Path expectedPath = bundlePath.resolve(testCase.output());
@@ -183,7 +207,7 @@ public class RunFairMapper implements Runnable {
                   JsonNode expected = engine.loadJson(expectedPath);
                   JsonNode actual = engine.transform(transformPath, input);
 
-                  if (expected.equals(actual)) {
+                  if (jsonEquals(expected, actual)) {
                     System.out.println(color("  @|green ✓|@ " + testName));
                     passed++;
                   } else {
@@ -199,6 +223,44 @@ public class RunFairMapper implements Runnable {
                               + actual
                                   .toString()
                                   .substring(0, Math.min(100, actual.toString().length()));
+                    }
+                    failures.add(detail);
+                    failed++;
+                  }
+                } catch (Exception e) {
+                  System.out.println(color("  @|red ✗|@ " + testName + " - " + e.getMessage()));
+                  failures.add(testName + "\n    Error: " + e.getMessage());
+                  failed++;
+                }
+              }
+            } else if (step instanceof FetchStep fetchStep && fetchStep.tests() != null) {
+              for (TestCase testCase : fetchStep.tests()) {
+                String testName =
+                    "fetch("
+                        + shortenPath(fetchStep.url())
+                        + ") ← "
+                        + shortenPath(testCase.input());
+                try {
+                  Path expectedPath = bundlePath.resolve(testCase.output());
+                  JsonNode expected = objectMapper.readTree(Files.readString(expectedPath));
+                  JsonNode actual = fetchExecutor.execute(fetchStep, testCase.input());
+
+                  if (jsonEquals(expected, actual)) {
+                    System.out.println(color("  @|green ✓|@ " + testName));
+                    passed++;
+                  } else {
+                    System.out.println(color("  @|red ✗|@ " + testName));
+                    String detail = testName;
+                    if (verbose) {
+                      detail +=
+                          "\n    Expected: "
+                              + expected
+                                  .toString()
+                                  .substring(0, Math.min(200, expected.toString().length()))
+                              + "\n    Actual:   "
+                              + actual
+                                  .toString()
+                                  .substring(0, Math.min(200, actual.toString().length()));
                     }
                     failures.add(detail);
                     failed++;
@@ -247,6 +309,16 @@ public class RunFairMapper implements Runnable {
       int lastSlash = path.lastIndexOf('/');
       return lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
     }
+
+    private boolean jsonEquals(JsonNode expected, JsonNode actual) {
+      try {
+        return JSONCompare.compareJSON(
+                expected.toString(), actual.toString(), JSONCompareMode.NON_EXTENSIBLE)
+            .passed();
+      } catch (Exception e) {
+        return false;
+      }
+    }
   }
 
   @Command(
@@ -293,18 +365,20 @@ public class RunFairMapper implements Runnable {
         JsltTransformEngine engine = new JsltTransformEngine();
         MappingBundle bundle = loader.load(configPath);
 
-        if (bundle.endpoints().isEmpty()) {
-          System.err.println(color("@|red Bundle has no endpoints|@"));
+        if (bundle.getMappings().isEmpty()) {
+          System.err.println(color("@|red Bundle has no mappings|@"));
           return 1;
         }
 
-        if (endpointIndex >= bundle.endpoints().size()) {
-          System.err.println(color("@|red Endpoint index out of range|@"));
+        if (endpointIndex >= bundle.getMappings().size()) {
+          System.err.println(color("@|red Mapping index out of range|@"));
           return 1;
         }
 
-        Endpoint endpoint = bundle.endpoints().get(endpointIndex);
-        System.out.println(color("@|yellow Endpoint:|@ " + endpoint.path()));
+        Mapping mapping = bundle.getMappings().get(endpointIndex);
+        String displayPath =
+            mapping.endpoint() != null ? mapping.endpoint() : mapping.getEffectiveName();
+        System.out.println(color("@|yellow Mapping:|@ " + displayPath));
         System.out.println();
 
         JsonNode current = engine.loadJson(inputPath);
@@ -313,24 +387,36 @@ public class RunFairMapper implements Runnable {
         System.out.println(current.toPrettyString());
 
         int stepIndex = 0;
-        for (Step step : endpoint.steps()) {
+        for (StepConfig step : mapping.steps()) {
           if (stepIndex >= maxSteps) break;
 
           System.out.println();
-          if (step.transform() != null) {
-            Path transformPath = bundlePath.resolve(step.transform());
+          if (step instanceof TransformStep transformStep) {
+            Path transformPath = bundlePath.resolve(transformStep.path());
             current = engine.transform(transformPath, current);
             System.out.println(
-                color("@|bold Step " + stepIndex + "|@ @|green (transform)|@ " + step.transform()));
+                color(
+                    "@|bold Step "
+                        + stepIndex
+                        + "|@ @|green (transform)|@ "
+                        + transformStep.path()));
             System.out.println(current.toPrettyString());
-          } else if (step.query() != null) {
+          } else if (step instanceof org.molgenis.emx2.fairmapper.model.step.QueryStep queryStep) {
             System.out.println(
                 color(
                     "@|bold Step "
                         + stepIndex
                         + "|@ @|yellow (query)|@ "
-                        + step.query()
+                        + queryStep.path()
                         + " @|faint [skipped]|@"));
+          } else if (step instanceof FetchStep fetchStep) {
+            System.out.println(
+                color(
+                    "@|bold Step "
+                        + stepIndex
+                        + "|@ @|cyan (fetch)|@ "
+                        + fetchStep.url()
+                        + " @|faint [skipped - use test command]|@"));
           }
 
           stepIndex++;
@@ -407,35 +493,38 @@ public class RunFairMapper implements Runnable {
         int failed = 0;
         List<String> failures = new ArrayList<>();
 
-        for (Endpoint endpoint : bundle.endpoints()) {
-          if (endpoint.e2e() == null || endpoint.e2e().tests() == null) {
+        for (Mapping mapping : bundle.getMappings()) {
+          if (mapping.e2e() == null || mapping.e2e().tests() == null) {
             continue;
           }
 
           String effectiveSchema =
               (this.schema != null && !this.schema.isBlank())
                   ? this.schema
-                  : endpoint.e2e().schema();
+                  : mapping.e2e().schema();
 
           if (effectiveSchema == null || effectiveSchema.isBlank()) {
+            String displayPath =
+                mapping.endpoint() != null ? mapping.endpoint() : mapping.getEffectiveName();
             System.out.println(
-                color(
-                    "@|yellow " + endpoint.path() + "|@ @|red (skipped - no schema configured)|@"));
+                color("@|yellow " + displayPath + "|@ @|red (skipped - no schema configured)|@"));
             continue;
           }
 
+          String displayPath =
+              mapping.endpoint() != null ? mapping.endpoint() : mapping.getEffectiveName();
           System.out.println(
-              color("@|yellow " + endpoint.path() + "|@ (schema: " + effectiveSchema + ")"));
+              color("@|yellow " + displayPath + "|@ (schema: " + effectiveSchema + ")"));
 
           RemotePipelineExecutor executor =
               new RemotePipelineExecutor(client, transformEngine, bundlePath, effectiveSchema);
 
-          for (E2eTestCase testCase : endpoint.e2e().tests()) {
+          for (E2eTestCase testCase : mapping.e2e().tests()) {
             String testName = testCase.method() + " " + shortenPath(testCase.input());
             try {
               JsonNode input = loadJson(testCase.input());
               JsonNode expected = loadJson(testCase.output());
-              JsonNode actual = executor.execute(input, endpoint);
+              JsonNode actual = executor.execute(input, mapping);
 
               if (jsonEquals(expected, actual)) {
                 System.out.println(color("  @|green ✓|@ " + testName));
@@ -503,7 +592,13 @@ public class RunFairMapper implements Runnable {
     }
 
     private boolean jsonEquals(JsonNode expected, JsonNode actual) {
-      return expected.equals(actual);
+      try {
+        return JSONCompare.compareJSON(
+                expected.toString(), actual.toString(), JSONCompareMode.NON_EXTENSIBLE)
+            .passed();
+      } catch (Exception e) {
+        return false;
+      }
     }
 
     private String shortenPath(String path) {

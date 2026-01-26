@@ -1,0 +1,28 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<https://example.org/catalog/1>
+    a dcat:Catalog ;
+    dcterms:title "Example Catalog" ;
+    dcterms:description "A sample DCAT catalog for testing" ;
+    dcterms:publisher <https://example.org/org/1> ;
+    dcat:dataset <https://example.org/dataset/1>, <https://example.org/dataset/2> .
+
+<https://example.org/org/1>
+    a foaf:Organization ;
+    foaf:name "Example Organization" .
+
+<https://example.org/dataset/1>
+    a dcat:Dataset ;
+    dcterms:title "Dataset One" ;
+    dcterms:description "First test dataset" ;
+    dcterms:identifier "doi:10.1234/dataset1" ;
+    dcat:keyword "health", "genetics" .
+
+<https://example.org/dataset/2>
+    a dcat:Dataset ;
+    dcterms:title "Dataset Two" ;
+    dcterms:description "Second test dataset" ;
+    dcterms:identifier "doi:10.1234/dataset2" ;
+    dcat:keyword "biobank" .
