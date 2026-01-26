@@ -1,10 +1,14 @@
-query Individuals($limit: Int, $offset: Int) {
-  Individuals(limit: $limit, offset: $offset) {
+query Individuals($filter: IndividualsFilter, $limit: Int, $offset: Int) {
+  Individuals(filter: $filter, limit: $limit, offset: $offset) {
     id
     genderAtBirth {
       code
+      codesystem
       name
     }
     yearOfBirth
+  }
+  Individuals_agg(filter: $filter) {
+    count
   }
 }
