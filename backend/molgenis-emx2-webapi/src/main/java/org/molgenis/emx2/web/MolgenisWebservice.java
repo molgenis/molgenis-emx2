@@ -28,14 +28,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MolgenisWebservice {
+
   public static final String SCHEMA = "schema";
   public static final String EDITOR = "Editor";
   public static final String MANAGER = "Manager";
   public static final String ROLE = "role";
   public static final String VIEWER = "Viewer";
+
   public static final long MAX_REQUEST_SIZE = 10_000_000L;
+
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+
   public static final String NUXT_OIDC_LOGOUT_PATH =
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
@@ -198,7 +202,9 @@ public class MolgenisWebservice {
                                 && List.of(EDITOR, MANAGER).contains(role)
                             || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
                 .toList();
-        if (!menu.isEmpty()) {
+        if (menu.isEmpty()) {
+          logger.warn("No menu available for current user");
+        } else {
           String location =
               "/"
                   + encodePathSegment(ctx.pathParam(SCHEMA))
@@ -213,6 +219,8 @@ public class MolgenisWebservice {
       logger.debug(e.getMessage());
       ctx.redirect("/");
     }
+
+    ctx.redirect("/");
   }
 
   private static String listSchemas(Context ctx) {
