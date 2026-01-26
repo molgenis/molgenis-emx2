@@ -29,6 +29,8 @@ public class BeaconIntegrationTest {
   private static JsltTransformEngine transformEngine;
   private static Path bundlePath;
   private static ObjectMapper mapper = new ObjectMapper();
+  private static BundleLoader bundleLoader;
+  private static PipelineExecutor pipelineExecutor;
 
   @BeforeAll
   static void setup() {
@@ -42,6 +44,8 @@ public class BeaconIntegrationTest {
     transformEngine = new JsltTransformEngine();
     bundlePath =
         Paths.get(System.getProperty("user.dir"), "../..", "fair-mappings/beacon-v2").normalize();
+    bundleLoader = new BundleLoader();
+    pipelineExecutor = new PipelineExecutor(graphql, transformEngine, bundlePath);
   }
 
   @Test
@@ -108,6 +112,71 @@ public class BeaconIntegrationTest {
     assertTrue(beaconResponse.has("responseSummary"));
     assertTrue(beaconResponse.has("response"));
     assertTrue(beaconResponse.get("responseSummary").get("exists").asBoolean());
+  }
+
+  @Test
+  void testPipelineExecutor_transformQueryTransform() throws Exception {
+    // Create simple test endpoint with inline steps
+    var steps =
+        java.util.List.of(
+            new org.molgenis.emx2.fairmapper.model.Step(
+                "src/transforms/request-to-variables.jslt", null, java.util.List.of()),
+            new org.molgenis.emx2.fairmapper.model.Step(
+                null, "src/queries/individuals-simple.gql", java.util.List.of()),
+            new org.molgenis.emx2.fairmapper.model.Step(
+                "src/transforms/individuals-response.jslt", null, java.util.List.of()));
+
+    var endpoint =
+        new org.molgenis.emx2.fairmapper.model.Endpoint(
+            "/test/api/beacon/individuals", java.util.List.of("POST"), steps);
+
+    // Create beacon request
+    JsonNode request =
+        mapper.readTree(
+            """
+        {
+          "meta": {
+            "requestedSchemas": [{
+              "entityType": "Individual"
+            }]
+          },
+          "query": {
+            "pagination": {
+              "limit": 2
+            }
+          }
+        }
+        """);
+
+    // Create simple query file
+    Path queryPath = bundlePath.resolve("src/queries/individuals-simple.gql");
+    java.nio.file.Files.createDirectories(queryPath.getParent());
+    java.nio.file.Files.writeString(
+        queryPath,
+        """
+        query Individuals($limit: Int) {
+          Individuals(limit: $limit) {
+            id
+            genderAtBirth { code name }
+            yearOfBirth
+          }
+        }
+        """);
+
+    try {
+      // Execute pipeline: transform request -> query GraphQL -> transform response
+      JsonNode response = pipelineExecutor.execute(request, endpoint);
+
+      // Verify beacon response structure
+      assertNotNull(response);
+      assertTrue(response.has("meta"));
+      assertTrue(response.has("responseSummary"));
+      assertTrue(response.has("response"));
+      assertTrue(response.get("responseSummary").get("exists").asBoolean());
+    } finally {
+      // Cleanup
+      java.nio.file.Files.deleteIfExists(queryPath);
+    }
   }
 
   private JsonNode executeGraphQL(String query) throws Exception {
