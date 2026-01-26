@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.model.HttpMethod;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 
@@ -37,8 +36,8 @@ class BundleLoaderTest {
   void testMissingConfigFile() {
     Path nonExistent = tempDir.resolve("nonexistent/fairmapper.yaml");
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(nonExistent));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(nonExistent));
 
     assertTrue(ex.getMessage().contains("Mapping file not found"));
   }
@@ -53,8 +52,8 @@ class BundleLoaderTest {
         endpoints: [invalid: yaml: syntax
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Failed to parse fairmapper.yaml"));
   }
@@ -69,8 +68,8 @@ class BundleLoaderTest {
         endpoints: []
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Missing required field: name"));
   }
@@ -85,8 +84,8 @@ class BundleLoaderTest {
         version: 1.0.0
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Missing required field: endpoints"));
   }
@@ -102,8 +101,8 @@ class BundleLoaderTest {
         endpoints: []
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("endpoints (must have at least one)"));
   }
@@ -123,8 +122,8 @@ class BundleLoaderTest {
               - transform: src/nonexistent.jslt
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Transform file not found"));
     assertTrue(ex.getMessage().contains("src/nonexistent.jslt"));
@@ -145,8 +144,8 @@ class BundleLoaderTest {
               - query: src/nonexistent.gql
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Query file not found"));
     assertTrue(ex.getMessage().contains("src/nonexistent.gql"));
@@ -172,8 +171,8 @@ class BundleLoaderTest {
               - transform: src/transform.txt
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Transform file must have .jslt extension"));
     assertTrue(ex.getMessage().contains("src/transform.txt"));
@@ -199,8 +198,8 @@ class BundleLoaderTest {
               - query: src/query.txt
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Query file must have .gql extension"));
     assertTrue(ex.getMessage().contains("src/query.txt"));
@@ -221,8 +220,8 @@ class BundleLoaderTest {
               - tests: []
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Step must have either transform or query defined"));
   }
@@ -255,8 +254,8 @@ class BundleLoaderTest {
                   output: test/e2e/expected.json
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("E2e test input file not found"));
     assertTrue(ex.getMessage().contains("test/e2e/request.json"));
@@ -286,8 +285,8 @@ class BundleLoaderTest {
                   output: test/e2e/expected.json
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("E2e test output file not found"));
     assertTrue(ex.getMessage().contains("test/e2e/expected.json"));
@@ -318,8 +317,8 @@ class BundleLoaderTest {
                   output: test/e2e/expected.json
         """);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("PUT"));
   }

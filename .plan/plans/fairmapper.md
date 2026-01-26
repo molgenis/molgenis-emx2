@@ -83,36 +83,68 @@ Test: `BeaconFairMapperComparisonTest.java` in molgenis-emx2-webapi
 - `backend/molgenis-emx2-webapi/src/.../FairMapperApi.java` - FAIRmapper routes
 - `fair-mappings/beacon-v2/` - FAIRmapper bundle
 
-## Future Phases
+## Completed Phases
 
-### Phase 3: CLI Remote Execution ✓
+### Phase 3: CLI Remote Execution ✓ (2026-01-25)
 - [x] `GraphqlClient.java` - HTTP client for remote GraphQL
 - [x] `RemotePipelineExecutor.java` - pipeline using GraphqlClient
 - [x] `e2e` command: `--server`, `--token`, `--schema`, `-v` flags
 - [x] Execute GraphQL via `{baseUrl}/{schema}/api/graphql`
 - [x] Unit tests: `GraphqlClientTest.java`
+- [x] Fixed `individuals-response.jslt`: resultsCount, diseases field
+- [x] Updated expected.json for GSSO codesystem
+
+## Next Priorities
+
+### Phase 4: Shell Wrapper ✓ (2026-01-25)
+- [x] Split into two modules: `fairmapper-cli` (standalone) + `fairmapper` (server)
+- [x] CLI module: 53MB fat JAR (vs 125MB with all deps)
+- [x] Create `fairmapper` shell script in fair-mappings/
+- [x] Script calls `java -jar` on built JAR
+- [ ] Later: add JAR to release artifacts
+- [ ] Later: consider GraalVM native image for faster startup
+
+Module structure:
+```
+fairmapper-cli/    # Standalone CLI (53MB) - models, transforms, remote execution
+fairmapper/        # Server integration - depends on cli, adds local GraphQL
+```
 
 Usage:
 ```bash
-./gradlew :backend:molgenis-emx2-fairmapper:run \
-  --args="e2e fair-mappings/beacon-v2 --server http://localhost:8080 -v"
+./gradlew :backend:molgenis-emx2-fairmapper-cli:shadowJar  # build once
+fair-mappings/fairmapper --help
+fair-mappings/fairmapper e2e beacon-v2 --server http://localhost:8080
 ```
 
-### Phase 4: SQL Query Support
+### Phase 5: DCAT Harvesting (proof of concept)
+- [ ] Design: fetch external JSON/XML → transform → GraphQL mutation
+- [ ] New step type: `fetch` with URL + optional auth
+- [ ] Mutation support in pipeline (not just queries)
+- [ ] Transaction wrapping for mutation chains
+- [ ] Task integration for async/scheduled runs
+
+### Phase 6: SQL Query Support
 - [ ] Add `.sql` file extension support
 - [ ] Variable binding (check reports module: `${param}` syntax)
 - [ ] PostgreSQL `json_build_object` for direct JSON responses
 
-### Phase 5: Transaction Flow (DCAT)
-- [ ] Fetch external data → transform → mutation
-- [ ] Task integration for async
+### Phase 7: Scaling / Chunking
+- [ ] Split large inputs into chunks
+- [ ] Process chunks with same pipeline
+- [ ] Transaction wrapper for mutation batches
+- [ ] Pagination support for queries
+
+### Phase 8: Complete Beacon Migration
+- [ ] Add more entity types (biosamples, datasets)
+- [ ] Add more filter types (age, phenotype, diseases)
 
 ## Key Decisions Made
 
-1. **Config file**: `fairmapper.yaml` (not mapping.yaml)
+1. **Config file**: `fairmapper.yaml`
 2. **Schema**: Flat structure (name, version, endpoints) - no apiVersion/kind
-3. **Transform engine**: JSLT with imports, preserves empty arrays
-4. **Query engine**: GraphQL via molgenis-emx2-graphql
+3. **Transform engine**: JSLT with imports, preserves empty arrays. Add more later
+4. **Query engine**: GraphQL via molgenis-emx2-graphql. Add sql later
 5. **CLI framework**: Picocli with colored output
 6. **Distribution**: JAR with shell wrapper
 7. **Multi-tenancy**: `{schema}` placeholder in paths
