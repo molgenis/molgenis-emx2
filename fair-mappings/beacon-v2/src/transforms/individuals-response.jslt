@@ -1,8 +1,9 @@
 // Transform GraphQL result to Beacon v2 response
-// Input: GraphQL query result with Individuals array
+// Input: GraphQL query result with Individuals array and Individuals_agg count
 // Output: Beacon v2 response format
 
 let individuals = .data.Individuals
+let totalCount = .data.Individuals_agg.count
 
 {
   "meta": {
@@ -14,32 +15,21 @@ let individuals = .data.Individuals
     }]
   },
   "responseSummary": {
-    "exists": size($individuals) > 0,
-    "numTotalResults": size($individuals)
+    "exists": $totalCount > 0,
+    "numTotalResults": $totalCount
   },
   "response": {
     "resultSets": [{
       "id": "molgenis",
       "setType": "dataset",
-      "exists": size($individuals) > 0,
-      "resultsCount": size($individuals),
+      "exists": $totalCount > 0,
+      "resultsCount": $totalCount,
       "results": [for ($individuals) {
         "id": .id,
         "sex": if (.genderAtBirth) {
           "id": .genderAtBirth.codesystem + ":" + .genderAtBirth.code,
           "label": .genderAtBirth.name
-        } else null,
-        "diseases": [for (.clinicalObservations)
-          [for (.diseases) {
-            "diseaseCode": {
-              "id": .disease.codesystem + ":" + .disease.code,
-              "label": .disease.name
-            },
-            "ageOfOnset": if (.ageAtOnset) {
-              "iso8601duration": .ageAtOnset
-            } else null
-          }]
-        ]
+        } else null
       }]
     }]
   }

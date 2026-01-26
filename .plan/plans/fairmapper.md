@@ -55,18 +55,31 @@ backend/molgenis-emx2-fairmapper/
 
 ## Current Sprint: Full Beacon Migration
 
+### Completed
+1. [x] Inventory existing Beacon endpoints in `molgenis-emx2-beacon-v2`
+2. [x] Add individuals-minimal endpoint to fairmapper bundle
+3. [x] Wire FAIRmapper routes parallel to existing BeaconApi
+4. [x] Compare outputs: old Java path vs new FAIRmapper path
+
+### Comparison Results (2026-01-25)
+Both APIs now produce **identical** output:
+- `numTotalResults`: 23 = 23 ✓
+- Fields: `[id, sex]`
+- Sex ontology: `{"id": "GSSO:124", "label": "assigned male at birth"}`
+
+Key: Added `Individuals_agg { count }` to same GraphQL query for total count.
+
+Test: `BeaconFairMapperComparisonTest.java` in molgenis-emx2-webapi
+
 ### Next Steps
-1. [ ] Inventory existing Beacon endpoints in `molgenis-emx2-beacon-v2`
-2. [ ] Add individuals-minimal endpoint to fairmapper bundle
-3. [ ] Wire FAIRmapper routes parallel to existing BeaconApi
-4. [ ] Compare outputs: old Java path vs new FAIRmapper path
 5. [ ] Add more entity types (biosamples, datasets)
 6. [ ] Add more filter types (age, phenotype, diseases)
 
-### Key Files to Study
+### Key Files
 - `backend/molgenis-emx2-beacon-v2/src/.../BeaconApi.java` - existing routes
-- `backend/molgenis-emx2-beacon-v2/src/.../IndividualsQuery.java` - current impl
-- `fair-mappings/beacon-v2/` - new FAIRmapper bundle
+- `backend/molgenis-emx2-beacon-v2/src/.../QueryEntryType.java` - query orchestration
+- `backend/molgenis-emx2-webapi/src/.../FairMapperApi.java` - FAIRmapper routes
+- `fair-mappings/beacon-v2/` - FAIRmapper bundle
 
 ## Future Phases
 

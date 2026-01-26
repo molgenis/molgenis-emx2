@@ -26,20 +26,7 @@
             "sex": {
               "id": "NCIT:C20197",
               "label": "Male"
-            },
-            "diseases": [
-              [
-                {
-                  "diseaseCode": {
-                    "id": "UMLS:C0011849",
-                    "label": "Diabetes"
-                  },
-                  "ageOfOnset": {
-                    "iso8601duration": "P45Y"
-                  }
-                }
-              ]
-            ]
+            }
           }
         ]
       }

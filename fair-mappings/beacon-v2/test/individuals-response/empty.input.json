@@ -1,5 +1,8 @@
 {
   "data": {
-    "Individuals": []
+    "Individuals": [],
+    "Individuals_agg": {
+      "count": 0
+    }
   }
 }
