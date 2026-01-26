@@ -17,8 +17,10 @@ import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.TestCase;
 import org.molgenis.emx2.fairmapper.model.step.FetchStep;
+import org.molgenis.emx2.fairmapper.model.step.OutputRdfStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
+import org.molgenis.emx2.fairmapper.rdf.JsonLdToRdf;
 import org.molgenis.emx2.fairmapper.rdf.LocalRdfSource;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -127,6 +129,42 @@ public class TestCommand implements Callable<Integer> {
                             + actual
                                 .toString()
                                 .substring(0, Math.min(200, actual.toString().length()));
+                  }
+                  failures.add(detail);
+                  failed++;
+                }
+              } catch (Exception e) {
+                System.out.println(color("  @|red ✗|@ " + testName + " - " + e.getMessage()));
+                failures.add(testName + "\n    Error: " + e.getMessage());
+                failed++;
+              }
+            }
+          } else if (step instanceof OutputRdfStep rdfStep && rdfStep.tests() != null) {
+            JsonLdToRdf converter = new JsonLdToRdf();
+
+            for (TestCase testCase : rdfStep.tests()) {
+              String testName =
+                  "output-rdf(" + rdfStep.defaultFormat() + ") ← " + shortenPath(testCase.input());
+              try {
+                Path inputPath = bundlePath.resolve(testCase.input());
+                Path expectedPath = bundlePath.resolve(testCase.output());
+
+                JsonNode input = objectMapper.readTree(Files.readString(inputPath));
+                String expected = Files.readString(expectedPath).trim();
+                String actual = converter.convert(input.toString(), rdfStep.defaultFormat()).trim();
+
+                if (expected.equals(actual)) {
+                  System.out.println(color("  @|green ✓|@ " + testName));
+                  passed++;
+                } else {
+                  System.out.println(color("  @|red ✗|@ " + testName));
+                  String detail = testName;
+                  if (verbose) {
+                    detail +=
+                        "\n    Expected: "
+                            + expected.substring(0, Math.min(200, expected.length()))
+                            + "\n    Actual:   "
+                            + actual.substring(0, Math.min(200, actual.length()));
                   }
                   failures.add(detail);
                   failed++;

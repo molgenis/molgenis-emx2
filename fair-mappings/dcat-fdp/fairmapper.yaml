@@ -2,21 +2,35 @@ name: dcat-fdp
 version: 1.0.0
 
 mappings:
-  - name: harvest-catalog
-    endpoint: /{schema}/api/harvest
-    methods: [POST]
+  - name: fdp-root
+    endpoint: /{schema}/api/fdp
+    methods: [GET]
     steps:
-      - fetch: ${SOURCE_URL}
-        frame: src/frames/catalog-with-datasets.jsonld
-        maxDepth: 5
-        maxCalls: 50
+      - query: src/queries/get-schema-metadata.gql
+      - transform: src/transforms/publish/to-fdp-root.jslt
         tests:
-          - input: test/fetch/catalog.ttl
-            output: test/fetch/catalog.json
+          - input: test/publish/fdp-root/input.json
+            output: test/publish/fdp-root/output.json
+      - output-rdf: turtle
 
-      - transform: src/transforms/to-molgenis.jslt
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    methods: [GET]
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/publish/to-dcat-catalog.jslt
         tests:
-          - input: test/transform/dcat-input.json
-            output: test/transform/molgenis-output.json
+          - input: test/publish/catalog/input.json
+            output: test/publish/catalog/output.json
+      - output-rdf: turtle
 
-      - mutate: src/mutations/upsert-resources.gql
+  - name: fdp-dataset
+    endpoint: /{schema}/api/fdp/dataset/{id}
+    methods: [GET]
+    steps:
+      - query: src/queries/get-dataset.gql
+      - transform: src/transforms/publish/to-dcat-dataset.jslt
+        tests:
+          - input: test/publish/dataset/input.json
+            output: test/publish/dataset/output.json
+      - output-rdf: turtle

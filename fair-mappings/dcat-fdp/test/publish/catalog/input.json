@@ -1,0 +1,15 @@
+{
+  "baseUrl": "https://catalogue.molgenis.org",
+  "_schema": {"name": "catalogue"},
+  "Resources": [{
+    "id": "umcg-lifelines",
+    "name": "LifeLines Cohort",
+    "description": "A prospective population-based cohort study examining health and health-related behaviours of 167,729 persons living in the North of the Netherlands.",
+    "website": "https://www.lifelines.nl",
+    "publisher": {"id": "umcg", "name": "University Medical Center Groningen"},
+    "datasets": [
+      {"id": "lifelines-next", "name": "LifeLines NEXT"},
+      {"id": "lifelines-deep", "name": "LifeLines DEEP"}
+    ]
+  }]
+}

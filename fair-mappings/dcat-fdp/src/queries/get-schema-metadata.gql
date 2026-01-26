@@ -1,0 +1,9 @@
+query FdpRoot {
+  _schema {
+    name
+  }
+  Resources(filter: {type: {name: {equals: "Catalogue"}}}) {
+    id
+    name
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "fdp-o": "https://w3id.org/fdp/fdp-o#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "ldp": "http://www.w3.org/ns/ldp#",
+    "datacite": "http://purl.org/spar/datacite/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+  },
+  "@id": "https://catalogue.molgenis.org/catalogue/api/fdp",
+  "@type": ["fdp-o:FAIRDataPoint", "dcat:DataService"],
+  "dct:title": "catalogue",
+  "dct:description": "MOLGENIS European Health Research Data Catalogue",
+  "dct:license": {"@id": "https://creativecommons.org/licenses/by/4.0/"},
+  "dct:conformsTo": {"@id": "https://www.purl.org/fairtools/fdp/schema/0.1/fdpMetadata"},
+  "dct:publisher": {
+    "@id": "https://catalogue.molgenis.org/publisher",
+    "@type": "foaf:Agent",
+    "foaf:name": "MOLGENIS"
+  },
+  "dcat:endpointURL": {"@id": "https://catalogue.molgenis.org/catalogue/api/fdp"},
+  "fdp-o:metadataIdentifier": {
+    "@id": "https://catalogue.molgenis.org/catalogue/api/fdp#identifier",
+    "@type": "datacite:Identifier",
+    "datacite:usesIdentifierScheme": {"@id": "datacite:url"},
+    "rdfs:label": "https://catalogue.molgenis.org/catalogue/api/fdp"
+  },
+  "fdp-o:metadataIssued": {"@type": "http://www.w3.org/2001/XMLSchema#dateTime", "@value": "2024-01-01T00:00:00Z"},
+  "fdp-o:metadataModified": {"@type": "http://www.w3.org/2001/XMLSchema#dateTime", "@value": "2024-01-01T00:00:00Z"},
+  "fdp-o:conformsToFdpSpec": {"@id": "https://specs.fairdatapoint.org/fdp-specs-v1.2.html"},
+  "fdp-o:metadataCatalog": [
+    {"@id": "https://catalogue.molgenis.org/catalogue/api/fdp/catalog/umcg-lifelines"},
+    {"@id": "https://catalogue.molgenis.org/catalogue/api/fdp/catalog/bbmri-eric"}
+  ]
+}

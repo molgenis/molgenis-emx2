@@ -12,8 +12,10 @@ import org.molgenis.emx2.fairmapper.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.step.FetchStep;
+import org.molgenis.emx2.fairmapper.model.step.OutputRdfStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
+import org.molgenis.emx2.fairmapper.rdf.JsonLdToRdf;
 import picocli.CommandLine.*;
 
 @Command(
@@ -109,6 +111,16 @@ public class DryRunCommand implements Callable<Integer> {
                       + "|@ @|cyan (fetch)|@ "
                       + fetchStep.url()
                       + " @|faint [skipped - use test command]|@"));
+        } else if (step instanceof OutputRdfStep rdfStep) {
+          JsonLdToRdf converter = new JsonLdToRdf();
+          String rdfOutput = converter.convert(current.toString(), rdfStep.defaultFormat());
+          System.out.println(
+              color(
+                  "@|bold Step "
+                      + stepIndex
+                      + "|@ @|blue (output-rdf)|@ "
+                      + rdfStep.defaultFormat()));
+          System.out.println(rdfOutput);
         }
 
         stepIndex++;
