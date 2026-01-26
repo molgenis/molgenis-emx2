@@ -662,7 +662,7 @@ public class RunFairMapper implements Runnable {
           JsonNode frame = objectMapper.readTree(Files.readString(framePath));
 
           org.molgenis.emx2.fairmapper.rdf.RdfFetcher fetcher =
-              new org.molgenis.emx2.fairmapper.rdf.RdfFetcher();
+              new org.molgenis.emx2.fairmapper.rdf.RdfFetcher(url);
           org.molgenis.emx2.fairmapper.rdf.FrameAnalyzer analyzer =
               new org.molgenis.emx2.fairmapper.rdf.FrameAnalyzer();
           org.molgenis.emx2.fairmapper.rdf.FrameDrivenFetcher frameDrivenFetcher =
@@ -680,7 +680,7 @@ public class RunFairMapper implements Runnable {
 
         } else {
           org.molgenis.emx2.fairmapper.rdf.RdfFetcher fetcher =
-              new org.molgenis.emx2.fairmapper.rdf.RdfFetcher();
+              new org.molgenis.emx2.fairmapper.rdf.RdfFetcher(url);
           model = fetcher.fetch(url);
 
           System.err.println(color("@|green ✓ Fetched " + model.size() + " statements|@"));
@@ -800,7 +800,7 @@ public class RunFairMapper implements Runnable {
                   color("@|bold Step " + stepIndex + ":|@ @|cyan fetch|@ " + sourceUrl));
             }
             org.molgenis.emx2.fairmapper.rdf.RdfFetcher rdfFetcher =
-                new org.molgenis.emx2.fairmapper.rdf.RdfFetcher();
+                new org.molgenis.emx2.fairmapper.rdf.RdfFetcher(sourceUrl);
             FetchExecutor fetchExecutor = new FetchExecutor(rdfFetcher, bundlePath);
             current = fetchExecutor.execute(fetchStep, sourceUrl);
             if (verbose) {

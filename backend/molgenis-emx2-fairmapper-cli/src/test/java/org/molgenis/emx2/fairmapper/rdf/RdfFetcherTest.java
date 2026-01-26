@@ -21,7 +21,7 @@ class RdfFetcherTest {
 
   @Test
   void testParseTurtle() throws IOException {
-    RdfFetcher fetcher = new RdfFetcher();
+    RdfFetcher fetcher = new RdfFetcher("https://example.org/catalog");
 
     Model model = fetcher.parseTurtle(SAMPLE_TURTLE);
 
@@ -31,7 +31,7 @@ class RdfFetcherTest {
 
   @Test
   void testInvalidTurtle() {
-    RdfFetcher fetcher = new RdfFetcher();
+    RdfFetcher fetcher = new RdfFetcher("https://example.org/catalog");
 
     IOException exception =
         assertThrows(IOException.class, () -> fetcher.parseTurtle("invalid turtle content"));
@@ -41,9 +41,8 @@ class RdfFetcherTest {
 
   @Test
   void testFetchFromRealFdp() throws IOException {
-    RdfFetcher fetcher = new RdfFetcher();
-
     String fdpUrl = "https://fdp.radboudumc.nl/catalog/d7522c39-a774-496f-998a-fdeb262a5c65";
+    RdfFetcher fetcher = new RdfFetcher(fdpUrl);
 
     Model model = fetcher.fetch(fdpUrl);
 
@@ -55,7 +54,7 @@ class RdfFetcherTest {
 
   @Test
   void testConvertToJsonLd() throws IOException {
-    RdfFetcher fetcher = new RdfFetcher();
+    RdfFetcher fetcher = new RdfFetcher("https://example.org/catalog");
     RdfToJsonLd converter = new RdfToJsonLd();
 
     Model model = fetcher.parseTurtle(SAMPLE_TURTLE);
