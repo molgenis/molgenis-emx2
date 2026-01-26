@@ -1,0 +1,10 @@
+{
+  "filters": [
+    {
+      "field": "genderAtBirth",
+      "value": "male"
+    }
+  ],
+  "limit": 5,
+  "offset": 10
+}

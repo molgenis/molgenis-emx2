@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "beaconId": "org.molgenis.beacon",
+    "apiVersion": "v2.0.0",
+    "returnedSchemas": [
+      {
+        "entityType": "individuals",
+        "schema": "beacon-v2-default-individual"
+      }
+    ]
+  },
+  "responseSummary": {
+    "exists": false,
+    "numTotalResults": 0
+  },
+  "response": {
+    "resultSets": [
+      {
+        "id": "molgenis",
+        "setType": "dataset",
+        "exists": false,
+        "resultsCount": 0,
+        "results": []
+      }
+    ]
+  }
+}

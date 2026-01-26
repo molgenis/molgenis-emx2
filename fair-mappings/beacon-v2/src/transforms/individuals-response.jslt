@@ -1,0 +1,46 @@
+// Transform GraphQL result to Beacon v2 response
+// Input: GraphQL query result with Individuals array
+// Output: Beacon v2 response format
+
+let individuals = .data.Individuals
+
+{
+  "meta": {
+    "beaconId": "org.molgenis.beacon",
+    "apiVersion": "v2.0.0",
+    "returnedSchemas": [{
+      "entityType": "individuals",
+      "schema": "beacon-v2-default-individual"
+    }]
+  },
+  "responseSummary": {
+    "exists": size($individuals) > 0,
+    "numTotalResults": size($individuals)
+  },
+  "response": {
+    "resultSets": [{
+      "id": "molgenis",
+      "setType": "dataset",
+      "exists": size($individuals) > 0,
+      "resultsCount": size($individuals),
+      "results": [for ($individuals) {
+        "id": .id,
+        "sex": if (.genderAtBirth) {
+          "id": .genderAtBirth.codesystem + ":" + .genderAtBirth.code,
+          "label": .genderAtBirth.name
+        } else null,
+        "diseases": [for (.clinicalObservations)
+          [for (.diseases) {
+            "diseaseCode": {
+              "id": .disease.codesystem + ":" + .disease.code,
+              "label": .disease.name
+            },
+            "ageOfOnset": if (.ageAtOnset) {
+              "iso8601duration": .ageAtOnset
+            } else null
+          }]
+        ]
+      }]
+    }]
+  }
+}

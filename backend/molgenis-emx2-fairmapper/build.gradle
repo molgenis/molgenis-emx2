@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // Parent provides common dependencies including jackson, jslt, junit
+}
+
+test {
+    useJUnitPlatform()
+}

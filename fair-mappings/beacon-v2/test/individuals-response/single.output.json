@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "beaconId": "org.molgenis.beacon",
+    "apiVersion": "v2.0.0",
+    "returnedSchemas": [
+      {
+        "entityType": "individuals",
+        "schema": "beacon-v2-default-individual"
+      }
+    ]
+  },
+  "responseSummary": {
+    "exists": true,
+    "numTotalResults": 1
+  },
+  "response": {
+    "resultSets": [
+      {
+        "id": "molgenis",
+        "setType": "dataset",
+        "exists": true,
+        "resultsCount": 1,
+        "results": [
+          {
+            "id": "IND001",
+            "sex": {
+              "id": "NCIT:C20197",
+              "label": "Male"
+            },
+            "diseases": [
+              [
+                {
+                  "diseaseCode": {
+                    "id": "UMLS:C0011849",
+                    "label": "Diabetes"
+                  },
+                  "ageOfOnset": {
+                    "iso8601duration": "P45Y"
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

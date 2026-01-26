@@ -1,0 +1,28 @@
+apiVersion: molgenis.org/v1
+kind: FairMapperBundle
+metadata:
+  name: beacon-v2
+  version: 2.0.0
+
+endpoints:
+  - path: /{schema}/api/beacon/individuals
+    methods: [GET, POST]
+    steps:
+      - transform: src/transforms/request-to-variables.jslt
+        tests:
+          - input: test/request-to-variables/basic.input.json
+            output: test/request-to-variables/basic.output.json
+          - input: test/request-to-variables/with-filter.input.json
+            output: test/request-to-variables/with-filter.output.json
+
+      - query: src/queries/individuals.gql
+        tests:
+          - input: test/individuals-query/basic.variables.json
+            output: test/individuals-query/basic.result.json
+
+      - transform: src/transforms/individuals-response.jslt
+        tests:
+          - input: test/individuals-response/single.input.json
+            output: test/individuals-response/single.output.json
+          - input: test/individuals-response/empty.input.json
+            output: test/individuals-response/empty.output.json

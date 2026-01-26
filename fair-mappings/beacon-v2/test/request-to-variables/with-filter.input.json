@@ -1,0 +1,14 @@
+{
+  "query": {
+    "filters": [
+      {
+        "id": "genderAtBirth",
+        "value": "male"
+      }
+    ],
+    "pagination": {
+      "limit": 5,
+      "skip": 10
+    }
+  }
+}
