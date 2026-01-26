@@ -47,7 +47,7 @@ const bannerHtml = computed(() => {
       </div>
     </div>
   </Container>
-  <FooterComponent>
+  <FooterComponent class="mt-[7.8125rem]">
     <ClientOnly>
       <FooterVersion />
     </ClientOnly>
