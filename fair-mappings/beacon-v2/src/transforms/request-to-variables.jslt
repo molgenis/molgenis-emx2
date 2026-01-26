@@ -1,0 +1,9 @@
+// Transform Beacon request to GraphQL variables
+// Input: Beacon request body with filters, pagination
+// Output: GraphQL query variables (simplified format)
+
+{
+  "filters": [for (.query.filters) {"field": .id, "value": .value}],
+  "limit": .query.pagination.limit,
+  "offset": .query.pagination.skip
+}

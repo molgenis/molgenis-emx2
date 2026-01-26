@@ -1,0 +1,29 @@
+{
+  "data": {
+    "Individuals": [
+      {
+        "id": "IND001",
+        "genderAtBirth": {
+          "code": "C20197",
+          "codesystem": "NCIT",
+          "name": "Male"
+        },
+        "yearOfBirth": 1985,
+        "clinicalObservations": [
+          {
+            "diseases": [
+              {
+                "disease": {
+                  "code": "C0011849",
+                  "codesystem": "UMLS",
+                  "name": "Diabetes"
+                },
+                "ageAtOnset": "P45Y"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
