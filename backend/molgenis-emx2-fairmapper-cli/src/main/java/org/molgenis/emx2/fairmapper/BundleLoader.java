@@ -112,7 +112,7 @@ public class BundleLoader {
   }
 
   private void validateFrameFile(Path bundleDir, String framePath) {
-    Path fullPath = bundleDir.resolve(framePath).normalize();
+    Path fullPath = PathValidator.validateWithinBase(bundleDir, framePath);
 
     if (!Files.exists(fullPath)) {
       throw new FairMapperException("Frame file not found: " + framePath);
@@ -125,7 +125,7 @@ public class BundleLoader {
   }
 
   private void validateTransformFile(Path bundleDir, String transformPath) {
-    Path fullPath = bundleDir.resolve(transformPath).normalize();
+    Path fullPath = PathValidator.validateWithinBase(bundleDir, transformPath);
 
     if (!Files.exists(fullPath)) {
       throw new FairMapperException("Transform file not found: " + transformPath);
@@ -137,7 +137,7 @@ public class BundleLoader {
   }
 
   private void validateQueryFile(Path bundleDir, String queryPath) {
-    Path fullPath = bundleDir.resolve(queryPath).normalize();
+    Path fullPath = PathValidator.validateWithinBase(bundleDir, queryPath);
 
     if (!Files.exists(fullPath)) {
       throw new FairMapperException("Query file not found: " + queryPath);
@@ -175,13 +175,13 @@ public class BundleLoader {
       throw new FairMapperException("E2e test " + fileType + " file path cannot be empty");
     }
 
-    Path fullPath = bundleDir.resolve(filePath).normalize();
+    Path fullPath = PathValidator.validateWithinBase(bundleDir, filePath);
     if (!Files.exists(fullPath)) {
       throw new FairMapperException("E2e test " + fileType + " file not found: " + filePath);
     }
   }
 
   public Path resolvePath(Path bundleBasePath, String relativePath) {
-    return bundleBasePath.getParent().resolve(relativePath).normalize();
+    return PathValidator.validateWithinBase(bundleBasePath.getParent(), relativePath);
   }
 }
