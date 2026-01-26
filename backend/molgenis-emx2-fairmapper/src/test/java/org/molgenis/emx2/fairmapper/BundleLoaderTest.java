@@ -24,19 +24,18 @@ class BundleLoaderTest {
 
   @Test
   void testLoadValidBundle() throws IOException {
-    Path mappingYaml = createValidBundle();
-    MappingBundle bundle = bundleLoader.load(mappingYaml);
+    Path configPath = createValidBundle();
+    MappingBundle bundle = bundleLoader.load(configPath);
 
     assertNotNull(bundle);
-    assertEquals("molgenis.org/v1", bundle.apiVersion());
-    assertEquals("FairMapperBundle", bundle.kind());
-    assertEquals("test-bundle", bundle.metadata().name());
+    assertEquals("test-bundle", bundle.name());
+    assertEquals("1.0.0", bundle.version());
     assertFalse(bundle.endpoints().isEmpty());
   }
 
   @Test
-  void testMissingMappingFile() {
-    Path nonExistent = tempDir.resolve("nonexistent/mapping.yaml");
+  void testMissingConfigFile() {
+    Path nonExistent = tempDir.resolve("nonexistent/fairmapper.yaml");
 
     MolgenisException ex =
         assertThrows(MolgenisException.class, () -> bundleLoader.load(nonExistent));
@@ -46,120 +45,77 @@ class BundleLoaderTest {
 
   @Test
   void testMalformedYaml() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: [invalid: yaml: syntax
+        name: test
+        endpoints: [invalid: yaml: syntax
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
-    assertTrue(ex.getMessage().contains("Failed to parse mapping.yaml"));
+    assertTrue(ex.getMessage().contains("Failed to parse fairmapper.yaml"));
   }
 
   @Test
-  void testMissingApiVersion() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+  void testMissingName() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        version: 1.0.0
         endpoints: []
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
-    assertTrue(ex.getMessage().contains("Missing required field: apiVersion"));
-  }
-
-  @Test
-  void testMissingKind() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
-    Files.writeString(
-        mappingYaml,
-        """
-        apiVersion: molgenis.org/v1
-        metadata:
-          name: test
-        endpoints: []
-        """);
-
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
-
-    assertTrue(ex.getMessage().contains("Missing required field: kind"));
-  }
-
-  @Test
-  void testMissingMetadata() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
-    Files.writeString(
-        mappingYaml,
-        """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        endpoints: []
-        """);
-
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
-
-    assertTrue(ex.getMessage().contains("Missing required field: metadata"));
+    assertTrue(ex.getMessage().contains("Missing required field: name"));
   }
 
   @Test
   void testMissingEndpoints() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Missing required field: endpoints"));
   }
 
   @Test
   void testEmptyEndpoints() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints: []
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("endpoints (must have at least one)"));
   }
 
   @Test
   void testMissingTransformFile() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -168,7 +124,7 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Transform file not found"));
     assertTrue(ex.getMessage().contains("src/nonexistent.jslt"));
@@ -176,14 +132,12 @@ class BundleLoaderTest {
 
   @Test
   void testMissingQueryFile() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -192,7 +146,7 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Query file not found"));
     assertTrue(ex.getMessage().contains("src/nonexistent.gql"));
@@ -200,19 +154,17 @@ class BundleLoaderTest {
 
   @Test
   void testInvalidTransformFileExtension() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Path srcDir = tempDir.resolve("src");
     Files.createDirectories(srcDir);
     Path wrongExtFile = srcDir.resolve("transform.txt");
     Files.writeString(wrongExtFile, "content");
 
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -221,7 +173,7 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Transform file must have .jslt extension"));
     assertTrue(ex.getMessage().contains("src/transform.txt"));
@@ -229,19 +181,17 @@ class BundleLoaderTest {
 
   @Test
   void testInvalidQueryFileExtension() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Path srcDir = tempDir.resolve("src");
     Files.createDirectories(srcDir);
     Path wrongExtFile = srcDir.resolve("query.txt");
     Files.writeString(wrongExtFile, "content");
 
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -250,7 +200,7 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Query file must have .gql extension"));
     assertTrue(ex.getMessage().contains("src/query.txt"));
@@ -258,14 +208,12 @@ class BundleLoaderTest {
 
   @Test
   void testStepWithoutTransformOrQuery() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -274,14 +222,14 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("Step must have either transform or query defined"));
   }
 
   @Test
   void testResolvePath() {
-    Path bundleBase = Path.of("/bundle/mapping.yaml");
+    Path bundleBase = Path.of("/bundle/fairmapper.yaml");
     Path resolved = bundleLoader.resolvePath(bundleBase, "src/transform.jslt");
 
     assertEquals(Path.of("/bundle/src/transform.jslt").normalize(), resolved);
@@ -289,14 +237,12 @@ class BundleLoaderTest {
 
   @Test
   void testE2eMissingInputFile() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -310,7 +256,7 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("E2e test input file not found"));
     assertTrue(ex.getMessage().contains("test/e2e/request.json"));
@@ -318,18 +264,16 @@ class BundleLoaderTest {
 
   @Test
   void testE2eMissingOutputFile() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Path testDir = tempDir.resolve("test/e2e");
     Files.createDirectories(testDir);
     Files.writeString(testDir.resolve("request.json"), "{}");
 
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -343,7 +287,7 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("E2e test output file not found"));
     assertTrue(ex.getMessage().contains("test/e2e/expected.json"));
@@ -351,19 +295,17 @@ class BundleLoaderTest {
 
   @Test
   void testE2eInvalidMethod() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Path testDir = tempDir.resolve("test/e2e");
     Files.createDirectories(testDir);
     Files.writeString(testDir.resolve("request.json"), "{}");
     Files.writeString(testDir.resolve("expected.json"), "{}");
 
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -377,14 +319,14 @@ class BundleLoaderTest {
         """);
 
     MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> bundleLoader.load(mappingYaml));
+        assertThrows(MolgenisException.class, () -> bundleLoader.load(configPath));
 
     assertTrue(ex.getMessage().contains("PUT"));
   }
 
   @Test
   void testE2eValidConfiguration() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Path srcDir = tempDir.resolve("src");
     Path testDir = tempDir.resolve("test/e2e");
     Files.createDirectories(srcDir);
@@ -395,13 +337,10 @@ class BundleLoaderTest {
     Files.writeString(testDir.resolve("expected.json"), "{}");
 
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test
-          version: 1.0.0
+        name: test
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [POST]
@@ -415,7 +354,7 @@ class BundleLoaderTest {
                   output: test/e2e/expected.json
         """);
 
-    MappingBundle bundle = bundleLoader.load(mappingYaml);
+    MappingBundle bundle = bundleLoader.load(configPath);
 
     assertNotNull(bundle);
     assertNotNull(bundle.endpoints().get(0).e2e());
@@ -425,7 +364,7 @@ class BundleLoaderTest {
   }
 
   private Path createValidBundle() throws IOException {
-    Path mappingYaml = tempDir.resolve("mapping.yaml");
+    Path configPath = tempDir.resolve("fairmapper.yaml");
     Path srcDir = tempDir.resolve("src");
     Files.createDirectories(srcDir);
 
@@ -436,13 +375,10 @@ class BundleLoaderTest {
     Files.writeString(queryFile, "{ test }");
 
     Files.writeString(
-        mappingYaml,
+        configPath,
         """
-        apiVersion: molgenis.org/v1
-        kind: FairMapperBundle
-        metadata:
-          name: test-bundle
-          version: 1.0.0
+        name: test-bundle
+        version: 1.0.0
         endpoints:
           - path: /test
             methods: [GET]
@@ -451,6 +387,6 @@ class BundleLoaderTest {
               - query: src/query.gql
         """);
 
-    return mappingYaml;
+    return configPath;
   }
 }

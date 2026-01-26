@@ -2,7 +2,7 @@
 
 FAIRmapper enables data managers to create API adapters and ETL pipelines without writing Java code. Configure transformations declaratively using YAML and JSLT.
 
-> **Status**: FAIRmapper is under active development. Currently you can define and test transforms. Runtime endpoint registration is coming soon.
+> **Status**: FAIRmapper is under active development. Endpoints are registered at runtime from bundles in `fair-mappings/`.
 
 ## Why FAIRmapper?
 
@@ -13,11 +13,11 @@ FAIRmapper enables data managers to create API adapters and ETL pipelines withou
 
 ## Bundle Structure
 
-A FAIRmapper bundle is a directory with a `mapping.yaml` and your transform/query files. You're free to organize files as you see fit. Here's one suggested structure:
+A FAIRmapper bundle is a directory with a `fairmapper.yaml` and your transform/query files. You're free to organize files as you see fit. Here's one suggested structure:
 
 ```
 beacon-v2/
-├── mapping.yaml                    # Required: main configuration
+├── fairmapper.yaml                 # Required: main configuration
 ├── src/                            # Your transforms and queries
 │   ├── request-to-variables.jslt
 │   ├── individuals-response.jslt
@@ -30,21 +30,18 @@ beacon-v2/
 Or keep it flat:
 ```
 my-adapter/
-├── mapping.yaml
+├── fairmapper.yaml
 ├── transform.jslt
 └── query.gql
 ```
 
-## mapping.yaml
+## fairmapper.yaml
 
 The main configuration file defines endpoints and their processing steps:
 
 ```yaml
-apiVersion: molgenis.org/v1
-kind: FairMapperBundle
-metadata:
-  name: beacon-v2
-  version: 2.0.0
+name: beacon-v2         # Required: bundle identifier
+version: 2.0.0          # Optional: bundle version (recommended)
 
 endpoints:
   - path: /{schema}/api/beacon/individuals
@@ -162,9 +159,30 @@ Name your test files however makes sense to you. Some conventions:
 - By step: `request-to-variables/basic.input.json`
 - By feature: `filter-tests/gender.input.json`
 
-Run tests:
+Run tests via gradle:
 ```bash
 ./gradlew :backend:molgenis-emx2-fairmapper:test
+```
+
+## CLI Commands
+
+FAIRmapper includes a CLI for bundle development and validation:
+
+```bash
+# Show help
+./gradlew :backend:molgenis-emx2-fairmapper:run --args="--help"
+
+# Validate bundle structure
+./gradlew :backend:molgenis-emx2-fairmapper:run --args="validate fair-mappings/beacon-v2"
+
+# Run unit tests for transforms
+./gradlew :backend:molgenis-emx2-fairmapper:run --args="test fair-mappings/beacon-v2"
+
+# Run with verbose output
+./gradlew :backend:molgenis-emx2-fairmapper:run --args="test fair-mappings/beacon-v2 -v"
+
+# Dry-run: transform input through steps without executing queries
+./gradlew :backend:molgenis-emx2-fairmapper:run --args="dry-run fair-mappings/beacon-v2 input.json"
 ```
 
 ## E2e Tests
@@ -213,10 +231,11 @@ fair-mappings/
 └── _shared/              # Optional: shared transforms
 ```
 
-## Tips
+## JSLT Tips
 
 - **Empty arrays**: JSLT normally removes empty arrays from output. FAIRmapper preserves them.
-- **Paths**: All file paths in `mapping.yaml` are relative to the bundle directory.
+- **Imports**: Use `import "shared/helpers.jslt" as helpers` to share transforms across files. Paths are relative to the transform file.
+- **Paths**: All file paths in `fairmapper.yaml` are relative to the bundle directory.
 - **Debugging**: Run `./gradlew test --info` for detailed output when tests fail.
 
 ## Resources

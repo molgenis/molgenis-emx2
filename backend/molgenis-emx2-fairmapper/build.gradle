@@ -1,15 +1,17 @@
 plugins {
     id 'java-library'
+    id 'application'
+}
+
+application {
+    mainClass = 'org.molgenis.emx2.fairmapper.RunFairMapper'
 }
 
 dependencies {
-    // Core EMX2 types (MolgenisException, etc.)
+    implementation 'info.picocli:picocli:4.7.6'
+    annotationProcessor 'info.picocli:picocli-codegen:4.7.6'
     implementation project(':backend:molgenis-emx2')
-
-    // For GraphQL execution
     implementation project(':backend:molgenis-emx2-graphql')
-
-    // For integration tests (assumes patientRegistry already loaded)
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-tasks')
 }
