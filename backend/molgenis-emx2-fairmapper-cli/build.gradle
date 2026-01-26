@@ -16,20 +16,21 @@ shadowJar {
 }
 
 dependencies {
-    // CLI framework
     implementation 'info.picocli:picocli:4.7.6'
     annotationProcessor 'info.picocli:picocli-codegen:4.7.6'
-
-    // JSON processing
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0'
-
-    // JSLT transform engine
     implementation 'com.schibsted.spt.data:jslt:0.1.14'
-
-    // Logging
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-model:4.3.8'
+    implementation 'com.apicatalog:titanium-json-ld:1.7.0'
     implementation 'org.slf4j:slf4j-api:2.0.12'
     runtimeOnly 'org.slf4j:slf4j-simple:2.0.12'
+}
+
+configurations.all {
+    exclude group: 'org.apache.logging.log4j'
 }
 
 jar {
