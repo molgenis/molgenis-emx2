@@ -16,6 +16,8 @@ import TextHeading from "../text/Heading.vue";
 import TextParagraph from "../text/Paragraph.vue";
 import Image from "../Image.vue";
 
+import { parsePageText } from "../../utils/Pages";
+
 const props = defineProps<{ content: IConfigurablePages }>();
 </script>
 
@@ -39,14 +41,14 @@ const props = defineProps<{ content: IConfigurablePages }>();
           :is-centered="component.isCentered"
           :level="component.level"
         >
-          {{ component.text }}
+          {{ parsePageText(component.text as string) }}
         </TextHeading>
         <TextParagraph
           v-else-if="component.mg_tableclass === 'cms.Paragraphs'"
           :id="component.id"
           :is-centered="component.isCentered"
         >
-          {{ component.text as string }}
+          {{ parsePageText(component.text as string) }}
         </TextParagraph>
         <Image
           v-else-if="component.mg_tableclass === 'cms.Images'"

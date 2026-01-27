@@ -7,5 +7,7 @@ withDefaults(defineProps<IParagraphs>(), {
 </script>
 
 <template>
-  <p :class="{ 'text-center': isCentered }"><slot /></p>
+  <p class="text-title-contrast" :class="{ 'text-center': isCentered }">
+    <slot />
+  </p>
 </template>

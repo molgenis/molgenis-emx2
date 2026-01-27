@@ -19,6 +19,10 @@ export function newDeveloperPage(): IDeveloperPages {
   };
 }
 
+export function parsePageText(value: string): string {
+  return value.replace(/(^")|("$)/g, "");
+}
+
 export function newPageDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
