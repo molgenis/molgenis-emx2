@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
-import type { ISectionColumn } from "../../../types/types";
+import type { ISectionField } from "../../../types/types";
 import RecordSection from "../../components/display/RecordSection.vue";
 
 const showEmpty = ref(false);
@@ -23,7 +23,7 @@ const heading: IColumn = {
 };
 
 // Sample columns for the section
-const sampleColumns: ISectionColumn[] = [
+const sampleColumns: ISectionField[] = [
   {
     meta: { id: "name", label: "Name", columnType: "STRING" },
     value: "Fluffy",
@@ -52,7 +52,7 @@ const sampleColumns: ISectionColumn[] = [
 ];
 
 // Sample columns including REF_ARRAY (to test full-width layout)
-const columnsWithLists: ISectionColumn[] = [
+const columnsWithLists: ISectionField[] = [
   {
     meta: { id: "name", label: "Pet Name", columnType: "STRING" },
     value: "Buddy",
@@ -101,7 +101,7 @@ const columnsWithLists: ISectionColumn[] = [
 ];
 
 // Columns with some empty values
-const columnsWithEmpty: ISectionColumn[] = [
+const columnsWithEmpty: ISectionField[] = [
   {
     meta: { id: "name", label: "Name", columnType: "STRING" },
     value: "Max",

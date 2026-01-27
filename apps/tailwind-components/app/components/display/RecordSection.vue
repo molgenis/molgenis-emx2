@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { ISectionColumn } from "../../../types/types";
+import type { ISectionField } from "../../../types/types";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
@@ -11,7 +11,7 @@ const props = withDefaults(
   defineProps<{
     heading?: IColumn | null;
     isSection?: boolean;
-    columns: ISectionColumn[];
+    columns: ISectionField[];
     showEmpty?: boolean;
   }>(),
   {
@@ -37,7 +37,7 @@ const visibleColumns = computed(() => {
   });
 });
 
-function isListColumn(col: ISectionColumn): boolean {
+function isListColumn(col: ISectionField): boolean {
   const type = col.meta.columnType;
   return type === "REF_ARRAY" || type === "REFBACK";
 }

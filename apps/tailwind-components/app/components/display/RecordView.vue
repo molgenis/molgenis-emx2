@@ -4,7 +4,7 @@ import type {
   IColumn,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
-import type { ISectionColumn } from "../../../types/types";
+import type { ISectionField } from "../../../types/types";
 import RecordSection from "./RecordSection.vue";
 
 const props = withDefaults(
@@ -21,7 +21,7 @@ const props = withDefaults(
 interface SectionGroup {
   heading: IColumn | null;
   isSection: boolean;
-  columns: ISectionColumn[];
+  columns: ISectionField[];
 }
 
 const sections = computed<SectionGroup[]>(() => {

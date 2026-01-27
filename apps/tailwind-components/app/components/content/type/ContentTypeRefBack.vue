@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ISectionColumn } from "../../../../types/types";
+import type { ISectionField } from "../../../../types/types";
 
 const props = defineProps<{
-  field: ISectionColumn;
+  field: ISectionField;
 }>();
 
 const longestRowIndex = computed(() => {

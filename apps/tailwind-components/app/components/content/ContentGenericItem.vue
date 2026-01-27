@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, resolveComponent } from "vue";
-import type { ISectionColumn } from "../../../types/types";
+import type { ISectionField } from "../../../types/types";
 const String = resolveComponent("ContentTypeString");
 const Text = resolveComponent("ContentTypeText");
 const OntologyArray = resolveComponent("ContentTypeOntologyArray");
@@ -8,7 +8,7 @@ const HyperLink = resolveComponent("ContentTypeHyperLink");
 const RefBack = resolveComponent("ContentTypeRefBack");
 
 const { field } = defineProps<{
-  field: ISectionColumn;
+  field: ISectionField;
 }>();
 
 const component = computed(() => {

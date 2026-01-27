@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ISectionColumn } from "../../../../types/types";
+import type { ISectionField } from "../../../../types/types";
 
 defineProps<{
-  field: ISectionColumn;
+  field: ISectionField;
 }>();
 </script>
 

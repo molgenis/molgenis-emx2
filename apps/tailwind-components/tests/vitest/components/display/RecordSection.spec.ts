@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import RecordSection from "../../../../app/components/display/RecordSection.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
-import type { ISectionColumn } from "../../../../types/types";
+import type { ISectionField } from "../../../../types/types";
 
 describe("RecordSection", () => {
   const sectionHeading: IColumn = {
@@ -18,7 +18,7 @@ describe("RecordSection", () => {
     columnType: "HEADING",
   };
 
-  const columns: ISectionColumn[] = [
+  const columns: ISectionField[] = [
     {
       meta: { id: "name", label: "Name", columnType: "STRING" },
       value: "Test Value",
@@ -29,7 +29,7 @@ describe("RecordSection", () => {
     },
   ];
 
-  const columnsWithEmpty: ISectionColumn[] = [
+  const columnsWithEmpty: ISectionField[] = [
     {
       meta: { id: "name", label: "Name", columnType: "STRING" },
       value: "Test",
