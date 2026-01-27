@@ -24,6 +24,7 @@ class TestGraphqlAdminFields {
 
   private static GraphQL graphql;
   private static Database database;
+  private static GraphqlSessionHandlerInterface sessionManager;
   private static final String SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName();
   private static final String TEST_PERSOON = "testPersoon";
   private static final String ANOTHER_SCHEMA_NAME =
@@ -34,6 +35,28 @@ class TestGraphqlAdminFields {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropCreateSchema(SCHEMA_NAME);
     database.dropCreateSchema(ANOTHER_SCHEMA_NAME);
+
+    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, null);
+
+    sessionManager =
+        new GraphqlSessionHandlerInterface() {
+          private String user;
+
+          @Override
+          public void createSession(String username) {
+            this.user = username;
+          }
+
+          @Override
+          public void destroySession() {
+            this.user = null;
+          }
+
+          @Override
+          public String getCurrentUser() {
+            return user;
+          }
+        };
   }
 
   @Test
@@ -43,7 +66,6 @@ class TestGraphqlAdminFields {
         tdb -> {
           tdb.becomeAdmin();
           tdb.dropCreateSchema(SCHEMA_NAME);
-          graphql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
 
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
@@ -68,17 +90,54 @@ class TestGraphqlAdminFields {
   void testSetUserAdmin() throws JsonProcessingException {
     database.becomeAdmin();
     graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, null);
-    String signUpResult =
-        executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
-    assertEquals("bla", "bla");
-    String signinResult =
-        executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
-    database.setActiveUser("testViewer");
+
+    // create and sign in user testAdmin
+    executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
+    executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
+
+    // give testAdmin user admin privileges
+    executeDb(
+        """
+      mutation {
+        updateUser(updateUser:  {
+           email: "testAdmin",
+           admin: true
+        }) {
+          message
+        }
+      }
+
+      """);
+
+    executeDb("mutation{signout){message}}");
+    executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
+    database.setActiveUser("testAdmin");
+
+    String lastUpdateResult =
+        executeDb(
+            """
+      query {
+        _lastUpdate {
+          operation
+          stamp
+          userId
+          tableName
+          schemaName
+        }
+      }
+      """);
+    assertTrue(lastUpdateResult.contains("lastUpdate"));
   }
 
   private String executeDb(String query) throws JsonProcessingException {
-    ExecutionInput build = ExecutionInput.newExecutionInput().query(query).build();
-    return convertExecutionResultToJson(graphql.execute(build));
+    Map<?, Object> graphQLContext =
+        sessionManager != null
+            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
+            : Map.of();
+
+    ExecutionInput executionInput =
+        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build();
+    return convertExecutionResultToJson(graphql.execute(executionInput));
   }
 
   @Test
