@@ -373,8 +373,9 @@ public static Path resolveConfigPath(Path bundlePath) {
 | JSONata transform engine | HIGH | ❌ Rejected (7.1) |
 | CSV source step | HIGH | Pending (7.2) |
 | RDF output step | MEDIUM | ✅ Done (7.3) |
-| Declarative field mapping | HIGH | Pending (7.4) |
+| Declarative field mapping | HIGH | → Phase 10.1 |
 | FDP publish endpoints | MEDIUM | ✅ Done (7.5) |
+| Quick wins sprint | HIGH | 🔄 Current (7.6) |
 
 ---
 
@@ -570,19 +571,64 @@ steps:
 
 ---
 
-## Phase 8+: Future Ideas
+## Phase 7.6: Quick Wins (CURRENT)
 
-### Transform Simplification
-- **Declarative field mapping** (Phase 7.4) - YAML-based, no-code for simple cases
-- **JSON-LD context compaction** - Simplify prefixed keys before transform
-- **SPARQL CONSTRUCT queries** - Alternative to JSON-LD framing + JSLT
+**Source:** Unanimous reviewer feedback (5/5)
+
+| Task | Priority | Status |
+|------|----------|--------|
+| Rename `output-rdf` → `rdf` | HIGH | ✅ Done (7.6.1) |
+| Migrate beacon-v2 to `mappings:` | HIGH | Pending (7.6.2) |
+| Add test blocks to dcat-fdp YAML | HIGH | Pending (7.6.3) |
+| Create `shared/array-helpers.jslt` | MEDIUM | Pending (7.6.4) |
+| Create ObjectMapperFactory | MEDIUM | Pending (7.6.5) |
+
+---
+
+## Phase 8: Test Coverage & Error Handling
+
+**Source:** Java expert review
+
+| Task | Priority | Status |
+|------|----------|--------|
+| Command integration tests | HIGH | Pending (8.1) |
+| Fix exception hierarchy | HIGH | Pending (8.2) |
+| Fix silent partial failures | HIGH | Pending (8.3) |
+| RemotePipelineExecutor tests | MEDIUM | Pending (8.4) |
+
+---
+
+## Phase 9: DCAT Completeness
+
+**Source:** Bioinformatician/FAIR expert review
+
+| Task | Priority | Status |
+|------|----------|--------|
+| Add dcat:distribution layer | HIGH | Pending (9.1) |
+| Fix hardcoded timestamps | HIGH | Pending (9.2) |
+| Add dct:accessRights | MEDIUM | Pending (9.3) |
+| Extract shared FDP context | MEDIUM | Pending (9.4) |
+| SHACL validation step | MEDIUM | Pending (9.5) |
+
+---
+
+## Phase 10: Transform Simplification
+
+**Source:** All data manager reviews
+
+| Task | Priority | Status |
+|------|----------|--------|
+| Declarative field mapping (7.4) | HIGH | Pending (10.1) |
+| JSON-LD compaction step | MEDIUM | Pending (10.2) |
+| JSLT-Python cheatsheet | LOW | Pending (10.3) |
+
+---
+
+## Phase 11+: Future Ideas
 
 ### Data Sources
 - **SQL query support** - Direct database queries as alternative to GraphQL
 - **CSV source step** (Phase 7.2) - For schema migrations
-
-### Output Formats
-- **RDF output step** (Phase 7.3) - For DCAT publishing
 
 ### Scalability
 - **Chunking/pagination** - For large datasets
@@ -590,10 +636,7 @@ steps:
 
 ### Scripting (Future Exploration)
 - **GraalPy (Python on GraalVM)** - Production ready 2024, data managers like Python
-  - Pure Python: ready, ~4x faster than CPython
-  - Native extensions: experimental
-  - Consider for complex transforms where JSLT is insufficient
-- **Rule engines** - Less suitable for ETL, better for business rules
+- **SPARQL CONSTRUCT queries** - Alternative to JSON-LD framing + JSLT
 
 ### Rejected Ideas
 - **JSONata** - Doesn't improve learnability over JSLT (see Phase 7.1)

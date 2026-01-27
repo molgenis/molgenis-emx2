@@ -11,7 +11,7 @@ mappings:
         tests:
           - input: test/publish/fdp-root/input.json
             output: test/publish/fdp-root/output.json
-      - output-rdf: turtle
+      - rdf: turtle
 
   - name: fdp-catalog
     endpoint: /{schema}/api/fdp/catalog/{id}
@@ -22,7 +22,7 @@ mappings:
         tests:
           - input: test/publish/catalog/input.json
             output: test/publish/catalog/output.json
-      - output-rdf: turtle
+      - rdf: turtle
 
   - name: fdp-dataset
     endpoint: /{schema}/api/fdp/dataset/{id}
@@ -33,4 +33,4 @@ mappings:
         tests:
           - input: test/publish/dataset/input.json
             output: test/publish/dataset/output.json
-      - output-rdf: turtle
+      - rdf: turtle

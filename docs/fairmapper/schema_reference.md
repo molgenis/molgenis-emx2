@@ -135,6 +135,28 @@ Executes a GraphQL mutation against MOLGENIS.
 
 The mutation receives variables from the previous step's output. Typically used as the final step to write data.
 
+### RDF Step
+
+Serializes JSON-LD to RDF format. Used for publishing DCAT/FDP endpoints.
+
+```yaml
+- rdf: turtle
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `rdf` | string | yes | - | Output format: `turtle`, `jsonld`, or `ntriples` |
+| `tests` | array | no | - | Unit test cases |
+
+The input must be valid JSON-LD with `@context`. Output is RDF in the specified format.
+
+```yaml
+steps:
+  - query: src/queries/get-catalog.gql
+  - transform: src/transforms/to-dcat.jslt
+  - rdf: turtle
+```
+
 ## E2e Configuration
 
 End-to-end tests run the full pipeline against a live MOLGENIS database.
