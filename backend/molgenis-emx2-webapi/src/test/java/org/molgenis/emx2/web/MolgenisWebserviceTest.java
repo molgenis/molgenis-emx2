@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;
@@ -102,6 +103,22 @@ class MolgenisWebserviceTest {
         .get("/" + schema.getName() + "/")
         .then()
         .header("Location", "/" + schema.getName() + "/from-menu");
+    db.dropSchema(schema.getName());
+  }
+
+  @Test
+  void givenSchemaWithAnonymousUser_whenInsufficientRoleForMenu_thenRedirectToTables() {
+    Schema schema = setupSchema(getClass().getSimpleName() + "anonymous");
+    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+    schema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+    given()
+        .redirects()
+        .follow(false)
+        .sessionId(sessionId)
+        .when()
+        .get("/" + schema.getName() + "/")
+        .then()
+        .header("Location", "/" + schema.getName() + "/tables");
     db.dropSchema(schema.getName());
   }
 
