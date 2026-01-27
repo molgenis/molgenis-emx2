@@ -19,16 +19,7 @@ public class StepConfigDeserializer extends JsonDeserializer<List<StepConfig>> {
     for (JsonNode stepNode : node) {
       List<TestCase> tests = parseTests(stepNode.get("tests"));
 
-      if (stepNode.has("fetch")) {
-        steps.add(
-            new FetchStep(
-                stepNode.get("fetch").asText(),
-                stepNode.has("accept") ? stepNode.get("accept").asText() : null,
-                stepNode.has("frame") ? stepNode.get("frame").asText() : null,
-                stepNode.has("maxDepth") ? stepNode.get("maxDepth").asInt() : null,
-                stepNode.has("maxCalls") ? stepNode.get("maxCalls").asInt() : null,
-                tests));
-      } else if (stepNode.has("transform")) {
+      if (stepNode.has("transform")) {
         steps.add(new TransformStep(stepNode.get("transform").asText(), tests));
       } else if (stepNode.has("query")) {
         steps.add(new QueryStep(stepNode.get("query").asText(), tests));

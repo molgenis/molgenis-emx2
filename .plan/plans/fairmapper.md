@@ -581,9 +581,9 @@ steps:
 | Content negotiation in API (output) | HIGH | ✅ Done (7.6.2) |
 | Input format handling + frame validation | MEDIUM | ⏭ Deferred (7.6.3) |
 | Migrate bundles (remove `rdf` steps) | MEDIUM | ✅ Done (7.6.4) |
-| Remove `OutputRdfStep` | MEDIUM | Pending (7.6.5) |
-| Update documentation | MEDIUM | Pending (7.6.6) |
-| Make `name` optional (derive from endpoint) | LOW | Pending (7.6.7) |
+| Remove `OutputRdfStep` | MEDIUM | ✅ Done (7.6.5) |
+| Update documentation | MEDIUM | ✅ Done (7.6.6) |
+| Simplified Mapping model | HIGH | 🔄 Current (7.6.7) |
 
 ---
 
@@ -823,27 +823,77 @@ Note: `input`/`output` default to `json` so can be omitted for beacon-v2.
 
 ---
 
-### 7.6.7: Make `name` Optional
+### 7.6.7: Simplified Mapping Model
 
-**Goal:** Derive `name` from `endpoint` when not specified, reducing boilerplate.
+**Goal:** Cleaner distinction between API endpoints and harvest pipelines.
+
+**Design:**
+```
+Mapping = name + (endpoint | fetch) + steps
+  - name: always required (identifier)
+  - endpoint: API route (e.g. /{schema}/api/fdp)
+  - fetch: RDF source URL (e.g. ${SOURCE_URL})
+  - frame: JSON-LD frame file (required with fetch)
+```
+
+**Rules:**
+1. `name` always required
+2. Either `endpoint` OR `fetch` (not both, mutually exclusive)
+3. `frame` required when `fetch` is set
+4. `frame` optional when `endpoint` is set (for RDF POST input, future)
+
+**API mapping (endpoint):**
+```yaml
+mappings:
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    methods: [GET]
+    output: turtle
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/publish/to-dcat-catalog.jslt
+```
+
+**Harvest mapping (fetch + frame):**
+```yaml
+mappings:
+  - name: harvest-catalog
+    fetch: ${SOURCE_URL}
+    frame: src/frames/catalog.jsonld
+    steps:
+      - transform: src/transforms/to-molgenis.jslt
+      - mutate: src/mutations/upsert.gql
+```
+
+**Validation errors:**
+- Missing `name` → "Mapping requires 'name' field"
+- Both `endpoint` + `fetch` → "Mapping cannot have both 'endpoint' and 'fetch'"
+- Neither `endpoint` nor `fetch` → "Mapping requires either 'endpoint' or 'fetch'"
+- `fetch` without `frame` → "Mapping with 'fetch' requires 'frame' field"
 
 **Files to modify:**
 
 | File | Change |
 |------|--------|
-| `Mapping.java` | Add `derivedName()` method that extracts name from endpoint |
-| `BundleLoader.java` | Use `derivedName()` when `name` is null |
+| `Mapping.java` | Add `fetch` field, add validation methods |
+| `BundleLoader.java` | Call Mapping.validate(), throw on error |
+| `FetchStep.java` | Keep for backwards compat, log deprecation |
+| `PipelineExecutor.java` | Handle mapping.fetch() before steps |
+| `RemotePipelineExecutor.java` | Same change as PipelineExecutor |
 
-**Logic:**
-- Extract last path segment from endpoint: `/{schema}/api/beacon/individuals` → `individuals`
-- Strip `{id}` params: `/{schema}/api/fdp/catalog/{id}` → `catalog`
+**Files to migrate:**
 
-**Example:**
-```yaml
-mappings:
-  - endpoint: /{schema}/api/beacon/individuals  # name derived as "individuals"
-    steps: [...]
-```
+| Bundle | Change |
+|--------|--------|
+| `dcat-harvester` | Move `fetch:` from step to mapping level |
+
+**Implementation order:**
+1. Add `fetch` field to Mapping.java
+2. Add validation methods to Mapping.java
+3. Update BundleLoader to call validation
+4. Update executors to handle mapping-level fetch
+5. Migrate dcat-harvester bundle
+6. Add deprecation warning to FetchStep parsing
 
 ---
 
@@ -1050,17 +1100,25 @@ backend/molgenis-emx2-fairmapper-cli/
     MutateStep.java         # GraphQL mutation
 ```
 
-**dcat-fdp bundle**:
+**Mapping types (7.6.7):**
 ```yaml
-name: dcat-fdp
-version: 1.0.0
+# API mapping (endpoint)
+mappings:
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    output: turtle
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/to-dcat-catalog.jslt
+
+# Harvest mapping (fetch + frame)
 mappings:
   - name: harvest-catalog
+    fetch: ${SOURCE_URL}
+    frame: src/frames/catalog.jsonld
     steps:
-      - fetch: ${SOURCE_URL}
-        frame: src/frames/catalog-with-datasets.jsonld
       - transform: src/transforms/to-molgenis.jslt
-      - mutate: src/mutations/upsert-resources.gql
+      - mutate: src/mutations/upsert.gql
 ```
 
 ---

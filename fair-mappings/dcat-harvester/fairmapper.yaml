@@ -3,17 +3,9 @@ version: 1.0.0
 
 mappings:
   - name: harvest-catalog
-    endpoint: /{schema}/api/harvest
-    methods: [POST]
+    fetch: ${SOURCE_URL}
+    frame: src/frames/catalog-with-datasets.jsonld
     steps:
-      - fetch: ${SOURCE_URL}
-        frame: src/frames/catalog-with-datasets.jsonld
-        maxDepth: 5
-        maxCalls: 50
-        tests:
-          - input: test/fetch/catalog.ttl
-            output: test/fetch/catalog.json
-
       - transform: src/transforms/to-molgenis.jslt
         tests:
           - input: test/transform/dcat-input.json

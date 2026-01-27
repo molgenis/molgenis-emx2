@@ -8,6 +8,7 @@ import org.molgenis.emx2.fairmapper.model.step.StepConfigDeserializer;
 public record Mapping(
     String name,
     String endpoint,
+    String fetch,
     List<String> methods,
     String input,
     String output,
@@ -27,5 +28,20 @@ public record Mapping(
     if (name != null && !name.isBlank()) return name;
     if (endpoint != null) return endpoint.replace("/{schema}/api/", "").replace("/", "-");
     return null;
+  }
+
+  public void validate() {
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Mapping requires 'name' field");
+    }
+    if (endpoint != null && fetch != null) {
+      throw new IllegalArgumentException("Mapping cannot have both 'endpoint' and 'fetch'");
+    }
+    if (endpoint == null && fetch == null) {
+      throw new IllegalArgumentException("Mapping requires either 'endpoint' or 'fetch'");
+    }
+    if (fetch != null && (frame == null || frame.isBlank())) {
+      throw new IllegalArgumentException("Mapping with 'fetch' requires 'frame' field");
+    }
   }
 }

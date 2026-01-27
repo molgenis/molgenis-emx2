@@ -122,7 +122,7 @@ public class DcatPipelineIntegrationTest {
 
     if (!result.getErrors().isEmpty()) {
       StringBuilder errorMsg = new StringBuilder("GraphQL errors:\n");
-      for (var error : result.getErrors()) {
+      for (graphql.GraphQLError error : result.getErrors()) {
         errorMsg.append("  - ").append(error.getMessage()).append("\n");
         if (error.getExtensions() != null) {
           errorMsg.append("    Extensions: ").append(error.getExtensions()).append("\n");
