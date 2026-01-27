@@ -25,13 +25,8 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.fairmapper.BundleLoader;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
-import org.molgenis.emx2.fairmapper.model.Step;
-import org.molgenis.emx2.fairmapper.model.step.OutputRdfStep;
-import org.molgenis.emx2.fairmapper.model.step.QueryStep;
-import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class FairMapperApiTest {
@@ -59,26 +54,6 @@ class FairMapperApiTest {
   static void cleanup() {
     database.dropSchemaIfExists(SCHEMA_NAME);
     database.dropSchemaIfExists(CATALOGUE_SCHEMA);
-  }
-
-  private static Endpoint mappingToEndpoint(Mapping mapping) {
-    List<Step> steps =
-        mapping.steps().stream()
-            .map(
-                stepConfig -> {
-                  if (stepConfig instanceof QueryStep queryStep) {
-                    return new Step(null, queryStep.path(), queryStep.tests());
-                  } else if (stepConfig instanceof TransformStep transformStep) {
-                    return new Step(transformStep.path(), null, transformStep.tests());
-                  } else if (stepConfig instanceof OutputRdfStep) {
-                    return null;
-                  }
-                  return null;
-                })
-            .filter(step -> step != null)
-            .toList();
-
-    return new Endpoint(mapping.endpoint(), mapping.methods(), steps, mapping.e2e());
   }
 
   @Test
@@ -121,9 +96,9 @@ class FairMapperApiTest {
     BundleLoader loader = new BundleLoader();
     MappingBundle bundle = loader.load(configPath);
 
-    Endpoint endpoint =
-        bundle.endpoints().stream()
-            .filter(e -> e.path().contains("individuals-minimal"))
+    Mapping mapping =
+        bundle.getMappings().stream()
+            .filter(m -> m.endpoint().contains("individuals-minimal"))
             .findFirst()
             .orElseThrow();
 
@@ -157,7 +132,7 @@ class FairMapperApiTest {
     when(httpRequest.getSession(false)).thenReturn(session);
     when(session.getAttribute("username")).thenReturn(database.getAdminUserName());
 
-    FairMapperApi.handleRequest(ctx, endpoint, bundlePath);
+    FairMapperApi.handleRequest(ctx, mapping, bundlePath);
 
     ArgumentCaptor<String> resultCaptor = ArgumentCaptor.forClass(String.class);
     verify(ctx).contentType("application/json");
@@ -200,8 +175,6 @@ class FairMapperApiTest {
             .findFirst()
             .orElseThrow(() -> new AssertionError("FDP root mapping not found"));
 
-    Endpoint endpoint = mappingToEndpoint(mapping);
-
     Context ctx = mock(Context.class);
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     HttpSession session = mock(HttpSession.class);
@@ -215,20 +188,20 @@ class FairMapperApiTest {
     when(httpRequest.getSession(false)).thenReturn(session);
     when(session.getAttribute("username")).thenReturn(database.getAdminUserName());
 
-    FairMapperApi.handleRequest(ctx, endpoint, bundlePath);
+    FairMapperApi.handleRequest(ctx, mapping, bundlePath);
 
     ArgumentCaptor<String> resultCaptor = ArgumentCaptor.forClass(String.class);
+    verify(ctx).contentType("text/turtle");
     verify(ctx).result(resultCaptor.capture());
 
     String response = resultCaptor.getValue();
     assertNotNull(response, "Response should not be null");
     assertFalse(response.isEmpty(), "Response should not be empty");
 
-    assertTrue(response.contains("@context"), "Response should be JSON-LD");
     assertTrue(
-        response.contains("fdp-o:") || response.contains("FAIRDataPoint"),
-        "Should contain FDP vocabulary");
-    assertTrue(response.contains("dcat:"), "Should contain DCAT vocabulary");
+        response.contains("@prefix") || response.contains("<http"),
+        "Response should be Turtle format, but was: "
+            + response.substring(0, Math.min(200, response.length())));
   }
 
   @Test
@@ -266,8 +239,6 @@ class FairMapperApiTest {
             .findFirst()
             .orElseThrow(() -> new AssertionError("Catalog mapping not found"));
 
-    Endpoint endpoint = mappingToEndpoint(mapping);
-
     Context ctx = mock(Context.class);
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     HttpSession session = mock(HttpSession.class);
@@ -282,16 +253,19 @@ class FairMapperApiTest {
     when(httpRequest.getSession(false)).thenReturn(session);
     when(session.getAttribute("username")).thenReturn(database.getAdminUserName());
 
-    FairMapperApi.handleRequest(ctx, endpoint, bundlePath);
+    FairMapperApi.handleRequest(ctx, mapping, bundlePath);
 
     ArgumentCaptor<String> resultCaptor = ArgumentCaptor.forClass(String.class);
+    verify(ctx).contentType("text/turtle");
     verify(ctx).result(resultCaptor.capture());
 
     String response = resultCaptor.getValue();
     assertNotNull(response);
+    assertFalse(response.isEmpty());
 
-    assertTrue(response.contains("@context"), "Response should be JSON-LD");
-    assertTrue(response.contains("dcat:Catalog"), "Should be a dcat:Catalog");
-    assertTrue(response.contains("dcat:"), "Should contain DCAT vocabulary");
+    assertTrue(
+        response.contains("@prefix") || response.contains("<http"),
+        "Response should be Turtle format");
+    assertTrue(response.contains("dcat:"), "Response should contain DCAT vocabulary");
   }
 }

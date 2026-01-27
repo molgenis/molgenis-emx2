@@ -578,7 +578,7 @@ steps:
 | Task | Priority | Status |
 |------|----------|--------|
 | Add `input`/`output`/`frame` fields to Mapping | HIGH | ✅ Done (7.6.1) |
-| Content negotiation in API (output) | HIGH | Pending (7.6.2) |
+| Content negotiation in API (output) | HIGH | ✅ Done (7.6.2) |
 | Input format handling + frame validation | HIGH | Pending (7.6.3) |
 | Migrate bundles (remove `rdf` steps) | MEDIUM | Pending (7.6.4) |
 | Remove `OutputRdfStep` | MEDIUM | Pending (7.6.5) |
@@ -627,9 +627,18 @@ public record Mapping(
 
 ---
 
-### 7.6.2: Content Negotiation in API (output)
+### 7.6.2: Content Negotiation in API (output) ✅ DONE
 
-**Files to modify:**
+**Files created:**
+- `ContentNegotiator.java` - format resolution from Accept header
+- `ContentNegotiatorTest.java` - 22 test cases
+
+**Files modified:**
+- `FairMapperApi.java` - uses getMappings(), content negotiation, RDF conversion
+- `PipelineExecutor.java` - added execute(Mapping) overload
+- `FairMapperApiTest.java` - updated for Mapping
+
+**Original plan (kept for reference):**
 
 | File | Change |
 |------|--------|
