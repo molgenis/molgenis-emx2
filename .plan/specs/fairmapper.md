@@ -10,29 +10,37 @@ Enable data managers to create API adapters and ETL pipelines without Java code.
 Directory containing `fairmapper.yaml` + transform/query files + tests. Located in `fair-mappings/`.
 
 ### Mapping
-Named processing pipeline. Can expose HTTP endpoint or run via CLI.
-- `name` - CLI identifier
-- `endpoint` - HTTP path with `{schema}` placeholder (optional)
+Named processing pipeline. Two types:
+- **API mapping**: exposes HTTP endpoint (`endpoint` field)
+- **Harvest mapping**: fetches from external RDF source (`fetch` + `frame` fields)
+
+Fields:
+- `name` - required identifier
+- `endpoint` - HTTP path with `{schema}` placeholder (API mappings)
+- `fetch` - RDF source URL (harvest mappings)
+- `frame` - JSON-LD frame file (required with `fetch`)
+
+Validation: `endpoint` and `fetch` are mutually exclusive.
 
 ### Step
 Single processing unit (strategy pattern):
-- `fetch` - HTTP GET RDF, follow links, apply JSON-LD frame
 - `transform` - JSLT JSON transformation
 - `query` - GraphQL query execution
-- `mutate` - GraphQL mutation execution (planned)
+- `mutate` - GraphQL mutation execution
 
 ### E2e Test
 Full pipeline test against live database with JSON input/output validation.
 
-## fairmapper.yaml Schema (v3)
+## fairmapper.yaml Schema (v4)
 
 ```yaml
 name: beacon-v2         # Required: bundle identifier
 version: 2.0.0          # version of the mapping, user defined
 
 mappings:
-  # Endpoint mapping (HTTP API)
-  - endpoint: /{schema}/api/beacon/individuals  # HTTP path (endpoint is identifier)
+  # API mapping (HTTP endpoint)
+  - name: beacon-individuals
+    endpoint: /{schema}/api/beacon/individuals
     methods: [GET, POST]
     input: json              # default request format (when no Content-Type)
     output: json             # default response format (when no Accept)
@@ -50,44 +58,49 @@ mappings:
           input: test/e2e/request.json
           output: test/e2e/expected.json
 
-  # FDP publish endpoint (outputs RDF)
-  - endpoint: /{schema}/api/fdp/catalog/{id}
+  # API mapping (outputs RDF via content negotiation)
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
     methods: [GET]
     output: turtle           # default output = Turtle RDF
     steps:
       - query: src/queries/get-catalog.gql
       - transform: src/transforms/to-dcat.jslt
 
-  # CLI-only mapping (fetch from external)
-  - name: harvest-catalog   # CLI identifier (required when no endpoint)
-    input: turtle            # expect Turtle input from SOURCE_URL
-    frame: src/frames/catalog.jsonld  # required when input is RDF
+  # Harvest mapping (fetch from external RDF source)
+  - name: harvest-catalog
+    fetch: ${SOURCE_URL}
+    frame: src/frames/catalog.jsonld
     steps:
-      - fetch: ${SOURCE_URL}
       - transform: src/transforms/to-molgenis.jslt
       - mutate: src/mutations/upsert.gql
 ```
 
 ### Mapping Fields
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `endpoint` | string | - | HTTP path with `{schema}` placeholder |
-| `name` | string | - | CLI identifier (required when no endpoint) |
-| `methods` | array | `[GET]` | HTTP methods to register |
-| `input` | string | `json` | Default request body format |
-| `output` | string | `json` | Default response format |
-| `frame` | string | - | JSON-LD frame for RDF request parsing |
-| `steps` | array | - | Processing pipeline (required) |
-| `e2e` | object | - | End-to-end test configuration |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Unique identifier for the mapping |
+| `endpoint` | string | Either endpoint or fetch | HTTP path with `{schema}` placeholder |
+| `fetch` | string | Either endpoint or fetch | RDF source URL (supports `${VAR}` placeholders) |
+| `frame` | string | When fetch is set | JSON-LD frame file for RDF parsing |
+| `methods` | array | No (default: `[GET]`) | HTTP methods to register (endpoint only) |
+| `input` | string | No (default: `json`) | Default request body format |
+| `output` | string | No (default: `json`) | Default response format |
+| `steps` | array | Yes | Processing pipeline |
+| `e2e` | object | No | End-to-end test configuration |
 
-**When to use mapping-level `frame`:**
-- HTTP endpoints that accept RDF in request body (`input: turtle`)
-- Frame is applied to incoming request before pipeline
+### Mapping Type Rules
 
-**When to use fetch step `frame`:**
-- CLI mappings that fetch RDF from external URL
-- Frame is applied to fetched RDF data
+| Type | Required Fields | Optional Fields |
+|------|-----------------|-----------------|
+| API | `name`, `endpoint`, `steps` | `methods`, `input`, `output`, `frame`, `e2e` |
+| Harvest | `name`, `fetch`, `frame`, `steps` | - |
+
+**Validation:**
+- `name` always required
+- `endpoint` and `fetch` are mutually exclusive
+- `frame` required when `fetch` is set
 
 ### Supported Formats
 
@@ -101,11 +114,12 @@ mappings:
 
 ### Mapping Validation Rules
 
-| Rule | Condition | Result |
-|------|-----------|--------|
-| Identifier required | No `endpoint` | `name` required |
-| RDF input needs frame | `input: turtle\|jsonld\|ntriples` | `frame` required |
-| No conflicting patterns | `endpoint` + `fetch` step | Error |
+| Rule | Error Message |
+|------|---------------|
+| `name` missing | "Mapping requires 'name' field" |
+| Both `endpoint` and `fetch` set | "Mapping cannot have both 'endpoint' and 'fetch'" |
+| Neither `endpoint` nor `fetch` set | "Mapping requires either 'endpoint' or 'fetch'" |
+| `fetch` without `frame` | "Mapping with 'fetch' requires 'frame' field" |
 
 ### Content Negotiation
 
@@ -136,26 +150,33 @@ Backwards compatibility: `endpoints`, `path`, `name` on endpoint mappings still 
 
 | Type        | Extension | Input | Output | Engine |
 |-------------|-----------|-------|--------|--------|
-| `fetch`     | URL | RDF (Turtle) | JSON-LD (framed) | RDF4J + Titanium |
 | `transform` | `.jslt` | JSON | JSON | JSLT (schibsted) |
 | `query`     | `.gql` | Variables JSON | Query result JSON | molgenis-emx2-graphql |
 | `mutate`    | `.gql` | Variables JSON | Mutation result | molgenis-emx2-graphql |
 | `query`     | `.sql` | Variables JSON | Query result JSON | PostgreSQL (planned) |
 
-Note: RDF output is handled via content negotiation (`output: turtle`), not as a step type.
+Notes:
+- RDF output is handled via content negotiation (`output: turtle`), not as a step type
+- RDF input (fetch) is handled at mapping level, not as a step type
 
-### Fetch Step Options
+### Fetch (Mapping-Level)
+
+For harvest mappings, RDF is fetched and framed before the pipeline runs:
 
 ```yaml
-- fetch: ${SOURCE_URL}      # URL or variable
-  accept: text/turtle       # Content-Type (default: text/turtle)
-  frame: src/frames/x.jsonld  # JSON-LD frame file
-  maxDepth: 5               # Max link-following depth (default: 5)
-  maxCalls: 50              # Max HTTP requests per record (default: 50)
-  tests:
-    - input: test/catalog.ttl   # Local Turtle file
-      output: test/catalog.json # Expected framed JSON
+- name: harvest-catalog
+  fetch: ${SOURCE_URL}                    # URL with variable placeholders
+  frame: src/frames/catalog.jsonld        # JSON-LD frame (required)
+  steps:
+    - transform: src/transforms/to-molgenis.jslt
+    - mutate: src/mutations/upsert.gql
 ```
+
+**Fetch behavior:**
+- Fetches RDF from URL (Turtle format)
+- Follows links based on frame structure (link-driven fetching)
+- Applies JSON-LD frame to produce input for pipeline
+- Max depth: 5 levels, max calls: 50 per record
 
 ## CLI Commands
 
@@ -205,15 +226,16 @@ HTTP Response (JSON)
 
 ## Validation Rules
 
-1. `fairmapper.yaml` must have: name, mappings (or endpoints for v1)
-2. Each mapping must have: name OR endpoint (at least one)
-3. Each step must have exactly one of: `fetch`, `transform`, `query`, `mutate`
-4. Transform files must exist and have `.jslt` extension
-5. Query files must exist and have `.gql` extension
-6. Frame files must exist and have `.json` or `.jsonld` extension
-7. E2e test method must be GET or POST
-8. E2e input/output files must exist
-9. Version field optional (warning logged if missing)
+1. `fairmapper.yaml` must have: `name`, `mappings`
+2. Each mapping must have: `name`, either `endpoint` or `fetch`, `steps`
+3. Harvest mappings (`fetch`) require `frame` field
+4. Each step must have exactly one of: `transform`, `query`, `mutate`
+5. Transform files must exist and have `.jslt` extension
+6. Query files must exist and have `.gql` extension
+7. Frame files must exist and have `.json` or `.jsonld` extension
+8. E2e test method must be GET or POST
+9. E2e input/output files must exist
+10. Version field optional (warning logged if missing)
 
 ## Error Handling
 
