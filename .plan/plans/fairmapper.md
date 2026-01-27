@@ -61,9 +61,9 @@
 | Task | Priority | Status |
 |------|----------|--------|
 | 8.1 Fix silent failures in jsonEquals | HIGH | Done |
-| 8.2 Add null-check to RemotePipelineExecutor | HIGH | Pending |
+| 8.2 Add null-check to RemotePipelineExecutor | HIGH | Done |
 | 8.3 Command error case tests | HIGH | Pending |
-| 8.4 RemotePipelineExecutor tests | MEDIUM | Pending |
+| 8.4 RemotePipelineExecutor tests | MEDIUM | Done |
 
 ---
 
@@ -145,24 +145,83 @@ public JsonNode execute(JsonNode input, Mapping mapping) throws IOException {
 
 ### 8.4 RemotePipelineExecutor Tests
 
-**File:** Create `RemotePipelineExecutorTest.java`
+**File:** `RemotePipelineExecutorTest.java` (extend existing)
+
+**Existing tests:**
+- `testMappingWithNullStepsReturnsInputUnchanged` ✅
+- `testMappingWithEmptyStepsListReturnsInputUnchanged` ✅
+
+**Tests to add:**
 
 | Test | Setup | Assertion |
 |------|-------|-----------|
-| Query success | Mock GraphqlClient returns data | Result contains data |
-| Query error | Mock returns GraphQL errors | IOException thrown with message |
-| Mutate success | Mock returns mutation result | Result contains data |
-| Transform chain | Multi-step pipeline | Each step executed in order |
-| Fetch mapping | Mapping with fetch field | Fetch executed before steps |
-| Network failure | Mock throws IOException | IOException propagated |
+| `testQueryStepSuccess` | Mock client returns `{"data":{"Users":[...]}}` | Result equals mocked response |
+| `testQueryStepPropagatesIOException` | Mock client throws IOException | IOException propagated |
+| `testMutateStepSuccess` | Mock client returns mutation result | Result equals mocked response |
+| `testTransformStepSuccess` | Mock engine returns transformed JSON | Result equals mocked response |
+| `testMultiStepPipeline` | Query → Transform → Mutate | Steps execute in order, verify call order |
+| `testTransformStepInvalidPath` | Step path outside bundle | IOException (path traversal blocked) |
+| `testPlaceholderResolution` | Mapping with `${SOURCE_URL}` + input with SOURCE_URL | URL correctly resolved |
 
-**Mock setup:**
+**Deferred (requires refactoring):**
+| Test | Reason |
+|------|--------|
+| Fetch mapping tests | RdfFetcher/JsonLdFramer instantiated inline, not mockable |
+
+**File setup for tests:**
 ```java
-@Mock GraphqlClient client;
+@TempDir Path tempDir;
 
 @BeforeEach
-void setup() {
-  executor = new RemotePipelineExecutor(bundlePath, client);
+void setUp() throws IOException {
+  Files.writeString(tempDir.resolve("query.gql"), "query { Users { name } }");
+  Files.writeString(tempDir.resolve("mutate.gql"), "mutation { insert_User(...) }");
+  Files.writeString(tempDir.resolve("transform.jslt"), ". | {\"wrapped\": .}");
+}
+```
+
+**Mapping construction:**
+```java
+Mapping queryMapping = new Mapping(
+    "test",           // name
+    "/api/test",      // endpoint (required if no fetch)
+    null,             // fetch
+    List.of("GET"),   // methods
+    null,             // input
+    null,             // output
+    null,             // frame
+    List.of(new QueryStep("query.gql", null)),  // steps
+    null              // e2e
+);
+```
+
+**Call verification pattern:**
+```java
+@Test
+void testMultiStepPipeline() throws IOException {
+  InOrder inOrder = inOrder(mockClient, mockTransformEngine);
+
+  JsonNode queryResult = objectMapper.readTree("{\"data\":{}}");
+  JsonNode transformResult = objectMapper.readTree("{\"wrapped\":{}}");
+  JsonNode mutateResult = objectMapper.readTree("{\"result\":\"ok\"}");
+
+  when(mockClient.execute(eq("testSchema"), contains("query"), any())).thenReturn(queryResult);
+  when(mockTransformEngine.transform(any(Path.class), eq(queryResult))).thenReturn(transformResult);
+  when(mockClient.execute(eq("testSchema"), contains("mutation"), any())).thenReturn(mutateResult);
+
+  List<StepConfig> steps = List.of(
+      new QueryStep("query.gql", null),
+      new TransformStep("transform.jslt", null),
+      new MutateStep("mutate.gql")
+  );
+  Mapping mapping = new Mapping("test", "/api/test", null, List.of("POST"), null, null, null, steps, null);
+
+  JsonNode result = executor.execute(objectMapper.createObjectNode(), mapping);
+
+  inOrder.verify(mockClient).execute(eq("testSchema"), contains("query"), any());
+  inOrder.verify(mockTransformEngine).transform(any(), any());
+  inOrder.verify(mockClient).execute(eq("testSchema"), contains("mutation"), any());
+  assertEquals(mutateResult, result);
 }
 ```
 
