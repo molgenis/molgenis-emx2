@@ -56,13 +56,15 @@ public class RemotePipelineExecutor {
       current = executeFetch(fetchUrl, mapping.frame());
     }
 
-    for (StepConfig step : mapping.steps()) {
-      if (step instanceof TransformStep transformStep) {
-        current = executeTransform(transformStep.path(), current);
-      } else if (step instanceof QueryStep queryStep) {
-        current = executeQuery(queryStep.path(), current);
-      } else if (step instanceof MutateStep mutateStep) {
-        current = executeMutate(mutateStep.path(), current);
+    if (mapping.steps() != null) {
+      for (StepConfig step : mapping.steps()) {
+        if (step instanceof TransformStep transformStep) {
+          current = executeTransform(transformStep.path(), current);
+        } else if (step instanceof QueryStep queryStep) {
+          current = executeQuery(queryStep.path(), current);
+        } else if (step instanceof MutateStep mutateStep) {
+          current = executeMutate(mutateStep.path(), current);
+        }
       }
     }
 
