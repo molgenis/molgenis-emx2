@@ -33,8 +33,12 @@ public record SchemaMenu(List<MenuItem> items) {
     }
   }
 
+  public SchemaMenu menuForAnonymousAndRole(String role) {
+    return new SchemaMenu(items.stream().filter(item -> shouldShow(item, role, false)).toList());
+  }
+
   public SchemaMenu menuForRole(String role) {
-    return new SchemaMenu(items.stream().filter(item -> shouldShow(item, role)).toList());
+    return new SchemaMenu(items.stream().filter(item -> shouldShow(item, role, true)).toList());
   }
 
   @Override
@@ -46,10 +50,11 @@ public record SchemaMenu(List<MenuItem> items) {
     return items.isEmpty();
   }
 
-  private boolean shouldShow(MenuItem item, String role) {
+  private boolean shouldShow(MenuItem item, String role, boolean isAnonymous) {
     return role == null
         || role.equals("admin")
         || item.role() == null
+        || (item.role().equals("Signed in") && isAnonymous)
         || (item.role().equals(VIEWER.toString())
             && List.of(VIEWER.toString(), EDITOR.toString(), MANAGER.toString()).contains(role))
         || (item.role().equals(EDITOR.toString())
