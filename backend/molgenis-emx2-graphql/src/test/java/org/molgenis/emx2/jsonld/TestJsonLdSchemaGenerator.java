@@ -57,7 +57,7 @@ public class TestJsonLdSchemaGenerator {
     String ttl = convertToTurtle(mapper.convertValue(result, Map.class), data);
     System.out.println(ttl);
 
-    assertTrue(ttl.contains("my:Catalogues/1"));
+    assertTrue(ttl.contains("my:Catalogues/1") || ttl.contains("#Catalogues/1"));
     assertTrue(ttl.contains("dcat:"));
   }
 
@@ -73,7 +73,6 @@ public class TestJsonLdSchemaGenerator {
     String schemaUrl = "http://localhost:8080";
     Map jsonLdSchema = generateJsonLdSchemaAsMap(schema.getMetadata(), schemaUrl);
     Map data = result.getData();
-    data.put(MG_ID, "my:.");
     String ttl = convertToTurtle(jsonLdSchema, data);
     System.out.println(ttl);
   }

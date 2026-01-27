@@ -57,36 +57,23 @@ public class JsonLdSchemaGenerator {
             Map.entry("or", "http://www.w3.org/ns/org#"));
 
     Map<String, Object> context = new LinkedHashMap<>();
-    context.put(PREFIX.replace(":", ""), schemaUrl);
+    String namespaceUrl =
+        schemaUrl.endsWith("/") || schemaUrl.endsWith("#") ? schemaUrl : schemaUrl + "#";
+    context.put(PREFIX.replace(":", ""), namespaceUrl);
 
     for (Map.Entry<String, String> entry : schemaNamespaces.entrySet()) {
       context.put(entry.getKey(), entry.getValue());
     }
     context.put("schema", "http://schema.org/");
 
-    context.put("data", "@graph"); // graphql data will work
-    context.put("@base", "my:"); // makes sure all id are prefixed properly
+    context.put("data", "@graph");
+    context.put("@base", schemaUrl + "/");
     context.put(MG_ID, "@id");
 
     // this statement allows @type to be a set
     // context.put("@context", Map.of("@version", 1.1, "@type", Map.of("@container", "@set")));
 
     for (TableMetadata table : schema.getTables()) {
-      Map<String, Object> tableContext = new LinkedHashMap<>();
-
-      for (Column column :
-          table.getColumns().stream().filter(column -> !column.getName().equals(MG_ID)).toList()) {
-        Map<String, Object> columnContext = new HashMap<>();
-        // todo, we will ensure each graphql output will get generated id
-        columnContext.put("@id", PREFIX + table.getIdentifier() + "#" + column.getIdentifier());
-        if (column.isReference()) {
-          columnContext.put("@type", "@id");
-        } else {
-          columnContext.put("@type", getXsdType(column.getColumnType()));
-        }
-        tableContext.put(column.getIdentifier(), columnContext);
-        tableContext.put(MG_ID, "@id");
-      }
       Map<String, Object> tableNode = new LinkedHashMap<>();
       tableNode.put("@id", PREFIX + table.getIdentifier());
       if (table.getSemantics() != null && table.getSemantics().length > 0) {
@@ -94,7 +81,6 @@ public class JsonLdSchemaGenerator {
             "@type",
             table.getSemantics().length == 1 ? table.getSemantics()[0] : table.getSemantics());
       }
-      tableNode.put("@context", tableContext);
       context.put(table.getIdentifier(), tableNode);
     }
 
@@ -124,5 +110,13 @@ public class JsonLdSchemaGenerator {
       throw new MolgenisException("XSD type missing for type " + type.getName());
     }
     return result;
+  }
+
+  private static String expandXsdType(Object xsdType) {
+    String typeStr = xsdType.toString();
+    if (typeStr.startsWith("xsd:")) {
+      return "http://www.w3.org/2001/XMLSchema#" + typeStr.substring(4);
+    }
+    return typeStr;
   }
 }

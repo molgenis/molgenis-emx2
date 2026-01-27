@@ -1,7 +1,5 @@
 package org.molgenis.emx2.jsonld;
 
-import static org.molgenis.emx2.Constants.MG_ID;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -103,7 +101,6 @@ public class RestOverGraphql {
   public static String convertToTurtle(
       Map<String, Object> jsonLdSchema, Map<String, Object> graphqlLikeData) throws IOException {
     Map wrapper = new LinkedHashMap<>();
-    graphqlLikeData.put(MG_ID, "my:.");
     wrapper.putAll(jsonLdSchema);
     wrapper.put("data", graphqlLikeData);
     try (StringReader reader = new StringReader(mapper.writeValueAsString(wrapper))) {
