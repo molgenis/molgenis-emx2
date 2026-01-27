@@ -42,8 +42,9 @@ public class TestGraphqlPermissions {
   static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     TaskService taskService = new TaskServiceInMemory();
-    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
-    PET_STORE.getImportTask(schema, true).run();
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
+    Schema schema = database.getSchema(SCHEMA_NAME);
     graphQLDatabase = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
     graphQLSchema = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
