@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import graphql.ExecutionResult;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -38,16 +39,21 @@ public class TestJsonLdSchemaGenerator {
     Map result = generateJsonLdSchemaAsMap(schema, "http://localhost/pet%20store");
     System.out.println(result);
 
-    Map<String, Object> data =
-        Map.of("@id", "my:data", "Catalogues", List.of(Map.of("id", 1, "@id", "my:Catalogues/1")));
+    Map<String, Object> data = new LinkedHashMap<>();
+    Map<String, Object> catalogue = new LinkedHashMap<>();
+    catalogue.put("id", 1);
+    catalogue.put(MG_ID, "my:Catalogues/1");
+    data.put("Catalogues", List.of(catalogue));
     System.out.println(convertToTurtle(mapper.convertValue(result, Map.class), data));
   }
 
   @Test
   void testJsonGeneratorInCombinationWithGraphql() throws IOException {
     Database database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(TestJsonLdSchemaGenerator.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    String schemaName = "TestJsonLdPetStore";
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "Pet Store", true).run();
+    Schema schema = database.getSchema(schemaName);
     GraphqlApi graphQL = new GraphqlApi(schema);
     ExecutionResult result = graphQL.execute("{Pet{...AllPetFields}}");
     String schemaUrl = "http://localhost:8080";
@@ -61,8 +67,10 @@ public class TestJsonLdSchemaGenerator {
   @Test
   void testJsonGeneratorWithTypeTest() throws IOException {
     Database database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(TestJsonLdSchemaGenerator.class.getSimpleName());
-    TYPE_TEST.getImportTask(schema, true).run();
+    String schemaName = "TestJsonLdTypeTest";
+    database.dropSchemaIfExists(schemaName);
+    TYPE_TEST.getImportTask(database, schemaName, "Type Test", true).run();
+    Schema schema = database.getSchema(schemaName);
     schema.getTable("Types").insert(createTypeTestRow());
     GraphqlApi graphQL = new GraphqlApi(schema);
     String ttl = getTableAsTurtle(graphQL, "Types");

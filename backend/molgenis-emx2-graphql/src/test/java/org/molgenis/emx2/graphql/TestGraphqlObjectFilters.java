@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,7 +18,7 @@ class TestGraphqlObjectFilters {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  private static GraphQL graphql;
+  private static GraphqlApi graphql;
 
   @BeforeAll
   static void setup() {
@@ -28,7 +27,7 @@ class TestGraphqlObjectFilters {
     schema.create(
         TableMetadata.table("Person", Column.column("name").setType(ColumnType.STRING).setPkey()));
     schema.getTable("Person").insert(Row.row("name", "John"), Row.row("name", "Steve"));
-    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    graphql = new GraphqlApi(schema);
   }
 
   @Test

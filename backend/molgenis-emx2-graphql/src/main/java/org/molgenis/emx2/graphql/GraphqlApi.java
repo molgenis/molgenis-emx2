@@ -225,7 +225,10 @@ public class GraphqlApi {
   public @NotNull ExecutionResult execute(
       String query, Map<String, Object> variables, GraphqlSessionHandlerInterface sessionManager) {
     long start = System.currentTimeMillis();
-    Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
+    Map<?, Object> graphQLContext =
+        sessionManager != null
+            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
+            : Map.of();
 
     // we don't log password calls
     if (logger.isInfoEnabled()) {
