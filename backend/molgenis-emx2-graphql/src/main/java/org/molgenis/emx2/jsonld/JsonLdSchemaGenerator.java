@@ -81,12 +81,6 @@ public class JsonLdSchemaGenerator {
         columnContext.put("@id", PREFIX + table.getIdentifier() + "#" + column.getIdentifier());
         if (column.isReference()) {
           columnContext.put("@type", "@id");
-          //          if (column.getSemantics() != null && column.getSemantics().length > 0)
-          //            columnContext.put(
-          //                "@type",
-          //                column.getSemantics().length == 1
-          //                    ? column.getSemantics()[0]
-          //                    : column.getSemantics());
         } else {
           columnContext.put("@type", getXsdType(column.getColumnType()));
         }
@@ -95,11 +89,11 @@ public class JsonLdSchemaGenerator {
       }
       Map<String, Object> tableNode = new LinkedHashMap<>();
       tableNode.put("@id", PREFIX + table.getIdentifier());
-      //      if (table.getSemantics() != null && table.getSemantics().length > 0)
-      //        tableNode.put(
-      //            "@type",
-      //            table.getSemantics().length == 1 ? table.getSemantics()[0] :
-      // table.getSemantics());
+      if (table.getSemantics() != null && table.getSemantics().length > 0) {
+        tableNode.put(
+            "@type",
+            table.getSemantics().length == 1 ? table.getSemantics()[0] : table.getSemantics());
+      }
       tableNode.put("@context", tableContext);
       context.put(table.getIdentifier(), tableNode);
     }

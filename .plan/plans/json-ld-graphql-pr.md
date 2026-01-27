@@ -42,10 +42,10 @@ Enable RDF subsetting through GraphQL by:
 
 ### Semantic Issues (svandenhoek) - Critical
 - [ ] Missing `my` prefix definition
-- [ ] Missing `rdf:type` triples
+- [x] Missing `rdf:type` triples - FIXED: table semantics now generate @type
 - [ ] Using `mg_id` instead of composite keys for subjects
 - [ ] Invalid IRI syntax (`<my:.>`)
-- [ ] Semantic fields missing entirely (semantics from columns/tables not used)
+- [x] Semantic fields missing entirely - PARTIAL: table semantics enabled; column semantics N/A (JSON-LD requires @type:@id for refs)
 - [ ] Non-deterministic blank nodes in output
 - [ ] Incorrect object handling (ontologyTermURI should be IRI, not literal)
 - [ ] Data mapping errors (Tags incorrectly inheriting Pet properties)

@@ -1,5 +1,7 @@
 package org.molgenis.emx2.jsonld;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -34,17 +36,29 @@ public class TestJsonLdSchemaGenerator {
             column("dataset").setType(ColumnType.REF_ARRAY).setRefTable("Datasets"));
     catalogues.setSemantics("dcat:Catalog");
     TableMetadata datasets = table("Datasets", column("id").setPkey());
-    catalogues.setSemantics("dcat:Dataset");
+    datasets.setSemantics("dcat:Dataset");
     schema.create(catalogues, datasets);
     Map result = generateJsonLdSchemaAsMap(schema, "http://localhost/pet%20store");
     System.out.println(result);
+
+    Map context = (Map) result.get("@context");
+    Map cataloguesNode = (Map) context.get("Catalogues");
+    assertEquals("dcat:Catalog", cataloguesNode.get("@type"));
+    assertEquals("my:Catalogues", cataloguesNode.get("@id"));
+    Map datasetsNode = (Map) context.get("Datasets");
+    assertEquals("dcat:Dataset", datasetsNode.get("@type"));
+    assertEquals("my:Datasets", datasetsNode.get("@id"));
 
     Map<String, Object> data = new LinkedHashMap<>();
     Map<String, Object> catalogue = new LinkedHashMap<>();
     catalogue.put("id", 1);
     catalogue.put(MG_ID, "my:Catalogues/1");
     data.put("Catalogues", List.of(catalogue));
-    System.out.println(convertToTurtle(mapper.convertValue(result, Map.class), data));
+    String ttl = convertToTurtle(mapper.convertValue(result, Map.class), data);
+    System.out.println(ttl);
+
+    assertTrue(ttl.contains("my:Catalogues/1"));
+    assertTrue(ttl.contains("dcat:"));
   }
 
   @Test
