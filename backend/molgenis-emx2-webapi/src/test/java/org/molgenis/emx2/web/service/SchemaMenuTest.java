@@ -16,6 +16,7 @@ class SchemaMenuTest {
     List<SchemaMenu.MenuItem> expected =
         List.of(
             new SchemaMenu.MenuItem("n", "n-href", null, "n-key", new ArrayList<>()),
+            new SchemaMenu.MenuItem("si", "si-href", "Signed in", "si-key", new ArrayList<>()),
             new SchemaMenu.MenuItem(
                 "v", "v-href", Privileges.VIEWER.toString(), "v-key", new ArrayList<>()));
     assertEquals(expected, menu.items());
@@ -27,6 +28,7 @@ class SchemaMenuTest {
     List<SchemaMenu.MenuItem> expected =
         List.of(
             new SchemaMenu.MenuItem("n", "n-href", null, "n-key", new ArrayList<>()),
+            new SchemaMenu.MenuItem("si", "si-href", "Signed in", "si-key", new ArrayList<>()),
             new SchemaMenu.MenuItem(
                 "v", "v-href", Privileges.VIEWER.toString(), "v-key", new ArrayList<>()),
             new SchemaMenu.MenuItem(
@@ -48,9 +50,21 @@ class SchemaMenuTest {
     assertEquals(expected, menu.items());
   }
 
+  @Test
+  void givenAnonymousWithRole_thenShowRole() {
+    SchemaMenu menu = menu().menuForAnonymousAndRole(Privileges.VIEWER.toString());
+    List<SchemaMenu.MenuItem> expected =
+        List.of(
+            new SchemaMenu.MenuItem("n", "n-href", null, "n-key", new ArrayList<>()),
+            new SchemaMenu.MenuItem(
+                "v", "v-href", Privileges.VIEWER.toString(), "v-key", new ArrayList<>()));
+    assertEquals(expected, menu.items());
+  }
+
   private SchemaMenu menu() {
     return SchemaMenu.from(
         new SchemaMenu.MenuItem("n", "n-href", null, "n-key", new ArrayList<>()),
+        new SchemaMenu.MenuItem("si", "si-href", "Signed in", "si-key", new ArrayList<>()),
         new SchemaMenu.MenuItem(
             "v", "v-href", Privileges.VIEWER.toString(), "v-key", new ArrayList<>()),
         new SchemaMenu.MenuItem(

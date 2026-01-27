@@ -178,6 +178,7 @@ public class MolgenisWebservice {
     if (schema == null) {
       throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
     }
+    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
     String role = schema.getRoleForActiveUser();
 
     try {
@@ -187,7 +188,13 @@ public class MolgenisWebservice {
         return;
       }
 
-      SchemaMenu menuForRole = schemaMenu.menuForRole(role);
+      SchemaMenu menuForRole;
+      if (ANONYMOUS.equals(currentUser)) {
+        menuForRole = schemaMenu.menuForAnonymousAndRole(role);
+      } else {
+        menuForRole = schemaMenu.menuForRole(role);
+      }
+
       if (menuForRole.isEmpty()) {
         logger.warn("No menu available for current user");
         ctx.redirect("/");
