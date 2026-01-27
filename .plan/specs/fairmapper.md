@@ -24,16 +24,18 @@ Single processing unit (strategy pattern):
 ### E2e Test
 Full pipeline test against live database with JSON input/output validation.
 
-## fairmapper.yaml Schema (v2)
+## fairmapper.yaml Schema (v3)
 
 ```yaml
 name: beacon-v2         # Required: bundle identifier
 version: 2.0.0          # version of the mapping, user defined
 
-mappings:               # (was: endpoints)
-  - name: individuals   # CLI identifier (required if no endpoint)
-    endpoint: /{schema}/api/beacon/individuals  # HTTP path (optional)
+mappings:
+  # Endpoint mapping (HTTP API)
+  - endpoint: /{schema}/api/beacon/individuals  # HTTP path (endpoint is identifier)
     methods: [GET, POST]
+    input: json              # default request format (when no Content-Type)
+    output: json             # default response format (when no Accept)
     steps:
       - transform: src/request-to-variables.jslt
         tests:
@@ -47,9 +49,88 @@ mappings:               # (was: endpoints)
         - method: POST
           input: test/e2e/request.json
           output: test/e2e/expected.json
+
+  # FDP publish endpoint (outputs RDF)
+  - endpoint: /{schema}/api/fdp/catalog/{id}
+    methods: [GET]
+    output: turtle           # default output = Turtle RDF
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/to-dcat.jslt
+
+  # CLI-only mapping (fetch from external)
+  - name: harvest-catalog   # CLI identifier (required when no endpoint)
+    input: turtle            # expect Turtle input from SOURCE_URL
+    frame: src/frames/catalog.jsonld  # required when input is RDF
+    steps:
+      - fetch: ${SOURCE_URL}
+      - transform: src/transforms/to-molgenis.jslt
+      - mutate: src/mutations/upsert.gql
 ```
 
-Backwards compatibility: `endpoints` and `path` still work but are deprecated.
+### Mapping Fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `endpoint` | string | - | HTTP path with `{schema}` placeholder |
+| `name` | string | - | CLI identifier (required when no endpoint) |
+| `methods` | array | `[GET]` | HTTP methods to register |
+| `input` | string | `json` | Default request body format |
+| `output` | string | `json` | Default response format |
+| `frame` | string | - | JSON-LD frame for RDF request parsing |
+| `steps` | array | - | Processing pipeline (required) |
+| `e2e` | object | - | End-to-end test configuration |
+
+**When to use mapping-level `frame`:**
+- HTTP endpoints that accept RDF in request body (`input: turtle`)
+- Frame is applied to incoming request before pipeline
+
+**When to use fetch step `frame`:**
+- CLI mappings that fetch RDF from external URL
+- Frame is applied to fetched RDF data
+
+### Supported Formats
+
+| Format ID | MIME Type | Notes |
+|-----------|-----------|-------|
+| `json` | `application/json` | Default for most endpoints |
+| `turtle` | `text/turtle` | RDF Turtle |
+| `jsonld` | `application/ld+json` | JSON-LD |
+| `ntriples` | `application/n-triples` | N-Triples RDF |
+| `csv` | `text/csv` | Tabular data |
+
+### Mapping Validation Rules
+
+| Rule | Condition | Result |
+|------|-----------|--------|
+| Identifier required | No `endpoint` | `name` required |
+| RDF input needs frame | `input: turtle\|jsonld\|ntriples` | `frame` required |
+| No conflicting patterns | `endpoint` + `fetch` step | Error |
+
+### Content Negotiation
+
+HTTP endpoints support content negotiation via headers. The `input`/`output` fields specify defaults when headers are absent.
+
+**Response format** (Accept header):
+
+| Accept Header | Response Format |
+|---------------|-----------------|
+| `text/turtle` | Turtle RDF |
+| `application/ld+json` | JSON-LD |
+| `application/n-triples` | N-Triples |
+| `text/csv` | CSV |
+| `application/json` or absent | JSON (or mapping default) |
+
+**Request format** (Content-Type header):
+
+| Content-Type Header | Processing |
+|---------------------|------------|
+| `application/json` or absent | Pass-through to pipeline |
+| `text/csv` | Parse to JSON array |
+| `text/turtle` | Parse + apply frame → JSON-LD |
+| `application/ld+json` | Apply frame → JSON-LD |
+
+Backwards compatibility: `endpoints`, `path`, `name` on endpoint mappings still work but deprecated.
 
 ## Step Types
 
@@ -59,8 +140,9 @@ Backwards compatibility: `endpoints` and `path` still work but are deprecated.
 | `transform` | `.jslt` | JSON | JSON | JSLT (schibsted) |
 | `query`     | `.gql` | Variables JSON | Query result JSON | molgenis-emx2-graphql |
 | `mutate`    | `.gql` | Variables JSON | Mutation result | molgenis-emx2-graphql |
-| `rdf`       | format | JSON-LD | RDF (Turtle/N-Triples/JSON-LD) | RDF4J |
 | `query`     | `.sql` | Variables JSON | Query result JSON | PostgreSQL (planned) |
+
+Note: RDF output is handled via content negotiation (`output: turtle`), not as a step type.
 
 ### Fetch Step Options
 

@@ -1,4 +1,4 @@
-# FAIRmapper - Implementation Plan v1.8.1
+# FAIRmapper - Implementation Plan v1.9.0
 
 **Spec**: `.plan/specs/fairmapper.md`
 **Branch**: `spike/etl_pilot`
@@ -571,17 +571,295 @@ steps:
 
 ---
 
-## Phase 7.6: Quick Wins (CURRENT)
+## Phase 7.6: Content Negotiation & Simplification (CURRENT)
 
-**Source:** Unanimous reviewer feedback (5/5)
+**Goal:** Replace `rdf` step with mapping-level `input`/`output` + content negotiation.
 
 | Task | Priority | Status |
 |------|----------|--------|
-| Rename `output-rdf` → `rdf` | HIGH | ✅ Done (7.6.1) |
-| Migrate beacon-v2 to `mappings:` | HIGH | Pending (7.6.2) |
-| Add test blocks to dcat-fdp YAML | HIGH | Pending (7.6.3) |
-| Create `shared/array-helpers.jslt` | MEDIUM | Pending (7.6.4) |
-| Create ObjectMapperFactory | MEDIUM | Pending (7.6.5) |
+| Add `input`/`output`/`frame` fields to Mapping | HIGH | ✅ Done (7.6.1) |
+| Content negotiation in API (output) | HIGH | Pending (7.6.2) |
+| Input format handling + frame validation | HIGH | Pending (7.6.3) |
+| Migrate bundles (remove `rdf` steps) | MEDIUM | Pending (7.6.4) |
+| Remove `OutputRdfStep` | MEDIUM | Pending (7.6.5) |
+| Update documentation | MEDIUM | Pending (7.6.6) |
+
+---
+
+### 7.6.1: Add `input`/`output`/`frame` fields to Mapping
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `model/Mapping.java` | Add `input`, `output`, `frame` fields |
+| `BundleLoader.java` | Validate frame required when input is RDF |
+
+**Mapping.java changes:**
+```java
+public record Mapping(
+    String name,
+    String endpoint,
+    List<String> methods,
+    String input,    // NEW: default input format (json, turtle, jsonld, csv)
+    String output,   // NEW: default output format (json, turtle, jsonld, ntriples, csv)
+    String frame,    // NEW: JSON-LD frame file (required when input is RDF)
+    @JsonDeserialize(using = StepConfigDeserializer.class) List<StepConfig> steps,
+    E2e e2e) {
+
+  public String input() { return input != null ? input : "json"; }
+  public String output() { return output != null ? output : "json"; }
+  // ... existing methods
+}
+```
+
+**Validation rules (BundleLoader):**
+- RDF input formats require frame file
+- Frame path must pass PathValidator check
+- Unknown format names produce error
+
+**Supported formats:** `json`, `turtle`, `jsonld`, `ntriples`, `csv`
+
+**Tests:**
+- Valid: `input: json` (no frame needed)
+- Valid: `input: turtle`, `frame: src/x.jsonld`
+- Invalid: `input: turtle` without frame → error
+
+---
+
+### 7.6.2: Content Negotiation in API (output)
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `FairMapperApi.java` | Use `bundle.getMappings()`, add content negotiation |
+| `ContentNegotiator.java` | NEW: content negotiation helper |
+
+**New helper class - ContentNegotiator.java:**
+```java
+public class ContentNegotiator {
+  private static final List<String> ACCEPT_PRIORITY = List.of(
+      "text/turtle", "application/ld+json", "application/n-triples",
+      "text/csv", "application/json"
+  );
+
+  private static final Map<String, String> MIME_TO_FORMAT = Map.of(
+      "text/turtle", "turtle",
+      "application/ld+json", "jsonld",
+      "application/n-triples", "ntriples",
+      "text/csv", "csv",
+      "application/json", "json"
+  );
+
+  private static final Map<String, String> FORMAT_TO_MIME = Map.of(
+      "turtle", "text/turtle",
+      "jsonld", "application/ld+json",
+      "ntriples", "application/n-triples",
+      "csv", "text/csv",
+      "json", "application/json"
+  );
+
+  public static String resolveOutputFormat(String acceptHeader, String defaultFormat) {
+    if (acceptHeader == null || acceptHeader.isBlank()) return defaultFormat;
+    String accept = acceptHeader.toLowerCase();
+    for (String mime : ACCEPT_PRIORITY) {
+      if (accept.contains(mime)) return MIME_TO_FORMAT.get(mime);
+    }
+    return defaultFormat;
+  }
+
+  public static String getMimeType(String format) {
+    return FORMAT_TO_MIME.getOrDefault(format, "application/json");
+  }
+}
+```
+
+**FairMapperApi changes:**
+- Use `bundle.getMappings()` instead of `bundle.endpoints()` for backwards compatibility
+- Register routes for Mapping (new) not Endpoint (deprecated)
+- Add content negotiation for output
+
+**Tests:**
+- GET with `Accept: text/turtle` → returns Turtle
+- GET with `Accept: application/json` → returns JSON
+- GET without Accept + `output: turtle` → returns Turtle
+- GET without Accept + no output → returns JSON
+
+---
+
+### 7.6.3: Input Format Handling + Frame Validation
+
+**Existing classes:**
+- `RdfToJsonLd.java` - converts Model → JSON-LD (expand mode)
+- `JsonLdFramer.java` - applies frame to JSON-LD string
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `FairMapperApi.java` | Parse input based on Content-Type |
+| `ContentNegotiator.java` | Add `resolveInputFormat()` method |
+
+**Files to create:**
+
+| File | Purpose |
+|------|---------|
+| `CsvToJson.java` | CSV string → JSON array (Jackson) |
+
+**Input parsing flow:**
+1. Resolve format from Content-Type header (fallback to mapping.input())
+2. JSON: pass-through
+3. Turtle/N-Triples: parse to Model → RdfToJsonLd → JsonLdFramer with mapping.frame()
+4. JSON-LD: JsonLdFramer with mapping.frame()
+5. CSV: CsvToJson
+
+**Frame path must use PathValidator:**
+```java
+Path framePath = PathValidator.validateWithinBase(bundlePath, mapping.frame());
+```
+
+**Tests:**
+- POST JSON → pass-through
+- POST Turtle + frame → framed JSON-LD
+- POST Turtle + no frame → error
+- POST CSV → JSON array
+
+---
+
+### 7.6.4: Migrate Bundles
+
+**Bundles to migrate:**
+
+| Bundle | Change |
+|--------|--------|
+| `dcat-fdp` | Add `output: turtle`, remove `- rdf: turtle` steps |
+| `beacon-v2` | Migrate `endpoints:` → `mappings:`, `path:` → `endpoint:` |
+| `dcat-harvester` | No change needed (uses fetch step with frame) |
+
+**dcat-fdp migration (3 mappings):**
+
+Before:
+```yaml
+- name: fdp-catalog
+  endpoint: /{schema}/api/fdp/catalog/{id}
+  methods: [GET]
+  steps:
+    - query: src/queries/get-catalog.gql
+    - transform: src/transforms/publish/to-dcat-catalog.jslt
+    - rdf: turtle
+```
+
+After:
+```yaml
+- name: fdp-catalog
+  endpoint: /{schema}/api/fdp/catalog/{id}
+  methods: [GET]
+  output: turtle
+  steps:
+    - query: src/queries/get-catalog.gql
+    - transform: src/transforms/publish/to-dcat-catalog.jslt
+```
+
+**beacon-v2 migration (3 endpoints):**
+
+Before:
+```yaml
+endpoints:
+  - path: /{schema}/api/beacon/individuals
+    methods: [GET, POST]
+    steps: [...]
+```
+
+After:
+```yaml
+mappings:
+  - endpoint: /{schema}/api/beacon/individuals
+    methods: [GET, POST]
+    steps: [...]
+```
+
+Note: `input`/`output` default to `json` so can be omitted for beacon-v2.
+
+**Why dcat-harvester unchanged:**
+- Uses `fetch` step (external URL) which has its own `frame:` field
+- Mapping-level `input`/`frame` is for HTTP request body parsing
+- Fetch step handles RDF input internally
+
+---
+
+### 7.6.5: Remove `OutputRdfStep`
+
+**Files to delete:**
+
+| File | Reason |
+|------|--------|
+| `model/step/OutputRdfStep.java` | Replaced by content negotiation |
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `StepConfigDeserializer.java` | Remove `rdf:` step parsing, throw error if encountered |
+| `RemotePipelineExecutor.java` | Remove OutputRdfStep case from switch |
+| `PipelineExecutor.java` | Remove OutputRdfStep case from switch |
+| `StepConfig.java` | Remove OutputRdfStep from sealed permits |
+
+**Verification:**
+- All bundles migrated in 7.6.4 (no `rdf:` steps remain)
+- Tests still pass after removal
+
+---
+
+### 7.6.6: Update Documentation
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `docs/fairmapper/schema_reference.md` | Add input/output/frame fields, deprecate rdf step |
+| `docs/fairmapper/getting_started.md` | Update examples |
+| `docs/fairmapper/README.md` | Update overview examples |
+| `docs/fairmapper/MIGRATION.md` | NEW: migration guide for existing bundles |
+
+**Key doc changes:**
+- Add Mapping Fields table with input/output/frame
+- Add Content Negotiation section with examples
+- Deprecate RDF step section
+- Add migration guide for bundle authors
+
+---
+
+## Implementation Order
+
+```
+7.6.1 Mapping fields ─┬─> 7.6.2 Content negotiation (output) ─┬─> 7.6.4 Migrate bundles
+                      │                                       │
+                      └─> 7.6.3 Input parsing (CsvToJson) ────┘
+                                                              │
+                                                              v
+                                              7.6.5 Remove OutputRdfStep
+                                                              │
+                                                              v
+                                              7.6.6 Update docs
+```
+
+| Step | Task | Creates | Modifies |
+|------|------|---------|----------|
+| 7.6.1 | Add fields to Mapping | - | `Mapping.java`, `BundleLoader.java` |
+| 7.6.2 | Content negotiation | `ContentNegotiator.java` | `FairMapperApi.java` |
+| 7.6.3 | Input parsing | `CsvToJson.java` | `FairMapperApi.java`, `ContentNegotiator.java` |
+| 7.6.4 | Migrate bundles | - | `dcat-fdp/fairmapper.yaml`, `beacon-v2/fairmapper.yaml` |
+| 7.6.5 | Remove rdf step | - | Delete `OutputRdfStep.java`, modify executors |
+| 7.6.6 | Update docs | `MIGRATION.md` | `schema_reference.md`, `getting_started.md` |
+
+---
+
+## Out of Scope (Future)
+
+- CSV format configuration (delimiter, headers)
+- Accept header q-weight parsing
+- Frame syntax validation at bundle load
 
 ---
 
@@ -625,6 +903,13 @@ steps:
 ---
 
 ## Phase 11+: Future Ideas
+
+### Developer Experience
+- **Dev server mode** - `fairmapper serve` runs local server on localhost:4000
+  - Hot-reload on bundle changes
+  - Continuous test runner
+  - Interactive endpoint testing
+  - Live RDF validation
 
 ### Data Sources
 - **SQL query support** - Direct database queries as alternative to GraphQL

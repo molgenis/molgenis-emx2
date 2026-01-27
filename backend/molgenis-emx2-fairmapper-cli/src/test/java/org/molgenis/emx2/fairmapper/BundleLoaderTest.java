@@ -364,6 +364,142 @@ class BundleLoaderTest {
     assertEquals(HttpMethod.POST, bundle.endpoints().get(0).e2e().tests().get(0).method());
   }
 
+  @Test
+  void testMappingWithJsonInput() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: testMapping
+            input: json
+            output: json
+            steps: []
+        """);
+
+    MappingBundle bundle = bundleLoader.load(configPath);
+
+    assertNotNull(bundle);
+    assertEquals("json", bundle.mappings().get(0).input());
+    assertEquals("json", bundle.mappings().get(0).output());
+  }
+
+  @Test
+  void testMappingWithTurtleInputAndFrame() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path srcDir = tempDir.resolve("src");
+    Files.createDirectories(srcDir);
+    Path frameFile = srcDir.resolve("frame.jsonld");
+    Files.writeString(frameFile, "{}");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: testMapping
+            input: turtle
+            output: json
+            frame: src/frame.jsonld
+            steps: []
+        """);
+
+    MappingBundle bundle = bundleLoader.load(configPath);
+
+    assertNotNull(bundle);
+    assertEquals("turtle", bundle.mappings().get(0).input());
+    assertEquals("src/frame.jsonld", bundle.mappings().get(0).frame());
+  }
+
+  @Test
+  void testMappingWithTurtleInputMissingFrame() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: testMapping
+            input: turtle
+            output: json
+            steps: []
+        """);
+
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
+
+    assertTrue(ex.getMessage().contains("RDF input format"));
+    assertTrue(ex.getMessage().contains("requires a frame file"));
+  }
+
+  @Test
+  void testMappingWithInvalidInputFormat() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: testMapping
+            input: invalidformat
+            output: json
+            steps: []
+        """);
+
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
+
+    assertTrue(ex.getMessage().contains("Invalid input format"));
+    assertTrue(ex.getMessage().contains("invalidformat"));
+  }
+
+  @Test
+  void testMappingWithInvalidOutputFormat() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: testMapping
+            input: json
+            output: badformat
+            steps: []
+        """);
+
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
+
+    assertTrue(ex.getMessage().contains("Invalid output format"));
+    assertTrue(ex.getMessage().contains("badformat"));
+  }
+
+  @Test
+  void testMappingDefaultFormats() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: testMapping
+            steps: []
+        """);
+
+    MappingBundle bundle = bundleLoader.load(configPath);
+
+    assertNotNull(bundle);
+    assertEquals("json", bundle.mappings().get(0).input());
+    assertEquals("json", bundle.mappings().get(0).output());
+  }
+
   private Path createValidBundle() throws IOException {
     Path configPath = tempDir.resolve("fairmapper.yaml");
     Path srcDir = tempDir.resolve("src");
