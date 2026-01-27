@@ -113,6 +113,7 @@ class TestGraphqlAdminFields {
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
     database.setActiveUser("testAdmin");
 
+    // Do an admin only query
     String lastUpdateResult =
         executeDb(
             """
