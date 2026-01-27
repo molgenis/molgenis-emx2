@@ -56,11 +56,11 @@
         </template>
       </Header>
 
-      <main class="mb-auto">
+      <main class="flex-1">
         <slot />
       </main>
 
-      <FooterComponent />
+      <FooterComponent class="mt-[7.8125rem]" />
     </div>
   </div>
 </template>

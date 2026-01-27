@@ -12,16 +12,19 @@ const {
   EMAIL_REGEX,
   HYPERLINK_REGEX,
   PERIOD_REGEX,
+  UUID_REGEX,
   AUTO_ID,
   HEADING,
   SECTION,
   MIN_INT,
+  MIN_NON_NEGATIVE_INT,
   MAX_INT,
   MIN_LONG,
   MAX_LONG,
 } = constants;
-const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
-const INT_ERROR = `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
+const BIG_INT_ERROR = `Invalid long: must be value from ${MIN_LONG} to ${MAX_LONG}`;
+const INT_ERROR = `Invalid integer: must be value from ${MIN_INT} to ${MAX_INT}`;
+export const NON_NEGATIVE_INT_ERROR = `Invalid non negative integer: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
@@ -104,6 +107,12 @@ export function getColumnError(
   if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
+  if (type === "UUID" && isInvalidUUID(value)) {
+    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
+  }
+  if (type === "UUID_ARRAY" && containsInvalidUUID(value)) {
+    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
+  }
   if (type === "JSON") {
     try {
       if (
@@ -119,17 +128,15 @@ export function getColumnError(
   if (
     type === "LONG" &&
     value !== null &&
-    getBigIntError(value as string | undefined)
+    isInvalidBigInt(value as string | undefined)
   ) {
-    return getBigIntError(value as string | undefined);
+    return BIG_INT_ERROR;
   }
   if (
     type === "LONG_ARRAY" &&
     Array.isArray(value) &&
     (value as unknown as Array<string>)?.length &&
-    (value as unknown as string[])?.some(
-      (val) => getBigIntError(val) && val !== null
-    )
+    (value as string[])?.some(isInvalidBigInt)
   ) {
     return BIG_INT_ERROR;
   }
@@ -144,33 +151,26 @@ export function getColumnError(
   ) {
     return "Invalid number";
   }
-  if (type === "INT") {
-    const intError = getIntError(value as number);
-    if (intError) {
-      return intError;
-    }
+  if (type === "INT" && isInvalidInt(value as number)) {
+    return INT_ERROR;
   }
-  if (type === "INT_ARRAY") {
-    const errorInt = (value as unknown as number[])?.find((val) =>
-      getIntError(val)
-    );
-    if (errorInt) {
-      return getIntError(errorInt as number);
-    }
+  if (type === "INT_ARRAY" && (value as number[])?.some(isInvalidInt)) {
+    return INT_ERROR;
+  }
+  if (type === "NON_NEGATIVE_INT" && isInvalidNonNegativeInt(value as number)) {
+    return NON_NEGATIVE_INT_ERROR;
+  }
+  if (
+    type === "NON_NEGATIVE_INT_ARRAY" &&
+    (value as number[])?.some(isInvalidNonNegativeInt)
+  ) {
+    return "Invalid non negative integer(s)";
   }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
 
   return undefined;
-}
-
-export function getBigIntError(value?: string): string | undefined {
-  if (isInvalidBigInt(value)) {
-    return BIG_INT_ERROR;
-  } else {
-    return undefined;
-  }
 }
 
 export function isInvalidBigInt(value?: string): boolean {
@@ -185,13 +185,20 @@ export function isInvalidBigInt(value?: string): boolean {
   }
 }
 
-function getIntError(value: number): string | undefined {
-  if (isNaN(value)) {
-    return "Invalid number";
-  }
-  if (value < MIN_INT || value > MAX_INT) {
-    return INT_ERROR;
-  }
+function isInvalidInteger(
+  value: number,
+  minInt: number,
+  maxInt: number
+): boolean {
+  return isNaN(value) || value < minInt || value > maxInt;
+}
+
+function isInvalidInt(value: number): boolean {
+  return isInvalidInteger(value, MIN_INT, MAX_INT);
+}
+
+export function isInvalidNonNegativeInt(value: number): boolean {
+  return isInvalidInteger(value, MIN_NON_NEGATIVE_INT, MAX_INT);
 }
 
 export function isMissingValue(value: any): boolean {
@@ -333,11 +340,19 @@ function containsInvalidPeriod(periods: any) {
   return periods?.some((period: any) => isInvalidPeriod(period));
 }
 
-export function isJsonObjectOrArray(parsedJson: any) {
-  if (typeof parsedJson === "object" && parsedJson !== null) {
-    return true;
+function isInvalidUUID(value: any) {
+  if (value === null || value === undefined || value === "") {
+    return false;
   }
-  return false;
+  return !UUID_REGEX.test(value);
+}
+
+function containsInvalidUUID(uuids: any) {
+  return uuids?.some((uuid: any) => isInvalidUUID(uuid));
+}
+
+export function isJsonObjectOrArray(parsedJson: any) {
+  return typeof parsedJson === "object" && parsedJson !== null;
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {

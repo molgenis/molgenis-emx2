@@ -53,6 +53,14 @@ public class Constants {
 
   public static final String PERMISSIONS = "permissions";
 
+  public static final String CHANGELOG_TABLE = "mg_changelog";
+  public static final String CHANGELOG_OPERATION = "operation";
+  public static final String CHANGELOG_STAMP = "stamp";
+  public static final String CHANGELOG_USERID = "userid";
+  public static final String CHANGELOG_TABLENAME = "tablename";
+  public static final String CHANGELOG_OLD = "old";
+  public static final String CHANGELOG_NEW = "new";
+
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";
@@ -131,11 +139,14 @@ public class Constants {
       "^(([^<>()[\\\\]\\\\.,;:\\s@\"]+(\\.[^<>()[\\\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@"
           + "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|"
           + "(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$|^$";
+
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   // updated to also allow localhost / localhost:8080 as valid hyperlink, needed to testing
   public static final String HYPERLINK_REGEX =
       "((https?)://)((www.)?[a-zA-Z0-9@:%._\\+~#?&//=-]{2,256}\\.[a-z]{2,6}|localhost)(:[0-9]+)?([-a-zA-Z0-9@:%._\\+~#?!&//=(\\)]*)$";
+
+  protected static final String NON_NEGATIVE_INT_REGEX = "^[0-9]*$";
 
   public static final String PRIVACY_POLICY_LEVEL = "PrivacyPolicyLevel";
   public static final String PRIVACY_POLICY_LEVEL_DEFAULT = "Level 4";

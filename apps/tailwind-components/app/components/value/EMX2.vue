@@ -65,7 +65,10 @@ defineEmits<{
   />
 
   <ValueInt
-    v-else-if="metadata.columnType === 'INT'"
+    v-else-if="
+      metadata.columnType === 'INT' ||
+      metadata.columnType === 'NON_NEGATIVE_INT'
+    "
     :metadata="metadata"
     :data="typeof data === 'number' ? data : Number(data)"
   />
@@ -121,6 +124,12 @@ defineEmits<{
 
   <ValueString
     v-else-if="metadata.columnType === 'PERIOD'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueString
+    v-else-if="metadata.columnType === 'UUID'"
     :metadata="metadata"
     :data="data"
   />

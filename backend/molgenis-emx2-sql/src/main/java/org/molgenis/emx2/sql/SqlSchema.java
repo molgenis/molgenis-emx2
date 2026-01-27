@@ -370,8 +370,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public List<Change> getChanges(int limit) {
-    return metadata.getChanges(limit);
+  public List<Change> getChanges(int limit, int offset) {
+    return metadata.getChanges(limit, offset);
   }
 
   @Override

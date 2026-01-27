@@ -746,9 +746,11 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               int limit = dataFetchingEnvironment.getArgumentOrDefault("limit", 100);
-              return schema.getChanges(limit);
+              int offset = dataFetchingEnvironment.getArgumentOrDefault("offset", 0);
+              return schema.getChanges(limit, offset);
             })
-        .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt));
+        .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
+        .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt));
   }
 
   public GraphQLFieldDefinition.Builder changeLogCountQuery(Schema schema) {

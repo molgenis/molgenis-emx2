@@ -305,8 +305,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return null;
   }
 
-  public List<Change> getChanges(int limit) {
-    return executeGetChanges(getJooq(), this, limit);
+  public List<Change> getChanges(int limit, int offset) {
+    return executeGetChanges(getJooq(), this, limit, offset);
   }
 
   public Integer getChangesCount() {
