@@ -184,6 +184,7 @@ public class E2eCommand implements Callable<Integer> {
               expected.toString(), actual.toString(), JSONCompareMode.NON_EXTENSIBLE)
           .passed();
     } catch (Exception e) {
+      System.err.println(color("@|red Error comparing JSON: " + e.getMessage() + "|@"));
       return false;
     }
   }
