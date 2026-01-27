@@ -62,6 +62,23 @@ Steps execute in sequence. Each step type processes data differently:
 | `query` | Execute GraphQL query |
 | `mutate` | Execute GraphQL mutation |
 
+### Output Formats
+Mappings can specify an `output` format for RDF serialization:
+
+```yaml
+mappings:
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    output: turtle
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/to-dcat.jslt
+```
+
+Supported formats: `json`, `turtle`, `jsonld`, `ntriples`, `csv`
+
+Clients can override via `Accept` header.
+
 ### JSLT
 [JSLT](https://github.com/schibsted/jslt) is a JSON transformation language. See the [JSLT tutorial](https://github.com/schibsted/jslt/blob/master/tutorial.md).
 

@@ -25,6 +25,13 @@ mappings:
         frame: src/frames/catalog.jsonld
       - transform: src/transforms/to-molgenis.jslt
       - mutate: src/mutations/upsert.gql
+
+  - name: publish-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    output: turtle
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/to-dcat.jslt
 ```
 
 ### Mapping Fields
@@ -34,10 +41,30 @@ mappings:
 | `name` | string | conditional | CLI identifier (required if no `endpoint`) |
 | `endpoint` | string | conditional | HTTP path (required if no `name`) |
 | `methods` | array | no | HTTP methods: `GET`, `POST` (default: `[GET]`) |
+| `input` | string | no | Default input format: `json` (default), `turtle`, `jsonld`, `ntriples`, `csv` |
+| `output` | string | no | Default output format: `json` (default), `turtle`, `jsonld`, `ntriples`, `csv` |
+| `frame` | string | no | JSON-LD frame file for RDF serialization (used when output is RDF) |
 | `steps` | array | yes | Processing pipeline steps |
 | `e2e` | object | no | End-to-end test configuration |
 
 If both `name` and `endpoint` are provided, the mapping is accessible via both CLI and HTTP.
+
+#### Content Negotiation
+
+When a mapping has an `endpoint`, clients can override the default `output` format using the `Accept` header:
+
+| Accept Header | Output Format |
+|---------------|---------------|
+| `application/json` | JSON |
+| `text/turtle` | Turtle |
+| `application/ld+json` | JSON-LD |
+| `application/n-triples` | N-Triples |
+| `text/csv` | CSV |
+
+Example:
+```bash
+curl -H "Accept: text/turtle" http://localhost:8080/mydb/api/fdp/catalog/123
+```
 
 ### Path Parameters
 
@@ -135,27 +162,35 @@ Executes a GraphQL mutation against MOLGENIS.
 
 The mutation receives variables from the previous step's output. Typically used as the final step to write data.
 
-### RDF Step
+### RDF Step (Deprecated)
 
-Serializes JSON-LD to RDF format. Used for publishing DCAT/FDP endpoints.
+**DEPRECATED in 7.6.4+**: Use the `output` field at mapping level instead.
 
+The `rdf:` step has been removed. RDF serialization is now handled via content negotiation at the mapping level. See [Migration Guide](MIGRATION.md) for upgrade instructions.
+
+Old approach (7.6.3 and earlier):
 ```yaml
-- rdf: turtle
+mappings:
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/to-dcat.jslt
+      - rdf: turtle
 ```
 
-| Field | Type | Required | Default | Description |
-|-------|------|----------|---------|-------------|
-| `rdf` | string | yes | - | Output format: `turtle`, `jsonld`, or `ntriples` |
-| `tests` | array | no | - | Unit test cases |
-
-The input must be valid JSON-LD with `@context`. Output is RDF in the specified format.
-
+New approach (7.6.4+):
 ```yaml
-steps:
-  - query: src/queries/get-catalog.gql
-  - transform: src/transforms/to-dcat.jslt
-  - rdf: turtle
+mappings:
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    output: turtle
+    steps:
+      - query: src/queries/get-catalog.gql
+      - transform: src/transforms/to-dcat.jslt
 ```
+
+The pipeline output must still be valid JSON-LD with `@context`. The `output` field controls serialization format.
 
 ## E2e Configuration
 
@@ -241,6 +276,7 @@ mappings:
   - name: list-catalogs
     endpoint: /{schema}/api/fdp/catalogs
     methods: [GET]
+    output: turtle
     steps:
       - query: src/queries/list-resources.gql
       - transform: src/transforms/to-dcat.jslt
