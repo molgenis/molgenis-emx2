@@ -15,22 +15,22 @@ parameters:
     default: ""
 
 orbs:
-  slack: circleci/slack@4.4.4
+  slack: circleci/slack@6.1.2
   queue: eddiewebb/queue@3.1.4
 
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.3.7
+    - image: molgenis/ci-build:1.5.0
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.3.7
+    - image: molgenis/ci-build:1.5.0
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -39,12 +39,12 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.3.7
+      - image: molgenis/ci-build:1.5.0
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -53,7 +53,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
 
@@ -61,12 +61,17 @@ definitions:
 commands:
   pre_steps:
     steps:
-    - checkout
     - run:
-        name: run-audit-ci
-        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
-        working_directory: apps
-    - run: git fetch --all --tags
+        name: Fresh Git Checkout to prevent missing objects
+        command: |
+          rm -rf .git
+          git init
+          git remote add origin "$CIRCLE_REPOSITORY_URL"
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin +refs/tags/*:refs/tags/* --prune
+          git checkout -f "$CIRCLE_BRANCH"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -74,6 +79,10 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
+    - run:
+        name: run-audit-ci
+        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
+        working_directory: apps      
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -141,6 +150,7 @@ jobs:
     - run:
         name: Docker-Scout scanning on cve's, break on critical.
         command: |
+          export $( cat build/ci.properties | xargs )
           curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
           docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical 
 
@@ -155,7 +165,7 @@ jobs:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
           GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
-          MAX_RETRIES=30
+          MAX_RETRIES=40
           RETRY=0
           
           while true; do
@@ -203,12 +213,22 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
-        name: lint the code
+        name: <apps> check code format
+        command: ./gradlew :apps:format
+
+    - run:
+        name: <apps> lint the code
         command: |
           ./gradlew lint ci --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
-
-
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+    - run:
+        name: <backend> check code format
+        command: |
+          ./gradlew --continue spotlessCheck
+    - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
+        name: <backend> check for programming flaws
+        command: |
+          ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and push to sonar
         command: |
@@ -281,14 +301,20 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.56.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.58.0-jammy
     steps:
       - checkout
-      - run: npm i -D @playwright/test
+      - run:
+          name: Enable pnpm
+          command: |
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            pnpm -v
+      - run: pnpm i -D @playwright/test
       - run:
           name: Install dependencies
           command: |
-            npm install @playwright/test         
+            pnpm install @playwright/test         
             npx playwright install chrome
             npx playwright install
       - run:
@@ -297,7 +323,8 @@ jobs:
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm run e2e --workspace=tailwind-components
+            pnpm install
+            pnpm --filter tailwind-components run e2e
           working_directory: apps
       - run:
           name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
@@ -321,8 +348,7 @@ jobs:
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm install --workspace=catalogue
-            npm run e2e --workspace=catalogue
+            pnpm --filter catalogue run e2e
           working_directory: apps
       - run:
           name: Wait for directory e2e test data to be loaded, poll every 10 seconds
@@ -346,17 +372,15 @@ jobs:
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm install --workspace=directory
-            npm run e2e --workspace=directory
-          working_directory: apps/
+            pnpm --filter directory run e2e
+          working_directory: apps
       - run:
           name: UI tests
           command: |
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm install --workspace=ui
-            npm run e2e --workspace=ui
+            pnpm --filter ui run e2e
           working_directory: apps
       - run:
             name: Run non ssr e2e tests
@@ -364,7 +388,6 @@ jobs:
               echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
               export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
               echo $E2E_BASE_URL
-              npm install
               npx playwright test --config e2e e2e/tests
       - run:
             name: Save test results for stats
@@ -449,10 +472,11 @@ jobs:
 
       - run:
           name: Reset emx2.dev
-          command:
-            export $( cat build/ci.properties | xargs ) \
-            bash ci/set_kubectl_config-azure.sh \
+          command: |
+            export $( cat build/ci.properties | xargs )
+            bash ci/set_kubectl_config-azure.sh
             bash ci/create_or_update_k8s-azure.sh "emx2" latest true
+          working_directory: repo
 
       - run:
           name: Message slack about a database cleanup

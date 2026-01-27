@@ -188,10 +188,8 @@ public class ScriptTask extends Task {
           ZipEntry entry;
           while ((entry = zis.getNextEntry()) != null) {
             File newFile = new File(tempDir.toFile(), entry.getName());
-            if (!newFile.getCanonicalPath().startsWith(tempDir.toFile().getAbsolutePath())) {
-              throw new MolgenisException(
-                  "ZIP archive contains files with illegal path: " + entry.getName());
-            }
+            checkForZipSlip(tempDir, newFile);
+
             if (entry.isDirectory()) {
               newFile.mkdirs();
             } else {
@@ -227,6 +225,17 @@ public class ScriptTask extends Task {
         + " && "
         + runScriptCommand
         + escapedParameters;
+  }
+
+  /**
+   * Checks if the extracted file does not attempt a zip-slip attack. Based on a security post by <a
+   * href="https://security.snyk.io/research/zip-slip-vulnerability">Snyk</a>.
+   */
+  private static void checkForZipSlip(Path tempDir, File newFile) throws IOException {
+    if (!newFile.getCanonicalPath().startsWith(tempDir.toFile().getCanonicalPath())) {
+      throw new MolgenisException(
+          "ZIP archive contains files with illegal path: " + newFile.getCanonicalPath());
+    }
   }
 
   private void sendFailureMail() {

@@ -32,6 +32,27 @@
           the appearance of the accordion toggle.
         </p>
       </Accordion>
+
+      <div>
+        <ul class="border divide-y max-w-[600px] divide-input">
+          <li>
+            <Accordion label="First item in a list" :in-list="true">
+              <p class="text-title-contrast">
+                This accordion is part of a list. Therefore, it has no border
+                around it. This list supplies the divider between the items.
+              </p>
+            </Accordion>
+          </li>
+          <li>
+            <Accordion label="Second item in a list" :in-list="true">
+              <p class="text-title-contrast">
+                This accordion is part of a list. Therefore, it has no border
+                around it. This list supplies the divider between the items.
+              </p>
+            </Accordion>
+          </li>
+        </ul>
+      </div>
     </div>
   </InputTestContainer>
 </template>

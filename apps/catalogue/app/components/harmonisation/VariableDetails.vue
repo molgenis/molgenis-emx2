@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type {
-  IVariable,
-  IVariableBase,
+  IVariables,
   IVariableMappings,
-} from "../../../interfaces/types";
+} from "../../../interfaces/catalogue";
 import { getKey } from "../../utils/variableUtils";
 import DefinitionList from "../../../../tailwind-components/app/components/DefinitionList.vue";
 import DefinitionListTerm from "../../../../tailwind-components/app/components/DefinitionListTerm.vue";
@@ -14,12 +13,11 @@ import Tab from "../../../../tailwind-components/app/components/Tab.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import CodeBlock from "../CodeBlock.vue";
 import VariableDisplay from "../VariableDisplay.vue";
-import HarmonisationStatus from "./HarmonisationStatus.vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import type { HarmonisationStatus } from "../../../interfaces/types";
 
-type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
-  variable: VariableDetailsWithMapping;
+  variable: IVariables & IVariableMappings;
 }>();
 
 const activeTabIndex = ref(0);
@@ -44,7 +42,7 @@ const activeMappings = computed(() =>
 let activeVariableUsedKey = ref();
 let showSidePanel = computed(() => activeVariableUsedKey.value?.name);
 
-function handleVariableUsedClick(variableUsed: IVariableBase) {
+function handleVariableUsedClick(variableUsed: IVariables) {
   activeVariableUsedKey.value = getKey(variableUsed);
 }
 </script>
@@ -67,7 +65,9 @@ function handleVariableUsedClick(variableUsed: IVariableBase) {
     <DefinitionList>
       <DefinitionListTerm>Harmonisation status</DefinitionListTerm>
       <DefinitionListDefinition>
-        <HarmonisationStatus :status="mapping.match?.name" />
+        <HarmonisationStatusComponent
+          :status="mapping.match?.name as HarmonisationStatus "
+        />
       </DefinitionListDefinition>
 
       <DefinitionListTerm v-if="variable.repeatUnit"

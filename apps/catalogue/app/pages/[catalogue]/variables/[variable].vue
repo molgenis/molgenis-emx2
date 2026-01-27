@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import variableQuery from "../../../gql/variable";
-import type {
-  IVariable,
-  IVariableMappings,
-} from "../../../../interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
 import { useRoute, useFetch, useHead, useRuntimeConfig } from "#app";
 import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
@@ -20,6 +16,10 @@ import CatalogueItemList from "../../../components/CatalogueItemList.vue";
 import HarmonisationListPerVariable from "../../../components/harmonisation/HarmonisationListPerVariable.vue";
 import HarmonisationGridPerVariable from "../../../components/harmonisation/HarmonisationGridPerVariable.vue";
 import HarmonisationVariableDetails from "../../../components/harmonisation/VariableDetails.vue";
+import type {
+  IVariables,
+  IVariableMappings,
+} from "../../../../interfaces/catalogue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -43,17 +43,12 @@ const resourceFilter = scoped
     }
   : {};
 
-type VariableDetailsWithMapping = IVariable &
-  IVariableMappings & { nRepeats: number };
-
 const { data } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
   body: { query, variables: { variableFilter, resourceFilter } },
 });
 
-const variable = computed(
-  () => data.value.data.Variables[0] as VariableDetailsWithMapping
-);
+const variable = computed(() => data.value.data.Variables[0]);
 const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 

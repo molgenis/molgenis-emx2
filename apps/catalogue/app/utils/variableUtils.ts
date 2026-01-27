@@ -1,6 +1,6 @@
-import type { IVariableBase } from "../../interfaces/types";
+import type { IVariables } from "../../interfaces/catalogue";
 
-export const getKey = (variable: IVariableBase) => {
+export const getKey = (variable: IVariables) => {
   return {
     name: variable.name,
     resource: {

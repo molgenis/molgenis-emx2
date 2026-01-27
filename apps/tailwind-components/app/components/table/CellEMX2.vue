@@ -18,7 +18,9 @@
             metadata.columnType === 'STRING' ||
             metadata.columnType === 'DATE' ||
             metadata.columnType === 'DATETIME' ||
-            metadata.columnType === 'AUTO_ID'
+            metadata.columnType === 'AUTO_ID' ||
+            metadata.columnType === 'UUID' ||
+            metadata.columnType === 'PERIOD'
           "
           :metadata="metadata"
           :data="data"
@@ -43,7 +45,10 @@
         />
 
         <ValueInt
-          v-else-if="metadata.columnType === 'INT'"
+          v-else-if="
+            metadata.columnType === 'INT' ||
+            metadata.columnType === 'NON_NEGATIVE_INT'
+          "
           :metadata="metadata"
           :data="typeof data === 'number' ? data : Number(data)"
         />
@@ -116,7 +121,6 @@ import ValueEmail from "../value/Email.vue";
 import ValueHyperlink from "../value/Hyperlink.vue";
 import ValueRefBack from "../value/RefBack.vue";
 import ValueFile from "../value/File.vue";
-import { defineProps, defineEmits } from "vue";
 
 defineProps<{
   metadata?: IColumn;

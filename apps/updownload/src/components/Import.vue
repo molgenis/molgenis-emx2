@@ -67,13 +67,33 @@
               <a :href="`/${schema}/api/json`">json</a> /
               <a :href="`/${schema}/api/yaml`">yaml</a>
             </p>
+
             <p>
-              Export all data as
+              Export schema+data in one file as
               <a :href="`/${schema}/api/excel`">excel</a> /
               <a :href="`/${schema}/api/zip`">csv.zip</a> /
               <a :href="`/${schema}/api/ttl`">ttl</a> /
               <a :href="`/${schema}/api/jsonld`">jsonld</a>
             </p>
+
+            <div>
+              Export schema information:
+              <ul>
+                <li>
+                  Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
+                </li>
+                <li v-if="isManagerOrOwner">
+                  Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                </li>
+                <li v-if="isManagerOrOwner">
+                  Changelog:
+                  <a :href="`/${schema}/api/csv/changelog?limit=100&offset=0`">
+                    csv
+                  </a>
+                </li>
+              </ul>
+            </div>
+
             <div v-if="visibleTables?.length" :key="tablesHash">
               Export specific tables:
               <ul>
@@ -84,6 +104,7 @@
                 </li>
               </ul>
             </div>
+
             <p>
               Note to programmers: the GET endpoints above also accept http POST
               command for updates, and DELETE commands for deletions.
@@ -140,6 +161,9 @@ export default {
       } else {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
+    },
+    isManagerOrOwner() {
+      return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
     },
     tablesHash() {
       if (this.tables) {
