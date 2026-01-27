@@ -62,7 +62,7 @@
 |------|----------|--------|
 | 8.1 Fix silent failures in jsonEquals | HIGH | Done |
 | 8.2 Add null-check to RemotePipelineExecutor | HIGH | Done |
-| 8.3 Command error case tests | HIGH | Pending |
+| 8.3 Command error case tests | HIGH | Done |
 | 8.4 RemotePipelineExecutor tests | MEDIUM | Done |
 
 ---
@@ -121,25 +121,28 @@ public JsonNode execute(JsonNode input, Mapping mapping) throws IOException {
 
 **File:** `RunFairMapperTest.java` (extend existing)
 
-| Command | Error Case | Expected |
-|---------|------------|----------|
-| `validate` | Missing fairmapper.yaml | Exit 1, "not found" message |
-| `validate` | Invalid YAML syntax | Exit 1, parse error message |
-| `validate` | Missing transform file | Exit 1, file path in error |
-| `test` | Malformed test input JSON | Exit 1, parse error |
-| `test` | Transform throws exception | Exit 1, transform path in error |
-| `dry-run` | Missing input file | Exit 1, file not found |
-| `dry-run` | Invalid transform | Exit 1, JSLT error message |
-| `run` | Missing --server | Exit 1, "required" message |
-| `run` | Invalid server URL | Exit 1, connection error |
-| `e2e` | Server unreachable | Exit 1, timeout/connection error |
-| `fetch-rdf` | Invalid URL | Exit 1, URL validation error |
-| `fetch-rdf` | 404 response | Exit 1, HTTP status in error |
+**Already covered:**
+| Command | Error Case | Test |
+|---------|------------|------|
+| `validate` | Missing fairmapper.yaml | `testValidate_missingBundle` |
+| `test` | Missing bundle | `testTest_missingBundle` |
+| `dry-run` | Missing input file | `testDryRun_missingInputFile` |
+| `e2e` | Missing --server | `testE2e_missingServer` |
 
-**Implementation:** Create test bundles in `src/test/resources/bundles/`:
-- `invalid-yaml/` - syntax error in fairmapper.yaml
-- `missing-transform/` - references non-existent .jslt
-- `bad-test-input/` - test with malformed JSON
+**Tests to add:**
+| Command | Error Case | Expected | Test Name |
+|---------|------------|----------|-----------|
+| `validate` | Invalid YAML syntax | Exit 1, parse error | `testValidate_invalidYaml` |
+| `validate` | Missing transform file | Exit 1, file path in error | `testValidate_missingTransformFile` |
+| `test` | Malformed test input JSON | Exit 1, parse error | `testTest_malformedInputJson` |
+| `test` | Invalid JSLT transform | Exit 1, JSLT error | `testTest_invalidTransform` |
+| `dry-run` | Invalid JSLT transform | Exit 1, JSLT error | `testDryRun_invalidTransform` |
+| `run` | Missing --source | Exit 1, "required" message | `testRun_missingSource` |
+| `run` | Missing --schema | Exit 1, "required" message | `testRun_missingSchema` |
+| `fetch-rdf` | Invalid URL | Exit 1, error message | `testFetchRdf_invalidUrl` |
+| `fetch-rdf` | Missing frame file | Exit 1, "not found" | `testFetchRdf_missingFrameFile` |
+
+**Implementation:** Use `@TempDir` to create test fixtures dynamically (existing pattern).
 
 ---
 

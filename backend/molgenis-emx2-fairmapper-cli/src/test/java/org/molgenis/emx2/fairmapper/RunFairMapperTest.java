@@ -123,6 +123,177 @@ class RunFairMapperTest {
     assertTrue(errContent.toString().contains("Server required"));
   }
 
+  @Test
+  void testValidate_invalidYaml() throws Exception {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(configPath, "name: test\nversion: \"unclosed");
+
+    int exitCode = RunFairMapper.execute("validate", tempDir.toString());
+    assertEquals(1, exitCode);
+    String error = errContent.toString().toLowerCase();
+    assertTrue(error.contains("parse") || error.contains("yaml") || error.contains("syntax"));
+  }
+
+  @Test
+  void testValidate_missingTransformFile() throws Exception {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test-bundle
+        version: 1.0.0
+        endpoints:
+          - path: /test
+            methods: [GET]
+            steps:
+              - transform: src/nonexistent.jslt
+        """);
+
+    int exitCode = RunFairMapper.execute("validate", tempDir.toString());
+    assertEquals(1, exitCode);
+    assertTrue(errContent.toString().contains("nonexistent.jslt"));
+  }
+
+  @Test
+  void testTest_malformedInputJson() throws Exception {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path srcDir = tempDir.resolve("src");
+    Path testsDir = tempDir.resolve("tests");
+    Files.createDirectories(srcDir);
+    Files.createDirectories(testsDir);
+
+    Path transformFile = srcDir.resolve("transform.jslt");
+    Files.writeString(transformFile, ".");
+
+    Path inputFile = testsDir.resolve("input.json");
+    Files.writeString(inputFile, "{\"test\": unclosed");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test-bundle
+        version: 1.0.0
+        endpoints:
+          - path: /test
+            methods: [GET]
+            steps:
+              - transform: src/transform.jslt
+        tests:
+          - input: tests/input.json
+            expected: tests/expected.json
+        """);
+
+    int exitCode = RunFairMapper.execute("test", tempDir.toString());
+    assertEquals(1, exitCode);
+    String error = errContent.toString().toLowerCase();
+    assertTrue(error.contains("parse") || error.contains("json") || error.contains("malformed"));
+  }
+
+  @Test
+  void testTest_invalidTransform() throws Exception {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path srcDir = tempDir.resolve("src");
+    Files.createDirectories(srcDir);
+
+    Path transformFile = srcDir.resolve("transform.jslt");
+    Files.writeString(transformFile, "{ invalid jslt syntax }");
+
+    Path testsDir = tempDir.resolve("tests");
+    Files.createDirectories(testsDir);
+    Path inputFile = testsDir.resolve("input.json");
+    Files.writeString(inputFile, "{\"test\": \"value\"}");
+    Path expectedFile = testsDir.resolve("expected.json");
+    Files.writeString(expectedFile, "{}");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test-bundle
+        version: 1.0.0
+        mappings:
+          - endpoint: /test
+            steps:
+              - transform:
+                  path: src/transform.jslt
+                  tests:
+                    - input: tests/input.json
+                      output: tests/expected.json
+        """);
+
+    int exitCode = RunFairMapper.execute("test", tempDir.toString());
+    assertEquals(1, exitCode);
+    String output = outContent.toString().toLowerCase() + errContent.toString().toLowerCase();
+    assertTrue(output.contains("✗") || output.contains("error") || output.contains("failed"));
+  }
+
+  @Test
+  void testDryRun_invalidTransform() throws Exception {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path srcDir = tempDir.resolve("src");
+    Files.createDirectories(srcDir);
+
+    Path transformFile = srcDir.resolve("transform.jslt");
+    Files.writeString(transformFile, "{ invalid jslt syntax }");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test-bundle
+        version: 1.0.0
+        endpoints:
+          - path: /test
+            methods: [GET]
+            steps:
+              - transform: src/transform.jslt
+        """);
+
+    Path inputFile = tempDir.resolve("input.json");
+    Files.writeString(inputFile, "{\"test\": \"value\"}");
+
+    int exitCode = RunFairMapper.execute("dry-run", tempDir.toString(), inputFile.toString());
+    assertEquals(1, exitCode);
+    String error = errContent.toString().toLowerCase();
+    assertTrue(error.contains("jslt") || error.contains("transform") || error.contains("syntax"));
+  }
+
+  @Test
+  void testRun_missingSource() throws Exception {
+    createValidBundle();
+    int exitCode = RunFairMapper.execute("run", tempDir.toString(), "test-mapping");
+    assertEquals(2, exitCode);
+    String error = errContent.toString().toLowerCase();
+    assertTrue(error.contains("source") || error.contains("required"));
+  }
+
+  @Test
+  void testRun_missingSchema() throws Exception {
+    createValidBundle();
+    int exitCode =
+        RunFairMapper.execute(
+            "run", tempDir.toString(), "test-mapping", "--source", "http://example.com");
+    assertEquals(2, exitCode);
+    String error = errContent.toString().toLowerCase();
+    assertTrue(error.contains("schema") || error.contains("required"));
+  }
+
+  @Test
+  void testFetchRdf_invalidUrl() throws Exception {
+    int exitCode = RunFairMapper.execute("fetch-rdf", "not-a-valid-url");
+    assertEquals(1, exitCode);
+    String error = errContent.toString().toLowerCase();
+    assertTrue(error.contains("url") || error.contains("invalid") || error.contains("malformed"));
+  }
+
+  @Test
+  void testFetchRdf_missingFrameFile() throws Exception {
+    int exitCode =
+        RunFairMapper.execute(
+            "fetch-rdf", "http://example.com", "--frame", "/nonexistent/frame.json");
+    assertEquals(1, exitCode);
+    String error = errContent.toString().toLowerCase();
+    assertTrue(error.contains("not found") || error.contains("file"));
+  }
+
   private void createValidBundle() throws Exception {
     Path configPath = tempDir.resolve("fairmapper.yaml");
     Path srcDir = tempDir.resolve("src");
