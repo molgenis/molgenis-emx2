@@ -9,26 +9,26 @@ Developer pages,,css,text,,,,,,,,,,,pages
 Developer pages,,javascript,text,,,,,,,,,,,pages
 Developer pages,,Settings,section,,,,,,,,,,,pages
 Developer pages,,dependencies,ref_array,,,Dependencies,,,,,,,The external dependencies used in the page,pages
-Developer pages,,enable base styles,bool,,,,,,,,TRUE,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
-Developer pages,,enable button styles,bool,,,,,,,,TRUE,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
-Developer pages,,enable full screen,bool,,,,,,,,FALSE,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
+Developer pages,,enable base styles,bool,,,,,,,,true,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
+Developer pages,,enable button styles,bool,,,,,,,,true,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
+Developer pages,,enable full screen,bool,,,,,,,,false,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
 Dependencies,,,,,,,,,,,,,External dependencies used in the developer pages,pages
 Dependencies,,name,string,1,TRUE,,,,,,,,A name is a label used to identify a dependency,pages
 Dependencies,,url,hyperlink,,,,,,,,,,URL to the dependency,pages
 Dependencies,,fetch priority,ontology,,,Web fetch priorities,,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
 Dependencies CSS,Dependencies,,,,,,,,,,,,External CSS dependencies used in custom pages,pages
 Dependencies JS,Dependencies,,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
-Dependencies JS,,async,bool,,,,,,,,FALSE,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
-Dependencies JS,,defer,bool,,,,,,,,FALSE,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
+Dependencies JS,,async,bool,,,,,,,,false,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
+Dependencies JS,,defer,bool,,,,,,,,false,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
 Configurable pages,Containers,,,,,,,,,,,,Pages built with the drag-and-drop interface,pages
 Configurable pages,,blocks,refback,,,Blocks,in container,,,,,,,pages
 Configurable pages,,block order,refback,,,Block orders,configurable page,,,,,,,pages
 Blocks,,,,,,,,,,,,,Subcontainers with in a page used to group components,pages
-Blocks,,id,auto_id,1,TRUE,,,,FALSE,,,,A name or label used to identify the block,pages
+Blocks,,id,auto_id,1,TRUE,,,,,,,,A name or label used to identify the block,pages
 Blocks,,in container,multiselect,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
 Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
 Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
-Blocks,,enable full screen width,bool,,,,,,,,FALSE,,"If true, content will be expanded to the fit the full width of the screen",pages
+Blocks,,enable full screen width,bool,,,,,,,,false,,"If true, content will be expanded to the fit the full width of the screen",pages
 Sections,Blocks,,,,,,,,,,,,Subcontainers for providing context to components,pages
 Components,,,,,,,,,,,,,Content and configuration for frontend components,pages
 Components,,id,auto_id,1,TRUE,,,,FALSE,,,,,pages
@@ -37,20 +37,21 @@ Headers,Blocks,,,,,,,,,,,,<header> elements,pages
 Headers,,title,string,,,,,,,,,,A title for the page,pages
 Headers,,subtitle,string,,,,,,,,,,An optional secondary title that describes the page,pages
 Headers,,background image,select,,,Images,,,,,,,An image to display in the background of the header,pages
-Headers,,is centered,bool,,,,,,,,FALSE,,"If true, the title and subtitle will be center aligned",pages
+Headers,,title is centered,bool,,,,,,,,false,,"If true, the title and subtitle will be center aligned",pages
 Text elements,Components,,,,,,,,,,,,All text elements,pages
 Text elements,,text,text,,,,,,,,,,The content to display,pages
-Text elements,,is centered,bool,,,,,,,,FALSE,,"If true, the text will be centered aligned",pages
 Headings,Text elements,,,,,,,,,,,,<h*> elements,pages
 Headings,,level,int,,,,,,,level ? level >=1 && level <= 6 : false,,,Heading level 1-6,pages
+Headings,,heading is centered,bool,,,,,,,,false,,"If true, the heading will be center aligned",pages
 Paragraphs,Text elements,,,,,,,,,,,,<p> elements,pages
+Paragraphs,,paragraph is centered,bool,,,,,,,,false,,"If true, the paragraph will be centered aligned ",pages
 Images,Components,,,,,,,,,,,,<img> elements,pages
 Images,,display name,string,,,,,,,,,,An optional name to display in place of the filename,pages
 Images,,image,file,,,,,,,,,,Select an image file,pages
-Images,,alt,string,,,,,,,,,,,pages
-Images,,width,string,,,,,,,,,,,pages
-Images,,height,string,,,,,,,,,,,pages
-Images,,is centered,bool,,,,,,,,,,"If true, the image will be centered aligned",pages
+Images,,alt,string,,,,,,,,,,A description of the image for accessibility compliance,pages
+Images,,width,string,,,,,,,,,,"An optional value to specify the width of the image (tailwind units: w-full, w-[100px], etc.)",pages
+Images,,height,string,,,,,,,,,,"An optional value to specify the height of the image (tailwind units: h-full, h-[100px], etc.)",pages
+Images,,image is centered,bool,,,,,,,,false,,"If true, the image will be centered aligned",pages
 Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
 Ordered lists,,items,text_array,,,,,,,,,,,pages
 Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
