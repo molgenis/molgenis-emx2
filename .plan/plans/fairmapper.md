@@ -60,10 +60,128 @@
 
 | Task | Priority | Status |
 |------|----------|--------|
-| Command integration tests | HIGH | Pending |
-| Fix exception hierarchy | HIGH | Pending |
-| Fix silent partial failures | HIGH | Pending |
-| RemotePipelineExecutor tests | MEDIUM | Pending |
+| 8.1 Fix silent failures in jsonEquals | HIGH | Done |
+| 8.2 Add null-check to RemotePipelineExecutor | HIGH | Pending |
+| 8.3 Command error case tests | HIGH | Pending |
+| 8.4 RemotePipelineExecutor tests | MEDIUM | Pending |
+
+---
+
+### 8.1 Fix Silent Failures in jsonEquals
+
+**Problem:** `TestCommand.jsonEquals()` and `E2eCommand.jsonEquals()` catch all exceptions and return false, masking real errors (OOM, parse failures, etc).
+
+**Files:**
+| File | Lines | Issue |
+|------|-------|-------|
+| `commands/TestCommand.java` | 135-142 | `catch (Exception e) { return false; }` |
+| `commands/E2eCommand.java` | 181-188 | Same pattern |
+
+**Fix:** Log exception details, distinguish comparison failure from error:
+
+```java
+private boolean jsonEquals(JsonNode expected, JsonNode actual) {
+  try {
+    return expected.equals(actual);
+  } catch (Exception e) {
+    System.err.println(color("@|red Error comparing JSON: " + e.getMessage() + "|@"));
+    return false;
+  }
+}
+```
+
+**Tests:**
+- Verify error message shown when comparison throws
+- Verify false returned on actual mismatch (no exception)
+
+---
+
+### 8.2 Add Null-Check to RemotePipelineExecutor
+
+**Problem:** `RemotePipelineExecutor.execute()` doesn't check for null steps, unlike `PipelineExecutor`.
+
+**File:** `RemotePipelineExecutor.java`
+
+**Fix:** Add null-check at start of execute():
+
+```java
+public JsonNode execute(JsonNode input, Mapping mapping) throws IOException {
+  if (mapping.steps() == null || mapping.steps().isEmpty()) {
+    return input;
+  }
+  // ... rest of method
+}
+```
+
+**Test:** Add test case for mapping with null/empty steps.
+
+---
+
+### 8.3 Command Error Case Tests
+
+**File:** `RunFairMapperTest.java` (extend existing)
+
+| Command | Error Case | Expected |
+|---------|------------|----------|
+| `validate` | Missing fairmapper.yaml | Exit 1, "not found" message |
+| `validate` | Invalid YAML syntax | Exit 1, parse error message |
+| `validate` | Missing transform file | Exit 1, file path in error |
+| `test` | Malformed test input JSON | Exit 1, parse error |
+| `test` | Transform throws exception | Exit 1, transform path in error |
+| `dry-run` | Missing input file | Exit 1, file not found |
+| `dry-run` | Invalid transform | Exit 1, JSLT error message |
+| `run` | Missing --server | Exit 1, "required" message |
+| `run` | Invalid server URL | Exit 1, connection error |
+| `e2e` | Server unreachable | Exit 1, timeout/connection error |
+| `fetch-rdf` | Invalid URL | Exit 1, URL validation error |
+| `fetch-rdf` | 404 response | Exit 1, HTTP status in error |
+
+**Implementation:** Create test bundles in `src/test/resources/bundles/`:
+- `invalid-yaml/` - syntax error in fairmapper.yaml
+- `missing-transform/` - references non-existent .jslt
+- `bad-test-input/` - test with malformed JSON
+
+---
+
+### 8.4 RemotePipelineExecutor Tests
+
+**File:** Create `RemotePipelineExecutorTest.java`
+
+| Test | Setup | Assertion |
+|------|-------|-----------|
+| Query success | Mock GraphqlClient returns data | Result contains data |
+| Query error | Mock returns GraphQL errors | IOException thrown with message |
+| Mutate success | Mock returns mutation result | Result contains data |
+| Transform chain | Multi-step pipeline | Each step executed in order |
+| Fetch mapping | Mapping with fetch field | Fetch executed before steps |
+| Network failure | Mock throws IOException | IOException propagated |
+
+**Mock setup:**
+```java
+@Mock GraphqlClient client;
+
+@BeforeEach
+void setup() {
+  executor = new RemotePipelineExecutor(bundlePath, client);
+}
+```
+
+---
+
+### Implementation Order
+
+```
+8.1 Fix jsonEquals ──> 8.3 Command tests (use fixed error reporting)
+        │
+        v
+8.2 Null-check ──────> 8.4 RemotePipelineExecutor tests
+```
+
+**Estimated changes:**
+- 8.1: ~10 lines in 2 files
+- 8.2: ~5 lines in 1 file
+- 8.3: ~200 lines new tests + test fixtures
+- 8.4: ~150 lines new test file
 
 ---
 
