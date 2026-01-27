@@ -188,8 +188,14 @@ public class GraphqlApi {
         queryBuilder.field(tableField.tableAggField(table));
         queryBuilder.field(tableField.tableGroupByField(table));
       }
+      for (int depth = 1; depth <= 3; depth++) {
+        this.graphqlQueryFragments.put(
+            table.getIdentifier() + "AllFields" + depth,
+            tableField.getGraphqlFragments(table, depth));
+      }
       this.graphqlQueryFragments.put(
-          table.getIdentifier() + "AllFields", tableField.getGraphqlFragments(table));
+          table.getIdentifier() + "AllFields",
+          tableField.getGraphqlFragments(table, 1, table.getIdentifier() + "AllFields"));
     }
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));

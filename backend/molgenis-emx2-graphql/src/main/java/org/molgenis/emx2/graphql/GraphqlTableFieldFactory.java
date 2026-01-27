@@ -116,14 +116,21 @@ public class GraphqlTableFieldFactory {
         .build();
   }
 
-  public String getGraphqlFragments(TableMetadata table) {
-    return AstPrinter.printAst(getGraphqlFragments(table, false)) + "\n";
+  public String getGraphqlFragments(TableMetadata table, int depth) {
+    String fragmentName = table.getIdentifier() + "AllFields" + depth;
+    return AstPrinter.printAst(getGraphqlFragmentsInternal(table, depth, depth, fragmentName))
+        + "\n";
   }
 
-  private FragmentDefinition getGraphqlFragments(TableMetadata table, boolean pkeyOnly) {
-    String fragmentName =
-        pkeyOnly ? table.getIdentifier() + "KeyFields" : table.getIdentifier() + "AllFields";
-    List<Column> columns = pkeyOnly ? table.getPrimaryKeyColumns() : table.getStoredColumns();
+  public String getGraphqlFragments(TableMetadata table, int depth, String fragmentName) {
+    return AstPrinter.printAst(getGraphqlFragmentsInternal(table, depth, depth, fragmentName))
+        + "\n";
+  }
+
+  private FragmentDefinition getGraphqlFragmentsInternal(
+      TableMetadata table, int depth, int maxDepth, String fragmentName) {
+    String nestedFragmentName = depth == 0 ? table.getIdentifier() + "KeyFields" : fragmentName;
+    List<Column> columns = depth == 0 ? table.getPrimaryKeyColumns() : table.getStoredColumns();
 
     GraphQLNamedOutputType tableType = createTableObjectType(table);
     List<Selection<?>> selections = new ArrayList<>();
@@ -141,10 +148,14 @@ public class GraphqlTableFieldFactory {
                     .selectionSet(SelectionSet.newSelectionSet(file).build())
                     .build());
           } else if (column.isReference()) {
-            // recursion on keys
+            int nextDepth = depth > 0 ? depth - 1 : 0;
+            String nestedName = column.getRefTable().getIdentifier() + "Nested";
             selections.add(
                 Field.newField(column.getIdentifier())
-                    .selectionSet(getGraphqlFragments(column.getRefTable(), true).getSelectionSet())
+                    .selectionSet(
+                        getGraphqlFragmentsInternal(
+                                column.getRefTable(), nextDepth, maxDepth, nestedName)
+                            .getSelectionSet())
                     .build());
           } else {
             selections.add(Field.newField(column.getIdentifier()).build());
@@ -154,7 +165,7 @@ public class GraphqlTableFieldFactory {
     SelectionSet selectionSet = SelectionSet.newSelectionSet().selections(selections).build();
 
     return FragmentDefinition.newFragmentDefinition()
-        .name(fragmentName)
+        .name(nestedFragmentName)
         .typeCondition(TypeName.newTypeName(tableType.getName()).build())
         .selectionSet(selectionSet)
         .build();

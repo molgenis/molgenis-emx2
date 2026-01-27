@@ -248,6 +248,8 @@ public class TestGraphqlSchemaFields {
 
     // fragments
     assertEquals("pooky", execute("{Pet{...PetAllFields}}").at("/Pet/0/name").textValue());
+    assertEquals("pooky", execute("{Pet{...PetAllFields1}}").at("/Pet/0/name").textValue());
+    assertEquals("pooky", execute("{Pet{...PetAllFields2}}").at("/Pet/0/name").textValue());
 
     assertEquals("pooky", execute("{Pet{name}Pet_agg{count}}").at("/Pet/0/name").textValue());
 
