@@ -161,12 +161,10 @@ function handleRefClick() {
     </span>
   </template>
 
-  <!-- Array refs: REF_ARRAY, REFBACK, MULTISELECT, CHECKBOX (table mode) -->
   <RecordTableView
     v-else-if="useTableMode"
     :rows="allRows"
     :columns="visibleColumns"
-    :ref-column="metadata as IRefColumn"
     v-model:page="listPage"
     :page-size="effectivePageSize"
     :total-count="allRows.length"

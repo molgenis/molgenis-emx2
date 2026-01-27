@@ -11,12 +11,21 @@ export interface ISetting {
 export type HeadingType = "HEADING" | "SECTION";
 
 export interface IDisplayConfig {
+  layout?: "table" | "list" | "cards";
+  displayComponent?: string | Component;
   component?: string | Component;
   visibleColumns?: string[];
+  columnConfig?: Record<string, IDisplayConfig>;
   pageSize?: number;
-  filter?: object;
+  showEmpty?: boolean;
+  rowLabel?: string;
   clickAction?: (col: IColumn, row: IRow) => void;
   getHref?: (col: IColumn, row: IRow) => string;
+  showFilters?: boolean;
+  filterPosition?: "sidebar" | "topbar";
+  filterableColumns?: string[];
+  showSearch?: boolean;
+  filter?: object;
   label?: string;
 }
 

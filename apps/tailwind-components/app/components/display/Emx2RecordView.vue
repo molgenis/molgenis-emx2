@@ -18,18 +18,17 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     rowId: Record<string, any>;
-    viewColumns?: string[];
-    displayConfig?: Map<string, IDisplayConfig>;
+    config?: IDisplayConfig;
     extraColumns?: IColumn[];
-    showEmpty?: boolean;
   }>(),
-  {
-    showEmpty: false,
-  }
+  {}
 );
 
+const viewColumns = computed(() => props.config?.visibleColumns);
+const displayConfigMap = computed(() => props.config?.columnConfig);
+const showEmpty = computed(() => props.config?.showEmpty || false);
+
 function buildRefbackFilter(column: IColumn, rowId: Record<string, any>) {
-  // use filter from displayConfig if provided (for virtual columns)
   if (column.displayConfig?.filter) {
     return column.displayConfig.filter;
   }
@@ -91,8 +90,8 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
     columns = [...columns, ...props.extraColumns];
   }
 
-  if (props.viewColumns && props.viewColumns.length > 0) {
-    const viewColumnSet = new Set(props.viewColumns);
+  if (viewColumns.value && viewColumns.value.length > 0) {
+    const viewColumnSet = new Set(viewColumns.value);
     const visibleSections = new Set<string>();
     const visibleHeadings = new Set<string>();
 
@@ -113,7 +112,7 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
       return viewColumnSet.has(col.id);
     });
 
-    const orderMap = new Map(props.viewColumns.map((id, idx) => [id, idx]));
+    const orderMap = new Map(viewColumns.value.map((id, idx) => [id, idx]));
     columns.sort((a, b) => {
       const aOrder = orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER;
       const bOrder = orderMap.get(b.id) ?? Number.MAX_SAFE_INTEGER;
@@ -121,9 +120,9 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
     });
   }
 
-  if (props.displayConfig) {
+  if (displayConfigMap.value) {
     columns = columns.map((col) => {
-      const config = props.displayConfig?.get(col.id);
+      const config = displayConfigMap.value?.[col.id];
       if (config) {
         return {
           ...col,
@@ -168,12 +167,7 @@ watch(
           :schema-id="(column as IRefColumn).refSchemaId || schemaId"
           :table-id="(column as IRefColumn).refTableId!"
           :filter="buildRefbackFilter(column, rowId)"
-          :show-search="false"
-          :paging-limit="column.displayConfig?.pageSize || 5"
-          :ref-label="(column as IRefColumn).refLabel || (column as IRefColumn).refLabelDefault"
-          :display-config="column.displayConfig"
-          :get-href="column.displayConfig?.getHref"
-          :click-action="column.displayConfig?.clickAction"
+          :config="column.displayConfig"
         />
       </template>
       <template #header>

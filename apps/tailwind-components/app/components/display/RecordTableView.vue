@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type {
-  IColumn,
-  IRefColumn,
-  IRow,
-} from "../../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
 import InlinePagination from "./InlinePagination.vue";
 import ValueEMX2 from "../value/EMX2.vue";
 
 const props = defineProps<{
   rows: IRow[];
   columns: IColumn[];
-  refColumn: IRefColumn;
   page: number;
   pageSize: number;
   totalCount: number;

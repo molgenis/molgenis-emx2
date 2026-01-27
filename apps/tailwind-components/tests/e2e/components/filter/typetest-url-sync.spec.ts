@@ -8,12 +8,18 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 const baseUrl = `${route}filter/Emx2DataView.story?schema=TypeTest&table=TypeTest`;
 
 async function expandFilter(page: Page, filterName: string) {
-  const filterTitle = page.locator("h3").filter({ hasText: filterName }).first();
+  const filterTitle = page
+    .locator("h3")
+    .filter({ hasText: filterName })
+    .first();
   await filterTitle.click();
   await page.waitForTimeout(100);
 }
 
-async function getUrlParam(page: Page, paramPattern: string): Promise<string | null> {
+async function getUrlParam(
+  page: Page,
+  paramPattern: string
+): Promise<string | null> {
   const url = page.url();
   const params = new URLSearchParams(url.split("?")[1] || "");
   for (const [key, value] of params.entries()) {
@@ -27,7 +33,9 @@ async function getUrlParam(page: Page, paramPattern: string): Promise<string | n
 test.describe("Filter URL Sync - TypeTest Schema (All Column Types)", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(baseUrl);
-    await expect(page.getByText("Emx2DataView")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("Emx2DataView")).toBeVisible({
+      timeout: 15000,
+    });
     await page.waitForTimeout(1000);
   });
 
@@ -133,11 +141,16 @@ test.describe("Filter URL Sync - TypeTest Schema (All Column Types)", () => {
     }
   });
 
-  test("ONTOLOGY filter updates URL without [object Object]", async ({ page }) => {
+  test("ONTOLOGY filter updates URL without [object Object]", async ({
+    page,
+  }) => {
     const ontologyFilters = ["testOntology", "ontologySmallType"];
 
     for (const filterName of ontologyFilters) {
-      const filterTitle = page.locator("h3").filter({ hasText: filterName }).first();
+      const filterTitle = page
+        .locator("h3")
+        .filter({ hasText: filterName })
+        .first();
       if (await filterTitle.isVisible({ timeout: 1000 }).catch(() => false)) {
         await filterTitle.click();
         await page.waitForTimeout(500);
@@ -164,8 +177,13 @@ test.describe("Filter URL Sync - TypeTest Schema (All Column Types)", () => {
     }
   });
 
-  test("ONTOLOGY_ARRAY filter updates URL without [object Object]", async ({ page }) => {
-    const filterTitle = page.locator("h3").filter({ hasText: /ontology.*array/i }).first();
+  test("ONTOLOGY_ARRAY filter updates URL without [object Object]", async ({
+    page,
+  }) => {
+    const filterTitle = page
+      .locator("h3")
+      .filter({ hasText: /ontology.*array/i })
+      .first();
     if (await filterTitle.isVisible({ timeout: 1000 }).catch(() => false)) {
       await filterTitle.click();
       await page.waitForTimeout(500);
@@ -182,7 +200,10 @@ test.describe("Filter URL Sync - TypeTest Schema (All Column Types)", () => {
   });
 
   test("REF_ARRAY filter updates URL", async ({ page }) => {
-    const filterTitle = page.locator("h3").filter({ hasText: /testRefArray|ref.*array/i }).first();
+    const filterTitle = page
+      .locator("h3")
+      .filter({ hasText: /testRefArray|ref.*array/i })
+      .first();
     if (await filterTitle.isVisible({ timeout: 1000 }).catch(() => false)) {
       await filterTitle.click();
       await page.waitForTimeout(500);
@@ -213,7 +234,8 @@ test.describe("Filter URL Sync - TypeTest Schema (All Column Types)", () => {
     let param = await getUrlParam(page, "testString");
     expect(param).toBe("test");
 
-    const clearButton = page.locator("h3")
+    const clearButton = page
+      .locator("h3")
       .filter({ hasText: "testString" })
       .locator("..")
       .locator("..")
@@ -244,7 +266,9 @@ test.describe("Filter URL Sync - TypeTest Schema (All Column Types)", () => {
   test("URL params restore filter state on page load", async ({ page }) => {
     const urlWithFilters = `${baseUrl}&testString=restored&testInt=10..50`;
     await page.goto(urlWithFilters);
-    await expect(page.getByText("Emx2DataView")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("Emx2DataView")).toBeVisible({
+      timeout: 15000,
+    });
     await page.waitForTimeout(1000);
 
     await expandFilter(page, "testString");

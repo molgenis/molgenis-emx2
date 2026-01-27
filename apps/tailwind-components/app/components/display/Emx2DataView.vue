@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, watch, useId } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  IRow,
+  IDisplayConfig,
+} from "../../../../metadata-utils/src/types";
 import { useTableData } from "../../composables/useTableData";
 import { useFilters } from "../../composables/useFilters";
 import { rowToString } from "../../utils/rowToString";
@@ -12,32 +16,14 @@ import CardList from "../CardList.vue";
 import CardListItem from "../CardListItem.vue";
 import FilterSidebar from "../filter/Sidebar.vue";
 
-export interface IColumnDisplayOptions {
-  href?: (row: IRow) => string;
-  onClick?: (row: IRow) => void;
-}
-
 const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
-    layout?: "table" | "list" | "cards";
-    showFilters?: boolean;
-    filterPosition?: "sidebar" | "topbar";
-    filterableColumns?: string[];
-    showSearch?: boolean;
-    pagingLimit?: number;
-    rowLabel?: string;
-    displayOptions?: Record<string, IColumnDisplayOptions>;
-    visibleColumns?: string[];
+    config?: IDisplayConfig;
     urlSync?: boolean;
   }>(),
   {
-    layout: "list",
-    showFilters: false,
-    filterPosition: "sidebar",
-    showSearch: true,
-    pagingLimit: 10,
     urlSync: true,
   }
 );
@@ -46,6 +32,18 @@ defineSlots<{
   default?: (props: { row: IRow; label: string }) => any;
   card?: (props: { row: IRow; label: string }) => any;
 }>();
+
+const layout = computed(() => props.config?.layout || "list");
+const showFilters = computed(() => props.config?.showFilters || false);
+const filterPosition = computed(
+  () => props.config?.filterPosition || "sidebar"
+);
+const filterableColumns = computed(() => props.config?.filterableColumns);
+const showSearch = computed(() => props.config?.showSearch !== false);
+const pagingLimit = computed(() => props.config?.pageSize || 10);
+const rowLabel = computed(() => props.config?.rowLabel);
+const visibleColumns = computed(() => props.config?.visibleColumns);
+const displayOptions = computed(() => props.config?.columnConfig);
 
 const searchInputId = useId();
 const page = ref(1);
@@ -80,8 +78,8 @@ const filterableColumnsComputed = computed<IColumn[]>(() => {
       filterableTypes.includes(col.columnType) && !col.id.startsWith("mg_")
   );
 
-  if (props.filterableColumns && props.filterableColumns.length > 0) {
-    cols = cols.filter((col) => props.filterableColumns!.includes(col.id));
+  if (filterableColumns.value && filterableColumns.value.length > 0) {
+    cols = cols.filter((col) => filterableColumns.value!.includes(col.id));
   }
 
   return cols;
@@ -91,14 +89,14 @@ const columnsRef = computed(() => filterableColumnsComputed.value);
 const { filterStates, gqlFilter } = useFilters(columnsRef, {
   debounceMs: 300,
   urlSync: props.urlSync,
-  route,
-  router,
+  route: route as any,
+  router: router as any,
 });
 
 // fetch data using useTableData with filter
 const { metadata, rows, status, totalPages, showPagination, errorMessage } =
   useTableData(props.schemaId, props.tableId, {
-    pageSize: props.pagingLimit,
+    pageSize: pagingLimit.value,
     page,
     searchTerms,
     filter: gqlFilter,
@@ -123,15 +121,15 @@ const errorText = computed(
 
 // row label template from props or metadata
 const rowLabelTemplate = computed(() => {
-  if (props.rowLabel) return props.rowLabel;
+  if (rowLabel.value) return rowLabel.value;
   const keyCol = metadata.value?.columns?.find((c) => c.key === 1);
   return keyCol?.refLabel || keyCol?.refLabelDefault || "${name}";
 });
 
 const visibleColumnsComputed = computed(() => {
   if (!metadata.value?.columns) return [];
-  if (props.visibleColumns && props.visibleColumns.length > 0) {
-    return props.visibleColumns.filter((colId) =>
+  if (visibleColumns.value && visibleColumns.value.length > 0) {
+    return visibleColumns.value.filter((colId) =>
       metadata.value!.columns!.some((c) => c.id === colId)
     );
   }
@@ -170,8 +168,8 @@ function getLabel(row: IRow): string {
   return rowToString(row, rowLabelTemplate.value) || "";
 }
 
-function getColumnOptions(colId: string): IColumnDisplayOptions | undefined {
-  return props.displayOptions?.[colId];
+function getColumnOptions(colId: string): IDisplayConfig | undefined {
+  return displayOptions.value?.[colId];
 }
 
 const firstColumnId = computed(() => tableColumns.value[0]?.id);
@@ -239,16 +237,18 @@ const firstColumnOptions = computed(() =>
                     class="px-3 py-2 text-body-base"
                   >
                     <NuxtLink
-                      v-if="colIndex === 0 && firstColumnOptions?.href"
-                      :to="firstColumnOptions.href(row)"
+                      v-if="colIndex === 0 && firstColumnOptions?.getHref"
+                      :to="firstColumnOptions.getHref(col, row)"
                       class="text-link hover:underline"
                     >
                       {{ getCellValue(row, col.id) }}
                     </NuxtLink>
                     <span
-                      v-else-if="colIndex === 0 && firstColumnOptions?.onClick"
+                      v-else-if="
+                        colIndex === 0 && firstColumnOptions?.clickAction
+                      "
                       class="text-link hover:underline cursor-pointer"
-                      @click="firstColumnOptions.onClick!(row)"
+                      @click="firstColumnOptions.clickAction!(col, row)"
                     >
                       {{ getCellValue(row, col.id) }}
                     </span>

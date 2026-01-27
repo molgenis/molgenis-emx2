@@ -104,7 +104,8 @@ async function init() {
       if (data.rows) {
         hasNoResults.value = false;
         data.rows.forEach(
-          (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+          (row) =>
+            (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
         );
       }
     }

@@ -24,11 +24,13 @@
       :key="`${schemaId}-${tableId}`"
       :schema-id="schemaId"
       :table-id="tableId"
-      :layout="layout"
-      :show-filters="true"
-      filter-position="sidebar"
-      :show-search="true"
-      :paging-limit="10"
+      :config="{
+        layout: layout,
+        showFilters: true,
+        filterPosition: 'sidebar',
+        showSearch: true,
+        pageSize: 10,
+      }"
     />
   </Story>
 </template>

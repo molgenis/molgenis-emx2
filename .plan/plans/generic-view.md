@@ -1,63 +1,99 @@
 # Generic View - Plan
 
 ## Completed
-- v6.3.0: Filter system - FilterRange, FilterColumn, FilterSidebar, useFilters composable, buildFilter util, Emx2DataView, TableEMX2 filter prop (21 tests)
-- v6.3.1: URL sync WIP - serialize/parse functions, bidirectional sync
-- v6.3.2: Router injection - optional route/router params, fallback to Nuxt
-- v6.3.3: One-way data flow - URL as source of truth, removed bidirectional sync complexity (64 tests)
-- v6.3.4: REF path syntax - explicit `category.name=value` format, backward compat (69 tests)
-- v6.3.5: Writable computed - filterStates writable via setter, Emx2DataView urlSync prop (default true), Story markdown spec, visibleColumns auto-default (225 tests)
-- v6.3.6: E2E tests - URL sync tests (5 new), fixed route/title, removed comments
+- v6.3.0-6.3.6: Filter system with URL sync (see spec for details)
+- v6.3.7: Type refactoring - unified IDisplayConfig
 
-## Current Status
+## Current: None
 
-URL sync complete:
-- `filterStates` is writable computed (getter reads URL, setter updates URL)
-- One-way flow maintained: URL → state, mutations → URL → recalculate
-- REF filters use dotted keys: `category.name=Cat1|Cat2`
-- Emx2DataView has `urlSync` prop (default: true)
-- Story component supports markdown `spec` prop
-- See `.plan/specs/generic-view.md` for full specification
+Expand existing `IDisplayConfig` to be single unified config type.
 
-## Remaining
+### Updated IDisplayConfig
 
-ActiveFilters component (horizontal tag bar showing active filters) - deferred.
+```typescript
+export interface IDisplayConfig {
+  // Display mode
+  layout?: "table" | "list" | "cards";
+  displayComponent?: string | Component;
+
+  // Columns
+  visibleColumns?: string[];
+  columnConfig?: Record<string, IDisplayConfig>;  // recursive
+
+  // Data
+  pageSize?: number;
+  showEmpty?: boolean;
+  rowLabel?: string;
+
+  // Interaction
+  clickAction?: (col: IColumn, row: IRow) => void;
+  getHref?: (col: IColumn, row: IRow) => string;
+
+  // Filters
+  showFilters?: boolean;
+  filterPosition?: "sidebar" | "topbar";
+  filterableColumns?: string[];
+  showSearch?: boolean;
+}
+```
+
+Usage:
+- **IColumn.displayConfig**: IDisplayConfig (already named this way)
+- **Component config prop**: IDisplayConfig
+- **columnConfig["colId"]**: IDisplayConfig (recursive for refs)
+
+### Implementation Steps
+
+| Step | Task | Files |
+|------|------|-------|
+| 1 | Expand IDisplayConfig in metadata-utils/types.ts | types.ts |
+| 2 | Remove refColumn prop from RecordTableView | RecordTableView.vue |
+| 3 | Update Emx2DataView: use config prop, extract values | Emx2DataView.vue |
+| 4 | Update Emx2ListView: use config prop | Emx2ListView.vue |
+| 5 | Update Emx2RecordView: use config prop | Emx2RecordView.vue |
+| 6 | Update EMX2.vue: align with IDisplayConfig | EMX2.vue |
+| 7 | Move story filter/ → display/ | pages/ |
+| 8 | Remove IColumnDisplayOptions (merged into IDisplayConfig) | Emx2DataView.vue |
+| 9 | Fix package.json ^ versions | package.json |
+| 10 | Update/fix tests | tests/ |
+
+### Component Props After Refactor
+
+**Emx2DataView:**
+```typescript
+{
+  schemaId: string;
+  tableId: string;
+  config?: IDisplayConfig;
+  urlSync?: boolean;
+}
+```
+
+**Emx2ListView:**
+```typescript
+{
+  schemaId: string;
+  tableId: string;
+  config?: IDisplayConfig;
+  filter?: object;  // external filter (REFBACK)
+}
+```
+
+**Emx2RecordView:**
+```typescript
+{
+  schemaId: string;
+  tableId: string;
+  rowId: Record<string, any>;
+  config?: IDisplayConfig;
+}
+```
+
+### Deferred
+- ISectionColumn → ISectionField rename (separate PR)
+- staticFilter/defaultFilter concept
+- ActiveFilters component
+- Custom column labels
 
 ## Test Coverage
-
-- [x] Basic filter operations (set/clear/remove)
-- [x] URL sync with injected route/router
-- [x] URL updates on filter change (immediate)
-- [x] gqlFilter updates (debounced)
-- [x] Browser back/forward updates filters
-- [x] Graceful degradation (no router)
-- [x] Reserved params preserved
-- [x] Serialize/parse round-trips
-- [x] REF with explicit path syntax (`category.name=value`)
-- [x] Backward compat: fallback for old format (`category=value`)
-- [x] SSR/hydration (E2E: URL params pre-filled on initial render)
-- [x] E2E: URL updates, direct navigation, back/forward, clear
-
-## Remaining Stories
-
-| Story | Status | Notes |
-|-------|--------|-------|
-| ActiveFilters | DEFERRED | Horizontal tag bar |
-
-## Decisions
-
-1. Container merged into Column (self-contained)
-2. filterConfig removed (not needed)
-3. Standardize on `null` (not `undefined`)
-4. Large Vue files OK up to 750 lines
-5. Keep useFilters separate from useTableData
-6. URL format: key-value with explicit paths (`column.name=value`)
-7. Router via injection, not runtime require
-8. One-way data flow: URL is source of truth
-9. No inline comments - use clear naming
-10. Writable computed for filterStates (setter updates URL, maintains one-way flow)
-11. Story specs in markdown (via `marked` library)
-
-## Unresolved Questions
-
-1. Handle ontology selections that exceed URL limits?
+234 passing tests (v6.3.7)

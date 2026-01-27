@@ -19,26 +19,23 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     filter?: object;
-    viewColumns?: string[];
-    showSearch?: boolean;
-    pagingLimit?: number;
-    refLabel?: string;
-    clickAction?: (col: IColumn, row: IRow) => void;
-    getHref?: (col: IColumn, row: IRow) => string;
-    displayConfig?: IDisplayConfig;
-    componentProps?: Record<string, unknown>;
+    config?: IDisplayConfig;
   }>(),
-  {
-    showSearch: true,
-    pagingLimit: 10,
-  }
+  {}
 );
+
+const showSearch = computed(() => props.config?.showSearch !== false);
+const pagingLimit = computed(() => props.config?.pageSize || 10);
+const refLabel = computed(() => props.config?.rowLabel);
+const clickAction = computed(() => props.config?.clickAction);
+const getHref = computed(() => props.config?.getHref);
+const displayConfig = computed(() => props.config);
+const viewColumns = computed(() => props.config?.visibleColumns);
 
 const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
 
-// wrap filter in computed so useTableData can watch for changes
 const filterComputed = computed(() => props.filter);
 
 const {
@@ -50,7 +47,7 @@ const {
   showPagination,
   errorMessage,
 } = useTableData(props.schemaId, props.tableId, {
-  pageSize: props.pagingLimit,
+  pageSize: pagingLimit.value,
   page,
   filter: filterComputed,
   searchTerms,
@@ -62,7 +59,6 @@ const errorText = computed(
     (status.value === "error" ? "Failed to load data" : undefined)
 );
 
-// construct a ref column for label rendering and slot
 const refColumn = computed<IRefColumn | undefined>(() => {
   if (!metadata.value) return undefined;
   const keyCol = metadata.value.columns?.find((c) => c.key === 1);
@@ -72,25 +68,22 @@ const refColumn = computed<IRefColumn | undefined>(() => {
     columnType: "REF",
     refTableId: metadata.value.id,
     refSchemaId: metadata.value.schemaId,
-    refLabel: props.refLabel || keyCol?.refLabel || "",
+    refLabel: refLabel.value || keyCol?.refLabel || "",
     refLabelDefault: keyCol?.refLabelDefault || "${name}",
     refLinkId: keyCol?.id || "name",
   };
 });
 
-// check if displayConfig.component is "table" string
-const isTableMode = computed(() => props.displayConfig?.component === "table");
+const isTableMode = computed(() => displayConfig.value?.component === "table");
 
-// check if displayConfig.component is a Vue component (not a string)
 const isCardMode = computed(
   () =>
-    props.displayConfig?.component &&
-    typeof props.displayConfig.component !== "string"
+    displayConfig.value?.component &&
+    typeof displayConfig.value.component !== "string"
 );
 
-// get visible columns for table mode
 const visibleColumns = computed(() => {
-  const cols = props.displayConfig?.visibleColumns || props.viewColumns || [];
+  const cols = displayConfig.value?.visibleColumns || viewColumns.value || [];
   if (!metadata.value?.columns) return cols;
   // filter to only columns that exist in metadata
   return cols.filter((colId) =>
@@ -179,8 +172,8 @@ function getLabel(row: IRow): string {
                 class="px-3 py-2 text-body-base"
               >
                 <NuxtLink
-                  v-if="colIndex === 0 && props.getHref && refColumn"
-                  :to="props.getHref(refColumn, row)"
+                  v-if="colIndex === 0 && getHref && refColumn"
+                  :to="getHref(refColumn, row)"
                   class="text-link hover:underline"
                 >
                   {{ getCellValue(row, col.id) }}
@@ -191,14 +184,9 @@ function getLabel(row: IRow): string {
           </tbody>
         </table>
       </div>
-      <!-- Card layout when displayConfig.component is a Vue component -->
       <CardList v-else-if="rows.length && isCardMode">
         <CardListItem v-for="(row, index) in rows" :key="index">
-          <component
-            :is="displayConfig!.component"
-            :data="row"
-            v-bind="componentProps"
-          />
+          <component :is="displayConfig!.component" :data="row" />
         </CardListItem>
       </CardList>
       <!-- Default list layout -->
@@ -209,16 +197,16 @@ function getLabel(row: IRow): string {
         <li v-for="(row, index) in rows" :key="index">
           <slot :row="row" :column="refColumn" :label="getLabel(row)">
             <NuxtLink
-              v-if="props.getHref && refColumn"
-              :to="props.getHref(refColumn, row)"
+              v-if="getHref && refColumn"
+              :to="getHref(refColumn, row)"
               class="underline text-link"
             >
               {{ getLabel(row) }}
             </NuxtLink>
             <span
-              v-else-if="props.clickAction && refColumn"
+              v-else-if="clickAction && refColumn"
               class="underline hover:cursor-pointer text-link"
-              @click="props.clickAction(refColumn, row)"
+              @click="clickAction(refColumn, row)"
             >
               {{ getLabel(row) }}
             </span>

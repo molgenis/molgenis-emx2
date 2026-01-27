@@ -905,7 +905,17 @@ describe("extractStringKey (via serializeFilterValue)", () => {
   });
 
   it("should handle deeply nested objects with recursion limit", () => {
-    const deepObj = { a: { b: { c: { d: { e: { f: { g: { h: { i: { j: { k: { l: "tooDeep" } } } } } } } } } } } };
+    const deepObj = {
+      a: {
+        b: {
+          c: {
+            d: {
+              e: { f: { g: { h: { i: { j: { k: { l: "tooDeep" } } } } } } },
+            },
+          },
+        },
+      },
+    };
     const result = serializeFilterValue({
       operator: "in",
       value: deepObj,

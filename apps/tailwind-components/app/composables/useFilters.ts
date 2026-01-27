@@ -53,7 +53,6 @@ export interface UseFiltersOptions {
 
 const REF_TYPES = ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"];
 
-
 function extractStringKey(v: unknown, depth = 0): string {
   if (depth > 10) return String(v);
   if (typeof v === "string") return v;
@@ -292,11 +291,16 @@ export function useFilters(
     : searchValueRef;
 
   const actualFilterStates = computed({
-    get: () => urlSyncEnabled ? filterStatesFromUrl.value : filterStatesRef.value,
+    get: () =>
+      urlSyncEnabled ? filterStatesFromUrl.value : filterStatesRef.value,
     set: (newFilters: Map<string, IFilterValue>) => {
       if (urlSyncEnabled) {
         if (!router || !route) return;
-        const params = serializeFiltersToUrl(newFilters, actualSearchValue.value, columns.value);
+        const params = serializeFiltersToUrl(
+          newFilters,
+          actualSearchValue.value,
+          columns.value
+        );
         const preservedParams: Record<string, unknown> = {};
         for (const [key, value] of Object.entries(route.query)) {
           if (key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM) {
