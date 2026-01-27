@@ -144,7 +144,7 @@ public class TestCommand implements Callable<Integer> {
 
             for (TestCase testCase : rdfStep.tests()) {
               String testName =
-                  "output-rdf(" + rdfStep.defaultFormat() + ") ← " + shortenPath(testCase.input());
+                  "rdf(" + rdfStep.defaultFormat() + ") ← " + shortenPath(testCase.input());
               try {
                 Path inputPath = bundlePath.resolve(testCase.input());
                 Path expectedPath = bundlePath.resolve(testCase.output());

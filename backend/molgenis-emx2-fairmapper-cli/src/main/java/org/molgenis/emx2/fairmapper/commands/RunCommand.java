@@ -172,11 +172,7 @@ public class RunCommand implements Callable<Integer> {
         } else if (step instanceof OutputRdfStep rdfStep) {
           if (verbose) {
             System.out.println(
-                color(
-                    "@|bold Step "
-                        + stepIndex
-                        + ":|@ @|blue output-rdf|@ "
-                        + rdfStep.defaultFormat()));
+                color("@|bold Step " + stepIndex + ":|@ @|blue rdf|@ " + rdfStep.defaultFormat()));
           }
           JsonLdToRdf converter = new JsonLdToRdf();
           String rdfOutput = converter.convert(current.toString(), rdfStep.defaultFormat());

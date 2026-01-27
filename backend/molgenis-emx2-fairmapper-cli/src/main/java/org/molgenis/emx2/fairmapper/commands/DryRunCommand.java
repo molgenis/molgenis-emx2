@@ -115,11 +115,7 @@ public class DryRunCommand implements Callable<Integer> {
           JsonLdToRdf converter = new JsonLdToRdf();
           String rdfOutput = converter.convert(current.toString(), rdfStep.defaultFormat());
           System.out.println(
-              color(
-                  "@|bold Step "
-                      + stepIndex
-                      + "|@ @|blue (output-rdf)|@ "
-                      + rdfStep.defaultFormat()));
+              color("@|bold Step " + stepIndex + "|@ @|blue (rdf)|@ " + rdfStep.defaultFormat()));
           System.out.println(rdfOutput);
         }
 

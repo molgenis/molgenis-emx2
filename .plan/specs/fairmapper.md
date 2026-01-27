@@ -59,6 +59,7 @@ Backwards compatibility: `endpoints` and `path` still work but are deprecated.
 | `transform` | `.jslt` | JSON | JSON | JSLT (schibsted) |
 | `query`     | `.gql` | Variables JSON | Query result JSON | molgenis-emx2-graphql |
 | `mutate`    | `.gql` | Variables JSON | Mutation result | molgenis-emx2-graphql |
+| `rdf`       | format | JSON-LD | RDF (Turtle/N-Triples/JSON-LD) | RDF4J |
 | `query`     | `.sql` | Variables JSON | Query result JSON | PostgreSQL (planned) |
 
 ### Fetch Step Options
