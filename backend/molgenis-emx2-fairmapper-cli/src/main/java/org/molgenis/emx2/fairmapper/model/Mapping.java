@@ -9,8 +9,19 @@ public record Mapping(
     String name,
     String endpoint,
     List<String> methods,
+    String input,
+    String output,
+    String frame,
     @JsonDeserialize(using = StepConfigDeserializer.class) List<StepConfig> steps,
     E2e e2e) {
+
+  public String input() {
+    return input != null ? input : "json";
+  }
+
+  public String output() {
+    return output != null ? output : "json";
+  }
 
   public String getEffectiveName() {
     if (name != null && !name.isBlank()) return name;

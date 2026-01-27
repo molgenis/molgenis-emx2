@@ -62,6 +62,9 @@ public class BundleLoader {
 
     if (bundle.mappings() != null && !bundle.mappings().isEmpty()) {
       for (Mapping mapping : bundle.mappings()) {
+        validateMappingFormat(mapping);
+        validateMappingFrame(bundleDir, mapping);
+
         if (mapping.steps() != null && !mapping.steps().isEmpty()) {
           for (StepConfig step : mapping.steps()) {
             validateStepConfig(bundleDir, step);
@@ -183,5 +186,39 @@ public class BundleLoader {
 
   public Path resolvePath(Path bundleBasePath, String relativePath) {
     return PathValidator.validateWithinBase(bundleBasePath.getParent(), relativePath);
+  }
+
+  private void validateMappingFormat(Mapping mapping) {
+    if (mapping.input() != null && !isValidFormat(mapping.input())) {
+      throw new FairMapperException("Invalid input format: " + mapping.input());
+    }
+    if (mapping.output() != null && !isValidFormat(mapping.output())) {
+      throw new FairMapperException("Invalid output format: " + mapping.output());
+    }
+  }
+
+  private void validateMappingFrame(Path bundleDir, Mapping mapping) {
+    boolean isRdfInput = isRdfFormat(mapping.input());
+    if (isRdfInput && (mapping.frame() == null || mapping.frame().isBlank())) {
+      throw new FairMapperException(
+          "RDF input format '" + mapping.input() + "' requires a frame file");
+    }
+    if (mapping.frame() != null && !mapping.frame().isBlank()) {
+      validateFrameFile(bundleDir, mapping.frame());
+    }
+  }
+
+  private boolean isValidFormat(String format) {
+    return format != null
+        && (format.equals("json")
+            || format.equals("turtle")
+            || format.equals("jsonld")
+            || format.equals("ntriples")
+            || format.equals("csv"));
+  }
+
+  private boolean isRdfFormat(String format) {
+    return format != null
+        && (format.equals("turtle") || format.equals("jsonld") || format.equals("ntriples"));
   }
 }

@@ -13,7 +13,17 @@ public record MappingBundle(
     if (mappings != null && !mappings.isEmpty()) return mappings;
     if (endpoints != null) {
       return endpoints.stream()
-          .map(e -> new Mapping(null, e.path(), e.methods(), convertSteps(e.steps()), e.e2e()))
+          .map(
+              e ->
+                  new Mapping(
+                      null,
+                      e.path(),
+                      e.methods(),
+                      null,
+                      null,
+                      null,
+                      convertSteps(e.steps()),
+                      e.e2e()))
           .toList();
     }
     return List.of();
