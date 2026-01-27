@@ -579,10 +579,11 @@ steps:
 |------|----------|--------|
 | Add `input`/`output`/`frame` fields to Mapping | HIGH | ✅ Done (7.6.1) |
 | Content negotiation in API (output) | HIGH | ✅ Done (7.6.2) |
-| Input format handling + frame validation | HIGH | Pending (7.6.3) |
-| Migrate bundles (remove `rdf` steps) | MEDIUM | Pending (7.6.4) |
+| Input format handling + frame validation | MEDIUM | ⏭ Deferred (7.6.3) |
+| Migrate bundles (remove `rdf` steps) | MEDIUM | ✅ Done (7.6.4) |
 | Remove `OutputRdfStep` | MEDIUM | Pending (7.6.5) |
 | Update documentation | MEDIUM | Pending (7.6.6) |
+| Make `name` optional (derive from endpoint) | LOW | Pending (7.6.7) |
 
 ---
 
@@ -697,7 +698,9 @@ public class ContentNegotiator {
 
 ---
 
-### 7.6.3: Input Format Handling + Frame Validation
+### 7.6.3: Input Format Handling + Frame Validation ⏭ DEFERRED
+
+**Status:** No current use case for RDF/CSV input via POST. Fetch step handles RDF from URLs. Revisit when needed.
 
 **Existing classes:**
 - `RdfToJsonLd.java` - converts Model → JSON-LD (expand mode)
@@ -820,6 +823,30 @@ Note: `input`/`output` default to `json` so can be omitted for beacon-v2.
 
 ---
 
+### 7.6.7: Make `name` Optional
+
+**Goal:** Derive `name` from `endpoint` when not specified, reducing boilerplate.
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `Mapping.java` | Add `derivedName()` method that extracts name from endpoint |
+| `BundleLoader.java` | Use `derivedName()` when `name` is null |
+
+**Logic:**
+- Extract last path segment from endpoint: `/{schema}/api/beacon/individuals` → `individuals`
+- Strip `{id}` params: `/{schema}/api/fdp/catalog/{id}` → `catalog`
+
+**Example:**
+```yaml
+mappings:
+  - endpoint: /{schema}/api/beacon/individuals  # name derived as "individuals"
+    steps: [...]
+```
+
+---
+
 ### 7.6.6: Update Documentation
 
 **Files to modify:**
@@ -869,6 +896,9 @@ Note: `input`/`output` default to `json` so can be omitted for beacon-v2.
 - CSV format configuration (delimiter, headers)
 - Accept header q-weight parsing
 - Frame syntax validation at bundle load
+- GET request variables: path params (`{id}`) and query params need to be extracted and passed to pipeline as input JSON
+- RDF input via POST (7.6.3) - no current use case, fetch step handles RDF from URLs
+- CSV input via POST (7.6.3) - deferred
 
 ---
 
