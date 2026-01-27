@@ -247,7 +247,27 @@ void testMultiStepPipeline() throws IOException {
 
 ---
 
-## Phase 9: DCAT Completeness
+## Phase 9: SQL Query Step (Proof of Concept)
+
+Exploring SQL as alternative to GraphQL + JSLT (per SQL expert review feedback).
+
+| Task | Priority | Status |
+|------|----------|--------|
+| 9.1 Create dcat-fdp-sql mock bundle | HIGH | Done |
+| 9.2 Test SQL against real catalogue DB | HIGH | Done |
+| 9.3 Implement SqlQueryStep if promising | MEDIUM | Pending |
+
+**Bundle:** `fair-mappings/dcat-fdp-sql/`
+
+**Benefits:**
+- Single step instead of GraphQL + JSLT (2 steps)
+- SQL more widely known than JSLT
+- Direct JSON-LD construction
+- Can use database timestamps (mg_insertedOn, mg_updatedOn)
+
+---
+
+## Phase 10: DCAT Completeness (Deferred)
 
 | Task | Priority | Status |
 |------|----------|--------|
@@ -259,7 +279,7 @@ void testMultiStepPipeline() throws IOException {
 
 ---
 
-## Phase 10: Transform Simplification
+## Phase 11: Transform Simplification
 
 | Task | Priority | Status |
 |------|----------|--------|
