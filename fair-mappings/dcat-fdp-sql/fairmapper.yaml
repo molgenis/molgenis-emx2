@@ -1,0 +1,10 @@
+name: dcat-fdp-sql
+version: 1.0.0
+
+mappings:
+  - name: fdp-catalog-sql
+    endpoint: /{schema}/api/fdp-sql/catalog/{id}
+    methods: [GET]
+    output: turtle
+    steps:
+      - query: src/queries/get-catalog.sql
