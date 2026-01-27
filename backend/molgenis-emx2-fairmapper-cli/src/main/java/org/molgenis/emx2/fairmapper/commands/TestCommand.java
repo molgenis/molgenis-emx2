@@ -4,22 +4,17 @@ import static org.molgenis.emx2.fairmapper.RunFairMapper.color;
 import static org.molgenis.emx2.fairmapper.RunFairMapper.resolveConfigPath;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.molgenis.emx2.fairmapper.BundleLoader;
 import org.molgenis.emx2.fairmapper.JsltTransformEngine;
-import org.molgenis.emx2.fairmapper.executor.FetchExecutor;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.TestCase;
-import org.molgenis.emx2.fairmapper.model.step.FetchStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
-import org.molgenis.emx2.fairmapper.rdf.LocalRdfSource;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import picocli.CommandLine.*;
@@ -51,10 +46,6 @@ public class TestCommand implements Callable<Integer> {
       BundleLoader loader = new BundleLoader();
       JsltTransformEngine engine = new JsltTransformEngine();
       MappingBundle bundle = loader.load(configPath);
-
-      LocalRdfSource rdfSource = new LocalRdfSource(bundlePath);
-      FetchExecutor fetchExecutor = new FetchExecutor(rdfSource, bundlePath);
-      ObjectMapper objectMapper = new ObjectMapper();
 
       int passed = 0;
       int failed = 0;
@@ -92,41 +83,6 @@ public class TestCommand implements Callable<Integer> {
                             + actual
                                 .toString()
                                 .substring(0, Math.min(100, actual.toString().length()));
-                  }
-                  failures.add(detail);
-                  failed++;
-                }
-              } catch (Exception e) {
-                System.out.println(color("  @|red ✗|@ " + testName + " - " + e.getMessage()));
-                failures.add(testName + "\n    Error: " + e.getMessage());
-                failed++;
-              }
-            }
-          } else if (step instanceof FetchStep fetchStep && fetchStep.tests() != null) {
-            for (TestCase testCase : fetchStep.tests()) {
-              String testName =
-                  "fetch(" + shortenPath(fetchStep.url()) + ") ← " + shortenPath(testCase.input());
-              try {
-                Path expectedPath = bundlePath.resolve(testCase.output());
-                JsonNode expected = objectMapper.readTree(Files.readString(expectedPath));
-                JsonNode actual = fetchExecutor.execute(fetchStep, testCase.input());
-
-                if (jsonEquals(expected, actual)) {
-                  System.out.println(color("  @|green ✓|@ " + testName));
-                  passed++;
-                } else {
-                  System.out.println(color("  @|red ✗|@ " + testName));
-                  String detail = testName;
-                  if (verbose) {
-                    detail +=
-                        "\n    Expected: "
-                            + expected
-                                .toString()
-                                .substring(0, Math.min(200, expected.toString().length()))
-                            + "\n    Actual:   "
-                            + actual
-                                .toString()
-                                .substring(0, Math.min(200, actual.toString().length()));
                   }
                   failures.add(detail);
                   failed++;

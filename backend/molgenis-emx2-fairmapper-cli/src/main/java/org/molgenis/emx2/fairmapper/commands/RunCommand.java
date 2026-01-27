@@ -8,15 +8,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
+import org.eclipse.rdf4j.model.Model;
 import org.molgenis.emx2.fairmapper.BundleLoader;
 import org.molgenis.emx2.fairmapper.GraphqlClient;
 import org.molgenis.emx2.fairmapper.JsltTransformEngine;
-import org.molgenis.emx2.fairmapper.executor.FetchExecutor;
+import org.molgenis.emx2.fairmapper.PathValidator;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
-import org.molgenis.emx2.fairmapper.model.step.FetchStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
+import org.molgenis.emx2.fairmapper.rdf.FrameAnalyzer;
+import org.molgenis.emx2.fairmapper.rdf.FrameDrivenFetcher;
+import org.molgenis.emx2.fairmapper.rdf.JsonLdFramer;
+import org.molgenis.emx2.fairmapper.rdf.RdfFetcher;
+import org.molgenis.emx2.fairmapper.rdf.RdfSource;
 import picocli.CommandLine.*;
 
 @Command(
@@ -104,24 +109,33 @@ public class RunCommand implements Callable<Integer> {
       JsonNode current = null;
       int stepIndex = 0;
 
+      if (mapping.fetch() != null) {
+        if (verbose) {
+          System.out.println(color("@|bold Step " + stepIndex + ":|@ @|cyan fetch|@ " + sourceUrl));
+        }
+        RdfSource source = new RdfFetcher(sourceUrl);
+        Path framePath = PathValidator.validateWithinBase(bundlePath, mapping.frame());
+        JsonNode frame = objectMapper.readTree(Files.readString(framePath));
+
+        FrameAnalyzer analyzer = new FrameAnalyzer();
+        FrameDrivenFetcher fetcher = new FrameDrivenFetcher(source, analyzer);
+        Model model = fetcher.fetch(sourceUrl, frame, 5, 50);
+
+        JsonLdFramer framer = new JsonLdFramer();
+        current = framer.frame(model, frame);
+
+        if (verbose) {
+          System.out.println(color("@|green ✓|@ Fetched data"));
+        }
+        if (showData) {
+          System.out.println(current.toPrettyString());
+          System.out.println();
+        }
+        stepIndex++;
+      }
+
       for (StepConfig step : mapping.steps()) {
-        if (step instanceof FetchStep fetchStep) {
-          if (verbose) {
-            System.out.println(
-                color("@|bold Step " + stepIndex + ":|@ @|cyan fetch|@ " + sourceUrl));
-          }
-          org.molgenis.emx2.fairmapper.rdf.RdfFetcher rdfFetcher =
-              new org.molgenis.emx2.fairmapper.rdf.RdfFetcher(sourceUrl);
-          FetchExecutor fetchExecutor = new FetchExecutor(rdfFetcher, bundlePath);
-          current = fetchExecutor.execute(fetchStep, sourceUrl);
-          if (verbose) {
-            System.out.println(color("@|green ✓|@ Fetched data"));
-          }
-          if (showData) {
-            System.out.println(current.toPrettyString());
-            System.out.println();
-          }
-        } else if (step instanceof TransformStep transformStep) {
+        if (step instanceof TransformStep transformStep) {
           if (verbose) {
             System.out.println(
                 color(

@@ -10,12 +10,18 @@ import graphql.GraphQL;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.eclipse.rdf4j.model.Model;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
+import org.molgenis.emx2.fairmapper.rdf.FrameAnalyzer;
+import org.molgenis.emx2.fairmapper.rdf.FrameDrivenFetcher;
+import org.molgenis.emx2.fairmapper.rdf.JsonLdFramer;
+import org.molgenis.emx2.fairmapper.rdf.RdfFetcher;
+import org.molgenis.emx2.fairmapper.rdf.RdfSource;
 
 public class PipelineExecutor {
   private final GraphQL graphql;
@@ -46,6 +52,11 @@ public class PipelineExecutor {
   public JsonNode execute(JsonNode request, Mapping mapping) throws IOException {
     JsonNode current = request;
 
+    if (mapping.fetch() != null) {
+      String fetchUrl = resolvePlaceholders(mapping.fetch(), request);
+      current = executeFetch(fetchUrl, mapping.frame());
+    }
+
     if (mapping.steps() != null) {
       for (StepConfig step : mapping.steps()) {
         if (step instanceof TransformStep transformStep) {
@@ -57,6 +68,26 @@ public class PipelineExecutor {
     }
 
     return current;
+  }
+
+  private JsonNode executeFetch(String url, String framePath) throws IOException {
+    RdfSource source = new RdfFetcher(url);
+    Path resolvedFramePath = PathValidator.validateWithinBase(bundlePath, framePath);
+    JsonNode frame = objectMapper.readTree(Files.readString(resolvedFramePath));
+
+    FrameAnalyzer analyzer = new FrameAnalyzer();
+    FrameDrivenFetcher fetcher = new FrameDrivenFetcher(source, analyzer);
+    Model model = fetcher.fetch(url, frame, 5, 50);
+
+    JsonLdFramer framer = new JsonLdFramer();
+    return framer.frame(model, frame);
+  }
+
+  private String resolvePlaceholders(String template, JsonNode request) {
+    if (template.contains("${SOURCE_URL}") && request.has("SOURCE_URL")) {
+      return template.replace("${SOURCE_URL}", request.get("SOURCE_URL").asText());
+    }
+    return template;
   }
 
   private JsonNode executeTransform(String transformPath, JsonNode input) throws IOException {

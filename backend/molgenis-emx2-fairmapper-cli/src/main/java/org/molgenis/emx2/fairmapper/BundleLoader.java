@@ -10,7 +10,6 @@ import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.Step;
-import org.molgenis.emx2.fairmapper.model.step.FetchStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
@@ -64,6 +63,11 @@ public class BundleLoader {
       for (Mapping mapping : bundle.mappings()) {
         validateMappingFormat(mapping);
         validateMappingFrame(bundleDir, mapping);
+        try {
+          mapping.validate();
+        } catch (IllegalArgumentException e) {
+          throw new FairMapperException(e.getMessage());
+        }
 
         if (mapping.steps() != null && !mapping.steps().isEmpty()) {
           for (StepConfig step : mapping.steps()) {
@@ -107,10 +111,6 @@ public class BundleLoader {
       validateQueryFile(bundleDir, queryStep.path());
     } else if (step instanceof MutateStep mutateStep) {
       validateQueryFile(bundleDir, mutateStep.path());
-    } else if (step instanceof FetchStep fetchStep) {
-      if (fetchStep.frame() != null) {
-        validateFrameFile(bundleDir, fetchStep.frame());
-      }
     }
   }
 

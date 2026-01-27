@@ -11,7 +11,6 @@ import org.molgenis.emx2.fairmapper.BundleLoader;
 import org.molgenis.emx2.fairmapper.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
-import org.molgenis.emx2.fairmapper.model.step.FetchStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 import picocli.CommandLine.*;
@@ -82,6 +81,19 @@ public class DryRunCommand implements Callable<Integer> {
       System.out.println(current.toPrettyString());
 
       int stepIndex = 0;
+
+      if (mapping.fetch() != null) {
+        System.out.println();
+        System.out.println(
+            color(
+                "@|bold Step "
+                    + stepIndex
+                    + "|@ @|cyan (fetch)|@ "
+                    + mapping.fetch()
+                    + " @|faint [skipped - requires RDF source]|@"));
+        stepIndex++;
+      }
+
       for (StepConfig step : mapping.steps()) {
         if (stepIndex >= maxSteps) break;
 
@@ -101,14 +113,6 @@ public class DryRunCommand implements Callable<Integer> {
                       + "|@ @|yellow (query)|@ "
                       + queryStep.path()
                       + " @|faint [skipped]|@"));
-        } else if (step instanceof FetchStep fetchStep) {
-          System.out.println(
-              color(
-                  "@|bold Step "
-                      + stepIndex
-                      + "|@ @|cyan (fetch)|@ "
-                      + fetchStep.url()
-                      + " @|faint [skipped - use test command]|@"));
         }
 
         stepIndex++;

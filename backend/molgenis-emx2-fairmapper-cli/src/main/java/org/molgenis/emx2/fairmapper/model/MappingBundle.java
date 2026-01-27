@@ -18,6 +18,7 @@ public record MappingBundle(
                   new Mapping(
                       null,
                       e.path(),
+                      null,
                       e.methods(),
                       null,
                       null,

@@ -374,6 +374,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
+            endpoint: /test
             input: json
             output: json
             steps: []
@@ -401,6 +402,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
+            endpoint: /test
             input: turtle
             output: json
             frame: src/frame.jsonld
@@ -424,6 +426,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
+            endpoint: /test
             input: turtle
             output: json
             steps: []
@@ -446,6 +449,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
+            endpoint: /test
             input: invalidformat
             output: json
             steps: []
@@ -468,6 +472,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
+            endpoint: /test
             input: json
             output: badformat
             steps: []
@@ -490,6 +495,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
+            endpoint: /test
             steps: []
         """);
 
