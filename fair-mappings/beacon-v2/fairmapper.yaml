@@ -1,8 +1,9 @@
 name: beacon-v2
 version: 2.0.0
 
-endpoints:
-  - path: /{schema}/api/beacon/individuals
+mappings:
+  - name: beacon-individuals
+    endpoint: /{schema}/api/beacon/individuals
     methods: [GET, POST]
     steps:
       - transform: src/transforms/request-to-variables.jslt
@@ -26,7 +27,8 @@ endpoints:
           - input: test/individuals-response/empty.input.json
             output: test/individuals-response/empty.output.json
 
-  - path: /{schema}/api/beacon/individuals-full
+  - name: beacon-individuals-full
+    endpoint: /{schema}/api/beacon/individuals-full
     methods: [GET, POST]
     steps:
       - transform: src/transforms/request-to-variables.jslt
@@ -39,7 +41,8 @@ endpoints:
           input: test/e2e/individuals-full.input.json
           output: test/e2e/individuals-full.output.json
 
-  - path: /{schema}/api/beacon/individuals-minimal
+  - name: beacon-individuals-minimal
+    endpoint: /{schema}/api/beacon/individuals-minimal
     methods: [GET, POST]
     steps:
       - transform: src/transforms/request-to-variables.jslt
