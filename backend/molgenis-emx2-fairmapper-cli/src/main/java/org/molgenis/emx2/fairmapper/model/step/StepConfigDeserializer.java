@@ -34,12 +34,6 @@ public class StepConfigDeserializer extends JsonDeserializer<List<StepConfig>> {
         steps.add(new QueryStep(stepNode.get("query").asText(), tests));
       } else if (stepNode.has("mutate")) {
         steps.add(new MutateStep(stepNode.get("mutate").asText()));
-      } else if (stepNode.has("rdf")) {
-        String format =
-            stepNode.get("rdf").isTextual()
-                ? stepNode.get("rdf").asText()
-                : stepNode.get("rdf").get("format").asText();
-        steps.add(new OutputRdfStep(format, tests));
       }
     }
     return steps;
