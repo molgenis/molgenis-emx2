@@ -5,6 +5,7 @@ import Paragraph from "../../../../app/components/text/Paragraph.vue";
 
 const wrapper = mount(Paragraph, {
   props: {
+    id: "test-paragraph",
     isCentered: true,
   },
   slots: {
@@ -16,6 +17,6 @@ const wrapper = mount(Paragraph, {
 describe("Custom pages: paragraphs", () => {
   test("Paragraph is rendered and text is centered", async () => {
     expect(wrapper.vm.$el.tagName).toBe("P");
-    expect(wrapper.attributes("class")).toBe("text-center");
+    expect(wrapper.attributes("class")).toBe("text-title-contrast text-center");
   });
 });
