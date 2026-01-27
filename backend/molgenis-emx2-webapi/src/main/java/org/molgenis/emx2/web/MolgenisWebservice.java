@@ -197,7 +197,12 @@ public class MolgenisWebservice {
 
       if (menuForRole.isEmpty()) {
         logger.warn("No menu available for current user");
-        ctx.redirect("/");
+        if (schema.getRoleForUser(ANONYMOUS).isEmpty()) {
+          ctx.redirect("/");
+        } else {
+          ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        }
+
         return;
       }
 
