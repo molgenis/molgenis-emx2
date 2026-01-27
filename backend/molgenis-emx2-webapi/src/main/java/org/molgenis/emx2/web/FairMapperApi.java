@@ -16,10 +16,12 @@ import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.BundleLoader;
+import org.molgenis.emx2.fairmapper.ContentNegotiator;
 import org.molgenis.emx2.fairmapper.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.PipelineExecutor;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
+import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
+import org.molgenis.emx2.fairmapper.rdf.JsonLdToRdf;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +75,11 @@ public class FairMapperApi {
 
   private static void registerRoutes(Javalin app, List<BundleRegistration> bundles) {
     for (BundleRegistration reg : bundles) {
-      if (reg.bundle.endpoints() != null) {
-        for (Endpoint endpoint : reg.bundle.endpoints()) {
-          for (String method : endpoint.methods()) {
-            registerEndpoint(app, method, endpoint, reg.bundlePath);
+      List<Mapping> mappings = reg.bundle.getMappings();
+      if (mappings != null) {
+        for (Mapping mapping : mappings) {
+          for (String method : mapping.methods()) {
+            registerEndpoint(app, method, mapping, reg.bundlePath);
           }
         }
       }
@@ -84,16 +87,16 @@ public class FairMapperApi {
   }
 
   private static void registerEndpoint(
-      Javalin app, String method, Endpoint endpoint, Path bundlePath) {
-    String path = endpoint.path();
+      Javalin app, String method, Mapping mapping, Path bundlePath) {
+    String path = mapping.endpoint();
 
     switch (method.toUpperCase()) {
       case "GET":
-        app.get(path, ctx -> handleRequest(ctx, endpoint, bundlePath));
+        app.get(path, ctx -> handleRequest(ctx, mapping, bundlePath));
         logger.info("Registered GET {}", path);
         break;
       case "POST":
-        app.post(path, ctx -> handleRequest(ctx, endpoint, bundlePath));
+        app.post(path, ctx -> handleRequest(ctx, mapping, bundlePath));
         logger.info("Registered POST {}", path);
         break;
       default:
@@ -101,7 +104,7 @@ public class FairMapperApi {
     }
   }
 
-  static void handleRequest(Context ctx, Endpoint endpoint, Path bundlePath) {
+  static void handleRequest(Context ctx, Mapping mapping, Path bundlePath) {
     try {
       Schema schema = getSchema(ctx);
       if (schema == null) {
@@ -115,10 +118,20 @@ public class FairMapperApi {
       PipelineExecutor executor = new PipelineExecutor(graphQL, transformEngine, bundlePath);
 
       JsonNode requestBody = parseRequestBody(ctx);
-      JsonNode result = executor.execute(requestBody, endpoint);
+      JsonNode result = executor.execute(requestBody, mapping);
 
-      ctx.contentType("application/json");
-      ctx.result(objectMapper.writeValueAsString(result));
+      String acceptHeader = ctx.header("Accept");
+      String outputFormat = ContentNegotiator.resolveOutputFormat(acceptHeader, mapping.output());
+
+      ctx.contentType(ContentNegotiator.getMimeType(outputFormat));
+
+      if (ContentNegotiator.isRdfFormat(outputFormat)) {
+        JsonLdToRdf converter = new JsonLdToRdf();
+        String rdfOutput = converter.convert(objectMapper.writeValueAsString(result), outputFormat);
+        ctx.result(rdfOutput);
+      } else {
+        ctx.result(objectMapper.writeValueAsString(result));
+      }
 
     } catch (Exception e) {
       logger.error("FAIRmapper request failed", e);
