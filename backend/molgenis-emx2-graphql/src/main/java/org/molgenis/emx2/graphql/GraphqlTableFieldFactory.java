@@ -5,7 +5,7 @@ import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableType.ONTOLOGIES;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
+import static org.molgenis.emx2.graphql.GraphqlApi.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -14,6 +14,7 @@ import static org.molgenis.emx2.sql.SqlQuery.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 
 import graphql.Scalars;
+import graphql.language.*;
 import graphql.schema.*;
 import java.util.*;
 import java.util.function.Function;
@@ -55,7 +56,7 @@ public class GraphqlTableFieldFactory {
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableAggTypes = new LinkedHashMap<>();
-  private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap();
+  private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableOrderByInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> rowInputTypes = new LinkedHashMap<>();
@@ -82,6 +83,10 @@ public class GraphqlTableFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getIdentifier())
         .type(GraphQLList.list(tableType))
+        .description(
+            String.format(
+                "Retrieve from table '%s'. Use {%s{...All%sFields}} to select all fields including foreign key nested queries",
+                table.getTableName(), table.getIdentifier(), table.getIdentifier()))
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
@@ -108,6 +113,61 @@ public class GraphqlTableFieldFactory {
                 .name(GraphqlConstants.ORDERBY)
                 .type(createTableOrderByInputType(table))
                 .build())
+        .build();
+  }
+
+  public String getGraphqlFragments(TableMetadata table, int depth) {
+    String fragmentName = table.getIdentifier() + "AllFields" + depth;
+    return AstPrinter.printAst(getGraphqlFragmentsInternal(table, depth, depth, fragmentName))
+        + "\n";
+  }
+
+  public String getGraphqlFragments(TableMetadata table, int depth, String fragmentName) {
+    return AstPrinter.printAst(getGraphqlFragmentsInternal(table, depth, depth, fragmentName))
+        + "\n";
+  }
+
+  private FragmentDefinition getGraphqlFragmentsInternal(
+      TableMetadata table, int depth, int maxDepth, String fragmentName) {
+    String nestedFragmentName = depth == 0 ? table.getIdentifier() + "KeyFields" : fragmentName;
+    List<Column> columns = depth == 0 ? table.getPrimaryKeyColumns() : table.getStoredColumns();
+
+    GraphQLNamedOutputType tableType = createTableObjectType(table);
+    List<Selection<?>> selections = new ArrayList<>();
+
+    columns.forEach(
+        column -> {
+          if (column.isFile()) {
+            List<Selection<?>> file = new ArrayList<>();
+            file.add(Field.newField("size").build());
+            file.add(Field.newField("id").build());
+            file.add(Field.newField("filename").build());
+            file.add(Field.newField("extension").build());
+            selections.add(
+                Field.newField(column.getIdentifier())
+                    .selectionSet(SelectionSet.newSelectionSet(file).build())
+                    .build());
+          } else if (column.isReference()) {
+            int nextDepth = depth > 0 ? depth - 1 : 0;
+            String nestedName = column.getRefTable().getIdentifier() + "Nested";
+            selections.add(
+                Field.newField(column.getIdentifier())
+                    .selectionSet(
+                        getGraphqlFragmentsInternal(
+                                column.getRefTable(), nextDepth, maxDepth, nestedName)
+                            .getSelectionSet())
+                    .build());
+          } else {
+            selections.add(Field.newField(column.getIdentifier()).build());
+          }
+        });
+
+    SelectionSet selectionSet = SelectionSet.newSelectionSet().selections(selections).build();
+
+    return FragmentDefinition.newFragmentDefinition()
+        .name(nestedFragmentName)
+        .typeCondition(TypeName.newTypeName(tableType.getName()).build())
+        .selectionSet(selectionSet)
         .build();
   }
 
@@ -303,7 +363,7 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
-    String tableGroupByType = table.getIdentifier() + "GroupBy";
+    String tableGroupByType = getTableTypeIdentifier(table) + "GroupBy";
     if (!tableGroupByTypes.containsKey(tableGroupByType)) {
       // add reference in case of self reference
       tableGroupByTypes.put(tableGroupByType, GraphQLTypeReference.typeRef(tableGroupByType));
