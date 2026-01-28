@@ -265,7 +265,7 @@ public class TestGraphqlDatabaseFields {
     String result =
         execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();
     // should be a number
-    assertTrue(Integer.valueOf(result) > 0);
+    assertTrue(Integer.parseInt(result) > 0);
   }
 
   private JsonNode execute(String query) throws IOException {

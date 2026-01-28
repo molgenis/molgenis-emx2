@@ -24,6 +24,16 @@ public class GraphqlConstants {
   public static final String LABELS = "labels";
   public static final String DESCRIPTIONS = "descriptions";
   public static final String OLD_NAME = "oldName";
+  public static final String ROW_LEVEL_SECURITY = "rowLevelSecurity";
+  public static final String IS_ROW_LEVEL = "isRowLevel";
+  public static final String HAS_INSERT = "hasInsert";
+  public static final String GROUP_NAME = "groupName";
+  public static final String TABLE_NAME = "tableName";
+  public static final String TABLE_SCHEMA = "tableSchema";
+  public static final String HAS_UPDATE = "hasUpdate";
+  public static final String HAS_SELECT = "hasSelect";
+  public static final String HAS_ADMIN = "hasAdmin";
+  public static final String HAS_DELETE = "hasDelete";
   public static final String DROP = "drop";
   public static final String SCHEMA_NAME = "schemaName";
   public static final String SCHEMA_ID = "schemaId";
@@ -88,6 +98,7 @@ public class GraphqlConstants {
   public static final String ASYNC = "async";
   public static final String SECTION = "section";
   public static final String HEADING = "heading";
+  public static final String GROUPS = "groups";
 
   private GraphqlConstants() {
     // hide constructor
