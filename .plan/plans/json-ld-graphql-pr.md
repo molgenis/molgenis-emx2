@@ -35,9 +35,9 @@ Enable RDF subsetting through GraphQL by:
 ### Code Quality (jhhaanstra)
 - [ ] Factory methods should return schema to make `g` field final
 - [ ] schema/database on GraphqlApi seems misplaced - only used in one method
-- [ ] Don't expose testing-only methods in public interfaces
-- [ ] Unused `inheritedPrefixes` parameter in recursive scanning
-- [ ] Throw exceptions instead of logging validation errors to stderr
+- [x] Don't expose testing-only methods - FIXED: execute(query) now package-private
+- [x] Unused parameter in recursive scanning - FIXED: removed inheritedContextPath from scanNode()
+- [x] Throw exceptions instead of stderr logging - FIXED: MolgenisException in JsonLdValidator
 - [ ] Leverage Jackson more for JSON node manipulation
 
 ### Semantic Issues (svandenhoek) - Critical

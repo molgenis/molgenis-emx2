@@ -213,8 +213,8 @@ public class GraphqlApi {
     }
   }
 
-  // for testing only
-  public @NotNull ExecutionResult execute(String query) {
+  @NotNull
+  ExecutionResult execute(String query) {
     return execute(query, Map.of(), new DummySessionHandler());
   }
 

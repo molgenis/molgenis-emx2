@@ -21,19 +21,14 @@ public class JsonLdValidator {
       checkContextTypes(topContext, "@context.");
     }
 
-    // Recursively validate graph with merged prefixes
-    Object graph = jsonLd.get("data"); // adjust if your graph is at root
+    Object graph = jsonLd.get("data");
     if (graph != null) {
-      scanNode(graph, centralPrefixes, "@context.", "data.");
+      scanNode(graph, centralPrefixes, "data.");
     }
   }
 
-  /** Recursively scans a node, merges inherited prefixes, and validates terms */
   private static void scanNode(
-      Object node,
-      Map<String, String> inheritedPrefixes,
-      String inheritedContextPath,
-      String nodePath) {
+      Object node, Map<String, String> inheritedPrefixes, String nodePath) {
     Map<String, String> localPrefixes = new LinkedHashMap<>(inheritedPrefixes);
     Object localContext = null;
 
@@ -45,34 +40,30 @@ public class JsonLdValidator {
       }
       ;
 
-      // Merge local context prefixes
       if (localContext != null) {
         extractPrefixes(localContext, localPrefixes, nodePath + "@context.");
         checkContextTypes(localContext, nodePath + "@context.");
       }
 
-      // Validate @type
       if (map.containsKey("@type")) {
         Object typeVal = map.get("@type");
         checkTypeOrId(typeVal, localPrefixes, nodePath + "@type");
       }
 
-      // Validate @id
       if (map.containsKey("@id")) {
         Object idVal = map.get("@id");
         checkTypeOrId(idVal, localPrefixes, nodePath + "@id");
       }
 
-      // Recurse into children
       for (Map.Entry<?, ?> e : map.entrySet()) {
         if (!"@context".equals(e.getKey().toString())) {
-          scanNode(e.getValue(), localPrefixes, inheritedContextPath, nodePath + e.getKey() + ".");
+          scanNode(e.getValue(), localPrefixes, nodePath + e.getKey() + ".");
         }
       }
     } else if (node instanceof Iterable<?> iterable) {
       int i = 0;
       for (Object item : iterable) {
-        scanNode(item, localPrefixes, inheritedContextPath, nodePath + "[" + i + "].");
+        scanNode(item, localPrefixes, nodePath + "[" + i + "].");
         i++;
       }
     }
@@ -107,7 +98,6 @@ public class JsonLdValidator {
     }
   }
 
-  /** Checks that all @type values in @context are strings */
   private static void checkContextTypes(Object ctxObj, String path) {
     if (ctxObj instanceof Map<?, ?> map) {
       for (var entry : map.entrySet()) {
@@ -116,8 +106,8 @@ public class JsonLdValidator {
         if (val instanceof Map<?, ?> nested) {
           Object typeVal = nested.get("@type");
           if (typeVal != null && !(typeVal instanceof String)) {
-            System.err.println(
-                "⚠️ Invalid @type in @context at path "
+            throw new MolgenisException(
+                "Invalid @type in @context at path "
                     + path
                     + key
                     + ": must be a string, found "
@@ -141,7 +131,6 @@ public class JsonLdValidator {
     }
   }
 
-  /** Validates a @type or @id value (string or array) against current prefixes */
   private static void checkTypeOrId(Object val, Map<String, String> prefixes, String path) {
     if (val instanceof String s) {
       checkPrefixedIri(s, prefixes, path);
@@ -152,8 +141,8 @@ public class JsonLdValidator {
         i++;
       }
     } else {
-      System.err.println(
-          "⚠️ Invalid value at path "
+      throw new MolgenisException(
+          "Invalid value at path "
               + path
               + ": must be string or array, found "
               + (val == null ? "null" : val.getClass().getSimpleName()));

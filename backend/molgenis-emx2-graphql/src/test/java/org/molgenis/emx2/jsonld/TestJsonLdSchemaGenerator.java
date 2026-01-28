@@ -72,7 +72,7 @@ public class TestJsonLdSchemaGenerator {
     PET_STORE.getImportTask(database, schemaName, "Pet Store", true).run();
     Schema schema = database.getSchema(schemaName);
     GraphqlApi graphQL = new GraphqlApi(schema);
-    ExecutionResult result = graphQL.execute("{Pet{...AllPetFields}}");
+    ExecutionResult result = graphQL.execute("{Pet{...AllPetFields}}", Map.of());
     String schemaUrl = "http://localhost:8080";
     Map jsonLdSchema = generateJsonLdSchemaAsMap(schema.getMetadata(), schemaUrl);
     Map data = result.getData();
@@ -157,7 +157,7 @@ public class TestJsonLdSchemaGenerator {
     Schema schema = database.getSchema(schemaName);
     GraphqlApi graphQL = new GraphqlApi(schema);
 
-    ExecutionResult result = graphQL.execute("{Pet{name,mg_id}}");
+    ExecutionResult result = graphQL.execute("{Pet{name,mg_id}}", Map.of());
     Map<String, Object> data = result.getData();
     List<Map<String, Object>> pets = (List<Map<String, Object>>) data.get("Pet");
 
