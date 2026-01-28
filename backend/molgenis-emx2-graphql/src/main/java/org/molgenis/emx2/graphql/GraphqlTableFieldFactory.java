@@ -125,7 +125,6 @@ public class GraphqlTableFieldFactory {
     String fragmentName =
         pkeyOnly ? table.getIdentifier() + "KeyFields" : "All" + table.getIdentifier() + "Fields";
     List<Column> columns = pkeyOnly ? table.getPrimaryKeyColumns() : table.getStoredColumns();
-    if (pkeyOnly && table.getColumn(MG_ID) != null) columns.add(table.getColumn(MG_ID));
 
     GraphQLNamedOutputType tableType = createTableObjectType(table);
     List<Selection<?>> selections = new ArrayList<>();
@@ -143,7 +142,6 @@ public class GraphqlTableFieldFactory {
                     .selectionSet(SelectionSet.newSelectionSet(file).build())
                     .build());
           } else if (column.isReference()) {
-            // recursion on keys
             selections.add(
                 Field.newField(column.getIdentifier())
                     .selectionSet(getGraphqlFragments(column.getRefTable(), true).getSelectionSet())
@@ -152,6 +150,10 @@ public class GraphqlTableFieldFactory {
             selections.add(Field.newField(column.getIdentifier()).build());
           }
         });
+
+    if (pkeyOnly && !table.getPrimaryKeyColumns().isEmpty()) {
+      selections.add(Field.newField(MG_ID).build());
+    }
 
     SelectionSet selectionSet = SelectionSet.newSelectionSet().selections(selections).build();
 
@@ -216,6 +218,27 @@ public class GraphqlTableFieldFactory {
   private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
     String id = col.getIdentifier();
     TableMetadata table = col.getTable();
+    if (col.getColumnType() == ColumnType.AUTO_ID) {
+      if (!table.getPrimaryKeyColumns().isEmpty()) {
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id)
+                .type(Scalars.GraphQLString)
+                .dataFetcher(
+                    env -> {
+                      Map<String, Object> source = env.getSource();
+                      if (source == null) return null;
+                      try {
+                        Row row = new Row(source);
+                        String pkey = PrimaryKey.fromRow(table, row).getString();
+                        return table.getIdentifier() + "/" + pkey;
+                      } catch (Exception e) {
+                        return null;
+                      }
+                    }));
+      }
+      return;
+    }
     switch (col.getColumnType().getBaseType()) {
       case HEADING:
         // nothing to do

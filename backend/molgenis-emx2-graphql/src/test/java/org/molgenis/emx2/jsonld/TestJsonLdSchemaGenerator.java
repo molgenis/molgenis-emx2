@@ -144,4 +144,25 @@ public class TestJsonLdSchemaGenerator {
 
     return row;
   }
+
+  @Test
+  void testMgIdComputedField() throws IOException {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    String schemaName = "TestMgIdComputed";
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "Pet Store", true).run();
+    Schema schema = database.getSchema(schemaName);
+    GraphqlApi graphQL = new GraphqlApi(schema);
+
+    ExecutionResult result = graphQL.execute("{Pet{name,mg_id}}");
+    Map<String, Object> data = result.getData();
+    List<Map<String, Object>> pets = (List<Map<String, Object>>) data.get("Pet");
+
+    assertTrue(pets.size() > 0, "Should have at least one pet");
+    for (Map<String, Object> pet : pets) {
+      String mgId = (String) pet.get("mg_id");
+      String name = (String) pet.get("name");
+      assertEquals("Pet/name=" + name, mgId);
+    }
+  }
 }

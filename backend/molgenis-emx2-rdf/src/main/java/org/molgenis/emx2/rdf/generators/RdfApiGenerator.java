@@ -1,9 +1,9 @@
 package org.molgenis.emx2.rdf.generators;
 
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.PrimaryKey;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.PrimaryKey;
 
 /** Contains a method for each possible API path that can be requested through the RDF API. */
 public interface RdfApiGenerator {
