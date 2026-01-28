@@ -1,7 +1,12 @@
 from typing import List, Optional
 
 from .directory_client import AttributesRequest, DirectorySession
-from .errors import DirectoryError, ErrorReport, requests_error_handler
+from .errors import (
+    DirectoryError,
+    DirectoryWarning,
+    ErrorReport,
+    requests_error_handler,
+)
 from .model import ExternalServerNode, FileIngestNode, Node
 from .pid_manager import PidManagerFactory
 from .pid_service import BasePidService
@@ -110,11 +115,31 @@ class Directory:
             matching_attrs=["exact_mapping", "ntbt_mapping"],
         )
 
+        self.printer.print("📦 Retrieving FDP catalog")
+        catalogs = self.session.get(
+            table='Catalogs', schema=self.session.directory_schema
+        )
+        if len(catalogs) == 0:
+            self.printer.print_warning(
+                DirectoryWarning(' No FDP catalog found.'), indent=1
+            )
+            catalog_id = ''
+        else:
+            catalog_id = catalogs[0]['id']
+            if len(catalogs) > 1:
+                self.printer.print_warning(
+                    DirectoryWarning(
+                        f' More than one FDP catalog found, selecting {catalog_id}'
+                    ),
+                    indent=1,
+                )
+
         return PublishingState(
             existing_data=published_data,
             quality_info=quality_info,
             eu_node_data=eu_node_data,
             diseases=diseases,
+            catalog_id=catalog_id,
             nodes=nodes,
             report=report,
         )

@@ -8,7 +8,7 @@ public class DirectoryTest extends TestLoaders {
 
   @Test
   public void test09DirectoryLoader() {
-    assertEquals(13, directory.getTableNames().size());
+    assertEquals(19, directory.getTableNames().size());
   }
 
   @Test

@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from molgenis_emx2.directory_client.errors import DirectoryWarning, ErrorReport
-from molgenis_emx2.directory_client.model import (
+from src.molgenis_emx2.directory_client.errors import DirectoryWarning, ErrorReport
+from src.molgenis_emx2.directory_client.model import (
     MixedData,
     Node,
     NodeData,
@@ -13,7 +13,7 @@ from molgenis_emx2.directory_client.model import (
     Table,
     TableType,
 )
-from molgenis_emx2.directory_client.publisher import Publisher, PublishingState
+from src.molgenis_emx2.directory_client.publisher import Publisher, PublishingState
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -21,7 +21,7 @@ pytest_plugins = ("pytest_asyncio",)
 @pytest.fixture
 def pid_manager_factory():
     with patch(
-        "molgenis_emx2.directory_client.publisher.PidManagerFactory"
+        "src.molgenis_emx2.directory_client.publisher.PidManagerFactory"
     ) as pid_manager_factory_mock:
         yield pid_manager_factory_mock
 
@@ -57,6 +57,7 @@ async def test_publish(async_publisher, async_session):
         quality_info=MagicMock(),
         report=MagicMock(),
         diseases=MagicMock(),
+        catalog_id=MagicMock(),
     )
 
     await async_publisher.publish(state)

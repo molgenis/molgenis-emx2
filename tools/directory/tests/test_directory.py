@@ -3,17 +3,19 @@ from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 
-from molgenis_emx2.directory_client.directory import Directory
-from molgenis_emx2.directory_client.errors import DirectoryError, ErrorReport
-from molgenis_emx2.directory_client.model import ExternalServerNode, Node
-from molgenis_emx2.directory_client.publisher import PublishingState
+from src.molgenis_emx2.directory_client.directory import Directory
+from src.molgenis_emx2.directory_client.errors import DirectoryError, ErrorReport
+from src.molgenis_emx2.directory_client.model import ExternalServerNode, Node
+from src.molgenis_emx2.directory_client.publisher import PublishingState
 
 pytest_plugins = ("pytest_asyncio",)
 
 
 @pytest.fixture
 def report_init():
-    with patch("molgenis_emx2.directory_client.directory.ErrorReport") as report_mock:
+    with patch(
+        "src.molgenis_emx2.directory_client.directory.ErrorReport"
+    ) as report_mock:
         yield report_mock
 
 
@@ -95,6 +97,7 @@ def _setup_state(nodes: List[Node], eric: Directory, report_init):
         nodes=nodes,
         report=report,
         diseases=MagicMock(),
+        catalog_id=MagicMock(),
     )
     eric._init_state = MagicMock()
     eric._init_state.return_value = state
