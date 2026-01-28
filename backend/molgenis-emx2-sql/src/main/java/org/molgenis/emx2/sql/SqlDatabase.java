@@ -599,6 +599,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 .where(USER_NAME.eq(user))
                 .execute());
     log(start, (admin ? "Granting" : "Revoking") + " admin rights to user " + user);
+    listener.onSchemaChange();
   }
 
   @Override
@@ -906,6 +907,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 "REVOKE {0} FROM {1}",
                 name(prefixedRole), name(Constants.MG_USER_PREFIX + userName));
           });
+      listener.onSchemaChange();
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Removal of role failed", dae);
     }
@@ -933,6 +935,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             }
             jooq.execute("GRANT {0} TO {1}", name(prefixedRole), name(prefixedName));
           });
+      listener.onSchemaChange();
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Updating of role failed", dae);
     }
