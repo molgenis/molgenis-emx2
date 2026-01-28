@@ -398,14 +398,15 @@ public class TypeUtils {
       case LONG_ARRAY -> SQLDataType.BIGINT.getArrayDataType();
       case BOOL -> SQLDataType.BOOLEAN;
       case BOOL_ARRAY -> SQLDataType.BOOLEAN.getArrayDataType();
-      case DECIMAL -> SQLDataType.DOUBLE;
+      case DECIMAL -> SQLDataType.DOUBLE; // todo, consider change to DECIMAL?
       case DECIMAL_ARRAY -> SQLDataType.DOUBLE.getArrayDataType();
       case TEXT -> SQLDataType.VARCHAR;
       case TEXT_ARRAY -> SQLDataType.VARCHAR.getArrayDataType();
       case DATE -> SQLDataType.DATE;
       case DATE_ARRAY -> SQLDataType.DATE.getArrayDataType();
-      case DATETIME -> SQLDataType.TIMESTAMP;
-      case DATETIME_ARRAY -> SQLDataType.TIMESTAMP.getArrayDataType();
+      case DATETIME -> SQLDataType.TIMESTAMP(3); // 3 to match with xsd:datetime precision
+      case DATETIME_ARRAY ->
+          SQLDataType.TIMESTAMP(3).getArrayDataType(); // 3 to match with xsd:datetime precision
       case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
