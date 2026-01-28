@@ -6,7 +6,7 @@ import Paragraph from "../../../../app/components/text/Paragraph.vue";
 const wrapper = mount(Paragraph, {
   props: {
     id: "test-paragraph",
-    isCentered: true,
+    paragraphIsCentered: true,
   },
   slots: {
     default:

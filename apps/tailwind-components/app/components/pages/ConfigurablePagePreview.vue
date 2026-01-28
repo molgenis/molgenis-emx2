@@ -38,7 +38,7 @@ const props = defineProps<{ content: IConfigurablePages }>();
         <TextHeading
           v-if="component.mg_tableclass === 'cms.Headings'"
           :id="component.id"
-          :is-centered="component.isCentered"
+          :is-centered="component.headingIsCentered"
           :level="component.level"
         >
           {{ parsePageText(component.text as string) }}
@@ -46,7 +46,7 @@ const props = defineProps<{ content: IConfigurablePages }>();
         <TextParagraph
           v-else-if="component.mg_tableclass === 'cms.Paragraphs'"
           :id="component.id"
-          :is-centered="component.isCentered"
+          :is-centered="component.paragraphIsCentered"
         >
           {{ parsePageText(component.text as string) }}
         </TextParagraph>

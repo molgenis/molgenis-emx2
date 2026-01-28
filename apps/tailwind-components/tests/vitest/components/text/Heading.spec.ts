@@ -7,7 +7,7 @@ const wrapper = mount(TextHeading, {
   props: {
     id: "test-heading",
     headingLevel: "H2",
-    isCentered: true,
+    headingIsCentered: true,
   },
   slots: {
     default: "Heading 2",
