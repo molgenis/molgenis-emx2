@@ -45,7 +45,7 @@ public class BeaconIntegrationTest {
     bundlePath =
         Paths.get(System.getProperty("user.dir"), "../..", "fair-mappings/beacon-v2").normalize();
     bundleLoader = new BundleLoader();
-    pipelineExecutor = new PipelineExecutor(graphql, transformEngine, bundlePath);
+    pipelineExecutor = new PipelineExecutor(graphql, transformEngine, bundlePath, schema);
   }
 
   @Test

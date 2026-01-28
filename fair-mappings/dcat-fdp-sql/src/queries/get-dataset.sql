@@ -7,24 +7,29 @@ SELECT json_build_object(
     'datacite', 'http://purl.org/spar/datacite/',
     'rdfs', 'http://www.w3.org/2000/01/rdf-schema#'
   ),
-  '@id', ${base_url} || '/' || ${schema} || '/api/fdp/catalog/' || r.id,
-  '@type', 'dcat:Catalog',
+  '@id', ${base_url} || '/' || ${schema} || '/api/fdp/dataset/' || r.id,
+  '@type', 'dcat:Dataset',
   'dct:title', r.name,
   'dct:description', r.description,
-  'dct:isPartOf', json_build_object('@id', ${base_url} || '/' || ${schema} || '/api/fdp'),
+  'dct:isPartOf', (
+    SELECT json_build_object('@id', ${base_url} || '/' || ${schema} || '/api/fdp/catalog/' || replace(cat.id, ' ', '%20'))
+    FROM "Resources" cat
+    WHERE r.id = ANY(cat."data resources")
+      AND cat.type && ARRAY['Catalogue', 'Network']::varchar[]
+    LIMIT 1
+  ),
   'dct:license', json_build_object('@id', 'https://creativecommons.org/licenses/by/4.0/'),
-  'dct:conformsTo', json_build_object('@id', 'https://www.purl.org/fairtools/fdp/schema/0.1/catalogMetadata'),
+  'dct:conformsTo', json_build_object('@id', 'https://www.purl.org/fairtools/fdp/schema/0.1/datasetMetadata'),
   'dct:publisher', json_build_object(
     '@id', ${base_url} || '/publisher',
     '@type', 'foaf:Agent',
     'foaf:name', 'MOLGENIS'
   ),
-  'dcat:endpointURL', json_build_object('@id', ${base_url} || '/' || ${schema} || '/api/fdp/catalog/' || r.id),
   'fdp-o:metadataIdentifier', json_build_object(
-    '@id', ${base_url} || '/' || ${schema} || '/api/fdp/catalog/' || r.id || '#identifier',
+    '@id', ${base_url} || '/' || ${schema} || '/api/fdp/dataset/' || r.id || '#identifier',
     '@type', 'datacite:Identifier',
     'datacite:usesIdentifierScheme', json_build_object('@id', 'datacite:url'),
-    'rdfs:label', ${base_url} || '/' || ${schema} || '/api/fdp/catalog/' || r.id
+    'rdfs:label', ${base_url} || '/' || ${schema} || '/api/fdp/dataset/' || r.id
   ),
   'fdp-o:metadataIssued', json_build_object(
     '@type', 'http://www.w3.org/2001/XMLSchema#dateTime',
@@ -37,15 +42,8 @@ SELECT json_build_object(
   'foaf:homepage', CASE WHEN r.website IS NOT NULL
     THEN json_build_object('@id', r.website)
     ELSE NULL
-  END,
-  'dcat:dataset', COALESCE(
-    (SELECT json_agg(json_build_object('@id', ${base_url} || '/' || ${schema} || '/api/fdp/dataset/' || replace(ds.id, ' ', '%20')))
-     FROM "Resources" ds
-     WHERE ds.id = ANY(r."data resources")
-       AND ds.type && ARRAY['Cohort study', 'Biobank', 'Data source', 'Registry']::varchar[]),
-    '[]'::json
-  )
+  END
 ) AS result
 FROM "Resources" r
 WHERE r.id = ${id}
-  AND r.type && ARRAY['Catalogue', 'Network']::varchar[]
+  AND r.type && ARRAY['Cohort study', 'Biobank', 'Data source', 'Registry']::varchar[]

@@ -11,6 +11,7 @@ import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
+import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 import org.molgenis.emx2.fairmapper.rdf.FrameAnalyzer;
@@ -64,6 +65,9 @@ public class RemotePipelineExecutor {
           current = executeQuery(queryStep.path(), current);
         } else if (step instanceof MutateStep mutateStep) {
           current = executeMutate(mutateStep.path(), current);
+        } else if (step instanceof SqlQueryStep sqlQueryStep) {
+          throw new FairMapperException(
+              "SQL queries are not supported in remote execution: " + sqlQueryStep.path());
         }
       }
     }

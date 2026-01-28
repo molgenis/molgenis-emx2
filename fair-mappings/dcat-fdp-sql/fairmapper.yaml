@@ -2,9 +2,23 @@ name: dcat-fdp-sql
 version: 1.0.0
 
 mappings:
-  - name: fdp-catalog-sql
-    endpoint: /{schema}/api/fdp-sql/catalog/{id}
+  - name: fdp-root
+    endpoint: /{schema}/api/fdp
     methods: [GET]
     output: turtle
     steps:
-      - query: src/queries/get-catalog.sql
+      - sql: src/queries/get-fdp-root.sql
+
+  - name: fdp-catalog
+    endpoint: /{schema}/api/fdp/catalog/{id}
+    methods: [GET]
+    output: turtle
+    steps:
+      - sql: src/queries/get-catalog.sql
+
+  - name: fdp-dataset
+    endpoint: /{schema}/api/fdp/dataset/{id}
+    methods: [GET]
+    output: turtle
+    steps:
+      - sql: src/queries/get-dataset.sql

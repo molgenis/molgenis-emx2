@@ -53,7 +53,8 @@ public class E2eTest {
 
     GraphQL graphql =
         new GraphqlApiFactory().createGraphqlForSchema(schema, new TaskServiceInMemory());
-    E2eTestRunner runner = new E2eTestRunner(bundlePath, endpoint, graphql, transformEngine);
+    E2eTestRunner runner =
+        new E2eTestRunner(bundlePath, endpoint, graphql, transformEngine, schema);
 
     List<E2eTestResult> results = runner.runTests();
 

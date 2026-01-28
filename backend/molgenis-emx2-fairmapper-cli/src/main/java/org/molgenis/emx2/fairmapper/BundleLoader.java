@@ -12,6 +12,7 @@ import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
+import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 import org.slf4j.Logger;
@@ -111,6 +112,8 @@ public class BundleLoader {
       validateQueryFile(bundleDir, queryStep.path());
     } else if (step instanceof MutateStep mutateStep) {
       validateQueryFile(bundleDir, mutateStep.path());
+    } else if (step instanceof SqlQueryStep sqlQueryStep) {
+      validateSqlFile(bundleDir, sqlQueryStep.path());
     }
   }
 
@@ -148,6 +151,18 @@ public class BundleLoader {
 
     if (!queryPath.endsWith(".gql")) {
       throw new FairMapperException("Query file must have .gql extension: " + queryPath);
+    }
+  }
+
+  private void validateSqlFile(Path bundleDir, String sqlPath) {
+    Path fullPath = PathValidator.validateWithinBase(bundleDir, sqlPath);
+
+    if (!Files.exists(fullPath)) {
+      throw new FairMapperException("SQL file not found: " + sqlPath);
+    }
+
+    if (!sqlPath.endsWith(".sql")) {
+      throw new FairMapperException("SQL file must have .sql extension: " + sqlPath);
     }
   }
 
