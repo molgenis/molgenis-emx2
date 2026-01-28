@@ -1,5 +1,8 @@
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
-import type { columnValueObject } from "../../../metadata-utils/src/types";
+import type {
+  columnValueObject,
+  IOntologyColumn,
+} from "../../../metadata-utils/src/types";
 import { executeExpression } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 
 export function getInitialFormValues(metadata: ITableMetaData) {
@@ -46,4 +49,26 @@ export function getOntologyArrayValues(val: any): string[] {
         .filter((value: columnValueObject) => value)
         .map((value: columnValueObject) => value["name"] as string)
     : [];
+}
+
+export function isOntologyMetadata(
+  metadata: IColumn
+): metadata is IOntologyColumn {
+  return (
+    metadata.columnType === "ONTOLOGY" &&
+    metadata.refTableId !== undefined &&
+    metadata.refSchemaId !== undefined &&
+    metadata.refLabelDefault !== undefined
+  );
+}
+
+export function isOntologyMetadataArray(
+  metadata: IColumn
+): metadata is IOntologyColumn {
+  return (
+    metadata.columnType === "ONTOLOGY_ARRAY" &&
+    metadata.refTableId !== undefined &&
+    metadata.refSchemaId !== undefined &&
+    metadata.refLabelDefault !== undefined
+  );
 }
