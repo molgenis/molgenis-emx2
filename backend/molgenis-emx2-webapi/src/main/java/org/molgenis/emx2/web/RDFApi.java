@@ -131,7 +131,8 @@ public class RDFApi {
     }
   }
 
-  private static void databaseGet(Context ctx, Function<Context, RDFFormat> formatFunction) throws IOException {
+  private static void databaseGet(Context ctx, Function<Context, RDFFormat> formatFunction)
+      throws IOException {
     if (ctx.queryParam("shacls") != null) {
       validateShaclSetFormat(ctx);
       databaseShaclSetsGet(ctx);
@@ -331,8 +332,8 @@ public class RDFApi {
     MediaType mediaType = getContentType(ctx, allowedMediaTypes);
     if (mediaType == null) {
       throw new NotAcceptableResponse(
-        "Only the following accept-header values are supported: "
-          + allowedMediaTypes.stream().map(MediaType::toString).toList());
+          "Only the following accept-header values are supported: "
+              + allowedMediaTypes.stream().map(MediaType::toString).toList());
     }
     return mediaType;
   }
