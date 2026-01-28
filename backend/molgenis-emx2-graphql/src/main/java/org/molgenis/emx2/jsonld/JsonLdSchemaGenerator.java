@@ -84,6 +84,23 @@ public class JsonLdSchemaGenerator {
       context.put(table.getIdentifier(), tableNode);
     }
 
+    for (TableMetadata table : schema.getTables()) {
+      for (Column column : table.getLocalColumns()) {
+        String columnKey = column.getIdentifier();
+        if (!context.containsKey(columnKey)
+            && (column.isReference() || "ontologyTermURI".equals(column.getName()))) {
+          Map<String, Object> columnNode = new LinkedHashMap<>();
+          if (column.getSemantics() != null && column.getSemantics().length > 0) {
+            columnNode.put("@id", column.getSemantics()[0]);
+          } else {
+            columnNode.put("@id", PREFIX + columnKey);
+          }
+          columnNode.put("@type", "@id");
+          context.put(columnKey, columnNode);
+        }
+      }
+    }
+
     Map<String, Object> root = new HashMap<>();
     root.put("@context", context);
     return root;

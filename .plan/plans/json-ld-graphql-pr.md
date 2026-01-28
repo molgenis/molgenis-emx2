@@ -45,10 +45,10 @@ Enable RDF subsetting through GraphQL by:
 - [x] Missing `rdf:type` triples - FIXED: table semantics now generate @type
 - [x] Using `mg_id` instead of composite keys - FIXED: mg_id now computed from pkeys via PrimaryKey class
 - [x] Invalid IRI syntax (`<my:.>`) - FIXED: removed invalid root ID, @base now full URL
-- [x] Semantic fields missing entirely - PARTIAL: table semantics enabled; column semantics N/A (JSON-LD requires @type:@id for refs)
-- [ ] Non-deterministic blank nodes in output
-- [ ] Incorrect object handling (ontologyTermURI should be IRI, not literal)
-- [ ] Data mapping errors (Tags incorrectly inheriting Pet properties)
+- [x] Semantic fields missing entirely - FIXED: ref columns now have @type:@id in context
+- [x] Non-deterministic blank nodes - INVESTIGATED: only affects structural wrapper nodes, real data has proper IRIs via mg_id
+- [x] Incorrect object handling - FIXED: ref columns + ontologyTermURI now output as IRIs via @type:@id
+- [x] Data mapping errors - INVESTIGATED: no issue found, getStoredColumns() correctly returns table-specific columns
 
 ## Implementation Plan
 

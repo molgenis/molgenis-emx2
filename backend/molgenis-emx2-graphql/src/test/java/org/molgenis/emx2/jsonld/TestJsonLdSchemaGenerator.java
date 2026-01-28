@@ -49,6 +49,9 @@ public class TestJsonLdSchemaGenerator {
     assertEquals("dcat:Dataset", datasetsNode.get("@type"));
     assertEquals("my:Datasets", datasetsNode.get("@id"));
 
+    Map datasetColumn = (Map) context.get("dataset");
+    assertEquals("@id", datasetColumn.get("@type"));
+
     Map<String, Object> data = new LinkedHashMap<>();
     Map<String, Object> catalogue = new LinkedHashMap<>();
     catalogue.put("id", 1);
