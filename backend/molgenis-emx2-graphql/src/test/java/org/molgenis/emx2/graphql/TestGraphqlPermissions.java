@@ -26,7 +26,7 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class TestGraphqlPermissions {
+class TestGraphqlPermissions {
 
   private static GraphQL graphQLSchema;
   private static GraphQL graphQLDatabase;
@@ -144,11 +144,16 @@ public class TestGraphqlPermissions {
               _permissions {
                 groupName
                 users
-                tableName
-                tableSchema
-                isRowLevel
-                hasAdmin
-                hasSelect
+                permissions {
+                  tableSchema
+                  tableName
+                  isRowLevel
+                  hasSelect
+                  hasInsert
+                  hasUpdate
+                  hasDelete
+                  hasAdmin
+                }
               }
             }""");
 
