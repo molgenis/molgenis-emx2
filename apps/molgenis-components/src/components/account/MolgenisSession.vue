@@ -116,7 +116,7 @@ export default defineComponent({
     },
     oidcLoginUrl() {
       const redirectParam = window?.location?.href
-        ? `?redirect=${window.location.href}`
+        ? `?redirect=${encodeURIComponent(window.location.href)}`
         : "";
       return "/_login" + redirectParam;
     },
