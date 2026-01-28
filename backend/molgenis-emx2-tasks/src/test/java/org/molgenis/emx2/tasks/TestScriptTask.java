@@ -29,19 +29,15 @@ public class TestScriptTask {
     ScriptTask r1 =
         new ScriptTask("hello")
             .type(PYTHON)
-            .dependencies("numpy==2.2.4")
             // example with some characters that need escaping
             .parameters("\"netherlands & world\"")
             .extraFile(new Row())
             .script(
                 """
 import time
-import numpy as np
 import sys
 # you can get parameters via sys.argv[1]
 print('Hello, '+sys.argv[1]+'!')
-a = np.array([1, 2, 3, 4, 5, 6])
-print(a)
 time.sleep(1)
 print('Halfway')
 time.sleep(1)

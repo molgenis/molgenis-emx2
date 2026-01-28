@@ -6,9 +6,9 @@ import "meta.jslt" as meta
         "id": .id,
         "name": .name[0],
         "apiVersion": "v2.0",
-        "createDateTime": .mg_insertedOn,
-        "updateDateTime": .mg_updatedOn,
-        "description": .description[0],
+        "createDateTime": .issued,
+        "updateDateTime": .modified,
+        "description": .description,
         "environment": "dev",
         "organization": {
             "id": .organisation.ontologyTermURI,
@@ -16,7 +16,7 @@ import "meta.jslt" as meta
             "description": .organisation.definition,
             "address": .organisation.address,
             "welcomeUrl": .url,
-            "contactUrl": "mailto:" + .contact,
+            "contactUrl": "mailto:" + .publisher.email,
             "logoUrl": .logo
         },
         "welcomeUrl": .url,

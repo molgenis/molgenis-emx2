@@ -1,4 +1,12 @@
+"""Defines the Stager class, which implements all staging-related functionality"""
+import csv
+import os
 from typing import List
+from urllib.error import ContentTooShortError, HTTPError, URLError
+from urllib.parse import urljoin
+from urllib.request import urlretrieve
+
+from molgenis_emx2_pyclient.metadata import Column
 
 from .directory_client import (
     DirectorySession,
@@ -6,7 +14,15 @@ from .directory_client import (
     NoSuchTableException,
 )
 from .errors import DirectoryError, DirectoryWarning, requests_error_handler
-from .model import ExternalServerNode, NodeData, TableType
+from .model import (
+    ExternalServerNode,
+    FileIngestNode,
+    NodeData,
+    Source,
+    Table,
+    TableMeta,
+    TableType,
+)
 from .printer import Printer
 
 
@@ -23,18 +39,21 @@ class Stager:
         self.warnings: List[DirectoryWarning] = list()
 
     @requests_error_handler
-    async def stage(self, node: ExternalServerNode):
+    async def stage(self, node: ExternalServerNode | FileIngestNode):
         """
         Stages all data from the provided external node in the Directory.
         """
         self.warnings = []
-        source_data = self._get_source_data(node)
+        if isinstance(node, ExternalServerNode):
+            source_data = self._get_external_server_data(node)
+        else:
+            source_data = self._ingest_files(node)
         self._clear_staging_area(node)
         await self._import_node(source_data)
 
         return self.warnings
 
-    def _get_source_data(self, node: ExternalServerNode) -> NodeData:
+    def _get_external_server_data(self, node: ExternalServerNode) -> NodeData:
         """
         Gets a node's data from an external server.
         First check if:
@@ -46,6 +65,31 @@ class Stager:
         self._check_permissions(source_session)
         self._check_tables(source_session)
         return source_session.get_node_data()
+
+    def _ingest_files(self, node: FileIngestNode) -> NodeData:
+        """
+        Gets a node's data from the files on an external file ingest server.
+
+        :return a NodeData object
+        """
+        self.printer.print(f"📦 Retrieving node's data from {node.url}")
+        tables = {}
+        for table_type in TableType.get_import_order():
+            file = self._download_file(node, table_type)
+            if not file or os.path.getsize(file) == 0:
+                # No file or empty file? Create dummy Table
+                dummy_meta = [Column(name='id', key=1, table=table_type.base_id)]
+                table = Table.of_empty(
+                    table_type,
+                    TableMeta(meta=dummy_meta, table_name=table_type.base_id),
+                )
+            else:
+                table = self._file_to_table(file, table_type)
+            tables[table_type.value] = table
+
+        return NodeData.from_dict(
+            node=node, source=Source.EXTERNAL_SERVER, tables=tables
+        )
 
     @staticmethod
     def _check_permissions(session: ExternalServerSession):
@@ -95,6 +139,49 @@ class Stager:
                     table=node.get_staging_id(table_type),
                     data=ids,
                 )
+
+    @staticmethod
+    def _file_to_table(filename: str, table_type: TableType) -> Table:
+        """
+        Get csv file, transform into Table object
+        """
+        rows = []
+        with open(filename, 'r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                rows.append(row)
+        # Create table metadata
+        metadata = []
+        for column in rows[0]:
+            if column == 'id':
+                column_meta = Column(name=column, key=1, table=table_type.base_id)
+            else:
+                column_meta = Column(name=column, key=None, table=table_type.base_id)
+            metadata.append(column_meta)
+        return Table.of(
+            table_type=table_type,
+            meta=TableMeta(meta=metadata, table_name=table_type.base_id),
+            rows=rows,
+        )
+
+    def _download_file(self, node: FileIngestNode, table_type: TableType) -> str | None:
+        """
+        Download the .csv-file from the file ingest server
+        """
+        file_path = urljoin(f"{node.url}/", f"{table_type.base_id}.csv")
+        try:
+            filename, headers = urlretrieve(file_path)
+        except (URLError, HTTPError, ContentTooShortError) as e:
+            raise DirectoryError(f"Failed at retrieving {file_path}") from e
+        if headers['Content-Type'] != 'text/csv; charset=utf-8':
+            warning = DirectoryWarning(
+                f"Node {node.code} has no file at {file_path} "
+                f"for table {table_type.base_id}"
+            )
+            self.printer.print_warning(warning, indent=1)
+            self.warnings.append(warning)
+            return None
+        return filename
 
     async def _import_node(self, source_data: NodeData):
         """

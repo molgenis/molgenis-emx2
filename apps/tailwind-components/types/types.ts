@@ -52,6 +52,12 @@ export interface ITreeNodeState extends ITreeNode {
   children: ITreeNodeState[];
   /* if a node is selectable */
   selectable: boolean;
+  /* pagination: current offset for loading more children */
+  loadMoreOffset?: number;
+  /* pagination: total count of children available */
+  loadMoreTotal?: number;
+  /* pagination: whether there are more children to load */
+  loadMoreHasMore?: boolean;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -149,4 +155,9 @@ export interface Section {
     value: columnValue;
     metadata: IColumn;
   }[];
+}
+
+export interface Crumb {
+  url: string;
+  label: string;
 }

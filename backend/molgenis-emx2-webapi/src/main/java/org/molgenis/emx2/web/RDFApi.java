@@ -299,8 +299,8 @@ public class RDFApi {
     }
   }
 
-  private static ShaclSet retrieveShaclSet(Context ctx, String name) {
-    ShaclSet shaclSet = ShaclSelector.get(name);
+  private static ShaclSet retrieveShaclSet(Context ctx, String id) {
+    ShaclSet shaclSet = ShaclSelector.get(id);
     if (shaclSet == null) {
       throw new NotFoundResponse("Validation set could not be found.");
     }

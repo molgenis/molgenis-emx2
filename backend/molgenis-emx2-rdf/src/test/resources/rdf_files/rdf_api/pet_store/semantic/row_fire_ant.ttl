@@ -12,7 +12,7 @@
 @prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
 @prefix fg: <https://w3id.org/fair-genomes/resource/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix healthDCAT-AP: <http://healthdataportal.eu/ns/health#> .
+@prefix healthdcatap: <http://healthdataportal.eu/ns/health#> .
 @prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 @prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
@@ -36,6 +36,4 @@
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>,
-    <https://dbpedia.org/page/Red>;
-  dcterms:created "2025-06-10T10:38:56"^^xsd:dateTime;
-  dcterms:modified "2025-06-10T10:38:56"^^xsd:dateTime.
+    <https://dbpedia.org/page/Red>.

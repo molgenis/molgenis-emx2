@@ -36,8 +36,8 @@ import "range.jslt" as range
                     let disease = .diseases[0]
                     "diseaseCode": ontology($disease.disease),
                     "ageOfOnset": {
-                        "ageGroup": ontology($disease.ageOfOnset_ageGroup),
-                        "age": { "iso8601duration": $disease.ageOfOnset_age_iso8601duration }
+                        "ageGroup": ontology($disease.ageAtOnset_ageGroup),
+                        "age": { "iso8601duration": $disease.ageAtOnset}
                     },
                     "ageAtDiagnosis": {
                         "ageGroup": ontology($disease.ageAtDiagnosis_ageGroup),

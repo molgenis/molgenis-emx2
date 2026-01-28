@@ -7,10 +7,6 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}input/Tree.story`);
-  await page
-    .getByText("InputTree", { exact: true })
-    .first()
-    .click({ delay: 300 });
 });
 
 test("should render the collapsed tree", async ({ page }) => {

@@ -1,3 +1,4 @@
+import type { ComputedRef } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -46,6 +47,8 @@ export type CellValueType =
   | "EMAIL_ARRAY"
   | "HYPERLINK"
   | "HYPERLINK_ARRAY"
+  | "NON_NEGATIVE_INT"
+  | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
   | "MULTISELECT";
 
@@ -59,6 +62,7 @@ export interface IColumn {
   computed?: string;
   conditions?: string[];
   description?: string;
+  formLabel?: string;
   key?: number;
   position?: number;
   readonly?: string;
@@ -109,30 +113,57 @@ export interface IFieldError {
   message: string;
 }
 
-export interface IFormLegendSection {
-  label: string;
+interface LegendItem {
   id: string;
-  isActive?: boolean;
+  label: string;
   type: HeadingType;
-  section?: string;
-  errorCount: number;
+  errorCount: ComputedRef<number>;
+  isVisible: ComputedRef<boolean>;
+  isActive: ComputedRef<boolean>;
+}
+export interface LegendSection extends LegendItem {
+  type: "SECTION";
+  headers: LegendHeading[];
+}
+export interface LegendHeading extends LegendItem {
+  type: "HEADING";
 }
 
 export type columnId = string;
 export type columnValue =
   | string
+  | string[]
   | number
+  | number[]
   | boolean
   | null
   | undefined
   | columnValueObject
-  | columnValue[]
+  | columnValueObject[]
   | fileValue;
 
 export type recordValue = Record<string, columnValue>;
 
 export interface columnValueObject {
   [x: string]: columnValue;
+}
+
+export function isColumnValueObject(
+  value: columnValue
+): value is columnValueObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function isColumnValueObjectArray(
+  value: columnValue
+): value is columnValueObject[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === "object" && item !== null && !Array.isArray(item)
+    )
+  );
 }
 
 export type fileValue = {
@@ -142,6 +173,19 @@ export type fileValue = {
   extension: string;
   url: string;
 };
+
+export function isFileValue(value: columnValue): value is fileValue {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "id" in value &&
+    "size" in value &&
+    "filename" in value &&
+    "extension" in value &&
+    "url" in value
+  );
+}
 
 export type IInputValue = string | number | boolean;
 

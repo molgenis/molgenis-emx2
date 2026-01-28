@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MetadataUtils {
+  private static final String MATCHES = "matches";
   private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
   private static Integer version;
 
@@ -59,6 +60,8 @@ public class MetadataUtils {
   // column
   private static final Field<String> COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
+  private static final Field<String> COLUMN_FORM_LABEL =
+      field(name("form_label"), VARCHAR.nullable(true));
   private static final Field<JSON> COLUMN_LABEL = field(name("label"), JSON.nullable(false));
   private static final Field<Integer> COLUMN_KEY = field(name("key"), INTEGER.nullable(true));
   private static final Field<Integer> COLUMN_POSITION = field(name("position"), INTEGER);
@@ -245,7 +248,8 @@ public class MetadataUtils {
                         COLUMN_CASCADE,
                         COLUMN_DESCRIPTION,
                         COLUMN_SEMANTICS,
-                        COLUMN_VISIBLE)
+                        COLUMN_VISIBLE,
+                        COLUMN_FORM_LABEL)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
                         foreignKey(TABLE_SCHEMA, TABLE_NAME)
@@ -525,6 +529,7 @@ public class MetadataUtils {
             TABLE_NAME,
             COLUMN_NAME,
             COLUMN_LABEL,
+            COLUMN_FORM_LABEL,
             COLUMN_TYPE,
             COLUMN_KEY,
             COLUMN_POSITION,
@@ -549,6 +554,7 @@ public class MetadataUtils {
             column.getTable().getTableName(),
             column.getName(),
             column.getLabels(),
+            column.getFormLabel(),
             Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
@@ -571,6 +577,7 @@ public class MetadataUtils {
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_LABEL, column.getLabels())
+        .set(COLUMN_FORM_LABEL, column.getFormLabel())
         .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
@@ -609,6 +616,7 @@ public class MetadataUtils {
   private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
     c.setLabels(col.get(COLUMN_LABEL) != null ? col.get(COLUMN_LABEL, Map.class) : new TreeMap<>());
+    c.setFormLabel(col.get(COLUMN_FORM_LABEL, String.class));
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
     c.setRequired(col.get(COLUMN_REQUIRED, String.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
@@ -649,12 +657,12 @@ public class MetadataUtils {
 
   public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
     org.jooq.Record result =
-        jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as("matches"))
+        jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as(MATCHES))
             .from(USERS_METADATA)
             .where(field(USER_NAME).eq(username))
             .fetchOne();
 
-    return result != null && result.get("matches", Boolean.class);
+    return result != null && result.get(MATCHES) != null && result.get(MATCHES, Boolean.class);
   }
 
   public static void setVersion(DSLContext jooq, int newVersion) {

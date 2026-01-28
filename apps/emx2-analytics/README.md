@@ -11,7 +11,7 @@ the triggers ( what events to run when ) should be created using the analytics a
 
 use package manager to install the module '@molgenis/emx2-analytics'
 
-```yarn add @molgenis/emx2-analytics``` (or use the * option for yarn workspaces)
+```pnpm add @molgenis/emx2-analytics``` (or use the * option for pnpm workspaces)
 
 ### Setup the triggers in the app 
 ```import { setupAnalytics } from "@molgenis/emx2-analytics"; ```
@@ -38,11 +38,11 @@ During the setupAnalytics call 3 steps are taken
 
 ## Development
 
-includes playground 'app', run via `yarn dev`
+includes playground 'app', run via `pnpm dev`
 
 ## Build
 
-`yarn build`
+`pnpm build`
 
 ## Release 
 

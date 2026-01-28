@@ -14,19 +14,19 @@ and understand what they are seeing when viewing a resource in detail.
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes that the settings are configured to display the contact form rather than just an e-mail address. | | |
-| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue) | Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org](https://data-catalogue-acc.molgeniscloud.org) | Landing page: European health research data and sample catalogue | | |
 | 2 | Navigate to Search All |  `COLLECTIONS`, `NETWORKS`, and `VARIABLES` buttons are shown with the number of each under each button | | |
 | 3a | Click on the `COLLECTIONS` button | Should be directed to the list of collections with: collection logo, "COLLECTIONS", "Data & sample collections", `DETAILED`/`COMPACT` toggle buttons (`DETAILED` is selected by default), Filters on the LHS. | | |
 | 3b | Click on `COMPACT` | The list of collections turns into a list of collection acronyms and names (in full), with an arrow after each collection | | |
 | 4 | Type "name for test cohort" in the Search field top left | See that two collections are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
-| 5a | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Collections", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
-| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `MORE` (-> `Other catalogues`, `Upload data`,'Manuals') | | |
+| 5a | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Collections > testcohort2", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
+| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `MORE` (-> `Other catalogues`, `Upload data`,`Manuals`) | | |
 | 6 | Click on the `CONTACT` button | pop-up with "Name for test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <support@molgenis.org>", `SEND` button | | |
 | 7 | Type in test message, fill in your own email address and press `SEND` | An e-mail is sent to Molgenis Support. | | |
 | 8 | Close the notification, if any pops up | Return to the detailed page for "acronym for test cohort 2". | | |
 | 9 | Click on website link | Go to molgenis.org in a new window. | | |
 | 10 | Close website and return to catalogue | Return to resource detail view page. | | |
-| 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Organisations, Contributors, Available Data & Samples, Subpopulations, Collection events, Datasets, Networks, Publications, Access Conditions, Funding & Acknowledgements, Documentation | | |
+| 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Organisations, Contributors, Available Data & Samples, Dataset Variables, Subpopulations, Collection events, Networks, Publications, Access Conditions, Funding & Acknowledgements, Documentation | | |
 | 12 | See that the fields are filled as follows: | | | |
 | 13 | First block: | small logo (test logo for cohort 2), <https://www.molgenis.org>, Contact button | | |
 | 14 | DESCRIPTION | This is the Test cohort 2. It has "other" options where possible. No end year, so "ongoing". Design paper = Birth of a cohort — the first 20 years of the Raine study, publications = other papers. No to data access fee. Here we have some extra text to... | | |
@@ -39,15 +39,18 @@ and understand what they are seeing when viewing a resource in detail.
 | 20 | Hover on the ⓘ next to 'Longitudinal' | The hover text is 'repeated observations at different time-points'. | | |
 | 21 | Design description | Description of the design used for cohort 2 | | |
 | 22 | Design schematic | Design schematic | | |
-| 23 | Click on Design schematic | An image (from FORCE NEN) is downloaded. | | |
+| 23a | Click on Design schematic | An image (from FORCE NEN) is shown. | | |
+| 23b | Go back to the resource information page | | | |
 | 24 | Start/End data collection | 1955 (ongoing) | | |
 | 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study. | | |
 | 26a | Click on the design paper | Opens [the article](https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698) in a new window. | | |
 | 26b | Return to the catalogue display window. | | | |
 | 27 | PID | `https://pid-for-testcohort2.org` | | |
-| 27b| External identifiers| EUDRACT number: test external identifier for cohort 2 | | |
+| 27b | External identifiers| EUDRACT number: test external identifier for cohort 2 | | |
+| 27c | License | `https://license-placeholder.nl` | | |
 | 28 | POPULATION | | | |
 | 29 | Countries | United Kingdom of Great Britain and Northern Ireland (the) | | |
+| 29a | Continents | Europe | | |
 | 30 | Regions | Bradford | | |
 | 31 | Number of participants | 100 | | |
 | 32 | Number of participants with samples | 50 | | |
@@ -61,14 +64,35 @@ and understand what they are seeing when viewing a resource in detail.
 | 38 | Other inclusion criteria | Other inclusion criteria cohort 2 | | |
 | 39 | ORGANISATIONS | | | |
 | | | Lead organisations | | |
-| | | 1 card with organisation: name for test lead organisation 2 (acronym for test lead organisation 2) \| Bonaire, Sint Eustatius and Saba \| Data provider | | |
+| | | 1 card with organisation: University Medical Center Utrecht (UMCU) \| Netherlands (the) \| Data provider | | |
 | | | Additional organisations | | |
-| | | 1 card with organisation: name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina \| Data provider, Surveillance | | |
+| | | 1 card with organisation: University Medical Center Groningen (UMCG) \| Netherlands (the) \| Data provider, Surveillance | | |
+| | | 1 card with organisation: Test organisation without ROR \| Data provider, Surveillance | | |
 | 40 | CONTRIBUTORS | | | |
-| | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| name for test lead organisation 2 \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
+| | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| University Medical Center Utrecht (UMCU) \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
 | 41 | Click on the email address of the contact person | The local email system opens and an email addressed to <testemailalternative@testdomain.nl> is opened. | | |
 | 42 | Return to the resource information page | | | |
-| 43 | AVAILABLE DATA & SAMPLES | Data categories | | |
+| 43 | DATASET VARIABLES | Datasets, Datasets and their description | | |
+| | | Table with the following columns: Name, Description | | |
+| | | test dataset for testCohort2, test description of dataset for cohort 2, --> | | |
+| 44a | Click on the name of the dataset | A pop-up appears with the following information: | | |
+| | | TEST DATASET FOR TESTCOHORT2 | | |
+| | | test description of dataset for cohort 2 | | |
+| | | Label label for test dataset for cohort 2 | | |
+| | | Keywords <many, many keywords> | | |
+| | | Number of rows 83737 | | |
+| | | Since version 1959 | | |
+| | | Until version 1985 | | |
+| 45b | Click the cross top right to close the pop-up | Return to resource information page. | | |
+| 46 | | Dataset variables, Dataset variables and their description | | |
+| | | Filter by dataset, All datasets, Filter by variable | | |
+| | | Table with the following columns: Name, Description | | |
+| | | 10 rows of variables: 'varN', 'test dataset for testCohort2', '-->' | | |
+| | | < Page 1 of 2 > | | |
+| 47a | Click the '>'-button to go to the next page | Table updates, only one row with varaible 'var11', 'test datasets for testCohort2', '-->' | | |
+| 47b | Set 'Filter by dataset' to 'test datasets for testCohort2' | Nothing changes | | |
+| 47c | Type '8' into 'Filter by variable' | Only the row containing var8 is shown | | |
+| 48 | AVAILABLE DATA & SAMPLES | Data categories | | |
 | | | > Survey data ⓘ [hover text] | | |
 | | | Sample categories | | |
 | | | > Fluids and Secretions [consisting of the following when expanded:] | | |
@@ -84,10 +108,10 @@ and understand what they are seeing when viewing a resource in detail.
 | | | >> Personality | | |
 | | | >> Psychological distress and emotions | | |
 | | | >> Other psychological measures and assessments | | |
-| 44 | SUBPOPULATIONS | List of subpopulations for this resource | | |
+| 49 | SUBPOPULATIONS | List of subpopulations for this resource | | |
 | | | table with the following columns: Name, Description, Number of participants | | |
 | | | test subcohort 2A, description for test subcohort 2A, 3874, -> | | |
-| 45 | Click on test subcohort 2A | Pop-up with information on the test subcohort 2A appears | | |
+| 50a | Click on test subcohort 2A | Pop-up with information on the test subcohort 2A appears | | |
 | | | TEST SUBCOHORT 2A | | |
 | | | description for test subcohort 2A | | |
 | | | Number of participants 3874 | | |
@@ -111,11 +135,11 @@ and understand what they are seeing when viewing a resource in detail.
 | | | > XII Diseases of the skin and subcutaneous tissue | | |
 | | | Countries United Kingdom of Great Britain and Northern Ireland (the) | | |
 | | | Other inclusion criteria test inclusion criteria for subcohort 2A | | |
-| 46 | Click the cross top right to close the pop-up | Come back to resource detail page | | |
-| 47 | COLLECTION EVENTS | List of collection events defined for this resource | | |
+| 50b | Click the cross top right to close the pop-up | Come back to resource detail page | | |
+| 51 | COLLECTION EVENTS | List of collection events defined for this resource | | |
 | | | Table with the following columns: Name, Description, Participants, Start end year | | |
 | | | test collection event for cohort 2, description of test collection event for cohort 2, 15000, 1956-06-01 until 1999-12-31, -> | | |
-| 48 | Click on test collection event for cohort 2 | Pop-up with information on the test collection event for cohort 2 appears | | |
+| 52a | Click on test collection event for cohort 2 | Pop-up with information on the test collection event for cohort 2 appears | | |
 | | | TEST COLLECTION EVENT FOR COHORT 2 | | |
 | | | description of test collection event for cohort 2 | | |
 | | | Subpopulations test subcohort 2A | | |
@@ -128,20 +152,7 @@ and understand what they are seeing when viewing a resource in detail.
 | | | Data Categories Survey data ⓘ [hover text] | | |
 | | | Sample categories | | |
 | | | > Fluids and Secretions | | |
-| 49 | Click the cross top right to close the pop-up | Return to the resource information page. | | |
-| 50 | DATASETS | DATASETS | | |
-| | | List of datasets for this resource | | |
-| | | Table with the following columns: Name, Description | | |
-| | | test dataset for testCohort2 test description of dataset for cohort 2 | | |
-| 51 | Click on the name of the dataset | A pop-up appears with the following information: | | |
-| | | TEST DATASET FOR TESTCOHORT2 | | |
-| | | test description of dataset for cohort 2 | | |
-| | | Label label for test dataset for cohort 2 | | |
-| | | Keywords <many, many keywords> | | |
-| | | Number of rows 83737 | | |
-| | | Since version 1959 | | |
-| | | Until version 1985 | | |
-| 52 | Click the cross top right to close the pop-up | Return to resource information page. | | |
+| 52b | Click the cross top right to close the pop-up | Return to the resource information page. | | |
 | 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website > Network details (> Catalogue), and an arrow to navigate to details. | | |
 | | | name for test network2 | | |
 | | | > Website > Network details | | |
@@ -149,7 +160,7 @@ and understand what they are seeing when viewing a resource in detail.
 | | | > Website > Network details > Catalogue | | |
 | | | name for test network1 | | |
 | | | > Website > Network details > Catalogue | | |
-| 54a | Click on 'name for test network of networks' | Molgenis.org opens in a new window. | | |
+| 54a | Click on '> Website' for 'name for test network of networks' | Molgenis.org opens in a new window. | | |
 | 54b | Return to the resource information page | | | |
 | 54c | Click on '> Network details' for 'name for test network of networks' | The network information page opens in the same window | | |
 | 54d | Go back to the resource information page | | | |

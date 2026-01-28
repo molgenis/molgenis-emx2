@@ -15,19 +15,19 @@ This module helps developers create and share vue components for use with the mo
 
 ### Install deps
 
-```yarn ```
+```pnpm install```
 
 ### Run dev server to view component gallery
 
-```yarn dev ```
+```pnpm dev ```
 
 ### Build component library
 
-```yarn build ```
+```pnpm build ```
 
 ### Build component library show case app
 
-```yarn build-showcase ```
+```pnpm build-showcase ```
 
 ### Adding a new component
 

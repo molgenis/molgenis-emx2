@@ -77,6 +77,23 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
+  public static void applyComputed(List<Column> columns, List<Row> rows) {
+    for (Row row : rows) {
+      applyComputed(columns, row);
+    }
+  }
+
+  public static void applyComputed(List<Column> columns, Row row) {
+    Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
+    for (Column column : columns) {
+      if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
+        Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(column, computedValue, row);
+      }
+    }
+  }
+
   private static void applyAutoId(Column c, Row row) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
       String id = SnowflakeIdGenerator.getInstance().generateId();
@@ -162,8 +179,8 @@ public class SqlTypeUtils extends TypeUtils {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);
       case UUID_ARRAY -> row.getUuidArray(name);
-      case STRING, EMAIL, HYPERLINK -> row.getString(name);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> row.getStringArray(name);
+      case STRING -> row.getString(name);
+      case STRING_ARRAY -> row.getStringArray(name);
       case BOOL -> row.getBoolean(name);
       case BOOL_ARRAY -> row.getBooleanArray(name);
       case INT -> row.getInteger(name);
@@ -192,9 +209,9 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static String getPsqlType(ColumnType type) {
-    return switch (type) {
-      case STRING, EMAIL, HYPERLINK, TEXT -> "character varying";
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY, TEXT_ARRAY -> "character varying[]";
+    return switch (type.getBaseType()) {
+      case STRING, TEXT -> "character varying";
+      case STRING_ARRAY, TEXT_ARRAY -> "character varying[]";
       case UUID -> "uuid";
       case UUID_ARRAY -> "uuid[]";
       case BOOL -> "bool";
@@ -217,7 +234,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static void checkValidation(Column column, Map<String, Object> values) {
-    if (values.get(column.getName()) != null) {
+    if (values.get(column.getIdentifier()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
