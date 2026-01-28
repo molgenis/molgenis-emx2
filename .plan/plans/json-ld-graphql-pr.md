@@ -43,7 +43,7 @@ Enable RDF subsetting through GraphQL by:
 ### Semantic Issues (svandenhoek) - Critical
 - [x] Missing `my` prefix definition - FIXED: now `my: <schemaUrl#>`
 - [x] Missing `rdf:type` triples - FIXED: table semantics now generate @type
-- [ ] Using `mg_id` instead of composite keys for subjects
+- [x] Using `mg_id` instead of composite keys - FIXED: mg_id now computed from pkeys via PrimaryKey class
 - [x] Invalid IRI syntax (`<my:.>`) - FIXED: removed invalid root ID, @base now full URL
 - [x] Semantic fields missing entirely - PARTIAL: table semantics enabled; column semantics N/A (JSON-LD requires @type:@id for refs)
 - [ ] Non-deterministic blank nodes in output
