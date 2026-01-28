@@ -3,6 +3,11 @@ import type {
   IDependencies,
   IDependenciesCSS,
   IDependenciesJS,
+  IBlocks,
+  IBlockOrders,
+  IConfigurablePages,
+  IComponents,
+  IComponentOrders,
 } from "../../types/cms";
 
 export function newDeveloperPage(): IDeveloperPages {
@@ -31,7 +36,7 @@ export function newPageDate(): string {
 export async function getPage(
   schema: string,
   page: string
-): Promise<IDeveloperPages> {
+): Promise<IDeveloperPages | IConfigurablePages> {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -108,13 +113,74 @@ export async function getPage(
                     width
                     height
                 }
+                    
+                # component order
+                componentOrder {
+                    block {
+                        id
+                    }
+                    component {
+                        id
+                    }
+                    order
+                }
+            }
+                
+            # block order
+            blockOrder {
+                block {
+                    id
+                }
+                order
             }
         }
       }`,
       variables: { filter: { name: { equals: page } } },
     },
   });
-  return data.Containers[0];
+
+  const currentPage = data.Containers[0];
+
+  if (currentPage.blockOrder) {
+    const blockOrdering = currentPage.blockOrder.reduce(
+      (acc: Record<string, number>, blockOrder: IBlockOrders) => {
+        return {
+          ...acc,
+          [blockOrder.block.id]: blockOrder.order,
+        };
+      },
+      {}
+    );
+
+    currentPage.blocks = currentPage.blocks.sort((a: IBlocks, b: IBlocks) => {
+      return blockOrdering[a.id] - blockOrdering[b.id];
+    });
+  }
+
+  if (currentPage.blocks.find((block: IBlocks) => block.componentOrder)) {
+    currentPage.blocks = currentPage.blocks.map((block: IBlocks) => {
+      if (block.componentOrder && block.components) {
+        const componentOrder: Record<string, any> = block.componentOrder.reduce(
+          (acc: Record<string, number>, componentOrder: IComponentOrders) => {
+            return {
+              ...acc,
+              [componentOrder.component.id]: componentOrder.order,
+            };
+          },
+          {}
+        );
+
+        block.components = block.components.sort(
+          (a: IComponents, b: IComponents) => {
+            return componentOrder[a.id] - componentOrder[b.id];
+          }
+        );
+      }
+      return block;
+    });
+  }
+
+  return currentPage;
 }
 
 export function generateHtmlPreview(
