@@ -326,7 +326,7 @@ public class Row {
     switch (value) {
       case File file -> setBinary(name, file);
       case BinaryFileWrapper wrapper -> setBinary(name, wrapper);
-      default -> values.put(name, value);
+      case null, default -> values.put(name, value);
     }
     return this;
   }
@@ -366,10 +366,11 @@ public class Row {
       case "UUID" -> (T) getUuid(name);
       case "UUID[]" -> (T) getUuidArray(name);
       case "byte[]" -> (T) getBinary(name);
-      default -> throw new MolgenisException(
+      default ->
+          throw new MolgenisException(
               "Unknown type: Cannot cast column to java columnType. "
-                      + "Row.get(Class,name) not implemented for Class = "
-                      + type.getCanonicalName());
+                  + "Row.get(Class,name) not implemented for Class = "
+                  + type.getCanonicalName());
     };
   }
 
