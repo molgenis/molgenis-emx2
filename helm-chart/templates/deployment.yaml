@@ -80,9 +80,9 @@ spec:
             - max_locks_per_transaction=1024
           resources:
             limits:
-              memory: "512Mi"
+              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
             requests:
-              memory: "128Mi"
+              memory: {{ .Values.image.pgResourceRequestMemory | quote }}
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -108,9 +108,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
+               memory: "128Mi"
             requests:
-              memory: {{ .Values.image.pgResourceRequestMemory | quote }}
+              memory: "64Mi"
           ports:
             - containerPort: 3000
           env:
