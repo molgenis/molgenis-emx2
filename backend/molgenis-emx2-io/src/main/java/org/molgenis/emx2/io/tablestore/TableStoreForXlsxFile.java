@@ -118,7 +118,12 @@ public class TableStoreForXlsxFile implements TableStore {
       org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
       for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
         try {
-          excelRow.createCell(entry.getValue()).setCellValue(row.getString(entry.getKey()));
+          String cellValue = row.getString(entry.getKey());
+          if (cellValue != null && cellValue.startsWith("=")) {
+            excelRow.createCell(entry.getValue()).setCellValue("'" + cellValue);
+          } else {
+            excelRow.createCell(entry.getValue()).setCellValue(cellValue);
+          }
         } catch (IllegalArgumentException e) {
           throw new MolgenisException(
               "Error writing table '"
@@ -281,7 +286,12 @@ public class TableStoreForXlsxFile implements TableStore {
               }
             }
           case STRING:
-            return cell.getStringCellValue().trim();
+            String trimmed = cell.getStringCellValue().trim();
+            if (trimmed.startsWith("'=")) {
+              return trimmed.substring(1);
+            } else {
+              return trimmed;
+            }
           case BOOLEAN:
             return cell.getBooleanCellValue();
           case FORMULA:
