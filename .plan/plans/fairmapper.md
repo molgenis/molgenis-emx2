@@ -255,15 +255,46 @@ Exploring SQL as alternative to GraphQL + JSLT (per SQL expert review feedback).
 |------|----------|--------|
 | 9.1 Create dcat-fdp-sql mock bundle | HIGH | Done |
 | 9.2 Test SQL against real catalogue DB | HIGH | Done |
-| 9.3 Implement SqlQueryStep if promising | MEDIUM | Pending |
+| 9.3 Implement SqlQueryStep | MEDIUM | Pending |
 
-**Bundle:** `fair-mappings/dcat-fdp-sql/`
+**Completed:**
+- `fair-mappings/dcat-fdp-sql/` - Example bundle with SQL query
+- `SqlQueryIntegrationTest.java` - Proves SQL produces valid JSON-LD
+- Uses existing `schema.retrieveSql(sql, params)` with `${param}` binding
 
 **Benefits:**
 - Single step instead of GraphQL + JSLT (2 steps)
 - SQL more widely known than JSLT
 - Direct JSON-LD construction
 - Can use database timestamps (mg_insertedOn, mg_updatedOn)
+
+---
+
+### 9.3 Implement SqlQueryStep
+
+**Files to create/modify:**
+
+1. `model/step/SqlQueryStep.java` - New step type implementing StepConfig
+2. `model/step/StepConfigDeserializer.java` - Add `"sql"` key handling
+3. `PipelineExecutor.java` - Handle SqlQueryStep via schema.retrieveSql()
+4. `RemotePipelineExecutor.java` - Handle SqlQueryStep (needs schema access)
+5. `BundleLoader.java` - Add validateSqlFile() for .sql extension
+
+**Usage:**
+```yaml
+steps:
+  - sql: src/queries/get-catalog.sql
+```
+
+**Implementation pattern:**
+```java
+} else if (step instanceof SqlQueryStep sqlStep) {
+  Path sqlPath = bundlePath.resolve(sqlStep.path());
+  String sql = Files.readString(sqlPath);
+  List<Row> rows = schema.retrieveSql(sql, variablesAsMap(input));
+  current = rows.isEmpty() ? null : parseJson(rows.get(0).get("result", String.class));
+}
+```
 
 ---
 
@@ -289,13 +320,52 @@ Exploring SQL as alternative to GraphQL + JSLT (per SQL expert review feedback).
 
 ---
 
+## Phase 12: Output Targets
+
+| Task | Priority | Status |
+|------|----------|--------|
+| 12.1 MOLGENIS CSV zip export | HIGH | Pending |
+| 12.2 Self-harvest demo | HIGH | Pending |
+
+### 12.1 MOLGENIS CSV Zip Export
+
+**Goal:** Transform harvested RDF into MOLGENIS-compatible CSV zip (reverse of fetch)
+
+**Use case:** Harvest external FDP → transform → download as `schema.zip` → import into MOLGENIS
+
+**Implementation:**
+- New output format: `output: molgenis-zip`
+- After transform, convert JSON to CSV files per table
+- Package as zip matching MOLGENIS import format
+
+**Format:**
+```
+schema.zip/
+  Resources.csv
+  Organisations.csv
+  Contacts.csv
+  molgenis.csv (metadata)
+```
+
+### 12.2 Self-Harvest Demo
+
+**Goal:** Demo harvesting our own FDP endpoints back into MOLGENIS
+
+**Flow:**
+1. Publish: `GET /catalogue/api/fdp` → JSON-LD
+2. Harvest: FAIRmapper fetches from own endpoint
+3. Transform: JSON-LD → MOLGENIS format
+4. Output: Either mutate or CSV zip
+
+---
+
 ## Future Ideas
 
 ### Developer Experience
 - **Dev server mode** - `fairmapper serve` with hot-reload
 
 ### Data Sources
-- **SQL query support** - Direct PostgreSQL queries
+- **SQL query support** - Direct PostgreSQL queries ✅ Done (SqlQueryStep)
 - **CSV source** - For schema migrations
 
 ### Scalability

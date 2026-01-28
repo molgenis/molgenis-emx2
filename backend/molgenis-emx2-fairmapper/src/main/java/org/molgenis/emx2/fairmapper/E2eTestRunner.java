@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.model.E2eTestCase;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.HttpMethod;
@@ -18,14 +19,20 @@ public class E2eTestRunner {
   private final Endpoint endpoint;
   private final GraphQL graphql;
   private final JsltTransformEngine transformEngine;
+  private final Schema schema;
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   public E2eTestRunner(
-      Path bundlePath, Endpoint endpoint, GraphQL graphql, JsltTransformEngine transformEngine) {
+      Path bundlePath,
+      Endpoint endpoint,
+      GraphQL graphql,
+      JsltTransformEngine transformEngine,
+      Schema schema) {
     this.bundlePath = bundlePath;
     this.endpoint = endpoint;
     this.graphql = graphql;
     this.transformEngine = transformEngine;
+    this.schema = schema;
   }
 
   public List<E2eTestResult> runTests() {
@@ -37,7 +44,7 @@ public class E2eTestRunner {
     }
 
     List<E2eTestResult> results = new ArrayList<>();
-    PipelineExecutor executor = new PipelineExecutor(graphql, transformEngine, bundlePath);
+    PipelineExecutor executor = new PipelineExecutor(graphql, transformEngine, bundlePath, schema);
 
     for (E2eTestCase testCase : endpoint.e2e().tests()) {
       results.add(runTestCase(executor, testCase));

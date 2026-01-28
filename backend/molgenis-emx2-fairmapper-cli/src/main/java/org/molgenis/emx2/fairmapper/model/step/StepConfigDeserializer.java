@@ -25,6 +25,8 @@ public class StepConfigDeserializer extends JsonDeserializer<List<StepConfig>> {
         steps.add(new QueryStep(stepNode.get("query").asText(), tests));
       } else if (stepNode.has("mutate")) {
         steps.add(new MutateStep(stepNode.get("mutate").asText()));
+      } else if (stepNode.has("sql")) {
+        steps.add(new SqlQueryStep(stepNode.get("sql").asText(), tests));
       }
     }
     return steps;

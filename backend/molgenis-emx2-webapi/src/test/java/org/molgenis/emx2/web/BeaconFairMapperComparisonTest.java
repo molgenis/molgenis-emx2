@@ -280,7 +280,7 @@ class BeaconFairMapperComparisonTest {
 
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
     JsltTransformEngine transformEngine = new JsltTransformEngine();
-    PipelineExecutor executor = new PipelineExecutor(graphQL, transformEngine, bundlePath);
+    PipelineExecutor executor = new PipelineExecutor(graphQL, transformEngine, bundlePath, schema);
 
     JsonNode requestBody = mapper.readTree(requestJson);
     return executor.execute(requestBody, endpoint);

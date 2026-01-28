@@ -1,18 +1,32 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.rdf4j.common.exception.ValidationException;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.vocabulary.RDF4J;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.BundleLoader;
@@ -23,6 +37,8 @@ import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.rdf.JsonLdToRdf;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.rdf.shacl.ShaclSelector;
+import org.molgenis.emx2.rdf.shacl.ShaclSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,28 +131,102 @@ public class FairMapperApi {
       GraphQL graphQL = factory.createGraphqlForSchema(schema);
 
       JsltTransformEngine transformEngine = new JsltTransformEngine();
-      PipelineExecutor executor = new PipelineExecutor(graphQL, transformEngine, bundlePath);
+      PipelineExecutor executor = new PipelineExecutor(graphQL, transformEngine, bundlePath, schema);
 
       JsonNode requestBody = parseRequestBody(ctx);
       JsonNode result = executor.execute(requestBody, mapping);
 
-      String acceptHeader = ctx.header("Accept");
-      String outputFormat = ContentNegotiator.resolveOutputFormat(acceptHeader, mapping.output());
-
-      ctx.contentType(ContentNegotiator.getMimeType(outputFormat));
-
-      if (ContentNegotiator.isRdfFormat(outputFormat)) {
-        JsonLdToRdf converter = new JsonLdToRdf();
-        String rdfOutput = converter.convert(objectMapper.writeValueAsString(result), outputFormat);
-        ctx.result(rdfOutput);
+      if (ctx.queryParam("validate") != null) {
+        handleValidation(ctx, result);
       } else {
-        ctx.result(objectMapper.writeValueAsString(result));
+        handleNormalOutput(ctx, result, mapping);
       }
 
     } catch (Exception e) {
       logger.error("FAIRmapper request failed", e);
       ctx.status(500);
       ctx.json(new ErrorResponse(e.getMessage()));
+    }
+  }
+
+  private static void handleNormalOutput(Context ctx, JsonNode result, Mapping mapping)
+      throws Exception {
+    String acceptHeader = ctx.header("Accept");
+    String outputFormat = ContentNegotiator.resolveOutputFormat(acceptHeader, mapping.output());
+
+    ctx.contentType(ContentNegotiator.getMimeType(outputFormat));
+
+    if (ContentNegotiator.isRdfFormat(outputFormat)) {
+      JsonLdToRdf converter = new JsonLdToRdf();
+      String rdfOutput = converter.convert(objectMapper.writeValueAsString(result), outputFormat);
+      ctx.result(rdfOutput);
+    } else {
+      ctx.result(objectMapper.writeValueAsString(result));
+    }
+  }
+
+  private static void handleValidation(Context ctx, JsonNode result) throws Exception {
+    String shaclSetId = sanitize(ctx.queryParam("validate"));
+    ShaclSet shaclSet = ShaclSelector.get(shaclSetId);
+    if (shaclSet == null) {
+      ctx.status(404);
+      throw new MolgenisException("Validation set could not be found: " + shaclSetId);
+    }
+
+    String jsonLd = objectMapper.writeValueAsString(result);
+    InputStream inputStream = new ByteArrayInputStream(jsonLd.getBytes(StandardCharsets.UTF_8));
+    Model dataModel = Rio.parse(inputStream, "", RDFFormat.JSONLD);
+
+    Model validationReport = performShaclValidation(dataModel, shaclSet);
+
+    RDFFormat format = RDFApi.selectFormat(ctx);
+    ctx.contentType(format.getDefaultMIMEType());
+
+    StringWriter writer = new StringWriter();
+    Rio.write(validationReport, writer, format);
+    ctx.result(writer.toString());
+  }
+
+  private static Model performShaclValidation(Model dataModel, ShaclSet shaclSet)
+      throws IOException {
+    ShaclSail shaclSail = new ShaclSail(new MemoryStore());
+    SailRepository repository = new SailRepository(shaclSail);
+    repository.init();
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      connection.begin();
+      for (int i = 0; i < shaclSet.files().length; i++) {
+        try (InputStream shapesStream = shaclSet.getInputStream(i)) {
+          connection.add(shapesStream, null, RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH);
+        }
+      }
+      connection.commit();
+
+      connection.begin(ShaclSail.TransactionSettings.ValidationApproach.Bulk);
+      dataModel.forEach(connection::add);
+
+      try {
+        connection.commit();
+        Model report = Rio.parse(
+            new ByteArrayInputStream(
+                """
+                @prefix sh: <http://www.w3.org/ns/shacl#> .
+
+                [] a sh:ValidationReport;
+                  sh:conforms true.
+                """
+                    .getBytes(StandardCharsets.UTF_8)),
+            "",
+            RDFFormat.TURTLE);
+        return report;
+      } catch (Exception e) {
+        if (e.getCause() instanceof ValidationException ve) {
+          return ve.validationReportAsModel();
+        }
+        throw e;
+      }
+    } finally {
+      repository.shutDown();
     }
   }
 

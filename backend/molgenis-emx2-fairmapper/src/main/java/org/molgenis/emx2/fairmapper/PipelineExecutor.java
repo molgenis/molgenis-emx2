@@ -10,11 +10,17 @@ import graphql.GraphQL;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.rdf4j.model.Model;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
+import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 import org.molgenis.emx2.fairmapper.rdf.FrameAnalyzer;
@@ -27,12 +33,15 @@ public class PipelineExecutor {
   private final GraphQL graphql;
   private final JsltTransformEngine transformEngine;
   private final Path bundlePath;
+  private final Schema schema;
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  public PipelineExecutor(GraphQL graphql, JsltTransformEngine transformEngine, Path bundlePath) {
+  public PipelineExecutor(
+      GraphQL graphql, JsltTransformEngine transformEngine, Path bundlePath, Schema schema) {
     this.graphql = graphql;
     this.transformEngine = transformEngine;
     this.bundlePath = bundlePath;
+    this.schema = schema;
   }
 
   public JsonNode execute(JsonNode request, Endpoint endpoint) throws IOException {
@@ -63,6 +72,8 @@ public class PipelineExecutor {
           current = executeTransform(transformStep.path(), current);
         } else if (step instanceof QueryStep queryStep) {
           current = executeQuery(queryStep.path(), current);
+        } else if (step instanceof SqlQueryStep sqlQueryStep) {
+          current = executeSqlQuery(sqlQueryStep.path(), current);
         }
       }
     }
@@ -114,5 +125,33 @@ public class PipelineExecutor {
 
     String json = convertExecutionResultToJson(result);
     return objectMapper.readTree(json);
+  }
+
+  private JsonNode executeSqlQuery(String queryPath, JsonNode variables) throws IOException {
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, queryPath);
+    String sql = Files.readString(resolvedPath);
+
+    Map<String, String> params = new HashMap<>();
+    if (variables != null && variables.isObject()) {
+      variables
+          .fields()
+          .forEachRemaining(
+              entry -> {
+                JsonNode value = entry.getValue();
+                if (value.isTextual()) {
+                  params.put(entry.getKey(), value.asText());
+                } else if (value.isNumber() || value.isBoolean()) {
+                  params.put(entry.getKey(), value.asText());
+                }
+              });
+    }
+
+    List<Row> rows = schema.retrieveSql(sql, params);
+    if (rows.isEmpty()) {
+      return objectMapper.createObjectNode();
+    }
+
+    String result = rows.get(0).getString("result");
+    return objectMapper.readTree(result);
   }
 }

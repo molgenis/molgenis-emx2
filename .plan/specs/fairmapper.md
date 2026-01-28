@@ -153,11 +153,42 @@ Backwards compatibility: `endpoints`, `path`, `name` on endpoint mappings still 
 | `transform` | `.jslt` | JSON | JSON | JSLT (schibsted) |
 | `query`     | `.gql` | Variables JSON | Query result JSON | molgenis-emx2-graphql |
 | `mutate`    | `.gql` | Variables JSON | Mutation result | molgenis-emx2-graphql |
-| `query`     | `.sql` | Variables JSON | Query result JSON | PostgreSQL (planned) |
+| `sql`       | `.sql` | Variables JSON | Query result JSON | PostgreSQL via `schema.retrieveSql()` |
 
 Notes:
 - RDF output is handled via content negotiation (`output: turtle`), not as a step type
 - RDF input (fetch) is handled at mapping level, not as a step type
+
+### SQL Step (Alternative to GraphQL + JSLT)
+
+SQL queries can produce JSON-LD directly using PostgreSQL JSON functions:
+
+```yaml
+steps:
+  - sql: src/queries/get-catalog.sql
+```
+
+**SQL file format:**
+```sql
+SELECT json_build_object(
+  '@context', json_build_object('dcat', 'http://www.w3.org/ns/dcat#'),
+  '@id', ${base_url} || '/' || ${schema} || '/api/catalog/' || r.id,
+  '@type', 'dcat:Catalog',
+  'dct:title', r.name
+) AS result
+FROM "Resources" r
+WHERE r.id = ${id}
+```
+
+**Parameters:** `${name}` syntax, bound via `schema.retrieveSql(sql, params)`
+
+**Benefits over GraphQL + JSLT:**
+- Single step instead of two
+- SQL more widely known than JSLT
+- Direct JSON-LD construction
+- Access to database timestamps (`mg_insertedOn`, `mg_updatedOn`)
+
+**Example bundle:** `fair-mappings/dcat-fdp-sql/`
 
 ### Fetch (Mapping-Level)
 
@@ -308,9 +339,10 @@ Bundles are global. Schema is extracted from URL path (`{schema}` placeholder) a
 2. GraphQL execution: We should move to fully qualified paths which may include {schema}. Yes
 3. Offline dev: Support mocking query results? We already have this with the step test cases.
 
-### SQL Queries
-4. Variable binding: `:name` or `${name}`? Todo: check with how report module works
-5. Result format: Must return single `json_build_object`? Currently yes.
+### SQL Queries (Resolved)
+4. Variable binding: `${name}` syntax (matches MOLGENIS `SqlRawQueryForSchema`)
+5. Result format: SELECT with `json_build_object(...) AS result` column
+6. Security: SQL from bundle files is trusted; parameters bound safely via JDBC
 
 ### General
 6. Mixed pipelines: Allow `transform → sql → transform`? Yes.
