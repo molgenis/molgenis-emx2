@@ -1,0 +1,17 @@
+{
+  "baseUrl": "https://catalogue.molgenis.org",
+  "_schema": {"name": "catalogue"},
+  "Resources": [{
+    "id": "lifelines-next",
+    "name": "LifeLines NEXT",
+    "description": "Studying the gut microbiome and its relationship with health outcomes in 1000 participants.",
+    "website": "https://www.lifelines.nl/next",
+    "keywords": ["microbiome", "gut health", "longitudinal study"],
+    "theme": [
+      {"name": "Health", "code": "HEAL", "codesystem": "http://publications.europa.eu/resource/authority/data-theme"}
+    ],
+    "contactPoint": {"id": "contact-1", "firstName": "John", "lastName": "Doe", "email": "lifelines@umcg.nl"},
+    "publisher": {"id": "umcg", "name": "University Medical Center Groningen"},
+    "partOf": {"id": "umcg-lifelines"}
+  }]
+}

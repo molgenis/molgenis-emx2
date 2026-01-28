@@ -1,0 +1,47 @@
+let baseUrl = .baseUrl
+let schema = ._schema
+let catalog = .Resources[0]
+let fdpUrl = $baseUrl + "/" + $schema.name + "/api/fdp"
+let catalogUrl = $fdpUrl + "/catalog/" + $catalog.id
+
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "fdp-o": "https://w3id.org/fdp/fdp-o#",
+    "datacite": "http://purl.org/spar/datacite/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+  },
+  "@id": $catalogUrl,
+  "@type": "dcat:Catalog",
+  "dct:title": $catalog.name,
+  "dct:description": $catalog.description,
+  "dct:isPartOf": {"@id": $fdpUrl},
+  "dct:license": {"@id": "https://creativecommons.org/licenses/by/4.0/"},
+  "dct:conformsTo": {"@id": "https://www.purl.org/fairtools/fdp/schema/0.1/catalogMetadata"},
+  "dct:publisher": if ($catalog.publisher)
+    {
+      "@id": $baseUrl + "/" + $schema.name + "/api/organisation/" + $catalog.publisher.id,
+      "@type": "foaf:Agent",
+      "foaf:name": $catalog.publisher.name
+    }
+    else {
+      "@id": $baseUrl + "/publisher",
+      "@type": "foaf:Agent",
+      "foaf:name": "MOLGENIS"
+    },
+  "dcat:endpointURL": {"@id": $catalogUrl},
+  "fdp-o:metadataIdentifier": {
+    "@id": $catalogUrl + "#identifier",
+    "@type": "datacite:Identifier",
+    "datacite:usesIdentifierScheme": {"@id": "datacite:url"},
+    "rdfs:label": $catalogUrl
+  },
+  "fdp-o:metadataIssued": {"@type": "http://www.w3.org/2001/XMLSchema#dateTime", "@value": "2024-01-01T00:00:00Z"},
+  "fdp-o:metadataModified": {"@type": "http://www.w3.org/2001/XMLSchema#dateTime", "@value": "2024-01-01T00:00:00Z"},
+  "foaf:homepage": if ($catalog.website) {"@id": $catalog.website} else null,
+  "dcat:dataset": [for ($catalog.datasets) {
+    "@id": $fdpUrl + "/dataset/" + .id
+  }]
+}

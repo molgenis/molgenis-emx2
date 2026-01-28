@@ -1,0 +1,21 @@
+query Individuals($filter: IndividualsFilter, $limit: Int, $offset: Int) {
+  Individuals(filter: $filter, limit: $limit, offset: $offset) {
+    id
+    genderAtBirth {
+      code
+      codesystem
+      name
+    }
+    yearOfBirth
+    clinicalObservations {
+      diseases {
+        disease {
+          code
+          codesystem
+          name
+        }
+        ageAtOnset
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "Resources": [
+    {
+      "id": "catalog-1",
+      "name": "Example Catalog",
+      "type": [{"name": "Catalogue"}],
+      "description": "A sample DCAT catalog for testing",
+      "pid": null,
+      "keywords": [],
+      "fdpEndpoint": null
+    },
+    {
+      "id": "dataset-1",
+      "name": "Dataset One",
+      "type": [{"name": "Databank"}],
+      "description": "First test dataset",
+      "pid": "doi:10.1234/dataset1",
+      "keywords": ["genetics", "health"],
+      "fdpEndpoint": null
+    },
+    {
+      "id": "dataset-2",
+      "name": "Dataset Two",
+      "type": [{"name": "Databank"}],
+      "description": "Second test dataset",
+      "pid": "doi:10.1234/dataset2",
+      "keywords": ["biobank"],
+      "fdpEndpoint": null
+    }
+  ],
+  "Organisations": [
+    {
+      "resource": {"id": "catalog-1"},
+      "id": "Example Organization"
+    }
+  ]
+}

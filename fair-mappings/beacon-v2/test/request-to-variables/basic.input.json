@@ -1,0 +1,9 @@
+{
+  "query": {
+    "filters": [],
+    "pagination": {
+      "limit": 10,
+      "skip": 0
+    }
+  }
+}

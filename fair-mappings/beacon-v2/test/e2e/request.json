@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "requestedSchemas": [
+      {
+        "entityType": "Individual"
+      }
+    ]
+  },
+  "query": {
+    "pagination": {
+      "limit": 10,
+      "skip": 0
+    }
+  }
+}

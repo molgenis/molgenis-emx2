@@ -3,4 +3,5 @@
 - [Platform guide](/molgenis/)
 - [Catalogue guide](/catalogue/)
 - [Directory guide](/directory/)
+- [FAIRmapper guide](/fairmapper/)
 - [Armadillo guide](https://molgenis.github.io/molgenis-service-armadillo/)

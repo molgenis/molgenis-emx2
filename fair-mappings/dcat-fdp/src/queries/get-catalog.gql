@@ -1,0 +1,19 @@
+query FdpCatalog($id: [String]) {
+  _schema {
+    name
+  }
+  Resources(filter: {id: {equals: $id}}) {
+    id
+    name
+    description
+    website
+    contactPoint {
+      firstName
+      lastName
+      email
+    }
+    publisher {
+      name
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "query": {
+    "filters": [
+      {
+        "id": "ncit:C28421",
+        "value": "ncit:C16576"
+      }
+    ],
+    "pagination": {
+      "limit": 10,
+      "skip": 0
+    }
+  }
+}
