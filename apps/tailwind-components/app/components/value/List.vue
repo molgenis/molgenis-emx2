@@ -51,8 +51,8 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
       :metadata="metadata"
       :data="listElement as number"
     />
-    <ValueLong
-      v-else-if="elementType === 'INT'"
+    <ValueInt
+      v-else-if="elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'"
       :metadata="metadata"
       :data="listElement as number"
     />
