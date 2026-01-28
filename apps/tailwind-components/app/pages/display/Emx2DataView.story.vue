@@ -49,7 +49,7 @@ const schemaId = ref<string>((route.query.schema as string) || "pet store");
 const tableId = ref<string>((route.query.table as string) || "Pet");
 const metadata = ref<ITableMetaData>();
 const layouts = ["list", "table", "cards"] as const;
-const layout = ref<(typeof layouts)[number]>("list");
+const layout = ref<(typeof layouts)[number]>("table");
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({
@@ -73,7 +73,7 @@ Unified data view combining fetching, layout options, and filter support.
 ## Props
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| layout | 'list' \\| 'table' \\| 'cards' | list | Display mode |
+| layout | 'list' \\| 'table' \\| 'cards' | table | Display mode |
 | showFilters | boolean | false | Show filter sidebar |
 | filterPosition | 'sidebar' \\| 'topbar' | sidebar | Filter placement |
 | filterableColumns | string[] | - | Limit which columns are filterable |

@@ -2,7 +2,7 @@
 import { computed, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
-import BaseIcon from "../BaseIcon.vue";
+import Button from "../Button.vue";
 
 const ariaId = useId();
 
@@ -160,16 +160,18 @@ function handleClearAll() {
       :distance="12"
       theme="tooltip"
     >
-      <button
+      <Button
         @click="handleRemove(filter.columnId)"
-        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sidebar-gradient text-body-sm text-search-filter-group-title hover:opacity-80 transition-opacity"
+        type="filterWell"
+        size="tiny"
+        icon="cross"
+        icon-position="right"
         :aria-label="`Remove filter: ${filter.label}`"
       >
         <span class="font-bold">{{ filter.label }}</span>
         <span v-if="!filter.isMultiValue">- {{ filter.displayValue }}</span>
         <span v-else class="text-gray-600">- {{ filter.displayValue }}</span>
-        <BaseIcon name="cross" :width="12" class="flex-shrink-0" />
-      </button>
+      </Button>
       <template #popper v-if="filter.isMultiValue">
         <ul style="list-style-type: disc" class="pl-3 min-w-95">
           <li v-for="item in filter.values" :key="item">
@@ -179,12 +181,13 @@ function handleClearAll() {
       </template>
     </VDropdown>
 
-    <button
+    <Button
       v-if="activeFilters.length > 1"
       @click="handleClearAll"
-      class="text-body-sm text-button-text hover:underline"
+      type="text"
+      size="tiny"
     >
       Clear all
-    </button>
+    </Button>
   </div>
 </template>

@@ -1,22 +1,32 @@
 <script setup lang="ts">
+import { useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import FilterColumn from "./Column.vue";
+import InputSearch from "../input/Search.vue";
 
 const props = withDefaults(
   defineProps<{
     columns: IColumn[];
     title?: string;
     mobileDisplay?: boolean;
+    showSearch?: boolean;
   }>(),
   {
     title: "Filters",
     mobileDisplay: false,
+    showSearch: false,
   }
 );
 
+const searchInputId = useId();
+
 const filterStates = defineModel<Map<string, IFilterValue>>("filterStates", {
   default: () => new Map(),
+});
+
+const searchTerms = defineModel<string>("searchTerms", {
+  default: "",
 });
 
 function getFilterValue(columnId: string): IFilterValue | null {
@@ -48,6 +58,15 @@ function setFilterValue(
     >
       {{ title }}
     </h2>
+
+    <div v-if="showSearch" class="px-5 pb-5">
+      <InputSearch
+        :id="searchInputId"
+        v-model="searchTerms"
+        placeholder="Search..."
+        size="small"
+      />
+    </div>
 
     <FilterColumn
       v-for="column in columns"

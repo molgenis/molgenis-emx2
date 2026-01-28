@@ -6,11 +6,59 @@
 - v6.3.8: ISectionColumn → ISectionField rename
 - v6.3.9: ActiveFilters component
 
-## Current: None
+## Current: Emx2DataView Layout Refinements
 
-Expand existing `IDisplayConfig` to be single unified config type.
+### Done (v6.3.10)
+- [x] Theme-aware table colors (bg-table, border-black/10, hover:bg-black/5)
+- [x] Card container with shadow
+- [x] Title/description moved outside card (page header style)
+- [x] CardList/CardListItem improved styling
+- [x] ActiveFilters bar integrated
+- [x] Default layout = "table"
+- [x] Table full-width (no padding wrapper)
 
-### Updated IDisplayConfig
+### Remaining Steps
+
+| Step | Task | Files |
+|------|------|-------|
+| 1 | Move search into FilterSidebar when showFilters + sidebar | FilterSidebar.vue, Emx2DataView.vue |
+| 2 | Keep search in content area when no sidebar | Emx2DataView.vue |
+| 3 | Ensure sidebar aligns with content card top | Emx2DataView.vue |
+| 4 | Update story to demo sidebar with search | Emx2DataView.story.vue |
+
+### Layout Structure
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Title + Description (page header)                   │
+├─────────────────────────────────────────────────────┤
+│ ┌──────────┐  ┌────────────────────────────────────┐│
+│ │ Sidebar  │  │ Content Card                       ││
+│ │          │  │ ┌────────────────────────────────┐ ││
+│ │ [Search] │  │ │ ActiveFilters (if any)         │ ││
+│ │          │  │ ├────────────────────────────────┤ ││
+│ │ Filter 1 │  │ │ Table (full width)             │ ││
+│ │ Filter 2 │  │ │                                │ ││
+│ │ ...      │  │ ├────────────────────────────────┤ ││
+│ └──────────┘  │ │ Pagination                     │ ││
+│               │ └────────────────────────────────┘ ││
+│               └────────────────────────────────────┘│
+└─────────────────────────────────────────────────────┘
+```
+
+### Theme Guidelines
+
+| Use | Instead of |
+|-----|------------|
+| `bg-table` | `bg-white`, `bg-gray-50` |
+| `border-black/10` | `border-gray-200` |
+| `hover:bg-black/5` | `hover:bg-gray-50` |
+| `text-body-base` | hardcoded text colors |
+| `bg-content shadow-primary` | no container |
+
+---
+
+## Reference: IDisplayConfig
 
 ```typescript
 export interface IDisplayConfig {
