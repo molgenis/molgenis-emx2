@@ -35,7 +35,7 @@ def main(args):
         for sa in staging_areas:
             log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
             migrator.set_source(sa)
-            migrator.migrate()
+            migrator.migrate(keep_zips=True)
 
 
 if __name__ == '__main__':
