@@ -3,6 +3,8 @@
 ## Completed
 - v6.3.0-6.3.6: Filter system with URL sync (see spec for details)
 - v6.3.7: Type refactoring - unified IDisplayConfig
+- v6.3.8: ISectionColumn → ISectionField rename
+- v6.3.9: ActiveFilters component
 
 ## Current: None
 
@@ -89,10 +91,8 @@ Usage:
 }
 ```
 
-### Deferred
-- ISectionColumn → ISectionField rename (separate PR)
+### Maybe Future
 - staticFilter/defaultFilter concept
-- ActiveFilters component
 - Custom column labels
 
 ## Test Coverage
