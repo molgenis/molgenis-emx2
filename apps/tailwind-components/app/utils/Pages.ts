@@ -78,7 +78,7 @@ export async function getPage(
                         url
                     }
                 }
-                isCentered
+                titleIsCentered
                 
                 # page sections
                 components {
@@ -93,6 +93,10 @@ export async function getPage(
                     
                     # Headings
                     level
+                    headingIsCentered
+                    
+                    # Paragraphs
+                    paragraphIsCentered
                     
                     # images
                     displayName

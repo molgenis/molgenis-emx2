@@ -4,8 +4,8 @@ import { useHead } from "#app";
 
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import HtmlPreview from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
-import ConfigurablePagePreview from "../../../../../../tailwind-components/app/components/pages/ConfigurablePagePreview.vue";
+import DeveloperPage from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
+import ConfigurablePage from "../../../../../../tailwind-components/app/components/pages/ConfigurablePage.vue";
 import { getPage } from "../../../../../../tailwind-components/app/utils/Pages";
 import type { Crumb } from "../../../../../../tailwind-components/types/types";
 import type { IContainers } from "../../../../../../tailwind-components/types/cms";
@@ -31,9 +31,9 @@ const crumbs: Crumb[] = [
   <Container>
     <bread-crumbs align="left" :crumbs="crumbs" class="my-5" />
   </Container>
-  <HtmlPreview
+  <DeveloperPage
     v-if="container.mg_tableclass === 'cms.Developer pages'"
     :content="container"
   />
-  <ConfigurablePagePreview v-else :content="container" />
+  <ConfigurablePage v-else :content="container" />
 </template>
