@@ -25,7 +25,7 @@ class TestRows {
   }
 
   @Test
-  void test1() {
+  void givenRow_thenInputShouldBeKeyValueWithStringKey() {
 
     try {
       new Row(1, 2);
