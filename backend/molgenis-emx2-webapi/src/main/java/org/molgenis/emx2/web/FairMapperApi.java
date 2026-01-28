@@ -5,6 +5,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.GraphQL;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.eclipse.rdf4j.common.exception.ValidationException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.vocabulary.RDF4J;
@@ -94,7 +96,11 @@ public class FairMapperApi {
       List<Mapping> mappings = reg.bundle.getMappings();
       if (mappings != null) {
         for (Mapping mapping : mappings) {
-          for (String method : mapping.methods()) {
+          if (mapping.endpoint() == null) {
+            continue;
+          }
+          List<String> methods = mapping.methods() != null ? mapping.methods() : List.of("GET");
+          for (String method : methods) {
             registerEndpoint(app, method, mapping, reg.bundlePath);
           }
         }
@@ -131,7 +137,8 @@ public class FairMapperApi {
       GraphQL graphQL = factory.createGraphqlForSchema(schema);
 
       JsltTransformEngine transformEngine = new JsltTransformEngine();
-      PipelineExecutor executor = new PipelineExecutor(graphQL, transformEngine, bundlePath, schema);
+      PipelineExecutor executor =
+          new PipelineExecutor(graphQL, transformEngine, bundlePath, schema);
 
       JsonNode requestBody = parseRequestBody(ctx);
       JsonNode result = executor.execute(requestBody, mapping);
@@ -207,17 +214,18 @@ public class FairMapperApi {
 
       try {
         connection.commit();
-        Model report = Rio.parse(
-            new ByteArrayInputStream(
-                """
+        Model report =
+            Rio.parse(
+                new ByteArrayInputStream(
+                    """
                 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
                 [] a sh:ValidationReport;
                   sh:conforms true.
                 """
-                    .getBytes(StandardCharsets.UTF_8)),
-            "",
-            RDFFormat.TURTLE);
+                        .getBytes(StandardCharsets.UTF_8)),
+                "",
+                RDFFormat.TURTLE);
         return report;
       } catch (Exception e) {
         if (e.getCause() instanceof ValidationException ve) {
@@ -231,11 +239,24 @@ public class FairMapperApi {
   }
 
   private static JsonNode parseRequestBody(Context ctx) throws IOException {
+    ObjectNode request = objectMapper.createObjectNode();
+
     String body = ctx.body();
-    if (body == null || body.isEmpty()) {
-      return objectMapper.createObjectNode();
+    if (body != null && !body.isEmpty()) {
+      JsonNode bodyNode = objectMapper.readTree(body);
+      if (bodyNode.isObject()) {
+        request.setAll((ObjectNode) bodyNode);
+      }
     }
-    return objectMapper.readTree(body);
+
+    for (Map.Entry<String, String> param : ctx.pathParamMap().entrySet()) {
+      request.put(param.getKey(), param.getValue());
+    }
+
+    String baseUrl = ctx.scheme() + "://" + ctx.host();
+    request.put("base_url", baseUrl);
+
+    return request;
   }
 
   private static record BundleRegistration(MappingBundle bundle, Path bundlePath) {}

@@ -320,6 +320,22 @@ steps:
 
 ---
 
+## Phase 11.5: Route Validation (TODO)
+
+| Task | Priority | Status |
+|------|----------|--------|
+| 11.5.1 Detect duplicate paths | HIGH | Pending |
+| 11.5.2 Validate path patterns | MEDIUM | Pending |
+
+**Problem:** Multiple bundles can register the same endpoint path, causing conflicts.
+
+**Fix:** Add validation in `FairMapperApi.registerRoutes()`:
+- Track registered paths
+- Warn/error on duplicate
+- Consider bundle priority or first-wins
+
+---
+
 ## Phase 12: Output Targets
 
 | Task | Priority | Status |

@@ -3,7 +3,7 @@ version: 1.0.0
 
 mappings:
   - name: fdp-root
-    endpoint: /{schema}/api/fdp
+    endpoint: /{schema}/api/fdp-gql
     methods: [GET]
     output: turtle
     steps:
@@ -14,7 +14,7 @@ mappings:
             output: test/publish/fdp-root/output.json
 
   - name: fdp-catalog
-    endpoint: /{schema}/api/fdp/catalog/{id}
+    endpoint: /{schema}/api/fdp-gql/catalog/{id}
     methods: [GET]
     output: turtle
     steps:
@@ -25,7 +25,7 @@ mappings:
             output: test/publish/catalog/output.json
 
   - name: fdp-dataset
-    endpoint: /{schema}/api/fdp/dataset/{id}
+    endpoint: /{schema}/api/fdp-gql/dataset/{id}
     methods: [GET]
     output: turtle
     steps:
