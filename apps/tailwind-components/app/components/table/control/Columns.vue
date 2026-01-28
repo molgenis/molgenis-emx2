@@ -30,36 +30,33 @@
         @change="handleSortMethodChanged"
       />
 
-      <draggable
-        tag="ul"
-        :list="columnsInColumnsSelectModal"
-        item-key="id"
-        @change="handleColumnDragEvent"
-      >
-        <template #item="{ element }">
-          <li class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab">
-            <div class="flex justify-between">
-              <div class="flex items-start">
-                <div class="flex items-center">
-                  <InputCheckbox
-                    v-model="element.visible"
-                    :id="element.id"
-                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
-                  />
-                  <!-- TODO move styling to checkbox component -->
-                </div>
-                <label
-                  class="text-title hover:cursor-pointer text-body-sm group"
-                  :for="element.id"
-                >
-                  {{ element.label }}
-                </label>
+      <ul>
+        <li
+          v-for="element in columnsInColumnsSelectModal"
+          :key="element.id"
+          class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab"
+        >
+          <div class="flex justify-between">
+            <div class="flex items-start">
+              <div class="flex items-center">
+                <InputCheckbox
+                  v-model="element.visible"
+                  :id="element.id"
+                  class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+                />
+                <!-- TODO move styling to checkbox component -->
               </div>
-              <BaseIcon name="equal" class="hover:cursor-grab" />
+              <label
+                class="text-title hover:cursor-pointer text-body-sm group"
+                :for="element.id"
+              >
+                {{ element.label }}
+              </label>
             </div>
-          </li>
-        </template>
-      </draggable>
+            <BaseIcon name="equal" class="hover:cursor-grab" />
+          </div>
+        </li>
+      </ul>
     </ContentBlockModal>
     <template #footer>
       <Button type="primary" size="small" label="Save" @click="handleSave" />
@@ -76,7 +73,6 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { VueDraggableNext as draggable } from "vue-draggable-next";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import { sortColumns } from "../../../utils/sortColumns";
 import BaseIcon from "../../BaseIcon.vue";

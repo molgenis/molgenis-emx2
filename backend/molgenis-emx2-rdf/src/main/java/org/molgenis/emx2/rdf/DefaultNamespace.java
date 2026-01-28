@@ -19,7 +19,7 @@ public enum DefaultNamespace {
   FDP("fdp-o", "https://w3id.org/fdp/fdp-o#"),
   FG("fg", "https://w3id.org/fair-genomes/resource/"),
   FOAF("foaf", "http://xmlns.com/foaf/0.1/"),
-  HEALTHDCAT_AP("healthDCAT-AP", "http://healthdataportal.eu/ns/health#"),
+  HEALTHDCAT_AP("healthdcatap", "http://healthdataportal.eu/ns/health#"),
   HL7("hl7", "http://purl.bioontology.org/ontology/HL7/"),
   LDP("ldp", "http://www.w3.org/ns/ldp#"),
   LNC("lnc", "http://purl.bioontology.org/ontology/LNC/"),

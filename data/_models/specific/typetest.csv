@@ -1,15 +1,16 @@
 tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description
 Options,,,,,,,,,,,,,,,,,,,TypeTest,,A table with options to test the ref/ref-array/radio/select/multiselect columns
 Types,,,,,,,,,,,,,,,,,,,TypeTest,,A table containing a column for each column type
+YesNoUnknown,,ONTOLOGIES,,,,,,,,,,,,,,,,,TypeTest,,"Yes, no, unknown"
 OntologySmall,,ONTOLOGIES,,,,,,,,,,,,,,,,,TypeTest,,A table with limited options to test the small ontology like columns
 OntologySmallTree,,ONTOLOGIES,,,,,,,,,,,,,,,,,TypeTest,,A table with options and parents to test the small tree ontology like columns
 OntologyLarge,,ONTOLOGIES,,,,,,,,,,,,,,,,,TypeTest,,A table with options to test the large ontology like columns
 OntologyLargeTree,,ONTOLOGIES,,,,,,,,,,,,,,,,,TypeTest,,A table with options and parents to test the large tree ontology like columns
-Options,,,option key,,,1,true,,,,,,,,,,,,TypeTest,,
-Options,,,option value,,,,,,,,,,,,,,,,TypeTest,,
+Options,,,option key,,string,1,true,,,,,,,,,,,,TypeTest,,
+Options,,,option value,,string,,,,,,,,,,,,,,TypeTest,,
 Types,,,String types,,section,,,,,,,,,,,,,,TypeTest,,
 Types,,,Simple string types,,heading,,,,,,,,,,,,,,TypeTest,,
-Types,,,string type,,,1,true,,,,,,,,,,,,TypeTest,,
+Types,,,string type,,string,1,true,,,,,,,,,,,,TypeTest,,
 Types,,,string array type,,string_array,,,,,,,,,,,,,,TypeTest,,
 Types,,,text type,,text,,,,,,,,,,,,,,TypeTest,,
 Types,,,text array type,,text_array,,,,,,,,,,,,,,TypeTest,,
@@ -64,3 +65,15 @@ Types,,,ontology small tree type,,ontology,,,,,OntologySmallTree,,,${label},,,,,
 Types,,,ontology large tree type,,ontology,,,,,OntologyLargeTree,,,${label},,,,,,TypeTest,,
 Types,,,ontology small tree array type,,ontology_array,,,,,OntologySmallTree,,,${label},,,,,,TypeTest,,
 Types,,,ontology large tree array type,,ontology_array,,,,,OntologyLargeTree,,,${label},,,,,,TypeTest,,
+Types,,,Conditional required,,section,,,,,,,,,,,,,,TypeTest,,
+Types,,,nameKnown,,bool,,false,,,,,,,,,,,,TypeTest,,
+Types,,,nameRequiredIfNameKnownYes,,string,,if(nameKnown) 'Name is required if name is known',,,,,,,,,,,,TypeTest,,
+Types,,,nameNoConditional,,string,,false,,,,,,,,,,,,TypeTest,,
+Types,,,validationsVisible,,section,,false,,,,,,,,,,,,TypeTest,Validation & visible expressions,
+Types,,,year,,int,,false,,,,,,,,"var CurrentDate =new Date().getFullYear() + 1; if (parseInt(year)>= CurrentDate || parseInt(year)<=1599) ""It appears you have entered a year that is not within the allowed range. Please enter a year between 1600 and the current year.""",,,,TypeTest,Year of Birth (validation between 1600 and current year),
+Types,,,showVisibleExpressionVariable,,ontology,,false,,,YesNoUnknown,,,${label},,,,,,TypeTest,If put to yes the test visible expression variable will be shown,
+Types,,,testVisible,,string,,false,,,,,,,,,"showVisibleExpressionVariable?.name === ""yes""",,,TypeTest,Test visible expression (visible if stringKnown is yes),
+Types,,,code,,string,,,,,,,,,,if(code.length<4 || code.length>12)'Code should be 4-12 characters long',,,,TypeTest,What is the code? (validated min 4 - max 12 characters),
+Types,,,additionalInfo,,ontology,,,,,YesNoUnknown,,,${label},,,,,,TypeTest,"Additional info, if yes a new header will appear.",
+Types,,,additionalInfoHeader,,heading,,,,,,,,,,,"additionalInfo?.name === ""yes""",,,TypeTest,Additional Information (header visible if additional info known is yes),
+Types,,,dateStart,,date,,,,,,,,,,"var today =new Date(); var dateFormat=today.toISOString().split('T')[0]; var minDate = new Date('1900-01-01'); var minDateFormat=minDate.toISOString().split('T')[0]; if (dateStart>dateFormat || dateStart<minDateFormat)""It appears you have entered a date that is not within the allowed range. Please enter a date that is between 01-01-1900 and today.""","additionalInfo?.name === ""yes""",,,TypeTest,Date Start (validation between 01-01-1900 and today),
