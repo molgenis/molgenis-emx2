@@ -31,7 +31,7 @@ Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
 Blocks,,enable full screen width,bool,,,,,,,,false,,"If true, content will be expanded to the fit the full width of the screen",pages
 Sections,Blocks,,,,,,,,,,,,Subcontainers for providing context to components,pages
 Components,,,,,,,,,,,,,Content and configuration for frontend components,pages
-Components,,id,auto_id,1,TRUE,,,,FALSE,,,,,pages
+Components,,id,auto_id,1,TRUE,,,,,,,,,pages
 Components,,in block,multiselect,,,Blocks,,,,,,,A link to the block where the component is used,pages
 Headers,Blocks,,,,,,,,,,,,<header> elements,pages
 Headers,,title,string,,,,,,,,,,A title for the page,pages
