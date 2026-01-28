@@ -228,8 +228,47 @@ public abstract class ColumnTypeRdfMapper {
         Map<String, String> colNameToRefTableColName =
             column.getReferences().stream()
                 .collect(Collectors.toMap(Reference::getName, Reference::getRefTo));
-        return RdfColumnType.retrieveReferenceValues(
-            rdfMapData, row, column, colNameToRefTableColName);
+
+        // Separate refLink (if present) from the rest.
+        String[] refLinkMappingItem =
+            (column.getRefLink() == null
+                ? null
+                : new String[] {
+                  colNameToRefTableColName.remove(column.getRefLink()),
+                  row.getString(column.getRefLink())
+                });
+
+        // Process items
+        final ArrayList<SortedMap<String, String>> itemsToMap = new ArrayList<>();
+        for (final String colName : colNameToRefTableColName.keySet()) {
+          final String[] values =
+              (column.isArray()
+                  ? row.getStringArray(colName)
+                  : new String[] {row.getString(colName)});
+
+          if (values == null) continue;
+
+          for (int i = 0; i < values.length; i++) {
+            if (itemsToMap.size() == i) itemsToMap.add(new TreeMap<>());
+            SortedMap<String, String> keyValuePairs = itemsToMap.get(i);
+            keyValuePairs.put(colNameToRefTableColName.get(colName), values[i]);
+          }
+        }
+
+        // Add refLink to each item
+        if (refLinkMappingItem != null) {
+          itemsToMap.forEach(item -> item.put(refLinkMappingItem[0], refLinkMappingItem[1]));
+        }
+
+        // Generate IRIs
+        return itemsToMap.stream()
+            .map(
+                item ->
+                    rowIRI(
+                        rdfMapData.getBaseURL(),
+                        column.getRefTable().getRootTable(),
+                        new PrimaryKey(item)))
+            .collect(Collectors.toUnmodifiableSet());
       }
 
       @Override
@@ -316,38 +355,6 @@ public abstract class ColumnTypeRdfMapper {
 
     boolean isEmpty(final Row row, final Column column) {
       return row.getString(column.getName()) == null;
-    }
-
-    private static Set<Value> retrieveReferenceValues(
-        final RdfMapData rdfMapData,
-        final Row row,
-        final Column tableColumn,
-        final Map<String, String> colNameToRefTableColName) {
-      final Map<Integer, SortedMap<String, String>> items = new HashMap<>();
-      for (final String colName : colNameToRefTableColName.keySet()) {
-        final String[] values =
-            (tableColumn.isArray()
-                ? row.getStringArray(colName)
-                : new String[] {row.getString(colName)});
-
-        if (values == null) continue;
-
-        for (int i = 0; i < values.length; i++) {
-          SortedMap<String, String> keyValuePairs = items.getOrDefault(i, new TreeMap<>());
-          keyValuePairs.put(colNameToRefTableColName.get(colName), values[i]);
-          items.put(i, keyValuePairs);
-        }
-      }
-
-      final Set<Value> values = new HashSet<>();
-      for (final SortedMap<String, String> item : items.values()) {
-        values.add(
-            rowIRI(
-                rdfMapData.getBaseURL(),
-                tableColumn.getRefTable().getRootTable(),
-                new PrimaryKey(item)));
-      }
-      return Set.copyOf(values);
     }
   }
 }
