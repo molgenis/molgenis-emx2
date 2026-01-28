@@ -14,7 +14,7 @@ import BreadCrumbs from "../../../../../../../tailwind-components/app/components
 import SideNavigation from "../../../../../components/SideNavigation.vue";
 import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentOntology from "../../../../../components/content/Ontology.vue";
+import ContentOntology from "../../../../../../../tailwind-components/app/components/content/Ontology.vue";
 import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
 import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 const config = useRuntimeConfig();

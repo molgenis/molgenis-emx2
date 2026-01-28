@@ -2,7 +2,7 @@
 import type { ICollectionEvents } from "../../../interfaces/catalogue";
 import { buildTree } from "../../utils/ontologyUtils";
 import ListCollapsible from "../ListCollapsible.vue";
-import ContentOntology from "./Ontology.vue";
+import ContentOntology from "../../../../tailwind-components/app/components/content/Ontology.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 
 const { collectionEvents } = defineProps<{

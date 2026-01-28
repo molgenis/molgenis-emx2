@@ -1,4 +1,4 @@
-import type { ComputedRef } from "vue";
+import type { ComputedRef, Component } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -9,6 +9,25 @@ export interface ISetting {
 }
 
 export type HeadingType = "HEADING" | "SECTION";
+
+export interface IDisplayConfig {
+  layout?: "table" | "list" | "cards";
+  displayComponent?: string | Component;
+  component?: string | Component;
+  visibleColumns?: string[];
+  columnConfig?: Record<string, IDisplayConfig>;
+  pageSize?: number;
+  showEmpty?: boolean;
+  rowLabel?: string;
+  clickAction?: (col: IColumn, row: IRow) => void;
+  getHref?: (col: IColumn, row: IRow) => string;
+  showFilters?: boolean;
+  filterPosition?: "sidebar" | "topbar";
+  filterableColumns?: string[];
+  showSearch?: boolean;
+  filter?: object;
+  label?: string;
+}
 
 export type CellValueType =
   | "BOOL"
@@ -62,6 +81,7 @@ export interface IColumn {
   computed?: string;
   conditions?: string[];
   description?: string;
+  displayConfig?: IDisplayConfig;
   formLabel?: string;
   key?: number;
   position?: number;
@@ -88,6 +108,7 @@ export interface IRefColumn extends IColumn {
   refLabel: string;
   refLabelDefault: string;
   refLinkId: string;
+  refTableMetadata?: ITableMetaData;
 }
 
 export interface ITableMetaData {

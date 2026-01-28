@@ -161,3 +161,15 @@ export interface Crumb {
   url: string;
   label: string;
 }
+
+export interface IOntologyItem {
+  order?: number;
+  name: string;
+  label?: string;
+  parent?: IOntologyItem;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IOntologyItem[];
+}
