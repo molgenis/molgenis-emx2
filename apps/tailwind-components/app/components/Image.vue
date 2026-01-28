@@ -2,7 +2,7 @@
 import type { IImages } from "../../types/cms";
 
 withDefaults(defineProps<IImages & { src: string }>(), {
-  isCentered: false,
+  imageIsCentered: false,
 });
 </script>
 
@@ -11,7 +11,7 @@ withDefaults(defineProps<IImages & { src: string }>(), {
     :src="image?.url || src"
     :class="[
       {
-        'text-center': isCentered,
+        'text-center': imageIsCentered,
       },
       width,
       height,
