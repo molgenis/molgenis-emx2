@@ -105,7 +105,10 @@ def test_transformer_quality(node_data, transformer):
 
     assert node_data.biobanks.rows_by_id["bbmri-eric:ID:NL_test_quality_biobank1"][
         "quality"
-    ] == ["quality1", "quality2"]
+    ] == [
+        "quality1",
+        "quality2",
+    ]
     assert (
         "quality"
         not in node_data.biobanks.rows_by_id["bbmri-eric:ID:NL_biobank_noQual"]
