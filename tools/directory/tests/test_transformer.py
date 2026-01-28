@@ -278,3 +278,48 @@ def test_transformer_catalog_membership(node_data, transformer):
 
     assert node_data.collections.rows[0]["catalog"] == "catalog_id"
     assert "catalog" not in node_data.collections.rows[1]
+
+
+def test_transformer_fdp_fields(node_data, transformer):
+    # Check fields not already there
+    for row in node_data.collections.rows:
+        assert "publisher" not in row
+        assert "language" not in row
+        assert "license" not in row
+        assert "keywords" not in row
+
+    # Set up mock
+    node_data = MagicMock()
+    node_data.collections.rows = [
+        {"biobank": "biobank1", "name": "Collections1", "diagnosis_available": []},
+        {
+            "biobank": "biobank2",
+            "name": "Collections2",
+            "diagnosis_available": ["urn:miriam:icd:V61.6", "urn:miriam:icd:C18.0"],
+        },
+    ]
+    transformer.node_data = node_data
+    transformer.diseases.rows_by_id = {
+        "urn:miriam:icd:V61.6": {
+            "name": "urn:miriam:icd:V61.6",
+            "label": "Occupant of heavy transport vehicle injured in collision",
+        },
+        "urn:miriam:icd:C18.0": {
+            "name": "urn:miriam:icd:C18.0",
+            "label": "Malignant neoplasm of colon - Malignant neoplasm: Caecum",
+        },
+    }
+    transformer._set_collection_fdp_fields()
+
+    # Check fields correctly added
+    assert node_data.collections.rows[0]["publisher"] == "BBMRI-ERIC"
+    assert node_data.collections.rows[0]["language"] == "English"
+    assert (
+        node_data.collections.rows[0]["license"]
+        == "https://ejp-rd-vp.github.io/resource-metadata-schema/license/v1.0.txt"
+    )
+    assert node_data.collections.rows[0]["keywords"] == []
+    assert node_data.collections.rows[1]["keywords"] == [
+        "Occupant of heavy transport vehicle injured in collision",
+        "Malignant neoplasm of colon - Malignant neoplasm: Caecum",
+    ]
