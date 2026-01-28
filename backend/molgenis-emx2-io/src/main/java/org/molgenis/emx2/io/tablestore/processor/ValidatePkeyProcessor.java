@@ -58,55 +58,64 @@ public class ValidatePkeyProcessor implements RowProcessor {
                 .filter(name -> !columnNames.contains(name))
                 .collect(Collectors.toSet());
 
-        if (!warningColumns.isEmpty()) {
-          if (task.isStrict()) {
-            throw new MolgenisException(
-                "Found unknown columns " + warningColumns + " in sheet " + metadata.getTableName());
-          } else {
-            task.addSubTask(
-                "Found unknown columns " + warningColumns + " in sheet " + metadata.getTableName(),
-                TaskStatus.WARNING);
-          }
-        }
+        checkWarningColumns();
       }
 
       // primary key(s)
       StringJoiner compoundKey = new StringJoiner(",");
       for (Column column : primaryKeyColumns) {
-        if (!row.containsName(column.getName())) {
-          if (column.getColumnType() != ColumnType.AUTO_ID) {
-            task.addSubTask(
-                    "No value provided for key " + column.getName() + " at line " + (index + 1))
-                .setError();
-            hasEmptyKeys = true;
-            errorMessage = "missing value for key column '" + column.getName() + "'. Row: " + row;
-          }
-        } else {
+        if (row.containsName(column.getName())) {
           String keyValue = row.getString(column.getName());
           compoundKey.add(keyValue);
+        } else if (column.getColumnType() != ColumnType.AUTO_ID) {
+          task.addSubTask(
+                  "No value provided for key " + column.getName() + " at line " + (index + 1))
+              .setError();
+          hasEmptyKeys = true;
+          errorMessage = "missing value for key column '" + column.getName() + "'. Row: " + row;
         }
       }
 
       String keyValue = compoundKey.toString();
-      if (keys.contains(keyValue)) {
-        duplicates.add(keyValue);
-        String keyFields =
-            metadata.getPrimaryKeyFields().stream()
-                .map(Field::getName)
-                .collect(Collectors.joining(","));
+      validateKeyValue(keyValue);
 
-        task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
-      } else if (!keyValue.isEmpty() && !keyValue.equals("null")) {
-        keys.add(keyValue);
-      }
       task.setProgress(++index);
     }
+
     if (!duplicates.isEmpty()) {
       task.completeWithError(
           "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
     }
+
     if (hasEmptyKeys)
       task.completeWithError(
           "Missing keys found in table '" + metadata.getTableName() + "': " + errorMessage);
+  }
+
+  private void checkWarningColumns() {
+    if (!warningColumns.isEmpty()) {
+      if (task.isStrict()) {
+        throw new MolgenisException(
+            "Found unknown columns " + warningColumns + " in sheet " + metadata.getTableName());
+      } else {
+        task.addSubTask(
+            "Found unknown columns " + warningColumns + " in sheet " + metadata.getTableName(),
+            TaskStatus.WARNING);
+      }
+    }
+  }
+
+  private void validateKeyValue(String keyValue) {
+    if (keys.contains(keyValue)) {
+      duplicates.add(keyValue);
+      String keyFields =
+          metadata.getPrimaryKeyFields().stream()
+              .map(Field::getName)
+              .collect(Collectors.joining(","));
+
+      task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
+    } else if (!keyValue.isEmpty() && !keyValue.equals("null")) {
+      keys.add(keyValue);
+    }
   }
 }
