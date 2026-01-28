@@ -1,132 +1,130 @@
 # FAIRmapper Demo Script
 
-## Story: Publishing a FAIR Data Point
+## FDP Endpoints (SQL-based)
 
-"We have a Data Catalogue with networks and cohorts. We want to expose this as a FAIR Data Point so other systems can discover and harvest our metadata."
-
-### Prerequisites
-- MOLGENIS running locally (http://localhost:8080)
-- Schema with DATA_CATALOGUE profile (e.g., `catalogue`)
+| Endpoint | Link |
+|----------|------|
+| FDP Root | http://localhost:8080/catalogue/api/fdp |
+| Catalog: ATHLETE | http://localhost:8080/catalogue/api/fdp/catalog/ATHLETE |
+| Catalog: LifeCycle | http://localhost:8080/catalogue/api/fdp/catalog/LifeCycle |
+| Dataset: EDEN | http://localhost:8080/catalogue/api/fdp/dataset/EDEN |
+| Dataset: GECKO | http://localhost:8080/catalogue/api/fdp/dataset/GECKO |
+| Validate FDP | http://localhost:8080/catalogue/api/fdp?validate=fdp-v1.2 |
 
 ---
 
-## Demo 1: FDP Root (The Entry Point)
+## Demo 1: FDP Root (Entry Point)
 
-**Story:** "First, let's see the FDP root - this is where harvesters start"
+**Story:** "The FDP root is where harvesters start - it lists all available catalogs"
 
-```bash
-# JSON-LD (default)
-curl http://localhost:8080/catalogue/api/fdp
+http://localhost:8080/catalogue/api/fdp
 
-# Turtle (RDF format)
-curl -H "Accept: text/turtle" http://localhost:8080/catalogue/api/fdp
-
-# Validate against FDP SHACL
-curl "http://localhost:8080/catalogue/api/fdp?validate=fdp-1.2"
-```
-
-**What to show:**
-- FDP metadata: title, description, publisher
-- Links to catalogs (`fdp-o:metadataCatalog`)
+**What you see:**
+- FDP metadata (title, description, publisher)
+- List of catalogs: ATHLETE, LifeCycle, LongITools, etc.
 - FDP spec conformance
 
 ---
 
-## Demo 2: Catalog (A Network/Catalogue)
+## Demo 2: Catalog (Network)
 
-**Story:** "Each network or catalogue becomes a dcat:Catalog with its datasets"
+**Story:** "Each network becomes a dcat:Catalog listing its cohorts/biobanks"
 
-```bash
-# Get a specific catalog (replace ID with actual)
-curl http://localhost:8080/catalogue/api/fdp/catalog/umcg-lifelines
+http://localhost:8080/catalogue/api/fdp/catalog/ATHLETE
 
-# Show linked datasets
-curl -H "Accept: application/ld+json" http://localhost:8080/catalogue/api/fdp/catalog/umcg-lifelines
-```
-
-**What to show:**
-- Catalog metadata: title, description, license
-- Nested datasets (`dcat:dataset`)
-- Link back to FDP root (`dct:isPartOf`)
+**What you see:**
+- Network description
+- 12 linked datasets (EDEN, INMA, DNBC, etc.)
+- Link back to FDP root
 
 ---
 
-## Demo 3: Dataset (A Cohort/Biobank)
+## Demo 3: Dataset (Cohort)
 
-**Story:** "Each cohort or biobank is exposed as a dcat:Dataset"
+**Story:** "Each cohort is exposed as dcat:Dataset with rich metadata"
 
-```bash
-# Get a specific dataset
-curl http://localhost:8080/catalogue/api/fdp/dataset/lifelines
+http://localhost:8080/catalogue/api/fdp/dataset/EDEN
 
-# With validation
-curl "http://localhost:8080/catalogue/api/fdp/dataset/lifelines?validate=fdp-1.2"
-```
-
-**What to show:**
-- Dataset metadata: title, description
-- Link to parent catalog (`dct:isPartOf`)
-- FDP metadata (identifier, issued, modified)
+**What you see:**
+- Cohort description
+- Link to parent catalog (ATHLETE)
+- FDP metadata (issued, modified dates)
 
 ---
 
-## Demo 4: SQL vs GraphQL+JSLT Comparison
+## Demo 4: Navigate the links
 
-**Story:** "Data managers can choose SQL for simpler mappings"
+**Story:** "All internal URLs in the RDF are clickable and resolve"
 
-Show the SQL file:
-```bash
-cat fair-mappings/dcat-fdp-sql/src/queries/get-fdp-root.sql
-```
-
-**Key points:**
-- Single SQL query builds JSON-LD directly
-- Uses `json_build_object()` for structure
-- Parameterized with `${schema}`, `${base_url}`
-- No JSLT transform needed
+1. Start at: http://localhost:8080/catalogue/api/fdp
+2. Click any catalog link → e.g., LifeCycle
+3. Click any dataset link → e.g., GECKO
+4. Click `dct:isPartOf` → back to catalog
 
 ---
 
 ## Demo 5: SHACL Validation
 
-**Story:** "We can validate our output against FDP SHACL shapes"
+**Story:** "We can validate output against FDP SHACL shapes"
 
-```bash
-# Valid output shows success
-curl "http://localhost:8080/catalogue/api/fdp?validate=fdp-1.2"
-
-# Invalid output shows violations (if any)
-```
-
-**What to show:**
-- Validation report format
-- SHACL constraint checking
-- How to fix violations
+http://localhost:8080/catalogue/api/fdp?validate=fdp-v1.2
 
 ---
 
-## Quick Test Commands
+## Beacon v2 Endpoints (rd3 schema)
+
+| Endpoint | Link |
+|----------|------|
+| Beacon Info | http://localhost:8080/rd3/api/beacon |
+| Individuals | http://localhost:8080/rd3/api/beacon/individuals |
+| Individual: Case1F | http://localhost:8080/rd3/api/beacon/individuals/Case1F |
+| Pagination | http://localhost:8080/rd3/api/beacon/individuals?skip=5&limit=3 |
+| Beacon Map | http://localhost:8080/rd3/api/beacon/map |
+
+---
+
+## Demo 6: Beacon Queries
+
+**Story:** "Beacon allows federated queries across biobanks with privacy controls"
+
+**Basic query:**
+http://localhost:8080/rd3/api/beacon/individuals
+
+**With pagination:**
+http://localhost:8080/rd3/api/beacon/individuals?skip=5&limit=3
+
+**Specific individual:**
+http://localhost:8080/rd3/api/beacon/individuals/Case1F
+
+**What you see:**
+- 23 individuals in rd3 dataset
+- Sex, age info per individual
+- Pagination support
+
+---
+
+## Demo 7: Beacon Granularity (POST only)
+
+**Story:** "Privacy controls via granularity - from records to counts to yes/no"
 
 ```bash
-# Test all endpoints exist
-curl -I http://localhost:8080/catalogue/api/fdp
-curl -I http://localhost:8080/catalogue/api/fdp/catalog/TEST_ID
-curl -I http://localhost:8080/catalogue/api/fdp/dataset/TEST_ID
+# Count only
+curl -X POST http://localhost:8080/rd3/api/beacon/individuals \
+  -H "Content-Type: application/json" \
+  -d '{"query":{"requestedGranularity":"count"}}'
 
-# Find catalog/dataset IDs
-curl http://localhost:8080/catalogue/graphql -d '{"query":"{ Resources(limit:5) { id name type { name } } }"}' -H "Content-Type: application/json"
+# Boolean only
+curl -X POST http://localhost:8080/rd3/api/beacon/individuals \
+  -H "Content-Type: application/json" \
+  -d '{"query":{"requestedGranularity":"boolean"}}'
 ```
 
 ---
 
-## Future Demo: Self-Harvest
+## Sample IDs
 
-"Now let's harvest our own FDP back into MOLGENIS..."
+**Catalogs:** ATHLETE, LifeCycle, LongITools, EUChildNetwork
 
-```bash
-# Harvest from our own endpoint
-./fairmapper run \
-  --bundle fair-mappings/dcat-harvester \
-  --source http://localhost:8080/catalogue/api/fdp \
-  --target http://localhost:8080/harvest-test
-```
+**Datasets:** EDEN, INMA, DNBC, GenR, MoBa, GECKO
+
+**Individuals:** Case1F, Case1C, Case2M, Case3C
