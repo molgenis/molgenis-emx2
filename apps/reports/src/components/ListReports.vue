@@ -124,10 +124,10 @@ export default {
     },
     async deleteSelected() {
       this.error = null;
-      this.selection.forEach((id) => this.reports.splice(id, 1));
-      await this.client
-        .saveSetting("reports", this.reports)
-        .catch((error) => (this.error = error));
+      this.reports = this.reports.filter(
+        (report) => !this.selection.includes(report.id)
+      );
+      await this.client.saveSetting("reports", this.reports);
       this.reload();
     },
     open(row) {
