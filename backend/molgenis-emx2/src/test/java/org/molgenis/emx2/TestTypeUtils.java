@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.ColumnTypeGroups.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -158,5 +159,30 @@ class TestTypeUtils {
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(trailingData)),
         // invalid: Java type int
         () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(invalidJavaType)));
+  }
+
+  @Test
+  void testAllColumnTypesCoveredGetArrayType() {
+    EXCLUDE_ARRAY_FILE_REFERENCE_HEADING.forEach(TypeUtils::getArrayType);
+  }
+
+  @Test
+  void testAllColumnTypesCoveredToJooqType() {
+    EXCLUDE_REFERENCE_HEADING.forEach(TypeUtils::toJooqType);
+  }
+
+  @Test
+  void testAllColumnTypesCoveredTypedValue() {
+    Object object = new Object();
+
+    for (ColumnType columnType : EXCLUDE_FILE_REFERENCE_HEADING) {
+      try {
+        TypeUtils.getTypedValue(object, columnType);
+      } catch (RuntimeException e) {
+        if (e instanceof UnsupportedOperationException) {
+          fail("ColumnType not covered: " + columnType);
+        }
+      }
+    }
   }
 }
