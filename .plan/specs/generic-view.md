@@ -94,6 +94,89 @@ interface IFilterValue {
 | REF, REF_ARRAY | dropdown | in | `?category.name=Cat1\|Cat2` |
 | ONTOLOGY, ONTOLOGY_ARRAY | tree | in | `?country.name=NL\|BE` |
 
+## Component Architecture
+
+### Page Layout Pattern
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Header (slot) - PageHeader with breadcrumbs         │
+├─────────────────────────────────────────────────────┤
+│ ┌──────────┐  ┌────────────────────────────────────┐│
+│ │ Sidebar  │  │ Main                               ││
+│ │ (slot)   │  │ (slot)                             ││
+│ │ optional │  │                                    ││
+│ └──────────┘  └────────────────────────────────────┘│
+└─────────────────────────────────────────────────────┘
+```
+
+### Component Responsibilities
+
+| Component | Purpose |
+|-----------|---------|
+| `DetailPageLayout` | Page structure: header + optional sidebar + main |
+| `PageHeader` | Title, description, prefix slot for breadcrumbs |
+| `BreadCrumbs` | Navigation breadcrumbs |
+| `Emx2DataView` | Data listing with integrated filter sidebar (headerless) |
+| `Emx2RecordView` | Single record display |
+| `FilterSidebar` | Filter inputs container |
+| `SideNav` | Section navigation for detail pages |
+
+### Emx2DataView (headerless)
+
+```
+┌──────────┐  ┌────────────────────────────────────┐
+│ Filter   │  │ Content card                       │
+│ Sidebar  │  │ ┌────────────────────────────────┐ │
+│ (when    │  │ │ ActiveFilters                  │ │
+│ config.  │  │ ├────────────────────────────────┤ │
+│ show     │  │ │ Table/List/Cards               │ │
+│ Filters) │  │ ├────────────────────────────────┤ │
+│          │  │ │ Pagination                     │ │
+└──────────┘  └────────────────────────────────────┘
+```
+
+- No title/description (parent provides via PageHeader)
+- Keeps FilterSidebar internally (filter state tightly coupled)
+- `config.showFilters` controls sidebar visibility
+
+### Usage Patterns
+
+**Data page:**
+```vue
+<DetailPageLayout>
+  <template #header>
+    <PageHeader title="Pets" description="All pets">
+      <template #prefix>
+        <BreadCrumbs :crumbs="[...]" />
+      </template>
+    </PageHeader>
+  </template>
+  <template #main>
+    <Emx2DataView schema-id="..." table-id="..." :config="{showFilters: true}" />
+  </template>
+</DetailPageLayout>
+```
+
+**Detail page:**
+```vue
+<DetailPageLayout>
+  <template #header>
+    <PageHeader title="Spike">
+      <template #prefix>
+        <BreadCrumbs :crumbs="[...]" />
+      </template>
+    </PageHeader>
+  </template>
+  <template #sidebar>
+    <SideNav :sections="[...]" />
+  </template>
+  <template #main>
+    <Emx2RecordView ... />
+  </template>
+</DetailPageLayout>
+```
+
 ## Design Decisions
 
 1. **One-way data flow**: URL is single source of truth, eliminates sync bugs
@@ -104,3 +187,6 @@ interface IFilterValue {
 6. **Pipe separator**: `|` for multi-value (avoids comma conflicts in data)
 7. **Reserved prefix**: `mg_*` params preserved across filter changes
 8. **Graceful degradation**: Works without router (uses local refs)
+9. **Composition over props**: DetailPageLayout uses slots, components compose
+10. **Headerless data view**: Emx2DataView has no title, parent provides context
+11. **Coupled filter sidebar**: FilterSidebar stays in Emx2DataView (state coupling)

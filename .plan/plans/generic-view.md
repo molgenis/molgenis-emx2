@@ -6,44 +6,54 @@
 - v6.3.8: ISectionColumn → ISectionField rename
 - v6.3.9: ActiveFilters component
 
-## Current: Emx2DataView Layout Refinements
+## Current: Component Architecture Refactor
 
 ### Done (v6.3.10)
 - [x] Theme-aware table colors (bg-table, border-black/10, hover:bg-black/5)
 - [x] Card container with shadow
-- [x] Title/description moved outside card (page header style)
 - [x] CardList/CardListItem improved styling
 - [x] ActiveFilters bar integrated
 - [x] Default layout = "table"
 - [x] Table full-width (no padding wrapper)
 
-### Remaining Steps
+### Next: Headerless Emx2DataView + DetailPageLayout Composition
 
 | Step | Task | Files |
 |------|------|-------|
-| 1 | Move search into FilterSidebar when showFilters + sidebar | FilterSidebar.vue, Emx2DataView.vue |
-| 2 | Keep search in content area when no sidebar | Emx2DataView.vue |
-| 3 | Ensure sidebar aligns with content card top | Emx2DataView.vue |
-| 4 | Update story to demo sidebar with search | Emx2DataView.story.vue |
+| 1 | Rename DetailPageLayout slot `side` → `sidebar` | DetailPageLayout.vue |
+| 2 | Make sidebar slot optional (main full-width when empty) | DetailPageLayout.vue |
+| 3 | Remove title/description from Emx2DataView (headerless) | Emx2DataView.vue |
+| 4 | Move search into FilterSidebar when showFilters | FilterSidebar.vue, Emx2DataView.vue |
+| 5 | Keep search in content area when no sidebar | Emx2DataView.vue |
+| 6 | Update story: use DetailPageLayout + PageHeader composition | Emx2DataView.story.vue |
+| 7 | Update DetailPageLayout.story to show both patterns | DetailPageLayout.story.vue |
 
-### Layout Structure
+### Target Layout Structure
 
+**Page level (DetailPageLayout):**
 ```
 ┌─────────────────────────────────────────────────────┐
-│ Title + Description (page header)                   │
+│ Header (slot) - PageHeader with breadcrumbs         │
 ├─────────────────────────────────────────────────────┤
 │ ┌──────────┐  ┌────────────────────────────────────┐│
-│ │ Sidebar  │  │ Content Card                       ││
-│ │          │  │ ┌────────────────────────────────┐ ││
-│ │ [Search] │  │ │ ActiveFilters (if any)         │ ││
-│ │          │  │ ├────────────────────────────────┤ ││
-│ │ Filter 1 │  │ │ Table (full width)             │ ││
-│ │ Filter 2 │  │ │                                │ ││
-│ │ ...      │  │ ├────────────────────────────────┤ ││
-│ └──────────┘  │ │ Pagination                     │ ││
-│               │ └────────────────────────────────┘ ││
-│               └────────────────────────────────────┘│
+│ │ Sidebar  │  │ Main (slot)                        ││
+│ │ (slot)   │  │                                    ││
+│ │ optional │  │                                    ││
+│ └──────────┘  └────────────────────────────────────┘│
 └─────────────────────────────────────────────────────┘
+```
+
+**Emx2DataView (headerless, in main slot):**
+```
+┌──────────┐  ┌────────────────────────────────────┐
+│ Filter   │  │ Content Card                       │
+│ Sidebar  │  │ ┌────────────────────────────────┐ │
+│ [Search] │  │ │ ActiveFilters (if any)         │ │
+│ Filter 1 │  │ ├────────────────────────────────┤ │
+│ Filter 2 │  │ │ Table (full width)             │ │
+│ ...      │  │ ├────────────────────────────────┤ │
+│          │  │ │ Pagination                     │ │
+└──────────┘  └────────────────────────────────────┘
 ```
 
 ### Theme Guidelines
