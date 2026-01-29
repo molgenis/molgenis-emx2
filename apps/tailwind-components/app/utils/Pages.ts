@@ -3,9 +3,9 @@ import type {
   IDependencies,
   IDependenciesCSS,
   IDependenciesJS,
+  IConfigurablePages,
   IBlocks,
   IBlockOrders,
-  IConfigurablePages,
   IComponents,
   IComponentOrders,
 } from "../../types/cms";
@@ -24,14 +24,101 @@ export function newDeveloperPage(): IDeveloperPages {
   };
 }
 
-export function parsePageText(value: string): string {
-  return value.replace(/(^")|("$)/g, "");
-}
-
-export function newPageDate(): string {
-  const date = new Date().toISOString();
-  return date.replace("T", " ").split(".")[0] as string;
-}
+const pageQuery = `query getContainers($filter:ContainersFilter) {
+    Containers(filter:$filter) {
+        
+        # Containers
+        name
+        description
+        mg_tableclass
+        
+        # Developer pages
+        html
+        css
+        javascript
+        dependencies {
+            mg_tableclass
+            name
+            url
+            defer
+            async
+            fetchPriority {
+                name
+            }
+            async
+            defer
+        }
+        enableBaseStyles
+        enableButtonStyles
+        enableFullScreen
+        
+        # Configurable pages
+        blocks {
+            id
+            enableFullScreenWidth
+            mg_tableclass
+            
+            # page headings
+            title
+            subtitle
+            backgroundImage {
+                image {
+                    id
+                    url
+                }
+            }
+            titleIsCentered
+            
+            # page sections
+            components {
+                id
+                inBlock {
+                    id
+                }
+                mg_tableclass
+                
+                # TextElements
+                text
+                
+                # Headings
+                level
+                headingIsCentered
+                
+                # Paragraphs
+                paragraphIsCentered
+                
+                # images
+                displayName
+                image {
+                    id
+                    url
+                }
+                alt
+                width
+                height
+            }
+                
+            # component order
+            componentOrder {
+                block {
+                    id
+                }
+                component {
+                    id
+                }
+                order
+            }
+        }
+            
+        # block order
+        blockOrder {
+            block {
+                id
+            }
+            order
+        }
+    }
+}`;
 
 export async function getPage(
   schema: string,
@@ -40,126 +127,34 @@ export async function getPage(
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `query getContainers($filter:ContainersFilter) {
-        Containers(filter:$filter) {
-            
-            # Containers
-            name
-            description
-            mg_tableclass
-            
-            # Developer pages
-            html
-            css
-            javascript
-            dependencies {
-                mg_tableclass
-                name
-                url
-                defer
-                async
-                fetchPriority {
-                    name
-                }
-                async
-                defer
-            }
-            enableBaseStyles
-            enableButtonStyles
-            enableFullScreen
-            
-            # Configurable pages
-            blocks {
-                id
-                enableFullScreenWidth
-                mg_tableclass
-                
-                # page headings
-                title
-                subtitle
-                backgroundImage {
-                    image {
-                        id
-                        url
-                    }
-                }
-                titleIsCentered
-                
-                # page sections
-                components {
-                    id
-                    inBlock {
-                        id
-                    }
-                    mg_tableclass
-                    
-                    # TextElements
-                    text
-                    
-                    # Headings
-                    level
-                    headingIsCentered
-                    
-                    # Paragraphs
-                    paragraphIsCentered
-                    
-                    # images
-                    displayName
-                    image {
-                        id
-                        url
-                    }
-                    alt
-                    width
-                    height
-                }
-                    
-                # component order
-                componentOrder {
-                    block {
-                        id
-                    }
-                    component {
-                        id
-                    }
-                    order
-                }
-            }
-                
-            # block order
-            blockOrder {
-                block {
-                    id
-                }
-                order
-            }
-        }
-      }`,
+      query: pageQuery,
       variables: { filter: { name: { equals: page } } },
     },
   });
 
   const currentPage = data.Containers[0];
+  return currentPage;
+}
 
-  if (currentPage.blockOrder) {
-    const blockOrdering = currentPage.blockOrder.reduce(
-      (acc: Record<string, number>, blockOrder: IBlockOrders) => {
-        return {
-          ...acc,
-          [blockOrder.block.id]: blockOrder.order,
-        };
+export function sortConfigurablePage(
+  page: IConfigurablePages
+): IConfigurablePages {
+  if (page.blocks && page.blockOrder) {
+    const blockOrdering: Record<string, any> = page.blockOrder.reduce(
+      (acc: Record<string, any>, blockOrder: IBlockOrders) => {
+        return { ...acc, [blockOrder.block.id]: blockOrder.order };
       },
       {}
     );
 
-    currentPage.blocks = currentPage.blocks.sort((a: IBlocks, b: IBlocks) => {
+    page.blocks = page.blocks.sort((a: IBlocks, b: IBlocks) => {
       return blockOrdering[a.id] - blockOrdering[b.id];
     });
   }
 
-  if (currentPage.blocks.find((block: IBlocks) => block.componentOrder)) {
-    currentPage.blocks = currentPage.blocks.map((block: IBlocks) => {
-      if (block.componentOrder && block.components) {
+  if (page.blocks?.find((block: IBlocks) => block.componentOrder)) {
+    page.blocks = page.blocks.map((block: IBlocks) => {
+      if (block.components && block.componentOrder) {
         const componentOrder: Record<string, any> = block.componentOrder.reduce(
           (acc: Record<string, number>, componentOrder: IComponentOrders) => {
             return {
@@ -169,7 +164,6 @@ export async function getPage(
           },
           {}
         );
-
         block.components = block.components.sort(
           (a: IComponents, b: IComponents) => {
             return componentOrder[a.id] - componentOrder[b.id];
@@ -180,7 +174,7 @@ export async function getPage(
     });
   }
 
-  return currentPage;
+  return page;
 }
 
 export function generateHtmlPreview(
@@ -272,4 +266,13 @@ export function generateHtmlPreview(
       }
     });
   }
+}
+
+export function parsePageText(value: string): string {
+  return value.replace(/(^")|("$)/g, "");
+}
+
+export function newPageDate(): string {
+  const date = new Date().toISOString();
+  return date.replace("T", " ").split(".")[0] as string;
 }
