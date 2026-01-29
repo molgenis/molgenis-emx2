@@ -7,6 +7,6 @@ import org.junit.jupiter.api.Test;
 public class PagesTest extends TestLoaders {
   @Test
   public void pagesDemoTestLoader() {
-    assertEquals(6, pagesSchema.getTableNames().size());
+    assertEquals(19, pagesSchema.getTableNames().size());
   }
 }

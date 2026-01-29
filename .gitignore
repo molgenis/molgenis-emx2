@@ -5,6 +5,7 @@ build/
 !gradle-wrapper.jar
 out
 dist
+/*.jar
 
 .DS_Store
 .idea
@@ -82,3 +83,4 @@ apps/**/test-results/
 apps/tailwind-components/playwright/.auth/user.json
 
 .turbo
+.claude

@@ -92,6 +92,10 @@ const query = `
       dateLastRefresh
       startYear
       endYear
+      continents {
+        name
+        order
+      }
       countries {
         name order
       }
@@ -169,6 +173,7 @@ const query = `
         website
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
+        otherOrganisation
         organisation {
           name
           acronym
@@ -491,6 +496,15 @@ const tocItems = computed(() => {
 });
 
 const population: IDefinitionListItem[] = [
+  {
+    label: "Continents",
+    content: resource.value?.continents
+      ? [...resource.value?.continents]
+          .sort((a, b) => (b.order ?? 0) - (a.order ?? 0))
+          .map((continent) => continent.name)
+          .join(", ")
+      : undefined,
+  },
   {
     label: "Countries",
     content: resource.value?.countries

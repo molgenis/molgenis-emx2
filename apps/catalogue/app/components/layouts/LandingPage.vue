@@ -32,7 +32,7 @@ const bannerHtml = computed(() => {
   <Container>
     <slot></slot>
   </Container>
-  <FooterComponent>
+  <FooterComponent class="mt-[7.8125rem]">
     <ClientOnly>
       <FooterVersion />
     </ClientOnly>

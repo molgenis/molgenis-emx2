@@ -1,23 +1,68 @@
-tableName,tableExtends,columnName,columnType,key,required,refTable,refBack,visible,validation,defaultValue,semantics,description,profiles
-Page,,,,,,,,,,,http://semanticscience.org/resource/SIO_000302,"Overview of ""editable"" pages and ""developer"" pages.",pages
-Page,,Page information,heading,,,,,,,,,,pages
-Page,,name,string,1,TRUE,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,http://semanticscience.org/resource/SIO_000116,"A unique name for the page. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
-Page,,description,text,,,,,,,,http://semanticscience.org/resource/SIO_000136,,pages
-Developer page,Page,,,,,,,,,,,"Pages built with the html, css, and javascript.",pages
-Developer page,,Code,section,,,,,,,,,,pages
-Developer page,,html,text,,,,,,,,,,pages
-Developer page,,css,text,,,,,,,,,,pages
-Developer page,,javascript,text,,,,,,,,,,pages
-Developer page,,Settings,section,,,,,,,,,,pages
-Developer page,,dependencies,ref_array,,,Dependencies,,,,,,,pages
-Developer page,,enable base styles,bool,,,,,,,true,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
-Developer page,,enable button styles,bool,,,,,,,true,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
-Developer page,,enable full screen,bool,,,,,,,false,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
-Dependencies,,,,,,,,,,,,External dependencies used in the developer pages,pages
-Dependencies,,name,string,1,,,,,,,http://semanticscience.org/resource/SIO_000116,A name is a label used to identify an entity.,pages
-Dependencies,,url,hyperlink,,,,,,,,http://semanticscience.org/resource/SIO_000811,URL to the dependency,pages
-Dependencies,,fetch priority,ontology,,,Web fetch priority,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
-Dependencies CSS,Dependencies,,,,,,,,,,,External CSS dependencies used in custom pages,pages
-Dependencies JS,Dependencies,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
-Dependencies JS,,async,bool,,,,,,,false,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
-Dependencies JS,,defer,bool,,,,,,,false,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
+tableName,tableExtends,columnName,columnType,key,required,refTable,refBack,refLabel,visible,validation,defaultValue,semantics,description,profiles
+Containers,,,,,,,,,,,,,"All page types (configurable, developer, etc.)",pages
+Containers,,name,string,1,TRUE,,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,,"A unique name for the container. Only letters or hypens are allowed. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
+Containers,,description,text,,,,,,,,,,,pages
+Developer pages,Containers,,,,,,,,,,,,"Pages built with the html, css, and javascript.",pages
+Developer pages,,Code,section,,,,,,,,,,,pages
+Developer pages,,html,text,,,,,,,,,,,pages
+Developer pages,,css,text,,,,,,,,,,,pages
+Developer pages,,javascript,text,,,,,,,,,,,pages
+Developer pages,,Settings,section,,,,,,,,,,,pages
+Developer pages,,dependencies,ref_array,,,Dependencies,,,,,,,The external dependencies used in the page,pages
+Developer pages,,enable base styles,bool,,,,,,,,true,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
+Developer pages,,enable button styles,bool,,,,,,,,true,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
+Developer pages,,enable full screen,bool,,,,,,,,false,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
+Dependencies,,,,,,,,,,,,,External dependencies used in the developer pages,pages
+Dependencies,,name,string,1,TRUE,,,,,,,,A name is a label used to identify a dependency,pages
+Dependencies,,url,hyperlink,,,,,,,,,,URL to the dependency,pages
+Dependencies,,fetch priority,ontology,,,Web fetch priorities,,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
+Dependencies CSS,Dependencies,,,,,,,,,,,,External CSS dependencies used in custom pages,pages
+Dependencies JS,Dependencies,,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
+Dependencies JS,,async,bool,,,,,,,,false,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
+Dependencies JS,,defer,bool,,,,,,,,false,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
+Configurable pages,Containers,,,,,,,,,,,,Pages built with the drag-and-drop interface,pages
+Configurable pages,,blocks,refback,,,Blocks,in container,,,,,,,pages
+Configurable pages,,block order,refback,,,Block orders,configurable page,,,,,,,pages
+Blocks,,,,,,,,,,,,,Subcontainers with in a page used to group components,pages
+Blocks,,id,auto_id,1,TRUE,,,,,,,,A name or label used to identify the block,pages
+Blocks,,in container,multiselect,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
+Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
+Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
+Blocks,,enable full screen width,bool,,,,,,,,false,,"If true, content will be expanded to the fit the full width of the screen",pages
+Sections,Blocks,,,,,,,,,,,,Subcontainers for providing context to components,pages
+Components,,,,,,,,,,,,,Content and configuration for frontend components,pages
+Components,,id,auto_id,1,TRUE,,,,FALSE,,,,,pages
+Components,,in block,multiselect,,,Blocks,,,,,,,A link to the block where the component is used,pages
+Headers,Blocks,,,,,,,,,,,,<header> elements,pages
+Headers,,title,string,,,,,,,,,,A title for the page,pages
+Headers,,subtitle,string,,,,,,,,,,An optional secondary title that describes the page,pages
+Headers,,background image,select,,,Images,,,,,,,An image to display in the background of the header,pages
+Headers,,title is centered,bool,,,,,,,,false,,"If true, the title and subtitle will be center aligned",pages
+Text elements,Components,,,,,,,,,,,,All text elements,pages
+Text elements,,text,text,,,,,,,,,,The content to display,pages
+Headings,Text elements,,,,,,,,,,,,<h*> elements,pages
+Headings,,level,int,,,,,,,level ? level >=1 && level <= 6 : false,,,Heading level 1-6,pages
+Headings,,heading is centered,bool,,,,,,,,false,,"If true, the heading will be center aligned",pages
+Paragraphs,Text elements,,,,,,,,,,,,<p> elements,pages
+Paragraphs,,paragraph is centered,bool,,,,,,,,false,,"If true, the paragraph will be centered aligned ",pages
+Images,Components,,,,,,,,,,,,<img> elements,pages
+Images,,display name,string,,,,,,,,,,An optional name to display in place of the filename,pages
+Images,,image,file,,,,,,,,,,Select an image file,pages
+Images,,alt,string,,,,,,,,,,A description of the image for accessibility compliance,pages
+Images,,width,string,,,,,,,,,,"An optional value to specify the width of the image (tailwind units: w-full, w-[100px], etc.)",pages
+Images,,height,string,,,,,,,,,,"An optional value to specify the height of the image (tailwind units: h-full, h-[100px], etc.)",pages
+Images,,image is centered,bool,,,,,,,,false,,"If true, the image will be centered aligned",pages
+Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
+Ordered lists,,items,text_array,,,,,,,,,,,pages
+Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
+Unordered lists,,items,text_array,,,,,,,,,,,pages
+Block orders,,,,,,,,,,,,,"The order blocks (headers, sections, etc.) appear on a page",pages
+Block orders,,id,auto_id,1,,,,,,,,,,pages
+Block orders,,configurable page,select,,,Configurable pages,,,,,,,A configurable page where a block is used,pages
+Block orders,,block,select,,,Blocks,,,,,,,The specific block you would like to order,pages
+Block orders,,order,int,,,,,,,,,,The order in which it appears on the page where 0 is the first item,pages
+Component orders,,,,,,,,,,,,,The order of components with blocks,pages
+Component orders,,id,auto_id,1,,,,,,,,,,pages
+Component orders,,block,select,,,Blocks,,,,,,,A block page where a component is used,pages
+Component orders,,component,select,,,Components,,,,,,,The component that you would like to order,pages
+Component orders,,order,int,,,,,,,,,,The order in which the component appears within the block where 0 is the first item,pages

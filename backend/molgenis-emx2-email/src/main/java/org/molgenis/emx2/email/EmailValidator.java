@@ -38,12 +38,12 @@ public class EmailValidator {
   }
 
   private static List<String> flattenAllowTree(Map<String, Object> resultMap) {
-    var asDeepList =
+    List<Object> asDeepList =
         resultMap.values().stream()
             .map(
                 o -> {
                   if (o instanceof Map<?, ?>) {
-                    var b = (Map<String, Object>) o;
+                    Map<String, Object> b = (Map<String, Object>) o;
                     if (b.containsKey("key") && b.containsKey("value")) {
                       return b.get("value");
                     } else {
@@ -65,7 +65,7 @@ public class EmailValidator {
   }
 
   private static List<String> flatten(List deepList) {
-    var allowedList = new ArrayList<String>();
+    ArrayList<String> allowedList = new ArrayList<String>();
 
     for (Object o : deepList) {
       if (o instanceof List<?>) {

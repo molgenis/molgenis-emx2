@@ -2,7 +2,8 @@ plugins {
     id "jacoco"
     id "java"
     id 'java-test-fixtures'
-    id "com.diffplug.spotless" version "6.25.0" apply false
+    id "com.diffplug.spotless" version "8.1.0" apply false
+    id 'pmd'
 }
 
 repositories {
@@ -17,6 +18,7 @@ subprojects {
     apply plugin: 'java-test-fixtures'
     apply plugin: 'jacoco'
     apply plugin: "com.diffplug.spotless"
+    apply plugin: "pmd"
 
     repositories {
         mavenLocal()
@@ -30,10 +32,20 @@ subprojects {
             googleJavaFormat('1.22.0')
         }
     }
+
+    pmd {
+        consoleOutput = true
+        toolVersion = "7.19.0"
+        ruleSetFiles = files("${project.rootDir}/pmd_ruleset.xml")
+        ruleSets = []
+    }
+
     compileJava.dependsOn 'spotlessApply'
 
-    task format {
+    tasks.register('format') {
         dependsOn spotlessApply
+        dependsOn pmdMain
+        dependsOn pmdTest
     }
 
     /* default dependencies for all projects*/
@@ -71,6 +83,7 @@ subprojects {
         // also used outside test
         implementation 'org.junit.jupiter:junit-jupiter:5.10.3'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testImplementation 'org.mockito:mockito-core:5.6.0'
         // allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
@@ -103,8 +116,10 @@ subprojects {
         }
     }
 
-    targetCompatibility = rootProject.ext.javaVersion
-    sourceCompatibility = rootProject.ext.javaVersion
+    java {
+        targetCompatibility = rootProject.ext.javaVersion
+        sourceCompatibility = rootProject.ext.javaVersion
+    }
 
     jar {
         reproducibleFileOrder = true
@@ -125,29 +140,29 @@ subprojects {
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
     }
-    test.dependsOn ":backend:initDatabase"
+    test.dependsOn ":backend:molgenis-emx2-sql:initDatabase"
 
     tasks.register('testFast', Test) {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
         useJUnitPlatform {
             excludeTags "slow"
         }
-        failFast true
+        failFast = true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
@@ -157,14 +172,14 @@ subprojects {
         useJUnitPlatform {
             excludeTags "windowsFail"
         }
-        failFast true
+        failFast = true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
@@ -174,22 +189,9 @@ subprojects {
 /* have the non-parallel test package run last*/
 project(":backend:molgenis-emx2-nonparallel-tests").test.dependsOn subprojects.findAll { it != project(":backend:molgenis-emx2-nonparallel-tests") }.collect { ":backend:${it.name}:test" }
 
-/* task to init database */
-task initDatabase(type: JavaExec, dependsOn: ':backend:molgenis-emx2-sql:compileJava') {
-    main = 'org.molgenis.emx2.sql.InitDatabase'
-    classpath = project("molgenis-emx2-sql").sourceSets.test.runtimeClasspath
-    def outputFile = file("$buildDir/initDatabase.txt")
-    doLast {
-        //for caching purposes
-        outputFile.text = "This is the output of the runMainClass task."
-    }
-    outputs.file(outputFile)
-    outputs.upToDateWhen { outputFile.exists() }
-}
-
 /* generate java test coverage report*/
 test.dependsOn subprojects.test
-task jacocoMergedReport(type: JacocoReport) {
+tasks.register('jacocoMergedReport', JacocoReport) {
     dependsOn test
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
