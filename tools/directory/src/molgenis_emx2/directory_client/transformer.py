@@ -61,7 +61,8 @@ class Transformer:
         self._set_biobank_labels()
         self._set_combined_qualities()
         self._set_collection_categories()
-        self._set_catalog_membership()
+        if self.catalog_id:
+            self._set_catalog_membership()
         self._set_collection_fdp_fields()
         return self.warnings
 
@@ -213,7 +214,8 @@ class Transformer:
         """
         self.printer.print("Setting FDP-related fields for collections")
         for row in self.node_data.collections.rows:
-            row['publisher'] = self.publisher_id
+            if self.publisher_id:
+                row['publisher'] = self.publisher_id
             row['language'] = 'English'
             row[
                 'license'

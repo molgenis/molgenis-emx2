@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from molgenis_emx2_pyclient.exceptions import NoSuchTableException
+
 from .directory_client import AttributesRequest, DirectorySession
 from .errors import (
     DirectoryError,
@@ -116,9 +118,40 @@ class Directory:
         )
 
         self.printer.print("📦 Retrieving FDP catalog and publisher")
-        catalogs = self.session.get(
-            table='Catalogs', schema=self.session.directory_schema
+        try:
+            catalogs = self.session.get(
+                table='Catalogs', schema=self.session.directory_schema
+            )
+            catalog_id = self._get_catalog_id(catalogs)
+        except NoSuchTableException:
+            self.printer.print_warning(
+                DirectoryWarning(' Table Catalogs not found'), indent=1
+            )
+            catalog_id = ''
+
+        try:
+            publishers = self.session.get(
+                table="Publishers", schema=self.session.directory_schema
+            )
+            publisher_id = self._get_publisher_id(publishers)
+        except NoSuchTableException:
+            self.printer.print_warning(
+                DirectoryWarning(' Table Publishers not found'), indent=1
+            )
+            publisher_id = ''
+
+        return PublishingState(
+            existing_data=published_data,
+            quality_info=quality_info,
+            eu_node_data=eu_node_data,
+            diseases=diseases,
+            catalog_id=catalog_id,
+            publisher_id=publisher_id,
+            nodes=nodes,
+            report=report,
         )
+
+    def _get_catalog_id(self, catalogs: list) -> str:
         if len(catalogs) == 0:
             self.printer.print_warning(
                 DirectoryWarning(' No FDP catalog found'), indent=1
@@ -133,10 +166,9 @@ class Directory:
                     ),
                     indent=1,
                 )
-        publishers = self.session.get(
-            table="Publishers", schema=self.session.directory_schema
-        )
-        publisher_id = ""
+        return catalog_id
+
+    def _get_publisher_id(self, publishers: list) -> str:
         if len(publishers) > 0 and 'BBMRI-ERIC' in [
             publisher['name'] for publisher in publishers
         ]:
@@ -149,17 +181,8 @@ class Directory:
                 ),
                 indent=1,
             )
-
-        return PublishingState(
-            existing_data=published_data,
-            quality_info=quality_info,
-            eu_node_data=eu_node_data,
-            diseases=diseases,
-            catalog_id=catalog_id,
-            publisher_id=publisher_id,
-            nodes=nodes,
-            report=report,
-        )
+            publisher_id = ""
+        return publisher_id
 
     async def _prepare_nodes(self, nodes, state):
         for node in nodes:
