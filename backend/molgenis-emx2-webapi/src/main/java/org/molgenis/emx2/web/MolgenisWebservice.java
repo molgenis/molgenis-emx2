@@ -39,34 +39,34 @@ public class MolgenisWebservice {
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
+
   private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
-  public static OIDCController oidcController;
+  public static final OIDCController oidcController = new OIDCController();
+
+  private final Javalin app;
   static URL hostUrl;
 
-  private MolgenisWebservice() {
-    // hide constructor
+  public MolgenisWebservice() {
+    app =
+        Javalin.create(
+            config -> {
+              config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
+              config.router.ignoreTrailingSlashes = true;
+              config.router.treatMultipleSlashesAsSingleSlash = true;
+              config.jsonMapper(
+                  new JavalinJackson()
+                      .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
+              config.jetty.modifyServletContextHandler(
+                  context ->
+                      context.setMaxFormContentSize(
+                          Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
+                  );
+            });
   }
 
-  public static void start(int port) {
-    oidcController = new OIDCController();
-    Javalin app =
-        Javalin.create(
-                config -> {
-                  config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
-                  config.router.ignoreTrailingSlashes = true;
-                  config.router.treatMultipleSlashesAsSingleSlash = true;
-                  config.jsonMapper(
-                      new JavalinJackson()
-                          .updateMapper(
-                              mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
-                  config.jetty.modifyServletContextHandler(
-                      context -> {
-                        context.setMaxFormContentSize(
-                            Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
-                      });
-                })
-            .start(port);
+  public void start(int port) {
+    app.start(port);
 
     try {
       hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
@@ -162,6 +162,10 @@ public class MolgenisWebservice {
           ctx.status(e.getStatus());
           ctx.json(molgenisExceptionToJson(e));
         });
+  }
+
+  public void stop() {
+    app.stop();
   }
 
   private static void handleLoginCallback(Context ctx) {
