@@ -119,7 +119,7 @@ public class TableStoreForXlsxFile implements TableStore {
       org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
       for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
         try {
-          String cellValue = getCellValue(row, entry);
+          String cellValue = getExportStringValue(row, entry.getKey());
           excelRow.createCell(entry.getValue()).setCellValue(cellValue);
         } catch (IllegalArgumentException e) {
           throw new MolgenisException(
@@ -283,7 +283,7 @@ public class TableStoreForXlsxFile implements TableStore {
               }
             }
           case STRING:
-            return getStringValue(cell);
+            return getImportStringValue(cell.getStringCellValue());
           case BOOLEAN:
             return cell.getBooleanCellValue();
           case FORMULA:
@@ -299,8 +299,8 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  public static String getCellValue(Row row, Map.Entry<String, Integer> entry) {
-    String cellValue = row.getString(entry.getKey());
+  public static String getExportStringValue(Row row, String key) {
+    String cellValue = row.getString(key);
     if (cellValue != null && cellValue.startsWith("=")) {
       return "'" + cellValue;
     } else {
@@ -309,8 +309,8 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @NotNull
-  public static String getStringValue(Cell cell) {
-    String trimmed = cell.getStringCellValue().trim();
+  public static String getImportStringValue(String rawValue) {
+    String trimmed = rawValue.trim();
     if (trimmed.startsWith("'=")) {
       return trimmed.substring(1);
     } else {
