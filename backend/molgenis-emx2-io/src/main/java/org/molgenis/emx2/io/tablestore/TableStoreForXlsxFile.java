@@ -120,7 +120,7 @@ public class TableStoreForXlsxFile implements TableStore {
       for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
         try {
           String cellValue = getCellValue(row, entry);
-          excelRow.createCell(entry.getValue()).setCellValue("'" + cellValue);
+          excelRow.createCell(entry.getValue()).setCellValue(cellValue);
         } catch (IllegalArgumentException e) {
           throw new MolgenisException(
               "Error writing table '"
