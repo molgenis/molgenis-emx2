@@ -238,7 +238,7 @@ Persons,,title_before_name,Title before Name,string,,false,,"Title before name, 
 Persons,,first_name,First Name,string,,false,,First name according to MIABIS 2.0 - MIABIS-2.0-07-A.,,,,,,,,,vcard:hasGivenName
 Persons,,last_name,Last Name,string,,false,,Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.,,,,,,,,,vcard:hasFamilyName
 Persons,,title_after_name,Title after Name,string,,false,,"Title after name, values like ""Bsc.""",,,,,,,,,
-Persons,,full_name,Full Name,,,,,The full name of the person,,,,,,,,"[title_before_name, first_name, last_name, title_after_name].join("" "")",vcard:fn
+Persons,,full_name,Full Name,text,,,,The full name of the person,,,,,,,,"[title_before_name, first_name, last_name, title_after_name].join("" "")",vcard:fn
 Persons,,email,Email address,email,,true,,Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.,,,,,,,,,"vcard:email,vcard:hasEmail"
 Persons,,phone,Phone Number,string,,false,,Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.,,,,,,,,,vcard:hasTelephone
 Persons,,address,Address,text,,false,,Address according to MIABIS 2.0 - MIABIS-2.0-07-E.,,,,,,,,,
