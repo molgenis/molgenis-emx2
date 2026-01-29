@@ -16,37 +16,43 @@ import TextHeading from "../text/Heading.vue";
 import TextParagraph from "../text/Paragraph.vue";
 import Image from "../Image.vue";
 
-import { parsePageText } from "../../utils/Pages";
+import { parsePageText, sortConfigurablePage } from "../../utils/Pages";
 
 const props = defineProps<{ content: IConfigurablePages }>();
+const page = sortConfigurablePage(props.content);
 </script>
 
 <template>
-  <template v-for="block in (content.blocks as IHeaders[])">
+  <template v-for="block in (page.blocks as IHeaders[])">
     <PageBanner
       v-if="block.mg_tableclass === 'cms.Headers'"
       :id="block.id"
       :title="block.title"
       :subtitle="block.subtitle"
       :background-image="block.backgroundImage?.image?.url"
+      :enable-full-screen-width="block.enableFullScreenWidth"
+      :title-is-centered="block.titleIsCentered"
     />
     <PageSection
       v-else-if="block.mg_tableclass === 'cms.Sections'"
       :id="block.id"
+      :enable-full-screen-width="block.enableFullScreenWidth"
     >
       <template v-for="component in (block.components as BlockComponent[])">
         <TextHeading
           v-if="component.mg_tableclass === 'cms.Headings'"
           :id="component.id"
-          :is-centered="component.headingIsCentered"
+          :heading-is-centered="component.headingIsCentered"
           :level="component.level"
+          class="mb-5"
         >
           {{ parsePageText(component.text as string) }}
         </TextHeading>
         <TextParagraph
           v-else-if="component.mg_tableclass === 'cms.Paragraphs'"
           :id="component.id"
-          :is-centered="component.paragraphIsCentered"
+          :paragraph-is-centered="component.paragraphIsCentered"
+          class="mb-2.5 last:mb-0"
         >
           {{ parsePageText(component.text as string) }}
         </TextParagraph>
