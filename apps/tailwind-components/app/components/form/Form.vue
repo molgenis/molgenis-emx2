@@ -11,11 +11,16 @@ import useForm from "../../composables/useForm";
 import FormFields from "./Fields.vue";
 import FormLegend from "./Legend.vue";
 
-const props = defineProps<{
-  metadata: ITableMetaData;
-  constantValues?: Record<columnId, columnValue>;
-}>();
-
+const props = withDefaults(
+  defineProps<{
+    metadata: ITableMetaData;
+    constantValues?: Record<columnId, columnValue>;
+    initializeAsInsert?: boolean;
+  }>(),
+  {
+    initializeAsInsert: false,
+  }
+);
 const formValues = defineModel("formValues", {
   type: Object as () => Record<columnId, columnValue>,
   required: true,
@@ -57,6 +62,9 @@ defineExpose({
 });
 
 const rowKey = ref<Record<string, columnValue>>();
+if (!props.initializeAsInsert) {
+  await fetchRowKey();
+}
 async function fetchRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
     formValues.value,
@@ -64,7 +72,6 @@ async function fetchRowKey() {
     props.metadata.schemaId
   );
 }
-await fetchRowKey();
 
 function onLeaveView(column: IColumn) {
   visibleColumnIds.value.delete(column.id);

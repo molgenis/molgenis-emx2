@@ -121,6 +121,7 @@ module.exports = {
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
+        "pg-section": "972px",
       },
       minWidth: {
         95: "23.75rem",
