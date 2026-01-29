@@ -17,6 +17,7 @@ order,name,code,parent,ontologyTermURI,definition
 14,"Income, possessions, and benefits",Income,Socio-demographic and economic characteristics,,
 15,Other socio-demographic and economic characteristics,Other_sociodemogr_chars,Socio-demographic and economic characteristics,,
 16,Lifestyle and behaviours,Lifestyle_behaviours,,,
+17,"Toxic Habits - Tobacco, Alcohol, Drugs",,Lifestyle and behaviours,,"Information on tobacco, alcohol, and other substance use from questionnaires"
 17,Tobacco,Tobacco,Lifestyle and behaviours,,
 18,Alcohol,Alcohol,Lifestyle and behaviours,,
 19,Drugs,Drugs,Lifestyle and behaviours,,
