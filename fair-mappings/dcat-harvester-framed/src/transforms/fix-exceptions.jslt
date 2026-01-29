@@ -1,0 +1,33 @@
+def extract-id(url)
+  if ($url)
+    let parts = split($url, "/")
+    $parts[size($parts) - 1]
+  else null
+
+def map-type(rdf_type)
+  if ($rdf_type == "dcat:Catalog") [{"name": "Catalogue"}]
+  else if ($rdf_type == "dcat:Dataset") [{"name": "Databank"}]
+  else if ($rdf_type == "dcat:DataService") [{"name": "Data service"}]
+  else null
+
+def fix-item(item)
+  {
+    "@context": get-key($item, "@context"),
+    "id": extract-id(get-key($item, "@id")),
+    "type": map-type(get-key($item, "@type")),
+    "name": get-key($item, "name"),
+    "description": get-key($item, "description"),
+    "pid": get-key($item, "pid"),
+    "keywords": get-key($item, "keywords"),
+    "issued": get-key($item, "issued"),
+    "modified": get-key($item, "modified")
+  }
+
+let graph = get-key(., "@graph")
+if ($graph)
+  {
+    "@context": get-key(., "@context"),
+    "@graph": [for ($graph) fix-item(.)]
+  }
+else
+  fix-item(.)

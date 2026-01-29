@@ -1,0 +1,24 @@
+name: dcat-harvester-framed
+version: 1.0.0
+
+mappings:
+  - name: harvest-catalog
+    fetch: ${SOURCE_URL}
+    steps:
+      - frame: src/frames/resources.jsonld
+        unmapped: true
+        tests:
+          - input: test/input/sample-fdp.jsonld
+            output: test/expected/after-frame1.json
+
+      - transform: src/transforms/fix-exceptions.jslt
+        tests:
+          - input: test/expected/after-frame1.json
+            output: test/expected/after-transform.json
+
+      - frame: src/frames/resources.jsonld
+        tests:
+          - input: test/expected/after-transform.json
+            output: test/expected/after-frame2.json
+
+      - mutate: src/mutations/upsert-resources.gql

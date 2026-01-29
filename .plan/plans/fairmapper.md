@@ -255,7 +255,7 @@ Exploring SQL as alternative to GraphQL + JSLT (per SQL expert review feedback).
 |------|----------|--------|
 | 9.1 Create dcat-fdp-sql mock bundle | HIGH | Done |
 | 9.2 Test SQL against real catalogue DB | HIGH | Done |
-| 9.3 Implement SqlQueryStep | MEDIUM | Pending |
+| 9.3 Implement SqlQueryStep | MEDIUM | Done |
 
 **Completed:**
 - `fair-mappings/dcat-fdp-sql/` - Example bundle with SQL query
@@ -298,7 +298,92 @@ steps:
 
 ---
 
-## Phase 10: DCAT Completeness (Deferred)
+## Phase 10: Frame Step (Simplified Harvesting)
+
+Enable two-frame pattern for cleaner RDF harvesting:
+1. Frame with `@explicit: false` → capture all properties
+2. Transform → handle exceptions (type, id)
+3. Frame with `@explicit: true` → strip unmapped
+
+| Task | Priority | Status |
+|------|----------|--------|
+| 10.1 Create FrameStep model class | HIGH | Done |
+| 10.2 Add frame handling to PipelineExecutor | HIGH | Done |
+| 10.3 Proof-of-concept example bundle | HIGH | Done |
+| 10.4 Auto-frame endpoint in MOLGENIS | MEDIUM | Pending (separate PR) |
+
+### 10.1 FrameStep
+
+**Files:**
+- `model/step/FrameStep.java` - record implementing StepConfig
+- `model/step/StepConfigDeserializer.java` - add `"frame"` key handling
+
+```java
+public record FrameStep(String path, Boolean unmapped) implements StepConfig {
+  @Override public String path() { return path; }
+}
+```
+
+**Usage:**
+```yaml
+steps:
+  - frame: src/frames/resources.jsonld
+    unmapped: true    # flip @explicit to false → keep unmapped
+  - transform: src/transforms/fix-exceptions.jslt
+  - frame: src/frames/resources.jsonld
+    # unmapped: false (default) → use @explicit: true as authored
+```
+
+**Frame files authored with `@explicit: true` at all levels (strict by default).**
+Step only flips when `unmapped: true`.
+
+### 10.2 PipelineExecutor handling
+
+```java
+} else if (step instanceof FrameStep frameStep) {
+  Path framePath = bundlePath.resolve(frameStep.path());
+  ObjectNode frameDoc = (ObjectNode) objectMapper.readTree(Files.readString(framePath));
+
+  if (Boolean.TRUE.equals(frameStep.unmapped())) {
+    setExplicitRecursive(frameDoc, false);
+  }
+
+  current = JsonLdFramer.frame(current, frameDoc);
+}
+
+private void setExplicitRecursive(ObjectNode node, boolean explicit) {
+  if (node.has("@explicit")) {
+    node.put("@explicit", explicit);
+  }
+  node.fields().forEachRemaining(entry -> {
+    if (entry.getValue().isObject()) {
+      setExplicitRecursive((ObjectNode) entry.getValue(), explicit);
+    }
+  });
+}
+```
+
+### 10.3 Proof-of-concept bundle
+
+`fair-mappings/dcat-harvester-framed/` demonstrating:
+- Fetch RDF (no frame in fetch)
+- Frame step 1: capture all
+- Transform: handle @type → type, @id → id
+- Frame step 2: strip unmapped
+- Mutate
+
+### 10.4 Auto-frame endpoint
+
+Separate PR (`feat/rest-json-ld-graphql`):
+```
+GET /{schema}/api/jsonld/frame?table=Resources&explicit=true|false
+```
+
+Generates frame from table metadata (semantics annotations).
+
+---
+
+## Phase 11: DCAT Completeness (Deferred)
 
 | Task | Priority | Status |
 |------|----------|--------|
@@ -310,7 +395,7 @@ steps:
 
 ---
 
-## Phase 11: Transform Simplification
+## Phase 12: Transform Simplification
 
 | Task | Priority | Status |
 |------|----------|--------|
@@ -320,7 +405,7 @@ steps:
 
 ---
 
-## Phase 11.5: Route Validation (TODO)
+## Phase 12.5: Route Validation (TODO)
 
 | Task | Priority | Status |
 |------|----------|--------|
@@ -336,14 +421,14 @@ steps:
 
 ---
 
-## Phase 12: Output Targets
+## Phase 13: Output Targets
 
 | Task | Priority | Status |
 |------|----------|--------|
-| 12.1 MOLGENIS CSV zip export | HIGH | Pending |
-| 12.2 Self-harvest demo | HIGH | Pending |
+| 13.1 MOLGENIS CSV zip export | HIGH | Pending |
+| 13.2 Self-harvest demo | HIGH | Pending |
 
-### 12.1 MOLGENIS CSV Zip Export
+### 13.1 MOLGENIS CSV Zip Export
 
 **Goal:** Transform harvested RDF into MOLGENIS-compatible CSV zip (reverse of fetch)
 
@@ -363,7 +448,7 @@ schema.zip/
   molgenis.csv (metadata)
 ```
 
-### 12.2 Self-Harvest Demo
+### 13.2 Self-Harvest Demo
 
 **Goal:** Demo harvesting our own FDP endpoints back into MOLGENIS
 

@@ -10,6 +10,7 @@ import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.Step;
+import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
 import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
@@ -114,6 +115,8 @@ public class BundleLoader {
       validateQueryFile(bundleDir, mutateStep.path());
     } else if (step instanceof SqlQueryStep sqlQueryStep) {
       validateSqlFile(bundleDir, sqlQueryStep.path());
+    } else if (step instanceof FrameStep frameStep) {
+      validateFrameFile(bundleDir, frameStep.path());
     }
   }
 

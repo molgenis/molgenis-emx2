@@ -1,0 +1,54 @@
+// Simplified transform - handles ONLY what auto-mapping can't:
+// 1. @type → MOLGENIS type table lookup
+// 2. @id → extract ID from URI
+// 3. _unmapped → preserve unrecognized properties
+
+// Column semantics (would be auto-generated from MOLGENIS metadata):
+// - name: dct:title
+// - description: dct:description
+// - pid: dct:identifier
+// - keywords: dcat:keyword
+// - issued: dct:issued
+// - modified: dct:modified
+
+def extract-id(url)
+  let parts = split($url, "/")
+  $parts[size($parts) - 1]
+
+def dcat-type-to-molgenis(dcat_type)
+  if ($dcat_type == "dcat:Catalog") [{"name": "Catalogue"}]
+  else if ($dcat_type == "dcat:Dataset") [{"name": "Databank"}]
+  else if ($dcat_type == "dcat:DataService") [{"name": "Data service"}]
+  else []
+
+// Known mappings (from column semantics - would be auto-generated)
+let known_predicates = [
+  "dct:title", "dct:description", "dct:identifier", "dcat:keyword",
+  "dct:issued", "dct:modified", "dct:publisher", "dcat:contactPoint",
+  "dcat:dataset", "dcat:service", "@type", "@id"
+]
+
+def map-resource(item)
+  {
+    "id": extract-id(get-key($item, "@id")),
+    "type": dcat-type-to-molgenis(get-key($item, "@type")),
+
+    // Direct mappings (based on column semantics)
+    "name": get-key($item, "dct:title"),
+    "description": get-key($item, "dct:description"),
+    "pid": get-key($item, "dct:identifier"),
+    "keywords": get-key($item, "dcat:keyword"),
+    "issued": get-key($item, "dct:issued"),
+    "modified": get-key($item, "dct:modified"),
+
+    // Unmapped properties preserved for inspection
+    "_source": get-key($item, "@id"),
+    "_unmapped": {for ($item) .key: .value if (not(contains($known_predicates, .key)))}
+  }
+
+let items_raw = get-key(., "@graph")
+let items = if (is-array($items_raw)) $items_raw else if ($items_raw) [$items_raw] else [.]
+
+{
+  "Resources": [for ($items) map-resource(.)]
+}

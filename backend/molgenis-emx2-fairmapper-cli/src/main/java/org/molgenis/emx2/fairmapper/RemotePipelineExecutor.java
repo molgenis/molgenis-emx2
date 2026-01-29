@@ -1,14 +1,23 @@
 package org.molgenis.emx2.fairmapper;
 
+import com.apicatalog.jsonld.JsonLd;
+import com.apicatalog.jsonld.JsonLdOptions;
+import com.apicatalog.jsonld.document.JsonDocument;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.json.Json;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonStructure;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.eclipse.rdf4j.model.Model;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.Step;
+import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
 import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
@@ -68,6 +77,8 @@ public class RemotePipelineExecutor {
         } else if (step instanceof SqlQueryStep sqlQueryStep) {
           throw new FairMapperException(
               "SQL queries are not supported in remote execution: " + sqlQueryStep.path());
+        } else if (step instanceof FrameStep frameStep) {
+          current = executeFrame(frameStep.path(), frameStep.unmapped(), current);
         }
       }
     }
@@ -110,5 +121,58 @@ public class RemotePipelineExecutor {
     Path resolvedPath = PathValidator.validateWithinBase(bundlePath, mutatePath);
     String mutation = Files.readString(resolvedPath);
     return client.execute(schema, mutation, variables);
+  }
+
+  private JsonNode executeFrame(String framePath, Boolean unmapped, JsonNode input)
+      throws IOException {
+    try {
+      Path resolvedFramePath = PathValidator.validateWithinBase(bundlePath, framePath);
+      ObjectNode frameDoc = (ObjectNode) objectMapper.readTree(Files.readString(resolvedFramePath));
+
+      if (Boolean.TRUE.equals(unmapped)) {
+        setExplicitRecursive(frameDoc, false);
+      }
+
+      String inputStr = objectMapper.writeValueAsString(input);
+      JsonDocument inputDoc = JsonDocument.of(new StringReader(inputStr));
+
+      String frameStr = objectMapper.writeValueAsString(frameDoc);
+      JsonReader jsonReader = Json.createReader(new StringReader(frameStr));
+      JsonStructure frameStructure = jsonReader.read();
+      JsonDocument frameDocForApi = JsonDocument.of(frameStructure);
+
+      JsonLdOptions options = new JsonLdOptions();
+      options.setOmitGraph(true);
+
+      JsonStructure framedJson = JsonLd.frame(inputDoc, frameDocForApi).options(options).get();
+
+      String framedStr = framedJson.toString();
+      JsonNode framedResult = objectMapper.readTree(framedStr);
+
+      if (framedResult.isObject() && frameDoc.has("@context")) {
+        ObjectNode result = objectMapper.createObjectNode();
+        result.set("@context", frameDoc.get("@context"));
+        framedResult.fields().forEachRemaining(e -> result.set(e.getKey(), e.getValue()));
+        return result;
+      }
+
+      return framedResult;
+
+    } catch (Exception e) {
+      throw new IOException("Failed to frame JSON-LD: " + e.getMessage(), e);
+    }
+  }
+
+  private void setExplicitRecursive(ObjectNode node, boolean explicit) {
+    if (node.has("@explicit")) {
+      node.put("@explicit", explicit);
+    }
+    node.fields()
+        .forEachRemaining(
+            entry -> {
+              if (entry.getValue().isObject()) {
+                setExplicitRecursive((ObjectNode) entry.getValue(), explicit);
+              }
+            });
   }
 }

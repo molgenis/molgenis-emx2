@@ -532,4 +532,80 @@ class BundleLoaderTest {
 
     return configPath;
   }
+
+  @Test
+  void testFrameStepValidation() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path frameFile = tempDir.resolve("src/frame.jsonld");
+    Files.createDirectories(frameFile.getParent());
+    Files.writeString(frameFile, "{}");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: test-mapping
+            endpoint: /test
+            methods: [GET]
+            steps:
+              - frame: src/frame.jsonld
+        """);
+
+    MappingBundle bundle = bundleLoader.load(configPath);
+
+    assertNotNull(bundle);
+    assertEquals(1, bundle.mappings().size());
+  }
+
+  @Test
+  void testFrameStepMissingFile() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: test-mapping
+            endpoint: /test
+            methods: [GET]
+            steps:
+              - frame: src/frame.jsonld
+        """);
+
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
+
+    assertTrue(ex.getMessage().contains("Frame file not found"));
+    assertTrue(ex.getMessage().contains("src/frame.jsonld"));
+  }
+
+  @Test
+  void testFrameStepWrongExtension() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path frameFile = tempDir.resolve("src/frame.txt");
+    Files.createDirectories(frameFile.getParent());
+    Files.writeString(frameFile, "{}");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: test-mapping
+            endpoint: /test
+            methods: [GET]
+            steps:
+              - frame: src/frame.txt
+        """);
+
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
+
+    assertTrue(ex.getMessage().contains("Frame file must have .json or .jsonld extension"));
+    assertTrue(ex.getMessage().contains("src/frame.txt"));
+  }
 }
