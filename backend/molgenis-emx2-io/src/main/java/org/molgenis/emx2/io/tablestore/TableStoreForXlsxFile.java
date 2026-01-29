@@ -14,6 +14,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.ExcelIOUtil;
 import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
@@ -118,7 +119,8 @@ public class TableStoreForXlsxFile implements TableStore {
       org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
       for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
         try {
-          excelRow.createCell(entry.getValue()).setCellValue(row.getString(entry.getKey()));
+          String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
+          excelRow.createCell(entry.getValue()).setCellValue(cellValue);
         } catch (IllegalArgumentException e) {
           throw new MolgenisException(
               "Error writing table '"
@@ -281,7 +283,7 @@ public class TableStoreForXlsxFile implements TableStore {
               }
             }
           case STRING:
-            return cell.getStringCellValue().trim();
+            return ExcelIOUtil.fromExcelFormat(cell.getStringCellValue());
           case BOOLEAN:
             return cell.getBooleanCellValue();
           case FORMULA:
