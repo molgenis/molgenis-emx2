@@ -209,4 +209,7 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 6.0.1   | Add Resources.publications and Resources.information to INTEGRATE profile. To update reload updated molgenis.csv to INTEGRATE cohorts staging areas or add columns in schema editor.    |
 | 6.0.2   | Add Resources.catalogue types to NetworksStaging profile. To update reload updated molgenis.csv to Network staging areas or add column in schema editor   |
 | 6.0.3   | Delete visible expression=FALSE from Contacts.display name. To update reload updated molgenis.csv to catalogue schema or update in schema editor   |
-| 6.0.4   | Removed staging area profiles from rdf properties in Resources table. To update reload updated molgenis.csv to staging schemas or update in schema editor   |
+| 6.0.4   | Removed staging area profiles from rdf properties in Resources table. To update reload updated molgenis.csv and data to staging schemas or update in schema editor   |
+| 7.0.0  | Breaking change. Changes to strcuture of tables and addition and deletion of attributes to make data model compatible with HRICore2.x. See [diff](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/datamodel_6_to_7_diff.xlsx) for the exact changes. To update run migrations, see [README](https://github.com/molgenis/molgenis-emx2/raw/master/data/scripts/catalogue/README.md) 
+| 7.0.1  | Delete items that are not in healthdcat or hricore for dcat:catalogue from network staging profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   |
+| 7.0.2  | Add Organisations.department to UMCUCohorts profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   | 
