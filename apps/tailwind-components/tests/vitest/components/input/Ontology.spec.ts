@@ -1124,6 +1124,57 @@ describe("OntologyInput - Unified loadPage Architecture", () => {
       expect(parentNode.loadMoreHasMore).toBe(true);
     });
 
+    it("should not auto-select parent when search filter hides children", async () => {
+      const mockFetch = vi.mocked(fetchGraphql);
+
+      mockFetch.mockResolvedValueOnce({
+        ...mockOntologyData,
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ontologySchemaId: "test-schema",
+          ontologyTableId: "test-table",
+          isArray: true,
+          modelValue: [],
+          limit: 20,
+        },
+      });
+
+      await flushPromises();
+
+      const parentNode = (wrapper.vm as any).rootNode.children[0];
+
+      mockFetch.mockResolvedValueOnce(
+        createMockLoadPageResponse(createMockTerms(100, 3, "Child"), 3, 20)
+      );
+
+      await (wrapper.vm as any).toggleTermExpand(parentNode);
+      await flushPromises();
+
+      expect(parentNode.loadMoreHasMore).toBe(false);
+      expect(parentNode.loadMoreTotal).toBe(3);
+      expect((parentNode as any).unfilteredTotal).toBe(20);
+
+      await (wrapper.vm as any).toggleTermSelect(parentNode.children[0]);
+      await (wrapper.vm as any).toggleTermSelect(parentNode.children[1]);
+      await (wrapper.vm as any).toggleTermSelect(parentNode.children[2]);
+      await flushPromises();
+
+      expect(parentNode.selected).not.toBe("selected");
+
+      const emissions = wrapper.emitted("update:modelValue");
+      const lastValue = emissions?.[emissions.length - 1]?.[0] as string[];
+      expect(lastValue).toContain("Child101");
+      expect(lastValue).toContain("Child102");
+      expect(lastValue).toContain("Child103");
+      expect(lastValue).not.toContain(parentNode.name);
+    });
+
     it("should keep all children selected when loadMoreHasMore is false", async () => {
       const mockFetch = vi.mocked(fetchGraphql);
 
