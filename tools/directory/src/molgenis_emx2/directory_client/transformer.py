@@ -21,7 +21,8 @@ class Transformer:
         existing_biobanks: Table,
         eu_node_data: NodeData,
         diseases: OntologyTable,
-        catalog_id: Table,
+        catalog_id: str,
+        publisher_id: str,
     ):
         self.node_data = node_data
         self.quality = quality
@@ -30,6 +31,7 @@ class Transformer:
         self.eu_node_data = eu_node_data
         self.category_mapper = CategoryMapper(diseases)
         self.catalog_id = catalog_id
+        self.publisher_id = publisher_id
         self.diseases = diseases
 
         self.warnings = []
@@ -211,7 +213,7 @@ class Transformer:
         """
         self.printer.print("Setting FDP-related fields for collections")
         for row in self.node_data.collections.rows:
-            row['publisher'] = 'BBMRI-ERIC'
+            row['publisher'] = self.publisher_id
             row['language'] = 'English'
             row[
                 'license'

@@ -115,13 +115,13 @@ class Directory:
             matching_attrs=["exact_mapping", "ntbt_mapping"],
         )
 
-        self.printer.print("📦 Retrieving FDP catalog")
+        self.printer.print("📦 Retrieving FDP catalog and publisher")
         catalogs = self.session.get(
             table='Catalogs', schema=self.session.directory_schema
         )
         if len(catalogs) == 0:
             self.printer.print_warning(
-                DirectoryWarning(' No FDP catalog found.'), indent=1
+                DirectoryWarning(' No FDP catalog found'), indent=1
             )
             catalog_id = ''
         else:
@@ -133,6 +133,22 @@ class Directory:
                     ),
                     indent=1,
                 )
+        publishers = self.session.get(
+            table="Publishers", schema=self.session.directory_schema
+        )
+        publisher_id = ""
+        if len(publishers) > 0 and 'BBMRI-ERIC' in [
+            publisher['name'] for publisher in publishers
+        ]:
+            publisher_id = "BBMRI-ERIC"
+        else:
+            self.printer.print_warning(
+                DirectoryWarning(
+                    " Publisher 'BBMRI-ERIC' not found, "
+                    "not setting Collections.publisher field"
+                ),
+                indent=1,
+            )
 
         return PublishingState(
             existing_data=published_data,
@@ -140,6 +156,7 @@ class Directory:
             eu_node_data=eu_node_data,
             diseases=diseases,
             catalog_id=catalog_id,
+            publisher_id=publisher_id,
             nodes=nodes,
             report=report,
         )

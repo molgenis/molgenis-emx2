@@ -25,7 +25,8 @@ class PublishingState:
     nodes: List[Node]
     report: ErrorReport
     diseases: OntologyTable
-    catalog_id: Table
+    catalog_id: str
+    publisher_id: str
     data_to_publish: MixedData = field(init=False)
 
     def __post_init__(self):

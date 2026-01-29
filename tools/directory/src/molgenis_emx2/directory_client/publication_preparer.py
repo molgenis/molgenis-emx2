@@ -56,6 +56,7 @@ class PublicationPreparer:
                 eu_node_data=state.eu_node_data,
                 diseases=state.diseases,
                 catalog_id=state.catalog_id,
+                publisher_id=state.publisher_id,
             ).transform()
             if warnings:
                 state.report.add_node_warnings(node_data.node, warnings)
