@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
@@ -118,12 +119,8 @@ public class TableStoreForXlsxFile implements TableStore {
       org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
       for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
         try {
-          String cellValue = row.getString(entry.getKey());
-          if (cellValue != null && cellValue.startsWith("=")) {
-            excelRow.createCell(entry.getValue()).setCellValue("'" + cellValue);
-          } else {
-            excelRow.createCell(entry.getValue()).setCellValue(cellValue);
-          }
+          String cellValue = getCellValue(row, entry);
+          excelRow.createCell(entry.getValue()).setCellValue("'" + cellValue);
         } catch (IllegalArgumentException e) {
           throw new MolgenisException(
               "Error writing table '"
@@ -286,12 +283,7 @@ public class TableStoreForXlsxFile implements TableStore {
               }
             }
           case STRING:
-            String trimmed = cell.getStringCellValue().trim();
-            if (trimmed.startsWith("'=")) {
-              return trimmed.substring(1);
-            } else {
-              return trimmed;
-            }
+            return getStringValue(cell);
           case BOOLEAN:
             return cell.getBooleanCellValue();
           case FORMULA:
@@ -304,6 +296,25 @@ public class TableStoreForXlsxFile implements TableStore {
                     + " in Excel file; should not happen in this function");
         }
       }
+    }
+  }
+
+  public static String getCellValue(Row row, Map.Entry<String, Integer> entry) {
+    String cellValue = row.getString(entry.getKey());
+    if (cellValue != null && cellValue.startsWith("=")) {
+      return "'" + cellValue;
+    } else {
+      return cellValue;
+    }
+  }
+
+  @NotNull
+  public static String getStringValue(Cell cell) {
+    String trimmed = cell.getStringCellValue().trim();
+    if (trimmed.startsWith("'=")) {
+      return trimmed.substring(1);
+    } else {
+      return trimmed;
     }
   }
 }
