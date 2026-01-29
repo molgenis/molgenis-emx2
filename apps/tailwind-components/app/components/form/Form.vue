@@ -98,7 +98,8 @@ const showLegend = computed(
   () =>
     sections.value &&
     (sections.value.length > 1 ||
-      (sections.value.length === 1 && sections.value[0]?.headers.length))
+      (sections.value.length === 1 &&
+        (sections.value[0]?.headers.length ?? 0) > 0))
 );
 </script>
 <template>
