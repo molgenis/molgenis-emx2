@@ -4,12 +4,10 @@ import static io.restassured.RestAssured.given;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.RunMolgenisEmx2;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
@@ -21,6 +19,7 @@ class MolgenisWebserviceTest {
   private static String sessionId;
   private static Database db;
   private static final int PORT = 8081; // other than default so we can see effect
+  private static MolgenisWebservice service;
 
   @BeforeAll
   static void setupService() throws Exception {
@@ -31,7 +30,8 @@ class MolgenisWebserviceTest {
             org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
         .execute(
             () -> {
-              RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+              service = new MolgenisWebservice();
+              service.start(PORT);
             });
 
     // set default rest assured settings
@@ -40,6 +40,14 @@ class MolgenisWebserviceTest {
 
     db.setUserPassword("foo", "testtest");
     setupSession();
+  }
+
+  @AfterAll
+  static void tearDown() throws Exception {
+    // start web service for testing, including env variables
+    new EnvironmentVariables(
+            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
+        .execute(() -> service.stop());
   }
 
   private static Schema setupSchema(String schemaName) {

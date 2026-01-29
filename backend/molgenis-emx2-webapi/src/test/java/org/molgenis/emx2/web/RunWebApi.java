@@ -3,7 +3,6 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.IOException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
