@@ -114,7 +114,7 @@ public class RDFApi {
     ctx.contentType(ACCEPT_YAML);
 
     // Only show available SHACLs if there are any schema's available to validate on.
-    if (applicationCache.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
+    if (ApplicationCachePerUser.getInstance().getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 

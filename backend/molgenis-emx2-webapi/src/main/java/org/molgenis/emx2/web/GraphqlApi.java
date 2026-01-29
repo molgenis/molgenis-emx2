@@ -29,8 +29,11 @@ import org.slf4j.LoggerFactory;
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
  */
 public class GraphqlApi {
+
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
+
+  private static final ApplicationCachePerUser APPLICATION_CACHE = ApplicationCachePerUser.getInstance();
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
   private GraphqlApi() {
@@ -67,7 +70,7 @@ public class GraphqlApi {
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(applicationCache.getDatabaseGraphqlForUser(ctx), ctx);
+    String result = executeQuery(APPLICATION_CACHE.getDatabaseGraphqlForUser(ctx), ctx);
     ctx.json(result);
   }
 
@@ -85,7 +88,7 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphQL graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    GraphQL graphqlForSchema = APPLICATION_CACHE.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
