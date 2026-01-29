@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type {
   columnId,
   columnValue,
@@ -93,12 +93,27 @@ function insertInto() {
   insertPromise.then(async () => fetchRowKey());
   return insertPromise;
 }
+
+const showLegend = computed(
+  () =>
+    sections.value &&
+    (sections.value.length > 1 ||
+      (sections.value.length === 1 && sections.value[0]?.headers.length))
+);
 </script>
 <template>
-  <div class="grid grid-cols-4 gap-1 min-h-0 flex-1">
-    <div class="col-span-1 bg-form-legend overflow-y-auto min-h-0">
+  <div
+    class="min-h-0 flex-1"
+    :class="{
+      'grid grid-cols-4 gap-1': showLegend,
+      'overflow-y-auto': !showLegend,
+    }"
+  >
+    <div
+      v-if="showLegend"
+      class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
+    >
       <FormLegend
-        v-if="sections"
         class="sticky top-0"
         :sections="sections"
         @goToSection="gotoSection"
