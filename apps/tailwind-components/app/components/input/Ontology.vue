@@ -384,7 +384,9 @@ async function toggleTermSelect(node: ITreeNodeState) {
       );
     } else if (
       node.parentNode &&
-      !node.parentNode.loadMoreHasMore && // All children are loaded
+      !node.parentNode.loadMoreHasMore &&
+      node.parentNode.loadMoreTotal ===
+        (node.parentNode as any).unfilteredTotal &&
       node.parentNode.children
         .filter((child) => child.name != node.name)
         .every((child) => child.selected === "selected")
