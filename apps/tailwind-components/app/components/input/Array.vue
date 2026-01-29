@@ -8,6 +8,14 @@
       <Input
         :id="id + '_' + index"
         :modelValue="values[index]"
+        :invalid="
+          stringArrayValidationCheck(
+            props.invalid,
+            props.type,
+            props.errorMessage,
+            values[index]
+          )
+        "
         v-bind="getPartialProps($props)"
         :type="getNonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
@@ -47,12 +55,32 @@ import Button from "../Button.vue";
 const props = defineProps<
   IInputProps & {
     modelValue: columnValue[] | undefined | null;
+    errorMessage: string | null;
     type: string;
   }
 >();
 
 const values = ref<columnValue[]>(handleUndefined(props.modelValue));
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+function stringArrayValidationCheck(
+  invalid: boolean,
+  type: string,
+  errorMessage: string | null,
+  value: string
+): boolean {
+  if (
+    invalid &&
+    ["EMAIL_ARRAY", "HYPERLINK_ARRAY", "UUID_ARRAY", "PERIOD_ARRAY"].includes(
+      type
+    )
+  ) {
+    return errorMessage?.match(/\'(.*?)\'/g)?.includes("'" + value + "'")
+      ? true
+      : false;
+  }
+  return invalid;
+}
 
 function handleUndefined(
   inputValues: columnValue[] | undefined | null
@@ -89,6 +117,7 @@ function getPartialProps(props: any): { [key: string]: string } {
   delete clone.id;
   delete clone.type;
   delete clone.modelValue;
+  delete clone.invalid;
   return clone;
 }
 
