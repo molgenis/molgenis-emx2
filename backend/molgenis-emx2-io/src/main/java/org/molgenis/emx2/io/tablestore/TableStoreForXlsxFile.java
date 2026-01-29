@@ -119,7 +119,7 @@ public class TableStoreForXlsxFile implements TableStore {
       org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
       for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
         try {
-          String cellValue = ExcelIOUtil.getExportStringValue(row, entry.getKey());
+          String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
           excelRow.createCell(entry.getValue()).setCellValue(cellValue);
         } catch (IllegalArgumentException e) {
           throw new MolgenisException(
@@ -283,7 +283,7 @@ public class TableStoreForXlsxFile implements TableStore {
               }
             }
           case STRING:
-            return ExcelIOUtil.getImportStringValue(cell.getStringCellValue());
+            return ExcelIOUtil.fromExcelFormat(cell.getStringCellValue());
           case BOOLEAN:
             return cell.getBooleanCellValue();
           case FORMULA:

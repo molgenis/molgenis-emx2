@@ -8,34 +8,34 @@ import org.molgenis.emx2.Row;
 class TestExcelIOUtil {
 
   @Test
-  void testGetExportStringValue() {
+  void testToExcelFormat() {
     Row row = new Row();
     String key = "keyOfRow";
     row.setString(key, "cell value");
-    String result = ExcelIOUtil.getExportStringValue(row, key);
+    String result = ExcelIOUtil.toExcelFormat(row, key);
     assertEquals("cell value", result);
   }
 
   @Test
-  void testGetExportStringValueWithEquals() {
+  void testToExcelFormatWithEquals() {
     Row row = new Row();
     String key = "keyOfRow";
     row.setString(key, "=cell value");
-    String result = ExcelIOUtil.getExportStringValue(row, key);
+    String result = ExcelIOUtil.toExcelFormat(row, key);
     assertEquals("'=cell value", result);
   }
 
   @Test
-  void testGetImportStringValue() {
+  void testFromExcelFormat() {
     String rawValue = "  cellValue";
-    String result = ExcelIOUtil.getImportStringValue(rawValue);
+    String result = ExcelIOUtil.fromExcelFormat(rawValue);
     assertEquals("cellValue", result);
   }
 
   @Test
-  void testGetImportStringValueWithEquals() {
+  void testFromExcelFormatWithEquals() {
     String rawValue = "'=cellValue";
-    String result = ExcelIOUtil.getImportStringValue(rawValue);
+    String result = ExcelIOUtil.fromExcelFormat(rawValue);
     assertEquals("=cellValue", result);
   }
 }

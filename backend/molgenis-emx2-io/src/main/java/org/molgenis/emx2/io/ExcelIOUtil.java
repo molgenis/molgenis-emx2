@@ -5,7 +5,7 @@ import org.molgenis.emx2.Row;
 
 public class ExcelIOUtil {
 
-  public static String getExportStringValue(Row row, String key) {
+  public static String toExcelFormat(Row row, String key) {
     String cellValue = row.getString(key);
     if (cellValue != null && cellValue.startsWith("=")) {
       return "'" + cellValue;
@@ -15,7 +15,7 @@ public class ExcelIOUtil {
   }
 
   @NotNull
-  public static String getImportStringValue(String rawValue) {
+  public static String fromExcelFormat(String rawValue) {
     String trimmed = rawValue.trim();
     if (trimmed.startsWith("'=")) {
       return trimmed.substring(1);
