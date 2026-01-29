@@ -5,6 +5,7 @@ build/
 !gradle-wrapper.jar
 out
 dist
+/*.jar
 
 .DS_Store
 .idea
