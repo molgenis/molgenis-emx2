@@ -15,7 +15,8 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
 
-  private static final ApplicationCachePerUser APPLICATION_CACHE = ApplicationCachePerUser.getInstance();
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
 
   public static void create(Javalin app) {
     defineRoutes(app, "/{schema}/api/beacon");

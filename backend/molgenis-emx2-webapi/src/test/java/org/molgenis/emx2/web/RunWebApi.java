@@ -9,7 +9,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RunWebApi {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
 
     // create data source
     HikariDataSource dataSource = new HikariDataSource();
@@ -23,6 +23,6 @@ public class RunWebApi {
     Database db = TestDatabaseFactory.getTestDatabase();
     PET_STORE.getImportTask(db, "pet store", "", true).run();
 
-    MolgenisWebservice.start(8080);
+    new MolgenisWebservice().start(8080);
   }
 }

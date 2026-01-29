@@ -18,7 +18,8 @@ import org.molgenis.emx2.web.transformers.ActionTransformer;
 
 public class AnalyticsApi {
 
-  private static final ApplicationCachePerUser APPLICATION_CACHE = ApplicationCachePerUser.getInstance();
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
   private static final ActionTransformer actionTransformer = new ActionTransformer();
   public static final ResponseStatus STATUS_SUCCESS = new ResponseStatus(Status.SUCCESS);
   public static final ResponseStatus STATUS_FAILED = new ResponseStatus(Status.FAILED);

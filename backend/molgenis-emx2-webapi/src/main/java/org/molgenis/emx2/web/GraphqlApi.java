@@ -33,7 +33,8 @@ public class GraphqlApi {
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
 
-  private static final ApplicationCachePerUser APPLICATION_CACHE = ApplicationCachePerUser.getInstance();
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
   private GraphqlApi() {

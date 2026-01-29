@@ -25,7 +25,8 @@ public class TaskApi {
 
   // todo, make jobs private to the user?
   public static final TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA, hostUrl);
-  private static final ApplicationCachePerUser APPLICATION_CACHE = ApplicationCachePerUser.getInstance();
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
 
   // to schedule jobs, see MolgenisSessionManager how we keep this in sync with Database using a
   // TableListener
