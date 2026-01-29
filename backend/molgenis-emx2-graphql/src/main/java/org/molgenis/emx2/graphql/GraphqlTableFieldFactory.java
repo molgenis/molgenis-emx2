@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
 import static graphql.scalars.ExtendedScalars.GraphQLLong;
-import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.Privileges.*;
@@ -150,10 +149,6 @@ public class GraphqlTableFieldFactory {
             selections.add(Field.newField(column.getIdentifier()).build());
           }
         });
-
-    if (pkeyOnly && !table.getPrimaryKeyColumns().isEmpty()) {
-      selections.add(Field.newField(MG_ID).build());
-    }
 
     SelectionSet selectionSet = SelectionSet.newSelectionSet().selections(selections).build();
 

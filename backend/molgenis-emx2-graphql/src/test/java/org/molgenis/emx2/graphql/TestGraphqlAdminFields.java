@@ -103,7 +103,7 @@ class TestGraphqlAdminFields {
 
       """);
 
-    executeDb("mutation{signout){message}}");
+    executeDb("mutation{signout{message}}");
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
     database.setActiveUser("testAdmin");
 
@@ -124,14 +124,7 @@ class TestGraphqlAdminFields {
   }
 
   private String executeDb(String query) throws JsonProcessingException {
-    Map<?, Object> graphQLContext =
-        sessionManager != null
-            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
-            : Map.of();
-
-    ExecutionInput executionInput =
-        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build();
-    return convertExecutionResultToJson(graphql.execute(executionInput));
+    return convertExecutionResultToJson(graphql.execute(query, Map.of(), sessionManager));
   }
 
   @Test

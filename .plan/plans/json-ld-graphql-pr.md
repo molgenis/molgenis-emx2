@@ -33,7 +33,7 @@ Enable RDF subsetting through GraphQL by:
 ## Reviewer Feedback (from PR reviews)
 
 ### Code Quality (jhhaanstra)
-- [ ] Factory methods should return schema to make `g` field final
+- [x] Factory methods return GraphQL to make field final - FIXED: `graphql` field now final
 - [ ] schema/database on GraphqlApi seems misplaced - only used in one method
 - [x] Don't expose testing-only methods - FIXED: execute(query) now package-private
 - [x] Unused parameter in recursive scanning - FIXED: removed inheritedContextPath from scanNode()

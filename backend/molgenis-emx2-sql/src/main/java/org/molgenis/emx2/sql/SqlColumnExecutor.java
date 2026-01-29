@@ -9,7 +9,6 @@ import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
-import static org.molgenis.emx2.sql.SqlSchemaMetadata.addMgIdColumn;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
@@ -354,7 +353,6 @@ public class SqlColumnExecutor {
                     .setRefTable(name)
                     .setDescription("Child terms, in case this term is the parent of other terms")
                     .setRefBack("parent"));
-    addMgIdColumn(result);
     return result;
   }
 
