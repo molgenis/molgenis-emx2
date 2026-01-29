@@ -127,7 +127,9 @@ export default {
       this.reports = this.reports.filter(
         (report) => !this.selection.includes(report.id)
       );
-      await this.client.saveSetting("reports", this.reports);
+      await this.client
+        .saveSetting("reports", this.reports)
+        .catch((error) => (this.error = error));
       this.reload();
     },
     open(row) {
