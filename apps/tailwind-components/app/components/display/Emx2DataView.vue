@@ -16,6 +16,10 @@ import CardList from "../CardList.vue";
 import CardListItem from "../CardListItem.vue";
 import FilterSidebar from "../filter/Sidebar.vue";
 import ActiveFilters from "../filter/ActiveFilters.vue";
+import DetailPageLayout from "../layout/DetailPageLayout.vue";
+import SideModal from "../SideModal.vue";
+import ContentBlockModal from "../content/ContentBlockModal.vue";
+import Button from "../Button.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -30,6 +34,7 @@ const props = withDefaults(
 );
 
 defineSlots<{
+  header?: () => any;
   default?: (props: { row: IRow; label: string }) => any;
   card?: (props: { row: IRow; label: string }) => any;
 }>();
@@ -183,158 +188,179 @@ const hasActiveFilters = computed(() => {
 });
 
 function handleFilterRemove(columnId: string) {
-  filterStates.value.delete(columnId);
+  const newMap = new Map(filterStates.value);
+  newMap.delete(columnId);
+  filterStates.value = newMap;
 }
 
 function handleClearAllFilters() {
-  filterStates.value.clear();
+  filterStates.value = new Map();
 }
 </script>
 
 <template>
-  <div class="emx2-data-view">
-    <div v-if="metadata?.label || metadata?.description" class="mb-6">
-      <h2 class="text-heading-2xl font-display text-title mb-2">
-        {{ metadata?.label || tableId }}
-      </h2>
-      <p v-if="metadata?.description" class="text-body-base text-body">
-        {{ metadata.description }}
-      </p>
-    </div>
-
-    <div class="flex gap-6">
+  <DetailPageLayout
+    :show-side-nav="showFilters && filterPosition === 'sidebar'"
+  >
+    <template v-if="$slots.header" #header>
+      <slot name="header" />
+    </template>
+    <template v-if="showFilters && filterPosition === 'sidebar'" #sidebar>
+      <FilterSidebar
+        v-if="filterableColumnsComputed.length"
+        v-model:filter-states="filterStates"
+        v-model:search-terms="searchTerms"
+        :columns="filterableColumnsComputed"
+        :show-search="showSearch"
+      />
+    </template>
+    <template #main>
       <div
         v-if="showFilters && filterPosition === 'sidebar'"
-        class="w-80 flex-shrink-0"
+        class="xl:hidden mb-4"
       >
-        <FilterSidebar
-          v-if="filterableColumnsComputed.length"
-          v-model:filter-states="filterStates"
-          v-model:search-terms="searchTerms"
-          :columns="filterableColumnsComputed"
-          :show-search="showSearch"
-        />
+        <SideModal :full-screen="false">
+          <template #button>
+            <Button
+              type="primary"
+              size="small"
+              label="Filters"
+              icon="filter"
+              icon-position="left"
+            />
+          </template>
+          <ContentBlockModal title="Filters">
+            <FilterSidebar
+              v-if="filterableColumnsComputed.length"
+              v-model:filter-states="filterStates"
+              v-model:search-terms="searchTerms"
+              :columns="filterableColumnsComputed"
+              :show-search="showSearch"
+              :mobile-display="true"
+            />
+          </ContentBlockModal>
+          <template #footer="{ hide }">
+            <Button
+              type="secondary"
+              size="small"
+              label="View results"
+              @click="hide()"
+            />
+          </template>
+        </SideModal>
       </div>
 
-      <div class="flex-1 min-w-0">
+      <div
+        class="bg-content rounded-t-3px rounded-b-50px shadow-primary overflow-hidden"
+      >
         <div
-          class="bg-content rounded-t-3px rounded-b-50px shadow-primary overflow-hidden"
+          v-if="showSearch && (!showFilters || filterPosition !== 'sidebar')"
+          class="p-5 border-b border-black/10"
         >
-          <div
-            v-if="showSearch && (!showFilters || filterPosition !== 'sidebar')"
-            class="p-5 border-b border-black/10"
-          >
-            <InputSearch
-              :id="searchInputId"
-              v-model="searchTerms"
-              placeholder="Search..."
-              size="small"
-            />
-          </div>
+          <InputSearch
+            :id="searchInputId"
+            v-model="searchTerms"
+            placeholder="Search..."
+            size="small"
+          />
+        </div>
 
-          <div
-            v-if="hasActiveFilters"
-            class="px-5 py-3 border-b border-black/10"
-          >
-            <ActiveFilters
-              :filters="filterStates"
-              :columns="filterableColumnsComputed"
-              @remove="handleFilterRemove"
-              @clear-all="handleClearAllFilters"
-            />
-          </div>
+        <div v-if="hasActiveFilters" class="px-5 py-3 border-b border-black/10">
+          <ActiveFilters
+            :filters="filterStates"
+            :columns="filterableColumnsComputed"
+            @remove="handleFilterRemove"
+            @clear-all="handleClearAllFilters"
+          />
+        </div>
 
-          <LoadingContent
-            :id="`emx2-data-view-${schemaId}-${tableId}`"
-            :status="status"
-            loading-text="Loading..."
-            :error-text="errorText"
-            :show-slot-on-error="false"
-          >
-            <div
-              v-if="rows.length && layout === 'table'"
-              class="overflow-x-auto"
-            >
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="border-b border-black/10">
-                    <th
-                      v-for="col in tableColumns"
-                      :key="col.id"
-                      class="px-3 py-2 text-body-sm font-semibold bg-table"
-                    >
-                      {{ col.label || col.id }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(row, index) in rows"
-                    :key="index"
-                    class="border-b border-black/10 hover:bg-black/5"
+        <LoadingContent
+          :id="`emx2-data-view-${schemaId}-${tableId}`"
+          :status="status"
+          loading-text="Loading..."
+          :error-text="errorText"
+          :show-slot-on-error="false"
+        >
+          <div v-if="rows.length && layout === 'table'" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-black/10">
+                  <th
+                    v-for="col in tableColumns"
+                    :key="col.id"
+                    class="px-3 py-2 text-body-sm font-semibold bg-table"
                   >
-                    <td
-                      v-for="(col, colIndex) in tableColumns"
-                      :key="col.id"
-                      class="px-3 py-2 text-body-base bg-table"
+                    {{ col.label || col.id }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, index) in rows"
+                  :key="index"
+                  class="border-b border-black/10 hover:bg-black/5"
+                >
+                  <td
+                    v-for="(col, colIndex) in tableColumns"
+                    :key="col.id"
+                    class="px-3 py-2 text-body-base bg-table"
+                  >
+                    <NuxtLink
+                      v-if="colIndex === 0 && firstColumnOptions?.getHref"
+                      :to="firstColumnOptions.getHref(col, row)"
+                      class="text-link hover:underline"
                     >
-                      <NuxtLink
-                        v-if="colIndex === 0 && firstColumnOptions?.getHref"
-                        :to="firstColumnOptions.getHref(col, row)"
-                        class="text-link hover:underline"
-                      >
-                        {{ getCellValue(row, col.id) }}
-                      </NuxtLink>
-                      <span
-                        v-else-if="
-                          colIndex === 0 && firstColumnOptions?.clickAction
-                        "
-                        class="text-link hover:underline cursor-pointer"
-                        @click="firstColumnOptions.clickAction!(col, row)"
-                      >
-                        {{ getCellValue(row, col.id) }}
-                      </span>
-                      <span v-else>{{ getCellValue(row, col.id) }}</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div v-else-if="rows.length && layout === 'cards'" class="p-5">
-              <CardList>
-                <CardListItem v-for="(row, index) in rows" :key="index">
-                  <slot name="card" :row="row" :label="getLabel(row)">
-                    <span>{{ getLabel(row) }}</span>
-                  </slot>
-                </CardListItem>
-              </CardList>
-            </div>
-
-            <div v-else-if="rows.length" class="p-5">
-              <ul class="grid gap-1 pl-4 list-disc list-outside">
-                <li v-for="(row, index) in rows" :key="index">
-                  <slot :row="row" :label="getLabel(row)">
-                    <span>{{ getLabel(row) }}</span>
-                  </slot>
-                </li>
-              </ul>
-            </div>
-
-            <div v-else class="p-5">
-              <p class="text-body-base opacity-60 italic">No items</p>
-            </div>
-          </LoadingContent>
-
-          <div v-if="showPagination" class="p-5 border-t border-black/10">
-            <InlinePagination
-              :current-page="page"
-              :total-pages="totalPages"
-              @update:page="page = $event"
-            />
+                      {{ getCellValue(row, col.id) }}
+                    </NuxtLink>
+                    <span
+                      v-else-if="
+                        colIndex === 0 && firstColumnOptions?.clickAction
+                      "
+                      class="text-link hover:underline cursor-pointer"
+                      @click="firstColumnOptions.clickAction!(col, row)"
+                    >
+                      {{ getCellValue(row, col.id) }}
+                    </span>
+                    <span v-else>{{ getCellValue(row, col.id) }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+
+          <div v-else-if="rows.length && layout === 'cards'" class="p-5">
+            <CardList>
+              <CardListItem v-for="(row, index) in rows" :key="index">
+                <slot name="card" :row="row" :label="getLabel(row)">
+                  <span>{{ getLabel(row) }}</span>
+                </slot>
+              </CardListItem>
+            </CardList>
+          </div>
+
+          <div v-else-if="rows.length" class="p-5">
+            <ul class="grid gap-1 pl-4 list-disc list-outside">
+              <li v-for="(row, index) in rows" :key="index">
+                <slot :row="row" :label="getLabel(row)">
+                  <span>{{ getLabel(row) }}</span>
+                </slot>
+              </li>
+            </ul>
+          </div>
+
+          <div v-else class="p-5">
+            <p class="text-body-base opacity-60 italic">No items</p>
+          </div>
+        </LoadingContent>
+
+        <div v-if="showPagination" class="p-5 border-t border-black/10">
+          <InlinePagination
+            :current-page="page"
+            :total-pages="totalPages"
+            @update:page="page = $event"
+          />
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </DetailPageLayout>
 </template>

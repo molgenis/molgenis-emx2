@@ -1,5 +1,7 @@
 <script setup lang="ts">
-withDefaults(
+import { computed } from "vue";
+
+const props = withDefaults(
   defineProps<{
     showSideNav?: boolean;
   }>(),
@@ -7,6 +9,14 @@ withDefaults(
     showSideNav: true,
   }
 );
+
+const slots = defineSlots<{
+  header?: () => any;
+  sidebar?: () => any;
+  main?: () => any;
+}>();
+
+const hasSidebar = computed(() => props.showSideNav && !!slots.sidebar);
 </script>
 
 <template>
@@ -16,12 +26,12 @@ withDefaults(
     </header>
     <div class="xl:flex xl:items-start">
       <aside
-        v-if="showSideNav && $slots.side"
+        v-if="hasSidebar"
         class="xl:w-82.5 sticky top-[30px] flex-shrink-0 hidden xl:block"
       >
-        <slot name="side"></slot>
+        <slot name="sidebar"></slot>
       </aside>
-      <main class="xl:pl-7.5 grow min-w-0">
+      <main :class="{ 'xl:pl-7.5': hasSidebar }" class="grow min-w-0">
         <slot name="main"></slot>
       </main>
     </div>

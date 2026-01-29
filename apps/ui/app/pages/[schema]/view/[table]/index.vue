@@ -13,7 +13,6 @@ import type { Crumb } from "../../../../../../tailwind-components/types/types";
 import type {
   IColumn,
   IRow,
-  IRefColumn,
   ITableMetaData,
   IDisplayConfig,
 } from "../../../../../../metadata-utils/src/types";
@@ -98,9 +97,8 @@ const displayConfig = computed(() => {
     if (REF_TYPES.includes(col.columnType)) {
       config.set(col.id, {
         getHref: (column: IColumn, row: IRow) => {
-          const refCol = column as IRefColumn;
-          const targetSchema = refCol.refSchemaId || schemaId;
-          const targetTable = refCol.refTableId;
+          const targetSchema = column.refSchemaId || schemaId;
+          const targetTable = column.refTableId;
           if (!targetTable) return "";
           return `/${targetSchema}/view/${targetTable}?${encodeRecordId(row)}`;
         },
@@ -123,7 +121,7 @@ const rowIdKey = computed(() => JSON.stringify(rowId.value));
       </PageHeader>
     </template>
 
-    <template #side>
+    <template #sidebar>
       <SideNav
         v-if="sections.length"
         :title="(tableMetadata?.label || tableId).toUpperCase()"

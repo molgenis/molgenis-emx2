@@ -2,7 +2,6 @@
 import { ref, computed, defineComponent, h } from "vue";
 import type {
   IColumn,
-  IRefColumn,
   IRow,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
@@ -102,7 +101,7 @@ const hyperlinkColumn: IColumn = {
   columnType: "HYPERLINK",
 };
 
-const refColumn = computed<IRefColumn>(() => ({
+const refColumn = computed<IColumn>(() => ({
   id: "pet",
   label: "Pet",
   columnType: "REF",
@@ -148,7 +147,7 @@ const multiselectColumn: IColumn = {
   refLabelDefault: "${name}",
 };
 
-const refArrayColumn = computed<IRefColumn>(() => ({
+const refArrayColumn = computed<IColumn>(() => ({
   id: "pets",
   label: "Pets",
   columnType: "REF_ARRAY",
@@ -160,7 +159,7 @@ const refArrayColumn = computed<IRefColumn>(() => ({
   displayConfig: { clickAction: handleRefClick },
 }));
 
-const refArrayLargeColumn = computed<IRefColumn>(() => ({
+const refArrayLargeColumn = computed<IColumn>(() => ({
   id: "orders",
   label: "Orders (15 items, paginated)",
   columnType: "REF_ARRAY",
@@ -172,7 +171,7 @@ const refArrayLargeColumn = computed<IRefColumn>(() => ({
   displayConfig: { clickAction: handleRefClick },
 }));
 
-const refBackColumn = computed<IRefColumn>(() => ({
+const refBackColumn = computed<IColumn>(() => ({
   id: "owner",
   label: "Owner",
   columnType: "REFBACK",
@@ -185,7 +184,7 @@ const refBackColumn = computed<IRefColumn>(() => ({
 }));
 
 // Column for slot usage example
-const slotRefArrayColumn: IRefColumn = {
+const slotRefArrayColumn: IColumn = {
   id: "pets",
   label: "Pets (Custom Slot)",
   columnType: "REF_ARRAY",
@@ -212,7 +211,7 @@ const petTableMetadata: ITableMetaData = {
 };
 
 // Column with table display mode
-const tableDisplayColumn = computed<IRefColumn>(() => ({
+const tableDisplayColumn = computed<IColumn>(() => ({
   id: "pets",
   label: "Pets (Table Mode)",
   columnType: "REF_ARRAY",
@@ -230,7 +229,7 @@ const tableDisplayColumn = computed<IRefColumn>(() => ({
 }));
 
 // Column with table display mode and custom page size
-const tableDisplayLargeColumn = computed<IRefColumn>(() => ({
+const tableDisplayLargeColumn = computed<IColumn>(() => ({
   id: "pets",
   label: "Pets (Table Mode, pageSize=3)",
   columnType: "REF_ARRAY",
@@ -249,7 +248,7 @@ const tableDisplayLargeColumn = computed<IRefColumn>(() => ({
 }));
 
 // Column with custom Vue Component for display
-const customComponentColumn = computed<IRefColumn>(() => ({
+const customComponentColumn = computed<IColumn>(() => ({
   id: "pets",
   label: "Pets (Custom Component)",
   columnType: "REF_ARRAY",

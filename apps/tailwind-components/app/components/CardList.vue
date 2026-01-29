@@ -1,5 +1,5 @@
 <template>
-  <ul class="list-none bg-content rounded-t-3px rounded-b-50px shadow-primary">
+  <ul class="list-none">
     <slot></slot>
   </ul>
 </template>

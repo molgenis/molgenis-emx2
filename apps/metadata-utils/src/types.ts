@@ -12,7 +12,6 @@ export type HeadingType = "HEADING" | "SECTION";
 
 export interface IDisplayConfig {
   layout?: "table" | "list" | "cards";
-  displayComponent?: string | Component;
   component?: string | Component;
   visibleColumns?: string[];
   columnConfig?: Record<string, IDisplayConfig>;
@@ -90,7 +89,7 @@ export interface IColumn {
   refLabel?: string;
   refLabelDefault?: string;
   refLinkId?: string;
-  refSchemaId?: string; //should always be provided when refTableId is set even if in same schema
+  refSchemaId?: string;
   refTableId?: string;
   required?: string | boolean;
   semantics?: string[];

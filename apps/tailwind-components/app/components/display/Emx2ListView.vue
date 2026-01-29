@@ -3,7 +3,6 @@ import { ref, computed, watch, useId, type Component } from "vue";
 import type {
   IColumn,
   IRow,
-  IRefColumn,
   IDisplayConfig,
 } from "../../../../metadata-utils/src/types";
 import { useTableData } from "../../composables/useTableData";
@@ -59,7 +58,7 @@ const errorText = computed(
     (status.value === "error" ? "Failed to load data" : undefined)
 );
 
-const refColumn = computed<IRefColumn | undefined>(() => {
+const refColumn = computed<IColumn | undefined>(() => {
   if (!metadata.value) return undefined;
   const keyCol = metadata.value.columns?.find((c) => c.key === 1);
   return {
@@ -184,11 +183,16 @@ function getLabel(row: IRow): string {
           </tbody>
         </table>
       </div>
-      <CardList v-else-if="rows.length && isCardMode">
-        <CardListItem v-for="(row, index) in rows" :key="index">
-          <component :is="displayConfig!.component" :data="row" />
-        </CardListItem>
-      </CardList>
+      <div
+        v-else-if="rows.length && isCardMode"
+        class="bg-content rounded-t-3px rounded-b-50px shadow-primary"
+      >
+        <CardList>
+          <CardListItem v-for="(row, index) in rows" :key="index">
+            <component :is="displayConfig!.component" :data="row" />
+          </CardListItem>
+        </CardList>
+      </div>
       <!-- Default list layout -->
       <ul
         v-else-if="rows.length"

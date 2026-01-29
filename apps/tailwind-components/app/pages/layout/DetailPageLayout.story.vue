@@ -7,7 +7,7 @@ import BreadCrumbs from "../../components/BreadCrumbs.vue";
 import ContentBlocks from "../../components/content/ContentBlocks.vue";
 import ContentBlock from "../../components/content/ContentBlock.vue";
 import RecordColumn from "../../components/display/RecordColumn.vue";
-import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 
 const showSideNav = ref(true);
 const clickLog = ref<string[]>([]);
@@ -55,7 +55,7 @@ const populationColumns: IColumn[] = [
     refLabel: "name",
     refLabelDefault: "name",
     refLinkId: "id",
-  } as IRefColumn,
+  },
 ];
 
 // Mock columns for Access Conditions section
@@ -109,6 +109,14 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
   <div class="p-4">
     <h1 class="text-heading-xl mb-4">DetailPageLayout Story</h1>
     <p class="text-body-base mb-4">
+      This layout supports two patterns: Detail Pages (with sidebar) and Data
+      Pages (with inline filters).
+    </p>
+
+    <h2 class="text-heading-lg mb-4 mt-8">
+      Pattern 1: Detail Page (with sidebar)
+    </h2>
+    <p class="text-body-base mb-4">
       This layout matches the catalogue detail pages. Toggle the checkbox to
       hide/show the side navigation. The General Design, Population, and Access
       Conditions sections use RecordColumn components.
@@ -154,7 +162,7 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
         </PageHeader>
       </template>
 
-      <template #side>
+      <template #sidebar>
         <SideNav title="EXAMPLE" :sections="sections" :scroll-offset="80" />
       </template>
 
@@ -278,6 +286,47 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
             </dl>
           </ContentBlock>
         </ContentBlocks>
+      </template>
+    </DetailPageLayout>
+
+    <h2 class="text-heading-lg mb-4 mt-12">
+      Pattern 2: Data Page (no sidebar)
+    </h2>
+    <p class="text-body-base mb-4">
+      Data pages use Emx2DataView which manages its own filter sidebar. The
+      DetailPageLayout has NO sidebar slot filled in this case.
+    </p>
+
+    <DetailPageLayout :show-side-nav="false">
+      <template #header>
+        <PageHeader
+          id="data-page-header"
+          title="Participants Data"
+          description="Browse and filter participant records"
+        >
+          <template #prefix>
+            <BreadCrumbs :crumbs="crumbs" />
+          </template>
+        </PageHeader>
+      </template>
+
+      <template #main>
+        <div class="border border-gray-300 rounded p-6 bg-gray-50">
+          <div class="flex items-center justify-center h-64 text-gray-500">
+            <div class="text-center">
+              <p class="text-lg font-semibold mb-2">Emx2DataView placeholder</p>
+              <p class="text-sm">
+                In real usage, this would be:
+                <code class="bg-gray-200 px-2 py-1 rounded text-xs">
+                  &lt;Emx2DataView showFilters /&gt;
+                </code>
+              </p>
+              <p class="text-sm mt-2">
+                The DataView component manages its own filter sidebar
+              </p>
+            </div>
+          </div>
+        </div>
       </template>
     </DetailPageLayout>
   </div>

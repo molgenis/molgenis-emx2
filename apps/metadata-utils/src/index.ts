@@ -15,6 +15,7 @@ export type {
   IColumn,
   IDisplayConfig,
   IRefColumn,
+  IRow,
   ISetting,
   ISchemaMetaData,
   ITableMetaData,

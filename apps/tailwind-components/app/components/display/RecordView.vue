@@ -28,20 +28,14 @@ const sections = computed<SectionGroup[]>(() => {
   const columns = props.metadata.columns || [];
   const result: SectionGroup[] = [];
 
-  // Find all SECTION columns
   const sectionColumns = columns.filter((c) => c.columnType === "SECTION");
-
-  // Find all HEADING columns
   const headingColumns = columns.filter((c) => c.columnType === "HEADING");
-
-  // Find orphan columns (not in any section or heading)
   const dataColumns = columns.filter(
     (c) => c.columnType !== "SECTION" && c.columnType !== "HEADING"
   );
 
   const orphanColumns = dataColumns.filter((c) => !c.section && !c.heading);
 
-  // Add orphan columns as first section (no heading)
   if (orphanColumns.length > 0) {
     result.push({
       heading: null,
@@ -53,14 +47,11 @@ const sections = computed<SectionGroup[]>(() => {
     });
   }
 
-  // Process each SECTION
   for (const section of sectionColumns) {
-    // Find columns directly in this section (no heading)
     const sectionDirectColumns = dataColumns.filter(
       (c) => c.section === section.id && !c.heading
     );
 
-    // Add section with its direct columns
     if (
       sectionDirectColumns.length > 0 ||
       headingColumns.some((h) => h.section === section.id)
@@ -75,12 +66,10 @@ const sections = computed<SectionGroup[]>(() => {
       });
     }
 
-    // Find headings in this section
     const sectionHeadings = headingColumns.filter(
       (h) => h.section === section.id
     );
 
-    // Process each heading in this section
     for (const heading of sectionHeadings) {
       const headingColumns_ = dataColumns.filter(
         (c) => c.heading === heading.id
@@ -99,7 +88,6 @@ const sections = computed<SectionGroup[]>(() => {
     }
   }
 
-  // Find headings not in any section
   const orphanHeadings = headingColumns.filter((h) => !h.section);
   for (const heading of orphanHeadings) {
     const headingColumns_ = dataColumns.filter((c) => c.heading === heading.id);

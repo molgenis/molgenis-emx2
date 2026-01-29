@@ -193,7 +193,7 @@ function clearLog() {
         </PageHeader>
       </template>
 
-      <template #side>
+      <template #sidebar>
         <SideNav
           v-if="sections.length"
           :title="tableId.toUpperCase()"

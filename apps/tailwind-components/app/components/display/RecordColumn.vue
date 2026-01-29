@@ -3,6 +3,7 @@ import { ref, computed, useSlots, type Component } from "vue";
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 import RecordTableView from "./RecordTableView.vue";
+import InlinePagination from "./InlinePagination.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -39,7 +40,7 @@ const visibleColumns = computed(() => {
   if (!config?.visibleColumns) return [];
   const refCol = props.column as IRefColumn;
   if (!refCol.refTableMetadata?.columns) return [];
-  return refCol.refTableMetadata.columns.filter((c) =>
+  return refCol.refTableMetadata.columns.filter((c: IColumn) =>
     config.visibleColumns!.includes(c.id)
   );
 });
@@ -64,6 +65,14 @@ const visibleRows = computed(() =>
   )
 );
 
+const totalPages = computed(() =>
+  Math.ceil(allRows.value.length / effectivePageSize.value)
+);
+
+const showPagination = computed(
+  () => allRows.value.length > effectivePageSize.value
+);
+
 function isEmpty(val: any): boolean {
   if (val === null || val === undefined || val === "") return true;
   if (Array.isArray(val) && val.length === 0) return true;
@@ -83,16 +92,15 @@ function isEmpty(val: any): boolean {
     :column="column"
     :value="value"
   />
-  <!-- Table mode for REF_ARRAY/REFBACK with displayConfig.component='table' (with pagination) -->
-  <RecordTableView
-    v-else-if="useTableMode"
-    :rows="visibleRows"
-    :columns="visibleColumns"
-    :ref-column="column as IRefColumn"
-    v-model:page="listPage"
-    :page-size="effectivePageSize"
-    :total-count="allRows.length"
-  />
+  <div v-else-if="useTableMode">
+    <RecordTableView :rows="visibleRows" :columns="visibleColumns" />
+    <InlinePagination
+      v-if="showPagination"
+      :current-page="listPage"
+      :total-pages="totalPages"
+      @update:page="listPage = $event"
+    />
+  </div>
   <!-- Custom component mode: render user-provided Vue component -->
   <component
     v-else-if="customComponent"

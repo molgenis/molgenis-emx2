@@ -16,17 +16,23 @@
 - [x] Default layout = "table"
 - [x] Table full-width (no padding wrapper)
 
-### Next: Headerless Emx2DataView + DetailPageLayout Composition
+### Next: Emx2DataView uses DetailPageLayout + Responsive Filters
+
+**Goal**: Emx2DataView uses DetailPageLayout internally. Optional header = compact mode. Responsive filter pattern (modal on mobile).
 
 | Step | Task | Files |
 |------|------|-------|
-| 1 | Rename DetailPageLayout slot `side` → `sidebar` | DetailPageLayout.vue |
-| 2 | Make sidebar slot optional (main full-width when empty) | DetailPageLayout.vue |
-| 3 | Remove title/description from Emx2DataView (headerless) | Emx2DataView.vue |
-| 4 | Move search into FilterSidebar when showFilters | FilterSidebar.vue, Emx2DataView.vue |
-| 5 | Keep search in content area when no sidebar | Emx2DataView.vue |
-| 6 | Update story: use DetailPageLayout + PageHeader composition | Emx2DataView.story.vue |
-| 7 | Update DetailPageLayout.story to show both patterns | DetailPageLayout.story.vue |
+| 1 | Refactor Emx2DataView to use DetailPageLayout internally | Emx2DataView.vue |
+| 2 | Add #header slot (optional - compact when empty) | Emx2DataView.vue |
+| 3 | Put FilterSidebar in DetailPageLayout #sidebar slot | Emx2DataView.vue |
+| 4 | Add mobile filter button + SideModal (xl:hidden) | Emx2DataView.vue |
+| 5 | When showFilters=false: no sidebar, no mobile button (vanilla mode) | Emx2DataView.vue |
+| 6 | Update stories to show both patterns | Emx2DataView.story.vue |
+
+**Responsive Behavior**:
+- Desktop (xl+): FilterSidebar visible in sidebar slot
+- Mobile (<xl): "Filters" button → SideModal with FilterSidebar
+- showFilters=false: Pure data view, usable anywhere
 
 ### Target Layout Structure
 

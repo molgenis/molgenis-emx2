@@ -10,7 +10,7 @@
 
     <div class="flex gap-[10px]">
       <Button
-        v-if="props.isEditable && metadata"
+        v-if="props.isEditable && data?.tableMetadata"
         type="primary"
         icon="add-circle"
         @click="onAddRowClicked"
@@ -140,10 +140,10 @@
   </div>
 
   <Pagination
-    v-if="showPagination"
+    v-if="count > settings.pageSize"
     class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
-    :totalPages="totalPages"
+    :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
     @update="handlePagingRequest($event)"
   />
@@ -160,21 +160,21 @@
   />
 
   <DeleteModal
-    v-if="metadata && rowDataForModal"
+    v-if="data?.tableMetadata && rowDataForModal"
     :showButton="false"
     :schemaId="props.schemaId"
-    :metadata="metadata"
+    :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
     v-model:visible="showDeleteModal"
     @update:deleted="afterRowDeleted"
   />
 
   <EditModal
-    v-if="metadata && showEditModal"
+    v-if="data?.tableMetadata && showEditModal"
     :key="`edit-modal-${useId()}`"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="metadata"
+    :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
     :isInsert="false"
     v-model:visible="showEditModal"
@@ -182,11 +182,11 @@
   />
 
   <EditModal
-    v-if="metadata && showAddModal"
+    v-if="data?.tableMetadata && showAddModal"
     :key="`add-modal-${useId()}`"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="metadata"
+    :metadata="data.tableMetadata"
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
@@ -208,7 +208,8 @@ import type {
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
-import { useTableData } from "../../composables/useTableData";
+import { useAsyncData } from "#app/composables/asyncData";
+import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
@@ -230,7 +231,6 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
-    filter?: object;
   }>(),
   {
     isEditable: () => false,
@@ -258,41 +258,39 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-// reactive refs for useTableData options
-const pageRef = ref(settings.value.page);
-const searchTermsRef = ref(settings.value.search);
-const orderbyRef = ref(settings.value.orderby);
-const filterComputed = computed(() => props.filter);
+const { data, refresh } = useAsyncData(
+  `tableEMX2-${props.schemaId}-${props.tableId}`,
+  async () => {
+    const tableMetadata = await fetchTableMetadata(
+      props.schemaId,
+      props.tableId
+    );
 
-// sync settings to refs
-watch(
-  () => settings.value.page,
-  (val) => (pageRef.value = val),
-  { immediate: true }
-);
-watch(
-  () => settings.value.search,
-  (val) => (searchTermsRef.value = val),
-  { immediate: true }
-);
-watch(
-  () => settings.value.orderby,
-  (val) => (orderbyRef.value = val),
-  { immediate: true, deep: true }
+    const tableData = await fetchTableData(props.schemaId, props.tableId, {
+      limit: settings.value.pageSize,
+      offset: (settings.value.page - 1) * settings.value.pageSize,
+      orderby: settings.value.orderby.column
+        ? { [settings.value.orderby.column]: settings.value.orderby.direction }
+        : {},
+      searchTerms: settings.value.search,
+    });
+
+    return {
+      tableMetadata,
+      tableData,
+    };
+  }
 );
 
-const { metadata, rows, count, refresh, totalPages, showPagination } =
-  useTableData(props.schemaId, props.tableId, {
-    pageSize: settings.value.pageSize,
-    page: pageRef,
-    searchTerms: searchTermsRef,
-    orderby: orderbyRef,
-    filter: filterComputed,
-  });
+const rows = computed(() =>
+  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+);
 
 const showDraftColumn = computed(() =>
   rows.value.some((row) => row?.mg_draft === true)
 );
+
+const count = computed(() => data.value?.tableData?.count ?? 0);
 
 const primaryKeys = computed(() => {
   return columns.value
@@ -305,7 +303,7 @@ const primaryKeys = computed(() => {
 });
 
 watch(
-  metadata,
+  () => data.value?.tableMetadata,
   (newMetadata) => {
     if (newMetadata) {
       columns.value = newMetadata.columns.filter(

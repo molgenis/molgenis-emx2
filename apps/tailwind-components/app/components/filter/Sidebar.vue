@@ -49,7 +49,7 @@ function setFilterValue(
 
 <template>
   <div
-    class="mt-7.5 rounded-t-3px rounded-b-50px"
+    class="rounded-t-3px rounded-b-50px"
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
     <h2

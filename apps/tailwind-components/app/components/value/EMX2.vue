@@ -2,8 +2,8 @@
 import { ref, computed } from "vue";
 import type {
   IColumn,
-  IRefColumn,
   IRow,
+  IRefColumn,
 } from "../../../../metadata-utils/src/types";
 import type { RefPayload } from "../../../types/types";
 import { rowToString } from "../../utils/rowToString";
@@ -72,9 +72,9 @@ const useTableMode = computed(() => {
 const visibleColumns = computed(() => {
   const config = props.metadata.displayConfig;
   if (!config?.visibleColumns) return [];
-  const refCol = props.metadata as IRefColumn;
-  if (!refCol.refTableMetadata?.columns) return [];
-  return refCol.refTableMetadata.columns.filter((c) =>
+  const refMeta = props.metadata as IRefColumn;
+  if (!refMeta.refTableMetadata?.columns) return [];
+  return refMeta.refTableMetadata.columns.filter((c: IColumn) =>
     config.visibleColumns!.includes(c.id)
   );
 });
@@ -161,14 +161,15 @@ function handleRefClick() {
     </span>
   </template>
 
-  <RecordTableView
-    v-else-if="useTableMode"
-    :rows="allRows"
-    :columns="visibleColumns"
-    v-model:page="listPage"
-    :page-size="effectivePageSize"
-    :total-count="allRows.length"
-  />
+  <div v-else-if="useTableMode">
+    <RecordTableView :rows="paginatedRows" :columns="visibleColumns" />
+    <InlinePagination
+      v-if="showListPagination"
+      :current-page="listPage"
+      :total-pages="listTotalPages"
+      @update:page="listPage = $event"
+    />
+  </div>
 
   <!-- Array refs: REF_ARRAY, REFBACK, MULTISELECT, CHECKBOX (bullets/list mode) -->
   <div v-else-if="isArrayRef" class="record-list-view">
