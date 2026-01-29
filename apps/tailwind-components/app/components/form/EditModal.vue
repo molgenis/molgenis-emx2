@@ -44,6 +44,7 @@
       :metadata="metadata"
       :formValues="formValues"
       :constantValues="constantValues"
+      :initializeAsInsert="isInsert"
     />
 
     <TransitionSlideUp>
