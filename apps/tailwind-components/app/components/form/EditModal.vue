@@ -254,9 +254,13 @@ async function onSave(draft: boolean) {
       if (!form.value) {
         throw new Error("Form reference is not available");
       }
-      const resp = (await isInsert.value)
-        ? form.value.insertInto()
-        : form.value.updateInto();
+
+      let resp: IRow | null = null;
+      if (isInsert.value) {
+        resp = await form.value.insertInto();
+      } else {
+        resp = await form.value.updateInto();
+      }
 
       if (!resp) {
         throw new Error(
