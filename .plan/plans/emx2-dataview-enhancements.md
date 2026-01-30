@@ -62,18 +62,28 @@ Filter UI shows:
 
 ## Implementation Order
 
-| Phase | Features | Complexity |
-|-------|----------|------------|
-| 1 | Columns button, Show/hide filters | Low |
-| 2 | Add/Edit/Delete buttons | Medium (lift existing) |
-| 3 | Filter customization UI | Medium |
-| 4 | Nested ref filtering | High |
+| Phase | Features | Status |
+|-------|----------|--------|
+| 1 | Columns button, column visibility, sticky first col, scroll, pagination | ✅ Done |
+| 2 | Filters button (reuse generic Columns.vue with mode="filters") | Pending |
+| 3 | Nested ref filtering | Pending |
+| 4 | Add/Edit/Delete buttons | Pending |
+
+## Phase 1 Completed
+- Generic `Columns.vue` with `mode` prop ('columns' | 'filters')
+- All/none toggles for data/metadata sections
+- Integrated into Emx2DataView toolbar
+- Column visibility affects tableColumns
+- Sticky first column with horizontal scroll
+- Theme-aware text colors (text-table-column-header, text-table-row)
+- Full Pagination component (outside white card)
+- Split card: main content + curved bottom piece
 
 ## Decisions
-- Phase 2: Auto-detect editable from session roles (Editor/Admin)
-- Phase 3: Persist filter customization in URL params (shareable)
-- Phase 4: Recursive unfolding - same pattern repeats, no hard limit
-- Phase 4: Collapsed by default, user expands on demand
+- Phase 2: Filters button uses same Columns.vue with mode="filters", toggles showFilter attribute
+- Phase 3: Recursive unfolding - same pattern repeats, no hard limit
+- Phase 3: Collapsed by default, user expands on demand
+- Phase 4: Auto-detect editable from session roles (Editor/Admin)
 
 ## Nested Ref Filter - Refined Design
 
