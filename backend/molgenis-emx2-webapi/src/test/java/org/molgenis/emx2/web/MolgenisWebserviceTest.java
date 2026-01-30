@@ -3,71 +3,16 @@ package org.molgenis.emx2.web;
 import static io.restassured.RestAssured.given;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
-import io.restassured.RestAssured;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
-@ExtendWith(SystemStubsExtension.class)
-class MolgenisWebserviceTest {
-
-  private static String sessionId;
-  private static Database db;
-  private static final int PORT = 8081; // other than default so we can see effect
-  private static MolgenisWebservice service;
+class MolgenisWebserviceTest extends ApiTestBase {
 
   @BeforeAll
-  static void setupService() throws Exception {
-    db = TestDatabaseFactory.getTestDatabase();
-
-    // start web service for testing, including env variables
-    new EnvironmentVariables(
-            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
-        .execute(
-            () -> {
-              service = new MolgenisWebservice();
-              service.start(PORT);
-            });
-
-    // set default rest assured settings
-    RestAssured.port = PORT;
-    RestAssured.baseURI = "http://localhost";
-
-    db.setUserPassword("foo", "testtest");
-    setupSession();
-  }
-
-  @AfterAll
-  static void tearDown() throws Exception {
-    // start web service for testing, including env variables
-    new EnvironmentVariables(
-            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
-        .execute(() -> service.stop());
-  }
-
-  private static Schema setupSchema(String schemaName) {
-    db.dropCreateSchema(schemaName);
-    Schema schema = db.getSchema(schemaName);
-    schema.addMember("foo", Privileges.VIEWER.toString());
-    return schema;
-  }
-
-  private static void setupSession() {
-    sessionId =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin("
-                    + "email:\\\"foo\\\","
-                    + "password:\\\"testtest\\\""
-                    + "){message}}\"}")
-            .when()
-            .post("api/graphql")
-            .sessionId();
+  static void login() {
+    database.setUserPassword("foo", "testtest");
+    login("foo", "testtest");
   }
 
   @Test
@@ -81,7 +26,7 @@ class MolgenisWebserviceTest {
         .get("/" + schema.getName() + "/")
         .then()
         .header("Location", "/" + schema.getName() + "/tables");
-    db.dropSchema(schema.getName());
+    database.dropSchema(schema.getName());
   }
 
   @Test
@@ -96,7 +41,7 @@ class MolgenisWebserviceTest {
         .get("/" + schema.getName() + "/")
         .then()
         .header("Location", "/");
-    db.dropSchema(schema.getName());
+    database.dropSchema(schema.getName());
   }
 
   @Test
@@ -111,7 +56,7 @@ class MolgenisWebserviceTest {
         .get("/" + schema.getName() + "/")
         .then()
         .header("Location", "/" + schema.getName() + "/from-menu");
-    db.dropSchema(schema.getName());
+    database.dropSchema(schema.getName());
   }
 
   @Test
@@ -127,7 +72,14 @@ class MolgenisWebserviceTest {
         .get("/" + schema.getName() + "/")
         .then()
         .header("Location", "/" + schema.getName() + "/tables");
-    db.dropSchema(schema.getName());
+    database.dropSchema(schema.getName());
+  }
+
+  private static Schema setupSchema(String schemaName) {
+    database.dropCreateSchema(schemaName);
+    Schema schema = database.getSchema(schemaName);
+    schema.addMember("foo", Privileges.VIEWER.toString());
+    return schema;
   }
 
   private String menuForRole(String role) {
