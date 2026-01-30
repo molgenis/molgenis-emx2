@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
+import static org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterAll;
@@ -28,11 +29,12 @@ public abstract class ApiTestBase {
     database = TestDatabaseFactory.getTestDatabase();
 
     // start web service for testing, including env variables
-    environmentVariables.execute(
-        () -> {
-          service = new MolgenisWebservice();
-          service.start(PORT);
-        });
+    new EnvironmentVariables(MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
+        .execute(
+            () -> {
+              service = new MolgenisWebservice();
+              service.start(PORT);
+            });
 
     // set default rest assured settings
     RestAssured.port = PORT;
