@@ -214,4 +214,4 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 7.0.1  | Delete items that are not in healthdcat or hricore for dcat:catalogue from network staging profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   |
 | 7.0.2  | Add Organisations.department to UMCUCohorts profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   | 
 | 7.1.0  | Add Resources.continents columnType ontology_array. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor and load Continents.csv to CatalogueOntologies  |
-| 7.2.0  | Add Variables.ll-keywords for DataCatalogueFlat profile only. To update reload updated molgenis.csv to catalogue schema or update in schema editor  |
+| 7.2.0  | Add Variables.llm_keywords for DataCatalogueFlat profile only. To update reload updated molgenis.csv to catalogue schema or update in schema editor  |
