@@ -174,14 +174,14 @@ public class MolgenisWebservice {
   }
 
   private static void redirectSchemaToFirstMenuItem(Context ctx) {
-    Schema schema = getSchema(ctx);
-    if (schema == null) {
-      throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
-    }
-    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
-    String role = schema.getRoleForActiveUser();
-
     try {
+      Schema schema = getSchema(ctx);
+      if (schema == null) {
+        throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
+      }
+      String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+      String role = schema.getRoleForActiveUser();
+
       SchemaMenu schemaMenu = SchemaMenu.fromSchema(schema);
       if (schemaMenu.isEmpty()) {
         ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
