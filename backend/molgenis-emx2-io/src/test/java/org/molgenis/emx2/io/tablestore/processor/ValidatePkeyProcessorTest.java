@@ -71,6 +71,17 @@ class ValidatePkeyProcessorTest {
   }
 
   @Test
+  void givenEmptyRow_thenSkip() {
+    Task task = new Task().start();
+    ValidatePkeyProcessor processor = new ValidatePkeyProcessor(metadata, task);
+    Iterator<Row> rows =
+        List.of(row("name", "Lewis"), row(), row("name", null), row("name", "Marnie")).iterator();
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
+
+    assertDoesNotThrow(() -> processor.process(rows, store));
+  }
+
+  @Test
   void givenDataWithDuplicatePrimaryKey_thenTaskFails() {
     Task task = new Task().start();
     ValidatePkeyProcessor processor = new ValidatePkeyProcessor(metadata, task);

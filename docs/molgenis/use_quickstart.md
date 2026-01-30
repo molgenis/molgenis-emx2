@@ -26,8 +26,7 @@ click the [molgenis] logo to come back to this screen.
 
 ## 3. Create database
 
-MOLGENIS enables you to create databases. Two databases already exist: (1) an example database called 'pet store' and (
-2) a database with System settings. Click the blue [+] icon at the top left of the list of databases.
+MOLGENIS enables you to create databases. Two databases already exist: (1) an example database called 'pet store' and ( 2) a database with System settings. Click the blue [+] icon at the top left of the list of databases.
 
 ![](../img/start-create-database.png)
 
@@ -80,7 +79,7 @@ download all, or subsets of, your data (i.e. table contents) and metadata (i.e. 
 ## 10. View Excel download
 
 Click 'Export all data as excel' and open the file. You will see that both your data (contents of Authors and Posts)
-and metadata (table and column definitions) is included.
+and metadata (table and column definitions) is included. Please note, when setting default values on columns using expressions (starting with an `=`), you need to prefix them with a `'` to make sure Excel doesn't interpreted it as a function. This `'` will be removed when the Excel file is uploaded to Molgenis.
 
 ![](../img/start-download-excel.png)
 
