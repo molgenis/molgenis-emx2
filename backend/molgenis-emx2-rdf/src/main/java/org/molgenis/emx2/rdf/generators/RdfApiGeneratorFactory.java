@@ -2,7 +2,6 @@ package org.molgenis.emx2.rdf.generators;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

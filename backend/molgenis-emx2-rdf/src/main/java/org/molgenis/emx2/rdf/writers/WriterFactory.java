@@ -3,7 +3,6 @@ package org.molgenis.emx2.rdf.writers;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
