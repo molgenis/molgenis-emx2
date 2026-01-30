@@ -95,6 +95,7 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
+  showFilter?: boolean;
   table?: string;
   name?: string;
   inherited?: boolean;

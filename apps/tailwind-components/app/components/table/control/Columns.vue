@@ -1,6 +1,6 @@
 <template>
-  <Button type="outline" icon="columns" @click="showModal = true">
-    Columns
+  <Button type="outline" :icon="iconComputed" @click="showModal = true">
+    {{ labelComputed }}
   </Button>
   <SideModal
     class="hidden"
@@ -10,7 +10,7 @@
     :show="showModal"
     @close="showModal = false"
   >
-    <ContentBlockModal title="Columns">
+    <ContentBlockModal :title="labelComputed">
       <template v-slot:title-button>
         <Button
           type="text"
@@ -30,33 +30,99 @@
         @change="handleSortMethodChanged"
       />
 
-      <ul>
-        <li
-          v-for="element in columnsInColumnsSelectModal"
-          :key="element.id"
-          class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab"
-        >
-          <div class="flex justify-between">
-            <div class="flex items-start">
-              <div class="flex items-center">
-                <InputCheckbox
-                  v-model="element.visible"
-                  :id="element.id"
-                  class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
-                />
-                <!-- TODO move styling to checkbox component -->
+      <div class="mb-4">
+        <div class="font-semibold mb-2">
+          data (
+          <button
+            type="button"
+            class="text-link hover:underline text-body-sm"
+            @click="showAll(true)"
+          >
+            all
+          </button>
+          <button
+            type="button"
+            class="text-link hover:underline text-body-sm ml-2"
+            @click="hideAll(true)"
+          >
+            none
+          </button>
+          )
+        </div>
+        <ul>
+          <li
+            v-for="element in dataColumns"
+            :key="element.id"
+            class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab"
+          >
+            <div class="flex justify-between">
+              <div class="flex items-start">
+                <div class="flex items-center">
+                  <InputCheckbox
+                    v-model="element[checkAttribute]"
+                    :id="element.id"
+                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+                  />
+                </div>
+                <label
+                  class="text-title hover:cursor-pointer text-body-sm group"
+                  :for="element.id"
+                >
+                  {{ element.label }}
+                </label>
               </div>
-              <label
-                class="text-title hover:cursor-pointer text-body-sm group"
-                :for="element.id"
-              >
-                {{ element.label }}
-              </label>
+              <BaseIcon name="equal" class="hover:cursor-grab" />
             </div>
-            <BaseIcon name="equal" class="hover:cursor-grab" />
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div v-if="metadataColumns.length">
+        <div class="font-semibold mb-2">
+          metadata (
+          <button
+            type="button"
+            class="text-link hover:underline text-body-sm"
+            @click="showAll(false)"
+          >
+            all
+          </button>
+          <button
+            type="button"
+            class="text-link hover:underline text-body-sm ml-2"
+            @click="hideAll(false)"
+          >
+            none
+          </button>
+          )
+        </div>
+        <ul>
+          <li
+            v-for="element in metadataColumns"
+            :key="element.id"
+            class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab"
+          >
+            <div class="flex justify-between">
+              <div class="flex items-start">
+                <div class="flex items-center">
+                  <InputCheckbox
+                    v-model="element[checkAttribute]"
+                    :id="element.id"
+                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+                  />
+                </div>
+                <label
+                  class="text-title hover:cursor-pointer text-body-sm group"
+                  :for="element.id"
+                >
+                  {{ element.label }}
+                </label>
+              </div>
+              <BaseIcon name="equal" class="hover:cursor-grab" />
+            </div>
+          </li>
+        </ul>
+      </div>
     </ContentBlockModal>
     <template #footer>
       <Button type="primary" size="small" label="Save" @click="handleSave" />
@@ -72,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import { sortColumns } from "../../../utils/sortColumns";
 import BaseIcon from "../../BaseIcon.vue";
@@ -84,9 +150,15 @@ import Button from "../../Button.vue";
 
 const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
 
-const props = defineProps<{
-  columns: IColumn[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    columns: IColumn[];
+    mode?: "columns" | "filters";
+  }>(),
+  {
+    mode: "columns",
+  }
+);
 
 const emits = defineEmits(["update:columns"]);
 
@@ -94,6 +166,26 @@ const showModal = ref(false);
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 const sortMethods = ref<string[]>(SORTING_METHODS);
 const selectedSortMethod = ref<string>("Default");
+
+const iconComputed = computed(() =>
+  props.mode === "filters" ? "filter" : "columns"
+);
+
+const labelComputed = computed(() =>
+  props.mode === "filters" ? "Filters" : "Columns"
+);
+
+const checkAttribute = computed(() =>
+  props.mode === "filters" ? "showFilter" : "visible"
+);
+
+const dataColumns = computed(() =>
+  columnsInColumnsSelectModal.value.filter((col) => !col.id.startsWith("mg_"))
+);
+
+const metadataColumns = computed(() =>
+  columnsInColumnsSelectModal.value.filter((col) => col.id.startsWith("mg_"))
+);
 
 watch(() => props.columns, initializeColumns, { immediate: true });
 
@@ -125,6 +217,7 @@ function handleCancel() {
 }
 
 function handleSave() {
+  const attr = checkAttribute.value;
   const updated = props.columns.map((column: IColumn) => {
     const columnConfig = columnsInColumnsSelectModal.value.find(
       (col) => col.id === column.id
@@ -132,7 +225,13 @@ function handleSave() {
     if (columnConfig) {
       const newColumn = { ...column };
       newColumn.position = columnConfig.position;
-      newColumn.visible = columnConfig.visible ? "true" : "false";
+
+      if (attr === "visible") {
+        newColumn.visible = columnConfig.visible ? "true" : "false";
+      } else {
+        newColumn.showFilter = columnConfig.showFilter;
+      }
+
       return newColumn;
     } else {
       return column;
@@ -144,12 +243,21 @@ function handleSave() {
 }
 
 function columnToColumnConfig(column: IColumn): IColumnConfig {
+  const attr = checkAttribute.value;
+  let attrValue: boolean;
+
+  if (attr === "visible") {
+    attrValue = column.visible === "false" ? false : true;
+  } else {
+    attrValue = column.showFilter ?? false;
+  }
+
   return {
     id: column.id,
     label: column.label || column.id,
     position: column.position ?? 0,
-    visible: column.visible === "false" ? false : true,
-  };
+    [attr]: attrValue,
+  } as IColumnConfig;
 }
 
 function resetToDefault() {
@@ -187,6 +295,35 @@ interface IColumnConfig {
   id: string;
   label: string;
   position: number;
-  visible: boolean;
+  visible?: boolean;
+  showFilter?: boolean;
+}
+
+function showAll(isData: boolean) {
+  const attr = checkAttribute.value;
+  const updated = columnsInColumnsSelectModal.value.map((col) => {
+    if (
+      (isData && !col.id.startsWith("mg_")) ||
+      (!isData && col.id.startsWith("mg_"))
+    ) {
+      return { ...col, [attr]: true };
+    }
+    return col;
+  });
+  columnsInColumnsSelectModal.value = updated;
+}
+
+function hideAll(isData: boolean) {
+  const attr = checkAttribute.value;
+  const updated = columnsInColumnsSelectModal.value.map((col) => {
+    if (
+      (isData && !col.id.startsWith("mg_")) ||
+      (!isData && col.id.startsWith("mg_"))
+    ) {
+      return { ...col, [attr]: false };
+    }
+    return col;
+  });
+  columnsInColumnsSelectModal.value = updated;
 }
 </script>

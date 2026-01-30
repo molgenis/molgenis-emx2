@@ -70,7 +70,9 @@
     </div>
 
     <div v-if="viewMode === 'compact'" class="mb-8">
-      <h3 class="text-lg font-semibold mb-2">Compact (no header, with filters)</h3>
+      <h3 class="text-lg font-semibold mb-2">
+        Compact (no header, with filters)
+      </h3>
       <Emx2DataView
         :key="`compact-${schemaId}-${tableId}`"
         :schema-id="schemaId"
@@ -86,7 +88,9 @@
     </div>
 
     <div v-if="viewMode === 'vanilla'" class="mb-8">
-      <h3 class="text-lg font-semibold mb-2">Vanilla (no header, no filters)</h3>
+      <h3 class="text-lg font-semibold mb-2">
+        Vanilla (no header, no filters)
+      </h3>
       <Emx2DataView
         :key="`vanilla-${schemaId}-${tableId}`"
         :schema-id="schemaId"

@@ -10,7 +10,7 @@ import { useTableData } from "../../composables/useTableData";
 import { useFilters } from "../../composables/useFilters";
 import { rowToString } from "../../utils/rowToString";
 import InputSearch from "../input/Search.vue";
-import InlinePagination from "./InlinePagination.vue";
+import Pagination from "../Pagination.vue";
 import LoadingContent from "../LoadingContent.vue";
 import CardList from "../CardList.vue";
 import CardListItem from "../CardListItem.vue";
@@ -20,6 +20,7 @@ import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideModal from "../SideModal.vue";
 import ContentBlockModal from "../content/ContentBlockModal.vue";
 import Button from "../Button.vue";
+import Columns from "../table/control/Columns.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -119,6 +120,10 @@ watch(
   { immediate: true }
 );
 
+function handleColumnsUpdate(updatedColumns: IColumn[]) {
+  metadataRef.value = updatedColumns;
+}
+
 const errorText = computed(
   () =>
     errorMessage.value ||
@@ -133,21 +138,21 @@ const rowLabelTemplate = computed(() => {
 });
 
 const visibleColumnsComputed = computed(() => {
-  if (!metadata.value?.columns) return [];
+  if (!metadataRef.value.length) return [];
   if (visibleColumns.value && visibleColumns.value.length > 0) {
     return visibleColumns.value.filter((colId) =>
-      metadata.value!.columns!.some((c) => c.id === colId)
+      metadataRef.value.some((c) => c.id === colId && c.visible !== "false")
     );
   }
-  return metadata.value.columns
-    .filter((c) => !c.id.startsWith("mg_"))
+  return metadataRef.value
+    .filter((c) => !c.id.startsWith("mg_") && c.visible !== "false")
     .map((c) => c.id);
 });
 
 const tableColumns = computed<IColumn[]>(() => {
-  if (!metadata.value?.columns) return [];
+  if (!metadataRef.value.length) return [];
   return visibleColumnsComputed.value
-    .map((colId) => metadata.value!.columns!.find((c) => c.id === colId))
+    .map((colId) => metadataRef.value.find((c) => c.id === colId))
     .filter((col): col is IColumn => col !== undefined);
 });
 
@@ -250,9 +255,17 @@ function handleClearAllFilters() {
         </SideModal>
       </div>
 
-      <div
-        class="bg-content rounded-t-3px rounded-b-50px shadow-primary overflow-hidden"
-      >
+      <div class="bg-content rounded-t-3px shadow-primary">
+        <div
+          v-if="metadata?.columns"
+          class="p-5 border-b border-black/10 flex gap-2"
+        >
+          <Columns
+            :columns="metadataRef"
+            @update:columns="handleColumnsUpdate"
+          />
+        </div>
+
         <div
           v-if="showSearch && (!showFilters || filterPosition !== 'sidebar')"
           class="p-5 border-b border-black/10"
@@ -282,13 +295,18 @@ function handleClearAllFilters() {
           :show-slot-on-error="false"
         >
           <div v-if="rows.length && layout === 'table'" class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="min-w-full text-left border-collapse">
               <thead>
                 <tr class="border-b border-black/10">
                   <th
-                    v-for="col in tableColumns"
+                    v-for="(col, colIndex) in tableColumns"
                     :key="col.id"
-                    class="px-3 py-2 text-body-sm font-semibold bg-table"
+                    :class="[
+                      'px-3 py-2 text-body-sm font-semibold bg-table text-table-column-header whitespace-nowrap',
+                      colIndex === 0
+                        ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
+                        : '',
+                    ]"
                   >
                     {{ col.label || col.id }}
                   </th>
@@ -298,12 +316,17 @@ function handleClearAllFilters() {
                 <tr
                   v-for="(row, index) in rows"
                   :key="index"
-                  class="border-b border-black/10 hover:bg-black/5"
+                  class="border-b border-black/10 hover:bg-black/5 group"
                 >
                   <td
                     v-for="(col, colIndex) in tableColumns"
                     :key="col.id"
-                    class="px-3 py-2 text-body-base bg-table"
+                    :class="[
+                      'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap',
+                      colIndex === 0
+                        ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] group-hover:bg-black/5'
+                        : '',
+                    ]"
                   >
                     <NuxtLink
                       v-if="colIndex === 0 && firstColumnOptions?.getHref"
@@ -328,7 +351,7 @@ function handleClearAllFilters() {
             </table>
           </div>
 
-          <div v-else-if="rows.length && layout === 'cards'" class="p-5">
+          <div v-else-if="rows.length && layout === 'cards'" class="p-5 pb-8">
             <CardList>
               <CardListItem v-for="(row, index) in rows" :key="index">
                 <slot name="card" :row="row" :label="getLabel(row)">
@@ -338,7 +361,7 @@ function handleClearAllFilters() {
             </CardList>
           </div>
 
-          <div v-else-if="rows.length" class="p-5">
+          <div v-else-if="rows.length" class="p-5 pb-8">
             <ul class="grid gap-1 pl-4 list-disc list-outside">
               <li v-for="(row, index) in rows" :key="index">
                 <slot :row="row" :label="getLabel(row)">
@@ -348,18 +371,20 @@ function handleClearAllFilters() {
             </ul>
           </div>
 
-          <div v-else class="p-5">
+          <div v-else class="p-5 pb-8">
             <p class="text-body-base opacity-60 italic">No items</p>
           </div>
         </LoadingContent>
+      </div>
+      <div class="bg-content rounded-b-50px h-8 -mt-1 shadow-primary"></div>
 
-        <div v-if="showPagination" class="p-5 border-t border-black/10">
-          <InlinePagination
-            :current-page="page"
-            :total-pages="totalPages"
-            @update:page="page = $event"
-          />
-        </div>
+      <div v-if="showPagination" class="pb-12.5">
+        <Pagination
+          :current-page="page"
+          :total-pages="totalPages"
+          :prevent-default="true"
+          @update="page = $event"
+        />
       </div>
     </template>
   </DetailPageLayout>
