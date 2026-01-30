@@ -311,6 +311,7 @@ Enable two-frame pattern for cleaner RDF harvesting:
 | 10.2 Add frame handling to PipelineExecutor | HIGH | Done |
 | 10.3 Proof-of-concept example bundle | HIGH | Done |
 | 10.4 Auto-frame endpoint in MOLGENIS | MEDIUM | Pending (separate PR) |
+| 10.5 JSON-LD import endpoint | MEDIUM | Pending (separate PR) |
 
 ### 10.1 FrameStep
 
@@ -376,10 +377,86 @@ private void setExplicitRecursive(ObjectNode node, boolean explicit) {
 
 Separate PR (`feat/rest-json-ld-graphql`):
 ```
-GET /{schema}/api/jsonld/frame?table=Resources&explicit=true|false
+GET /{schema}/api/jsonld/frame
 ```
 
-Generates frame from table metadata (semantics annotations).
+Generates frame from **whole schema** metadata (all tables with `semantics` annotations).
+
+**Why whole schema:**
+- RDF is a graph with relationships (Catalog → Dataset → Distribution)
+- Frame once, shape entire connected structure
+- References between tables become `@embed: @always`
+
+**Generation logic:**
+```java
+for (TableMetadata table : schema.getTables()) {
+  if (table.getSemantics() != null) {
+    // Add @type from table.semantics
+    // Add properties from column.semantics
+    // Add @embed for reference columns
+  }
+}
+```
+
+**Output structure:**
+```json
+{
+  "@context": { /* from schema namespaces */ },
+  "@type": ["dcat:Catalog", "dcat:Dataset", ...],
+  "@explicit": true,
+  "name": {},
+  "description": {},
+  "dcat:dataset": {
+    "@type": "dcat:Dataset",
+    "@embed": "@always",
+    "@explicit": true
+  }
+}
+```
+
+Extends existing `JsonLdSchemaGenerator.java` which already generates context.
+
+### 10.5 JSON-LD Import Endpoint
+
+Separate PR (`feat/rest-json-ld-graphql`):
+```
+POST /{schema}/api/jsonld/import
+```
+
+Accepts framed JSON-LD, imports to MOLGENIS:
+
+**Logic:**
+1. Walk JSON-LD structure
+2. For each object:
+   - `@id` → `id` (extract suffix from URI)
+   - `@type` → lookup in type table
+   - Only read properties matching column names (ignore unknown)
+3. Forward to GraphQL mutation
+
+**Benefits:**
+- No JSLT needed for standard harvesting
+- No explicit stripping - just ignore unknown
+- Data managers don't need to write transforms
+
+**Simplified pipeline:**
+```yaml
+mappings:
+  - name: harvest
+    fetch: ${SOURCE_URL}
+    steps:
+      - frame: ${TARGET_SCHEMA}/api/jsonld/frame
+        unmapped: true
+      - import: ${TARGET_SCHEMA}/api/jsonld/import
+```
+
+**Or single-step with internal fetch+frame:**
+```yaml
+mappings:
+  - name: harvest
+    import:
+      source: ${SOURCE_URL}
+      target: ${TARGET_SCHEMA}
+```
 
 ---
 
