@@ -46,6 +46,10 @@ public class ValidatePkeyProcessor implements RowProcessor {
     while (iterator.hasNext() && errorMessage == null) {
       Row row = iterator.next();
 
+      if (row.isEmpty()) {
+        continue;
+      }
+
       // column warning
       if (task.getProgress() == 0) {
         List<String> columnNames =
