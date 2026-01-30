@@ -2,7 +2,7 @@
 import type { IHeaders } from "../../../types/cms";
 
 withDefaults(defineProps<IHeaders>(), {
-  enableFullScreenWidth: true,
+  enableFullScreenWidth: false,
 });
 </script>
 

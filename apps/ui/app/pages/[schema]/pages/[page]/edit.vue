@@ -43,7 +43,7 @@ useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 const pageData = ref<IDeveloperPages>(newDeveloperPage());
 const originalPageData = ref<IDeveloperPages>(newDeveloperPage());
 
-pageData.value = await getPage(schema as string, page);
+pageData.value = await getPage(schema as string, page) as IDeveloperPages;
 originalPageData.value = { ...pageData.value };
 
 const hasUnsavedHtml = ref<boolean>(false);

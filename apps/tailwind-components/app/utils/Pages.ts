@@ -45,8 +45,6 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
             fetchPriority {
                 name
             }
-            async
-            defer
         }
         enableBaseStyles
         enableButtonStyles
@@ -136,31 +134,41 @@ export async function getPage(
   return currentPage;
 }
 
+interface RecordSet {
+  [index: string]: any;
+}
+
 export function sortConfigurablePage(
   page: IConfigurablePages
 ): IConfigurablePages {
-  if (page.blocks && page.blockOrder) {
-    const blockOrdering: Record<string, any> = page.blockOrder.reduce(
-      (acc: Record<string, any>, blockOrder: IBlockOrders) => {
-        return { ...acc, [blockOrder.block.id]: blockOrder.order };
+  const pageCopy = { ...page };
+
+  if (pageCopy.blocks && pageCopy.blockOrder) {
+    const blockOrdering: RecordSet = pageCopy.blockOrder.reduce(
+      (acc: RecordSet, blockOrder: IBlockOrders, index: number) => {
+        const id: string = blockOrder.block.id || blockOrder.id;
+        const order: number = blockOrder.order || index;
+        return { ...acc, [id]: order };
       },
       {}
     );
 
-    page.blocks = page.blocks.sort((a: IBlocks, b: IBlocks) => {
+    pageCopy.blocks = pageCopy.blocks.sort((a: IBlocks, b: IBlocks) => {
       return blockOrdering[a.id] - blockOrdering[b.id];
     });
   }
 
-  if (page.blocks?.find((block: IBlocks) => block.componentOrder)) {
-    page.blocks = page.blocks.map((block: IBlocks) => {
+  if (
+    pageCopy.blocks &&
+    pageCopy.blocks.find((block: IBlocks) => block.componentOrder)
+  ) {
+    pageCopy.blocks = pageCopy.blocks.map((block: IBlocks) => {
       if (block.components && block.componentOrder) {
-        const componentOrder: Record<string, any> = block.componentOrder.reduce(
-          (acc: Record<string, number>, componentOrder: IComponentOrders) => {
-            return {
-              ...acc,
-              [componentOrder.component.id]: componentOrder.order,
-            };
+        const componentOrder: RecordSet = block.componentOrder.reduce(
+          (acc: RecordSet, componentOrder: IComponentOrders, index: number) => {
+            const id: string = componentOrder.component.id || componentOrder.id;
+            const order: number = componentOrder.order || index;
+            return { ...acc, [id]: order };
           },
           {}
         );
@@ -268,11 +276,12 @@ export function generateHtmlPreview(
   }
 }
 
-export function parsePageText(value: string): string {
-  return value.replace(/(^")|("$)/g, "");
+export function parsePageText(value?: string): string {
+  const val = value || "";
+  return val.replace(/(^"{1,})|("{1,}$)/g, "");
 }
 
-export function newPageDate(): string {
+export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
 }

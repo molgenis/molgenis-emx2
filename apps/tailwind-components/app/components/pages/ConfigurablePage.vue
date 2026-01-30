@@ -2,12 +2,15 @@
 import type {
   IConfigurablePages,
   IComponents,
+  IBlocks,
   IHeaders,
+  ISections,
   IHeadings,
   IParagraphs,
   IImages,
 } from "../../../types/cms";
 
+interface Blocks extends IBlocks, IHeaders, ISections {}
 interface BlockComponent extends IComponents, IHeadings, IParagraphs, IImages {}
 
 import PageBanner from "../pages/Banner.vue";
@@ -23,7 +26,7 @@ const page = sortConfigurablePage(props.content);
 </script>
 
 <template>
-  <template v-for="block in (page.blocks as IHeaders[])">
+  <template v-for="block in (page.blocks as Blocks[])" :key="block.id">
     <PageBanner
       v-if="block.mg_tableclass === 'cms.Headers'"
       :id="block.id"
@@ -38,7 +41,10 @@ const page = sortConfigurablePage(props.content);
       :id="block.id"
       :enable-full-screen-width="block.enableFullScreenWidth"
     >
-      <template v-for="component in (block.components as BlockComponent[])">
+      <template
+        v-for="component in (block.components as BlockComponent[])"
+        :key="component.id"
+      >
         <TextHeading
           v-if="component.mg_tableclass === 'cms.Headings'"
           :id="component.id"
@@ -46,7 +52,7 @@ const page = sortConfigurablePage(props.content);
           :level="component.level"
           class="mb-5"
         >
-          {{ parsePageText(component.text as string) }}
+          {{ parsePageText(component.text) }}
         </TextHeading>
         <TextParagraph
           v-else-if="component.mg_tableclass === 'cms.Paragraphs'"
@@ -54,7 +60,7 @@ const page = sortConfigurablePage(props.content);
           :paragraph-is-centered="component.paragraphIsCentered"
           class="mb-2.5 last:mb-0"
         >
-          {{ parsePageText(component.text as string) }}
+          {{ parsePageText(component.text) }}
         </TextParagraph>
         <Image
           v-else-if="component.mg_tableclass === 'cms.Images'"
@@ -71,5 +77,10 @@ const page = sortConfigurablePage(props.content);
         </div>
       </template>
     </PageSection>
+    <div v-else>
+      <TextParagraph id="block-does-not-exist-message">
+        Block {{ block.mg_tableclass }} is not yet supported.
+      </TextParagraph>
+    </div>
   </template>
 </template>

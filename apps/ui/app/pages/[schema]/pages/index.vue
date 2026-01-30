@@ -47,22 +47,18 @@ const crumbs: Crumb[] = [
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
     </PageHeader>
-    <div class="flex flew-wrap justify-start items-center gap-7.5" v-if="data">
+    <div class="flex flew-wrap justify-start items-center gap-7.5" v-if="data && data.Containers">
       <div
         v-for="container in data.Containers"
         class="relative group border rounded-3px w-1/3 h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
-          v-if="container.mg_tableclass?.includes('Developer pages')"
+          v-if="container.mg_tableclass === 'cms.Developer pages'"
           class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
-            :to="
-              container.mg_tableclass === 'cms.Developer pages'
-                ? `/${schema}/pages/${container.name}/edit`
-                : '#'
-            "
+            :to="`/${schema}/pages/${container.name}/edit`"
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
           >
             <BaseIcon name="Edit" :width="18" />
