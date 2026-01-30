@@ -75,9 +75,9 @@ function stringArrayValidationCheck(
     "UUID_ARRAY",
     "PERIOD_ARRAY",
   ].includes(type);
-  const selectInQuotes = errorMessage?.match(/\'(.*?)\'/g);
+  const incorrectFields = errorMessage?.match(/\'(.*?)\'/g);
   if (isStringArray) {
-    return selectInQuotes?.includes(`'${value}'`) ? true : false;
+    return incorrectFields?.includes(`'${value}'`) ? true : false;
   }
   return invalid;
 }
