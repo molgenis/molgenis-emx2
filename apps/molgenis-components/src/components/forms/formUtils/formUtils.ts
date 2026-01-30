@@ -96,60 +96,67 @@ export function getColumnError(
   if (type === "EMAIL" && isInvalidEmail(value)) {
     return "Invalid email address";
   }
-  let invalidEmails = arrayWithInvalidEmails(value);
-  if (type === "EMAIL_ARRAY" && invalidEmails.length == 1) {
-    return readableStringArray(invalidEmails) + " is an invalid email address";
+  if (type === "EMAIL_ARRAY") {
+    const invalidEmails = arrayWithInvalidEmails(value);
+    if (invalidEmails.length == 1) {
+      return readableStringArray(invalidEmails) + " is an invalid email address";
+    }
+    if (invalidEmails.length > 1) {
+      return readableStringArray(invalidEmails) + " are invalid email addresses";
+    }
   }
-  if (type === "EMAIL_ARRAY" && invalidEmails.length > 1) {
-    return readableStringArray(invalidEmails) + " are invalid email addresses";
-  }
-
   if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
-  let invalidHyperlinks = arrayWithInvalidHyperlinks(value);
-  if (type === "HYPERLINK_ARRAY" && invalidHyperlinks.length == 1) {
-    return readableStringArray(invalidHyperlinks) + " is an invalid hyperlink";
-  }
-  if (type === "HYPERLINK_ARRAY" && invalidHyperlinks.length > 1) {
-    return readableStringArray(invalidHyperlinks) + " are invalid hyperlinks";
+  if (type === "HYPERLINK_ARRAY") {
+    const invalidHyperlinks = arrayWithInvalidHyperlinks(value);
+    if (invalidHyperlinks.length == 1) {
+      return readableStringArray(invalidHyperlinks) + " is an invalid hyperlink";
+    }
+    if (invalidHyperlinks.length > 1) {
+      return readableStringArray(invalidHyperlinks) + " are invalid hyperlinks";
+    }
   }
 
   if (type === "PERIOD" && isInvalidPeriod(value)) {
     return "Invalid Period: " + PERIOD_EXPLANATION;
   }
-  let invalidPeriods = arrayWithInvalidPeriod(value);
-  if (type === "PERIOD_ARRAY" && invalidPeriods.length == 1) {
-    return (
-      readableStringArray(invalidPeriods) +
-      " is an invalid Period: " +
-      PERIOD_EXPLANATION
-    );
-  }
-  if (type === "PERIOD_ARRAY" && invalidPeriods.length > 1) {
-    return (
-      readableStringArray(invalidPeriods) +
-      " are invalid Periods: " +
-      PERIOD_EXPLANATION
-    );
+  if(type === "PERIOD_ARRAY"){
+    let invalidPeriods = arrayWithInvalidPeriod(value);
+    if ( invalidPeriods.length == 1) {
+      return (
+        readableStringArray(invalidPeriods) +
+        " is an invalid Period: " +
+        PERIOD_EXPLANATION
+      );
+    }
+    if (invalidPeriods.length > 1) {
+      return (
+        readableStringArray(invalidPeriods) +
+        " are invalid Periods: " +
+        PERIOD_EXPLANATION
+      );
+    }
   }
   if (type === "UUID" && isInvalidUUID(value)) {
     return "Invalid UUID: " + UUID_EXPLANATION;
   }
-  let invalidUUIDs = arrayWithInvalidUUIDs(value);
-  if (type === "UUID_ARRAY" && invalidUUIDs.length == 1) {
-    return (
-      readableStringArray(invalidUUIDs) +
-      " is an invalid UUID: " +
-      UUID_EXPLANATION
-    );
-  }
-  if (type === "UUID_ARRAY" && invalidUUIDs.length > 1) {
-    return (
-      readableStringArray(invalidUUIDs) +
-      " are invalid UUIDs: " +
-      UUID_EXPLANATION
-    );
+  if( type === "UUID_ARRAY"){
+    let invalidUUIDs = arrayWithInvalidUUIDs(value);
+    if (invalidUUIDs.length == 1) {
+      return (
+        readableStringArray(invalidUUIDs) +
+        " is an invalid UUID: " +
+        UUID_EXPLANATION
+      );
+    }
+    if ( invalidUUIDs.length > 1) {
+      return (
+        readableStringArray(invalidUUIDs) +
+        " are invalid UUIDs: " +
+        UUID_EXPLANATION
+      );
+    }
   }
   if (type === "JSON") {
     try {
@@ -378,7 +385,7 @@ function isInvalidEmail(value: any) {
 }
 
 function arrayWithInvalidEmails(emails: any): string[] {
-  return emails?.filter((email: any) => isInvalidEmail(email));
+  return emails.filter((email: any) => isInvalidEmail(email));
 }
 
 function isInvalidPeriod(value: any) {

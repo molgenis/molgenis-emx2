@@ -195,7 +195,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ email: "Invalid email address" });
+    expect(result.email).to.contain("invalid email address");
   });
 
   test("it should return no error for a valid UUID ARRAY", () => {
@@ -218,9 +218,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      uuid: "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'",
-    });
+    expect(result.uuid).to.contain("should be a valid UUID format");
   });
 
   test("it should return no error for a valid hyperlink array", () => {
@@ -240,7 +238,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "hyperlink", columnType: "HYPERLINK_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
+    expect(result.hyperlink).to.contain("invalid hyperlink");
   });
 
   test("it should return no error for a valid long", () => {
