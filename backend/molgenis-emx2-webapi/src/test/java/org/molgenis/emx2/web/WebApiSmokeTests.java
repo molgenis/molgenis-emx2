@@ -1997,62 +1997,62 @@ class WebApiSmokeTests {
 
     @Test
     void givenSchema_whenNoMenu_thenRedirectToTables() {
-      Schema schema = setupSchema(getClass().getSimpleName() + "no-menu");
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-menu");
       given()
           .redirects()
           .follow(false)
           .sessionId(sessionId)
           .when()
-          .get("/" + schema.getName() + "/")
+          .get("/" + testSchema.getName() + "/")
           .then()
-          .header("Location", "/" + schema.getName() + "/tables");
-      db.dropSchema(schema.getName());
+          .header("Location", "/" + testSchema.getName() + "/tables");
+      db.dropSchema(testSchema.getName());
     }
 
     @Test
     void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
-      Schema schema = setupSchema(getClass().getSimpleName() + "no-match");
-      schema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-match");
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
       given()
           .redirects()
           .follow(false)
           .sessionId(sessionId)
           .when()
-          .get("/" + schema.getName() + "/")
+          .get("/" + testSchema.getName() + "/")
           .then()
           .header("Location", "/");
-      db.dropSchema(schema.getName());
+      db.dropSchema(testSchema.getName());
     }
 
     @Test
     void givenSchema_whenMenuForRole_thenRedirectToFirstItem() {
-      Schema schema = setupSchema(getClass().getSimpleName() + "first-item");
-      schema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "first-item");
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
       given()
           .redirects()
           .follow(false)
           .sessionId(sessionId)
           .when()
-          .get("/" + schema.getName() + "/")
+          .get("/" + testSchema.getName() + "/")
           .then()
-          .header("Location", "/" + schema.getName() + "/from-menu");
-      db.dropSchema(schema.getName());
+          .header("Location", "/" + testSchema.getName() + "/from-menu");
+      db.dropSchema(testSchema.getName());
     }
 
     @Test
     void givenSchemaWithAnonymousUser_whenInsufficientRoleForMenu_thenRedirectToTables() {
-      Schema schema = setupSchema(getClass().getSimpleName() + "anonymous");
-      schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-      schema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "anonymous");
+      testSchema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
       given()
           .redirects()
           .follow(false)
           .sessionId(sessionId)
           .when()
-          .get("/" + schema.getName() + "/")
+          .get("/" + testSchema.getName() + "/")
           .then()
-          .header("Location", "/" + schema.getName() + "/tables");
-      db.dropSchema(schema.getName());
+          .header("Location", "/" + testSchema.getName() + "/tables");
+      db.dropSchema(testSchema.getName());
     }
 
     private String menuForRole(String role) {
@@ -2070,11 +2070,11 @@ class WebApiSmokeTests {
           .formatted(role);
     }
 
-    private static Schema setupSchema(String schemaName) {
-      db.dropCreateSchema(schemaName);
-      Schema schema = db.getSchema(schemaName);
-      schema.addMember("foo", Privileges.VIEWER.toString());
-      return schema;
+    private static Schema setupSchema(String testSchemaName) {
+      db.dropCreateSchema(testSchemaName);
+      Schema testSchema = db.getSchema(testSchemaName);
+      testSchema.addMember("foo", Privileges.VIEWER.toString());
+      return testSchema;
     }
   }
 }
