@@ -1,5 +1,9 @@
 <template>
-  <Button type="outline" :icon="iconComputed" @click="showModal = true">
+  <Button
+    type="outline"
+    :icon="iconComputed"
+    @click="showModal = true"
+  >
     {{ labelComputed }}
   </Button>
   <SideModal
@@ -8,6 +12,7 @@
     :fullScreen="false"
     button-alignment="left"
     :show="showModal"
+    :include-footer="false"
     @close="showModal = false"
   >
     <ContentBlockModal :title="labelComputed">
@@ -65,7 +70,7 @@
                   />
                 </div>
                 <label
-                  class="text-title hover:cursor-pointer text-body-sm group"
+                  class="text-body-base hover:cursor-pointer text-body-sm group"
                   :for="element.id"
                 >
                   {{ element.label }}
@@ -112,7 +117,7 @@
                   />
                 </div>
                 <label
-                  class="text-title hover:cursor-pointer text-body-sm group"
+                  class="text-body-base hover:cursor-pointer text-body-sm group"
                   :for="element.id"
                 >
                   {{ element.label }}
@@ -124,21 +129,11 @@
         </ul>
       </div>
     </ContentBlockModal>
-    <template #footer>
-      <Button type="primary" size="small" label="Save" @click="handleSave" />
-      <Button
-        type="secondary"
-        size="small"
-        label="Cancel"
-        class="ml-2.5"
-        @click="handleCancel"
-      />
-    </template>
   </SideModal>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, nextTick } from "vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import { sortColumns } from "../../../utils/sortColumns";
 import BaseIcon from "../../BaseIcon.vue";
@@ -163,6 +158,8 @@ const props = withDefaults(
 const emits = defineEmits(["update:columns"]);
 
 const showModal = ref(false);
+
+defineExpose({ showModal: () => { showModal.value = true; } });
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 const sortMethods = ref<string[]>(SORTING_METHODS);
 const selectedSortMethod = ref<string>("Default");
@@ -187,13 +184,43 @@ const metadataColumns = computed(() =>
   columnsInColumnsSelectModal.value.filter((col) => col.id.startsWith("mg_"))
 );
 
+const isInitializing = ref(false);
+
 watch(() => props.columns, initializeColumns, { immediate: true });
 
 function initializeColumns(newColumns: IColumn[]) {
+  isInitializing.value = true;
   columnsInColumnsSelectModal.value = indexColumns(
     sortColumns(newColumns.map(columnToColumnConfig))
   );
+  nextTick(() => {
+    isInitializing.value = false;
+  });
 }
+
+function emitUpdate() {
+  if (isInitializing.value) return;
+  const attr = checkAttribute.value;
+  const updated = props.columns.map((column: IColumn) => {
+    const columnConfig = columnsInColumnsSelectModal.value.find(
+      (col) => col.id === column.id
+    );
+    if (columnConfig) {
+      const newColumn = { ...column };
+      newColumn.position = columnConfig.position;
+      if (attr === "visible") {
+        newColumn.visible = columnConfig.visible ? "true" : "false";
+      } else {
+        newColumn.showFilter = columnConfig.showFilter;
+      }
+      return newColumn;
+    }
+    return column;
+  });
+  emits("update:columns", updated);
+}
+
+watch(columnsInColumnsSelectModal, emitUpdate, { deep: true });
 
 function indexColumns(columns: IColumnConfig[]) {
   return columns.map((column, index) => {
@@ -209,39 +236,6 @@ function handleColumnDragEvent() {
   selectedSortMethod.value = "Custom";
 }
 
-function handleCancel() {
-  columnsInColumnsSelectModal.value = sortColumns(
-    indexColumns(props.columns.map(columnToColumnConfig))
-  );
-  showModal.value = false;
-}
-
-function handleSave() {
-  const attr = checkAttribute.value;
-  const updated = props.columns.map((column: IColumn) => {
-    const columnConfig = columnsInColumnsSelectModal.value.find(
-      (col) => col.id === column.id
-    );
-    if (columnConfig) {
-      const newColumn = { ...column };
-      newColumn.position = columnConfig.position;
-
-      if (attr === "visible") {
-        newColumn.visible = columnConfig.visible ? "true" : "false";
-      } else {
-        newColumn.showFilter = columnConfig.showFilter;
-      }
-
-      return newColumn;
-    } else {
-      return column;
-    }
-  });
-
-  emits("update:columns", updated);
-  showModal.value = false;
-}
-
 function columnToColumnConfig(column: IColumn): IColumnConfig {
   const attr = checkAttribute.value;
   let attrValue: boolean;
@@ -249,7 +243,7 @@ function columnToColumnConfig(column: IColumn): IColumnConfig {
   if (attr === "visible") {
     attrValue = column.visible === "false" ? false : true;
   } else {
-    attrValue = column.showFilter ?? false;
+    attrValue = column.showFilter !== false;
   }
 
   return {

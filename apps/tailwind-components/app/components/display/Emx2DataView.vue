@@ -55,6 +55,7 @@ const displayOptions = computed(() => props.config?.columnConfig);
 const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
+const filtersColumnsRef = ref<{ showModal: () => void } | null>(null);
 
 const route = useRoute();
 const router = useRouter();
@@ -88,6 +89,8 @@ const filterableColumnsComputed = computed<IColumn[]>(() => {
   if (filterableColumns.value && filterableColumns.value.length > 0) {
     cols = cols.filter((col) => filterableColumns.value!.includes(col.id));
   }
+
+  cols = cols.filter((col) => col.showFilter !== false);
 
   return cols;
 });
@@ -201,6 +204,10 @@ function handleFilterRemove(columnId: string) {
 function handleClearAllFilters() {
   filterStates.value = new Map();
 }
+
+function handleCustomizeFilters() {
+  filtersColumnsRef.value?.showModal();
+}
 </script>
 
 <template>
@@ -217,6 +224,14 @@ function handleClearAllFilters() {
         v-model:search-terms="searchTerms"
         :columns="filterableColumnsComputed"
         :show-search="showSearch"
+        @customize="handleCustomizeFilters"
+      />
+      <Columns
+        ref="filtersColumnsRef"
+        mode="filters"
+        :columns="metadataRef"
+        class="hidden"
+        @update:columns="handleColumnsUpdate"
       />
     </template>
     <template #main>
@@ -242,6 +257,7 @@ function handleClearAllFilters() {
               :columns="filterableColumnsComputed"
               :show-search="showSearch"
               :mobile-display="true"
+              @customize="handleCustomizeFilters"
             />
           </ContentBlockModal>
           <template #footer="{ hide }">

@@ -19,6 +19,10 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits<{
+  (e: 'customize'): void;
+}>();
+
 const searchInputId = useId();
 
 const filterStates = defineModel<Map<string, IFilterValue>>("filterStates", {
@@ -52,12 +56,19 @@ function setFilterValue(
     class="rounded-t-3px rounded-b-50px"
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
-    <h2
-      v-if="!mobileDisplay"
-      class="p-5 uppercase font-display text-heading-3xl text-search-filter-title"
-    >
-      {{ title }}
-    </h2>
+    <div v-if="!mobileDisplay" class="p-5 flex items-center justify-between">
+      <h2 class="uppercase font-display text-heading-3xl text-search-filter-title">
+        {{ title }}
+      </h2>
+      <Button
+        type="text"
+        size="tiny"
+        icon="settings"
+        @click="emit('customize')"
+      >
+        Customize
+      </Button>
+    </div>
 
     <div v-if="showSearch" class="px-5 pb-5">
       <InputSearch
