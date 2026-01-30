@@ -2,6 +2,7 @@
 NAME=$1
 TAG_NAME=$2
 DELETE=$3
+BUILD_MODE=$4
 
 CATALOGUE="${NAME/emx2/catalogue}"
 
@@ -32,6 +33,18 @@ sleep 15s
 kubectl create namespace $NAME
 kubectl create secret tls "dev.molgenis.org" --key /tmp/cert_key --cert /tmp/cert_pem -n ${NAME}
 
+IMAGE_RESOURCE_LIMIT_MEMORY=2Gi
+IMAGE_RESOURCE_REQUEST_MEMORY=1Gi
+IMAGE_RESOURCE_PG_LIMIT_MEMORY=1Gi
+IMAGE_RESOURCE_PG_REQUEST_MEMORY=512Mi
+
+if [ -n "$BUILD_MODE" ]; then
+  IMAGE_RESOURCE_LIMIT_MEMORY=4Gi
+  IMAGE_RESOURCE_REQUEST_MEMORY=2Gi
+  IMAGE_RESOURCE_PG_LIMIT_MEMORY=2Gi
+  IMAGE_RESOURCE_PG_REQUEST_MEMORY=1Gi
+fi
+
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0]=${NAME}.dev.molgenis.org \
 --set spec.tls[0].hosts[0]=${NAME}.dev.molgenis.org \
@@ -55,8 +68,11 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set oidc.client_name=${NAME} \
 --set oidc.discovery_url=${OIDC_DISCOVERYURL} \
 --set oidc.callback_url=https://${NAME}.dev.molgenis.org \
---set metrics.enabled=true
-
+--set metrics.enabled=true \
+--set image.resourceLimitMemory=${IMAGE_RESOURCE_LIMIT_MEMORY} \
+--set image.resourceRequestMemory=${IMAGE_RESOURCE_REQUEST_MEMORY} \
+--set image.pgResourceLimitMemory=${IMAGE_RESOURCE_PG_LIMIT_MEMORY} \
+--set image.pgResourceRequestMemory=${IMAGE_RESOURCE_PG_REQUEST_MEMORY} \
 
 rm /tmp/cert_key
 rm /tmp/cert_pem

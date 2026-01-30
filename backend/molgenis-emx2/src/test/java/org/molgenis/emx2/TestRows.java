@@ -1,12 +1,31 @@
 package org.molgenis.emx2;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class TestRows {
+class TestRows {
+
   @Test
-  public void test1() {
+  void givenRow_ifValueMapIsEmpty_thenRowIsEmpty() {
+    Row row = new Row();
+    assertTrue(row.isEmpty());
+
+    row.set("foo", "bar");
+    assertFalse(row.isEmpty());
+  }
+
+  @Test
+  void givenRowWithValueMap_ifAllValuesNull_thenRowIsEmpty() {
+    Row row = Row.row("foo", null, "bar", null);
+    assertTrue(row.isEmpty());
+
+    row.set("foo", "test");
+    assertFalse(row.isEmpty());
+  }
+
+  @Test
+  void givenRow_thenInputShouldBeKeyValueWithStringKey() {
 
     try {
       new Row(1, 2);
