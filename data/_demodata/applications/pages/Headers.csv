@@ -1,2 +1,2 @@
-id,in container,title,subtitle,background image,is centered
+id,in container,title,subtitle,background image,title is centered
 molgenis-default-banner,"home,about-us",MOLGENIS,"MOLGENIS: a data platform for researchers to accelerate scientific collaborations and for bioinformaticians who want to make researchers happy.",molgenis-default-banner-img,true

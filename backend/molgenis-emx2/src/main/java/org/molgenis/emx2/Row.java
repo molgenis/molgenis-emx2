@@ -90,7 +90,7 @@ public class Row {
   // If a value contains a comma but is not of type array, only return that single value without
   // forcing it into becoming an array, creating a wrongful representation of that value
   public String[] getStringArrayPreserveDelimiter(Column column) {
-    return column.isArray()
+    return Boolean.TRUE.equals(column.isArray())
         ? getStringArray(column.getName(), true)
         : new String[] {getString(column.getName())};
   }
@@ -323,12 +323,10 @@ public class Row {
   }
 
   public Row set(String name, Object value) {
-    if (value instanceof File) {
-      this.setBinary(name, (File) value);
-    } else if (value instanceof BinaryFileWrapper) {
-      this.setBinary(name, (BinaryFileWrapper) value);
-    } else {
-      this.values.put(name, value);
+    switch (value) {
+      case File file -> setBinary(name, file);
+      case BinaryFileWrapper wrapper -> setBinary(name, wrapper);
+      case null, default -> values.put(name, value);
     }
     return this;
   }
@@ -347,53 +345,33 @@ public class Row {
 
   public <T> T get(String name, Class<T> type) {
     if (type == null) return null;
-    switch (type.getSimpleName()) {
-      case "String":
-        return (T) getString(name);
-      case "String[]":
-        return (T) getStringArray(name);
-      case "JSONB":
-        return (T) getJsonb(name);
-      case "Integer":
-        return (T) getInteger(name);
-      case "Integer[]":
-        return (T) getIntegerArray(name);
-      case "Long":
-        return (T) getLong(name);
-      case "Long[]":
-        return (T) getLongArray(name);
-      case "Boolean":
-        return (T) getBoolean(name);
-      case "Boolean[]":
-        return (T) getBooleanArray(name);
-      case "Double":
-        return (T) getDecimal(name);
-      case "Double[]":
-        return (T) getDecimalArray(name);
-      case "Period":
-        return (T) getPeriod(name);
-      case "Period[]":
-        return (T) getPeriodArray(name);
-      case "LocalDate":
-        return (T) getDate(name);
-      case "LocalDate[]":
-        return (T) getDateArray(name);
-      case "LocalDateTime":
-        return (T) getDateTime(name);
-      case "LocalDateTime[]":
-        return (T) getDateTimeArray(name);
-      case "UUID":
-        return (T) getUuid(name);
-      case "UUID[]":
-        return (T) getUuidArray(name);
-      case "byte[]":
-        return (T) getBinary(name);
-      default:
-        throw new MolgenisException(
-            "Unknown type: Cannot cast column to java columnType. "
-                + "Row.get(Class,name) not implemented for Class = "
-                + type.getCanonicalName());
-    }
+    return switch (type.getSimpleName()) {
+      case "String" -> (T) getString(name);
+      case "String[]" -> (T) getStringArray(name);
+      case "JSONB" -> (T) getJsonb(name);
+      case "Integer" -> (T) getInteger(name);
+      case "Integer[]" -> (T) getIntegerArray(name);
+      case "Long" -> (T) getLong(name);
+      case "Long[]" -> (T) getLongArray(name);
+      case "Boolean" -> (T) getBoolean(name);
+      case "Boolean[]" -> (T) getBooleanArray(name);
+      case "Double" -> (T) getDecimal(name);
+      case "Double[]" -> (T) getDecimalArray(name);
+      case "Period" -> (T) getPeriod(name);
+      case "Period[]" -> (T) getPeriodArray(name);
+      case "LocalDate" -> (T) getDate(name);
+      case "LocalDate[]" -> (T) getDateArray(name);
+      case "LocalDateTime" -> (T) getDateTime(name);
+      case "LocalDateTime[]" -> (T) getDateTimeArray(name);
+      case "UUID" -> (T) getUuid(name);
+      case "UUID[]" -> (T) getUuidArray(name);
+      case "byte[]" -> (T) getBinary(name);
+      default ->
+          throw new MolgenisException(
+              "Unknown type: Cannot cast column to java columnType. "
+                  + "Row.get(Class,name) not implemented for Class = "
+                  + type.getCanonicalName());
+    };
   }
 
   public String toString() {
@@ -422,7 +400,7 @@ public class Row {
 
   public boolean isDraft() {
     Boolean result = getBoolean(MG_DRAFT);
-    return result != null && result == true;
+    return result != null && result;
   }
 
   public Row setDraft(boolean isDraft) {
@@ -442,5 +420,9 @@ public class Row {
       return getString(MG_TABLECLASS).split("\\.")[1];
     }
     return null;
+  }
+
+  public boolean isEmpty() {
+    return values.values().stream().allMatch(Objects::isNull);
   }
 }

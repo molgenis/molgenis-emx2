@@ -54,13 +54,18 @@ public class MolgenisWebservice {
     Javalin app =
         Javalin.create(
                 config -> {
-                  config.http.maxRequestSize = MAX_REQUEST_SIZE;
+                  config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
                   config.router.ignoreTrailingSlashes = true;
                   config.router.treatMultipleSlashesAsSingleSlash = true;
                   config.jsonMapper(
                       new JavalinJackson()
                           .updateMapper(
                               mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
+                  config.jetty.modifyServletContextHandler(
+                      context -> {
+                        context.setMaxFormContentSize(
+                            Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
+                      });
                 })
             .start(port);
 
