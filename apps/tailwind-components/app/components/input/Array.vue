@@ -55,7 +55,7 @@ import Button from "../Button.vue";
 const props = defineProps<
   IInputProps & {
     modelValue: columnValue[] | undefined | null;
-    errorMessage: string | null;
+    errorMessage: string | undefined | null;
     type: string;
   }
 >();
@@ -66,8 +66,8 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 function stringArrayValidationCheck(
   invalid: boolean,
   type: string,
-  errorMessage: string | null,
-  value: string
+  errorMessage: string | undefined | null,
+  value: any
 ): boolean {
   const isStringArray = [
     "EMAIL_ARRAY",
