@@ -13,6 +13,33 @@ import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
+/**
+ * Abstract base class for API integration tests that require a running Molgenis web service.
+ *
+ * <p>This class handles the lifecycle of a test web service instance, including:
+ *
+ * <ul>
+ *   <li>Setting up a test database
+ *   <li>Starting the Molgenis web service on port 8081
+ *   <li>Providing authentication utilities
+ * </ul>
+ *
+ * <p>The web service is started once before all tests in the test class and stopped after all tests
+ * complete, improving test performance by avoiding repeated service startups.
+ *
+ * <p><b>Usage:</b>
+ *
+ * <pre>{@code
+ * public class MyApiTest extends ApiTestBase {
+ *
+ *   @Test
+ *   void testSomething() {
+ *     login("admin", "admin");
+ *     // Make API calls using RestAssured
+ *   }
+ * }
+ * }</pre>
+ */
 @ExtendWith(SystemStubsExtension.class)
 public abstract class ApiTestBase {
 
