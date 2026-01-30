@@ -27,6 +27,9 @@ test("adding an order via the pet.order refback should update the parent (pet), 
   await page.locator("#fields-container #status-form-field-input").fill("e2e");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   // test the order appears in the pet order refback list
-  await page.locator("#accordion__v-0-1-5-2-toggle-icon-only").click();
-  await expect(page.getByText("e2e", { exact: false })).toBeVisible();
+  const orders = page.locator("ul.border.divide-y > li");
+  const thirdOrder = orders.nth(2);
+
+  await thirdOrder.getByRole("button").nth(2).click();
+  await expect(thirdOrder.getByText("e2e")).toBeVisible();
 });
