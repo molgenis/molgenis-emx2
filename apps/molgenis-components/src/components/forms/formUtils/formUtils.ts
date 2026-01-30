@@ -99,10 +99,14 @@ export function getColumnError(
   if (type === "EMAIL_ARRAY") {
     const invalidEmails = arrayWithInvalidEmails(value);
     if (invalidEmails.length == 1) {
-      return readableStringArray(invalidEmails) + " is an invalid email address";
+      return (
+        readableStringArray(invalidEmails) + " is an invalid email address"
+      );
     }
     if (invalidEmails.length > 1) {
-      return readableStringArray(invalidEmails) + " are invalid email addresses";
+      return (
+        readableStringArray(invalidEmails) + " are invalid email addresses"
+      );
     }
   }
   if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
@@ -111,7 +115,9 @@ export function getColumnError(
   if (type === "HYPERLINK_ARRAY") {
     const invalidHyperlinks = arrayWithInvalidHyperlinks(value);
     if (invalidHyperlinks.length == 1) {
-      return readableStringArray(invalidHyperlinks) + " is an invalid hyperlink";
+      return (
+        readableStringArray(invalidHyperlinks) + " is an invalid hyperlink"
+      );
     }
     if (invalidHyperlinks.length > 1) {
       return readableStringArray(invalidHyperlinks) + " are invalid hyperlinks";
@@ -121,9 +127,9 @@ export function getColumnError(
   if (type === "PERIOD" && isInvalidPeriod(value)) {
     return "Invalid Period: " + PERIOD_EXPLANATION;
   }
-  if(type === "PERIOD_ARRAY"){
+  if (type === "PERIOD_ARRAY") {
     let invalidPeriods = arrayWithInvalidPeriod(value);
-    if ( invalidPeriods.length == 1) {
+    if (invalidPeriods.length == 1) {
       return (
         readableStringArray(invalidPeriods) +
         " is an invalid Period: " +
@@ -141,7 +147,7 @@ export function getColumnError(
   if (type === "UUID" && isInvalidUUID(value)) {
     return "Invalid UUID: " + UUID_EXPLANATION;
   }
-  if( type === "UUID_ARRAY"){
+  if (type === "UUID_ARRAY") {
     let invalidUUIDs = arrayWithInvalidUUIDs(value);
     if (invalidUUIDs.length == 1) {
       return (
@@ -150,7 +156,7 @@ export function getColumnError(
         UUID_EXPLANATION
       );
     }
-    if ( invalidUUIDs.length > 1) {
+    if (invalidUUIDs.length > 1) {
       return (
         readableStringArray(invalidUUIDs) +
         " are invalid UUIDs: " +
