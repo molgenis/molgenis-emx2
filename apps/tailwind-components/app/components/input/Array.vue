@@ -69,15 +69,15 @@ function stringArrayValidationCheck(
   errorMessage: string | null,
   value: string
 ): boolean {
-  if (
-    invalid &&
-    ["EMAIL_ARRAY", "HYPERLINK_ARRAY", "UUID_ARRAY", "PERIOD_ARRAY"].includes(
-      type
-    )
-  ) {
-    return errorMessage?.match(/\'(.*?)\'/g)?.includes("'" + value + "'")
-      ? true
-      : false;
+  const isStringArray = [
+    "EMAIL_ARRAY",
+    "HYPERLINK_ARRAY",
+    "UUID_ARRAY",
+    "PERIOD_ARRAY",
+  ].includes(type);
+  const selectInQuotes = errorMessage?.match(/\'(.*?)\'/g);
+  if (isStringArray) {
+    return selectInQuotes?.includes(`'${value}'`) ? true : false;
   }
   return invalid;
 }
