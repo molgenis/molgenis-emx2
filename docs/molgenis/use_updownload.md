@@ -35,7 +35,7 @@ When downloading the changelog, you can control pagination using URL query param
 
 #### Example
 ```text
-http://{SERVER_NAME}/{SCHEMA}/api/csv/changelog?limit=200&offset=20
+http://{SERVER_NAME}/{SCHEMA}/api/csv/_changelog?limit=200&offset=20
 ```
 This request returns a CSV file with up to 200 changelog entries, excluding the 20 most recent ones.
 
