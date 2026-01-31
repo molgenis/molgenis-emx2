@@ -336,6 +336,7 @@ GraphQL still builds full response (needed for nested structure), but underlying
 3. **Phase 3**: Change `retrieveRows()` to iterator-based (jOOQ `fetchStream()`)
 4. **Phase 4**: REST APIs stream iterator directly to response
 5. **Phase 5**: Cursor pagination (`after` parameter) for large result sets
+6. **Phase 6**: Streaming `retrieveJSON()` - produce JSON as stream of objects instead of buffering entire result
 
 ## Open Questions
 

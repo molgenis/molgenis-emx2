@@ -4,13 +4,18 @@ import static org.molgenis.emx2.json.JsonUtil.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class JsonYamlApi {
 
@@ -19,16 +24,25 @@ public class JsonYamlApi {
   }
 
   public static void create(Javalin app) {
-    // schema level operations
-    final String jsonPath = "/{schema}/api/json";
-    app.get(jsonPath, JsonYamlApi::getSchemaJSON);
-    app.post(jsonPath, JsonYamlApi::postSchemaJSON);
-    app.delete(jsonPath, JsonYamlApi::deleteSchemaJSON);
+    final String jsonSchemaPath = "/{schema}/api/json/_schema";
+    app.get(jsonSchemaPath, JsonYamlApi::getSchemaJSON);
+    app.post(jsonSchemaPath, JsonYamlApi::postSchemaJSON);
+    app.delete(jsonSchemaPath, JsonYamlApi::deleteSchemaJSON);
 
-    final String yamlPath = "/{schema}/api/yaml";
-    app.get(yamlPath, JsonYamlApi::getSchemaYAML);
-    app.post(yamlPath, JsonYamlApi::postSchemaYAML);
-    app.delete(yamlPath, JsonYamlApi::deleteSchemaYAML);
+    final String yamlSchemaPath = "/{schema}/api/yaml/_schema";
+    app.get(yamlSchemaPath, JsonYamlApi::getSchemaYAML);
+    app.post(yamlSchemaPath, JsonYamlApi::postSchemaYAML);
+    app.delete(yamlSchemaPath, JsonYamlApi::deleteSchemaYAML);
+
+    final String jsonTablePath = "/{schema}/api/json/{table}";
+    app.get(jsonTablePath, ctx -> tableRetrieveJson(ctx));
+    app.post(jsonTablePath, ctx -> tableUpdate(ctx, new ObjectMapper()));
+    app.delete(jsonTablePath, ctx -> tableDelete(ctx, new ObjectMapper()));
+
+    final String yamlTablePath = "/{schema}/api/yaml/{table}";
+    app.get(yamlTablePath, ctx -> tableRetrieveYaml(ctx));
+    app.post(yamlTablePath, ctx -> tableUpdate(ctx, new ObjectMapper(new YAMLFactory())));
+    app.delete(yamlTablePath, ctx -> tableDelete(ctx, new ObjectMapper(new YAMLFactory())));
   }
 
   private static void deleteSchemaYAML(Context ctx) throws IOException {
@@ -81,5 +95,45 @@ public class JsonYamlApi {
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_ " + date + ".json\"");
     ctx.json(json);
+  }
+
+  private static void tableRetrieveJson(Context ctx) {
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    String json = table.query().retrieveJSON();
+    ctx.status(200);
+    ctx.contentType(ACCEPT_JSON);
+    ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".json\"");
+    ctx.result(json);
+  }
+
+  private static void tableRetrieveYaml(Context ctx) throws IOException {
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    String json = table.query().retrieveJSON();
+    ObjectMapper jsonMapper = new ObjectMapper();
+    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+    Object data = jsonMapper.readValue(json, Object.class);
+    String yaml = yamlMapper.writeValueAsString(data);
+    ctx.status(200);
+    ctx.contentType(ACCEPT_YAML);
+    ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".yaml\"");
+    ctx.result(yaml);
+  }
+
+  private static void tableUpdate(Context ctx, ObjectMapper mapper) throws IOException {
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    List<Map<String, Object>> rowMaps = mapper.readValue(ctx.body(), List.class);
+    List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowMaps);
+    int count = table.save(rows);
+    ctx.status(200);
+    ctx.result("{ \"message\": \"imported number of rows: " + count + "\" }");
+  }
+
+  private static void tableDelete(Context ctx, ObjectMapper mapper) throws IOException {
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    List<Map<String, Object>> rowMaps = mapper.readValue(ctx.body(), List.class);
+    List<Row> rows = TypeUtils.convertToPrimaryKeyRows(table.getMetadata(), rowMaps);
+    int count = table.delete(rows);
+    ctx.status(200);
+    ctx.result("{ \"message\": \"deleted number of rows: " + count + "\" }");
   }
 }

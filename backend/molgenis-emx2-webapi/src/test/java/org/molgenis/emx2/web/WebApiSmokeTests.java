@@ -761,7 +761,8 @@ class WebApiSmokeTests {
 
   @Test
   void testJsonYamlApi() {
-    String schemaJson = given().sessionId(sessionId).when().get("/pet store/api/json").asString();
+    String schemaJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/_schema").asString();
 
     db.dropCreateSchema("pet store json");
 
@@ -769,16 +770,17 @@ class WebApiSmokeTests {
         .sessionId(sessionId)
         .body(schemaJson)
         .when()
-        .post("/pet store json/api/json")
+        .post("/pet store json/api/json/_schema")
         .then()
         .statusCode(200);
 
     String schemaJson2 =
-        given().sessionId(sessionId).when().get("/pet store json/api/json").asString();
+        given().sessionId(sessionId).when().get("/pet store json/api/json/_schema").asString();
 
     assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
 
-    String schemaYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml").asString();
+    String schemaYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/_schema").asString();
 
     db.dropCreateSchema("pet store yaml");
 
@@ -786,12 +788,12 @@ class WebApiSmokeTests {
         .sessionId(sessionId)
         .body(schemaYaml)
         .when()
-        .post("/pet store yaml/api/yaml")
+        .post("/pet store yaml/api/yaml/_schema")
         .then()
         .statusCode(200);
 
     String schemaYaml2 =
-        given().sessionId(sessionId).when().get("/pet store yaml/api/yaml").asString();
+        given().sessionId(sessionId).when().get("/pet store yaml/api/yaml/_schema").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
 
@@ -799,7 +801,7 @@ class WebApiSmokeTests {
         .sessionId(sessionId)
         .body(schemaYaml2)
         .when()
-        .delete("/pet store yaml/api/yaml")
+        .delete("/pet store yaml/api/yaml/_schema")
         .then()
         .statusCode(200);
 
@@ -807,12 +809,26 @@ class WebApiSmokeTests {
         .sessionId(sessionId)
         .body(schemaJson2)
         .when()
-        .delete("/pet store json/api/json")
+        .delete("/pet store json/api/json/_schema")
         .then()
         .statusCode(200);
 
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  void testJsonYamlTableApi() {
+    String tableJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(tableJson.contains("Pet"), "JSON should contain Pet data");
+
+    String tableYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/Pet").asString();
+    assertTrue(tableYaml.contains("name"), "YAML should contain name field");
+    assertFalse(tableYaml.startsWith("["), "YAML should not start with [");
+    assertTrue(
+        tableYaml.contains("-") || tableYaml.contains("name:"), "YAML should have YAML syntax");
   }
 
   @Test

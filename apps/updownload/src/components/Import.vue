@@ -64,8 +64,8 @@
           <div>
             <p>
               Export schema as <a :href="`/${schema}/api/csv`">csv</a> /
-              <a :href="`/${schema}/api/json`">json</a> /
-              <a :href="`/${schema}/api/yaml`">yaml</a>
+              <a :href="`/${schema}/api/json/_schema`">json</a> /
+              <a :href="`/${schema}/api/yaml/_schema`">yaml</a>
             </p>
 
             <p>
@@ -106,7 +106,9 @@
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
                   <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
-                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a> /
+                  <a :href="`/${schema}/api/json/` + table.id">json</a> /
+                  <a :href="`/${schema}/api/yaml/` + table.id">yaml</a>
                 </li>
               </ul>
             </div>
