@@ -5,6 +5,8 @@ import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFil
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.DownloadApiUtils.isManagerOrOwnerOfSchema;
+import static org.molgenis.emx2.web.DownloadApiUtils.parseIntParam;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
@@ -30,7 +31,6 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
-import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
@@ -95,19 +95,6 @@ public class CsvApi {
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
-  }
-
-  private static Optional<Integer> parseIntParam(Context ctx, String param) {
-    return Optional.ofNullable(ctx.queryParam(param))
-        .map(
-            arg -> {
-              try {
-                return Integer.valueOf(arg);
-              } catch (NumberFormatException e) {
-                throw new MolgenisException(
-                    "Invalid " + param + " provided, should be a number", e);
-              }
-            });
   }
 
   private static void discardMetadata(Context ctx) {
@@ -186,15 +173,6 @@ public class CsvApi {
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
-  }
-
-  private static boolean isManagerOrOwnerOfSchema(Context ctx, Schema schema) {
-    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
-    SqlSchemaMetadata sqlSchemaMetadata =
-        new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
-    List<String> roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
-    return roles.contains(Privileges.MANAGER.toString())
-        || roles.contains(Privileges.OWNER.toString());
   }
 
   private static void getSettings(Context ctx) throws IOException {

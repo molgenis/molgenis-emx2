@@ -834,35 +834,33 @@ class WebApiSmokeTests {
   @Test
   void testExcelApi() throws IOException, InterruptedException {
 
-    // download json schema
     String schemaCSV =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/_schema").asString();
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/_schema")
+            .asString();
 
-    // create a new schema for excel
     db.dropCreateSchema("pet store excel");
 
-    // download excel contents from schema
-    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel");
+    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel/_all");
     File excelFile = createTempFile(excelContents, ".xlsx");
 
-    // upload excel into new schema
     String message =
         given()
             .sessionId(sessionId)
             .multiPart(excelFile)
             .when()
-            .post("/pet store excel/api/excel?async=true")
+            .post("/pet store excel/api/excel/_all?async=true")
             .asString();
 
     Map<String, String> val = new ObjectMapper().readValue(message, Map.class);
     String url = val.get("url");
     String id = val.get("id");
 
-    // poll task until complete
     Response poll = given().sessionId(sessionId).when().get(url);
     int count = 0;
-    // poll while running
-    // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (poll.body().asString().contains("UNKNOWN")
         || poll.body().asString().contains("RUNNING")) {
       if (count++ > 100) {
@@ -874,7 +872,6 @@ class WebApiSmokeTests {
     assertFalse(
         poll.body().asString().contains("FAILED") || poll.body().asString().contains("ERROR"));
 
-    // check if id in tasks list
     assertTrue(
         given()
             .sessionId(sessionId)
@@ -884,7 +881,6 @@ class WebApiSmokeTests {
             .asString()
             .contains(id));
 
-    // check if schema equal using json representation
     String schemaCSV2 =
         given()
             .sessionId(sessionId)
@@ -895,8 +891,43 @@ class WebApiSmokeTests {
 
     assertTrue(schemaCSV2.contains("Pet"));
 
-    // delete a new schema for excel
+    byte[] schemaExcel = getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_schema");
+    assertTrue(schemaExcel.length > 0);
+
+    byte[] dataExcel = getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_data");
+    assertTrue(dataExcel.length > 0);
+
+    byte[] membersExcel =
+        getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_members");
+    assertTrue(membersExcel.length > 0);
+
+    byte[] settingsExcel =
+        getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_settings");
+    assertTrue(settingsExcel.length > 0);
+
+    byte[] changelogExcel =
+        getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_changelog");
+    assertTrue(changelogExcel.length > 0);
+
     db.dropSchema("pet store excel");
+  }
+
+  @Test
+  void testZipApi() throws IOException {
+    byte[] allZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_all");
+    assertTrue(allZip.length > 0);
+
+    byte[] schemaZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_schema");
+    assertTrue(schemaZip.length > 0);
+
+    byte[] dataZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_data");
+    assertTrue(dataZip.length > 0);
+
+    byte[] membersZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_members");
+    assertTrue(membersZip.length > 0);
+
+    byte[] settingsZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_settings");
+    assertTrue(settingsZip.length > 0);
   }
 
   private File createTempFile(byte[] zipContents, String extension) throws IOException {

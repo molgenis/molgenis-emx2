@@ -23,7 +23,7 @@ You can download a [schema](use_schema.md) in the following formats:
 
 For programmatic schema access, use these REST endpoints:
 
-**GET (download schema):**
+**GET (download schema metadata only):**
 ```text
 /{schema}/api/csv/_schema
 /{schema}/api/json/_schema
@@ -48,6 +48,26 @@ For programmatic schema access, use these REST endpoints:
 /{schema}/api/yaml/_schema
 /{schema}/api/excel/_schema
 /{schema}/api/zip/_schema
+```
+
+### Complete export endpoints
+
+For complete database exports (schema + all data + members + settings):
+
+**GET/POST:**
+```text
+/{schema}/api/excel/_all
+/{schema}/api/zip/_all
+```
+
+### Data-only endpoints
+
+For exporting all table data without schema metadata:
+
+**GET/POST:**
+```text
+/{schema}/api/excel/_data
+/{schema}/api/zip/_data
 ```
 
 Each table provides its own dedicated download links.

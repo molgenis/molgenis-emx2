@@ -555,7 +555,7 @@ class Client:
         if fmt == 'xlsx':
             if table is None:
                 # Export the whole schema
-                url = f"{self.url}/{current_schema}/api/excel?async=true"
+                url = f"{self.url}/{current_schema}/api/excel/_all?async=true"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
@@ -580,7 +580,7 @@ class Client:
                     log.info("Exported data from table %s in schema %s.", table, current_schema)
         else:
             if table is None:
-                url = f"{self.url}/{current_schema}/api/zip?async=true"
+                url = f"{self.url}/{current_schema}/api/zip/_all?async=true"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 

@@ -77,7 +77,7 @@ class UpdateClient(Client):
         zip_file = {'file': open(file, 'rb')}
 
         response = self.session.post(
-            f"{self.url}/{database}/api/zip?async=true",
+            f"{self.url}/{database}/api/zip/_all?async=true",
             allow_redirects=True,
             headers={'x-molgenis-token': self.token},
             # 'Content-Type': 'multipart/form-data'},

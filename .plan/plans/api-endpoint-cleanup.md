@@ -20,22 +20,22 @@ This is a **breaking change** affecting:
 | Category | Current | Target | Status |
 |----------|---------|--------|--------|
 | **CSV** | | | |
-| Schema metadata | `/api/csv` | `/api/csv/_schema` | 🔄 rename |
+| Schema metadata | `/api/csv` | `/api/csv/_schema` | ✅ done |
 | All data | - | - | ❌ N/A (single-table format) |
 | Complete export | - | - | ❌ N/A (single-table format) |
-| Members | `/api/csv/members` | `/api/csv/_members` | 🔄 rename |
-| Settings | `/api/csv/settings` | `/api/csv/_settings` | 🔄 rename |
-| Changelog | `/api/csv/changelog` | `/api/csv/_changelog` | 🔄 rename |
+| Members | `/api/csv/members` | `/api/csv/_members` | ✅ done |
+| Settings | `/api/csv/settings` | `/api/csv/_settings` | ✅ done |
+| Changelog | `/api/csv/changelog` | `/api/csv/_changelog` | ✅ done |
 | Table | `/api/csv/{table}` | `/api/csv/{table}` | ✅ keep |
 | Row | - | - | ❌ N/A (tabular format) |
 | **JSON** | | | |
-| Schema metadata | `/api/json` | `/api/json/_schema` | 🔄 rename |
+| Schema metadata | `/api/json` | `/api/json/_schema` | ✅ done |
 | All data | - | `/api/json/_data` | ➕ new |
 | Complete export | - | `/api/json/_all` | ➕ new |
 | Members | - | `/api/json/_members` | ➕ new |
 | Settings | - | `/api/json/_settings` | ➕ new |
 | Changelog | - | `/api/json/_changelog` | ➕ new |
-| Table | - | `/api/json/{table}` | ➕ new |
+| Table | - | `/api/json/{table}` | ✅ done |
 | Row | - | `/api/json/{table}/{id}` | ➕ new |
 | **JSON-LD** | | | |
 | Schema metadata | - | `/api/jsonld/_schema` | ➕ new |
@@ -57,31 +57,31 @@ This is a **breaking change** affecting:
 | Table | `/api/ttl/{table}` (RDF) | `/api/ttl/{table}` | 🔄 extend POST/PUT/DELETE |
 | Row | `/api/ttl/{table}/{row}` (RDF) | `/api/ttl/{table}/{id}` | ✅ keep |
 | **Excel** | | | |
-| Schema metadata | `/api/excel` | `/api/excel/_schema` | 🔄 rename |
-| All data | - | `/api/excel/_data` | ➕ new |
-| Complete export | - | `/api/excel/_all` | ➕ new |
-| Members | - | `/api/excel/_members` | ➕ new |
-| Settings | - | `/api/excel/_settings` | ➕ new |
-| Changelog | - | `/api/excel/_changelog` | ➕ new |
+| Schema metadata | `/api/excel` | `/api/excel/_schema` | ✅ done |
+| All data | - | `/api/excel/_data` | ✅ done |
+| Complete export | - | `/api/excel/_all` | ✅ done |
+| Members | - | `/api/excel/_members` | ✅ done |
+| Settings | - | `/api/excel/_settings` | ✅ done |
+| Changelog | - | `/api/excel/_changelog` | ✅ done |
 | Table | `/api/excel/{table}` GET | `/api/excel/{table}` GET, POST, DELETE | 🔄 extend POST/DELETE |
 | Row | - | - | ❌ N/A (tabular format) |
 | **ZIP** | | | |
-| Schema metadata | `/api/zip` | `/api/zip/_schema` | 🔄 rename |
-| All data | - | `/api/zip/_data` | ➕ new |
-| Complete export | `/api/zip` (current) | `/api/zip/_all` | 🔄 rename |
-| Members | - | `/api/zip/_members` | ➕ new |
-| Settings | - | `/api/zip/_settings` | ➕ new |
-| Changelog | - | `/api/zip/_changelog` | ➕ new |
+| Schema metadata | `/api/zip` | `/api/zip/_schema` | ✅ done |
+| All data | - | `/api/zip/_data` | ✅ done |
+| Complete export | `/api/zip` (current) | `/api/zip/_all` | ✅ done |
+| Members | - | `/api/zip/_members` | ✅ done |
+| Settings | - | `/api/zip/_settings` | ✅ done |
+| Changelog | - | `/api/zip/_changelog` | ✅ done |
 | Table | `/api/zip/{table}` GET | `/api/zip/{table}` GET, POST, DELETE | 🔄 extend POST/DELETE |
 | Row | - | - | ❌ N/A (tabular format) |
 | **YAML** | | | |
-| Schema metadata | `/api/yaml` | `/api/yaml/_schema` | 🔄 rename |
+| Schema metadata | `/api/yaml` | `/api/yaml/_schema` | ✅ done |
 | All data | - | `/api/yaml/_data` | ➕ new |
 | Complete export | - | `/api/yaml/_all` | ➕ new |
 | Members | - | `/api/yaml/_members` | ➕ new |
 | Settings | - | `/api/yaml/_settings` | ➕ new |
 | Changelog | - | `/api/yaml/_changelog` | ➕ new |
-| Table | - | `/api/yaml/{table}` | ➕ new |
+| Table | - | `/api/yaml/{table}` | ✅ done |
 | Row | - | `/api/yaml/{table}/{id}` | ➕ new |
 | **Data (content-neg)** | | | |
 | Schema metadata | - | `/api/data/_schema` | ➕ new |
@@ -143,7 +143,7 @@ This is a **breaking change** affecting:
 - [x] Rename `/members` → `/_members`
 - [x] Rename `/settings` → `/_settings`
 - [x] Rename `/changelog` → `/_changelog`
-- [ ] Add `/_schema` endpoint for schema metadata (move from root)
+- [x] Add `/_schema` endpoint for schema metadata (move from root)
 - [ ] Keep old endpoints temporarily with deprecation warning
 
 #### 1.2 JsonYamlApi.java
@@ -153,15 +153,17 @@ This is a **breaking change** affecting:
 - [x] Add new `/api/yaml/{table}` for plain YAML data export/import
 
 #### 1.3 ExcelApi.java
-- [ ] Rename `/api/excel` → `/api/excel/_schema`
-- [ ] Add `/_data`, `/_all` endpoints
-- [ ] Add `/_members`, `/_settings`, `/_changelog` endpoints
+- [x] Rename `/api/excel` → `/api/excel/_all`
+- [x] Add `/_schema` endpoint (schema metadata only)
+- [x] Add `/_data` endpoint (data only)
+- [x] Add `/_members`, `/_settings`, `/_changelog` endpoints
 - [ ] Add POST, DELETE to `/{table}` endpoint
 
 #### 1.4 ZipApi.java
-- [ ] Rename `/api/zip` → `/api/zip/_schema`
-- [ ] Add `/_data`, `/_all` endpoints
-- [ ] Add `/_members`, `/_settings`, `/_changelog` endpoints
+- [x] Rename `/api/zip` → `/api/zip/_all`
+- [x] Add `/_schema` endpoint (schema metadata only)
+- [x] Add `/_data` endpoint (data only)
+- [x] Add `/_members`, `/_settings`, `/_changelog` endpoints
 - [ ] Add POST, DELETE to `/{table}` endpoint
 
 #### 1.5 YamlApi.java (new or extend JsonYamlApi.java)
