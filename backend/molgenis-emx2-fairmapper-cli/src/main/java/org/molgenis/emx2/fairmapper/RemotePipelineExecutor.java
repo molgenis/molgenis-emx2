@@ -20,14 +20,17 @@ import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
+import org.molgenis.emx2.fairmapper.model.step.SparqlConstructStep;
 import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 import org.molgenis.emx2.fairmapper.rdf.FrameAnalyzer;
 import org.molgenis.emx2.fairmapper.rdf.FrameDrivenFetcher;
 import org.molgenis.emx2.fairmapper.rdf.JsonLdFramer;
+import org.molgenis.emx2.fairmapper.rdf.JsonLdRdfConverter;
 import org.molgenis.emx2.fairmapper.rdf.RdfFetcher;
 import org.molgenis.emx2.fairmapper.rdf.RdfSource;
+import org.molgenis.emx2.fairmapper.rdf.SparqlEngine;
 
 public class RemotePipelineExecutor {
   private final GraphqlClient client;
@@ -79,6 +82,8 @@ public class RemotePipelineExecutor {
               "SQL queries are not supported in remote execution: " + sqlQueryStep.path());
         } else if (step instanceof FrameStep frameStep) {
           current = executeFrame(frameStep.path(), frameStep.unmapped(), current);
+        } else if (step instanceof SparqlConstructStep sparqlStep) {
+          current = executeSparql(sparqlStep.path(), current);
         }
       }
     }
@@ -174,5 +179,13 @@ public class RemotePipelineExecutor {
                 setExplicitRecursive((ObjectNode) entry.getValue(), explicit);
               }
             });
+  }
+
+  private JsonNode executeSparql(String sparqlPath, JsonNode input) throws IOException {
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, sparqlPath);
+    String sparql = Files.readString(resolvedPath);
+    Model rdfModel = JsonLdRdfConverter.jsonLdToModel(input);
+    Model result = SparqlEngine.construct(rdfModel, sparql);
+    return JsonLdRdfConverter.modelToJsonLd(result);
   }
 }

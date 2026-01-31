@@ -13,6 +13,7 @@ import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
+import org.molgenis.emx2.fairmapper.model.step.SparqlConstructStep;
 import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
 import org.molgenis.emx2.fairmapper.model.step.TransformStep;
@@ -117,6 +118,8 @@ public class BundleLoader {
       validateSqlFile(bundleDir, sqlQueryStep.path());
     } else if (step instanceof FrameStep frameStep) {
       validateFrameFile(bundleDir, frameStep.path());
+    } else if (step instanceof SparqlConstructStep sparqlStep) {
+      validateSparqlFile(bundleDir, sparqlStep.path());
     }
   }
 
@@ -166,6 +169,18 @@ public class BundleLoader {
 
     if (!sqlPath.endsWith(".sql")) {
       throw new FairMapperException("SQL file must have .sql extension: " + sqlPath);
+    }
+  }
+
+  private void validateSparqlFile(Path bundleDir, String sparqlPath) {
+    Path fullPath = PathValidator.validateWithinBase(bundleDir, sparqlPath);
+
+    if (!Files.exists(fullPath)) {
+      throw new FairMapperException("SPARQL file not found: " + sparqlPath);
+    }
+
+    if (!sparqlPath.endsWith(".sparql")) {
+      throw new FairMapperException("SPARQL file must have .sparql extension: " + sparqlPath);
     }
   }
 

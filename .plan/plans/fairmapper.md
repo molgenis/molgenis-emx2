@@ -463,8 +463,8 @@ Inspired by schema-bridge: allow RDF graph as intermediate between steps (not ju
 
 | Task | Priority | Status |
 |------|----------|--------|
-| 11.1 Add SparqlConstructStep | HIGH | Pending |
-| 11.2 RDF-native pipeline mode | HIGH | Pending |
+| 11.1 Add SparqlConstructStep | HIGH | Done |
+| 11.2 ~~RDF-native pipeline mode~~ | - | Removed (auto-conversion sufficient) |
 | 11.3 Example: dcat-sparql bundle | HIGH | Done |
 | 11.4 Mapping override step (YAML) | HIGH | Pending |
 | 11.5 Profile compaction (inline queries) | LOW | Pending |
@@ -536,50 +536,9 @@ public Model sparqlConstruct(Model input, String sparql) {
 - Same RDF4J library already in codebase
 - Safety: max 100k triples, 30s query timeout
 
-### 11.2 RDF-Native Pipeline Mode
+### 11.2 RDF-Native Pipeline Mode (Removed)
 
-Allow steps to pass RDF Model instead of JsonNode when `pipeline: rdf`.
-
-```yaml
-mappings:
-  - name: harvest-with-sparql
-    fetch: ${SOURCE_URL}
-    pipeline: rdf           # NEW: steps pass RDF Model
-    steps:
-      - sparql: src/transforms/normalize.sparql
-      - sparql: src/transforms/to-molgenis.sparql
-      - frame: src/frames/output.jsonld    # Final step: RDF → JSON-LD
-```
-
-**Benefits:**
-- Multiple SPARQL transforms without JSON-LD round-trips
-- More natural for RDF-native users
-- SPARQL CONSTRUCT chains like schema-bridge
-
-**Implementation:**
-- `PipelineExecutor` tracks `currentFormat: json | rdf`
-- Frame step converts RDF → JSON-LD
-- Mutate step requires JSON (auto-frame if needed)
-
-**Format validation** (from code review):
-```java
-if (step instanceof MutateStep && currentFormat == Format.RDF) {
-    throw new FairMapperException(
-        "Mutate step requires JSON. Add frame step before mutate.");
-}
-if (step instanceof TransformStep && currentFormat == Format.RDF) {
-    throw new FairMapperException(
-        "Transform (JSLT) requires JSON. Add frame step before transform.");
-}
-```
-
-**Format conversion matrix:**
-| From → To | Method |
-|-----------|--------|
-| JSON → RDF | Auto-parse as JSON-LD when next step is SPARQL |
-| RDF → JSON | Frame step |
-| JSON → JSON | Transform step (JSLT) |
-| RDF → RDF | SPARQL construct |
+Removed - auto-conversion in 11.1 handles JSON-LD ↔ RDF transparently per step.
 
 ### 11.3 Example Bundle: dcat-sparql
 

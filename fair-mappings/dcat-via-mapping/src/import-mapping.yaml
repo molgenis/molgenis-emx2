@@ -1,0 +1,28 @@
+_prefixes:
+  dcat: http://www.w3.org/ns/dcat#
+  foaf: http://xmlns.com/foaf/0.1/
+  vcard: http://www.w3.org/2006/vcard/ns#
+
+Resources:
+  _id: "=value.split('/').pop()"
+  _type:
+    dcat:Catalog: Catalogue
+    dcat:Dataset: Databank
+    dcat:DataService: Dataservice
+    dcat:Distribution: Distribution
+  _refs:
+    publisher: "=value['@id']?.split('/').pop()"
+    contacts: "=value?.map(v => v['@id']?.split('/').pop())"
+    dataResources: "=value?.map(v => ({id: v['@id']?.split('/').pop()}))"
+    childNetworks: "=value?.map(v => ({id: v['@id']?.split('/').pop()}))"
+  keywords: "=Array.isArray(value) ? value : (value ? [value] : [])"
+  theme: "=value?.map(v => ({ontologyTermURI: v['@id']}))"
+  accessRights: "={ontologyTermURI: value['@id']}"
+  licence: "={ontologyTermURI: value['@id']}"
+
+Contacts:
+  _id: "=value.split('/').pop()"
+  email: "=value?.replace('mailto:', '')"
+
+Organisations:
+  _id: "=value.split('/').pop()"

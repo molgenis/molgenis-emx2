@@ -30,6 +30,8 @@ public class StepConfigDeserializer extends JsonDeserializer<List<StepConfig>> {
       } else if (stepNode.has("frame")) {
         Boolean unmapped = stepNode.has("unmapped") ? stepNode.get("unmapped").asBoolean() : null;
         steps.add(new FrameStep(stepNode.get("frame").asText(), unmapped, tests));
+      } else if (stepNode.has("sparql")) {
+        steps.add(new SparqlConstructStep(stepNode.get("sparql").asText(), tests));
       }
     }
     return steps;

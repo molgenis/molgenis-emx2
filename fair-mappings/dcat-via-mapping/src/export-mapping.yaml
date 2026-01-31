@@ -1,0 +1,49 @@
+_prefixes:
+  dcat: http://www.w3.org/ns/dcat#
+  dct: http://purl.org/dc/terms/
+  foaf: http://xmlns.com/foaf/0.1/
+  vcard: http://www.w3.org/2006/vcard/ns#
+
+_context:
+  baseUrl: "=settings.baseUrl || 'http://localhost'"
+  schema: "=_schema.name"
+
+Resources:
+  _id: "=baseUrl + '/' + schema + '/api/dcat/' + id"
+  _type: |
+    =type?.find(t => t.name === 'Catalogue') ? 'dcat:Catalog' :
+     type?.find(t => t.name === 'Databank') ? 'dcat:Dataset' :
+     type?.find(t => t.name === 'Dataservice') ? 'dcat:DataService' :
+     'dcat:Distribution'
+  name: dct:title
+  description: dct:description
+  pid: dct:identifier
+  keywords: dcat:keyword
+  website: foaf:homepage
+  dateCreated: dct:issued
+  dateModified: dct:modified
+  theme: "=theme?.map(t => ({'@id': t.ontologyTermURI}))"
+  accessRights: "=accessRights ? {'@id': accessRights.ontologyTermURI} : null"
+  licence: "=licence ? {'@id': licence.ontologyTermURI} : null"
+  publisher:
+    "@id": "=baseUrl + '/' + schema + '/agent/' + publisher?.id"
+    "@type": foaf:Agent
+    "foaf:name": "=publisher?.name"
+  contacts:
+    "@type": vcard:Kind
+    "vcard:fn": "=contacts?.map(c => c.firstName + ' ' + c.lastName)"
+    "vcard:hasEmail": "=contacts?.map(c => 'mailto:' + c.email)"
+  dataResources: "=dataResources?.map(d => ({'@id': baseUrl + '/' + schema + '/api/dcat/' + d.id}))"
+  childNetworks: "=childNetworks?.map(c => ({'@id': baseUrl + '/' + schema + '/api/dcat/' + c.id}))"
+
+Contacts:
+  _id: "=baseUrl + '/' + schema + '/contact/' + id"
+  _type: vcard:Kind
+  firstName: vcard:given-name
+  lastName: vcard:family-name
+  email: "='mailto:' + email"
+
+Organisations:
+  _id: "=baseUrl + '/' + schema + '/organisation/' + id"
+  _type: foaf:Agent
+  name: foaf:name

@@ -4,6 +4,6 @@ import java.util.List;
 import org.molgenis.emx2.fairmapper.model.TestCase;
 
 public sealed interface StepConfig
-    permits TransformStep, QueryStep, MutateStep, SqlQueryStep, FrameStep {
+    permits TransformStep, QueryStep, MutateStep, SqlQueryStep, FrameStep, SparqlConstructStep {
   List<TestCase> tests();
 }

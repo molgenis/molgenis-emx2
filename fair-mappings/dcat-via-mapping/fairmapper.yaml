@@ -1,0 +1,18 @@
+name: dcat-via-mapping
+version: 1.0.0
+
+mappings:
+  - name: export-dcat
+    endpoint: /{schema}/api/dcat
+    methods: [GET]
+    output: turtle
+    steps:
+      - query: src/queries/get-all.gql
+      - mapping: src/export-mapping.yaml
+
+  - name: harvest-dcat
+    fetch: ${SOURCE_URL}
+    frame: src/frames/dcat.jsonld
+    steps:
+      - mapping: src/import-mapping.yaml
+      - mutate: src/mutations/upsert.gql

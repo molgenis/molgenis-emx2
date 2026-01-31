@@ -155,13 +155,13 @@ Backwards compatibility: `endpoints`, `path`, `name` on endpoint mappings still 
 | `mutate`    | `.gql` | Variables JSON | Mutation result | molgenis-emx2-graphql |
 | `sql`       | `.sql` | Variables JSON | Query result JSON | PostgreSQL via `schema.retrieveSql()` |
 | `frame`     | `.jsonld` | JSON-LD | JSON-LD | Titanium JSON-LD |
-| `sparql`    | `.sparql` | RDF Model | RDF Model | RDF4J in-memory (planned) |
+| `sparql`    | `.sparql` | RDF Model | RDF Model | RDF4J in-memory |
 | `mapping`   | `.yaml` | JSON-LD | JSON | YAML field mapping (planned) |
 
 Notes:
 - RDF output is handled via content negotiation (`output: turtle`), not as a step type
 - RDF input (fetch) is handled at mapping level, not as a step type
-- `sparql` and `mapping` steps are planned for Phase 11
+- `sparql` step done (Phase 11.1), `mapping` step planned (Phase 11.4)
 
 ### SQL Step (Alternative to GraphQL + JSLT)
 
@@ -194,7 +194,7 @@ WHERE r.id = ${id}
 
 **Example bundle:** `fair-mappings/dcat-fdp-sql/`
 
-### SPARQL CONSTRUCT Step (Planned - Phase 11)
+### SPARQL CONSTRUCT Step (Phase 11.1 - Done)
 
 Transforms RDF using SPARQL CONSTRUCT queries. Alternative to JSLT for RDF-native users.
 
@@ -244,89 +244,138 @@ implementation 'org.eclipse.rdf4j:rdf4j-queryparser-sparql:4.3.8'
 
 **Example bundle:** `fair-mappings/dcat-sparql/`
 
-### Mapping Override Step (Planned - Phase 11)
+### Mapping Step (Planned - Phase 11.4)
 
-Declarative YAML-based field mapping. Alternative to JSLT for simple mappings.
+Declarative YAML-based semantic mapping. Schema-centric: MOLGENIS tables/columns as YAML tree, predicates as values. Uses JS expressions (GraalVM) for complex transforms.
 
 ```yaml
 steps:
-  - frame: src/frames/input.jsonld
-  - mapping: src/overrides.yaml
-  - mutate: src/upsert.gql
+  - mapping: src/export-mapping.yaml   # column → predicate
+  # or
+  - mapping: src/import-mapping.yaml   # predicate → column
 ```
 
 **Mapping file format:**
 ```yaml
-fields:
-  dct:title: name
-  dct:description: description
-  dcat:keyword: keywords
-  dct:publisher:
-    target: organisation
-    extract: foaf:name
+_prefixes:
+  dcat: http://www.w3.org/ns/dcat#
+  dct: http://purl.org/dc/terms/
 
-types:
-  dcat:Catalog: Resources
-  dcat:Dataset: Resources
+_context:
+  baseUrl: "=schema.baseUrl"
+  schema: "=schema.name"
 
-id:
-  extract: last-segment
-  prefix: ""
+Resources:
+  _id:
+    export: "=baseUrl + '/' + schema + '/resource/' + id"
+    import: "=value.split('/').pop()"
+  _type: |
+    =type?.find(t => t.name === 'Catalogue') ? 'dcat:Catalog' :
+     type?.find(t => t.name === 'Databank') ? 'dcat:Dataset' :
+     'dcat:Distribution'
+  name: dct:title
+  description: dct:description
+  keywords:
+    predicate: dcat:keyword
+    import: "=Array.isArray(value) ? value : (value ? [value] : [])"
+  publisher:
+    predicate: dct:publisher
+    export:
+      "@id": "=baseUrl + '/agent/' + publisher?.id"
+      "@type": foaf:Agent
+      "foaf:name": "=publisher?.name"
+    import: "={id: value['@id']?.split('/').pop()}"
 ```
 
-**Step fields:**
+**Mapping file structure:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `mapping` | string | yes | Path to YAML mapping file |
+| Key | Purpose |
+|-----|---------|
+| `_prefixes` | Prefix → URI definitions |
+| `_context` | Global variables (baseUrl, schema) |
+| `TableName` | MOLGENIS table mapping |
+| `_id` | URI construction (export) / ID extraction (import) |
+| `_type` | RDF class (literal or `=expression`) |
+| `column` | Column → predicate mapping |
 
-**Mapping file sections:**
+**Column mapping formats:**
 
-| Section | Purpose |
-|---------|---------|
-| `fields` | Map RDF predicates to MOLGENIS columns |
-| `types` | Map `@type` values to table names |
-| `id` | Configure ID extraction from `@id` |
+| Format | Example | Use case |
+|--------|---------|----------|
+| Simple | `name: dct:title` | Direct mapping |
+| With transform | `email: {predicate: vcard:hasEmail, export: "='mailto:'+email"}` | Value transform |
+| Nested object | `publisher: {predicate: dct:publisher, export: {"@id": "=...", "@type": "..."}}` | Complex RDF structure |
 
-**ID extraction modes:**
+**JS expression bindings:**
+- `value` - incoming value (import direction)
+- `baseUrl`, `schema` - from `_context`
+- All row fields by name (export direction)
+- Standard JS: `Array.isArray()`, `.map()`, `.find()`, `.split()`, etc.
 
-| Mode | Config | Example |
-|------|--------|---------|
-| Last segment (default) | `extract: last-segment` | `/catalog/123` → `123` |
-| Full IRI | `extract: full` | Keep entire IRI |
-| Regex | `extract: ".*[/#]([^/#]+)$"` | Custom pattern |
+**Two mapping files (different key structure):**
 
-**Benefits:**
-- No code for simple field mappings
-- Easier than JSLT for data managers
-- Can override schema semantics without schema changes
+Export (column-keyed):
+```yaml
+Resources:
+  name: dct:title              # column → predicate
+  publisher:                   # nested RDF object
+    "@id": "=baseUrl + '/agent/' + publisher?.id"
+    "@type": foaf:Agent
+```
 
-### RDF Pipeline Mode (Planned - Phase 11)
+Import (predicate-keyed):
+```yaml
+Resources:
+  dct:title: name              # predicate → column
+  dct:publisher: "={id: value['@id']?.split('/').pop()}"
+```
 
-When `pipeline: rdf`, steps pass RDF Model instead of JSON between them.
+**Array normalization (import):**
+```yaml
+keywords:
+  predicate: dcat:keyword
+  import: "=Array.isArray(value) ? value : (value ? [value] : [])"
+```
+
+**Ontology field mapping:**
+```yaml
+theme:
+  predicate: dcat:theme
+  export: "=theme?.map(t => ({'@id': t.ontologyTermURI}))"
+  import: "=value?.map(v => ({ontologyTermURI: v['@id']}))"
+```
+
+**Reference field with nested structure:**
+```yaml
+publisher:
+  predicate: dct:publisher
+  export:
+    "@id": "=baseUrl + '/agent/' + publisher?.id"
+    "@type": foaf:Agent
+    "foaf:name": "=publisher?.name"
+  import: "={id: value['@id']?.split('/').pop()}"
+```
+
+**Example bundle:** `fair-mappings/dcat-via-mapping/`
+
+### RDF Auto-Conversion (Phase 11.1 - Done)
+
+SPARQL steps automatically convert between JSON-LD and RDF Model:
+- Before SPARQL: JSON-LD → RDF Model
+- After SPARQL: RDF Model → JSON-LD
+
+No explicit `pipeline: rdf` flag needed. Format conversion is transparent.
 
 ```yaml
 - name: harvest-sparql
   fetch: ${SOURCE_URL}
-  pipeline: rdf
+  frame: src/frames/input.jsonld
   steps:
-    - sparql: src/normalize.sparql
-    - sparql: src/to-molgenis.sparql
-    - frame: src/output.jsonld
+    - sparql: src/normalize.sparql      # auto: JSON-LD → RDF → JSON-LD
+    - transform: src/cleanup.jslt       # works on JSON-LD
+    - sparql: src/to-molgenis.sparql    # auto: JSON-LD → RDF → JSON-LD
     - mutate: src/upsert.gql
 ```
-
-**Mapping field:**
-
-| Field | Type | Required | Default | Description |
-|-------|------|----------|---------|-------------|
-| `pipeline` | string | no | `json` | Pipeline format: `json` or `rdf` |
-
-**Format rules:**
-- `transform` (JSLT) requires JSON format
-- `sparql` requires RDF format
-- `frame` converts RDF → JSON
-- Auto-conversion: JSON-LD → RDF when next step is SPARQL
 
 ### Auto Mode (Planned - Phase 12)
 

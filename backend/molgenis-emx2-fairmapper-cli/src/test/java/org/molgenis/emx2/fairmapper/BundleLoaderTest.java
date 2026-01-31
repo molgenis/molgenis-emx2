@@ -608,4 +608,80 @@ class BundleLoaderTest {
     assertTrue(ex.getMessage().contains("Frame file must have .json or .jsonld extension"));
     assertTrue(ex.getMessage().contains("src/frame.txt"));
   }
+
+  @Test
+  void testSparqlStepValidation() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path sparqlFile = tempDir.resolve("src/construct.sparql");
+    Files.createDirectories(sparqlFile.getParent());
+    Files.writeString(sparqlFile, "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: test-mapping
+            endpoint: /test
+            methods: [GET]
+            steps:
+              - sparql: src/construct.sparql
+        """);
+
+    MappingBundle bundle = bundleLoader.load(configPath);
+
+    assertNotNull(bundle);
+    assertEquals(1, bundle.mappings().size());
+  }
+
+  @Test
+  void testSparqlStepMissingFile() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: test-mapping
+            endpoint: /test
+            methods: [GET]
+            steps:
+              - sparql: src/construct.sparql
+        """);
+
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
+
+    assertTrue(ex.getMessage().contains("SPARQL file not found"));
+    assertTrue(ex.getMessage().contains("src/construct.sparql"));
+  }
+
+  @Test
+  void testSparqlStepWrongExtension() throws IOException {
+    Path configPath = tempDir.resolve("fairmapper.yaml");
+    Path sparqlFile = tempDir.resolve("src/construct.txt");
+    Files.createDirectories(sparqlFile.getParent());
+    Files.writeString(sparqlFile, "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }");
+
+    Files.writeString(
+        configPath,
+        """
+        name: test
+        version: 1.0.0
+        mappings:
+          - name: test-mapping
+            endpoint: /test
+            methods: [GET]
+            steps:
+              - sparql: src/construct.txt
+        """);
+
+    FairMapperException ex =
+        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
+
+    assertTrue(ex.getMessage().contains("SPARQL file must have .sparql extension"));
+    assertTrue(ex.getMessage().contains("src/construct.txt"));
+  }
 }
