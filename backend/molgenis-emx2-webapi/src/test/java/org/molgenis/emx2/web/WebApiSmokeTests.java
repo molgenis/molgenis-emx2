@@ -69,7 +69,7 @@ class WebApiSmokeTests {
   public static final String PET_SHOP_MANAGER = "shopmanager";
 
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
-  public static final String DATA_PET_STORE = "/pet store/api/csv";
+  public static final String DATA_PET_STORE = "/pet store/api/csv/_schema";
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
   private static final String CSV_TEST_SCHEMA = "pet store csv";
@@ -276,7 +276,7 @@ class WebApiSmokeTests {
             .sessionId(sessionId)
             .accept(ACCEPT_CSV)
             .when()
-            .get("/pet store zip/api/csv")
+            .get("/pet store zip/api/csv/_schema")
             .asString();
     assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
@@ -449,7 +449,7 @@ class WebApiSmokeTests {
     byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
     File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
     acceptFileUpload(addUpdateTableFile, "molgenis", false);
-    String actual = getContentAsString("/api/csv");
+    String actual = getContentAsString("/api/csv/_schema");
     assertEquals(header + expected, actual);
   }
 
@@ -459,7 +459,7 @@ class WebApiSmokeTests {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
     // download csv metadata and data from existing schema
-    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv");
+    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/_schema");
     byte[] contentsCategoryData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Category");
     byte[] contentsOrderData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Order");
     byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
@@ -489,7 +489,7 @@ class WebApiSmokeTests {
     acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES, false);
 
     // download csv from the new schema
-    String contentsMetaNew = getContentAsString("/api/csv");
+    String contentsMetaNew = getContentAsString("/api/csv/_schema");
     String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
@@ -739,7 +739,7 @@ class WebApiSmokeTests {
             .body(content)
             .header("fileName", table)
             .when()
-            .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""));
+            .post("/" + CSV_TEST_SCHEMA + "/api/csv/_schema" + (async ? "?async=true" : ""));
 
     response.then().statusCode(200);
 
@@ -836,7 +836,7 @@ class WebApiSmokeTests {
 
     // download json schema
     String schemaCSV =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/_schema").asString();
 
     // create a new schema for excel
     db.dropCreateSchema("pet store excel");
@@ -890,7 +890,7 @@ class WebApiSmokeTests {
             .sessionId(sessionId)
             .accept(ACCEPT_CSV)
             .when()
-            .get("/pet store excel/api/csv")
+            .get("/pet store excel/api/csv/_schema")
             .asString();
 
     assertTrue(schemaCSV2.contains("Pet"));

@@ -140,16 +140,17 @@ This is a **breaking change** affecting:
 ### Phase 1: Backend Changes
 
 #### 1.1 CsvApi.java
-- [ ] Rename `/members` → `/_members`
-- [ ] Rename `/settings` → `/_settings`
-- [ ] Rename `/changelog` → `/_changelog`
+- [x] Rename `/members` → `/_members`
+- [x] Rename `/settings` → `/_settings`
+- [x] Rename `/changelog` → `/_changelog`
 - [ ] Add `/_schema` endpoint for schema metadata (move from root)
 - [ ] Keep old endpoints temporarily with deprecation warning
 
 #### 1.2 JsonYamlApi.java
-- [ ] Rename `/api/json` → `/api/json/_schema`
-- [ ] Rename `/api/yaml` → `/api/yaml/_schema`
-- [ ] Add new `/api/json/{table}` for plain JSON data export/import
+- [x] Rename `/api/json` → `/api/json/_schema`
+- [x] Rename `/api/yaml` → `/api/yaml/_schema`
+- [x] Add new `/api/json/{table}` for plain JSON data export/import
+- [x] Add new `/api/yaml/{table}` for plain YAML data export/import
 
 #### 1.3 ExcelApi.java
 - [ ] Rename `/api/excel` → `/api/excel/_schema`
@@ -164,10 +165,10 @@ This is a **breaking change** affecting:
 - [ ] Add POST, DELETE to `/{table}` endpoint
 
 #### 1.5 YamlApi.java (new or extend JsonYamlApi.java)
-- [ ] Rename `/api/yaml` → `/api/yaml/_schema`
+- [x] Rename `/api/yaml` → `/api/yaml/_schema` (done in 1.2)
 - [ ] Add `/_data`, `/_all` endpoints
 - [ ] Add `/_members`, `/_settings`, `/_changelog` endpoints
-- [ ] Add `/{table}` endpoint with GET, POST, PUT, DELETE
+- [x] Add `/{table}` endpoint with GET, POST, DELETE (PUT pending)
 - [ ] Add `/{table}/{id}` endpoint with GET, PUT, DELETE
 
 #### 1.6 RDFApi.java / JsonldApi.java
@@ -198,11 +199,14 @@ This is a **breaking change** affecting:
 ### Phase 2: Frontend Changes
 
 #### 2.1 apps/updownload/src/components/Import.vue
-- [ ] Update `/api/csv/members` → `/api/csv/_members`
-- [ ] Update `/api/csv/settings` → `/api/csv/_settings`
-- [ ] Update `/api/csv/changelog` → `/api/csv/_changelog`
-- [ ] Add links for all formats: csv, json, jsonld, ttl, excel, zip
-- [ ] Add export links for `_schema`, `_members`, `_settings`, `_changelog` per format
+- [x] Update `/api/csv/members` → `/api/csv/_members`
+- [x] Update `/api/csv/settings` → `/api/csv/_settings`
+- [x] Update `/api/csv/changelog` → `/api/csv/_changelog`
+- [x] Update `/api/json` → `/api/json/_schema`
+- [x] Update `/api/yaml` → `/api/yaml/_schema`
+- [x] Add json/yaml links for table exports
+- [ ] Add links for all formats: jsonld, ttl
+- [ ] Add export links for `_members`, `_settings`, `_changelog` per format
 
 #### 2.2 apps/molgenis-components/src/components/tables/TableExplorer.vue
 - [ ] Update `/api/csv/{table}` links
@@ -232,7 +236,7 @@ This is a **breaking change** affecting:
 - [ ] Document new semantic API endpoints
 
 #### 4.4 docs/molgenis/use_updownload.md
-- [ ] Update `/api/csv/changelog` → `/api/csv/_changelog`
+- [x] Update `/api/csv/changelog` → `/api/csv/_changelog`
 
 ### Phase 5: Testing
 

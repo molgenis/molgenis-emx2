@@ -45,7 +45,7 @@ public class CsvApi {
 
   public static void create(Javalin app) {
     // schema level operations
-    final String schemaPath = "/{schema}/api/csv";
+    final String schemaPath = "/{schema}/api/csv/_schema";
     app.get(schemaPath, CsvApi::getMetadata);
     app.post(schemaPath, CsvApi::mergeMetadata);
     app.delete(schemaPath, CsvApi::discardMetadata);

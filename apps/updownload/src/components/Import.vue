@@ -63,7 +63,7 @@
           <p>Export data by downloading various file formats:</p>
           <div>
             <p>
-              Export schema as <a :href="`/${schema}/api/csv`">csv</a> /
+              Export schema as <a :href="`/${schema}/api/csv/_schema`">csv</a> /
               <a :href="`/${schema}/api/json/_schema`">json</a> /
               <a :href="`/${schema}/api/yaml/_schema`">yaml</a>
             </p>
