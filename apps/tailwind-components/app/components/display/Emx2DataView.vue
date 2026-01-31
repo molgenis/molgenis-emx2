@@ -12,8 +12,6 @@ import { rowToString } from "../../utils/rowToString";
 import InputSearch from "../input/Search.vue";
 import Pagination from "../Pagination.vue";
 import LoadingContent from "../LoadingContent.vue";
-import CardList from "../CardList.vue";
-import CardListItem from "../CardListItem.vue";
 import FilterSidebar from "../filter/Sidebar.vue";
 import ActiveFilters from "../filter/ActiveFilters.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
@@ -21,8 +19,10 @@ import SideModal from "../SideModal.vue";
 import ContentBlockModal from "../content/ContentBlockModal.vue";
 import Button from "../Button.vue";
 import Columns from "../table/control/Columns.vue";
-import RecordCard from "./RecordCard.vue";
+import RecordCards from "./RecordCards.vue";
+import RecordTable from "./RecordTable.vue";
 import EditModal from "../form/EditModal.vue";
+import DeleteModal from "../form/DeleteModal.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -45,6 +45,19 @@ defineSlots<{
 }>();
 
 const layout = computed(() => props.config?.layout || "table");
+
+const layoutComponents = computed(() => {
+  if (layout.value === "table") {
+    return [
+      { component: RecordCards, class: "md:hidden" },
+      { component: RecordTable, class: "hidden md:block" },
+    ];
+  }
+  if (layout.value === "cards") {
+    return [{ component: RecordCards, class: "p-5 pb-8" }];
+  }
+  return [];
+});
 const showFilters = computed(() => props.config?.showFilters || false);
 const filtersVisible = ref(props.config?.showFilters || false);
 const filterPosition = computed(
@@ -60,6 +73,9 @@ const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
 const showAddModal = ref(false);
+const showEditModal = ref(false);
+const showDeleteModal = ref(false);
+const rowDataForModal = ref<IRow | null>(null);
 
 const route = useRoute();
 const router = useRouter();
@@ -128,21 +144,6 @@ const tableColumns = computed<IColumn[]>(() => {
     .filter((col): col is IColumn => col !== undefined);
 });
 
-function getCellValue(row: IRow, colId: string): string {
-  const val = row[colId];
-  if (val === null || val === undefined) return "";
-  if (Array.isArray(val)) {
-    return val
-      .map((v) => (typeof v === "object" ? v.label || v.name || "" : String(v)))
-      .join(", ");
-  }
-  if (typeof val === "object") {
-    const obj = val as Record<string, unknown>;
-    return String(obj.label || obj.name || JSON.stringify(val));
-  }
-  return String(val);
-}
-
 watch(searchTerms, () => {
   page.value = 1;
 });
@@ -150,15 +151,6 @@ watch(searchTerms, () => {
 function getLabel(row: IRow): string {
   return rowToString(row, rowLabelTemplate.value) || "";
 }
-
-function getColumnOptions(colId: string): IDisplayConfig | undefined {
-  return displayOptions.value?.[colId];
-}
-
-const firstColumnId = computed(() => tableColumns.value[0]?.id);
-const firstColumnOptions = computed(() =>
-  firstColumnId.value ? getColumnOptions(firstColumnId.value) : undefined
-);
 
 const hasActiveFilters = computed(() => {
   return filterStates.value.size > 0;
@@ -175,6 +167,20 @@ function handleClearAllFilters() {
 }
 
 async function afterClose() {
+  await refresh();
+}
+
+function onShowEditModal(row: IRow) {
+  rowDataForModal.value = row;
+  showEditModal.value = true;
+}
+
+function onShowDeleteModal(row: IRow) {
+  rowDataForModal.value = row;
+  showDeleteModal.value = true;
+}
+
+async function afterRowDeleted() {
   await refresh();
 }
 </script>
@@ -299,82 +305,39 @@ async function afterClose() {
           :error-text="errorText"
           :show-slot-on-error="false"
         >
-          <div v-if="rows.length && layout === 'table'">
-            <div class="md:hidden p-3 space-y-3">
-              <RecordCard
-                v-for="(row, index) in rows"
-                :key="index"
-                :row="row"
-                :columns="tableColumns"
-              />
-            </div>
-            <div class="hidden md:block overflow-x-auto">
-              <table class="min-w-full text-left border-collapse">
-                <thead>
-                  <tr class="border-b border-black/10">
-                    <th
-                      v-for="(col, colIndex) in tableColumns"
-                      :key="col.id"
-                      :class="[
-                        'px-3 py-2 text-body-sm font-semibold bg-table text-table-column-header whitespace-nowrap',
-                        colIndex === 0
-                          ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
-                          : '',
-                      ]"
-                    >
-                      {{ col.label || col.id }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(row, index) in rows"
-                    :key="index"
-                    class="border-b border-black/10 hover:bg-black/5 group"
-                  >
-                    <td
-                      v-for="(col, colIndex) in tableColumns"
-                      :key="col.id"
-                      :class="[
-                        'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap',
-                        colIndex === 0
-                          ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] group-hover:bg-black/5'
-                          : '',
-                      ]"
-                    >
-                      <NuxtLink
-                        v-if="colIndex === 0 && firstColumnOptions?.getHref"
-                        :to="firstColumnOptions.getHref(col, row)"
-                        class="text-link hover:underline"
-                      >
-                        {{ getCellValue(row, col.id) }}
-                      </NuxtLink>
-                      <span
-                        v-else-if="
-                          colIndex === 0 && firstColumnOptions?.clickAction
-                        "
-                        class="text-link hover:underline cursor-pointer"
-                        @click="firstColumnOptions.clickAction!(col, row)"
-                      >
-                        {{ getCellValue(row, col.id) }}
-                      </span>
-                      <span v-else>{{ getCellValue(row, col.id) }}</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div v-else-if="rows.length && layout === 'cards'" class="p-5 pb-8">
-            <CardList>
-              <CardListItem v-for="(row, index) in rows" :key="index">
-                <slot name="card" :row="row" :label="getLabel(row)">
-                  <span>{{ getLabel(row) }}</span>
-                </slot>
-              </CardListItem>
-            </CardList>
-          </div>
+          <template v-if="rows.length && layoutComponents.length">
+            <component
+              v-for="(comp, idx) in layoutComponents"
+              :key="idx"
+              :is="comp.component"
+              :class="comp.class"
+              :columns="tableColumns"
+              :rows="rows"
+              :column-config="displayOptions"
+            >
+              <template v-if="isEditable" #actions="{ row }">
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                  @click="onShowEditModal(row)"
+                />
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="trash"
+                  size="small"
+                  label="delete"
+                  @click="onShowDeleteModal(row)"
+                />
+              </template>
+              <template v-if="$slots.card" #card="{ row, columns }">
+                <slot name="card" :row="row" :columns="columns" :label="getLabel(row)" />
+              </template>
+            </component>
+          </template>
 
           <div v-else-if="rows.length" class="p-5 pb-8">
             <ul class="grid gap-1 pl-4 list-disc list-outside">
@@ -411,5 +374,24 @@ async function afterClose() {
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
+  />
+  <EditModal
+    v-if="metadata && showEditModal && rowDataForModal"
+    :showButton="false"
+    :schemaId="schemaId"
+    :metadata="metadata"
+    :formValues="rowDataForModal"
+    :isInsert="false"
+    v-model:visible="showEditModal"
+    @update:cancelled="afterClose"
+  />
+  <DeleteModal
+    v-if="metadata && showDeleteModal && rowDataForModal"
+    :showButton="false"
+    :schemaId="schemaId"
+    :metadata="metadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showDeleteModal"
+    @update:deleted="afterRowDeleted"
   />
 </template>
