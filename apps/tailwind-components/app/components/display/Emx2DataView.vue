@@ -21,6 +21,7 @@ import SideModal from "../SideModal.vue";
 import ContentBlockModal from "../content/ContentBlockModal.vue";
 import Button from "../Button.vue";
 import Columns from "../table/control/Columns.vue";
+import RecordCard from "./RecordCard.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -28,9 +29,11 @@ const props = withDefaults(
     tableId: string;
     config?: IDisplayConfig;
     urlSync?: boolean;
+    isEditable?: boolean;
   }>(),
   {
     urlSync: true,
+    isEditable: false,
   }
 );
 
@@ -40,12 +43,16 @@ defineSlots<{
   card?: (props: { row: IRow; label: string }) => any;
 }>();
 
+const emit = defineEmits<{
+  add: [];
+}>();
+
 const layout = computed(() => props.config?.layout || "table");
 const showFilters = computed(() => props.config?.showFilters || false);
+const filtersVisible = ref(props.config?.showFilters || false);
 const filterPosition = computed(
   () => props.config?.filterPosition || "sidebar"
 );
-const filterableColumns = computed(() => props.config?.filterableColumns);
 const showSearch = computed(() => props.config?.showSearch !== false);
 const pagingLimit = computed(() => props.config?.pageSize || 10);
 const rowLabel = computed(() => props.config?.rowLabel);
@@ -55,48 +62,13 @@ const displayOptions = computed(() => props.config?.columnConfig);
 const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
-const filtersColumnsRef = ref<{ showModal: () => void } | null>(null);
 
 const route = useRoute();
 const router = useRouter();
 
-// compute filterable columns from metadata (initial empty state)
 const metadataRef = ref<IColumn[]>([]);
 
-const filterableColumnsComputed = computed<IColumn[]>(() => {
-  const filterableTypes = [
-    "STRING",
-    "TEXT",
-    "EMAIL",
-    "INT",
-    "DECIMAL",
-    "LONG",
-    "NON_NEGATIVE_INT",
-    "DATE",
-    "DATETIME",
-    "BOOL",
-    "REF",
-    "REF_ARRAY",
-    "ONTOLOGY",
-    "ONTOLOGY_ARRAY",
-  ];
-
-  let cols = metadataRef.value.filter(
-    (col) =>
-      filterableTypes.includes(col.columnType) && !col.id.startsWith("mg_")
-  );
-
-  if (filterableColumns.value && filterableColumns.value.length > 0) {
-    cols = cols.filter((col) => filterableColumns.value!.includes(col.id));
-  }
-
-  cols = cols.filter((col) => col.showFilter !== false);
-
-  return cols;
-});
-
-const columnsRef = computed(() => filterableColumnsComputed.value);
-const { filterStates, gqlFilter } = useFilters(columnsRef, {
+const { filterStates, gqlFilter } = useFilters(metadataRef, {
   debounceMs: 300,
   urlSync: props.urlSync,
   route: route as any,
@@ -204,60 +176,51 @@ function handleFilterRemove(columnId: string) {
 function handleClearAllFilters() {
   filterStates.value = new Map();
 }
-
-function handleCustomizeFilters() {
-  filtersColumnsRef.value?.showModal();
-}
 </script>
 
 <template>
   <DetailPageLayout
-    :show-side-nav="showFilters && filterPosition === 'sidebar'"
+    :show-side-nav="filtersVisible && filterPosition === 'sidebar'"
   >
     <template v-if="$slots.header" #header>
       <slot name="header" />
     </template>
-    <template v-if="showFilters && filterPosition === 'sidebar'" #sidebar>
+    <template v-if="filtersVisible && filterPosition === 'sidebar'" #sidebar>
       <FilterSidebar
-        v-if="filterableColumnsComputed.length"
+        v-if="metadataRef.length"
         v-model:filter-states="filterStates"
         v-model:search-terms="searchTerms"
-        :columns="filterableColumnsComputed"
+        :all-columns="metadataRef"
         :show-search="showSearch"
-        @customize="handleCustomizeFilters"
-      />
-      <Columns
-        ref="filtersColumnsRef"
-        mode="filters"
-        :columns="metadataRef"
-        class="hidden"
         @update:columns="handleColumnsUpdate"
       />
     </template>
     <template #main>
-      <div
-        v-if="showFilters && filterPosition === 'sidebar'"
-        class="xl:hidden mb-4"
-      >
-        <SideModal :full-screen="false">
+      <div class="xl:hidden mb-4 flex gap-2">
+        <Button
+          v-if="isEditable"
+          type="primary"
+          size="small"
+          icon="add-circle"
+          @click="emit('add')"
+        >
+          Add {{ tableId }}
+        </Button>
+        <SideModal v-if="filtersVisible" :full-screen="false">
           <template #button>
-            <Button
-              type="primary"
-              size="small"
-              label="Filters"
-              icon="filter"
-              icon-position="left"
-            />
+            <Button type="outline" size="small" icon="filter">
+              Filters
+            </Button>
           </template>
           <ContentBlockModal title="Filters">
             <FilterSidebar
-              v-if="filterableColumnsComputed.length"
+              v-if="metadataRef.length"
               v-model:filter-states="filterStates"
               v-model:search-terms="searchTerms"
-              :columns="filterableColumnsComputed"
+              :all-columns="metadataRef"
               :show-search="showSearch"
               :mobile-display="true"
-              @customize="handleCustomizeFilters"
+              @update:columns="handleColumnsUpdate"
             />
           </ContentBlockModal>
           <template #footer="{ hide }">
@@ -269,22 +232,47 @@ function handleCustomizeFilters() {
             />
           </template>
         </SideModal>
+        <Columns
+          v-if="metadataRef.length"
+          :columns="metadataRef"
+          size="small"
+          @update:columns="handleColumnsUpdate"
+        />
       </div>
 
       <div class="bg-content rounded-t-3px shadow-primary">
         <div
           v-if="metadata?.columns"
-          class="p-5 border-b border-black/10 flex gap-2"
+          class="hidden xl:flex p-5 border-b border-black/10 justify-between"
         >
-          <Columns
-            :columns="metadataRef"
-            @update:columns="handleColumnsUpdate"
-          />
+          <div class="flex gap-2">
+            <Button
+              v-if="isEditable"
+              type="primary"
+              icon="add-circle"
+              @click="emit('add')"
+            >
+              Add {{ tableId }}
+            </Button>
+          </div>
+          <div class="flex gap-2">
+            <Button
+              v-if="showFilters && filterPosition === 'sidebar'"
+              type="outline"
+              @click="filtersVisible = !filtersVisible"
+            >
+              {{ filtersVisible ? 'Hide Filters' : 'Show Filters' }}
+            </Button>
+            <Columns
+              :columns="metadataRef"
+              @update:columns="handleColumnsUpdate"
+            />
+          </div>
         </div>
 
         <div
           v-if="showSearch && (!showFilters || filterPosition !== 'sidebar')"
-          class="p-5 border-b border-black/10"
+          class="p-3 xl:p-5 border-b border-black/10"
         >
           <InputSearch
             :id="searchInputId"
@@ -297,7 +285,7 @@ function handleCustomizeFilters() {
         <div v-if="hasActiveFilters" class="px-5 py-3 border-b border-black/10">
           <ActiveFilters
             :filters="filterStates"
-            :columns="filterableColumnsComputed"
+            :columns="metadataRef"
             @remove="handleFilterRemove"
             @clear-all="handleClearAllFilters"
           />
@@ -310,61 +298,71 @@ function handleCustomizeFilters() {
           :error-text="errorText"
           :show-slot-on-error="false"
         >
-          <div v-if="rows.length && layout === 'table'" class="overflow-x-auto">
-            <table class="min-w-full text-left border-collapse">
-              <thead>
-                <tr class="border-b border-black/10">
-                  <th
-                    v-for="(col, colIndex) in tableColumns"
-                    :key="col.id"
-                    :class="[
-                      'px-3 py-2 text-body-sm font-semibold bg-table text-table-column-header whitespace-nowrap',
-                      colIndex === 0
-                        ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
-                        : '',
-                    ]"
-                  >
-                    {{ col.label || col.id }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(row, index) in rows"
-                  :key="index"
-                  class="border-b border-black/10 hover:bg-black/5 group"
-                >
-                  <td
-                    v-for="(col, colIndex) in tableColumns"
-                    :key="col.id"
-                    :class="[
-                      'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap',
-                      colIndex === 0
-                        ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] group-hover:bg-black/5'
-                        : '',
-                    ]"
-                  >
-                    <NuxtLink
-                      v-if="colIndex === 0 && firstColumnOptions?.getHref"
-                      :to="firstColumnOptions.getHref(col, row)"
-                      class="text-link hover:underline"
+          <div v-if="rows.length && layout === 'table'">
+            <div class="md:hidden p-3 space-y-3">
+              <RecordCard
+                v-for="(row, index) in rows"
+                :key="index"
+                :row="row"
+                :columns="tableColumns"
+              />
+            </div>
+            <div class="hidden md:block overflow-x-auto">
+              <table class="min-w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-black/10">
+                    <th
+                      v-for="(col, colIndex) in tableColumns"
+                      :key="col.id"
+                      :class="[
+                        'px-3 py-2 text-body-sm font-semibold bg-table text-table-column-header whitespace-nowrap',
+                        colIndex === 0
+                          ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
+                          : '',
+                      ]"
                     >
-                      {{ getCellValue(row, col.id) }}
-                    </NuxtLink>
-                    <span
-                      v-else-if="
-                        colIndex === 0 && firstColumnOptions?.clickAction
-                      "
-                      class="text-link hover:underline cursor-pointer"
-                      @click="firstColumnOptions.clickAction!(col, row)"
+                      {{ col.label || col.id }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, index) in rows"
+                    :key="index"
+                    class="border-b border-black/10 hover:bg-black/5 group"
+                  >
+                    <td
+                      v-for="(col, colIndex) in tableColumns"
+                      :key="col.id"
+                      :class="[
+                        'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap',
+                        colIndex === 0
+                          ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] group-hover:bg-black/5'
+                          : '',
+                      ]"
                     >
-                      {{ getCellValue(row, col.id) }}
-                    </span>
-                    <span v-else>{{ getCellValue(row, col.id) }}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      <NuxtLink
+                        v-if="colIndex === 0 && firstColumnOptions?.getHref"
+                        :to="firstColumnOptions.getHref(col, row)"
+                        class="text-link hover:underline"
+                      >
+                        {{ getCellValue(row, col.id) }}
+                      </NuxtLink>
+                      <span
+                        v-else-if="
+                          colIndex === 0 && firstColumnOptions?.clickAction
+                        "
+                        class="text-link hover:underline cursor-pointer"
+                        @click="firstColumnOptions.clickAction!(col, row)"
+                      >
+                        {{ getCellValue(row, col.id) }}
+                      </span>
+                      <span v-else>{{ getCellValue(row, col.id) }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div v-else-if="rows.length && layout === 'cards'" class="p-5 pb-8">

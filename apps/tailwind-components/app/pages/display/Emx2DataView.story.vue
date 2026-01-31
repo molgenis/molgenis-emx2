@@ -20,7 +20,7 @@
       </button>
     </div>
 
-    <div class="flex gap-4 mb-4">
+    <div class="flex gap-4 mb-4 items-center">
       <button
         v-for="mode in layouts"
         :key="mode"
@@ -32,6 +32,10 @@
       >
         {{ mode }}
       </button>
+      <label class="flex items-center gap-2 ml-4">
+        <input type="checkbox" v-model="isEditable" class="w-4 h-4" />
+        <span class="text-sm">isEditable</span>
+      </label>
     </div>
 
     <div v-if="viewMode === 'full'" class="mb-8">
@@ -57,6 +61,7 @@
             :key="`full-${schemaId}-${tableId}`"
             :schema-id="schemaId"
             :table-id="tableId"
+            :is-editable="isEditable"
             :config="{
               layout: layout,
               showFilters: true,
@@ -77,6 +82,7 @@
         :key="`compact-${schemaId}-${tableId}`"
         :schema-id="schemaId"
         :table-id="tableId"
+        :is-editable="isEditable"
         :config="{
           layout: layout,
           showFilters: true,
@@ -95,6 +101,7 @@
         :key="`vanilla-${schemaId}-${tableId}`"
         :schema-id="schemaId"
         :table-id="tableId"
+        :is-editable="isEditable"
         :config="{
           layout: layout,
           showFilters: false,
@@ -124,6 +131,7 @@ const tableId = ref<string>((route.query.table as string) || "Pet");
 const metadata = ref<ITableMetaData>();
 const layouts = ["list", "table", "cards"] as const;
 const layout = ref<(typeof layouts)[number]>("table");
+const isEditable = ref(false);
 
 const viewModes = [
   { id: "full", label: "Full Page" },

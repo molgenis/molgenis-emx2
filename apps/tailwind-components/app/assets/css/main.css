@@ -276,3 +276,9 @@
     --text-color-icon-neutral: var(--color-blue-200);
   }
 }
+
+@layer utilities {
+  .accent-primary {
+    accent-color: var(--background-color-button-primary);
+  }
+}

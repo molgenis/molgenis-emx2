@@ -1,6 +1,7 @@
 <template>
   <Button
-    type="outline"
+    :type="buttonType"
+    :size="size"
     :icon="iconComputed"
     @click="showModal = true"
   >
@@ -66,11 +67,11 @@
                   <InputCheckbox
                     v-model="element[checkAttribute]"
                     :id="element.id"
-                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox accent-primary"
                   />
                 </div>
                 <label
-                  class="text-body-base hover:cursor-pointer text-body-sm group"
+                  class="text-body-base hover:cursor-pointer group"
                   :for="element.id"
                 >
                   {{ element.label }}
@@ -113,7 +114,7 @@
                   <InputCheckbox
                     v-model="element[checkAttribute]"
                     :id="element.id"
-                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox accent-primary"
                   />
                 </div>
                 <label
@@ -149,27 +150,31 @@ const props = withDefaults(
   defineProps<{
     columns: IColumn[];
     mode?: "columns" | "filters";
+    size?: "tiny" | "small" | "medium" | "large";
+    label?: string;
+    icon?: string;
+    buttonType?: "outline" | "text" | "primary" | "secondary";
   }>(),
   {
     mode: "columns",
+    size: "medium",
+    buttonType: "outline",
   }
 );
 
 const emits = defineEmits(["update:columns"]);
 
 const showModal = ref(false);
-
-defineExpose({ showModal: () => { showModal.value = true; } });
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 const sortMethods = ref<string[]>(SORTING_METHODS);
 const selectedSortMethod = ref<string>("Default");
 
 const iconComputed = computed(() =>
-  props.mode === "filters" ? "filter" : "columns"
+  props.icon ?? (props.mode === "filters" ? "filter" : "columns")
 );
 
 const labelComputed = computed(() =>
-  props.mode === "filters" ? "Filters" : "Columns"
+  props.label ?? (props.mode === "filters" ? "Filters" : "Columns")
 );
 
 const checkAttribute = computed(() =>

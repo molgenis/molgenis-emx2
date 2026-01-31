@@ -16,23 +16,23 @@
 - [x] Default layout = "table"
 - [x] Table full-width (no padding wrapper)
 
-### Next: Emx2DataView uses DetailPageLayout + Responsive Filters
+### Done (v6.3.11) - DetailPageLayout + Responsive Filters
+- [x] Emx2DataView uses DetailPageLayout internally
+- [x] #header slot (optional - compact when empty)
+- [x] FilterSidebar in DetailPageLayout #sidebar slot
+- [x] Mobile filter button + SideModal (xl:hidden)
+- [x] showFilters=false: no sidebar, no mobile button (vanilla mode)
+- [x] Stories updated (Full Page, Compact, Vanilla modes)
 
-**Goal**: Emx2DataView uses DetailPageLayout internally. Optional header = compact mode. Responsive filter pattern (modal on mobile).
+### Next: Consolidation & Polish
 
-| Step | Task | Files |
-|------|------|-------|
-| 1 | Refactor Emx2DataView to use DetailPageLayout internally | Emx2DataView.vue |
-| 2 | Add #header slot (optional - compact when empty) | Emx2DataView.vue |
-| 3 | Put FilterSidebar in DetailPageLayout #sidebar slot | Emx2DataView.vue |
-| 4 | Add mobile filter button + SideModal (xl:hidden) | Emx2DataView.vue |
-| 5 | When showFilters=false: no sidebar, no mobile button (vanilla mode) | Emx2DataView.vue |
-| 6 | Update stories to show both patterns | Emx2DataView.story.vue |
-
-**Responsive Behavior**:
-- Desktop (xl+): FilterSidebar visible in sidebar slot
-- Mobile (<xl): "Filters" button → SideModal with FilterSidebar
-- showFilters=false: Pure data view, usable anywhere
+Potential tasks (pick based on priority):
+- [ ] Run tests, fix any failures
+- [ ] Run lint/format
+- [ ] Verify stories work in all themes
+- [ ] Review Emx2ListView/Emx2RecordView - align with IDisplayConfig if needed
+- [ ] Clean up unused code/imports
+- [ ] Update test coverage number
 
 ### Target Layout Structure
 

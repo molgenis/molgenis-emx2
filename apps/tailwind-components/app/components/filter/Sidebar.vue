@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { useId } from "vue";
+import { computed, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import FilterColumn from "./Column.vue";
 import InputSearch from "../input/Search.vue";
+import Columns from "../table/control/Columns.vue";
 
 const props = withDefaults(
   defineProps<{
-    columns: IColumn[];
+    allColumns: IColumn[];
     title?: string;
     mobileDisplay?: boolean;
     showSearch?: boolean;
@@ -20,10 +21,38 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: 'customize'): void;
+  (event: "update:columns", columns: IColumn[]): void;
 }>();
 
 const searchInputId = useId();
+
+const filterableColumnsComputed = computed<IColumn[]>(() => {
+  const filterableTypes = [
+    "STRING",
+    "TEXT",
+    "EMAIL",
+    "INT",
+    "DECIMAL",
+    "LONG",
+    "NON_NEGATIVE_INT",
+    "DATE",
+    "DATETIME",
+    "BOOL",
+    "REF",
+    "REF_ARRAY",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+  ];
+
+  const cols = props.allColumns.filter(
+    (col) =>
+      filterableTypes.includes(col.columnType) &&
+      !col.id.startsWith("mg_") &&
+      col.showFilter !== false
+  );
+
+  return cols;
+});
 
 const filterStates = defineModel<Map<string, IFilterValue>>("filterStates", {
   default: () => new Map(),
@@ -49,6 +78,10 @@ function setFilterValue(
   }
   filterStates.value = newMap;
 }
+
+function handleColumnsUpdate(updatedColumns: IColumn[]) {
+  emit("update:columns", updatedColumns);
+}
 </script>
 
 <template>
@@ -56,18 +89,23 @@ function setFilterValue(
     class="rounded-t-3px rounded-b-50px"
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
-    <div v-if="!mobileDisplay" class="p-5 flex items-center justify-between">
-      <h2 class="uppercase font-display text-heading-3xl text-search-filter-title">
+    <div v-if="!mobileDisplay" class="p-5">
+      <h2
+        class="uppercase font-display text-heading-3xl text-search-filter-title"
+      >
         {{ title }}
       </h2>
-      <Button
-        type="text"
-        size="tiny"
+    </div>
+    <div class="px-5 pb-3 flex justify-end">
+      <Columns
+        mode="filters"
+        :columns="allColumns"
+        label="Customize"
         icon="settings"
-        @click="emit('customize')"
-      >
-        Customize
-      </Button>
+        button-type="text"
+        size="tiny"
+        @update:columns="handleColumnsUpdate"
+      />
     </div>
 
     <div v-if="showSearch" class="px-5 pb-5">
@@ -80,7 +118,7 @@ function setFilterValue(
     </div>
 
     <FilterColumn
-      v-for="column in columns"
+      v-for="column in filterableColumnsComputed"
       :key="column.id"
       :column="column"
       :model-value="getFilterValue(column.id)"
@@ -89,6 +127,5 @@ function setFilterValue(
       :mobile-display="mobileDisplay"
     />
 
-    <hr class="mx-5 border-black opacity-10" />
   </div>
 </template>

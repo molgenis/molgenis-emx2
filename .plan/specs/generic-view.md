@@ -177,6 +177,41 @@ interface IFilterValue {
 </DetailPageLayout>
 ```
 
+## Acceptance Criteria: Emx2DataView
+
+### View Modes
+| Mode | Header Slot | Filters | Sidebar | Mobile Button |
+|------|-------------|---------|---------|---------------|
+| Full Page | provided | true | visible (xl+) | visible (<xl) |
+| Compact | empty | true | visible (xl+) | visible (<xl) |
+| Vanilla | empty | false | hidden | hidden |
+
+### AC-1: DetailPageLayout Integration
+- [x] Uses DetailPageLayout internally
+- [x] #header slot passed through (optional)
+- [x] #sidebar slot contains FilterSidebar when showFilters=true
+- [x] Compact mode when no header provided
+
+### AC-2: Responsive Filters
+- [x] Desktop (xl+): FilterSidebar visible in sidebar
+- [x] Mobile (<xl): "Filters" button shows SideModal with FilterSidebar
+- [x] Mobile button hidden when showFilters=false
+
+### AC-3: Vanilla Mode
+- [x] showFilters=false: no sidebar rendered
+- [x] showFilters=false: no mobile filter button
+- [x] Pure data display, usable anywhere
+
+### AC-4: Layout Modes
+- [x] layout="table": renders HTML table
+- [x] layout="list": renders ul/li list
+- [x] layout="cards": renders CardList/CardListItem
+
+### AC-5: Slots
+- [x] #header - optional page header content
+- [x] #default - custom list item (props: row, label)
+- [x] #card - custom card content (props: row, label)
+
 ## Design Decisions
 
 1. **One-way data flow**: URL is single source of truth, eliminates sync bugs
