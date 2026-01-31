@@ -58,18 +58,31 @@
         </template>
         <template #main>
           <Emx2DataView
-            :key="`full-${schemaId}-${tableId}`"
+            :key="`full-${schemaId}-${tableId}-${layout}`"
             :schema-id="schemaId"
             :table-id="tableId"
             :is-editable="isEditable"
             :config="{
-              layout: layout,
+              layout: configLayout,
               showFilters: true,
               filterPosition: 'sidebar',
               showSearch: true,
               pageSize: 10,
             }"
-          />
+          >
+            <template v-if="layout === 'custom'" #card="{ row, columns }">
+              <div class="flex flex-col gap-1">
+                <h4 class="font-bold text-lg">{{ row[columns[0]?.id] }}</h4>
+                <div
+                  v-for="col in columns.slice(1)"
+                  :key="col.id"
+                  class="text-sm text-gray-600"
+                >
+                  {{ col.label }}: {{ row[col.id] }}
+                </div>
+              </div>
+            </template>
+          </Emx2DataView>
         </template>
       </DetailPageLayout>
     </div>
@@ -79,18 +92,31 @@
         Compact (no header, with filters)
       </h3>
       <Emx2DataView
-        :key="`compact-${schemaId}-${tableId}`"
+        :key="`compact-${schemaId}-${tableId}-${layout}`"
         :schema-id="schemaId"
         :table-id="tableId"
         :is-editable="isEditable"
         :config="{
-          layout: layout,
+          layout: configLayout,
           showFilters: true,
           filterPosition: 'sidebar',
           showSearch: true,
           pageSize: 10,
         }"
-      />
+      >
+        <template v-if="layout === 'custom'" #card="{ row, columns }">
+          <div class="flex flex-col gap-1">
+            <h4 class="font-bold text-lg">{{ row[columns[0]?.id] }}</h4>
+            <div
+              v-for="col in columns.slice(1)"
+              :key="col.id"
+              class="text-sm text-gray-600"
+            >
+              {{ col.label }}: {{ row[col.id] }}
+            </div>
+          </div>
+        </template>
+      </Emx2DataView>
     </div>
 
     <div v-if="viewMode === 'vanilla'" class="mb-8">
@@ -98,23 +124,36 @@
         Vanilla (no header, no filters)
       </h3>
       <Emx2DataView
-        :key="`vanilla-${schemaId}-${tableId}`"
+        :key="`vanilla-${schemaId}-${tableId}-${layout}`"
         :schema-id="schemaId"
         :table-id="tableId"
         :is-editable="isEditable"
         :config="{
-          layout: layout,
+          layout: configLayout,
           showFilters: false,
           showSearch: true,
           pageSize: 10,
         }"
-      />
+      >
+        <template v-if="layout === 'custom'" #card="{ row, columns }">
+          <div class="flex flex-col gap-1">
+            <h4 class="font-bold text-lg">{{ row[columns[0]?.id] }}</h4>
+            <div
+              v-for="col in columns.slice(1)"
+              :key="col.id"
+              class="text-sm text-gray-600"
+            >
+              {{ col.label }}: {{ row[col.id] }}
+            </div>
+          </div>
+        </template>
+      </Emx2DataView>
     </div>
   </Story>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import DemoDataControls from "../../DemoDataControls.vue";
 import Emx2DataView from "../../components/display/Emx2DataView.vue";
@@ -129,9 +168,10 @@ const router = useRouter();
 const schemaId = ref<string>((route.query.schema as string) || "pet store");
 const tableId = ref<string>((route.query.table as string) || "Pet");
 const metadata = ref<ITableMetaData>();
-const layouts = ["list", "table", "cards"] as const;
+const layouts = ["list", "table", "cards", "custom"] as const;
 const layout = ref<(typeof layouts)[number]>("table");
 const isEditable = ref(false);
+const configLayout = computed(() => (layout.value === "custom" ? "cards" : layout.value));
 
 const viewModes = [
   { id: "full", label: "Full Page" },
@@ -150,7 +190,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
 });
 
 const spec = `
-Unified data view with three usage modes.
+Unified data view with three usage modes and slot customization demo.
 
 ## View Modes
 | Mode | Header | Filters | Use Case |
@@ -158,6 +198,10 @@ Unified data view with three usage modes.
 | Full Page | Yes | Yes | Catalogue-style pages |
 | Compact | No | Yes | Embedded with filters |
 | Vanilla | No | No | Simple data display |
+
+## Layouts
+- list, table, cards: built-in layouts
+- custom: uses cards layout with #card slot for custom rendering
 
 ## Props (via config)
 | Prop | Type | Default | Description |
