@@ -1981,7 +1981,7 @@ class WebApiSmokeTests {
     String jsonLdData =
         given().sessionId(sessionId).when().get("/pet store/api/ttl2/_json").asString();
     assertTrue(jsonLdData.contains("@context"));
-    assertTrue(jsonLdData.contains("Category"));
+    assertTrue(jsonLdData.contains("Pet"));
 
     String response =
         given()
@@ -1989,8 +1989,8 @@ class WebApiSmokeTests {
             .contentType("application/json")
             .body(jsonLdData)
             .when()
-            .post("/pet store/api/ttl2/Category")
+            .post("/pet store/api/ttl2/Pet")
             .asString();
-    assertTrue(response.contains("Imported"), "Category response: " + response);
+    assertTrue(response.contains("Imported"), "Pet response: " + response);
   }
 }

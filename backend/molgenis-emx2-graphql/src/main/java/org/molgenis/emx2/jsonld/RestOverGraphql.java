@@ -14,6 +14,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,12 +289,12 @@ public class RestOverGraphql {
       throw new MolgenisException("Data must be a Map or List of Maps");
     }
 
-    List<Row> cleanedRows = new ArrayList<>();
+    List<Map<String, Object>> cleanedMaps = new ArrayList<>();
     for (Map<String, Object> row : rows) {
-      Map<String, Object> cleaned = stripJsonLdKeywords(row);
-      cleanedRows.add(new Row(cleaned));
+      cleanedMaps.add(stripJsonLdKeywords(row));
     }
 
+    List<Row> cleanedRows = TypeUtils.convertToRows(table.getMetadata(), cleanedMaps);
     return table.save(cleanedRows);
   }
 }

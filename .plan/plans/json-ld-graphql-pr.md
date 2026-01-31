@@ -1,5 +1,7 @@
 # JSON-LD/TTL over GraphQL PR Plan
 
+**Spec:** [REST JSON-LD API Specification](../specs/rest-jsonld-api.md)
+
 ## PR Summary
 **PR #5495**: spike: json-ld and ttl over graphql to allow subselections
 
@@ -123,32 +125,39 @@ So `POST /{schema}/api/ttl2/{table}` already accepts:
 |---------|--------|
 | JSON input | ✅ Done |
 | JSON-LD input | ✅ Done |
+| JSON-LD roundtrip | ✅ Done (via TypeUtils.convertToRows) |
 | TTL/RDF input | ❌ TODO - parse RDF → JSON-LD → strip → save |
 | Row-level `/{table}/{id}` | ❌ TODO |
-| Reference flattening | ❌ TODO (see separate plan) |
+| Format-specific endpoints | ❌ TODO - rename /api/ttl2 to final names |
+| GraphQL-LD endpoint | ❌ TODO |
 
-### Proposed Endpoints
+### Target Endpoint Structure
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/{schema}/api/rdf` | Export entire schema |
-| POST | `/{schema}/api/rdf` | Import entire schema |
-| GET | `/{schema}/api/rdf/{table}` | Export table data |
-| POST | `/{schema}/api/rdf/{table}` | Import table data |
-| PUT | `/{schema}/api/rdf/{table}` | Upsert table data |
-| DELETE | `/{schema}/api/rdf/{table}` | Delete table data |
-| GET | `/{schema}/api/rdf/{table}/{id}` | Export single row |
-| PUT | `/{schema}/api/rdf/{table}/{id}` | Update single row |
-| DELETE | `/{schema}/api/rdf/{table}/{id}` | Delete single row |
+See [spec](../specs/rest-jsonld-api.md) for full details.
 
-### Content Negotiation
+**Format-specific endpoints:**
+```
+/{schema}/api/json/{table}      # Plain JSON (no @context)
+/{schema}/api/jsonld/{table}    # JSON-LD with @context
+/{schema}/api/ttl/{table}       # Turtle RDF
+```
 
-Use `Accept` / `Content-Type` headers:
-- `application/json` → plain JSON (GraphQL-like)
-- `application/ld+json` → JSON-LD with @context
-- `text/turtle` → TTL format
-- `application/rdf+xml` → RDF/XML
-- `application/n-triples` → N-Triples
+**System endpoints (underscore prefix):**
+```
+/{schema}/api/json/_all         # All tables
+/{schema}/api/json/_schema      # Schema metadata
+/{schema}/api/json/_members     # Permissions
+/{schema}/api/json/_settings    # Settings
+```
+
+**GraphQL-LD:**
+```
+/{schema}/api/graphql-ld        # GraphQL with @context in response
+```
+
+**Deprecated (to remove):**
+- `/{schema}/api/rdf` - old endpoint
+- `/{schema}/api/ttl2` - temp endpoint, rename to /api/ttl
 
 ---
 
