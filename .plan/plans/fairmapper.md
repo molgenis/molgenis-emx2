@@ -423,39 +423,36 @@ Separate PR (`feat/rest-json-ld-graphql`):
 POST /{schema}/api/jsonld/import
 ```
 
-Accepts framed JSON-LD, imports to MOLGENIS:
+Accepts framed JSON-LD, imports to MOLGENIS.
 
-**Logic:**
-1. Walk JSON-LD structure
-2. For each object:
-   - `@id` → `id` (extract suffix from URI)
-   - `@type` → lookup in type table
-   - Only read properties matching column names (ignore unknown)
-3. Forward to GraphQL mutation
+**Key decisions:**
 
-**Benefits:**
-- No JSLT needed for standard harvesting
-- No explicit stripping - just ignore unknown
-- Data managers don't need to write transforms
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Target table | `@type` → table with matching `semantics` | Natural RDF mapping |
+| ID extraction | Configurable via `jsonld.idExtract` schema setting | Default: last segment |
+| Multiple types | Single transaction, deferred FK | Order-independent |
+| Unknown properties | Ignore, warn in response | Schema defines what matters |
+| Conflict | Merge (like CSV import) | Existing MOLGENIS behavior |
+| Missing required | Fail entire request | Atomic |
+| Response | 200 + summary (not 201) | Bulk import |
+| Type column | `@type` → type table lookup | e.g., `dcat:Catalog` → `Catalogue` |
+
+**ID extraction options:**
+- Default: last path segment (`/catalog/123` → `123`)
+- `idExtract: full` - keep full IRI
+- `idExtract: "regex"` - custom pattern
+
+**LDP-inspired, not LDP-compliant** (bulk import vs single resource creation).
+
+**Full spec:** See `.plan/specs/fairmapper.md` section "JSON-LD Import Endpoint"
 
 **Simplified pipeline:**
 ```yaml
-mappings:
-  - name: harvest
-    fetch: ${SOURCE_URL}
-    steps:
-      - frame: ${TARGET_SCHEMA}/api/jsonld/frame
-        unmapped: true
-      - import: ${TARGET_SCHEMA}/api/jsonld/import
-```
-
-**Or single-step with internal fetch+frame:**
-```yaml
-mappings:
-  - name: harvest
-    import:
-      source: ${SOURCE_URL}
-      target: ${TARGET_SCHEMA}
+steps:
+  - frame: ${TARGET_SCHEMA}/api/jsonld/frame
+    unmapped: true
+  - import: ${TARGET_SCHEMA}/api/jsonld/import
 ```
 
 ---

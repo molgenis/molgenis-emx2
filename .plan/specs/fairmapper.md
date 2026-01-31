@@ -322,9 +322,197 @@ Bundles are global. Schema is extracted from URL path (`{schema}` placeholder) a
 | Validation method | `PathValidator.validateWithinBase()` for all file path resolution |
 | Canonical path check | Prevents `../` escape attempts |
 
+## Frame Step
+
+Applies JSON-LD framing to reshape RDF data. Enables two-frame pattern for harvesting.
+
+```yaml
+steps:
+  - frame: src/frames/resources.jsonld
+    unmapped: true    # keep unmapped properties
+  - transform: src/transforms/fix-exceptions.jslt
+  - frame: src/frames/resources.jsonld
+    # unmapped: false (default) - strip to @explicit: true
+```
+
+### Frame Step Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `frame` | string | Yes | Path to JSON-LD frame file (.json or .jsonld) |
+| `unmapped` | boolean | No (default: false) | If true, sets `@explicit: false` recursively to keep unmapped properties |
+
+### Frame File Requirements
+
+Frame files should be authored with `@explicit: true` at all nested levels:
+
+```json
+{
+  "@context": { ... },
+  "@type": ["dcat:Catalog", "dcat:Dataset"],
+  "@explicit": true,
+  "name": {},
+  "dcat:dataset": {
+    "@type": "dcat:Dataset",
+    "@embed": "@always",
+    "@explicit": true
+  }
+}
+```
+
+When `unmapped: true`, the step recursively flips all `@explicit: true` to `false`.
+
+---
+
+## MOLGENIS JSON-LD Endpoints (Separate PR)
+
+Two endpoints to simplify RDF harvesting by leveraging existing schema semantics.
+
+### Auto-Frame Endpoint
+
+```
+GET /{schema}/api/jsonld/frame
+```
+
+Generates JSON-LD frame from schema metadata (tables with `semantics` annotations).
+
+**Generation rules:**
+| Schema metadata | Frame output |
+|-----------------|--------------|
+| `table.semantics` | `@type` array |
+| `column.semantics` | Property key in context |
+| `column.isReference()` | `@embed: @always` |
+| Schema namespaces | `@context` prefixes |
+
+**Output includes `@explicit: true` at all levels** (strict by default).
+
+### JSON-LD Import Endpoint (OTHER PR)
+
+```
+POST /{schema}/api/jsonld/import
+Content-Type: application/ld+json
+```
+
+Accepts framed JSON-LD, imports to MOLGENIS tables.
+
+#### Design Decisions
+
+| Question | Decision | Rationale |
+|----------|----------|-----------|
+| **Target table** | From `@type` → table with matching `semantics` | Natural RDF mapping; if multiple types, first match wins |
+| **Nested objects** | Recursively import, create refs | Handles `@embed` structure naturally |
+| **`@graph` array** | Import all items in single transaction | Deferred FK checks make order irrelevant |
+| **Multiple types** | Single request can contain Catalog + Dataset | Common in DCAT; single tx with deferred FK |
+| **`@context` usage** | Ignored (assume already resolved) | Framing already expanded prefixes |
+| **ID extraction** | Configurable, default = last path segment | See ID Configuration below |
+| **Unknown properties** | Ignore, warning in response (one per type) | Flexibility; schema defines what matters |
+| **Conflict handling** | Merge (like CSV import) | Uses existing MOLGENIS merge behavior |
+| **Missing required fields** | Fail entire request | Atomic; all or nothing |
+| **HTTP response** | 200 + summary (not 201) | Bulk import, not single resource creation |
+| **Type column mapping** | `@type` → type table lookup | e.g., `dcat:Catalog` → `[{name: "Catalogue"}]` |
+
+#### ID Configuration
+
+| Mode | Config | Example |
+|------|--------|---------|
+| Last segment (default) | - | `https://fdp.org/catalog/123` → `123` |
+| Full IRI | `idExtract: full` | `https://fdp.org/catalog/123` → full string |
+| Regex pattern | `idExtract: ".*[/#]([^/#]+)$"` | Custom extraction |
+
+Schema setting: `jsonld.idExtract` (applies to all tables in schema).
+
+#### Standards Compliance
+
+**LDP-inspired but not LDP-compliant:**
+
+| LDP says | We do | Rationale |
+|----------|-------|-----------|
+| POST returns 201 + Location | 200 + summary | Bulk import, not single resource |
+| One resource per POST | Multiple in @graph | Practical for harvesting |
+| Server assigns URI | Client provides @id | We extract ID from existing URIs |
+
+References:
+- [W3C LDP 1.0](https://www.w3.org/TR/ldp/)
+- [REST HTTP Methods](https://restfulapi.net/http-methods/)
+
+#### Import Algorithm
+
+```
+1. Parse JSON-LD input
+2. If @graph present, iterate items; else treat root as single item
+3. Begin transaction (deferred FK checks)
+4. For each item:
+   a. Lookup table from @type → table.semantics match
+   b. Extract id from @id using idExtract setting
+   c. Map @type to type table (if type column exists)
+   d. For each property:
+      - If column exists with matching name → include
+      - If column.semantics matches property IRI → include
+      - Else → ignore (add to warnings)
+   e. For nested objects (refs):
+      - Extract id, replace with {id: extractedId} reference
+5. Merge all records (uses MOLGENIS CSV-import merge behavior)
+6. Commit transaction
+7. Return summary response
+```
+
+**Note:** Deferred FK checks mean import order doesn't matter. Catalog can reference Dataset before Dataset is inserted.
+
+#### Example Request
+
+```json
+{
+  "@context": { "dcat": "http://www.w3.org/ns/dcat#", "dct": "http://purl.org/dc/terms/" },
+  "@graph": [
+    {
+      "@id": "https://fdp.example.org/catalog/health",
+      "@type": "dcat:Catalog",
+      "dct:title": "Health Data",
+      "dcat:dataset": {
+        "@id": "https://fdp.example.org/dataset/covid",
+        "@type": "dcat:Dataset",
+        "dct:title": "COVID Stats"
+      }
+    }
+  ]
+}
+```
+
+#### Example Response
+
+```json
+{
+  "imported": 2,
+  "skipped": 0,
+  "tables": {
+    "Resources": {"inserted": 2, "updated": 0}
+  },
+  "errors": []
+}
+```
+
+---
+
+## Simplified Harvesting Pipeline
+
+With auto-frame and import endpoints, standard DCAT harvesting becomes:
+
+```yaml
+mappings:
+  - name: harvest
+    fetch: ${SOURCE_URL}
+    steps:
+      - frame: ${TARGET_SCHEMA}/api/jsonld/frame
+        unmapped: true
+      - import: ${TARGET_SCHEMA}/api/jsonld/import
+```
+
+No JSLT transforms needed for standard mappings.
+
+---
+
 ## Future Extensions
 
-- SQL step type for PostgreSQL JSON queries
 - Task framework integration (async, progress, scheduling)
 - Additional transform engines (JSONata, jq)
 - Hot reload of bundles
