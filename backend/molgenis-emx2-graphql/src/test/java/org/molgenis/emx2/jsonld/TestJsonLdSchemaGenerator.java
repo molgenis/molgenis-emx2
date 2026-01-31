@@ -95,6 +95,68 @@ public class TestJsonLdSchemaGenerator {
     System.out.println(ttl);
   }
 
+  @Test
+  void testStripJsonLdKeywords() {
+    Map<String, Object> nested = new LinkedHashMap<>();
+    nested.put("@id", "http://example.com/1");
+    nested.put("@type", "Person");
+    nested.put("name", "John");
+    nested.put("age", 30);
+
+    Map<String, Object> data = new LinkedHashMap<>();
+    data.put("@context", "http://schema.org");
+    data.put("@id", "http://example.com/root");
+    data.put("title", "Test");
+    data.put("nested", nested);
+    data.put(
+        "items",
+        List.of(Map.of("@id", "item1", "value", "a"), Map.of("@id", "item2", "value", "b")));
+
+    Map<String, Object> result = stripJsonLdKeywords(data);
+
+    assertEquals("Test", result.get("title"));
+    assertTrue(!result.containsKey("@context"));
+    assertTrue(!result.containsKey("@id"));
+
+    Map<String, Object> nestedResult = (Map<String, Object>) result.get("nested");
+    assertEquals("John", nestedResult.get("name"));
+    assertEquals(30, nestedResult.get("age"));
+    assertTrue(!nestedResult.containsKey("@id"));
+    assertTrue(!nestedResult.containsKey("@type"));
+
+    List<Map<String, Object>> itemsResult = (List<Map<String, Object>>) result.get("items");
+    assertEquals(2, itemsResult.size());
+    assertEquals("a", itemsResult.get(0).get("value"));
+    assertEquals("b", itemsResult.get(1).get("value"));
+    assertTrue(!itemsResult.get(0).containsKey("@id"));
+    assertTrue(!itemsResult.get(1).containsKey("@id"));
+  }
+
+  @Test
+  void testImportJsonLd() throws IOException {
+    Map<String, Object> testData = new LinkedHashMap<>();
+    testData.put("@id", "http://example.com/test1");
+    testData.put("@type", "TestType");
+    testData.put("name", "Test Name");
+    testData.put("value", 123);
+    testData.put("nested", Map.of("@id", "http://example.com/nested", "nestedValue", "abc"));
+
+    Map<String, Object> jsonLdData = new LinkedHashMap<>();
+    jsonLdData.put("@context", "http://schema.org");
+    jsonLdData.put("data", testData);
+
+    Map<String, Object> stripped = stripJsonLdKeywords(testData);
+
+    assertEquals("Test Name", stripped.get("name"));
+    assertEquals(123, stripped.get("value"));
+    assertTrue(!stripped.containsKey("@id"));
+    assertTrue(!stripped.containsKey("@type"));
+
+    Map<String, Object> nestedStripped = (Map<String, Object>) stripped.get("nested");
+    assertEquals("abc", nestedStripped.get("nestedValue"));
+    assertTrue(!nestedStripped.containsKey("@id"));
+  }
+
   public Row createTypeTestRow() {
     Row row = new Row();
     // String types

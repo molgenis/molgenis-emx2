@@ -1975,4 +1975,22 @@ class WebApiSmokeTests {
         .when()
         .get(MetricsController.METRICS_PATH);
   }
+
+  @Test
+  void testJsonLdImportExport() {
+    String jsonLdData =
+        given().sessionId(sessionId).when().get("/pet store/api/ttl2/_json").asString();
+    assertTrue(jsonLdData.contains("@context"));
+    assertTrue(jsonLdData.contains("Category"));
+
+    String response =
+        given()
+            .sessionId(sessionId)
+            .contentType("application/json")
+            .body(jsonLdData)
+            .when()
+            .post("/pet store/api/ttl2/Category")
+            .asString();
+    assertTrue(response.contains("Imported"), "Category response: " + response);
+  }
 }

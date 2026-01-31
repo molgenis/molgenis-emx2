@@ -23,7 +23,8 @@ public class JsonLdSchemaGenerator {
     }
   }
 
-  public static Map<String, ?> generateJsonLdSchemaAsMap(SchemaMetadata schema, String schemaUrl) {
+  public static Map<String, Object> generateJsonLdSchemaAsMap(
+      SchemaMetadata schema, String schemaUrl) {
     final String PREFIX = "my:";
 
     // todo solve how schema can add namespaces
@@ -70,9 +71,6 @@ public class JsonLdSchemaGenerator {
     context.put("@base", schemaUrl + "/");
     context.put(MG_ID, "@id");
 
-    // this statement allows @type to be a set
-    // context.put("@context", Map.of("@version", 1.1, "@type", Map.of("@container", "@set")));
-
     for (TableMetadata table : schema.getTables()) {
       Map<String, Object> tableNode = new LinkedHashMap<>();
       tableNode.put("@id", PREFIX + table.getIdentifier());
@@ -101,8 +99,19 @@ public class JsonLdSchemaGenerator {
       }
     }
 
-    Map<String, Object> root = new HashMap<>();
+    Map<String, Object> root = new LinkedHashMap<>();
     root.put("@context", context);
+    root.put("@embed", "@always");
+    for (TableMetadata table : schema.getTables()) {
+      for (Column column : table.getLocalColumns()) {
+        if (column.isReference()) {
+          Map<String, Object> refFrame = new LinkedHashMap<>();
+          refFrame.put("@embed", "@always");
+          root.put(column.getIdentifier(), refFrame);
+        }
+      }
+    }
+
     return root;
   }
 

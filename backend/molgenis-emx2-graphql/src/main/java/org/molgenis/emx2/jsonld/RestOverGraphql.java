@@ -6,12 +6,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.*;
 import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,8 +203,8 @@ public class RestOverGraphql {
   }
 
   private static void checkPrefixedIri(String value, Map<String, String> prefixes, String path) {
-    if (value.startsWith("_:")) return; // blank node
-    if (value.startsWith("http")) return; // full IRI
+    if (value.startsWith("_:")) return;
+    if (value.startsWith("http")) return;
 
     if (value.contains(":")) {
       String prefix = value.substring(0, value.indexOf(':'));
@@ -214,5 +215,85 @@ public class RestOverGraphql {
     } else {
       throw new MolgenisException("Invalid IRI at path: " + path + " -> " + value);
     }
+  }
+
+  public static Map<String, Object> stripJsonLdKeywords(Map<String, Object> data) {
+    if (data == null) {
+      return null;
+    }
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (Map.Entry<String, Object> entry : data.entrySet()) {
+      String key = entry.getKey();
+      if (!key.startsWith("@")) {
+        Object value = entry.getValue();
+        if (value instanceof Map) {
+          result.put(key, stripJsonLdKeywords((Map<String, Object>) value));
+        } else if (value instanceof List) {
+          result.put(key, stripJsonLdKeywords((List) value));
+        } else {
+          result.put(key, value);
+        }
+      }
+    }
+    return result;
+  }
+
+  private static List stripJsonLdKeywords(List data) {
+    if (data == null) {
+      return null;
+    }
+    List result = new ArrayList<>();
+    for (Object item : data) {
+      if (item instanceof Map) {
+        result.add(stripJsonLdKeywords((Map<String, Object>) item));
+      } else if (item instanceof List) {
+        result.add(stripJsonLdKeywords((List) item));
+      } else {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+
+  public static int importJsonLd(Table table, Map<String, Object> jsonLdData) {
+    if (jsonLdData == null || table == null) {
+      throw new MolgenisException("Table and jsonLdData cannot be null");
+    }
+
+    Object dataObj = jsonLdData.get("data");
+    if (dataObj == null) {
+      dataObj = jsonLdData.get("@graph");
+    }
+    if (dataObj == null) {
+      throw new MolgenisException("JSON-LD must contain 'data' or '@graph' key");
+    }
+
+    List<Map<String, Object>> rows;
+    if (dataObj instanceof List) {
+      rows = (List<Map<String, Object>>) dataObj;
+    } else if (dataObj instanceof Map) {
+      Map<String, Object> dataMap = (Map<String, Object>) dataObj;
+      String tableId = table.getMetadata().getIdentifier();
+      if (dataMap.containsKey(tableId)) {
+        Object tableData = dataMap.get(tableId);
+        if (tableData instanceof List) {
+          rows = (List<Map<String, Object>>) tableData;
+        } else {
+          throw new MolgenisException("Table data must be a List");
+        }
+      } else {
+        rows = Collections.singletonList(dataMap);
+      }
+    } else {
+      throw new MolgenisException("Data must be a Map or List of Maps");
+    }
+
+    List<Row> cleanedRows = new ArrayList<>();
+    for (Map<String, Object> row : rows) {
+      Map<String, Object> cleaned = stripJsonLdKeywords(row);
+      cleanedRows.add(new Row(cleaned));
+    }
+
+    return table.save(cleanedRows);
   }
 }

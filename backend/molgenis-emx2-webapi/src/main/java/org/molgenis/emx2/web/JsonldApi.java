@@ -2,11 +2,16 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.jsonld.RestOverGraphql.getAllAsJsonLd;
 import static org.molgenis.emx2.jsonld.RestOverGraphql.getAllAsTurtle;
+import static org.molgenis.emx2.jsonld.RestOverGraphql.importJsonLd;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.util.Map;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApi;
 
 public class JsonldApi {
@@ -20,6 +25,7 @@ public class JsonldApi {
     app.get("/{schema}/api/ttl2/_context", JsonldApi::getJsonLdContextSchema);
     app.get("/{schema}/api/ttl2/_schema", JsonldApi::getJsonLdContextSchema);
     app.get("/{schema}/api/ttl2/_json", JsonldApi::getJsonLdForSchema);
+    app.post("/{schema}/api/ttl2/{table}", JsonldApi::postJsonLdToTable);
   }
 
   private static void getJsonLdContextSchema(Context ctx) {
@@ -72,5 +78,27 @@ public class JsonldApi {
     String result = getAllAsTurtle(graphqlForSchema, ctx.url(), ctx.queryParam("query"));
     ctx.header("Content-Type", "text/turtle");
     ctx.result(result);
+  }
+
+  private static void postJsonLdToTable(Context ctx) {
+    String schemaName = sanitize(ctx.pathParam(SCHEMA));
+    String tableName = sanitize(ctx.pathParam("table"));
+    GraphqlApi graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    Schema schema = graphqlForSchema.getSchema();
+    Table table = schema.getTable(tableName);
+
+    if (table == null) {
+      ctx.status(404).json(Map.of("error", "Table not found: " + tableName));
+      return;
+    }
+
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      Map<String, Object> jsonLdData = mapper.readValue(ctx.body(), Map.class);
+      int count = importJsonLd(table, jsonLdData);
+      ctx.status(200).json(Map.of("message", "Imported " + count + " records"));
+    } catch (Exception e) {
+      ctx.status(400).json(Map.of("error", e.getMessage()));
+    }
   }
 }
