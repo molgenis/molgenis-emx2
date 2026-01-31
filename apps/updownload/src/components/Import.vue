@@ -86,14 +86,14 @@
               Export schema information:
               <ul>
                 <li>
-                  Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
+                  Settings: <a :href="`/${schema}/api/csv/_settings`">csv</a>
                 </li>
                 <li v-if="isManagerOrOwner">
-                  Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                  Members: <a :href="`/${schema}/api/csv/_members`">csv</a>
                 </li>
                 <li v-if="isManagerOrOwner">
                   Changelog:
-                  <a :href="`/${schema}/api/csv/changelog?limit=100&offset=0`">
+                  <a :href="`/${schema}/api/csv/_changelog?limit=100&offset=0`">
                     csv
                   </a>
                 </li>

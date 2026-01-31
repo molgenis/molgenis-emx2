@@ -527,7 +527,7 @@ class WebApiSmokeTests {
   void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/_members");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(
@@ -547,7 +547,7 @@ class WebApiSmokeTests {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/_members");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_members_\\d{12}\\.csv\"");
@@ -564,7 +564,7 @@ class WebApiSmokeTests {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/_settings");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_settings_\\d{12}\\.csv\"");
@@ -583,7 +583,7 @@ class WebApiSmokeTests {
     schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
 
     Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/_changelog");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
@@ -611,7 +611,7 @@ class WebApiSmokeTests {
             .accept(ACCEPT_CSV)
             .param("offset", "1")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
@@ -632,7 +632,7 @@ class WebApiSmokeTests {
             .accept(ACCEPT_CSV)
             .param("limit", "1001")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
@@ -654,7 +654,7 @@ class WebApiSmokeTests {
             .accept(ACCEPT_CSV)
             .param("limit", "invalid-value")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
@@ -676,7 +676,7 @@ class WebApiSmokeTests {
             .accept(ACCEPT_CSV)
             .param("offset", "invalid-value")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
@@ -692,7 +692,7 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
-    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/_changelog");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(

@@ -50,9 +50,9 @@ public class CsvApi {
     app.post(schemaPath, CsvApi::mergeMetadata);
     app.delete(schemaPath, CsvApi::discardMetadata);
 
-    app.get("/{schema}/api/csv/members", CsvApi::getMembers);
-    app.get("/{schema}/api/csv/settings", CsvApi::getSettings);
-    app.get("/{schema}/api/csv/changelog", CsvApi::getChangelog);
+    app.get("/{schema}/api/csv/_members", CsvApi::getMembers);
+    app.get("/{schema}/api/csv/_settings", CsvApi::getSettings);
+    app.get("/{schema}/api/csv/_changelog", CsvApi::getChangelog);
 
     // table level operations
     final String tablePath = "/{schema}/api/csv/{table}";

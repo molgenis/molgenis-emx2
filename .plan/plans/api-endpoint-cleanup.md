@@ -124,16 +124,16 @@ This is a **breaking change** affecting:
 
 ## HTTP Methods per Endpoint
 
-| Endpoint | GET | POST | PUT | DELETE | Notes |
-|----------|-----|------|-----|--------|-------|
-| `/_schema` | Export metadata | Import/merge | - | Remove items | Schema migration |
-| `/_data` | Export all rows | Import all rows | - | - | Data transfer between schemas |
-| `/_all` | Complete export | Complete import | - | - | Backup/restore |
-| `/_members` | List | Add | Update | Remove | Admin only |
-| `/_settings` | List | Add | Update | Remove | Admin only |
-| `/_changelog` | View | - | - | - | Read-only audit log |
-| `/{table}` | Export | Insert | Upsert | Delete rows | Table data |
-| `/{table}/{id}` | Get row | - | Update row | Delete row | Single row ops |
+| Endpoint | GET | POST | PUT | DELETE | Query params |
+|----------|-----|------|-----|--------|--------------|
+| `/_schema` | Export metadata | Import/merge | - | Remove items | - |
+| `/_data` | Export all rows | Import all rows | - | - | - |
+| `/_all` | Complete export | Complete import | - | - | - |
+| `/_members` | List | Add | Update | Remove | - |
+| `/_settings` | List | Add | Update | Remove | - |
+| `/_changelog` | View | - | - | - | limit, offset |
+| `/{table}` | Export | Insert | Upsert | Delete rows | filter, limit, offset |
+| `/{table}/{id}` | Get row | - | Update row | Delete row | - |
 
 ## Implementation Tasks
 
@@ -185,8 +185,15 @@ This is a **breaking change** affecting:
 #### 1.9 New: DataApi.java (content-negotiated endpoint)
 - [ ] Create `/api/data/{table}` endpoint with content negotiation
 - [ ] Support Accept headers: text/csv, application/json, application/ld+json, text/turtle
-- [ ] Add `/_schema`, `/_all`, `/{table}/{id}` routes
+- [ ] Add `/_schema`, `/_data`, `/_all`, `/{table}/{id}` routes
 - [ ] Delegate to format-specific implementations based on Accept header
+
+#### 1.10 Query parameters support (all APIs)
+- [ ] Add `filter` parameter support (JSON, GraphQL filter syntax)
+- [ ] Add `limit` parameter support
+- [ ] Add `offset` parameter support
+- [ ] Apply to `/{table}` endpoint only (single table queries)
+- [ ] Ensure consistent behavior across all formats
 
 ### Phase 2: Frontend Changes
 
@@ -245,12 +252,98 @@ This is a **breaking change** affecting:
 - Log usage of deprecated endpoints
 - Remove in future release
 
+## Query Parameters
+
+Table-level endpoints (`/{table}`) should support GraphQL-style query parameters:
+
+| Parameter | Purpose | Example |
+|-----------|---------|---------|
+| `filter` | JSON filter object (GraphQL syntax) | `?filter={"status":{"equals":"active"}}` |
+| `limit` | Max rows to return | `?limit=1000` |
+| `offset` | Skip first N rows | `?offset=100` |
+
+**Applies to:** `/{table}` only (single table queries)
+
+**Not applicable to:** `/_data`, `/_all` (multi-table exports)
+- No single filter makes sense across tables
+- Accept current limitation (loads all into memory)
+- For large schemas: export tables individually with limit/offset
+- Typical use case: admin backup/restore - users understand data size
+
+**Why required:**
+- Both old RDF API and new GraphQL approach load all rows into memory
+- Neither truly streams from database
+- Large tables will cause OOM without pagination
+- `limit`/`offset` provides basic scalability until better solution found
+
+**Implementation:**
+- Pass parameters through to underlying `table.query()`
+- CSV API already supports `filter` parameter
+- Consistent across all formats
+
+## Scalability Architecture
+
+### Design Decision: Shared iterator, different output
+
+Per spec: "GraphQL is for **clients wanting GraphQL syntax**, not an internal abstraction."
+
+All APIs share same underlying query mechanism:
+- Filter parsing (extracted from GraphQL to shared util)
+- Row iterator (streaming from database)
+
+| Path | Iterator Usage | Memory Model |
+|------|----------------|--------------|
+| `/api/json/{table}` | Stream rows directly to response | Low (row-by-row) |
+| `/api/csv/{table}` | Stream rows directly to response | Low (row-by-row) |
+| `/api/graphql-ld` | Collect rows, build nested structure | Higher (for nesting) |
+
+**Formats that stream naturally:**
+- CSV: line-by-line
+- JSON array: object-by-object with JsonGenerator
+- N-Triples: triple-by-triple
+
+**Formats that need buffering:**
+- Excel: use disk-backed POI
+- ZIP: already disk-buffered (ZipApi pattern)
+- JSON-LD to TTL: needs full JSON-LD for RDF conversion
+- GraphQL nested response: builds structure in memory
+
+### Backend Streaming Architecture
+
+**Current:** `query().retrieveRows()` returns `List<Row>` (all in memory)
+
+**Target:** `query().iterator()` returns `Iterator<Row>` (streaming via jOOQ `fetchStream()`)
+
+Same iterator, different consumption:
+```
+FilterParser (shared, extract from GraphQL)
+                    ↓
+    table.query().where(filter).iterator()
+              ↓                    ↓
+         REST APIs              GraphQL
+    (stream to output)      (collect to List)
+```
+
+- REST: `while (iter.hasNext()) { write(iter.next()); flush(); }`
+- GraphQL: `while (iter.hasNext()) { list.add(iter.next()); } return list;`
+
+GraphQL still builds full response (needed for nested structure), but underlying fetch is lazy.
+
+### Implementation Priority
+
+1. **Phase 1**: Add `limit`/`offset` to all `/{table}` endpoints (quick protection)
+2. **Phase 2**: Extract filter parser from GraphQL to shared util
+3. **Phase 3**: Change `retrieveRows()` to iterator-based (jOOQ `fetchStream()`)
+4. **Phase 4**: REST APIs stream iterator directly to response
+5. **Phase 5**: Cursor pagination (`after` parameter) for large result sets
+
 ## Open Questions
 
 1. Should we keep `/api/rdf` as an alias for content-negotiated endpoint?
 2. How long to maintain deprecated endpoints?
 3. Should `/api/json/_schema` return same format as current `/api/json`?
 4. Do we need versioning (e.g., `/api/v2/json/{table}`)?
+5. Should `/_members`, `/_settings`, `/_changelog` also support filter/limit/offset?
 
 ## Endpoint Summary (Target State)
 
