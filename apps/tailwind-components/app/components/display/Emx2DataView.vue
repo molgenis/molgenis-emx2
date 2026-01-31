@@ -22,6 +22,7 @@ import ContentBlockModal from "../content/ContentBlockModal.vue";
 import Button from "../Button.vue";
 import Columns from "../table/control/Columns.vue";
 import RecordCard from "./RecordCard.vue";
+import EditModal from "../form/EditModal.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -43,10 +44,6 @@ defineSlots<{
   card?: (props: { row: IRow; label: string }) => any;
 }>();
 
-const emit = defineEmits<{
-  add: [];
-}>();
-
 const layout = computed(() => props.config?.layout || "table");
 const showFilters = computed(() => props.config?.showFilters || false);
 const filtersVisible = ref(props.config?.showFilters || false);
@@ -62,6 +59,7 @@ const displayOptions = computed(() => props.config?.columnConfig);
 const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
+const showAddModal = ref(false);
 
 const route = useRoute();
 const router = useRouter();
@@ -75,8 +73,7 @@ const { filterStates, gqlFilter } = useFilters(metadataRef, {
   router: router as any,
 });
 
-// fetch data using useTableData with filter
-const { metadata, rows, status, totalPages, showPagination, errorMessage } =
+const { metadata, rows, status, totalPages, showPagination, errorMessage, refresh } =
   useTableData(props.schemaId, props.tableId, {
     pageSize: pagingLimit.value,
     page,
@@ -176,6 +173,10 @@ function handleFilterRemove(columnId: string) {
 function handleClearAllFilters() {
   filterStates.value = new Map();
 }
+
+async function afterClose() {
+  await refresh();
+}
 </script>
 
 <template>
@@ -202,7 +203,7 @@ function handleClearAllFilters() {
           type="primary"
           size="small"
           icon="add-circle"
-          @click="emit('add')"
+          @click="showAddModal = true"
         >
           Add {{ tableId }}
         </Button>
@@ -250,7 +251,7 @@ function handleClearAllFilters() {
               v-if="isEditable"
               type="primary"
               icon="add-circle"
-              @click="emit('add')"
+              @click="showAddModal = true"
             >
               Add {{ tableId }}
             </Button>
@@ -402,4 +403,13 @@ function handleClearAllFilters() {
       </div>
     </template>
   </DetailPageLayout>
+  <EditModal
+    v-if="metadata && showAddModal"
+    :showButton="false"
+    :schemaId="schemaId"
+    :metadata="metadata"
+    :isInsert="true"
+    v-model:visible="showAddModal"
+    @update:cancelled="afterClose"
+  />
 </template>
