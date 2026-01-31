@@ -19,6 +19,36 @@ You can download a [schema](use_schema.md) in the following formats:
 * YAML
 * CSV
 
+### Schema API endpoints
+
+For programmatic schema access, use these REST endpoints:
+
+**GET (download schema):**
+```text
+/{schema}/api/csv/_schema
+/{schema}/api/json/_schema
+/{schema}/api/yaml/_schema
+/{schema}/api/excel/_schema
+/{schema}/api/zip/_schema
+```
+
+**POST (merge schema):**
+```text
+/{schema}/api/csv/_schema
+/{schema}/api/json/_schema
+/{schema}/api/yaml/_schema
+/{schema}/api/excel/_schema
+/{schema}/api/zip/_schema
+```
+
+**DELETE (remove schema elements):**
+```text
+/{schema}/api/csv/_schema
+/{schema}/api/json/_schema
+/{schema}/api/yaml/_schema
+/{schema}/api/excel/_schema
+/{schema}/api/zip/_schema
+```
 
 Each table provides its own dedicated download links.
 
