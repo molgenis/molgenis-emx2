@@ -24,15 +24,32 @@
 - [x] showFilters=false: no sidebar, no mobile button (vanilla mode)
 - [x] Stories updated (Full Page, Compact, Vanilla modes)
 
-### Next: Consolidation & Polish
+### Done (v6.3.12) - Toolbar & Mobile Improvements
+- [x] Desktop toolbar: Add button, Show/Hide Filters toggle, Columns button
+- [x] Mobile toolbar: Add button, Filters button (modal), Columns button
+- [x] FilterSidebar: Customize button (uses Columns component with custom label/icon)
+- [x] Columns component: flexible props (label, icon, buttonType, size)
+- [x] Responsive table/cards: table at md+ (768px), cards below
+- [x] Responsive filters: sidebar at xl+ (1280px), mobile toolbar below
+- [x] RecordCard component: mobile-friendly card using ValueEMX2
+- [x] isEditable prop: shows Add button when true
+- [x] Settings icon added
+- [x] 15 vitest tests for Emx2DataView
 
-Potential tasks (pick based on priority):
-- [ ] Run tests, fix any failures
+### Next: Row Actions (v6.3.13)
+
+- [ ] Row edit button (per row, when isEditable)
+- [ ] Row delete button (per row, when isEditable)
+- [ ] Emit events: edit(row), delete(row)
+- [ ] Button placement: last column or hover overlay
+- [ ] Mobile: actions in RecordCard
+
+### Later: Polish & Integration
+
 - [ ] Run lint/format
 - [ ] Verify stories work in all themes
-- [ ] Review Emx2ListView/Emx2RecordView - align with IDisplayConfig if needed
+- [ ] Review Emx2ListView/Emx2RecordView - align with IDisplayConfig
 - [ ] Clean up unused code/imports
-- [ ] Update test coverage number
 
 ### Target Layout Structure
 

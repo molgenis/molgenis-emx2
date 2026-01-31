@@ -212,6 +212,32 @@ interface IFilterValue {
 - [x] #default - custom list item (props: row, label)
 - [x] #card - custom card content (props: row, label)
 
+### AC-6: Toolbar Controls
+- [x] Desktop (xl+): Add button (if editable), Show/Hide Filters toggle, Columns button
+- [x] Mobile (<xl): Add button (if editable), Filters button, Columns button
+- [x] isEditable prop controls Add button visibility
+- [x] Show/Hide Filters toggles sidebar visibility at runtime
+
+### AC-7: Responsive Table/Cards
+- [x] Desktop (md+): Table layout with horizontal scroll
+- [x] Mobile (<md): RecordCard layout with label:value pairs
+- [x] RecordCard uses ValueEMX2 for proper type formatting
+- [x] Sticky first column on table (desktop)
+
+### AC-8: Filter Customization
+- [x] FilterSidebar has Customize button (settings icon)
+- [x] Opens Columns modal in filters mode
+- [x] Can show/hide individual filters
+- [x] Visible in both mobile and desktop views
+
+## Responsive Breakpoints
+
+| Breakpoint | Width | Filters | Table/Cards |
+|------------|-------|---------|-------------|
+| < md | < 768px | mobile toolbar | cards |
+| md - xl | 768px - 1280px | mobile toolbar | table |
+| xl+ | 1280px+ | sidebar | table |
+
 ## Design Decisions
 
 1. **One-way data flow**: URL is single source of truth, eliminates sync bugs
