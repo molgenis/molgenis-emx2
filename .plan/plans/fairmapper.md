@@ -457,7 +457,329 @@ steps:
 
 ---
 
-## Phase 11: DCAT Completeness (Deferred)
+## Phase 11: SPARQL CONSTRUCT Step & RDF Pipeline
+
+Inspired by schema-bridge: allow RDF graph as intermediate between steps (not just JSON).
+
+| Task | Priority | Status |
+|------|----------|--------|
+| 11.1 Add SparqlConstructStep | HIGH | Pending |
+| 11.2 RDF-native pipeline mode | HIGH | Pending |
+| 11.3 Example: dcat-sparql bundle | HIGH | Done |
+| 11.4 Mapping override step (YAML) | HIGH | Pending |
+| 11.5 Profile compaction (inline queries) | LOW | Pending |
+
+### 11.1 SparqlConstructStep
+
+New step type for SPARQL CONSTRUCT queries (alternative to JSLT for RDF transforms).
+
+**Files:**
+- `model/step/SparqlConstructStep.java`
+- `StepConfigDeserializer.java` - add `"sparql"` key
+- `PipelineExecutor.java` - handle via in-memory RDF4J
+
+```yaml
+steps:
+  - sparql: src/transforms/to-dcat.sparql
+```
+
+**Dependencies to add** (build.gradle):
+```gradle
+implementation 'org.eclipse.rdf4j:rdf4j-repository-sail:4.3.8'
+implementation 'org.eclipse.rdf4j:rdf4j-sail-memory:4.3.8'
+implementation 'org.eclipse.rdf4j:rdf4j-queryparser-sparql:4.3.8'
+```
+
+**Implementation** (RDF4J in-memory, no external server):
+```java
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.QueryResults;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+
+public Model sparqlConstruct(Model input, String sparql) {
+    SailRepository repo = new SailRepository(new MemoryStore());
+    repo.init();
+    try (var conn = repo.getConnection()) {
+        conn.add(input);
+        GraphQuery query = conn.prepareGraphQuery(sparql);
+        return QueryResults.asModel(query.evaluate());
+    } finally {
+        repo.shutDown();
+    }
+}
+```
+
+**Safety limits** (from code review):
+```java
+public Model sparqlConstruct(Model input, String sparql) {
+    if (input.size() > MAX_TRIPLES) {  // 100k default
+        throw new FairMapperException("Input too large: " + input.size() + " triples");
+    }
+    SailRepository repo = new SailRepository(new MemoryStore());
+    repo.init();
+    try (var conn = repo.getConnection()) {
+        conn.add(input);
+        GraphQuery query = conn.prepareGraphQuery(sparql);
+        query.setMaxExecutionTime(30);  // 30s timeout
+        return QueryResults.asModel(query.evaluate());
+    } finally {
+        repo.shutDown();
+    }
+}
+```
+
+**Characteristics:**
+- No external SPARQL server needed
+- Ephemeral in-memory store per request
+- Same RDF4J library already in codebase
+- Safety: max 100k triples, 30s query timeout
+
+### 11.2 RDF-Native Pipeline Mode
+
+Allow steps to pass RDF Model instead of JsonNode when `pipeline: rdf`.
+
+```yaml
+mappings:
+  - name: harvest-with-sparql
+    fetch: ${SOURCE_URL}
+    pipeline: rdf           # NEW: steps pass RDF Model
+    steps:
+      - sparql: src/transforms/normalize.sparql
+      - sparql: src/transforms/to-molgenis.sparql
+      - frame: src/frames/output.jsonld    # Final step: RDF → JSON-LD
+```
+
+**Benefits:**
+- Multiple SPARQL transforms without JSON-LD round-trips
+- More natural for RDF-native users
+- SPARQL CONSTRUCT chains like schema-bridge
+
+**Implementation:**
+- `PipelineExecutor` tracks `currentFormat: json | rdf`
+- Frame step converts RDF → JSON-LD
+- Mutate step requires JSON (auto-frame if needed)
+
+**Format validation** (from code review):
+```java
+if (step instanceof MutateStep && currentFormat == Format.RDF) {
+    throw new FairMapperException(
+        "Mutate step requires JSON. Add frame step before mutate.");
+}
+if (step instanceof TransformStep && currentFormat == Format.RDF) {
+    throw new FairMapperException(
+        "Transform (JSLT) requires JSON. Add frame step before transform.");
+}
+```
+
+**Format conversion matrix:**
+| From → To | Method |
+|-----------|--------|
+| JSON → RDF | Auto-parse as JSON-LD when next step is SPARQL |
+| RDF → JSON | Frame step |
+| JSON → JSON | Transform step (JSLT) |
+| RDF → RDF | SPARQL construct |
+
+### 11.3 Example Bundle: dcat-sparql
+
+Two-way DCAT harvesting using SPARQL CONSTRUCT.
+
+```
+fair-mappings/dcat-sparql/
+  fairmapper.yaml
+  src/
+    queries/
+      fetch-catalog.sparql      # CONSTRUCT from source
+      to-molgenis.sparql        # Map to MOLGENIS structure
+      to-dcat.sparql            # Map back to DCAT
+    frames/
+      molgenis.jsonld           # Frame for import
+      dcat.jsonld               # Frame for export
+```
+
+**Harvest (SPARQL approach):**
+```yaml
+- name: harvest
+  fetch: ${SOURCE_URL}
+  pipeline: rdf
+  steps:
+    - sparql: src/queries/to-molgenis.sparql
+    - frame: src/frames/molgenis.jsonld
+    - import: ${TARGET_SCHEMA}/api/jsonld/import
+```
+
+**Export (SPARQL approach):**
+```yaml
+- name: export
+  endpoint: /{schema}/api/dcat
+  steps:
+    - query: src/queries/get-all.gql
+    - sparql: src/queries/to-dcat.sparql
+    - frame: src/frames/dcat.jsonld
+```
+
+### 11.4 Mapping Override Step
+
+Allow YAML-based field mapping overrides/refinements on top of schema semantics.
+
+```yaml
+steps:
+  - frame: ${TARGET_SCHEMA}/api/jsonld/frame
+    unmapped: true
+  - mapping: harvest/overrides.yaml    # NEW: refine/override mappings
+  - mutate: harvest/upsert.gql
+```
+
+**overrides.yaml format:**
+```yaml
+fields:
+  dct:title: name                    # map dct:title → name column
+  dct:description: description
+  dcat:keyword: keywords             # array field
+  dct:publisher:
+    target: organisation             # reference field
+    extract: foaf:name               # nested extraction
+
+types:
+  dcat:Catalog: Resources            # @type → table mapping
+  dcat:Dataset: Resources
+
+id:
+  extract: last-segment              # or: full, regex pattern
+  prefix: ""                         # strip prefix from extracted ID
+```
+
+**Benefits:**
+- Declarative alternative to JSLT for simple mappings
+- Overrides schema semantics without changing schema
+- Easier for data managers than JSLT/SPARQL
+- Can be auto-generated from schema, then customized
+
+**Implementation:**
+- `MappingOverrideStep.java` - applies YAML rules to JSON-LD
+- Runs after frame step (JSON-LD input)
+- Produces MOLGENIS-ready JSON
+
+### 11.5 Profile Compaction
+
+Allow inline SPARQL/GraphQL in YAML (optional, for simple cases).
+
+```yaml
+- name: simple-export
+  endpoint: /{schema}/api/simple
+  steps:
+    - query: |
+        { Resources { id name description } }
+    - sparql: |
+        CONSTRUCT { ?s dct:title ?name }
+        WHERE { ?s my:name ?name }
+```
+
+---
+
+## Phase 12: MOLGENIS Semantic Auto-Mapping
+
+Leverage existing `feat/rest-json-ld-graphql` PR for zero-config harvesting.
+
+| Task | Priority | Status |
+|------|----------|--------|
+| 12.1 Align endpoint naming (jsonld not ttl2) | HIGH | Pending |
+| 12.2 Thin FAIRmapper mode | HIGH | Pending |
+| 12.3 Bi-directional E2E test | MEDIUM | Pending |
+| 12.4 Add `target` field to Mapping spec | HIGH | Pending |
+
+### 12.1 MOLGENIS JSON-LD Endpoints
+
+**Align naming:** Use `jsonld` not `ttl2` (from code review).
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /{schema}/api/jsonld` | Export all as JSON-LD |
+| `GET /{schema}/api/jsonld/frame` | Auto-generated JSON-LD frame |
+| `GET /{schema}/api/jsonld/context` | JSON-LD @context only |
+| `POST /{schema}/api/jsonld/import` | Import JSON-LD to schema |
+
+Context/frame generated from `table.semantics` + `column.semantics` annotations.
+
+### 12.2 Thin FAIRmapper Mode
+
+When schema has semantic annotations, FAIRmapper becomes thin orchestrator:
+
+```yaml
+- name: harvest-auto
+  fetch: ${SOURCE_URL}
+  auto: true                  # Use MOLGENIS semantic mapping
+  target: ${TARGET_SCHEMA}
+```
+
+Equivalent to:
+```yaml
+steps:
+  - frame: ${TARGET_SCHEMA}/api/jsonld/frame
+    unmapped: true
+  - import: ${TARGET_SCHEMA}/api/jsonld/import
+```
+
+**Validation** (from code review):
+- `auto: true` requires `target` field
+- `auto: true` requires `fetch` field
+- Validate target schema exists and has semantic annotations (fail fast)
+- Sanitize `${TARGET_SCHEMA}` to prevent injection
+
+**No JSLT, no SPARQL needed** - MOLGENIS schema defines the mapping.
+
+### 12.3 Bi-Directional Demo
+
+Show same schema can export and import:
+
+```
+1. Export: catalogue/api/ttl2/_all → DCAT Turtle
+2. Transform: (optional) SPARQL for external standard
+3. Harvest: External FDP → catalogue/api/ttl2/Resources
+```
+
+---
+
+## Phase 13: Review Fixes (from .plan/reviews/)
+
+Items from earlier reviews not yet addressed.
+
+| Task | Priority | Status | Source |
+|------|----------|--------|--------|
+| 13.1 JSLT shared helpers | HIGH | Pending | dm-python-fan |
+| 13.2 Exception hierarchy | MEDIUM | Pending | code-java-expert |
+| 13.3 JSLT-Python cheatsheet | LOW | Pending | dm-python-fan |
+
+### 13.1 JSLT Shared Helpers
+
+Create `shared/array-helpers.jslt` to reduce boilerplate:
+
+```jslt
+def ensure-array(val)
+  if(is-array($val)) $val else if($val) [$val] else []
+
+def safe-get(obj, key)
+  if($obj) get-key($obj, $key) else null
+
+def extract-id(uri)
+  let parts = split($uri, "/")
+  $parts[size($parts) - 1]
+```
+
+### 13.2 Exception Hierarchy
+
+Create checked exceptions for validation vs runtime errors:
+
+```
+FairMapperException (unchecked, runtime)
+├── FairMapperValidationException (checked, fail-fast)
+└── FairMapperExecutionException (unchecked, pipeline errors)
+```
+
+---
+
+## Phase 14: DCAT Completeness
 
 | Task | Priority | Status |
 |------|----------|--------|
@@ -465,26 +787,27 @@ steps:
 | Fix hardcoded timestamps | HIGH | Pending |
 | Add dct:accessRights | MEDIUM | Pending |
 | Extract shared FDP context | MEDIUM | Pending |
-| SHACL validation step | MEDIUM | Pending |
+| SHACL validation step | LOW | Pending |
+
+### SHACL Validation (deferred from Phase 11)
+
+```yaml
+steps:
+  - sparql: src/transforms/to-dcat.sparql
+  - shacl: src/shapes/dcat-ap.ttl
+    strict: true              # fail on violation (default: warn)
+```
+
+Deferred until SPARQL construct proven stable.
 
 ---
 
-## Phase 12: Transform Simplification
+## Phase 15: Route Validation
 
 | Task | Priority | Status |
 |------|----------|--------|
-| Declarative field mapping | HIGH | Pending |
-| JSON-LD compaction step | MEDIUM | Pending |
-| JSLT-Python cheatsheet | LOW | Pending |
-
----
-
-## Phase 12.5: Route Validation (TODO)
-
-| Task | Priority | Status |
-|------|----------|--------|
-| 11.5.1 Detect duplicate paths | HIGH | Pending |
-| 11.5.2 Validate path patterns | MEDIUM | Pending |
+| 15.1 Detect duplicate paths | HIGH | Pending |
+| 15.2 Validate path patterns | MEDIUM | Pending |
 
 **Problem:** Multiple bundles can register the same endpoint path, causing conflicts.
 
@@ -495,14 +818,14 @@ steps:
 
 ---
 
-## Phase 13: Output Targets
+## Phase 16: Output Targets
 
 | Task | Priority | Status |
 |------|----------|--------|
-| 13.1 MOLGENIS CSV zip export | HIGH | Pending |
-| 13.2 Self-harvest demo | HIGH | Pending |
+| 16.1 MOLGENIS CSV zip export | HIGH | Pending |
+| 16.2 Self-harvest demo | HIGH | Pending |
 
-### 13.1 MOLGENIS CSV Zip Export
+### 16.1 MOLGENIS CSV Zip Export
 
 **Goal:** Transform harvested RDF into MOLGENIS-compatible CSV zip (reverse of fetch)
 
@@ -522,7 +845,7 @@ schema.zip/
   molgenis.csv (metadata)
 ```
 
-### 13.2 Self-Harvest Demo
+### 16.2 Self-Harvest Demo
 
 **Goal:** Demo harvesting our own FDP endpoints back into MOLGENIS
 
@@ -549,7 +872,6 @@ schema.zip/
 
 ### Scripting
 - **GraalPy** - Python transforms (data managers prefer Python)
-- **SPARQL CONSTRUCT** - Alternative to JSON-LD framing
 
 ### Rejected
 - **JSONata** - No improvement over JSLT (see design decisions in spec)

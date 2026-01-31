@@ -1,0 +1,23 @@
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX my: <urn:molgenis:>
+
+CONSTRUCT {
+  ?s a my:Resources ;
+    my:id ?id ;
+    my:name ?title ;
+    my:description ?desc ;
+    my:organisation [ my:id ?orgId ; my:name ?orgName ] .
+}
+WHERE {
+  { ?s a dcat:Catalog } UNION { ?s a dcat:Dataset }
+  ?s dct:title ?title .
+  BIND(REPLACE(STR(?s), "^.*/", "") AS ?id)
+  OPTIONAL { ?s dct:description ?desc }
+  OPTIONAL {
+    ?s dct:publisher ?org .
+    ?org foaf:name ?orgName .
+    BIND(REPLACE(STR(?org), "^.*/", "") AS ?orgId)
+  }
+}

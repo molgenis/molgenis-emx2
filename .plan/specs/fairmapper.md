@@ -154,10 +154,14 @@ Backwards compatibility: `endpoints`, `path`, `name` on endpoint mappings still 
 | `query`     | `.gql` | Variables JSON | Query result JSON | molgenis-emx2-graphql |
 | `mutate`    | `.gql` | Variables JSON | Mutation result | molgenis-emx2-graphql |
 | `sql`       | `.sql` | Variables JSON | Query result JSON | PostgreSQL via `schema.retrieveSql()` |
+| `frame`     | `.jsonld` | JSON-LD | JSON-LD | Titanium JSON-LD |
+| `sparql`    | `.sparql` | RDF Model | RDF Model | RDF4J in-memory (planned) |
+| `mapping`   | `.yaml` | JSON-LD | JSON | YAML field mapping (planned) |
 
 Notes:
 - RDF output is handled via content negotiation (`output: turtle`), not as a step type
 - RDF input (fetch) is handled at mapping level, not as a step type
+- `sparql` and `mapping` steps are planned for Phase 11
 
 ### SQL Step (Alternative to GraphQL + JSLT)
 
@@ -189,6 +193,171 @@ WHERE r.id = ${id}
 - Access to database timestamps (`mg_insertedOn`, `mg_updatedOn`)
 
 **Example bundle:** `fair-mappings/dcat-fdp-sql/`
+
+### SPARQL CONSTRUCT Step (Planned - Phase 11)
+
+Transforms RDF using SPARQL CONSTRUCT queries. Alternative to JSLT for RDF-native users.
+
+```yaml
+steps:
+  - sparql: src/transforms/to-dcat.sparql
+```
+
+**SPARQL file format:**
+```sparql
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX my: <urn:molgenis:>
+
+CONSTRUCT {
+  ?dcat a dcat:Dataset ;
+    dct:title ?name .
+}
+WHERE {
+  ?s a my:Resources ;
+    my:name ?name .
+  BIND(IRI(CONCAT("https://example.org/dataset/", ?id)) AS ?dcat)
+}
+```
+
+**Step fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `sparql` | string | yes | Path to SPARQL CONSTRUCT query file |
+
+**Implementation:**
+- Uses RDF4J in-memory repository (no external server)
+- Input: RDF Model (from previous step or auto-converted from JSON-LD)
+- Output: RDF Model (frame step converts to JSON-LD)
+
+**Dependencies:**
+```gradle
+implementation 'org.eclipse.rdf4j:rdf4j-repository-sail:4.3.8'
+implementation 'org.eclipse.rdf4j:rdf4j-sail-memory:4.3.8'
+implementation 'org.eclipse.rdf4j:rdf4j-queryparser-sparql:4.3.8'
+```
+
+**Safety limits:**
+- Max triples: 100,000
+- Query timeout: 30 seconds
+
+**Example bundle:** `fair-mappings/dcat-sparql/`
+
+### Mapping Override Step (Planned - Phase 11)
+
+Declarative YAML-based field mapping. Alternative to JSLT for simple mappings.
+
+```yaml
+steps:
+  - frame: src/frames/input.jsonld
+  - mapping: src/overrides.yaml
+  - mutate: src/upsert.gql
+```
+
+**Mapping file format:**
+```yaml
+fields:
+  dct:title: name
+  dct:description: description
+  dcat:keyword: keywords
+  dct:publisher:
+    target: organisation
+    extract: foaf:name
+
+types:
+  dcat:Catalog: Resources
+  dcat:Dataset: Resources
+
+id:
+  extract: last-segment
+  prefix: ""
+```
+
+**Step fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `mapping` | string | yes | Path to YAML mapping file |
+
+**Mapping file sections:**
+
+| Section | Purpose |
+|---------|---------|
+| `fields` | Map RDF predicates to MOLGENIS columns |
+| `types` | Map `@type` values to table names |
+| `id` | Configure ID extraction from `@id` |
+
+**ID extraction modes:**
+
+| Mode | Config | Example |
+|------|--------|---------|
+| Last segment (default) | `extract: last-segment` | `/catalog/123` → `123` |
+| Full IRI | `extract: full` | Keep entire IRI |
+| Regex | `extract: ".*[/#]([^/#]+)$"` | Custom pattern |
+
+**Benefits:**
+- No code for simple field mappings
+- Easier than JSLT for data managers
+- Can override schema semantics without schema changes
+
+### RDF Pipeline Mode (Planned - Phase 11)
+
+When `pipeline: rdf`, steps pass RDF Model instead of JSON between them.
+
+```yaml
+- name: harvest-sparql
+  fetch: ${SOURCE_URL}
+  pipeline: rdf
+  steps:
+    - sparql: src/normalize.sparql
+    - sparql: src/to-molgenis.sparql
+    - frame: src/output.jsonld
+    - mutate: src/upsert.gql
+```
+
+**Mapping field:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `pipeline` | string | no | `json` | Pipeline format: `json` or `rdf` |
+
+**Format rules:**
+- `transform` (JSLT) requires JSON format
+- `sparql` requires RDF format
+- `frame` converts RDF → JSON
+- Auto-conversion: JSON-LD → RDF when next step is SPARQL
+
+### Auto Mode (Planned - Phase 12)
+
+Zero-config harvesting using MOLGENIS schema semantics.
+
+```yaml
+- name: harvest-auto
+  fetch: ${SOURCE_URL}
+  auto: true
+  target: catalogue
+```
+
+**Mapping fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `auto` | boolean | no | Enable auto-mapping from schema semantics |
+| `target` | string | when auto=true | Target schema name |
+
+**Validation:**
+- `auto: true` requires `target` field
+- `auto: true` requires `fetch` field
+- Target schema must exist and have semantic annotations
+
+**Equivalent to:**
+```yaml
+steps:
+  - frame: ${target}/api/jsonld/frame
+    unmapped: true
+  - import: ${target}/api/jsonld/import
+```
 
 ### Fetch (Mapping-Level)
 

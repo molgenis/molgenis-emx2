@@ -1,0 +1,17 @@
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX my: <urn:molgenis:>
+
+CONSTRUCT {
+  ?dcat a dcat:Dataset ;
+    dct:identifier ?id ;
+    dct:title ?name ;
+    dct:description ?desc .
+}
+WHERE {
+  ?s a my:Resources ;
+    my:id ?id ;
+    my:name ?name .
+  OPTIONAL { ?s my:description ?desc }
+  BIND(IRI(CONCAT("https://example.org/dataset/", ?id)) AS ?dcat)
+}

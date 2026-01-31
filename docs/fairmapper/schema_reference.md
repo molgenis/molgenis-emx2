@@ -162,6 +162,65 @@ Executes a GraphQL mutation against MOLGENIS.
 
 The mutation receives variables from the previous step's output. Typically used as the final step to write data.
 
+### SQL Step
+
+Executes a SQL query against PostgreSQL, returning JSON directly.
+
+```yaml
+- sql: src/queries/get-catalog.sql
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `sql` | string | yes | Path to SQL file |
+
+The SQL query must return a `result` column containing JSON:
+
+```sql
+SELECT json_build_object(
+  '@context', json_build_object('dcat', 'http://www.w3.org/ns/dcat#'),
+  '@id', 'https://example.org/catalog/' || id,
+  '@type', 'dcat:Catalog',
+  'dct:title', name
+) AS result
+FROM "Resources"
+WHERE id = ${id}
+```
+
+Variables from the previous step are available as `${name}` parameters.
+
+**Benefits over GraphQL + JSLT:**
+- Single step instead of two
+- Direct JSON-LD construction
+- Access to database timestamps (`mg_insertedOn`, `mg_updatedOn`)
+
+### Frame Step
+
+Applies a JSON-LD frame to reshape RDF/JSON-LD data.
+
+```yaml
+- frame: src/frames/output.jsonld
+  unmapped: true
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `frame` | string | yes | - | Path to JSON-LD frame file |
+| `unmapped` | boolean | no | false | Keep unmapped properties (sets `@explicit: false`) |
+
+The frame step is useful for:
+- Restructuring harvested RDF into a specific shape
+- Filtering to specific types
+- Two-frame pattern: first with `unmapped: true` to capture all, then strict frame to filter
+
+```yaml
+steps:
+  - frame: src/frames/resources.jsonld
+    unmapped: true
+  - transform: src/transforms/fix-exceptions.jslt
+  - frame: src/frames/resources.jsonld
+```
+
 ### RDF Step (Deprecated)
 
 **DEPRECATED in 7.6.4+**: Use the `output` field at mapping level instead.

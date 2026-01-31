@@ -1,0 +1,3 @@
+mutation($Resources: [ResourcesInput], $Organisations: [OrganisationsInput]) {
+  insert(Resources: $Resources, Organisations: $Organisations) { message }
+}
