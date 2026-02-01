@@ -26,13 +26,15 @@ const props = withDefaults(
       ontologyTableId: string;
       limit?: number;
       selectCutOff?: number;
-      forceList?: boolean; // Force list display (no select dropdown) with manual load more only
+      forceList?: boolean;
+      showClear?: boolean;
     }
   >(),
   {
     limit: 20,
     selectCutOff: 25,
     forceList: false,
+    showClear: true,
   }
 );
 
@@ -783,7 +785,7 @@ onMounted(() => {
     />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    v-if="showClear && (isArray ? (modelValue || []).length > 0 : modelValue)"
     @click="clearSelection"
     type="text"
     size="tiny"

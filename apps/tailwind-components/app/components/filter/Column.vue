@@ -11,12 +11,18 @@ const props = withDefaults(
     column: IColumn;
     collapsed?: boolean;
     mobileDisplay?: boolean;
+    depth?: number;
   }>(),
   {
     collapsed: true,
     mobileDisplay: false,
+    depth: 0,
   }
 );
+
+const emit = defineEmits<{
+  (event: "expand"): void;
+}>();
 
 const modelValue = defineModel<IFilterValue | null>();
 
@@ -27,6 +33,15 @@ const isRangeType = computed(() =>
     props.column.columnType
   )
 );
+
+const refTypes = ["REF", "REF_ARRAY", "ONTOLOGY", "ONTOLOGY_ARRAY"];
+
+const isRefType = computed(() => refTypes.includes(props.column.columnType));
+
+const isExpandableRef = computed(() => {
+  if (props.depth > 0) return false;
+  return isRefType.value && !!props.column.refTableId;
+});
 
 const label = computed(
   () =>
@@ -80,11 +95,19 @@ function handleClear() {
 function toggle() {
   isCollapsed.value = !isCollapsed.value;
 }
+
+function handleExpandClick(event: Event) {
+  event.stopPropagation();
+  emit("expand");
+}
 </script>
 
 <template>
   <hr class="mx-5 border-black opacity-10" />
-  <div class="flex items-center gap-1 p-5">
+  <div
+    class="flex items-center gap-1 p-5"
+    :style="{ paddingLeft: `${20 + depth * 16}px` }"
+  >
     <div class="inline-flex gap-1 group" @click="toggle()">
       <h3
         class="font-sans text-body-base font-bold mr-[5px] group-hover:underline group-hover:cursor-pointer"
@@ -104,7 +127,15 @@ function toggle() {
         <BaseIcon name="caret-up" :width="26" />
       </span>
     </div>
-    <div class="text-right grow">
+    <div class="text-right grow flex gap-2 items-center justify-end">
+      <span
+        v-if="isExpandableRef"
+        class="text-body-sm hover:underline hover:cursor-pointer"
+        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+        @click="handleExpandClick"
+      >
+        Expand
+      </span>
       <span
         v-if="modelValue"
         class="text-body-sm hover:underline hover:cursor-pointer"
@@ -153,6 +184,7 @@ function toggle() {
       :ref-schema-id="column.refSchemaId"
       :ref-table-id="column.refTableId"
       :ref-label="column.refLabel || column.refLabelDefault"
+      :show-clear="!isRefType"
     />
   </div>
 </template>

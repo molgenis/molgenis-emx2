@@ -204,6 +204,7 @@ async function afterRowDeleted() {
         v-model:filter-states="filterStates"
         v-model:search-terms="searchTerms"
         :all-columns="metadataRef"
+        :schema-id="schemaId"
         :show-search="showSearch"
         @update:columns="handleColumnsUpdate"
       />
@@ -229,6 +230,7 @@ async function afterRowDeleted() {
               v-model:filter-states="filterStates"
               v-model:search-terms="searchTerms"
               :all-columns="metadataRef"
+              :schema-id="schemaId"
               :show-search="showSearch"
               :mobile-display="true"
               @update:columns="handleColumnsUpdate"
@@ -297,6 +299,7 @@ async function afterRowDeleted() {
           <ActiveFilters
             :filters="filterStates"
             :columns="metadataRef"
+            :schema-id="schemaId"
             @remove="handleFilterRemove"
             @clear-all="handleClearAllFilters"
           />

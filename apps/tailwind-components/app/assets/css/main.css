@@ -162,7 +162,7 @@
     --text-color-search-results-view-tabs: var(--color-blue-500);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
     --text-color-search-filter-title: var(--text-color-title);
-    --text-color-search-filter-expand: var(--color-yellow-500);
+    --text-color-search-filter-expand: var(--color-blue-500);
     --text-color-search-filter-expand-mobile: var(--text-color-title);
     --text-color-search-filter-group-title: var(--text-color-title);
     --text-color-search-filter-group-title-mobile: var(--color-black);

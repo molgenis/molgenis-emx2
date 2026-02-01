@@ -28,14 +28,15 @@ const props = withDefaults(
       refSchemaId: string;
       refTableId: string;
       refLabel: string;
-      //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
       isArray?: boolean;
       limit?: number;
+      showClear?: boolean;
     }
   >(),
   {
     isArray: true,
     limit: 20,
+    showClear: true,
   }
 );
 
@@ -441,7 +442,7 @@ onMounted(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="showClear && (isArray ? selection.length : selection)"
     @click="clearSelection"
     type="text"
     size="tiny"

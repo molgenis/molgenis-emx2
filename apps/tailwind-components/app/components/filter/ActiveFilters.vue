@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, useId } from "vue";
+import { computed, ref, watch, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import Button from "../Button.vue";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
 
 const ariaId = useId();
 
 const props = defineProps<{
   filters: Map<string, IFilterValue>;
   columns: IColumn[];
+  schemaId: string;
 }>();
 
 const emit = defineEmits<{
@@ -24,22 +26,79 @@ interface ActiveFilter {
   values: string[];
 }
 
+const nestedColumnLabels = ref<Map<string, string>>(new Map());
+
+watch(
+  () => props.filters,
+  async (filters) => {
+    for (const columnId of filters.keys()) {
+      if (!columnId.includes(".")) continue;
+      const [rootColumnId, nestedColumnId] = columnId.split(".");
+      const cacheKey = `${rootColumnId}.${nestedColumnId}`;
+      if (nestedColumnLabels.value.has(cacheKey)) continue;
+
+      const rootColumn = props.columns.find((c) => c.id === rootColumnId);
+      if (!rootColumn?.refTableId) continue;
+
+      try {
+        const refSchemaId = rootColumn.refSchemaId || props.schemaId;
+        const metadata = await fetchTableMetadata(
+          refSchemaId,
+          rootColumn.refTableId
+        );
+        const nestedColumn = metadata.columns.find(
+          (c) => c.id === nestedColumnId
+        );
+        if (nestedColumn) {
+          const label =
+            nestedColumn.displayConfig?.label ||
+            nestedColumn.label ||
+            nestedColumnId;
+          nestedColumnLabels.value = new Map(nestedColumnLabels.value).set(
+            cacheKey,
+            label
+          );
+        }
+      } catch {
+        // ignore fetch errors, will fall back to ID
+      }
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 const activeFilters = computed<ActiveFilter[]>(() => {
   const result: ActiveFilter[] = [];
 
   for (const [columnId, filterValue] of props.filters) {
-    const column = props.columns.find((c) => c.id === columnId);
-    if (!column) continue;
-
-    const label = column.displayConfig?.label || column.label || column.id;
+    const label = getColumnLabel(columnId);
     const { displayValue, isMultiValue, values } =
       formatFilterValue(filterValue);
-
     result.push({ columnId, label, displayValue, isMultiValue, values });
   }
 
   return result;
 });
+
+function getColumnLabel(columnId: string): string {
+  if (columnId.includes(".")) {
+    const [rootColumnId, nestedColumnId] = columnId.split(".");
+    const rootColumn = props.columns.find((c) => c.id === rootColumnId);
+    const rootLabel = rootColumn
+      ? rootColumn.displayConfig?.label || rootColumn.label || rootColumnId
+      : rootColumnId;
+
+    const cacheKey = `${rootColumnId}.${nestedColumnId}`;
+    const nestedLabel =
+      nestedColumnLabels.value.get(cacheKey) || nestedColumnId;
+    return `${rootLabel} → ${nestedLabel}`;
+  }
+
+  const column = props.columns.find((c) => c.id === columnId);
+  if (!column) return columnId;
+
+  return column.displayConfig?.label || column.label || column.id;
+}
 
 function formatFilterValue(filterValue: IFilterValue): {
   displayValue: string;

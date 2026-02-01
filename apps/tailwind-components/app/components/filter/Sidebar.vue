@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, useId } from "vue";
+import { computed, ref, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import FilterColumn from "./Column.vue";
 import InputSearch from "../input/Search.vue";
 import Columns from "../table/control/Columns.vue";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
 
 const props = withDefaults(
   defineProps<{
     allColumns: IColumn[];
+    schemaId: string;
     title?: string;
     mobileDisplay?: boolean;
     showSearch?: boolean;
@@ -45,6 +47,9 @@ const searchTerms = defineModel<string>("searchTerms", {
   default: "",
 });
 
+const expandedRefs = ref<Set<string>>(new Set());
+const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
+
 function getFilterValue(columnId: string): IFilterValue | null {
   return filterStates.value.get(columnId) || null;
 }
@@ -64,6 +69,42 @@ function setFilterValue(
 
 function handleColumnsUpdate(updatedColumns: IColumn[]) {
   emit("update:columns", updatedColumns);
+}
+
+async function handleExpand(column: IColumn) {
+  const key = column.id;
+
+  if (expandedRefs.value.has(key)) {
+    const newSet = new Set(expandedRefs.value);
+    newSet.delete(key);
+    expandedRefs.value = newSet;
+    return;
+  }
+
+  if (!refColumnsCache.value.has(key)) {
+    const refSchemaId = column.refSchemaId || props.schemaId;
+    const refTableId = column.refTableId;
+
+    if (!refTableId) return;
+
+    try {
+      const tableMetadata = await fetchTableMetadata(refSchemaId, refTableId);
+      const filteredColumns = tableMetadata.columns.filter(
+        (col) =>
+          !col.id.startsWith("mg_") &&
+          col.columnType !== "REFBACK" &&
+          col.showFilter !== false
+      );
+      refColumnsCache.value.set(key, filteredColumns);
+    } catch (error) {
+      console.error("Failed to fetch ref metadata", error);
+      return;
+    }
+  }
+
+  const newSet = new Set(expandedRefs.value);
+  newSet.add(key);
+  expandedRefs.value = newSet;
 }
 </script>
 
@@ -100,14 +141,30 @@ function handleColumnsUpdate(updatedColumns: IColumn[]) {
       />
     </div>
 
-    <FilterColumn
-      v-for="column in filterableColumnsComputed"
-      :key="column.id"
-      :column="column"
-      :model-value="getFilterValue(column.id)"
-      @update:model-value="setFilterValue(column.id, $event)"
-      :collapsed="true"
-      :mobile-display="mobileDisplay"
-    />
+    <template v-for="column in filterableColumnsComputed" :key="column.id">
+      <FilterColumn
+        :column="column"
+        :model-value="getFilterValue(column.id)"
+        @update:model-value="setFilterValue(column.id, $event)"
+        :collapsed="true"
+        :mobile-display="mobileDisplay"
+        :depth="0"
+        @expand="handleExpand(column)"
+      />
+      <template v-if="expandedRefs.has(column.id)">
+        <FilterColumn
+          v-for="nestedColumn in refColumnsCache.get(column.id)"
+          :key="`${column.id}.${nestedColumn.id}`"
+          :column="nestedColumn"
+          :model-value="getFilterValue(`${column.id}.${nestedColumn.id}`)"
+          @update:model-value="
+            setFilterValue(`${column.id}.${nestedColumn.id}`, $event)
+          "
+          :collapsed="true"
+          :mobile-display="mobileDisplay"
+          :depth="1"
+        />
+      </template>
+    </template>
   </div>
 </template>
