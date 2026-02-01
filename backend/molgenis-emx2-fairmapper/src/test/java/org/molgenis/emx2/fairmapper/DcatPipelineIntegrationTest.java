@@ -26,6 +26,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -68,7 +69,7 @@ public class DcatPipelineIntegrationTest {
     graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, new TaskServiceInMemory());
 
     Path projectRoot = Paths.get(System.getProperty("user.dir"), "../..").normalize();
-    jsltBundlePath = projectRoot.resolve("fair-mappings/dcat-fdp");
+    jsltBundlePath = projectRoot.resolve("fair-mappings/dcat-harvester");
     sqlBundlePath = projectRoot.resolve("fair-mappings/dcat-fdp-sql");
     shaclPath = projectRoot.resolve("data/_shacl/fair_data_point/v1.2");
 
@@ -122,6 +123,7 @@ public class DcatPipelineIntegrationTest {
   }
 
   @Test
+  @Disabled("FDP root transforms moved to dcat-fdp-sql bundle")
   void testFdpRoot_graphqlJslt() throws Exception {
     JsonNode query =
         executeGraphQL(
@@ -154,7 +156,7 @@ public class DcatPipelineIntegrationTest {
 
   @Test
   void testFdpRoot_sql() throws Exception {
-    String sql = Files.readString(sqlBundlePath.resolve("src/queries/get-fdp-root.sql"));
+    String sql = Files.readString(sqlBundlePath.resolve("src/get-fdp-root.sql"));
     Map<String, String> params = Map.of("base_url", BASE_URL, "schema", SCHEMA_NAME);
 
     List<Row> rows = schema.retrieveSql(sql, params);
@@ -166,6 +168,7 @@ public class DcatPipelineIntegrationTest {
   }
 
   @Test
+  @Disabled("Catalog publish transforms moved to dcat-fdp-sql bundle")
   void testCatalog_graphqlJslt() throws Exception {
     String queryStr =
         """
@@ -199,7 +202,7 @@ public class DcatPipelineIntegrationTest {
 
   @Test
   void testCatalog_sql() throws Exception {
-    String sql = Files.readString(sqlBundlePath.resolve("src/queries/get-catalog.sql"));
+    String sql = Files.readString(sqlBundlePath.resolve("src/get-catalog.sql"));
     Map<String, String> params =
         Map.of("base_url", BASE_URL, "schema", SCHEMA_NAME, "id", catalogId);
 
@@ -212,6 +215,7 @@ public class DcatPipelineIntegrationTest {
   }
 
   @Test
+  @Disabled("Dataset publish transforms moved to dcat-fdp-sql bundle")
   void testDataset_graphqlJslt() throws Exception {
     String queryStr =
         """
@@ -245,7 +249,7 @@ public class DcatPipelineIntegrationTest {
 
   @Test
   void testDataset_sql() throws Exception {
-    String sql = Files.readString(sqlBundlePath.resolve("src/queries/get-dataset.sql"));
+    String sql = Files.readString(sqlBundlePath.resolve("src/get-dataset.sql"));
     Map<String, String> params =
         Map.of("base_url", BASE_URL, "schema", SCHEMA_NAME, "id", datasetId);
 
@@ -263,7 +267,7 @@ public class DcatPipelineIntegrationTest {
     JsonNode fetchedData = mapper.readTree(Files.readString(inputPath));
 
     JsltTransformEngine engine = new JsltTransformEngine();
-    Path transformPath = jsltBundlePath.resolve("src/transforms/to-molgenis.jslt");
+    Path transformPath = jsltBundlePath.resolve("src/to-molgenis.jslt");
     JsonNode transformed = engine.transform(transformPath, fetchedData);
 
     assertNotNull(transformed, "Transform should produce output");
@@ -306,7 +310,7 @@ public class DcatPipelineIntegrationTest {
     JsonNode input = mapper.readTree(Files.readString(inputPath));
 
     JsltTransformEngine engine = new JsltTransformEngine();
-    Path transformPath = jsltBundlePath.resolve("src/transforms/to-molgenis.jslt");
+    Path transformPath = jsltBundlePath.resolve("src/to-molgenis.jslt");
     JsonNode result = engine.transform(transformPath, input);
 
     assertNotNull(result);

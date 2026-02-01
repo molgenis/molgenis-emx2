@@ -36,26 +36,17 @@ class SqlQueryIntegrationTest {
     database.dropSchemaIfExists(schemaName);
     Schema schema = database.createSchema(schemaName);
 
-    schema.create(table("Organisations").add(column("id").setPkey()).add(column("name")));
-
     schema.create(
-        table("Extended resources")
+        table("Resources")
             .add(column("id").setPkey())
             .add(column("name"))
             .add(column("description"))
             .add(column("website"))
-            .add(column("lead organisation").setType(REF_ARRAY).setRefTable("Organisations")));
-
-    schema.create(
-        table("Datasets")
-            .add(column("name").setPkey())
-            .add(column("resource").setType(REF).setRefTable("Extended resources")));
+            .add(column("type").setType(STRING_ARRAY))
+            .add(column("data resources").setType(STRING_ARRAY)));
 
     schema
-        .getTable("Organisations")
-        .insert(row("id", "umcg", "name", "University Medical Center Groningen"));
-    schema
-        .getTable("Extended resources")
+        .getTable("Resources")
         .insert(
             row(
                 "id",
@@ -63,20 +54,32 @@ class SqlQueryIntegrationTest {
                 "name",
                 "LifeLines",
                 "description",
-                "A cohort study",
+                "A cohort study catalog",
                 "website",
                 "https://lifelines.nl",
-                "lead organisation",
-                new String[] {"umcg"}));
-    schema.getTable("Datasets").insert(row("name", "dataset1", "resource", "lifelines"));
+                "type",
+                new String[] {"Catalogue"},
+                "data resources",
+                new String[] {"dataset1"}));
+    schema
+        .getTable("Resources")
+        .insert(
+            row(
+                "id",
+                "dataset1",
+                "name",
+                "Dataset One",
+                "description",
+                "First dataset",
+                "type",
+                new String[] {"Cohort study"}));
 
     java.nio.file.Path projectRoot = Paths.get("").toAbsolutePath();
     while (!Files.exists(projectRoot.resolve("fair-mappings")) && projectRoot.getParent() != null) {
       projectRoot = projectRoot.getParent();
     }
     String sql =
-        Files.readString(
-            projectRoot.resolve("fair-mappings/dcat-fdp-sql/src/queries/get-catalog.sql"));
+        Files.readString(projectRoot.resolve("fair-mappings/dcat-fdp-sql/src/get-catalog.sql"));
 
     Map<String, String> params =
         Map.of("base_url", "https://test.molgenis.org", "schema", schemaName, "id", "lifelines");

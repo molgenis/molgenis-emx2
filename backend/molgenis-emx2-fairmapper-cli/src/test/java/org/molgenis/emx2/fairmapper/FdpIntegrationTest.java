@@ -17,8 +17,10 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("Bundle dcat-fdp deleted - FDP JSLT transforms no longer available")
 class FdpIntegrationTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();

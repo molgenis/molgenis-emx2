@@ -458,9 +458,7 @@ class DcatViaMappingE2eTest {
   }
 
   private String loadMappingFile() throws IOException {
-    Path mappingPath =
-        Path.of(
-            "/Users/m.a.swertz/git/molgenis-emx2/etl_pilot/fair-mappings/dcat-via-mapping/src/export-mapping.yaml");
+    Path mappingPath = Path.of("../../fair-mappings/dcat-via-mapping/src/export-mapping.yaml");
     return Files.readString(mappingPath);
   }
 }

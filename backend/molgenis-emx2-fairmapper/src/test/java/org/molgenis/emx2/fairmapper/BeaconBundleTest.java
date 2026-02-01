@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
+import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
-import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.TestCase;
+import org.molgenis.emx2.fairmapper.model.step.StepConfig;
+import org.molgenis.emx2.fairmapper.model.step.TransformStep;
 
 class BeaconBundleTest {
   private BundleLoader bundleLoader;
@@ -21,7 +21,7 @@ class BeaconBundleTest {
   void setUp() {
     bundleLoader = new BundleLoader();
     transformEngine = new JsltTransformEngine();
-    bundlePath = Paths.get("/Users/m.a.swertz/git/molgenis-emx2/etl_pilot/fair-mappings/beacon-v2");
+    bundlePath = Path.of("../../fair-mappings/beacon-v2");
   }
 
   @Test
@@ -32,7 +32,7 @@ class BeaconBundleTest {
     assertNotNull(bundle);
     assertEquals("beacon-v2", bundle.name());
     assertEquals("2.0.0", bundle.version());
-    assertFalse(bundle.endpoints().isEmpty());
+    assertFalse(bundle.getMappings().isEmpty());
   }
 
   @Test
@@ -40,21 +40,22 @@ class BeaconBundleTest {
     Path configPath = bundlePath.resolve("fairmapper.yaml");
     MappingBundle bundle = bundleLoader.load(configPath);
 
-    for (Endpoint endpoint : bundle.endpoints()) {
-      for (Step step : endpoint.steps()) {
-        if (step.transform() != null) {
-          testTransformStep(step);
+    for (Mapping mapping : bundle.getMappings()) {
+      if (mapping.steps() == null) continue;
+      for (StepConfig step : mapping.steps()) {
+        if (step instanceof TransformStep transformStep) {
+          testTransformStep(transformStep);
         }
       }
     }
   }
 
-  private void testTransformStep(Step step) throws Exception {
+  private void testTransformStep(TransformStep step) throws Exception {
     if (step.tests() == null || step.tests().isEmpty()) {
       return;
     }
 
-    Path transformPath = bundlePath.resolve(step.transform());
+    Path transformPath = bundlePath.resolve(step.path());
 
     for (TestCase testCase : step.tests()) {
       Path inputPath = bundlePath.resolve(testCase.input());
@@ -68,7 +69,7 @@ class BeaconBundleTest {
           expectedOutput,
           actualOutput,
           String.format(
-              "Transform test failed for %s with input %s", step.transform(), testCase.input()));
+              "Transform test failed for %s with input %s", step.path(), testCase.input()));
     }
   }
 }
