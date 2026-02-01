@@ -67,9 +67,9 @@ public class RDFApi {
   }
 
   private static void defineApiRoutePerPrefix(Javalin app, String prefix) {
-    defineApiRoutes(app, prefix, API_RDF, null);
-    defineApiRoutes(app, prefix, API_TTL, RDFFormat.TURTLE);
-    defineApiRoutes(app, prefix, API_JSONLD, RDFFormat.JSONLD);
+    defineApiRoutes(app, prefix, "/api/rdf-legacy", null);
+    defineApiRoutes(app, prefix, "/api/ttl-legacy", RDFFormat.TURTLE);
+    defineApiRoutes(app, prefix, "/api/jsonld-legacy", RDFFormat.JSONLD);
   }
 
   private static void defineApiRoutes(
@@ -295,6 +295,8 @@ public class RDFApi {
   private static RDFFormat setFormat(Context ctx, RDFFormat format) {
     if (format == null) format = selectFormat(ctx);
     ctx.contentType(format.getDefaultMIMEType());
+    ctx.header("Deprecation", "true");
+    ctx.header("Link", "</api/ttl>; rel=\"successor-version\"");
     return format;
   }
 

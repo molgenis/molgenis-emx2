@@ -19,9 +19,10 @@ Both accept plain JSON or JSON-LD input, and output JSON-LD (convertible to TTL/
                     ▼                    ▼
 ┌──────────────────────────┐  ┌──────────────────────────┐
 │        REST-LD API       │  │      GraphQL-LD API      │
-│  (JsonldApi.java)        │  │  (GraphqlApi.java)       │
+│  (RestApi.java)          │  │  (GraphqlApi.java)       │
 │  - Content negotiation   │  │  - Query/mutation        │
 │  - REST verbs            │  │  - Fragments             │
+│  - SHACL validation      │  │                          │
 └──────────────────────────┘  └──────────────────────────┘
                     │                    │
                     └────────┬───────────┘
@@ -101,6 +102,8 @@ GraphQL is for **clients wanting GraphQL syntax**, not an internal abstraction.
 | Content negotiation | ✅ | Accept/Content-Type headers |
 | GraphQL queries | ✅ | For subsetting/filtering |
 | Framing (`@embed`) | ✅ | Always included, ignored if unused |
+| SHACL validation | ✅ | Via `?validate=<id>` query param |
+| Semantic annotations | ✅ | Optional - auto from schema or explicit |
 
 ### What We Skip (Intentionally)
 
@@ -150,7 +153,7 @@ Same pattern for `/jsonld/` and `/ttl/`.
 
 **Why `_` prefix is safe:** Table names must start with a letter (`[a-zA-Z]` per `TABLE_NAME_REGEX`), so `_` prefixed endpoints can never conflict with user tables.
 
-**TODO:** Fix existing CSV API to use same pattern (`/_members`, `/_settings`, `/_changelog` instead of `/members`, `/settings`, `/changelog`).
+**DONE:** CSV API updated to use `/_members`, `/_settings`, `/_changelog`.
 
 ### Content-Negotiated Endpoint (Canonical REST)
 
@@ -185,11 +188,20 @@ Format determined by `Accept` header:
 - Response wrapped with JSON-LD @context
 - Enables semantic subsetting via GraphQL
 
-### Deprecated Endpoints
+### SHACL Validation
 
 ```
-/{schema}/api/rdf                       # OLD: will be replaced
-/{schema}/api/ttl2                      # TEMP: rename to /api/ttl
+GET /api/ttl?shacls                     # List available SHACL validation sets (YAML)
+GET /{schema}/api/ttl?validate=<id>     # Validate schema against SHACL set
+GET /{schema}/api/jsonld?validate=<id>  # Same, JSON-LD output
+```
+
+### Deprecated Endpoints (moved to -legacy)
+
+```
+/{schema}/api/rdf-legacy                # Old RDF implementation (for testing)
+/{schema}/api/ttl-legacy                # Old TTL implementation (for testing)
+/{schema}/api/jsonld-legacy             # Old JSON-LD implementation (for testing)
 ```
 
 ### Content Types
@@ -243,6 +255,11 @@ Format determined by `Accept` header:
 |-----------|----------------------------------------|---------|
 | `query` | GraphQL query for subsetting           | `?query={Pet{name}}` |
 | `filter` | JSON filter object conform GraphQL api | `?filter={"status":"available"}` |
+| `limit` | Max rows to return                     | `?limit=100` |
+| `offset` | Skip first N rows                      | `?offset=50` |
+| `search` | Full-text search                       | `?search=keyword` |
+| `shacls` | List available SHACL sets              | `?shacls` (root only) |
+| `validate` | Validate against SHACL set            | `?validate=dcat-ap-3.0` |
 
 ### Status Codes
 

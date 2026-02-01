@@ -49,10 +49,12 @@ Pet/firstName=Donald&lastName=Duck
 - [x] Add null validation in fromRow()
 - [x] Add mg_id computed field to GraphQL schema
 
-### Deferred (separate PR)
-- [ ] Change delimiter from `&` to `,` (cleaner URLs)
-- [ ] Single pkey: value only without `key=`
-- [ ] Update JSON-LD @base pattern
+### Future Considerations
+- [ ] Change delimiter from `&` to `,` (cleaner URLs, less encoding needed)
+- [x] ~~Single pkey: value only without `key=`~~ → Rejected: keep consistent `key=value` format
+- [ ] Update JSON-LD @base pattern (if delimiter changes)
+
+**Note:** Nobody currently uses mg_id URLs, so breaking changes are low risk if needed later.
 
 ## Benefits
 1. Meaningful RDF subject IRIs
