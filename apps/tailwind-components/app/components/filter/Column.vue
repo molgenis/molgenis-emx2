@@ -129,14 +129,6 @@ function handleExpandClick(event: Event) {
     </div>
     <div class="text-right grow flex gap-2 items-center justify-end">
       <span
-        v-if="isExpandableRef"
-        class="text-body-sm hover:underline hover:cursor-pointer"
-        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
-        @click="handleExpandClick"
-      >
-        Expand
-      </span>
-      <span
         v-if="modelValue"
         class="text-body-sm hover:underline hover:cursor-pointer"
         :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
@@ -186,5 +178,15 @@ function handleExpandClick(event: Event) {
       :ref-label="column.refLabel || column.refLabelDefault"
       :show-clear="!isRefType"
     />
+
+    <button
+      v-if="isExpandableRef"
+      type="button"
+      class="mt-2 text-body-sm hover:underline"
+      :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+      @click="handleExpandClick"
+    >
+      Expand to filter on related fields
+    </button>
   </div>
 </template>
