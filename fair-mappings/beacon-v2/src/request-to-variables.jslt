@@ -1,0 +1,46 @@
+let field_for_concept = {
+  "ncit:C28421": "genderAtBirth",
+  "ncit:C2991":  "diseases.disease"
+}
+
+let sex_code_translation = {
+  "ncit:C16576":  "GSSO_000123",  // Male
+  "ncit:C20197":  "GSSO_000124",  // Female
+  "ncit:C124294": "GSSO_009509",  // Undetermined
+  "ncit:C17998":  "GSSO_009515"   // Unknown
+}
+
+let fields_needing_sex_translation = ["genderAtBirth"]
+
+// Default pagination
+let default_limit = 10
+let default_offset = 0
+
+def translate_value(field, value)
+  if (contains($fields_needing_sex_translation, $field))
+    fallback(get-key($sex_code_translation, $value), $value)
+  else
+    $value
+
+def build_filter_for_field(field, value)
+  {$field: {"ontologyTermURI": {"like": $value}}}
+
+def process_beacon_filter(beacon_filter)
+  let field = get-key($field_for_concept, $beacon_filter.id)
+  if ($field)
+    let translated_value = translate_value($field, $beacon_filter.value)
+    build_filter_for_field($field, $translated_value)
+  else
+    null
+
+let beacon_filters = fallback(.query.filters, [])
+let molgenis_filters = [for ($beacon_filters) process_beacon_filter(.)]
+let valid_filters = [for ($molgenis_filters) . if (. != null)]
+
+{
+  "limit":  fallback(.query.pagination.limit, $default_limit),
+  "offset": fallback(.query.pagination.skip, $default_offset),
+  "filter": if (size($valid_filters) == 0) null
+            else if (size($valid_filters) == 1) $valid_filters[0]
+            else {"_and": $valid_filters}
+}

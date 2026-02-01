@@ -4,11 +4,11 @@ version: 1.0.0
 mappings:
   - name: harvest-catalog
     fetch: ${SOURCE_URL}
-    frame: src/frames/catalog-with-datasets.jsonld
+    frame: src/catalog-with-datasets.jsonld
     steps:
-      - transform: src/transforms/to-molgenis.jslt
+      - transform: src/to-molgenis.jslt
         tests:
           - input: test/transform/dcat-input.json
             output: test/transform/molgenis-output.json
 
-      - mutate: src/mutations/upsert-resources.gql
+      - mutate: src/upsert-resources.gql

@@ -1,3 +1,0 @@
-mutation ($Resources: [ResourcesInput]) {
-  insert(Resources: $Resources) { message }
-}

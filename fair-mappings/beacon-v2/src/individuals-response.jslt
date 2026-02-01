@@ -1,3 +1,4 @@
+
 // Transform GraphQL result to Beacon v2 response
 // Input: GraphQL query result with Individuals array and Individuals_agg count
 // Output: Beacon v2 response format

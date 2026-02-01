@@ -7,5 +7,5 @@ mappings:
     methods: [GET]
     output: turtle
     steps:
-      - query: src/queries/get-all.gql
+      - query: src/get-all.gql
       - mapping: src/export-mapping.yaml

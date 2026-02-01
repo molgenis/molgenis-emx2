@@ -1,7 +1,0 @@
-{
-  "@context": { "my": "urn:molgenis:", "id": "my:id", "name": "my:name", "description": "my:description", "organisation": {"@id": "my:organisation", "@type": "@id"} },
-  "@type": "my:Resources",
-  "@explicit": true,
-  "id": {}, "name": {}, "description": {},
-  "organisation": { "@embed": "@always", "@explicit": true, "id": {}, "name": {} }
-}
