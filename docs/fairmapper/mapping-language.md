@@ -96,7 +96,7 @@ Define reusable expressions with `_let`:
 
 ```yaml
 _context:
-  baseUrl: "=settings?.baseUrl || 'http://localhost'"
+  baseUrl: "=_request.baseUrl"
   schema: "=_schema.name"
 
 Resources:
@@ -158,16 +158,21 @@ Define global variables available throughout the mapping.
 
 ```yaml
 _context:
-  baseUrl: "=settings?.baseUrl || 'http://localhost'"
+  baseUrl: "=_request.baseUrl"
   schema: "=_schema.name"
-  apiPath: "=/api/rdf"
+  contactEmail: "=_params.contactEmail || 'info@example.org'"
 ```
 
-**Available inputs:**
-- `settings` - Schema settings (key/value pairs)
-- `_schema` - Schema metadata (name, etc.)
+**Injected variables (available in all expressions):**
 
-**Scope:** Available in all expressions in the document.
+| Variable | Source | Description |
+|----------|--------|-------------|
+| `_request` | HTTP request | `baseUrl`, `schema`, `path` |
+| `_params` | fairmapper.yaml | Bundle parameters (env vars resolved) |
+| `settings` | Schema settings | Converted to object from key/value |
+| `_schema` | GraphQL query | Schema metadata (name, etc.) |
+
+**Scope:** `_context` variables are evaluated once and available everywhere.
 
 ### _let
 
@@ -331,7 +336,7 @@ _prefixes:
   skos: http://www.w3.org/2004/02/skos/core#
 
 _context:
-  baseUrl: "=settings?.baseUrl || 'http://localhost'"
+  baseUrl: "=_request.baseUrl"
   schema: "=_schema.name"
 
 Resources:

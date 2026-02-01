@@ -6,7 +6,7 @@ _prefixes:
   skos: http://www.w3.org/2004/02/skos/core#
 
 _context:
-  baseUrl: "=settings?.baseUrl || 'http://localhost'"
+  baseUrl: "=_request.baseUrl"
   schema: "=_schema.name"
 
 Resources:

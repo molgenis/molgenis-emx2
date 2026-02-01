@@ -244,155 +244,242 @@ implementation 'org.eclipse.rdf4j:rdf4j-queryparser-sparql:4.3.8'
 
 **Example bundle:** `fair-mappings/dcat-sparql/`
 
-### Mapping Step (Planned - Phase 11.4)
+### Mapping Step (Phase 11.4)
 
-Declarative YAML-based semantic mapping. Schema-centric: MOLGENIS tables/columns as YAML tree, predicates as values. Uses JS expressions (GraalVM) for complex transforms.
+Declarative YAML-based mapping for MOLGENIS → RDF export. Schema-centric: MOLGENIS tables/columns as YAML keys, RDF predicates as values. Uses JavaScript expressions (GraalVM) for transforms.
+
+**Full language spec:** `docs/fairmapper/mapping-language.md`
 
 ```yaml
 steps:
-  - mapping: src/export-mapping.yaml   # column → predicate
-  # or
-  - mapping: src/import-mapping.yaml   # predicate → column
+  - mapping: src/export-mapping.yaml
 ```
 
-**Mapping file format:**
+**Quick example:**
 ```yaml
 _prefixes:
   dcat: http://www.w3.org/ns/dcat#
   dct: http://purl.org/dc/terms/
 
 _context:
-  baseUrl: "=schema.baseUrl"
-  schema: "=schema.name"
+  baseUrl: "=_request.baseUrl"
+  schema: "=_schema.name"
 
-Resources:
-  _id:
-    export: "=baseUrl + '/' + schema + '/resource/' + id"
-    import: "=value.split('/').pop()"
-  _type: |
-    =type?.find(t => t.name === 'Catalogue') ? 'dcat:Catalog' :
-     type?.find(t => t.name === 'Databank') ? 'dcat:Dataset' :
-     'dcat:Distribution'
-  name: dct:title
-  description: dct:description
-  keywords:
-    predicate: dcat:keyword
-    import: "=Array.isArray(value) ? value : (value ? [value] : [])"
-  publisher:
-    predicate: dct:publisher
-    export:
-      "@id": "=baseUrl + '/agent/' + publisher?.id"
-      "@type": foaf:Agent
-      "foaf:name": "=publisher?.name"
-    import: "={id: value['@id']?.split('/').pop()}"
-```
-
-**Mapping file structure:**
-
-| Key | Purpose |
-|-----|---------|
-| `_prefixes` | Prefix → URI definitions |
-| `_context` | Global variables (baseUrl, schema) |
-| `TableName` | MOLGENIS table mapping |
-| `_id` | URI construction (export) / ID extraction (import) |
-| `_type` | RDF class (literal or `=expression`) |
-| `column` | Column → predicate mapping |
-
-**Column mapping formats (export):**
-
-| Format | Example | Use case |
-|--------|---------|----------|
-| Simple | `name: dct:title` | Direct mapping |
-| With transform | `email: {predicate: vcard:hasEmail, value: "='mailto:'+email"}` | Value transform |
-| Nested object | `publisher: {predicate: dct:publisher, value: {"@id": "=...", "@type": ...}}` | Complex RDF structure |
-| Array iteration | `contacts: {predicate: dcat:contactPoint, foreach: c in contacts, value: {...}}` | One RDF object per array item |
-
-**foreach syntax:**
-```yaml
-contacts:
-  predicate: dcat:contactPoint
-  foreach: c in contacts        # iterate array, 'c' is loop variable
-  value:
-    "@id": "=baseUrl + '/contact/' + c.firstName"
-    "@type": vcard:Kind
-    "vcard:fn": "=c.firstName + ' ' + c.lastName"
-```
-
-**Variable scope rules:**
-- `_context` → global, available everywhere
-- `_let` → available in that block + children
-- Row fields (`id`, `name`, etc.) → available in table scope
-- `foreach` var (`c`) → available in value block
-- `value` → incoming value (import direction)
-- Standard JS: `Array.isArray()`, `.map()`, `.find()`, `.split()`, etc.
-
-**Scoped variables with `_let`:**
-```yaml
 Resources:
   _let:
     resourceUrl: "=baseUrl + '/' + schema + '/resource/' + id"
   _id: "=resourceUrl"
+  _type: dcat:Dataset
+  name: dct:title
   contacts:
-    _let:
-      contactBase: "=resourceUrl + '/contact'"
+    predicate: dcat:contactPoint
     foreach: c in contacts
     value:
-      "@id": "=contactBase + '/' + c.firstName"
+      "@id": "=resourceUrl + '/contact/' + c.firstName"
+      "@type": vcard:Kind
+      "vcard:fn": "=c.firstName + ' ' + c.lastName"
 ```
 
-**Auto-generated query (future):**
-Engine can infer GraphQL query from mapping - no separate query file needed:
+**Language constructs:**
+
+| Construct | Purpose |
+|-----------|---------|
+| `_prefixes` | Namespace prefix → URI |
+| `_context` | Global variables (computed once) |
+| `_let` | Scoped variables (block + children) |
+| `_id` | Subject URI expression |
+| `_type` | RDF type(s) |
+| `column: predicate` | Simple column → predicate |
+| `predicate: + value:` | Column with transform |
+| `foreach: var in array` | Array iteration |
+
+**Bundle parameters (fairmapper.yaml):**
 ```yaml
-_query:
-  filter: "={type: {equals: 'Catalogue'}}"
-  include: [_schema, _settings]
+name: dcat-via-mapping
+parameters:
+  baseUrl: ${BASE_URL:-http://localhost}
+  contactEmail: ${CONTACT_EMAIL:-info@example.org}
+mappings:
+  - name: export-dcat
+    steps:
+      - query: src/queries/get-all.gql
+      - mapping: src/export-mapping.yaml
 ```
 
-**Two mapping files (different key structure):**
+**Available in expressions:**
 
-Export (column-keyed):
+| Variable | Source | Example |
+|----------|--------|---------|
+| `_request` | Runtime context | `_request.baseUrl`, `_request.schema` |
+| `_params` | fairmapper.yaml parameters | `_params.contactEmail` |
+| `settings` | Schema settings (as object) | `settings.organization` |
+| `_schema` | Schema metadata | `_schema.name` |
+
+**Expression syntax:** `=` prefix triggers JavaScript (GraalVM)
 ```yaml
-Resources:
-  name: dct:title              # column → predicate
-  publisher:                   # nested RDF object
-    "@id": "=baseUrl + '/agent/' + publisher?.id"
-    "@type": foaf:Agent
+"=_request.baseUrl + '/resource/' + id"
+"=_params.contactEmail"
+"=settings?.organization || 'Unknown'"
 ```
 
-Import (predicate-keyed):
-```yaml
-Resources:
-  dct:title: name              # predicate → column
-  dct:publisher: "={id: value['@id']?.split('/').pop()}"
+**Scope chain:**
 ```
-
-**Array normalization (import):**
-```yaml
-keywords:
-  predicate: dcat:keyword
-  import: "=Array.isArray(value) ? value : (value ? [value] : [])"
-```
-
-**Ontology field mapping:**
-```yaml
-theme:
-  predicate: dcat:theme
-  export: "=theme?.map(t => ({'@id': t.ontologyTermURI}))"
-  import: "=value?.map(v => ({ontologyTermURI: v['@id']}))"
-```
-
-**Reference field with nested structure:**
-```yaml
-publisher:
-  predicate: dct:publisher
-  export:
-    "@id": "=baseUrl + '/agent/' + publisher?.id"
-    "@type": foaf:Agent
-    "foaf:name": "=publisher?.name"
-  import: "={id: value['@id']?.split('/').pop()}"
+_request, _params, settings, _schema (injected by engine)
+  └── _context (computed once)
+        └── Table _let
+              └── Row fields (id, name, ...)
+                    └── Column _let
+                          └── foreach var (c, d, t, ...)
 ```
 
 **Example bundle:** `fair-mappings/dcat-via-mapping/`
+
+---
+
+#### MappingStep Engine Implementation
+
+**Class structure:**
+```
+MappingStep.java          - Step implementation (like TransformStep)
+MappingEngine.java        - Core engine: parse YAML, evaluate, produce JSON-LD
+MappingScope.java         - Variable scope chain management
+(reuse JavaScriptUtils)   - Already in molgenis-emx2/utils
+```
+
+**Processing flow:**
+```
+1. Parse mapping YAML (SnakeYAML)
+2. Extract _prefixes → build @context for JSON-LD
+3. Build base scope with injected variables:
+   - _request: {baseUrl, schema, path} from HTTP request
+   - _params: from fairmapper.yaml parameters (env vars resolved)
+   - settings: from query _settings (converted to object)
+   - _schema: from query _schema
+4. Evaluate _context expressions once (extends base scope)
+5. For each TableName block:
+   a. Get rows from input JSON (from previous query step)
+   b. Evaluate table-level _let (once per table)
+   c. For each row:
+      - Create scope: base + _context + _let + row fields
+      - Evaluate _id → subject URI
+      - Evaluate _type → @type
+      - For each column mapping:
+        - Simple: column value → predicate
+        - With value: evaluate expression
+        - With foreach: iterate array, evaluate value per item
+      - Produce JSON-LD object
+6. Wrap all objects in @graph with @context from _prefixes
+7. Output: JSON-LD (serializable to Turtle via RDF4J)
+```
+
+**Settings normalization:**
+```java
+// Query returns: [{key:"baseUrl", value:"http://..."}, ...]
+// Engine converts to: {baseUrl: "http://...", ...}
+Map<String, String> settings = settingsArray.stream()
+    .collect(toMap(s -> s.get("key"), s -> s.get("value")));
+```
+
+**Request context:**
+```java
+Map<String, Object> request = Map.of(
+    "baseUrl", getBaseUrl(httpRequest),  // e.g., "https://molgenis.org"
+    "schema", schemaName,                 // from URL path
+    "path", httpRequest.getPathInfo()
+);
+```
+
+**Input/Output:**
+- Input: JSON from GraphQL query step (contains table data + _schema + _settings)
+- Output: JSON-LD document
+
+**Dependencies:**
+```gradle
+// GraalVM already included via molgenis-emx2 dependency
+implementation project(':molgenis-emx2')
+```
+
+**Expression evaluation:**
+```java
+// Reuse existing JavaScriptUtils from molgenis-emx2
+import org.molgenis.emx2.utils.JavaScriptUtils;
+
+String expr = "baseUrl + '/resource/' + id";
+Map<String, Object> scope = Map.of("baseUrl", "http://example.org", "id", "123");
+Object result = JavaScriptUtils.executeJavascriptOnMap(expr, scope);
+// result = "http://example.org/resource/123"
+```
+
+**Scope management:**
+```java
+public class MappingScope {
+    private final Map<String, Object> variables = new LinkedHashMap<>();
+    private final MappingScope parent;
+
+    public MappingScope child() {
+        return new MappingScope(this);
+    }
+
+    public Object get(String name) {
+        if (variables.containsKey(name)) return variables.get(name);
+        return parent != null ? parent.get(name) : null;
+    }
+
+    public Map<String, Object> flatten() {
+        Map<String, Object> result = parent != null ? parent.flatten() : new LinkedHashMap<>();
+        result.putAll(variables);
+        return result;
+    }
+}
+```
+
+**foreach parsing:**
+```java
+// "foreach: c in contacts" → {varName: "c", arrayField: "contacts"}
+Pattern FOREACH_PATTERN = Pattern.compile("(\\w+)\\s+in\\s+(\\w+)");
+```
+
+**JSON-LD output structure:**
+```json
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/"
+  },
+  "@graph": [
+    {
+      "@id": "http://example.org/resource/1",
+      "@type": "dcat:Dataset",
+      "dct:title": "My Dataset"
+    }
+  ]
+}
+```
+
+**Prefix expansion:**
+- During evaluation, `dcat:Dataset` stays as-is (JSON-LD @context handles expansion)
+- @context is built from _prefixes
+
+**Null handling:**
+- If expression evaluates to null/undefined → omit property
+- If _id is null → skip entire row (warning logged)
+
+**Error handling:**
+- Expression syntax error → MolgenisException with line info
+- Missing variable → null (JavaScript undefined)
+- Invalid foreach syntax → MolgenisException
+
+**Safety limits:**
+- Max rows: 10,000 per table
+- Expression timeout: 1 second per expression
+- Max nested depth: 10 levels
+
+**Test cases:**
+```
+test/mapping/simple.input.json + simple.mapping.yaml → simple.output.jsonld
+test/mapping/foreach.input.json + foreach.mapping.yaml → foreach.output.jsonld
+test/mapping/nested-let.input.json + nested-let.mapping.yaml → nested-let.output.jsonld
+```
 
 ### RDF Auto-Conversion (Phase 11.1 - Done)
 
