@@ -13,8 +13,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -31,10 +31,12 @@ public class DownloadApiUtils {
 
   static final String MULTIPART_CONFIG = "org.eclipse.jetty.multipartConfig";
   static final String FILE_PARAM = "file";
-  static final String DATE_FORMAT = "yyyyMMddHHmm";
   static final String EXCEL_CONTENT_TYPE =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   static final String ZIP_CONTENT_TYPE = "application/zip";
+
+  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
   private DownloadApiUtils() {
     throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -73,7 +75,7 @@ public class DownloadApiUtils {
 
   static void setDownloadHeaders(Context ctx, String contentType, String filename) {
     ctx.contentType(contentType);
-    String date = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header("Content-Disposition", "attachment; filename=\"" + filename + "_" + date + "\"");
   }
 
@@ -148,7 +150,7 @@ public class DownloadApiUtils {
 
   static void sendFileResponse(Context ctx, Path file, String contentType, String filename)
       throws IOException {
-    String date = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     try (OutputStream outputStream = ctx.outputStream()) {
       ctx.contentType(contentType);
       ctx.header("Content-Disposition", "attachment; filename=\"" + filename + "_" + date + "\"");

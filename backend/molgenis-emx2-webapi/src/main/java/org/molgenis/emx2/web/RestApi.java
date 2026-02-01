@@ -1,9 +1,9 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.json.JsonUtil.*;
+import static org.molgenis.emx2.jsonld.RestOverGraphql.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.DownloadApiUtils.*;
 
@@ -12,37 +12,47 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.graphql.GraphqlApi;
 import org.molgenis.emx2.io.emx2.Emx2Changelog;
 import org.molgenis.emx2.io.emx2.Emx2Members;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.jsonld.JsonLdSchemaGenerator;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class JsonYamlApi {
+public class RestApi {
 
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
+  private static final int DEFAULT_TABLE_LIMIT = 1000;
+  private static final int DEFAULT_TABLE_OFFSET = 0;
+
+  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
   private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
   private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
 
-  private JsonYamlApi() {}
+  private RestApi() {}
 
-  private enum OutputFormat {
+  private enum Format {
     JSON(ACCEPT_JSON, ".json", JSON_MAPPER),
-    YAML(ACCEPT_YAML, ".yaml", YAML_MAPPER);
+    YAML(ACCEPT_YAML, ".yaml", YAML_MAPPER),
+    JSONLD(ACCEPT_JSONLD, ".jsonld", JSON_MAPPER),
+    TTL(ACCEPT_TTL, ".ttl", null);
 
     private final String contentType;
     private final String extension;
     private final ObjectMapper mapper;
 
-    OutputFormat(String contentType, String extension, ObjectMapper mapper) {
+    Format(String contentType, String extension, ObjectMapper mapper) {
       this.contentType = contentType;
       this.extension = extension;
       this.mapper = mapper;
@@ -62,47 +72,46 @@ public class JsonYamlApi {
   }
 
   public static void create(Javalin app) {
-    final String jsonApi = "/{schema}/api/json/";
-    app.get(jsonApi + "_schema", ctx -> getSchemaMetadata(ctx, OutputFormat.JSON));
-    app.post(jsonApi + "_schema", ctx -> postSchema(ctx, OutputFormat.JSON));
-    app.delete(jsonApi + "_schema", ctx -> deleteSchema(ctx, OutputFormat.JSON));
-    app.get(jsonApi + "_data", ctx -> getData(ctx, OutputFormat.JSON));
-    app.get(jsonApi + "_all", ctx -> getAll(ctx, OutputFormat.JSON));
-    app.get(jsonApi + "_members", ctx -> getMembers(ctx, OutputFormat.JSON));
-    app.get(jsonApi + "_settings", ctx -> getSettings(ctx, OutputFormat.JSON));
-    app.get(jsonApi + "_changelog", ctx -> getChangelog(ctx, OutputFormat.JSON));
-    app.get(jsonApi + "{table}", ctx -> getTable(ctx, OutputFormat.JSON));
-    app.post(jsonApi + "{table}", ctx -> postTable(ctx, OutputFormat.JSON));
-    app.delete(jsonApi + "{table}", ctx -> deleteTable(ctx, OutputFormat.JSON));
-    app.get(jsonApi + "{table}/*", ctx -> getRow(ctx, OutputFormat.JSON));
-    app.put(jsonApi + "{table}/*", ctx -> putRow(ctx, OutputFormat.JSON));
-    app.delete(jsonApi + "{table}/*", ctx -> deleteRow(ctx, OutputFormat.JSON));
-
-    final String yamlApi = "/{schema}/api/yaml/";
-    app.get(yamlApi + "_schema", ctx -> getSchemaMetadata(ctx, OutputFormat.YAML));
-    app.post(yamlApi + "_schema", ctx -> postSchema(ctx, OutputFormat.YAML));
-    app.delete(yamlApi + "_schema", ctx -> deleteSchema(ctx, OutputFormat.YAML));
-    app.get(yamlApi + "_data", ctx -> getData(ctx, OutputFormat.YAML));
-    app.get(yamlApi + "_all", ctx -> getAll(ctx, OutputFormat.YAML));
-    app.get(yamlApi + "_members", ctx -> getMembers(ctx, OutputFormat.YAML));
-    app.get(yamlApi + "_settings", ctx -> getSettings(ctx, OutputFormat.YAML));
-    app.get(yamlApi + "_changelog", ctx -> getChangelog(ctx, OutputFormat.YAML));
-    app.get(yamlApi + "{table}", ctx -> getTable(ctx, OutputFormat.YAML));
-    app.post(yamlApi + "{table}", ctx -> postTable(ctx, OutputFormat.YAML));
-    app.delete(yamlApi + "{table}", ctx -> deleteTable(ctx, OutputFormat.YAML));
-    app.get(yamlApi + "{table}/*", ctx -> getRow(ctx, OutputFormat.YAML));
-    app.put(yamlApi + "{table}/*", ctx -> putRow(ctx, OutputFormat.YAML));
-    app.delete(yamlApi + "{table}/*", ctx -> deleteRow(ctx, OutputFormat.YAML));
+    registerEndpoints(app, "json", Format.JSON);
+    registerEndpoints(app, "yaml", Format.YAML);
+    registerEndpoints(app, "jsonld", Format.JSONLD);
+    registerEndpoints(app, "ttl", Format.TTL);
   }
 
-  private static void getSchemaMetadata(Context ctx, OutputFormat format) throws IOException {
+  private static GraphqlApi getGraphqlForSchema(Context ctx) {
+    String schemaName = MolgenisWebservice.sanitize(ctx.pathParam("schema"));
+    return MolgenisWebservice.applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+  }
+
+  private static void registerEndpoints(Javalin app, String path, Format format) {
+    final String apiPath = "/{schema}/api/" + path + "/";
+
+    app.get(apiPath + "_schema", ctx -> getSchemaMetadata(ctx, format));
+    app.post(apiPath + "_schema", ctx -> postSchema(ctx, format));
+    app.delete(apiPath + "_schema", ctx -> deleteSchema(ctx, format));
+    app.get(apiPath + "_data", ctx -> getData(ctx, format));
+    app.get(apiPath + "_all", ctx -> getAll(ctx, format));
+    app.get(apiPath + "_members", ctx -> getMembers(ctx, format));
+    app.get(apiPath + "_settings", ctx -> getSettings(ctx, format));
+    app.get(apiPath + "_changelog", ctx -> getChangelog(ctx, format));
+
+    if (format == Format.JSONLD) {
+      app.get(apiPath + "_context", ctx -> getContext(ctx));
+    }
+
+    app.get(apiPath + "{table}", ctx -> getTable(ctx, format));
+    app.post(apiPath + "{table}", ctx -> postTable(ctx, format));
+    app.delete(apiPath + "{table}", ctx -> deleteTable(ctx, format));
+    app.get(apiPath + "{table}/*", ctx -> getRow(ctx, format));
+    app.put(apiPath + "{table}/*", ctx -> putRow(ctx, format));
+    app.delete(apiPath + "{table}/*", ctx -> deleteRow(ctx, format));
+  }
+
+  private static void getSchemaMetadata(Context ctx, Format format) throws IOException {
     Schema schema = MolgenisWebservice.getSchema(ctx);
-    String output =
-        format == OutputFormat.JSON
-            ? JsonUtil.schemaToJson(schema.getMetadata(), true)
-            : schemaToYaml(schema.getMetadata(), true);
+    String output = formatSchema(schema.getMetadata(), format, ctx.url());
     ctx.contentType(format.contentType());
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_" + date + format.extension() + "\"");
@@ -110,43 +119,69 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void postSchema(Context ctx, OutputFormat format) throws Exception {
+  private static void postSchema(Context ctx, Format format) throws Exception {
+    if (format == Format.TTL) {
+      throw new MolgenisException("Schema import not supported for Turtle format");
+    }
     Schema schema = MolgenisWebservice.getSchema(ctx);
+    String body = ctx.body();
+    if (format == Format.JSONLD) {
+      Map<String, Object> jsonLd = JSON_MAPPER.readValue(body, Map.class);
+      body = JSON_MAPPER.writeValueAsString(stripJsonLdKeywords(jsonLd));
+    }
     SchemaMetadata otherSchema =
-        format == OutputFormat.JSON ? jsonToSchema(ctx.body()) : yamlToSchema(ctx.body());
+        (format == Format.JSON || format == Format.JSONLD)
+            ? jsonToSchema(body)
+            : yamlToSchema(body);
     timedOperation(
         ctx, "{ \"message\": \"add/update metadata success\" }", () -> schema.migrate(otherSchema));
   }
 
-  private static void deleteSchema(Context ctx, OutputFormat format) throws Exception {
+  private static void deleteSchema(Context ctx, Format format) throws Exception {
+    if (format == Format.TTL) {
+      throw new MolgenisException("Schema delete not supported for Turtle format");
+    }
+    String body = ctx.body();
+    if (format == Format.JSONLD) {
+      Map<String, Object> jsonLd = JSON_MAPPER.readValue(body, Map.class);
+      body = JSON_MAPPER.writeValueAsString(stripJsonLdKeywords(jsonLd));
+    }
     SchemaMetadata schemaMetadata =
-        format == OutputFormat.JSON ? jsonToSchema(ctx.body()) : yamlToSchema(ctx.body());
+        (format == Format.JSON || format == Format.JSONLD)
+            ? jsonToSchema(body)
+            : yamlToSchema(body);
     timedOperation(
         ctx,
         "{ \"message\": \"removed metadata items success\" }",
         () -> MolgenisWebservice.getSchema(ctx).discard(schemaMetadata));
   }
 
-  private static void getData(Context ctx, OutputFormat format) throws IOException {
-    Schema schema = MolgenisWebservice.getSchema(ctx);
-    boolean includeSystem = includeSystemColumns(ctx);
-
-    Map<String, Object> dataMap = new LinkedHashMap<>();
-    boolean hasViewPermission =
-        schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString());
-
-    for (String tableName : schema.getTableNames()) {
-      Table table = schema.getTable(tableName);
-      if (hasViewPermission || table.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
-        List<Row> rows = table.query().retrieveRows();
-        List<Map<String, Object>> tableData = convertRowsToMaps(rows, table, includeSystem);
-        dataMap.put(tableName, tableData);
-      }
+  private static String formatSchema(SchemaMetadata meta, Format format, String schemaUrl)
+      throws IOException {
+    if (format == Format.TTL) {
+      Map<String, Object> context =
+          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+      return convertToTurtle(context, Map.of());
     }
+    if (format == Format.JSONLD) {
+      return JsonLdSchemaGenerator.generateJsonLdSchema(meta, schemaUrl);
+    }
+    if (format == Format.YAML) {
+      return schemaToYaml(meta, true);
+    }
+    return JsonUtil.schemaToJson(meta, true);
+  }
 
-    String output = format.mapper().writeValueAsString(dataMap);
+  private static void getData(Context ctx, Format format) throws IOException {
+    Schema schema = MolgenisWebservice.getSchema(ctx);
+    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    String customQuery = ctx.queryParam("query");
+
+    Map<String, Object> data = queryAllData(graphqlApi, customQuery);
+    String output = formatData(data, format, graphqlApi.getSchema().getMetadata(), ctx.url());
+
     ctx.contentType(format.contentType());
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_data_" + date + format.extension() + "\"");
@@ -154,36 +189,27 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void getAll(Context ctx, OutputFormat format) throws IOException {
+  private static void getAll(Context ctx, Format format) throws IOException {
     Schema schema = MolgenisWebservice.getSchema(ctx);
-    boolean includeSystem = includeSystemColumns(ctx);
+    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    String customQuery = ctx.queryParam("query");
 
-    Map<String, Object> allMap = new LinkedHashMap<>();
+    Map<String, Object> data = queryAllData(graphqlApi, customQuery);
+    String output;
 
-    String schemaJson =
-        format == OutputFormat.JSON
-            ? JsonUtil.schemaToJson(schema.getMetadata(), true)
-            : schemaToYaml(schema.getMetadata(), true);
-    Object schemaData = format.mapper().readValue(schemaJson, Object.class);
-    allMap.put("schema", schemaData);
-
-    Map<String, Object> dataMap = new LinkedHashMap<>();
-    boolean hasViewPermission =
-        schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString());
-
-    for (String tableName : schema.getTableNames()) {
-      Table table = schema.getTable(tableName);
-      if (hasViewPermission || table.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
-        List<Row> rows = table.query().retrieveRows();
-        List<Map<String, Object>> tableData = convertRowsToMaps(rows, table, includeSystem);
-        dataMap.put(tableName, tableData);
-      }
+    if (format == Format.JSONLD || format == Format.TTL) {
+      output = formatData(data, format, schema.getMetadata(), ctx.url());
+    } else {
+      Map<String, Object> allMap = new LinkedHashMap<>();
+      String schemaStr = formatSchema(schema.getMetadata(), format, ctx.url());
+      Object schemaData = format.mapper().readValue(schemaStr, Object.class);
+      allMap.put("schema", schemaData);
+      allMap.put("data", data);
+      output = format.mapper().writeValueAsString(allMap);
     }
-    allMap.put("data", dataMap);
 
-    String output = format.mapper().writeValueAsString(allMap);
     ctx.contentType(format.contentType());
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_all_" + date + format.extension() + "\"");
@@ -191,7 +217,31 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void getMembers(Context ctx, OutputFormat format) throws IOException {
+  private static Map<String, Object> queryAllData(GraphqlApi graphqlApi, String customQuery) {
+    String query = customQuery != null ? customQuery : graphqlApi.getSelectAllQuery();
+    return graphqlApi.queryAsMap(query, Map.of());
+  }
+
+  private static String formatData(
+      Map<String, Object> data, Format format, SchemaMetadata meta, String schemaUrl)
+      throws IOException {
+    if (format == Format.TTL) {
+      Map<String, Object> context =
+          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+      return convertToTurtle(context, data);
+    }
+    if (format == Format.JSONLD) {
+      Map<String, Object> context =
+          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+      Map<String, Object> wrapper = new LinkedHashMap<>();
+      wrapper.putAll(context);
+      wrapper.put("data", data);
+      return JSON_MAPPER.writeValueAsString(wrapper);
+    }
+    return format.mapper().writeValueAsString(data);
+  }
+
+  private static void getMembers(Context ctx, Format format) throws IOException {
     Schema schema = MolgenisWebservice.getSchema(ctx);
     if (!isManagerOrOwnerOfSchema(ctx, schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
@@ -209,7 +259,7 @@ public class JsonYamlApi {
 
     String output = format.mapper().writeValueAsString(rowMaps);
     ctx.contentType(format.contentType());
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\""
@@ -222,7 +272,7 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void getSettings(Context ctx, OutputFormat format) throws IOException {
+  private static void getSettings(Context ctx, Format format) throws IOException {
     Schema schema = MolgenisWebservice.getSchema(ctx);
 
     TableStore store = new TableStoreForCsvInMemory();
@@ -237,7 +287,7 @@ public class JsonYamlApi {
 
     String output = format.mapper().writeValueAsString(rowMaps);
     ctx.contentType(format.contentType());
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\""
@@ -250,7 +300,7 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void getChangelog(Context ctx, OutputFormat format) throws IOException {
+  private static void getChangelog(Context ctx, Format format) throws IOException {
     Schema schema = MolgenisWebservice.getSchema(ctx);
     if (!isManagerOrOwnerOfSchema(ctx, schema)) {
       throw new MolgenisException("Unauthorized to get schema changelog");
@@ -271,7 +321,7 @@ public class JsonYamlApi {
 
     String output = format.mapper().writeValueAsString(rowMaps);
     ctx.contentType(format.contentType());
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\""
@@ -284,11 +334,23 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void getTable(Context ctx, OutputFormat format) throws IOException {
+  private static void getContext(Context ctx) {
+    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    ctx.header("Content-Type", ACCEPT_JSONLD);
+    ctx.result(graphqlApi.getJsonLdSchema(ctx.url()));
+  }
+
+  private static void getTable(Context ctx, Format format) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
-    String json = table.query().retrieveJSON();
-    Object data = JSON_MAPPER.readValue(json, Object.class);
-    String output = format.mapper().writeValueAsString(data);
+    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    String tableId = table.getMetadata().getIdentifier();
+
+    Map<String, Object> variables = buildQueryVariables(ctx);
+    String query = buildTableQuery(tableId, variables);
+    Map<String, Object> data = graphqlApi.queryAsMap(query, Map.of());
+
+    String output = formatTableData(data, format, graphqlApi.getSchema().getMetadata(), ctx.url());
+
     ctx.status(200);
     ctx.contentType(format.contentType());
     ctx.header(
@@ -297,8 +359,45 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void postTable(Context ctx, OutputFormat format) throws IOException {
+  private static String formatTableData(
+      Map<String, Object> data, Format format, SchemaMetadata meta, String schemaUrl)
+      throws IOException {
+    if (format == Format.TTL) {
+      Map<String, Object> context =
+          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+      return convertToTurtle(context, data);
+    }
+    if (format == Format.JSONLD) {
+      Map<String, Object> context =
+          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+      Map<String, Object> wrapper = new LinkedHashMap<>();
+      wrapper.putAll(context);
+      wrapper.put("data", data);
+      return JSON_MAPPER.writeValueAsString(wrapper);
+    }
+    return format.mapper().writeValueAsString(data);
+  }
+
+  private static void postTable(Context ctx, Format format) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+
+    if (format == Format.JSONLD) {
+      Map<String, Object> jsonLdData =
+          JSON_MAPPER.readValue(
+              ctx.body(),
+              new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+      long start = System.currentTimeMillis();
+      int count = importJsonLd(table, jsonLdData);
+      ctx.status(200);
+      ctx.result(
+          "{ \"message\": \"imported number of rows: "
+              + count
+              + "\" } in "
+              + (System.currentTimeMillis() - start)
+              + "ms");
+      return;
+    }
+
     List<Map<String, Object>> rowMaps =
         format
             .mapper()
@@ -317,7 +416,7 @@ public class JsonYamlApi {
             + "ms");
   }
 
-  private static void deleteTable(Context ctx, OutputFormat format) throws IOException {
+  private static void deleteTable(Context ctx, Format format) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     List<Map<String, Object>> rowMaps =
         format
@@ -337,7 +436,7 @@ public class JsonYamlApi {
             + "ms");
   }
 
-  private static void getRow(Context ctx, OutputFormat format) throws IOException {
+  private static void getRow(Context ctx, Format format) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     String id = DownloadApiUtils.extractIdFromPath(ctx, table);
 
@@ -373,7 +472,7 @@ public class JsonYamlApi {
     ctx.result(output);
   }
 
-  private static void putRow(Context ctx, OutputFormat format) throws Exception {
+  private static void putRow(Context ctx, Format format) throws Exception {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     String id = DownloadApiUtils.extractIdFromPath(ctx, table);
 
@@ -407,7 +506,7 @@ public class JsonYamlApi {
     timedOperation(ctx, "{ \"message\": \"updated row\" }", () -> table.save(rows));
   }
 
-  private static void deleteRow(Context ctx, OutputFormat format) throws Exception {
+  private static void deleteRow(Context ctx, Format format) throws Exception {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     String tablePath = "/" + table.getName() + "/";
     int tableIndex = ctx.path().indexOf(tablePath);
@@ -447,28 +546,6 @@ public class JsonYamlApi {
         ctx, "{ \"message\": \"deleted row\" }", () -> table.delete(List.of(primaryKey)));
   }
 
-  private static List<Map<String, Object>> convertRowsToMaps(
-      List<Row> rows, Table table, boolean includeSystem) {
-    Set<String> allowedColumns =
-        table.getMetadata().getDownloadColumnNames().stream()
-            .map(Column::getName)
-            .filter(name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystem)
-            .collect(java.util.stream.Collectors.toSet());
-
-    List<Map<String, Object>> result = new ArrayList<>();
-    for (Row row : rows) {
-      Map<String, Object> valueMap = row.getValueMap();
-      Map<String, Object> filteredRow = new LinkedHashMap<>();
-      for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
-        if (allowedColumns.contains(entry.getKey()) && entry.getValue() != null) {
-          filteredRow.put(entry.getKey(), entry.getValue());
-        }
-      }
-      result.add(filteredRow);
-    }
-    return result;
-  }
-
   private static Object convertToColumnType(String value, Column column) {
     if (value == null) {
       return null;
@@ -484,5 +561,48 @@ public class JsonYamlApi {
       case DATETIME -> TypeUtils.toDateTime(value);
       default -> value;
     };
+  }
+
+  private static Map<String, Object> buildQueryVariables(Context ctx) {
+    Map<String, Object> variables = new LinkedHashMap<>();
+
+    String filterParam = ctx.queryParam("filter");
+    if (filterParam != null) {
+      try {
+        Map<String, Object> filter = JSON_MAPPER.readValue(filterParam, Map.class);
+        variables.put("filter", filter);
+      } catch (Exception e) {
+        throw new MolgenisException("Invalid filter JSON: " + e.getMessage());
+      }
+    }
+
+    int limit = parseIntParam(ctx, "limit").orElse(DEFAULT_TABLE_LIMIT);
+    int offset = parseIntParam(ctx, "offset").orElse(DEFAULT_TABLE_OFFSET);
+    variables.put("limit", limit);
+    variables.put("offset", offset);
+
+    String searchParam = ctx.queryParam("search");
+    if (searchParam != null) {
+      variables.put("search", searchParam);
+    }
+
+    return variables;
+  }
+
+  private static String buildTableQuery(String tableId, Map<String, Object> variables) {
+    List<String> argParts = new ArrayList<>();
+
+    if (variables.containsKey("limit") && variables.get("limit") != null) {
+      argParts.add("limit:" + variables.get("limit"));
+    }
+    if (variables.containsKey("offset") && variables.get("offset") != null) {
+      argParts.add("offset:" + variables.get("offset"));
+    }
+    if (variables.containsKey("search") && variables.get("search") != null) {
+      argParts.add("search:\"" + variables.get("search").toString().replace("\"", "\\\"") + "\"");
+    }
+
+    String args = argParts.isEmpty() ? "" : "(" + String.join(",", argParts) + ")";
+    return String.format("{%s%s{...All%sFields}}", tableId, args, tableId);
   }
 }

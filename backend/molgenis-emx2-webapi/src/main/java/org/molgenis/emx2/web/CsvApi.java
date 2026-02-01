@@ -14,8 +14,8 @@ import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
@@ -37,9 +37,10 @@ public class CsvApi {
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
 
-  private CsvApi() {
-    // hide constructor
-  }
+  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+  private CsvApi() {}
 
   public static void create(Javalin app) {
     final String apiPath = "/{schema}/api/csv/";
@@ -81,7 +82,7 @@ public class CsvApi {
         writer,
         separator);
 
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_changelog_" + date + ".csv\"");
@@ -145,7 +146,7 @@ public class CsvApi {
         writer,
         getSeparator(ctx));
     ctx.contentType(ACCEPT_CSV);
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
@@ -171,7 +172,7 @@ public class CsvApi {
         writer,
         separator);
 
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_members_" + date + ".csv\"");
@@ -194,7 +195,7 @@ public class CsvApi {
         List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE),
         writer,
         separator);
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_settings_" + date + ".csv\"");

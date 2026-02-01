@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.io.ImportMetadataTask.MOLGENIS;
 import static org.molgenis.emx2.settings.ReportUtils.getReportAsRows;
+import static org.molgenis.emx2.web.Constants.ACCEPT_ZIP;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.DownloadApiUtils.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
@@ -41,7 +42,6 @@ public class ZipApi {
     return uploadedStore(ctx, TableStoreForCsvInZipFile::new);
   }
 
-  static final String APPLICATION_ZIP_MIME_TYPE = "application/zip";
   static final String CONTENT_DISPOSITION = "Content-Disposition";
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
@@ -73,7 +73,7 @@ public class ZipApi {
       Schema schema = getSchema(ctx);
       String fileName = schema.getMetadata().getName() + System.currentTimeMillis() + ".zip";
 
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
+      ctx.contentType(ACCEPT_ZIP);
       ctx.header(CONTENT_DISPOSITION, "attachment; filename=" + fileName);
 
       Path zipFile = tempDir.resolve("download.zip");
@@ -191,7 +191,7 @@ public class ZipApi {
               + table.getName()
               + System.currentTimeMillis()
               + ".zip";
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
+      ctx.contentType(ACCEPT_ZIP);
       ctx.header(CONTENT_DISPOSITION, "attachment; filename=" + tableName);
 
       Path zipFile = tempDir.resolve("download.zip");
@@ -227,7 +227,7 @@ public class ZipApi {
         Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
+      ctx.contentType(ACCEPT_ZIP);
       ctx.header(CONTENT_DISPOSITION, "attachment; filename=reports.zip");
 
       Path zipFile = tempDir.resolve("download.zip");
