@@ -230,6 +230,14 @@ interface IFilterValue {
 - [x] Can show/hide individual filters
 - [x] Visible in both mobile and desktop views
 
+### AC-9: Row Actions (when isEditable=true)
+- [x] Edit button per row (icon="edit") in first column (sticky)
+- [x] Delete button per row (icon="trash") in first column
+- [x] Edit button opens EditModal with row data
+- [x] Delete button opens DeleteModal with confirmation
+- [x] Modal submit refreshes data
+- [x] Mobile: actions in RecordCard via #actions slot
+
 ## Responsive Breakpoints
 
 | Breakpoint | Width | Filters | Table/Cards |

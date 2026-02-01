@@ -2,7 +2,7 @@
 import { ref, computed, useSlots, type Component } from "vue";
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
-import RecordTableView from "./RecordTableView.vue";
+import RecordTable from "./RecordTable.vue";
 import InlinePagination from "./InlinePagination.vue";
 
 const props = withDefaults(
@@ -93,7 +93,7 @@ function isEmpty(val: any): boolean {
     :value="value"
   />
   <div v-else-if="useTableMode">
-    <RecordTableView :rows="visibleRows" :columns="visibleColumns" />
+    <RecordTable :rows="visibleRows" :columns="visibleColumns" />
     <InlinePagination
       v-if="showPagination"
       :current-page="listPage"

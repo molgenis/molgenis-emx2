@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IColumn, IRow, IDisplayConfig } from "../../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  IRow,
+  IDisplayConfig,
+} from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 
 const props = defineProps<{
@@ -15,6 +19,14 @@ defineSlots<{
 
 function getColumnConfig(colId: string): IDisplayConfig | undefined {
   return props.columnConfig?.[colId];
+}
+
+function rowKey(row: IRow, index: number): string {
+  const pkCol = props.columns.find((c) => c.key === 1);
+  if (pkCol && row[pkCol.id] != null) {
+    return String(row[pkCol.id]);
+  }
+  return String(index);
 }
 
 const firstColumnConfig = computed(() => {
@@ -45,7 +57,7 @@ const firstColumnConfig = computed(() => {
       <tbody>
         <tr
           v-for="(row, rowIndex) in rows"
-          :key="rowIndex"
+          :key="rowKey(row, rowIndex)"
           class="border-b border-black/10 hover:bg-black/5 group"
         >
           <td
@@ -77,6 +89,14 @@ const firstColumnConfig = computed(() => {
               <ValueEMX2 v-else :metadata="col" :data="row[col.id]" />
             </div>
             <ValueEMX2 v-else :metadata="col" :data="row[col.id]" />
+          </td>
+        </tr>
+        <tr v-if="rows.length === 0">
+          <td
+            :colspan="columns.length"
+            class="py-4 px-3 text-center text-body-base opacity-60 italic"
+          >
+            No items
           </td>
         </tr>
       </tbody>

@@ -112,19 +112,27 @@ if (!metadata.value && schemaId.value && tableId.value) {
 }
 
 async function getNumberOfRows() {
-  // lock (unref) the tableId insiude closure, to make sure the same id is used in the request as while reading the respqonse
   const countTableId = tableId.value;
-  const resp = await $fetch(`/${schemaId.value}/graphql`, {
-    method: "POST",
-    body: {
-      query: `query ${countTableId} {
-          ${countTableId}_agg {
-            count
-          }
-        }`,
-    },
-  });
-  numberOfRows.value = resp.data[countTableId + "_agg"].count;
+  if (!countTableId || !schemaId.value) {
+    numberOfRows.value = 0;
+    return;
+  }
+  try {
+    const resp = await $fetch<any>(`/${schemaId.value}/graphql`, {
+      method: "POST",
+      body: {
+        query: `query ${countTableId} {
+            ${countTableId}_agg {
+              count
+            }
+          }`,
+      },
+    });
+    numberOfRows.value = resp?.data?.[countTableId + "_agg"]?.count ?? 0;
+  } catch (e) {
+    console.error("Failed to get row count:", e);
+    numberOfRows.value = 0;
+  }
 }
 
 async function fetchRow(rowNumber: number) {
@@ -133,7 +141,7 @@ async function fetchRow(rowNumber: number) {
     offset: rowNumber,
   });
 
-  formValues.value = resp.rows[0];
+  formValues.value = resp?.rows?.[0] ?? {};
 }
 
 watch(

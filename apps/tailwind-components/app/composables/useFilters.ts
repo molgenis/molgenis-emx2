@@ -51,7 +51,17 @@ export interface UseFiltersOptions {
  *   ?parent.name=John       → path query for related tables
  */
 
-const REF_TYPES = ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"];
+const REF_TYPES = [
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "ONTOLOGY",
+  "ONTOLOGY_ARRAY",
+  "SELECT",
+  "MULTISELECT",
+  "RADIO",
+  "CHECKBOX",
+];
 
 function extractStringKey(v: unknown, depth = 0): string {
   if (depth > 10) return String(v);
@@ -196,17 +206,20 @@ export function serializeFiltersToUrl(
     params[SEARCH_PARAM] = searchValue.trim();
   }
 
-  for (const [columnId, value] of filterStates) {
-    const column = columns.find((c) => c.id === columnId);
+  for (const [key, value] of filterStates) {
+    const firstSegment = key.split(".")[0];
+    const column = columns.find((c) => c.id === firstSegment);
     if (!column) continue;
 
     const serialized = serializeFilterValue(value);
     if (serialized !== null) {
-      if (REF_TYPES.includes(column.columnType)) {
+      if (key.includes(".")) {
+        params[key] = serialized;
+      } else if (REF_TYPES.includes(column.columnType)) {
         const refField = extractRefField(value);
-        params[`${columnId}.${refField}`] = serialized;
+        params[`${key}.${refField}`] = serialized;
       } else {
-        params[columnId] = serialized;
+        params[key] = serialized;
       }
     }
   }
@@ -229,16 +242,20 @@ export function parseFiltersFromUrl(
 
     if (key.startsWith(RESERVED_PREFIX)) continue;
 
-    const dotIndex = key.indexOf(".");
-    const columnId = dotIndex > 0 ? key.slice(0, dotIndex) : key;
-    const refField = dotIndex > 0 ? key.slice(dotIndex + 1) : null;
+    const firstSegment = key.split(".")[0];
+    const refField = key.includes(".") ? key.slice(key.indexOf(".") + 1) : null;
 
-    const column = columns.find((c) => c.id === columnId);
+    const column = columns.find((c) => c.id === firstSegment);
     if (!column || typeof value !== "string") continue;
 
     const filterValue = parseFilterValue(value, column, refField);
     if (filterValue) {
-      filters.set(columnId, filterValue);
+      const isRootRefColumn =
+        REF_TYPES.includes(column.columnType) &&
+        refField &&
+        !refField.includes(".");
+      const filterKey = isRootRefColumn ? firstSegment : key;
+      filters.set(filterKey, filterValue);
     }
   }
 
@@ -325,6 +342,15 @@ export function useFilters(
   const updateGqlFilter = useDebounceFn(() => {
     gqlFilter.value = _gqlFilter.value;
   }, options?.debounceMs ?? 300);
+
+  watch(
+    () => columns.value.length,
+    (newLen, oldLen) => {
+      if (oldLen === 0 && newLen > 0) {
+        updateGqlFilter();
+      }
+    }
+  );
 
   if (urlSyncEnabled) {
     watch(

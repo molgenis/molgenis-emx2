@@ -36,15 +36,22 @@
 - [x] Settings icon added
 - [x] 15 vitest tests for Emx2DataView
 
-### Next: Row Actions (v6.3.13)
+### Done (v6.3.13) - Row Actions
+- [x] Row edit button (per row, when isEditable) → opens EditModal
+- [x] Row delete button (per row, when isEditable) → opens DeleteModal
+- [x] Button placement: first column (sticky)
+- [x] Mobile: actions in RecordCard via #actions slot
 
-- [ ] Row edit button (per row, when isEditable)
-- [ ] Row delete button (per row, when isEditable)
-- [ ] Emit events: edit(row), delete(row)
-- [ ] Button placement: last column or hover overlay
-- [ ] Mobile: actions in RecordCard
+### Done (v6.3.14) - Filter Bug Fixes & Slot Consolidation
+- [x] Filterable types: everything except HEADING and SECTION
+- [x] FILE type: filters on `name` field (like operator)
+- [x] REF/SELECT/ONTOLOGY types: use "equals" operator (not "like")
+- [x] refLabel fallback: `column.refLabel || column.refLabelDefault`
+- [x] URL roundtrip: REF filters stored with column ID (not `column.name`)
+- [x] URL filters apply on initial load (watch columns.length)
+- [x] Merged #card and #default slots into single #default slot
 
-### Later: Polish & Integration
+### Next: Polish & Integration
 
 - [ ] Run lint/format
 - [ ] Verify stories work in all themes
@@ -171,6 +178,25 @@ Usage:
   config?: IDisplayConfig;
 }
 ```
+
+### Future: Nested Sidebar Filters
+
+**Concept:** Instead of inline nested expansion, use literal nested sidebars.
+
+**Approach:**
+- Click REF column → opens new FilterSidebar as slide-in panel
+- Each nested sidebar is independent: just `schemaId` + `tableId`
+- Reuses FilterSidebar with all features (Customize, mg_ hidden, etc.)
+- Can stack multiple levels (breadcrumb-style navigation?)
+
+**Benefits:**
+- Simpler: no complex metadata passing through props
+- Reusable: each sidebar is a standard FilterSidebar
+- Consistent: same UX as main filter sidebar
+
+**URL encoding TBD:**
+- Prefix approach: `?Order.pet.name=Fluffy`
+- Or nested params: `?_filter[pet][name]=Fluffy`
 
 ### Maybe Future
 - staticFilter/defaultFilter concept

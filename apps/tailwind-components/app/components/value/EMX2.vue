@@ -19,7 +19,7 @@ import ValueHyperlink from "./Hyperlink.vue";
 import ValueFile from "./File.vue";
 import ValueDate from "./Date.vue";
 import ValueDateTime from "./DateTime.vue";
-import RecordTableView from "../display/RecordTableView.vue";
+import RecordTable from "../display/RecordTable.vue";
 import InlinePagination from "../display/InlinePagination.vue";
 import ContentOntology from "../content/Ontology.vue";
 
@@ -162,7 +162,7 @@ function handleRefClick() {
   </template>
 
   <div v-else-if="useTableMode">
-    <RecordTableView :rows="paginatedRows" :columns="visibleColumns" />
+    <RecordTable :rows="paginatedRows" :columns="visibleColumns" />
     <InlinePagination
       v-if="showListPagination"
       :current-page="listPage"

@@ -40,8 +40,7 @@ const props = withDefaults(
 
 defineSlots<{
   header?: () => any;
-  default?: (props: { row: IRow; label: string }) => any;
-  card?: (props: { row: IRow; label: string }) => any;
+  default?: (props: { row: IRow; label: string; columns: IColumn[] }) => any;
 }>();
 
 const layout = computed(() => props.config?.layout || "table");
@@ -89,13 +88,20 @@ const { filterStates, gqlFilter } = useFilters(metadataRef, {
   router: router as any,
 });
 
-const { metadata, rows, status, totalPages, showPagination, errorMessage, refresh } =
-  useTableData(props.schemaId, props.tableId, {
-    pageSize: pagingLimit.value,
-    page,
-    searchTerms,
-    filter: gqlFilter,
-  });
+const {
+  metadata,
+  rows,
+  status,
+  totalPages,
+  showPagination,
+  errorMessage,
+  refresh,
+} = useTableData(props.schemaId, props.tableId, {
+  pageSize: pagingLimit.value,
+  page,
+  searchTerms,
+  filter: gqlFilter,
+});
 
 // update metadataRef when metadata loads
 watch(
@@ -215,9 +221,7 @@ async function afterRowDeleted() {
         </Button>
         <SideModal v-if="filtersVisible" :full-screen="false">
           <template #button>
-            <Button type="outline" size="small" icon="filter">
-              Filters
-            </Button>
+            <Button type="outline" size="small" icon="filter"> Filters </Button>
           </template>
           <ContentBlockModal title="Filters">
             <FilterSidebar
@@ -268,7 +272,7 @@ async function afterRowDeleted() {
               type="outline"
               @click="filtersVisible = !filtersVisible"
             >
-              {{ filtersVisible ? 'Hide Filters' : 'Show Filters' }}
+              {{ filtersVisible ? "Hide Filters" : "Show Filters" }}
             </Button>
             <Columns
               :columns="metadataRef"
@@ -333,8 +337,8 @@ async function afterRowDeleted() {
                   @click="onShowDeleteModal(row)"
                 />
               </template>
-              <template v-if="$slots.card" #card="{ row, columns }">
-                <slot name="card" :row="row" :columns="columns" :label="getLabel(row)" />
+              <template v-if="$slots.default" #default="{ row, columns }">
+                <slot :row="row" :columns="columns" :label="getLabel(row)" />
               </template>
             </component>
           </template>
@@ -342,7 +346,7 @@ async function afterRowDeleted() {
           <div v-else-if="rows.length" class="p-5 pb-8">
             <ul class="grid gap-1 pl-4 list-disc list-outside">
               <li v-for="(row, index) in rows" :key="index">
-                <slot :row="row" :label="getLabel(row)">
+                <slot :row="row" :label="getLabel(row)" :columns="metadataRef">
                   <span>{{ getLabel(row) }}</span>
                 </slot>
               </li>

@@ -1,6 +1,18 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
 
+function setNestedValue(obj: any, path: string[], value: any): void {
+  if (path.length === 0) return;
+  let current = obj;
+  for (let i = 0; i < path.length - 1; i++) {
+    const key = path[i] as string;
+    if (!current[key]) current[key] = {};
+    current = current[key];
+  }
+  const lastKey = path[path.length - 1] as string;
+  current[lastKey] = value;
+}
+
 export function buildGraphQLFilter(
   filterStates: Map<string, IFilterValue>,
   columns: IColumn[],
@@ -8,25 +20,26 @@ export function buildGraphQLFilter(
 ): IGraphQLFilter {
   const filter: IGraphQLFilter = {};
 
-  // add search if present
   if (searchValue && searchValue.trim()) {
     filter._search = searchValue.trim();
   }
 
-  // convert each filter state to GraphQL format
   filterStates.forEach((filterValue, columnId) => {
-    const column = columns.find((c) => c.id === columnId);
+    const pathSegments = columnId.split(".");
+    const rootColumnId = pathSegments[0];
+    const column = columns.find((c) => c.id === rootColumnId);
     if (!column) return;
 
     const { operator, value } = filterValue;
 
+    let filterValueObj: any;
     switch (operator) {
       case "equals":
-        filter[columnId] = { equals: value };
+        filterValueObj = { equals: value };
         break;
 
       case "like":
-        filter[columnId] = { like: value };
+        filterValueObj = { like: value };
         break;
 
       case "between": {
@@ -35,26 +48,34 @@ export function buildGraphQLFilter(
         if (min != null) betweenFilter.min = min;
         if (max != null) betweenFilter.max = max;
         if (Object.keys(betweenFilter).length > 0) {
-          filter[columnId] = { between: betweenFilter };
+          filterValueObj = { between: betweenFilter };
         }
         break;
       }
 
       case "in":
         if (Array.isArray(value) && value.length > 0) {
-          filter[columnId] = { equals: value };
+          filterValueObj = { equals: value };
         } else if (value != null) {
-          filter[columnId] = { equals: [value] };
+          filterValueObj = { equals: [value] };
         }
         break;
 
       case "notNull":
-        filter[columnId] = { notNull: true };
+        filterValueObj = { notNull: true };
         break;
 
       case "isNull":
-        filter[columnId] = { isNull: true };
+        filterValueObj = { isNull: true };
         break;
+    }
+
+    if (filterValueObj) {
+      if (column.columnType === "FILE") {
+        setNestedValue(filter, [...pathSegments, "name"], filterValueObj);
+      } else {
+        setNestedValue(filter, pathSegments, filterValueObj);
+      }
     }
   });
 

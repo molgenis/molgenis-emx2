@@ -57,10 +57,19 @@ const singleValue = computed({
 
 function getDefaultOperator(): FilterOperator {
   const type = props.column.columnType;
-  if (["STRING", "TEXT", "EMAIL"].includes(type)) return "like";
+  if (["STRING", "TEXT", "EMAIL", "FILE"].includes(type)) return "like";
   if (["BOOL"].includes(type)) return "equals";
-  if (["REF", "REF_ARRAY", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(type))
-    return "in";
+  const refTypes = [
+    "REF",
+    "REF_ARRAY",
+    "SELECT",
+    "MULTISELECT",
+    "RADIO",
+    "CHECKBOX",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+  ];
+  if (refTypes.includes(type) || props.column.refTableId) return "equals";
   return "equals";
 }
 
@@ -120,7 +129,7 @@ function toggle() {
           @update:model-value="update"
           :ref-schema-id="column.refSchemaId"
           :ref-table-id="column.refTableId"
-          :ref-label="column.refLabel"
+          :ref-label="column.refLabel || column.refLabelDefault"
         />
       </template>
       <template #max="{ value, update, id }">
@@ -131,7 +140,7 @@ function toggle() {
           @update:model-value="update"
           :ref-schema-id="column.refSchemaId"
           :ref-table-id="column.refTableId"
-          :ref-label="column.refLabel"
+          :ref-label="column.refLabel || column.refLabelDefault"
         />
       </template>
     </FilterRange>
@@ -143,7 +152,7 @@ function toggle() {
       v-model="singleValue"
       :ref-schema-id="column.refSchemaId"
       :ref-table-id="column.refTableId"
-      :ref-label="column.refLabel"
+      :ref-label="column.refLabel || column.refLabelDefault"
     />
   </div>
 </template>

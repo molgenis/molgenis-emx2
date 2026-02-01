@@ -304,7 +304,8 @@ describe("Emx2DataView", () => {
       await nextTick();
       await nextTick();
       expect(wrapper.find("table").exists()).toBe(true);
-      expect(wrapper.find("ul").exists()).toBe(false);
+      expect(wrapper.find(".hidden.md\\:block table").exists()).toBe(true);
+      expect(wrapper.find(".md\\:hidden").exists()).toBe(true);
     });
 
     it("layout=list: renders ul element", async () => {
@@ -397,7 +398,7 @@ describe("Emx2DataView", () => {
       expect(wrapper.find(".custom-list-item").exists()).toBe(true);
     });
 
-    it("#card slot for card content", async () => {
+    it("#default slot for card content", async () => {
       const wrapper = mount(Emx2DataView, {
         props: {
           schemaId: "TestSchema",
@@ -405,7 +406,7 @@ describe("Emx2DataView", () => {
           config: { layout: "cards" },
         },
         slots: {
-          card: `<template #card="{ row, label }">
+          default: `<template #default="{ row, label }">
             <div class="custom-card">{{ label }}</div>
           </template>`,
         },

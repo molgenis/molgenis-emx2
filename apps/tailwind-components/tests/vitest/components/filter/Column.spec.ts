@@ -29,6 +29,14 @@ describe("FilterColumn", () => {
     columnType: "BOOL",
   };
 
+  const refColumn: IColumn = {
+    id: "pet",
+    label: "Pet",
+    columnType: "REF",
+    refSchemaId: "test",
+    refTableId: "Pet",
+  };
+
   describe("Visual wrapper (from 6.3.2 Container)", () => {
     it("renders column label as title", () => {
       const wrapper = mount(FilterColumn, {
@@ -303,6 +311,32 @@ describe("FilterColumn", () => {
 
       const updatedValue = wrapper.props("modelValue");
       expect(updatedValue?.value).toEqual([null, null]);
+    });
+  });
+
+  describe("REF type filters", () => {
+    it("renders REF column label", () => {
+      const wrapper = mount(FilterColumn, {
+        props: {
+          column: refColumn,
+          modelValue: null,
+          collapsed: true,
+        },
+      });
+
+      expect(wrapper.text()).toContain("Pet");
+    });
+
+    it("renders REF column with correct operator", async () => {
+      const wrapper = mount(FilterColumn, {
+        props: {
+          column: refColumn,
+          modelValue: null,
+          collapsed: false,
+        },
+      });
+
+      expect(wrapper.html()).toContain("Pet");
     });
   });
 

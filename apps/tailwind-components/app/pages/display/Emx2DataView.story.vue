@@ -70,9 +70,11 @@
               pageSize: 10,
             }"
           >
-            <template v-if="layout === 'custom'" #card="{ row, columns }">
+            <template v-if="layout === 'custom'" #default="{ row, columns }">
               <div class="flex flex-col gap-1">
-                <h4 class="font-bold text-lg">{{ row[columns[0]?.id] }}</h4>
+                <h4 class="font-bold text-lg">
+                  {{ columns[0] ? row[columns[0].id] : "" }}
+                </h4>
                 <div
                   v-for="col in columns.slice(1)"
                   :key="col.id"
@@ -104,9 +106,11 @@
           pageSize: 10,
         }"
       >
-        <template v-if="layout === 'custom'" #card="{ row, columns }">
+        <template v-if="layout === 'custom'" #default="{ row, columns }">
           <div class="flex flex-col gap-1">
-            <h4 class="font-bold text-lg">{{ row[columns[0]?.id] }}</h4>
+            <h4 class="font-bold text-lg">
+              {{ columns[0] ? row[columns[0].id] : "" }}
+            </h4>
             <div
               v-for="col in columns.slice(1)"
               :key="col.id"
@@ -135,9 +139,11 @@
           pageSize: 10,
         }"
       >
-        <template v-if="layout === 'custom'" #card="{ row, columns }">
+        <template v-if="layout === 'custom'" #default="{ row, columns }">
           <div class="flex flex-col gap-1">
-            <h4 class="font-bold text-lg">{{ row[columns[0]?.id] }}</h4>
+            <h4 class="font-bold text-lg">
+              {{ columns[0] ? row[columns[0].id] : "" }}
+            </h4>
             <div
               v-for="col in columns.slice(1)"
               :key="col.id"
@@ -171,7 +177,9 @@ const metadata = ref<ITableMetaData>();
 const layouts = ["list", "table", "cards", "custom"] as const;
 const layout = ref<(typeof layouts)[number]>("table");
 const isEditable = ref(false);
-const configLayout = computed(() => (layout.value === "custom" ? "cards" : layout.value));
+const configLayout = computed(() =>
+  layout.value === "custom" ? "cards" : layout.value
+);
 
 const viewModes = [
   { id: "full", label: "Full Page" },
@@ -201,10 +209,18 @@ Unified data view with three usage modes and slot customization demo.
 
 ## Layouts
 - list, table, cards: built-in layouts
-- custom: uses cards layout with #card slot for custom rendering
+- custom: uses cards layout with #default slot for custom rendering
 
-## Props (via config)
+## Props
 | Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| schemaId | string | required | Schema identifier |
+| tableId | string | required | Table identifier |
+| isEditable | boolean | false | Show add/edit/delete buttons |
+| config | IDisplayConfig | {} | Display configuration |
+
+## Config Options (IDisplayConfig)
+| Option | Type | Default | Description |
 |------|------|---------|-------------|
 | layout | 'list' \\| 'table' \\| 'cards' | table | Display mode |
 | showFilters | boolean | false | Show filter sidebar |
@@ -222,8 +238,13 @@ Unified data view with three usage modes and slot customization demo.
 
 ## Slots
 - \`#header\` - Optional page header
-- \`#default\` - Custom list item (props: row, label)
-- \`#card\` - Custom card content (props: row, label)
+- \`#default\` - Custom item content (props: row, label, columns)
+
+## Row Actions (when isEditable=true)
+- Edit/delete buttons in first column (sticky)
+- Edit button opens EditModal
+- Delete button opens DeleteModal
+- Mobile: actions in RecordCard
 
 ## Test Checklist
 - [ ] Full Page mode shows header + sidebar filters
@@ -232,5 +253,9 @@ Unified data view with three usage modes and slot customization demo.
 - [ ] Mobile: "Filters" button appears in compact mode
 - [ ] Switch layouts - filters persist
 - [ ] URL sync works across all modes
+- [ ] isEditable: Add button appears in toolbar
+- [ ] isEditable: Edit/delete buttons appear per row
+- [ ] Edit button opens modal, saves, refreshes
+- [ ] Delete button opens modal, deletes, refreshes
 `;
 </script>

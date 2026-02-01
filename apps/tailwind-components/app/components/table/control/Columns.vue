@@ -169,12 +169,12 @@ const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 const sortMethods = ref<string[]>(SORTING_METHODS);
 const selectedSortMethod = ref<string>("Default");
 
-const iconComputed = computed(() =>
-  props.icon ?? (props.mode === "filters" ? "filter" : "columns")
+const iconComputed = computed(
+  () => props.icon ?? (props.mode === "filters" ? "filter" : "columns")
 );
 
-const labelComputed = computed(() =>
-  props.label ?? (props.mode === "filters" ? "Filters" : "Columns")
+const labelComputed = computed(
+  () => props.label ?? (props.mode === "filters" ? "Filters" : "Columns")
 );
 
 const checkAttribute = computed(() =>

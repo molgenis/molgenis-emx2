@@ -27,31 +27,14 @@ const emit = defineEmits<{
 const searchInputId = useId();
 
 const filterableColumnsComputed = computed<IColumn[]>(() => {
-  const filterableTypes = [
-    "STRING",
-    "TEXT",
-    "EMAIL",
-    "INT",
-    "DECIMAL",
-    "LONG",
-    "NON_NEGATIVE_INT",
-    "DATE",
-    "DATETIME",
-    "BOOL",
-    "REF",
-    "REF_ARRAY",
-    "ONTOLOGY",
-    "ONTOLOGY_ARRAY",
-  ];
+  const unfilterableTypes = ["HEADING", "SECTION"];
 
-  const cols = props.allColumns.filter(
+  return props.allColumns.filter(
     (col) =>
-      filterableTypes.includes(col.columnType) &&
+      !unfilterableTypes.includes(col.columnType) &&
       !col.id.startsWith("mg_") &&
       col.showFilter !== false
   );
-
-  return cols;
 });
 
 const filterStates = defineModel<Map<string, IFilterValue>>("filterStates", {
@@ -126,6 +109,5 @@ function handleColumnsUpdate(updatedColumns: IColumn[]) {
       :collapsed="true"
       :mobile-display="mobileDisplay"
     />
-
   </div>
 </template>
