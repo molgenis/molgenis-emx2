@@ -1,12 +1,9 @@
 package org.molgenis.emx2.jsonld;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.molgenis.emx2.MolgenisException;
 
 public class JsonLdValidator {
-
-  private static final ObjectMapper mapper = new ObjectMapper();
 
   /**
    * Validates JSON-LD document: 1. Recursively scans all local contexts and merges prefixes 2.

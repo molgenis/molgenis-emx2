@@ -30,13 +30,13 @@ This is a **breaking change** affecting:
 | Row | - | - | ❌ N/A (tabular format) |
 | **JSON** | | | |
 | Schema metadata | `/api/json` | `/api/json/_schema` | ✅ done |
-| All data | - | `/api/json/_data` | ➕ new |
-| Complete export | - | `/api/json/_all` | ➕ new |
-| Members | - | `/api/json/_members` | ➕ new |
-| Settings | - | `/api/json/_settings` | ➕ new |
-| Changelog | - | `/api/json/_changelog` | ➕ new |
+| All data | - | `/api/json/_data` | ✅ done |
+| Complete export | - | `/api/json/_all` | ✅ done |
+| Members | - | `/api/json/_members` | ✅ done |
+| Settings | - | `/api/json/_settings` | ✅ done |
+| Changelog | - | `/api/json/_changelog` | ✅ done |
 | Table | - | `/api/json/{table}` | ✅ done |
-| Row | - | `/api/json/{table}/{id}` | ➕ new |
+| Row | - | `/api/json/{table}/{id}` | ✅ done |
 | **JSON-LD** | | | |
 | Schema metadata | - | `/api/jsonld/_schema` | ➕ new |
 | All data | `/api/ttl2/_json` | `/api/jsonld/_data` | 🔄 rename |
@@ -63,7 +63,7 @@ This is a **breaking change** affecting:
 | Members | - | `/api/excel/_members` | ✅ done |
 | Settings | - | `/api/excel/_settings` | ✅ done |
 | Changelog | - | `/api/excel/_changelog` | ✅ done |
-| Table | `/api/excel/{table}` GET | `/api/excel/{table}` GET, POST, DELETE | 🔄 extend POST/DELETE |
+| Table | `/api/excel/{table}` GET | `/api/excel/{table}` GET, POST, DELETE | ✅ done |
 | Row | - | - | ❌ N/A (tabular format) |
 | **ZIP** | | | |
 | Schema metadata | `/api/zip` | `/api/zip/_schema` | ✅ done |
@@ -72,17 +72,17 @@ This is a **breaking change** affecting:
 | Members | - | `/api/zip/_members` | ✅ done |
 | Settings | - | `/api/zip/_settings` | ✅ done |
 | Changelog | - | `/api/zip/_changelog` | ✅ done |
-| Table | `/api/zip/{table}` GET | `/api/zip/{table}` GET, POST, DELETE | 🔄 extend POST/DELETE |
+| Table | `/api/zip/{table}` GET | `/api/zip/{table}` GET, POST, DELETE | ✅ done |
 | Row | - | - | ❌ N/A (tabular format) |
 | **YAML** | | | |
 | Schema metadata | `/api/yaml` | `/api/yaml/_schema` | ✅ done |
-| All data | - | `/api/yaml/_data` | ➕ new |
-| Complete export | - | `/api/yaml/_all` | ➕ new |
-| Members | - | `/api/yaml/_members` | ➕ new |
-| Settings | - | `/api/yaml/_settings` | ➕ new |
-| Changelog | - | `/api/yaml/_changelog` | ➕ new |
+| All data | - | `/api/yaml/_data` | ✅ done |
+| Complete export | - | `/api/yaml/_all` | ✅ done |
+| Members | - | `/api/yaml/_members` | ✅ done |
+| Settings | - | `/api/yaml/_settings` | ✅ done |
+| Changelog | - | `/api/yaml/_changelog` | ✅ done |
 | Table | - | `/api/yaml/{table}` | ✅ done |
-| Row | - | `/api/yaml/{table}/{id}` | ➕ new |
+| Row | - | `/api/yaml/{table}/{id}` | ✅ done |
 | **Data (content-neg)** | | | |
 | Schema metadata | - | `/api/data/_schema` | ➕ new |
 | All data | - | `/api/data/_data` | ➕ new |
@@ -157,21 +157,22 @@ This is a **breaking change** affecting:
 - [x] Add `/_schema` endpoint (schema metadata only)
 - [x] Add `/_data` endpoint (data only)
 - [x] Add `/_members`, `/_settings`, `/_changelog` endpoints
-- [ ] Add POST, DELETE to `/{table}` endpoint
+- [x] Add POST, DELETE to `/{table}` endpoint
 
 #### 1.4 ZipApi.java
 - [x] Rename `/api/zip` → `/api/zip/_all`
 - [x] Add `/_schema` endpoint (schema metadata only)
 - [x] Add `/_data` endpoint (data only)
 - [x] Add `/_members`, `/_settings`, `/_changelog` endpoints
-- [ ] Add POST, DELETE to `/{table}` endpoint
+- [x] Add POST, DELETE to `/{table}` endpoint
 
-#### 1.5 YamlApi.java (new or extend JsonYamlApi.java)
-- [x] Rename `/api/yaml` → `/api/yaml/_schema` (done in 1.2)
-- [ ] Add `/_data`, `/_all` endpoints
-- [ ] Add `/_members`, `/_settings`, `/_changelog` endpoints
-- [x] Add `/{table}` endpoint with GET, POST, DELETE (PUT pending)
-- [ ] Add `/{table}/{id}` endpoint with GET, PUT, DELETE
+#### 1.5 JsonYamlApi.java
+- [x] Rename `/api/json` → `/api/json/_schema`
+- [x] Rename `/api/yaml` → `/api/yaml/_schema`
+- [x] Add `/_data`, `/_all` endpoints (JSON and YAML)
+- [x] Add `/_members`, `/_settings`, `/_changelog` endpoints (JSON and YAML)
+- [x] Add `/{table}` endpoint with GET, POST, DELETE
+- [x] Add `/{table}/{id}` endpoint with GET, PUT, DELETE
 
 #### 1.6 RDFApi.java / JsonldApi.java
 - [ ] Merge or align `/api/ttl2` with `/api/ttl` and `/api/jsonld`
@@ -245,6 +246,53 @@ This is a **breaking change** affecting:
 - [ ] Update WebApiSmokeTests.java
 - [ ] Add tests for new endpoints
 - [ ] Add tests for backward compatibility (if keeping old endpoints temporarily)
+
+### Phase 6: OpenAPI Documentation
+
+#### 6.1 Add Javalin OpenAPI plugin
+- [ ] Add gradle dependencies to `molgenis-emx2-webapi/build.gradle`:
+  ```gradle
+  annotationProcessor 'io.javalin.community.openapi:openapi-annotation-processor:6.7.0'
+  implementation 'io.javalin.community.openapi:javalin-openapi-plugin:6.7.0'
+  implementation 'io.javalin.community.openapi:javalin-swagger-plugin:6.7.0'
+  ```
+- [ ] Register plugins in `MolgenisWebservice.java`:
+  ```java
+  config.registerPlugin(new OpenApiPlugin(cfg -> cfg
+      .withDocumentationPath("/api/openapi.json")
+      .withDefinitionConfiguration((version, def) -> def
+          .withInfo(info -> info.title("MOLGENIS EMX2 API").version("1.0"))
+      )));
+  config.registerPlugin(new SwaggerPlugin(cfg -> cfg.setDocumentationPath("/swagger-ui")));
+  ```
+
+#### 6.2 Annotate REST API endpoints
+- [ ] Add `@OpenApi` annotations to CsvApi handlers
+- [ ] Add `@OpenApi` annotations to JsonYamlApi handlers
+- [ ] Add `@OpenApi` annotations to ExcelApi handlers
+- [ ] Add `@OpenApi` annotations to ZipApi handlers
+- [ ] Add `@OpenApi` annotations to RdfApi / JsonldApi handlers
+- [ ] Add `@OpenApi` annotations to DataApi handlers (content-negotiated)
+
+#### 6.3 Document GraphQL in OpenAPI
+- [ ] Add minimal GraphQL endpoint entry with `externalDocs` pointing to GraphQL Playground:
+  ```java
+  @OpenApi(
+      path = "/{schema}/graphql",
+      methods = { HttpMethod.GET, HttpMethod.POST },
+      summary = "GraphQL API endpoint",
+      description = "For schema exploration and interactive queries, use GraphQL Playground",
+      tags = {"GraphQL"},
+      externalDocs = @OpenApiExternalDocumentation(
+          description = "GraphQL Playground",
+          url = "/{schema}/graphql-playground"
+      )
+  )
+  ```
+
+#### 6.4 Root endpoint discovery
+- [x] Add root handlers (`/{schema}/api/json`, etc.) returning endpoint listing
+- [ ] Consider replacing manual listing with redirect to Swagger UI once OpenAPI is complete
 
 ## Migration Strategy
 

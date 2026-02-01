@@ -1,31 +1,22 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.io.ImportMetadataTask.MOLGENIS;
 import static org.molgenis.emx2.settings.ReportUtils.getReportAsRows;
 import static org.molgenis.emx2.web.Constants.TABLE;
-import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
-import static org.molgenis.emx2.web.DownloadApiUtils.isManagerOrOwnerOfSchema;
-import static org.molgenis.emx2.web.DownloadApiUtils.parseIntParam;
+import static org.molgenis.emx2.web.DownloadApiUtils.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.FileUtils;
 import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
@@ -34,11 +25,20 @@ import org.molgenis.emx2.io.emx2.Emx2Members;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
-import org.molgenis.emx2.tasks.Task;
 
 public class ZipApi {
   private ZipApi() {
     // hide constructor
+  }
+
+  private static void sendZip(Context ctx, String filename, ThrowingConsumer<TableStore> writer)
+      throws Exception {
+    sendFileDownload(
+        ctx, filename + ".zip", ZIP_CONTENT_TYPE, TableStoreForCsvInZipFile::new, writer);
+  }
+
+  private static TableStore uploadedZip(Context ctx) throws Exception {
+    return uploadedStore(ctx, TableStoreForCsvInZipFile::new);
   }
 
   static final String APPLICATION_ZIP_MIME_TYPE = "application/zip";
@@ -47,33 +47,22 @@ public class ZipApi {
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
 
   public static void create(Javalin app) {
-    final String schemaAllPath = "/{schema}/api/zip/_all";
-    app.get(schemaAllPath, ZipApi::getAllZip);
-    app.post(schemaAllPath, ZipApi::postAllZip);
+    final String apiPath = "/{schema}/api/zip/";
+    app.get(apiPath + "_schema", ZipApi::getMetadata);
+    app.post(apiPath + "_schema", ZipApi::mergeMetadata);
+    app.delete(apiPath + "_schema", ZipApi::discardMetadata);
+    app.get(apiPath + "_all", ZipApi::getAllZip);
+    app.post(apiPath + "_all", ZipApi::postAllZip);
+    app.get(apiPath + "_data", ZipApi::getData);
+    app.post(apiPath + "_data", ZipApi::postData);
+    app.get(apiPath + "_members", ZipApi::getMembers);
+    app.get(apiPath + "_settings", ZipApi::getSettings);
+    app.get(apiPath + "_changelog", ZipApi::getChangelog);
+    app.get(apiPath + "{table}", ZipApi::getZipTable);
+    app.post(apiPath + "{table}", ZipApi::postZipTable);
+    app.delete(apiPath + "{table}", ZipApi::deleteZipTable);
 
-    final String schemaMetadataPath = "/{schema}/api/zip/_schema";
-    app.get(schemaMetadataPath, ZipApi::getMetadata);
-    app.post(schemaMetadataPath, ZipApi::mergeMetadata);
-    app.delete(schemaMetadataPath, ZipApi::discardMetadata);
-
-    final String dataPath = "/{schema}/api/zip/_data";
-    app.get(dataPath, ZipApi::getData);
-    app.post(dataPath, ZipApi::postData);
-
-    final String membersPath = "/{schema}/api/zip/_members";
-    app.get(membersPath, ZipApi::getMembers);
-
-    final String settingsPath = "/{schema}/api/zip/_settings";
-    app.get(settingsPath, ZipApi::getSettings);
-
-    final String changelogPath = "/{schema}/api/zip/_changelog";
-    app.get(changelogPath, ZipApi::getChangelog);
-
-    final String tablePath = "/{schema}/api/zip/{table}";
-    app.get(tablePath, ZipApi::getZipTable);
-
-    final String reportPath = "/{schema}/api/reports/zip";
-    app.get(reportPath, ZipApi::getZippedReports);
+    app.get("/{schema}/api/reports/zip", ZipApi::getZippedReports);
   }
 
   static void getAllZip(Context ctx) throws IOException {
@@ -99,297 +88,93 @@ public class ZipApi {
     }
   }
 
-  static void getMetadata(Context ctx) throws IOException {
+  static void getMetadata(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
-    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
-    tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-      String fileName = schema.getName() + "_schema_" + date + ".zip";
-
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
-      ctx.header(CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-      Path zipFile = tempDir.resolve("download.zip");
-      TableStore store = new TableStoreForCsvInZipFile(zipFile);
-      Emx2.outputMetadata(store, schema);
-
-      outputStream.write(Files.readAllBytes(zipFile));
-      ctx.result("Export success");
-    } finally {
-      try (Stream<Path> files = Files.walk(tempDir)) {
-        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-      }
-    }
+    sendZip(ctx, schema.getName() + "_schema", store -> Emx2.outputMetadata(store, schema));
   }
 
-  static void mergeMetadata(Context ctx) throws IOException, ServletException {
+  static void mergeMetadata(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
-    File tempFile = File.createTempFile("temp_", ".tmp");
-    try {
-      ctx.attribute(
-          "org.eclipse.jetty.multipartConfig",
-          new MultipartConfigElement(tempFile.getAbsolutePath()));
-      try (InputStream input = ctx.req().getPart("file").getInputStream()) {
-        Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      }
-
-      String fileName = ctx.req().getPart("file").getSubmittedFileName();
-      if (fileName.endsWith(".zip")) {
-        TableStore store = new TableStoreForCsvInZipFile(tempFile.toPath());
-        if (store.containsTable(MOLGENIS)) {
-          SchemaMetadata metadata = Emx2.fromRowList(store.readTable(MOLGENIS));
-          schema.migrate(metadata);
-        } else {
-          throw new MolgenisException("ZIP file does not contain schema metadata (molgenis table)");
-        }
-      } else {
-        throw new IOException(
-            "File upload failed: extension "
-                + fileName.substring(fileName.lastIndexOf('.'))
-                + " not supported");
-      }
-
-      ctx.status(200);
-      ctx.result("Merge metadata success");
-    } finally {
-      Files.delete(tempFile.toPath());
-    }
+    TableStore store = uploadedZip(ctx);
+    SchemaMetadata metadata = Emx2.fromRowList(store.readTable(MOLGENIS));
+    timedOperation(ctx, "Merge metadata success", () -> schema.migrate(metadata));
   }
 
-  static void discardMetadata(Context ctx) throws IOException, ServletException {
+  static void discardMetadata(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
-    File tempFile = File.createTempFile("temp_", ".tmp");
-    try {
-      ctx.attribute(
-          "org.eclipse.jetty.multipartConfig",
-          new MultipartConfigElement(tempFile.getAbsolutePath()));
-      try (InputStream input = ctx.req().getPart("file").getInputStream()) {
-        Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      }
-
-      String fileName = ctx.req().getPart("file").getSubmittedFileName();
-      if (fileName.endsWith(".zip")) {
-        TableStore store = new TableStoreForCsvInZipFile(tempFile.toPath());
-        if (store.containsTable(MOLGENIS)) {
-          SchemaMetadata metadata = Emx2.fromRowList(store.readTable(MOLGENIS));
-          schema.discard(metadata);
-        } else {
-          throw new MolgenisException("ZIP file does not contain schema metadata (molgenis table)");
-        }
-      } else {
-        throw new IOException(
-            "File upload failed: extension "
-                + fileName.substring(fileName.lastIndexOf('.'))
-                + " not supported");
-      }
-
-      ctx.status(200);
-      ctx.result("Discard metadata success");
-    } finally {
-      Files.delete(tempFile.toPath());
-    }
+    TableStore store = uploadedZip(ctx);
+    SchemaMetadata metadata = Emx2.fromRowList(store.readTable(MOLGENIS));
+    timedOperation(ctx, "Discard metadata success", () -> schema.discard(metadata));
   }
 
-  static void getData(Context ctx) throws IOException {
+  static void getData(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
     boolean includeSystemColumns = includeSystemColumns(ctx);
-    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
-    tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-      String fileName = schema.getName() + "_data_" + date + ".zip";
-
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
-      ctx.header(CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-      Path zipFile = tempDir.resolve("download.zip");
-      TableStore store = new TableStoreForCsvInZipFile(zipFile);
-
-      boolean hasViewPermission =
-          schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString());
-      for (String tableName : schema.getTableNames()) {
-        Table table = schema.getTable(tableName);
-        if (hasViewPermission || table.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
-          if (includeSystemColumns) {
-            org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns(store, table);
-          } else {
-            org.molgenis.emx2.io.emx2.Emx2Tables.outputTable(store, table);
+    sendZip(
+        ctx,
+        schema.getName() + "_data",
+        store -> {
+          boolean hasViewPermission =
+              schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString());
+          for (String tableName : schema.getTableNames()) {
+            Table table = schema.getTable(tableName);
+            if (hasViewPermission
+                || table.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+              if (includeSystemColumns) {
+                org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns(store, table);
+              } else {
+                org.molgenis.emx2.io.emx2.Emx2Tables.outputTable(store, table);
+              }
+            }
           }
-        }
-      }
-
-      outputStream.write(Files.readAllBytes(zipFile));
-      ctx.result("Export success");
-    } finally {
-      try (Stream<Path> files = Files.walk(tempDir)) {
-        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-      }
-    }
+        });
   }
 
-  static void postData(Context ctx) throws IOException, ServletException {
+  static void postData(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
-    File tempFile = File.createTempFile("temp_", ".tmp");
-    try {
-      ctx.attribute(
-          "org.eclipse.jetty.multipartConfig",
-          new MultipartConfigElement(tempFile.getAbsolutePath()));
-      try (InputStream input = ctx.req().getPart("file").getInputStream()) {
-        Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      }
-
-      String fileName = ctx.req().getPart("file").getSubmittedFileName();
-      if (fileName.endsWith(".zip")) {
-        Task task = new ImportCsvZipTask(tempFile.toPath(), schema, false);
-        if (ctx.queryParam("async") != null) {
-          String parentTaskId = ctx.queryParam("parentJob");
-          String id = TaskApi.submit(task, parentTaskId);
-          ctx.json(new TaskReference(id, schema));
-          return;
-        } else {
-          MolgenisIO.fromZipFile(tempFile.toPath(), schema, false);
-        }
-      } else {
-        throw new IOException(
-            "File upload failed: extension "
-                + fileName.substring(fileName.lastIndexOf('.'))
-                + " not supported");
-      }
-
-      ctx.status(200);
-      ctx.result("Import data success");
-    } finally {
-      if (ctx.queryParam("async") == null) {
-        Files.delete(tempFile.toPath());
-      }
+    Path tempFile = uploadFileToTemp(ctx).toPath();
+    if (isAsync(ctx)) {
+      submitAsyncTask(ctx, schema, new ImportCsvZipTask(tempFile, schema, false));
+    } else {
+      timedOperation(
+          ctx, "Import data success", () -> MolgenisIO.fromZipFile(tempFile, schema, false));
     }
   }
 
-  static void getMembers(Context ctx) throws IOException {
+  static void getMembers(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
     if (!isManagerOrOwnerOfSchema(ctx, schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
-
-    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
-    tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-      String fileName = schema.getName() + "_members_" + date + ".zip";
-
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
-      ctx.header(CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-      Path zipFile = tempDir.resolve("download.zip");
-      TableStore store = new TableStoreForCsvInZipFile(zipFile);
-      Emx2Members.outputRoles(store, schema);
-
-      outputStream.write(Files.readAllBytes(zipFile));
-      ctx.result("Export success");
-    } finally {
-      try (Stream<Path> files = Files.walk(tempDir)) {
-        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-      }
-    }
+    sendZip(ctx, schema.getName() + "_members", store -> Emx2Members.outputRoles(store, schema));
   }
 
-  static void getSettings(Context ctx) throws IOException {
+  static void getSettings(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
-    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
-    tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-      String fileName = schema.getName() + "_settings_" + date + ".zip";
-
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
-      ctx.header(CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-      Path zipFile = tempDir.resolve("download.zip");
-      TableStore store = new TableStoreForCsvInZipFile(zipFile);
-      Emx2Settings.outputSettings(store, schema);
-
-      outputStream.write(Files.readAllBytes(zipFile));
-      ctx.result("Export success");
-    } finally {
-      try (Stream<Path> files = Files.walk(tempDir)) {
-        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-      }
-    }
+    sendZip(
+        ctx, schema.getName() + "_settings", store -> Emx2Settings.outputSettings(store, schema));
   }
 
-  static void getChangelog(Context ctx) throws IOException {
+  static void getChangelog(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
     if (!isManagerOrOwnerOfSchema(ctx, schema)) {
       throw new MolgenisException("Unauthorized to get schema changelog");
     }
-
     int limit = parseIntParam(ctx, "limit").orElse(DEFAULT_CHANGELOG_LIMIT);
     int offset = parseIntParam(ctx, "offset").orElse(DEFAULT_CHANGELOG_OFFSET);
-
-    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
-    tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-      String fileName = schema.getName() + "_changelog_" + date + ".zip";
-
-      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
-      ctx.header(CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-      Path zipFile = tempDir.resolve("download.zip");
-      TableStore store = new TableStoreForCsvInZipFile(zipFile);
-      Emx2Changelog.outputChangelog(store, schema, limit, offset);
-
-      outputStream.write(Files.readAllBytes(zipFile));
-      ctx.result("Export success");
-    } finally {
-      try (Stream<Path> files = Files.walk(tempDir)) {
-        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-      }
-    }
+    sendZip(
+        ctx,
+        schema.getName() + "_changelog",
+        store -> Emx2Changelog.outputChangelog(store, schema, limit, offset));
   }
 
-  static void postAllZip(Context ctx) throws MolgenisException, IOException, ServletException {
-    Long start = System.currentTimeMillis();
+  static void postAllZip(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
-    // get uploaded file
-    File tempFile = File.createTempFile("temp_", ".tmp");
-    try {
-      ctx.attribute(
-          "org.eclipse.jetty.multipartConfig",
-          new MultipartConfigElement(tempFile.getAbsolutePath()));
-      try (InputStream input = ctx.req().getPart("file").getInputStream()) {
-        Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      }
-
-      // depending on file extension use proper importer
-      String fileName = ctx.req().getPart("file").getSubmittedFileName();
-
-      if (fileName.endsWith(".zip")) {
-        Task task = new ImportCsvZipTask(tempFile.toPath(), schema, false);
-        if (ctx.queryParam("async") != null) {
-          String parentTaskId = ctx.queryParam("parentJob");
-          String id = TaskApi.submit(task, parentTaskId);
-          ctx.json(new TaskReference(id, schema));
-          return;
-        } else {
-          MolgenisIO.fromZipFile(tempFile.toPath(), schema, false);
-        }
-      } else if (fileName.endsWith(".xlsx")) {
-        MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);
-      } else {
-        throw new IOException(
-            "File upload failed: extension "
-                + fileName.substring(fileName.lastIndexOf('.'))
-                + " not supported");
-      }
-
-      ctx.status(200);
-      ctx.result("Import success in " + (System.currentTimeMillis() - start) + "ms");
-    } finally {
-      if (ctx.queryParam("async") == null) {
-        Files.delete(tempFile.toPath());
-      }
+    Path tempFile = uploadFileToTemp(ctx).toPath();
+    if (isAsync(ctx)) {
+      submitAsyncTask(ctx, schema, new ImportCsvZipTask(tempFile, schema, false));
+    } else {
+      timedOperation(ctx, "Import success", () -> MolgenisIO.fromZipFile(tempFile, schema, false));
     }
   }
 
@@ -421,6 +206,22 @@ public class ZipApi {
     }
   }
 
+  static void postZipTable(Context ctx) throws Exception {
+    processZipTable(ctx, false);
+  }
+
+  static void deleteZipTable(Context ctx) throws Exception {
+    processZipTable(ctx, true);
+  }
+
+  private static void processZipTable(Context ctx, boolean isDelete) throws Exception {
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    TableStore store = uploadedZip(ctx);
+    int count = processTableOperation(ctx, table, store, isDelete);
+    ctx.status(200);
+    ctx.result((isDelete ? "Deleted " : "Imported ") + count + " rows");
+  }
+
   static void getZippedReports(Context ctx) throws IOException {
     Path tempDir =
         Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
@@ -429,7 +230,6 @@ public class ZipApi {
       ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
       ctx.header(CONTENT_DISPOSITION, "attachment; filename=reports.zip");
 
-      FileUtils.getTempFile("download", ".zip");
       Path zipFile = tempDir.resolve("download.zip");
       TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
 

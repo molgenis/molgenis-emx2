@@ -56,11 +56,16 @@ public class GraphqlApi {
 
   public static String convertExecutionResultToJson(ExecutionResult executionResult)
       throws JsonProcessingException {
+    // tests show conversions below is under 3ms
     Map<String, Object> toSpecificationResult = executionResult.toSpecification();
     return JsonUtil.getWriter().writeValueAsString(toSpecificationResult);
   }
 
+  /** bit unfortunate that we have to convert from json to map and back */
   static Object transform(String json) throws IOException {
+    // benchmark shows this only takes a few ms so not a large performance issue
+    // alternatively, we should change the SQL to result escaped results but that is a nightmare to
+    // build
     if (json != null) {
       return new ObjectMapper().readValue(json, Map.class);
     } else {
@@ -112,8 +117,11 @@ public class GraphqlApi {
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
+    // add login
+    // all the same between schemas
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(database));
 
+    // admin operations
     if (database.isAdmin()) {
       queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(database));
       mutationBuilder.field(GraphqlAdminFieldFactory.removeUser(database));
@@ -121,10 +129,12 @@ public class GraphqlApi {
       mutationBuilder.field(GraphqlAdminFieldFactory.updateUser(database));
     }
 
+    // database operations
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
+    // todo need to allow for owner ? ( need to filter the query to include only owned schema's)
     if (database.isAdmin()) {
       queryBuilder.field(db.lastUpdateQuery(database));
     }
@@ -135,6 +145,7 @@ public class GraphqlApi {
     mutationBuilder.field(db.dropMutation(database));
     mutationBuilder.field(db.changeMutation(database));
 
+    // account operations
     GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
     queryBuilder.field(session.sessionQueryField(database, null));
     mutationBuilder.field(session.signinField(database));
@@ -145,6 +156,7 @@ public class GraphqlApi {
       mutationBuilder.field(session.createTokenField(database));
     }
 
+    // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(
             GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
         .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
@@ -159,21 +171,26 @@ public class GraphqlApi {
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
+    // _manifest query
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(schema.getDatabase()));
 
+    // _schema query
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
     queryBuilder.field(schemaFields.schemaQuery(schema));
     queryBuilder.field(schemaFields.settingsQuery(schema));
     queryBuilder.field(schemaFields.schemaReportsField(schema));
 
+    // _tasks query
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
     queryBuilder.field(db.tasksQueryField(taskService));
 
+    // _session query
     GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
     queryBuilder.field(sessionFieldFactory.sessionQueryField(schema.getDatabase(), schema));
     mutationBuilder.field(sessionFieldFactory.signinField(schema.getDatabase()));
     mutationBuilder.field(sessionFieldFactory.signupField(schema.getDatabase()));
 
+    // authenticated user operations
     if (!schema.getDatabase().isAnonymous()) {
       mutationBuilder.field(sessionFieldFactory.signoutField(schema.getDatabase()));
       mutationBuilder.field(sessionFieldFactory.changePasswordField(schema.getDatabase()));
@@ -191,6 +208,7 @@ public class GraphqlApi {
       queryBuilder.field(schemaFields.changeLogCountQuery(schema));
     }
 
+    // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
       if (table.getColumns().size() > 0) {
@@ -209,6 +227,7 @@ public class GraphqlApi {
     mutationBuilder.field(tableField.upsertMutation(schema));
     mutationBuilder.field(tableField.deleteMutation(schema));
 
+    // assemble and return
     GraphQL result =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
