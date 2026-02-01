@@ -191,9 +191,10 @@ Format determined by `Accept` header:
 ### SHACL Validation
 
 ```
-GET /api/ttl?shacls                     # List available SHACL validation sets (YAML)
-GET /{schema}/api/ttl?validate=<id>     # Validate schema against SHACL set
-GET /{schema}/api/jsonld?validate=<id>  # Same, JSON-LD output
+GET /api/ttl?shacls                            # List available SHACL validation sets (YAML)
+GET /api/jsonld?shacls                         # Same
+GET /{schema}/api/ttl/_schema?validate=<id>    # Validate schema against SHACL set (TTL output)
+GET /{schema}/api/jsonld/_schema?validate=<id> # Same, JSON-LD output
 ```
 
 ### Deprecated Endpoints (moved to -legacy)

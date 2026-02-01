@@ -9,12 +9,15 @@ import static org.molgenis.emx2.web.DownloadApiUtils.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.graphql.GraphqlApi;
@@ -25,7 +28,11 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.jsonld.JsonLdSchemaGenerator;
+import org.molgenis.emx2.rdf.RdfSchemaValidationService;
+import org.molgenis.emx2.rdf.shacl.ShaclSelector;
+import org.molgenis.emx2.rdf.shacl.ShaclSet;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.molgenis.emx2.utils.URLUtils;
 
 public class RestApi {
 
@@ -72,10 +79,26 @@ public class RestApi {
   }
 
   public static void create(Javalin app) {
-    registerEndpoints(app, "json", Format.JSON);
-    registerEndpoints(app, "yaml", Format.YAML);
-    registerEndpoints(app, "jsonld", Format.JSONLD);
-    registerEndpoints(app, "ttl", Format.TTL);
+    registerDatabaseEndpoints(app);
+    registerSchemaEndpoints(app, "json", Format.JSON);
+    registerSchemaEndpoints(app, "yaml", Format.YAML);
+    registerSchemaEndpoints(app, "jsonld", Format.JSONLD);
+    registerSchemaEndpoints(app, "ttl", Format.TTL);
+  }
+
+  private static void registerDatabaseEndpoints(Javalin app) {
+    app.get("/api/jsonld", RestApi::handleDatabaseLevelRequest);
+    app.get("/api/ttl", RestApi::handleDatabaseLevelRequest);
+  }
+
+  private static void handleDatabaseLevelRequest(Context ctx) throws IOException {
+    if (ctx.queryParam("shacls") != null) {
+      getShaclSets(ctx);
+    } else {
+      ctx.status(404);
+      ctx.contentType(ACCEPT_JSON);
+      ctx.result("{ \"message\": \"Not found\" }");
+    }
   }
 
   private static GraphqlApi getGraphqlForSchema(Context ctx) {
@@ -83,10 +106,19 @@ public class RestApi {
     return MolgenisWebservice.applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
   }
 
-  private static void registerEndpoints(Javalin app, String path, Format format) {
+  private static void registerSchemaEndpoints(Javalin app, String path, Format format) {
     final String apiPath = "/{schema}/api/" + path + "/";
 
-    app.get(apiPath + "_schema", ctx -> getSchemaMetadata(ctx, format));
+    app.get(
+        apiPath + "_schema",
+        ctx -> {
+          if (ctx.queryParam("validate") != null
+              && (format == Format.JSONLD || format == Format.TTL)) {
+            validateSchema(ctx, format);
+          } else {
+            getSchemaMetadata(ctx, format);
+          }
+        });
     app.post(apiPath + "_schema", ctx -> postSchema(ctx, format));
     app.delete(apiPath + "_schema", ctx -> deleteSchema(ctx, format));
     app.get(apiPath + "_data", ctx -> getData(ctx, format));
@@ -604,5 +636,47 @@ public class RestApi {
 
     String args = argParts.isEmpty() ? "" : "(" + String.join(",", argParts) + ")";
     return String.format("{%s%s{...All%sFields}}", tableId, args, tableId);
+  }
+
+  private static void getShaclSets(Context ctx) throws IOException {
+    ctx.contentType(ACCEPT_YAML);
+
+    if (MolgenisWebservice.applicationCache.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
+      throw new MolgenisException("No permission to view any schema to use SHACLs on");
+    }
+
+    ObjectMapper mapper =
+        new ObjectMapper(
+            YAMLFactory.builder()
+                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+                .build());
+
+    try (OutputStream outputStream = ctx.outputStream()) {
+      mapper.writeValue(outputStream, ShaclSelector.getAllFiltered());
+    }
+  }
+
+  private static void validateSchema(Context ctx, Format format) throws Exception {
+    String shaclId = MolgenisWebservice.sanitize(ctx.queryParam("validate"));
+    ShaclSet shaclSet = ShaclSelector.get(shaclId);
+    if (shaclSet == null) {
+      ctx.status(404);
+      ctx.contentType(ACCEPT_JSON);
+      ctx.result("{ \"message\": \"Validation set not found: " + shaclId + "\" }");
+      return;
+    }
+
+    Schema schema = MolgenisWebservice.getSchema(ctx);
+    RDFFormat rdfFormat = format == Format.JSONLD ? RDFFormat.JSONLD : RDFFormat.TURTLE;
+    String baseUrl = URLUtils.extractBaseURL(ctx);
+
+    ctx.contentType(format.contentType());
+    try (OutputStream out = ctx.outputStream()) {
+      try (RdfSchemaValidationService service =
+          new RdfSchemaValidationService(baseUrl, schema, rdfFormat, out, shaclSet)) {
+        service.getGenerator().generate(schema);
+      }
+    }
   }
 }

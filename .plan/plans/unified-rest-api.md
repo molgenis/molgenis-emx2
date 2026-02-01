@@ -55,25 +55,26 @@
 - [ ] Add `Deprecation` header in responses
 - [ ] Keep all functionality for comparison testing
 
-### Phase 2: Add SHACL to RestApi (Backend)
+### Phase 2: Add SHACL to RestApi (Backend) ✅
 
 **New endpoints in RestApi:**
 ```
-GET /api/ttl?shacls              → List available SHACL sets (YAML)
-GET /{schema}/api/ttl?validate=X → Validate schema data against SHACL set
-GET /{schema}/api/jsonld?validate=X → Same for JSON-LD
+GET /api/ttl?shacls                        → List available SHACL sets (YAML)
+GET /api/jsonld?shacls                     → Same
+GET /{schema}/api/ttl/_schema?validate=X   → Validate schema data against SHACL set
+GET /{schema}/api/jsonld/_schema?validate=X → Same for JSON-LD
 ```
 
 **Implementation:**
-- [ ] Add SHACL query param handling to RestApi.java
-- [ ] Reuse: `ShaclSelector`, `ShaclSet`, `RdfSchemaValidationService`
-- [ ] Return validation report in requested format (TTL or JSON-LD)
+- [x] Add SHACL query param handling to RestApi.java
+- [x] Reuse: `ShaclSelector`, `ShaclSet`, `RdfSchemaValidationService`
+- [x] Return validation report in requested format (TTL or JSON-LD)
 
 ### Phase 3: Frontend + Python Client
 
 **SHACL UI updates:**
 - [ ] `apps/ui/app/pages/[schema]/shacl/index.vue` - change `/api/rdf?shacls` → `/api/ttl?shacls`
-- [ ] `apps/ui/app/util/shaclUtils.ts` - change `/{schema}/api/rdf?validate=` → `/{schema}/api/ttl?validate=`
+- [ ] `apps/ui/app/util/shaclUtils.ts` - change `/{schema}/api/rdf?validate=` → `/{schema}/api/ttl/_schema?validate=`
 
 **Import.vue cleanup:**
 - [ ] Remove `/api/ttl2` references

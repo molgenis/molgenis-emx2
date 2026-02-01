@@ -1,8 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.API_JSONLD;
-import static org.molgenis.emx2.Constants.API_RDF;
-import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
 import static org.molgenis.emx2.web.Constants.ACCEPT_YAML;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
