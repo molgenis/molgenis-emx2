@@ -26,6 +26,7 @@ export interface IDisplayConfig {
   showSearch?: boolean;
   filter?: object;
   label?: string;
+  showLayoutToggle?: boolean;
 }
 
 export type CellValueType =

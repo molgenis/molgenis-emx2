@@ -64,6 +64,7 @@
             :is-editable="isEditable"
             :config="{
               layout: configLayout,
+              showLayoutToggle: true,
               showFilters: true,
               filterPosition: 'sidebar',
               showSearch: true,
@@ -100,6 +101,7 @@
         :is-editable="isEditable"
         :config="{
           layout: configLayout,
+          showLayoutToggle: true,
           showFilters: true,
           filterPosition: 'sidebar',
           showSearch: true,
@@ -222,8 +224,9 @@ Unified data view with three usage modes and slot customization demo.
 ## Config Options (IDisplayConfig)
 | Option | Type | Default | Description |
 |------|------|---------|-------------|
-| layout | 'list' \\| 'table' \\| 'cards' | table | Display mode |
-| showFilters | boolean | false | Show filter sidebar |
+| layout | 'list' \\| 'table' \\| 'cards' | table | Default display mode |
+| showLayoutToggle | boolean | false | Show table/cards toggle in toolbar |
+| showFilters | boolean | false | Enable filter sidebar |
 | filterPosition | 'sidebar' \\| 'topbar' | sidebar | Filter placement |
 | filterableColumns | string[] | - | Limit filterable columns |
 | visibleColumns | string[] | - | Columns shown in table |
@@ -231,6 +234,12 @@ Unified data view with three usage modes and slot customization demo.
 | pageSize | number | 10 | Items per page |
 | rowLabel | string | - | Template like "\${name}" |
 | urlSync | boolean | true | Sync filters to URL |
+
+## Toolbar (desktop)
+- Add button (when isEditable)
+- Toggle table/cards (when showLayoutToggle)
+- Columns button
+- Show/Hide Filters button (when showFilters + sidebar)
 
 ## Responsive Behavior
 - Desktop (xl+): Filter sidebar visible

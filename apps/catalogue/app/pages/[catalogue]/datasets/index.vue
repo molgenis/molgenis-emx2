@@ -1,33 +1,19 @@
 <script setup lang="ts">
-import type { IFilter } from "../../../../interfaces/types";
 import type { Crumb } from "../../../../../tailwind-components/types/types";
-import { useRoute, useRouter, useHead, useRuntimeConfig } from "#app";
-import { buildQueryFilter } from "../../../utils/buildQueryFilter";
-import { computed, markRaw } from "vue";
-import LayoutsSearchPage from "../../../components/layouts/SearchPage.vue";
-import FilterSidebar from "../../../components/filter/Sidebar.vue";
+import { useRoute, useHead, useRuntimeConfig } from "#app";
+import { computed } from "vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import SearchResults from "../../../components/SearchResults.vue";
-import FilterWell from "../../../components/FilterWell.vue";
-import SearchResultsList from "../../../components/SearchResultsList.vue";
-import DatasetCard from "../../../components/DatasetCard.vue";
-import Emx2ListView from "../../../../../tailwind-components/app/components/display/Emx2ListView.vue";
-import {
-  conditionsFromPathQuery,
-  mergeWithPageDefaults,
-  toPathQueryConditions,
-} from "../../../utils/filterUtils";
+import Emx2DataView from "../../../../../tailwind-components/app/components/display/Emx2DataView.vue";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
 
 const route = useRoute();
-const router = useRouter();
-const pageSize = 20;
+const catalogueRouteParam = route.params.catalogue as string;
+const scoped = catalogueRouteParam !== "all";
 
-const titlePrefix =
-  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+const titlePrefix = scoped ? catalogueRouteParam + " " : "";
 useHead({
   title: titlePrefix + "Datasets",
   meta: [
@@ -38,75 +24,9 @@ useHead({
   ],
 });
 
-const scoped = route.params.catalogue !== "all";
-const catalogueRouteParam = route.params.catalogue as string;
-
-const pageFilterTemplate: IFilter[] = [
-  {
-    id: "search",
-    config: {
-      label: "Search in datasets",
-      type: "SEARCH",
-      initialCollapsed: false,
-    },
-    search: "",
-  },
-  {
-    id: "datasetType",
-    config: {
-      label: "Dataset type",
-      type: "ONTOLOGY",
-      ontologyTableId: "DatasetTypes",
-      ontologySchema: "CatalogueOntologies",
-      columnId: "datasetType",
-      initialCollapsed: true,
-    },
-    conditions: [],
-  },
-  {
-    id: "unitOfObservation",
-    config: {
-      label: "Unit of observation",
-      type: "ONTOLOGY",
-      ontologyTableId: "UnitsOfObservation",
-      ontologySchema: "CatalogueOntologies",
-      columnId: "unitOfObservation",
-      initialCollapsed: true,
-    },
-    conditions: [],
-  },
-  {
-    id: "keywords",
-    config: {
-      label: "Keywords",
-      type: "ONTOLOGY",
-      ontologyTableId: "Keywords",
-      ontologySchema: "CatalogueOntologies",
-      columnId: "keywords",
-      initialCollapsed: true,
-    },
-    conditions: [],
-  },
-];
-
-const filters = computed(() => {
-  if (!route.query?.conditions) {
-    return [...pageFilterTemplate];
-  }
-  const conditions = conditionsFromPathQuery(route.query.conditions as string);
-  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
-  return filters;
-});
-
-const gqlFilter = computed(() => {
-  let result = buildQueryFilter(filters.value);
-
-  if (!scoped) {
-    return result;
-  }
-
-  // Filter datasets by catalogue (via resource associations)
-  const catalogueFilter = {
+const catalogueFilter = computed(() => {
+  if (!scoped) return undefined;
+  return {
     resource: {
       _or: [
         { id: { equals: catalogueRouteParam } },
@@ -119,72 +39,37 @@ const gqlFilter = computed(() => {
       ],
     },
   };
-
-  if (Object.keys(result).length === 0) {
-    return catalogueFilter;
-  }
-
-  return { _and: [result, catalogueFilter] };
 });
 
-function onFilterChange(filters: IFilter[]) {
-  const conditions = toPathQueryConditions(filters) || undefined;
-  router.push({
-    path: route.path,
-    query: { conditions: conditions },
-  });
-}
-
-const listDisplayConfig = {
-  component: markRaw(DatasetCard),
-  pageSize: pageSize,
-};
-
 const crumbs: Crumb[] = [
-  { label: `${route.params.catalogue}`, url: `/${route.params.catalogue}` },
+  { label: catalogueRouteParam, url: `/${catalogueRouteParam}` },
   { label: "datasets", url: "" },
 ];
 </script>
 
 <template>
-  <LayoutsSearchPage>
-    <template #side>
-      <FilterSidebar
-        title="Filters"
-        :filters="filters"
-        @update:filters="onFilterChange"
-      />
-    </template>
-    <template #main>
-      <SearchResults>
-        <template #header>
-          <PageHeader
-            title="Datasets"
-            description="Overview of datasets"
-            icon="image-table"
-          >
-            <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" current="datasets" />
-            </template>
-          </PageHeader>
+  <Emx2DataView
+    :schema-id="schema"
+    table-id="Datasets"
+    :config="{
+      layout: 'cards',
+      showFilters: true,
+      showLayoutToggle: true,
+      pageSize: 20,
+      visibleColumns: ['name', 'label', 'resource', 'description', 'datasetType']
+    }"
+    :static-filter="catalogueFilter"
+  >
+    <template #header>
+      <PageHeader
+        title="Datasets"
+        description="Overview of datasets"
+        icon="image-table"
+      >
+        <template #prefix>
+          <BreadCrumbs :crumbs="crumbs" current="datasets" />
         </template>
-
-        <template #search-results>
-          <FilterWell :filters="filters" @update:filters="onFilterChange" />
-
-          <SearchResultsList>
-            <Emx2ListView
-              :schema-id="schema"
-              table-id="Datasets"
-              :filter="gqlFilter"
-              :display-config="listDisplayConfig"
-              :paging-limit="pageSize"
-              :show-search="false"
-              :component-props="{ catalogue: catalogueRouteParam }"
-            />
-          </SearchResultsList>
-        </template>
-      </SearchResults>
+      </PageHeader>
     </template>
-  </LayoutsSearchPage>
+  </Emx2DataView>
 </template>

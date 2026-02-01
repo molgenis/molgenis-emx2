@@ -23,6 +23,7 @@ import RecordCards from "./RecordCards.vue";
 import RecordTable from "./RecordTable.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
+import Toggle from "../Toggle.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -31,6 +32,7 @@ const props = withDefaults(
     config?: IDisplayConfig;
     urlSync?: boolean;
     isEditable?: boolean;
+    staticFilter?: object;
   }>(),
   {
     urlSync: true,
@@ -44,15 +46,23 @@ defineSlots<{
 }>();
 
 const layout = computed(() => props.config?.layout || "table");
+const showLayoutToggle = computed(
+  () => props.config?.showLayoutToggle || false
+);
+
+const currentLayout = ref(layout.value);
 
 const layoutComponents = computed(() => {
-  if (layout.value === "table") {
+  const activeLayout = showLayoutToggle.value
+    ? currentLayout.value
+    : layout.value;
+  if (activeLayout === "table") {
     return [
       { component: RecordCards, class: "md:hidden" },
       { component: RecordTable, class: "hidden md:block" },
     ];
   }
-  if (layout.value === "cards") {
+  if (activeLayout === "cards") {
     return [{ component: RecordCards, class: "p-5 pb-8" }];
   }
   return [];
@@ -88,6 +98,13 @@ const { filterStates, gqlFilter } = useFilters(metadataRef, {
   router: router as any,
 });
 
+const combinedFilter = computed(() => {
+  if (!props.staticFilter) return gqlFilter.value;
+  if (!gqlFilter.value || Object.keys(gqlFilter.value).length === 0)
+    return props.staticFilter;
+  return { _and: [props.staticFilter, gqlFilter.value] };
+});
+
 const {
   metadata,
   rows,
@@ -100,7 +117,7 @@ const {
   pageSize: pagingLimit.value,
   page,
   searchTerms,
-  filter: gqlFilter,
+  filter: combinedFilter,
 });
 
 // update metadataRef when metadata loads
@@ -113,6 +130,17 @@ watch(
   },
   { immediate: true }
 );
+
+if (props.urlSync && showLayoutToggle.value) {
+  const urlLayout = route.query.mg_view as string;
+  if (urlLayout === "table" || urlLayout === "cards") {
+    currentLayout.value = urlLayout;
+  }
+
+  watch(currentLayout, (newLayout) => {
+    router.replace({ query: { ...route.query, mg_view: newLayout } });
+  });
+}
 
 function handleColumnsUpdate(updatedColumns: IColumn[]) {
   metadataRef.value = updatedColumns;
@@ -199,15 +227,17 @@ async function afterRowDeleted() {
       <slot name="header" />
     </template>
     <template v-if="filtersVisible && filterPosition === 'sidebar'" #sidebar>
-      <FilterSidebar
-        v-if="metadataRef.length"
-        v-model:filter-states="filterStates"
-        v-model:search-terms="searchTerms"
-        :all-columns="metadataRef"
-        :schema-id="schemaId"
-        :show-search="showSearch"
-        @update:columns="handleColumnsUpdate"
-      />
+      <div class="flex flex-col h-full">
+        <FilterSidebar
+          v-if="metadataRef.length"
+          v-model:filter-states="filterStates"
+          v-model:search-terms="searchTerms"
+          :all-columns="metadataRef"
+          :schema-id="schemaId"
+          :show-search="showSearch"
+          @update:columns="handleColumnsUpdate"
+        />
+      </div>
     </template>
     <template #main>
       <div class="xl:hidden mb-4 flex gap-2">
@@ -269,17 +299,26 @@ async function afterRowDeleted() {
             </Button>
           </div>
           <div class="flex gap-2">
-            <Button
-              v-if="showFilters && filterPosition === 'sidebar'"
-              type="outline"
-              @click="filtersVisible = !filtersVisible"
-            >
-              {{ filtersVisible ? "Hide Filters" : "Show Filters" }}
-            </Button>
+            <Toggle
+              v-if="showLayoutToggle"
+              v-model="currentLayout"
+              :options="[
+                { name: 'table', label: 'Table', icon: 'view-table' },
+                { name: 'cards', label: 'Cards', icon: 'view-compact' }
+              ]"
+            />
             <Columns
               :columns="metadataRef"
               @update:columns="handleColumnsUpdate"
             />
+            <Button
+              v-if="showFilters && filterPosition === 'sidebar'"
+              type="outline"
+              icon="filter"
+              @click="filtersVisible = !filtersVisible"
+            >
+              {{ filtersVisible ? "Hide Filters" : "Show Filters" }}
+            </Button>
           </div>
         </div>
 
