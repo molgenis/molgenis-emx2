@@ -298,19 +298,55 @@ Resources:
 | `_type` | RDF class (literal or `=expression`) |
 | `column` | Column → predicate mapping |
 
-**Column mapping formats:**
+**Column mapping formats (export):**
 
 | Format | Example | Use case |
 |--------|---------|----------|
 | Simple | `name: dct:title` | Direct mapping |
-| With transform | `email: {predicate: vcard:hasEmail, export: "='mailto:'+email"}` | Value transform |
-| Nested object | `publisher: {predicate: dct:publisher, export: {"@id": "=...", "@type": "..."}}` | Complex RDF structure |
+| With transform | `email: {predicate: vcard:hasEmail, value: "='mailto:'+email"}` | Value transform |
+| Nested object | `publisher: {predicate: dct:publisher, value: {"@id": "=...", "@type": ...}}` | Complex RDF structure |
+| Array iteration | `contacts: {predicate: dcat:contactPoint, foreach: c in contacts, value: {...}}` | One RDF object per array item |
 
-**JS expression bindings:**
-- `value` - incoming value (import direction)
-- `baseUrl`, `schema` - from `_context`
-- All row fields by name (export direction)
+**foreach syntax:**
+```yaml
+contacts:
+  predicate: dcat:contactPoint
+  foreach: c in contacts        # iterate array, 'c' is loop variable
+  value:
+    "@id": "=baseUrl + '/contact/' + c.firstName"
+    "@type": vcard:Kind
+    "vcard:fn": "=c.firstName + ' ' + c.lastName"
+```
+
+**Variable scope rules:**
+- `_context` → global, available everywhere
+- `_let` → available in that block + children
+- Row fields (`id`, `name`, etc.) → available in table scope
+- `foreach` var (`c`) → available in value block
+- `value` → incoming value (import direction)
 - Standard JS: `Array.isArray()`, `.map()`, `.find()`, `.split()`, etc.
+
+**Scoped variables with `_let`:**
+```yaml
+Resources:
+  _let:
+    resourceUrl: "=baseUrl + '/' + schema + '/resource/' + id"
+  _id: "=resourceUrl"
+  contacts:
+    _let:
+      contactBase: "=resourceUrl + '/contact'"
+    foreach: c in contacts
+    value:
+      "@id": "=contactBase + '/' + c.firstName"
+```
+
+**Auto-generated query (future):**
+Engine can infer GraphQL query from mapping - no separate query file needed:
+```yaml
+_query:
+  filter: "={type: {equals: 'Catalogue'}}"
+  include: [_schema, _settings]
+```
 
 **Two mapping files (different key structure):**
 

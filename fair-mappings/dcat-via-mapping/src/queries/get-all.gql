@@ -13,8 +13,8 @@ query ExportDcat {
     pid
     keywords
     website
-    dateCreated
-    dateModified
+    issued
+    modified
     type {
       name
       ontologyTermURI
@@ -36,7 +36,6 @@ query ExportDcat {
       name
     }
     contacts {
-      id
       firstName
       lastName
       email
