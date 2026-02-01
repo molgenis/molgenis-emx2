@@ -18,6 +18,7 @@ import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.FrameStep;
+import org.molgenis.emx2.fairmapper.model.step.MappingStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
 import org.molgenis.emx2.fairmapper.model.step.SparqlConstructStep;
@@ -38,6 +39,7 @@ public class RemotePipelineExecutor {
   private final Path bundlePath;
   private final String schema;
   private final ObjectMapper objectMapper = new ObjectMapper();
+  private final MappingEngine mappingEngine = new MappingEngine();
 
   public RemotePipelineExecutor(
       GraphqlClient client, JsltTransformEngine transformEngine, Path bundlePath, String schema) {
@@ -84,6 +86,8 @@ public class RemotePipelineExecutor {
           current = executeFrame(frameStep.path(), frameStep.unmapped(), current);
         } else if (step instanceof SparqlConstructStep sparqlStep) {
           current = executeSparql(sparqlStep.path(), current);
+        } else if (step instanceof MappingStep mappingStep) {
+          current = executeMapping(mappingStep.path(), current);
         }
       }
     }
@@ -187,5 +191,11 @@ public class RemotePipelineExecutor {
     Model rdfModel = JsonLdRdfConverter.jsonLdToModel(input);
     Model result = SparqlEngine.construct(rdfModel, sparql);
     return JsonLdRdfConverter.modelToJsonLd(result);
+  }
+
+  private JsonNode executeMapping(String mappingPath, JsonNode input) throws IOException {
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, mappingPath);
+    String mappingYaml = Files.readString(resolvedPath);
+    return mappingEngine.transform(mappingYaml, input);
   }
 }

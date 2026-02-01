@@ -32,6 +32,8 @@ public class StepConfigDeserializer extends JsonDeserializer<List<StepConfig>> {
         steps.add(new FrameStep(stepNode.get("frame").asText(), unmapped, tests));
       } else if (stepNode.has("sparql")) {
         steps.add(new SparqlConstructStep(stepNode.get("sparql").asText(), tests));
+      } else if (stepNode.has("mapping")) {
+        steps.add(new MappingStep(stepNode.get("mapping").asText(), tests));
       }
     }
     return steps;

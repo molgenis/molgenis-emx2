@@ -19,6 +19,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.Step;
+import org.molgenis.emx2.fairmapper.model.step.MappingStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
 import org.molgenis.emx2.fairmapper.model.step.SqlQueryStep;
 import org.molgenis.emx2.fairmapper.model.step.StepConfig;
@@ -35,6 +36,7 @@ public class PipelineExecutor {
   private final Path bundlePath;
   private final Schema schema;
   private final ObjectMapper objectMapper = new ObjectMapper();
+  private final MappingEngine mappingEngine = new MappingEngine();
 
   public PipelineExecutor(
       GraphQL graphql, JsltTransformEngine transformEngine, Path bundlePath, Schema schema) {
@@ -74,6 +76,8 @@ public class PipelineExecutor {
           current = executeQuery(queryStep.path(), current);
         } else if (step instanceof SqlQueryStep sqlQueryStep) {
           current = executeSqlQuery(sqlQueryStep.path(), current);
+        } else if (step instanceof MappingStep mappingStep) {
+          current = executeMapping(mappingStep.path(), current);
         }
       }
     }
@@ -153,5 +157,11 @@ public class PipelineExecutor {
 
     String result = rows.get(0).getString("result");
     return objectMapper.readTree(result);
+  }
+
+  private JsonNode executeMapping(String mappingPath, JsonNode input) throws IOException {
+    Path resolvedPath = PathValidator.validateWithinBase(bundlePath, mappingPath);
+    String mappingYaml = Files.readString(resolvedPath);
+    return mappingEngine.transform(mappingYaml, input);
   }
 }
