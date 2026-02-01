@@ -3001,4 +3001,112 @@ class WebApiSmokeTests {
 
     Files.deleteIfExists(tempFile);
   }
+
+  @Test
+  void testGraphqlLdEndpoint() {
+    String query = "{\"query\": \"{ Pet { name category { name } } }\"}";
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .contentType("application/json")
+            .body(query)
+            .when()
+            .post("/pet store/api/graphql-ld")
+            .then()
+            .statusCode(200)
+            .contentType(containsString("application/ld+json"))
+            .extract()
+            .response();
+
+    String body = response.asString();
+    assertTrue(body.contains("@context"), "Response should contain @context");
+    assertTrue(body.contains("data"), "Response should contain data");
+  }
+
+  @Test
+  void testDataApiContentNegotiation() {
+    Response jsonResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", "application/json")
+            .when()
+            .get("/pet store/api/data/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonBody = jsonResponse.asString();
+    assertTrue(jsonBody.startsWith("[") || jsonBody.startsWith("{"), "Should be JSON format");
+
+    Response jsonLdResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", "application/ld+json")
+            .when()
+            .get("/pet store/api/data/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonLdBody = jsonLdResponse.asString();
+    assertTrue(jsonLdBody.contains("@context"), "JSON-LD should contain @context");
+
+    Response csvResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", "text/csv")
+            .when()
+            .get("/pet store/api/data/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String csvBody = csvResponse.asString();
+    assertTrue(csvBody.contains(",") || csvBody.contains("\n"), "Should be CSV format");
+
+    Response turtleResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", "text/turtle")
+            .when()
+            .get("/pet store/api/data/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String turtleBody = turtleResponse.asString();
+    assertTrue(turtleBody.contains("@prefix"), "Turtle should contain @prefix");
+  }
+
+  @Test
+  void testDataApiSystemEndpoints() {
+    Response jsonSchemaResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", "application/json")
+            .when()
+            .get("/pet store/api/data/_schema")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonSchemaBody = jsonSchemaResponse.asString();
+    assertTrue(
+        jsonSchemaBody.contains("tables") || jsonSchemaBody.contains("schema"),
+        "Schema should contain metadata");
+
+    Response jsonLdDataResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", "application/ld+json")
+            .when()
+            .get("/pet store/api/data/_data")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonLdDataBody = jsonLdDataResponse.asString();
+    assertTrue(jsonLdDataBody.contains("@context"), "Data endpoint should support JSON-LD");
+  }
 }

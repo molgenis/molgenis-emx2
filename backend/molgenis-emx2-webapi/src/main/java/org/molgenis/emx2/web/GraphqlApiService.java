@@ -63,6 +63,10 @@ public class GraphqlApiService {
     final String schemaAppPath = "/{schema}/{app}/graphql"; // NOSONAR
     app.get(schemaAppPath, GraphqlApiService::handleSchemaRequests);
     app.post(schemaAppPath, GraphqlApiService::handleSchemaRequests);
+
+    final String schemaGraphqlLdPath = "/{schema}/api/graphql-ld";
+    app.get(schemaGraphqlLdPath, GraphqlApiService::handleGraphqlLdRequests);
+    app.post(schemaGraphqlLdPath, GraphqlApiService::handleGraphqlLdRequests);
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
@@ -88,6 +92,30 @@ public class GraphqlApiService {
     GraphqlApi graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
+  }
+
+  public static void handleGraphqlLdRequests(Context ctx) throws IOException {
+    String schemaName = sanitize(ctx.pathParam(SCHEMA));
+
+    if (getSchema(ctx) == null) {
+      throw new GraphqlException(
+          "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
+    }
+
+    GraphqlApi graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    String query = getQueryFromRequest(ctx);
+    Map<String, Object> variables = getVariablesFromRequest(ctx);
+
+    Map queryResult = graphqlForSchema.queryAsMap(query, variables);
+    String jsonLdContext = graphqlForSchema.getJsonLdSchema(ctx.url());
+
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode response = mapper.createObjectNode();
+    response.set("@context", mapper.readTree(jsonLdContext));
+    response.set("data", mapper.valueToTree(queryResult));
+
+    ctx.header(CONTENT_TYPE, "application/ld+json");
+    ctx.json(response);
   }
 
   private static String executeQuery(GraphqlApi graphqlApi, Context ctx) throws IOException {

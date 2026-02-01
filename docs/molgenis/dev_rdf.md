@@ -165,9 +165,55 @@ The recognized mime types are:
 - `application/ld+json` (JSON-based Serialization for Linked Data, https://www.w3.org/TR/json-ld11/)
 
 ### Convenience APIs
-As a convience there are APIs to always download in Turtle or JSON-LD:
+As a convenience there are APIs to always download in Turtle or JSON-LD:
 - `/api/ttl` Downloads always in Turtle
 - `/api/jsonld` Downloads always in JSON-LD
 
 One can replace `/api/rdf/` with the above convenience APIs in any of the explained data retrieval API points as
 mentioned on this page (such as `<server>/pet%20store/api/jsonld/Pet?category=cat`).
+
+### Content-negotiated endpoint
+
+The `/api/data/` endpoint supports format selection via HTTP `Accept` header:
+
+```bash
+# Request Turtle format
+curl -H "Accept: text/turtle" https://example.org/pet%20store/api/data/Pet
+
+# Request JSON-LD format
+curl -H "Accept: application/ld+json" https://example.org/pet%20store/api/data/Pet
+```
+
+This endpoint also supports other formats (CSV, JSON, YAML, Excel, ZIP). See [REST API](dev_batchapi.md) for details.
+
+## GraphQL-LD
+
+For semantic queries with subsetting, use the GraphQL-LD endpoint at `/{schema}/api/graphql-ld`:
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ Pet { name category { name } } }"}' \
+  https://example.org/pet%20store/api/graphql-ld
+```
+
+The response includes a JSON-LD `@context` that maps fields to semantic URIs:
+
+```json
+{
+  "@context": {
+    "my": "https://example.org/pet%20store#",
+    "mg_id": "@id",
+    "Pet": "my:Pet",
+    "name": "my:name"
+  },
+  "data": {
+    "Pet": [{"mg_id": "Pet/name=pooky", "name": "pooky", "category": {"name": "cat"}}]
+  }
+}
+```
+
+This allows:
+- Subsetting data using GraphQL query syntax
+- Converting responses to RDF using standard JSON-LD processors
+- Combining MOLGENIS data with other Linked Data sources

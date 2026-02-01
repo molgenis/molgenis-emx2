@@ -128,8 +128,9 @@ So `POST /{schema}/api/ttl2/{table}` already accepts:
 | JSON-LD roundtrip | ✅ Done (via TypeUtils.convertToRows) |
 | TTL/RDF input | ❌ TODO - parse RDF → JSON-LD → strip → save |
 | Row-level `/{table}/{id}` | ❌ TODO |
-| Format-specific endpoints | ❌ TODO - rename /api/ttl2 to final names |
-| GraphQL-LD endpoint | ❌ TODO |
+| Format-specific endpoints | ✅ Done - /api/json, /api/yaml, /api/jsonld, /api/ttl |
+| GraphQL-LD endpoint | ✅ Done - /{schema}/api/graphql-ld |
+| DataApi content-negotiation | ✅ Done - /{schema}/api/data/* |
 
 ### Target Endpoint Structure
 

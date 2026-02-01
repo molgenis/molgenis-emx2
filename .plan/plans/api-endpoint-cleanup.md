@@ -93,7 +93,7 @@ This is a **breaking change** affecting:
 | Database | `/api/graphql` | `/api/graphql` | ✅ keep |
 | Schema | `/{schema}/graphql` | `/{schema}/graphql` | ✅ keep |
 | Database + LD | - | `/api/graphql-ld` | ➕ new |
-| Schema + LD | - | `/{schema}/api/graphql-ld` | ➕ new |
+| Schema + LD | - | `/{schema}/api/graphql-ld` | ✅ done |
 | **Reports** | | | |
 | JSON | `/api/reports/json` | `/api/reports/json` | ✅ keep |
 | Excel | `/api/reports/excel` | `/api/reports/excel` | ✅ keep |
@@ -183,14 +183,13 @@ This is a **breaking change** affecting:
 - [ ] Remove `/api/rdf` (or keep as alias)
 
 #### 1.8 New: Unified endpoint registration
-- [ ] Consider creating base class or utility for consistent endpoint registration
-- [ ] Ensure `_` prefixed routes registered BEFORE `{table}` routes
+- [x] Ensure `_` prefixed routes registered BEFORE `{table}` routes
 
 #### 1.9 New: DataApi.java (content-negotiated endpoint)
-- [ ] Create `/api/data/{table}` endpoint with content negotiation
-- [ ] Support Accept headers: text/csv, application/json, application/ld+json, text/turtle
-- [ ] Add `/_schema`, `/_data`, `/_all`, `/{table}/{id}` routes
-- [ ] Delegate to format-specific implementations based on Accept header
+- [x] Create `/api/data/{table}` endpoint with content negotiation
+- [x] Support Accept headers: text/csv, application/json, application/ld+json, text/turtle
+- [x] Add `/_schema`, `/_data`, `/_all`, `/{table}/{id}` routes
+- [x] Delegate to format-specific implementations based on Accept header
 
 #### 1.10 Query parameters support (all APIs)
 - [ ] Add `filter` parameter support (JSON, GraphQL filter syntax)
