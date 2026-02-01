@@ -104,10 +104,7 @@ function handleExpandClick(event: Event) {
 
 <template>
   <hr class="mx-5 border-black opacity-10" />
-  <div
-    class="flex items-center gap-1 p-5"
-    :style="{ paddingLeft: `${20 + depth * 16}px` }"
-  >
+  <div class="flex items-center gap-1 p-5">
     <div class="inline-flex gap-1 group" @click="toggle()">
       <h3
         class="font-sans text-body-base font-bold mr-[5px] group-hover:underline group-hover:cursor-pointer"

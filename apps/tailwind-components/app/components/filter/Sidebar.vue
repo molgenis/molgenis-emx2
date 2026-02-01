@@ -89,10 +89,11 @@ async function handleExpand(column: IColumn) {
 
     try {
       const tableMetadata = await fetchTableMetadata(refSchemaId, refTableId);
+      const unfilterableTypes = ["HEADING", "SECTION", "REFBACK"];
       const filteredColumns = tableMetadata.columns.filter(
         (col) =>
           !col.id.startsWith("mg_") &&
-          col.columnType !== "REFBACK" &&
+          !unfilterableTypes.includes(col.columnType) &&
           col.showFilter !== false
       );
       refColumnsCache.value.set(key, filteredColumns);
@@ -151,7 +152,10 @@ async function handleExpand(column: IColumn) {
         :depth="0"
         @expand="handleExpand(column)"
       />
-      <template v-if="expandedRefs.has(column.id)">
+      <div
+        v-if="expandedRefs.has(column.id)"
+        class="ml-4 border-l-2 border-black/10"
+      >
         <FilterColumn
           v-for="nestedColumn in refColumnsCache.get(column.id)"
           :key="`${column.id}.${nestedColumn.id}`"
@@ -164,7 +168,7 @@ async function handleExpand(column: IColumn) {
           :mobile-display="mobileDisplay"
           :depth="1"
         />
-      </template>
+      </div>
     </template>
   </div>
 </template>
