@@ -23,6 +23,12 @@ const modelValue = defineModel<IRow>("modelValue", {
 
 const emit = defineEmits(["update", "view", "leaving-view", "blur"]);
 
+const observerOptions = {
+  root: null,
+  rootMargin: "-45% 0px -45% 0px",
+  threshold: 0,
+};
+
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);
 
@@ -48,7 +54,6 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
     <div
       v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
       :id="`${column.id}-form-field`"
-      v-intersection-observer="onIntersectionObserver"
     >
       <h2
         class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
@@ -63,9 +68,9 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
       </h2>
     </div>
     <FormField
-      class="pb-8"
+      class="pb-8 last:pb-64"
       v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
-      v-intersection-observer="onIntersectionObserver"
+      v-intersection-observer="[onIntersectionObserver, observerOptions]"
       v-model="modelValue[column.id]"
       :id="`${column.id}-form-field`"
       :type="column.columnType"
