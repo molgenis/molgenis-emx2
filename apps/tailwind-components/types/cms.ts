@@ -1,10 +1,10 @@
 // Generated (on: 2026-01-28T08:41:05.654599) from Generator.java for schema: cms
 
 export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
+  id: string;
+  size: number;
+  extension: string;
+  url: string;
 }
 
 export interface ITreeNode {
@@ -176,7 +176,7 @@ export interface IImages {
   id: string;
   inBlock?: any;
   displayName?: string;
-  image?: IFile;
+  image: IFile;
   alt?: string;
   width?: string;
   height?: string;

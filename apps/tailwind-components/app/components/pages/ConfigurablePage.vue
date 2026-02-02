@@ -8,6 +8,7 @@ import type {
   IHeadings,
   IParagraphs,
   IImages,
+  IFile,
 } from "../../../types/cms";
 
 interface Blocks extends IBlocks, IHeaders, ISections {}
@@ -17,7 +18,7 @@ import PageBanner from "../pages/Banner.vue";
 import PageSection from "../pages/Section.vue";
 import TextHeading from "../text/Heading.vue";
 import TextParagraph from "../text/Paragraph.vue";
-import Image from "../Image.vue";
+import Image from "../pages/Image.vue";
 
 import { parsePageText, sortConfigurablePage } from "../../utils/Pages";
 
@@ -65,7 +66,7 @@ const page = sortConfigurablePage(props.content);
         <Image
           v-else-if="component.mg_tableclass === 'cms.Images'"
           :id="component.id"
-          :src="(component.image?.url as string)"
+          :image="(component.image as IFile)"
           :width="component.width"
           :height="component.height"
           :alt="component.alt"

@@ -49,8 +49,8 @@ Images,Components,,,,,,,,,,,,<img> elements,pages
 Images,,display name,string,,,,,,,,,,An optional name to display in place of the filename,pages
 Images,,image,file,,,,,,,,,,Select an image file,pages
 Images,,alt,string,,,,,,,,,,A description of the image for accessibility compliance,pages
-Images,,width,string,,,,,,,,,,"An optional value to specify the width of the image (tailwind units: w-full, w-[100px], etc.)",pages
-Images,,height,string,,,,,,,,,,"An optional value to specify the height of the image (tailwind units: h-full, h-[100px], etc.)",pages
+Images,,width,string,,,,,,,,,,"The width of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
+Images,,height,string,,,,,,,,,,"The height of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
 Images,,image is centered,bool,,,,,,,,false,,"If true, the image will be centered aligned",pages
 Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
 Ordered lists,,items,text_array,,,,,,,,,,,pages

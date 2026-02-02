@@ -89,6 +89,9 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
                 displayName
                 image {
                     id
+                    size
+                    filename
+                    extension
                     url
                 }
                 alt
