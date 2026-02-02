@@ -8,6 +8,8 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -40,13 +42,13 @@ class TestGraphqlObjectFilters {
             name
           }
         }
-      """;
+        """;
 
     ExecutionResult execute = graphql.execute(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
 
     List<Person> people = MAPPER.readerForListOf(Person.class).readValue(jsonNode);
-    assertEquals(List.of(new Person("John")), people);
+    assertResultContainsNames(people, "John");
   }
 
   @Test
@@ -58,13 +60,17 @@ class TestGraphqlObjectFilters {
             name
           }
         }
-      """;
+        """;
 
     ExecutionResult execute = graphql.execute(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
 
     List<Person> people = MAPPER.readerForListOf(Person.class).readValue(jsonNode);
-    assertEquals(List.of(new Person("Steve")), people);
+    assertResultContainsNames(people, "Steve");
+  }
+
+  private void assertResultContainsNames(List<Person> result, String... expected) {
+    assertEquals(result.stream().map(Person::name).collect(Collectors.toSet()), Set.of(expected));
   }
 
   record Person(String name) {}
