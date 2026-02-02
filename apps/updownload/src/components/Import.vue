@@ -240,7 +240,7 @@ export default {
           "/" +
           this.schema +
           "/api/" +
-          (type == "xlsx" ? "excel" : "zip") +
+          (type === "xlsx" ? "excel" : "zip") +
           "?async=true";
         fetch(url, {
           method: "POST",
