@@ -1,11 +1,32 @@
 <template>
   <div class="flex pb-[30px] justify-between">
+    <div id="row-action-bar" class="flex items-center h-[50px] border border-theme border-color-theme rounded-3px">
+
+      <div class="flex p-2 items-center">
+        <InputCheckbox class="px-2 w-5 h-5"/>
+      </div>
+
+      <ActionBarButton
+        icon="trash"
+        tooltip="delete"
+      />
+      <ActionBarButton
+        icon="copy"
+        tooltip="copy"
+      />
+      <ActionBarButton
+        icon="edit"
+        tooltip="edit"
+      />
+    </div>
+
     <InputSearch
-      class="w-3/5 xl:w-2/5 2xl:w-1/5"
+      class="w-3/5 xl:w-2/5 2xl:w-1/5 h-[50px]"
       v-model="settings.search"
       @update:modelValue="handleSearchRequest"
       :placeholder="`Search ${props.tableId}`"
       id="search-input"
+      :actionBarItem="true"
     />
 
     <div class="flex gap-[10px]">
@@ -26,7 +47,7 @@
   </div>
 
   <div
-    class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
+    class="relative overflow-auto overflow-y-hidden rounded-b-theme border rounded-t-3px border-color-theme mt-0"
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
       <table ref="table" class="text-left w-full table-fixed">

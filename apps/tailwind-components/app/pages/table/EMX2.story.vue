@@ -31,7 +31,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
 </script>
 
 <template>
-  <div class="py-5 space-y-2">
+  <div class="py-5 ">
     <DemoDataControls
       v-model:metadata="metadata"
       v-model:schemaId="schemaId"
