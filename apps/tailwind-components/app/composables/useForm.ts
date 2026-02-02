@@ -167,9 +167,7 @@ export default function useForm(
           columns.some((col) => visibilityMap[col.id]?.value === true)
         ),
         isActive: computed(() =>
-          section.headers.some((header) =>
-            visibleColumnIds.value.has(header.id)
-          )
+          section.headers.some((header) => header.isActive.value)
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
@@ -206,10 +204,8 @@ export default function useForm(
           isVisible: computed(() =>
             headingColumns.some((col) => visibilityMap[col.id]?.value === true)
           ),
-          isActive: computed(
-            () =>
-              visibleColumnIds.value.has(column.id) ||
-              headingColumns.some((col) => visibleColumnIds.value.has(col.id))
+          isActive: computed(() =>
+            headingColumns.some((col) => visibleColumnIds.value.has(col.id))
           ),
           errorCount: computed(() => {
             return headingColumns.reduce((acc, col) => {
@@ -539,7 +535,7 @@ export default function useForm(
       if (container && elementId === "mg_top_of_form-form-field") {
         container.scrollTo({
           top: 0,
-          behavior: "smooth",
+          behavior: "auto",
         });
       } else {
         const target = document.getElementById(elementId);
@@ -547,7 +543,7 @@ export default function useForm(
           const SCROLL_PADDING = 32;
           const offset =
             target.offsetTop - container.offsetTop - SCROLL_PADDING;
-          container.scrollTo({ top: offset, behavior: "smooth" });
+          container.scrollTo({ top: offset, behavior: "auto" });
         } else {
           // try again on the next frame until the element exists
           requestAnimationFrame(attemptScroll);
