@@ -21,7 +21,7 @@ if (props.height) {
   <img
     :src="src"
     :class="{
-      'text-center': imageIsCentered,
+      'm-auto': imageIsCentered,
     }"
     :alt="alt"
     :style="style"
