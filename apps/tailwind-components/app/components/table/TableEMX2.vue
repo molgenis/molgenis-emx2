@@ -240,7 +240,6 @@ const emit = defineEmits<{
   (e: "row-clicked", payload: RowPayload): void;
 }>();
 
-const showDeleteModal = ref<boolean>(false);
 const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
