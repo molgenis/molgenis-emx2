@@ -25,7 +25,7 @@
             tableId="workstreamSummary"
             caption="Percentage of patients by workstream"
             :data="workstreamSummary"
-            :columnOrder="['workstream', 'percent']"
+            :columnOrder="['workstream', 'total', 'percent']"
           />
         </DashboardChart>
         <DashboardChart id="sexAtBirthChart">
@@ -124,6 +124,7 @@ async function getStatsByComponent() {
           value
           label
           valueOrder
+          description
         }
       }
     }
@@ -183,6 +184,7 @@ onMounted(() => {
         .sort((current, next) => (current.label < next.label ? -1 : 1));
       renameKey(workstreamSummary.value, "label", "workstream");
       renameKey(workstreamSummary.value, "value", "percent");
+      renameKey(workstreamSummary.value, "description", "total");
 
       const sexAtBirthStats = stats.value
         .filter((row) => row.name === "patients-sex-at-birth")[0]
