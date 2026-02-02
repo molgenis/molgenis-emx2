@@ -419,5 +419,5 @@ Circulating Cell-Free DNA,Circulating Cell-Free DNA,NCIT,C128274,http://purl.obo
 Peripheral Blood Mononuclear Cell,A peripheral blood cell with a single nucleus. This category includes lymphocytes and monocytes.,NCIT,NCIT:C12954,http://purl.obolibrary.org/obo/NCIT_C12954
 Cell Preparation Tube with Heparin,"An evacuated blood collection tube that contains heparin, intended for the collection of whole blood and the separation of mononuclear cells.",NCIT,NCIT:C200886,http://purl.obolibrary.org/obo/NCIT_C200886
 Fibroblast,,NCIT,NCIT:C12482,http://purl.obolibrary.org/obo/NCIT_C12482
-Unknown,"A proper value is applicable, but not known.",HL7,HL7:UNK,http://terminology.hl7.org/CodeSystem/v3-NullFlavor
 Cell-free plasma,Plasma used to obtain circulating cell-free DNA,,,http://purl.obolibrary.org/obo/NCIT_C185204
+Unknown,"A proper value is applicable, but not known.",HL7,HL7:UNK,http://terminology.hl7.org/CodeSystem/v3-NullFlavor
