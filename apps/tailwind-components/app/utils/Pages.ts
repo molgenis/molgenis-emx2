@@ -94,6 +94,7 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
                 alt
                 width
                 height
+                imageIsCentered
             }
                 
             # component order
@@ -146,8 +147,8 @@ export function sortConfigurablePage(
   if (pageCopy.blocks && pageCopy.blockOrder) {
     const blockOrdering: RecordSet = pageCopy.blockOrder.reduce(
       (acc: RecordSet, blockOrder: IBlockOrders, index: number) => {
-        const id: string = blockOrder.block.id || blockOrder.id;
-        const order: number = blockOrder.order || index;
+        const id: string = blockOrder.block.id ?? blockOrder.id;
+        const order: number = blockOrder.order ?? index;
         return { ...acc, [id]: order };
       },
       {}
@@ -166,8 +167,8 @@ export function sortConfigurablePage(
       if (block.components && block.componentOrder) {
         const componentOrder: RecordSet = block.componentOrder.reduce(
           (acc: RecordSet, componentOrder: IComponentOrders, index: number) => {
-            const id: string = componentOrder.component.id || componentOrder.id;
-            const order: number = componentOrder.order || index;
+            const id: string = componentOrder.component.id ?? componentOrder.id;
+            const order: number = componentOrder.order ?? index;
             return { ...acc, [id]: order };
           },
           {}

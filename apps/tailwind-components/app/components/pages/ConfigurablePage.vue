@@ -69,6 +69,7 @@ const page = sortConfigurablePage(props.content);
           :width="component.width"
           :height="component.height"
           :alt="component.alt"
+          :image-is-centered="component.imageIsCentered"
         />
         <div v-else>
           <TextParagraph id="component-does-not-exist-message">
