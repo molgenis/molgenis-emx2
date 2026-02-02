@@ -47,7 +47,10 @@ const crumbs: Crumb[] = [
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
     </PageHeader>
-    <div class="flex flew-wrap justify-start items-center gap-7.5" v-if="data && data.Containers">
+    <div
+      class="flex flew-wrap justify-start items-center gap-7.5"
+      v-if="data && data.Containers"
+    >
       <div
         v-for="container in data.Containers"
         class="relative group border rounded-3px w-1/3 h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
