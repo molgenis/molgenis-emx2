@@ -75,21 +75,20 @@ class SqlSchemaMetadataExecutor {
   static List<Member> executeGetMembers(DSLContext jooq, SchemaMetadata schema) {
     List<Member> members = new ArrayList<>();
 
-    // retrieve all role members TODO: get this from group_metadata?
-    String roleFilter = getRolePrefix(schema.getName());
-    String userFilter = Constants.MG_USER_PREFIX;
     List<Record> result =
         jooq.fetch(
-            "select distinct m.rolname as member, r.rolname as role"
-                + " from pg_catalog.pg_auth_members am "
-                + " join pg_catalog.pg_roles m on (m.oid = am.member)"
-                + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
-                + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
-            roleFilter + "%", userFilter + "%");
+            """
+                SELECT gm.group_name as role, gm.users as members FROM "MOLGENIS".group_metadata gm
+                        JOIN "MOLGENIS".group_permissions gp ON gm.group_name = gp.group_name
+                        WHERE table_schema = {0} AND cardinality(gm.users) > 0;
+                """,
+            schema.getName());
     for (Record r : result) {
-      String memberName = r.getValue("member", String.class).substring(userFilter.length());
-      String roleName = r.getValue("role", String.class).substring(roleFilter.length());
-      members.add(new Member(memberName, roleName));
+      List<String> membersResult = r.getValue("members", List.class);
+      String roleName = r.getValue("role", String.class);
+      for (String member : membersResult) {
+        members.add(new Member(member, roleName));
+      }
     }
 
     return members;
@@ -104,7 +103,7 @@ class SqlSchemaMetadataExecutor {
 
       for (Member m : schema.getMembers()) {
         if (usernames.contains(m.getUser())) {
-          String groupName = schema.getName() + "/" + m.getRole();
+          String groupName = m.getRole();
           db.getJooq()
               .update(GROUP_METADATA)
               .set(USERS, DSL.arrayRemove(USERS, m.getUser()))
