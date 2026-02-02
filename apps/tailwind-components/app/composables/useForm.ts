@@ -166,12 +166,10 @@ export default function useForm(
         isVisible: computed(() =>
           columns.some((col) => visibilityMap[col.id]?.value === true)
         ),
-        isActive: computed(
-          () =>
-            visibleColumnIds.value.has(column.id) ||
-            section.headers.some((header) =>
-              visibleColumnIds.value.has(header.id)
-            )
+        isActive: computed(() =>
+          section.headers.some((header) =>
+            visibleColumnIds.value.has(header.id)
+          )
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
