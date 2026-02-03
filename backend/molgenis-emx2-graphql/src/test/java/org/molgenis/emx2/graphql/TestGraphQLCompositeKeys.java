@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +15,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphQLCompositeKeys {
 
-  private static GraphqlApi grapql;
+  private static GraphqlExecutor grapql;
   private static Database database;
   private static final String schemaName = TestGraphQLCompositeKeys.class.getSimpleName();
 
@@ -27,7 +27,7 @@ public class TestGraphQLCompositeKeys {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
-    grapql = new GraphqlApi(schema);
+    grapql = new GraphqlExecutor(schema);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class TestGraphQLCompositeKeys {
             + " \"REFBACK\" refTableName: \"RefTable\" refBackName: \"ref\"}]) {message}}");
 
     // have to reload graphql
-    grapql = new GraphqlApi(database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
+    grapql = new GraphqlExecutor(database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(
@@ -186,7 +186,7 @@ public class TestGraphQLCompositeKeys {
   //
   //    // have to reload graphql
   //    grapql =
-  //        new GraphqlApiFactory()
+  //        new GraphqlExecutor()
   //            .createGraphqlForSchema(
   //                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
   //

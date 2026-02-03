@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 
 public class Templates {
 
   public static void addTemplatesToDb(Database database) {
     database.becomeAdmin();
     Schema schema = database.getSchema("_SYSTEM_");
-    GraphqlApi graphQL = new GraphqlApi(schema);
+    GraphqlExecutor graphQL = new GraphqlExecutor(schema);
 
     for (EntryType entryType : EntryType.values()) {
       String query =

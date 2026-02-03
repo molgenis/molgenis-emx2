@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,7 +34,7 @@ class TestGraphqlAdminFields {
     database.dropCreateSchema(SCHEMA_NAME);
     database.dropCreateSchema(ANOTHER_SCHEMA_NAME);
 
-    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, null);
+    graphql = new GraphqlExecutor().createGraphqlForDatabase(database, null);
 
     sessionManager =
         new GraphqlSessionHandlerInterface() {
@@ -71,7 +71,7 @@ class TestGraphqlAdminFields {
             throw new RuntimeException(e);
           }
           tdb.setActiveUser(ANONYMOUS);
-          graphql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          graphql = new GraphqlExecutor().createGraphqlForDatabase(tdb, null);
 
           try {
             assertNull(execute("{_admin{userCount}}").textValue());
@@ -85,7 +85,7 @@ class TestGraphqlAdminFields {
   @Test
   void testSetUserAdmin() throws JsonProcessingException {
     database.becomeAdmin();
-    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, null);
+    graphql = new GraphqlExecutor().createGraphqlForDatabase(database, null);
 
     executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
@@ -132,7 +132,7 @@ class TestGraphqlAdminFields {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
+          graphql = new GraphqlExecutor().createGraphqlForDatabase(testDatabase, null);
 
           try {
             testDatabase.addUser(TEST_PERSOON);

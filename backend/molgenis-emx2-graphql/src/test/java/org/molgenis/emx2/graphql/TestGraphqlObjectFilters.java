@@ -18,7 +18,7 @@ class TestGraphqlObjectFilters {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  private static GraphqlApi graphql;
+  private static GraphqlExecutor graphql;
 
   @BeforeAll
   static void setup() {
@@ -27,7 +27,7 @@ class TestGraphqlObjectFilters {
     schema.create(
         TableMetadata.table("Person", Column.column("name").setType(ColumnType.STRING).setPkey()));
     schema.getTable("Person").insert(Row.row("name", "John"), Row.row("name", "Steve"));
-    graphql = new GraphqlApi(schema);
+    graphql = new GraphqlExecutor(schema);
   }
 
   @Test

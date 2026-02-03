@@ -258,8 +258,8 @@ DataApi.java (content-negotiated)
 | 5 | ~~`setDownloadHeaders` unused~~ | DownloadApiUtils | ✅ Removed |
 | 6 | ~~`getXsdType` unused~~ | JsonLdSchemaGenerator | ✅ Removed (dead code, proper impl needed in #3) |
 | 7 | ~~Dead validation code~~ | RestOverGraphql | ✅ Removed |
-| 8 | Test assertions weak | WebApiSmokeTests | Fix - pass even when not logged in |
-| 9 | Service naming inconsistent | GraphqlApiService | Rename - breaks convention |
+| 8 | ~~Test assertions weak~~ | WebApiSmokeTests | ✅ Fixed - check actual content not just length |
+| 9 | ~~Service naming inconsistent~~ | GraphqlApiService | ✅ Renamed: GraphqlApi→GraphqlExecutor, GraphqlApiService→GraphqlApi |
 | 10 | Hardcoded "my:" prefix | JsonLdSchemaGenerator | Use NamespaceMapper instead |
 
 ### 🟡 Technical Improvements

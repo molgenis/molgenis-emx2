@@ -26,14 +26,14 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphqlApi {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
+public class GraphqlExecutor {
+  private static Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);
   private final GraphQL graphql;
   private Schema schema;
   private Database database;
   private Map<String, String> graphqlQueryFragments = new LinkedHashMap<>();
 
-  private GraphqlApi(GraphQL graphql) {
+  private GraphqlExecutor(GraphQL graphql) {
     this.graphql = graphql;
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
       ParserOptions.setDefaultParserOptions(
@@ -43,7 +43,7 @@ public class GraphqlApi {
     }
   }
 
-  private GraphqlApi(GraphQL graphql, Map<String, String> fragments) {
+  private GraphqlExecutor(GraphQL graphql, Map<String, String> fragments) {
     this.graphql = graphql;
     this.graphqlQueryFragments = fragments;
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
@@ -73,21 +73,21 @@ public class GraphqlApi {
     }
   }
 
-  public GraphqlApi(Database database, TaskService taskService) {
+  public GraphqlExecutor(Database database, TaskService taskService) {
     this(createGraphqlForDatabase(database, taskService));
     this.database = database;
   }
 
-  public GraphqlApi(Database database) {
+  public GraphqlExecutor(Database database) {
     this(database, null);
   }
 
-  public GraphqlApi(Schema schema, TaskService taskService) {
+  public GraphqlExecutor(Schema schema, TaskService taskService) {
     this(createGraphqlForSchemaWithFragments(schema, taskService));
     this.schema = schema;
   }
 
-  public GraphqlApi(Schema schema) {
+  public GraphqlExecutor(Schema schema) {
     this(schema, null);
   }
 
@@ -98,7 +98,7 @@ public class GraphqlApi {
     return new GraphqlResult(graphql, fragments);
   }
 
-  private GraphqlApi(GraphqlResult result) {
+  private GraphqlExecutor(GraphqlResult result) {
     this(result.graphql, result.fragments);
   }
 

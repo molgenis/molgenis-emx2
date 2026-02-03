@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ public class TestGraphqlCrossSchemaRefs {
   private static final String schemaName1 = TestGraphqlCrossSchemaRefs.class.getSimpleName() + "1";
   private static final String schemaName2 = TestGraphqlCrossSchemaRefs.class.getSimpleName() + "2";
 
-  private static GraphqlApi graphql;
+  private static GraphqlExecutor graphql;
   private static Schema schema1;
   private static Schema schema2;
 
@@ -34,7 +34,7 @@ public class TestGraphqlCrossSchemaRefs {
     schema2 = database.createSchema(schemaName2);
 
     CrossSchemaReferenceExample.create(schema1, schema2);
-    graphql = new GraphqlApi(schema2);
+    graphql = new GraphqlExecutor(schema2);
   }
 
   @Test

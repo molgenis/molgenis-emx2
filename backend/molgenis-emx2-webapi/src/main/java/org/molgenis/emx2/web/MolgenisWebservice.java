@@ -127,7 +127,7 @@ public class MolgenisWebservice {
     RestApi.create(app);
     DataApi.create(app);
     TaskApi.create(app);
-    GraphqlApiService.create(app);
+    GraphqlApi.create(app);
     RDFApi.create(app);
     BeaconApi.create(app);
     CafeVariomeApi.create(app);

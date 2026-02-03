@@ -18,7 +18,7 @@ class GraphqlSchemaFieldFactoryChangelogTest {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  private GraphqlApi graphql;
+  private GraphqlExecutor graphql;
 
   @BeforeEach
   void setup() {
@@ -38,7 +38,7 @@ class GraphqlSchemaFieldFactoryChangelogTest {
     person.insert(new Row("ID", 2).set("First_Name", "Jaskier").set("Last_Name", "Dandelion"));
     person.insert(new Row("ID", 3).set("First_Name", "Ciri").set("Last_Name", "of Cintra"));
 
-    graphql = new GraphqlApi(schema, taskService);
+    graphql = new GraphqlExecutor(schema, taskService);
   }
 
   @Test

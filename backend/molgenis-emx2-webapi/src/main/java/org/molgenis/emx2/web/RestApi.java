@@ -20,7 +20,7 @@ import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.io.emx2.Emx2Changelog;
 import org.molgenis.emx2.io.emx2.Emx2Members;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
@@ -104,7 +104,7 @@ public class RestApi {
     }
   }
 
-  private static GraphqlApi getGraphqlForSchema(Context ctx) {
+  private static GraphqlExecutor getGraphqlForSchema(Context ctx) {
     String schemaName = MolgenisWebservice.sanitize(ctx.pathParam("schema"));
     return MolgenisWebservice.applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
   }
@@ -227,7 +227,7 @@ public class RestApi {
 
   private static void getData(Context ctx, Format format) throws IOException {
     Schema schema = MolgenisWebservice.getSchema(ctx);
-    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    GraphqlExecutor graphqlApi = getGraphqlForSchema(ctx);
     String customQuery = ctx.queryParam("query");
 
     Map<String, Object> data = queryAllData(graphqlApi, customQuery);
@@ -244,7 +244,7 @@ public class RestApi {
 
   private static void getAll(Context ctx, Format format) throws IOException {
     Schema schema = MolgenisWebservice.getSchema(ctx);
-    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    GraphqlExecutor graphqlApi = getGraphqlForSchema(ctx);
     String customQuery = ctx.queryParam("query");
 
     Map<String, Object> data = queryAllData(graphqlApi, customQuery);
@@ -270,7 +270,7 @@ public class RestApi {
     ctx.result(output);
   }
 
-  private static Map<String, Object> queryAllData(GraphqlApi graphqlApi, String customQuery) {
+  private static Map<String, Object> queryAllData(GraphqlExecutor graphqlApi, String customQuery) {
     String query = customQuery != null ? customQuery : graphqlApi.getSelectAllQuery();
     return graphqlApi.queryAsMap(query, Map.of());
   }
@@ -388,14 +388,14 @@ public class RestApi {
   }
 
   private static void getContext(Context ctx) {
-    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    GraphqlExecutor graphqlApi = getGraphqlForSchema(ctx);
     ctx.header("Content-Type", ACCEPT_JSONLD);
     ctx.result(graphqlApi.getJsonLdSchema(ctx.url()));
   }
 
   private static void getTable(Context ctx, Format format) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
-    GraphqlApi graphqlApi = getGraphqlForSchema(ctx);
+    GraphqlExecutor graphqlApi = getGraphqlForSchema(ctx);
     String tableId = table.getMetadata().getIdentifier();
 
     Map<String, Object> variables = buildQueryVariables(ctx);

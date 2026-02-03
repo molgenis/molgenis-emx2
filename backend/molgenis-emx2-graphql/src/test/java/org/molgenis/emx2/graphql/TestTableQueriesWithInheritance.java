@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +21,7 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestTableQueriesWithInheritance {
   private static final String schemaName = TestTableQueriesWithInheritance.class.getSimpleName();
-  private static GraphqlApi grapql;
+  private static GraphqlExecutor grapql;
   private static Database database;
   private static TaskService taskService;
   private static Schema schema;
@@ -35,7 +35,7 @@ public class TestTableQueriesWithInheritance {
         table("Employee", column("salary").setType(ColumnType.INT)).setInheritName("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
     taskService = new TaskServiceInMemory();
-    grapql = new GraphqlApi(schema, taskService);
+    grapql = new GraphqlExecutor(schema, taskService);
   }
 
   @Test

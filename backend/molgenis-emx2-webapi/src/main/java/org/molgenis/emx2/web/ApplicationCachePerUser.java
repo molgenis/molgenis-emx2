@@ -17,7 +17,7 @@ import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.jsonld.JsonLdSchemaGenerator;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -90,8 +90,8 @@ public class ApplicationCachePerUser {
 
   private final Cache<UserKey, Database> databaseCache;
   private final Cache<UserSchemaKey, Schema> schemaCache;
-  private final Cache<UserKey, GraphqlApi> graphqlDatabaseCache;
-  private final Cache<UserSchemaKey, GraphqlApi> graphqlSchemaCache;
+  private final Cache<UserKey, GraphqlExecutor> graphqlDatabaseCache;
+  private final Cache<UserSchemaKey, GraphqlExecutor> graphqlSchemaCache;
   private final Cache<SchemaContextKey, Map<String, Object>> jsonLdContextCache;
   private static final ApplicationCachePerUser INSTANCE = new ApplicationCachePerUser();
 
@@ -184,32 +184,32 @@ public class ApplicationCachePerUser {
     return getSchemaForUser(schemaName, userKey);
   }
 
-  public GraphqlApi getDatabaseGraphqlForUser(Context ctx) {
+  public GraphqlExecutor getDatabaseGraphqlForUser(Context ctx) {
     return graphqlDatabaseCache.get(
         getUserKey(ctx),
         k -> {
           logger.info("create graphqlDatabaseApi cache for user {}", getUserKey(ctx));
-          return new GraphqlApi(getDatabaseForUser(ctx), TaskApi.taskService);
+          return new GraphqlExecutor(getDatabaseForUser(ctx), TaskApi.taskService);
         });
   }
 
-  public GraphqlApi getSchemaGraphqlForUser(String schemaName, String username) {
+  public GraphqlExecutor getSchemaGraphqlForUser(String schemaName, String username) {
     UserKey userKey = new UserKey(username);
     return getSchemaGraphqlForUser(schemaName, userKey);
   }
 
-  public GraphqlApi getSchemaGraphqlForUser(String schemaName, Context ctx) {
+  public GraphqlExecutor getSchemaGraphqlForUser(String schemaName, Context ctx) {
     UserKey userKey = getUserKey(ctx);
     return getSchemaGraphqlForUser(schemaName, userKey);
   }
 
-  public GraphqlApi getSchemaGraphqlForUser(String schemaName, UserKey userKey) {
+  public GraphqlExecutor getSchemaGraphqlForUser(String schemaName, UserKey userKey) {
     return graphqlSchemaCache.get(
         new UserSchemaKey(userKey, schemaName),
         k -> {
           logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, userKey);
           Schema schema = getSchemaForUser(schemaName, userKey);
-          return new GraphqlApi(schema, TaskApi.taskService);
+          return new GraphqlExecutor(schema, TaskApi.taskService);
         });
   }
 

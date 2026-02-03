@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestJsonLdSchemaGenerator {
@@ -71,7 +71,7 @@ public class TestJsonLdSchemaGenerator {
     database.dropSchemaIfExists(schemaName);
     PET_STORE.getImportTask(database, schemaName, "Pet Store", true).run();
     Schema schema = database.getSchema(schemaName);
-    GraphqlApi graphQL = new GraphqlApi(schema);
+    GraphqlExecutor graphQL = new GraphqlExecutor(schema);
     ExecutionResult result = graphQL.execute("{Pet{...AllPetFields}}", Map.of());
     String schemaUrl = "http://localhost:8080";
     Map jsonLdSchema = generateJsonLdSchemaAsMap(schema.getMetadata(), schemaUrl);
@@ -88,7 +88,7 @@ public class TestJsonLdSchemaGenerator {
     TYPE_TEST.getImportTask(database, schemaName, "Type Test", true).run();
     Schema schema = database.getSchema(schemaName);
     schema.getTable("Types").insert(createTypeTestRow());
-    GraphqlApi graphQL = new GraphqlApi(schema);
+    GraphqlExecutor graphQL = new GraphqlExecutor(schema);
     String ttl = getTableAsTurtle(graphQL, "Types");
     System.out.println(ttl);
     ttl = getAllAsTurtle(graphQL, "http://localhost");

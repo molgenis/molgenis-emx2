@@ -13,7 +13,7 @@ import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +26,11 @@ public class RestOverGraphql {
   private static final Logger logger = LoggerFactory.getLogger(RestOverGraphql.class);
 
   // todo add option to override query + variables
-  public static String getAllAsTurtle(GraphqlApi graphql, String schemaURL) {
+  public static String getAllAsTurtle(GraphqlExecutor graphql, String schemaURL) {
     return getAllAsTurtle(graphql, schemaURL, null);
   }
 
-  public static String getAllAsJsonLd(GraphqlApi graphql, String schemaURL, String query) {
+  public static String getAllAsJsonLd(GraphqlExecutor graphql, String schemaURL, String query) {
     long start = System.currentTimeMillis();
     try {
       if (StringUtils.isEmpty(query)) {
@@ -53,7 +53,7 @@ public class RestOverGraphql {
     }
   }
 
-  public static String getAllAsTurtle(GraphqlApi graphql, String schemaURL, String query) {
+  public static String getAllAsTurtle(GraphqlExecutor graphql, String schemaURL, String query) {
     long start = System.currentTimeMillis();
     try {
       if (StringUtils.isEmpty(query)) {
@@ -72,18 +72,18 @@ public class RestOverGraphql {
   }
 
   public static String getTableAsJson(
-      GraphqlApi graphql, String tableId, Map<String, Object> variables) {
+      GraphqlExecutor graphql, String tableId, Map<String, Object> variables) {
     // todo add ability to pass query filters, limit, offset via variables
     String query = String.format("{%s{...All%sFields}}", tableId, tableId);
     return graphql.queryAsString(query, variables);
   }
 
-  public static String getTableAsTurtle(GraphqlApi graphql, String tableId) {
+  public static String getTableAsTurtle(GraphqlExecutor graphql, String tableId) {
     return getTableAsTurtle(graphql, tableId, Map.of());
   }
 
   public static String getTableAsTurtle(
-      GraphqlApi graphql, String tableId, Map<String, Object> variables) {
+      GraphqlExecutor graphql, String tableId, Map<String, Object> variables) {
     try {
       String query = String.format("{%s{...All%sFields}}", tableId, tableId);
       Map data = graphql.queryAsMap(query, variables);
