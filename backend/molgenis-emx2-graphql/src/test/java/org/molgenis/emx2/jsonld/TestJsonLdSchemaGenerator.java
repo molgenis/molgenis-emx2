@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.jsonld;
+package org.molgenis.emx2.jsonld;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,8 +7,8 @@ import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.TYPE_TEST;
-import static org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchemaAsMap;
 import static org.molgenis.emx2.jsonld.RestOverGraphql.*;
+import static org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchemaAsMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

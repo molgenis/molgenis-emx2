@@ -45,10 +45,10 @@ public class RestOverGraphql {
       wrapper.putAll(context);
       wrapper.put("data", data);
       String result = mapper.writeValueAsString(wrapper);
-      logger.info("Complete getAllAsTurtle in " + (System.currentTimeMillis() - start) + "ms");
+      logger.info("Complete getAllAsJsonLd in " + (System.currentTimeMillis() - start) + "ms");
       return result;
     } catch (Exception e) {
-      logger.error("Failed getAllAsTurtle in " + (System.currentTimeMillis() - start) + "ms");
+      logger.error("Failed getAllAsJsonLd in " + (System.currentTimeMillis() - start) + "ms");
       throw new MolgenisException(e.getMessage(), e);
     }
   }

@@ -1,140 +1,160 @@
 package org.molgenis.emx2.jsonld;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.molgenis.emx2.MolgenisException;
 
 public class JsonLdValidator {
 
-  /**
-   * Validates JSON-LD document: 1. Recursively scans all local contexts and merges prefixes 2.
-   * Checks @id and @type in context and graph nodes 3. Finally validates with Titanium (via RDF4J)
-   */
+  private static final int MAX_DEPTH = 100;
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+
   public static void validateJsonLd(Map<String, Object> jsonLd) {
-    // Collect top-level prefixes
+    JsonNode rootNode = MAPPER.valueToTree(jsonLd);
     Map<String, String> centralPrefixes = new LinkedHashMap<>();
-    Object topContext = jsonLd.get("@context");
+
+    JsonNode topContext = rootNode.get("@context");
     if (topContext != null) {
-      extractPrefixes(topContext, centralPrefixes, "@context.");
-      checkContextTypes(topContext, "@context.");
+      extractPrefixes(topContext, centralPrefixes, "@context.", 0);
+      checkContextTypes(topContext, "@context.", 0);
     }
 
-    Object graph = jsonLd.get("data");
+    JsonNode graph = rootNode.get("data");
     if (graph != null) {
-      scanNode(graph, centralPrefixes, "data.");
+      scanNode(graph, centralPrefixes, "data.", 0);
     }
   }
 
   private static void scanNode(
-      Object node, Map<String, String> inheritedPrefixes, String nodePath) {
-    Map<String, String> localPrefixes = new LinkedHashMap<>(inheritedPrefixes);
-    Object localContext = null;
+      JsonNode node, Map<String, String> inheritedPrefixes, String nodePath, int depth) {
+    if (depth > MAX_DEPTH) {
+      throw new MolgenisException("JSON-LD structure too deeply nested (max 100 levels)");
+    }
 
-    if (node instanceof Map<?, ?> map) {
-      for (Map.Entry entry : map.entrySet()) {
-        if ("@context".equals(entry.getKey().toString())) {
-          localContext = entry.getValue();
-        }
-      }
-      ;
+    Map<String, String> localPrefixes = new LinkedHashMap<>(inheritedPrefixes);
+
+    if (node.isObject()) {
+      JsonNode localContext = node.get("@context");
 
       if (localContext != null) {
-        extractPrefixes(localContext, localPrefixes, nodePath + "@context.");
-        checkContextTypes(localContext, nodePath + "@context.");
+        extractPrefixes(localContext, localPrefixes, nodePath + "@context.", depth + 1);
+        checkContextTypes(localContext, nodePath + "@context.", depth + 1);
       }
 
-      if (map.containsKey("@type")) {
-        Object typeVal = map.get("@type");
+      JsonNode typeVal = node.get("@type");
+      if (typeVal != null) {
         checkTypeOrId(typeVal, localPrefixes, nodePath + "@type");
       }
 
-      if (map.containsKey("@id")) {
-        Object idVal = map.get("@id");
+      JsonNode idVal = node.get("@id");
+      if (idVal != null) {
         checkTypeOrId(idVal, localPrefixes, nodePath + "@id");
       }
 
-      for (Map.Entry<?, ?> e : map.entrySet()) {
-        if (!"@context".equals(e.getKey().toString())) {
-          scanNode(e.getValue(), localPrefixes, nodePath + e.getKey() + ".");
+      var fields = node.fields();
+      while (fields.hasNext()) {
+        var entry = fields.next();
+        if (!"@context".equals(entry.getKey())) {
+          scanNode(entry.getValue(), localPrefixes, nodePath + entry.getKey() + ".", depth + 1);
         }
       }
-    } else if (node instanceof Iterable<?> iterable) {
+    } else if (node.isArray()) {
       int i = 0;
-      for (Object item : iterable) {
-        scanNode(item, localPrefixes, nodePath + "[" + i + "].");
+      for (JsonNode item : node) {
+        scanNode(item, localPrefixes, nodePath + "[" + i + "].", depth + 1);
         i++;
       }
     }
   }
 
-  /** Extracts prefixes from a local context recursively */
-  private static void extractPrefixes(Object ctxObj, Map<String, String> prefixes, String path) {
-    if (ctxObj instanceof Map<?, ?> map) {
-      map.forEach(
-          (k, v) -> {
-            String key = k.toString();
-            if (v instanceof String s) {
-              prefixes.put(key, s);
-            } else if (v instanceof Map<?, ?> nested) {
-              Object idVal = nested.get("@id");
-              if (idVal instanceof String s) checkTypeOrId(s, prefixes, path + key + ".@id");
-              extractPrefixes(nested, prefixes, path + key + ".");
-            } else if (v instanceof Iterable<?> arr) {
-              int i = 0;
-              for (Object item : arr) {
-                extractPrefixes(item, prefixes, path + key + "[" + i + "]");
-                i++;
-              }
-            }
-          });
-    } else if (ctxObj instanceof Iterable<?> arr) {
+  private static void extractPrefixes(
+      JsonNode ctxObj, Map<String, String> prefixes, String path, int depth) {
+    if (depth > MAX_DEPTH) {
+      throw new MolgenisException("JSON-LD structure too deeply nested (max 100 levels)");
+    }
+
+    if (ctxObj.isObject()) {
+      var fields = ctxObj.fields();
+      while (fields.hasNext()) {
+        var entry = fields.next();
+        String key = entry.getKey();
+        JsonNode val = entry.getValue();
+
+        if (val.isTextual()) {
+          prefixes.put(key, val.asText());
+        } else if (val.isObject()) {
+          JsonNode idVal = val.get("@id");
+          if (idVal != null && idVal.isTextual()) {
+            checkTypeOrId(idVal, prefixes, path + key + ".@id");
+          }
+          extractPrefixes(val, prefixes, path + key + ".", depth + 1);
+        } else if (val.isArray()) {
+          int i = 0;
+          for (JsonNode item : val) {
+            extractPrefixes(item, prefixes, path + key + "[" + i + "]", depth + 1);
+            i++;
+          }
+        }
+      }
+    } else if (ctxObj.isArray()) {
       int i = 0;
-      for (Object item : arr) {
-        extractPrefixes(item, prefixes, path + "[" + i + "]");
+      for (JsonNode item : ctxObj) {
+        extractPrefixes(item, prefixes, path + "[" + i + "]", depth + 1);
         i++;
       }
     }
   }
 
-  private static void checkContextTypes(Object ctxObj, String path) {
-    if (ctxObj instanceof Map<?, ?> map) {
-      for (var entry : map.entrySet()) {
-        String key = entry.getKey().toString();
-        Object val = entry.getValue();
-        if (val instanceof Map<?, ?> nested) {
-          Object typeVal = nested.get("@type");
-          if (typeVal != null && !(typeVal instanceof String)) {
+  private static void checkContextTypes(JsonNode ctxObj, String path, int depth) {
+    if (depth > MAX_DEPTH) {
+      throw new MolgenisException("JSON-LD structure too deeply nested (max 100 levels)");
+    }
+
+    if (ctxObj.isObject()) {
+      var fields = ctxObj.fields();
+      while (fields.hasNext()) {
+        var entry = fields.next();
+        String key = entry.getKey();
+        JsonNode val = entry.getValue();
+
+        if (val.isObject()) {
+          JsonNode typeVal = val.get("@type");
+          if (typeVal != null && !typeVal.isTextual()) {
             throw new MolgenisException(
                 "Invalid @type in @context at path "
                     + path
                     + key
                     + ": must be a string, found "
-                    + typeVal.getClass().getSimpleName());
+                    + typeVal.getNodeType());
           }
-          checkContextTypes(nested, path + key + ".");
-        } else if (val instanceof Iterable<?> arr) {
+          checkContextTypes(val, path + key + ".", depth + 1);
+        } else if (val.isArray()) {
           int i = 0;
-          for (Object item : arr) {
-            checkContextTypes(item, path + key + "[" + i + "].");
+          for (JsonNode item : val) {
+            checkContextTypes(item, path + key + "[" + i + "].", depth + 1);
             i++;
           }
         }
       }
-    } else if (ctxObj instanceof Iterable<?> arr) {
+    } else if (ctxObj.isArray()) {
       int i = 0;
-      for (Object item : arr) {
-        checkContextTypes(item, path + "[" + i + "]");
+      for (JsonNode item : ctxObj) {
+        checkContextTypes(item, path + "[" + i + "]", depth + 1);
         i++;
       }
     }
   }
 
-  private static void checkTypeOrId(Object val, Map<String, String> prefixes, String path) {
-    if (val instanceof String s) {
-      checkPrefixedIri(s, prefixes, path);
-    } else if (val instanceof Iterable<?> iterable) {
+  private static void checkTypeOrId(JsonNode val, Map<String, String> prefixes, String path) {
+    if (val.isTextual()) {
+      checkPrefixedIri(val.asText(), prefixes, path);
+    } else if (val.isArray()) {
       int i = 0;
-      for (Object t : iterable) {
-        if (t instanceof String ts) checkPrefixedIri(ts, prefixes, path + "[" + i + "]");
+      for (JsonNode item : val) {
+        if (item.isTextual()) {
+          checkPrefixedIri(item.asText(), prefixes, path + "[" + i + "]");
+        }
         i++;
       }
     } else {
@@ -142,11 +162,10 @@ public class JsonLdValidator {
           "Invalid value at path "
               + path
               + ": must be string or array, found "
-              + (val == null ? "null" : val.getClass().getSimpleName()));
+              + val.getNodeType());
     }
   }
 
-  /** Checks a compact IRI or full IRI for validity */
   private static void checkPrefixedIri(String value, Map<String, String> prefixes, String path) {
     if (value == null || value.isEmpty()) {
       throw new MolgenisException("Invalid empty @id/@type at path: " + path);
