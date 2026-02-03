@@ -28,6 +28,7 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.jsonld.JsonLdSchemaGenerator;
+import org.molgenis.emx2.rdf.RdfDataValidationService;
 import org.molgenis.emx2.rdf.RdfSchemaValidationService;
 import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
@@ -84,6 +85,8 @@ public class RestApi {
     registerSchemaEndpoints(app, "yaml", Format.YAML);
     registerSchemaEndpoints(app, "jsonld", Format.JSONLD);
     registerSchemaEndpoints(app, "ttl", Format.TTL);
+    app.get("/{schema}/api/shacls", RestApi::getShaclSets);
+    app.get("/{schema}/api/shacl", ctx -> validateAll(ctx, Format.TTL));
   }
 
   private static void registerDatabaseEndpoints(Javalin app) {
@@ -121,8 +124,26 @@ public class RestApi {
         });
     app.post(apiPath + "_schema", ctx -> postSchema(ctx, format));
     app.delete(apiPath + "_schema", ctx -> deleteSchema(ctx, format));
-    app.get(apiPath + "_data", ctx -> getData(ctx, format));
-    app.get(apiPath + "_all", ctx -> getAll(ctx, format));
+    app.get(
+        apiPath + "_data",
+        ctx -> {
+          if (ctx.queryParam("validate") != null
+              && (format == Format.JSONLD || format == Format.TTL)) {
+            validateData(ctx, format);
+          } else {
+            getData(ctx, format);
+          }
+        });
+    app.get(
+        apiPath + "_all",
+        ctx -> {
+          if (ctx.queryParam("validate") != null
+              && (format == Format.JSONLD || format == Format.TTL)) {
+            validateAll(ctx, format);
+          } else {
+            getAll(ctx, format);
+          }
+        });
     app.get(apiPath + "_members", ctx -> getMembers(ctx, format));
     app.get(apiPath + "_settings", ctx -> getSettings(ctx, format));
     app.get(apiPath + "_changelog", ctx -> getChangelog(ctx, format));
@@ -675,6 +696,52 @@ public class RestApi {
     try (OutputStream out = ctx.outputStream()) {
       try (RdfSchemaValidationService service =
           new RdfSchemaValidationService(baseUrl, schema, rdfFormat, out, shaclSet)) {
+        service.getGenerator().generate(schema);
+      }
+    }
+  }
+
+  private static void validateData(Context ctx, Format format) throws Exception {
+    String shaclId = MolgenisWebservice.sanitize(ctx.queryParam("validate"));
+    ShaclSet shaclSet = ShaclSelector.get(shaclId);
+    if (shaclSet == null) {
+      ctx.status(404);
+      ctx.contentType(ACCEPT_JSON);
+      ctx.result("{ \"message\": \"Validation set not found: " + shaclId + "\" }");
+      return;
+    }
+
+    Schema schema = MolgenisWebservice.getSchema(ctx);
+    RDFFormat rdfFormat = format == Format.JSONLD ? RDFFormat.JSONLD : RDFFormat.TURTLE;
+    String baseUrl = URLUtils.extractBaseURL(ctx);
+
+    ctx.contentType(format.contentType());
+    try (OutputStream out = ctx.outputStream()) {
+      try (RdfDataValidationService service =
+          new RdfDataValidationService(baseUrl, schema, rdfFormat, out, shaclSet)) {
+        service.getGenerator().generate(schema);
+      }
+    }
+  }
+
+  private static void validateAll(Context ctx, Format format) throws Exception {
+    String shaclId = MolgenisWebservice.sanitize(ctx.queryParam("validate"));
+    ShaclSet shaclSet = ShaclSelector.get(shaclId);
+    if (shaclSet == null) {
+      ctx.status(404);
+      ctx.contentType(ACCEPT_JSON);
+      ctx.result("{ \"message\": \"Validation set not found: " + shaclId + "\" }");
+      return;
+    }
+
+    Schema schema = MolgenisWebservice.getSchema(ctx);
+    RDFFormat rdfFormat = format == Format.JSONLD ? RDFFormat.JSONLD : RDFFormat.TURTLE;
+    String baseUrl = URLUtils.extractBaseURL(ctx);
+
+    ctx.contentType(format.contentType());
+    try (OutputStream out = ctx.outputStream()) {
+      try (RdfDataValidationService service =
+          new RdfDataValidationService(baseUrl, schema, rdfFormat, out, shaclSet)) {
         service.getGenerator().generate(schema);
       }
     }

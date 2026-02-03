@@ -24,7 +24,7 @@
 | Component | Notes |
 |-----------|-------|
 | **mg_id computed field** | PrimaryKey in core, GraphQL field added |
-| **RestApi.java** | All formats: json, yaml, jsonld, ttl |
+| **RestApi.java** | All formats: json, yaml, jsonld, ttl + SHACL endpoints |
 | **DataApi.java** | Content-negotiation gateway |
 | **CSV/Excel/ZIP APIs** | Underscore-prefixed system endpoints |
 | **Python client endpoints** | Already uses new patterns (`/api/csv/_schema`, etc.) |
@@ -33,9 +33,9 @@
 
 | Component | Issue |
 |-----------|-------|
-| **RDFApi.java** | Overlaps with RestApi, has SHACL - needs deprecation |
-| **SHACL UI** | Uses `/api/rdf?shacls` and `/{schema}/api/rdf?validate=X` |
-| **Import.vue** | References deprecated `/api/ttl2` |
+| **RDFApi.java** | Overlaps with RestApi - needs deprecation (Phase 1) |
+| **SHACL UI** | Uses old `/api/rdf` paths - needs update to `/api/ttl` (Phase 3) |
+| **Import.vue** | References deprecated `/api/ttl2` (Phase 3) |
 
 ---
 
@@ -212,7 +212,7 @@ DataApi.java (content-negotiated)
 | File | Change |
 |------|--------|
 | `apps/ui/.../shacl/index.vue` | `/api/rdf?shacls` → `/api/ttl?shacls` |
-| `apps/ui/.../shaclUtils.ts` | `/api/rdf?validate=` → `/api/ttl?validate=` |
+| `apps/ui/.../shaclUtils.ts` | `/api/rdf?validate=` → `/api/ttl/_schema?validate=` |
 | `apps/updownload/.../Import.vue` | Remove `/api/ttl2` refs |
 
 ### Python
@@ -235,3 +235,57 @@ DataApi.java (content-negotiated)
 | `/api/ttl2` refs in Import.vue | Deprecated experimental |
 | `/api/rdf` (move to legacy) | Replaced by RestApi |
 | Old plan files | Merged into this plan |
+
+---
+
+## PR Review Feedback (#5495)
+
+**Reviewers:** jhhaanstra, svandenhoek
+
+### 🔴 Critical (API/Breaking changes)
+
+| # | Issue | File | Action |
+|---|-------|------|--------|
+| 1 | Endpoint renaming impact | General | Verify renamed endpoints not used externally |
+| 2 | RDF API breaking changes | General | Consider major version release |
+| 3 | UUID type mapping wrong | JsonLdSchemaGenerator | UUID → IRI (`urn:uuid:`), not Literal |
+
+### 🟠 Must Fix (Code Quality)
+
+| # | Issue | File | Action |
+|---|-------|------|--------|
+| 4 | `sendJsonMessage` unused | DownloadApiUtils | Remove |
+| 5 | `setDownloadHeaders` unused | DownloadApiUtils | Remove |
+| 6 | `getXsdType` unused | JsonLdSchemaGenerator | Remove + ColumnType addition |
+| 7 | Dead validation code | RestOverGraphql | Remove |
+| 8 | Test assertions weak | WebApiSmokeTests | Fix - pass even when not logged in |
+| 9 | Service naming inconsistent | GraphqlApiService | Rename - breaks convention |
+| 10 | Hardcoded "my:" prefix | JsonLdSchemaGenerator | Use NamespaceMapper instead |
+
+### 🟡 Technical Improvements
+
+| # | Issue | File | Action |
+|---|-------|------|--------|
+| 11 | Leverage Jackson more | JsonLdValidator | Simplify with Jackson features |
+| 12 | Recursion depth risk | JsonLdValidator | Add safeguard or document depth |
+| 13 | Load all for conversion | RestOverGraphql | Consider streaming instead |
+| 14 | Turtle-only conversion | RestOverGraphql | Support any RDF format |
+| 15 | Manual timing calls | DownloadApiUtils | Use Javalin response headers |
+| 16 | DateTime format | TypeUtils | Ensure `YYYY-MM-DDThh:mm:ss` |
+| 17 | URI scheme validation limited | RestOverGraphql | Expand allowed schemes |
+
+### 🟢 Nice to Have
+
+| # | Issue | File | Action |
+|---|-------|------|--------|
+| 18 | Repeated strings | WebApiSmokeTests | Extract constants |
+| 19 | Needs specific tests | JsonLdValidator | Add unit tests |
+| 20 | Code extraction | GraphqlTableFieldFactory | Extract to own place |
+| 21 | Trivial method extraction | DownloadApiUtils | Review if method adds value |
+
+### Review Response Status
+
+- [ ] Respond to reviewers on GitHub
+- [ ] Critical items resolved
+- [ ] Must-fix items resolved
+- [ ] Request re-review

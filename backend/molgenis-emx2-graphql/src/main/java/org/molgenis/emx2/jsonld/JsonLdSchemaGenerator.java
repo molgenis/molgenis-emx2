@@ -75,9 +75,7 @@ public class JsonLdSchemaGenerator {
       Map<String, Object> tableNode = new LinkedHashMap<>();
       tableNode.put("@id", PREFIX + table.getIdentifier());
       if (table.getSemantics() != null && table.getSemantics().length > 0) {
-        tableNode.put(
-            "@type",
-            table.getSemantics().length == 1 ? table.getSemantics()[0] : table.getSemantics());
+        tableNode.put("@type", table.getSemantics()[0]);
       }
       context.put(table.getIdentifier(), tableNode);
     }
