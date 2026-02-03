@@ -533,3 +533,17 @@ def test_validate_graphql_response(caplog):
         with pytest.raises(PermissionDeniedException) as excinfo:
             client._validate_graphql_response(response)
         assert excinfo.value.msg == "Insufficient permissions for this operations."
+
+@pytest.mark.asyncio
+async def test_schema_export(caplog):
+    """Tests the schema_export functionality."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+    with pytest.raises(NotImplementedError) as excinfo:
+        await client.export_schema("catalogue", "mp3")
+    assert str(excinfo.value) == ("Cannot export schema definition in format 'mp3'. "
+                                  "Select one from ['csv', 'json', 'yaml'].")
+
+
+

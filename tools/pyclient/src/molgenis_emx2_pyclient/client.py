@@ -607,6 +607,17 @@ class Client:
 
         return BytesIO(response.content)
 
+    async def export_schema(self, schema: str, fmt: str = 'csv'):
+        """Exports the schema definition."""
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
+
+        fmts = ["csv", "json", "yaml"]
+        if fmt.lower() not in fmts:
+            raise NotImplementedError(f"Cannot export schema definition in format {fmt!r}. "
+                                      f"Select one from {fmts}.")
+
+
+
     async def create_schema(self, name: str,
                             description: str = None,
                             template: str = None,
