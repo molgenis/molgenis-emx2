@@ -6,12 +6,12 @@ import type {
   IDisplayConfig,
   IColumn,
   IRow,
-  IRefColumn,
 } from "../../../../../../../metadata-utils/src/types";
-import LayoutsDetailPage from "../../../../../components/layouts/DetailPage.vue";
+import LayoutsLandingPage from "../../../../../components/layouts/LandingPage.vue";
 import PageHeader from "../../../../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Emx2RecordView from "../../../../../../../tailwind-components/app/components/display/Emx2RecordView.vue";
+import Emx2DataView from "../../../../../../../tailwind-components/app/components/display/Emx2DataView.vue";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -36,82 +36,79 @@ const rowId = computed(() => ({
   name: datasetName,
 }));
 
-// Filter for variables belonging to this dataset
-const variablesFilter = {
+const variablesFilter = computed(() => ({
   dataset: {
     resource: { id: { equals: resourceId } },
     name: { equals: datasetName },
   },
+}));
+
+const recordDisplayConfig: IDisplayConfig = {
+  columnConfig: {
+    resource: {
+      getHref: (_col: IColumn, row: IRow) => {
+        const id = row?.id || row?.name;
+        return `/${catalogue}/collections/${id}`;
+      },
+    },
+  },
 };
 
-const displayConfig = computed(() => {
-  const columnConfig = new Map<string, IDisplayConfig>();
-
-  columnConfig.set("resource", {
-    getHref: (_col: IColumn, row: IRow) => {
-      const id = row?.id || row?.name;
-      return `/${catalogue}/collections/${id}`;
+const variablesDisplayConfig: IDisplayConfig = {
+  layout: "table",
+  showFilters: true,
+  showLayoutToggle: true,
+  pageSize: 20,
+  visibleColumns: ["name", "label", "format", "unit"],
+  columnConfig: {
+    name: {
+      getHref: (_col: IColumn, row: IRow) => {
+        const varName = row?.name;
+        return `/${catalogue}/variables/${varName}`;
+      },
     },
-  });
-
-  columnConfig.set("variables", {
-    component: "table",
-    visibleColumns: ["name", "label", "format", "unit"],
-    pageSize: 20,
-    filter: variablesFilter,
-    getHref: (_col: IColumn, row: IRow) => {
-      const varName = row?.name;
-      return `/${catalogue}/variables/${varName}`;
-    },
-  });
-
-  return columnConfig;
-});
-
-// Virtual REFBACK column for variables
-const extraColumns = computed<IColumn[]>(() => [
-  {
-    id: "variables",
-    label: "Variables",
-    columnType: "REFBACK",
-    refTableId: "Variables",
-    refSchemaId: schema,
-    refLabel: "${name}",
-    refLabelDefault: "${name}",
-  } as IRefColumn,
-]);
+  },
+};
 
 const crumbs: Crumb[] = [
   { label: catalogue, url: `/${catalogue}` },
   { label: "datasets", url: `/${catalogue}/datasets` },
-  {
-    label: resourceId,
-    url: `/${catalogue}/datasets?conditions=[{"id":"search","search":"${resourceId}"}]`,
-  },
+  { label: resourceId, url: `/${catalogue}/datasets/${resourceId}` },
   { label: datasetName, url: "" },
 ];
 </script>
 
 <template>
-  <LayoutsDetailPage>
-    <template #header>
-      <PageHeader
-        :title="datasetName"
-        :description="`Dataset from ${resourceId}`"
+  <LayoutsLandingPage>
+    <PageHeader
+      :title="datasetName"
+      :description="`Dataset from ${resourceId}`"
+    >
+      <template #prefix>
+        <BreadCrumbs :crumbs="crumbs" />
+      </template>
+    </PageHeader>
+
+    <Emx2RecordView
+      :schema-id="schema"
+      table-id="Datasets"
+      :row-id="rowId"
+      :config="recordDisplayConfig"
+    />
+
+    <div class="mt-8">
+      <h2
+        class="text-heading-2xl font-display uppercase tracking-widest text-title mb-4"
       >
-        <template #prefix>
-          <BreadCrumbs :crumbs="crumbs" />
-        </template>
-      </PageHeader>
-    </template>
-    <template #main>
-      <Emx2RecordView
+        Variables
+      </h2>
+      <Emx2DataView
         :schema-id="schema"
-        table-id="Datasets"
-        :row-id="rowId"
-        :display-config="displayConfig"
-        :extra-columns="extraColumns"
+        table-id="Variables"
+        :config="variablesDisplayConfig"
+        :static-filter="variablesFilter"
+        :url-sync="false"
       />
-    </template>
-  </LayoutsDetailPage>
+    </div>
+  </LayoutsLandingPage>
 </template>
