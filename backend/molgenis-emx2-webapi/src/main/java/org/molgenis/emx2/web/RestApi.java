@@ -27,7 +27,7 @@ import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.json.JsonUtil;
-import org.molgenis.emx2.jsonld.JsonLdSchemaGenerator;
+import org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator;
 import org.molgenis.emx2.rdf.RdfDataValidationService;
 import org.molgenis.emx2.rdf.RdfSchemaValidationService;
 import org.molgenis.emx2.rdf.shacl.ShaclSelector;

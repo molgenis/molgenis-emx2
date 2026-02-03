@@ -18,7 +18,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
-import org.molgenis.emx2.jsonld.JsonLdSchemaGenerator;
+import org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;

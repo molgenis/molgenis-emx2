@@ -1,10 +1,11 @@
-package org.molgenis.emx2.jsonld;
+package org.molgenis.emx2.rdf.jsonld;
 
 import static org.molgenis.emx2.Constants.MG_ID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.util.*;
+import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.molgenis.emx2.*;
 
 public class JsonLdSchemaGenerator {
@@ -21,9 +22,8 @@ public class JsonLdSchemaGenerator {
 
   public static Map<String, Object> generateJsonLdSchemaAsMap(
       SchemaMetadata schema, String schemaUrl) {
-    final String PREFIX = "my:";
+    final String PREFIX = schema.getIdentifier() + ":";
 
-    // todo solve how schema can add namespaces
     Map<String, String> schemaNamespaces =
         Map.ofEntries(
             Map.entry("adms", "http://www.w3.org/ns/adms#"),
@@ -79,16 +79,32 @@ public class JsonLdSchemaGenerator {
     for (TableMetadata table : schema.getTables()) {
       for (Column column : table.getLocalColumns()) {
         String columnKey = column.getIdentifier();
-        if (!context.containsKey(columnKey)
-            && (column.isReference() || "ontologyTermURI".equals(column.getName()))) {
-          Map<String, Object> columnNode = new LinkedHashMap<>();
-          if (column.getSemantics() != null && column.getSemantics().length > 0) {
-            columnNode.put("@id", column.getSemantics()[0]);
-          } else {
-            columnNode.put("@id", PREFIX + columnKey);
+        if (!context.containsKey(columnKey)) {
+          boolean isReference = column.isReference();
+          boolean isOntologyUri = "ontologyTermURI".equals(column.getName());
+
+          if (isReference || isOntologyUri) {
+            Map<String, Object> columnNode = new LinkedHashMap<>();
+            if (column.getSemantics() != null && column.getSemantics().length > 0) {
+              columnNode.put("@id", column.getSemantics()[0]);
+            } else {
+              columnNode.put("@id", PREFIX + columnKey);
+            }
+            columnNode.put("@type", "@id");
+            context.put(columnKey, columnNode);
+          } else if (shouldAddXsdType(column)) {
+            Map<String, Object> columnNode = new LinkedHashMap<>();
+            if (column.getSemantics() != null && column.getSemantics().length > 0) {
+              columnNode.put("@id", column.getSemantics()[0]);
+            } else {
+              columnNode.put("@id", PREFIX + columnKey);
+            }
+            String xsdType = getXsdType(column.getColumnType());
+            if (xsdType != null) {
+              columnNode.put("@type", xsdType);
+              context.put(columnKey, columnNode);
+            }
           }
-          columnNode.put("@type", "@id");
-          context.put(columnKey, columnNode);
         }
       }
     }
@@ -107,5 +123,28 @@ public class JsonLdSchemaGenerator {
     }
 
     return root;
+  }
+
+  private static boolean shouldAddXsdType(Column column) {
+    return getXsdType(column.getColumnType()) != null;
+  }
+
+  private static String getXsdType(ColumnType type) {
+    return switch (type) {
+      case BOOL, BOOL_ARRAY -> CoreDatatype.XSD.BOOLEAN.getIri().toString();
+      case UUID, UUID_ARRAY -> CoreDatatype.XSD.ANYURI.getIri().toString();
+      case FILE -> CoreDatatype.XSD.ANYURI.getIri().toString();
+      case INT, INT_ARRAY -> CoreDatatype.XSD.INT.getIri().toString();
+      case LONG, LONG_ARRAY -> CoreDatatype.XSD.LONG.getIri().toString();
+      case DECIMAL, DECIMAL_ARRAY -> CoreDatatype.XSD.DOUBLE.getIri().toString();
+      case DATE, DATE_ARRAY -> CoreDatatype.XSD.DATE.getIri().toString();
+      case DATETIME, DATETIME_ARRAY -> CoreDatatype.XSD.DATETIME.getIri().toString();
+      case PERIOD, PERIOD_ARRAY -> CoreDatatype.XSD.DURATION.getIri().toString();
+      case HYPERLINK, HYPERLINK_ARRAY -> CoreDatatype.XSD.ANYURI.getIri().toString();
+      case EMAIL, EMAIL_ARRAY -> CoreDatatype.XSD.ANYURI.getIri().toString();
+      case NON_NEGATIVE_INT, NON_NEGATIVE_INT_ARRAY ->
+          CoreDatatype.XSD.NON_NEGATIVE_INTEGER.getIri().toString();
+      default -> null;
+    };
   }
 }

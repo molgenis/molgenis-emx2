@@ -38,7 +38,7 @@ public class RestOverGraphql {
       }
       Map data = graphql.queryAsMap(query, Map.of());
       Map context =
-          JsonLdSchemaGenerator.generateJsonLdSchemaAsMap(
+          org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchemaAsMap(
               graphql.getSchema().getMetadata(), schemaURL);
 
       Map wrapper = new LinkedHashMap();
@@ -61,7 +61,8 @@ public class RestOverGraphql {
       }
       Map data = graphql.queryAsMap(query, Map.of());
       String jsonLdSchema =
-          JsonLdSchemaGenerator.generateJsonLdSchema(graphql.getSchema().getMetadata(), schemaURL);
+          org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchema(
+              graphql.getSchema().getMetadata(), schemaURL);
       String result = convertToTurtle(mapper.readValue(jsonLdSchema, Map.class), data);
       logger.info("Complete getAllAsTurtle in " + (System.currentTimeMillis() - start) + "ms");
       return result;
@@ -88,7 +89,7 @@ public class RestOverGraphql {
       String query = String.format("{%s{...All%sFields}}", tableId, tableId);
       Map data = graphql.queryAsMap(query, variables);
       String jsonLdSchema =
-          JsonLdSchemaGenerator.generateJsonLdSchema(
+          org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchema(
               graphql.getSchema().getMetadata(), "http://localhost");
       return convertToTurtle(mapper.readValue(jsonLdSchema, Map.class), data);
     } catch (Exception e) {

@@ -62,7 +62,8 @@ public class TestGraphQLCompositeKeys {
             + " \"REFBACK\" refTableName: \"RefTable\" refBackName: \"ref\"}]) {message}}");
 
     // have to reload graphql
-    grapql = new GraphqlExecutor(database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
+    grapql =
+        new GraphqlExecutor(database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(

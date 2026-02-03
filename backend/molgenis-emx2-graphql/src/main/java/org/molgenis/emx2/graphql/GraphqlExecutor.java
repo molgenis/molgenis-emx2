@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Privileges.VIEWER;
-import static org.molgenis.emx2.jsonld.JsonLdSchemaGenerator.generateJsonLdSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -349,7 +348,8 @@ public class GraphqlExecutor {
   }
 
   public String getJsonLdSchema(String schemaUrl) {
-    return generateJsonLdSchema(schema.getMetadata(), schemaUrl);
+    return org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchema(
+        schema.getMetadata(), schemaUrl);
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
