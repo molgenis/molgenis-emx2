@@ -621,7 +621,7 @@ class Client:
         current_schema = check_schema(schema, self.default_schema, self.schema_names)
         if not fmt and not filename:
             raise ValueError("Supply a value for `fmt` or `filename`.")
-        _fmt = fmt if not filename else '.'.join(filename.split('.')[1:])
+        _fmt = fmt if not filename else filename.split('.')[-1]
 
         fmts = ["csv", "json", "yaml"]
         if _fmt.lower() not in fmts:
