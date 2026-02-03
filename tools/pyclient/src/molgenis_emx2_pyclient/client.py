@@ -616,6 +616,16 @@ class Client:
             raise NotImplementedError(f"Cannot export schema definition in format {fmt!r}. "
                                       f"Select one from {fmts}.")
 
+        url = f"{self.url}/{current_schema}/api/{fmt}"
+        response = self.session.get(url=url)
+        self._validate_graphql_response(response)
+
+        filename = f"{current_schema}.{fmt}"
+
+        with open(filename, "wb") as file:
+            file.write(response.content)
+
+        return BytesIO(response.content)
 
 
     async def create_schema(self, name: str,
