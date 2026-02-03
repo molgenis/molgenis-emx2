@@ -68,17 +68,6 @@ public class DownloadApiUtils {
             });
   }
 
-  static void sendJsonMessage(Context ctx, int status, String message) {
-    ctx.status(status);
-    ctx.result("{ \"message\": \"" + message + "\" }");
-  }
-
-  static void setDownloadHeaders(Context ctx, String contentType, String filename) {
-    ctx.contentType(contentType);
-    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
-    ctx.header("Content-Disposition", "attachment; filename=\"" + filename + "_" + date + "\"");
-  }
-
   static File uploadFileToTemp(Context ctx) throws IOException, ServletException {
     File tempFile = getTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
     tempFile.deleteOnExit();

@@ -4,11 +4,7 @@ import static org.molgenis.emx2.Constants.MG_ID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.*;
-import org.jooq.JSONB;
 import org.molgenis.emx2.*;
 
 public class JsonLdSchemaGenerator {
@@ -111,36 +107,5 @@ public class JsonLdSchemaGenerator {
     }
 
     return root;
-  }
-
-  private static final Map<Class<?>, String> XSD_TYPE_MAP =
-      Map.ofEntries(
-          Map.entry(String.class, "xsd:string"),
-          Map.entry(Integer.class, "xsd:integer"),
-          Map.entry(Long.class, "xsd:long"),
-          Map.entry(Double.class, "xsd:double"),
-          Map.entry(Boolean.class, "xsd:boolean"),
-          Map.entry(LocalDate.class, "xsd:date"),
-          Map.entry(LocalDateTime.class, "xsd:dateTime"),
-          Map.entry(JSONB.class, "xsd:string"),
-          Map.entry(UUID.class, "xsd:string"),
-          Map.entry(Period.class, "xsd:duration"),
-          Map.entry(byte[].class, "xsd:base64Binary"));
-
-  private static Object getXsdType(ColumnType columnType) {
-    Class<?> type = columnType.getNonArrayType();
-    String result = XSD_TYPE_MAP.get(type);
-    if (result == null) {
-      throw new MolgenisException("XSD type missing for type " + type.getName());
-    }
-    return result;
-  }
-
-  private static String expandXsdType(Object xsdType) {
-    String typeStr = xsdType.toString();
-    if (typeStr.startsWith("xsd:")) {
-      return "http://www.w3.org/2001/XMLSchema#" + typeStr.substring(4);
-    }
-    return typeStr;
   }
 }
