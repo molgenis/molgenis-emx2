@@ -310,18 +310,22 @@ await client.export(schema='MySchema', table='Resources', filename='Resources-ex
 ```python
 async def export_schema(self, 
                         schema: str = None, 
-                        fmt: str = 'csv') -> BytesIO: 
+                        fmt: str = 'csv',
+                        filename: str = None) -> BytesIO: 
     ...
 ```
 Asynchronously exports a schema's metadata to a file in the desired format and `BytesIO` object in memory.
 The format options are `'csv`', `'json'` and `'yaml'`.
+Only writes to a file if the file name is specified. The format is in that case inferred from the file name's extension.
+Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
+Throws a `PyclientException` if neither `fmt` nor `filename` is supplied.
 
-The name of the output file is formatted as `{schema_name}.{format}`, e.g. `catalogue.csv`.
 
 | parameter  | type | description                                | required | default                 |
 |------------|------|--------------------------------------------|----------|-------------------------|
 | `schema`   | str  | the name of a schema                       | False    | `client.default_schema` |
-| `fmt`      | str  | the desired format of the output           | False    | `'csv'`                 |
+| `fmt`      | str  | the format of the output                   | False    | `None`                  |
+| `filename` | str  | the name of the file to export the data to | False    | `None`                  |
 
 ##### examples
 ```python
