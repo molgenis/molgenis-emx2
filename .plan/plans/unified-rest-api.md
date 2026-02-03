@@ -248,16 +248,16 @@ DataApi.java (content-negotiated)
 |---|-------|------|--------|
 | 1 | Endpoint renaming impact | General | Verify renamed endpoints not used externally |
 | 2 | RDF API breaking changes | General | Consider major version release |
-| 3 | UUID type mapping wrong | JsonLdSchemaGenerator | UUID → IRI (`urn:uuid:`), not Literal |
+| 3 | **Implement proper type mapping** | JsonLdSchemaGenerator | Map ColumnType→XSD: UUID→`urn:uuid:` IRI, FILE→file API IRI, dates→xsd:date/dateTime |
 
 ### 🟠 Must Fix (Code Quality)
 
 | # | Issue | File | Action |
 |---|-------|------|--------|
-| 4 | `sendJsonMessage` unused | DownloadApiUtils | Remove |
-| 5 | `setDownloadHeaders` unused | DownloadApiUtils | Remove |
-| 6 | `getXsdType` unused | JsonLdSchemaGenerator | Remove + ColumnType addition |
-| 7 | Dead validation code | RestOverGraphql | Remove |
+| 4 | ~~`sendJsonMessage` unused~~ | DownloadApiUtils | ✅ Removed |
+| 5 | ~~`setDownloadHeaders` unused~~ | DownloadApiUtils | ✅ Removed |
+| 6 | ~~`getXsdType` unused~~ | JsonLdSchemaGenerator | ✅ Removed (dead code, proper impl needed in #3) |
+| 7 | ~~Dead validation code~~ | RestOverGraphql | ✅ Removed |
 | 8 | Test assertions weak | WebApiSmokeTests | Fix - pass even when not logged in |
 | 9 | Service naming inconsistent | GraphqlApiService | Rename - breaks convention |
 | 10 | Hardcoded "my:" prefix | JsonLdSchemaGenerator | Use NamespaceMapper instead |

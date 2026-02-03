@@ -2608,7 +2608,9 @@ class WebApiSmokeTests {
             .contentType(contentType)
             .extract()
             .asString();
-    assertTrue(response.length() > 0, format + " _members should return data");
+    assertTrue(
+        response.contains(PET_SHOP_OWNER),
+        format + " _members should contain " + PET_SHOP_OWNER);
   }
 
   @ParameterizedTest(name = "GET _settings for {0}")
@@ -2625,7 +2627,7 @@ class WebApiSmokeTests {
             .contentType(contentType)
             .extract()
             .asString();
-    assertTrue(response.length() > 0, format + " _settings should return data");
+    assertFalse(response.contains("errors"), format + " _settings should not contain errors");
   }
 
   @ParameterizedTest(name = "GET _changelog for {0}")
@@ -2642,7 +2644,7 @@ class WebApiSmokeTests {
             .contentType(contentType)
             .extract()
             .asString();
-    assertTrue(response.length() >= 0, format + " _changelog should return data");
+    assertFalse(response.contains("errors"), format + " _changelog should not contain errors");
   }
 
   @ParameterizedTest(name = "GET _context for {0}")
