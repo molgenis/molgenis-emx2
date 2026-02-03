@@ -607,7 +607,7 @@ class Client:
 
         return BytesIO(response.content)
 
-    async def export_schema(self, schema: str, fmt: str = 'csv'):
+    async def export_schema(self, schema: str = None, fmt: str = 'csv'):
         """Exports the schema definition."""
         current_schema = check_schema(schema, self.default_schema, self.schema_names)
 
