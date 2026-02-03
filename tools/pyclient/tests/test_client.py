@@ -547,6 +547,10 @@ async def test_export_schema(caplog):
         assert str(excinfo.value) == ("Cannot export schema definition in format 'mp3'. "
                                       "Select one from ['csv', 'json', 'yaml'].")
 
+        with pytest.raises(ValueError) as excinfo:
+            await client.export_schema(schema="catalogue")
+        assert str(excinfo.value) == "Supply a value for `fmt` or `filename`."
+
         csv_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.csv")
         csv_schema = pd.read_csv(csv_bytes)
         assert len(csv_schema.columns) == 22

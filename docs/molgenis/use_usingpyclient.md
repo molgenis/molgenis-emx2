@@ -318,7 +318,7 @@ Asynchronously exports a schema's metadata to a file in the desired format and `
 The format options are `'csv`', `'json'` and `'yaml'`.
 Only writes to a file if the file name is specified. The format is in that case inferred from the file name's extension.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
-Throws a `PyclientException` if neither `fmt` nor `filename` is supplied.
+Throws a `ValueError` if neither `fmt` nor `filename` is supplied.
 
 
 | parameter  | type | description                                | required | default                 |

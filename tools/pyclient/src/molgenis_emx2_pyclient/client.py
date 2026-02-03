@@ -607,7 +607,7 @@ class Client:
 
         return BytesIO(response.content)
 
-    async def export_schema(self, schema: str = None, fmt: str = 'csv', filename: str = None):
+    async def export_schema(self, schema: str = None, fmt: str = None, filename: str = None):
         """
         Exports the schema definition.
 
@@ -619,6 +619,8 @@ class Client:
         :param filename: str
         """
         current_schema = check_schema(schema, self.default_schema, self.schema_names)
+        if not fmt and not filename:
+            raise ValueError("Supply a value for `fmt` or `filename`.")
         _fmt = fmt if not filename else '.'.join(filename.split('.')[1:])
 
         fmts = ["csv", "json", "yaml"]
