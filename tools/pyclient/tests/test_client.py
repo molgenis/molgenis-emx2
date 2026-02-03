@@ -547,7 +547,7 @@ async def test_export_schema(caplog):
         assert str(excinfo.value) == ("Cannot export schema definition in format 'mp3'. "
                                       "Select one from ['csv', 'json', 'yaml'].")
 
-        csv_bytes: BytesIO = await client.export_schema("catalogue", "csv")
+        csv_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.csv")
         csv_schema = pd.read_csv(csv_bytes)
         assert len(csv_schema.columns) == 22
         assert (Path(__file__).parent.parent / "catalogue.csv").exists()
@@ -556,10 +556,9 @@ async def test_export_schema(caplog):
         json_bytes: BytesIO = await client.export_schema("catalogue", "json")
         json_schema = json.load(json_bytes)
         assert (len(json_schema['tables']), len(json_schema['settings'])) == (24, 2)
-        assert (Path(__file__).parent.parent / "catalogue.json").exists()
-        (Path(__file__).parent.parent / "catalogue.json").unlink()
+        assert not (Path(__file__).parent.parent / "catalogue.json").exists()
 
-        yaml_bytes: BytesIO = await client.export_schema("catalogue", "yaml")
+        yaml_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.yaml")
         yaml_schema = yaml.safe_load(yaml_bytes)
         assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (24, 2)
         assert (Path(__file__).parent.parent / "catalogue.yaml").exists()

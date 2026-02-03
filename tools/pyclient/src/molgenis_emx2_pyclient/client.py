@@ -607,23 +607,32 @@ class Client:
 
         return BytesIO(response.content)
 
-    async def export_schema(self, schema: str = None, fmt: str = 'csv'):
-        """Exports the schema definition."""
+    async def export_schema(self, schema: str = None, fmt: str = 'csv', filename: str = None):
+        """
+        Exports the schema definition.
+
+        :param schema: the name of the schema
+        :type schema: str
+        :param fmt: the format of the output
+        :type fmt: str
+        :param filename: the name of the file to write to
+        :param filename: str
+        """
         current_schema = check_schema(schema, self.default_schema, self.schema_names)
+        _fmt = fmt if not filename else '.'.join(filename.split('.')[1:])
 
         fmts = ["csv", "json", "yaml"]
-        if fmt.lower() not in fmts:
-            raise NotImplementedError(f"Cannot export schema definition in format {fmt!r}. "
+        if _fmt.lower() not in fmts:
+            raise NotImplementedError(f"Cannot export schema definition in format {_fmt!r}. "
                                       f"Select one from {fmts}.")
 
-        url = f"{self.url}/{current_schema}/api/{fmt}"
+        url = f"{self.url}/{current_schema}/api/{_fmt}"
         response = self.session.get(url=url)
         self._validate_graphql_response(response)
 
-        filename = f"{current_schema}.{fmt}"
-
-        with open(filename, "wb") as file:
-            file.write(response.content)
+        if filename:
+            with open(filename, "wb") as file:
+                file.write(response.content)
 
         return BytesIO(response.content)
 
