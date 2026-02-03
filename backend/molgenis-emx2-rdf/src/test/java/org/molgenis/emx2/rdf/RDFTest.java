@@ -360,11 +360,29 @@ public class RDFTest {
             "table3",
             column("p1").setPkey().setType(ColumnType.REF).setRefTable("table1"),
             column("p2").setPkey().setType(ColumnType.REF).setRefTable("table2").setRefLink("p1"),
-            column("ref").setType(ColumnType.REF).setRefTable("table2").setRefLink("p1")));
+            column("ref").setType(ColumnType.REF).setRefTable("table2").setRefLink("p1"),
+            column("ref_array")
+                .setType(ColumnType.REF_ARRAY)
+                .setRefTable("table2")
+                .setRefLink("p1")));
 
     refLinkTest.getTable("table1").insert(row("id", "t1First"));
     refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2First"));
-    refLinkTest.getTable("table3").insert(row("p1", "t1First", "p2", "t2First"));
+    refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2Second"));
+    refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2Third"));
+    refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2Fourth"));
+    refLinkTest
+        .getTable("table3")
+        .insert(
+            row(
+                "p1",
+                "t1First",
+                "p2",
+                "t2First",
+                "ref",
+                "t2Second",
+                "ref_array",
+                "t2Third,t2Fourth"));
 
     // semantic test
     semanticTest = database.dropCreateSchema("semanticTest");
@@ -1556,6 +1574,43 @@ example,http://example.com/
   void testRefLinkWorks() throws IOException {
     InMemoryRDFHandler handler = new InMemoryRDFHandler() {};
     assertDoesNotThrow(() -> parseSchemaRdf(refLinkTest));
+  }
+
+  @Test
+  void testRefLinkRef() throws IOException {
+    Set<IRI> expectedRefArrayObjects =
+        Set.of(Values.iri(getApi(refLinkTest) + "Table2/id1=t1First&id2=t2Second"));
+
+    InMemoryRDFHandler handler = parseRowRdf(refLinkTest, "table3", "p1=t1First&p2=t2First");
+    Set<Value> actualSubjects =
+        handler
+            .resources
+            .get(Values.iri(getApi(refLinkTest) + "Table3/p1=t1First&p2=t2First"))
+            .get(Values.iri(getApi(refLinkTest) + "Table3/column/ref"));
+
+    assertEquals(expectedRefArrayObjects, actualSubjects);
+  }
+
+  /**
+   * Tests that all subjects have full correct IRI (instead of only 1)
+   *
+   * @throws IOException
+   */
+  @Test
+  void testRefLinkRefArray() throws IOException {
+    Set<IRI> expectedRefArrayObjects =
+        Set.of(
+            Values.iri(getApi(refLinkTest) + "Table2/id1=t1First&id2=t2Third"),
+            Values.iri(getApi(refLinkTest) + "Table2/id1=t1First&id2=t2Fourth"));
+
+    InMemoryRDFHandler handler = parseRowRdf(refLinkTest, "table3", "p1=t1First&p2=t2First");
+    Set<Value> actualSubjects =
+        handler
+            .resources
+            .get(Values.iri(getApi(refLinkTest) + "Table3/p1=t1First&p2=t2First"))
+            .get(Values.iri(getApi(refLinkTest) + "Table3/column/ref_array"));
+
+    assertEquals(expectedRefArrayObjects, actualSubjects);
   }
 
   @Test

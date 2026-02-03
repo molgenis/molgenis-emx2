@@ -6,7 +6,6 @@ import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.ContentType;
@@ -24,18 +23,18 @@ import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.util.SchemaMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MolgenisWebservice {
+
   public static final String SCHEMA = "schema";
-  public static final String EDITOR = "Editor";
-  public static final String MANAGER = "Manager";
-  public static final String ROLE = "role";
-  public static final String VIEWER = "Viewer";
   public static final long MAX_REQUEST_SIZE = 10_000_000L;
+
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+
   public static final String NUXT_OIDC_LOGOUT_PATH =
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
@@ -180,35 +179,39 @@ public class MolgenisWebservice {
       if (schema == null) {
         throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
       }
+      String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
       String role = schema.getRoleForActiveUser();
-      Optional<String> menuSettingValue = schema.getMetadata().findSettingValue("menu");
-      if (menuSettingValue.isPresent()) {
-        List<Map<String, String>> menu =
-            new ObjectMapper().readValue(menuSettingValue.get(), List.class);
-        menu =
-            menu.stream()
-                .filter(
-                    el ->
-                        role == null
-                            || role.equals(schema.getDatabase().getAdminUserName())
-                            || el.get(ROLE) == null
-                            || el.get(ROLE).equals(VIEWER)
-                                && List.of(VIEWER, EDITOR, MANAGER).contains(role)
-                            || el.get(ROLE).equals(EDITOR)
-                                && List.of(EDITOR, MANAGER).contains(role)
-                            || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
-                .toList();
-        if (!menu.isEmpty()) {
-          String location =
-              "/"
-                  + encodePathSegment(ctx.pathParam(SCHEMA))
-                  + "/"
-                  + menu.get(0).get("href").replace("../", "");
-          ctx.redirect(location);
-        }
-      } else {
+
+      SchemaMenu schemaMenu = SchemaMenu.fromSchema(schema);
+      if (schemaMenu.isEmpty()) {
         ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        return;
       }
+
+      SchemaMenu menuForRole;
+      if (ANONYMOUS.equals(currentUser)) {
+        menuForRole = schemaMenu.menuForAnonymousAndRole(role);
+      } else {
+        menuForRole = schemaMenu.menuForRole(role);
+      }
+
+      if (menuForRole.isEmpty()) {
+        logger.warn("No menu available for current user");
+        if (schema.getRoleForUser(ANONYMOUS).isEmpty()) {
+          ctx.redirect("/");
+        } else {
+          ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        }
+
+        return;
+      }
+
+      String location =
+          "/"
+              + encodePathSegment(ctx.pathParam(SCHEMA))
+              + "/"
+              + menuForRole.items().getFirst().href().replace("../", "");
+      ctx.redirect(location);
     } catch (Exception e) {
       logger.debug(e.getMessage());
       ctx.redirect("/");

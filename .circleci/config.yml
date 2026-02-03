@@ -140,6 +140,11 @@ jobs:
         name: build and push emx2 java docker images for the preview
         command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test
 
+    - persist_to_workspace:
+        root: .
+        paths:
+          - build/ci.properties
+
     - run:
         name: push ssr-catalogue docker images
         command: |
@@ -159,7 +164,7 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
-          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true true
 
     - run:
         name: Wait for preview to be up, poll every 10 seconds
@@ -287,7 +292,7 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
-          bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
+          bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME} false false
 
     - run:
         name: message slack about release and updated demo server
@@ -398,6 +403,24 @@ jobs:
       - store_artifacts:
           path: /root/project/e2e/test-results
 
+  pr-preview:
+    <<: *build_config
+
+    steps:
+    - pre_steps
+
+    - attach_workspace:
+        at: .
+
+    - run:
+        name: Restart preview in limited resources mode
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config-azure.sh molgenis-emx2-13.79.1-SNAPSHOT-all.jar molgenis-emx2-13.79.1-SNAPSHOT-all.jar
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
+
+    - post_steps
+
   emx2-pyclient:
     <<: *build_config
 
@@ -475,7 +498,7 @@ jobs:
           command: |
             export $( cat build/ci.properties | xargs )
             bash ci/set_kubectl_config-azure.sh
-            bash ci/create_or_update_k8s-azure.sh "emx2" latest true
+            bash ci/create_or_update_k8s-azure.sh "emx2" latest false true
           working_directory: repo
 
       - run:
@@ -506,6 +529,12 @@ workflows:
         filters:
             branches:
               ignore: master
+    - pr-preview:
+        requires:
+          - e2e-test
+        filters:
+          branches:
+            ignore: master
     - test:
        filters:
          branches:
