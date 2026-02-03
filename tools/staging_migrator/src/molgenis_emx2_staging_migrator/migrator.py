@@ -110,7 +110,22 @@ class StagingMigrator(Client):
         # Download source data
         source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
                                                     include_system_columns=True)
+        source_metadata = self.get_schema_metadata(self.source)
+        upload_stream = BytesIO()
+        updated_tables = list()
 
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in sorted(source_archive.namelist()):
+                try:
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
+                    continue
+
+                updated_table: pd.DataFrame = self._get_filtered(table)
+                if table.id == "Organisations":
+                    updated_table = self.process_organisations(updated_table)
 
 
     def create_zip(self):
@@ -235,6 +250,10 @@ class StagingMigrator(Client):
         filtered_df = pd.concat([new_df, updated_df, missing_df])
 
         return filtered_df
+
+    def process_organisations(self) -> pd.DataFrame:
+        """Process the organisations table by combining information from CatalogueOntologies."""
+
 
     @staticmethod
     def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
