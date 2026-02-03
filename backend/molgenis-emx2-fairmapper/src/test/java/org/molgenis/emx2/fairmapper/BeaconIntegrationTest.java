@@ -116,70 +116,8 @@ public class BeaconIntegrationTest {
   }
 
   @Test
-  @org.junit.jupiter.api.Disabled("Transform output schema changed - needs test data update")
-  void testPipelineExecutor_transformQueryTransform() throws Exception {
-    // Create simple test endpoint with inline steps
-    var steps =
-        java.util.List.of(
-            new org.molgenis.emx2.fairmapper.model.Step(
-                "src/request-to-variables.jslt", null, java.util.List.of()),
-            new org.molgenis.emx2.fairmapper.model.Step(
-                null, "src/individuals-simple.gql", java.util.List.of()),
-            new org.molgenis.emx2.fairmapper.model.Step(
-                "src/individuals-response.jslt", null, java.util.List.of()));
-
-    var endpoint =
-        new org.molgenis.emx2.fairmapper.model.Endpoint(
-            "/test/api/beacon/individuals", java.util.List.of("POST"), steps, null);
-
-    // Create beacon request
-    JsonNode request =
-        mapper.readTree(
-            """
-        {
-          "meta": {
-            "requestedSchemas": [{
-              "entityType": "Individual"
-            }]
-          },
-          "query": {
-            "pagination": {
-              "limit": 2
-            }
-          }
-        }
-        """);
-
-    // Create simple query file
-    Path queryPath = bundlePath.resolve("src/individuals-simple.gql");
-    java.nio.file.Files.createDirectories(queryPath.getParent());
-    java.nio.file.Files.writeString(
-        queryPath,
-        """
-        query Individuals($limit: Int) {
-          Individuals(limit: $limit) {
-            id
-            genderAtBirth { code name }
-            yearOfBirth
-          }
-        }
-        """);
-
-    try {
-      // Execute pipeline: transform request -> query GraphQL -> transform response
-      JsonNode response = pipelineExecutor.execute(request, endpoint);
-
-      // Verify beacon response structure
-      assertNotNull(response);
-      assertTrue(response.has("meta"));
-      assertTrue(response.has("responseSummary"));
-      assertTrue(response.has("response"));
-      assertTrue(response.get("responseSummary").get("exists").asBoolean());
-    } finally {
-      // Cleanup
-      java.nio.file.Files.deleteIfExists(queryPath);
-    }
-  }
+  @org.junit.jupiter.api.Disabled("Endpoint class removed - test needs conversion to Mapping")
+  void testPipelineExecutor_transformQueryTransform() throws Exception {}
 
   private JsonNode executeGraphQL(String query) throws Exception {
     ExecutionInput input = ExecutionInput.newExecutionInput().query(query).build();

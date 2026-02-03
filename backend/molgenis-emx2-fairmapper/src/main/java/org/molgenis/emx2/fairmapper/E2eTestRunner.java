@@ -11,12 +11,12 @@ import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.model.E2eTestCase;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.HttpMethod;
+import org.molgenis.emx2.fairmapper.model.Mapping;
 
 public class E2eTestRunner {
   private final Path bundlePath;
-  private final Endpoint endpoint;
+  private final Mapping mapping;
   private final GraphQL graphql;
   private final JsltTransformEngine transformEngine;
   private final Schema schema;
@@ -24,29 +24,29 @@ public class E2eTestRunner {
 
   public E2eTestRunner(
       Path bundlePath,
-      Endpoint endpoint,
+      Mapping mapping,
       GraphQL graphql,
       JsltTransformEngine transformEngine,
       Schema schema) {
     this.bundlePath = bundlePath;
-    this.endpoint = endpoint;
+    this.mapping = mapping;
     this.graphql = graphql;
     this.transformEngine = transformEngine;
     this.schema = schema;
   }
 
   public List<E2eTestResult> runTests() {
-    if (endpoint.e2e() == null || endpoint.e2e().tests() == null) {
+    if (mapping.e2e() == null || mapping.e2e().tests() == null) {
       return List.of();
     }
-    if (endpoint.steps() == null || endpoint.steps().isEmpty()) {
-      throw new MolgenisException("Endpoint has no steps defined for e2e tests");
+    if (mapping.steps() == null || mapping.steps().isEmpty()) {
+      throw new MolgenisException("Mapping has no steps defined for e2e tests");
     }
 
     List<E2eTestResult> results = new ArrayList<>();
     PipelineExecutor executor = new PipelineExecutor(graphql, transformEngine, bundlePath, schema);
 
-    for (E2eTestCase testCase : endpoint.e2e().tests()) {
+    for (E2eTestCase testCase : mapping.e2e().tests()) {
       results.add(runTestCase(executor, testCase));
     }
 
@@ -57,7 +57,7 @@ public class E2eTestRunner {
     try {
       JsonNode input = loadJson(testCase.input());
       JsonNode expectedOutput = loadJson(testCase.output());
-      JsonNode actualOutput = executor.execute(input, endpoint);
+      JsonNode actualOutput = executor.execute(input, mapping);
 
       if (jsonEquals(expectedOutput, actualOutput)) {
         return new E2eTestResult(testCase.method(), testCase.input(), true, null);

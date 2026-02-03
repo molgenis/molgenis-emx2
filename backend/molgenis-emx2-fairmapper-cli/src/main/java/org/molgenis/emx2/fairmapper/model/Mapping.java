@@ -7,12 +7,13 @@ import org.molgenis.emx2.fairmapper.model.step.StepConfigDeserializer;
 
 public record Mapping(
     String name,
-    String endpoint,
+    String route,
     String fetch,
     List<String> methods,
     String input,
     String output,
     String frame,
+    List<String> route_params,
     @JsonDeserialize(using = StepConfigDeserializer.class) List<StepConfig> steps,
     E2e e2e) {
 
@@ -26,7 +27,7 @@ public record Mapping(
 
   public String getEffectiveName() {
     if (name != null && !name.isBlank()) return name;
-    if (endpoint != null) return endpoint.replace("/{schema}/api/", "").replace("/", "-");
+    if (route != null) return route.replace("/{schema}/api/", "").replace("/", "-");
     return null;
   }
 
@@ -34,12 +35,19 @@ public record Mapping(
     if (name == null || name.isBlank()) {
       throw new IllegalArgumentException("Mapping requires 'name' field");
     }
-    if (endpoint != null && fetch != null) {
-      throw new IllegalArgumentException("Mapping cannot have both 'endpoint' and 'fetch'");
+
+    boolean hasExportPattern = steps != null;
+    boolean hasImportPattern = fetch != null;
+
+    if (!hasExportPattern && !hasImportPattern) {
+      throw new IllegalArgumentException(
+          "Mapping requires either 'steps' (export) or 'fetch' (import)");
     }
-    if (endpoint == null && fetch == null) {
-      throw new IllegalArgumentException("Mapping requires either 'endpoint' or 'fetch'");
+
+    if (hasExportPattern && (route == null || route.isBlank())) {
+      throw new IllegalArgumentException("Export mapping requires 'route' field");
     }
+
     if (fetch != null && (frame == null || frame.isBlank())) {
       throw new IllegalArgumentException("Mapping with 'fetch' requires 'frame' field");
     }

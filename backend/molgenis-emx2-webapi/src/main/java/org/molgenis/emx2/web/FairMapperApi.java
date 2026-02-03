@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -96,12 +95,12 @@ public class FairMapperApi {
       List<Mapping> mappings = reg.bundle.getMappings();
       if (mappings != null) {
         for (Mapping mapping : mappings) {
-          if (mapping.endpoint() == null) {
+          if (mapping.name() == null) {
             continue;
           }
           List<String> methods = mapping.methods() != null ? mapping.methods() : List.of("GET");
           for (String method : methods) {
-            registerEndpoint(app, method, mapping, reg.bundlePath);
+            registerEndpoint(app, method, reg.bundle.name(), mapping, reg.bundlePath);
           }
         }
       }
@@ -109,8 +108,14 @@ public class FairMapperApi {
   }
 
   private static void registerEndpoint(
-      Javalin app, String method, Mapping mapping, Path bundlePath) {
-    String path = mapping.endpoint();
+      Javalin app, String method, String bundleName, Mapping mapping, Path bundlePath) {
+    String path = "/{schema}/api/fair/" + bundleName + "/" + mapping.route();
+
+    if (mapping.route_params() != null && !mapping.route_params().isEmpty()) {
+      for (String param : mapping.route_params()) {
+        path += "/:" + param;
+      }
+    }
 
     switch (method.toUpperCase()) {
       case "GET":
@@ -128,9 +133,15 @@ public class FairMapperApi {
 
   static void handleRequest(Context ctx, Mapping mapping, Path bundlePath) {
     try {
-      Schema schema = getSchema(ctx);
+      String schemaName = ctx.pathParam("schema");
+      if (schemaName == null || schemaName.isEmpty()) {
+        throw new MolgenisException("Path parameter 'schema' is required");
+      }
+
+      Schema schema =
+          MolgenisWebservice.applicationCache.getSchemaForUser(sanitize(schemaName), ctx);
       if (schema == null) {
-        throw new MolgenisException("Schema not found or not accessible");
+        throw new MolgenisException("Schema not found or not accessible: " + schemaName);
       }
 
       GraphqlApiFactory factory = new GraphqlApiFactory();

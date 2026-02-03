@@ -29,7 +29,7 @@ class BundleLoaderTest {
     assertNotNull(bundle);
     assertEquals("test-bundle", bundle.name());
     assertEquals("1.0.0", bundle.version());
-    assertFalse(bundle.endpoints().isEmpty());
+    assertFalse(bundle.getMappings().isEmpty());
   }
 
   @Test
@@ -65,7 +65,7 @@ class BundleLoaderTest {
         configPath,
         """
         version: 1.0.0
-        endpoints: []
+        mappings: []
         """);
 
     FairMapperException ex =
@@ -75,7 +75,7 @@ class BundleLoaderTest {
   }
 
   @Test
-  void testMissingEndpoints() throws IOException {
+  void testMissingMappings() throws IOException {
     Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
         configPath,
@@ -87,26 +87,24 @@ class BundleLoaderTest {
     FairMapperException ex =
         assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
-    assertTrue(
-        ex.getMessage().contains("mappings or endpoints"),
-        "Expected error about missing mappings or endpoints");
+    assertTrue(ex.getMessage().contains("mappings"), "Expected error about missing mappings");
   }
 
   @Test
-  void testEmptyEndpoints() throws IOException {
+  void testEmptyMappings() throws IOException {
     Path configPath = tempDir.resolve("fairmapper.yaml");
     Files.writeString(
         configPath,
         """
         name: test
         version: 1.0.0
-        endpoints: []
+        mappings: []
         """);
 
     FairMapperException ex =
         assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
 
-    assertTrue(ex.getMessage().contains("endpoints (must have at least one)"));
+    assertTrue(ex.getMessage().contains("mappings"));
   }
 
   @Test
@@ -117,8 +115,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps:
               - transform: src/nonexistent.jslt
@@ -139,8 +138,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps:
               - query: src/nonexistent.gql
@@ -166,8 +166,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps:
               - transform: src/transform.txt
@@ -193,8 +194,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps:
               - query: src/query.txt
@@ -205,27 +207,6 @@ class BundleLoaderTest {
 
     assertTrue(ex.getMessage().contains("Query file must have .gql extension"));
     assertTrue(ex.getMessage().contains("src/query.txt"));
-  }
-
-  @Test
-  void testStepWithoutTransformOrQuery() throws IOException {
-    Path configPath = tempDir.resolve("fairmapper.yaml");
-    Files.writeString(
-        configPath,
-        """
-        name: test
-        version: 1.0.0
-        endpoints:
-          - path: /test
-            methods: [GET]
-            steps:
-              - tests: []
-        """);
-
-    FairMapperException ex =
-        assertThrows(FairMapperException.class, () -> bundleLoader.load(configPath));
-
-    assertTrue(ex.getMessage().contains("Step must have either transform or query defined"));
   }
 
   @Test
@@ -244,8 +225,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps: []
             e2e:
@@ -275,8 +257,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps: []
             e2e:
@@ -307,8 +290,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps: []
             e2e:
@@ -342,8 +326,9 @@ class BundleLoaderTest {
         """
         name: test
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [POST]
             steps:
               - transform: src/transform.jslt
@@ -358,10 +343,10 @@ class BundleLoaderTest {
     MappingBundle bundle = bundleLoader.load(configPath);
 
     assertNotNull(bundle);
-    assertNotNull(bundle.endpoints().get(0).e2e());
-    assertEquals("testSchema", bundle.endpoints().get(0).e2e().schema());
-    assertEquals(1, bundle.endpoints().get(0).e2e().tests().size());
-    assertEquals(HttpMethod.POST, bundle.endpoints().get(0).e2e().tests().get(0).method());
+    assertNotNull(bundle.getMappings().get(0).e2e());
+    assertEquals("testSchema", bundle.getMappings().get(0).e2e().schema());
+    assertEquals(1, bundle.getMappings().get(0).e2e().tests().size());
+    assertEquals(HttpMethod.POST, bundle.getMappings().get(0).e2e().tests().get(0).method());
   }
 
   @Test
@@ -374,7 +359,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
-            endpoint: /test
+            route: /test
             input: json
             output: json
             steps: []
@@ -402,7 +387,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
-            endpoint: /test
+            route: /test
             input: turtle
             output: json
             frame: src/frame.jsonld
@@ -426,7 +411,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
-            endpoint: /test
+            route: /test
             input: turtle
             output: json
             steps: []
@@ -449,7 +434,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
-            endpoint: /test
+            route: /test
             input: invalidformat
             output: json
             steps: []
@@ -472,7 +457,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
-            endpoint: /test
+            route: /test
             input: json
             output: badformat
             steps: []
@@ -495,7 +480,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: testMapping
-            endpoint: /test
+            route: /test
             steps: []
         """);
 
@@ -522,8 +507,9 @@ class BundleLoaderTest {
         """
         name: test-bundle
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: testMapping
+            route: /test
             methods: [GET]
             steps:
               - transform: src/transform.jslt
@@ -547,7 +533,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: test-mapping
-            endpoint: /test
+            route: /test
             methods: [GET]
             steps:
               - frame: src/frame.jsonld
@@ -569,7 +555,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: test-mapping
-            endpoint: /test
+            route: /test
             methods: [GET]
             steps:
               - frame: src/frame.jsonld
@@ -596,7 +582,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: test-mapping
-            endpoint: /test
+            route: /test
             methods: [GET]
             steps:
               - frame: src/frame.txt
@@ -623,7 +609,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: test-mapping
-            endpoint: /test
+            route: /test
             methods: [GET]
             steps:
               - sparql: src/construct.sparql
@@ -645,7 +631,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: test-mapping
-            endpoint: /test
+            route: /test
             methods: [GET]
             steps:
               - sparql: src/construct.sparql
@@ -672,7 +658,7 @@ class BundleLoaderTest {
         version: 1.0.0
         mappings:
           - name: test-mapping
-            endpoint: /test
+            route: /test
             methods: [GET]
             steps:
               - sparql: src/construct.txt

@@ -74,6 +74,7 @@ class FrameStepTest {
             null,
             null,
             null,
+            null,
             List.of(new FrameStep("frame.jsonld", true, null)),
             null);
 
@@ -106,6 +107,7 @@ class FrameStepTest {
             "/api/test",
             null,
             List.of("GET"),
+            null,
             null,
             null,
             null,
@@ -142,6 +144,7 @@ class FrameStepTest {
             null,
             null,
             null,
+            null,
             List.of(new FrameStep("frame.jsonld", null, null)),
             null);
 
@@ -162,6 +165,7 @@ class FrameStepTest {
             null,
             null,
             null,
+            null,
             List.of(new FrameStep("../outside/frame.jsonld", null, null)),
             null);
 
@@ -177,6 +181,7 @@ class FrameStepTest {
             "/api/test",
             null,
             List.of("GET"),
+            null,
             null,
             null,
             null,

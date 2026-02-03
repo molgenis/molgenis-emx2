@@ -67,6 +67,7 @@ class MappingStepTest {
             null,
             null,
             null,
+            null,
             List.of(new MappingStep("export.yaml", null)),
             null);
 
@@ -139,6 +140,7 @@ class MappingStepTest {
             null,
             null,
             null,
+            null,
             List.of(new MappingStep("export.yaml", null)),
             null);
 
@@ -169,6 +171,7 @@ class MappingStepTest {
             null,
             null,
             null,
+            null,
             List.of(new MappingStep("nonexistent.yaml", null)),
             null);
 
@@ -184,6 +187,7 @@ class MappingStepTest {
             "/api/test",
             null,
             List.of("GET"),
+            null,
             null,
             null,
             null,
@@ -234,6 +238,7 @@ class MappingStepTest {
             "/api/test",
             null,
             List.of("GET"),
+            null,
             null,
             null,
             null,
@@ -295,6 +300,7 @@ class MappingStepTest {
             null,
             null,
             null,
+            null,
             List.of(new MappingStep("export.yaml", null)),
             null);
 
@@ -326,6 +332,7 @@ class MappingStepTest {
             "/api/test",
             null,
             List.of("GET"),
+            null,
             null,
             null,
             null,

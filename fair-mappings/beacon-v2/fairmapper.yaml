@@ -3,7 +3,7 @@ version: 2.0.0
 
 mappings:
   - name: beacon-individuals
-    endpoint: /{schema}/api/beacon/individuals
+    route: individuals
     methods: [GET, POST]
     steps:
       - transform: src/request-to-variables.jslt
@@ -28,7 +28,7 @@ mappings:
             output: test/individuals-response/empty.output.json
 
   - name: beacon-individuals-full
-    endpoint: /{schema}/api/beacon/individuals-full
+    route: individuals-full
     methods: [GET, POST]
     steps:
       - transform: src/request-to-variables.jslt
@@ -42,7 +42,7 @@ mappings:
           output: test/e2e/individuals-full.output.json
 
   - name: beacon-individuals-minimal
-    endpoint: /{schema}/api/beacon/individuals-minimal
+    route: individuals-minimal
     methods: [GET, POST]
     steps:
       - transform: src/request-to-variables.jslt

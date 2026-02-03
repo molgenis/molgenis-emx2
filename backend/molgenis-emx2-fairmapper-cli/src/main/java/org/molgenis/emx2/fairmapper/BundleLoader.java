@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.molgenis.emx2.fairmapper.model.E2eTestCase;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
-import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;
@@ -62,48 +60,24 @@ public class BundleLoader {
   private void validateStepFiles(Path mappingYamlPath, MappingBundle bundle) {
     Path bundleDir = mappingYamlPath.getParent();
 
-    if (bundle.mappings() != null && !bundle.mappings().isEmpty()) {
-      for (Mapping mapping : bundle.mappings()) {
-        validateMappingFormat(mapping);
-        validateMappingFrame(bundleDir, mapping);
-        try {
-          mapping.validate();
-        } catch (IllegalArgumentException e) {
-          throw new FairMapperException(e.getMessage());
-        }
+    for (Mapping mapping : bundle.mappings()) {
+      validateMappingFormat(mapping);
+      validateMappingFrame(bundleDir, mapping);
+      try {
+        mapping.validate();
+      } catch (IllegalArgumentException e) {
+        throw new FairMapperException(e.getMessage());
+      }
 
-        if (mapping.steps() != null && !mapping.steps().isEmpty()) {
-          for (StepConfig step : mapping.steps()) {
-            validateStepConfig(bundleDir, step);
-          }
-        }
-
-        if (mapping.e2e() != null) {
-          validateE2eTestsForMapping(bundleDir, mapping);
+      if (mapping.steps() != null && !mapping.steps().isEmpty()) {
+        for (StepConfig step : mapping.steps()) {
+          validateStepConfig(bundleDir, step);
         }
       }
-    } else if (bundle.endpoints() != null) {
-      for (Endpoint endpoint : bundle.endpoints()) {
-        if (endpoint.steps() != null && !endpoint.steps().isEmpty()) {
-          for (Step step : endpoint.steps()) {
-            validateStep(bundleDir, step);
-          }
-        }
 
-        validateE2eTests(bundleDir, endpoint);
+      if (mapping.e2e() != null) {
+        validateE2eTestsForMapping(bundleDir, mapping);
       }
-    }
-  }
-
-  private void validateStep(Path bundleDir, Step step) {
-    if (step.transform() != null) {
-      validateTransformFile(bundleDir, step.transform());
-    }
-    if (step.query() != null) {
-      validateQueryFile(bundleDir, step.query());
-    }
-    if (step.transform() == null && step.query() == null) {
-      throw new FairMapperException("Step must have either transform or query defined");
     }
   }
 
@@ -181,17 +155,6 @@ public class BundleLoader {
 
     if (!sparqlPath.endsWith(".sparql")) {
       throw new FairMapperException("SPARQL file must have .sparql extension: " + sparqlPath);
-    }
-  }
-
-  private void validateE2eTests(Path bundleDir, Endpoint endpoint) {
-    if (endpoint.e2e() == null || endpoint.e2e().tests() == null) {
-      return;
-    }
-
-    for (E2eTestCase testCase : endpoint.e2e().tests()) {
-      validateE2eTestFile(bundleDir, testCase.input(), "input");
-      validateE2eTestFile(bundleDir, testCase.output(), "output");
     }
   }
 

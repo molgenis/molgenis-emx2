@@ -3,22 +3,24 @@ version: 1.0.0
 
 mappings:
   - name: fdp-root
-    endpoint: /{schema}/api/fdp
+    route: fdp
     methods: [GET]
     output: turtle
     steps:
       - sql: src/get-fdp-root.sql
 
   - name: fdp-catalog
-    endpoint: /{schema}/api/fdp/catalog/{id}
+    route: catalog
     methods: [GET]
     output: turtle
+    route_params: [id]
     steps:
       - sql: src/get-catalog.sql
 
   - name: fdp-dataset
-    endpoint: /{schema}/api/fdp/dataset/{id}
+    route: dataset
     methods: [GET]
     output: turtle
+    route_params: [id]
     steps:
       - sql: src/get-dataset.sql

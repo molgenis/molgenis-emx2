@@ -74,12 +74,12 @@ class FairMapperApiTest {
     assertEquals("beacon-v2", bundle.name());
     assertEquals("2.0.0", bundle.version());
 
-    assertFalse(bundle.endpoints().isEmpty(), "Bundle should have at least one endpoint");
+    assertFalse(bundle.getMappings().isEmpty(), "Bundle should have at least one mapping");
 
-    var endpoint = bundle.endpoints().get(0);
-    assertTrue(endpoint.path().contains("beacon"));
-    assertTrue(endpoint.methods().contains("GET") || endpoint.methods().contains("POST"));
-    assertFalse(endpoint.steps().isEmpty());
+    var mapping = bundle.getMappings().get(0);
+    assertNotNull(mapping.name());
+    assertTrue(mapping.methods().contains("GET") || mapping.methods().contains("POST"));
+    assertFalse(mapping.steps().isEmpty());
   }
 
   @Test
@@ -98,7 +98,7 @@ class FairMapperApiTest {
 
     Mapping mapping =
         bundle.getMappings().stream()
-            .filter(m -> m.endpoint().contains("individuals-minimal"))
+            .filter(m -> "beacon-individuals-minimal".equals(m.name()))
             .findFirst()
             .orElseThrow();
 
@@ -171,7 +171,7 @@ class FairMapperApiTest {
 
     Mapping mapping =
         bundle.getMappings().stream()
-            .filter(m -> m.endpoint().endsWith("/fdp") || m.endpoint().endsWith("/api/fdp"))
+            .filter(m -> "fdp-root".equals(m.name()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("FDP root mapping not found"));
 
@@ -235,7 +235,7 @@ class FairMapperApiTest {
 
     Mapping mapping =
         bundle.getMappings().stream()
-            .filter(m -> m.endpoint().contains("/catalog/{id}"))
+            .filter(m -> "fdp-catalog".equals(m.name()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("Catalog mapping not found"));
 

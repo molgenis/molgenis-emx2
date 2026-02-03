@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.E2eTestRunner.E2eTestResult;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
+import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
-@Disabled("E2eTestRunner needs update to work with Mapping objects instead of Endpoint")
+@Disabled("E2eTestRunner needs update to work with Mapping objects")
 public class E2eTest {
   private static Database database;
   private static Path bundlePath;
@@ -40,23 +40,22 @@ public class E2eTest {
     Path configPath = bundlePath.resolve("fairmapper.yaml");
     MappingBundle bundle = bundleLoader.load(configPath);
 
-    for (Endpoint endpoint : bundle.endpoints()) {
-      if (endpoint.e2e() != null) {
-        runE2eTests(endpoint);
+    for (Mapping mapping : bundle.getMappings()) {
+      if (mapping.e2e() != null) {
+        runE2eTests(mapping);
       }
     }
   }
 
-  private void runE2eTests(Endpoint endpoint) {
-    String schemaName = endpoint.e2e().schema();
+  private void runE2eTests(Mapping mapping) {
+    String schemaName = mapping.e2e().schema();
     Schema schema = database.getSchema(schemaName);
 
     assumeTrue(schema != null, schemaName + " schema not loaded - skipping e2e tests");
 
     GraphQL graphql =
         new GraphqlApiFactory().createGraphqlForSchema(schema, new TaskServiceInMemory());
-    E2eTestRunner runner =
-        new E2eTestRunner(bundlePath, endpoint, graphql, transformEngine, schema);
+    E2eTestRunner runner = new E2eTestRunner(bundlePath, mapping, graphql, transformEngine, schema);
 
     List<E2eTestResult> results = runner.runTests();
 

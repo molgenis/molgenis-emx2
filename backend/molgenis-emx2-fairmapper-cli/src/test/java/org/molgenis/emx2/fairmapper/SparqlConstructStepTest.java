@@ -71,6 +71,7 @@ class SparqlConstructStepTest {
             null,
             null,
             null,
+            null,
             List.of(new SparqlConstructStep("filter.sparql", null)),
             null);
 
@@ -91,6 +92,7 @@ class SparqlConstructStepTest {
             null,
             null,
             null,
+            null,
             List.of(new SparqlConstructStep("nonexistent.sparql", null)),
             null);
 
@@ -106,6 +108,7 @@ class SparqlConstructStepTest {
             "/api/test",
             null,
             List.of("GET"),
+            null,
             null,
             null,
             null,
@@ -132,6 +135,7 @@ class SparqlConstructStepTest {
             "/api/test",
             null,
             List.of("GET"),
+            null,
             null,
             null,
             null,

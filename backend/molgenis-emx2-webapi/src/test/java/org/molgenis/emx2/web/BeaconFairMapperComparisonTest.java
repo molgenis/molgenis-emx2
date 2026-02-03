@@ -22,7 +22,7 @@ import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.fairmapper.BundleLoader;
 import org.molgenis.emx2.fairmapper.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.PipelineExecutor;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
+import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -272,18 +272,18 @@ class BeaconFairMapperComparisonTest {
   }
 
   private JsonNode runFairMapper(String requestJson, String endpointName) throws Exception {
-    Endpoint endpoint =
-        bundle.endpoints().stream()
-            .filter(e -> e.path().contains(endpointName))
+    Mapping mapping =
+        bundle.getMappings().stream()
+            .filter(m -> m.route() != null && m.route().contains(endpointName))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("Endpoint not found: " + endpointName));
+            .orElseThrow(() -> new RuntimeException("Mapping not found: " + endpointName));
 
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
     JsltTransformEngine transformEngine = new JsltTransformEngine();
     PipelineExecutor executor = new PipelineExecutor(graphQL, transformEngine, bundlePath, schema);
 
     JsonNode requestBody = mapper.readTree(requestJson);
-    return executor.execute(requestBody, endpoint);
+    return executor.execute(requestBody, mapping);
   }
 
   private Context mockBeaconContext(String specification) {

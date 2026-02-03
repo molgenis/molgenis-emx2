@@ -70,8 +70,7 @@ public class DryRunCommand implements Callable<Integer> {
       }
 
       Mapping mapping = bundle.getMappings().get(endpointIndex);
-      String displayPath =
-          mapping.endpoint() != null ? mapping.endpoint() : mapping.getEffectiveName();
+      String displayPath = mapping.route() != null ? mapping.route() : mapping.getEffectiveName();
       System.out.println(color("@|yellow Mapping:|@ " + displayPath));
       System.out.println();
 

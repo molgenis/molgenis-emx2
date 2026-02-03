@@ -14,9 +14,7 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.eclipse.rdf4j.model.Model;
-import org.molgenis.emx2.fairmapper.model.Endpoint;
 import org.molgenis.emx2.fairmapper.model.Mapping;
-import org.molgenis.emx2.fairmapper.model.Step;
 import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 import org.molgenis.emx2.fairmapper.model.step.MappingStep;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
@@ -47,20 +45,6 @@ public class RemotePipelineExecutor {
     this.transformEngine = transformEngine;
     this.bundlePath = bundlePath;
     this.schema = schema;
-  }
-
-  public JsonNode execute(JsonNode request, Endpoint endpoint) throws IOException {
-    JsonNode current = request;
-
-    for (Step step : endpoint.steps()) {
-      if (step.transform() != null) {
-        current = executeTransform(step.transform(), current);
-      } else if (step.query() != null) {
-        current = executeQuery(step.query(), current);
-      }
-    }
-
-    return current;
   }
 
   public JsonNode execute(JsonNode request, Mapping mapping) throws IOException {

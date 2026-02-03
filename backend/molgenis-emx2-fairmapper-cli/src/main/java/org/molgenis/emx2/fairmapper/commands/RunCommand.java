@@ -97,7 +97,7 @@ public class RunCommand implements Callable<Integer> {
 
       Mapping mapping =
           bundle.getMappings().stream()
-              .filter(m -> mappingName.equals(m.name()) || mappingName.equals(m.endpoint()))
+              .filter(m -> mappingName.equals(m.name()) || mappingName.equals(m.route()))
               .findFirst()
               .orElseThrow(() -> new Exception("Mapping not found: " + mappingName));
 

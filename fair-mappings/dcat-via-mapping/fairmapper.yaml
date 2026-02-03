@@ -3,7 +3,7 @@ version: 1.0.0
 
 mappings:
   - name: export-dcat
-    endpoint: /{schema}/api/dcat
+    route: dcat
     methods: [GET]
     output: turtle
     steps:

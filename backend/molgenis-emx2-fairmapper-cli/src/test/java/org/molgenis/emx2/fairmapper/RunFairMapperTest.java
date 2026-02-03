@@ -142,8 +142,9 @@ class RunFairMapperTest {
         """
         name: test-bundle
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: test
+            route: /test
             methods: [GET]
             steps:
               - transform: src/nonexistent.jslt
@@ -173,8 +174,9 @@ class RunFairMapperTest {
         """
         name: test-bundle
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: test
+            route: /test
             methods: [GET]
             steps:
               - transform: src/transform.jslt
@@ -240,8 +242,9 @@ class RunFairMapperTest {
         """
         name: test-bundle
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: test
+            route: /test
             methods: [GET]
             steps:
               - transform: src/transform.jslt
@@ -307,8 +310,9 @@ class RunFairMapperTest {
         """
         name: test-bundle
         version: 1.0.0
-        endpoints:
-          - path: /test
+        mappings:
+          - name: test
+            route: /test
             methods: [GET]
             steps:
               - transform: src/transform.jslt

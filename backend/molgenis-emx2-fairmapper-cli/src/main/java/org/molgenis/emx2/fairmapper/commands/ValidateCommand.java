@@ -39,8 +39,7 @@ public class ValidateCommand implements Callable<Integer> {
       System.out.println();
 
       for (Mapping mapping : bundle.getMappings()) {
-        String displayPath =
-            mapping.endpoint() != null ? mapping.endpoint() : mapping.getEffectiveName();
+        String displayPath = mapping.route() != null ? mapping.route() : mapping.getEffectiveName();
         System.out.println(
             color(
                 "  @|yellow " + displayPath + "|@ [" + String.join(", ", mapping.methods()) + "]"));
