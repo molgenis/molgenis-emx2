@@ -45,6 +45,7 @@ const variablesFilter = computed(() => ({
 
 const recordDisplayConfig: IDisplayConfig = {
   columnConfig: {
+    mg_top_of_form: { label: "Dataset" },
     resource: {
       getHref: (_col: IColumn, row: IRow) => {
         const id = row?.id || row?.name;
@@ -97,9 +98,7 @@ const crumbs: Crumb[] = [
     />
 
     <div class="mt-8">
-      <h2
-        class="text-heading-2xl font-display uppercase tracking-widest text-title mb-4"
-      >
+      <h2 class="text-xl font-semibold mb-3 text-record-heading">
         Variables
       </h2>
       <Emx2DataView

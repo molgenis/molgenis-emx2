@@ -84,17 +84,21 @@ const isCardMode = computed(
 const visibleColumns = computed(() => {
   const cols = displayConfig.value?.visibleColumns || viewColumns.value || [];
   if (!metadata.value?.columns) return cols;
-  // filter to only columns that exist in metadata
-  return cols.filter((colId) =>
-    metadata.value!.columns!.some((c) => c.id === colId)
-  );
+  const showMg = displayConfig.value?.showMgColumns;
+  const availableColumns = showMg
+    ? metadata.value.columns
+    : metadata.value.columns.filter((c) => !c.id.startsWith("mg_"));
+  return cols.filter((colId) => availableColumns.some((c) => c.id === colId));
 });
 
-// get column metadata for table headers
 const tableColumns = computed<IColumn[]>(() => {
   if (!metadata.value?.columns) return [];
+  const showMg = displayConfig.value?.showMgColumns;
+  const availableColumns = showMg
+    ? metadata.value.columns
+    : metadata.value.columns.filter((c) => !c.id.startsWith("mg_"));
   return visibleColumns.value
-    .map((colId) => metadata.value!.columns!.find((c) => c.id === colId))
+    .map((colId) => availableColumns.find((c) => c.id === colId))
     .filter((col): col is IColumn => col !== undefined);
 });
 

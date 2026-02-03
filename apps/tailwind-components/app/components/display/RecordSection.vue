@@ -49,6 +49,13 @@ const regularColumns = computed(() =>
 const listColumns = computed(() =>
   visibleColumns.value.filter((col) => isListColumn(col))
 );
+
+const sectionHeading = computed(() => {
+  if (!props.heading) return false;
+  const result = props.heading.label || props.heading.id;
+  //if(result === "_top") return;
+  return result;
+});
 </script>
 
 <template>
@@ -56,8 +63,8 @@ const listColumns = computed(() =>
     :id="heading?.id"
     class="bg-content py-18 lg:px-12.5 px-5 xl:rounded-3px shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden mb-6"
   >
-    <h2 v-if="heading" :class="headingClasses">
-      {{ heading.label || heading.id }}
+    <h2 v-if="sectionHeading" :class="headingClasses">
+      {{ sectionHeading }}
     </h2>
     <p v-if="heading?.description" class="text-definition-list-term mb-4">
       {{ heading.description }}

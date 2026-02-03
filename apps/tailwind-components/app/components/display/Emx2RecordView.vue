@@ -85,7 +85,15 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
 
   let columns = [...metadata.value.columns];
 
-  // Add extra columns (e.g., virtual refback columns)
+  if (!props.config?.showMgColumns) {
+    columns = columns.filter(
+      (col) =>
+        !col.id.startsWith("mg_") ||
+        col.columnType === "SECTION" ||
+        col.columnType === "HEADING"
+    );
+  }
+
   if (props.extraColumns && props.extraColumns.length > 0) {
     columns = [...columns, ...props.extraColumns];
   }
@@ -126,6 +134,7 @@ const processedMetadata = computed<ITableMetaData | undefined>(() => {
       if (config) {
         return {
           ...col,
+          label: config.label || col.label,
           displayConfig: { ...col.displayConfig, ...config },
         };
       }

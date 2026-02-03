@@ -27,6 +27,7 @@ export interface IDisplayConfig {
   filter?: object;
   label?: string;
   showLayoutToggle?: boolean;
+  showMgColumns?: boolean;
 }
 
 export type CellValueType =

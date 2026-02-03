@@ -161,13 +161,18 @@ const rowLabelTemplate = computed(() => {
 
 const visibleColumnsComputed = computed(() => {
   if (!metadataRef.value.length) return [];
+  const showMg = props.config?.showMgColumns;
   if (visibleColumns.value && visibleColumns.value.length > 0) {
     return visibleColumns.value.filter((colId) =>
       metadataRef.value.some((c) => c.id === colId && c.visible !== "false")
     );
   }
   return metadataRef.value
-    .filter((c) => !c.id.startsWith("mg_") && c.visible !== "false")
+    .filter((c) => {
+      if (c.visible === "false") return false;
+      if (!showMg && c.id.startsWith("mg_")) return false;
+      return true;
+    })
     .map((c) => c.id);
 });
 
