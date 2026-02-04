@@ -389,6 +389,8 @@ module.exports = {
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
         "check-border": "var(--border-color-button-primary)",
+        "chart-text": "var(--chart-text)",
+        "chart-paths": "var(--chart-paths)",
       }),
       fill: () => ({
         input: "var(--background-color-input)",
@@ -403,6 +405,8 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
         "logo-text": "var(--text-color-logo-text)",
         "logo-text-inverted": "var(--text-color-logo-text-inverted)",
+        "chart-text": "var(--chart-text)",
+        "chart-paths": "var(--chart-paths)",
       }),
       borderRadius: {
         theme: "var(--border-radius-theme)",
