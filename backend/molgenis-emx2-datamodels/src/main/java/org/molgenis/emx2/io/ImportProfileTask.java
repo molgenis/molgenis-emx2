@@ -87,6 +87,9 @@ public class ImportProfileTask extends Task {
     }
 
     // special option: fixed schema import location for ontologies (not schema or data)
+    if (schema.getDatabase().getSchema(profiles.getOntologiesToFixedSchema()) != null) {
+      return;
+    }
     Schema ontologySchema;
     if (profiles.getOntologiesToFixedSchema() != null) {
       ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());

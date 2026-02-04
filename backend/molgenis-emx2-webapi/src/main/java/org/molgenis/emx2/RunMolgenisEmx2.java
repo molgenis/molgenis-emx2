@@ -45,9 +45,7 @@ public class RunMolgenisEmx2 {
               Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
 
   public static final boolean UPDATE_ONTOLOGIES =
-      (Boolean)
-          EnvironmentProperty.getParameter(
-              Constants.MOLGENIS_UPDATE_ONTOLOGIES, false, BOOL);
+      (Boolean) EnvironmentProperty.getParameter(Constants.MOLGENIS_UPDATE_ONTOLOGIES, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
@@ -115,8 +113,8 @@ public class RunMolgenisEmx2 {
             Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
             TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
             Task ontologyTask =
-                    new ImportDataTask(ontologySchema, store, false)
-                            .setDescription("Import ontologies from profile");
+                new ImportDataTask(ontologySchema, store, false)
+                    .setDescription("Import ontologies from profile");
             ontologyTask.run();
           }
         });
