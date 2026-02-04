@@ -87,19 +87,21 @@ public class ImportProfileTask extends Task {
     }
 
     // special option: fixed schema import location for ontologies (not schema or data)
-    if (schema.getDatabase().getSchema(profiles.getOntologiesToFixedSchema()) != null) {
-      return;
-    }
+    boolean ontologyExists = (database.getSchema(profiles.getOntologiesToFixedSchema()) != null);
     Schema ontologySchema;
     if (profiles.getOntologiesToFixedSchema() != null) {
-      ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
-      if (profiles.getSetFixedSchemaViewPermission() != null) {
-        ontologySchema.addMember(
-            profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
-      }
-      if (profiles.getSetFixedSchemaEditPermission() != null) {
-        ontologySchema.addMember(
-            profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
+      if (!ontologyExists) {
+        ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
+        if (profiles.getSetFixedSchemaViewPermission() != null) {
+          ontologySchema.addMember(
+              profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
+        }
+        if (profiles.getSetFixedSchemaEditPermission() != null) {
+          ontologySchema.addMember(
+              profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
+        }
+      } else {
+        ontologySchema = database.getSchema(profiles.getOntologiesToFixedSchema());
       }
     } else {
       ontologySchema = schema;
@@ -121,12 +123,14 @@ public class ImportProfileTask extends Task {
     this.addSubTask("Loaded tables and columns from profile(s)").complete();
 
     // import ontologies (not schema or data)
-    TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
-    Task ontologyTask =
-        new ImportDataTask(ontologySchema, store, false)
-            .setDescription("Import ontologies from profile");
-    this.addSubTask(ontologyTask);
-    ontologyTask.run();
+    if (!ontologyExists) {
+      TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
+      Task ontologyTask =
+          new ImportDataTask(ontologySchema, store, false)
+              .setDescription("Import ontologies from profile");
+      this.addSubTask(ontologyTask);
+      ontologyTask.run();
+    }
 
     // special options: provide specific user/role with View/Edit permissions on imported schema
     if (profiles.getSetViewPermission() != null) {
