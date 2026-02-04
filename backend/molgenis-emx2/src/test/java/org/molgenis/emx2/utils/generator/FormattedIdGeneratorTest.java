@@ -35,6 +35,8 @@ class FormattedIdGeneratorTest {
 
   private static Stream<Arguments> argumentTokens() {
     return Stream.of(
+        Arguments.of("${mg_autoid()}", "[a-zA-Z\\d]{12}"),
+        Arguments.of("${mg_autoid(        )}", "[a-zA-Z\\d]{12}"),
         Arguments.of("${mg_autoid(length=1, format=numbers)}", "\\d"),
         Arguments.of("foo${mg_autoid(length=1, format=numbers)}bar", "foo\\dbar"),
         Arguments.of(
