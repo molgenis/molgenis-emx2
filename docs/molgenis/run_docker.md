@@ -1,6 +1,8 @@
 # Run using docker compose
 
-## Linux
+## General
+
+These instructions can be followed when installing either on Linux or Windows/macOS through Docker Desktop.
 
 * Install [Docker compose](https://docs.docker.com/compose/install/).
 * Download
@@ -25,6 +27,8 @@ docker-compose pull
 Stop by typing ctrl+c.
 
 ## macOS (Apple Silicon)
+
+These instructions can be followed when installing on macOS without using Docker Desktop.
 
 1. Install [Lima](https://lima-vm.io/) as defined in [these instructions](https://lima-vm.io/docs/installation/).
 2. Install Docker CLI [as described here](https://docs.docker.com/engine/install/binaries/#install-client-binaries-on-macos). In short:
