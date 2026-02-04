@@ -167,7 +167,7 @@ export default function useForm(
           columns.some((col) => visibilityMap[col.id]?.value === true)
         ),
         isActive: computed(() =>
-          section.headers.some((header) => header.isActive.value)
+          section.headers.some((header) => unref(header.isActive))
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
@@ -482,7 +482,7 @@ export default function useForm(
   });
 
   const currentSection = computed(() => {
-    const activeSections = sections.value.filter((s) => s.isActive.value);
+    const activeSections = sections.value.filter((s) => unref(s.isActive));
     if (activeSections.length < 1) {
       return sections.value[0]?.id || null;
     } else {
