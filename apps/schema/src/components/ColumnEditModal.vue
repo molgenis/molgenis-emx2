@@ -201,7 +201,7 @@
                   label="computed"
                   :description="
                     column.columnType == AUTO_ID
-                      ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
+                      ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix. Additional options for mg_autoid: format=letters|numbers|mixed, length=number. Example: ${mg_autoid(format=letters, length=8)}'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
                 />
