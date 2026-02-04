@@ -13,17 +13,24 @@ export interface ChartContext {
   description?: string;
 }
 
+export type PieChartData = Record<string, number>;
+export type ColorPalette = Record<string, string>;
+
 export interface PieCharts extends Charts {
-  chartData: Record<string, number>;
+  data: PieChartData;
+  colorPalette?: ColorPalette;
   showValues?: boolean;
+  showLabels?: boolean;
   showValuesAsPercentages?: boolean;
   asDonutChart?: boolean;
+  strokeColor?: string;
   pieChartIsCentered?: boolean;
   hoverEventsAreEnabled?: boolean;
   clickEventsAreEnabled?: boolean;
-  chartLegendIsEnabled?: boolean;
+  legendIsEnabled?: boolean;
   legendIsStacked?: boolean;
   legendPosition?: LegendPosition;
   legendClickEventsAreEnabled?: boolean;
   legendHoverEventsAreEnabled?: boolean;
+  margins?: number;
 }
