@@ -58,6 +58,7 @@ const recordDisplayConfig: IDisplayConfig = {
 const variablesDisplayConfig: IDisplayConfig = {
   layout: "table",
   showFilters: true,
+  filtersVisible: false,
   showLayoutToggle: true,
   pageSize: 20,
   visibleColumns: ["name", "label", "format", "unit"],
@@ -97,8 +98,8 @@ const crumbs: Crumb[] = [
       :config="recordDisplayConfig"
     />
 
-    <div class="mt-8">
-      <h2 class="text-xl font-semibold mb-3 text-record-heading">
+    <section class="bg-content py-18 lg:px-12.5 px-5 xl:rounded-3px shadow-primary overflow-hidden mb-6">
+      <h2 class="mb-5 uppercase text-heading-4xl font-display text-record-heading">
         Variables
       </h2>
       <Emx2DataView
@@ -108,6 +109,6 @@ const crumbs: Crumb[] = [
         :static-filter="variablesFilter"
         :url-sync="false"
       />
-    </div>
+    </section>
   </LayoutsLandingPage>
 </template>

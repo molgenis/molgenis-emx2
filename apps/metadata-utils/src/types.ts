@@ -21,6 +21,7 @@ export interface IDisplayConfig {
   clickAction?: (col: IColumn, row: IRow) => void;
   getHref?: (col: IColumn, row: IRow) => string;
   showFilters?: boolean;
+  filtersVisible?: boolean;
   filterPosition?: "sidebar" | "topbar";
   filterableColumns?: string[];
   showSearch?: boolean;

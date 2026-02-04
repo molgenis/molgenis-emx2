@@ -68,7 +68,7 @@ const layoutComponents = computed(() => {
   return [];
 });
 const showFilters = computed(() => props.config?.showFilters || false);
-const filtersVisible = ref(props.config?.showFilters || false);
+const filtersVisible = ref(props.config?.filtersVisible ?? props.config?.showFilters ?? false);
 const filterPosition = computed(
   () => props.config?.filterPosition || "sidebar"
 );
