@@ -101,7 +101,11 @@ public class SqlTypeUtils extends TypeUtils {
       IdGenerator generator;
 
       if (c.getComputed() != null) {
-        generator = FormattedIdGenerator.fromFormat(c.getComputed());
+        try {
+          generator = FormattedIdGenerator.fromFormat(c.getComputed());
+        } catch (IllegalArgumentException e) {
+          throw new MolgenisException("unable to generate auto-id for column: " + c.getName(), e);
+        }
       } else {
         generator = SnowflakeIdGenerator.getInstance();
       }
