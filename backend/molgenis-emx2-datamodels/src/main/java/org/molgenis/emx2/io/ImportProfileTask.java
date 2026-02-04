@@ -125,7 +125,7 @@ public class ImportProfileTask extends Task {
     this.addSubTask("Loaded tables and columns from profile(s)").complete();
 
     // import ontologies (not schema or data)
-    if (!ontologyExists) {
+    if (!ontologyExists || (ontologySchema == schema)) {
       TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
       Task ontologyTask =
           new ImportDataTask(ontologySchema, store, false)
