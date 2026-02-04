@@ -126,14 +126,19 @@ class WebApiSmokeTests {
   }
 
   private static void setAdminSession() {
+    setupSession(db.getAdminUserName(), ADMIN_PASS);
+  }
+
+  private static void setupSession(String username, String password) {
     sessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\""
-                    + db.getAdminUserName()
-                    + "\\\",password:\\\""
-                    + ADMIN_PASS
-                    + "\\\"){message}}\"}")
+                """
+                {
+                  "query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"
+                }
+                """
+                    .formatted(username, password))
             .when()
             .post("api/graphql")
             .sessionId();
@@ -2008,7 +2013,7 @@ class WebApiSmokeTests {
         .get(MetricsController.METRICS_PATH);
   }
 
-  @Test
+@Test
   void testJsonLdImportExport() {
     String jsonLdData =
         given().sessionId(sessionId).when().get("/pet store/api/jsonld/_data").asString();
@@ -2887,5 +2892,102 @@ class WebApiSmokeTests {
             .response();
     String jsonLdDataBody = jsonLdDataResponse.asString();
     assertTrue(jsonLdDataBody.contains("@context"), "Data endpoint should support JSON-LD");
+  }
+
+  @Nested
+  class MenuBasedRedirects {
+
+    @BeforeAll
+    static void setupUser() {
+      db.setUserPassword("foo", "testtest");
+      setupSession("foo", "testtest");
+    }
+
+    @AfterAll
+    static void cleanSession() {
+      setAdminSession();
+    }
+
+    @Test
+    void givenSchema_whenNoMenu_thenRedirectToTables() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-menu");
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/" + testSchema.getName() + "/tables");
+      db.dropSchema(testSchema.getName());
+    }
+
+    @Test
+    void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-match");
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/");
+      db.dropSchema(testSchema.getName());
+    }
+
+    @Test
+    void givenSchema_whenMenuForRole_thenRedirectToFirstItem() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "first-item");
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/" + testSchema.getName() + "/from-menu");
+      db.dropSchema(testSchema.getName());
+    }
+
+    @Test
+    void givenSchemaWithAnonymousUser_whenInsufficientRoleForMenu_thenRedirectToTables() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "anonymous");
+      testSchema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/" + testSchema.getName() + "/tables");
+      db.dropSchema(testSchema.getName());
+    }
+
+    private String menuForRole(String role) {
+      return """
+            [
+              {
+                "label": "Tables",
+                "href": "from-menu",
+                "role": "%s",
+                "key": "y0768",
+                "submenu": []
+              }
+            ]
+            """
+          .formatted(role);
+    }
+
+    private static Schema setupSchema(String testSchemaName) {
+      db.dropCreateSchema(testSchemaName);
+      Schema testSchema = db.getSchema(testSchemaName);
+      testSchema.addMember("foo", Privileges.VIEWER.toString());
+      return testSchema;
+    }
   }
 }

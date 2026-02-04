@@ -1,6 +1,7 @@
 """
 Tests for the Pyclient.
 """
+import json
 import logging
 import os
 import warnings
@@ -10,6 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+import yaml
 from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
@@ -533,3 +535,35 @@ def test_validate_graphql_response(caplog):
         with pytest.raises(PermissionDeniedException) as excinfo:
             client._validate_graphql_response(response)
         assert excinfo.value.msg == "Insufficient permissions for this operations."
+
+@pytest.mark.asyncio
+async def test_export_schema(caplog):
+    """Tests the export_schema functionality."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        with pytest.raises(NotImplementedError) as excinfo:
+            await client.export_schema("catalogue", "mp3")
+        assert str(excinfo.value) == ("Cannot export schema definition in format 'mp3'. "
+                                      "Select one from ['csv', 'json', 'yaml'].")
+
+        with pytest.raises(ValueError) as excinfo:
+            await client.export_schema(schema="catalogue")
+        assert str(excinfo.value) == "Supply a value for `fmt` or `filename`."
+
+        csv_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.csv")
+        csv_schema = pd.read_csv(csv_bytes)
+        assert len(csv_schema.columns) == 22
+        assert (Path(__file__).parent.parent / "catalogue.csv").exists()
+        (Path(__file__).parent.parent / "catalogue.csv").unlink()
+
+        json_bytes: BytesIO = await client.export_schema("catalogue", "json")
+        json_schema = json.load(json_bytes)
+        assert (len(json_schema['tables']), len(json_schema['settings'])) == (24, 2)
+        assert not (Path(__file__).parent.parent / "catalogue.json").exists()
+
+        yaml_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.yaml")
+        yaml_schema = yaml.safe_load(yaml_bytes)
+        assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (24, 2)
+        assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
+        (Path(__file__).parent.parent / "catalogue.yaml").unlink()

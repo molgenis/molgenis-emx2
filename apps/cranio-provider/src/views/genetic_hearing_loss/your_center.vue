@@ -81,6 +81,14 @@ onMounted(async () => {
   if (hearingLossOnsetChart.value) {
     hearingLossOnsetChart.value.yAxisMaxValue = onsetAxis.limit;
     hearingLossOnsetChart.value.yAxisTicks = onsetAxis.ticks;
+
+    hearingLossOnsetChart.value.dataPoints =
+      hearingLossOnsetChart.value.dataPoints?.sort((a, b) => {
+        return (
+          (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
+          (a.dataPointName as string).localeCompare(b.dataPointName as string)
+        );
+      });
   }
 
   // prep genetic diagnosis gene
