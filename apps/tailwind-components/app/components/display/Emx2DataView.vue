@@ -304,6 +304,13 @@ async function afterRowDeleted() {
             </Button>
           </div>
           <div class="flex gap-2">
+            <InputSearch
+              v-if="showSearch && !filtersVisible"
+              :id="searchInputId"
+              v-model="searchTerms"
+              placeholder="Search..."
+              class="w-64"
+            />
             <Toggle
               v-if="showLayoutToggle"
               v-model="currentLayout"
@@ -328,7 +335,7 @@ async function afterRowDeleted() {
         </div>
 
         <div
-          v-if="showSearch && (!showFilters || filterPosition !== 'sidebar')"
+          v-if="showSearch && showFilters && filterPosition !== 'sidebar'"
           class="p-3 xl:p-5 border-b border-black/10"
         >
           <InputSearch
