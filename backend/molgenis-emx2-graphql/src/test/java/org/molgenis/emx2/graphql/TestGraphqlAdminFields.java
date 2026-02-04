@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
@@ -19,18 +20,43 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class TestGraphqlAdminFields {
+class TestGraphqlAdminFields {
 
-  private static GraphQL grapql;
+  private static GraphQL graphql;
   private static Database database;
-  private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
+  private static GraphqlSessionHandlerInterface sessionManager;
+  private static final String SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName();
   private static final String TEST_PERSOON = "testPersoon";
   private static final String ANOTHER_SCHEMA_NAME =
       TestGraphqlAdminFields.class.getSimpleName() + "2";
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(ANOTHER_SCHEMA_NAME);
+
+    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, null);
+
+    sessionManager =
+        new GraphqlSessionHandlerInterface() {
+          private String user;
+
+          @Override
+          public void createSession(String username) {
+            this.user = username;
+          }
+
+          @Override
+          public void destroySession() {
+            this.user = null;
+          }
+
+          @Override
+          public String getCurrentUser() {
+            return user;
+          }
+        };
   }
 
   @Test
@@ -39,8 +65,7 @@ public class TestGraphqlAdminFields {
     database.tx(
         tdb -> {
           tdb.becomeAdmin();
-          Schema schema = tdb.dropCreateSchema(schemaName);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          tdb.dropCreateSchema(SCHEMA_NAME);
 
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
@@ -50,10 +75,10 @@ public class TestGraphqlAdminFields {
           }
           // test that only admin can do this
           tdb.setActiveUser(ANONYMOUS);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          graphql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
 
           try {
-            assertEquals(null, execute("{_admin{userCount}}").textValue());
+            assertNull(execute("{_admin{userCount}}").textValue());
           } catch (Exception e) {
             assertTrue(e.getMessage().contains("FieldUndefined"));
           }
@@ -62,19 +87,72 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
+  void testSetUserAdmin() throws JsonProcessingException {
+    database.becomeAdmin();
+    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, null);
+
+    // create and sign in user testAdmin
+    executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
+    executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
+
+    // give testAdmin user admin privileges
+    executeDb(
+        """
+      mutation {
+        updateUser(updateUser:  {
+           email: "testAdmin",
+           admin: true
+        }) {
+          message
+        }
+      }
+
+      """);
+
+    executeDb("mutation{signout){message}}");
+    executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
+    database.setActiveUser("testAdmin");
+
+    // Do an admin only query
+    String lastUpdateResult =
+        executeDb(
+            """
+      query {
+        _lastUpdate {
+          operation
+          stamp
+          userId
+          tableName
+          schemaName
+        }
+      }
+      """);
+    assertTrue(lastUpdateResult.contains("lastUpdate"));
+  }
+
+  private String executeDb(String query) throws JsonProcessingException {
+    Map<?, Object> graphQLContext =
+        sessionManager != null
+            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
+            : Map.of();
+
+    ExecutionInput executionInput =
+        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build();
+    return convertExecutionResultToJson(graphql.execute(executionInput));
+  }
+
+  @Test
   void testUpdateUser() {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          GraphQL graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
+          graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
 
           try {
             // setup
-            testDatabase.dropCreateSchema(schemaName);
-            testDatabase.dropCreateSchema(ANOTHER_SCHEMA_NAME);
             testDatabase.addUser(TEST_PERSOON);
             testDatabase.setEnabledUser(TEST_PERSOON, true);
-            testDatabase.getSchema(schemaName).addMember(TEST_PERSOON, "Owner");
+            testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, "Owner");
             testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
             // test
@@ -94,7 +172,7 @@ public class TestGraphqlAdminFields {
             assertEquals("testPersoon", user.getUsername());
             assertFalse(user.getEnabled());
 
-            List<Member> members = testDatabase.getSchema(schemaName).getMembers();
+            List<Member> members = testDatabase.getSchema(SCHEMA_NAME).getMembers();
             assertTrue(members.isEmpty());
 
             Member anotherSchemaMember =
@@ -120,7 +198,7 @@ public class TestGraphqlAdminFields {
 
     ArrayList<Map<String, String>> revokedRoles = new ArrayList<>();
     Map<String, String> revokedRole = new HashMap<>();
-    revokedRole.put("schemaId", schemaName);
+    revokedRole.put("schemaId", SCHEMA_NAME);
     revokedRole.put("role", "Owner");
     revokedRoles.add(revokedRole);
     updateUser.put("revokedRoles", revokedRoles);
@@ -137,7 +215,7 @@ public class TestGraphqlAdminFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result = convertExecutionResultToJson(graphql.execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

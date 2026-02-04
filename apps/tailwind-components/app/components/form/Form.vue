@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type {
   columnId,
   columnValue,
@@ -11,11 +11,16 @@ import useForm from "../../composables/useForm";
 import FormFields from "./Fields.vue";
 import FormLegend from "./Legend.vue";
 
-const props = defineProps<{
-  metadata: ITableMetaData;
-  constantValues?: Record<columnId, columnValue>;
-}>();
-
+const props = withDefaults(
+  defineProps<{
+    metadata: ITableMetaData;
+    constantValues?: Record<columnId, columnValue>;
+    initializeAsInsert?: boolean;
+  }>(),
+  {
+    initializeAsInsert: false,
+  }
+);
 const formValues = defineModel("formValues", {
   type: Object as () => Record<columnId, columnValue>,
   required: true,
@@ -57,6 +62,9 @@ defineExpose({
 });
 
 const rowKey = ref<Record<string, columnValue>>();
+if (!props.initializeAsInsert) {
+  await fetchRowKey();
+}
 async function fetchRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
     formValues.value,
@@ -64,7 +72,6 @@ async function fetchRowKey() {
     props.metadata.schemaId
   );
 }
-await fetchRowKey();
 
 function onLeaveView(column: IColumn) {
   visibleColumnIds.value.delete(column.id);
@@ -86,12 +93,28 @@ function insertInto() {
   insertPromise.then(async () => fetchRowKey());
   return insertPromise;
 }
+
+const showLegend = computed(
+  () =>
+    sections.value &&
+    (sections.value.length > 1 ||
+      (sections.value.length === 1 &&
+        (sections.value[0]?.headers.length ?? 0) > 0))
+);
 </script>
 <template>
-  <div class="grid grid-cols-4 gap-1 min-h-0 flex-1">
-    <div class="col-span-1 bg-form-legend overflow-y-auto min-h-0">
+  <div
+    class="min-h-0 flex-1"
+    :class="{
+      'grid grid-cols-4 gap-1': showLegend,
+      'overflow-y-auto': !showLegend,
+    }"
+  >
+    <div
+      v-if="showLegend"
+      class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
+    >
       <FormLegend
-        v-if="sections"
         class="sticky top-0"
         :sections="sections"
         @goToSection="gotoSection"
