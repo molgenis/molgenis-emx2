@@ -251,8 +251,12 @@ class StagingMigrator(Client):
 
         return filtered_df
 
-    def process_organisations(self) -> pd.DataFrame:
-        """Process the organisations table by combining information from CatalogueOntologies."""
+    def process_organisations(self, source_orgs: pd.DataFrame) -> pd.DataFrame:
+        """Processes the organisations table by combining information from CatalogueOntologies."""
+        orgs = list(set(source_orgs['organisation'].values))
+        ontology_organisations = self.get("Organisations", schema="CatalogueOntologies", as_df=True)
+        oo = ontology_organisations.loc[ontology_organisations['name'].isin(orgs)]
+
 
 
     @staticmethod

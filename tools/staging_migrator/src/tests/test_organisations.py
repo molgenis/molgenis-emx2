@@ -15,7 +15,7 @@ from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 from staging_migrator.src.tests.utils import RESOURCES_PATH, zip_folder
 
 CATALOGUE = 'catalogue'
-STAGING_AREA = 'cohortStaging'
+STAGING_AREA = 'testCohort'
 
 log = logging.getLogger('publisher')
 
@@ -52,7 +52,7 @@ async def test_organisations():
 
         assert len(migrator.get(schema=STAGING_AREA, table="Resources")) == 1
 
-        migrator.migrate(keep_zips=True)
+        migrator.migrate_cohort_staging(keep_zips=True)
         # Raises error
         # 'Import failed: Transaction failed: insert or update on table "Resources" violates foreign key (ref_array) constraint. Details: Key ("creator.resource","creator.id")=(XYZ,org1) is not present in table "Organisations", column(s)("resource","id") in 163ms'
 
