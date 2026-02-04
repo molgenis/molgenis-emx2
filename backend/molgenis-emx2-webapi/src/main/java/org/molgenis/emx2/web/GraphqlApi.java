@@ -115,7 +115,7 @@ public class GraphqlApi {
     response.set("data", mapper.valueToTree(queryResult));
 
     ctx.header(CONTENT_TYPE, "application/ld+json");
-    ctx.json(response);
+    ctx.result(mapper.writeValueAsString(response));
   }
 
   private static String executeQuery(GraphqlExecutor graphqlExecutor, Context ctx)

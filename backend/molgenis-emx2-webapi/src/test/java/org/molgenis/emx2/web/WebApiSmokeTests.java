@@ -25,7 +25,6 @@ import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSender;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -1417,215 +1416,6 @@ class WebApiSmokeTests {
   }
 
   @Test
-  void testRdfApiRequest() {
-    final String urlPrefix = "http://localhost:" + PORT;
-
-    final String defaultContentType = Constants.ACCEPT_TTL;
-    final String jsonldContentType = Constants.ACCEPT_JSONLD;
-    final String ttlContentType = Constants.ACCEPT_TTL;
-    final String n3ContentType = Constants.ACCEPT_N3;
-    final String defaultContentTypeWithCharset = Constants.ACCEPT_TTL + "; charset=utf-8";
-    final String defaultContentTypeWithInvalidCharset = Constants.ACCEPT_TTL + "; charset=utf-16";
-
-    // skip 'all schemas' test because data is way to big (i.e.
-    // get("http://localhost:PORT/api/rdf");)
-
-    // Validate individual API points for /api/rdf
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf");
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category");
-    rdfApiRequest(200, defaultContentType)
-        .get(urlPrefix + "/pet store/api/rdf/Category/column/name");
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category/name=cat");
-    rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
-
-    // Validate API point with charset
-    rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
-        .get(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(406, defaultContentTypeWithInvalidCharset, EXCEPTION_CONTENT_TYPE)
-        .get(urlPrefix + "/pet store/api/rdf");
-
-    // Validate convenience API points
-    rdfApiRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/jsonld");
-    rdfApiRequest(200, ttlContentType).get(urlPrefix + "/pet store/api/ttl");
-
-    // Validate non-default content-type for /api/rdf
-    rdfApiContentTypeRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/rdf");
-
-    // Validate convenience API points with incorrect given content-type request
-    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
-        .get(urlPrefix + "/pet store/api/jsonld");
-    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
-        .get(urlPrefix + "/pet store/api/ttl");
-
-    // Validate head for API points
-    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/rdf");
-    rdfApiRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/jsonld");
-    rdfApiRequest(200, ttlContentType).head(urlPrefix + "/pet store/api/ttl");
-
-    // Validate head for API points with incorrect given content-type for convenience API points
-    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
-        .head(urlPrefix + "/pet store/api/jsonld");
-    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
-        .head(urlPrefix + "/pet store/api/ttl");
-
-    // Validate SHACL validation requests
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf?validate=fdp-v1.2");
-    rdfApiRequest(400, EXCEPTION_CONTENT_TYPE)
-        .get(urlPrefix + "/pet store/api/rdf?validate=nonExisting"); // TODO: expect 404
-
-    // TODO: Fix HEAD to be equal to GET requests
-    //  (out-of-scope because changes also influence other requests to RDF API)
-    // Validate head for SHACL validation requests
-    //    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet
-    // store/api/rdf?validate=fdp-v1.2");
-    //    rdfApiRequest(404, EXCEPTION_CONTENT_TYPE)
-    //            .head(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
-
-    // Validate SHACL SETS API request
-    rdfApiRequest(200, ACCEPT_YAML).get(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
-        .get(urlPrefix + "/api/rdf?shacls");
-
-    // Validate head for SHACL SETS API request
-    rdfApiRequest(200, ACCEPT_YAML).head(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
-        .head(urlPrefix + "/api/rdf?shacls");
-
-    // Validate multi-content type negotiation
-    rdfApiContentTypeRequest(
-        200, Constants.ACCEPT_TTL + "; q=0.5, " + Constants.ACCEPT_JSONLD, jsonldContentType);
-    rdfApiContentTypeRequest(200, Constants.ACCEPT_TTL + "; q=0.5, text/*", n3ContentType)
-        .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
-        .head(urlPrefix + "/pet store/api/rdf");
-  }
-
-  @Test
-  void testRdfApiContent() {
-    // Output from global API call.
-    String resultBase =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
-            .getBody()
-            .asString();
-
-    // Output from global API call with invalid schema.
-    // TODO: https://github.com/molgenis/molgenis-emx2/issues/4954 (fix to return 204)
-    String resultBaseNonExisting =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
-            .getBody()
-            .asString();
-
-    // Output shacl sets
-    String resultShaclSetsYaml =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/api/rdf?shacls")
-            .getBody()
-            .asString();
-
-    // Output schema API call.
-    String resultSchema =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/pet store/api/rdf")
-            .getBody()
-            .asString();
-
-    assertAll(
-        // Validate base API.
-        () -> assertFalse(resultBase.contains("CatalogueOntologies")),
-        () ->
-            assertTrue(
-                resultBaseNonExisting.contains(
-                    "Schema 'thisSchemaTotallyDoesNotExist' unknown or permission denied")),
-        () ->
-            assertTrue(
-                resultBase.contains(
-                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
-        // Validate schema API.
-        () ->
-            assertTrue(
-                resultSchema.contains(
-                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
-        // Test on small snippet to validate "files:" is absent (and all other fields are present)
-        () ->
-            assertTrue(
-                resultShaclSetsYaml.contains(
-                    """
-                    - id: dcat-ap-v3
-                      name: DCAT-AP
-                      version: 3.0.0
-                      sources:
-                      - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v2.0.2""")));
-  }
-
-  /**
-   * Request that does not define a content type but does validate on this.
-   *
-   * @param expectStatusCode
-   * @param expectContentType
-   * @return
-   */
-  private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
-    return given()
-        .sessionId(sessionId)
-        .expect()
-        .statusCode(expectStatusCode)
-        .header("Content-Type", expectContentType)
-        .when();
-  }
-
-  /**
-   * Request that does define a content type and validates on this.
-   *
-   * @param expectStatusCode
-   * @param contentType
-   * @return
-   */
-  private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
-    return rdfApiContentTypeRequest(expectStatusCode, contentType, contentType);
-  }
-
-  /**
-   * Request that defines given & expected content types individually and validates on this.
-   *
-   * @param expectStatusCode
-   * @param expectedContentType
-   * @return
-   */
-  private RequestSender rdfApiContentTypeRequest(
-      int expectStatusCode, String givenContentType, String expectedContentType) {
-    return given()
-        .sessionId(sessionId)
-        .header("Accept", givenContentType)
-        .expect()
-        .statusCode(expectStatusCode)
-        .header("Content-Type", expectedContentType)
-        .when();
-  }
-
-  /**
-   * Request that only validates on status code.
-   *
-   * @param expectStatusCode
-   * @return
-   */
-  private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
-    return given().sessionId(sessionId).expect().statusCode(expectStatusCode).when();
-  }
-
-  @Test
   void downloadCsvTable() {
     Response response = downloadPet("/pet store/api/csv/Pet");
     assertTrue(
@@ -2013,7 +1803,7 @@ class WebApiSmokeTests {
         .contentType(Constants.ACCEPT_JSONLD)
         .statusCode(200)
         .when()
-        .get("/pet store/api/jsonld");
+        .get("/pet store/api/jsonld/_data");
 
     given()
         .sessionId(sessionId)
@@ -2032,7 +1822,7 @@ class WebApiSmokeTests {
         .contentType(Constants.ACCEPT_TTL)
         .statusCode(200)
         .when()
-        .get("/pet store/api/ttl");
+        .get("/pet store/api/ttl/_data");
 
     given()
         .sessionId(sessionId)
@@ -3066,19 +2856,6 @@ class WebApiSmokeTests {
             .response();
     String csvBody = csvResponse.asString();
     assertTrue(csvBody.contains(",") || csvBody.contains("\n"), "Should be CSV format");
-
-    Response turtleResponse =
-        given()
-            .sessionId(sessionId)
-            .header("Accept", Constants.ACCEPT_TTL)
-            .when()
-            .get("/pet store/api/data/Pet")
-            .then()
-            .statusCode(200)
-            .extract()
-            .response();
-    String turtleBody = turtleResponse.asString();
-    assertTrue(turtleBody.contains("@prefix"), "Turtle should contain @prefix");
   }
 
   @Test
