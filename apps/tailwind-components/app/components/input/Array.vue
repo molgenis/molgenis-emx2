@@ -110,6 +110,7 @@ function clearInput(values: columnValue[], index: number) {
     values.splice(index, 1);
   }
   emit("update:modelValue", values);
+  emit("blur"); // to trigger validation after removing an item
 }
 
 function getPartialProps(props: any): { [key: string]: string } {
