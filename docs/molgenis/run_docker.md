@@ -53,7 +53,7 @@ These instructions can be followed when installing on macOS without using Docker
 9. Run `docker compose up` from the directory where the `docker-compose.yml` is stored.
 10. Open http://localhost:8080/
 
-!> After initial installation, `lima start` does need to be run on startup before running docker commands.
+!> After booting your computer, be sure to run `lima start` again before running docker commands.
 
 ## Postgres
 
