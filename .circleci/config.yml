@@ -164,7 +164,7 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
-          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE true
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true true
 
     - run:
         name: Wait for preview to be up, poll every 10 seconds
@@ -498,7 +498,7 @@ jobs:
           command: |
             export $( cat build/ci.properties | xargs )
             bash ci/set_kubectl_config-azure.sh
-            bash ci/create_or_update_k8s-azure.sh "emx2" latest true false
+            bash ci/create_or_update_k8s-azure.sh "emx2" latest false true
           working_directory: repo
 
       - run:
