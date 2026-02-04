@@ -225,7 +225,6 @@ import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 import DraftLabel from "../label/DraftLabel.vue";
-import InputSwitch from "../input/Switch.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -245,14 +244,9 @@ const rowDataForModal = ref();
 const showModal = ref(false);
 const refTableRow = ref<IRow>();
 const refTableColumn = ref<IRefColumn>();
+// initially set to the current tableId
 const refSourceTableId = ref<string>(props.tableId);
 const columns = ref<IColumn[]>([]);
-
-const viewMode = ref<string>("table");
-const viewModeOptions = [
-  { value: "table", icon: "view-table", label: "Table view" },
-  { value: "card", icon: "view-compact", label: "Card view" },
-];
 
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
