@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.fairmapper.engine.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.model.E2eTestCase;
 import org.molgenis.emx2.fairmapper.model.HttpMethod;
 import org.molgenis.emx2.fairmapper.model.Mapping;

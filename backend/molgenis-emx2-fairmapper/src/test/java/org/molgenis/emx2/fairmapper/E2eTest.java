@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.E2eTestRunner.E2eTestResult;
+import org.molgenis.emx2.fairmapper.engine.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;

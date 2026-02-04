@@ -1,59 +1,53 @@
 # DCAT via Mapping
 
-Export MOLGENIS Resources as DCAT using the declarative Mapping Language.
+Export MOLGENIS catalogue data as DCAT metadata using the MappingStep declarative YAML DSL.
+
+## What This Does
+
+Queries MOLGENIS catalogue tables and transforms the data to DCAT RDF using a declarative mapping language instead of JSLT transformations.
+
+**Pipeline:**
+1. GraphQL query fetches Resources and Organisations
+2. YAML mapping declares how fields map to DCAT predicates
+3. Output serialized as Turtle (or other RDF formats)
+
+**Benefits over JSLT approach:**
+- More readable and maintainable
+- No manual JSON-LD construction
+- Declarative predicate mappings
+- Built-in RDF serialization
 
 ## Quick Start
 
+**Access via HTTP:**
 ```bash
 curl -H "Accept: text/turtle" \
   http://localhost:8080/catalogue/api/fair/dcat-via-mapping/dcat
 ```
 
-## How It Works
-
-This bundle demonstrates the `mapping` step type, which uses a declarative YAML-based language instead of JSLT transforms.
-
-**fairmapper.yaml:**
-```yaml
-name: dcat-via-mapping
-version: 1.0.0
-
-mappings:
-  - name: export-dcat
-    route: dcat
-    methods: [GET]
-    output: turtle
-    steps:
-      - query: src/get-all.gql
-      - mapping: src/export-mapping.yaml
+**Get as JSON-LD:**
+```bash
+curl -H "Accept: application/ld+json" \
+  http://localhost:8080/catalogue/api/fair/dcat-via-mapping/dcat
 ```
 
-**Pipeline:**
-1. `query` - Fetch Resources and Organisations from MOLGENIS
-2. `mapping` - Transform to DCAT RDF using declarative mapping
+**Run via CLI:**
+```bash
+java -jar fairmapper.jar run dcat-via-mapping export-dcat \
+  --schema catalogue
+```
 
-## Mapping Language vs JSLT
+## Files
 
-| Feature | Mapping Language | JSLT |
-|---------|------------------|------|
-| Syntax | Declarative YAML | Functional transforms |
-| RDF output | Native (prefixes, types) | Manual JSON-LD construction |
-| Learning curve | Lower for RDF experts | Lower for JSON experts |
-| Flexibility | Structured patterns | Full programmability |
+| File | Purpose |
+|------|---------|
+| `fairmapper.yaml` | Bundle definition with route and steps |
+| `src/get-all.gql` | GraphQL query for Resources and Organisations |
+| `src/export-mapping.yaml` | YAML DSL mapping to DCAT predicates |
 
-The Mapping Language is ideal when:
-- Output is RDF/JSON-LD
-- Mapping follows standard patterns (table → type)
-- You want compact, readable definitions
+## Mapping Language Highlights
 
-JSLT is better when:
-- Complex JSON restructuring needed
-- Output is plain JSON
-- Conditional logic is complex
-
-## Mapping Example
-
-From `src/export-mapping.yaml`:
+The `export-mapping.yaml` uses a declarative approach:
 
 ```yaml
 _prefixes:
@@ -76,4 +70,50 @@ Resources:
       "foaf:name": "=publisher?.name"
 ```
 
-See [Mapping Language Reference](../../docs/fairmapper/mapping-language.md) for full documentation.
+**Key features:**
+- Simple column-to-predicate mappings (`name: dct:title`)
+- Expressions for dynamic URIs (`_id: "=baseUrl + '/resource/' + id"`)
+- Conditional types based on data
+- Nested objects for complex structures
+- Array iteration with `foreach`
+
+See [Mapping Language documentation](../../docs/fairmapper/mapping-language.md) for full syntax.
+
+## Example Output
+
+```turtle
+<http://localhost:8080/catalogue/resource/123> a dcat:Dataset ;
+  dct:title "My Dataset" ;
+  dct:description "Dataset description" ;
+  dcat:keyword "genomics", "health" ;
+  dct:publisher [
+    a foaf:Organization ;
+    foaf:name "Example Institute"
+  ] ;
+  dcat:contactPoint <http://localhost:8080/catalogue/contact/John-Doe> .
+
+<http://localhost:8080/catalogue/contact/John-Doe> a vcard:Kind ;
+  vcard:fn "John Doe" ;
+  vcard:hasEmail <mailto:john@example.org> .
+```
+
+## Mapping Language vs JSLT
+
+| Feature | Mapping Language | JSLT |
+|---------|------------------|------|
+| Syntax | Declarative YAML | Functional transforms |
+| RDF output | Native (prefixes, types) | Manual JSON-LD construction |
+| Learning curve | Lower for RDF experts | Lower for JSON experts |
+| Flexibility | Structured patterns | Full programmability |
+
+The Mapping Language is ideal when:
+- Output is RDF/JSON-LD
+- Mapping follows standard patterns (table → type)
+- You want compact, readable definitions
+
+JSLT is better when:
+- Complex JSON restructuring needed
+- Output is plain JSON
+- Conditional logic is complex
+
+Choose JSLT when you need fine-grained control or complex transformations. Choose Mapping DSL for straightforward field-to-predicate mappings.

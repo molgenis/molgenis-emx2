@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.fairmapper.engine.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.TestCase;

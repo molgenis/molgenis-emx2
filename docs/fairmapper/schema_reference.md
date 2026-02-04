@@ -369,18 +369,38 @@ curl -H "Accept: application/ld+json" \
   http://localhost:8080/catalogue/api/fair/dcat-via-mapping/dcat
 ```
 
+**Get default format (uses mapping's output setting):**
+```bash
+curl http://localhost:8080/catalogue/api/fair/dcat-via-mapping/dcat
+```
+
 **Get with SHACL validation:**
 ```bash
 curl -H "Accept: text/turtle" \
   "http://localhost:8080/catalogue/api/fair/dcat-fdp-sql/catalog/123?validate=dcat-ap"
 ```
 
-**POST request with input data:**
+**POST request with JSON body:**
 ```bash
 curl -X POST \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
   -d '{"SOURCE_URL": "https://fdp.example.org/catalog/abc"}' \
   http://localhost:8080/catalogue/api/fair/dcat-harvester/harvest
+```
+
+**POST with path parameters and query variables:**
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"filters": {"age": ">18"}}' \
+  http://localhost:8080/mydb/api/fair/beacon/individuals
+```
+
+**Verbose output with response headers:**
+```bash
+curl -v -H "Accept: text/turtle" \
+  http://localhost:8080/catalogue/api/fair/dcat-via-mapping/dcat
 ```
 
 ### Response Formats
@@ -395,6 +415,15 @@ Use the `Accept` header to request different output formats:
 | `application/json` | JSON |
 
 If no `Accept` header is provided, the mapping's default `output` format is used.
+
+### Common HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success |
+| 400 | Bad request (invalid input) |
+| 404 | Mapping not found |
+| 500 | Server error (check logs) |
 
 ## JSON-LD Frames
 

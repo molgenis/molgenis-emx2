@@ -16,6 +16,8 @@ import java.util.Map;
 import org.eclipse.rdf4j.model.Model;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.fairmapper.engine.JsltTransformEngine;
+import org.molgenis.emx2.fairmapper.engine.MappingEngine;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.step.MappingStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;

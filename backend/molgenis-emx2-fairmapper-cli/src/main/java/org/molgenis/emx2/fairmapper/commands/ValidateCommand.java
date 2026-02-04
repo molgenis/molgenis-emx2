@@ -4,6 +4,7 @@ import static org.molgenis.emx2.fairmapper.RunFairMapper.color;
 import static org.molgenis.emx2.fairmapper.RunFairMapper.resolveConfigPath;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.Callable;
 import org.molgenis.emx2.fairmapper.BundleLoader;
 import org.molgenis.emx2.fairmapper.model.Mapping;
@@ -42,7 +43,7 @@ public class ValidateCommand implements Callable<Integer> {
         String displayPath = mapping.route() != null ? mapping.route() : mapping.name();
         System.out.println(
             color(
-                "  @|yellow " + displayPath + "|@ [" + String.join(", ", mapping.methods()) + "]"));
+                "  @|yellow " + displayPath + "|@ [" + String.join(", ", mapping.methods() != null ? mapping.methods() : List.of("GET")) + "]"));
         System.out.println("    Steps: " + mapping.steps().size());
 
         int testCount = countMappingStepTests(mapping);
