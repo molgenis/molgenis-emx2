@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -41,7 +42,8 @@ class TestGraphqlObjectFilters {
         }
       """;
 
-    ExecutionResult execute = graphql.execute(query);
+    ExecutionResult execute =
+        graphql.execute(query, Map.of(), new GraphqlExecutor.DummySessionHandler());
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
 
     List<Person> people = MAPPER.readerForListOf(Person.class).readValue(jsonNode);
@@ -59,7 +61,8 @@ class TestGraphqlObjectFilters {
         }
       """;
 
-    ExecutionResult execute = graphql.execute(query);
+    ExecutionResult execute =
+        graphql.execute(query, Map.of(), new GraphqlExecutor.DummySessionHandler());
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
 
     List<Person> people = MAPPER.readerForListOf(Person.class).readValue(jsonNode);

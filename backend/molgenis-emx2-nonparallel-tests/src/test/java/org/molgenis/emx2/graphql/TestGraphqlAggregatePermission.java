@@ -10,6 +10,7 @@ import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultTo
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -65,7 +66,9 @@ public class TestGraphqlAggregatePermission {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result =
+        convertExecutionResultToJson(
+            grapql.execute(query, Map.of(), new GraphqlExecutor.DummySessionHandler()));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

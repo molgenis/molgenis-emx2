@@ -623,7 +623,9 @@ public class TestGraphqlSchemaFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result =
+        convertExecutionResultToJson(
+            grapql.execute(query, Map.of(), new GraphqlExecutor.DummySessionHandler()));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());
@@ -849,7 +851,7 @@ public class TestGraphqlSchemaFields {
       grapql.execute(
           "mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}",
           Map.of("value", data),
-          null);
+          new GraphqlExecutor.DummySessionHandler());
 
       assertEquals(value2, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
       assertEquals(
@@ -897,14 +899,16 @@ public class TestGraphqlSchemaFields {
       data.put("image", Map.of("name", "dummy"));
       grapql.execute(
           "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}",
-          Map.of("value", data));
+          Map.of("value", data),
+          new GraphqlExecutor.DummySessionHandler());
       assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
 
       // update with null should delete
       data.put("image", null);
       grapql.execute(
           "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}",
-          Map.of("value", data));
+          Map.of("value", data),
+          new GraphqlExecutor.DummySessionHandler());
       assertEquals(
           0,
           execute("{TestFile{image{size,filename,extension,url}}}")

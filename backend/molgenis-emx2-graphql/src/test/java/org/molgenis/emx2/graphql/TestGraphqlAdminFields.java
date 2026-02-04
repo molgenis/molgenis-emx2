@@ -20,7 +20,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class TestGraphqlAdminFields {
 
-  private static GraphQL graphql;
+  private static GraphqlExecutor graphql;
   private static Database database;
   private static GraphqlSessionHandlerInterface sessionManager;
   private static final String SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName();
@@ -34,7 +34,7 @@ class TestGraphqlAdminFields {
     database.dropCreateSchema(SCHEMA_NAME);
     database.dropCreateSchema(ANOTHER_SCHEMA_NAME);
 
-    graphql = new GraphqlExecutor().createGraphqlForDatabase(database, null);
+    graphql = new GraphqlExecutor(database);
 
     sessionManager =
         new GraphqlSessionHandlerInterface() {
@@ -71,7 +71,7 @@ class TestGraphqlAdminFields {
             throw new RuntimeException(e);
           }
           tdb.setActiveUser(ANONYMOUS);
-          graphql = new GraphqlExecutor().createGraphqlForDatabase(tdb, null);
+          graphql = new GraphqlExecutor(tdb);
 
           try {
             assertNull(execute("{_admin{userCount}}").textValue());
@@ -85,7 +85,7 @@ class TestGraphqlAdminFields {
   @Test
   void testSetUserAdmin() throws JsonProcessingException {
     database.becomeAdmin();
-    graphql = new GraphqlExecutor().createGraphqlForDatabase(database, null);
+    graphql = new GraphqlExecutor(database);
 
     executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
@@ -132,7 +132,7 @@ class TestGraphqlAdminFields {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          graphql = new GraphqlExecutor().createGraphqlForDatabase(testDatabase, null);
+          graphql = new GraphqlExecutor(testDatabase);
 
           try {
             testDatabase.addUser(TEST_PERSOON);
@@ -143,7 +143,9 @@ class TestGraphqlAdminFields {
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
             Map<String, Object> variables = createUpdateUserVar();
-            String queryResult = convertExecutionResultToJson(graphql.execute(query, variables));
+            String queryResult =
+                convertExecutionResultToJson(
+                    graphql.execute(query, variables, new GraphqlExecutor.DummySessionHandler()));
             JsonNode node = new ObjectMapper().readTree(queryResult);
             if (node.get("errors") != null) {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
@@ -195,7 +197,9 @@ class TestGraphqlAdminFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(graphql.execute(query));
+    String result =
+        convertExecutionResultToJson(
+            graphql.execute(query, Map.of(), new GraphqlExecutor.DummySessionHandler()));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

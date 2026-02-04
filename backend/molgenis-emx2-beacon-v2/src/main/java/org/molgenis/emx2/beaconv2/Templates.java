@@ -29,7 +29,7 @@ public class Templates {
       try {
         String jslt = readJsltFile(jsltPath);
         variables.put("template", jslt);
-        graphQL.execute(query, variables);
+        graphQL.execute(query, variables, null);
       } catch (IOException e) {
         System.out.println("Could not read jslt file " + jsltPath);
       }

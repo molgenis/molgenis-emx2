@@ -2609,8 +2609,7 @@ class WebApiSmokeTests {
             .extract()
             .asString();
     assertTrue(
-        response.contains(PET_SHOP_OWNER),
-        format + " _members should contain " + PET_SHOP_OWNER);
+        response.contains(PET_SHOP_OWNER), format + " _members should contain " + PET_SHOP_OWNER);
   }
 
   @ParameterizedTest(name = "GET _settings for {0}")
