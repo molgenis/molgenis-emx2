@@ -6,8 +6,12 @@ import static org.molgenis.emx2.ColumnType.INT;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PatientRegistryDemoLoader;
+import org.molgenis.emx2.io.ImportDataTask;
 import org.molgenis.emx2.io.SchemaLoaderSettings;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
 import org.slf4j.Logger;
@@ -18,6 +22,8 @@ public class RunMolgenisEmx2 {
   public static final String CATALOGUE_DEMO = "catalogue-demo";
   public static final String DIRECTORY_DEMO = "directory-demo";
   public static final String PET_STORE = "pet store";
+  public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
+  private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
@@ -37,6 +43,11 @@ public class RunMolgenisEmx2 {
       (Boolean)
           EnvironmentProperty.getParameter(
               Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
+
+  public static final boolean UPDATE_ONTOLOGIES =
+      (Boolean)
+          EnvironmentProperty.getParameter(
+              Constants.MOLGENIS_UPDATE_ONTOLOGIES, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
@@ -98,6 +109,15 @@ public class RunMolgenisEmx2 {
             new PatientRegistryDemoLoader(
                     new SchemaLoaderSettings(db, "patient registry demo", "", true))
                 .run();
+          }
+
+          if (UPDATE_ONTOLOGIES && db.getSchema(CATALOGUE_ONTOLOGIES) != null) {
+            Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
+            TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
+            Task ontologyTask =
+                    new ImportDataTask(ontologySchema, store, false)
+                            .setDescription("Import ontologies from profile");
+            ontologyTask.run();
           }
         });
 
