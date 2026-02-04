@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper;
+package org.molgenis.emx2.fairmapper.engine;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InOrder;
+import org.molgenis.emx2.fairmapper.FairMapperException;
+import org.molgenis.emx2.fairmapper.GraphqlClient;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.step.MutateStep;
 import org.molgenis.emx2.fairmapper.model.step.QueryStep;

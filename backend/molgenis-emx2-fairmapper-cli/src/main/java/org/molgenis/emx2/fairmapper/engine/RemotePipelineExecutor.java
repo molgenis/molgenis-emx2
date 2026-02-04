@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper;
+package org.molgenis.emx2.fairmapper.engine;
 
 import com.apicatalog.jsonld.JsonLd;
 import com.apicatalog.jsonld.JsonLdOptions;
@@ -14,6 +14,9 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.eclipse.rdf4j.model.Model;
+import org.molgenis.emx2.fairmapper.FairMapperException;
+import org.molgenis.emx2.fairmapper.GraphqlClient;
+import org.molgenis.emx2.fairmapper.PathValidator;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 import org.molgenis.emx2.fairmapper.model.step.MappingStep;

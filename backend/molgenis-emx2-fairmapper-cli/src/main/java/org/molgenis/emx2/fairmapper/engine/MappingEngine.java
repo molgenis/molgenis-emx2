@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper;
+package org.molgenis.emx2.fairmapper.engine;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.fairmapper.FairMapperException;
 import org.molgenis.emx2.utils.JavaScriptUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.molgenis.emx2.fairmapper.BundleLoader;
-import org.molgenis.emx2.fairmapper.JsltTransformEngine;
+import org.molgenis.emx2.fairmapper.engine.JsltTransformEngine;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.MappingBundle;
 import org.molgenis.emx2.fairmapper.model.TestCase;

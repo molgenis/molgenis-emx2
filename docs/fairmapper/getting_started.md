@@ -214,11 +214,44 @@ my-fdp-harvest/
     └── expected.json
 ```
 
+## Step 11: Add E2e Tests
+
+End-to-end tests run the full pipeline against a live MOLGENIS server. Add to your mapping:
+
+```yaml
+mappings:
+  - name: harvest
+    steps:
+      - fetch: ${SOURCE_URL}
+        frame: frame.jsonld
+      - transform: transform.jslt
+      - mutate: mutation.gql
+    e2e:
+      schema: my-test-schema
+      tests:
+        - method: POST
+          input: test/e2e-input.json
+          output: test/e2e-expected.json
+```
+
+Run e2e tests:
+
+```bash
+./fairmapper e2e my-fdp-harvest \
+  --server http://localhost:8080 \
+  --token <your-token> \
+  -v
+```
+
+Options:
+- `--schema` overrides the schema in e2e config
+- `-v` shows detailed output for failures
+
 ## Next Steps
 
 - See [Schema Reference](schema_reference.md) for all configuration options
 - See [Troubleshooting](troubleshooting.md) for common issues
-- Study the `dcat-fdp` bundle in `fair-mappings/` for a complete example
+- Study the `dcat-via-mapping` bundle in `fair-mappings/` for an example
 
 ## Tips
 

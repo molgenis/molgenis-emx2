@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper;
+package org.molgenis.emx2.fairmapper.engine;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

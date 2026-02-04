@@ -12,6 +12,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.molgenis.emx2.fairmapper.engine.JsltTransformEngine;
+import org.molgenis.emx2.fairmapper.engine.RemotePipelineExecutor;
 import org.molgenis.emx2.fairmapper.model.Mapping;
 import org.molgenis.emx2.fairmapper.model.step.FrameStep;
 

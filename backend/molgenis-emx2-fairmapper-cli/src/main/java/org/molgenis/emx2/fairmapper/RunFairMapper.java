@@ -12,7 +12,6 @@ import picocli.CommandLine.*;
     subcommands = {
       org.molgenis.emx2.fairmapper.commands.ValidateCommand.class,
       org.molgenis.emx2.fairmapper.commands.TestCommand.class,
-      org.molgenis.emx2.fairmapper.commands.DryRunCommand.class,
       org.molgenis.emx2.fairmapper.commands.E2eCommand.class,
       org.molgenis.emx2.fairmapper.commands.FetchRdfCommand.class,
       org.molgenis.emx2.fairmapper.commands.RunCommand.class

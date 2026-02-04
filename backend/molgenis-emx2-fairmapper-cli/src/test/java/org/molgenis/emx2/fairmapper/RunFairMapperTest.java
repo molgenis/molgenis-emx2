@@ -88,25 +88,6 @@ class RunFairMapperTest {
   }
 
   @Test
-  void testDryRun_missingInputFile() throws Exception {
-    createValidBundle();
-    int exitCode = RunFairMapper.execute("dry-run", tempDir.toString(), "/nonexistent/input.json");
-    assertEquals(1, exitCode);
-    assertTrue(errContent.toString().contains("Input file not found"));
-  }
-
-  @Test
-  void testDryRun_validInputFile() throws Exception {
-    createValidBundle();
-    Path inputFile = tempDir.resolve("input.json");
-    Files.writeString(inputFile, "{\"test\": \"value\"}");
-
-    int exitCode = RunFairMapper.execute("dry-run", tempDir.toString(), inputFile.toString());
-    assertEquals(0, exitCode);
-    assertTrue(outContent.toString().contains("Input"));
-  }
-
-  @Test
   void testE2e_noE2eTestsFound() throws Exception {
     createValidBundle();
     int exitCode =
@@ -226,37 +207,6 @@ class RunFairMapperTest {
     assertEquals(1, exitCode);
     String output = outContent.toString().toLowerCase() + errContent.toString().toLowerCase();
     assertTrue(output.contains("✗") || output.contains("error") || output.contains("failed"));
-  }
-
-  @Test
-  void testDryRun_invalidTransform() throws Exception {
-    Path configPath = tempDir.resolve("fairmapper.yaml");
-    Path srcDir = tempDir.resolve("src");
-    Files.createDirectories(srcDir);
-
-    Path transformFile = srcDir.resolve("transform.jslt");
-    Files.writeString(transformFile, "{ invalid jslt syntax }");
-
-    Files.writeString(
-        configPath,
-        """
-        name: test-bundle
-        version: 1.0.0
-        mappings:
-          - name: test
-            route: /test
-            methods: [GET]
-            steps:
-              - transform: src/transform.jslt
-        """);
-
-    Path inputFile = tempDir.resolve("input.json");
-    Files.writeString(inputFile, "{\"test\": \"value\"}");
-
-    int exitCode = RunFairMapper.execute("dry-run", tempDir.toString(), inputFile.toString());
-    assertEquals(1, exitCode);
-    String error = errContent.toString().toLowerCase();
-    assertTrue(error.contains("jslt") || error.contains("transform") || error.contains("syntax"));
   }
 
   @Test

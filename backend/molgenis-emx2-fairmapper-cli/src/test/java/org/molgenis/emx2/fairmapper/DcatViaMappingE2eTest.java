@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.fairmapper.engine.MappingEngine;
 
 class DcatViaMappingE2eTest {
   private final ObjectMapper objectMapper = new ObjectMapper();
