@@ -12,5 +12,10 @@
   },
   "dependencies": {
     "turbo": "2.6.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "minimatch>@isaacs/brace-expansion": "^5.0.1"
+    }
   }
 }
