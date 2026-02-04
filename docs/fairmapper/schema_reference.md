@@ -347,6 +347,55 @@ mappings:
           output: test/e2e/catalogs-response.json
 ```
 
+## HTTP API
+
+FAIRmapper exposes HTTP endpoints for each bundle mapping. The URL pattern is:
+
+```
+/{schema}/api/fair/{bundleName}/{route}
+```
+
+### Examples
+
+**Get DCAT catalog in Turtle:**
+```bash
+curl -H "Accept: text/turtle" \
+  http://localhost:8080/catalogue/api/fair/dcat-via-mapping/dcat
+```
+
+**Get DCAT catalog in JSON-LD:**
+```bash
+curl -H "Accept: application/ld+json" \
+  http://localhost:8080/catalogue/api/fair/dcat-via-mapping/dcat
+```
+
+**Get with SHACL validation:**
+```bash
+curl -H "Accept: text/turtle" \
+  "http://localhost:8080/catalogue/api/fair/dcat-fdp-sql/catalog/123?validate=dcat-ap"
+```
+
+**POST request with input data:**
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"SOURCE_URL": "https://fdp.example.org/catalog/abc"}' \
+  http://localhost:8080/catalogue/api/fair/dcat-harvester/harvest
+```
+
+### Response Formats
+
+Use the `Accept` header to request different output formats:
+
+| Accept Header | Format |
+|---------------|--------|
+| `text/turtle` | Turtle |
+| `application/ld+json` | JSON-LD |
+| `application/n-triples` | N-Triples |
+| `application/json` | JSON |
+
+If no `Accept` header is provided, the mapping's default `output` format is used.
+
 ## JSON-LD Frames
 
 Frames control how RDF is structured as JSON. Key concepts:

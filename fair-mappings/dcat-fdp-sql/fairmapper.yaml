@@ -10,17 +10,15 @@ mappings:
       - sql: src/get-fdp-root.sql
 
   - name: fdp-catalog
-    route: catalog
+    route: catalog/{id}
     methods: [GET]
     output: turtle
-    route_params: [id]
     steps:
       - sql: src/get-catalog.sql
 
   - name: fdp-dataset
-    route: dataset
+    route: dataset/{id}
     methods: [GET]
     output: turtle
-    route_params: [id]
     steps:
       - sql: src/get-dataset.sql

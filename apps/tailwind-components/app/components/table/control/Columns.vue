@@ -3,6 +3,7 @@
     Columns
   </Button>
   <SideModal
+    class="hidden"
     :slide-in-right="true"
     :fullScreen="false"
     button-alignment="left"

@@ -34,10 +34,10 @@ public class DryRunCommand implements Callable<Integer> {
   private int maxSteps;
 
   @Option(
-      names = {"-e", "--endpoint"},
-      description = "Endpoint index (default: 0)",
+      names = {"-m", "--mapping"},
+      description = "Mapping index (default: 0)",
       defaultValue = "0")
-  private int endpointIndex;
+  private int mappingIndex;
 
   @Override
   public Integer call() {
@@ -64,13 +64,13 @@ public class DryRunCommand implements Callable<Integer> {
         return 1;
       }
 
-      if (endpointIndex >= bundle.getMappings().size()) {
+      if (mappingIndex >= bundle.getMappings().size()) {
         System.err.println(color("@|red Mapping index out of range|@"));
         return 1;
       }
 
-      Mapping mapping = bundle.getMappings().get(endpointIndex);
-      String displayPath = mapping.route() != null ? mapping.route() : mapping.getEffectiveName();
+      Mapping mapping = bundle.getMappings().get(mappingIndex);
+      String displayPath = mapping.route() != null ? mapping.route() : mapping.name();
       System.out.println(color("@|yellow Mapping:|@ " + displayPath));
       System.out.println();
 

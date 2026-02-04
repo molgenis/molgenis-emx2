@@ -49,7 +49,7 @@ class BundleLoaderTest {
         configPath,
         """
         name: test
-        endpoints: [invalid: yaml: syntax
+        mappings: [invalid: yaml: syntax
         """);
 
     FairMapperException ex =

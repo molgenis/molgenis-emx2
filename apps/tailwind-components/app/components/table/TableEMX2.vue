@@ -18,12 +18,6 @@
         Add {{ tableId }}
       </Button>
 
-      <InputSwitch
-        id="view-mode-switch"
-        v-model="viewMode"
-        :options="viewModeOptions"
-      />
-
       <TableControlColumns
         :columns="columns"
         @update:columns="handleColumnsUpdate"
@@ -32,7 +26,6 @@
   </div>
 
   <div
-    v-if="viewMode === 'table'"
     class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
@@ -143,77 +136,6 @@
           label="No records found"
         />
       </div>
-    </div>
-  </div>
-
-  <div
-    v-else-if="viewMode === 'card'"
-    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-  >
-    <div
-      v-if="rows"
-      v-for="row in rows"
-      class="border border-theme rounded-theme p-4 bg-content hover:shadow-md transition-shadow"
-    >
-      <div class="flex justify-between items-start mb-3">
-        <div class="flex-1">
-          <div v-if="showDraftColumn && row?.mg_draft === true" class="mb-2">
-            <DraftLabel type="inline" />
-          </div>
-        </div>
-        <div v-if="props.isEditable" class="flex gap-2">
-          <Button
-            :id="useId()"
-            :icon-only="true"
-            type="inline"
-            icon="edit"
-            size="small"
-            label="edit"
-            @click="onShowEditModal(row)"
-            :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-            aria-haspopup="dialog"
-            :aria-expanded="showEditModal"
-          >
-            {{ getRowId(row) }}
-          </Button>
-          <Button
-            :id="useId()"
-            :icon-only="true"
-            type="inline"
-            icon="trash"
-            size="small"
-            label="delete"
-            @click="onShowDeleteModal(row)"
-            :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-            aria-haspopup="dialog"
-            :aria-expanded="showDeleteModal"
-          >
-            {{ getRowId(row) }}
-          </Button>
-        </div>
-      </div>
-      <div class="space-y-2">
-        <div
-          v-for="column in sortedVisibleColumns"
-          :key="column.id"
-          class="text-sm"
-        >
-          <span class="font-medium text-title">{{ column.label }}:</span>
-          <span class="ml-2 text-body">
-            <TableCellEMX2
-              :metadata="column"
-              :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column, row)"
-            />
-          </span>
-        </div>
-      </div>
-    </div>
-    <div
-      v-if="!rows"
-      class="col-span-full flex justify-center items-center py-8"
-    >
-      <TextNoResultsMessage label="No records found" />
     </div>
   </div>
 

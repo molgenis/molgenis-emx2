@@ -213,7 +213,7 @@ class RunFairMapperTest {
         name: test-bundle
         version: 1.0.0
         mappings:
-          - endpoint: /test
+          - route: /test
             steps:
               - transform:
                   path: src/transform.jslt

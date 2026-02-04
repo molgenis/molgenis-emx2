@@ -100,22 +100,16 @@ public class FairMapperApi {
           }
           List<String> methods = mapping.methods() != null ? mapping.methods() : List.of("GET");
           for (String method : methods) {
-            registerEndpoint(app, method, reg.bundle.name(), mapping, reg.bundlePath);
+            registerRoute(app, method, reg.bundle.name(), mapping, reg.bundlePath);
           }
         }
       }
     }
   }
 
-  private static void registerEndpoint(
+  private static void registerRoute(
       Javalin app, String method, String bundleName, Mapping mapping, Path bundlePath) {
     String path = "/{schema}/api/fair/" + bundleName + "/" + mapping.route();
-
-    if (mapping.route_params() != null && !mapping.route_params().isEmpty()) {
-      for (String param : mapping.route_params()) {
-        path += "/:" + param;
-      }
-    }
 
     switch (method.toUpperCase()) {
       case "GET":

@@ -91,14 +91,13 @@ public class E2eCommand implements Callable<Integer> {
             (this.schema != null && !this.schema.isBlank()) ? this.schema : mapping.e2e().schema();
 
         if (effectiveSchema == null || effectiveSchema.isBlank()) {
-          String displayPath =
-              mapping.route() != null ? mapping.route() : mapping.getEffectiveName();
+          String displayPath = mapping.route() != null ? mapping.route() : mapping.name();
           System.out.println(
               color("@|yellow " + displayPath + "|@ @|red (skipped - no schema configured)|@"));
           continue;
         }
 
-        String displayPath = mapping.route() != null ? mapping.route() : mapping.getEffectiveName();
+        String displayPath = mapping.route() != null ? mapping.route() : mapping.name();
         System.out.println(
             color("@|yellow " + displayPath + "|@ (schema: " + effectiveSchema + ")"));
 

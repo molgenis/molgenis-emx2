@@ -52,8 +52,7 @@ public class BundleLoader {
       logger.warn("Bundle '{}' missing version field", bundle.name());
     }
     if (bundle.getMappings().isEmpty()) {
-      throw new FairMapperException(
-          "Missing required field: mappings or endpoints (must have at least one)");
+      throw new FairMapperException("Missing required field: mappings (must have at least one)");
     }
   }
 
@@ -97,65 +96,50 @@ public class BundleLoader {
     }
   }
 
-  private void validateFrameFile(Path bundleDir, String framePath) {
-    Path fullPath = PathValidator.validateWithinBase(bundleDir, framePath);
+  private void validateFileWithExtension(
+      Path bundleDir, String filePath, String[] allowedExtensions, String fileType) {
+    Path fullPath = PathValidator.validateWithinBase(bundleDir, filePath);
 
     if (!Files.exists(fullPath)) {
-      throw new FairMapperException("Frame file not found: " + framePath);
+      throw new FairMapperException(fileType + " file not found: " + filePath);
     }
 
-    if (!framePath.endsWith(".json") && !framePath.endsWith(".jsonld")) {
-      throw new FairMapperException(
-          "Frame file must have .json or .jsonld extension: " + framePath);
+    boolean hasValidExtension = false;
+    for (String ext : allowedExtensions) {
+      if (filePath.endsWith(ext)) {
+        hasValidExtension = true;
+        break;
+      }
     }
+
+    if (!hasValidExtension) {
+      String allowedMsg =
+          allowedExtensions.length == 1
+              ? allowedExtensions[0]
+              : String.join(" or ", allowedExtensions);
+      throw new FairMapperException(
+          fileType + " file must have " + allowedMsg + " extension: " + filePath);
+    }
+  }
+
+  private void validateFrameFile(Path bundleDir, String framePath) {
+    validateFileWithExtension(bundleDir, framePath, new String[] {".json", ".jsonld"}, "Frame");
   }
 
   private void validateTransformFile(Path bundleDir, String transformPath) {
-    Path fullPath = PathValidator.validateWithinBase(bundleDir, transformPath);
-
-    if (!Files.exists(fullPath)) {
-      throw new FairMapperException("Transform file not found: " + transformPath);
-    }
-
-    if (!transformPath.endsWith(".jslt")) {
-      throw new FairMapperException("Transform file must have .jslt extension: " + transformPath);
-    }
+    validateFileWithExtension(bundleDir, transformPath, new String[] {".jslt"}, "Transform");
   }
 
   private void validateQueryFile(Path bundleDir, String queryPath) {
-    Path fullPath = PathValidator.validateWithinBase(bundleDir, queryPath);
-
-    if (!Files.exists(fullPath)) {
-      throw new FairMapperException("Query file not found: " + queryPath);
-    }
-
-    if (!queryPath.endsWith(".gql")) {
-      throw new FairMapperException("Query file must have .gql extension: " + queryPath);
-    }
+    validateFileWithExtension(bundleDir, queryPath, new String[] {".gql"}, "Query");
   }
 
   private void validateSqlFile(Path bundleDir, String sqlPath) {
-    Path fullPath = PathValidator.validateWithinBase(bundleDir, sqlPath);
-
-    if (!Files.exists(fullPath)) {
-      throw new FairMapperException("SQL file not found: " + sqlPath);
-    }
-
-    if (!sqlPath.endsWith(".sql")) {
-      throw new FairMapperException("SQL file must have .sql extension: " + sqlPath);
-    }
+    validateFileWithExtension(bundleDir, sqlPath, new String[] {".sql"}, "SQL");
   }
 
   private void validateSparqlFile(Path bundleDir, String sparqlPath) {
-    Path fullPath = PathValidator.validateWithinBase(bundleDir, sparqlPath);
-
-    if (!Files.exists(fullPath)) {
-      throw new FairMapperException("SPARQL file not found: " + sparqlPath);
-    }
-
-    if (!sparqlPath.endsWith(".sparql")) {
-      throw new FairMapperException("SPARQL file must have .sparql extension: " + sparqlPath);
-    }
+    validateFileWithExtension(bundleDir, sparqlPath, new String[] {".sparql"}, "SPARQL");
   }
 
   private void validateE2eTestsForMapping(Path bundleDir, Mapping mapping) {
@@ -185,16 +169,16 @@ public class BundleLoader {
   }
 
   private void validateMappingFormat(Mapping mapping) {
-    if (mapping.input() != null && !isValidFormat(mapping.input())) {
+    if (mapping.input() != null && !ContentNegotiator.isValidFormat(mapping.input())) {
       throw new FairMapperException("Invalid input format: " + mapping.input());
     }
-    if (mapping.output() != null && !isValidFormat(mapping.output())) {
+    if (mapping.output() != null && !ContentNegotiator.isValidFormat(mapping.output())) {
       throw new FairMapperException("Invalid output format: " + mapping.output());
     }
   }
 
   private void validateMappingFrame(Path bundleDir, Mapping mapping) {
-    boolean isRdfInput = isRdfFormat(mapping.input());
+    boolean isRdfInput = ContentNegotiator.isRdfFormat(mapping.input());
     if (isRdfInput && (mapping.frame() == null || mapping.frame().isBlank())) {
       throw new FairMapperException(
           "RDF input format '" + mapping.input() + "' requires a frame file");
@@ -202,19 +186,5 @@ public class BundleLoader {
     if (mapping.frame() != null && !mapping.frame().isBlank()) {
       validateFrameFile(bundleDir, mapping.frame());
     }
-  }
-
-  private boolean isValidFormat(String format) {
-    return format != null
-        && (format.equals("json")
-            || format.equals("turtle")
-            || format.equals("jsonld")
-            || format.equals("ntriples")
-            || format.equals("csv"));
-  }
-
-  private boolean isRdfFormat(String format) {
-    return format != null
-        && (format.equals("turtle") || format.equals("jsonld") || format.equals("ntriples"));
   }
 }

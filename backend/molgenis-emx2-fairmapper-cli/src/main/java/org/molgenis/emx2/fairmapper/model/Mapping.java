@@ -13,7 +13,6 @@ public record Mapping(
     String input,
     String output,
     String frame,
-    List<String> route_params,
     @JsonDeserialize(using = StepConfigDeserializer.class) List<StepConfig> steps,
     E2e e2e) {
 
@@ -23,12 +22,6 @@ public record Mapping(
 
   public String output() {
     return output != null ? output : "json";
-  }
-
-  public String getEffectiveName() {
-    if (name != null && !name.isBlank()) return name;
-    if (route != null) return route.replace("/{schema}/api/", "").replace("/", "-");
-    return null;
   }
 
   public void validate() {

@@ -37,4 +37,9 @@ public class ContentNegotiator {
   public static boolean isRdfFormat(String format) {
     return format != null && List.of("turtle", "jsonld", "ntriples").contains(format.toLowerCase());
   }
+
+  public static boolean isValidFormat(String format) {
+    return format != null
+        && List.of("json", "turtle", "jsonld", "ntriples", "csv").contains(format.toLowerCase());
+  }
 }

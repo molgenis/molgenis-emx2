@@ -41,7 +41,7 @@ class RemotePipelineExecutorTest {
   @Test
   void testMappingWithNullStepsReturnsInputUnchanged() throws IOException {
     JsonNode input = objectMapper.createObjectNode().put("test", "value");
-    Mapping mapping = new Mapping("test", null, null, null, null, null, null, null, null, null);
+    Mapping mapping = new Mapping("test", null, null, null, null, null, null, null, null);
 
     JsonNode result = executor.execute(input, mapping);
 
@@ -54,8 +54,7 @@ class RemotePipelineExecutorTest {
   void testMappingWithEmptyStepsListReturnsInputUnchanged() throws IOException {
     JsonNode input = objectMapper.createObjectNode().put("test", "value");
     Mapping mapping =
-        new Mapping(
-            "test", null, null, null, null, null, null, null, Collections.emptyList(), null);
+        new Mapping("test", null, null, null, null, null, null, Collections.emptyList(), null);
 
     JsonNode result = executor.execute(input, mapping);
 
@@ -79,7 +78,6 @@ class RemotePipelineExecutorTest {
             "/api/test",
             null,
             List.of("GET"),
-            null,
             null,
             null,
             null,
@@ -109,7 +107,6 @@ class RemotePipelineExecutorTest {
             null,
             null,
             null,
-            null,
             List.of(new QueryStep("query.gql", null)),
             null);
 
@@ -136,7 +133,6 @@ class RemotePipelineExecutorTest {
             null,
             null,
             null,
-            null,
             List.of(new MutateStep("mutate.gql")),
             null);
 
@@ -160,7 +156,6 @@ class RemotePipelineExecutorTest {
             "/api/test",
             null,
             List.of("GET"),
-            null,
             null,
             null,
             null,
@@ -196,7 +191,6 @@ class RemotePipelineExecutorTest {
             null,
             null,
             null,
-            null,
             List.of(
                 new QueryStep("query.gql", null),
                 new TransformStep("transform.jslt", null),
@@ -227,7 +221,6 @@ class RemotePipelineExecutorTest {
             null,
             null,
             null,
-            null,
             List.of(new TransformStep("../outside/transform.jslt", null)),
             null);
 
@@ -247,7 +240,6 @@ class RemotePipelineExecutorTest {
             null,
             null,
             "frame.jsonld",
-            null,
             null,
             null);
 
