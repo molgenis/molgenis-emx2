@@ -37,7 +37,7 @@ public record AutoIdConfig(Format format, int length) {
     }
 
     String args = matcher.group("args");
-    if (args == null) {
+    if (args == null || args.isBlank()) {
       return new AutoIdConfig(format, length);
     }
 
