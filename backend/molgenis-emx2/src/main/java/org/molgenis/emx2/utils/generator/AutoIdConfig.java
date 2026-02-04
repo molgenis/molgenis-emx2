@@ -43,19 +43,19 @@ public record AutoIdConfig(Format format, int length) {
 
     Map<String, Object> argMap = parseArgs(args);
 
-    for (Map.Entry<String, Object> stringObjectEntry : argMap.entrySet()) {
-      switch (stringObjectEntry.getKey()) {
+    for (Map.Entry<String, Object> entry : argMap.entrySet()) {
+      switch (entry.getKey()) {
         case "format":
-          format = Format.valueOf(stringObjectEntry.getValue().toString().toUpperCase());
+          format = Format.valueOf(entry.getValue().toString().toUpperCase());
           break;
         case "length":
-          length = Integer.parseInt(stringObjectEntry.getValue().toString());
+          length = Integer.parseInt(entry.getValue().toString());
           if (length <= 0) {
             throw new IllegalArgumentException("length for auto id cannot be negative");
           }
           break;
         default:
-          throw new IllegalArgumentException("Unsupported format: " + stringObjectEntry.getKey());
+          throw new IllegalArgumentException("Unsupported format: " + entry.getKey());
       }
     }
 
