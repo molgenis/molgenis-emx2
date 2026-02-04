@@ -53,6 +53,14 @@ public class CsvApi {
     app.get(apiPath + "{table}", CsvApi::tableRetrieve);
     app.post(apiPath + "{table}", CsvApi::tableUpdate);
     app.delete(apiPath + "{table}", CsvApi::tableDelete);
+
+    final String legacyPath = "/{schema}/api/csv";
+    app.get(legacyPath, CsvApi::getMetadata);
+    app.post(legacyPath, CsvApi::mergeMetadata);
+    app.delete(legacyPath, CsvApi::discardMetadata);
+    app.get(legacyPath + "/members", CsvApi::getMembers);
+    app.get(legacyPath + "/settings", CsvApi::getSettings);
+    app.get(legacyPath + "/changelog", CsvApi::getChangelog);
   }
 
   private static void getChangelog(Context ctx) throws IOException {

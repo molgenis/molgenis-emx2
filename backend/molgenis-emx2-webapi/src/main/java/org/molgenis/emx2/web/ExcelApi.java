@@ -59,6 +59,10 @@ public class ExcelApi {
     app.delete(apiPath + "{table}", ExcelApi::deleteExcelTable);
 
     app.get("/{schema}/api/reports/excel", ExcelApi::getExcelReport);
+
+    final String legacyPath = "/{schema}/api/excel";
+    app.get(legacyPath, ExcelApi::getAll);
+    app.post(legacyPath, ExcelApi::postAll);
   }
 
   static void getMetadata(Context ctx) throws Exception {

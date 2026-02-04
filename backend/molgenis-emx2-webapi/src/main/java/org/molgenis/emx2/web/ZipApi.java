@@ -63,6 +63,10 @@ public class ZipApi {
     app.delete(apiPath + "{table}", ZipApi::deleteZipTable);
 
     app.get("/{schema}/api/reports/zip", ZipApi::getZippedReports);
+
+    final String legacyPath = "/{schema}/api/zip";
+    app.get(legacyPath, ZipApi::getAllZip);
+    app.post(legacyPath, ZipApi::postAllZip);
   }
 
   static void getAllZip(Context ctx) throws IOException {
