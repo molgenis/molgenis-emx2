@@ -38,10 +38,10 @@ Stop by typing ctrl+c.
 4. Run `mkdir -p ~/.docker/cli-plugins`
 5. Install Docker compose (using [https://github.com/docker/compose/releases/](https://github.com/docker/compose/releases/)):
     ```bash
-   curl -OL https://github.com/docker/compose/releases/latest/download/docker-compose-darwin-aarch64
-   sudo xattr -rc docker-compose-darwin-aarch64
-   chmod u+x docker-compose-darwin-aarch64
-   mv docker-compose-darwin-aarch64 ~/.docker/cli-plugins/docker-compose
+    curl -OL https://github.com/docker/compose/releases/latest/download/docker-compose-darwin-aarch64
+    sudo xattr -rc docker-compose-darwin-aarch64
+    chmod u+x docker-compose-darwin-aarch64
+    mv docker-compose-darwin-aarch64 ~/.docker/cli-plugins/docker-compose
     ```
 6. Run `lima start`
 7. Validate docker through `docker info`, there should be server information available.
