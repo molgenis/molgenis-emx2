@@ -44,7 +44,7 @@ Stop by typing ctrl+c.
     mv docker-compose-darwin-aarch64 ~/.docker/cli-plugins/docker-compose
     ```
 6. Run `lima start`
-7. Validate docker through `docker info`, there should be server information available.
+7. Validate docker through `docker info` (there should be server information available)
 8. Download the [docker-compose.yml](https://github.com/molgenis/molgenis-emx2/blob/master/docker-compose.yml)
 9. Run `docker compose up` from the directory where the `docker-compose.yml` is stored.
 10. Open http://localhost:8080/
