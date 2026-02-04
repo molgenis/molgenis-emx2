@@ -7,7 +7,7 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
-import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
@@ -30,7 +30,7 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 public class TestGraphqlSchemaFields {
 
   private static final String schemaName = TestGraphqlSchemaFields.class.getSimpleName();
-  private static GraphqlApi grapql;
+  private static GraphqlExecutor grapql;
   private static Database database;
   private static TaskService taskService;
   private static Schema schema;
@@ -58,7 +58,7 @@ public class TestGraphqlSchemaFields {
     schema.addMember(customer, "Range");
 
     taskService = new TaskServiceInMemory();
-    grapql = new GraphqlApi(schema, taskService);
+    grapql = new GraphqlExecutor(schema, taskService);
   }
 
   @Test
@@ -147,12 +147,12 @@ public class TestGraphqlSchemaFields {
   public void testSession() throws IOException {
     try {
       database.setActiveUser("shopmanager");
-      grapql = new GraphqlApi(database.getSchema(schemaName), taskService);
-      grapql = new GraphqlApi(database.getSchema(schemaName), taskService);
+      grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
+      grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
       assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.becomeAdmin();
-      grapql = new GraphqlApi(database.getSchema(schemaName), taskService);
+      grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
     }
   }
 
@@ -519,7 +519,7 @@ public class TestGraphqlSchemaFields {
     schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
 
     // refresh graphql
-    grapql = new GraphqlApi(database.getSchema(schemaName), taskService);
+    grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
 
     // refs
     JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
@@ -570,7 +570,7 @@ public class TestGraphqlSchemaFields {
     schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
     schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
     // refresh graphql
-    grapql = new GraphqlApi(database.getSchema(schemaName), taskService);
+    grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
   }
 
   @Test
@@ -735,7 +735,7 @@ public class TestGraphqlSchemaFields {
               column("id").setPkey(),
               column("Child details").setType(REF).setRefTable("Child details")));
 
-      grapql = new GraphqlApi(myschema, taskService);
+      grapql = new GraphqlExecutor(myschema, taskService);
       execute(
           "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
 
@@ -821,7 +821,7 @@ public class TestGraphqlSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApi(schema, taskService);
+      grapql = new GraphqlExecutor(schema, taskService);
     }
   }
 
@@ -839,7 +839,7 @@ public class TestGraphqlSchemaFields {
       myschema.create(
           table("TestJson", column("name").setPkey(), column("json").setType(ColumnType.JSON)));
 
-      grapql = new GraphqlApi(myschema, taskService);
+      grapql = new GraphqlExecutor(myschema, taskService);
 
       Table table = myschema.getTable("TestJson");
       String value = "{\"name\":\"bofke\"}";
@@ -871,7 +871,7 @@ public class TestGraphqlSchemaFields {
       //              .at("/TestJson/0/json")
       //              .asText());
     } finally {
-      grapql = new GraphqlApi(schema, taskService);
+      grapql = new GraphqlExecutor(schema, taskService);
     }
   }
 
@@ -882,7 +882,7 @@ public class TestGraphqlSchemaFields {
       myschema.create(
           table("TestFile", column("name").setPkey(), column("image").setType(ColumnType.FILE)));
 
-      grapql = new GraphqlApi(myschema, taskService);
+      grapql = new GraphqlExecutor(myschema, taskService);
 
       // insert file (note: ideally here also use mutation but I don't know how to add file part to
       // request)
@@ -918,7 +918,7 @@ public class TestGraphqlSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApi(schema, taskService);
+      grapql = new GraphqlExecutor(schema, taskService);
     }
   }
 
@@ -990,7 +990,7 @@ public class TestGraphqlSchemaFields {
     database.dropSchemaIfExists(schemaName);
     PET_STORE.getImportTask(database, schemaName, "", true).run();
     schema = database.getSchema(schemaName);
-    grapql = new GraphqlApi(schema, taskService);
+    grapql = new GraphqlExecutor(schema, taskService);
   }
 
   @Test
@@ -998,7 +998,7 @@ public class TestGraphqlSchemaFields {
     database.dropSchemaIfExists(schemaName);
     PET_STORE.getImportTask(database, schemaName, "", true).run();
     schema = database.getSchema(schemaName);
-    grapql = new GraphqlApi(schema, taskService);
+    grapql = new GraphqlExecutor(schema, taskService);
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
     assertEquals(9, result.at("/_reports/count").intValue());

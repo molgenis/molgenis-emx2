@@ -5,11 +5,11 @@ import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableType.ONTOLOGIES;
-import static org.molgenis.emx2.graphql.GraphqlApi.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLJsonAsString;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.transform;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 

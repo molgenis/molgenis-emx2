@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,7 +20,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class TestGraphqlAdminFields {
 
-  private static GraphqlApi graphql;
+  private static GraphqlExecutor graphql;
   private static Database database;
   private static GraphqlSessionHandlerInterface sessionManager;
   private static final String SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName();
@@ -34,7 +34,7 @@ class TestGraphqlAdminFields {
     database.dropCreateSchema(SCHEMA_NAME);
     database.dropCreateSchema(ANOTHER_SCHEMA_NAME);
 
-    graphql = new GraphqlApi(database);
+    graphql = new GraphqlExecutor(database);
 
     sessionManager =
         new GraphqlSessionHandlerInterface() {
@@ -73,7 +73,7 @@ class TestGraphqlAdminFields {
           }
           // test that only admin can do this
           tdb.setActiveUser(ANONYMOUS);
-          graphql = new GraphqlApi(tdb);
+          graphql = new GraphqlExecutor(tdb);
 
           try {
             assertNull(execute("{_admin{userCount}}").textValue());
@@ -87,7 +87,7 @@ class TestGraphqlAdminFields {
   @Test
   void testSetUserAdmin() throws JsonProcessingException {
     database.becomeAdmin();
-    graphql = new GraphqlApi(database);
+    graphql = new GraphqlExecutor(database);
 
     // create and sign in user testAdmin
     executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
@@ -137,7 +137,7 @@ class TestGraphqlAdminFields {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          graphql = new GraphqlApi(testDatabase);
+          graphql = new GraphqlExecutor(testDatabase);
 
           try {
             // setup

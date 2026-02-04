@@ -25,14 +25,14 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphqlApi {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
+public class GraphqlExecutor {
+  private static Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);
   private GraphQL graphql;
   private Schema schema;
   private Database database;
   private Map<String, String> graphqlQueryFragments = new LinkedHashMap<>();
 
-  private GraphqlApi() {
+  private GraphqlExecutor() {
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
       ParserOptions.setDefaultParserOptions(
           ParserOptions.newParserOptions().maxTokens(1000000).build());
@@ -60,23 +60,23 @@ public class GraphqlApi {
     }
   }
 
-  public GraphqlApi(Database database, TaskService taskService) {
+  public GraphqlExecutor(Database database, TaskService taskService) {
     this();
     this.database = database;
     createGraphqlForDatabase(database, taskService);
   }
 
-  public GraphqlApi(Database database) {
+  public GraphqlExecutor(Database database) {
     this(database, null);
   }
 
-  public GraphqlApi(Schema schema, TaskService taskService) {
+  public GraphqlExecutor(Schema schema, TaskService taskService) {
     this();
     this.schema = schema;
     createGraphqlForSchema(schema, taskService);
   }
 
-  public GraphqlApi(Schema schema) {
+  public GraphqlExecutor(Schema schema) {
     this(schema, null);
   }
 
@@ -244,7 +244,7 @@ public class GraphqlApi {
       }
     }
 
-    // we add fragments if containst "..."
+    // we add fragments if contains "..."
     if (query.contains("...")) {
       Pattern fragmentPattern = Pattern.compile("\\.\\.\\.\\s*([A-Za-z_][A-Za-z0-9_]*)");
       Matcher matcher = fragmentPattern.matcher(query);
@@ -300,7 +300,7 @@ public class GraphqlApi {
     }
   }
 
-  public Map queryAsMap(String query, Map<String, Object> variables) {
+  public Map<String, Object> queryAsMap(String query, Map<String, Object> variables) {
     try {
       ExecutionResult result = execute(query, variables);
       return result.getData();
@@ -315,7 +315,7 @@ public class GraphqlApi {
             .map(
                 table ->
                     String.format(
-                        "%s{...All%sFields}", table.getIdentifier(), table.getIdentifier()))
+                        "%s{...%sAllFields}", table.getIdentifier(), table.getIdentifier()))
             .collect(Collectors.joining("\n"));
     query = "{" + query + "}";
     return query;

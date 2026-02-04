@@ -19,21 +19,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.graphql.GraphqlApi;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
- */
-public class GraphqlApiService {
+public class GraphqlApi {
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApiService.class);
+  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
-  private GraphqlApiService() {
+  private GraphqlApi() {
     // hide constructor
   }
 
@@ -41,28 +38,28 @@ public class GraphqlApiService {
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
-    app.get(appSchemaGqlPath, GraphqlApiService::handleSchemaRequests);
-    app.post(appSchemaGqlPath, GraphqlApiService::handleSchemaRequests);
+    app.get(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
+    app.post(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
 
     // per schema graphql calls from app
     final String appGqlPath = "apps/{app}/graphql"; // NOSONAR
-    app.get(appGqlPath, GraphqlApiService::handleDatabaseRequests);
-    app.post(appGqlPath, GraphqlApiService::handleDatabaseRequests);
+    app.get(appGqlPath, GraphqlApi::handleDatabaseRequests);
+    app.post(appGqlPath, GraphqlApi::handleDatabaseRequests);
 
     // per database graphql
     final String databasePath = "/api/graphql";
-    app.get(databasePath, GraphqlApiService::handleDatabaseRequests);
-    app.post(databasePath, GraphqlApiService::handleDatabaseRequests);
+    app.get(databasePath, GraphqlApi::handleDatabaseRequests);
+    app.post(databasePath, GraphqlApi::handleDatabaseRequests);
 
     // per schema graphql
     final String schemaPath = "/{schema}/graphql"; // NOSONAR
-    app.get(schemaPath, GraphqlApiService::handleSchemaRequests);
-    app.post(schemaPath, GraphqlApiService::handleSchemaRequests);
+    app.get(schemaPath, GraphqlApi::handleSchemaRequests);
+    app.post(schemaPath, GraphqlApi::handleSchemaRequests);
 
     // per schema graphql
     final String schemaAppPath = "/{schema}/{app}/graphql"; // NOSONAR
-    app.get(schemaAppPath, GraphqlApiService::handleSchemaRequests);
-    app.post(schemaAppPath, GraphqlApiService::handleSchemaRequests);
+    app.get(schemaAppPath, GraphqlApi::handleSchemaRequests);
+    app.post(schemaAppPath, GraphqlApi::handleSchemaRequests);
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
@@ -85,19 +82,19 @@ public class GraphqlApiService {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphqlApi graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    GraphqlExecutor graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
 
-  private static String executeQuery(GraphqlApi graphqlApi, Context ctx) throws IOException {
+  private static String executeQuery(GraphqlExecutor graphqlApi, Context ctx) throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
 
     ExecutionResult executionResult = graphqlApi.execute(query, variables, sessionManager);
 
-    String result = GraphqlApi.convertExecutionResultToJson(executionResult);
+    String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
     return result;
   }
 

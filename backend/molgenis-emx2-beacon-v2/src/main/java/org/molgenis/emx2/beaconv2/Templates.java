@@ -9,19 +9,19 @@ import java.util.HashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 
 public class Templates {
 
   public static void addTemplatesToDb(Database database) {
     database.becomeAdmin();
     Schema schema = database.getSchema("_SYSTEM_");
-    GraphqlApi graphQL = new GraphqlApi(schema);
+    GraphqlExecutor graphQL = new GraphqlExecutor(schema);
 
     for (EntryType entryType : EntryType.values()) {
       String query =
-          "mutation insert($endpoint:String, $schema:String, $template:String) {"
-              + " insert (Templates: { endpoint: $endpoint, schema: $schema, template: $template }) { message } }";
+          "mutation save($endpoint:String, $schema:String, $template:String) {"
+              + " save (Templates: { endpoint: $endpoint, schema: $schema, template: $template }) { message } }";
       Map<String, Object> variables = new HashMap<>();
       variables.put("endpoint", "beacon_" + entryType.getName());
       variables.put("schema", "default");

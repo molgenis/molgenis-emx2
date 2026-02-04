@@ -20,7 +20,7 @@ import org.molgenis.emx2.email.EmailMessage;
 import org.molgenis.emx2.email.EmailService;
 import org.molgenis.emx2.email.EmailSettings;
 import org.molgenis.emx2.email.EmailValidator;
-import org.molgenis.emx2.graphql.GraphqlApi;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.web.actions.SendMessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,7 @@ public class MessageApi {
       throw new MolgenisException(msg);
     }
 
-    GraphqlApi gql = applicationCache.getSchemaGraphqlForUser(schema.getName(), ctx);
+    GraphqlExecutor gql = applicationCache.getSchemaGraphqlForUser(schema.getName(), ctx);
 
     final ExecutionResult executionResult = gql.execute(recipientsQuery, validationFilter);
     if (!executionResult.getErrors().isEmpty()) {

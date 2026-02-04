@@ -174,7 +174,7 @@ public class TestSumQuery {
     assertTrue(json.contains("9")); // for Type b, Type a
 
     // test that the graphql also works
-    GraphqlApi graphql = new GraphqlApi(schema);
+    GraphqlExecutor graphql = new GraphqlExecutor(schema);
     ExecutionResult result =
         graphql.execute(
             """

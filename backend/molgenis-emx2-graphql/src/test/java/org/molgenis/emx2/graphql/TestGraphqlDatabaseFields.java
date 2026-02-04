@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
 import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
@@ -25,7 +25,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static GraphqlApi grapql;
+  private static GraphqlExecutor grapql;
   private static Database database;
   private static TaskService taskService;
   private static final String SCHEMA_NAME = TestGraphqlDatabaseFields.class.getSimpleName();
@@ -35,7 +35,7 @@ public class TestGraphqlDatabaseFields {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(SCHEMA_NAME);
     taskService = new TaskServiceInMemory();
-    grapql = new GraphqlApi(database, taskService);
+    grapql = new GraphqlExecutor(database, taskService);
   }
 
   @Test
