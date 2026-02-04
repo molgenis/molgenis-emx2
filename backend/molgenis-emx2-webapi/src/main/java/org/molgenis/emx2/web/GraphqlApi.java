@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +89,7 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphqlApi graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    GraphqlExecutor graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
@@ -101,7 +102,7 @@ public class GraphqlApi {
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
 
-    GraphqlApi graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    GraphqlExecutor graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
 
@@ -117,14 +118,15 @@ public class GraphqlApi {
     ctx.json(response);
   }
 
-  private static String executeQuery(GraphqlApi graphqlApi, Context ctx) throws IOException {
+  private static String executeQuery(GraphqlExecutor graphqlExecutor, Context ctx)
+      throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
 
-    ExecutionResult executionResult = graphqlApi.execute(query, variables, sessionManager);
+    ExecutionResult executionResult = graphqlExecutor.execute(query, variables, sessionManager);
 
-    String result = GraphqlApi.convertExecutionResultToJson(executionResult);
+    String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
     return result;
   }
 

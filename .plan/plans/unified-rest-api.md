@@ -244,48 +244,98 @@ DataApi.java (content-negotiated)
 
 ### 🔴 Critical (API/Breaking changes)
 
-| # | Issue | File | Action |
+| # | Issue | File | Status |
 |---|-------|------|--------|
-| 1 | Endpoint renaming impact | General | Verify renamed endpoints not used externally |
-| 2 | RDF API breaking changes | General | Consider major version release |
-| 3 | **Implement proper type mapping** | JsonLdSchemaGenerator | Map ColumnType→XSD: UUID→`urn:uuid:` IRI, FILE→file API IRI, dates→xsd:date/dateTime |
+| 1 | ~~Endpoint renaming impact~~ | General | ✅ Verified |
+| 2 | ~~RDF API breaking changes~~ | General | ✅ Discussed with team |
+| 3 | ~~Proper type mapping~~ | JsonLdSchemaGenerator | ✅ Uses ColumnTypeRdfMapper |
 
 ### 🟠 Must Fix (Code Quality)
 
-| # | Issue | File | Action |
+| # | Issue | File | Status |
 |---|-------|------|--------|
 | 4 | ~~`sendJsonMessage` unused~~ | DownloadApiUtils | ✅ Removed |
 | 5 | ~~`setDownloadHeaders` unused~~ | DownloadApiUtils | ✅ Removed |
-| 6 | ~~`getXsdType` unused~~ | JsonLdSchemaGenerator | ✅ Removed (dead code, proper impl needed in #3) |
+| 6 | ~~`getXsdType` unused~~ | JsonLdSchemaGenerator | ✅ Removed |
 | 7 | ~~Dead validation code~~ | RestOverGraphql | ✅ Removed |
-| 8 | ~~Test assertions weak~~ | WebApiSmokeTests | ✅ Fixed - check actual content not just length |
-| 9 | ~~Service naming inconsistent~~ | GraphqlApiService | ✅ Renamed: GraphqlApi→GraphqlExecutor, GraphqlApiService→GraphqlApi |
-| 10 | Hardcoded "my:" prefix | JsonLdSchemaGenerator | Use NamespaceMapper instead |
+| 8 | ~~Test assertions weak~~ | WebApiSmokeTests | ✅ Fixed |
+| 9 | ~~Service naming inconsistent~~ | GraphqlApiService | ✅ GraphqlApi→GraphqlExecutor |
+| 9b | ~~Test-only execute() methods~~ | GraphqlExecutor | ✅ Removed, callers updated |
+| 10 | ~~Hardcoded "my:" prefix~~ | JsonLdSchemaGenerator | ✅ Uses NamespaceMapper |
+| 10b | ~~Blank nodes~~ | RestOverGraphql | ✅ Never allow (error on blank nodes) |
 
 ### 🟡 Technical Improvements
 
-| # | Issue | File | Action |
+| # | Issue | File | Status |
 |---|-------|------|--------|
-| 11 | Leverage Jackson more | JsonLdValidator | Simplify with Jackson features |
-| 12 | Recursion depth risk | JsonLdValidator | Add safeguard or document depth |
-| 13 | Load all for conversion | RestOverGraphql | Consider streaming instead |
-| 14 | Turtle-only conversion | RestOverGraphql | Support any RDF format |
-| 15 | Manual timing calls | DownloadApiUtils | Use Javalin response headers |
-| 16 | DateTime format | TypeUtils | Ensure `YYYY-MM-DDThh:mm:ss` |
-| 17 | URI scheme validation limited | RestOverGraphql | Expand allowed schemes |
+| 11 | Leverage Jackson more | JsonLdValidator | Low priority |
+| 12 | Recursion depth risk | JsonLdValidator | Low priority |
+| 13 | ~~Streaming conversion~~ | RestOverGraphql | ⏸️ POSTPONE: separate PR (see streaming-rdf-export.md) |
+| 14 | ~~Format conversion~~ | RestOverGraphql | ✅ Done in DataApi content negotiation |
+| 15 | Manual timing calls | DownloadApiUtils | Low priority |
+| 16 | ~~DateTime format~~ | ColumnTypeRdfMapper | ✅ Uses `yyyy-MM-dd'T'HH:mm:ss` |
+| 17 | URI scheme validation | RestOverGraphql | Low priority |
 
 ### 🟢 Nice to Have
 
-| # | Issue | File | Action |
+| # | Issue | File | Status |
 |---|-------|------|--------|
-| 18 | Repeated strings | WebApiSmokeTests | Extract constants |
-| 19 | Needs specific tests | JsonLdValidator | Add unit tests |
-| 20 | Code extraction | GraphqlTableFieldFactory | Extract to own place |
-| 21 | Trivial method extraction | DownloadApiUtils | Review if method adds value |
+| 18 | ~~Media type constants~~ | WebApiSmokeTests | ✅ Using Constants.* |
+| 19 | JsonLdValidator tests | JsonLdValidator | Low priority |
+| 20 | Code extraction | GraphqlTableFieldFactory | Low priority |
+| 21 | Trivial method extraction | DownloadApiUtils | Low priority |
+
+### Remaining TODO (Priority Order)
+
+All review items complete! ✅
+
+---
+
+## Implementation Plan for Remaining Items
+
+### Task A: Refactor JsonLdSchemaGenerator to use ColumnTypeRdfMapper (#3)
+
+**Problem:** JsonLdSchemaGenerator has incomplete `getXsdType()` duplicating logic from ColumnTypeRdfMapper
+
+**Solution:**
+1. Remove `getXsdType()` method from JsonLdSchemaGenerator
+2. Use `ColumnTypeRdfMapper.getCoreDataType(columnType)` instead
+3. Handle SKIP types (HEADING, SECTION) gracefully
+
+**Files:**
+- `backend/molgenis-emx2-rdf/src/main/java/org/molgenis/emx2/rdf/JsonLdSchemaGenerator.java`
+
+**Benefits:**
+- Single source of truth for type mappings
+- All 33 ColumnTypes covered (currently only 11)
+- UUID, FILE, dates automatically correct
+
+### Task B: Use Media Type Constants (#18)
+
+**Problem:** WebApiSmokeTests uses hardcoded strings instead of Constants.*
+
+**Solution:**
+1. Add missing constants to Constants.java:
+   - `ACCEPT_PLAIN = "text/plain"`
+   - `ACCEPT_N3 = "text/n3"`
+2. Replace hardcoded strings in WebApiSmokeTests with constants
+
+**Files:**
+- `backend/molgenis-emx2-webapi/src/main/java/org/molgenis/emx2/web/Constants.java`
+- `backend/molgenis-emx2-webapi/src/test/java/org/molgenis/emx2/web/WebApiSmokeTests.java`
+
+**Counts:**
+- "application/json" → ACCEPT_JSON (16 occurrences)
+- "application/ld+json" → ACCEPT_JSONLD (9 occurrences)
+- "text/turtle" → ACCEPT_TTL (6 occurrences)
+- "text/csv" → ACCEPT_CSV (1 occurrence)
+- "text/plain" → ACCEPT_PLAIN (5 occurrences) - NEW constant
+- "text/n3" → ACCEPT_N3 (1 occurrence) - NEW constant
 
 ### Review Response Status
 
 - [ ] Respond to reviewers on GitHub
-- [ ] Critical items resolved
-- [ ] Must-fix items resolved
+- [x] Critical items resolved (1, 2, 3)
+- [x] Must-fix items resolved
+- [x] Nice-to-have 18 resolved
 - [ ] Request re-review

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.util.*;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 
 public class JsonLdSchemaGenerator {
   private static final ObjectMapper mapper =
@@ -92,16 +93,16 @@ public class JsonLdSchemaGenerator {
             }
             columnNode.put("@type", "@id");
             context.put(columnKey, columnNode);
-          } else if (shouldAddXsdType(column)) {
-            Map<String, Object> columnNode = new LinkedHashMap<>();
-            if (column.getSemantics() != null && column.getSemantics().length > 0) {
-              columnNode.put("@id", column.getSemantics()[0]);
-            } else {
-              columnNode.put("@id", PREFIX + columnKey);
-            }
-            String xsdType = getXsdType(column.getColumnType());
+          } else {
+            CoreDatatype.XSD xsdType = getXsdType(column);
             if (xsdType != null) {
-              columnNode.put("@type", xsdType);
+              Map<String, Object> columnNode = new LinkedHashMap<>();
+              if (column.getSemantics() != null && column.getSemantics().length > 0) {
+                columnNode.put("@id", column.getSemantics()[0]);
+              } else {
+                columnNode.put("@id", PREFIX + columnKey);
+              }
+              columnNode.put("@type", xsdType.getIri().toString());
               context.put(columnKey, columnNode);
             }
           }
@@ -125,26 +126,11 @@ public class JsonLdSchemaGenerator {
     return root;
   }
 
-  private static boolean shouldAddXsdType(Column column) {
-    return getXsdType(column.getColumnType()) != null;
-  }
-
-  private static String getXsdType(ColumnType type) {
-    return switch (type) {
-      case BOOL, BOOL_ARRAY -> CoreDatatype.XSD.BOOLEAN.getIri().toString();
-      case UUID, UUID_ARRAY -> CoreDatatype.XSD.ANYURI.getIri().toString();
-      case FILE -> CoreDatatype.XSD.ANYURI.getIri().toString();
-      case INT, INT_ARRAY -> CoreDatatype.XSD.INT.getIri().toString();
-      case LONG, LONG_ARRAY -> CoreDatatype.XSD.LONG.getIri().toString();
-      case DECIMAL, DECIMAL_ARRAY -> CoreDatatype.XSD.DOUBLE.getIri().toString();
-      case DATE, DATE_ARRAY -> CoreDatatype.XSD.DATE.getIri().toString();
-      case DATETIME, DATETIME_ARRAY -> CoreDatatype.XSD.DATETIME.getIri().toString();
-      case PERIOD, PERIOD_ARRAY -> CoreDatatype.XSD.DURATION.getIri().toString();
-      case HYPERLINK, HYPERLINK_ARRAY -> CoreDatatype.XSD.ANYURI.getIri().toString();
-      case EMAIL, EMAIL_ARRAY -> CoreDatatype.XSD.ANYURI.getIri().toString();
-      case NON_NEGATIVE_INT, NON_NEGATIVE_INT_ARRAY ->
-          CoreDatatype.XSD.NON_NEGATIVE_INTEGER.getIri().toString();
-      default -> null;
-    };
+  private static CoreDatatype.XSD getXsdType(Column column) {
+    try {
+      return ColumnTypeRdfMapper.getCoreDataType(column);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

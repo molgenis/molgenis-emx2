@@ -63,7 +63,7 @@ class WebApiSmokeTests {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
-  private static final String EXCEPTION_CONTENT_TYPE = "application/json";
+  private static final String EXCEPTION_CONTENT_TYPE = Constants.ACCEPT_JSON;
 
   private static final String ADMIN_PASS =
       (String) EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
@@ -1420,12 +1420,12 @@ class WebApiSmokeTests {
   void testRdfApiRequest() {
     final String urlPrefix = "http://localhost:" + PORT;
 
-    final String defaultContentType = "text/turtle";
-    final String jsonldContentType = "application/ld+json";
-    final String ttlContentType = "text/turtle";
-    final String n3ContentType = "text/n3";
-    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
-    final String defaultContentTypeWithInvalidCharset = "text/turtle; charset=utf-16";
+    final String defaultContentType = Constants.ACCEPT_TTL;
+    final String jsonldContentType = Constants.ACCEPT_JSONLD;
+    final String ttlContentType = Constants.ACCEPT_TTL;
+    final String n3ContentType = Constants.ACCEPT_N3;
+    final String defaultContentTypeWithCharset = Constants.ACCEPT_TTL + "; charset=utf-8";
+    final String defaultContentTypeWithInvalidCharset = Constants.ACCEPT_TTL + "; charset=utf-16";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1494,8 +1494,9 @@ class WebApiSmokeTests {
         .head(urlPrefix + "/api/rdf?shacls");
 
     // Validate multi-content type negotiation
-    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/ld+json", jsonldContentType);
-    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
+    rdfApiContentTypeRequest(
+        200, Constants.ACCEPT_TTL + "; q=0.5, " + Constants.ACCEPT_JSONLD, jsonldContentType);
+    rdfApiContentTypeRequest(200, Constants.ACCEPT_TTL + "; q=0.5, text/*", n3ContentType)
         .head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
         .head(urlPrefix + "/pet store/api/rdf");
@@ -2009,7 +2010,7 @@ class WebApiSmokeTests {
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("application/ld+json")
+        .contentType(Constants.ACCEPT_JSONLD)
         .statusCode(200)
         .when()
         .get("/pet store/api/jsonld");
@@ -2017,7 +2018,7 @@ class WebApiSmokeTests {
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("application/ld+json")
+        .contentType(Constants.ACCEPT_JSONLD)
         .statusCode(200)
         .when()
         .get("/pet store/api/jsonld/Pet");
@@ -2028,7 +2029,7 @@ class WebApiSmokeTests {
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("text/turtle")
+        .contentType(Constants.ACCEPT_TTL)
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl");
@@ -2036,7 +2037,7 @@ class WebApiSmokeTests {
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("text/turtle")
+        .contentType(Constants.ACCEPT_TTL)
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
@@ -2227,7 +2228,7 @@ class WebApiSmokeTests {
     String response =
         given()
             .sessionId(sessionId)
-            .contentType("application/json")
+            .contentType(Constants.ACCEPT_JSON)
             .body(jsonLdData)
             .when()
             .post("/pet store/api/jsonld/Pet")
@@ -2243,7 +2244,7 @@ class WebApiSmokeTests {
     String response =
         given()
             .sessionId(sessionId)
-            .contentType("application/json")
+            .contentType(Constants.ACCEPT_JSON)
             .body(insertDataJson)
             .when()
             .post("/pet store/api/json/Pet")
@@ -2257,7 +2258,7 @@ class WebApiSmokeTests {
     String deleteDataJson = "[{\"name\":\"testdog\"}]";
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body(deleteDataJson)
         .when()
         .delete("/pet store/api/json/Pet")
@@ -2270,7 +2271,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("text/plain")
+        .contentType(Constants.ACCEPT_PLAIN)
         .body(insertDataYaml)
         .when()
         .post("/pet store/api/yaml/Pet")
@@ -2284,7 +2285,7 @@ class WebApiSmokeTests {
     String deleteDataYaml = "- name: testcat";
     given()
         .sessionId(sessionId)
-        .contentType("text/plain")
+        .contentType(Constants.ACCEPT_PLAIN)
         .body(deleteDataYaml)
         .when()
         .delete("/pet store/api/yaml/Pet")
@@ -2302,7 +2303,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body(insertDataJson)
         .when()
         .post("/pet store/api/json/Pet")
@@ -2314,7 +2315,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body(updateDataJson)
         .when()
         .put("/pet store/api/json/Pet/testdog")
@@ -2330,7 +2331,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("text/plain")
+        .contentType(Constants.ACCEPT_PLAIN)
         .body(updateDataYaml)
         .when()
         .put("/pet store/api/yaml/Pet/testdog")
@@ -2344,7 +2345,7 @@ class WebApiSmokeTests {
     String deleteDataJson = "[{\"name\":\"testdog\"}]";
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body(deleteDataJson)
         .when()
         .delete("/pet store/api/json/Pet")
@@ -2359,7 +2360,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body(insertDataJson)
         .when()
         .post("/pet store/api/json/Pet")
@@ -2382,7 +2383,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("text/plain")
+        .contentType(Constants.ACCEPT_PLAIN)
         .body(insertDataJson)
         .when()
         .post("/pet store/api/yaml/Pet")
@@ -2417,7 +2418,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body(upsertData)
         .when()
         .put("/pet store/api/json/Pet/upserttest")
@@ -2460,8 +2461,8 @@ class WebApiSmokeTests {
     return Stream.of(
         Arguments.of("json", ACCEPT_JSON),
         Arguments.of("yaml", ACCEPT_YAML),
-        Arguments.of("jsonld", "application/ld+json"),
-        Arguments.of("ttl", "text/turtle"),
+        Arguments.of("jsonld", ACCEPT_JSONLD),
+        Arguments.of("ttl", ACCEPT_TTL),
         Arguments.of("csv", ACCEPT_CSV),
         Arguments.of("excel", ACCEPT_EXCEL));
   }
@@ -2657,7 +2658,7 @@ class WebApiSmokeTests {
             .get("/pet store/api/jsonld/_context")
             .then()
             .statusCode(200)
-            .contentType("application/ld+json")
+            .contentType(Constants.ACCEPT_JSONLD)
             .extract()
             .asString();
     assertTrue(response.contains("@context"), "jsonld _context should contain @context");
@@ -2681,7 +2682,7 @@ class WebApiSmokeTests {
   }
 
   static Stream<Arguments> writeFormats() {
-    return Stream.of(Arguments.of("json", "application/json"), Arguments.of("yaml", "text/plain"));
+    return Stream.of(Arguments.of("json", ACCEPT_JSON), Arguments.of("yaml", ACCEPT_PLAIN));
   }
 
   @ParameterizedTest(name = "POST+GET+DELETE table for {0}")
@@ -2706,7 +2707,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body("[{\"name\":\"" + petName + "\"}]")
         .when()
         .delete("/pet store/api/json/Pet")
@@ -2877,7 +2878,7 @@ class WebApiSmokeTests {
     String postResponse =
         given()
             .sessionId(sessionId)
-            .contentType("application/ld+json")
+            .contentType(Constants.ACCEPT_JSONLD)
             .body(body)
             .when()
             .post("/pet store/api/jsonld/Pet")
@@ -2959,7 +2960,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body("[{\"name\":\"" + petName + "\"}]")
         .when()
         .delete("/pet store/api/json/Pet")
@@ -2994,7 +2995,7 @@ class WebApiSmokeTests {
 
     given()
         .sessionId(sessionId)
-        .contentType("application/json")
+        .contentType(Constants.ACCEPT_JSON)
         .body("[{\"name\":\"" + petName + "\"}]")
         .when()
         .delete("/pet store/api/json/Pet")
@@ -3010,13 +3011,13 @@ class WebApiSmokeTests {
     Response response =
         given()
             .sessionId(sessionId)
-            .contentType("application/json")
+            .contentType(Constants.ACCEPT_JSON)
             .body(query)
             .when()
             .post("/pet store/api/graphql-ld")
             .then()
             .statusCode(200)
-            .contentType(containsString("application/ld+json"))
+            .contentType(containsString(Constants.ACCEPT_JSONLD))
             .extract()
             .response();
 
@@ -3030,7 +3031,7 @@ class WebApiSmokeTests {
     Response jsonResponse =
         given()
             .sessionId(sessionId)
-            .header("Accept", "application/json")
+            .header("Accept", Constants.ACCEPT_JSON)
             .when()
             .get("/pet store/api/data/Pet")
             .then()
@@ -3043,7 +3044,7 @@ class WebApiSmokeTests {
     Response jsonLdResponse =
         given()
             .sessionId(sessionId)
-            .header("Accept", "application/ld+json")
+            .header("Accept", Constants.ACCEPT_JSONLD)
             .when()
             .get("/pet store/api/data/Pet")
             .then()
@@ -3056,7 +3057,7 @@ class WebApiSmokeTests {
     Response csvResponse =
         given()
             .sessionId(sessionId)
-            .header("Accept", "text/csv")
+            .header("Accept", Constants.ACCEPT_CSV)
             .when()
             .get("/pet store/api/data/Pet")
             .then()
@@ -3069,7 +3070,7 @@ class WebApiSmokeTests {
     Response turtleResponse =
         given()
             .sessionId(sessionId)
-            .header("Accept", "text/turtle")
+            .header("Accept", Constants.ACCEPT_TTL)
             .when()
             .get("/pet store/api/data/Pet")
             .then()
@@ -3085,7 +3086,7 @@ class WebApiSmokeTests {
     Response jsonSchemaResponse =
         given()
             .sessionId(sessionId)
-            .header("Accept", "application/json")
+            .header("Accept", Constants.ACCEPT_JSON)
             .when()
             .get("/pet store/api/data/_schema")
             .then()
@@ -3100,7 +3101,7 @@ class WebApiSmokeTests {
     Response jsonLdDataResponse =
         given()
             .sessionId(sessionId)
-            .header("Accept", "application/ld+json")
+            .header("Accept", Constants.ACCEPT_JSONLD)
             .when()
             .get("/pet store/api/data/_data")
             .then()
