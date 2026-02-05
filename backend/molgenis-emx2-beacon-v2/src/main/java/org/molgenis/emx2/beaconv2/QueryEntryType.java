@@ -207,7 +207,7 @@ public class QueryEntryType {
             .setOffset(beaconQuery.getPagination().getSkip())
             .addFilters(filters)
             .getQuery();
-    ExecutionResult result = graphQL.execute(graphQlQuery);
+    ExecutionResult result = graphQL.executeWithoutSession(graphQlQuery);
 
     JsonNode results = mapper.valueToTree(result.getData());
     JsonNode entryTypeResult = results.get(entryType.getId());
@@ -220,7 +220,7 @@ public class QueryEntryType {
     GraphqlExecutor graphQL = new GraphqlExecutor(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
-    ExecutionResult result = graphQL.execute(graphQlQuery);
+    ExecutionResult result = graphQL.executeWithoutSession(graphQlQuery);
     JsonNode results = mapper.valueToTree(result.getData());
 
     return results.get(table.getIdentifier() + "_agg").get("count").intValue();
@@ -230,7 +230,7 @@ public class QueryEntryType {
     GraphqlExecutor graphQL = new GraphqlExecutor(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
-    ExecutionResult result = graphQL.execute(graphQlQuery);
+    ExecutionResult result = graphQL.executeWithoutSession(graphQlQuery);
     JsonNode results = mapper.valueToTree(result.getData());
 
     return results.get(table.getIdentifier() + "_agg").get("exists").booleanValue();

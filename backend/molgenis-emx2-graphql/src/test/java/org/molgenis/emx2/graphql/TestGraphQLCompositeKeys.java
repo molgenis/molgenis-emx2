@@ -219,7 +219,7 @@ public class TestGraphQLCompositeKeys {
   //  }
 
   private static JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result = convertExecutionResultToJson(grapql.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

@@ -62,7 +62,7 @@ public class TestGraphqlCrossSchemaRefs {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(graphql.execute(query));
+    String result = convertExecutionResultToJson(graphql.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

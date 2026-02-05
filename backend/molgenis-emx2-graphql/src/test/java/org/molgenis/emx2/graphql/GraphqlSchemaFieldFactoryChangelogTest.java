@@ -75,7 +75,7 @@ class GraphqlSchemaFieldFactoryChangelogTest {
   }
 
   private Change[] queryChanges(String query) {
-    ExecutionResult execute = graphql.execute(query);
+    ExecutionResult execute = graphql.executeWithoutSession(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("_changes");
     return MAPPER.convertValue(jsonNode, Change[].class);
   }

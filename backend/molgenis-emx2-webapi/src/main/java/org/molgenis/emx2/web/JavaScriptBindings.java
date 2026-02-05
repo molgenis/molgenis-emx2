@@ -21,7 +21,7 @@ public class JavaScriptBindings {
   private static SimplePostClient createSimplePostClient(String username) {
     return (query, variables, schemaId) -> {
       GraphqlExecutor graphQL = applicationCache.getSchemaGraphqlForUser(schemaId, username);
-      return graphQL.execute(query, variables).getData();
+      return graphQL.executeWithoutSession(query, variables).getData();
     };
   }
 

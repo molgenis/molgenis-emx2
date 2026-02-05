@@ -176,7 +176,7 @@ public class TestSumQuery {
     // test that the graphql also works
     GraphqlExecutor graphql = new GraphqlExecutor(schema);
     ExecutionResult result =
-        graphql.execute(
+        graphql.executeWithoutSession(
             """
             {Samples_groupBy {
               count

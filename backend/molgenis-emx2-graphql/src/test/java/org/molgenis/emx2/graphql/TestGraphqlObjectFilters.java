@@ -41,7 +41,7 @@ class TestGraphqlObjectFilters {
         }
       """;
 
-    ExecutionResult execute = graphql.execute(query);
+    ExecutionResult execute = graphql.executeWithoutSession(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
 
     List<Person> people = MAPPER.readerForListOf(Person.class).readValue(jsonNode);
@@ -59,7 +59,7 @@ class TestGraphqlObjectFilters {
         }
       """;
 
-    ExecutionResult execute = graphql.execute(query);
+    ExecutionResult execute = graphql.executeWithoutSession(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
 
     List<Person> people = MAPPER.readerForListOf(Person.class).readValue(jsonNode);

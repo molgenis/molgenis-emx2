@@ -25,6 +25,9 @@ import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
+ */
 public class GraphqlApi {
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
@@ -93,8 +96,10 @@ public class GraphqlApi {
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
 
     ExecutionResult executionResult = graphqlApi.execute(query, variables, sessionManager);
-
     String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
+
+    if (logger.isInfoEnabled())
+      logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
     return result;
   }
 

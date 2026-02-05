@@ -218,12 +218,12 @@ public class GraphqlExecutor {
     }
   }
 
-  // for testing only
-  public @NotNull ExecutionResult execute(String query) {
+  public @NotNull ExecutionResult executeWithoutSession(String query) {
     return execute(query, Map.of(), new DummySessionHandler());
   }
 
-  public @NotNull ExecutionResult execute(String query, Map<String, Object> variables) {
+  public @NotNull ExecutionResult executeWithoutSession(
+      String query, Map<String, Object> variables) {
     return execute(query, variables, new DummySessionHandler());
   }
 
@@ -293,7 +293,7 @@ public class GraphqlExecutor {
 
   public String queryAsString(String query, Map<String, Object> variables) {
     try {
-      ExecutionResult result = execute(query, variables);
+      ExecutionResult result = executeWithoutSession(query, variables);
       return convertExecutionResultToJson(result);
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage(), e);
@@ -302,7 +302,7 @@ public class GraphqlExecutor {
 
   public Map<String, Object> queryAsMap(String query, Map<String, Object> variables) {
     try {
-      ExecutionResult result = execute(query, variables);
+      ExecutionResult result = executeWithoutSession(query, variables);
       return result.getData();
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage(), e);

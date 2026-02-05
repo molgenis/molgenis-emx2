@@ -150,7 +150,8 @@ class TestGraphqlAdminFields {
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
             Map<String, Object> variables = createUpdateUserVar();
-            String queryResult = convertExecutionResultToJson(graphql.execute(query, variables));
+            String queryResult =
+                convertExecutionResultToJson(graphql.executeWithoutSession(query, variables));
             JsonNode node = new ObjectMapper().readTree(queryResult);
             if (node.get("errors") != null) {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
@@ -204,7 +205,7 @@ class TestGraphqlAdminFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(graphql.execute(query));
+    String result = convertExecutionResultToJson(graphql.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

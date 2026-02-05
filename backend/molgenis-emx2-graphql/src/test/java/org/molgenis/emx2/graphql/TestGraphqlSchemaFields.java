@@ -628,7 +628,7 @@ public class TestGraphqlSchemaFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result = convertExecutionResultToJson(grapql.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());
@@ -900,14 +900,14 @@ public class TestGraphqlSchemaFields {
       Map data = new LinkedHashMap();
       data.put("name", "test");
       data.put("image", Map.of("name", "dummy"));
-      grapql.execute(
+      grapql.executeWithoutSession(
           "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}",
           Map.of("value", data));
       assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
 
       // update with null should delete
       data.put("image", null);
-      grapql.execute(
+      grapql.executeWithoutSession(
           "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}",
           Map.of("value", data));
       assertEquals(
