@@ -71,6 +71,7 @@
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
+    :errorMessage="errorMessage"
     :describedBy="describedBy"
     :placeholder="placeholder"
     @focus="emit('focus')"

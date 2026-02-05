@@ -219,7 +219,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result.uuid).to.contain("must be a valid UUID format");
+    expect(result.uuid).to.contain("must use a valid UUID format");
   });
 
   test("it should return no error for a valid hyperlink array", () => {
@@ -455,9 +455,7 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer(s)",
-    });
+    expect(result.nonNegativeInteger).to.contain("invalid non negative integer");
   });
 
   test("it should return an error for an invalid non negative integer array", () => {
@@ -468,9 +466,7 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer(s)",
-    });
+    expect(result.nonNegativeInteger).to.contain("invalid non negative integer");
   });
 
   test("it should return no error for a successful validation", () => {

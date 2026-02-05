@@ -27,7 +27,7 @@ const INT_ERROR = `Invalid integer: must be value from ${MIN_INT} to ${MAX_INT}`
 const PERIOD_EXPLANATION =
   "must start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
 const UUID_EXPLANATION =
-  "must use valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
+  "must use a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
 export const NON_NEGATIVE_INT_ERROR = `Invalid non negative integer: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
@@ -199,25 +199,32 @@ export function getColumnError(
   if (type === "NON_NEGATIVE_INT" && isInvalidNonNegativeInt(value as number)) {
     return NON_NEGATIVE_INT_ERROR;
   }
+
   if (
-    type === "NON_NEGATIVE_INT_ARRAY" &&
-    (value as number[])?.some(isInvalidNonNegativeInt)
+    type === "NON_NEGATIVE_INT_ARRAY"
   ) {
-    return "Invalid non negative integer(s)";
+    const invalidNonNegativeIntegers = arrayWithInvalidNonNegativeIntegers(value);
+    if (invalidNonNegativeIntegers.length > 0) {
+      return readableStringArray(
+        invalidNonNegativeIntegers,
+        " is an invalid non negative integer",
+        " are invalid non negative integers"
+      );
+    }
   }
+
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
-
   return undefined;
 }
 
 export function readableStringArray(
-  strings: string[],
+  strings: any[],
   postErrorSingular?: string,
   postErrorPlural?: string
 ): string {
-  const escapedStrings = strings.map((str) => str.replaceAll("'", "\\'"));
+  const escapedStrings = strings.map((str) => str.toString().replaceAll("'", "\\'"));
   if (escapedStrings.length === 0) {
     return "";
   } else if (escapedStrings.length === 1) {
@@ -376,6 +383,12 @@ function isInvalidHyperlink(value: any) {
 function arrayWithInvalidHyperlinks(hyperlinks: any): string[] {
   return hyperlinks?.filter((hyperlink: string) =>
     isInvalidHyperlink(hyperlink)
+  );
+}
+
+function arrayWithInvalidNonNegativeIntegers(numbers: any): number[] {
+  return numbers?.filter((number: number) =>
+    isInvalidNonNegativeInt(number)
   );
 }
 
