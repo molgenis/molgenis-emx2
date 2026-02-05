@@ -74,6 +74,7 @@ function stringArrayValidationCheck(
     "HYPERLINK_ARRAY",
     "UUID_ARRAY",
     "PERIOD_ARRAY",
+    "NON_NEGATIVE_INT_ARRAY",
   ].includes(type);
   const incorrectFields = errorMessage?.match(/\'(.*?)\'/g);
   if (isStringArray) {

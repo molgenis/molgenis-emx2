@@ -99,13 +99,10 @@ export function getColumnError(
   if (type === "EMAIL_ARRAY") {
     const invalidEmails = arrayWithInvalidEmails(value);
     if (invalidEmails.length == 1) {
-      return (
-        readableStringArray(invalidEmails) + " is an invalid email address"
-      );
-    }
-    if (invalidEmails.length > 1) {
-      return (
-        readableStringArray(invalidEmails) + " are invalid email addresses"
+      return readableStringArray(
+        invalidEmails,
+        " is an invalid email address",
+        " are invalid email addresses"
       );
     }
   }
@@ -115,12 +112,11 @@ export function getColumnError(
   if (type === "HYPERLINK_ARRAY") {
     const invalidHyperlinks = arrayWithInvalidHyperlinks(value);
     if (invalidHyperlinks.length === 1) {
-      return (
-        readableStringArray(invalidHyperlinks) + " is an invalid hyperlink"
+      return readableStringArray(
+        invalidHyperlinks,
+        " is an invalid hyperlink",
+        " are invalid hyperlinks"
       );
-    }
-    if (invalidHyperlinks.length > 1) {
-      return readableStringArray(invalidHyperlinks) + " are invalid hyperlinks";
     }
   }
 
@@ -131,16 +127,11 @@ export function getColumnError(
     let invalidPeriods = arrayWithInvalidPeriod(value);
     if (invalidPeriods.length == 1) {
       return (
-        readableStringArray(invalidPeriods) +
-        " is an invalid Period: " +
-        PERIOD_EXPLANATION
-      );
-    }
-    if (invalidPeriods.length > 1) {
-      return (
-        readableStringArray(invalidPeriods) +
-        " are invalid Periods: " +
-        PERIOD_EXPLANATION
+        readableStringArray(
+          invalidPeriods,
+          " is an invalid Period: ",
+          " are invalid Periods: "
+        ) + PERIOD_EXPLANATION
       );
     }
   }
@@ -151,16 +142,11 @@ export function getColumnError(
     let invalidUUIDs = arrayWithInvalidUUIDs(value);
     if (invalidUUIDs.length == 1) {
       return (
-        readableStringArray(invalidUUIDs) +
-        " is an invalid UUID: " +
-        UUID_EXPLANATION
-      );
-    }
-    if (invalidUUIDs.length > 1) {
-      return (
-        readableStringArray(invalidUUIDs) +
-        " are invalid UUIDs: " +
-        UUID_EXPLANATION
+        readableStringArray(
+          invalidUUIDs,
+          " is an invalid UUID: ",
+          " are invalid UUIDs: "
+        ) + +UUID_EXPLANATION
       );
     }
   }
@@ -224,15 +210,19 @@ export function getColumnError(
   return undefined;
 }
 
-function readableStringArray(strings: string[]): string {
+function readableStringArray(
+  strings: string[],
+  postErrorSingular: string,
+  postErrorPlural: string
+): string {
   if (strings.length === 0) {
     return "";
   } else if (strings.length === 1) {
-    return `'${strings[0]}'`;
+    return `'${strings[0]}' ${postErrorSingular}`;
   } else {
     return `'${strings.slice(0, strings.length - 1).join("', '")}' and '${
       strings[strings.length - 1]
-    }'`;
+    }' ${postErrorPlural}`;
   }
 }
 

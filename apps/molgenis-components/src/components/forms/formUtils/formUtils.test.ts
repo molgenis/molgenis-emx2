@@ -218,7 +218,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result.uuid).to.contain("should be a valid UUID format");
+    expect(result.uuid).to.contain("must be a valid UUID format");
   });
 
   test("it should return no error for a valid hyperlink array", () => {
