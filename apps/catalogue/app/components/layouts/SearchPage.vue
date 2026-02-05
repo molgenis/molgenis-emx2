@@ -26,6 +26,7 @@ const bannerHtml = computed(() => {
     :variableCount="headerData.variableCount"
     :collectionCount="headerData.collectionCount"
     :networkCount="headerData.networkCount"
+    :datasetCount="headerData.datasetCount"
     :logoSrc="headerData.logoSrc"
   />
 

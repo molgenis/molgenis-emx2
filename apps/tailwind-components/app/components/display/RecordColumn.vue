@@ -1,0 +1,113 @@
+<script setup lang="ts">
+import { ref, computed, useSlots, type Component } from "vue";
+import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
+import ValueEMX2 from "../value/EMX2.vue";
+import RecordTable from "./RecordTable.vue";
+import InlinePagination from "./InlinePagination.vue";
+
+const props = withDefaults(
+  defineProps<{
+    column: IColumn;
+    value: any;
+    showEmpty?: boolean;
+  }>(),
+  {
+    showEmpty: false,
+  }
+);
+
+const slots = useSlots();
+
+const listPage = ref(1);
+const defaultPageSize = 5;
+
+const displayComponent = computed(() => {
+  const comp = props.column.displayConfig?.component;
+  return typeof comp === "string" ? comp : comp ? "custom" : "bullets";
+});
+
+const customComponent = computed<Component | undefined>(() => {
+  const comp = props.column.displayConfig?.component;
+  return typeof comp !== "string" ? comp : undefined;
+});
+
+const effectivePageSize = computed(() => {
+  return props.column.displayConfig?.pageSize || defaultPageSize;
+});
+
+const visibleColumns = computed(() => {
+  const config = props.column.displayConfig;
+  if (!config?.visibleColumns) return [];
+  const refCol = props.column as IRefColumn;
+  if (!refCol.refTableMetadata?.columns) return [];
+  return refCol.refTableMetadata.columns.filter((c: IColumn) =>
+    config.visibleColumns!.includes(c.id)
+  );
+});
+
+const isRefBack = computed(() => props.column.columnType === "REFBACK");
+
+const useTableMode = computed(() => {
+  return (
+    (props.column.columnType === "REF_ARRAY" || isRefBack.value) &&
+    displayComponent.value === "table" &&
+    visibleColumns.value.length > 0 &&
+    !slots.list
+  );
+});
+
+const allRows = computed(() => (Array.isArray(props.value) ? props.value : []));
+
+const visibleRows = computed(() =>
+  allRows.value.slice(
+    (listPage.value - 1) * effectivePageSize.value,
+    listPage.value * effectivePageSize.value
+  )
+);
+
+const totalPages = computed(() =>
+  Math.ceil(allRows.value.length / effectivePageSize.value)
+);
+
+const showPagination = computed(
+  () => allRows.value.length > effectivePageSize.value
+);
+
+function isEmpty(val: any): boolean {
+  if (val === null || val === undefined || val === "") return true;
+  if (Array.isArray(val) && val.length === 0) return true;
+  return false;
+}
+</script>
+
+<template>
+  <template v-if="isEmpty(value) && !showEmpty"></template>
+  <span v-else-if="isEmpty(value) && showEmpty" class="text-gray-400 italic">
+    not provided
+  </span>
+  <!-- REFBACK: use #list slot if provided (smart fetch), else delegate to ValueEMX2 -->
+  <slot
+    v-else-if="isRefBack && $slots.list"
+    name="list"
+    :column="column"
+    :value="value"
+  />
+  <div v-else-if="useTableMode">
+    <RecordTable :rows="visibleRows" :columns="visibleColumns" />
+    <InlinePagination
+      v-if="showPagination"
+      :current-page="listPage"
+      :total-pages="totalPages"
+      @update:page="listPage = $event"
+    />
+  </div>
+  <!-- Custom component mode: render user-provided Vue component -->
+  <component
+    v-else-if="customComponent"
+    :is="customComponent"
+    :column="column"
+    :value="value"
+  />
+  <!-- Everything else: delegate to ValueEMX2 -->
+  <ValueEMX2 v-else :metadata="column" :data="value" />
+</template>

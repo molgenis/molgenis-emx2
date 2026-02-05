@@ -154,6 +154,7 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -171,6 +172,7 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
@@ -188,6 +190,7 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -206,6 +209,7 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
@@ -235,6 +239,7 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId!"
     :ontologyTableId="refTableId!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -259,6 +264,7 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId!"
     :ontologyTableId="refTableId!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :limit="10"
@@ -344,10 +350,12 @@ const props = withDefaults(
       falseLabel?: string;
       align?: "horizontal" | "vertical";
       limit?: number;
+      showClear?: boolean;
     }
   >(),
   {
     limit: 25,
+    showClear: true,
   }
 );
 const emit = defineEmits(["focus", "blur"]);

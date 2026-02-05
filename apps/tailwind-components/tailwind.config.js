@@ -227,6 +227,8 @@ module.exports = {
         "button-switch-selected":
           "var(--background-color-button-switch-selected)",
         "button-switch-hover": "var(--background-color-button-switch-hover)",
+        "toggle-active": "var(--background-color-toggle-active)",
+        "toggle-inactive": "var(--background-color-toggle-inactive)",
         "label-draft": "var(--background-color-label-draft)",
         "label-available": "var(--background-color-label-available)",
         "label-available-hover":
@@ -336,6 +338,9 @@ module.exports = {
         "button-switch": "var(--text-color-button-switch)",
         "button-switch-selected": "var(--text-color-button-switch-selected)",
         "button-switch-hover": "var(--text-color-button-switch-hover)",
+        "toggle-active": "var(--text-color-toggle-active)",
+        "toggle-inactive": "var(--text-color-toggle-inactive)",
+        "toggle-hover": "var(--text-color-toggle-hover)",
         "label-draft": "var(--text-color-label-draft)",
         "icon-neutral": "var(--text-color-icon-neutral)",
         "label-available": "var(--text-color-label-available)",
@@ -377,6 +382,9 @@ module.exports = {
         "button-switch": "var(--border-color-button-switch)",
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
+        "toggle-active": "var(--border-color-toggle-active)",
+        "toggle-inactive": "var(--border-color-toggle-inactive)",
+        "toggle-hover": "var(--border-color-toggle-hover)",
       }),
       stroke: () => ({
         input: "var(--border-color-input)",

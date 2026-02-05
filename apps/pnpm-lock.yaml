@@ -998,8 +998,11 @@ importers:
         specifier: 16.12.0
         version: 16.12.0
       install:
-        specifier: ^0.13.0
+        specifier: 0.13.0
         version: 0.13.0
+      marked:
+        specifier: 17.0.1
+        version: 17.0.1
       monaco-editor:
         specifier: 0.53.0
         version: 0.53.0
@@ -1007,10 +1010,10 @@ importers:
         specifier: 1.4.1
         version: 1.4.1
       pa11y-ci:
-        specifier: ^4.0.1
+        specifier: 4.0.1
         version: 4.0.1(typescript@5.6.2)
       pa11y-ci-reporter-html:
-        specifier: ^8.0.1
+        specifier: 8.0.1
         version: 8.0.1
       ufo:
         specifier: 1.6.2
@@ -1044,7 +1047,7 @@ importers:
         specifier: 7.0.3
         version: 7.0.3
       http-server:
-        specifier: ^14.1.1
+        specifier: 14.1.1
         version: 14.1.1
       if-env:
         specifier: 1.0.4
@@ -6461,6 +6464,11 @@ packages:
 
   marked@16.4.2:
     resolution: {integrity: sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA==}
+    engines: {node: '>= 20'}
+    hasBin: true
+
+  marked@17.0.1:
+    resolution: {integrity: sha512-boeBdiS0ghpWcSwoNm/jJBwdpFaMnZWRzjA6SkUMYb40SVaN1x7mmfGKp0jvexGcx+7y2La5zRZsYFZI6Qpypg==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -15410,6 +15418,8 @@ snapshots:
       uc.micro: 2.1.0
 
   marked@16.4.2: {}
+
+  marked@17.0.1: {}
 
   math-intrinsics@1.1.0: {}
 

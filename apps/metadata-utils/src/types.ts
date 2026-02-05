@@ -1,4 +1,4 @@
-import type { ComputedRef } from "vue";
+import type { ComputedRef, Component } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -9,6 +9,27 @@ export interface ISetting {
 }
 
 export type HeadingType = "HEADING" | "SECTION";
+
+export interface IDisplayConfig {
+  layout?: "table" | "list" | "cards";
+  component?: string | Component;
+  visibleColumns?: string[];
+  columnConfig?: Record<string, IDisplayConfig>;
+  pageSize?: number;
+  showEmpty?: boolean;
+  rowLabel?: string;
+  clickAction?: (col: IColumn, row: IRow) => void;
+  getHref?: (col: IColumn, row: IRow) => string;
+  showFilters?: boolean;
+  filtersVisible?: boolean;
+  filterPosition?: "sidebar" | "topbar";
+  filterableColumns?: string[];
+  showSearch?: boolean;
+  filter?: object;
+  label?: string;
+  showLayoutToggle?: boolean;
+  showMgColumns?: boolean;
+}
 
 export type CellValueType =
   | "BOOL"
@@ -62,6 +83,7 @@ export interface IColumn {
   computed?: string;
   conditions?: string[];
   description?: string;
+  displayConfig?: IDisplayConfig;
   formLabel?: string;
   key?: number;
   position?: number;
@@ -70,12 +92,13 @@ export interface IColumn {
   refLabel?: string;
   refLabelDefault?: string;
   refLinkId?: string;
-  refSchemaId?: string; //should always be provided when refTableId is set even if in same schema
+  refSchemaId?: string;
   refTableId?: string;
   required?: string | boolean;
   semantics?: string[];
   validation?: string;
   visible?: string;
+  showFilter?: boolean;
   table?: string;
   name?: string;
   inherited?: boolean;
@@ -88,6 +111,7 @@ export interface IRefColumn extends IColumn {
   refLabel: string;
   refLabelDefault: string;
   refLinkId: string;
+  refTableMetadata?: ITableMetaData;
 }
 
 export interface ITableMetaData {

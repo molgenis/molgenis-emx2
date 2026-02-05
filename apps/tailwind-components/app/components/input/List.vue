@@ -46,7 +46,7 @@ function toggleSelect(node: INode) {
             :name="node.name"
             :checked="modelValue.includes(node.name)"
             @click.stop="toggleSelect(node)"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox hover:cursor-pointer"
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox hover:cursor-pointer accent-primary"
           />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
