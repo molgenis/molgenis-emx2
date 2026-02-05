@@ -21,6 +21,7 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import { useTemplateRef } from "vue";
+import _ from "lodash";
 
 const props = withDefaults(
   defineProps<
@@ -270,7 +271,7 @@ function deselect(label: string) {
 function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : null);
-  emit("blur");
+  onBlur();
   updateSearch(""); //reset
 }
 
@@ -282,6 +283,9 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
+const onBlur = _.debounce(() => {
+  emit("blur");
+}, 50);
 </script>
 
 <template>
@@ -315,12 +319,7 @@ function loadMore() {
       :id="`${id}-ref`"
       class="border-transparent w-full relative"
       @focus="emit('focus')"
-      @blur="
-        () => {
-          emit('blur');
-          console.log(`ref blur`);
-        }
-      "
+      @blur="onBlur"
     >
       <div
         v-show="displayAsSelect"
