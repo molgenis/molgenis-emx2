@@ -1,27 +1,26 @@
 <script setup lang="ts">
-import type { ITableDataResponse } from "../../composables/fetchTableData";
 import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import type {
   ITableMetaData,
   columnValueObject,
   recordValue,
 } from "../../../../metadata-utils/src/types";
+import type { ITableDataResponse } from "../../composables/fetchTableData";
 
+import _ from "lodash";
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
-import logger from "../../utils/logger";
-import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import { ref, type Ref, computed, watch, onMounted, nextTick } from "vue";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { useClickOutside } from "../../composables/useClickOutside";
+import logger from "../../utils/logger";
+import BaseIcon from "../BaseIcon.vue";
+import Button from "../Button.vue";
+import InputGroupContainer from "../input/InputGroupContainer.vue";
+import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
-import InputGroupContainer from "../input/InputGroupContainer.vue";
-import Button from "../Button.vue";
-import BaseIcon from "../BaseIcon.vue";
-import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import { useClickOutside } from "../../composables/useClickOutside";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
-import { useTemplateRef } from "vue";
-import _ from "lodash";
 
 const props = withDefaults(
   defineProps<
