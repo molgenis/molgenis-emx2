@@ -475,7 +475,6 @@ export default function useForm(
     const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
       visibleColIds.includes(key)
     );
-    console.log("visibleColumnErrors", Object.fromEntries(visibleErrors));
     return Object.fromEntries(visibleErrors);
   });
 
