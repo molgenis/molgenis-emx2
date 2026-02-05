@@ -131,7 +131,7 @@ Experiments RNA,,flow cell type,string,,,,,,,,,,,,http://purl.obolibrary.org/obo
 Experiments lrGS,,samples per flow cell,int,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,The number of samples per flow cell,Patient registry
 Experiments lrGS,,yield,decimal,yield (Gb),,,,,,,,,,,http://biomodels.net/SBO/SBO_0000668,Output generated as biomass or product from a set of chemical reactions,Patient registry
 NGS sequencing,,sequencing lane identifier,string,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C182081,The numerical identifier for the lane or machine unit where a sample was located during nucleotide sequencing.,"Patient registry, FAIR Genomes"
-Experiments lrGS,,movietime,ontology,,,,,CatalogueOntologies,movietime,,,,,,http://purl.obolibrary.org/obo/NCIT_C25330,"The period of time during which a sequencing run took place, i.e., the length of time during which the instrument records signal data.",Patient registry
+Experiments lrGS,,movietime,ontology,,,,,CatalogueOntologies,Movietime,,,,,,http://purl.obolibrary.org/obo/NCIT_C25330,"The period of time during which a sequencing run took place, i.e., the length of time during which the instrument records signal data.",Patient registry
 Experiments lrGS,,base kinetics included,bool,,,,,,,,,,,,,Does the experiment contain kinetic information? ,Patient registry
 Experiments RNA,,TIN,decimal,,,,,,,,,,,,,Transcript Integrity Number,Patient registry
 Experiments RNA,,targeted sequencing,bool,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C158252,Did targeted sequencing take place?,Patient registry
