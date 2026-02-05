@@ -76,7 +76,8 @@ function stringArrayValidationCheck(
     "PERIOD_ARRAY",
     "NON_NEGATIVE_INT_ARRAY",
   ].includes(type);
-  const incorrectFields = errorMessage?.match(/\'(.*?)\'/g);
+  const incorrectFields = errorMessage?.match(/'(?:[^'\\]|\\')*'/g);
+  console.log(">incorrectFields", incorrectFields,errorMessage);
   if (isStringArray) {
     return incorrectFields?.includes(`'${value}'`) ? true : false;
   }

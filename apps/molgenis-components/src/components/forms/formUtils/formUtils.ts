@@ -98,12 +98,14 @@ export function getColumnError(
   }
   if (type === "EMAIL_ARRAY") {
     const invalidEmails = arrayWithInvalidEmails(value);
-    if (invalidEmails.length == 1) {
-      return readableStringArray(
+    if (invalidEmails.length > 0) {
+      const test = readableStringArray(
         invalidEmails,
         " is an invalid email address",
         " are invalid email addresses"
       );
+      console.log("test", test);
+      return test;
     }
   }
   if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
@@ -111,7 +113,7 @@ export function getColumnError(
   }
   if (type === "HYPERLINK_ARRAY") {
     const invalidHyperlinks = arrayWithInvalidHyperlinks(value);
-    if (invalidHyperlinks.length === 1) {
+    if (invalidHyperlinks.length > 0) {
       return readableStringArray(
         invalidHyperlinks,
         " is an invalid hyperlink",
@@ -125,7 +127,7 @@ export function getColumnError(
   }
   if (type === "PERIOD_ARRAY") {
     let invalidPeriods = arrayWithInvalidPeriod(value);
-    if (invalidPeriods.length == 1) {
+    if (invalidPeriods.length > 0) {
       return (
         readableStringArray(
           invalidPeriods,
@@ -140,13 +142,13 @@ export function getColumnError(
   }
   if (type === "UUID_ARRAY") {
     let invalidUUIDs = arrayWithInvalidUUIDs(value);
-    if (invalidUUIDs.length == 1) {
+    if (invalidUUIDs.length > 0) {
       return (
         readableStringArray(
           invalidUUIDs,
           " is an invalid UUID: ",
           " are invalid UUIDs: "
-        ) + +UUID_EXPLANATION
+        ) +UUID_EXPLANATION
       );
     }
   }
@@ -210,18 +212,19 @@ export function getColumnError(
   return undefined;
 }
 
-function readableStringArray(
+export function readableStringArray(
   strings: string[],
-  postErrorSingular: string,
-  postErrorPlural: string
+  postErrorSingular?: string,
+  postErrorPlural?: string
 ): string {
-  if (strings.length === 0) {
+  const escapedStrings = strings.map((str) => str.replaceAll("'", "\\'"));
+  if (escapedStrings.length === 0) {
     return "";
-  } else if (strings.length === 1) {
-    return `'${strings[0]}' ${postErrorSingular}`;
+  } else if (escapedStrings.length === 1) {
+    return `'${escapedStrings[0]}' ${postErrorSingular}`;
   } else {
-    return `'${strings.slice(0, strings.length - 1).join("', '")}' and '${
-      strings[strings.length - 1]
+    return `'${escapedStrings.slice(0, escapedStrings.length - 1).join("', '")}' and '${
+      escapedStrings[escapedStrings.length - 1]
     }' ${postErrorPlural}`;
   }
 }

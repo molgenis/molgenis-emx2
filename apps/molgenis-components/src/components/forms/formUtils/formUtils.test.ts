@@ -12,6 +12,7 @@ import {
   isJsonObjectOrArray,
   buildGraphqlFilter,
   isInvalidBigInt,
+  readableStringArray,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "metadata-utils";
 const { AUTO_ID, HEADING } = constants;
@@ -618,6 +619,32 @@ describe("getSaveDisabledMessage", () => {
     const rowErrors = { id1: "some error", id2: "another error" };
     const result = getSaveDisabledMessage(rowErrors);
     expect(result).to.equal("There are 2 error(s) preventing saving");
+  });
+});
+
+describe("readableStringArray", () => {
+  test("it should return a readable string from an array of strings", () => {
+    const array = ["apple", "banana", "cherry"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple', 'banana' and 'cherry' are healthy");
+  });
+  
+  test("it should handle arrays with one item", () => {
+    const array = ["apple"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' is healthy");
+  });
+  
+  test("it should handle arrays with two items", () => {
+    const array = ["apple", "banana"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' and 'banana' are healthy");
+  });
+  
+  test("it should handle empty arrays", () => {
+    const array: string[] = [];   
+    const result = readableStringArray(array);
+    expect(result).toEqual("");
   });
 });
 
