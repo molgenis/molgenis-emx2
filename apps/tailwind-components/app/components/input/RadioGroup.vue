@@ -53,7 +53,12 @@ function resetModelValue() {
       'flex-col': align === 'vertical',
     }"
     @focus="emit('focus')"
-    @blur="emit('blur')"
+    @blur="
+      () => {
+        emit('blur');
+        console.log(`radio blur`);
+      }
+    "
   >
     <div v-for="option in options" class="flex flex-row">
       <InputLabel

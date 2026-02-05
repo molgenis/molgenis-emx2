@@ -39,22 +39,23 @@ const props = withDefaults(
   }
 );
 
-const initLoading = ref(true);
+const isInitLoading = ref(true);
 const modelValue = defineModel<
   columnValueObject[] | columnValueObject | null
 >();
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
-const optionMap: Ref<recordValue> = ref({});
-const selectionMap: Ref<recordValue> = ref({});
+const optionMap = ref<recordValue>({});
+const selectionMap = ref<recordValue>({});
 const initialCount = ref<number>(0);
 const count = ref<number>(0);
 const offset = ref<number>(0);
 const showSearch = ref<boolean>(false);
-const searchTerms: Ref<string> = ref("");
+const searchTerms = ref<string>("");
 const hasNoResults = ref<boolean>(true);
 const showSelect = ref(false);
+const searchInput = ref<HTMLInputElement | null>(null);
 
 const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
@@ -66,11 +67,33 @@ const listOptions = computed(() => {
     return { value: label } as IValueLabel;
   });
 });
+
 const selection = computed(() =>
   props.isArray
     ? (Object.keys(selectionMap.value) as string[])
     : (Object.keys(selectionMap.value)[0] as string)
 );
+
+const displayAsSelect = computed(() => initialCount.value > props.limit);
+
+watch(
+  () => props.refSchemaId,
+  () => init
+);
+watch(
+  () => props.refTableId,
+  () => init
+);
+
+// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
+watch(
+  () => modelValue.value,
+  () => init
+);
+
+onMounted(() => {
+  init();
+});
 
 async function init() {
   tableMetadata.value = await fetchTableMetadata(
@@ -104,23 +127,8 @@ async function init() {
 
   await loadOptions({ limit: props.limit });
   initialCount.value = count.value;
-  initLoading.value = false;
+  isInitLoading.value = false;
 }
-
-watch(
-  () => props.refSchemaId,
-  () => init
-);
-watch(
-  () => props.refTableId,
-  () => init
-);
-
-// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-watch(
-  () => modelValue.value,
-  () => init
-);
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -184,7 +192,6 @@ onMounted(() => {
   );
 });
 
-const searchInput = ref<HTMLInputElement | null>(null);
 function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
@@ -275,24 +282,18 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
-
-const displayAsSelect = computed(() => initialCount.value > props.limit);
-
-onMounted(() => {
-  init();
-});
 </script>
 
 <template>
   <div
     ref="lazyLoadTrigger"
-    v-show="initLoading"
+    v-show="isInitLoading"
     class="h-20 flex justify-start items-center"
   >
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
   <div
-    v-show="!initLoading && initialCount"
+    v-show="!isInitLoading && initialCount"
     :class="{
       'flex items-center border outline-none rounded-input cursor-pointer':
         displayAsSelect,
@@ -314,7 +315,12 @@ onMounted(() => {
       :id="`${id}-ref`"
       class="border-transparent w-full relative"
       @focus="emit('focus')"
-      @blur="emit('blur')"
+      @blur="
+        () => {
+          emit('blur');
+          console.log(`ref blur`);
+        }
+      "
     >
       <div
         v-show="displayAsSelect"
