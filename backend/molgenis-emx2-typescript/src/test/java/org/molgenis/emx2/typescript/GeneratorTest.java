@@ -1,12 +1,16 @@
 package org.molgenis.emx2.typescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.DataModels;
@@ -67,6 +71,30 @@ class GeneratorTest {
     File tempFile = File.createTempFile("myTempFile", ".tmp");
     tempFile.deleteOnExit();
     new Generator().generate(schema, tempFile.getAbsolutePath());
+  }
+
+  @Test
+  void generateCrossSchemaTest() throws IOException {
+    String schemaName = GeneratorTest.class.getSimpleName() + "TypeTest";
+    final Schema schema = db.getSchema(schemaName);
+    schema.create(
+        table("CrossSchemaRef")
+            .add(
+                column("id").setPkey(),
+                column("ref")
+                    .setType(ColumnType.REF)
+                    .setRefSchemaName(GeneratorTest.class.getSimpleName() + "-PetStore")
+                    .setRefTable("Category"),
+                column("ref_arr")
+                    .setType(ColumnType.REF_ARRAY)
+                    .setRefSchemaName(GeneratorTest.class.getSimpleName() + "-PetStore")
+                    .setRefTable("Category")));
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(stringWriter);
+    new Generator().generate(schema, printWriter, false);
+
+    assertTrue(stringWriter.toString().contains("PetStore_"));
   }
 
   private String fileToString(String file) throws IOException {
