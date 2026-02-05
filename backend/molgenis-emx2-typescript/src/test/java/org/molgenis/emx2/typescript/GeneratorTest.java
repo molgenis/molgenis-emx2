@@ -9,7 +9,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -18,6 +21,7 @@ import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
 import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GeneratorTest {
 
   private static Database db;
@@ -28,6 +32,7 @@ class GeneratorTest {
   }
 
   @Test
+  @Order(1)
   void generateTypes() throws IOException {
     String schemaName = GeneratorTest.class.getSimpleName() + "-PetStore";
     db.dropSchemaIfExists(schemaName);
@@ -47,6 +52,7 @@ class GeneratorTest {
   }
 
   @Test
+  @Order(2)
   void generateTypeTest() throws IOException {
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -74,6 +80,7 @@ class GeneratorTest {
   }
 
   @Test
+  @Order(3)
   void generateCrossSchemaTest() throws IOException {
     String schemaName = GeneratorTest.class.getSimpleName() + "TypeTest";
     final Schema schema = db.getSchema(schemaName);
