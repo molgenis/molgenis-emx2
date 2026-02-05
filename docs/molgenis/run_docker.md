@@ -47,13 +47,13 @@ These instructions can be followed when installing on macOS without using Docker
     chmod u+x docker-compose-darwin-aarch64
     mv docker-compose-darwin-aarch64 ~/.docker/cli-plugins/docker-compose
     ```
-6. Run `lima start`
+6. Run `colima start`
 7. Validate docker through `docker info` (there should be server information available)
 8. Download the [docker-compose.yml](https://github.com/molgenis/molgenis-emx2/blob/master/docker-compose.yml)
 9. Run `docker compose up` from the directory where the `docker-compose.yml` is stored.
 10. Open http://localhost:8080/
 
-!> After booting your computer, be sure to run `lima start` again before running docker commands.
+!> After booting your computer, be sure to run `colima start` again before running docker commands.
 
 ## Postgres
 
