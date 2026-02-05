@@ -28,20 +28,18 @@ import type { PieCharts, ColorPalette } from "../../../../types/viz";
 type PieDataEntry = [name: string, d: number];
 
 const props = withDefaults(defineProps<PieCharts>(), {
-  width: 300,
-  height: 300,
-  margins: 10,
+  width: 250,
+  height: 250,
+  margins: 25,
   showValues: true,
   showLabels: true,
   showValuesAsPercentages: true,
   asDonutChart: false,
-  pieChartIsCentered: false,
-  hoverEventsAreEnabled: false,
+  hoverEventsAreEnabled: true,
   clickEventsAreEnabled: false,
   legendIsEnabled: true,
   legendIsStacked: false,
   legendPosition: "top",
-  legendClickEventsAreEnabled: false,
   legendHoverEventsAreEnabled: false,
 });
 
@@ -52,8 +50,8 @@ const container = useTemplateRef("container");
 
 const svg = ref();
 const chartArea = ref();
-const chartScale = ref<number>(1);
 const width = ref<number>(props.width);
+const height = ref<number>(props.height);
 const viewBox = ref<string>("");
 const chartAreaTransform = ref<string>("");
 
@@ -62,13 +60,22 @@ const arcGenerator = ref();
 const labelGenerator = ref();
 const radius = ref<number>(1);
 
+const chartLayoutCss = computed<string>(() => {
+  if (props.legendIsEnabled && props.legendPosition) {
+    return `chart_layout_with_legend_${props.legendPosition}`;
+  } else {
+    return `chart_layout_default`;
+  }
+});
+
 function setChartDimensions() {
   parentElem.value = container.value?.parentNode as HTMLElement;
-  width.value = parentElem.value.offsetWidth || props.width;
+  width.value = (parentElem.value.offsetWidth || props.width) - props.margins;
+  height.value = props.height - props.margins;
 
-  viewBox.value = `0 0 ${width.value} ${props.height}`;
-  chartAreaTransform.value = `translate(${(width.value - props.margins) / 2}, ${
-    (props.height - props.margins) / 2
+  viewBox.value = `0 0 ${width.value} ${height.value}`;
+  chartAreaTransform.value = `translate(${width.value / 2},${
+    height.value / 2
   })`;
 
   radius.value = Math.min(width.value, props.height) / 2 - props.margins;
@@ -117,20 +124,23 @@ function setLabelText(value: string): string {
   return props.showValuesAsPercentages ? `${value}%` : value;
 }
 
-function onMouseOver(value: Record<string, any>) {
-  const slice = chartArea.value.select(`.slice[data-group="${value}"]`);
-  slice.node().classList.add("slice-focused");
+function onMouseOver(value: string) {
+  const elem = chartArea.value.select(
+    `path[data-elem="slice"][data-group="${value}"]`
+  );
+  elem.node().classList.add("scale-125");
 }
 
-function onMouseOut(value: Record<string, any>) {
-  const slice = chartArea.value.select(`path.slice[data-group="${value}"]`);
-  slice.node().classList.remove("slice-focused");
+function onMouseOut(value: string) {
+  const elem = chartArea.value.select(
+    `path[data-elem="slice"][data-group="${value}"]`
+  );
+  elem.node().classList.remove("scale-125");
 }
 
 function onClick(value: Record<string, any>) {
   const data: Record<string, number> = {};
   data[value.data[0]] = value.data[1];
-  // When segement is clicked, the underlying data (category and value) is returned
   emits("slice-clicked", data);
 }
 
@@ -160,22 +170,40 @@ function drawSlices() {
     .data(chartData.value)
     .join("path")
     .attr("d", arcGenerator.value)
+    .attr("data-elem", "slice")
     .attr("data-group", (value: Record<string, any>) => value.data[0])
     .attr(
       "fill",
       (value: Record<string, any>) => colorPalette.value[value.data[0]]
     );
 
+  const sliceCss: string[] = ["duration-300", "ease-in-out"];
   if (props.strokeColor) {
     slices.attr("stroke", props.strokeColor);
   } else {
-    slices.attr("class", "stroke-chart-paths");
+    sliceCss.push("stroke-chart-paths");
   }
 
+  if (props.clickEventsAreEnabled || props.hoverEventsAreEnabled) {
+    sliceCss.push("cursor-pointer");
+  }
+
+  slices.attr("class", sliceCss.join(" "));
+
   if (props.clickEventsAreEnabled) {
+    slices.on("click", (_: Event, value: Record<string, any>) =>
+      onClick(value)
+    );
+  }
+
+  if (props.hoverEventsAreEnabled) {
     slices
-      .style("cursor", "pointer")
-      .on("click", (_: Event, value: Record<string, any>) => onClick(value));
+      .on("mouseover", (_: Event, value: Record<string, any>) => {
+        onMouseOver(value.data[0]);
+      })
+      .on("mouseout", (_: Event, value: Record<string, any>) => {
+        onMouseOut(value.data[0]);
+      });
   }
 }
 
@@ -184,7 +212,7 @@ function drawLabels() {
   sliceLabels.selectAll("*").remove();
 
   sliceLabels
-    .selectAll("slice-label-path")
+    .selectAll("polylines")
     .data(chartData.value)
     .join("polyline")
     .attr("fill", "none")
@@ -225,17 +253,15 @@ function drawLabels() {
       .attr("dx", (value: Record<string, any>) => setOffsetX(value))
       .text((value: Record<string, any>) => setLabelText(value.data[1]));
   } else {
-    labels
+    const text = labels
       .attr("x", (value: Record<string, any>) => setLabelPosition(value)[0])
       .attr("dx", (value: Record<string, any>) => setOffsetX(value))
-      .attr("dy", "0.25em")
-      .text((value: Record<string, any>) => {
-        if (props.showLabels && !props.showValues) {
-          return value.data[0];
-        } else {
-          return setLabelText(value.data[1]);
-        }
-      });
+      .attr("dy", "0.25em");
+    if (props.showLabels && !props.showValues) {
+      text.text((value: Record<string, any>) => value.data[0]);
+    } else {
+      text.text((value: Record<string, any>) => setLabelText(value.data[1]));
+    }
   }
 }
 
@@ -254,6 +280,9 @@ function renderChart() {
 
   if (props.showValues || props.showLabels) {
     drawLabels();
+  } else {
+    const sliceLabels = svg.value.select("g.pie-slice-labels");
+    sliceLabels.selectAll("*").remove();
   }
 }
 
@@ -270,16 +299,27 @@ watch(props, () => renderChart(), { deep: true });
 </script>
 
 <template>
-  <div ref="container">
-    <ChartContext :title="title" :description="description" />
+  <div ref="container" class="grid gap-2.5 w-full" :class="[chartLayoutCss]">
+    <ChartContext
+      :title="title"
+      :description="description"
+      style="grid-area: context"
+    />
     <ChartLegend
       v-if="legendIsEnabled"
       :legend-id="id"
       :data="colorPalette"
       :stack-legend="legendIsStacked"
-      class="mt-2.5"
+      :enable-hovering="legendHoverEventsAreEnabled"
+      @legend-item-mouseover="(value:string) => onMouseOver(value)"
+      @legend-item-mouseout="(value:string) => onMouseOut(value)"
+      class="mb-2.5"
+      :class="{
+        'm-auto': legendIsEnabled && legendPosition === 'bottom',
+      }"
+      style="grid-area: legend"
     />
-    <div :class="{ 'm-auto': pieChartIsCentered }">
+    <div style="grid-area: chart">
       <svg
         :id="id"
         width="100%"
@@ -295,3 +335,25 @@ watch(props, () => renderChart(), { deep: true });
     </div>
   </div>
 </template>
+
+<style>
+.chart_layout_with_legend_top {
+  grid-template-areas:
+    "context"
+    "legend"
+    "chart";
+}
+
+.chart_layout_with_legend_bottom {
+  grid-template-areas:
+    "context"
+    "chart"
+    "legend";
+}
+
+.chart_layout_default {
+  grid-template-areas:
+    "context"
+    "chart";
+}
+</style>

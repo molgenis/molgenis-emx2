@@ -6,7 +6,7 @@ export interface Charts {
   height?: number;
 }
 
-export type LegendPosition = "top" | "right" | "bottom" | "left";
+export type LegendPosition = "top" | "bottom";
 
 export interface ChartContext {
   title: string;
@@ -18,19 +18,17 @@ export type ColorPalette = Record<string, string>;
 
 export interface PieCharts extends Charts {
   data: PieChartData;
+  margins?: number;
   colorPalette?: ColorPalette;
   showValues?: boolean;
   showLabels?: boolean;
   showValuesAsPercentages?: boolean;
   asDonutChart?: boolean;
   strokeColor?: string;
-  pieChartIsCentered?: boolean;
   hoverEventsAreEnabled?: boolean;
   clickEventsAreEnabled?: boolean;
   legendIsEnabled?: boolean;
   legendIsStacked?: boolean;
   legendPosition?: LegendPosition;
-  legendClickEventsAreEnabled?: boolean;
   legendHoverEventsAreEnabled?: boolean;
-  margins?: number;
 }
