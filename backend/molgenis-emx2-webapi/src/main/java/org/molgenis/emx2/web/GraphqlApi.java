@@ -91,9 +91,11 @@ public class GraphqlApi {
   }
 
   private static String executeQuery(GraphqlExecutor graphqlApi, Context ctx) throws IOException {
+
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
+    long start = System.currentTimeMillis();
 
     ExecutionResult executionResult = graphqlApi.execute(query, variables, sessionManager);
     String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
