@@ -339,6 +339,7 @@ module.exports = {
         "label-draft": "var(--text-color-label-draft)",
         "icon-neutral": "var(--text-color-icon-neutral)",
         "label-available": "var(--text-color-label-available)",
+        "chart-text": "var(--chart-text)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",
