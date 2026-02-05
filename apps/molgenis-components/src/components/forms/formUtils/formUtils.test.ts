@@ -455,7 +455,9 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result.nonNegativeInteger).to.contain("invalid non negative integer");
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
   });
 
   test("it should return an error for an invalid non negative integer array", () => {
@@ -466,7 +468,9 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result.nonNegativeInteger).to.contain("invalid non negative integer");
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
   });
 
   test("it should return no error for a successful validation", () => {
@@ -624,21 +628,21 @@ describe("readableStringArray", () => {
     const result = readableStringArray(array, "is healthy", "are healthy");
     expect(result).toEqual("'apple', 'banana' and 'cherry' are healthy");
   });
-  
+
   test("it should handle arrays with one item", () => {
     const array = ["apple"];
     const result = readableStringArray(array, "is healthy", "are healthy");
     expect(result).toEqual("'apple' is healthy");
   });
-  
+
   test("it should handle arrays with two items", () => {
     const array = ["apple", "banana"];
     const result = readableStringArray(array, "is healthy", "are healthy");
     expect(result).toEqual("'apple' and 'banana' are healthy");
   });
-  
+
   test("it should handle empty arrays", () => {
-    const array: string[] = [];   
+    const array: string[] = [];
     const result = readableStringArray(array);
     expect(result).toEqual("");
   });
