@@ -78,7 +78,8 @@ public class MessageApi {
 
     GraphqlExecutor gql = applicationCache.getSchemaGraphqlForUser(schema.getName(), ctx);
 
-    final ExecutionResult executionResult = gql.executeWithoutSession(recipientsQuery, validationFilter);
+    final ExecutionResult executionResult =
+        gql.executeWithoutSession(recipientsQuery, validationFilter);
     if (!executionResult.getErrors().isEmpty()) {
       ctx.status(500);
       String msg =
