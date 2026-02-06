@@ -6,7 +6,10 @@ import ontologyFragment from "../../../../gql/fragments/ontology";
 import fileFragment from "../../../../gql/fragments/file";
 import variablesQuery from "../../../../gql/variables";
 import { getKey } from "../../../../utils/variableUtils";
-import { resourceIdPath, buildCanonicalUrl } from "../../../../utils/urlHelpers";
+import {
+  resourceIdPath,
+  buildCanonicalUrl,
+} from "../../../../utils/urlHelpers";
 import type {
   IDefinitionListItem,
   IMgError,
@@ -19,7 +22,13 @@ import type {
   IResources,
   IVariables,
 } from "../../../../../interfaces/catalogue";
-import { useRuntimeConfig, useRoute, useFetch, useHead, useRequestURL } from "#app";
+import {
+  useRuntimeConfig,
+  useRoute,
+  useFetch,
+  useHead,
+  useRequestURL,
+} from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
 import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, ref } from "vue";
@@ -964,17 +973,27 @@ const showPopulation = computed(
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
               :url="`/${route.params.catalogue}/networks/${network.id}`"
-              :links="[
-                  network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
-               {title: 'Network details',
-                url: `/${route.params.catalogue}/networks/${network.id}`,
-                },
-               network.type?.some( (type) => type.name === 'Catalogue')
-               ? {
-                title: 'Catalogue',
-                url: `/${network.id}`,
-              }: null
-                ].filter((link) => link !== null)"
+              :links="
+                [
+                  network.website
+                    ? {
+                        title: 'Website',
+                        url: network.website,
+                        target: '_blank' as linkTarget,
+                      }
+                    : null,
+                  {
+                    title: 'Network details',
+                    url: `/${route.params.catalogue}/networks/${network.id}`,
+                  },
+                  network.type?.some((type) => type.name === 'Catalogue')
+                    ? {
+                        title: 'Catalogue',
+                        url: `/${network.id}`,
+                      }
+                    : null,
+                ].filter((link) => link !== null)
+              "
               target="_self"
             />
           </ReferenceCardList>

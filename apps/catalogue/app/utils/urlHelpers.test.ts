@@ -94,11 +94,8 @@ describe("buildCanonicalUrl", () => {
     );
   });
 
-
   it("should only replace the first path segment when catalogue name appears in resource id", () => {
-    const url = new URL(
-      "https://molgeniscatalogue.org/NCC/collections/NCC"
-    );
+    const url = new URL("https://molgeniscatalogue.org/NCC/collections/NCC");
     expect(buildCanonicalUrl(url, { catalogue: "NCC" })).toBe(
       "https://molgeniscatalogue.org/all/collections/NCC"
     );
