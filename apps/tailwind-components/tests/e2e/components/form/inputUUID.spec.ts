@@ -12,7 +12,7 @@ test("the inputUUID", async ({ page }) => {
   await page.getByRole("textbox", { name: "Please enter a UUID" }).fill("test");
   await page.getByRole("textbox", { name: "Please enter a UUID" }).blur();
   await expect(
-    page.getByText("Invalid UUID: should be a valid UUID format")
+    page.getByText("must use a valid UUID format")
   ).toBeVisible();
   await page.getByRole("textbox", { name: "Please enter a UUID" }).clear();
   await page
@@ -20,6 +20,6 @@ test("the inputUUID", async ({ page }) => {
     .fill("123e4567-e89b-12d3-a456-426614174000");
   await page.getByRole("textbox", { name: "Please enter a UUID" }).blur();
   await expect(
-    page.getByText("Invalid UUID: should be a valid UUID format")
+    page.getByText("must use a valid UUID format")
   ).not.toBeVisible();
 });
