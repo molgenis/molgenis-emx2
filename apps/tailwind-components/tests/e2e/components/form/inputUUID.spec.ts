@@ -11,9 +11,7 @@ test.beforeEach(async ({ page }) => {
 test("the inputUUID", async ({ page }) => {
   await page.getByRole("textbox", { name: "Please enter a UUID" }).fill("test");
   await page.getByRole("textbox", { name: "Please enter a UUID" }).blur();
-  await expect(
-    page.getByText("must use a valid UUID format")
-  ).toBeVisible();
+  await expect(page.getByText("must use a valid UUID format")).toBeVisible();
   await page.getByRole("textbox", { name: "Please enter a UUID" }).clear();
   await page
     .getByRole("textbox", { name: "Please enter a UUID" })
