@@ -93,7 +93,7 @@ public class ImportProfileTask extends Task {
     Schema ontologySchema;
     if (profiles.getOntologiesToFixedSchema() != null) {
       if (!ontologyExists) {
-        ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
+        ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), database);
         if (profiles.getSetFixedSchemaViewPermission() != null) {
           ontologySchema.addMember(
               profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
