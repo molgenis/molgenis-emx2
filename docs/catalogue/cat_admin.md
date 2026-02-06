@@ -215,4 +215,5 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 7.0.2  | Add Organisations.department to UMCUCohorts profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   | 
 | 7.1.0  | Add Resources.continents columnType ontology_array. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor and load Continents.csv to CatalogueOntologies  |
 | 7.1.1  | Delete profiles for catalogue and catalogue staging templates from attributes that refer to MedDRA ontology. To update reload updated molgenis.csv and data to catalogue and staging schemas |
+| 7.1.2  | Change columnType for some attributes from int to non_negative_int to produce correct rdf export. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor |
 | 7.2.0  | Add Variables.generated_keywords for DataCatalogueFlat profile only. To update reload updated molgenis.csv to catalogue schema or update in schema editor  |
