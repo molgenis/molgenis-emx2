@@ -35,9 +35,24 @@ Titles and descriptions are useful for providing context for users. It is recomm
 | legendPosition              | Placement of the legend: `top` or `bottom`                  | `bool`   | _        | `"top`        |
 | legendHoverEventsAreEnabled | Allow legend hover events to apply hover events on segments | `bool`   | _        | `false`       |
 
+## Chart Interactivity and events
+
+| Name                   | Description                                                                                                |
+|------------------------|------------------------------------------------------------------------------------------------------------|
+| `@slice-clicked`       | If prop `click-events-are-enabled` is true, then the value of a segment will be emitted when it is clicked |
+| `@legend-item-clicked` | TBD                                                                                                        |
+
+### Segment click events
+
+If enabled, when a user clicks a segment, the value will be emitted. This is useful if you would like to pass that value into other chart, use it in a query, or alter the UI in any way. This feature is only possible if `click-events-are-enabled` is set to true. The emitted value is an object containing the label and value of the clicked segment.
+
+```vue
+<PieChart :click-events-are-enabled="true" @slice-clicked="console.log($event)" ... />
+```
+
 ## Example
 
-Data must be an object that contains one or more key-value pairs. The follow example shows how to transform the data into the desired format. However, it is expected that data transformations will be made outside of this component.
+Data must be an object that contains one or more key-value pairs. The follow example shows how to transform the data into the desired format. It is expected that data transformations will be made outside of this component.
 
 ```ts
 // original data
