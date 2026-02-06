@@ -1,8 +1,8 @@
 # Run using docker compose
 
-## General
+## Linux / Docker Desktop
 
-These instructions can be followed when installing either on Linux or Windows/macOS through Docker Desktop.
+These instructions can be followed when using Linux or any OS if using Docker Desktop.
 
 * Install [Docker compose](https://docs.docker.com/compose/install/).
 * Download
@@ -26,11 +26,12 @@ docker-compose pull
 
 Stop by typing ctrl+c.
 
-## macOS (Apple Silicon)
+## macOS (without Docker Desktop)
 
-These instructions can be followed when installing on macOS without using Docker Desktop.
+These instructions were written with Apple Silicon in mind.
+While [Colima](https://colima.run/) is used to run Docker Engine, other approaches should be viable as well.
 
-1. Install [Lima](https://lima-vm.io/) as defined in [these instructions](https://lima-vm.io/docs/installation/).
+1. Install [Colima](https://colima.run/) as defined in [these instructions](https://colima.run/docs/installation/#macos).
 2. Install Docker CLI [as described here](https://docs.docker.com/engine/install/binaries/#install-client-binaries-on-macos). In short:
     ```bash
     curl -OL https://download.docker.com/mac/static/stable/aarch64/docker-<version>.tgz
