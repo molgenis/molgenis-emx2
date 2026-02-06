@@ -2,7 +2,7 @@
 import { ref } from "vue";
 
 import PieChart from "../../components/viz/PieChart/PieChart.vue";
-import ComponentOutput from "~/components/story/ComponentOutput.vue";
+import ComponentOutput from "../../components/story/ComponentOutput.vue";
 import InputBoolean from "../../components/input/Boolean.vue";
 import type { LegendPosition } from "../../../types/viz";
 
