@@ -102,6 +102,6 @@ public class RunMolgenisEmx2 {
         });
 
     // start
-    MolgenisWebservice.start(port);
+    new MolgenisWebservice().start(port);
   }
 }
