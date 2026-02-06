@@ -1,0 +1,50 @@
+query ExportDcat {
+  _schema {
+    name
+  }
+  _settings {
+    key
+    value
+  }
+  Resources {
+    id
+    name
+    description
+    pid
+    keywords
+    website
+    issued
+    modified
+    type {
+      name
+      ontologyTermURI
+    }
+    theme {
+      name
+      ontologyTermURI
+    }
+    accessRights {
+      name
+      ontologyTermURI
+    }
+    licence {
+      name
+      ontologyTermURI
+    }
+    publisher {
+      id
+      name
+    }
+    contacts {
+      firstName
+      lastName
+      email
+    }
+    dataResources {
+      id
+    }
+    childNetworks {
+      id
+    }
+  }
+}

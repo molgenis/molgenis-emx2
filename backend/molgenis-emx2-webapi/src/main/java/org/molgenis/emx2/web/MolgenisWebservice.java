@@ -129,6 +129,7 @@ public class MolgenisWebservice {
     RDFApi.create(app);
     BeaconApi.create(app);
     CafeVariomeApi.create(app);
+    FairMapperApi.create(app);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
     AnalyticsApi.create(app);

@@ -1,0 +1,24 @@
+#!/bin/bash
+# FAIRmapper CLI - run transformations and e2e tests against MOLGENIS
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$SCRIPT_DIR/.."
+JAR_PATH="$PROJECT_ROOT/backend/molgenis-emx2-fairmapper-cli/build/libs/fairmapper.jar"
+SRC_DIR="$PROJECT_ROOT/backend/molgenis-emx2-fairmapper-cli/src"
+
+needs_rebuild() {
+    [ ! -f "$JAR_PATH" ] && return 0
+    [ -n "$(find "$SRC_DIR" -newer "$JAR_PATH" -name '*.java' 2>/dev/null | head -1)" ] && return 0
+    return 1
+}
+
+if needs_rebuild; then
+    echo "Building fairmapper CLI..."
+    (cd "$PROJECT_ROOT" && ./gradlew :backend:molgenis-emx2-fairmapper-cli:shadowJar -q)
+    if [ ! -f "$JAR_PATH" ]; then
+        echo "Error: Build failed. JAR not found at $JAR_PATH"
+        exit 1
+    fi
+fi
+
+exec java -jar "$JAR_PATH" "$@"

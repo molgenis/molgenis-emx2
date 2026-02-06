@@ -1,0 +1,32 @@
+import "shared/ontology.jslt" as ontology
+
+let individuals = .data.Individuals
+let count = size($individuals)
+
+{
+  "meta": {
+    "beaconId": "org.molgenis.beacon",
+    "apiVersion": "v2.0.0",
+    "returnedSchemas": [{
+      "entityType": "individual",
+      "schema": "beacon-individual-v2.0.0"
+    }]
+  },
+  "responseSummary": {
+    "exists": $count > 0,
+    "numTotalResults": $count
+  },
+  "response": {
+    "resultSets": [{
+      "id": "individuals",
+      "type": "dataset",
+      "setType": "individuals",
+      "exists": $count > 0,
+      "resultsCount": $count,
+      "results": [for ($individuals) {
+        "id": .id,
+        "sex": ontology(.genderAtBirth)
+      }]
+    }]
+  }
+}

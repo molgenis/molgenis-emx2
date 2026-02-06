@@ -1,0 +1,11 @@
+{
+  "limit": 10,
+  "offset": 0,
+  "filter": {
+    "genderAtBirth": {
+      "ontologyTermURI": {
+        "like": "GSSO_000123"
+      }
+    }
+  }
+}

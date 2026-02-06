@@ -1,0 +1,14 @@
+name: dcat-harvester
+version: 1.0.0
+
+mappings:
+  - name: harvest-catalog
+    fetch: ${SOURCE_URL}
+    frame: src/catalog-with-datasets.jsonld
+    steps:
+      - transform: src/to-molgenis.jslt
+        tests:
+          - input: test/transform/dcat-input.json
+            output: test/transform/molgenis-output.json
+
+      - mutate: src/upsert-resources.gql

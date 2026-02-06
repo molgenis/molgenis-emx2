@@ -1,0 +1,56 @@
+name: beacon-v2
+version: 2.0.0
+
+mappings:
+  - name: beacon-individuals
+    route: individuals
+    methods: [GET, POST]
+    steps:
+      - transform: src/request-to-variables.jslt
+        tests:
+          - input: test/request-to-variables/basic.input.json
+            output: test/request-to-variables/basic.output.json
+          - input: test/request-to-variables/with-filter.input.json
+            output: test/request-to-variables/with-filter.output.json
+          - input: test/request-to-variables/with-sex-filter.input.json
+            output: test/request-to-variables/with-sex-filter.output.json
+
+      - query: src/individuals.gql
+        tests:
+          - input: test/individuals-query/basic.variables.json
+            output: test/individuals-query/basic.result.json
+
+      - transform: src/individuals-response.jslt
+        tests:
+          - input: test/individuals-response/single.input.json
+            output: test/individuals-response/single.output.json
+          - input: test/individuals-response/empty.input.json
+            output: test/individuals-response/empty.output.json
+
+  - name: beacon-individuals-full
+    route: individuals-full
+    methods: [GET, POST]
+    steps:
+      - transform: src/request-to-variables.jslt
+      - query: src/individuals-full.gql
+      - transform: src/individuals.jslt
+    e2e:
+      schema: patientRegistry
+      tests:
+        - method: POST
+          input: test/e2e/individuals-full.input.json
+          output: test/e2e/individuals-full.output.json
+
+  - name: beacon-individuals-minimal
+    route: individuals-minimal
+    methods: [GET, POST]
+    steps:
+      - transform: src/request-to-variables.jslt
+      - query: src/individuals-minimal.gql
+      - transform: src/individuals-response.jslt
+    e2e:
+      schema: patientRegistry
+      tests:
+        - method: POST
+          input: test/e2e/request.json
+          output: test/e2e/expected.json

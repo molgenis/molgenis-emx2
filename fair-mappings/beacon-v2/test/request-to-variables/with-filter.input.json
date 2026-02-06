@@ -1,0 +1,14 @@
+{
+  "query": {
+    "filters": [
+      {
+        "id": "unknown_filter",
+        "value": "test"
+      }
+    ],
+    "pagination": {
+      "limit": 5,
+      "skip": 10
+    }
+  }
+}

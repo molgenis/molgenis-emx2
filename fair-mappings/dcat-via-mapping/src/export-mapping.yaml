@@ -1,0 +1,80 @@
+_prefixes:
+  dcat: http://www.w3.org/ns/dcat#
+  dct: http://purl.org/dc/terms/
+  foaf: http://xmlns.com/foaf/0.1/
+  vcard: http://www.w3.org/2006/vcard/ns#
+  skos: http://www.w3.org/2004/02/skos/core#
+
+_context:
+  baseUrl: "=_request.baseUrl"
+  schema: "=_schema.name"
+
+Resources:
+  _let:
+    resourceUrl: "=baseUrl + '/' + schema + '/resource/' + id"
+  _id: "=resourceUrl"
+  _type: |
+    =type?.find(t => t.name === 'Catalogue') ? 'dcat:Catalog' :
+     type?.find(t => t.name === 'Databank') ? 'dcat:Dataset' :
+     type?.find(t => t.name === 'Dataservice') ? 'dcat:DataService' :
+     type?.find(t => t.name === 'Network') ? 'dcat:Catalog' :
+     'dcat:Distribution'
+  name: dct:title
+  description: dct:description
+  pid: dct:identifier
+  keywords: dcat:keyword
+  website: dcat:landingPage
+  issued: dct:issued
+  modified: dct:modified
+  theme:
+    predicate: dcat:theme
+    foreach: t in theme
+    value:
+      "@id": "=t.ontologyTermURI"
+      "@type": skos:Concept
+  accessRights:
+    predicate: dct:accessRights
+    value:
+      "@id": "=accessRights?.ontologyTermURI"
+      "@type": skos:Concept
+  licence:
+    predicate: dct:license
+    value:
+      "@id": "=licence?.ontologyTermURI"
+  publisher:
+    _let:
+      publisherUrl: "=baseUrl + '/' + schema + '/organisation/' + publisher?.id"
+    predicate: dct:publisher
+    value:
+      "@id": "=publisherUrl"
+      "@type": foaf:Organization
+      "foaf:name": "=publisher?.name"
+  contacts:
+    _let:
+      contactBase: "=baseUrl + '/' + schema + '/contact'"
+    predicate: dcat:contactPoint
+    foreach: c in contacts
+    value:
+      "@id": "=contactBase + '/' + c.firstName + '-' + c.lastName"
+      "@type": vcard:Kind
+      "vcard:fn": "=c.firstName + ' ' + c.lastName"
+      "vcard:givenName": "=c.firstName"
+      "vcard:familyName": "=c.lastName"
+      "vcard:hasEmail": "='mailto:' + c.email"
+  dataResources:
+    predicate: dcat:dataset
+    foreach: d in dataResources
+    value:
+      "@id": "=baseUrl + '/' + schema + '/resource/' + d.id"
+  childNetworks:
+    predicate: dcat:catalog
+    foreach: n in childNetworks
+    value:
+      "@id": "=baseUrl + '/' + schema + '/resource/' + n.id"
+
+Organisations:
+  _let:
+    orgUrl: "=baseUrl + '/' + schema + '/organisation/' + id"
+  _id: "=orgUrl"
+  _type: foaf:Organization
+  name: foaf:name

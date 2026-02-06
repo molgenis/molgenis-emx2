@@ -1,0 +1,60 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "vcard": "http://www.w3.org/2006/vcard/ns#"
+  },
+  "@type": ["dcat:Catalog", "dcat:Dataset", "dcat:DataService", "dcat:Distribution"],
+  "@explicit": true,
+  "dct:title": {},
+  "dct:description": {},
+  "dct:identifier": {},
+  "dcat:keyword": {},
+  "dct:issued": {},
+  "dct:modified": {},
+  "foaf:homepage": {},
+  "dct:accessRights": {
+    "@embed": "@always",
+    "@explicit": true
+  },
+  "dct:license": {
+    "@embed": "@always",
+    "@explicit": true
+  },
+  "dcat:theme": {
+    "@embed": "@always",
+    "@explicit": true
+  },
+  "dct:publisher": {
+    "@type": "foaf:Agent",
+    "@embed": "@always",
+    "@explicit": true,
+    "foaf:name": {}
+  },
+  "dcat:contactPoint": {
+    "@type": "vcard:Kind",
+    "@embed": "@always",
+    "@explicit": true,
+    "vcard:fn": {},
+    "vcard:given-name": {},
+    "vcard:family-name": {},
+    "vcard:hasEmail": {}
+  },
+  "dcat:dataset": {
+    "@type": "dcat:Dataset",
+    "@embed": "@always",
+    "@explicit": true,
+    "dct:title": {},
+    "dct:description": {},
+    "dct:identifier": {}
+  },
+  "dcat:catalog": {
+    "@type": "dcat:Catalog",
+    "@embed": "@always",
+    "@explicit": true,
+    "dct:title": {},
+    "dct:description": {},
+    "dct:identifier": {}
+  }
+}

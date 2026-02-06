@@ -1,0 +1,18 @@
+{
+  "data": {
+    "Individuals": [
+      {
+        "id": "IND001",
+        "genderAtBirth": {
+          "code": "C20197",
+          "codesystem": "NCIT",
+          "name": "Male"
+        },
+        "yearOfBirth": 1985
+      }
+    ],
+    "Individuals_agg": {
+      "count": 1
+    }
+  }
+}

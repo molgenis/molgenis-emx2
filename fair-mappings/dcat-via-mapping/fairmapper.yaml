@@ -1,0 +1,11 @@
+name: dcat-via-mapping
+version: 1.0.0
+
+mappings:
+  - name: export-dcat
+    route: dcat
+    methods: [GET]
+    output: turtle
+    steps:
+      - query: src/get-all.gql
+      - mapping: src/export-mapping.yaml

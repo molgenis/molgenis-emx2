@@ -1,0 +1,38 @@
+
+// Transform GraphQL result to Beacon v2 response
+// Input: GraphQL query result with Individuals array and Individuals_agg count
+// Output: Beacon v2 response format
+
+let individuals = .data.Individuals
+let totalCount = .data.Individuals_agg.count
+
+{
+  "meta": {
+    "beaconId": "org.molgenis.beacon",
+    "apiVersion": "v2.0.0",
+    "returnedSchemas": [{
+      "entityType": "individuals",
+      "schema": "beacon-v2-default-individual"
+    }]
+  },
+  "responseSummary": {
+    "exists": $totalCount > 0,
+    "numTotalResults": $totalCount
+  },
+  "response": {
+    "resultSets": [{
+      "id": "molgenis",
+      "setType": "dataset",
+      "exists": $totalCount > 0,
+      "resultsCount": size($individuals),
+      "results": [for ($individuals) {
+        "id": .id,
+        "sex": if (.genderAtBirth) {
+          "id": .genderAtBirth.codesystem + ":" + .genderAtBirth.code,
+          "label": .genderAtBirth.name
+        } else null,
+        "diseases": null
+      }]
+    }]
+  }
+}

@@ -1,0 +1,5 @@
+mutation UpsertResources($Resources: [ResourcesInput], $Contacts: [ContactsInput], $Organisations: [OrganisationsInput]) {
+  insert(Resources: $Resources, Contacts: $Contacts, Organisations: $Organisations) {
+    message
+  }
+}

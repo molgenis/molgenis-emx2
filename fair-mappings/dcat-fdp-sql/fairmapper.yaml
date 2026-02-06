@@ -1,0 +1,24 @@
+name: dcat-fdp-sql
+version: 1.0.0
+
+mappings:
+  - name: fdp-root
+    route: fdp
+    methods: [GET]
+    output: turtle
+    steps:
+      - sql: src/get-fdp-root.sql
+
+  - name: fdp-catalog
+    route: catalog/{id}
+    methods: [GET]
+    output: turtle
+    steps:
+      - sql: src/get-catalog.sql
+
+  - name: fdp-dataset
+    route: dataset/{id}
+    methods: [GET]
+    output: turtle
+    steps:
+      - sql: src/get-dataset.sql

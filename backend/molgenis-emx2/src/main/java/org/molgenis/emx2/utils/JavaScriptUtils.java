@@ -6,6 +6,7 @@ import java.util.Map;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.ResourceLimits;
 import org.graalvm.polyglot.Value;
 import org.molgenis.emx2.MolgenisException;
 
@@ -40,6 +41,7 @@ public class JavaScriptUtils {
           Context.newBuilder("js")
               .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
               .engine(engine)
+              .resourceLimits(ResourceLimits.newBuilder().statementLimit(1_000_000, null).build())
               .build();
       Value bindings = context.getBindings("js");
       if (values != null) {
