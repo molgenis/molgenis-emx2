@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
-import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
@@ -37,25 +36,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
-@ExtendWith(SystemStubsExtension.class)
-class WebApiSmokeTests {
+class WebApiSmokeTests extends ApiTestBase {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
@@ -74,79 +68,44 @@ class WebApiSmokeTests {
   public static final String PET_STORE_SCHEMA = "pet store";
   private static final String CSV_TEST_SCHEMA = "pet store csv";
 
-  private static final int PORT = 8081; // other than default so we can see effect
-
-  private static String sessionId; // to toss around a session for the tests
-  private static Database db;
   private static Schema schema;
 
   @BeforeAll
-  static void before() throws Exception {
-    // FIXME: beforeAll fails under windows
-    // setup test schema
-    db = TestDatabaseFactory.getTestDatabase();
-
-    // start web service for testing, including env variables
-    new EnvironmentVariables(
-            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
-        .execute(
-            () -> {
-              RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
-            });
-
-    // set default rest assured settings
-    RestAssured.port = PORT;
-    RestAssured.baseURI = "http://localhost";
-
+  static void before() {
     setAdminSession();
     setupDatabase();
   }
 
   private static void setupDatabase() {
     // Always create test database from scratch to avoid instability due to side effects.
-    db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    PET_STORE.getImportTask(db, PET_STORE_SCHEMA, "", true).run();
-    schema = db.getSchema(PET_STORE_SCHEMA);
+    database.dropSchemaIfExists(PET_STORE_SCHEMA);
+    PET_STORE.getImportTask(database, PET_STORE_SCHEMA, "", true).run();
+    schema = database.getSchema(PET_STORE_SCHEMA);
 
     // grant a user permission
-    db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
-    db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
-    db.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
+    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
+    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
     schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
     schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-    db.grantCreateSchema(PET_SHOP_OWNER);
+    database.grantCreateSchema(PET_SHOP_OWNER);
     if (schema.getTable(TABLE_WITH_SPACES) == null) {
       schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
     }
   }
 
   private static void setAdminSession() {
-    setupSession(db.getAdminUserName(), ADMIN_PASS);
-  }
-
-  private static void setupSession(String username, String password) {
-    sessionId =
-        given()
-            .body(
-                """
-                {
-                  "query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"
-                }
-                """
-                    .formatted(username, password))
-            .when()
-            .post("api/graphql")
-            .sessionId();
+    login(database.getAdminUserName(), ADMIN_PASS);
   }
 
   @AfterAll
   static void after() {
     // Always clean up database to avoid instability due to side effects.
-    db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    db.dropSchemaIfExists("pet store yaml");
-    db.dropSchemaIfExists("pet store json");
+    database.dropSchemaIfExists(PET_STORE_SCHEMA);
+    database.dropSchemaIfExists("pet store yaml");
+    database.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -260,7 +219,7 @@ class WebApiSmokeTests {
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
-    db.dropCreateSchema("pet store zip");
+    database.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
     byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip");
@@ -286,14 +245,14 @@ class WebApiSmokeTests {
     assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
     // delete the new schema
-    db.dropSchema("pet store zip");
+    database.dropSchema("pet store zip");
   }
 
   @Test
   void testReports() throws IOException {
     // create a new schema for report
-    db.dropSchemaIfExists("pet store reports");
-    PET_STORE.getImportTask(db, "pet store reports", "", true).run();
+    database.dropSchemaIfExists("pet store reports");
+    PET_STORE.getImportTask(database, "pet store reports", "", true).run();
 
     // check if reports work
     byte[] zipContents =
@@ -401,7 +360,7 @@ class WebApiSmokeTests {
   void testCsvApi_csvTableMetadataUpdate() throws IOException {
 
     // fresh schema for testing
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     // full table header present in exported table metadata
     String header =
@@ -461,7 +420,7 @@ class WebApiSmokeTests {
   @Test
   void testCsvApi_csvUploadDownload() throws IOException {
     // create a new schema for complete csv data round trip
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     // download csv metadata and data from existing schema
     byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv");
@@ -530,7 +489,7 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
 
@@ -549,7 +508,7 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_downloadMembers() throws IOException {
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
@@ -566,7 +525,7 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_downloadSettings() throws IOException {
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
@@ -768,7 +727,7 @@ class WebApiSmokeTests {
   void testJsonYamlApi() {
     String schemaJson = given().sessionId(sessionId).when().get("/pet store/api/json").asString();
 
-    db.dropCreateSchema("pet store json");
+    database.dropCreateSchema("pet store json");
 
     given()
         .sessionId(sessionId)
@@ -785,7 +744,7 @@ class WebApiSmokeTests {
 
     String schemaYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml").asString();
 
-    db.dropCreateSchema("pet store yaml");
+    database.dropCreateSchema("pet store yaml");
 
     given()
         .sessionId(sessionId)
@@ -816,8 +775,8 @@ class WebApiSmokeTests {
         .then()
         .statusCode(200);
 
-    db.dropSchemaIfExists("pet store yaml");
-    db.dropSchemaIfExists("pet store json");
+    database.dropSchemaIfExists("pet store yaml");
+    database.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -828,7 +787,7 @@ class WebApiSmokeTests {
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
 
     // create a new schema for excel
-    db.dropCreateSchema("pet store excel");
+    database.dropCreateSchema("pet store excel");
 
     // download excel contents from schema
     byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel");
@@ -885,7 +844,7 @@ class WebApiSmokeTests {
     assertTrue(schemaCSV2.contains("Pet"));
 
     // delete a new schema for excel
-    db.dropSchema("pet store excel");
+    database.dropSchema("pet store excel");
   }
 
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
@@ -949,7 +908,7 @@ class WebApiSmokeTests {
             .filter(sessionFilter)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + db.getAdminUserName()
+                    + database.getAdminUserName()
                     + "\\\",password:\\\""
                     + ADMIN_PASS
                     + "\\\"){message}}\"}")
@@ -965,7 +924,7 @@ class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains(db.getAdminUserName()));
+    assertTrue(result.contains(database.getAdminUserName()));
 
     // if admin then should  be able to see users
     result =
@@ -1088,7 +1047,7 @@ class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.becomeAdmin();
+    database.becomeAdmin();
   }
 
   @Test
@@ -1543,8 +1502,8 @@ class WebApiSmokeTests {
   @Test
   void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
-    db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
-    db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+    database.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
+    database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
 
     String token = getToken("admin", "admin");
     String result;
@@ -1636,7 +1595,8 @@ class WebApiSmokeTests {
 
     // script should be deleted
     assertTrue(
-        db.getSchema(SYSTEM_SCHEMA)
+        database
+            .getSchema(SYSTEM_SCHEMA)
             .getTable("Scripts")
             .where(f("name", EQUALS, "test"))
             .retrieveRows()
@@ -1664,9 +1624,9 @@ class WebApiSmokeTests {
   // todo update / rewrite test to be more stable in CI env
   void testExecuteSubtaskInScriptTask() throws JsonProcessingException, InterruptedException {
     String parentJobName = "parentJobTest";
-    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
     jobs.delete(row("name", parentJobName));
-    db.dropSchemaIfExists("ScriptWithFileUpload");
+    database.dropSchemaIfExists("ScriptWithFileUpload");
     String script =
         """
             import asyncio
@@ -1711,7 +1671,7 @@ class WebApiSmokeTests {
 
     String failingJobName = "failingJobTest";
     jobs.delete(row("name", failingJobName));
-    db.dropSchemaIfExists("ScriptWithFileUpload");
+    database.dropSchemaIfExists("ScriptWithFileUpload");
     String scriptFail = script.replace("PET_STORE", "PET_STORES");
     jobs.insert(
         row(
@@ -1827,7 +1787,7 @@ class WebApiSmokeTests {
   }
 
   private void getAndAssertContains(String path, String expectedSubstring) {
-    db.clearCache();
+    database.clearCache();
     String result = given().get(path).getBody().asString();
     ObjectMapper mapper = new ObjectMapper();
     String prettyJson;
@@ -1885,7 +1845,7 @@ class WebApiSmokeTests {
   @Test
   void testAnalyticsApi() throws JsonProcessingException {
 
-    db.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
+    database.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
     String adminToken = getToken("admin", "admin");
 
     // add a trigger
@@ -1949,7 +1909,7 @@ class WebApiSmokeTests {
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
-    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
     Filter f = f("script", f("name", EQUALS, scriptName));
     int count = 0;
     Row firstJob = null;
@@ -1979,102 +1939,5 @@ class WebApiSmokeTests {
         .body(containsString("jvm_memory_used_bytes"))
         .when()
         .get(MetricsController.METRICS_PATH);
-  }
-
-  @Nested
-  class MenuBasedRedirects {
-
-    @BeforeAll
-    static void setupUser() {
-      db.setUserPassword("foo", "testtest");
-      setupSession("foo", "testtest");
-    }
-
-    @AfterAll
-    static void cleanSession() {
-      setAdminSession();
-    }
-
-    @Test
-    void givenSchema_whenNoMenu_thenRedirectToTables() {
-      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-menu");
-      given()
-          .redirects()
-          .follow(false)
-          .sessionId(sessionId)
-          .when()
-          .get("/" + testSchema.getName() + "/")
-          .then()
-          .header("Location", "/" + testSchema.getName() + "/tables");
-      db.dropSchema(testSchema.getName());
-    }
-
-    @Test
-    void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
-      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-match");
-      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
-      given()
-          .redirects()
-          .follow(false)
-          .sessionId(sessionId)
-          .when()
-          .get("/" + testSchema.getName() + "/")
-          .then()
-          .header("Location", "/");
-      db.dropSchema(testSchema.getName());
-    }
-
-    @Test
-    void givenSchema_whenMenuForRole_thenRedirectToFirstItem() {
-      Schema testSchema = setupSchema(getClass().getSimpleName() + "first-item");
-      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
-      given()
-          .redirects()
-          .follow(false)
-          .sessionId(sessionId)
-          .when()
-          .get("/" + testSchema.getName() + "/")
-          .then()
-          .header("Location", "/" + testSchema.getName() + "/from-menu");
-      db.dropSchema(testSchema.getName());
-    }
-
-    @Test
-    void givenSchemaWithAnonymousUser_whenInsufficientRoleForMenu_thenRedirectToTables() {
-      Schema testSchema = setupSchema(getClass().getSimpleName() + "anonymous");
-      testSchema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
-      given()
-          .redirects()
-          .follow(false)
-          .sessionId(sessionId)
-          .when()
-          .get("/" + testSchema.getName() + "/")
-          .then()
-          .header("Location", "/" + testSchema.getName() + "/tables");
-      db.dropSchema(testSchema.getName());
-    }
-
-    private String menuForRole(String role) {
-      return """
-            [
-              {
-                "label": "Tables",
-                "href": "from-menu",
-                "role": "%s",
-                "key": "y0768",
-                "submenu": []
-              }
-            ]
-            """
-          .formatted(role);
-    }
-
-    private static Schema setupSchema(String testSchemaName) {
-      db.dropCreateSchema(testSchemaName);
-      Schema testSchema = db.getSchema(testSchemaName);
-      testSchema.addMember("foo", Privileges.VIEWER.toString());
-      return testSchema;
-    }
   }
 }
