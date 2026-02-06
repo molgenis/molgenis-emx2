@@ -9,14 +9,6 @@ nyx {
     verbosity = "INFO"
     preset = "simple"
     releasePrefix = "v"
-	remotes {
-            origin {
-                authenticationMethod = "USER_PASSWORD"
-                user = "{{#environmentVariable}}GITHUB_TOKEN{{/environmentVariable}}"
-                password = "{{#environmentVariable}}GITHUB_TOKEN{{/environmentVariable}}"
-            }
-        }
-    }
     releaseTypes {
         items {
             mainline {
