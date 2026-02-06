@@ -285,7 +285,7 @@ function loadMore() {
 
 const onBlur = useDebounceFn(() => {
   emit("blur");
-}, 50);
+}, 100);
 </script>
 
 <template>
