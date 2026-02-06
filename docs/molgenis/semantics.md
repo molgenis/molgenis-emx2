@@ -146,3 +146,307 @@ rdfs:label "fire ant";
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/mg_insertedOn&gt; "2025-03-18T12:04:55"^^xsd:dateTime;
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/mg_updatedOn&gt; "2025-03-18T12:04:55"^^xsd:dateTime .
 </pre>
+
+## JSON-LD for harvesting and import
+
+The JSON-LD API allows semantic data exchange with external systems. This is useful for:
+- Publishing data for harvesters (DCAT-AP, FAIR Data Points)
+- Importing data from Linked Data sources
+- Integrating with semantic web tooling
+
+### Schema with semantic annotations
+
+Define a DCAT-compatible catalog schema:
+
+```csv
+tableName,tableSemantics,columnName,columnType,key,refTable,semantics
+Catalog,dcat:Catalog,id,STRING,1,,dcterms:identifier
+Catalog,,title,STRING,,,dcterms:title
+Catalog,,description,TEXT,,,dcterms:description
+Catalog,,publisher,REF,,Organization,dcterms:publisher
+Catalog,,datasets,REF_ARRAY,,Dataset,dcat:dataset
+Dataset,dcat:Dataset,id,STRING,1,,dcterms:identifier
+Dataset,,title,STRING,,,dcterms:title
+Dataset,,description,TEXT,,,dcterms:description
+Dataset,,issued,DATE,,,dcterms:issued
+Dataset,,keywords,STRING_ARRAY,,,dcat:keyword
+Organization,foaf:Organization,id,STRING,1,,dcterms:identifier
+Organization,,name,STRING,,,foaf:name
+Organization,,homepage,HYPERLINK,,,foaf:homepage
+```
+
+### JSON-LD export with @context
+
+Request data via the JSON-LD API:
+
+```bash
+curl https://example.org/my-catalog/api/jsonld/Catalog
+```
+
+Response includes semantic `@context`:
+
+```json
+{
+  "@context": {
+    "@base": "https://example.org/my-catalog/",
+    "my": "https://example.org/my-catalog#",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "mg_id": "@id",
+    "data": "@graph",
+    "@embed": "@always",
+    "Catalog": {"@id": "my:Catalog", "@type": "dcat:Catalog"},
+    "Dataset": {"@id": "my:Dataset", "@type": "dcat:Dataset"},
+    "Organization": {"@id": "my:Organization", "@type": "foaf:Organization"},
+    "id": "dcterms:identifier",
+    "title": "dcterms:title",
+    "description": "dcterms:description",
+    "publisher": {"@id": "dcterms:publisher", "@type": "@id"},
+    "datasets": {"@id": "dcat:dataset", "@type": "@id"},
+    "issued": {"@id": "dcterms:issued", "@type": "xsd:date"},
+    "keywords": "dcat:keyword",
+    "name": "foaf:name",
+    "homepage": {"@id": "foaf:homepage", "@type": "@id"}
+  },
+  "data": {
+    "Catalog": [
+      {
+        "mg_id": "Catalog/id=cat-001",
+        "id": "cat-001",
+        "title": "Research Data Catalog",
+        "description": "Catalog of research datasets",
+        "publisher": {"mg_id": "Organization/id=org-001", "name": "Example University"},
+        "datasets": [
+          {"mg_id": "Dataset/id=ds-001", "title": "Climate Data 2024"}
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Subsetting with GraphQL-LD
+
+Use GraphQL-LD for selective harvesting:
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"query": "{ Catalog { id title datasets { id title issued } } }"}' \
+  https://example.org/my-catalog/api/graphql-ld
+```
+
+Response (only requested fields, with @context):
+
+```json
+{
+  "@context": { ... },
+  "data": {
+    "Catalog": [
+      {
+        "mg_id": "Catalog/id=cat-001",
+        "id": "cat-001",
+        "title": "Research Data Catalog",
+        "datasets": [
+          {
+            "mg_id": "Dataset/id=ds-001",
+            "id": "ds-001",
+            "title": "Climate Data 2024",
+            "issued": "2024-01-15"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Converting to Turtle
+
+The JSON-LD output can be converted to Turtle using any JSON-LD processor:
+
+```bash
+# Using jsonld-cli
+curl https://example.org/my-catalog/api/jsonld/Catalog | jsonld format -q
+
+# Or request Turtle directly
+curl https://example.org/my-catalog/api/ttl/Catalog
+```
+
+Result:
+
+```turtle
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<https://example.org/my-catalog/Catalog/id=cat-001> a dcat:Catalog ;
+    dcterms:identifier "cat-001" ;
+    dcterms:title "Research Data Catalog" ;
+    dcterms:description "Catalog of research datasets" ;
+    dcterms:publisher <https://example.org/my-catalog/Organization/id=org-001> ;
+    dcat:dataset <https://example.org/my-catalog/Dataset/id=ds-001> .
+```
+
+### Importing JSON-LD data
+
+POST JSON-LD data to import. The `@context` and `@` keywords are automatically stripped:
+
+```bash
+curl -X POST -H "Content-Type: application/ld+json" \
+  -H "x-molgenis-token: $TOKEN" \
+  -d '{
+    "@context": "https://schema.org/",
+    "@type": "dcat:Dataset",
+    "id": "ds-002",
+    "title": "Biodiversity Survey",
+    "description": "Species count data",
+    "issued": "2024-03-20",
+    "keywords": ["biodiversity", "ecology", "species"]
+  }' \
+  https://example.org/my-catalog/api/jsonld/Dataset
+```
+
+You can also import plain JSON (without `@` fields) to the same endpoint:
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+  -H "x-molgenis-token: $TOKEN" \
+  -d '{
+    "id": "ds-003",
+    "title": "Water Quality Measurements",
+    "issued": "2024-06-01"
+  }' \
+  https://example.org/my-catalog/api/jsonld/Dataset
+```
+
+### Roundtrip example
+
+Export, modify externally, and re-import:
+
+```bash
+# 1. Export catalog as JSON-LD
+curl https://example.org/my-catalog/api/jsonld/_all > catalog.jsonld
+
+# 2. Edit catalog.jsonld externally (add datasets, fix metadata, etc.)
+
+# 3. Re-import (upserts based on primary keys)
+curl -X PUT -H "x-molgenis-token: $TOKEN" \
+  -H "Content-Type: application/ld+json" \
+  -d @catalog.jsonld \
+  https://example.org/my-catalog/api/jsonld/_all
+```
+
+### Content negotiation
+
+Use the `/api/data/` endpoint for format-agnostic access:
+
+```bash
+# Harvester requests JSON-LD
+curl -H "Accept: application/ld+json" \
+  https://example.org/my-catalog/api/data/Catalog
+
+# Browser requests JSON
+curl -H "Accept: application/json" \
+  https://example.org/my-catalog/api/data/Catalog
+
+# RDF tool requests Turtle
+curl -H "Accept: text/turtle" \
+  https://example.org/my-catalog/api/data/Catalog
+```
+
+All return the same data in different serializations.
+
+### Turtle output with filtering
+
+Filter data using query parameters:
+
+```bash
+# Get only available datasets as Turtle
+curl "https://example.org/my-catalog/api/ttl/Dataset?filter={\"status\":{\"equals\":\"available\"}}"
+```
+
+Result (filtered):
+
+```turtle
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/my-catalog/Dataset/id=ds-001> a dcat:Dataset ;
+    dcterms:identifier "ds-001" ;
+    dcterms:title "Climate Data 2024" ;
+    dcterms:issued "2024-01-15"^^xsd:date ;
+    dcat:keyword "climate", "temperature", "weather" .
+```
+
+### Turtle with GraphQL subsetting
+
+Use GraphQL-LD to select specific fields, then convert to Turtle:
+
+```bash
+# Request only id, title, and keywords via GraphQL-LD
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"query": "{ Dataset { id title keywords } }"}' \
+  https://example.org/my-catalog/api/graphql-ld | jsonld format -q
+```
+
+Or use the TTL endpoint with a custom GraphQL query:
+
+```bash
+# Subset via query parameter
+curl "https://example.org/my-catalog/api/ttl/Dataset?query={Dataset{id,title,keywords}}"
+```
+
+Result (only selected fields):
+
+```turtle
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<https://example.org/my-catalog/Dataset/id=ds-001> a dcat:Dataset ;
+    dcterms:identifier "ds-001" ;
+    dcterms:title "Climate Data 2024" ;
+    dcat:keyword "climate", "temperature", "weather" .
+
+<https://example.org/my-catalog/Dataset/id=ds-002> a dcat:Dataset ;
+    dcterms:identifier "ds-002" ;
+    dcterms:title "Biodiversity Survey" ;
+    dcat:keyword "biodiversity", "ecology", "species" .
+```
+
+### Combined filter and subset
+
+Combine filtering with field selection:
+
+```bash
+# Get datasets from 2024 with only title and issued date
+curl "https://example.org/my-catalog/api/ttl/Dataset?filter={\"issued\":{\"like\":\"2024%\"}}&query={Dataset{title,issued}}"
+```
+
+Result:
+
+```turtle
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/my-catalog/Dataset/id=ds-001>
+    dcterms:title "Climate Data 2024" ;
+    dcterms:issued "2024-01-15"^^xsd:date .
+
+<https://example.org/my-catalog/Dataset/id=ds-002>
+    dcterms:title "Biodiversity Survey" ;
+    dcterms:issued "2024-03-20"^^xsd:date .
+```
+
+### Pagination for large exports
+
+Use limit and offset for paginated Turtle export:
+
+```bash
+# Get first 100 datasets
+curl "https://example.org/my-catalog/api/ttl/Dataset?limit=100&offset=0"
+
+# Get next 100
+curl "https://example.org/my-catalog/api/ttl/Dataset?limit=100&offset=100"
+```

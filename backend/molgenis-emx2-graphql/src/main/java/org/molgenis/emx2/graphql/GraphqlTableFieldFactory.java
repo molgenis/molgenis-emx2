@@ -5,15 +5,16 @@ import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableType.ONTOLOGIES;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLJsonAsString;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.transform;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 
 import graphql.Scalars;
+import graphql.language.*;
 import graphql.schema.*;
 import java.util.*;
 import java.util.function.Function;
@@ -82,6 +83,10 @@ public class GraphqlTableFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getIdentifier())
         .type(GraphQLList.list(tableType))
+        .description(
+            String.format(
+                "Retrieve from table '%s'. Use {%s{...All%sFields}} to select all fields including foreign key nested queries",
+                table.getTableName(), table.getIdentifier(), table.getIdentifier()))
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
@@ -108,6 +113,49 @@ public class GraphqlTableFieldFactory {
                 .name(GraphqlConstants.ORDERBY)
                 .type(createTableOrderByInputType(table))
                 .build())
+        .build();
+  }
+
+  public String getGraphqlFragments(TableMetadata table) {
+    return AstPrinter.printAst(getGraphqlFragments(table, false)) + "\n";
+  }
+
+  private FragmentDefinition getGraphqlFragments(TableMetadata table, boolean pkeyOnly) {
+    String fragmentName =
+        pkeyOnly ? table.getIdentifier() + "KeyFields" : "All" + table.getIdentifier() + "Fields";
+    List<Column> columns = pkeyOnly ? table.getPrimaryKeyColumns() : table.getStoredColumns();
+
+    GraphQLNamedOutputType tableType = createTableObjectType(table);
+    List<Selection<?>> selections = new ArrayList<>();
+
+    columns.forEach(
+        column -> {
+          if (column.isFile()) {
+            List<Selection<?>> file = new ArrayList<>();
+            file.add(Field.newField("size").build());
+            file.add(Field.newField("id").build());
+            file.add(Field.newField("filename").build());
+            file.add(Field.newField("extension").build());
+            selections.add(
+                Field.newField(column.getIdentifier())
+                    .selectionSet(SelectionSet.newSelectionSet(file).build())
+                    .build());
+          } else if (column.isReference()) {
+            selections.add(
+                Field.newField(column.getIdentifier())
+                    .selectionSet(getGraphqlFragments(column.getRefTable(), true).getSelectionSet())
+                    .build());
+          } else {
+            selections.add(Field.newField(column.getIdentifier()).build());
+          }
+        });
+
+    SelectionSet selectionSet = SelectionSet.newSelectionSet().selections(selections).build();
+
+    return FragmentDefinition.newFragmentDefinition()
+        .name(fragmentName)
+        .typeCondition(TypeName.newTypeName(tableType.getName()).build())
+        .selectionSet(selectionSet)
         .build();
   }
 
@@ -165,6 +213,27 @@ public class GraphqlTableFieldFactory {
   private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
     String id = col.getIdentifier();
     TableMetadata table = col.getTable();
+    if (col.getColumnType() == ColumnType.AUTO_ID) {
+      if (!table.getPrimaryKeyColumns().isEmpty()) {
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id)
+                .type(Scalars.GraphQLString)
+                .dataFetcher(
+                    env -> {
+                      Map<String, Object> source = env.getSource();
+                      if (source == null) return null;
+                      try {
+                        Row row = new Row(source);
+                        String pkey = PrimaryKey.fromRow(table, row).getString();
+                        return table.getIdentifier() + "/" + pkey;
+                      } catch (Exception e) {
+                        return null;
+                      }
+                    }));
+      }
+      return;
+    }
     switch (col.getColumnType().getBaseType()) {
       case HEADING:
         // nothing to do

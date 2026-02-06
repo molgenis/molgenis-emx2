@@ -250,7 +250,7 @@ class StagingMigrator(Client):
         if Path(filepath).exists():
             Path(filepath).unlink()
 
-        api_zip_url = f"{self.url}/{schema}/api/zip"
+        api_zip_url = f"{self.url}/{schema}/api/zip/_all"
         if include_system_columns:
             api_zip_url += '?includeSystemColumns=true'
         resp = self.session.get(api_zip_url, allow_redirects=True)
@@ -308,7 +308,7 @@ class StagingMigrator(Client):
         """Uploads the zip file containing the tables from the source schema
         to the target schema.
         """
-        upload_url = f"{self.url}/{self.target}/api/zip?async=true"
+        upload_url = f"{self.url}/{self.target}/api/zip/_all?async=true"
 
         response = self.session.post(
             url=upload_url,

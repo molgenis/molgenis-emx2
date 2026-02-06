@@ -7,6 +7,7 @@ import com.google.common.net.PercentEscaper;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.PrimaryKey;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;

@@ -11,8 +11,8 @@ import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
-import graphql.GraphQL;
 import java.util.List;
+import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
@@ -20,7 +20,7 @@ import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 
 public class QueryEntryType {
 
@@ -199,7 +199,7 @@ public class QueryEntryType {
   }
 
   private ArrayNode doGraphQlQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphqlExecutor graphQL = new GraphqlExecutor(table.getSchema());
 
     String graphQlQuery =
         new QueryBuilder(table)
@@ -208,7 +208,7 @@ public class QueryEntryType {
             .setOffset(beaconQuery.getPagination().getSkip())
             .addFilters(filters)
             .getQuery();
-    ExecutionResult result = graphQL.execute(graphQlQuery);
+    ExecutionResult result = graphQL.execute(graphQlQuery, Map.of(), null);
 
     JsonNode results = mapper.valueToTree(result.getData());
     JsonNode entryTypeResult = results.get(entryType.getId());
@@ -218,20 +218,20 @@ public class QueryEntryType {
   }
 
   public static int doCountQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphqlExecutor graphQL = new GraphqlExecutor(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
-    ExecutionResult result = graphQL.execute(graphQlQuery);
+    ExecutionResult result = graphQL.execute(graphQlQuery, Map.of(), null);
     JsonNode results = mapper.valueToTree(result.getData());
 
     return results.get(table.getIdentifier() + "_agg").get("count").intValue();
   }
 
   public static boolean doExistsQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphqlExecutor graphQL = new GraphqlExecutor(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
-    ExecutionResult result = graphQL.execute(graphQlQuery);
+    ExecutionResult result = graphQL.execute(graphQlQuery, Map.of(), null);
     JsonNode results = mapper.valueToTree(result.getData());
 
     return results.get(table.getIdentifier() + "_agg").get("exists").booleanValue();

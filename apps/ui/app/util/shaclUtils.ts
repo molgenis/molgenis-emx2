@@ -31,7 +31,7 @@ export async function runShacl(
   processData.error = undefined;
   processData.status = "RUNNING";
 
-  const res = await fetch(`/${schema}/api/rdf?validate=${shaclSet}`);
+  const res = await fetch(`/${schema}/api/shacl?validate=${shaclSet}`);
   processData.output = await res.text();
 
   if (res.status !== 200) {

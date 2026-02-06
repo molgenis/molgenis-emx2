@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class GraphqlApi {
     // hide constructor
   }
 
-  public static void createGraphqlService(Javalin app) {
+  public static void create(Javalin app) {
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
@@ -63,6 +63,10 @@ public class GraphqlApi {
     final String schemaAppPath = "/{schema}/{app}/graphql"; // NOSONAR
     app.get(schemaAppPath, GraphqlApi::handleSchemaRequests);
     app.post(schemaAppPath, GraphqlApi::handleSchemaRequests);
+
+    final String schemaGraphqlLdPath = "/{schema}/api/graphql-ld";
+    app.get(schemaGraphqlLdPath, GraphqlApi::handleGraphqlLdRequests);
+    app.post(schemaGraphqlLdPath, GraphqlApi::handleGraphqlLdRequests);
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
@@ -85,56 +89,44 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphQL graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    GraphqlExecutor graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
 
-  private static String executeQuery(GraphQL g, Context ctx) throws IOException {
+  public static void handleGraphqlLdRequests(Context ctx) throws IOException {
+    String schemaName = sanitize(ctx.pathParam(SCHEMA));
+
+    if (getSchema(ctx) == null) {
+      throw new GraphqlException(
+          "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
+    }
+
+    GraphqlExecutor graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    String query = getQueryFromRequest(ctx);
+    Map<String, Object> variables = getVariablesFromRequest(ctx);
+
+    Map queryResult = graphqlForSchema.queryAsMap(query, variables);
+    String jsonLdContext = graphqlForSchema.getJsonLdSchema(ctx.url());
+
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode response = mapper.createObjectNode();
+    response.set("@context", mapper.readTree(jsonLdContext));
+    response.set("data", mapper.valueToTree(queryResult));
+
+    ctx.header(CONTENT_TYPE, "application/ld+json");
+    ctx.result(mapper.writeValueAsString(response));
+  }
+
+  private static String executeQuery(GraphqlExecutor graphqlExecutor, Context ctx)
+      throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
-    Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
 
-    long start = System.currentTimeMillis();
+    ExecutionResult executionResult = graphqlExecutor.execute(query, variables, sessionManager);
 
-    // we don't log password calls
-    if (logger.isInfoEnabled()) {
-      if (query.contains("password")) {
-        logger.info("query: obfuscated because contains parameter with name 'password'");
-      } else {
-        logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
-      }
-    }
-
-    // tests show overhead of this step is about 20ms (jooq takes the rest)
-    ExecutionResult executionResult = null;
-    if (variables != null) {
-      executionResult =
-          g.execute(
-              ExecutionInput.newExecutionInput(query)
-                  .graphQLContext(graphQLContext)
-                  .variables(variables)
-                  .build());
-    } else {
-      executionResult =
-          g.execute(ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
-    }
-
-    String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
-
-    for (GraphQLError err : executionResult.getErrors()) {
-      if (logger.isErrorEnabled()) {
-        logger.error(err.getMessage());
-      }
-    }
-    if (executionResult.getErrors().size() > 0) {
-      throw new MolgenisException(executionResult.getErrors().get(0).getMessage());
-    }
-
-    if (logger.isInfoEnabled())
-      logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
-
+    String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
     return result;
   }
 
