@@ -38,6 +38,8 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 public class RDFApi {
   private static final Map<MediaType, RDFFormat> mediaTypeRdfFormatMap = new HashMap<>();
   private static final List<MediaType> acceptedMediaTypes = new ArrayList<>(); // order of priority
+  public static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
 
   static {
     // Defines order of priority!
@@ -114,7 +116,7 @@ public class RDFApi {
     ctx.contentType(ACCEPT_YAML);
 
     // Only show available SHACLs if there are any schema's available to validate on.
-    if (applicationCache.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
+    if (APPLICATION_CACHE.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 
@@ -136,7 +138,7 @@ public class RDFApi {
   private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
     format = setFormat(ctx, format);
 
-    Database db = applicationCache.getDatabaseForUser(ctx);
+    Database db = APPLICATION_CACHE.getDatabaseForUser(ctx);
     Collection<String> availableSchemas = getSchemaNames(ctx);
     Collection<String> schemaNames = new ArrayList<>();
     if (ctx.queryParam("schemas") != null) {
