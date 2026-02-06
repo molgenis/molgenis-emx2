@@ -56,6 +56,9 @@ describe("input ref", () => {
     expect(wrapper.exists()).toBe(true);
     wrapper.find("button").trigger("click");
     expect(wrapper.emitted("update:modelValue")).toEqual([[null]]);
-    expect(wrapper.emitted("blur")).toBeDefined();
+    setTimeout(() => {
+      //timeout because of debounce
+      expect(wrapper.emitted("blur")).toBeDefined();
+    }, 100);
   });
 });
