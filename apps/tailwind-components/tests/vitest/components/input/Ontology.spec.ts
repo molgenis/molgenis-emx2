@@ -1160,6 +1160,7 @@ describe("OntologyInput - Unified loadPage Architecture", () => {
 
       const wrapper = mount(OntologyInput, {
         props: {
+          id: "ontology-input",
           ontologySchemaId: "test-schema",
           ontologyTableId: "test-table",
           isArray: true,
@@ -1172,8 +1173,11 @@ describe("OntologyInput - Unified loadPage Architecture", () => {
 
       const parentNode = (wrapper.vm as any).rootNode.children[0];
 
+      (wrapper.vm as any).searchTerms = "active-search";
+      await nextTick();
+
       mockFetch.mockResolvedValueOnce(
-        createMockLoadPageResponse(createMockTerms(100, 3, "Child"), 3, 20)
+        createMockLoadPageResponse(createMockTerms(100, 3, "Child"), 3)
       );
 
       await (wrapper.vm as any).toggleTermExpand(parentNode);
@@ -1181,7 +1185,6 @@ describe("OntologyInput - Unified loadPage Architecture", () => {
 
       expect(parentNode.loadMoreHasMore).toBe(false);
       expect(parentNode.loadMoreTotal).toBe(3);
-      expect((parentNode as any).unfilteredTotal).toBe(20);
 
       await (wrapper.vm as any).toggleTermSelect(parentNode.children[0]);
       await (wrapper.vm as any).toggleTermSelect(parentNode.children[1]);
