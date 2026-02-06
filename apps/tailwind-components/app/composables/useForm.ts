@@ -1,4 +1,3 @@
-import { useSession } from "./useSession";
 import {
   computed,
   isRef,
@@ -17,12 +16,10 @@ import type {
   ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
-import {
-  getColumnError,
-  isRequired,
-} from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
+import { getColumnError } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+import { useSession } from "./useSession";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -166,12 +163,8 @@ export default function useForm(
         isVisible: computed(() =>
           columns.some((col) => visibilityMap[col.id]?.value === true)
         ),
-        isActive: computed(
-          () =>
-            visibleColumnIds.value.has(column.id) ||
-            section.headers.some((header) =>
-              visibleColumnIds.value.has(header.id)
-            )
+        isActive: computed(() =>
+          section.headers.some((header) => unref(header.isActive))
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
@@ -187,7 +180,7 @@ export default function useForm(
     }
   });
 
-  // second pass to get headings and colums
+  // second pass to get headings and columns
   metadata.value.columns.forEach((column) => {
     if (column.columnType !== "SECTION") {
       const section = sections.value.find(
@@ -208,10 +201,8 @@ export default function useForm(
           isVisible: computed(() =>
             headingColumns.some((col) => visibilityMap[col.id]?.value === true)
           ),
-          isActive: computed(
-            () =>
-              visibleColumnIds.value.has(column.id) ||
-              headingColumns.some((col) => visibleColumnIds.value.has(col.id))
+          isActive: computed(() =>
+            headingColumns.some((col) => visibleColumnIds.value.has(col.id))
           ),
           errorCount: computed(() => {
             return headingColumns.reduce((acc, col) => {
@@ -488,7 +479,7 @@ export default function useForm(
   });
 
   const currentSection = computed(() => {
-    const activeSections = sections.value.filter((s) => s.isActive.value);
+    const activeSections = sections.value.filter((s) => unref(s.isActive));
     if (activeSections.length < 1) {
       return sections.value[0]?.id || null;
     } else {
@@ -528,7 +519,7 @@ export default function useForm(
         );
       }
     }
-    // if we dont suspect a session timeout, rethrow the original error
+    // if we don't suspect a session timeout, rethrow the original error
     throw error;
   }
 
@@ -541,7 +532,7 @@ export default function useForm(
       if (container && elementId === "mg_top_of_form-form-field") {
         container.scrollTo({
           top: 0,
-          behavior: "smooth",
+          behavior: "auto",
         });
       } else {
         const target = document.getElementById(elementId);
@@ -549,7 +540,7 @@ export default function useForm(
           const SCROLL_PADDING = 32;
           const offset =
             target.offsetTop - container.offsetTop - SCROLL_PADDING;
-          container.scrollTo({ top: offset, behavior: "smooth" });
+          container.scrollTo({ top: offset, behavior: "auto" });
         } else {
           // try again on the next frame until the element exists
           requestAnimationFrame(attemptScroll);
