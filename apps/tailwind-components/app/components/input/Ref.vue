@@ -7,7 +7,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type { ITableDataResponse } from "../../composables/fetchTableData";
 
-import _ from "lodash";
+import { useDebounceFn } from "@vueuse/core";
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
@@ -282,7 +282,8 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
-const onBlur = _.debounce(() => {
+
+const onBlur = useDebounceFn(() => {
   emit("blur");
 }, 50);
 </script>
