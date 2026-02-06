@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import type { IInputProps } from "../../../types/types";
+import CONSTANTS from "../../../../molgenis-components/src/components/constants";
 import type {
   CellValueType,
   columnValue,
@@ -69,16 +70,20 @@ function stringArrayValidationCheck(
   errorMessage: string | undefined | null,
   value: any
 ): boolean {
-  const isStringArray = [
+  const isTypeWithPartialError = [
     "EMAIL_ARRAY",
     "HYPERLINK_ARRAY",
     "UUID_ARRAY",
     "PERIOD_ARRAY",
     "NON_NEGATIVE_INT_ARRAY",
   ].includes(type);
-  const incorrectFields = errorMessage?.match(/'(?:[^'\\]|\\')*'/g);
-  console.log(">incorrectFields", incorrectFields, errorMessage);
-  if (isStringArray) {
+
+  const incorrectFields = errorMessage?.match(CONSTANTS.SELECT_QUOTED_REGEX);
+  if (
+    isTypeWithPartialError &&
+    incorrectFields &&
+    incorrectFields?.length > 0
+  ) {
     return incorrectFields?.includes(`'${value}'`) ? true : false;
   }
   return invalid;
