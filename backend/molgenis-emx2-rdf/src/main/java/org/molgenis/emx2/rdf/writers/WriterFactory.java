@@ -2,7 +2,6 @@ package org.molgenis.emx2.rdf.writers;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +28,9 @@ public enum WriterFactory {
         | InvocationTargetException
         | NoSuchMethodException e) {
       // Any exceptions thrown should purely be due to bugs in this specific code.
-      logger.error(Arrays.toString(e.getStackTrace()));
-      throw new RuntimeException("An error occurred while trying to run WriterFactory: " + e);
+      String errMsg = "Failed to set up the correct RdfWriter: ";
+      logger.error(errMsg, e);
+      throw new RuntimeException(errMsg + e);
     }
   }
 }
