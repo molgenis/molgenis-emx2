@@ -18,7 +18,7 @@ const data = {
   "Group A": 48,
   "Group B": 32,
   "Group C": 11,
-  "Other": 9
+  Other: 9,
 };
 
 const clickedSlice = ref<Record<string, number>>();
