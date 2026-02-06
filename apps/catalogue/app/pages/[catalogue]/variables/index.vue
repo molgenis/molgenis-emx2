@@ -17,10 +17,12 @@ import {
   navigateTo,
   useAsyncData,
   useRuntimeConfig,
+  useRequestURL,
   createError,
 } from "#app";
 import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
 import { buildQueryFilter } from "../../../utils/buildQueryFilter";
+import { buildCanonicalUrl } from "../../../utils/urlHelpers";
 import { computed } from "vue";
 import LayoutsSearchPage from "../../../components/layouts/SearchPage.vue";
 import FilterSidebar from "../../../components/filter/Sidebar.vue";
@@ -59,6 +61,12 @@ useHead({
     {
       name: "description",
       content: `A complete overview of ${titlePrefix.trim()} harmonised variables`,
+    },
+  ],
+  link: [
+    {
+      rel: "canonical",
+      href: buildCanonicalUrl(useRequestURL(), route.params),
     },
   ],
 });

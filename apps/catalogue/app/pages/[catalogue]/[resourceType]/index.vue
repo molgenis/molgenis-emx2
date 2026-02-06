@@ -5,6 +5,7 @@ import {
   useRuntimeConfig,
   useHead,
   useFetch,
+  useRequestURL,
   navigateTo,
 } from "#app";
 import type {
@@ -34,6 +35,7 @@ import {
 import { buildQueryFilter } from "../../../utils/buildQueryFilter";
 import { computed, ref } from "vue";
 import { logError } from "../../../utils/errorLogger";
+import { buildCanonicalUrl } from "../../../utils/urlHelpers";
 import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
@@ -64,6 +66,12 @@ const image: string | undefined = imageMap[route.params.resourceType as string];
 useHead({
   title: titlePrefix + title.charAt(0).toUpperCase() + title.slice(1),
   meta: [{ name: "description", content: description }],
+  link: [
+    {
+      rel: "canonical",
+      href: buildCanonicalUrl(useRequestURL(), route.params),
+    },
+  ],
 });
 
 const currentPage = computed(() => {

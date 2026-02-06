@@ -6,7 +6,7 @@ import ontologyFragment from "../../../../gql/fragments/ontology";
 import fileFragment from "../../../../gql/fragments/file";
 import variablesQuery from "../../../../gql/variables";
 import { getKey } from "../../../../utils/variableUtils";
-import { resourceIdPath } from "../../../../utils/urlHelpers";
+import { resourceIdPath, buildCanonicalUrl } from "../../../../utils/urlHelpers";
 import type {
   IDefinitionListItem,
   IMgError,
@@ -19,7 +19,7 @@ import type {
   IResources,
   IVariables,
 } from "../../../../../interfaces/catalogue";
-import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
+import { useRuntimeConfig, useRoute, useFetch, useHead, useRequestURL } from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
 import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, ref } from "vue";
@@ -648,6 +648,12 @@ let fundingAndAcknowledgementItems = computed(() => {
 useHead({
   title: resource.value?.acronym || resource.value?.name,
   meta: [{ name: "description", content: resource.value?.description }],
+  link: [
+    {
+      rel: "canonical",
+      href: buildCanonicalUrl(useRequestURL(), route.params),
+    },
+  ],
 });
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.resource}"}}}`;
