@@ -278,8 +278,9 @@ public class RDFApi {
         | InstantiationException
         | NoSuchMethodException e) {
       // Any exceptions thrown should purely be due to bugs in this specific code.
-      throw new RuntimeException(
-          "An error occurred while trying to run the RDF API: " + e.getCause());
+      String errMsg = "Failed to set up the correct RdfService: ";
+      logger.error(errMsg, e);
+      throw new RuntimeException(errMsg + e.getCause());
     }
   }
 
