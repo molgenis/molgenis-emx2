@@ -67,11 +67,12 @@ const { data } = await useFetch<Resp<IResources, IResources_agg>>(
   }
 );
 
-const catalogues = (data.value?.data?.Resources as IResources[])?.filter(
-  (c) => !c.mainCatalogue
-);
+const catalogues = data.value?.data?.Resources as IResources[];
 const groupedCatalogues = catalogues
-  ? Object.groupBy(catalogues, (c) => c.catalogueType?.name ?? "theme")
+  ? Object.groupBy(
+      catalogues.filter((c) => !c.mainCatalogue),
+      (c) => c.catalogueType?.name ?? "theme"
+    )
   : { theme: [], project: [], organisation: [] };
 Object.keys(groupedCatalogues).forEach((key) => {
   groupedCatalogues[key]?.sort((a, b) => a.id.localeCompare(b.id));
