@@ -42,8 +42,18 @@ vi.mock("../../../../app/composables/fetchRowPrimaryKey", () => ({
 
 it("shows legend when there are multiple sections", async () => {
   sectionsMock.value = [
-    { id: "top_of_form", headers: [] },
-    { id: "section_1", headers: ["Header 1"] },
+    {
+      id: "top_of_form",
+      headers: [],
+      isActive: ref(false),
+      label: "Top of form",
+    },
+    {
+      id: "section_1",
+      headers: ["Header 1"],
+      isActive: ref(false),
+      label: "Section 1",
+    },
   ];
   const wrapper = mount({
     components: { Form },
