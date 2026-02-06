@@ -14,7 +14,6 @@ nyx {
                 authenticationMethod = "USER_PASSWORD"
                 user = "{{#environmentVariable}}GITHUB_TOKEN{{/environmentVariable}}"
                 password = "{{#environmentVariable}}GITHUB_TOKEN{{/environmentVariable}}"
-            }
         }
     }
     releaseTypes {
