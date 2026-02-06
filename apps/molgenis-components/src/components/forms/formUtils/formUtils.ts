@@ -118,24 +118,20 @@ export function getColumnError(
     return "Invalid Period: " + PERIOD_EXPLANATION;
   }
   if (type === "PERIOD_ARRAY") {
-    return (
-      readableStringArray(
-        getInvalidPeriods(value),
-        " is an invalid Period: ",
-        " are invalid Periods: "
-      ) + PERIOD_EXPLANATION
+    return readableStringArray(
+      getInvalidPeriods(value),
+      " is an invalid Period: " + PERIOD_EXPLANATION,
+      " are invalid Periods: " + PERIOD_EXPLANATION
     );
   }
   if (type === "UUID" && isInvalidUUID(value)) {
     return "Invalid UUID: " + UUID_EXPLANATION;
   }
   if (type === "UUID_ARRAY") {
-    return (
-      readableStringArray(
-        getInvalidUUIDs(value),
-        " is an invalid UUID: ",
-        " are invalid UUIDs: "
-      ) + UUID_EXPLANATION
+    return readableStringArray(
+      getInvalidUUIDs(value),
+      " is an invalid UUID: " + UUID_EXPLANATION,
+      " are invalid UUIDs: " + UUID_EXPLANATION
     );
   }
   if (type === "JSON") {
