@@ -66,7 +66,7 @@ const variablesDisplayConfig: IDisplayConfig = {
     name: {
       getHref: (_col: IColumn, row: IRow) => {
         const varName = row?.name;
-        return `/${catalogue}/variables/${varName}`;
+        return `/${catalogue}/datasets/${resourceId}/${datasetName}/${varName}`;
       },
     },
   },
