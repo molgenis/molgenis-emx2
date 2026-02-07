@@ -364,44 +364,46 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
     String tableGroupByType = getTableTypeIdentifier(table) + "GroupBy";
-    if (!tableGroupByTypes.containsKey(tableGroupByType)) {
-      // add reference in case of self reference
-      tableGroupByTypes.put(tableGroupByType, GraphQLTypeReference.typeRef(tableGroupByType));
-      // group by options, for now only ref, refArray
-      GraphQLObjectType.Builder groupByBuilder =
-          GraphQLObjectType.newObject().name(tableGroupByType);
-      groupByBuilder.field(
-          GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
-      List<Column> aggCols =
-          table.getColumnsIncludingSubclasses().stream()
-              .filter(c -> c.getColumnType().isNumericType())
-              .toList();
-      if (aggCols.size() > 0) {
-        GraphQLObjectType.Builder sumBuilder =
-            GraphQLObjectType.newObject().name(tableGroupByType + "_" + SUM_FIELD);
-        for (Column aggCol : aggCols) {
-          sumBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(aggCol.getIdentifier())
-                  .type(graphQLTypeOf(aggCol)));
-        }
-        groupByBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
-      }
 
-      for (Column column : table.getColumnsIncludingSubclasses()) {
-        // for now only 'ref' types. We might want to have truncating actions for the other types.
-        if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
-          groupByBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(column.getIdentifier())
-                  .type(createTableObjectType(column.getRefTable())));
-        } else if (!column.isReference() && hasViewPermission(table)) {
-          createTableField(column, groupByBuilder);
-        }
-      }
-      tableGroupByTypes.put(tableGroupByType, groupByBuilder.build());
+    if (tableGroupByTypes.containsKey(tableGroupByType)) {
+      // add reference in case of self reference
+      return tableGroupByTypes.get(tableGroupByType);
     }
+
+    tableGroupByTypes.put(tableGroupByType, GraphQLTypeReference.typeRef(tableGroupByType));
+
+    GraphQLObjectType.Builder groupByBuilder = GraphQLObjectType.newObject().name(tableGroupByType);
+    groupByBuilder.field(
+        GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+    List<Column> aggCols =
+        table.getColumnsIncludingSubclasses().stream()
+            .filter(c -> c.getColumnType().isNumericType())
+            .toList();
+    if (aggCols.size() > 0) {
+      GraphQLObjectType.Builder sumBuilder =
+          GraphQLObjectType.newObject().name(tableGroupByType + "_" + SUM_FIELD);
+      for (Column aggCol : aggCols) {
+        sumBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(aggCol.getIdentifier())
+                .type(graphQLTypeOf(aggCol)));
+      }
+      groupByBuilder.field(
+          GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
+    }
+
+    for (Column column : table.getColumnsIncludingSubclasses()) {
+      if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
+        groupByBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(column.getIdentifier())
+                .type(createTableObjectType(column.getRefTable())));
+      } else if (!column.isReference() && hasViewPermission(table)) {
+        createTableField(column, groupByBuilder);
+      }
+    }
+    tableGroupByTypes.put(tableGroupByType, groupByBuilder.build());
+
     return tableGroupByTypes.get(tableGroupByType);
   }
 

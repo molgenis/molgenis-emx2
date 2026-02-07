@@ -17,7 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
@@ -289,36 +288,6 @@ public class GraphqlExecutor {
 
   public Schema getSchema() {
     return this.schema;
-  }
-
-  public String queryAsString(String query, Map<String, Object> variables) {
-    try {
-      ExecutionResult result = executeWithoutSession(query, variables);
-      return convertExecutionResultToJson(result);
-    } catch (Exception e) {
-      throw new MolgenisException(e.getMessage(), e);
-    }
-  }
-
-  public Map<String, Object> queryAsMap(String query, Map<String, Object> variables) {
-    try {
-      ExecutionResult result = executeWithoutSession(query, variables);
-      return result.getData();
-    } catch (Exception e) {
-      throw new MolgenisException(e.getMessage(), e);
-    }
-  }
-
-  public String getSelectAllQuery() {
-    String query =
-        this.getSchema().getMetadata().getTables().stream()
-            .map(
-                table ->
-                    String.format(
-                        "%s{...%sAllFields}", table.getIdentifier(), table.getIdentifier()))
-            .collect(Collectors.joining("\n"));
-    query = "{" + query + "}";
-    return query;
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
