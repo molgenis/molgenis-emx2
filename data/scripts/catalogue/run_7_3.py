@@ -42,26 +42,26 @@ os.chdir('./files')
 # instantiate Client for source server:
 source = Client(SOURCE_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=SOURCE_SERVER_TOKEN)
 
-# # ETL for catalogue schema data:
-# print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
-# asyncio.run(source.export(filename=CATALOGUE_SCHEMA_NAME + '_data.zip'))
-# # transform data from schema
-# print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
-# # unzip schema data
-# zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
-# zip_handling.unzip_data()
-# # transform schema data:
-# update = Transform(schema_name=CATALOGUE_SCHEMA_NAME)
-# # update data model file
-# update.delete_data_model_file()
-# update.update_data_model_file()
-# update.transform_data()
-# zip_handling.zip_data()
+# ETL for catalogue schema data:
+print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
+asyncio.run(source.export(filename=CATALOGUE_SCHEMA_NAME + '_data.zip'))
+# transform data from schema
+print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
+# unzip schema data
+zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
+zip_handling.unzip_data()
+# transform schema data:
+update = Transform(schema_name=CATALOGUE_SCHEMA_NAME)
+# update data model file
+update.delete_data_model_file()
+update.update_data_model_file()
+update.transform_data()
+zip_handling.zip_data()
 
 # instantiate Client for target server:
 target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
-# # upload catalogue data to target server
-# asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema=CATALOGUE_SCHEMA_NAME))
+# upload catalogue data to target server
+asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema=CATALOGUE_SCHEMA_NAME))
 
 # ETL for other schemas:
 for schema in source.get_schemas():
