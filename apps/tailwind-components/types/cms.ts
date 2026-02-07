@@ -1,10 +1,10 @@
-// Generated (on: 2026-01-23T15:05:52.322381) from Generator.java for schema: cms
+// Generated (on: 2026-01-28T08:41:05.654599) from Generator.java for schema: cms
 
 export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
+  id: string;
+  size: number;
+  extension: string;
+  url: string;
 }
 
 export interface ITreeNode {
@@ -22,10 +22,23 @@ export interface IOntologyNode extends ITreeNode {
   order?: number;
 }
 
+export interface IBlockOrders {
+  id: string;
+  configurablePage?: any;
+  block?: any;
+  order?: number;
+}
+
+export interface IBlockOrders_agg {
+  count: number;
+}
+
 export interface IBlocks {
+  mg_tableclass?: string;
   id: string;
   inContainer?: any;
   components?: IComponents[];
+  componentOrder?: IComponentOrders[];
   enableFullScreenWidth?: boolean;
 }
 
@@ -33,7 +46,19 @@ export interface IBlocks_agg {
   count: number;
 }
 
+export interface IComponentOrders {
+  id: string;
+  block?: any;
+  component?: any;
+  order?: number;
+}
+
+export interface IComponentOrders_agg {
+  count: number;
+}
+
 export interface IComponents {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
 }
@@ -43,9 +68,11 @@ export interface IComponents_agg {
 }
 
 export interface IConfigurablePages {
+  mg_tableclass?: string;
   name: string;
   description?: string;
   blocks?: IBlocks[];
+  blockOrder?: IBlockOrders[];
 }
 
 export interface IConfigurablePages_agg {
@@ -53,6 +80,7 @@ export interface IConfigurablePages_agg {
 }
 
 export interface IContainers {
+  mg_tableclass?: string;
   name: string;
   description?: string;
 }
@@ -62,6 +90,7 @@ export interface IContainers_agg {
 }
 
 export interface IDependencies {
+  mg_tableclass?: string;
   name: string;
   url?: string;
   fetchPriority?: IOntologyNode;
@@ -72,6 +101,7 @@ export interface IDependencies_agg {
 }
 
 export interface IDependenciesCSS {
+  mg_tableclass?: string;
   name: string;
   url?: string;
   fetchPriority?: IOntologyNode;
@@ -82,6 +112,7 @@ export interface IDependenciesCSS_agg {
 }
 
 export interface IDependenciesJS {
+  mg_tableclass?: string;
   name: string;
   url?: string;
   fetchPriority?: IOntologyNode;
@@ -94,6 +125,7 @@ export interface IDependenciesJS_agg {
 }
 
 export interface IDeveloperPages {
+  mg_tableclass?: string;
   name: string;
   description?: string;
   html?: string;
@@ -110,14 +142,16 @@ export interface IDeveloperPages_agg {
 }
 
 export interface IHeaders {
+  mg_tableclass?: string;
   id: string;
   inContainer?: any;
   components?: IComponents[];
+  componentOrder?: IComponentOrders[];
   enableFullScreenWidth?: boolean;
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
-  isCentered?: boolean;
+  titleIsCentered?: boolean;
 }
 
 export interface IHeaders_agg {
@@ -125,11 +159,12 @@ export interface IHeaders_agg {
 }
 
 export interface IHeadings {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   text?: string;
-  isCentered?: boolean;
   level?: number;
+  headingIsCentered?: boolean;
 }
 
 export interface IHeadings_agg {
@@ -137,14 +172,15 @@ export interface IHeadings_agg {
 }
 
 export interface IImages {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   displayName?: string;
-  image?: IFile;
+  image: IFile;
   alt?: string;
   width?: string;
   height?: string;
-  isCentered?: boolean;
+  imageIsCentered?: boolean;
 }
 
 export interface IImages_agg {
@@ -162,10 +198,11 @@ export interface IOrderedLists_agg {
 }
 
 export interface IParagraphs {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   text?: string;
-  isCentered?: boolean;
+  paragraphIsCentered?: boolean;
 }
 
 export interface IParagraphs_agg {
@@ -173,9 +210,11 @@ export interface IParagraphs_agg {
 }
 
 export interface ISections {
+  mg_tableclass?: string;
   id: string;
   inContainer?: any;
   components?: IComponents[];
+  componentOrder?: IComponentOrders[];
   enableFullScreenWidth?: boolean;
 }
 
@@ -184,10 +223,10 @@ export interface ISections_agg {
 }
 
 export interface ITextElements {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   text?: string;
-  isCentered?: boolean;
 }
 
 export interface ITextElements_agg {
@@ -195,6 +234,7 @@ export interface ITextElements_agg {
 }
 
 export interface IUnorderedLists {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   items?: string[];
