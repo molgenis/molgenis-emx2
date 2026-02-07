@@ -39,34 +39,34 @@ public class MolgenisWebservice {
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  public static final ApplicationCachePerUser applicationCache =
+
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
-  public static OIDCController oidcController;
+  public static final OIDCController oidcController = new OIDCController();
+
+  private final Javalin app;
   static URL hostUrl;
 
-  private MolgenisWebservice() {
-    // hide constructor
+  public MolgenisWebservice() {
+    app =
+        Javalin.create(
+            config -> {
+              config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
+              config.router.ignoreTrailingSlashes = true;
+              config.router.treatMultipleSlashesAsSingleSlash = true;
+              config.jsonMapper(
+                  new JavalinJackson()
+                      .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
+              config.jetty.modifyServletContextHandler(
+                  context ->
+                      context.setMaxFormContentSize(
+                          Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
+                  );
+            });
   }
 
-  public static void start(int port) {
-    oidcController = new OIDCController();
-    Javalin app =
-        Javalin.create(
-                config -> {
-                  config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
-                  config.router.ignoreTrailingSlashes = true;
-                  config.router.treatMultipleSlashesAsSingleSlash = true;
-                  config.jsonMapper(
-                      new JavalinJackson()
-                          .updateMapper(
-                              mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
-                  config.jetty.modifyServletContextHandler(
-                      context -> {
-                        context.setMaxFormContentSize(
-                            Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
-                      });
-                })
-            .start(port);
+  public void start(int port) {
+    app.start(port);
 
     try {
       hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
@@ -93,7 +93,7 @@ public class MolgenisWebservice {
         ctx -> {
           // check for setting
           String landingPagePath =
-              applicationCache.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
+              APPLICATION_CACHE.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
           if (landingPagePath != null) {
             ctx.redirect(landingPagePath);
           } else {
@@ -164,6 +164,10 @@ public class MolgenisWebservice {
         });
   }
 
+  public void stop() {
+    app.stop();
+  }
+
   private static void handleLoginCallback(Context ctx) {
     oidcController.handleLoginCallback(ctx);
   }
@@ -225,7 +229,7 @@ public class MolgenisWebservice {
         "graphql: <a href=\"/api/graphql/\">/api/graphql    </a> <a href=\"/api/playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
-    for (String name : applicationCache.getDatabaseForUser(ctx).getSchemaNames()) {
+    for (String name : APPLICATION_CACHE.getDatabaseForUser(ctx).getSchemaNames()) {
       result.append("<li>").append(name);
       result.append(" <a href=\"/" + name + "/api/openapi\">openapi</a>");
       result.append(
@@ -296,10 +300,10 @@ public class MolgenisWebservice {
     if (schemaName == null) {
       return null;
     }
-    return applicationCache.getSchemaForUser(sanitize(schemaName), ctx);
+    return APPLICATION_CACHE.getSchemaForUser(sanitize(schemaName), ctx);
   }
 
   public static Collection<String> getSchemaNames(Context ctx) {
-    return applicationCache.getDatabaseForUser(ctx).getSchemaNames();
+    return APPLICATION_CACHE.getDatabaseForUser(ctx).getSchemaNames();
   }
 }
