@@ -119,7 +119,7 @@ interface LegendItem {
   type: HeadingType;
   errorCount: ComputedRef<number>;
   isVisible: ComputedRef<boolean>;
-  isActive: ComputedRef<boolean>;
+  isActive: ComputedRef<boolean> | boolean;
 }
 export interface LegendSection extends LegendItem {
   type: "SECTION";

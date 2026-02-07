@@ -1,7 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -20,7 +18,8 @@ public class JavaScriptBindings {
 
   private static SimplePostClient createSimplePostClient(String username) {
     return (query, variables, schemaId) -> {
-      GraphqlExecutor graphQL = applicationCache.getSchemaGraphqlForUser(schemaId, username);
+      GraphqlExecutor graphQL =
+          ApplicationCachePerUser.getInstance().getSchemaGraphqlForUser(schemaId, username);
       return graphQL.executeWithoutSession(query, variables).getData();
     };
   }
