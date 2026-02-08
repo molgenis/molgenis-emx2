@@ -104,10 +104,42 @@ describe("FilterPicker", () => {
     schemaId: "test",
   };
 
+  const vDropdownStub = {
+    template: `
+      <div>
+        <slot />
+        <div class="dropdown-popper" v-if="isOpen"><slot name="popper" :hide="hide" /></div>
+      </div>
+    `,
+    data() {
+      return {
+        isOpen: false,
+      };
+    },
+    methods: {
+      hide() {
+        this.isOpen = false;
+      },
+    },
+    mounted() {
+      const button = this.$el.querySelector("button");
+      if (button) {
+        button.addEventListener("click", () => {
+          this.isOpen = !this.isOpen;
+        });
+      }
+    },
+  };
+
   describe("Basic rendering", () => {
     it("renders Add filter button", () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       expect(wrapper.text()).toContain("Add filter");
@@ -116,20 +148,30 @@ describe("FilterPicker", () => {
     it("dropdown is closed by default", () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
-      const dropdown = wrapper.find(".absolute.z-50");
+      const dropdown = wrapper.find(".dropdown-popper");
       expect(dropdown.exists()).toBe(false);
     });
 
     it("opens dropdown when button is clicked", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
 
-      const dropdown = wrapper.find(".absolute.z-50");
+      const dropdown = wrapper.find(".dropdown-popper");
       expect(dropdown.exists()).toBe(true);
     });
   });
@@ -138,6 +180,11 @@ describe("FilterPicker", () => {
     it("shows all filterable columns", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -153,6 +200,11 @@ describe("FilterPicker", () => {
     it("excludes HEADING columns", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -172,6 +224,11 @@ describe("FilterPicker", () => {
     it("excludes SECTION columns", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -191,6 +248,11 @@ describe("FilterPicker", () => {
     it("excludes mg_* columns", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -203,6 +265,11 @@ describe("FilterPicker", () => {
     it("groups columns by heading", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -214,6 +281,11 @@ describe("FilterPicker", () => {
     it("displays ungrouped columns without heading", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -225,6 +297,11 @@ describe("FilterPicker", () => {
     it("heading groups are collapsible", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -246,6 +323,11 @@ describe("FilterPicker", () => {
     it("clicking heading toggles children visibility", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -276,6 +358,11 @@ describe("FilterPicker", () => {
     it("sorts by type priority within groups", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -303,6 +390,11 @@ describe("FilterPicker", () => {
     it("filters columns by label", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -319,6 +411,11 @@ describe("FilterPicker", () => {
     it("search is case-insensitive", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -335,6 +432,11 @@ describe("FilterPicker", () => {
     it("shows no results when search has no matches", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -354,6 +456,11 @@ describe("FilterPicker", () => {
     it("shows checkboxes for non-REF columns only", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -365,6 +472,11 @@ describe("FilterPicker", () => {
     it("REF columns have checkbox and expand caret", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -378,6 +490,11 @@ describe("FilterPicker", () => {
     it("shows checked checkboxes for visible filters", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -390,6 +507,11 @@ describe("FilterPicker", () => {
     it("shows unchecked checkboxes for hidden filters", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -404,6 +526,11 @@ describe("FilterPicker", () => {
     it("emits toggle event when column is clicked", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -426,6 +553,11 @@ describe("FilterPicker", () => {
     it("shows Reset to defaults button", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -436,6 +568,11 @@ describe("FilterPicker", () => {
     it("emits reset event when reset button is clicked", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
@@ -454,16 +591,22 @@ describe("FilterPicker", () => {
     it("closes dropdown on Escape key", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
       });
 
       await wrapper.find("button").trigger("click");
 
-      let dropdown = wrapper.find(".absolute.z-50");
+      let dropdown = wrapper.find(".dropdown-popper");
       expect(dropdown.exists()).toBe(true);
 
-      await dropdown.trigger("keydown.escape");
+      const popperContent = dropdown.find(".bg-modal");
+      await popperContent.trigger("keydown.escape");
 
-      dropdown = wrapper.find(".absolute.z-50");
+      dropdown = wrapper.find(".dropdown-popper");
       expect(dropdown.exists()).toBe(false);
     });
   });

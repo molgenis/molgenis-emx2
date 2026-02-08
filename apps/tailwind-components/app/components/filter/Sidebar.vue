@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import FilterColumn from "./Column.vue";
@@ -57,10 +58,47 @@ function computeDefaultFilters(columns: IColumn[]): string[] {
 const defaultFilterIds = computed(() =>
   computeDefaultFilters(props.allColumns)
 );
-const visibleFilterIds = ref<string[]>([...defaultFilterIds.value]);
+
+const route = useRoute();
+const router = useRouter();
+
+const MG_FILTERS_PARAM = "mg_filters";
+
+function getInitialVisibleFilters(): string[] {
+  const urlParam = route.query[MG_FILTERS_PARAM];
+  if (typeof urlParam === "string" && urlParam.trim()) {
+    return urlParam.split(",").map((id) => id.trim()).filter(Boolean);
+  }
+  return [...defaultFilterIds.value];
+}
+
+const visibleFilterIds = ref<string[]>(getInitialVisibleFilters());
+
+function arraysEqual(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((val, idx) => val === sortedB[idx]);
+}
+
+watch(visibleFilterIds, (newIds) => {
+  const isDefault = arraysEqual(newIds, defaultFilterIds.value);
+  const currentQuery = { ...route.query };
+
+  if (isDefault) {
+    delete currentQuery[MG_FILTERS_PARAM];
+  } else {
+    currentQuery[MG_FILTERS_PARAM] = newIds.join(",");
+  }
+
+  router.replace({ query: currentQuery });
+});
 
 watch(defaultFilterIds, (newDefaults) => {
-  visibleFilterIds.value = [...newDefaults];
+  const urlParam = route.query[MG_FILTERS_PARAM];
+  if (!urlParam || (typeof urlParam === "string" && !urlParam.trim())) {
+    visibleFilterIds.value = [...newDefaults];
+  }
 });
 
 function handleFilterToggle(columnId: string) {

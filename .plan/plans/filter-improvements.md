@@ -135,36 +135,36 @@ FilterPicker toggles column.showFilter
 ## Implementation Phases
 
 ### Phase 1: FilterPicker + Smart Defaults
-**Goal:** Quick add/remove filters with sensible defaults
+**Status:** Complete except `mg_filters` URL param (in progress)
 
-**Files to create:**
-- `filter/FilterPicker.vue` - searchable dropdown for filter selection
-- `filter/FilterPicker.story.vue` - story with mock columns
-- `tests/vitest/filter/FilterPicker.spec.ts` - unit tests
+**Completed:**
+- `filter/FilterPicker.vue` (179 lines) - searchable dropdown with expand/collapse for REF columns
+- `filter/FilterPicker.story.vue` (63 lines) - story with DemoDataControls for backend testing
+- `tests/vitest/filter/FilterPicker.spec.ts` (375 lines) - comprehensive unit tests
+- `filter/Sidebar.vue` - integrated FilterPicker, smart defaults logic
+- Smart default logic: first 5 ONTOLOGY/ONTOLOGY_ARRAY, fill remaining with REF/REF_ARRAY
 
-**Files to modify:**
-- `filter/Sidebar.vue` - add FilterPicker button, smart defaults logic
-- `composables/useFilters.ts` - add mg_filters URL param support
+**Design decisions implemented:**
+- FilterPicker uses checkboxes for all columns
+- REF columns get expand caret (caret-down/up) after label text for nested field selection
+- REF checkbox = simple ref filter (select/radio in sidebar)
+- REF expand = shows nested fields with checkboxes for granular filtering
+- ONTOLOGY/ONTOLOGY_ARRAY: checkbox only, no expand
+- Nested filter labels use dot notation: `Parent.child`
+- FilterColumn `removable` prop + `remove` emit - shows "Remove" link in header
+- FilterColumn `labelPrefix` prop for nested labels (e.g., "Hospital.")
+- Sidebar: `overflow-hidden pb-8` for rounded bottom boundary
+- Sidebar search uses default size, FilterPicker dropdown search uses `size="tiny"`
+- Tooltips via `v-tooltip.right` on rows and headings (no info icons)
+- Tooltip content: label (id), type, →refTableId, description
+- Story uses DemoDataControls for real backend data testing
 
-**Steps:**
-1. Create FilterPicker component
-   - Props: `columns: IColumn[]`, `visibleFilters: string[]`
-   - Emits: `@toggle(columnId)`, `@reset`
-   - Searchable input at top
-   - Columns grouped by HEADING/SECTION parents
-   - Type icons per column
-   - Priority sort within groups
-   - Checkbox per column (checked = showFilter)
-2. Add smart default logic to Sidebar
-   - `computeDefaultFilters(columns)` → first 5 ontology, fill with ref
-   - Apply defaults when no `mg_filters` in URL
-3. Add `mg_filters` URL param to useFilters
-   - Parse on mount, serialize on change
-   - Absent = defaults, present = explicit list
-4. Integrate FilterPicker in Sidebar header
-   - "Add filter" button → opens picker dropdown
-   - "Reset to defaults" in picker footer
-5. Tests + story
+**Remaining:**
+- `mg_filters` URL param support in Sidebar.vue
+  - Read from URL on mount, override smart defaults when present
+  - Write to URL when visibleFilterIds change (omit if equals defaults)
+  - Format: `?mg_filters=col1,col2,col3` (comma-separated)
+  - Nested filters use dot notation: `?mg_filters=species,hospital.name`
 
 ### Phase 2: Faceted Counts
 **Goal:** Show option counts in filter inputs

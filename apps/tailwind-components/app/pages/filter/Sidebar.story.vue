@@ -1,6 +1,6 @@
 <template>
   <div class="p-6">
-    <h1 class="text-heading-2xl font-bold mb-6">FilterPicker Component</h1>
+    <h1 class="text-heading-2xl font-bold mb-6">Filter Sidebar</h1>
 
     <DemoDataControls
       v-model:schemaId="schemaId"
