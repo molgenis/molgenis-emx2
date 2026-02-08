@@ -68,11 +68,10 @@ const query = `
       type {
         name
       }
-      typeOther
       cohortType {
         name
       }
-      rWDType {
+      registryOrHealthRecordType {
         name
       }
       networkType {
