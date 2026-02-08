@@ -33,35 +33,40 @@ watch(
   async (filters) => {
     for (const columnId of filters.keys()) {
       if (!columnId.includes(".")) continue;
-      const rootColumnId = columnId.split(".")[0]!;
-      const nestedColumnId = columnId.split(".")[1]!;
-      const cacheKey = `${rootColumnId}.${nestedColumnId}`;
-      if (nestedColumnLabels.value.has(cacheKey)) continue;
+      if (nestedColumnLabels.value.has(columnId)) continue;
 
-      const rootColumn = props.columns.find((c) => c.id === rootColumnId);
-      if (!rootColumn?.refTableId) continue;
+      const segments = columnId.split(".");
+      let currentColumns: IColumn[] = props.columns;
+      let currentSchemaId = props.schemaId;
+      const labels: string[] = [];
 
-      try {
-        const refSchemaId = rootColumn.refSchemaId || props.schemaId;
-        const metadata = await fetchTableMetadata(
-          refSchemaId,
-          rootColumn.refTableId
-        );
-        const nestedColumn = metadata.columns.find(
-          (c) => c.id === nestedColumnId
-        );
-        if (nestedColumn) {
-          const label =
-            nestedColumn.displayConfig?.label ||
-            nestedColumn.label ||
-            nestedColumnId;
-          nestedColumnLabels.value = new Map(nestedColumnLabels.value).set(
-            cacheKey,
-            label
-          );
+      for (let depth = 0; depth < segments.length; depth++) {
+        const segment = segments[depth]!;
+        const column = currentColumns.find((c) => c.id === segment);
+        if (!column) break;
+
+        labels.push(column.displayConfig?.label || column.label || segment);
+
+        if (depth < segments.length - 1 && column.refTableId) {
+          const refSchemaId = column.refSchemaId || currentSchemaId;
+          try {
+            const metadata = await fetchTableMetadata(
+              refSchemaId,
+              column.refTableId
+            );
+            currentColumns = metadata.columns;
+            currentSchemaId = refSchemaId;
+          } catch {
+            break;
+          }
         }
-      } catch {
-        // ignore fetch errors, will fall back to ID
+      }
+
+      if (labels.length === segments.length) {
+        nestedColumnLabels.value = new Map(nestedColumnLabels.value).set(
+          columnId,
+          labels.join(" → ")
+        );
       }
     }
   },
@@ -83,22 +88,19 @@ const activeFilters = computed<ActiveFilter[]>(() => {
 
 function getColumnLabel(columnId: string): string {
   if (columnId.includes(".")) {
-    const rootColumnId = columnId.split(".")[0]!;
-    const nestedColumnId = columnId.split(".")[1]!;
-    const rootColumn = props.columns.find((c) => c.id === rootColumnId);
-    const rootLabel = rootColumn
-      ? rootColumn.displayConfig?.label || rootColumn.label || rootColumnId
-      : rootColumnId;
+    const cached = nestedColumnLabels.value.get(columnId);
+    if (cached) return cached;
 
-    const cacheKey = `${rootColumnId}.${nestedColumnId}`;
-    const nestedLabel =
-      nestedColumnLabels.value.get(cacheKey) || nestedColumnId;
-    return `${rootLabel} → ${nestedLabel}`;
+    const segments = columnId.split(".");
+    const rootColumn = props.columns.find((c) => c.id === segments[0]);
+    const rootLabel = rootColumn
+      ? rootColumn.displayConfig?.label || rootColumn.label || segments[0]!
+      : segments[0]!;
+    return [rootLabel, ...segments.slice(1)].join(" → ");
   }
 
   const column = props.columns.find((c) => c.id === columnId);
   if (!column) return columnId;
-
   return column.displayConfig?.label || column.label || column.id;
 }
 
@@ -211,13 +213,13 @@ function handleClearAll() {
 <template>
   <div
     v-if="activeFilters.length > 0"
-    class="flex flex-wrap gap-2 items-center"
+    class="flex flex-wrap gap-2 items-start"
   >
     <VDropdown
       v-for="(filter, index) in activeFilters"
       :key="filter.columnId"
       :aria-id="ariaId + '_' + index"
-      :triggers="filter.isMultiValue ? ['hover', 'focus'] : []"
+      :triggers="['hover', 'focus']"
       :distance="12"
       theme="tooltip"
     >
@@ -229,16 +231,26 @@ function handleClearAll() {
         icon-position="right"
         :aria-label="`Remove filter: ${filter.label}`"
       >
-        <span class="font-bold">{{ filter.label }}</span>
-        <span v-if="!filter.isMultiValue">- {{ filter.displayValue }}</span>
+        <span class="font-bold max-w-48 truncate">{{ filter.label }}</span>
+        <span v-if="!filter.isMultiValue" class="max-w-32 truncate"
+          >- {{ filter.displayValue }}</span
+        >
         <span v-else class="text-gray-600">- {{ filter.displayValue }}</span>
       </Button>
-      <template #popper v-if="filter.isMultiValue">
-        <ul style="list-style-type: disc" class="pl-3 min-w-95">
-          <li v-for="item in filter.values" :key="item">
-            {{ item }}
-          </li>
-        </ul>
+      <template #popper>
+        <div class="px-1 py-0.5">
+          <div class="font-bold">{{ filter.label }}</div>
+          <ul
+            v-if="filter.isMultiValue"
+            style="list-style-type: disc"
+            class="pl-3"
+          >
+            <li v-for="item in filter.values" :key="item">
+              {{ item }}
+            </li>
+          </ul>
+          <div v-else>{{ filter.displayValue }}</div>
+        </div>
       </template>
     </VDropdown>
 

@@ -9,6 +9,7 @@ import FilterPicker from "./FilterPicker.vue";
 
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { extractPrimaryKey } from "../../utils/extractPrimaryKey";
+import { MAX_NESTING_DEPTH } from "../../utils/filterConstants";
 
 const props = withDefaults(
   defineProps<{
@@ -141,41 +142,6 @@ function handleFilterReset() {
   visibleFilterIds.value = newDefaults;
 }
 
-const directFilterIds = computed(() => {
-  return new Set(visibleFilterIds.value.filter((id) => !id.includes(".")));
-});
-
-const nestedParentIds = computed(() => {
-  const parents = new Set<string>();
-  for (const id of visibleFilterIds.value) {
-    if (id.includes(".")) {
-      parents.add(id.split(".")[0]!);
-    }
-  }
-  return parents;
-});
-
-const filterableColumnsComputed = computed<IColumn[]>(() => {
-  const unfilterableTypes = ["HEADING", "SECTION"];
-  return props.allColumns.filter(
-    (col) =>
-      !unfilterableTypes.includes(col.columnType) &&
-      !col.id.startsWith("mg_") &&
-      directFilterIds.value.has(col.id)
-  );
-});
-
-const nestedOnlyParents = computed<IColumn[]>(() => {
-  const unfilterableTypes = ["HEADING", "SECTION"];
-  return props.allColumns.filter(
-    (col) =>
-      !unfilterableTypes.includes(col.columnType) &&
-      !col.id.startsWith("mg_") &&
-      nestedParentIds.value.has(col.id) &&
-      !directFilterIds.value.has(col.id)
-  );
-});
-
 const filterStates = defineModel<Map<string, IFilterValue>>("filterStates", {
   default: () => new Map(),
 });
@@ -186,50 +152,102 @@ const searchTerms = defineModel<string>("searchTerms", {
 
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
 
-const nestedFilterIds = computed(() => {
-  const nested = new Map<string, string[]>();
-  for (const id of visibleFilterIds.value) {
-    if (id.includes(".")) {
-      const parentId = id.split(".")[0]!;
-      const childId = id.split(".")[1]!;
-      if (!nested.has(parentId)) nested.set(parentId, []);
-      nested.get(parentId)!.push(childId);
-    }
-  }
-  return nested;
-});
-
 watch(
-  nestedFilterIds,
-  async (newNested) => {
-    for (const parentId of newNested.keys()) {
-      if (!refColumnsCache.value.has(parentId)) {
-        const parentCol = props.allColumns.find((c) => c.id === parentId);
-        if (parentCol) await loadRefColumns(parentCol);
+  visibleFilterIds,
+  async (newIds) => {
+    for (const id of newIds) {
+      if (!id.includes(".")) continue;
+      const segments = id.split(".");
+      for (let depth = 0; depth < segments.length - 1; depth++) {
+        const pathSoFar = segments.slice(0, depth + 1).join(".");
+        if (!refColumnsCache.value.has(pathSoFar)) {
+          await loadRefColumnsForPath(id);
+          break;
+        }
       }
     }
   },
   { immediate: true }
 );
 
-function visibleNestedColumns(parentId: string): IColumn[] {
-  const all = refColumnsCache.value.get(parentId) || [];
-  const selectedChildIds = nestedFilterIds.value.get(parentId);
-  if (!selectedChildIds) return [];
-  return all.filter((c) => selectedChildIds.includes(c.id));
+interface ResolvedFilter {
+  fullPath: string;
+  column: IColumn;
+  schemaId: string;
+  labelPrefix: string;
 }
+
+const resolvedFilters = computed<ResolvedFilter[]>(() => {
+  const unfilterableTypes = ["HEADING", "SECTION"];
+  const result: ResolvedFilter[] = [];
+
+  for (const filterId of visibleFilterIds.value) {
+    const segments = filterId.split(".");
+
+    if (segments.length === 1) {
+      const column = props.allColumns.find(
+        (c) =>
+          c.id === filterId &&
+          !unfilterableTypes.includes(c.columnType) &&
+          !c.id.startsWith("mg_")
+      );
+      if (column) {
+        result.push({
+          fullPath: filterId,
+          column,
+          schemaId: props.schemaId,
+          labelPrefix: "",
+        });
+      }
+    } else {
+      const column = findColumnForPath(filterId);
+      if (!column) continue;
+
+      const labels: string[] = [];
+      let currentColumns: IColumn[] = props.allColumns;
+      let currentSchemaId = props.schemaId;
+
+      for (let depth = 0; depth < segments.length - 1; depth++) {
+        const seg = segments[depth]!;
+        const parentCol = currentColumns.find((c) => c.id === seg);
+        if (!parentCol) break;
+        labels.push(parentCol.label || parentCol.id);
+        currentSchemaId = parentCol.refSchemaId || currentSchemaId;
+        const pathSoFar = segments.slice(0, depth + 1).join(".");
+        currentColumns = refColumnsCache.value.get(pathSoFar) || [];
+      }
+
+      result.push({
+        fullPath: filterId,
+        column,
+        schemaId: currentSchemaId,
+        labelPrefix: labels.length > 0 ? labels.join(".") + "." : "",
+      });
+    }
+  }
+
+  return result;
+});
 
 function getFilterValue(columnId: string): IFilterValue | null {
   return filterStates.value.get(columnId) || null;
 }
 
-function findColumnForId(columnId: string): IColumn | undefined {
-  const segments = columnId.split(".");
+function findColumnForPath(fullPath: string): IColumn | undefined {
+  const segments = fullPath.split(".");
   if (segments.length === 1) {
     return props.allColumns.find((c) => c.id === segments[0]);
   }
-  const nested = refColumnsCache.value.get(segments[0]!);
-  return nested?.find((c) => c.id === segments[1]);
+
+  let currentColumns: IColumn[] = props.allColumns;
+  for (let depth = 0; depth < segments.length - 1; depth++) {
+    const pathSoFar = segments.slice(0, depth + 1).join(".");
+    const cached = refColumnsCache.value.get(pathSoFar);
+    if (!cached) return undefined;
+    currentColumns = cached;
+  }
+
+  return currentColumns.find((c) => c.id === segments[segments.length - 1]);
 }
 
 async function extractRefPkey(column: IColumn, val: any): Promise<any> {
@@ -259,7 +277,7 @@ async function setFilterValue(
   if (value === null || value === undefined) {
     newMap.delete(columnId);
   } else {
-    const column = findColumnForId(columnId);
+    const column = findColumnForPath(columnId);
     if (column && column.refTableId && value.value !== null) {
       const stripped = await extractRefPkey(column, value.value);
       newMap.set(columnId, { ...value, value: stripped });
@@ -270,28 +288,46 @@ async function setFilterValue(
   filterStates.value = newMap;
 }
 
-async function loadRefColumns(column: IColumn) {
-  const key = column.id;
-  if (refColumnsCache.value.has(key)) return;
+async function loadRefColumnsForPath(fullPath: string) {
+  const segments = fullPath.split(".");
+  let currentColumns: IColumn[] = props.allColumns;
+  let currentSchemaId = props.schemaId;
 
-  const refSchemaId = column.refSchemaId || props.schemaId;
-  const refTableId = column.refTableId;
-  if (!refTableId) return;
+  for (
+    let depth = 0;
+    depth < segments.length && depth < MAX_NESTING_DEPTH;
+    depth++
+  ) {
+    const segment = segments[depth]!;
+    const pathSoFar = segments.slice(0, depth + 1).join(".");
 
-  try {
-    const tableMetadata = await fetchTableMetadata(refSchemaId, refTableId);
-    const unfilterable = ["HEADING", "SECTION", "REFBACK"];
-    refColumnsCache.value.set(
-      key,
-      tableMetadata.columns.filter(
-        (col) =>
-          !col.id.startsWith("mg_") &&
-          !unfilterable.includes(col.columnType) &&
-          col.showFilter !== false
-      )
-    );
-  } catch (error) {
-    console.error("Failed to fetch ref metadata", error);
+    const column = currentColumns.find((c) => c.id === segment);
+    if (!column || !column.refTableId) return;
+
+    if (!refColumnsCache.value.has(pathSoFar)) {
+      const refSchemaId = column.refSchemaId || currentSchemaId;
+      try {
+        const tableMetadata = await fetchTableMetadata(
+          refSchemaId,
+          column.refTableId
+        );
+        const unfilterable = ["HEADING", "SECTION", "REFBACK"];
+        refColumnsCache.value.set(
+          pathSoFar,
+          tableMetadata.columns.filter(
+            (col) =>
+              !col.id.startsWith("mg_") &&
+              !unfilterable.includes(col.columnType) &&
+              col.showFilter !== false
+          )
+        );
+      } catch {
+        return;
+      }
+    }
+
+    currentColumns = refColumnsCache.value.get(pathSoFar) || [];
+    currentSchemaId = column.refSchemaId || currentSchemaId;
   }
 }
 </script>
@@ -327,50 +363,18 @@ async function loadRefColumns(column: IColumn) {
       />
     </div>
 
-    <template v-for="column in filterableColumnsComputed" :key="column.id">
-      <FilterColumn
-        :column="column"
-        :schema-id="schemaId"
-        :model-value="getFilterValue(column.id)"
-        @update:model-value="setFilterValue(column.id, $event)"
-        :mobile-display="mobileDisplay"
-        :depth="0"
-        :removable="true"
-        @remove="handleFilterToggle(column.id)"
-      />
-      <FilterColumn
-        v-for="nestedColumn in visibleNestedColumns(column.id)"
-        :key="`${column.id}.${nestedColumn.id}`"
-        :column="nestedColumn"
-        :schema-id="column.refSchemaId || schemaId"
-        :label-prefix="`${column.label}.`"
-        :model-value="getFilterValue(`${column.id}.${nestedColumn.id}`)"
-        @update:model-value="
-          setFilterValue(`${column.id}.${nestedColumn.id}`, $event)
-        "
-        :mobile-display="mobileDisplay"
-        :depth="1"
-        :removable="true"
-        @remove="handleFilterToggle(`${column.id}.${nestedColumn.id}`)"
-      />
-    </template>
-
-    <template v-for="parent in nestedOnlyParents" :key="`nested-${parent.id}`">
-      <FilterColumn
-        v-for="nestedColumn in visibleNestedColumns(parent.id)"
-        :key="`${parent.id}.${nestedColumn.id}`"
-        :column="nestedColumn"
-        :schema-id="parent.refSchemaId || schemaId"
-        :label-prefix="`${parent.label}.`"
-        :model-value="getFilterValue(`${parent.id}.${nestedColumn.id}`)"
-        @update:model-value="
-          setFilterValue(`${parent.id}.${nestedColumn.id}`, $event)
-        "
-        :mobile-display="mobileDisplay"
-        :depth="0"
-        :removable="true"
-        @remove="handleFilterToggle(`${parent.id}.${nestedColumn.id}`)"
-      />
-    </template>
+    <FilterColumn
+      v-for="filter in resolvedFilters"
+      :key="filter.fullPath"
+      :column="filter.column"
+      :schema-id="filter.schemaId"
+      :label-prefix="filter.labelPrefix"
+      :model-value="getFilterValue(filter.fullPath)"
+      @update:model-value="setFilterValue(filter.fullPath, $event)"
+      :mobile-display="mobileDisplay"
+      :depth="0"
+      :removable="true"
+      @remove="handleFilterToggle(filter.fullPath)"
+    />
   </div>
 </template>

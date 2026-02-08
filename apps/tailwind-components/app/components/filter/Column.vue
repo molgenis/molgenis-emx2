@@ -99,9 +99,7 @@ function handleClear() {
   <div class="flex items-center gap-1 px-5 pt-5 pb-2">
     <h3
       class="font-sans text-body-base font-bold"
-      :class="`text-search-filter-group-title${
-        mobileDisplay ? '-mobile' : ''
-      }`"
+      :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
     >
       {{ label }}
     </h3>

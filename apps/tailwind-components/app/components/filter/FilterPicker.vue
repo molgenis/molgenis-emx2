@@ -6,6 +6,10 @@ import BaseIcon from "../BaseIcon.vue";
 import InputSearch from "../input/Search.vue";
 import InputCheckboxIcon from "../input/CheckboxIcon.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import {
+  MAX_NESTING_DEPTH,
+  REF_EXPANDABLE_TYPES,
+} from "../../utils/filterConstants";
 
 function columnTooltip(col: IColumn): string {
   const parts = [`${col.label} (${col.id})`, col.columnType];
@@ -39,7 +43,7 @@ const emit = defineEmits<{
 const searchQuery = ref("");
 const searchInputId = useId();
 const expandedGroups = ref<Set<string>>(new Set());
-const expandedRefs = ref<Set<string>>(new Set());
+const expandedPaths = ref<Set<string>>(new Set());
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
 const refLoadingKeys = ref<Set<string>>(new Set());
 
@@ -86,15 +90,6 @@ const TYPE_PRIORITY: Record<string, number> = {
 };
 
 const EXCLUDED_TYPES = ["HEADING", "SECTION"];
-const REF_EXPANDABLE_TYPES = [
-  "REF",
-  "REF_ARRAY",
-  "SELECT",
-  "RADIO",
-  "CHECKBOX",
-  "MULTISELECT",
-  "REFBACK",
-];
 
 const filteredColumns = computed(() => {
   return props.columns.filter(
@@ -186,39 +181,84 @@ function toggleGroup(heading: string) {
   expandedGroups.value = newSet;
 }
 
-function toggleRefExpand(column: IColumn) {
-  const key = column.id;
-  const newSet = new Set(expandedRefs.value);
-  if (newSet.has(key)) {
-    newSet.delete(key);
+function toggleRefExpand(parentPath: string, column: IColumn) {
+  const newSet = new Set(expandedPaths.value);
+  if (newSet.has(parentPath)) {
+    newSet.delete(parentPath);
+    for (const path of newSet) {
+      if (path.startsWith(parentPath + ".")) {
+        newSet.delete(path);
+      }
+    }
   } else {
-    newSet.add(key);
-    loadRefColumns(column);
+    newSet.add(parentPath);
+    loadRefColumns(parentPath, column);
   }
-  expandedRefs.value = newSet;
+  expandedPaths.value = newSet;
 }
 
-async function loadRefColumns(column: IColumn) {
-  const key = column.id;
-  if (refColumnsCache.value.has(key) || refLoadingKeys.value.has(key)) return;
+async function loadRefColumns(parentPath: string, column: IColumn) {
+  if (
+    refColumnsCache.value.has(parentPath) ||
+    refLoadingKeys.value.has(parentPath)
+  )
+    return;
   if (!column.refTableId) return;
 
-  refLoadingKeys.value.add(key);
+  refLoadingKeys.value.add(parentPath);
   const schemaId = column.refSchemaId || props.schemaId;
   try {
     const meta = await fetchTableMetadata(schemaId, column.refTableId);
     const unfilterable = ["HEADING", "SECTION", "REFBACK"];
     refColumnsCache.value.set(
-      key,
+      parentPath,
       meta.columns.filter(
         (c) => !c.id.startsWith("mg_") && !unfilterable.includes(c.columnType)
       )
     );
-  } catch (e) {
-    // silently fail
+  } catch {
   } finally {
-    refLoadingKeys.value.delete(key);
+    refLoadingKeys.value.delete(parentPath);
   }
+}
+
+interface FlatPickerRow {
+  path: string;
+  column: IColumn;
+  depth: number;
+  isRefExpandable: boolean;
+}
+
+function flattenGroup(columns: IColumn[]): FlatPickerRow[] {
+  const rows: FlatPickerRow[] = [];
+
+  function walk(
+    cols: IColumn[],
+    parentPath: string,
+    depth: number,
+    parentSchemaId: string
+  ) {
+    for (const col of cols) {
+      const path = parentPath ? `${parentPath}.${col.id}` : col.id;
+      const isRef =
+        REF_EXPANDABLE_TYPES.includes(col.columnType) && !!col.refTableId;
+      rows.push({
+        path,
+        column: col,
+        depth,
+        isRefExpandable: isRef && depth < MAX_NESTING_DEPTH,
+      });
+      if (isRef && expandedPaths.value.has(path) && depth < MAX_NESTING_DEPTH) {
+        const children = refColumnsCache.value.get(path);
+        if (children) {
+          walk(children, path, depth + 1, col.refSchemaId || parentSchemaId);
+        }
+      }
+    }
+  }
+
+  walk(columns, "", 0, props.schemaId);
+  return rows;
 }
 </script>
 
@@ -270,59 +310,42 @@ async function loadRefColumns(column: IColumn) {
             <template
               v-if="!group.heading || expandedGroups.has(group.heading)"
             >
-              <div v-for="col in group.columns" :key="col.id">
+              <div v-for="row in flattenGroup(group.columns)" :key="row.path">
                 <button
-                  @click="handleToggle(col.id)"
-                  v-tooltip.right="columnTooltip(col)"
-                  class="w-full px-4 py-1.5 flex items-center gap-2 hover:bg-tab-hover text-left transition-colors"
+                  @click="handleToggle(row.path)"
+                  v-tooltip.right="columnTooltip(row.column)"
+                  class="w-full py-1.5 flex items-center gap-2 hover:bg-tab-hover text-left transition-colors"
+                  :style="{
+                    paddingLeft: `${16 + row.depth * 24}px`,
+                    paddingRight: '16px',
+                  }"
                 >
                   <InputCheckboxIcon
-                    :checked="isVisible(col.id)"
+                    :checked="isVisible(row.path)"
                     class="min-w-[20px] shrink-0"
                   />
                   <BaseIcon
-                    :name="getTypeIcon(col)"
+                    :name="getTypeIcon(row.column)"
                     class="w-4 h-4 opacity-40 shrink-0"
                   />
                   <span
-                    class="text-body-sm leading-normal truncate text-title"
-                    >{{ col.label }}</span
+                    class="text-body-sm leading-normal flex-1 truncate text-title"
                   >
+                    {{ row.column.label }}
+                  </span>
                   <span
-                    v-if="isRefType(col) && col.refTableId"
-                    @click.stop="toggleRefExpand(col)"
+                    v-if="row.isRefExpandable"
+                    @click.stop="toggleRefExpand(row.path, row.column)"
                     class="rounded-full h-5 w-5 flex items-center justify-center shrink-0 text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover"
                   >
                     <BaseIcon
                       :name="
-                        expandedRefs.has(col.id) ? 'caret-up' : 'caret-down'
+                        expandedPaths.has(row.path) ? 'caret-up' : 'caret-down'
                       "
                       :width="16"
                     />
                   </span>
                 </button>
-                <template v-if="isRefType(col) && expandedRefs.has(col.id)">
-                  <button
-                    v-for="nested in refColumnsCache.get(col.id)"
-                    :key="`${col.id}.${nested.id}`"
-                    @click="handleToggle(`${col.id}.${nested.id}`)"
-                    v-tooltip.right="columnTooltip(nested)"
-                    class="w-full pl-12 pr-4 py-1.5 flex items-center gap-2 hover:bg-tab-hover text-left transition-colors"
-                  >
-                    <InputCheckboxIcon
-                      :checked="isVisible(`${col.id}.${nested.id}`)"
-                      class="min-w-[20px] shrink-0"
-                    />
-                    <BaseIcon
-                      :name="getTypeIcon(nested)"
-                      class="w-4 h-4 opacity-40 shrink-0"
-                    />
-                    <span
-                      class="text-body-sm leading-normal flex-1 truncate text-title"
-                      >{{ nested.label }}</span
-                    >
-                  </button>
-                </template>
               </div>
             </template>
           </div>

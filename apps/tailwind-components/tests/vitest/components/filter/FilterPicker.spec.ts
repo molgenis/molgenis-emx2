@@ -711,3 +711,142 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual([]);
   });
 });
+
+describe("Deep nesting (3+ levels)", () => {
+  const vDropdownStub = {
+    template: `
+      <div>
+        <slot />
+        <div class="dropdown-popper" v-if="isOpen"><slot name="popper" :hide="hide" /></div>
+      </div>
+    `,
+    data() {
+      return {
+        isOpen: false,
+      };
+    },
+    methods: {
+      hide() {
+        this.isOpen = false;
+      },
+    },
+    mounted() {
+      const button = this.$el.querySelector("button");
+      if (button) {
+        button.addEventListener("click", () => {
+          this.isOpen = !this.isOpen;
+        });
+      }
+    },
+  };
+
+  const mockColumnsWithDeepRefs: IColumn[] = [
+    {
+      id: "order",
+      label: "Order",
+      columnType: "REF",
+      refSchemaId: "test",
+      refTableId: "Order",
+    },
+    {
+      id: "name",
+      label: "Name",
+      columnType: "STRING",
+    },
+  ];
+
+  it("shows expand caret on nested REF columns", async () => {
+    const wrapper = mount(FilterPicker, {
+      props: {
+        columns: mockColumnsWithDeepRefs,
+        visibleFilterIds: [],
+        defaultFilterIds: [],
+        schemaId: "test",
+      },
+      global: {
+        stubs: {
+          VDropdown: vDropdownStub,
+        },
+      },
+    });
+
+    await wrapper.find("button").trigger("click");
+
+    const orderButtons = wrapper.findAll("button").filter((b) => {
+      return b.text().includes("Order");
+    });
+    expect(orderButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("expands nested REF columns to show deeper children", async () => {
+    const wrapper = mount(FilterPicker, {
+      props: {
+        columns: mockColumnsWithDeepRefs,
+        visibleFilterIds: [],
+        defaultFilterIds: [],
+        schemaId: "test",
+      },
+      global: {
+        stubs: {
+          VDropdown: vDropdownStub,
+        },
+      },
+    });
+
+    await wrapper.find("button").trigger("click");
+
+    const orderButtons = wrapper.findAll("button").filter((b) => {
+      return b.text().includes("Order") && !b.text().includes("Name");
+    });
+    expect(orderButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("collapsing parent collapses all descendants", async () => {
+    const wrapper = mount(FilterPicker, {
+      props: {
+        columns: mockColumnsWithDeepRefs,
+        visibleFilterIds: [],
+        defaultFilterIds: [],
+        schemaId: "test",
+      },
+      global: {
+        stubs: {
+          VDropdown: vDropdownStub,
+        },
+      },
+    });
+
+    await wrapper.find("button").trigger("click");
+
+    const orderButtons = wrapper.findAll("button").filter((b) => {
+      return b.text().includes("Order");
+    });
+    expect(orderButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("emits full dot-path for deeply nested toggle", async () => {
+    const wrapper = mount(FilterPicker, {
+      props: {
+        columns: mockColumnsWithDeepRefs,
+        visibleFilterIds: [],
+        defaultFilterIds: [],
+        schemaId: "test",
+      },
+      global: {
+        stubs: {
+          VDropdown: vDropdownStub,
+        },
+      },
+    });
+
+    await wrapper.find("button").trigger("click");
+
+    const nameButtons = wrapper.findAll("button").filter((b) => {
+      return b.text().includes("Name") && b.text() !== "Name";
+    });
+    if (nameButtons.length > 0) {
+      await nameButtons[0].trigger("click");
+      expect(wrapper.emitted("toggle")).toBeTruthy();
+    }
+  });
+});

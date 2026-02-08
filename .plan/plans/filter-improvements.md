@@ -138,18 +138,20 @@ FilterPicker toggles column.showFilter
 **Status:** Complete
 
 **Components:**
-- `filter/FilterPicker.vue` (179 lines) - searchable dropdown with expand/collapse for REF columns
+- `filter/FilterPicker.vue` (~250 lines) - searchable dropdown with recursive expand for REF columns (arbitrary depth)
 - `filter/FilterPicker.story.vue` (63 lines) - story with DemoDataControls for backend testing
 - `tests/vitest/filter/FilterPicker.spec.ts` (375 lines) - comprehensive unit tests
-- `filter/Sidebar.vue` - integrated FilterPicker, smart defaults, mg_filters URL sync
+- `filter/Sidebar.vue` - flat resolvedFilters list, arbitrary-depth path resolution, mg_filters URL sync
+- `utils/filterConstants.ts` - shared MAX_NESTING_DEPTH=5 and REF_EXPANDABLE_TYPES
 - `filter/Column.vue` - always expanded (no collapse), Clear/Remove buttons
 - `tests/vitest/filter/Column.spec.ts` (357 lines) - updated tests for no-collapse behavior
 - Smart default logic: first 5 ONTOLOGY/ONTOLOGY_ARRAY, fill remaining with REF/REF_ARRAY
 
 **Design decisions:**
 - FilterPicker uses checkboxes for all columns
-- REF columns get expand caret for nested field selection
-- Nested filter labels use dot notation: `Parent.child`
+- REF columns get recursive expand caret (arbitrary depth, max 5 levels)
+- Nested filter labels use dot notation: `Parent.child` (any depth)
+- ActiveFilters labels: "Parent → Child → Grandchild" via async metadata chain
 - FilterColumn `removable` prop + `remove` emit - shows "Remove" link in header
 - FilterColumn `labelPrefix` prop for nested labels (e.g., "Hospital.")
 - Filters always expanded (no collapse/expand toggle) - FilterPicker controls visibility

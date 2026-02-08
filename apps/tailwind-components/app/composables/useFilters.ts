@@ -217,9 +217,7 @@ export function serializeFiltersToUrl(
         const val = value.value;
         const isRefLikeValue =
           (val !== null && typeof val === "object" && !Array.isArray(val)) ||
-          (Array.isArray(val) &&
-            val.length > 0 &&
-            typeof val[0] === "object");
+          (Array.isArray(val) && val.length > 0 && typeof val[0] === "object");
         if (isRefLikeValue) {
           const refField = extractRefField(value);
           params[`${key}.${refField}`] = serialized;

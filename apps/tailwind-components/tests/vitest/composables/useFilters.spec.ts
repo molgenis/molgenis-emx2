@@ -760,6 +760,19 @@ describe("serializeFiltersToUrl", () => {
     const result = serializeFiltersToUrl(filters, "", columns);
     expect(result).toEqual({ "category.id": "123" });
   });
+
+  it("serializes 3-level nested ref filter to URL", () => {
+    const columns = [
+      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
+    ];
+    const filters = new Map();
+    filters.set("order.pet.category", {
+      operator: "equals",
+      value: { name: "dogs" },
+    });
+    const result = serializeFiltersToUrl(filters, "", columns);
+    expect(result["order.pet.category.name"]).toBe("dogs");
+  });
 });
 
 describe("parseFiltersFromUrl", () => {
@@ -835,6 +848,20 @@ describe("parseFiltersFromUrl", () => {
     expect(result.filters.get("category")).toEqual({
       operator: "in",
       value: [{ name: "Cat1" }, { name: "Cat2" }],
+    });
+  });
+
+  it("parses 3-level nested ref filter from URL", () => {
+    const columns = [
+      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
+    ];
+    const result = parseFiltersFromUrl(
+      { "order.pet.category.name": "dogs" },
+      columns
+    );
+    expect(result.filters.get("order.pet.category")).toEqual({
+      operator: "equals",
+      value: { name: "dogs" },
     });
   });
 });
