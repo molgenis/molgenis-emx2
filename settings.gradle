@@ -14,7 +14,7 @@ nyx {
             origin {
                 authenticationMethod = "USER_PASSWORD"
                 user = "{{#environmentVariable}}GITHUB_TOKEN{{/environmentVariable}}"
-                password = "{{#environmentVariable}}GITHUB_TOKEN{{/environmentVariable}}"
+                password = ""
             }
         }
     }
@@ -22,8 +22,8 @@ nyx {
         items {
             mainline {
                 matchBranches = "master"
-                gitTag = "true"
                 gitPush = "true"
+                gitTag = "true"
                 publish = "true"
                 description = "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
                 publicationServices = ["github"]

@@ -256,6 +256,10 @@ jobs:
     - pre_steps
     
     - run:
+        name: Switch git remote to HTTPS for Nyx tag push
+        command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
+
+    - run:
         name: prepare sql test database
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
@@ -263,9 +267,8 @@ jobs:
         name: lint the code
         command: |
           ./gradlew lint ci --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
-      # we might be optimistic and skip tests here
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
