@@ -48,6 +48,7 @@ const props = defineProps<
   IInputProps & {
     modelValue: columnValue[] | undefined | null;
     type: string;
+    showClear?: boolean;
   }
 >();
 

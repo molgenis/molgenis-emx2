@@ -211,10 +211,7 @@ function handleClearAll() {
 </script>
 
 <template>
-  <div
-    v-if="activeFilters.length > 0"
-    class="flex flex-wrap gap-2 items-start"
-  >
+  <div v-if="activeFilters.length > 0" class="flex flex-wrap gap-2 items-start">
     <VDropdown
       v-for="(filter, index) in activeFilters"
       :key="filter.columnId"
@@ -222,6 +219,7 @@ function handleClearAll() {
       :triggers="['hover', 'focus']"
       :distance="12"
       theme="tooltip"
+      class="shrink-0"
     >
       <Button
         @click="handleRemove(filter.columnId)"
@@ -231,11 +229,19 @@ function handleClearAll() {
         icon-position="right"
         :aria-label="`Remove filter: ${filter.label}`"
       >
-        <span class="font-bold max-w-48 truncate">{{ filter.label }}</span>
-        <span v-if="!filter.isMultiValue" class="max-w-32 truncate"
+        <span class="inline-block font-bold max-w-48 truncate align-bottom">{{
+          filter.label
+        }}</span>
+        <span
+          v-if="!filter.isMultiValue"
+          class="inline-block max-w-32 truncate align-bottom"
           >- {{ filter.displayValue }}</span
         >
-        <span v-else class="text-gray-600">- {{ filter.displayValue }}</span>
+        <span
+          v-else
+          class="inline-block text-gray-600 max-w-32 truncate align-bottom"
+          >- {{ filter.displayValue }}</span
+        >
       </Button>
       <template #popper>
         <div class="px-1 py-0.5">

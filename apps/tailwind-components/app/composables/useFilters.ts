@@ -74,6 +74,7 @@ function extractStringKey(v: unknown, depth = 0): string {
 }
 const RANGE_TYPES = ["INT", "LONG", "DECIMAL", "DATE", "DATETIME"];
 const MULTI_VALUE_SEPARATOR = "|";
+const AND_VALUE_SEPARATOR = ",";
 const RESERVED_PREFIX = "mg_";
 const SEARCH_PARAM = "mg_search";
 
@@ -111,7 +112,17 @@ export function serializeFilterValue(value: IFilterValue): string | null {
     case "isNull":
       return "null";
 
+    case "like_or":
+      if (Array.isArray(val)) return val.join(MULTI_VALUE_SEPARATOR);
+      return String(val);
+
+    case "like_and":
+      if (Array.isArray(val)) return val.join(AND_VALUE_SEPARATOR);
+      return String(val);
+
     case "like":
+      return String(val);
+
     case "equals":
     default:
       if (Array.isArray(val)) {
@@ -163,10 +174,7 @@ export function parseFilterValue(
       return { operator: "in", value: values.map((v) => ({ [field]: v })) };
     }
     const refValue = { [field]: urlValue };
-    return {
-      operator: isArrayType ? "in" : "equals",
-      value: isArrayType ? [refValue] : refValue,
-    };
+    return { operator: "in", value: [refValue] };
   }
 
   if (RANGE_TYPES.includes(columnType)) {
@@ -186,6 +194,25 @@ export function parseFilterValue(
       operator: "equals",
       value: isDateType ? urlValue : Number(urlValue),
     };
+  }
+
+  const STRING_TYPES = [
+    "STRING",
+    "TEXT",
+    "EMAIL",
+    "HYPERLINK",
+    "AUTO_ID",
+    "UUID",
+    "JSON",
+    "STRING_ARRAY",
+    "TEXT_ARRAY",
+    "EMAIL_ARRAY",
+    "HYPERLINK_ARRAY",
+    "UUID_ARRAY",
+  ];
+
+  if (STRING_TYPES.includes(columnType)) {
+    return { operator: "like", value: urlValue };
   }
 
   if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
@@ -245,7 +272,7 @@ export function parseFiltersFromUrl(
 
   for (const [key, value] of Object.entries(query)) {
     if (key === SEARCH_PARAM && typeof value === "string") {
-      search = value;
+      search = value.replace(/\+/g, " ");
       continue;
     }
 
@@ -256,6 +283,7 @@ export function parseFiltersFromUrl(
 
     const column = columns.find((c) => c.id === firstSegment);
     if (!column || typeof value !== "string") continue;
+    const decodedValue = value.replace(/\+/g, " ");
 
     let filterKey: string;
     let refField: string | null;
@@ -271,7 +299,7 @@ export function parseFiltersFromUrl(
       refField = segments[segments.length - 1]!;
     }
 
-    const filterValue = parseFilterValue(value, column, refField);
+    const filterValue = parseFilterValue(decodedValue, column, refField);
     if (filterValue) {
       filters.set(filterKey, filterValue);
     }

@@ -43,6 +43,40 @@ const refTypes = ["REF", "REF_ARRAY", "ONTOLOGY", "ONTOLOGY_ARRAY"];
 
 const isRefType = computed(() => refTypes.includes(props.column.columnType));
 
+const REF_FILTER_TYPES = [
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "SELECT",
+  "MULTISELECT",
+  "RADIO",
+  "CHECKBOX",
+];
+
+const ONTOLOGY_FILTER_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
+
+const filterType = computed(() => {
+  const type = props.column.columnType;
+  if (REF_FILTER_TYPES.includes(type)) return "REF_ARRAY";
+  if (ONTOLOGY_FILTER_TYPES.includes(type)) return "ONTOLOGY_ARRAY";
+  const STRING_FILTER_TYPES = [
+    "STRING",
+    "TEXT",
+    "EMAIL",
+    "HYPERLINK",
+    "AUTO_ID",
+    "UUID",
+    "JSON",
+    "STRING_ARRAY",
+    "TEXT_ARRAY",
+    "EMAIL_ARRAY",
+    "HYPERLINK_ARRAY",
+    "UUID_ARRAY",
+  ];
+  if (STRING_FILTER_TYPES.includes(type)) return "STRING";
+  return type;
+});
+
 const label = computed(
   () =>
     props.labelPrefix +
@@ -61,7 +95,10 @@ const rangeValue = computed({
 });
 
 const singleValue = computed({
-  get: () => modelValue.value?.value ?? null,
+  get: () => {
+    if (!modelValue.value) return null;
+    return modelValue.value.value ?? null;
+  },
   set: (val) => {
     if (val == null || val === "") {
       modelValue.value = null;
@@ -103,17 +140,11 @@ function handleClear() {
     >
       {{ label }}
     </h3>
-    <div class="text-right grow flex gap-2 items-center justify-end">
+    <div
+      v-if="removable"
+      class="text-right grow flex gap-2 items-center justify-end"
+    >
       <span
-        v-if="modelValue"
-        class="text-body-sm hover:underline hover:cursor-pointer"
-        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
-        @click="handleClear"
-      >
-        Clear
-      </span>
-      <span
-        v-if="removable"
         class="text-body-sm hover:underline hover:cursor-pointer"
         :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
         @click="emit('remove')"
@@ -130,7 +161,7 @@ function handleClear() {
       <template #min="{ value, update, id }">
         <Input
           :id="id"
-          :type="column.columnType"
+          :type="filterType"
           :model-value="value"
           @update:model-value="update"
           :ref-schema-id="effectiveRefSchemaId"
@@ -141,7 +172,7 @@ function handleClear() {
       <template #max="{ value, update, id }">
         <Input
           :id="id"
-          :type="column.columnType"
+          :type="filterType"
           :model-value="value"
           @update:model-value="update"
           :ref-schema-id="effectiveRefSchemaId"
@@ -154,12 +185,20 @@ function handleClear() {
     <Input
       v-else
       :id="column.id"
-      :type="column.columnType"
+      :type="filterType"
       v-model="singleValue"
       :ref-schema-id="effectiveRefSchemaId"
       :ref-table-id="column.refTableId"
       :ref-label="column.refLabel || column.refLabelDefault"
-      :show-clear="!isRefType"
+      :show-clear="false"
     />
+    <span
+      v-if="modelValue"
+      class="mt-1 inline-block text-body-sm hover:underline hover:cursor-pointer"
+      :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+      @click="handleClear"
+    >
+      Clear
+    </span>
   </div>
 </template>

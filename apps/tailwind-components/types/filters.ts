@@ -1,6 +1,8 @@
 export type FilterOperator =
   | "equals"
   | "like"
+  | "like_or"
+  | "like_and"
   | "between"
   | "in"
   | "notNull"
@@ -37,5 +39,11 @@ export type IGraphQLFilterValue =
 
 export interface IGraphQLFilter {
   _search?: string;
-  [columnId: string]: IGraphQLFilterValue | string | undefined;
+  _or?: IGraphQLFilter[];
+  _and?: IGraphQLFilter[];
+  [columnId: string]:
+    | IGraphQLFilterValue
+    | IGraphQLFilter[]
+    | string
+    | undefined;
 }

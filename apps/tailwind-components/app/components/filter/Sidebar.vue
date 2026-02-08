@@ -94,7 +94,12 @@ function arraysEqual(a: string[], b: string[]): boolean {
   return sortedA.every((val, idx) => val === sortedB[idx]);
 }
 
+const userHasCustomized = ref(
+  typeof route.query[MG_FILTERS_PARAM] === "string"
+);
+
 watch(visibleFilterIds, (newIds) => {
+  userHasCustomized.value = true;
   const isDefault = arraysEqual(newIds, defaultFilterIds.value);
   const currentQuery = { ...route.query };
 
@@ -108,10 +113,8 @@ watch(visibleFilterIds, (newIds) => {
 });
 
 watch(defaultFilterIds, (newDefaults) => {
-  const urlParam = route.query[MG_FILTERS_PARAM];
-  if (!urlParam || (typeof urlParam === "string" && !urlParam.trim())) {
-    visibleFilterIds.value = [...newDefaults];
-  }
+  if (userHasCustomized.value) return;
+  visibleFilterIds.value = [...newDefaults];
 });
 
 function handleFilterToggle(columnId: string) {
@@ -139,6 +142,7 @@ function handleFilterReset() {
     }
     filterStates.value = newMap;
   }
+  userHasCustomized.value = false;
   visibleFilterIds.value = newDefaults;
 }
 

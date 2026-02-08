@@ -27,21 +27,42 @@ When `urlSync` is disabled:
 ### URL Format
 
 ```
-?name=John                    # STRING: like filter
+?name=John                    # STRING: like filter (single term)
+?name=aap+noot                # STRING: like OR ("aap noot", space=+)
+?name=aap+and+noot            # STRING: like AND ("aap and noot", keyword preserved)
 ?age=18..65                   # INT/DECIMAL: between filter
 ?age=18..                     # >= 18
 ?age=..65                     # <= 65
 ?birth=2024-01-01..2024-12-31 # DATE: range
-?name=John|Jane               # Multi-value: in filter
-?category.name=Cat1|Cat2      # REF: explicit field path
+?category.name=Cat1|Cat2      # REF/ONTOLOGY: in filter (pipe = multi-select)
 ?name=null                    # is null
 ?name=!null                   # is not null
 ?mg_search=term               # Global search
 ```
 
+#### String Filter Encoding
+
+String (like) filters store the raw input string in the URL. Vue Router
+encodes spaces as `+` (standard URL encoding). On read, `+` is decoded back
+to space. Smart parsing (OR via spaces, AND via "and" keyword) only happens
+in `buildGraphQLFilter()` at query build time, never during serialization.
+
+This design ensures:
+- Lossless round-trip: URL → filterState → URL produces same result
+- No character eating during typing (no parsing in serialization path)
+- AND intent preserved across page refresh (`aap+and+noot` → "aap and noot")
+- Quoted phrases: single quotes preserve multi-word terms as one unit
+  - `'aap noot' mies` → OR between "aap noot" and "mies"
+  - `'aap noot' and mies` → AND between "aap noot" and "mies"
+
+The `|` pipe separator is reserved exclusively for multi-value `in` filters
+(REF/ONTOLOGY types where user selects discrete options from a list).
+
+#### REF/ONTOLOGY Filter Encoding
+
 REF types use dotted syntax (`column.field=value`) to:
 - Be explicit about which field is filtered
-- Enable future nested queries (`parent.child.name=value`)
+- Enable nested queries (`parent.child.name=value`)
 - Match GraphQL filter structure
 
 Backward compatible: `?category=Cat1` defaults to `name` field.
@@ -79,16 +100,25 @@ const {
 
 ```typescript
 interface IFilterValue {
-  operator: "like" | "equals" | "in" | "between" | "isNull" | "notNull";
+  operator: "like" | "like_or" | "like_and" | "equals" | "in" | "between" | "isNull" | "notNull";
   value: any;
 }
 ```
+
+Operator semantics:
+- `like` — raw string, parsed at query time by `parseFilterTerms()`
+- `like_or` — pre-parsed array of terms, OR logic
+- `like_and` — pre-parsed array of terms, AND logic (uses `_and` wrapper)
+- `equals` — exact match (scalar or object)
+- `in` — multi-select (array of values/objects)
+- `between` — range [min, max]
+- `isNull` / `notNull` — null checks
 
 ### Column Type Mapping
 
 | Column Type | Input | Operator | URL Example |
 |-------------|-------|----------|-------------|
-| STRING, TEXT, EMAIL | text | like | `?name=John` |
+| STRING, TEXT, EMAIL | text | like | `?name=John` or `?name=aap+noot` |
 | INT, DECIMAL, LONG, DATE | range | between | `?age=18..65` |
 | BOOL | toggle | equals | `?active=true` |
 | REF, REF_ARRAY | dropdown | in | `?category.name=Cat1\|Cat2` |
@@ -253,7 +283,8 @@ interface IFilterValue {
 3. **Debounced gqlFilter**: Prevents excessive API calls (300ms default)
 4. **Immediate URL updates**: User sees URL change instantly
 5. **Explicit REF paths**: `category.name=value` not `category=value`
-6. **Pipe separator**: `|` for multi-value (avoids comma conflicts in data)
+6. **Pipe separator**: `|` for REF/ONTOLOGY multi-select only (avoids comma conflicts)
+12. **Raw string URL for text filters**: Spaces encoded as `+` by Vue Router, decoded on read. Parsing (OR/AND) only in `buildGraphQLFilter()`. Avoids character-eating during typing and ensures lossless round-trip. Pipe `|` NOT used for text filters.
 7. **Reserved prefix**: `mg_*` params preserved across filter changes
 8. **Graceful degradation**: Works without router (uses local refs)
 9. **Composition over props**: DetailPageLayout uses slots, components compose

@@ -144,7 +144,7 @@ describe("FilterColumn", () => {
   });
 
   describe("Dispatch logic (from 6.3.3 FilterColumn)", () => {
-    it("renders single Input for STRING type with like operator", async () => {
+    it("stores raw string input without parsing", async () => {
       const wrapper = mount(FilterColumn, {
         props: {
           column: stringColumn,
@@ -155,13 +155,13 @@ describe("FilterColumn", () => {
       const input = wrapper.find('input[type="text"]');
       expect(input.exists()).toBe(true);
 
-      await input.setValue("test");
+      await input.setValue("dog cat");
 
       const emitted = wrapper.emitted("update:modelValue") as any[];
       expect(emitted).toBeTruthy();
       const lastEmit = emitted[emitted.length - 1][0];
       expect(lastEmit?.operator).toBe("like");
-      expect(lastEmit?.value).toBe("test");
+      expect(lastEmit?.value).toBe("dog cat");
     });
 
     it("renders FilterRange for INT type with between operator", () => {
@@ -212,7 +212,7 @@ describe("FilterColumn", () => {
         },
       });
 
-      const input = wrapper.find('input[type="email"]');
+      const input = wrapper.find('input[type="text"]');
       await input.setValue("test@example.com");
 
       const emitted = wrapper.emitted("update:modelValue") as any[];
@@ -236,16 +236,17 @@ describe("FilterColumn", () => {
       expect(wrapper.props("modelValue")?.value).toEqual([10, 20]);
     });
 
-    it("clears modelValue when single input is emptied", async () => {
+    it("clears modelValue when Clear is clicked", async () => {
       const wrapper = mount(FilterColumn, {
         props: {
           column: stringColumn,
-          modelValue: { operator: "like", value: "test" } as IFilterValue,
+          modelValue: { operator: "like", value: ["test"] } as IFilterValue,
         },
       });
 
-      const input = wrapper.find('input[type="text"]');
-      await input.setValue("");
+      const clearBtn = wrapper.find(".text-search-filter-expand");
+      expect(clearBtn.exists()).toBe(true);
+      await clearBtn.trigger("click");
 
       const emitted = wrapper.emitted("update:modelValue") as any[];
       const lastEmit = emitted[emitted.length - 1][0];

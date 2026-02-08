@@ -7,6 +7,7 @@ import {
   serializeFiltersToUrl,
   parseFiltersFromUrl,
 } from "../../../app/composables/useFilters";
+import { buildGraphQLFilter } from "../../../app/utils/buildFilter";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 
@@ -625,9 +626,9 @@ describe("parseFilterValue", () => {
     expect(result).toEqual({ operator: "like", value: "John" });
   });
 
-  it("should parse pipe-separated string as in", () => {
+  it("should pass through raw string value for string types", () => {
     const result = parseFilterValue("a|b|c", stringColumn);
-    expect(result).toEqual({ operator: "in", value: ["a", "b", "c"] });
+    expect(result).toEqual({ operator: "like", value: "a|b|c" });
   });
 
   it("should parse range for int", () => {
@@ -666,14 +667,14 @@ describe("parseFilterValue", () => {
     });
   });
 
-  it("should parse simple ref value as object", () => {
+  it("should parse simple ref value as array", () => {
     const result = parseFilterValue("Cat1", refColumn);
-    expect(result).toEqual({ operator: "equals", value: { name: "Cat1" } });
+    expect(result).toEqual({ operator: "in", value: [{ name: "Cat1" }] });
   });
 
-  it("should parse ref value with custom field", () => {
+  it("should parse ref value with custom field as array", () => {
     const result = parseFilterValue("123", refColumn, "id");
-    expect(result).toEqual({ operator: "equals", value: { id: "123" } });
+    expect(result).toEqual({ operator: "in", value: [{ id: "123" }] });
   });
 
   it("should parse pipe-separated ref values with custom field", () => {
@@ -838,8 +839,8 @@ describe("parseFiltersFromUrl", () => {
   it("should parse ref filters with non-name field", () => {
     const result = parseFiltersFromUrl({ "category.id": "123" }, columns);
     expect(result.filters.get("category")).toEqual({
-      operator: "equals",
-      value: { id: "123" },
+      operator: "in",
+      value: [{ id: "123" }],
     });
   });
 
@@ -860,8 +861,8 @@ describe("parseFiltersFromUrl", () => {
       columns
     );
     expect(result.filters.get("order.pet.category")).toEqual({
-      operator: "equals",
-      value: { name: "dogs" },
+      operator: "in",
+      value: [{ name: "dogs" }],
     });
   });
 });
@@ -948,5 +949,77 @@ describe("extractStringKey (via serializeFilterValue)", () => {
       value: deepObj,
     });
     expect(result).not.toBe("");
+  });
+});
+
+describe("string filter round-trip (type → URL → parse → buildFilter)", () => {
+  const stringColumn: IColumn = {
+    id: "name",
+    label: "Name",
+    columnType: "STRING",
+  };
+  const columns = [stringColumn];
+
+  function roundTrip(input: string) {
+    const filterValue: IFilterValue = { operator: "like", value: input };
+    const serialized = serializeFilterValue(filterValue);
+    const parsed = parseFilterValue(serialized!, stringColumn);
+    const gql = buildGraphQLFilter(
+      new Map([["name", parsed!]]),
+      columns
+    );
+    return { serialized, parsed, gql };
+  }
+
+  it("single term: aap", () => {
+    const { serialized, parsed, gql } = roundTrip("aap");
+    expect(serialized).toBe("aap");
+    expect(parsed).toEqual({ operator: "like", value: "aap" });
+    expect(gql).toEqual({ name: { like: "aap" } });
+  });
+
+  it("OR terms: aap noot", () => {
+    const { serialized, parsed, gql } = roundTrip("aap noot");
+    expect(serialized).toBe("aap noot");
+    expect(parsed).toEqual({ operator: "like", value: "aap noot" });
+    expect(gql).toEqual({ name: { like: ["aap", "noot"] } });
+  });
+
+  it("AND terms: aap and noot", () => {
+    const { serialized, parsed, gql } = roundTrip("aap and noot");
+    expect(serialized).toBe("aap and noot");
+    expect(parsed).toEqual({ operator: "like", value: "aap and noot" });
+    expect(gql).toEqual({
+      _and: [{ name: { like: "aap" } }, { name: { like: "noot" } }],
+    });
+  });
+
+  it("plus in input is literal (not AND)", () => {
+    const { serialized, parsed, gql } = roundTrip("aap+noot");
+    expect(serialized).toBe("aap+noot");
+    expect(parsed).toEqual({ operator: "like", value: "aap+noot" });
+    expect(gql).toEqual({ name: { like: "aap+noot" } });
+  });
+
+  it("partial AND: aap and (incomplete)", () => {
+    const { serialized, parsed } = roundTrip("aap and ");
+    expect(serialized).toBe("aap and ");
+    expect(parsed).toEqual({ operator: "like", value: "aap and " });
+  });
+
+  it("preserves raw string through URL round-trip", () => {
+    const inputs = ["hello", "aap noot mies", "aap and noot", "aap+noot"];
+    for (const input of inputs) {
+      const serialized = serializeFilterValue({ operator: "like", value: input });
+      const parsed = parseFilterValue(serialized!, stringColumn);
+      expect(parsed!.value).toBe(input);
+    }
+  });
+
+  it("quoted phrase: 'aap noot' mies", () => {
+    const { serialized, parsed, gql } = roundTrip("'aap noot' mies");
+    expect(serialized).toBe("'aap noot' mies");
+    expect(parsed).toEqual({ operator: "like", value: "'aap noot' mies" });
+    expect(gql).toEqual({ name: { like: ["aap noot", "mies"] } });
   });
 });

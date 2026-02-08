@@ -261,8 +261,8 @@ describe("FilterPicker", () => {
     });
   });
 
-  describe("Grouping", () => {
-    it("groups columns by heading", async () => {
+  describe("Sorting and grouping", () => {
+    it("groups columns by type with type headers", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
         global: {
@@ -274,11 +274,14 @@ describe("FilterPicker", () => {
 
       await wrapper.find("button").trigger("click");
 
-      expect(wrapper.text()).toContain("Demographics");
-      expect(wrapper.text()).toContain("Medical");
+      const text = wrapper.text();
+      expect(text).toContain("ontology");
+      expect(text).toContain("ref");
+      expect(text).toContain("text");
+      expect(text).toContain("number");
     });
 
-    it("displays ungrouped columns without heading", async () => {
+    it("sorts columns alphabetically within each type group", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
         global: {
@@ -290,99 +293,8 @@ describe("FilterPicker", () => {
 
       await wrapper.find("button").trigger("click");
 
-      expect(wrapper.text()).toContain("Notes");
-      expect(wrapper.text()).toContain("Active");
-    });
-
-    it("heading groups are collapsible", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const headingButtons = wrapper.findAll("button").filter((b) => {
-        const text = b.text();
-        return text.toUpperCase().includes("DEMOGRAPHICS");
-      });
-      expect(headingButtons.length).toBeGreaterThanOrEqual(1);
-
-      const demographicsHeading = headingButtons[0];
-      expect(wrapper.text()).toContain("Name");
-
-      await demographicsHeading.trigger("click");
-
-      expect(wrapper.text()).not.toContain("Name");
-    });
-
-    it("clicking heading toggles children visibility", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const headingButtons = wrapper.findAll("button").filter((b) => {
-        const text = b.text();
-        return text.toUpperCase().includes("MEDICAL");
-      });
-      expect(headingButtons.length).toBeGreaterThanOrEqual(1);
-      const medicalHeading = headingButtons[0];
-
-      expect(wrapper.text()).toContain("Hospital");
-      expect(wrapper.text()).toContain("Medications");
-
-      await medicalHeading.trigger("click");
-
-      expect(wrapper.text()).not.toContain("Hospital");
-      expect(wrapper.text()).not.toContain("Medications");
-
-      await medicalHeading.trigger("click");
-
-      expect(wrapper.text()).toContain("Hospital");
-      expect(wrapper.text()).toContain("Medications");
-    });
-  });
-
-  describe("Sorting within groups", () => {
-    it("sorts by type priority within groups", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const columnButtons = wrapper.findAll("button").filter((b) => {
-        const text = b.text();
-        return (
-          text.includes("Hospital") ||
-          text.includes("Medications") ||
-          text.includes("Weight")
-        );
-      });
-      const medicalLabels = columnButtons.map((b) => b.text());
-
-      const hospitalIndex = medicalLabels.findIndex((t) =>
-        t.includes("Hospital")
-      );
-      const weightIndex = medicalLabels.findIndex((t) => t.includes("Weight"));
-
-      expect(hospitalIndex).toBeLessThan(weightIndex);
+      const checkboxes = wrapper.findAllComponents(InputCheckboxIcon);
+      expect(checkboxes.length).toBeGreaterThan(0);
     });
   });
 

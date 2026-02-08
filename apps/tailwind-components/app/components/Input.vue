@@ -33,6 +33,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -99,6 +100,7 @@
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
     :align="align"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -124,6 +126,7 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
@@ -138,6 +141,7 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />

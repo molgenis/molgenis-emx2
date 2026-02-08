@@ -9,10 +9,7 @@ describe("buildGraphQLFilter", () => {
       { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
     ];
     const filters = new Map<string, IFilterValue>([
-      [
-        "order.pet.category",
-        { operator: "equals", value: { name: "dogs" } },
-      ],
+      ["order.pet.category", { operator: "equals", value: { name: "dogs" } }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
@@ -108,10 +105,7 @@ describe("buildGraphQLFilter", () => {
       { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
     ];
     const filters = new Map<string, IFilterValue>([
-      [
-        "unknown.pet.category",
-        { operator: "equals", value: { name: "dogs" } },
-      ],
+      ["unknown.pet.category", { operator: "equals", value: { name: "dogs" } }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({});
@@ -141,6 +135,126 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({
       _search: "search term",
       name: { like: "John" },
+    });
+  });
+
+  it("parses space-separated string as OR terms", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "dog cat" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      name: { like: ["dog", "cat"] },
+    });
+  });
+
+  it("parses 'and' keyword string as AND terms with _and wrapper", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "dog and cat" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      _and: [{ name: { like: "dog" } }, { name: { like: "cat" } }],
+    });
+  });
+
+  it("treats plus as literal character (not AND separator)", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "dog+cat" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      name: { like: "dog+cat" },
+    });
+  });
+
+  it("parses nested path with 'and' keyword string", () => {
+    const columns: IColumn[] = [
+      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["order.pet.name", { operator: "like", value: "dog and cat" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      _and: [
+        { order: { pet: { name: { like: "dog" } } } },
+        { order: { pet: { name: { like: "cat" } } } },
+      ],
+    });
+  });
+
+  it("handles single term like filter without parsing", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "dog" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      name: { like: "dog" },
+    });
+  });
+
+  it("preserves 'and' in middle of word", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "tools and human" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      _and: [{ name: { like: "tools" } }, { name: { like: "human" } }],
+    });
+  });
+
+  it("parses quoted phrase as single OR term", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "'aap noot' mies" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      name: { like: ["aap noot", "mies"] },
+    });
+  });
+
+  it("parses quoted phrase with AND keyword", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "'aap noot' and mies" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      _and: [{ name: { like: "aap noot" } }, { name: { like: "mies" } }],
+    });
+  });
+
+  it("preserves existing behavior without quotes", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like", value: "aap noot" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      name: { like: ["aap", "noot"] },
     });
   });
 });
