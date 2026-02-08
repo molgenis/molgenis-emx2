@@ -36,6 +36,7 @@
         v-model:search-terms="searchTerms"
         :all-columns="columns"
         :schema-id="schemaId"
+        :table-id="tableId"
         :show-search="true"
         :mobile-display="isMobile"
       />

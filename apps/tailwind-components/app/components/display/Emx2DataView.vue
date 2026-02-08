@@ -241,6 +241,7 @@ async function afterRowDeleted() {
           v-model:search-terms="searchTerms"
           :all-columns="metadataRef"
           :schema-id="schemaId"
+          :table-id="tableId"
           :show-search="showSearch"
           @update:columns="handleColumnsUpdate"
         />
@@ -268,6 +269,7 @@ async function afterRowDeleted() {
               v-model:search-terms="searchTerms"
               :all-columns="metadataRef"
               :schema-id="schemaId"
+              :table-id="tableId"
               :show-search="showSearch"
               :mobile-display="true"
               @update:columns="handleColumnsUpdate"

@@ -13,6 +13,11 @@ const props = withDefaults(
     depth?: number;
     labelPrefix?: string;
     removable?: boolean;
+    facetCounts?: Map<string, number>;
+    fetchParentCounts?: (
+      columnId: string,
+      parentNames: string[]
+    ) => Promise<Map<string, number>>;
   }>(),
   {
     schemaId: "",
@@ -189,6 +194,8 @@ function handleClear() {
       :ref-table-id="column.refTableId"
       :ref-label="column.refLabel || column.refLabelDefault"
       :show-clear="false"
+      :facet-counts="facetCounts"
+      :fetch-parent-counts="fetchParentCounts"
     />
     <span
       v-if="modelValue"

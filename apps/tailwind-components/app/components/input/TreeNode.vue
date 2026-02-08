@@ -27,7 +27,8 @@ const props = withDefaults(
     disabled?: boolean;
     isSearching?: boolean;
     scrollContainer?: HTMLElement | null;
-    enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
+    enableAutoLoad?: boolean;
+    facetCounts?: Map<string, number> | null;
   }>(),
   {
     inverted: false,
@@ -35,7 +36,7 @@ const props = withDefaults(
     multiselect: true,
     isSearching: false,
     scrollContainer: null,
-    enableAutoLoad: true, // Default to enabled for backward compatibility
+    enableAutoLoad: true,
   }
 );
 const emit = defineEmits([
@@ -90,6 +91,21 @@ const hiddenSelectedCount = computed(
 );
 
 const nodes = computed(() => props.parentNode.children || []);
+
+const visibleNodes = computed(() => {
+  const filtered = nodes.value.filter((node) => node.visible === true);
+  if (!props.facetCounts) return filtered;
+  return filtered.filter((node) => nodeHasMatches(node));
+});
+
+function nodeHasMatches(node: ITreeNodeState): boolean {
+  const count = props.facetCounts?.get(node.name);
+  if (count !== undefined && count > 0) return true;
+  if (node.children?.length) {
+    return node.children.some((child) => nodeHasMatches(child));
+  }
+  return false;
+}
 
 const hasMoreTerms = computed(() => props.parentNode.loadMoreHasMore || false);
 
@@ -315,7 +331,7 @@ onUnmounted(() => {
     ]"
   >
     <li
-      v-for="node in nodes.filter((node2) => node2.visible === true)"
+      v-for="node in visibleNodes"
       :key="id + node.name"
       class="mt-2.5 relative"
     >
@@ -406,6 +422,9 @@ onUnmounted(() => {
           >
             {{ node.label || node.name }}
           </span>
+          <span v-if="facetCounts" class="text-body-xs text-body-light ml-1">
+            ({{ facetCounts.get(node.name) ?? 0 }})
+          </span>
         </InputLabel>
         <div
           class="inline-flex items-center whitespace-nowrap"
@@ -434,6 +453,7 @@ onUnmounted(() => {
           :isSearching="isSearching"
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
+          :facet-counts="facetCounts"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
           @loadMore="loadMore"
@@ -482,6 +502,16 @@ onUnmounted(() => {
           </ButtonText>
         </div>
       </div>
+    </li>
+    <li
+      v-if="
+        isRoot && facetCounts && visibleNodes.length === 0 && nodes.length > 0
+      "
+      class="mt-2.5"
+    >
+      <span class="text-body-sm italic text-input-description ml-6">
+        No matching options for current filters
+      </span>
     </li>
     <li v-if="hiddenNodesCount > 0" class="mt-2.5 relative">
       <div class="flex items-center">

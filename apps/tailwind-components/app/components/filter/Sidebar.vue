@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useId, watch } from "vue";
+import { computed, ref, toRef, useId, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
@@ -10,11 +10,13 @@ import FilterPicker from "./FilterPicker.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { extractPrimaryKey } from "../../utils/extractPrimaryKey";
 import { MAX_NESTING_DEPTH } from "../../utils/filterConstants";
+import { useFilterCounts } from "../../composables/useFilterCounts";
 
 const props = withDefaults(
   defineProps<{
     allColumns: IColumn[];
     schemaId: string;
+    tableId: string;
     title?: string;
     mobileDisplay?: boolean;
     showSearch?: boolean;
@@ -155,6 +157,15 @@ const searchTerms = defineModel<string>("searchTerms", {
 });
 
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
+
+const { facetCounts, fetchParentCounts } = useFilterCounts({
+  schemaId: toRef(props, "schemaId"),
+  tableId: toRef(props, "tableId"),
+  filterStates,
+  columns: toRef(props, "allColumns"),
+  visibleFilterIds,
+  searchValue: searchTerms,
+});
 
 watch(
   visibleFilterIds,
@@ -338,7 +349,7 @@ async function loadRefColumnsForPath(fullPath: string) {
 
 <template>
   <div
-    class="rounded-t-3px rounded-b-50px overflow-hidden pb-8"
+    class="rounded-t-3px rounded-b-50px pb-8"
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
     <div v-if="!mobileDisplay" class="p-5">
@@ -379,6 +390,8 @@ async function loadRefColumnsForPath(fullPath: string) {
       :depth="0"
       :removable="true"
       @remove="handleFilterToggle(filter.fullPath)"
+      :facet-counts="facetCounts.get(filter.column.id)"
+      :fetch-parent-counts="fetchParentCounts"
     />
   </div>
 </template>

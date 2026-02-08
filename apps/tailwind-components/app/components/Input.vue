@@ -248,6 +248,8 @@
     @blur="emit('blur')"
     :is-array="false"
     :limit="10"
+    :facet-counts="facetCounts"
+    :fetch-parent-counts="fetchParentCounts"
   />
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
@@ -272,6 +274,8 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :limit="10"
+    :facet-counts="facetCounts"
+    :fetch-parent-counts="fetchParentCounts"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
@@ -355,6 +359,11 @@ const props = withDefaults(
       align?: "horizontal" | "vertical";
       limit?: number;
       showClear?: boolean;
+      facetCounts?: Map<string, number>;
+      fetchParentCounts?: (
+        columnId: string,
+        parentNames: string[]
+      ) => Promise<Map<string, number>>;
     }
   >(),
   {
