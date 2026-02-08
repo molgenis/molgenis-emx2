@@ -168,7 +168,6 @@ export function parseFilterValue(
 
   if (REF_TYPES.includes(columnType)) {
     const field = refField ?? "name";
-    const isArrayType = columnType.endsWith("_ARRAY");
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       const values = urlValue.split(MULTI_VALUE_SEPARATOR);
       return { operator: "in", value: values.map((v) => ({ [field]: v })) };
@@ -202,14 +201,16 @@ export function parseFilterValue(
     "EMAIL",
     "HYPERLINK",
     "AUTO_ID",
-    "UUID",
     "JSON",
     "STRING_ARRAY",
     "TEXT_ARRAY",
     "EMAIL_ARRAY",
     "HYPERLINK_ARRAY",
-    "UUID_ARRAY",
   ];
+
+  if (columnType === "UUID" || columnType === "UUID_ARRAY") {
+    return { operator: "equals", value: urlValue };
+  }
 
   if (STRING_TYPES.includes(columnType)) {
     return { operator: "like", value: urlValue };

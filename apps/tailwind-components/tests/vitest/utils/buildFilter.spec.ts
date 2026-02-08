@@ -257,4 +257,13 @@ describe("buildGraphQLFilter", () => {
       name: { like: ["aap", "noot"] },
     });
   });
+
+  it("passes UUID equals filter through", () => {
+    const columns: IColumn[] = [{ id: "id", columnType: "UUID", label: "ID" }];
+    const filters = new Map<string, IFilterValue>([
+      ["id", { operator: "equals", value: "550e8400" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ id: { equals: "550e8400" } });
+  });
 });

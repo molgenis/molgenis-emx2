@@ -620,6 +620,7 @@ describe("parseFilterValue", () => {
   const intColumn: IColumn = { id: "age", columnType: "INT" };
   const dateColumn: IColumn = { id: "birth", columnType: "DATE" };
   const refColumn: IColumn = { id: "category", columnType: "REF" };
+  const uuidColumn: IColumn = { id: "id", columnType: "UUID" };
 
   it("should parse simple string as like", () => {
     const result = parseFilterValue("John", stringColumn);
@@ -698,6 +699,17 @@ describe("parseFilterValue", () => {
   it("should return null for empty value", () => {
     const result = parseFilterValue("", stringColumn);
     expect(result).toBeNull();
+  });
+
+  it("should parse UUID filter as equals", () => {
+    const result = parseFilterValue(
+      "550e8400-e29b-41d4-a716-446655440000",
+      uuidColumn
+    );
+    expect(result).toEqual({
+      operator: "equals",
+      value: "550e8400-e29b-41d4-a716-446655440000",
+    });
   });
 });
 
@@ -964,10 +976,7 @@ describe("string filter round-trip (type → URL → parse → buildFilter)", ()
     const filterValue: IFilterValue = { operator: "like", value: input };
     const serialized = serializeFilterValue(filterValue);
     const parsed = parseFilterValue(serialized!, stringColumn);
-    const gql = buildGraphQLFilter(
-      new Map([["name", parsed!]]),
-      columns
-    );
+    const gql = buildGraphQLFilter(new Map([["name", parsed!]]), columns);
     return { serialized, parsed, gql };
   }
 
@@ -1010,7 +1019,10 @@ describe("string filter round-trip (type → URL → parse → buildFilter)", ()
   it("preserves raw string through URL round-trip", () => {
     const inputs = ["hello", "aap noot mies", "aap and noot", "aap+noot"];
     for (const input of inputs) {
-      const serialized = serializeFilterValue({ operator: "like", value: input });
+      const serialized = serializeFilterValue({
+        operator: "like",
+        value: input,
+      });
       const parsed = parseFilterValue(serialized!, stringColumn);
       expect(parsed!.value).toBe(input);
     }

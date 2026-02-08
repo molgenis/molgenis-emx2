@@ -65,13 +65,11 @@ const filterType = computed(() => {
     "EMAIL",
     "HYPERLINK",
     "AUTO_ID",
-    "UUID",
     "JSON",
     "STRING_ARRAY",
     "TEXT_ARRAY",
     "EMAIL_ARRAY",
     "HYPERLINK_ARRAY",
-    "UUID_ARRAY",
   ];
   if (STRING_FILTER_TYPES.includes(type)) return "STRING";
   return type;
@@ -111,7 +109,7 @@ const singleValue = computed({
 function getDefaultOperator(): FilterOperator {
   const type = props.column.columnType;
   if (["STRING", "TEXT", "EMAIL", "FILE"].includes(type)) return "like";
-  if (["BOOL"].includes(type)) return "equals";
+  if (["BOOL", "UUID", "UUID_ARRAY"].includes(type)) return "equals";
   const refTypes = [
     "REF",
     "REF_ARRAY",

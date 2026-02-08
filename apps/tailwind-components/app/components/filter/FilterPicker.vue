@@ -98,13 +98,14 @@ const groupedByType = computed(() => {
     groups.get(group)!.push(col);
   }
 
-  return TYPE_ORDER
-    .filter((type) => groups.has(type))
+  return TYPE_ORDER.filter((type) => groups.has(type))
     .map((type) => ({
       type,
-      columns: groups.get(type)!.sort((a, b) =>
-        a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
-      ),
+      columns: groups
+        .get(type)!
+        .sort((a, b) =>
+          a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
+        ),
     }))
     .concat(
       Array.from(groups.entries())
@@ -235,10 +236,7 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
             >
               {{ group.type }}
             </div>
-            <div
-              v-for="row in flattenColumns(group.columns)"
-              :key="row.path"
-            >
+            <div v-for="row in flattenColumns(group.columns)" :key="row.path">
               <button
                 @click="handleToggle(row.path)"
                 v-tooltip.right="columnTooltip(row.column)"

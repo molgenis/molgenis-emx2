@@ -4,6 +4,7 @@ import metadataGql from "../../../tailwind-components/app/gql/metadata";
 import { type ISchemaMetaData } from "../../../metadata-utils/src/types";
 import { createError } from "#app";
 import { moduleToString } from "#imports";
+import { errorToMessage } from "../utils/errorToMessage";
 
 const query = moduleToString(metadataGql);
 
@@ -20,10 +21,12 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
         query,
       },
     }).catch((error) => {
-      console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
+      const fallback = `Could not fetch metadata for schema ${schemaId}`;
+      const message = errorToMessage(error, fallback);
+      console.error(message, error);
       throw createError({
         ...error,
-        statusMessage: `Could not fetch metadata for schema ${schemaId}`,
+        statusMessage: message,
       });
     });
 

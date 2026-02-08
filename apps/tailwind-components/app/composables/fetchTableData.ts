@@ -2,6 +2,7 @@ import { createError } from "#app";
 import { fetchMetadata } from "#imports";
 import type { columnValue } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
+import { errorToMessage } from "../utils/errorToMessage";
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
@@ -49,7 +50,8 @@ export default async (
       variables: { filter, orderby },
     },
   }).catch((error) => {
-    const message = `Could not fetch data for table ${tableId} in schema ${schemaId}`;
+    const fallback = `Could not fetch data for table ${tableId} in schema ${schemaId}`;
+    const message = errorToMessage(error, fallback);
     console.error(message, error);
     throw createError({
       ...error,

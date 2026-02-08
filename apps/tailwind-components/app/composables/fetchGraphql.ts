@@ -1,4 +1,5 @@
 import { createError } from "#imports";
+import { errorToMessage } from "../utils/errorToMessage";
 
 export default async (
   schemaId: string,
@@ -12,10 +13,12 @@ export default async (
       variables,
     },
   }).catch((error) => {
-    console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
+    const fallback = `Could not fetch graphql for schema ${schemaId}`;
+    const message = errorToMessage(error, fallback);
+    console.error(message, error);
     throw createError({
       ...error,
-      statusMessage: `Could not fetch graphql for schema ${schemaId}`,
+      statusMessage: message,
     });
   });
 
