@@ -229,8 +229,8 @@ const query = computed(() => {
     $resourcesFilter:ResourcesFilter,
   ){
     Variables(limit: ${pageSize} offset: ${
-      offset.value
-    } filter:$variablesFilter  orderby: { name: ASC }) {
+    offset.value
+  } filter:$variablesFilter  orderby: { name: ASC }) {
       name
       resource {
         id
