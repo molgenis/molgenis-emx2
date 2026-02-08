@@ -75,16 +75,32 @@
         <h3 class="font-semibold">FilterPicker dropdown</h3>
         <ul class="list-disc pl-5">
           <li>"Add filter" button with Plus icon opens dropdown</li>
-          <li>Search input (size=tiny) filters columns by label, case-insensitive</li>
+          <li>
+            Search input (size=tiny) filters columns by label, case-insensitive
+          </li>
           <li>Columns grouped by heading, collapsible with caret</li>
-          <li>Type priority within groups: ONTOLOGY > REF > numeric/date > string > bool</li>
+          <li>
+            Type priority within groups: ONTOLOGY > REF > numeric/date > string
+            > bool
+          </li>
           <li>Excludes HEADING, SECTION types and mg_* columns</li>
           <li>All non-REF columns have checkboxes to toggle visibility</li>
-          <li>REF/REF_ARRAY columns have checkbox + expand caret (caret-down/up after label)</li>
-          <li>REF checkbox = adds simple ref filter (select/radio in sidebar)</li>
-          <li>REF expand = shows nested fields with checkboxes for granular filtering</li>
+          <li>
+            REF/REF_ARRAY columns have checkbox + expand caret (caret-down/up
+            after label)
+          </li>
+          <li>
+            REF checkbox = adds simple ref filter (select/radio in sidebar)
+          </li>
+          <li>
+            REF expand = shows nested fields with checkboxes for granular
+            filtering
+          </li>
           <li>ONTOLOGY/ONTOLOGY_ARRAY: checkbox only, no expand</li>
-          <li>Headings and columns show tooltip on hover (label, id, type, description)</li>
+          <li>
+            Headings and columns show tooltip on hover (label, id, type,
+            description)
+          </li>
           <li>Dropdown width: w-96, max-h-80 scrollable</li>
           <li>Close: click outside or Escape key</li>
           <li>"Reset to defaults" restores smart default selection</li>
@@ -101,8 +117,12 @@
           <li>Each visible filter has X button (top-right) to remove it</li>
           <li>Search input size matches filter inputs (default/medium)</li>
           <li>Direct REF filter: shows as ref select/radio input</li>
-          <li>Nested field filter: label shows as "Parent.child" (dot notation)</li>
-          <li>Expanded REF in sidebar: nested filters indented with left border</li>
+          <li>
+            Nested field filter: label shows as "Parent.child" (dot notation)
+          </li>
+          <li>
+            Expanded REF in sidebar: nested filters indented with left border
+          </li>
         </ul>
 
         <h3 class="font-semibold">Test Checklist</h3>
@@ -110,8 +130,12 @@
           <li>Click "Add filter" - dropdown opens with grouped columns</li>
           <li>Check non-REF column - filter appears in sidebar</li>
           <li>Check REF column - simple ref filter appears in sidebar</li>
-          <li>Expand REF, check nested field - "Parent.child" filter appears</li>
-          <li>Click X on filter - removes from sidebar and unchecks in picker</li>
+          <li>
+            Expand REF, check nested field - "Parent.child" filter appears
+          </li>
+          <li>
+            Click X on filter - removes from sidebar and unchecks in picker
+          </li>
           <li>"Reset to defaults" - restores smart defaults</li>
           <li>Search filters by label, case-insensitive</li>
           <li>Collapse/expand heading groups</li>

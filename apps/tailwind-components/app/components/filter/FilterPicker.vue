@@ -48,6 +48,11 @@ const TYPE_ICONS: Record<string, string> = {
   ONTOLOGY_ARRAY: "database",
   REF: "hub",
   REF_ARRAY: "hub",
+  SELECT: "hub",
+  RADIO: "hub",
+  CHECKBOX: "hub",
+  MULTISELECT: "hub",
+  REFBACK: "hub",
   INT: "percent",
   DECIMAL: "percent",
   LONG: "percent",
@@ -64,6 +69,11 @@ const TYPE_PRIORITY: Record<string, number> = {
   ONTOLOGY_ARRAY: 1,
   REF: 2,
   REF_ARRAY: 2,
+  SELECT: 2,
+  RADIO: 2,
+  CHECKBOX: 2,
+  MULTISELECT: 2,
+  REFBACK: 2,
   INT: 3,
   DECIMAL: 3,
   LONG: 3,
@@ -76,13 +86,20 @@ const TYPE_PRIORITY: Record<string, number> = {
 };
 
 const EXCLUDED_TYPES = ["HEADING", "SECTION"];
-const REF_EXPANDABLE_TYPES = ["REF", "REF_ARRAY"];
+const REF_EXPANDABLE_TYPES = [
+  "REF",
+  "REF_ARRAY",
+  "SELECT",
+  "RADIO",
+  "CHECKBOX",
+  "MULTISELECT",
+  "REFBACK",
+];
 
 const filteredColumns = computed(() => {
   return props.columns.filter(
     (col) =>
-      !EXCLUDED_TYPES.includes(col.columnType) &&
-      !col.id.startsWith("mg_")
+      !EXCLUDED_TYPES.includes(col.columnType) && !col.id.startsWith("mg_")
   );
 });
 
@@ -206,10 +223,7 @@ async function loadRefColumns(column: IColumn) {
 </script>
 
 <template>
-  <VDropdown
-    placement="bottom-start"
-    :distance="4"
-  >
+  <VDropdown placement="bottom-start" :distance="4">
     <Button type="text" size="tiny" icon="plus">Add filter</Button>
     <template #popper="{ hide }">
       <div
@@ -253,7 +267,9 @@ async function loadRefColumns(column: IColumn) {
                 group.columns.length
               }}</span>
             </button>
-            <template v-if="!group.heading || expandedGroups.has(group.heading)">
+            <template
+              v-if="!group.heading || expandedGroups.has(group.heading)"
+            >
               <div v-for="col in group.columns" :key="col.id">
                 <button
                   @click="handleToggle(col.id)"
@@ -278,7 +294,9 @@ async function loadRefColumns(column: IColumn) {
                     class="rounded-full h-5 w-5 flex items-center justify-center shrink-0 text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover"
                   >
                     <BaseIcon
-                      :name="expandedRefs.has(col.id) ? 'caret-up' : 'caret-down'"
+                      :name="
+                        expandedRefs.has(col.id) ? 'caret-up' : 'caret-down'
+                      "
                       :width="16"
                     />
                   </span>

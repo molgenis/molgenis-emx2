@@ -33,7 +33,8 @@ watch(
   async (filters) => {
     for (const columnId of filters.keys()) {
       if (!columnId.includes(".")) continue;
-      const [rootColumnId, nestedColumnId] = columnId.split(".");
+      const rootColumnId = columnId.split(".")[0]!;
+      const nestedColumnId = columnId.split(".")[1]!;
       const cacheKey = `${rootColumnId}.${nestedColumnId}`;
       if (nestedColumnLabels.value.has(cacheKey)) continue;
 
@@ -82,7 +83,8 @@ const activeFilters = computed<ActiveFilter[]>(() => {
 
 function getColumnLabel(columnId: string): string {
   if (columnId.includes(".")) {
-    const [rootColumnId, nestedColumnId] = columnId.split(".");
+    const rootColumnId = columnId.split(".")[0]!;
+    const nestedColumnId = columnId.split(".")[1]!;
     const rootColumn = props.columns.find((c) => c.id === rootColumnId);
     const rootLabel = rootColumn
       ? rootColumn.displayConfig?.label || rootColumn.label || rootColumnId

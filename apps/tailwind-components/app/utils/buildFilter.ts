@@ -35,7 +35,11 @@ export function buildGraphQLFilter(
     let filterValueObj: any;
     switch (operator) {
       case "equals":
-        filterValueObj = { equals: value };
+        if (typeof value === "object" && value !== null) {
+          filterValueObj = { equals: Array.isArray(value) ? value : [value] };
+        } else {
+          filterValueObj = { equals: value };
+        }
         break;
 
       case "like":

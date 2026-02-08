@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue, FilterOperator } from "../../../types/filters";
 import Input from "../Input.vue";
 import FilterRange from "./Range.vue";
-import BaseIcon from "../BaseIcon.vue";
 
 const props = withDefaults(
   defineProps<{
     column: IColumn;
-    collapsed?: boolean;
+    schemaId?: string;
     mobileDisplay?: boolean;
     depth?: number;
     labelPrefix?: string;
     removable?: boolean;
   }>(),
   {
-    collapsed: true,
+    schemaId: "",
     mobileDisplay: false,
     depth: 0,
     labelPrefix: "",
@@ -24,14 +23,15 @@ const props = withDefaults(
   }
 );
 
+const effectiveRefSchemaId = computed(
+  () => props.column.refSchemaId || props.schemaId
+);
+
 const emit = defineEmits<{
   (event: "remove"): void;
 }>();
 
-
 const modelValue = defineModel<IFilterValue | null>();
-
-const isCollapsed = ref(props.collapsed);
 
 const isRangeType = computed(() =>
   ["INT", "DECIMAL", "LONG", "NON_NEGATIVE_INT", "DATE", "DATETIME"].includes(
@@ -43,10 +43,10 @@ const refTypes = ["REF", "REF_ARRAY", "ONTOLOGY", "ONTOLOGY_ARRAY"];
 
 const isRefType = computed(() => refTypes.includes(props.column.columnType));
 
-
 const label = computed(
   () =>
-    props.labelPrefix + (props.column.displayConfig?.label || props.column.label || props.column.id)
+    props.labelPrefix +
+    (props.column.displayConfig?.label || props.column.label || props.column.id)
 );
 
 const rangeValue = computed({
@@ -92,36 +92,19 @@ function getDefaultOperator(): FilterOperator {
 function handleClear() {
   modelValue.value = null;
 }
-
-function toggle() {
-  isCollapsed.value = !isCollapsed.value;
-}
-
-
 </script>
 
 <template>
   <hr class="mx-5 border-black opacity-10" />
-  <div class="flex items-center gap-1 p-5">
-    <div class="inline-flex gap-1 group" @click="toggle()">
-      <h3
-        class="font-sans text-body-base font-bold mr-[5px] group-hover:underline group-hover:cursor-pointer"
-        :class="`text-search-filter-group-title${
-          mobileDisplay ? '-mobile' : ''
-        }`"
-      >
-        {{ label }}
-      </h3>
-      <span
-        :class="{
-          'rotate-180': isCollapsed,
-          'text-search-filter-group-toggle': !mobileDisplay,
-        }"
-        class="flex items-center justify-center w-8 h-8 rounded-full group-hover:bg-search-filter-group-toggle group-hover:cursor-pointer"
-      >
-        <BaseIcon name="caret-up" :width="26" />
-      </span>
-    </div>
+  <div class="flex items-center gap-1 px-5 pt-5 pb-2">
+    <h3
+      class="font-sans text-body-base font-bold"
+      :class="`text-search-filter-group-title${
+        mobileDisplay ? '-mobile' : ''
+      }`"
+    >
+      {{ label }}
+    </h3>
     <div class="text-right grow flex gap-2 items-center justify-end">
       <span
         v-if="modelValue"
@@ -142,7 +125,6 @@ function toggle() {
     </div>
   </div>
   <div
-    v-if="!isCollapsed"
     class="mb-5 ml-5 mr-5"
     :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
   >
@@ -153,7 +135,7 @@ function toggle() {
           :type="column.columnType"
           :model-value="value"
           @update:model-value="update"
-          :ref-schema-id="column.refSchemaId"
+          :ref-schema-id="effectiveRefSchemaId"
           :ref-table-id="column.refTableId"
           :ref-label="column.refLabel || column.refLabelDefault"
         />
@@ -164,7 +146,7 @@ function toggle() {
           :type="column.columnType"
           :model-value="value"
           @update:model-value="update"
-          :ref-schema-id="column.refSchemaId"
+          :ref-schema-id="effectiveRefSchemaId"
           :ref-table-id="column.refTableId"
           :ref-label="column.refLabel || column.refLabelDefault"
         />
@@ -176,11 +158,10 @@ function toggle() {
       :id="column.id"
       :type="column.columnType"
       v-model="singleValue"
-      :ref-schema-id="column.refSchemaId"
+      :ref-schema-id="effectiveRefSchemaId"
       :ref-table-id="column.refTableId"
       :ref-label="column.refLabel || column.refLabelDefault"
       :show-clear="!isRefType"
     />
-
   </div>
 </template>

@@ -214,7 +214,18 @@ export function serializeFiltersToUrl(
     const serialized = serializeFilterValue(value);
     if (serialized !== null) {
       if (key.includes(".")) {
-        params[key] = serialized;
+        const val = value.value;
+        const isRefLikeValue =
+          (val !== null && typeof val === "object" && !Array.isArray(val)) ||
+          (Array.isArray(val) &&
+            val.length > 0 &&
+            typeof val[0] === "object");
+        if (isRefLikeValue) {
+          const refField = extractRefField(value);
+          params[`${key}.${refField}`] = serialized;
+        } else {
+          params[key] = serialized;
+        }
       } else if (REF_TYPES.includes(column.columnType)) {
         const refField = extractRefField(value);
         params[`${key}.${refField}`] = serialized;
@@ -242,19 +253,28 @@ export function parseFiltersFromUrl(
 
     if (key.startsWith(RESERVED_PREFIX)) continue;
 
-    const firstSegment = key.split(".")[0];
-    const refField = key.includes(".") ? key.slice(key.indexOf(".") + 1) : null;
+    const segments = key.split(".");
+    const firstSegment = segments[0]!;
 
     const column = columns.find((c) => c.id === firstSegment);
     if (!column || typeof value !== "string") continue;
 
+    let filterKey: string;
+    let refField: string | null;
+
+    if (!REF_TYPES.includes(column.columnType) || segments.length === 1) {
+      filterKey = key;
+      refField = null;
+    } else if (segments.length === 2) {
+      filterKey = firstSegment;
+      refField = segments[1]!;
+    } else {
+      filterKey = segments.slice(0, -1).join(".");
+      refField = segments[segments.length - 1]!;
+    }
+
     const filterValue = parseFilterValue(value, column, refField);
     if (filterValue) {
-      const isRootRefColumn =
-        REF_TYPES.includes(column.columnType) &&
-        refField &&
-        !refField.includes(".");
-      const filterKey = isRootRefColumn ? firstSegment : key;
       filters.set(filterKey, filterValue);
     }
   }

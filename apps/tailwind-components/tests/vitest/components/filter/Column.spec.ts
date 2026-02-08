@@ -67,45 +67,16 @@ describe("FilterColumn", () => {
       expect(wrapper.text()).toContain("Custom Label");
     });
 
-    it("starts collapsed by default", () => {
+    it("always shows filter content expanded", () => {
       const wrapper = mount(FilterColumn, {
         props: {
           column: stringColumn,
           modelValue: null,
-        },
-      });
-
-      const content = wrapper.find(".mb-5");
-      expect(content.exists()).toBe(false);
-    });
-
-    it("starts expanded when collapsed prop is false", () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: stringColumn,
-          modelValue: null,
-          collapsed: false,
         },
       });
 
       const content = wrapper.find(".mb-5");
       expect(content.exists()).toBe(true);
-    });
-
-    it("toggles collapsed state when title is clicked", async () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: stringColumn,
-          modelValue: null,
-          collapsed: true,
-        },
-      });
-
-      expect(wrapper.find(".mb-5").exists()).toBe(false);
-
-      await wrapper.find(".group").trigger("click");
-
-      expect(wrapper.find(".mb-5").exists()).toBe(true);
     });
 
     it("shows Clear button when modelValue is truthy", () => {
@@ -178,7 +149,6 @@ describe("FilterColumn", () => {
         props: {
           column: stringColumn,
           modelValue: null,
-          collapsed: false,
         },
       });
 
@@ -199,7 +169,6 @@ describe("FilterColumn", () => {
         props: {
           column: intColumn,
           modelValue: null,
-          collapsed: false,
         },
       });
 
@@ -214,7 +183,6 @@ describe("FilterColumn", () => {
         props: {
           column: dateColumn,
           modelValue: null,
-          collapsed: false,
         },
       });
 
@@ -229,7 +197,6 @@ describe("FilterColumn", () => {
         props: {
           column: boolColumn,
           modelValue: null,
-          collapsed: false,
         },
       });
 
@@ -242,7 +209,6 @@ describe("FilterColumn", () => {
         props: {
           column: { ...stringColumn, columnType: "EMAIL" },
           modelValue: null,
-          collapsed: false,
         },
       });
 
@@ -259,7 +225,6 @@ describe("FilterColumn", () => {
         props: {
           column: intColumn,
           modelValue: null,
-          collapsed: false,
         },
       });
 
@@ -276,7 +241,6 @@ describe("FilterColumn", () => {
         props: {
           column: stringColumn,
           modelValue: { operator: "like", value: "test" } as IFilterValue,
-          collapsed: false,
         },
       });
 
@@ -296,7 +260,6 @@ describe("FilterColumn", () => {
             operator: "between",
             value: [10, 20],
           } as IFilterValue,
-          collapsed: false,
         },
       });
 
@@ -320,7 +283,6 @@ describe("FilterColumn", () => {
         props: {
           column: refColumn,
           modelValue: null,
-          collapsed: true,
         },
       });
 
@@ -332,7 +294,6 @@ describe("FilterColumn", () => {
         props: {
           column: refColumn,
           modelValue: null,
-          collapsed: false,
         },
       });
 
@@ -346,13 +307,10 @@ describe("FilterColumn", () => {
         props: {
           column: stringColumn,
           modelValue: null,
-          collapsed: true,
         },
       });
 
       expect(wrapper.text()).not.toContain("Clear");
-
-      await wrapper.find(".group").trigger("click");
       expect(wrapper.find(".mb-5").exists()).toBe(true);
 
       const input = wrapper.find('input[type="text"]');
@@ -377,7 +335,6 @@ describe("FilterColumn", () => {
         props: {
           column: intColumn,
           modelValue: null,
-          collapsed: false,
         },
       });
 

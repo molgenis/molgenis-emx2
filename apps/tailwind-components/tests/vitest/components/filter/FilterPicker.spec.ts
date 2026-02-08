@@ -482,7 +482,10 @@ describe("FilterPicker", () => {
       await wrapper.find("button").trigger("click");
 
       const hospitalButtons = wrapper.findAll("button").filter((b) => {
-        return b.text().includes("Hospital") && b.findComponent(InputCheckboxIcon).exists();
+        return (
+          b.text().includes("Hospital") &&
+          b.findComponent(InputCheckboxIcon).exists()
+        );
       });
       expect(hospitalButtons.length).toBeGreaterThanOrEqual(1);
     });
