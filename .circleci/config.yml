@@ -277,10 +277,6 @@ jobs:
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
-        name: set remote to HTTPS for nyx push
-        command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
-
-    - run:
         name: either release or push only snapshots to docker
         command: |
           export $( cat build/ci.properties | xargs )
