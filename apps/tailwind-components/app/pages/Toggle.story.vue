@@ -67,7 +67,7 @@ const threeWay = ref("one");
               size="tiny"
               :options="[
                 { name: 'table', label: 'Table', icon: 'view-table' },
-                { name: 'cards', label: 'Cards', icon: 'view-compact' }
+                { name: 'cards', label: 'Cards', icon: 'view-compact' },
               ]"
             />
           </div>
@@ -78,7 +78,7 @@ const threeWay = ref("one");
               size="small"
               :options="[
                 { name: 'table', label: 'Table', icon: 'view-table' },
-                { name: 'cards', label: 'Cards', icon: 'view-compact' }
+                { name: 'cards', label: 'Cards', icon: 'view-compact' },
               ]"
             />
           </div>
@@ -89,7 +89,7 @@ const threeWay = ref("one");
               size="medium"
               :options="[
                 { name: 'table', label: 'Table', icon: 'view-table' },
-                { name: 'cards', label: 'Cards', icon: 'view-compact' }
+                { name: 'cards', label: 'Cards', icon: 'view-compact' },
               ]"
             />
           </div>
@@ -100,7 +100,7 @@ const threeWay = ref("one");
               size="large"
               :options="[
                 { name: 'table', label: 'Table', icon: 'view-table' },
-                { name: 'cards', label: 'Cards', icon: 'view-compact' }
+                { name: 'cards', label: 'Cards', icon: 'view-compact' },
               ]"
             />
           </div>
@@ -113,7 +113,7 @@ const threeWay = ref("one");
           :options="[
             { name: 'one', label: 'One', icon: 'check' },
             { name: 'two', label: 'Two', icon: 'check' },
-            { name: 'three', label: 'Three', icon: 'check' }
+            { name: 'three', label: 'Three', icon: 'check' },
           ]"
         />
         <p class="text-sm text-body-base mt-2">Selected: {{ threeWay }}</p>
@@ -125,7 +125,7 @@ const threeWay = ref("one");
           v-model="displayMode"
           :options="[
             { name: 'list', label: 'List', icon: 'list' },
-            { name: 'grid', label: 'Grid', icon: 'view-compact' }
+            { name: 'grid', label: 'Grid', icon: 'view-compact' },
           ]"
         />
         <p class="text-sm text-body-base mt-2">Selected: {{ displayMode }}</p>
@@ -136,7 +136,7 @@ const threeWay = ref("one");
           :options="[
             { name: 'one', label: 'One', icon: 'check' },
             { name: 'two', label: 'Two', icon: 'check' },
-            { name: 'three', label: 'Three', icon: 'check' }
+            { name: 'three', label: 'Three', icon: 'check' },
           ]"
         />
         <p class="text-sm text-body-base mt-2">Selected: {{ threeWay }}</p>

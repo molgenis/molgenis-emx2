@@ -68,7 +68,9 @@ const layoutComponents = computed(() => {
   return [];
 });
 const showFilters = computed(() => props.config?.showFilters || false);
-const filtersVisible = ref(props.config?.filtersVisible ?? props.config?.showFilters ?? false);
+const filtersVisible = ref(
+  props.config?.filtersVisible ?? props.config?.showFilters ?? false
+);
 const filterPosition = computed(
   () => props.config?.filterPosition || "sidebar"
 );
@@ -316,7 +318,7 @@ async function afterRowDeleted() {
               v-model="currentLayout"
               :options="[
                 { name: 'table', label: 'Table', icon: 'view-table' },
-                { name: 'cards', label: 'Cards', icon: 'view-compact' }
+                { name: 'cards', label: 'Cards', icon: 'view-compact' },
               ]"
             />
             <Columns

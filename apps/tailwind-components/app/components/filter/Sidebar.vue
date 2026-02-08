@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, useId } from "vue";
+import { computed, ref, useId, watch } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import FilterColumn from "./Column.vue";
 import InputSearch from "../input/Search.vue";
-import Columns from "../table/control/Columns.vue";
+import FilterPicker from "./FilterPicker.vue";
+
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 
 const props = withDefaults(
@@ -28,14 +29,88 @@ const emit = defineEmits<{
 
 const searchInputId = useId();
 
+const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
+const REF_TYPES_FOR_DEFAULT = ["REF", "REF_ARRAY"];
+const MAX_DEFAULT_FILTERS = 5;
+
+function computeDefaultFilters(columns: IColumn[]): string[] {
+  const unfilterable = ["HEADING", "SECTION"];
+  const filterable = columns.filter(
+    (col) => !unfilterable.includes(col.columnType) && !col.id.startsWith("mg_")
+  );
+
+  const ontologyCols = filterable.filter((c) =>
+    ONTOLOGY_TYPES.includes(c.columnType)
+  );
+  const refCols = filterable.filter((c) =>
+    REF_TYPES_FOR_DEFAULT.includes(c.columnType)
+  );
+
+  const defaults = ontologyCols.slice(0, MAX_DEFAULT_FILTERS).map((c) => c.id);
+  if (defaults.length < MAX_DEFAULT_FILTERS) {
+    const remaining = MAX_DEFAULT_FILTERS - defaults.length;
+    defaults.push(...refCols.slice(0, remaining).map((c) => c.id));
+  }
+  return defaults;
+}
+
+const defaultFilterIds = computed(() =>
+  computeDefaultFilters(props.allColumns)
+);
+const visibleFilterIds = ref<string[]>([...defaultFilterIds.value]);
+
+watch(defaultFilterIds, (newDefaults) => {
+  visibleFilterIds.value = [...newDefaults];
+});
+
+function handleFilterToggle(columnId: string) {
+  if (visibleFilterIds.value.includes(columnId)) {
+    visibleFilterIds.value = visibleFilterIds.value.filter(
+      (id) => id !== columnId
+    );
+  } else {
+    visibleFilterIds.value = [...visibleFilterIds.value, columnId];
+  }
+}
+
+function handleFilterReset() {
+  visibleFilterIds.value = [...defaultFilterIds.value];
+}
+
+const directFilterIds = computed(() => {
+  return new Set(
+    visibleFilterIds.value.filter((id) => !id.includes("."))
+  );
+});
+
+const nestedParentIds = computed(() => {
+  const parents = new Set<string>();
+  for (const id of visibleFilterIds.value) {
+    if (id.includes(".")) {
+      parents.add(id.split(".")[0]);
+    }
+  }
+  return parents;
+});
+
 const filterableColumnsComputed = computed<IColumn[]>(() => {
   const unfilterableTypes = ["HEADING", "SECTION"];
-
   return props.allColumns.filter(
     (col) =>
       !unfilterableTypes.includes(col.columnType) &&
       !col.id.startsWith("mg_") &&
-      col.showFilter !== false
+      directFilterIds.value.has(col.id)
+  );
+});
+
+const nestedOnlyParents = computed<IColumn[]>(() => {
+  const unfilterableTypes = ["HEADING", "SECTION"];
+  return props.allColumns.filter(
+    (col) =>
+      !unfilterableTypes.includes(col.columnType) &&
+      !col.id.startsWith("mg_") &&
+      nestedParentIds.value.has(col.id) &&
+      !directFilterIds.value.has(col.id)
   );
 });
 
@@ -49,6 +124,34 @@ const searchTerms = defineModel<string>("searchTerms", {
 
 const expandedRefs = ref<Set<string>>(new Set());
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
+
+const nestedFilterIds = computed(() => {
+  const nested = new Map<string, string[]>();
+  for (const id of visibleFilterIds.value) {
+    if (id.includes(".")) {
+      const [parentId, childId] = id.split(".", 2);
+      if (!nested.has(parentId)) nested.set(parentId, []);
+      nested.get(parentId)!.push(childId);
+    }
+  }
+  return nested;
+});
+
+watch(nestedFilterIds, async (newNested) => {
+  for (const parentId of newNested.keys()) {
+    if (!expandedRefs.value.has(parentId)) {
+      const parentCol = props.allColumns.find((c) => c.id === parentId);
+      if (parentCol) await handleExpand(parentCol);
+    }
+  }
+}, { immediate: true });
+
+function visibleNestedColumns(parentId: string): IColumn[] {
+  const all = refColumnsCache.value.get(parentId) || [];
+  const selectedChildIds = nestedFilterIds.value.get(parentId);
+  if (!selectedChildIds) return all;
+  return all.filter((c) => selectedChildIds.includes(c.id));
+}
 
 function getFilterValue(columnId: string): IFilterValue | null {
   return filterStates.value.get(columnId) || null;
@@ -65,10 +168,6 @@ function setFilterValue(
     newMap.set(columnId, value);
   }
   filterStates.value = newMap;
-}
-
-function handleColumnsUpdate(updatedColumns: IColumn[]) {
-  emit("update:columns", updatedColumns);
 }
 
 async function handleExpand(column: IColumn) {
@@ -111,7 +210,7 @@ async function handleExpand(column: IColumn) {
 
 <template>
   <div
-    class="rounded-t-3px rounded-b-50px"
+    class="rounded-t-3px rounded-b-50px overflow-hidden pb-8"
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
     <div v-if="!mobileDisplay" class="p-5">
@@ -122,14 +221,13 @@ async function handleExpand(column: IColumn) {
       </h2>
     </div>
     <div class="px-5 pb-3 flex justify-end">
-      <Columns
-        mode="filters"
+      <FilterPicker
         :columns="allColumns"
-        label="Customize"
-        icon="settings"
-        button-type="text"
-        size="tiny"
-        @update:columns="handleColumnsUpdate"
+        :visible-filter-ids="visibleFilterIds"
+        :default-filter-ids="defaultFilterIds"
+        :schema-id="schemaId"
+        @toggle="handleFilterToggle"
+        @reset="handleFilterReset"
       />
     </div>
 
@@ -138,7 +236,6 @@ async function handleExpand(column: IColumn) {
         :id="searchInputId"
         v-model="searchTerms"
         placeholder="Search..."
-        size="small"
       />
     </div>
 
@@ -150,7 +247,8 @@ async function handleExpand(column: IColumn) {
         :collapsed="true"
         :mobile-display="mobileDisplay"
         :depth="0"
-        @expand="handleExpand(column)"
+        :removable="true"
+        @remove="handleFilterToggle(column.id)"
       />
       <div
         v-if="expandedRefs.has(column.id)"
@@ -160,6 +258,7 @@ async function handleExpand(column: IColumn) {
           v-for="nestedColumn in refColumnsCache.get(column.id)"
           :key="`${column.id}.${nestedColumn.id}`"
           :column="nestedColumn"
+          :label-prefix="`${column.label}.`"
           :model-value="getFilterValue(`${column.id}.${nestedColumn.id}`)"
           @update:model-value="
             setFilterValue(`${column.id}.${nestedColumn.id}`, $event)
@@ -167,8 +266,28 @@ async function handleExpand(column: IColumn) {
           :collapsed="true"
           :mobile-display="mobileDisplay"
           :depth="1"
+          :removable="true"
+          @remove="handleFilterToggle(`${column.id}.${nestedColumn.id}`)"
         />
       </div>
+    </template>
+
+    <template v-for="parent in nestedOnlyParents" :key="`nested-${parent.id}`">
+      <FilterColumn
+        v-for="nestedColumn in visibleNestedColumns(parent.id)"
+        :key="`${parent.id}.${nestedColumn.id}`"
+        :column="nestedColumn"
+        :label-prefix="`${parent.label}.`"
+        :model-value="getFilterValue(`${parent.id}.${nestedColumn.id}`)"
+        @update:model-value="
+          setFilterValue(`${parent.id}.${nestedColumn.id}`, $event)
+        "
+        :collapsed="true"
+        :mobile-display="mobileDisplay"
+        :depth="0"
+        :removable="true"
+        @remove="handleFilterToggle(`${parent.id}.${nestedColumn.id}`)"
+      />
     </template>
   </div>
 </template>

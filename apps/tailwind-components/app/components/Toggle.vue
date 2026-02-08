@@ -52,7 +52,7 @@ function isLast(idx: number): boolean {
           ? 'bg-toggle-active text-toggle-active border-toggle-active'
           : 'bg-toggle-inactive text-toggle-inactive border-toggle-inactive hover:text-toggle-hover hover:border-toggle-hover',
         isFirst(idx) ? 'rounded-l-full' : '-ml-px',
-        isLast(idx) ? 'rounded-r-full' : ''
+        isLast(idx) ? 'rounded-r-full' : '',
       ]"
       class="flex items-center tracking-widest uppercase font-display border transition-all duration-default"
       @click="modelValue = option.name"

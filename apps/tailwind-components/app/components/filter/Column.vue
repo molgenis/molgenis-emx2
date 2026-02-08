@@ -12,17 +12,22 @@ const props = withDefaults(
     collapsed?: boolean;
     mobileDisplay?: boolean;
     depth?: number;
+    labelPrefix?: string;
+    removable?: boolean;
   }>(),
   {
     collapsed: true,
     mobileDisplay: false,
     depth: 0,
+    labelPrefix: "",
+    removable: false,
   }
 );
 
 const emit = defineEmits<{
-  (event: "expand"): void;
+  (event: "remove"): void;
 }>();
+
 
 const modelValue = defineModel<IFilterValue | null>();
 
@@ -38,14 +43,10 @@ const refTypes = ["REF", "REF_ARRAY", "ONTOLOGY", "ONTOLOGY_ARRAY"];
 
 const isRefType = computed(() => refTypes.includes(props.column.columnType));
 
-const isExpandableRef = computed(() => {
-  if (props.depth > 0) return false;
-  return isRefType.value && !!props.column.refTableId;
-});
 
 const label = computed(
   () =>
-    props.column.displayConfig?.label || props.column.label || props.column.id
+    props.labelPrefix + (props.column.displayConfig?.label || props.column.label || props.column.id)
 );
 
 const rangeValue = computed({
@@ -96,10 +97,7 @@ function toggle() {
   isCollapsed.value = !isCollapsed.value;
 }
 
-function handleExpandClick(event: Event) {
-  event.stopPropagation();
-  emit("expand");
-}
+
 </script>
 
 <template>
@@ -132,6 +130,14 @@ function handleExpandClick(event: Event) {
         @click="handleClear"
       >
         Clear
+      </span>
+      <span
+        v-if="removable"
+        class="text-body-sm hover:underline hover:cursor-pointer"
+        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+        @click="emit('remove')"
+      >
+        Remove
       </span>
     </div>
   </div>
@@ -176,14 +182,5 @@ function handleExpandClick(event: Event) {
       :show-clear="!isRefType"
     />
 
-    <button
-      v-if="isExpandableRef"
-      type="button"
-      class="mt-2 text-body-sm hover:underline"
-      :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
-      @click="handleExpandClick"
-    >
-      Expand to filter on related fields
-    </button>
   </div>
 </template>
