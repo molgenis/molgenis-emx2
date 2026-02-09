@@ -1008,7 +1008,7 @@ importers:
         version: 3.2.3
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@3.20.1(magicast@0.3.5))(vue@3.5.22(typescript@5.6.2))
+        version: 5.2.2(@nuxt/kit@3.20.1(magicast@0.5.1))(vue@3.5.22(typescript@5.6.2))
       graphql:
         specifier: 16.12.0
         version: 16.12.0
@@ -1022,10 +1022,10 @@ importers:
         specifier: 1.4.1
         version: 1.4.1
       pa11y-ci:
-        specifier: ^4.0.1
+        specifier: 4.0.1
         version: 4.0.1(typescript@5.6.2)
       pa11y-ci-reporter-html:
-        specifier: ^8.0.1
+        specifier: 8.0.1
         version: 8.0.1
       ufo:
         specifier: 1.6.2
@@ -1048,12 +1048,12 @@ importers:
         version: 3.20.1(@jest/globals@29.7.0)(@playwright/test@1.58.0)(@vue/test-utils@2.4.6)(happy-dom@20.0.2)(jsdom@22.1.0)(magicast@0.5.1)(playwright-core@1.58.0)(typescript@5.6.2)(vitest@3.0.7(@types/node@25.2.2)(happy-dom@20.0.2)(jsdom@22.1.0)(sass@1.70.0)(terser@5.44.1))
       '@nuxtjs/tailwindcss':
         specifier: 6.14.0
-        version: 6.14.0(magicast@0.3.5)
+        version: 6.14.0(magicast@0.5.1)
       '@playwright/test':
         specifier: 1.58.0
         version: 1.58.0
       '@types/d3':
-        specifier: ^7.4.3
+        specifier: 7.4.3
         version: 7.4.3
       '@vue/test-utils':
         specifier: 2.4.6
@@ -9981,35 +9981,6 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@nuxt/cli@3.30.0(magicast@0.3.5)':
-    dependencies:
-      c12: 3.3.2(magicast@0.3.5)
-      citty: 0.1.6
-      confbox: 0.2.2
-      consola: 3.4.2
-      copy-paste: 2.2.0
-      defu: 6.1.4
-      exsolve: 1.0.8
-      fuse.js: 7.1.0
-      giget: 2.0.0
-      jiti: 2.6.1
-      listhen: 1.9.0
-      nypm: 0.6.2
-      ofetch: 1.5.1
-      ohash: 2.0.11
-      pathe: 2.0.3
-      perfect-debounce: 2.0.0
-      pkg-types: 2.3.0
-      scule: 1.3.0
-      semver: 7.7.3
-      srvx: 0.9.7
-      std-env: 3.10.0
-      tinyexec: 1.0.2
-      ufo: 1.6.2
-      youch: 4.1.0-beta.13
-    transitivePeerDependencies:
-      - magicast
-
   '@nuxt/cli@3.30.0(magicast@0.5.1)':
     dependencies:
       c12: 3.3.2(magicast@0.5.1)
@@ -10202,33 +10173,6 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@nuxt/kit@4.1.2(magicast@0.3.5)':
-    dependencies:
-      c12: 3.3.2(magicast@0.3.5)
-      consola: 3.4.2
-      defu: 6.1.4
-      destr: 2.0.5
-      errx: 0.1.0
-      exsolve: 1.0.8
-      ignore: 7.0.5
-      jiti: 2.6.1
-      klona: 2.0.6
-      mlly: 1.8.0
-      ohash: 2.0.11
-      pathe: 2.0.3
-      pkg-types: 2.3.0
-      rc9: 2.1.2
-      scule: 1.3.0
-      semver: 7.7.3
-      std-env: 3.10.0
-      tinyglobby: 0.2.15
-      ufo: 1.6.2
-      unctx: 2.4.1
-      unimport: 5.5.0
-      untyped: 2.0.0
-    transitivePeerDependencies:
-      - magicast
-
   '@nuxt/kit@4.1.2(magicast@0.5.1)':
     dependencies:
       c12: 3.3.2(magicast@0.5.1)
@@ -10252,31 +10196,6 @@ snapshots:
       ufo: 1.6.2
       unctx: 2.4.1
       unimport: 5.5.0
-      untyped: 2.0.0
-    transitivePeerDependencies:
-      - magicast
-
-  '@nuxt/kit@4.2.1(magicast@0.3.5)':
-    dependencies:
-      c12: 3.3.2(magicast@0.3.5)
-      consola: 3.4.2
-      defu: 6.1.4
-      destr: 2.0.5
-      errx: 0.1.0
-      exsolve: 1.0.8
-      ignore: 7.0.5
-      jiti: 2.6.1
-      klona: 2.0.6
-      mlly: 1.8.0
-      ohash: 2.0.11
-      pathe: 2.0.3
-      pkg-types: 2.3.0
-      rc9: 2.1.2
-      scule: 1.3.0
-      semver: 7.7.3
-      tinyglobby: 0.2.15
-      ufo: 1.6.2
-      unctx: 2.4.1
       untyped: 2.0.0
     transitivePeerDependencies:
       - magicast
@@ -10315,23 +10234,6 @@ snapshots:
       pkg-types: 2.3.0
       std-env: 3.10.0
       ufo: 1.6.1
-
-  '@nuxt/telemetry@2.6.6(magicast@0.3.5)':
-    dependencies:
-      '@nuxt/kit': 3.20.1(magicast@0.3.5)
-      citty: 0.1.6
-      consola: 3.4.2
-      destr: 2.0.5
-      dotenv: 16.6.1
-      git-url-parse: 16.1.0
-      is-docker: 3.0.0
-      ofetch: 1.4.1
-      package-manager-detector: 1.6.0
-      pathe: 2.0.3
-      rc9: 2.1.2
-      std-env: 3.10.0
-    transitivePeerDependencies:
-      - magicast
 
   '@nuxt/telemetry@2.6.6(magicast@0.5.1)':
     dependencies:
@@ -10482,29 +10384,6 @@ snapshots:
       - vti
       - vue-tsc
       - yaml
-
-  '@nuxtjs/tailwindcss@6.14.0(magicast@0.3.5)':
-    dependencies:
-      '@nuxt/kit': 3.20.1(magicast@0.3.5)
-      autoprefixer: 10.4.22(postcss@8.5.6)
-      c12: 3.3.2(magicast@0.3.5)
-      consola: 3.4.2
-      defu: 6.1.4
-      h3: 1.15.4
-      klona: 2.0.6
-      ohash: 2.0.11
-      pathe: 2.0.3
-      pkg-types: 2.3.0
-      postcss: 8.5.6
-      postcss-nesting: 13.0.2(postcss@8.5.6)
-      tailwind-config-viewer: 2.0.4(tailwindcss@3.4.17)
-      tailwindcss: 3.4.17
-      ufo: 1.6.2
-      unctx: 2.4.1
-    transitivePeerDependencies:
-      - magicast
-      - supports-color
-      - ts-node
 
   '@nuxtjs/tailwindcss@6.14.0(magicast@0.5.1)':
     dependencies:
@@ -10775,7 +10654,7 @@ snapshots:
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.5.0
-      semver: 7.7.3
+      semver: 7.7.4
       tar-fs: 3.1.1
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -11554,7 +11433,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 25.2.2
     optional: true
 
   '@unhead/vue@2.0.19(vue@3.5.22(typescript@5.6.2))':
@@ -13820,14 +13699,6 @@ snapshots:
   flatpickr@4.6.13: {}
 
   flatted@3.3.3: {}
-
-  floating-vue@5.2.2(@nuxt/kit@3.20.1(magicast@0.3.5))(vue@3.5.22(typescript@5.6.2)):
-    dependencies:
-      '@floating-ui/dom': 1.1.1
-      vue: 3.5.22(typescript@5.6.2)
-      vue-resize: 2.0.0-alpha.1(vue@3.5.22(typescript@5.6.2))
-    optionalDependencies:
-      '@nuxt/kit': 3.20.1(magicast@0.3.5)
 
   floating-vue@5.2.2(@nuxt/kit@3.20.1(magicast@0.5.1))(vue@3.5.22(typescript@5.6.2)):
     dependencies:
@@ -16151,7 +16022,7 @@ snapshots:
       mustache: 4.2.0
       node.extend: 2.0.3
       puppeteer: 24.34.0(typescript@5.6.2)
-      semver: 7.7.3
+      semver: 7.7.4
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -16199,7 +16070,7 @@ snapshots:
 
   parse-json@5.2.0:
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       error-ex: 1.3.4
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
