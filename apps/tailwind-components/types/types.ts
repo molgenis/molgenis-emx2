@@ -1,8 +1,10 @@
+import type { Mouse } from "playwright-core";
 import type {
   columnValue,
   IColumn,
   IRefColumn,
   IRow,
+  ITableMetaData,
 } from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
@@ -148,6 +150,11 @@ export interface RefPayload {
   data: IRow;
 }
 
+export interface RowPayload {
+  data: IRow;
+  metadata: ITableMetaData;
+}
+
 export interface Section {
   heading: string;
   fields: {
@@ -161,3 +168,7 @@ export interface Crumb {
   url: string;
   label: string;
 }
+
+export type KeyObject = {
+  [key: string]: KeyObject | string;
+};
