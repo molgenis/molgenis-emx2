@@ -84,26 +84,24 @@ public class RunMolgenisEmx2 {
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
             DataModels.Profile.DATA_CATALOGUE
-                .getImportTask(
-                    database, CATALOGUE_DEMO, "from DataCatalogue demo data loader", true)
+                .getImportTask(db, CATALOGUE_DEMO, "from DataCatalogue demo data loader", true)
                 .run();
           }
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
             new BiobankDirectoryLoader(
-                    new SchemaLoaderSettings(
-                        database, DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo", true))
+                    new SchemaLoaderSettings(db, DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo", true))
                 .setStaging(false)
                 .run();
           }
 
           if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
             new PatientRegistryDemoLoader(
-                    new SchemaLoaderSettings(database, "patient registry demo", "", true))
+                    new SchemaLoaderSettings(db, "patient registry demo", "", true))
                 .run();
           }
         });
 
     // start
-    MolgenisWebservice.start(port);
+    new MolgenisWebservice().start(port);
   }
 }

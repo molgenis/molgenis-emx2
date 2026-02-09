@@ -8,8 +8,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW;
-import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
@@ -22,14 +22,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
-import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,25 +36,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
-@ExtendWith(SystemStubsExtension.class)
-class WebApiSmokeTests {
+class WebApiSmokeTests extends ApiTestBase {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
@@ -77,71 +68,44 @@ class WebApiSmokeTests {
   public static final String PET_STORE_SCHEMA = "pet store";
   private static final String CSV_TEST_SCHEMA = "pet store csv";
 
-  private static final int PORT = 8081; // other than default so we can see effect
-
-  private static String sessionId; // to toss around a session for the tests
-  private static Database db;
   private static Schema schema;
 
   @BeforeAll
-  static void before() throws Exception {
-    // FIXME: beforeAll fails under windows
-    // setup test schema
-    db = TestDatabaseFactory.getTestDatabase();
-
-    // start web service for testing, including env variables
-    new EnvironmentVariables(
-            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
-        .execute(
-            () -> {
-              RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
-            });
-
-    // set default rest assured settings
-    RestAssured.port = PORT;
-    RestAssured.baseURI = "http://localhost";
-
+  static void before() {
     setAdminSession();
+    setupDatabase();
+  }
 
+  private static void setupDatabase() {
     // Always create test database from scratch to avoid instability due to side effects.
-    db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    PET_STORE.getImportTask(db, PET_STORE_SCHEMA, "", true).run();
-    schema = db.getSchema(PET_STORE_SCHEMA);
+    database.dropSchemaIfExists(PET_STORE_SCHEMA);
+    PET_STORE.getImportTask(database, PET_STORE_SCHEMA, "", true).run();
+    schema = database.getSchema(PET_STORE_SCHEMA);
 
     // grant a user permission
-    db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
-    db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
-    db.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
+    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
+    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
     schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
     schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-    db.grantCreateSchema(PET_SHOP_OWNER);
+    database.grantCreateSchema(PET_SHOP_OWNER);
     if (schema.getTable(TABLE_WITH_SPACES) == null) {
       schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
     }
   }
 
   private static void setAdminSession() {
-    sessionId =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\""
-                    + db.getAdminUserName()
-                    + "\\\",password:\\\""
-                    + ADMIN_PASS
-                    + "\\\"){message}}\"}")
-            .when()
-            .post("api/graphql")
-            .sessionId();
+    login(database.getAdminUserName(), ADMIN_PASS);
   }
 
   @AfterAll
   static void after() {
     // Always clean up database to avoid instability due to side effects.
-    db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    db.dropSchemaIfExists("pet store yaml");
-    db.dropSchemaIfExists("pet store json");
+    database.dropSchemaIfExists(PET_STORE_SCHEMA);
+    database.dropSchemaIfExists("pet store yaml");
+    database.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -255,7 +219,7 @@ class WebApiSmokeTests {
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
-    db.dropCreateSchema("pet store zip");
+    database.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
     byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip");
@@ -281,14 +245,14 @@ class WebApiSmokeTests {
     assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
     // delete the new schema
-    db.dropSchema("pet store zip");
+    database.dropSchema("pet store zip");
   }
 
   @Test
   void testReports() throws IOException {
     // create a new schema for report
-    db.dropSchemaIfExists("pet store reports");
-    PET_STORE.getImportTask(db, "pet store reports", "", true).run();
+    database.dropSchemaIfExists("pet store reports");
+    PET_STORE.getImportTask(database, "pet store reports", "", true).run();
 
     // check if reports work
     byte[] zipContents =
@@ -396,7 +360,7 @@ class WebApiSmokeTests {
   void testCsvApi_csvTableMetadataUpdate() throws IOException {
 
     // fresh schema for testing
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     // full table header present in exported table metadata
     String header =
@@ -456,7 +420,7 @@ class WebApiSmokeTests {
   @Test
   void testCsvApi_csvUploadDownload() throws IOException {
     // create a new schema for complete csv data round trip
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     // download csv metadata and data from existing schema
     byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv");
@@ -525,9 +489,9 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    var response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(
@@ -544,7 +508,7 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_downloadMembers() throws IOException {
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
@@ -561,7 +525,7 @@ class WebApiSmokeTests {
 
   @Test
   void testCsvApi_downloadSettings() throws IOException {
-    db.dropCreateSchema(CSV_TEST_SCHEMA);
+    database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
@@ -574,6 +538,137 @@ class WebApiSmokeTests {
         Path.of(Objects.requireNonNull(getClass().getResource("csv/settings.csv")).getPath());
     String expected = Files.readString(path);
     assertEquals(expected, response.asString());
+  }
+
+  @Test
+  void testCsvApi_changelogDownload() {
+    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
+    schema.create(table("test", column("A").setPkey(), column("B")));
+    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
+
+    Response response =
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+    String formatted =
+        """
+            operation,stamp,userid,tablename,old,new
+            I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
+            .formatted(schema.getChanges(1).getFirst().stamp());
+
+    assertTrue(response.body().asString().startsWith(formatted));
+    setupDatabase();
+  }
+
+  @Test
+  void testCsvApi_givenOffset_whenDownloadingChangelog_thenSkipOffset() {
+    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
+    schema.create(table("test", column("A").setPkey(), column("B")));
+    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("offset", "1")
+            .when()
+            .get("/pet store/api/csv/changelog");
+
+    Pattern contentDisposition =
+        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
+    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
+
+    String formatted = "operation,stamp,userid,tablename,old,new";
+
+    assertTrue(response.body().asString().startsWith(formatted));
+
+    setupDatabase();
+  }
+
+  @Test
+  void testCsvApi_givenLimitPassedCap_whenDownloadingChangelog_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("limit", "1001")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                  {
+                    "errors" : [
+                      {
+                        "message" : "Requested 1001 changes, but the maximum allowed is 1000."
+                      }
+                    ]
+                  }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenInvalidLimitValue_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("limit", "invalid-value")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                  {
+                    "errors" : [
+                      {
+                        "message" : "Invalid limit provided, should be a number: For input string: \\"invalid-value\\""
+                      }
+                    ]
+                  }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenInvalidOffsetValue_thenError() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .param("offset", "invalid-value")
+            .when()
+            .get("/pet store/api/csv/changelog");
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+                    {
+                      "errors" : [
+                        {
+                          "message" : "Invalid offset provided, should be a number: For input string: \\"invalid-value\\""
+                        }
+                      ]
+                    }""",
+        response.body().asString());
+  }
+
+  @Test
+  void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+            {
+              "errors" : [
+                {
+                  "message" : "Unauthorized to get schema changelog"
+                }
+              ]
+            }""",
+        response.body().asString());
   }
 
   @Test
@@ -632,7 +727,7 @@ class WebApiSmokeTests {
   void testJsonYamlApi() {
     String schemaJson = given().sessionId(sessionId).when().get("/pet store/api/json").asString();
 
-    db.dropCreateSchema("pet store json");
+    database.dropCreateSchema("pet store json");
 
     given()
         .sessionId(sessionId)
@@ -649,7 +744,7 @@ class WebApiSmokeTests {
 
     String schemaYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml").asString();
 
-    db.dropCreateSchema("pet store yaml");
+    database.dropCreateSchema("pet store yaml");
 
     given()
         .sessionId(sessionId)
@@ -680,8 +775,8 @@ class WebApiSmokeTests {
         .then()
         .statusCode(200);
 
-    db.dropSchemaIfExists("pet store yaml");
-    db.dropSchemaIfExists("pet store json");
+    database.dropSchemaIfExists("pet store yaml");
+    database.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -692,7 +787,7 @@ class WebApiSmokeTests {
         given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
 
     // create a new schema for excel
-    db.dropCreateSchema("pet store excel");
+    database.dropCreateSchema("pet store excel");
 
     // download excel contents from schema
     byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel");
@@ -749,7 +844,7 @@ class WebApiSmokeTests {
     assertTrue(schemaCSV2.contains("Pet"));
 
     // delete a new schema for excel
-    db.dropSchema("pet store excel");
+    database.dropSchema("pet store excel");
   }
 
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
@@ -813,7 +908,7 @@ class WebApiSmokeTests {
             .filter(sessionFilter)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + db.getAdminUserName()
+                    + database.getAdminUserName()
                     + "\\\",password:\\\""
                     + ADMIN_PASS
                     + "\\\"){message}}\"}")
@@ -829,7 +924,7 @@ class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains(db.getAdminUserName()));
+    assertTrue(result.contains(database.getAdminUserName()));
 
     // if admin then should  be able to see users
     result =
@@ -952,7 +1047,7 @@ class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.becomeAdmin();
+    database.becomeAdmin();
   }
 
   @Test
@@ -1407,8 +1502,8 @@ class WebApiSmokeTests {
   @Test
   void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
-    db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
-    db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+    database.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
+    database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
 
     String token = getToken("admin", "admin");
     String result;
@@ -1500,7 +1595,8 @@ class WebApiSmokeTests {
 
     // script should be deleted
     assertTrue(
-        db.getSchema(SYSTEM_SCHEMA)
+        database
+            .getSchema(SYSTEM_SCHEMA)
             .getTable("Scripts")
             .where(f("name", EQUALS, "test"))
             .retrieveRows()
@@ -1528,9 +1624,9 @@ class WebApiSmokeTests {
   // todo update / rewrite test to be more stable in CI env
   void testExecuteSubtaskInScriptTask() throws JsonProcessingException, InterruptedException {
     String parentJobName = "parentJobTest";
-    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
     jobs.delete(row("name", parentJobName));
-    db.dropSchemaIfExists("ScriptWithFileUpload");
+    database.dropSchemaIfExists("ScriptWithFileUpload");
     String script =
         """
             import asyncio
@@ -1575,7 +1671,7 @@ class WebApiSmokeTests {
 
     String failingJobName = "failingJobTest";
     jobs.delete(row("name", failingJobName));
-    db.dropSchemaIfExists("ScriptWithFileUpload");
+    database.dropSchemaIfExists("ScriptWithFileUpload");
     String scriptFail = script.replace("PET_STORE", "PET_STORES");
     jobs.insert(
         row(
@@ -1691,7 +1787,7 @@ class WebApiSmokeTests {
   }
 
   private void getAndAssertContains(String path, String expectedSubstring) {
-    db.clearCache();
+    database.clearCache();
     String result = given().get(path).getBody().asString();
     ObjectMapper mapper = new ObjectMapper();
     String prettyJson;
@@ -1709,7 +1805,7 @@ class WebApiSmokeTests {
 
   @Test
   void testThatTablesWithSpaceCanBeDownloaded() {
-    var table = schema.getTable(TABLE_WITH_SPACES);
+    Table table = schema.getTable(TABLE_WITH_SPACES);
 
     given()
         .sessionId(sessionId)
@@ -1749,7 +1845,7 @@ class WebApiSmokeTests {
   @Test
   void testAnalyticsApi() throws JsonProcessingException {
 
-    db.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
+    database.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
     String adminToken = getToken("admin", "admin");
 
     // add a trigger
@@ -1813,7 +1909,7 @@ class WebApiSmokeTests {
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
-    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
     Filter f = f("script", f("name", EQUALS, scriptName));
     int count = 0;
     Row firstJob = null;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { vIntersectionObserver } from "@vueuse/components";
-import { useTemplateRef } from "vue";
+import { type ComputedRef } from "vue";
 import type {
   columnId,
   columnValue,
@@ -14,6 +14,7 @@ const props = defineProps<{
   rowKey?: columnValue;
   constantValues?: IRow;
   visibleColumnErrors: Record<columnId, string>;
+  requiredFields: Record<columnId, ComputedRef<boolean>>;
 }>();
 
 const modelValue = defineModel<IRow>("modelValue", {
@@ -22,7 +23,11 @@ const modelValue = defineModel<IRow>("modelValue", {
 
 const emit = defineEmits(["update", "view", "leaving-view", "blur"]);
 
-const container = useTemplateRef<HTMLDivElement>("container");
+const observerOptions = {
+  root: null,
+  rootMargin: "-45% 0px -45% 0px",
+  threshold: 0,
+};
 
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);
@@ -42,10 +47,6 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
     if (col) emit("leaving-view", col);
   }
 }
-
-const isRequired = (value: string | boolean): boolean =>
-  (typeof value === "string" && value.toLowerCase() === "true") ||
-  value === true;
 </script>
 
 <template>
@@ -53,7 +54,6 @@ const isRequired = (value: string | boolean): boolean =>
     <div
       v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
       :id="`${column.id}-form-field`"
-      v-intersection-observer="onIntersectionObserver"
     >
       <h2
         class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
@@ -68,9 +68,9 @@ const isRequired = (value: string | boolean): boolean =>
       </h2>
     </div>
     <FormField
-      class="pb-8"
+      class="pb-8 last:pb-64"
       v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
-      v-intersection-observer="onIntersectionObserver"
+      v-intersection-observer="[onIntersectionObserver, observerOptions]"
       v-model="modelValue[column.id]"
       :id="`${column.id}-form-field`"
       :type="column.columnType"
@@ -84,7 +84,7 @@ const isRequired = (value: string | boolean): boolean =>
         )
       "
       :rowKey="rowKey"
-      :required="isRequired(column.required ?? false)"
+      :required="requiredFields[column.id]?.value"
       :error-message="visibleColumnErrors[column.id]"
       :ref-schema-id="column.refSchemaId"
       :ref-table-id="column.refTableId"

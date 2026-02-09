@@ -52,9 +52,13 @@ const wrapper = mount(InputRef, {
 });
 
 describe("input ref", () => {
-  it("deselect on non-array version shoud yield empty array ", () => {
+  it("deselect on non-array version should yield empty array ", () => {
     expect(wrapper.exists()).toBe(true);
     wrapper.find("button").trigger("click");
     expect(wrapper.emitted("update:modelValue")).toEqual([[null]]);
+    setTimeout(() => {
+      //timeout because of debounce
+      expect(wrapper.emitted("blur")).toBeDefined();
+    }, 100);
   });
 });

@@ -8,8 +8,8 @@ import BreadCrumbs from "../../../../../tailwind-components/app/components/Bread
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import BaseIcon from "../../../../../tailwind-components/app/components/BaseIcon.vue";
 import Message from "../../../../../tailwind-components/app/components/Message.vue";
-import type { Pages } from "../../../../../tailwind-components/app/utils/Pages";
 import type { Crumb } from "../../../../../tailwind-components/types/types";
+import type { IContainers } from "../../../../../tailwind-components/types/cms";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -19,7 +19,7 @@ const schema = Array.isArray(route.params.schema)
 useHead({ title: `Pages - ${schema} - Molgenis` });
 
 interface PagesResponse {
-  data: { Page: Pages[] };
+  data: { Containers: IContainers[] };
   error: Record<string, any>[];
 }
 
@@ -27,7 +27,7 @@ const error = ref<string>("");
 const { data } = await $fetch<PagesResponse>(`/${schema}/graphql`, {
   method: "POST",
   body: {
-    query: `{ Page { name mg_tableclass } }`,
+    query: `{ Containers (orderby: { name: ASC }) { name mg_tableclass } }`,
   },
 }).catch((err) => {
   error.value = err;
@@ -47,17 +47,21 @@ const crumbs: Crumb[] = [
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
     </PageHeader>
-    <div class="flex flew-wrap justify-start items-center gap-7.5" v-if="data">
+    <div
+      class="flex flew-wrap justify-start items-center gap-7.5"
+      v-if="data && data.Containers"
+    >
       <div
-        v-for="customPage in data.Page"
+        v-for="container in data.Containers"
         class="relative group border rounded-3px w-1/3 h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
+          v-if="container.mg_tableclass === 'cms.Developer pages'"
           class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
-            :to="`/${schema}/pages/${customPage.name}/edit`"
+            :to="`/${schema}/pages/${container.name}/edit`"
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
           >
             <BaseIcon name="Edit" :width="18" />
@@ -65,10 +69,10 @@ const crumbs: Crumb[] = [
           </NuxtLink>
         </div>
         <NuxtLink
-          :to="`/${schema}/pages/${customPage.name}/`"
+          :to="`/${schema}/pages/${container.name}/`"
           class="text-button-text hover:underline"
         >
-          {{ customPage.name }}
+          {{ container.name }}
         </NuxtLink>
       </div>
     </div>

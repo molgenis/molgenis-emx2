@@ -29,7 +29,7 @@
         </div>
 
         <button
-          @click="visible = false"
+          @click="onCancel"
           aria-label="Close modal"
           class="absolute top-7 right-8 p-1"
         >
@@ -44,6 +44,7 @@
       :metadata="metadata"
       :formValues="formValues"
       :constantValues="constantValues"
+      :initializeAsInsert="isInsert"
     />
 
     <TransitionSlideUp>
@@ -136,6 +137,7 @@ import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
+import { on } from "events";
 
 const props = withDefaults(
   defineProps<{
@@ -252,9 +254,13 @@ async function onSave(draft: boolean) {
       if (!form.value) {
         throw new Error("Form reference is not available");
       }
-      const resp = (await isInsert.value)
-        ? form.value.insertInto()
-        : form.value.updateInto();
+
+      let resp: IRow | null = null;
+      if (isInsert.value) {
+        resp = await form.value.insertInto();
+      } else {
+        resp = await form.value.updateInto();
+      }
 
       if (!resp) {
         throw new Error(

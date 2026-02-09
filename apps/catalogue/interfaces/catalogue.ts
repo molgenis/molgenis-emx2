@@ -1056,7 +1056,7 @@ export interface IResources {
   catalogueType?: IOntologyNode;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
-  rWDType?: IOntologyNode[];
+  registryOrHealthRecordType?: IOntologyNode[];
   networkType?: IOntologyNode[];
   website?: string;
   description?: string;
@@ -1090,6 +1090,7 @@ export interface IResources {
   underlyingPopulation?: string;
   populationOfInterest?: IOntologyNode[];
   populationOfInterestOther?: string;
+  continents?: IOntologyNode[];
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
   minimumAge?: number;

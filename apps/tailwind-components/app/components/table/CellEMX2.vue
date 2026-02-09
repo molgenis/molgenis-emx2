@@ -19,6 +19,7 @@
             metadata.columnType === 'DATE' ||
             metadata.columnType === 'DATETIME' ||
             metadata.columnType === 'AUTO_ID' ||
+            metadata.columnType === 'UUID' ||
             metadata.columnType === 'PERIOD'
           "
           :metadata="metadata"
@@ -44,7 +45,10 @@
         />
 
         <ValueInt
-          v-else-if="metadata.columnType === 'INT'"
+          v-else-if="
+            metadata.columnType === 'INT' ||
+            metadata.columnType === 'NON_NEGATIVE_INT'
+          "
           :metadata="metadata"
           :data="typeof data === 'number' ? data : Number(data)"
         />

@@ -1,12 +1,12 @@
 certifi==2026.1.4
 charset-normalizer==3.4.4
 idna==3.11
-numpy==2.2.6
+numpy
 python-dateutil==2.9.0
 python-decouple==3.8
 pytz==2025.2
 requests==2.32.5
-setuptools==80.9.0
+setuptools==80.10.2
 six==1.17.0
-molgenis_emx2_pyclient==13.55.4
+molgenis_emx2_pyclient==13.77.1
 urllib3==2.6.3
