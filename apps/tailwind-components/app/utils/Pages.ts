@@ -1,54 +1,16 @@
-export interface TreeNode {
-  name: string;
-  children?: TreeNode[];
-  parent?: {
-    name: string;
-  };
-}
+import type {
+  IDeveloperPages,
+  IDependencies,
+  IDependenciesCSS,
+  IDependenciesJS,
+  IConfigurablePages,
+  IBlocks,
+  IBlockOrders,
+  IComponents,
+  IComponentOrders,
+} from "../../types/cms";
 
-export interface OntologyNode extends TreeNode {
-  code?: string;
-  definition?: string;
-  ontologyTermURI?: string;
-  order?: number;
-}
-
-export interface Dependency {
-  name: string;
-  url?: string;
-  fetchPriority?: OntologyNode;
-  mg_tableclass: string;
-}
-
-export interface DependencyCSS extends Dependency {
-  type?: OntologyNode;
-}
-
-export interface DependencyJS extends Dependency {
-  type?: OntologyNode;
-  async?: boolean;
-  defer?: boolean;
-}
-
-export interface DeveloperPage {
-  name: string;
-  description?: string;
-  html?: string;
-  css?: string;
-  javascript?: string;
-  dependencies?: DependencyCSS[] | DependencyJS[];
-  enableBaseStyles?: boolean;
-  enableButtonStyles?: boolean;
-  enableFullScreen?: boolean;
-}
-
-export interface Pages {
-  name: string;
-  description?: string;
-  mg_tableclass: string;
-}
-
-export function newDeveloperPage(): DeveloperPage {
+export function newDeveloperPage(): IDeveloperPages {
   return {
     name: "",
     description: "",
@@ -62,50 +24,173 @@ export function newDeveloperPage(): DeveloperPage {
   };
 }
 
-export function newPageDate(): string {
-  const date = new Date().toISOString();
-  return date.replace("T", " ").split(".")[0] as string;
-}
-
-export async function getPage(
-  schema: string,
-  page: string
-): Promise<DeveloperPage> {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `query getDeveloperPage($filter:DeveloperPageFilter) {
-        DeveloperPage(filter:$filter) {
-          name
-          description
-          html
-          css
-          javascript
-          dependencies {
+const pageQuery = `query getContainers($filter:ContainersFilter) {
+    Containers(filter:$filter) {
+        
+        # Containers
+        name
+        description
+        mg_tableclass
+        
+        # Developer pages
+        html
+        css
+        javascript
+        dependencies {
             mg_tableclass
             name
             url
             defer
             async
             fetchPriority {
-              name
+                name
             }
-            async
-            defer
-          }
-          enableBaseStyles
-          enableButtonStyles
-          enableFullScreen
         }
-      }`,
+        enableBaseStyles
+        enableButtonStyles
+        enableFullScreen
+        
+        # Configurable pages
+        blocks {
+            id
+            enableFullScreenWidth
+            mg_tableclass
+            
+            # page headings
+            title
+            subtitle
+            backgroundImage {
+                image {
+                    id
+                    url
+                }
+            }
+            titleIsCentered
+            
+            # page sections
+            components {
+                id
+                inBlock {
+                    id
+                }
+                mg_tableclass
+                
+                # TextElements
+                text
+                
+                # Headings
+                level
+                headingIsCentered
+                
+                # Paragraphs
+                paragraphIsCentered
+                
+                # images
+                displayName
+                image {
+                    id
+                    size
+                    filename
+                    extension
+                    url
+                }
+                alt
+                width
+                height
+                imageIsCentered
+            }
+                
+            # component order
+            componentOrder {
+                block {
+                    id
+                }
+                component {
+                    id
+                }
+                order
+            }
+        }
+            
+        # block order
+        blockOrder {
+            block {
+                id
+            }
+            order
+        }
+    }
+}`;
+
+export async function getPage(
+  schema: string,
+  page: string
+): Promise<IDeveloperPages | IConfigurablePages> {
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: pageQuery,
       variables: { filter: { name: { equals: page } } },
     },
   });
-  return data.DeveloperPage[0];
+
+  const currentPage = data.Containers[0];
+  return currentPage;
+}
+
+interface RecordSet {
+  [index: string]: any;
+}
+
+export function sortConfigurablePage(
+  page: IConfigurablePages
+): IConfigurablePages {
+  const pageCopy = { ...page };
+
+  if (pageCopy.blocks && pageCopy.blockOrder) {
+    const blockOrdering: RecordSet = pageCopy.blockOrder.reduce(
+      (acc: RecordSet, blockOrder: IBlockOrders, index: number) => {
+        const id: string = blockOrder.block.id ?? blockOrder.id;
+        const order: number = blockOrder.order ?? index;
+        return { ...acc, [id]: order };
+      },
+      {}
+    );
+
+    pageCopy.blocks = pageCopy.blocks.sort((a: IBlocks, b: IBlocks) => {
+      return blockOrdering[a.id] - blockOrdering[b.id];
+    });
+  }
+
+  if (
+    pageCopy.blocks &&
+    pageCopy.blocks.find((block: IBlocks) => block.componentOrder)
+  ) {
+    pageCopy.blocks = pageCopy.blocks.map((block: IBlocks) => {
+      if (block.components && block.componentOrder) {
+        const componentOrder: RecordSet = block.componentOrder.reduce(
+          (acc: RecordSet, componentOrder: IComponentOrders, index: number) => {
+            const id: string = componentOrder.component.id ?? componentOrder.id;
+            const order: number = componentOrder.order ?? index;
+            return { ...acc, [id]: order };
+          },
+          {}
+        );
+        block.components = block.components.sort(
+          (a: IComponents, b: IComponents) => {
+            return componentOrder[a.id] - componentOrder[b.id];
+          }
+        );
+      }
+      return block;
+    });
+  }
+
+  return page;
 }
 
 export function generateHtmlPreview(
-  content: DeveloperPage,
+  content: IDeveloperPages,
   ref: HTMLDivElement
 ) {
   if (content && typeof content === "object" && Object.keys(content).length) {
@@ -116,17 +201,17 @@ export function generateHtmlPreview(
       "head"
     )[0] as HTMLHeadElement;
 
-    content.dependencies?.forEach(
-      (dependency: DependencyCSS | DependencyJS) => {
-        if (dependency.mg_tableclass.endsWith("CSS") && dependency.url) {
+    (content.dependencies as IDependencies[])?.forEach(
+      (dependency: IDependenciesCSS | IDependenciesJS) => {
+        if (dependency.mg_tableclass?.endsWith("CSS") && dependency.url) {
           const elem = document.createElement("link");
           elem.href = dependency.url;
           elem.rel = "stylesheet";
           documentHead.appendChild(elem);
         }
 
-        if (dependency.mg_tableclass.endsWith("JS") && dependency.url) {
-          const jsDependency = dependency as DependencyJS;
+        if (dependency.mg_tableclass?.endsWith("JS") && dependency.url) {
+          const jsDependency = dependency as IDependenciesJS;
 
           const elem = document.createElement("script") as HTMLScriptElement;
           elem.src = jsDependency.url as string;
@@ -193,4 +278,14 @@ export function generateHtmlPreview(
       }
     });
   }
+}
+
+export function parsePageText(value?: string): string {
+  const val = value || "";
+  return val.replace(/(^"{1,})|("{1,}$)/g, "");
+}
+
+export function pageCopyDate(): string {
+  const date = new Date().toISOString();
+  return date.replace("T", " ").split(".")[0] as string;
 }

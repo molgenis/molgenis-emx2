@@ -1,4 +1,3 @@
-import { useSession } from "./useSession";
 import {
   computed,
   isRef,
@@ -17,12 +16,10 @@ import type {
   ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
-import {
-  getColumnError,
-  isRequired,
-} from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
+import { getColumnError } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+import { useSession } from "./useSession";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -183,7 +180,7 @@ export default function useForm(
     }
   });
 
-  // second pass to get headings and colums
+  // second pass to get headings and columns
   metadata.value.columns.forEach((column) => {
     if (column.columnType !== "SECTION") {
       const section = sections.value.find(
@@ -522,7 +519,7 @@ export default function useForm(
         );
       }
     }
-    // if we dont suspect a session timeout, rethrow the original error
+    // if we don't suspect a session timeout, rethrow the original error
     throw error;
   }
 
