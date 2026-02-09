@@ -4,7 +4,7 @@ test("test", async ({ page, goto }) => {
   await goto("/", { waitUntil: "hydration" });
   await expect(
     page.getByRole("heading", {
-      name: "Health Data and Samples Catalogue",
+      name: "Demo Health Data Catalogue",
     })
   ).toBeVisible();
 });
