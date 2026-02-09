@@ -1,17 +1,12 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Privileges.VIEWER;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
-import graphql.execution.AsyncExecutionStrategy;
 import graphql.parser.ParserOptions;
-import graphql.schema.GraphQLObjectType;
-import graphql.schema.GraphQLSchema;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,8 +22,6 @@ import org.slf4j.LoggerFactory;
 public class GraphqlExecutor {
   private static Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);
   private GraphQL graphql;
-  private Schema schema;
-  private Database database;
   private Map<String, String> graphqlQueryFragments = new LinkedHashMap<>();
 
   private GraphqlExecutor() {
@@ -61,8 +54,7 @@ public class GraphqlExecutor {
 
   public GraphqlExecutor(Database database, TaskService taskService) {
     this();
-    this.database = database;
-    createGraphqlForDatabase(database, taskService);
+    this.graphql = GraphqlFactory.createGraphqlForDatabase(database, taskService);
   }
 
   public GraphqlExecutor(Database database) {
@@ -71,150 +63,12 @@ public class GraphqlExecutor {
 
   public GraphqlExecutor(Schema schema, TaskService taskService) {
     this();
-    this.schema = schema;
-    createGraphqlForSchema(schema, taskService);
+    this.graphql = GraphqlFactory.createGraphqlForSchema(schema, taskService);
+    this.graphqlQueryFragments = GraphqlTableFragmentGenerator.generate(schema);
   }
 
   public GraphqlExecutor(Schema schema) {
     this(schema, null);
-  }
-
-  private void createGraphqlForDatabase(Database database, TaskService taskService) {
-
-    GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
-    GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
-
-    // add login
-    // all the same between schemas
-    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(database));
-
-    // admin operations
-    if (database.isAdmin()) {
-      queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(database));
-      mutationBuilder.field(GraphqlAdminFieldFactory.removeUser(database));
-      mutationBuilder.field(GraphqlAdminFieldFactory.setEnabledUser(database));
-      mutationBuilder.field(GraphqlAdminFieldFactory.updateUser(database));
-    }
-
-    // database operations
-    GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.schemasQuery(database));
-    queryBuilder.field(db.settingsQueryField(database));
-    queryBuilder.field(db.tasksQueryField(taskService));
-    // todo need to allow for owner ? ( need to filter the query to include only owned schema's)
-    if (database.isAdmin()) {
-      queryBuilder.field(db.lastUpdateQuery(database));
-    }
-
-    mutationBuilder.field(db.createMutation(database, taskService));
-    mutationBuilder.field(db.deleteMutation(database));
-    mutationBuilder.field(db.updateMutation(database));
-    mutationBuilder.field(db.dropMutation(database));
-    mutationBuilder.field(db.changeMutation(database));
-
-    // account operations
-    GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
-    queryBuilder.field(session.sessionQueryField(database, null));
-    mutationBuilder.field(session.signinField(database));
-    mutationBuilder.field(session.signupField(database));
-    if (!database.isAnonymous()) {
-      mutationBuilder.field(session.signoutField(database));
-      mutationBuilder.field(session.changePasswordField(database));
-      mutationBuilder.field(session.createTokenField(database));
-    }
-
-    // notice we here add custom exception handler for mutations
-    this.graphql =
-        GraphQL.newGraphQL(
-                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-            .build();
-  }
-
-  private void createGraphqlForSchema(Schema schema, TaskService taskService) {
-    long start = System.currentTimeMillis();
-    logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
-
-    GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
-    GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
-
-    // _manifest query
-    queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(schema.getDatabase()));
-
-    // _schema query
-    GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
-    queryBuilder.field(schemaFields.schemaQuery(schema));
-    queryBuilder.field(schemaFields.settingsQuery(schema));
-    queryBuilder.field(schemaFields.schemaReportsField(schema));
-
-    // _tasks query
-    GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.tasksQueryField(taskService));
-
-    // _session query
-    GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
-    queryBuilder.field(sessionFieldFactory.sessionQueryField(schema.getDatabase(), schema));
-    mutationBuilder.field(sessionFieldFactory.signinField(schema.getDatabase()));
-    mutationBuilder.field(sessionFieldFactory.signupField(schema.getDatabase()));
-
-    // authenticated user operations
-    if (!schema.getDatabase().isAnonymous()) {
-      mutationBuilder.field(sessionFieldFactory.signoutField(schema.getDatabase()));
-      mutationBuilder.field(sessionFieldFactory.changePasswordField(schema.getDatabase()));
-      mutationBuilder.field(sessionFieldFactory.createTokenField(schema.getDatabase()));
-    }
-
-    mutationBuilder.field(schemaFields.changeMutation(schema));
-    mutationBuilder.field(schemaFields.dropMutation(schema));
-    mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
-
-    if ((schema.getRoleForActiveUser() != null
-            && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
-        || schema.getDatabase().isAdmin()) {
-      queryBuilder.field(schemaFields.changeLogQuery(schema));
-      queryBuilder.field(schemaFields.changeLogCountQuery(schema));
-    }
-
-    // table
-    GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
-    for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumns().size() > 0) {
-        if (table.getTableType().equals(TableType.ONTOLOGIES)
-            || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
-          queryBuilder.field(tableField.tableQueryField(table));
-        }
-        queryBuilder.field(tableField.tableAggField(table));
-        queryBuilder.field(tableField.tableGroupByField(table));
-      }
-      for (int depth = 1; depth <= 3; depth++) {
-        this.graphqlQueryFragments.put(
-            table.getIdentifier() + "AllFields" + depth,
-            tableField.getGraphqlFragments(table, depth));
-      }
-      this.graphqlQueryFragments.put(
-          table.getIdentifier() + "AllFields",
-          tableField.getGraphqlFragments(table, 1, table.getIdentifier() + "AllFields"));
-    }
-    mutationBuilder.field(tableField.insertMutation(schema));
-    mutationBuilder.field(tableField.updateMutation(schema));
-    mutationBuilder.field(tableField.upsertMutation(schema));
-    mutationBuilder.field(tableField.deleteMutation(schema));
-
-    // assemble and return
-    this.graphql =
-        GraphQL.newGraphQL(
-                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-            .build();
-
-    if (logger.isInfoEnabled()) {
-      logger.info(
-          "creation graphql for schema: {} completed in {}ms",
-          schema.getMetadata().getName(),
-          (System.currentTimeMillis() - start));
-    }
   }
 
   public @NotNull ExecutionResult executeWithoutSession(String query) {
@@ -284,10 +138,6 @@ public class GraphqlExecutor {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return executionResult;
-  }
-
-  public Schema getSchema() {
-    return this.schema;
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
