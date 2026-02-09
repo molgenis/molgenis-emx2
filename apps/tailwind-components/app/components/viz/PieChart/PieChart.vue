@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { useEventListener } from "@vueuse/core";
 import {
   computed,
   useTemplateRef,
   ref,
   onMounted,
-  onUpdated,
-  onBeforeUnmount,
   watch,
 } from "vue";
 
@@ -288,11 +287,7 @@ function renderChart() {
 
 onMounted(() => {
   renderChart();
-  window.addEventListener("resize", renderChart);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", renderChart);
+  useEventListener("resize", renderChart);
 });
 
 watch(props, () => renderChart(), { deep: true });
