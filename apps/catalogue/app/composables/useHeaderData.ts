@@ -112,7 +112,7 @@ export async function useHeaderData() {
   const collectionCount = data.Collections_agg.count || 0;
   const networkCount = data.Networks_agg.count || 0;
   const logoSrc =
-    catalogue?.logo.url ??
+    catalogue?.logo?.url ??
     (
       data._settings.find(
         (setting) => setting.key === "CATALOGUE_LOGO_SRC"
