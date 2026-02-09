@@ -1043,6 +1043,9 @@ importers:
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
+      http-server:
+        specifier: 14.1.1
+        version: 14.1.1
       if-env:
         specifier: 1.0.4
         version: 1.0.4
@@ -1174,9 +1177,6 @@ importers:
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
-      http-server:
-        specifier: ^14.1.1
-        version: 14.1.1
       if-env:
         specifier: 1.0.4
         version: 1.0.4
