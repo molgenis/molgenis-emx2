@@ -9,6 +9,6 @@ BEGIN
           AND schema_name <> 'information_schema'
           AND schema_name <> 'public'
     LOOP
-        EXECUTE format('DROP SCHEMA "%I" CASCADE;', r.schema_name);
+        EXECUTE format('DROP SCHEMA %I CASCADE;', r.schema_name);
     END LOOP;
 END$$;

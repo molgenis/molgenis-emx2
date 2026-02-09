@@ -75,13 +75,13 @@ brew services restart postgresql
 
 # FAQ
 
-If you previously had an installation of Molgenis and want to start fresh, here is a .sql file which you can execute:
+If you previously had an installation of Molgenis and want to start fresh, use this [AToolToCleanTheDatabase](/apps/docs/#/molgenis/run_updates?id=delete-all-schemas-tool)
 
-You can download the file here: [get clean permissions and db sql file](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/clean-permissions-and-db.sql)
+Alternatively, if you want to execute the ```SQL``` step by step, [here is a link](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/utility-sql) to the files:
 
-```
-psql -U postgres -f clean-permissions-and-db.sql
-```
+Execution order:
 
-You will be prompted to enter the password of the user postgres.
-
+1. clean-db-remove-molgenis-schema.sql
+2. clean-db-remove-foreign-keys.sql
+3. clean-db-remove-user-schemas.sql
+4. clean-db-remove-all-roles.sql

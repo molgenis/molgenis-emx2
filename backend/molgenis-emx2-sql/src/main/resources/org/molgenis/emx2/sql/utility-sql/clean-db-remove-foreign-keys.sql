@@ -12,7 +12,7 @@ BEGIN
             AND table_schema <> 'public'
     LOOP
         EXECUTE
-            format('ALTER TABLE "%I"."%I" DROP CONSTRAINT "%I";',
+            format('ALTER TABLE %I.%I DROP CONSTRAINT %I;',
                 r.table_schema, r.table_name, r.constraint_name);
     END LOOP;
 END$$;
