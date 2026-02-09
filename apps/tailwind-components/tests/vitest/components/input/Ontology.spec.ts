@@ -108,8 +108,9 @@ function findMessageSpan(wrapper: VueWrapper) {
 
 async function performSearch(wrapper: VueWrapper, value: string) {
   const vm = wrapper.vm as unknown as OntologyVM;
+  const searchPromise = vm.updateSearch(value);
   vm.searchTerms = value;
-  await vm.updateSearch(value);
+  await searchPromise;
   await flushPromises();
 }
 
@@ -1003,6 +1004,7 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(20, 20), 100)
       );
 
+      const callCountBefore = mockFetch.mock.calls.length;
       const vm = wrapper.vm as unknown as OntologyVM;
 
       const promise1 = vm.loadMoreTerms(vm.rootNode);
@@ -1012,7 +1014,7 @@ describe("OntologyInput", () => {
       await flushPromises();
 
       expect(getNodeLabels(wrapper).length).toBe(40);
-      expect(mockFetch).toHaveBeenCalledTimes(3);
+      expect(mockFetch.mock.calls.length - callCountBefore).toBe(1);
     });
   });
 });
