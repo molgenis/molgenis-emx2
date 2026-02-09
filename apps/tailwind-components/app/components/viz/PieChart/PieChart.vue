@@ -335,25 +335,3 @@ watch(props, () => renderChart(), { deep: true });
     </div>
   </div>
 </template>
-
-<style>
-.chart_layout_with_legend_top {
-  grid-template-areas:
-    "context"
-    "legend"
-    "chart";
-}
-
-.chart_layout_with_legend_bottom {
-  grid-template-areas:
-    "context"
-    "chart"
-    "legend";
-}
-
-.chart_layout_default {
-  grid-template-areas:
-    "context"
-    "chart";
-}
-</style>

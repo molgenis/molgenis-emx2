@@ -280,3 +280,24 @@
     --chart-paths: var(--color-gray-600);
   }
 }
+
+/* viz: chart layouts (only supports top and bottom) */
+.chart_layout_with_legend_top {
+  grid-template-areas:
+    "context"
+    "legend"
+    "chart";
+}
+
+.chart_layout_with_legend_bottom {
+  grid-template-areas:
+    "context"
+    "chart"
+    "legend";
+}
+
+.chart_layout_default {
+  grid-template-areas:
+    "context"
+    "chart";
+}
