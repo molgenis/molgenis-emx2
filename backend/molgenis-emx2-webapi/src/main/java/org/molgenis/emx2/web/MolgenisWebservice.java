@@ -65,13 +65,6 @@ public class MolgenisWebservice {
                               mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
                   config.staticFiles.add(
                       staticFiles -> {
-                        staticFiles.hostedPath = "/apps";
-                        staticFiles.directory = "/public_html/apps/";
-                        staticFiles.location = Location.CLASSPATH;
-                      });
-
-                  config.staticFiles.add(
-                      staticFiles -> {
                         staticFiles.hostedPath = "/custom";
                         staticFiles.directory = System.getProperty("user.dir") + "/custom-app";
                         staticFiles.location = Location.EXTERNAL;

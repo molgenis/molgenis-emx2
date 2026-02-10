@@ -39,6 +39,12 @@ public class StaticFileMapper {
           }
         });
 
+    app.get("/catalog/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
+    app.get("/catalog/{app}/img/<asset>", StaticFileMapper::redirectImg);
+    app.get("/catalog/{app}/<asset>", StaticFileMapper::redirectResources);
+    app.get("/catalog/{app}/index.html", StaticFileMapper::returnIndexFile);
+    app.get("/catalog/{app}", StaticFileMapper::returnIndexFile);
+
     app.get("/apps/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
     app.get("/apps/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
