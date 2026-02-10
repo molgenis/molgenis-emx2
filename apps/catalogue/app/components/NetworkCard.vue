@@ -1,8 +1,7 @@
 <script setup lang="ts">
-const route = useRoute();
 import type { INetwork } from "../../interfaces/types";
 import { computed } from "vue";
-import { useRoute } from "#app/composables/router";
+import { useCatalogueContext } from "#imports";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
@@ -18,7 +17,8 @@ const props = withDefaults(
   }
 );
 
-const catalogue = route.params.catalogue || "all";
+const { resourceUrl } = useCatalogueContext();
+const networkUrl = computed(() => resourceUrl(props.network.id));
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -56,7 +56,7 @@ const links: Link[] = [];
           class="items-center flex justify-center"
           :class="[compact ? 'w-50px h-50px' : 'h-full w-full']"
         >
-          <NuxtLink :to="`/${catalogue}/networks/${network.id}`">
+          <NuxtLink :to="networkUrl">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
@@ -66,7 +66,7 @@ const links: Link[] = [];
           <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${catalogue}/networks/${network.id}`"
+                :to="networkUrl"
                 class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
               >
                 {{ network?.acronym || network?.name }}
@@ -84,7 +84,7 @@ const links: Link[] = [];
         -->
             <NuxtLink
               v-if="!compact"
-              :to="`/${catalogue}/networks/${network.id}`"
+              :to="networkUrl"
             >
               <IconButton
                 icon="arrow-right"

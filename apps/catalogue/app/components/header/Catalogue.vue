@@ -28,52 +28,44 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const catalogueRouteParam = route.params.catalogue as string;
+const catalogueRouteParam = (route.query.catalogue || route.params.resourceId || (route.path.startsWith("/all") ? "all" : undefined)) as string;
+const currentResourceId = (route.params.resourceId || (route.path.startsWith("/all") ? "all" : "")) as string;
 
 const menu: { label: string; link: string }[] = [];
 
 const showCartModal = ref<boolean>(false);
 
-// the variable route does not set the resourceType param, therefore check the route name
-if (
-  route.params.resourceType ||
-  route.name === "schema-catalogue-catalogue-variables"
-) {
+const buildUrl = (path: string) => {
+  if (catalogueRouteParam) {
+    return `${path}?catalogue=${catalogueRouteParam}`;
+  }
+  return path;
+};
+
+if (currentResourceId) {
   menu.push({
     label: "overview",
-    link: `/${catalogueRouteParam}`,
+    link: buildUrl(`/${currentResourceId}`),
   });
 }
 
 if (props.collectionCount > 0) {
   menu.push({
     label: "Collections",
-    link: `/${catalogueRouteParam}/collections`,
-  });
-}
-
-if (props.networkCount > 0 && !cohortOnly.value) {
-  menu.push({
-    label: "Networks",
-    link: `/${catalogueRouteParam}/networks`,
+    link: buildUrl(`/${currentResourceId}/collections`),
   });
 }
 
 if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
-    link: `/${catalogueRouteParam}/variables`,
+    link: buildUrl(`/${currentResourceId}/variables`),
   });
 
-if (cohortOnly.value) {
+if (currentResourceId && (cohortOnly.value || currentResourceId !== "all")) {
   menu.push({
     label: "About",
-    link: `/${catalogueRouteParam}/about`,
-  });
-} else if (catalogueRouteParam && catalogueRouteParam !== "all") {
-  menu.push({
-    label: "About",
-    link: `/${catalogueRouteParam}/about/${catalogueRouteParam}`,
+    link: buildUrl(`/${currentResourceId}/about`),
   });
 }
 
@@ -98,8 +90,10 @@ if (!cohortOnly.value) {
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
-          :link="`/${catalogueRouteParam}`"
-          :image="catalogue?.logo?.url ?? logoSrc"
+          :link="buildUrl(`/${currentResourceId}`)"
+          :image="
+            currentResourceId === 'all' ? logoSrc : catalogue?.logo?.url
+          "
           :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />
@@ -119,8 +113,10 @@ if (!cohortOnly.value) {
           <HamburgerMenu :navigation="menu" />
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
-              :link="`/${catalogueRouteParam}`"
-              :image="catalogue?.logo?.url ?? logoSrc"
+              :link="buildUrl(`/${currentResourceId}`)"
+              :image="
+                currentResourceId === 'all' ? logoSrc : catalogue?.logo?.url
+              "
             />
           </div>
 

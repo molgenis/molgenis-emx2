@@ -7,6 +7,7 @@ import {
   useFetch,
   navigateTo,
 } from "#app";
+import { useCatalogueContext } from "#imports";
 import type {
   IFilter,
   IMgError,
@@ -42,24 +43,23 @@ const schema = config.public.schema as string;
 const route = useRoute();
 const router = useRouter();
 const pageSize = 10;
+const { buildBreadcrumbs, resourceUrl } = useCatalogueContext();
 
-const titlePrefix =
-  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+const resourceId = route.params.resourceId as string;
+
+const titlePrefix = `${resourceId} `;
 
 const descriptionMap: Record<string, string> = {
   collections: "Data & sample collections",
-  networks: "(Sub)projects & harmonisation",
 };
 
 const imageMap: Record<string, string> = {
   collections: "image-diagram",
-  networks: "image-diagram2",
 };
 
-const title = route.params.resourceType as string;
-const description: string | undefined =
-  descriptionMap[route.params.resourceType as string];
-const image: string | undefined = imageMap[route.params.resourceType as string];
+const title = "collections";
+const description: string | undefined = descriptionMap["collections"];
+const image: string | undefined = imageMap["collections"];
 
 useHead({
   title: titlePrefix + title.charAt(0).toUpperCase() + title.slice(1),
@@ -85,26 +85,19 @@ let pageFilterTemplate: IFilter[] = [
     },
     search: "",
   },
-];
-
-if (route.params.resourceType === "collections") {
-  pageFilterTemplate.push({
+  {
     id: "type",
     config: {
       label: "Collection type",
       type: "ONTOLOGY",
       ontologyTableId: "ResourceTypes",
       ontologySchema: "CatalogueOntologies",
-      // @ts-ignore
       filter: { tags: { equals: "collection" } },
       columnId: "type",
       initialCollapsed: true,
     },
     conditions: [],
-  });
-}
-
-pageFilterTemplate = pageFilterTemplate.concat([
+  },
   {
     id: "cohortTypes",
     config: {
@@ -176,17 +169,14 @@ pageFilterTemplate = pageFilterTemplate.concat([
     },
     conditions: [],
   },
-]);
+];
 
 const filters = computed(() => {
-  // if there are not query conditions just use the page defaults
   if (!route.query?.conditions) {
     return [...pageFilterTemplate];
   }
 
-  // get conditions from query
   const conditions = conditionsFromPathQuery(route.query.conditions as string);
-  // merge with page defaults
   const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
 
   return filters;
@@ -230,50 +220,29 @@ const gqlFilter = computed(() => {
   result = buildQueryFilter(filters.value);
 
   if (!result.type) {
-    if (route.params.resourceType === "collections") {
-      result.type = { tags: { equals: "collection" } };
-    }
-    if (route.params.resourceType === "networks") {
-      result.type = { tags: { equals: "network" } };
-    }
+    result.type = { tags: { equals: "collection" } };
   }
 
-  // add hard coded page specific filters
-  if ("all" === route.params.catalogue) {
+  if (resourceId === "all") {
     return result;
-  } else {
-    return {
-      _and: [
-        result,
-        {
-          _or: getParentOrPartOfFilter(),
-        },
-      ],
-    };
   }
-});
 
-function getParentOrPartOfFilter() {
-  if (route.params.resourceType === "collections") {
-    return [
-      { partOfNetworks: { id: { equals: route.params.catalogue } } },
+  return {
+    _and: [
+      result,
       {
-        partOfNetworks: {
-          parentNetworks: { id: { equals: route.params.catalogue } },
-        },
+        _or: [
+          { partOfNetworks: { id: { equals: resourceId } } },
+          {
+            partOfNetworks: {
+              parentNetworks: { id: { equals: resourceId } },
+            },
+          },
+        ],
       },
-    ];
-  } else {
-    return [
-      { parentNetworks: { id: { equals: route.params.catalogue } } },
-      {
-        parentNetworks: {
-          parentNetworks: { id: { equals: route.params.catalogue } },
-        },
-      },
-    ];
-  }
-}
+    ],
+  };
+});
 
 const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   key: `${query}-${JSON.stringify(gqlFilter.value)}-${currentPage.value}`,
@@ -304,7 +273,7 @@ async function setCurrentPage(pageNumber: number) {
 }
 
 function onFilterChange(filters: IFilter[]) {
-  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+  const conditions = toPathQueryConditions(filters) || undefined;
 
   router.push({
     path: route.path,
@@ -327,13 +296,12 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const crumbs: Crumb[] = [
-  {
-    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
-    url: `/${route.params.catalogue}`,
-  },
-  { label: route.params.resourceType as string, url: "" },
-];
+const crumbs: Crumb[] = resourceId === "all"
+  ? [{ label: "home", url: "/" }, { label: "collections", url: "" }]
+  : buildBreadcrumbs([
+      { label: resourceId, url: resourceUrl(resourceId) },
+      { label: "collections", url: "" },
+    ]);
 </script>
 
 <template>
@@ -348,7 +316,6 @@ const crumbs: Crumb[] = [
     <template #main>
       <SearchResults>
         <template #header>
-          <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader :title="title" :description="description" :icon="image">
             <template #prefix>
               <BreadCrumbs :crumbs="crumbs" />
@@ -402,7 +369,7 @@ const crumbs: Crumb[] = [
                 <ResourceCard
                   :resource="resource"
                   :schema="schema"
-                  :catalogue="route.params.catalogue as string"
+                  :catalogue="resourceId"
                   :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>

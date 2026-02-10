@@ -4,7 +4,6 @@ import { computed, ref } from "vue";
 import type { IResources, IVariables } from "../../../interfaces/catalogue";
 import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
 import { getKey } from "../../utils/variableUtils";
-import { resourceIdPath } from "../../utils/urlHelpers";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import TableSticky from "../table/Sticky.vue";
@@ -35,9 +34,13 @@ let activeVariableKey = computed(() =>
   activeVariable.value ? getKey(activeVariable.value) : null
 );
 
-let activeVariablePath = computed(() =>
-  activeVariableKey.value ? resourceIdPath(activeVariableKey.value) : ""
-);
+const catalogueParam = route.query.catalogue || route.params.resourceId;
+const activeVariableUrl = computed(() => {
+  if (!activeVariable.value || !activeVariableKey.value) return "";
+  const variable = activeVariable.value;
+  const path = `/${variable.resource.id}/datasets/${variable.dataset.name}/${variable.name}?keys=${JSON.stringify(activeVariableKey.value)}`;
+  return catalogueParam ? `${path}&catalogue=${catalogueParam}` : path;
+});
 </script>
 
 <template>
@@ -107,7 +110,7 @@ let activeVariablePath = computed(() =>
 
       <template #footer>
         <NuxtLink
-          :to="`/${route.params.catalogue}/variables/${activeVariablePath}`"
+          :to="activeVariableUrl"
         >
           <Button type="primary" size="small" label="More details " />
         </NuxtLink>
