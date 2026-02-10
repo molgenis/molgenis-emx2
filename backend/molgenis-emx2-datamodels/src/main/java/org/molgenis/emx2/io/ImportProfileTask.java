@@ -1,15 +1,11 @@
 package org.molgenis.emx2.io;
 
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
-import org.molgenis.emx2.io.emx2.Emx2;
-import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.tasks.Task;
@@ -117,11 +113,11 @@ public class ImportProfileTask extends Task {
     schema.migrate(schemaMetadata);
     this.addSubTask("Loaded tables and columns from profile(s)").complete();
 
-    // import ontologies (not schema or data)
+    // import ontologies, skipping tables whose CSV hasn't changed
     TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
     Task ontologyTask =
-        new ImportDataTask(ontologySchema, store, false)
-            .setDescription("Import ontologies from profile");
+        new ImportOntologiesTask(
+            ontologySchema, store, ONTOLOGY_LOCATION, ONTOLOGY_SEMANTICS_LOCATION);
     this.addSubTask(ontologyTask);
     ontologyTask.run();
 
@@ -153,12 +149,6 @@ public class ImportProfileTask extends Task {
     for (String setting : profiles.getSettingsList()) {
       MolgenisIO.fromClasspathDirectory(setting, schema, false);
     }
-
-    // lastly, apply any ontology table semantics from a predefined location
-    // this requires special parsing, because we must only update ontology tables used in the schema
-    // to prevent adding additional unused tables
-    SchemaMetadata ontologySemantics = getOntologySemantics(ontologySchema);
-    ontologySchema.migrate(ontologySemantics);
   }
 
   private Profiles getProfiles(Schema schema, SchemaFromProfile schemaFromProfile) {
@@ -202,35 +192,6 @@ public class ImportProfileTask extends Task {
     String[] tablesToUpdateArr = new String[tablesToUpdate.size()];
     tablesToUpdate.toArray(tablesToUpdateArr);
     return tablesToUpdateArr;
-  }
-
-  /**
-   * Get potential updates regarding the semantics of ontology tables used in the imported schema
-   *
-   * @return SchemaMetadata
-   */
-  private SchemaMetadata getOntologySemantics(Schema schema) {
-    Set<String> tablesToUpdate = new HashSet<>();
-    for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
-      if (tableMetadata.getTableType().equals(TableType.ONTOLOGIES)) {
-        tablesToUpdate.add(tableMetadata.getTableName());
-      }
-    }
-    URL dirURL = getClass().getResource(ONTOLOGY_SEMANTICS_LOCATION);
-    if (dirURL == null) {
-      throw new MolgenisException(
-          "Import failed: File " + ONTOLOGY_SEMANTICS_LOCATION + " doesn't exist in classpath");
-    }
-    InputStreamReader ontologySemanticsISR =
-        new InputStreamReader(
-            Objects.requireNonNull(getClass().getResourceAsStream(ONTOLOGY_SEMANTICS_LOCATION)));
-    List<Row> keepRows = new ArrayList<>();
-    for (Row row : CsvTableReader.read(ontologySemanticsISR)) {
-      if (tablesToUpdate.contains(row.getString("tableName"))) {
-        keepRows.add(row);
-      }
-    }
-    return Emx2.fromRowList(keepRows);
   }
 
   /** Helper to check if schema exists and if not create it */
