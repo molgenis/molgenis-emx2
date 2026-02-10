@@ -39,12 +39,11 @@ public class StaticFileMapper {
           }
         });
 
-    app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
-    app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
+    app.get("/apps/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
+    app.get("/apps/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
-
-    app.get("*/{app}/index.html", StaticFileMapper::returnIndexFile);
-    app.get("*/{app}", StaticFileMapper::returnIndexFile);
+    app.get("/apps/{app}/index.html", StaticFileMapper::returnIndexFile);
+    app.get("/apps/{app}", StaticFileMapper::returnIndexFile);
   }
 
   private static void redirectDirectory(Context ctx) {

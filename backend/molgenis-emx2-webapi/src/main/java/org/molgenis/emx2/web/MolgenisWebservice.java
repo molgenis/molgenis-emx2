@@ -12,6 +12,7 @@ import io.javalin.Javalin;
 import io.javalin.http.ContentType;
 import io.javalin.http.Context;
 import io.javalin.http.HttpResponseException;
+import io.javalin.http.staticfiles.Location;
 import io.javalin.json.JavalinJackson;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import io.swagger.util.Yaml;
@@ -51,6 +52,7 @@ public class MolgenisWebservice {
 
   public static void start(int port) {
     oidcController = new OIDCController();
+
     Javalin app =
         Javalin.create(
                 config -> {
@@ -61,6 +63,21 @@ public class MolgenisWebservice {
                       new JavalinJackson()
                           .updateMapper(
                               mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
+                  config.staticFiles.add(
+                      staticFiles -> {
+                        staticFiles.hostedPath = "/apps";
+                        staticFiles.directory = "/public_html/apps/";
+                        staticFiles.location = Location.CLASSPATH;
+                      });
+
+                  config.staticFiles.add(
+                      staticFiles -> {
+                        staticFiles.hostedPath = "/custom";
+                        staticFiles.directory = System.getProperty("user.dir") + "/custom-app";
+                        staticFiles.location = Location.EXTERNAL;
+                      });
+                  config.spaRoot.addFile(
+                      "/custom", System.getProperty("user.dir") + "/custom-app", Location.EXTERNAL);
                 })
             .start(port);
 
