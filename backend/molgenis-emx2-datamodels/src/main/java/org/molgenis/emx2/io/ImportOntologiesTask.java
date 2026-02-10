@@ -54,13 +54,16 @@ public class ImportOntologiesTask extends Task {
       String csvPath = ontologyLocation + "/" + tableName + ".csv";
       String newChecksum = computeClasspathResourceChecksum(csvPath);
       String storedChecksum = table.getMetadata().getSetting(CSV_CHECKSUM_SETTING);
-      if (newChecksum.equals(storedChecksum)) {
+      if (Objects.equals(newChecksum, storedChecksum)) {
         this.addSubTask("Ontology " + tableName + ": up to date, skipped").setSkipped();
         continue;
       }
       ImportTableTask importTableTask = new ImportTableTask(store, table, false);
       this.addSubTask(importTableTask);
       importTableTask.run();
+      // checksum is persisted within the outer transaction in ImportProfileTask.run();
+      // if that transaction rolls back, the checksum is not stored and re-import will occur on
+      // retry
       table.getMetadata().setSetting(CSV_CHECKSUM_SETTING, newChecksum);
     }
   }
@@ -68,7 +71,7 @@ public class ImportOntologiesTask extends Task {
   private void importOntologySemantics() {
     String newChecksum = computeClasspathResourceChecksum(semanticsLocation);
     String storedChecksum = schema.getMetadata().getSetting(SEMANTICS_CHECKSUM_SETTING);
-    if (newChecksum.equals(storedChecksum)) {
+    if (Objects.equals(newChecksum, storedChecksum)) {
       return;
     }
     SchemaMetadata ontologySemantics = getOntologySemantics();
