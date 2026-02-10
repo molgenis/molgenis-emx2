@@ -20,3 +20,26 @@ export const buildValueKey = (keyObject: KeyObject): string => {
 export const resourceIdPath = (keyObject: KeyObject) => {
   return buildValueKey(keyObject) + "?keys=" + JSON.stringify(keyObject);
 };
+
+/**
+ * Builds a canonical URL for SEO purposes by normalizing the catalogue path
+ * to `/all/` and stripping filter/view query parameters while preserving pagination.
+ * This prevents duplicate content issues when the same resource is accessible
+ * under multiple catalogue paths (e.g. `/NCC/collections/X` and `/all/collections/X`).
+ */
+export function buildCanonicalUrl(
+  requestUrl: URL,
+  routeParams: { catalogue?: string }
+): string {
+  const url = new URL(requestUrl);
+  if (routeParams.catalogue && routeParams.catalogue !== "all") {
+    url.pathname = url.pathname.replace(
+      new RegExp(`^/${routeParams.catalogue}/`),
+      "/all/"
+    );
+  }
+  // Keep pagination param, strip filter/view params to avoid duplicate content
+  const page = url.searchParams.get("page");
+  const canonicalParams = page ? `?page=${page}` : "";
+  return url.origin + url.pathname + canonicalParams;
+}

@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { useHead, useRuntimeConfig, navigateTo, useFetch } from "#app";
+import {
+  useHead,
+  useRuntimeConfig,
+  navigateTo,
+  useFetch,
+  useRequestURL,
+} from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
 import type { IResources, IResources_agg } from "../../interfaces/catalogue";
@@ -18,6 +24,12 @@ useHead({
     {
       name: "description",
       content: pageDescription,
+    },
+  ],
+  link: [
+    {
+      rel: "canonical",
+      href: useRequestURL().origin + useRequestURL().pathname,
     },
   ],
 });
