@@ -194,7 +194,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
-  @Override
   public void setPermissions(List<GroupPermission> permissions) {
     getDatabase().tx(db -> setPermissionsTransaction((SqlDatabase) db, getName(), permissions));
   }
