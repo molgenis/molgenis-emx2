@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  useRuntimeConfig,
-  useHead,
-  useFetch,
-} from "#app";
+import { useRuntimeConfig, useHead, useFetch } from "#app";
 import { logError } from "#imports";
 import { computed } from "vue";
 import type { ISetting } from "../../../../metadata-utils/src/types";

@@ -388,12 +388,16 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-const crumbs: Crumb[] = resourceId === "all"
-  ? [{ label: "home", url: "/" }, { label: "variables", url: "" }]
-  : buildBreadcrumbs([
-      { label: resourceId, url: resourceUrl(resourceId) },
-      { label: "variables", url: "" },
-    ]);
+const crumbs: Crumb[] =
+  resourceId === "all"
+    ? [
+        { label: "home", url: "/" },
+        { label: "variables", url: "" },
+      ]
+    : buildBreadcrumbs([
+        { label: resourceId, url: resourceUrl(resourceId) },
+        { label: "variables", url: "" },
+      ]);
 </script>
 
 <template>

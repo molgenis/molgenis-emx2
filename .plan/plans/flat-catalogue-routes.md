@@ -129,33 +129,178 @@ Moved page logic into reusable components:
 
 ---
 
-## Phase 2: SEO Implementation (FUTURE)
+## SEO Audit Summary (5-agent review)
 
-### 2.1 Canonical URLs
-- Add `<link rel="canonical">` to every page via useHead()
-- Always absolute URL, never includes `?catalogue=`
+Audited by: Technical SEO, Structured Data, Content SEO, Duplicate Content, Academic Discovery specialists.
 
-### 2.2 Structured Data (JSON-LD)
-- Collections → `schema.org/Dataset` with `includedInDataCatalog`
-- Catalogues → `schema.org/DataCatalog` with `dataset` list
-- `BreadcrumbList` structured data on all pages
+### What's good
+- SSR works — all pages server-rendered with `useFetch()`, crawlers get full HTML
+- 301 redirects correct for collections/networks old URLs
+- Proper 404s via `createError({ statusCode: 404 })`
+- Flat routes eliminate primary duplicate content problem
+- Backend has mature DCAT-AP/RDF infrastructure (Turtle, JSON-LD, RDF/XML, SHACL validation)
+- PID field exists in data model (`dcterms:identifier`)
+- Rich metadata available in GraphQL (countries, keywords, startYear, endYear, etc.)
 
-### 2.3 Open Graph + Twitter Card
-- `og:title`, `og:description`, `og:type`, `og:url`, `og:image`
-- `twitter:card`, `twitter:title`, `twitter:description`
+### What's missing (by priority)
 
-### 2.4 Meta tag improvements
-- Page titles: signal resource type
-- Unique descriptions per page
+**CRITICAL — duplicate content risk:**
+- No `<link rel="canonical">` anywhere (same content at `/GECKO` and `/GECKO?catalogue=LifeCycle`)
+- Legacy redirect middleware incomplete: old subpopulation, collection-event, and deep variable URLs → 404
+
+**CRITICAL — invisible to search engines:**
+- No JSON-LD structured data (blocks Google Dataset Search entirely)
+- No schema.org/Dataset markup for collections
+- No schema.org/DataCatalog markup for catalogues
+
+**HIGH — social sharing & click-through:**
+- No Open Graph meta tags (og:title, og:description, og:image, og:url)
+- No Twitter Card meta tags
+- Meta descriptions minimal — don't include participant counts, keywords, etc.
+
+**HIGH — crawlability:**
+- SideNavigation links wrapped in `<ClientOnly>` — hidden from crawlers
+- No BreadcrumbList JSON-LD (no rich snippet breadcrumbs in search results)
+- No rel="next/prev" for paginated lists
+
+**MEDIUM — academic discovery:**
+- PID field not exposed in structured data or displayed prominently
+- No content negotiation (Accept: application/ld+json doesn't serve RDF)
+- No signposting Link headers (describedby, license, canonical)
+- No robots.txt from frontend
 
 ---
 
-## Phase 3: Backend Sitemap (FUTURE)
+## Phase 2: SEO & Structured Data
+
+### 2.1 Canonical URLs + duplicate content fixes
+**Priority: CRITICAL | Effort: Small**
+
+- Add `<link rel="canonical">` to every page via `useHead()`
+- Always path-only (no `?catalogue=`), absolute URL
+- Composable: `useCanonicalUrl()` — strips query params, builds absolute URL
+- Apply globally in `app.vue` or per-layout
+
+### 2.2 Complete legacy redirects
+**Priority: CRITICAL | Effort: Small**
+
+Extend `legacy-redirect.global.ts` to handle ALL old URL patterns:
+- `/:cat/:type/:resource/subpopulations/:sub` → `/:resource/subpopulations/:sub?catalogue=:cat`
+- `/:cat/:type/:resource/collection-events/:evt` → `/:resource/collection-events/:evt?catalogue=:cat`
+- `/:cat/:type/:resource/variables/:var` → `/:resource/datasets/:var?catalogue=:cat` (best effort)
+- `/:cat/variables/:var` → `/:var/variables?catalogue=:cat` (if not already handled)
+
+### 2.3 JSON-LD: schema.org/Dataset for collections
+**Priority: CRITICAL | Effort: Medium**
+
+In `CollectionDetailView.vue`, emit JSON-LD via `useHead()`:
+```
+@type: Dataset
+Fields: name, description, url, identifier (PID), creator, datePublished,
+        license, spatialCoverage, temporalCoverage, keywords,
+        includedInDataCatalog, numberOfParticipants (via variableMeasured)
+```
+All fields already available in existing GraphQL query.
+Reference: `apps/directory/src/functions/bioschemasMapper.js` has prior art.
+
+### 2.4 JSON-LD: schema.org/DataCatalog for catalogues
+**Priority: CRITICAL | Effort: Small**
+
+In `CatalogueLandingView.vue`, emit JSON-LD:
+```
+@type: DataCatalog
+Fields: name, description, url, keywords, creator, dataset[] (list child collections)
+```
+
+### 2.5 JSON-LD: BreadcrumbList
+**Priority: HIGH | Effort: Small**
+
+Emit BreadcrumbList JSON-LD on all pages with breadcrumbs.
+Can be built from existing breadcrumb data in layout components.
+
+### 2.6 Open Graph + Twitter Card
+**Priority: HIGH | Effort: Small**
+
+Add to `app.vue` or per-page via `useHead()`:
+- `og:title`, `og:description`, `og:url`, `og:image` (resource logo), `og:type`
+- `twitter:card` (summary_large_image), `twitter:title`, `twitter:description`
+
+### 2.7 Fix SideNavigation crawlability
+**Priority: HIGH | Effort: Tiny**
+
+Remove `<ClientOnly>` wrapper from `SideNavigation.vue` links.
+These are standard `<a>` navigation — no reason to be client-only.
+
+### 2.8 Improve meta descriptions
+**Priority: MEDIUM | Effort: Small**
+
+Enrich descriptions with specifics:
+- Collections: include type, participant count, countries
+- Catalogues: include collection count, variable count
+- Variables: include dataset name, resource name
+
+### 2.9 Pagination SEO
+**Priority: MEDIUM | Effort: Small**
+
+Add `rel="next"` / `rel="prev"` link tags on paginated search pages
+(collections list, variables list).
+
+### 2.10 Heading hierarchy
+**Priority: MEDIUM | Effort: Small**
+
+Verify each page has exactly one `<h1>`. Check `PageHeader` component renders semantic heading.
+
+---
+
+## Phase 3: Academic Discovery & Backend
 
 ### 3.1 Update CatalogueSiteMap.java
+**Priority: HIGH | Effort: Medium**
+
 - Generate `/:resourceId` URLs instead of `/all/collections/:id`
 - Add `<lastmod>`, `<priority>`, `<changefreq>`
+- Catalogues: priority 1.0, weekly
+- Collections: priority 0.8, monthly
 
-### 3.2 robots.txt
+### 3.2 Content negotiation
+**Priority: MEDIUM | Effort: Medium**
+
+Add Nuxt server middleware to detect `Accept: application/ld+json` or `text/turtle` on `/:resourceId` routes and proxy to backend RDF API (`/api/rdf/Resources?id=...`).
+
+### 3.3 Signposting (Link headers)
+**Priority: MEDIUM | Effort: Small**
+
+Emit HTTP Link headers on resource pages:
+- `rel="canonical"` → `/:resourceId`
+- `rel="describedby"` → `/api/rdf/Resources?id=...` (type: application/ld+json)
+- `rel="license"` → license URI (if available)
+
+### 3.4 PID display & validation
+**Priority: MEDIUM | Effort: Small**
+
+Display PID prominently on resource detail pages (hero section).
+Include PID in JSON-LD as `schema:identifier`.
+
+### 3.5 robots.txt
+**Priority: LOW | Effort: Tiny**
+
+Create `public/robots.txt`:
+- Allow all
 - Point to sitemap
-- No need to block old URLs (redirects handle it)
+- No need to disallow `?catalogue=` if canonical URLs are in place
+
+### 3.6 DCAT-AP link tags
+**Priority: LOW | Effort: Tiny**
+
+Add `<link rel="alternate">` pointing to RDF endpoints:
+- `type="application/ld+json"` → `/api/jsonld/...`
+- `type="text/turtle"` → `/api/ttl/...`
+
+---
+
+## Open Questions
+
+- Should `?catalogue=` variants return `noindex` meta tag, or is canonical sufficient?
+- Should variable-level pages get JSON-LD too, or only collection/catalogue level?
+- Is the `bioschemasMapper.js` in directory app maintained? Can we reuse/share it?
+- Content negotiation: proxy in Nuxt middleware vs nginx rewrite rule?

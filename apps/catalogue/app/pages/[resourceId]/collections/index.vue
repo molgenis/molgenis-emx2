@@ -296,12 +296,16 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const crumbs: Crumb[] = resourceId === "all"
-  ? [{ label: "home", url: "/" }, { label: "collections", url: "" }]
-  : buildBreadcrumbs([
-      { label: resourceId, url: resourceUrl(resourceId) },
-      { label: "collections", url: "" },
-    ]);
+const crumbs: Crumb[] =
+  resourceId === "all"
+    ? [
+        { label: "home", url: "/" },
+        { label: "collections", url: "" },
+      ]
+    : buildBreadcrumbs([
+        { label: resourceId, url: resourceUrl(resourceId) },
+        { label: "collections", url: "" },
+      ]);
 </script>
 
 <template>

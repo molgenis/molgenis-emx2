@@ -28,8 +28,11 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const catalogueRouteParam = (route.query.catalogue || route.params.resourceId || (route.path.startsWith("/all") ? "all" : undefined)) as string;
-const currentResourceId = (route.params.resourceId || (route.path.startsWith("/all") ? "all" : "")) as string;
+const catalogueRouteParam = (route.query.catalogue ||
+  route.params.resourceId ||
+  (route.path.startsWith("/all") ? "all" : undefined)) as string;
+const currentResourceId = (route.params.resourceId ||
+  (route.path.startsWith("/all") ? "all" : "")) as string;
 
 const menu: { label: string; link: string }[] = [];
 
@@ -91,9 +94,7 @@ if (!cohortOnly.value) {
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="buildUrl(`/${currentResourceId}`)"
-          :image="
-            currentResourceId === 'all' ? logoSrc : catalogue?.logo?.url
-          "
+          :image="currentResourceId === 'all' ? logoSrc : catalogue?.logo?.url"
           :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />

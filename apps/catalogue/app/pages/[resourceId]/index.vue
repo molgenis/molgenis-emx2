@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  useRoute,
-  useRuntimeConfig,
-  useFetch,
-  createError,
-} from "#app";
+import { useRoute, useRuntimeConfig, useFetch, createError } from "#app";
 import { logError } from "#imports";
 import { computed } from "vue";
 import { RESERVED_ROUTES } from "../../utils/constants";
@@ -34,17 +29,14 @@ const typeCheckQuery = `query TypeCheck($id: String) {
   }
 }`;
 
-const { data, error } = await useFetch(
-  `/${schema}/graphql`,
-  {
-    method: "POST",
-    key: `type-check-${resourceId}`,
-    body: {
-      query: typeCheckQuery,
-      variables: { id: resourceId },
-    },
-  }
-);
+const { data, error } = await useFetch(`/${schema}/graphql`, {
+  method: "POST",
+  key: `type-check-${resourceId}`,
+  body: {
+    query: typeCheckQuery,
+    variables: { id: resourceId },
+  },
+});
 
 if (error.value) {
   const contextMsg = "Error on resource type check";

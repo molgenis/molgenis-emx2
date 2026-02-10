@@ -20,7 +20,9 @@ const { resourceUrl } = useCatalogueContext();
 const variableUrl = computed(() => {
   const key = variableKey.value;
   return resourceUrl(
-    `${props.variable.resource.id}/datasets/${props.variable.dataset.name}/${props.variable.name}?keys=${JSON.stringify(key)}`
+    `${props.variable.resource.id}/datasets/${props.variable.dataset.name}/${
+      props.variable.name
+    }?keys=${JSON.stringify(key)}`
   );
 });
 
