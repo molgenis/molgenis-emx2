@@ -82,10 +82,7 @@ const links: Link[] = [];
           class="text-link xl:justify-end"
         />
         -->
-            <NuxtLink
-              v-if="!compact"
-              :to="networkUrl"
-            >
+            <NuxtLink v-if="!compact" :to="networkUrl">
               <IconButton
                 icon="arrow-right"
                 class="text-link hidden xl:flex xl:justify-end"

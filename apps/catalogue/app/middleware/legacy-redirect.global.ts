@@ -8,7 +8,9 @@ export default defineNuxtRouteMiddleware((to) => {
     return;
   }
 
-  const [first, resourceType, resourceId] = pathSegments;
+  const first = pathSegments[0] as string;
+  const resourceType = pathSegments[1] as string;
+  const resourceId = pathSegments[2] as string;
 
   if (RESERVED_ROUTES.includes(first)) {
     return;

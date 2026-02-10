@@ -15,12 +15,13 @@ import type {
   DefinitionListItemType,
 } from "../../interfaces/types";
 import dateUtils from "../utils/dateUtils";
-import type {
-  IResources,
-  IVariables,
-} from "../../interfaces/catalogue";
+import type { IResources, IVariables } from "../../interfaces/catalogue";
 import { useRuntimeConfig, useFetch, useHead } from "#app";
-import { logError, removeChildIfParentSelected, useCatalogueContext } from "#imports";
+import {
+  logError,
+  removeChildIfParentSelected,
+  useCatalogueContext,
+} from "#imports";
 import { moduleToString } from "../../../../tailwind-components/app/utils/moduleToString";
 import { computed, ref } from "vue";
 import ContentBlockIntro from "./content/ContentBlockIntro.vue";
@@ -324,7 +325,9 @@ function subpopulationMapper(subpopulation: any) {
     description: subpopulation.description,
     numberOfParticipants: subpopulation.numberOfParticipants,
     _renderComponent: "SubpopulationDisplay",
-    _path: resourceUrl(`${props.resourceId}/subpopulations/${subpopulation.name}`),
+    _path: resourceUrl(
+      `${props.resourceId}/subpopulations/${subpopulation.name}`
+    ),
   };
 }
 
@@ -336,7 +339,11 @@ function variableMapper(variable: IVariables) {
     name: variable.name,
     dataset: variable.dataset.name,
     _renderComponent: "VariableDisplay",
-    _path: resourceUrl(`${props.resourceId}/datasets/${variable.dataset.name}/${variable.name}?keys=${JSON.stringify(key)}`),
+    _path: resourceUrl(
+      `${props.resourceId}/datasets/${variable.dataset.name}/${
+        variable.name
+      }?keys=${JSON.stringify(key)}`
+    ),
   };
 }
 

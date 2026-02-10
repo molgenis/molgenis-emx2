@@ -38,7 +38,9 @@ const catalogueParam = route.query.catalogue || route.params.resourceId;
 const activeVariableUrl = computed(() => {
   if (!activeVariable.value || !activeVariableKey.value) return "";
   const variable = activeVariable.value;
-  const path = `/${variable.resource.id}/datasets/${variable.dataset.name}/${variable.name}?keys=${JSON.stringify(activeVariableKey.value)}`;
+  const path = `/${variable.resource.id}/datasets/${variable.dataset.name}/${
+    variable.name
+  }?keys=${JSON.stringify(activeVariableKey.value)}`;
   return catalogueParam ? `${path}&catalogue=${catalogueParam}` : path;
 });
 </script>
@@ -109,9 +111,7 @@ const activeVariableUrl = computed(() => {
       </template>
 
       <template #footer>
-        <NuxtLink
-          :to="activeVariableUrl"
-        >
+        <NuxtLink :to="activeVariableUrl">
           <Button type="primary" size="small" label="More details " />
         </NuxtLink>
       </template>

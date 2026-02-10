@@ -19,7 +19,9 @@ export async function useHeaderData() {
   const route = useRoute();
   const config = useRuntimeConfig();
   const schema = config.public.schema as string;
-  const catalogueRouteParam = (route.query.catalogue || route.params.resourceId || (route.path.startsWith("/all") ? "all" : undefined)) as string;
+  const catalogueRouteParam = (route.query.catalogue ||
+    route.params.resourceId ||
+    (route.path.startsWith("/all") ? "all" : undefined)) as string;
   const scoped = catalogueRouteParam && catalogueRouteParam !== "all";
 
   const { data, error } = await $fetch<Resp<IHeaderQuery>>(

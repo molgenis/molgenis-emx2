@@ -23,8 +23,7 @@ export default defineNuxtConfig({
       analyticsProvider: "siteimprove",
       cohortOnly: false,
       schema: "catalogue-demo",
-      apiBase:
-        process.env.NUXT_PUBLIC_API_BASE || "http://localhost:8080",
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || "http://localhost:8080",
     },
   },
   imports: {
