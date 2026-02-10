@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { useEventListener } from "@vueuse/core";
-import {
-  computed,
-  useTemplateRef,
-  ref,
-  onMounted,
-  watch,
-} from "vue";
+import { computed, useTemplateRef, ref, onMounted, watch } from "vue";
 
 import ChartContext from "../ChartContext.vue";
 import ChartLegend from "../ChartLegend/ChartLegend.vue";
@@ -69,7 +63,7 @@ const chartLayoutCss = computed<string>(() => {
 
 function setChartDimensions() {
   parentElem.value = container.value?.parentNode as HTMLElement;
-  width.value = (parentElem.value.offsetWidth || props.width) - props.margins;
+  width.value = (parentElem.value?.offsetWidth || props.width) - props.margins;
   height.value = props.height - props.margins;
 
   viewBox.value = `0 0 ${width.value} ${height.value}`;
