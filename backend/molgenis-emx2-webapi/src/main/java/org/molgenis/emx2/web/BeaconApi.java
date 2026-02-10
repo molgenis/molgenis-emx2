@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +14,9 @@ import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
+
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
 
   public static void create(Javalin app) {
     defineRoutes(app, "/{schema}/api/beacon");
@@ -60,7 +62,7 @@ public class BeaconApi {
     ctx.contentType(Constants.ACCEPT_JSON);
     Schema schema = getSchema(ctx);
 
-    Database database = applicationCache.getDatabaseForUser(ctx);
+    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
     ctx.json(new Info(database).getResponse(schema));
   }
 
@@ -77,7 +79,7 @@ public class BeaconApi {
   }
 
   private static void getFilteringTerms(Context ctx) {
-    Database database = applicationCache.getDatabaseForUser(ctx);
+    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
     ctx.json(new FilteringTerms(database));
   }
 
@@ -99,7 +101,7 @@ public class BeaconApi {
     if (schema != null) {
       ctx.json(queryEntryType.query(schema));
     } else {
-      Database database = applicationCache.getDatabaseForUser(ctx);
+      Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
       ctx.json(queryEntryType.query(database));
     }
   }

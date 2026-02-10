@@ -18,7 +18,9 @@ Releases of the Molgenis EMX2 Pyclient follow the release number of the accompan
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ
 from the latest version of Molgenis EMX2.
 
+### 13.84.2
 
+- Added: method `export_schema` for exporting a schema's metadata
 
 ### 13.77.1
 

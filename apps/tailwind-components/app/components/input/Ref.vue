@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import type { ITableDataResponse } from "../../composables/fetchTableData";
 import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import type {
   ITableMetaData,
   columnValueObject,
   recordValue,
 } from "../../../../metadata-utils/src/types";
+import type { ITableDataResponse } from "../../composables/fetchTableData";
 
+import { useDebounceFn } from "@vueuse/core";
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
-import logger from "../../utils/logger";
-import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import { ref, type Ref, computed, watch, onMounted, nextTick } from "vue";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { useClickOutside } from "../../composables/useClickOutside";
+import logger from "../../utils/logger";
+import BaseIcon from "../BaseIcon.vue";
+import Button from "../Button.vue";
+import InputGroupContainer from "../input/InputGroupContainer.vue";
+import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
-import InputGroupContainer from "../input/InputGroupContainer.vue";
-import Button from "../Button.vue";
-import BaseIcon from "../BaseIcon.vue";
-import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import { useClickOutside } from "../../composables/useClickOutside";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
-import { useTemplateRef } from "vue";
 
 const props = withDefaults(
   defineProps<
@@ -40,7 +40,7 @@ const props = withDefaults(
   }
 );
 
-const initLoading = ref(true);
+const isInitLoading = ref(true);
 const isInitializing = ref(false);
 const modelValue = defineModel<
   columnValueObject[] | columnValueObject | null
@@ -48,15 +48,16 @@ const modelValue = defineModel<
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
-const optionMap: Ref<recordValue> = ref({});
-const selectionMap: Ref<recordValue> = ref({});
+const optionMap = ref<recordValue>({});
+const selectionMap = ref<recordValue>({});
 const initialCount = ref<number>(0);
 const count = ref<number>(0);
 const offset = ref<number>(0);
 const showSearch = ref<boolean>(false);
-const searchTerms: Ref<string> = ref("");
+const searchTerms = ref<string>("");
 const hasNoResults = ref<boolean>(true);
 const showSelect = ref(false);
+const searchInput = ref<HTMLInputElement | null>(null);
 
 const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
@@ -68,11 +69,18 @@ const listOptions = computed(() => {
     return { value: label } as IValueLabel;
   });
 });
+
 const selection = computed(() =>
   props.isArray
     ? (Object.keys(selectionMap.value) as string[])
     : (Object.keys(selectionMap.value)[0] as string)
 );
+
+const displayAsSelect = computed(() => initialCount.value > props.limit);
+
+onMounted(() => {
+  init();
+});
 
 async function init() {
   if (isInitializing.value) return;
@@ -113,7 +121,7 @@ async function init() {
 
     await loadOptions({ limit: props.limit });
     initialCount.value = count.value;
-    initLoading.value = false;
+    isInitLoading.value = false;
   } finally {
     isInitializing.value = false;
   }
@@ -132,6 +140,7 @@ watch(
   () => modelValue.value,
   () => init()
 );
+
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -195,7 +204,6 @@ onMounted(() => {
   );
 });
 
-const searchInput = ref<HTMLInputElement | null>(null);
 function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
@@ -274,7 +282,7 @@ function deselect(label: string) {
 function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : null);
-  emit("blur");
+  onBlur();
   updateSearch(""); //reset
 }
 
@@ -287,23 +295,21 @@ function loadMore() {
   });
 }
 
-const displayAsSelect = computed(() => initialCount.value > props.limit);
-
-onMounted(() => {
-  init();
-});
+const onBlur = useDebounceFn(() => {
+  emit("blur");
+}, 100);
 </script>
 
 <template>
   <div
     ref="lazyLoadTrigger"
-    v-show="initLoading"
+    v-show="isInitLoading"
     class="h-20 flex justify-start items-center"
   >
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
   <div
-    v-show="!initLoading && initialCount"
+    v-show="!isInitLoading && initialCount"
     :class="{
       'flex items-center border outline-none rounded-input cursor-pointer':
         displayAsSelect,
@@ -325,7 +331,7 @@ onMounted(() => {
       :id="`${id}-ref`"
       class="border-transparent w-full relative"
       @focus="emit('focus')"
-      @blur="emit('blur')"
+      @blur="onBlur"
     >
       <div
         v-show="displayAsSelect"

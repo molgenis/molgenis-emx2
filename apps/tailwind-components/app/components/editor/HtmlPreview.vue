@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { useTemplateRef, watch } from "vue";
-import { type DeveloperPage, generateHtmlPreview } from "../../utils/Pages";
+import type { IDeveloperPages } from "../../../types/cms";
+import { generateHtmlPreview } from "../../utils/Pages";
 
 const props = defineProps<{
-  content: DeveloperPage;
+  content: IDeveloperPages;
 }>();
 
 const previewElem = useTemplateRef<HTMLDivElement>("preview");

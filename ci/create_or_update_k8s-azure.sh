@@ -20,7 +20,7 @@ fi
 echo "Using repositories $REPO and $REPO2"
 
 # delete if exists
-if [ ! -z "$DELETE" ]
+if [ "$DELETE" == "true" ];
 then
   kubectl delete namespace $NAME || true
 fi
@@ -38,7 +38,7 @@ IMAGE_RESOURCE_REQUEST_MEMORY=1Gi
 IMAGE_RESOURCE_PG_LIMIT_MEMORY=1Gi
 IMAGE_RESOURCE_PG_REQUEST_MEMORY=512Mi
 
-if [ -n "$BUILD_MODE" ]; then
+if [ "$BUILD_MODE" == "true" ]; then
   IMAGE_RESOURCE_LIMIT_MEMORY=4Gi
   IMAGE_RESOURCE_REQUEST_MEMORY=2Gi
   IMAGE_RESOURCE_PG_LIMIT_MEMORY=2Gi

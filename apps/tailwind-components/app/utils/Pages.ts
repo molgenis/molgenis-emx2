@@ -1,54 +1,12 @@
-export interface TreeNode {
-  name: string;
-  children?: TreeNode[];
-  parent?: {
-    name: string;
-  };
-}
+import type {
+  IDeveloperPages,
+  IDependencies,
+  IDependenciesCSS,
+  IDependenciesJS,
+  IConfigurablePages,
+} from "../../types/cms";
 
-export interface OntologyNode extends TreeNode {
-  code?: string;
-  definition?: string;
-  ontologyTermURI?: string;
-  order?: number;
-}
-
-export interface Dependency {
-  name: string;
-  url?: string;
-  fetchPriority?: OntologyNode;
-  mg_tableclass: string;
-}
-
-export interface DependencyCSS extends Dependency {
-  type?: OntologyNode;
-}
-
-export interface DependencyJS extends Dependency {
-  type?: OntologyNode;
-  async?: boolean;
-  defer?: boolean;
-}
-
-export interface DeveloperPage {
-  name: string;
-  description?: string;
-  html?: string;
-  css?: string;
-  javascript?: string;
-  dependencies?: DependencyCSS[] | DependencyJS[];
-  enableBaseStyles?: boolean;
-  enableButtonStyles?: boolean;
-  enableFullScreen?: boolean;
-}
-
-export interface Pages {
-  name: string;
-  description?: string;
-  mg_tableclass: string;
-}
-
-export function newDeveloperPage(): DeveloperPage {
+export function newDeveloperPage(): IDeveloperPages {
   return {
     name: "",
     description: "",
@@ -62,50 +20,107 @@ export function newDeveloperPage(): DeveloperPage {
   };
 }
 
-export function newPageDate(): string {
-  const date = new Date().toISOString();
-  return date.replace("T", " ").split(".")[0] as string;
-}
-
-export async function getPage(
-  schema: string,
-  page: string
-): Promise<DeveloperPage> {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `query getDeveloperPage($filter:DeveloperPageFilter) {
-        DeveloperPage(filter:$filter) {
-          name
-          description
-          html
-          css
-          javascript
-          dependencies {
+const pageQuery = `query getContainers($filter:ContainersFilter) {
+    Containers(filter:$filter) {
+        
+        # Containers
+        name
+        description
+        mg_tableclass
+        
+        # Developer pages
+        html
+        css
+        javascript
+        dependencies {
             mg_tableclass
             name
             url
             defer
             async
             fetchPriority {
-              name
+                name
             }
-            async
-            defer
-          }
-          enableBaseStyles
-          enableButtonStyles
-          enableFullScreen
         }
-      }`,
+        enableBaseStyles
+        enableButtonStyles
+        enableFullScreen
+        
+        # Configurable pages
+        blockOrder(orderby: { order: ASC } ) {
+            id
+            order
+            block {
+                id
+                enableFullScreenWidth
+                mg_tableclass
+                
+                # page headings
+                title
+                subtitle
+                backgroundImage {
+                    image {
+                        id
+                        url
+                    }
+                }
+                titleIsCentered
+                
+                # components
+                componentOrder(orderby: {order:ASC}) {
+                    order
+                    component {
+                        id
+                        mg_tableclass
+                        
+                        # TextElements
+                        text
+                        
+                        # Headings
+                        level
+                        headingIsCentered
+                        
+                        # Paragraphs
+                        paragraphIsCentered
+                        
+                        # images
+                        displayName
+                        image {
+                            id
+                            size
+                            filename
+                            extension
+                            url
+                        }
+                        alt
+                        width
+                        height
+                        imageIsCentered
+                    }
+                }
+            }
+        }
+    }
+}`;
+
+export async function getPage(
+  schema: string,
+  page: string
+): Promise<IDeveloperPages | IConfigurablePages> {
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: pageQuery,
       variables: { filter: { name: { equals: page } } },
     },
   });
-  return data.DeveloperPage[0];
+
+  const currentPage = data.Containers[0];
+  return currentPage;
 }
 
 export function generateHtmlPreview(
-  content: DeveloperPage,
+  content: IDeveloperPages,
   ref: HTMLDivElement
 ) {
   if (content && typeof content === "object" && Object.keys(content).length) {
@@ -116,17 +131,17 @@ export function generateHtmlPreview(
       "head"
     )[0] as HTMLHeadElement;
 
-    content.dependencies?.forEach(
-      (dependency: DependencyCSS | DependencyJS) => {
-        if (dependency.mg_tableclass.endsWith("CSS") && dependency.url) {
+    (content.dependencies as IDependencies[])?.forEach(
+      (dependency: IDependenciesCSS | IDependenciesJS) => {
+        if (dependency.mg_tableclass?.endsWith("CSS") && dependency.url) {
           const elem = document.createElement("link");
           elem.href = dependency.url;
           elem.rel = "stylesheet";
           documentHead.appendChild(elem);
         }
 
-        if (dependency.mg_tableclass.endsWith("JS") && dependency.url) {
-          const jsDependency = dependency as DependencyJS;
+        if (dependency.mg_tableclass?.endsWith("JS") && dependency.url) {
+          const jsDependency = dependency as IDependenciesJS;
 
           const elem = document.createElement("script") as HTMLScriptElement;
           elem.src = jsDependency.url as string;
@@ -193,4 +208,14 @@ export function generateHtmlPreview(
       }
     });
   }
+}
+
+export function parsePageText(value?: string): string {
+  const val = value || "";
+  return val.replace(/(^"{1,})|("{1,}$)/g, "");
+}
+
+export function pageCopyDate(): string {
+  const date = new Date().toISOString();
+  return date.replace("T", " ").split(".")[0] as string;
 }

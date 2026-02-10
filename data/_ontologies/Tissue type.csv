@@ -67,4 +67,5 @@ order,name,codesystem,code,ontologyTermURI,definition
 66,uterus,UBERON,UBERON:0000995,http://purl.obolibrary.org/obo/uberon.owl,The female muscular organ of gestation in which the developing embryo or fetus is nourished until birth. GTex: Uterus
 67,vagina,UBERON,UBERON:0000996,http://purl.obolibrary.org/obo/uberon.owl,"A fibromuscular tubular tract leading from the uterus to the exterior of the body in female placental mammals and marsupials, or to the cloaca in female birds, monotremes, and some reptiles[WP]. GTex: Vagina"
 68,venous blood,UBERON,UBERON:0013756,http://purl.obolibrary.org/obo/uberon.owl,A blood that is part of a vein. GTex: Whole Blood
-69,Unknown,HL7,HL7:UNK,http://terminology.hl7.org/CodeSystem/v3-NullFlavor,"A proper value is applicable, but not known."
+69,EDTA blood,NCIT,NCIT:C158462,http://purl.obolibrary.org/obo/NCIT_C158462,The blood cells that are harvested from a cell collection tube containing EDTA
+70,Unknown,HL7,HL7:UNK,http://terminology.hl7.org/CodeSystem/v3-NullFlavor,"A proper value is applicable, but not known."

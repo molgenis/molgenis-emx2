@@ -112,6 +112,7 @@ last updated 24 nov 2022
   - google-java-format plugin
   - prettier plugin, set run for files to include '.vue' and 'on save'
   - auto save and auto format using 'save actions' plugin
+  - SonarQube plugin
 
 ### Pre-commit hook
 

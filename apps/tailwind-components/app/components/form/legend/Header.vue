@@ -22,8 +22,8 @@ const emit = defineEmits<{
 <template>
   <div class="flex">
     <div
-      class="bg-button-primary w-1 h-7 visible"
-      :class="{ invisible: !isActive }"
+      class="bg-button-primary w-[0.3125rem] min-w-[0.3125rem] h-7 min-h-7 transition-opacity"
+      :class="{ 'opacity-0': !isActive }"
     />
     <div class="flex gap-2">
       <a

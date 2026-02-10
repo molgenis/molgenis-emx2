@@ -1,7 +1,5 @@
-// Generated (on: 2026-01-23T15:05:52.322381) from Generator.java for schema: cms
-
 export interface IFile {
-  id?: string;
+  id: string;
   size?: number;
   extension?: string;
   url?: string;
@@ -22,78 +20,15 @@ export interface IOntologyNode extends ITreeNode {
   order?: number;
 }
 
-export interface IBlocks {
-  id: string;
-  inContainer?: any;
-  components?: IComponents[];
-  enableFullScreenWidth?: boolean;
-}
-
-export interface IBlocks_agg {
-  count: number;
-}
-
-export interface IComponents {
-  id: string;
-  inBlock?: any;
-}
-
-export interface IComponents_agg {
-  count: number;
-}
-
-export interface IConfigurablePages {
-  name: string;
-  description?: string;
-  blocks?: IBlocks[];
-}
-
-export interface IConfigurablePages_agg {
-  count: number;
-}
-
 export interface IContainers {
+  mg_tableclass?: string;
   name: string;
   description?: string;
 }
 
-export interface IContainers_agg {
-  count: number;
-}
-
-export interface IDependencies {
-  name: string;
-  url?: string;
-  fetchPriority?: IOntologyNode;
-}
-
-export interface IDependencies_agg {
-  count: number;
-}
-
-export interface IDependenciesCSS {
-  name: string;
-  url?: string;
-  fetchPriority?: IOntologyNode;
-}
-
-export interface IDependenciesCSS_agg {
-  count: number;
-}
-
-export interface IDependenciesJS {
-  name: string;
-  url?: string;
-  fetchPriority?: IOntologyNode;
-  async?: boolean;
-  defer?: boolean;
-}
-
-export interface IDependenciesJS_agg {
-  count: number;
-}
-
-export interface IDeveloperPages {
+// developer page defintions
+export interface IDeveloperPages extends IContainers {
+  mg_tableclass?: string;
   name: string;
   description?: string;
   html?: string;
@@ -105,38 +40,96 @@ export interface IDeveloperPages {
   enableFullScreen?: boolean;
 }
 
-export interface IDeveloperPages_agg {
-  count: number;
+export interface IDependencies {
+  mg_tableclass?: string;
+  name: string;
+  url?: string;
+  fetchPriority?: IOntologyNode;
 }
 
+export interface IDependenciesCSS {
+  mg_tableclass?: string;
+  name: string;
+  url?: string;
+  fetchPriority?: IOntologyNode;
+}
+
+export interface IDependenciesJS {
+  mg_tableclass?: string;
+  name: string;
+  url?: string;
+  fetchPriority?: IOntologyNode;
+  async?: boolean;
+  defer?: boolean;
+}
+
+// configurable page definitions
+export interface IConfigurablePages extends IContainers {
+  mg_tableclass?: string;
+  name: string;
+  description?: string;
+  blockOrder: IBlockOrders[];
+}
+
+export interface IBlockOrders {
+  id: string;
+  block: IBlocks;
+  order: number;
+}
+
+export interface IBlocks extends IHeaders, ISections {
+  mg_tableclass: string;
+  id: string;
+  componentOrder?: IComponentOrders[];
+  enableFullScreenWidth?: boolean;
+}
+
+export interface IComponentOrders {
+  id: string;
+  component: IComponents;
+  order?: number;
+}
+
+export interface IComponents
+  extends IFile,
+    IHeadings,
+    IImages,
+    IOrderedLists,
+    IParagraphs,
+    ITextElements,
+    IUnorderedLists {
+  mg_tableclass?: string;
+  id: string;
+  inBlock?: any;
+}
+
+// block defintions
 export interface IHeaders {
   id: string;
-  inContainer?: any;
-  components?: IComponents[];
-  enableFullScreenWidth?: boolean;
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
-  isCentered?: boolean;
+  titleIsCentered?: boolean;
+  enableFullScreenWidth?: boolean;
 }
 
-export interface IHeaders_agg {
-  count: number;
+export interface ISections {
+  mg_tableclass?: string;
+  id: string;
+  enableFullScreenWidth?: boolean;
 }
 
 export interface IHeadings {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   text?: string;
-  isCentered?: boolean;
   level?: number;
-}
-
-export interface IHeadings_agg {
-  count: number;
+  headingIsCentered?: boolean;
 }
 
 export interface IImages {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   displayName?: string;
@@ -144,11 +137,7 @@ export interface IImages {
   alt?: string;
   width?: string;
   height?: string;
-  isCentered?: boolean;
-}
-
-export interface IImages_agg {
-  count: number;
+  imageIsCentered?: boolean;
 }
 
 export interface IOrderedLists {
@@ -157,51 +146,26 @@ export interface IOrderedLists {
   items?: string[];
 }
 
-export interface IOrderedLists_agg {
-  count: number;
-}
-
 export interface IParagraphs {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   text?: string;
-  isCentered?: boolean;
-}
-
-export interface IParagraphs_agg {
-  count: number;
-}
-
-export interface ISections {
-  id: string;
-  inContainer?: any;
-  components?: IComponents[];
-  enableFullScreenWidth?: boolean;
-}
-
-export interface ISections_agg {
-  count: number;
+  paragraphIsCentered?: boolean;
 }
 
 export interface ITextElements {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   text?: string;
-  isCentered?: boolean;
-}
-
-export interface ITextElements_agg {
-  count: number;
 }
 
 export interface IUnorderedLists {
+  mg_tableclass?: string;
   id: string;
   inBlock?: any;
   items?: string[];
-}
-
-export interface IUnorderedLists_agg {
-  count: number;
 }
 
 export interface IWebFetchPriorities {
@@ -215,8 +179,4 @@ export interface IWebFetchPriorities {
   ontologyTermURI?: string;
   definition?: string;
   children?: IWebFetchPriorities[];
-}
-
-export interface IWebFetchPriorities_agg {
-  count: number;
 }
