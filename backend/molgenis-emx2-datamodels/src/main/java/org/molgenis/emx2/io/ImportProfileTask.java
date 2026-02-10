@@ -20,8 +20,8 @@ public class ImportProfileTask extends Task {
   private final Database database;
   private final Function<Database, Schema> importSchemaFunction;
   private Schema schema;
-  // set during load(), consumed after main transaction commits
-  private Schema deferredOntologySchema;
+  private String ontologySchemaName;
+  private Profiles profiles;
 
   public ImportProfileTask(
       Database database,
@@ -46,46 +46,68 @@ public class ImportProfileTask extends Task {
   @Override
   public void run() {
     this.start();
-    Task commitTask = new Task();
     try {
-      this.database.tx(
-          db -> {
-            Schema s = importSchemaFunction.apply(db);
-            this.schema = s;
-            load(s);
-            this.addSubTask(commitTask);
-            commitTask.setDescription("Committing");
-          });
+      runCreateSchemaTransaction();
+      runOntologyTransaction();
+      runDemoDataTransaction();
+      this.complete();
     } catch (Exception e) {
-      try {
-        commitTask.completeWithError("CommitTask failed: " + e.getMessage());
-      } catch (MolgenisException e2) {
-        try {
-          this.completeWithError("ImportProfileTask  failed: " + e2.getMessage());
-        } catch (Exception e3) {
-          throw (e3);
-        }
-      }
+      this.completeWithError("ImportProfileTask failed: " + e.getMessage());
     }
-    commitTask.complete();
-
-    // import ontology data in a separate transaction to avoid holding locks on the shared
-    // ontology schema for the duration of the main schema creation transaction
-    if (deferredOntologySchema != null) {
-      this.database.tx(
-          db -> {
-            Schema ontologySchema = db.getSchema(deferredOntologySchema.getName());
-            loadOntologyData(ontologySchema);
-          });
-    }
-
-    this.complete();
   }
 
-  void load(Schema schema) {
-    // load config (a.k.a. 'profile') YAML file
+  private void runCreateSchemaTransaction() {
+    Task schemaTask = this.addSubTask("Create schema and metadata");
+    schemaTask.start();
+    Task commitTask = new Task("Committing");
+    this.database.tx(
+        db -> {
+          Schema s = importSchemaFunction.apply(db);
+          this.schema = s;
+          loadSchemaOnly(s, schemaTask);
+          schemaTask.addSubTask(commitTask);
+        });
+    commitTask.complete();
+    schemaTask.complete();
+  }
+
+  private void runDemoDataTransaction() {
+    if (!includeDemoData) {
+      return;
+    }
+    Task demoDataTask = this.addSubTask("Import demo data");
+    demoDataTask.start();
+    Task commitTask = new Task("Committing");
+    this.database.tx(
+        db -> {
+          Schema s = db.getSchema(schema.getName());
+          loadDemoData(s, demoDataTask);
+          demoDataTask.addSubTask(commitTask);
+        });
+    commitTask.complete();
+    demoDataTask.complete();
+  }
+
+  private void runOntologyTransaction() {
+    if (ontologySchemaName == null) {
+      return;
+    }
+    Task ontologyTask = this.addSubTask("Import ontology data");
+    ontologyTask.start();
+    Task commitTask = new Task("Committing");
+    this.database.tx(
+        db -> {
+          Schema ontologySchema = db.getSchema(ontologySchemaName);
+          loadOntologyData(ontologySchema, ontologyTask);
+          ontologyTask.addSubTask(commitTask);
+        });
+    commitTask.complete();
+    ontologyTask.complete();
+  }
+
+  void loadSchemaOnly(Schema schema, Task parentTask) {
     SchemaFromProfile schemaFromProfile = new SchemaFromProfile(this.configLocation);
-    Profiles profiles = getProfiles(schema, schemaFromProfile);
+    this.profiles = getProfiles(schema, schemaFromProfile, parentTask);
 
     // create the schema using the selected profile tags within the big model
     SchemaMetadata schemaMetadata;
@@ -111,30 +133,20 @@ public class ImportProfileTask extends Task {
       ontologySchema = schema;
     }
 
-    // special options: import additional models into ontology schema (schema=refs+ontologies)
     if (profiles.getAdditionalFixedSchemaModel() != null) {
-      // load schema and data
       String fixedModelPath = profiles.getAdditionalFixedSchemaModel();
       TableStore fixedModelStore = new TableStoreForCsvFilesClasspath(fixedModelPath);
       Task importSchemaTask = new ImportSchemaTask(fixedModelStore, ontologySchema, false);
       importSchemaTask.setDescription("Import additional EMX into the ontology schema");
-      this.addSubTask(importSchemaTask);
+      parentTask.addSubTask(importSchemaTask);
       importSchemaTask.run();
     }
 
-    // import the schema
     schema.migrate(schemaMetadata);
-    this.addSubTask("Loaded tables and columns from profile(s)").complete();
+    parentTask.addSubTask("Loaded tables and columns from profile(s)").complete();
 
-    // import ontology data: if using a shared ontology schema, defer to a separate transaction
-    // to avoid holding locks on shared tables during the main schema creation
-    if (ontologySchema != schema) {
-      deferredOntologySchema = ontologySchema;
-    } else {
-      loadOntologyData(ontologySchema);
-    }
+    this.ontologySchemaName = ontologySchema.getName();
 
-    // special options: provide specific user/role with View/Edit permissions on imported schema
     if (profiles.getSetViewPermission() != null) {
       schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
     }
@@ -142,47 +154,41 @@ public class ImportProfileTask extends Task {
       schema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
     }
 
-    // optionally, load demo data (i.e. some example records, or specific application data)
-    if (includeDemoData) {
-      // prevent data tables with ontology table names to be imported into ontologies by accident
-      String[] includeTableNames = getTypeOfTablesToInclude(schema);
-      // prevent data tables with ontology table names to be imported into ontologies by accident
-
-      for (String example : profiles.getDemoDataList()) {
-        TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
-        Task demoDataTask =
-            new ImportDataTask(schema, demoDataStore, false, includeTableNames)
-                .setDescription("Import demo data from profile");
-        this.addSubTask(demoDataTask);
-        demoDataTask.run();
-      }
-    }
-
-    // load schema settings from dir containing e.g. molgenis_settings.csv or molgenis_members.csv
     for (String setting : profiles.getSettingsList()) {
       MolgenisIO.fromClasspathDirectory(setting, schema, false);
     }
   }
 
-  private void loadOntologyData(Schema ontologySchema) {
+  void loadDemoData(Schema schema, Task parentTask) {
+    String[] includeTableNames = getTypeOfTablesToInclude(schema);
+    for (String example : profiles.getDemoDataList()) {
+      TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
+      Task demoDataTask =
+          new ImportDataTask(schema, demoDataStore, false, includeTableNames)
+              .setDescription("Import demo data from profile");
+      parentTask.addSubTask(demoDataTask);
+      demoDataTask.run();
+    }
+  }
+
+  private void loadOntologyData(Schema ontologySchema, Task parentTask) {
     TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
     Task ontologyTask =
         new ImportOntologiesTask(
             ontologySchema, store, ONTOLOGY_LOCATION, ONTOLOGY_SEMANTICS_LOCATION);
-    this.addSubTask(ontologyTask);
+    parentTask.addSubTask(ontologyTask);
     ontologyTask.run();
   }
 
-  private Profiles getProfiles(Schema schema, SchemaFromProfile schemaFromProfile) {
+  private Profiles getProfiles(
+      Schema schema, SchemaFromProfile schemaFromProfile, Task parentTask) {
     Profiles profiles = schemaFromProfile.getProfiles();
 
-    // special option: if there are createSchemasIfMissing, import those first
     if (profiles.getFirstCreateSchemasIfMissing() != null) {
       for (CreateSchemas createSchemasIfMissing : profiles.getFirstCreateSchemasIfMissing()) {
         String missingSchemaName = createSchemasIfMissing.getName();
         Database db = schema.getDatabase();
         Schema createNewSchema = db.getSchema(missingSchemaName);
-        // if schema exists by this name, stop and continue with next
         if (createNewSchema != null) {
           continue;
         }
@@ -195,15 +201,13 @@ public class ImportProfileTask extends Task {
                 profileLocation,
                 createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
-        this.addSubTask(profileLoader);
+        parentTask.addSubTask(profileLoader);
         profileLoader.run();
-        profileLoader.load(profileLoader.schema);
       }
     }
     return profiles;
   }
 
-  /** Helper function to get a string array of data table names from a schema */
   private String[] getTypeOfTablesToInclude(Schema schema) {
     List<String> tablesToUpdate = new ArrayList<>();
     for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
@@ -216,7 +220,6 @@ public class ImportProfileTask extends Task {
     return tablesToUpdateArr;
   }
 
-  /** Helper to check if schema exists and if not create it */
   private Schema createSchema(String schema, Database db) {
     Schema createSchema = db.getSchema(schema);
     if (createSchema == null) {

@@ -40,7 +40,7 @@ public class ImportOntologiesTask extends Task {
   public void run() {
     this.start();
     importOntologyData();
-    importOntologySemantics();
+    createOntologySchema();
     this.complete();
   }
 
@@ -70,12 +70,7 @@ public class ImportOntologiesTask extends Task {
   // Always applied (no checksum caching) because the semantics CSV is global but filtered
   // per-schema, so a checksum on the shared ontology schema would incorrectly skip semantics
   // for ontology tables not yet seen. The migrate() here is metadata-only (no AccessExclusiveLock).
-  private void importOntologySemantics() {
-    SchemaMetadata ontologySemantics = getOntologySemantics();
-    schema.migrate(ontologySemantics);
-  }
-
-  private SchemaMetadata getOntologySemantics() {
+  private void createOntologySchema() {
     URL dirURL = getClass().getResource(semanticsLocation);
     if (dirURL == null) {
       throw new MolgenisException(
@@ -96,7 +91,7 @@ public class ImportOntologiesTask extends Task {
         keepRows.add(row);
       }
     }
-    return Emx2.fromRowList(keepRows);
+    schema.migrate(Emx2.fromRowList(keepRows));
   }
 
   /** Compute SHA-256 checksum of a classpath resource, returned as hex string. */
