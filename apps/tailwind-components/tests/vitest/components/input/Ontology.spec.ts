@@ -132,6 +132,7 @@ describe("OntologyInput", () => {
   let mockFetch: ReturnType<typeof vi.mocked<typeof fetchGraphql>>;
 
   beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.clearAllMocks();
     global.IntersectionObserver = vi
       .fn()
@@ -141,6 +142,7 @@ describe("OntologyInput", () => {
 
   afterEach(() => {
     vi.clearAllTimers();
+    vi.useRealTimers();
     vi.restoreAllMocks();
     document.body.innerHTML = "";
   });
