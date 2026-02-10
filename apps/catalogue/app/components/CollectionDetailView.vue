@@ -1,56 +1,62 @@
 <script setup lang="ts">
-import subpopulationsQuery from "../../../../gql/subpopulations";
-import collectionEventsQuery from "../../../../gql/collectionEvents";
-import datasetQuery from "../../../../gql/datasets";
-import ontologyFragment from "../../../../gql/fragments/ontology";
-import fileFragment from "../../../../gql/fragments/file";
-import variablesQuery from "../../../../gql/variables";
-import { getKey } from "../../../../utils/variableUtils";
-import { resourceIdPath } from "../../../../utils/urlHelpers";
+import subpopulationsQuery from "../gql/subpopulations";
+import collectionEventsQuery from "../gql/collectionEvents";
+import datasetQuery from "../gql/datasets";
+import ontologyFragment from "../gql/fragments/ontology";
+import fileFragment from "../gql/fragments/file";
+import variablesQuery from "../gql/variables";
+import { getKey } from "../utils/variableUtils";
+
 import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
   linkTarget,
   DefinitionListItemType,
-} from "../../../../../interfaces/types";
-import dateUtils from "../../../../utils/dateUtils";
+} from "../../interfaces/types";
+import dateUtils from "../utils/dateUtils";
 import type {
   IResources,
   IVariables,
-} from "../../../../../interfaces/catalogue";
-import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { logError, removeChildIfParentSelected } from "#imports";
-import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
+} from "../../interfaces/catalogue";
+import { useRuntimeConfig, useFetch, useHead } from "#app";
+import { logError, removeChildIfParentSelected, useCatalogueContext } from "#imports";
+import { moduleToString } from "../../../../tailwind-components/app/utils/moduleToString";
 import { computed, ref } from "vue";
-import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
-import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
-import ContentBlockOrganisations from "../../../../components/content/ContentBlockOrganisations.vue";
-import ContentBlockContact from "../../../../components/content/ContentBlockContact.vue";
-import ContentBlockPublications from "../../../../components/content/ContentBlockPublications.vue";
-import SideNavigation from "../../../../components/SideNavigation.vue";
-import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
-import ReferenceCard from "../../../../components/ReferenceCard.vue";
-import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
-import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
-import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
-import ContentCohortGeneralDesign from "../../../../components/content/cohort/GeneralDesign.vue";
-import TableContent from "../../../../components/table/Content.vue";
-import DatasetDisplay from "../../../../components/DatasetDisplay.vue";
-import CollectionEventDisplay from "../../../../components/CollectionEventDisplay.vue";
-import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
-import VariableDisplay from "../../../../components/VariableDisplay.vue";
-import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
-import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
-import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
-import type { Crumb } from "../../../../../../tailwind-components/types/types";
+import ContentBlockIntro from "./content/ContentBlockIntro.vue";
+import ContentBlockDescription from "../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
+import ContentBlockOrganisations from "./content/ContentBlockOrganisations.vue";
+import ContentBlockContact from "./content/ContentBlockContact.vue";
+import ContentBlockPublications from "./content/ContentBlockPublications.vue";
+import SideNavigation from "./SideNavigation.vue";
+import ReferenceCardList from "./ReferenceCardList.vue";
+import ReferenceCard from "./ReferenceCard.vue";
+import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import LayoutsDetailPage from "./layouts/DetailPage.vue";
+import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import ContentBlocks from "../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import ContentCohortGeneralDesign from "./content/cohort/GeneralDesign.vue";
+import TableContent from "./table/Content.vue";
+import DatasetDisplay from "./DatasetDisplay.vue";
+import CollectionEventDisplay from "./CollectionEventDisplay.vue";
+import SubpopulationDisplay from "./SubpopulationDisplay.vue";
+import VariableDisplay from "./VariableDisplay.vue";
+import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentBlockData from "./content/ContentBlockData.vue";
+import ContentBlockAttachedFiles from "../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import CatalogueItemList from "./CatalogueItemList.vue";
+import type { Crumb } from "../../../../tailwind-components/types/types";
+
+interface Props {
+  resourceId: string;
+}
+
+const props = defineProps<Props>();
 
 const config = useRuntimeConfig();
-const route = useRoute();
 const schema = config.public.schema as string;
+const { catalogueId, resourceUrl, buildBreadcrumbs } = useCatalogueContext();
 
 const query = `
   query Resources($id: String) {
@@ -69,9 +75,6 @@ const query = `
         name
       }
       cohortType {
-        name
-      }
-      registryOrHealthRecordType {
         name
       }
       networkType {
@@ -181,7 +184,7 @@ const query = `
             name
             order
           }
-        } 
+        }
       }
       subpopulations {
           name
@@ -233,7 +236,7 @@ const query = `
     }
   }
 `;
-const variables = { id: route.params.resource };
+const variables = { id: props.resourceId };
 interface IResourceQueryResponseValue extends IResources {
   publications_agg: { count: number };
   subpopulations_agg: { count: number };
@@ -299,7 +302,7 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${item.name}`,
+    _path: resourceUrl(`${props.resourceId}/collection-events/${item.name}`),
   };
 }
 
@@ -307,7 +310,7 @@ function datasetMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
-      resource: route.params.resource,
+      resource: props.resourceId,
     },
     name: item.name,
     description: item.description,
@@ -321,7 +324,7 @@ function subpopulationMapper(subpopulation: any) {
     description: subpopulation.description,
     numberOfParticipants: subpopulation.numberOfParticipants,
     _renderComponent: "SubpopulationDisplay",
-    _path: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${subpopulation.name}`,
+    _path: resourceUrl(`${props.resourceId}/subpopulations/${subpopulation.name}`),
   };
 }
 
@@ -333,9 +336,7 @@ function variableMapper(variable: IVariables) {
     name: variable.name,
     dataset: variable.dataset.name,
     _renderComponent: "VariableDisplay",
-    _path: `/${route.params.catalogue}/${route.params.resourceType}/${
-      route.params.resource
-    }/variables/${variable.name}${resourceIdPath(key)}`,
+    _path: resourceUrl(`${props.resourceId}/datasets/${variable.dataset.name}/${variable.name}?keys=${JSON.stringify(key)}`),
   };
 }
 
@@ -346,7 +347,7 @@ const variableSearchValue = ref<string>("");
 const variablesFilter = computed(() => {
   return {
     filter: {
-      resource: { id: { equals: route.params.resource } },
+      resource: { id: { equals: props.resourceId } },
       dataset:
         datasetFilter.value === "All datasets"
           ? undefined
@@ -363,7 +364,7 @@ async function fetchDatasetOptions() {
       }
     }
   `;
-  const variables = { id: route.params.resource };
+  const variables = { id: props.resourceId };
   const { data, error } = await useFetch<
     { data: { Datasets: { name: string }[] } },
     IMgError
@@ -649,43 +650,18 @@ useHead({
   meta: [{ name: "description", content: resource.value?.description }],
 });
 
-const messageFilter = `{"filter": {"id":{"equals":"${route.params.resource}"}}}`;
+const messageFilter = `{"filter": {"id":{"equals":"${props.resourceId}"}}}`;
 
 const cohortOnly = computed(() => {
-  const routeSetting = route.query["cohort-only"] as string;
-  return routeSetting === "true" || config.public.cohortOnly;
+  return config.public.cohortOnly;
 });
 
-const crumbs: Crumb[] = [];
-if (route.params.catalogue) {
-  crumbs.push({
-    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
-    url: `/${route.params.catalogue}`,
-  });
-  if (route.params.resourceType !== "about")
-    crumbs.push({
-      label: route.params.resourceType as string,
-      url: `/${route.params.catalogue}/${route.params.resourceType}`,
-    });
-  crumbs.push({
-    label: route.params.resource as string,
+const crumbs = buildBreadcrumbs([
+  {
+    label: props.resourceId,
     url: "",
-  });
-} else {
-  crumbs.push({
-    label: "Home",
-    url: `/`,
-  });
-  crumbs.push({
-    label: "Browse",
-    url: `/all`,
-  });
-  if (route.params.resourceType !== "about")
-    crumbs.push({
-      label: route.params.resourceType as string,
-      url: `/all/${route.params.resourceType}`,
-    });
-}
+  },
+]);
 
 const peopleInvolvedSortedByRoleAndName = computed(() =>
   [...(resource.value?.peopleInvolved ?? [])].sort((a, b) => {
@@ -717,22 +693,12 @@ const showPopulation = computed(
     <template #header>
       <PageHeader
         id="resource-page-header"
-        :title="
-          route.params.resourceType === 'about'
-            ? 'About '
-            : resource?.acronym || resource?.name
-        "
-        :description="
-          (route.params.resourceType === 'about' ? 'About ' : '') +
-          (resource?.name ? resource.name : '')
-        "
+        :title="resource?.acronym || resource?.name"
+        :description="resource?.name ? resource.name : ''"
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
-        <!-- <template #title-suffix>
-          <IconButton icon="star" label="Favorite" />
-        </template> -->
       </PageHeader>
     </template>
     <template #side>
@@ -802,7 +768,7 @@ const showPopulation = computed(
           ]"
           type="Datasets"
           :query="datasetQuery"
-          :filter="{ id: route.params.resource }"
+          :filter="{ id: resourceId }"
           :rowMapper="datasetMapper"
           v-slot="slotProps"
         >
@@ -829,7 +795,7 @@ const showPopulation = computed(
             ]"
             type="Datasets"
             :query="datasetQuery"
-            :filter="{ id: route.params.resource }"
+            :filter="{ id: resourceId }"
             :rowMapper="datasetMapper"
             v-slot="slotProps"
           >
@@ -913,7 +879,7 @@ const showPopulation = computed(
           ]"
           type="Subpopulations"
           :query="subpopulationsQuery"
-          :filter="{ id: route.params.resource }"
+          :filter="{ id: resourceId }"
           :rowMapper="subpopulationMapper"
           v-slot="slotProps"
         >
@@ -937,7 +903,7 @@ const showPopulation = computed(
           ]"
           type="CollectionEvents"
           :query="collectionEventsQuery"
-          :filter="{ id: route.params.resource }"
+          :filter="{ id: resourceId }"
           :rowMapper="collectionEventMapper"
           v-slot="slotProps"
         >
@@ -956,16 +922,16 @@ const showPopulation = computed(
               :title="network.name"
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
-              :url="`/${route.params.catalogue}/networks/${network.id}`"
+              :url="resourceUrl(network.id)"
               :links="[
                   network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
                {title: 'Network details',
-                url: `/${route.params.catalogue}/networks/${network.id}`,
+                url: resourceUrl(network.id),
                 },
                network.type?.some( (type) => type.name === 'Catalogue')
                ? {
                 title: 'Catalogue',
-                url: `/${network.id}`,
+                url: resourceUrl(network.id),
               }: null
                 ].filter((link) => link !== null)"
               target="_self"

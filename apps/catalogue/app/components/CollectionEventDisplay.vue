@@ -19,12 +19,12 @@ const route = useRoute();
 const query = moduleToString(collectionEventGql);
 
 const { data, error } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
-  key: `collection-event-${route.params.resource}-${collectionEventName}`,
+  key: `collection-event-${route.params.resourceId}-${collectionEventName}`,
   method: "POST",
   body: {
     query,
     variables: {
-      id: route.params.resource,
+      id: route.params.resourceId,
       name: collectionEventName,
     },
   },
@@ -45,8 +45,8 @@ const pageCrumbs: any = {
 };
 
 pageCrumbs[
-  route.params.resource as string
-] = `/resources/${route.params.resource}`;
+  route.params.resourceId as string
+] = `/resources/${route.params.resourceId}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
