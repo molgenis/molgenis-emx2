@@ -16,7 +16,7 @@ public class GraphqlFactory {
 
   private GraphqlFactory() {}
 
-  public static GraphQL createGraphqlForDatabase(Database database, TaskService taskService) {
+  public static GraphQL forDatabase(Database database, TaskService taskService) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -64,7 +64,7 @@ public class GraphqlFactory {
     return graphql;
   }
 
-  public static GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
+  public static GraphQL forSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 

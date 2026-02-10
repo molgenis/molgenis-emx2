@@ -395,8 +395,8 @@ In this case, `not_equals` compares primary keys, `name` for Pet.
 }
 ```
 
-To ease standard queries the api also implements graphql fragments for each table that will expand to all fields plus the key=1 of nested 
-refs/ref_array/ontolgy/ontology_array.
+To ease standard queries the api also implements graphql fragments for each table that will expand to all fields. In addition, for columns of type
+refs/ref_array/ontolgy/ontology_array, the fragment will include primary key (i.e. key=1) of the referenced table.
 
 ```graqphl
 {

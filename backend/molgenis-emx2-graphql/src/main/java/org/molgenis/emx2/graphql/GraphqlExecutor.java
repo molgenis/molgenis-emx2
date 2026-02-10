@@ -54,7 +54,7 @@ public class GraphqlExecutor {
 
   public GraphqlExecutor(Database database, TaskService taskService) {
     this();
-    this.graphql = GraphqlFactory.createGraphqlForDatabase(database, taskService);
+    this.graphql = GraphqlFactory.forDatabase(database, taskService);
   }
 
   public GraphqlExecutor(Database database) {
@@ -63,7 +63,7 @@ public class GraphqlExecutor {
 
   public GraphqlExecutor(Schema schema, TaskService taskService) {
     this();
-    this.graphql = GraphqlFactory.createGraphqlForSchema(schema, taskService);
+    this.graphql = GraphqlFactory.forSchema(schema, taskService);
     this.graphqlQueryFragments = GraphqlTableFragmentGenerator.generate(schema);
   }
 
@@ -82,11 +82,9 @@ public class GraphqlExecutor {
 
   public @NotNull ExecutionResult execute(
       String query, Map<String, Object> variables, GraphqlSessionHandlerInterface sessionManager) {
+    assert (sessionManager != null);
     long start = System.currentTimeMillis();
-    Map<?, Object> graphQLContext =
-        sessionManager != null
-            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
-            : Map.of();
+    Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
 
     // we don't log password calls
     if (logger.isInfoEnabled()) {

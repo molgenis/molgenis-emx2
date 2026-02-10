@@ -248,8 +248,15 @@ public class TestGraphqlSchemaFields {
 
     // fragments
     assertEquals("pooky", execute("{Pet{...PetAllFields}}").at("/Pet/0/name").textValue());
-    assertEquals("pooky", execute("{Pet{...PetAllFields1}}").at("/Pet/0/name").textValue());
-    assertEquals("pooky", execute("{Pet{...PetAllFields2}}").at("/Pet/0/name").textValue());
+
+    JsonNode depth1 = execute("{Pet{...PetAllFields1}}");
+    assertEquals("pooky", depth1.at("/Pet/0/name").textValue());
+    assertEquals("cat", depth1.at("/Pet/0/category/name").textValue());
+
+    JsonNode depth2 = execute("{Pet(filter:{name:{equals:\"spike\"}}){...PetAllFields2}}");
+    assertEquals("spike", depth2.at("/Pet/0/name").textValue());
+    assertEquals("dog", depth2.at("/Pet/0/category/name").textValue());
+    assertNotNull(depth2.at("/Pet/0/tags/0/name").textValue());
 
     assertEquals("pooky", execute("{Pet{name}Pet_agg{count}}").at("/Pet/0/name").textValue());
 
@@ -851,10 +858,9 @@ public class TestGraphqlSchemaFields {
       Map data = new LinkedHashMap();
       data.put("name", "test");
       data.put("json", value2);
-      graphqlExecutor.execute(
+      graphqlExecutor.executeWithoutSession(
           "mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}",
-          Map.of("value", data),
-          null);
+          Map.of("value", data));
 
       assertEquals(value2, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
       assertEquals(

@@ -267,7 +267,7 @@ public class TestGraphqlDatabaseFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    return execute(query, null);
+    return execute(query, new GraphqlExecutor.DummySessionHandler());
   }
 
   private JsonNode execute(String query, GraphqlSessionHandlerInterface sessionManager)
