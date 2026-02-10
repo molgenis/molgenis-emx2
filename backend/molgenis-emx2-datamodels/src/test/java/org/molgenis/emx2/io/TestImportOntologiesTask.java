@@ -2,7 +2,6 @@ package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.io.ImportOntologiesTask.CSV_CHECKSUM_SETTING;
-import static org.molgenis.emx2.io.ImportOntologiesTask.SEMANTICS_CHECKSUM_SETTING;
 
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
@@ -47,7 +46,6 @@ class TestImportOntologiesTask {
         table.getMetadata().setSetting(CSV_CHECKSUM_SETTING, null);
       }
     }
-    schema.getMetadata().setSetting(SEMANTICS_CHECKSUM_SETTING, null);
 
     TableStoreForCsvFilesClasspath store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
     ImportOntologiesTask task =
@@ -68,11 +66,6 @@ class TestImportOntologiesTask {
     String tagChecksum = tagTable.getMetadata().getSetting(CSV_CHECKSUM_SETTING);
     assertNotNull(tagChecksum, "Tag table should have a checksum stored");
     assertFalse(tagChecksum.isEmpty(), "Checksum should not be empty");
-
-    // verify semantics checksum stored at schema level
-    String semanticsChecksum = schema.getMetadata().getSetting(SEMANTICS_CHECKSUM_SETTING);
-    assertNotNull(semanticsChecksum, "Semantics checksum should be stored");
-    assertFalse(semanticsChecksum.isEmpty());
   }
 
   @Test

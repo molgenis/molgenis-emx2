@@ -21,7 +21,6 @@ import org.molgenis.emx2.tasks.Task;
 public class ImportOntologiesTask extends Task {
 
   static final String CSV_CHECKSUM_SETTING = "csvChecksum";
-  static final String SEMANTICS_CHECKSUM_SETTING = "semanticsCsvChecksum";
 
   private final Schema schema;
   private final TableStore store;
@@ -68,15 +67,12 @@ public class ImportOntologiesTask extends Task {
     }
   }
 
+  // Always applied (no checksum caching) because the semantics CSV is global but filtered
+  // per-schema, so a checksum on the shared ontology schema would incorrectly skip semantics
+  // for ontology tables not yet seen. The migrate() here is metadata-only (no AccessExclusiveLock).
   private void importOntologySemantics() {
-    String newChecksum = computeClasspathResourceChecksum(semanticsLocation);
-    String storedChecksum = schema.getMetadata().getSetting(SEMANTICS_CHECKSUM_SETTING);
-    if (Objects.equals(newChecksum, storedChecksum)) {
-      return;
-    }
     SchemaMetadata ontologySemantics = getOntologySemantics();
     schema.migrate(ontologySemantics);
-    schema.getMetadata().setSetting(SEMANTICS_CHECKSUM_SETTING, newChecksum);
   }
 
   private SchemaMetadata getOntologySemantics() {
