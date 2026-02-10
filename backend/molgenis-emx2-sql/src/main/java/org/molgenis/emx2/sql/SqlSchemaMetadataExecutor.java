@@ -7,7 +7,6 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
@@ -65,11 +64,17 @@ class SqlSchemaMetadataExecutor {
     String roleFilter = getRolePrefix(schemaName);
     List<Record> roles =
         jooq.fetch(
-            "SELECT a.oid, a.rolname FROM pg_roles a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname LIKE {1}",
-            Constants.MG_USER_PREFIX + user, roleFilter + "%");
+            """
+                    SELECT gm.group_name as role, gm.users as members\s
+                        FROM "MOLGENIS".group_metadata gm
+                        JOIN "MOLGENIS".group_permissions gp ON gm.group_name = gp.group_name
+                    WHERE gp.table_schema = {0}
+                      AND {1} = ANY(gm.users);
+                    """,
+            schemaName, user);
     return roles.stream()
-        .map(r -> r.get("rolname", String.class).substring(roleFilter.length()))
-        .collect(Collectors.toList());
+        .map(r -> r.get("role", String.class).substring(roleFilter.length()))
+        .toList();
   }
 
   static List<Member> executeGetMembers(DSLContext jooq, SchemaMetadata schema) {
