@@ -20,6 +20,8 @@ public class ImportProfileTask extends Task {
   private final Database database;
   private final Function<Database, Schema> importSchemaFunction;
   private Schema schema;
+  // set during load(), consumed after main transaction commits
+  private Schema deferredOntologySchema;
 
   public ImportProfileTask(
       Database database,
@@ -66,6 +68,17 @@ public class ImportProfileTask extends Task {
       }
     }
     commitTask.complete();
+
+    // import ontology data in a separate transaction to avoid holding locks on the shared
+    // ontology schema for the duration of the main schema creation transaction
+    if (deferredOntologySchema != null) {
+      this.database.tx(
+          db -> {
+            Schema ontologySchema = db.getSchema(deferredOntologySchema.getName());
+            loadOntologyData(ontologySchema);
+          });
+    }
+
     this.complete();
   }
 
@@ -113,13 +126,13 @@ public class ImportProfileTask extends Task {
     schema.migrate(schemaMetadata);
     this.addSubTask("Loaded tables and columns from profile(s)").complete();
 
-    // import ontologies, skipping tables whose CSV hasn't changed
-    TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
-    Task ontologyTask =
-        new ImportOntologiesTask(
-            ontologySchema, store, ONTOLOGY_LOCATION, ONTOLOGY_SEMANTICS_LOCATION);
-    this.addSubTask(ontologyTask);
-    ontologyTask.run();
+    // import ontology data: if using a shared ontology schema, defer to a separate transaction
+    // to avoid holding locks on shared tables during the main schema creation
+    if (ontologySchema != schema) {
+      deferredOntologySchema = ontologySchema;
+    } else {
+      loadOntologyData(ontologySchema);
+    }
 
     // special options: provide specific user/role with View/Edit permissions on imported schema
     if (profiles.getSetViewPermission() != null) {
@@ -149,6 +162,15 @@ public class ImportProfileTask extends Task {
     for (String setting : profiles.getSettingsList()) {
       MolgenisIO.fromClasspathDirectory(setting, schema, false);
     }
+  }
+
+  private void loadOntologyData(Schema ontologySchema) {
+    TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
+    Task ontologyTask =
+        new ImportOntologiesTask(
+            ontologySchema, store, ONTOLOGY_LOCATION, ONTOLOGY_SEMANTICS_LOCATION);
+    this.addSubTask(ontologyTask);
+    ontologyTask.run();
   }
 
   private Profiles getProfiles(Schema schema, SchemaFromProfile schemaFromProfile) {
