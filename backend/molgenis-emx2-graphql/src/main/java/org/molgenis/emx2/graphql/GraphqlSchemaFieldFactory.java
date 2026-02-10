@@ -946,7 +946,8 @@ public class GraphqlSchemaFieldFactory {
                               }))
               .toList();
 
-      schema.getMetadata().setPermissions(groupPermissions);
+      SqlSchemaMetadata sqlSchemaMetadata = (SqlSchemaMetadata) schema.getMetadata();
+      sqlSchemaMetadata.setPermissions(groupPermissions);
     }
   }
 
