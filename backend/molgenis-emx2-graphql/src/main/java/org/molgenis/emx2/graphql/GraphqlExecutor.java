@@ -20,11 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlExecutor {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);
-  private GraphQL graphql;
-  private Map<String, String> graphqlQueryFragments = new LinkedHashMap<>();
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);
+  private final GraphQL graphql;
+  private final Map<String, String> graphqlQueryFragments;
 
-  private GraphqlExecutor() {
+  private void init() {
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
       ParserOptions.setDefaultParserOptions(
           ParserOptions.newParserOptions().maxTokens(1000000).build());
@@ -53,8 +53,9 @@ public class GraphqlExecutor {
   }
 
   public GraphqlExecutor(Database database, TaskService taskService) {
-    this();
+    init();
     this.graphql = GraphqlFactory.forDatabase(database, taskService);
+    this.graphqlQueryFragments = new LinkedHashMap<>();
   }
 
   public GraphqlExecutor(Database database) {
@@ -62,7 +63,7 @@ public class GraphqlExecutor {
   }
 
   public GraphqlExecutor(Schema schema, TaskService taskService) {
-    this();
+    init();
     this.graphql = GraphqlFactory.forSchema(schema, taskService);
     this.graphqlQueryFragments = GraphqlTableFragmentGenerator.generate(schema);
   }
