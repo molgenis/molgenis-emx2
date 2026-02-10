@@ -22,6 +22,7 @@
         :showAddButton="index === conditions.length"
         :tableId="tableId"
         :schemaId="schemaId"
+        :refLabel="refLabel"
       ></component>
     </div>
   </div>
