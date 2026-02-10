@@ -140,6 +140,7 @@ describe("OntologyInput", () => {
   });
 
   afterEach(() => {
+    vi.clearAllTimers();
     vi.restoreAllMocks();
     document.body.innerHTML = "";
   });

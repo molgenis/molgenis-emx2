@@ -235,6 +235,7 @@ async function loadPage(
   }`;
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+  if (!data) return;
 
   const newTerms =
     data.retrieveTerms?.map((row: any) => ({
