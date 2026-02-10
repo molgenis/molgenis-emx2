@@ -1,18 +1,5 @@
 <script setup lang="ts">
-import type {
-  IConfigurablePages,
-  IComponents,
-  IBlocks,
-  IHeaders,
-  ISections,
-  IHeadings,
-  IParagraphs,
-  IImages,
-  IFile,
-} from "../../../types/cms";
-
-interface Blocks extends IBlocks, IHeaders, ISections {}
-interface BlockComponent extends IComponents, IHeadings, IParagraphs, IImages {}
+import type { IConfigurablePages } from "../../../types/cms";
 
 import PageBanner from "../pages/Banner.vue";
 import PageSection from "../pages/Section.vue";
@@ -20,68 +7,72 @@ import TextHeading from "../text/Heading.vue";
 import TextParagraph from "../text/Paragraph.vue";
 import Image from "../pages/Image.vue";
 
-import { parsePageText, sortConfigurablePage } from "../../utils/Pages";
+import { parsePageText } from "../../utils/Pages";
 
 const props = defineProps<{ content: IConfigurablePages }>();
-const page = sortConfigurablePage(props.content);
 </script>
 
 <template>
-  <template v-for="block in (page.blocks as Blocks[])" :key="block.id">
+  <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
     <PageBanner
-      v-if="block.mg_tableclass === 'cms.Headers'"
-      :id="block.id"
-      :title="block.title"
-      :subtitle="block.subtitle"
-      :background-image="block.backgroundImage?.image?.url"
-      :enable-full-screen-width="block.enableFullScreenWidth"
-      :title-is-centered="block.titleIsCentered"
+      v-if="orderedBlock.block.mg_tableclass === 'cms.Headers'"
+      :id="orderedBlock.block.id"
+      :title="orderedBlock.block.title"
+      :subtitle="orderedBlock.block.subtitle"
+      :background-image="orderedBlock.block.backgroundImage?.image?.url"
+      :enable-full-screen-width="orderedBlock.block.enableFullScreenWidth"
+      :title-is-centered="orderedBlock.block.titleIsCentered"
     />
     <PageSection
-      v-else-if="block.mg_tableclass === 'cms.Sections'"
-      :id="block.id"
-      :enable-full-screen-width="block.enableFullScreenWidth"
+      v-else-if="orderedBlock.block.mg_tableclass === 'cms.Sections'"
+      :id="orderedBlock.block.id"
+      :enable-full-screen-width="orderedBlock.block.enableFullScreenWidth"
     >
       <template
-        v-for="component in (block.components as BlockComponent[])"
-        :key="component.id"
+        v-for="orderedComponent in orderedBlock.block.componentOrder"
+        :key="orderedComponent.id"
       >
         <TextHeading
-          v-if="component.mg_tableclass === 'cms.Headings'"
-          :id="component.id"
-          :heading-is-centered="component.headingIsCentered"
-          :level="component.level"
+          v-if="orderedComponent.component.mg_tableclass === 'cms.Headings'"
+          :id="orderedComponent.component.id"
+          :heading-is-centered="orderedComponent.component.headingIsCentered"
+          :level="orderedComponent.component.level"
           class="mb-5"
         >
-          {{ parsePageText(component.text) }}
+          {{ parsePageText(orderedComponent.component.text) }}
         </TextHeading>
         <TextParagraph
-          v-else-if="component.mg_tableclass === 'cms.Paragraphs'"
-          :id="component.id"
-          :paragraph-is-centered="component.paragraphIsCentered"
+          v-else-if="
+            orderedComponent.component.mg_tableclass === 'cms.Paragraphs'
+          "
+          :id="orderedComponent.component.id"
+          :paragraph-is-centered="
+            orderedComponent.component.paragraphIsCentered
+          "
           class="mb-2.5 last:mb-0"
         >
-          {{ parsePageText(component.text) }}
+          {{ parsePageText(orderedComponent.component.text) }}
         </TextParagraph>
         <Image
-          v-else-if="component.mg_tableclass === 'cms.Images'"
-          :id="component.id"
-          :image="(component.image as IFile)"
-          :width="component.width"
-          :height="component.height"
-          :alt="component.alt"
-          :image-is-centered="component.imageIsCentered"
+          v-else-if="orderedComponent.component.mg_tableclass === 'cms.Images'"
+          :id="orderedComponent.component.id"
+          :image="orderedComponent.component.image"
+          :width="orderedComponent.component.width"
+          :height="orderedComponent.component.height"
+          :alt="orderedComponent.component.alt"
+          :image-is-centered="orderedComponent.component.imageIsCentered"
         />
         <div v-else>
           <TextParagraph id="component-does-not-exist-message">
-            Component {{ component.mg_tableclass }} is not yet supported.
+            Component {{ orderedComponent.component.mg_tableclass }} is not yet
+            supported.
           </TextParagraph>
         </div>
       </template>
     </PageSection>
     <div v-else>
       <TextParagraph id="block-does-not-exist-message">
-        Block {{ block.mg_tableclass }} is not yet supported.
+        Block {{ orderedBlock.block.mg_tableclass }} is not yet supported.
       </TextParagraph>
     </div>
   </template>

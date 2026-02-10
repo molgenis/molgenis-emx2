@@ -8,6 +8,7 @@ withDefaults(defineProps<IHeaders>(), {
 
 <template>
   <header
+    :id="id"
     class="relative flex justify-center items-center h-72"
     :class="{
       'text-gray-100 bg-cover bg-center': backgroundImage,

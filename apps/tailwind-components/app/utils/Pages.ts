@@ -4,10 +4,6 @@ import type {
   IDependenciesCSS,
   IDependenciesJS,
   IConfigurablePages,
-  IBlocks,
-  IBlockOrders,
-  IComponents,
-  IComponentOrders,
 } from "../../types/cms";
 
 export function newDeveloperPage(): IDeveloperPages {
@@ -51,73 +47,58 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
         enableFullScreen
         
         # Configurable pages
-        blocks {
+        blockOrder(orderby: { order: ASC } ) {
             id
-            enableFullScreenWidth
-            mg_tableclass
-            
-            # page headings
-            title
-            subtitle
-            backgroundImage {
-                image {
-                    id
-                    url
-                }
-            }
-            titleIsCentered
-            
-            # page sections
-            components {
-                id
-                inBlock {
-                    id
-                }
-                mg_tableclass
-                
-                # TextElements
-                text
-                
-                # Headings
-                level
-                headingIsCentered
-                
-                # Paragraphs
-                paragraphIsCentered
-                
-                # images
-                displayName
-                image {
-                    id
-                    size
-                    filename
-                    extension
-                    url
-                }
-                alt
-                width
-                height
-                imageIsCentered
-            }
-                
-            # component order
-            componentOrder {
-                block {
-                    id
-                }
-                component {
-                    id
-                }
-                order
-            }
-        }
-            
-        # block order
-        blockOrder {
+            order
             block {
                 id
+                enableFullScreenWidth
+                mg_tableclass
+                
+                # page headings
+                title
+                subtitle
+                backgroundImage {
+                    image {
+                        id
+                        url
+                    }
+                }
+                titleIsCentered
+                
+                # components
+                componentOrder(orderby: {order:ASC}) {
+                    order
+                    component {
+                        id
+                        mg_tableclass
+                        
+                        # TextElements
+                        text
+                        
+                        # Headings
+                        level
+                        headingIsCentered
+                        
+                        # Paragraphs
+                        paragraphIsCentered
+                        
+                        # images
+                        displayName
+                        image {
+                            id
+                            size
+                            filename
+                            extension
+                            url
+                        }
+                        alt
+                        width
+                        height
+                        imageIsCentered
+                    }
+                }
             }
-            order
         }
     }
 }`;
@@ -136,57 +117,6 @@ export async function getPage(
 
   const currentPage = data.Containers[0];
   return currentPage;
-}
-
-interface RecordSet {
-  [index: string]: any;
-}
-
-export function sortConfigurablePage(
-  page: IConfigurablePages
-): IConfigurablePages {
-  const pageCopy = { ...page };
-
-  if (pageCopy.blocks && pageCopy.blockOrder) {
-    const blockOrdering: RecordSet = pageCopy.blockOrder.reduce(
-      (acc: RecordSet, blockOrder: IBlockOrders, index: number) => {
-        const id: string = blockOrder.block.id ?? blockOrder.id;
-        const order: number = blockOrder.order ?? index;
-        return { ...acc, [id]: order };
-      },
-      {}
-    );
-
-    pageCopy.blocks = pageCopy.blocks.sort((a: IBlocks, b: IBlocks) => {
-      return blockOrdering[a.id] - blockOrdering[b.id];
-    });
-  }
-
-  if (
-    pageCopy.blocks &&
-    pageCopy.blocks.find((block: IBlocks) => block.componentOrder)
-  ) {
-    pageCopy.blocks = pageCopy.blocks.map((block: IBlocks) => {
-      if (block.components && block.componentOrder) {
-        const componentOrder: RecordSet = block.componentOrder.reduce(
-          (acc: RecordSet, componentOrder: IComponentOrders, index: number) => {
-            const id: string = componentOrder.component.id ?? componentOrder.id;
-            const order: number = componentOrder.order ?? index;
-            return { ...acc, [id]: order };
-          },
-          {}
-        );
-        block.components = block.components.sort(
-          (a: IComponents, b: IComponents) => {
-            return componentOrder[a.id] - componentOrder[b.id];
-          }
-        );
-      }
-      return block;
-    });
-  }
-
-  return page;
 }
 
 export function generateHtmlPreview(
