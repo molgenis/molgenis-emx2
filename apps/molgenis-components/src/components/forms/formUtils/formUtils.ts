@@ -449,7 +449,8 @@ export function buildGraphqlFilter(
           filter[col.id] = { equals: conditions };
         } else if (
           col.columnType.startsWith("REF") ||
-          col.columnType.startsWith("ONTOLOGY")
+          col.columnType.startsWith("ONTOLOGY") ||
+          col.columnType.startsWith("RADIO")
         ) {
           filter[col.id] = { equals: conditions };
         } else if (

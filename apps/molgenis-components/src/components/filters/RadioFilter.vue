@@ -15,7 +15,7 @@
 import { ref } from "vue";
 import Client, { convertRowToPrimaryKey } from "../../client/client";
 import InputRadio from "../forms/InputRadio.vue";
-import { IQueryMetaData } from "metadata-utils/src/IQueryMetaData";
+import { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import { IRow } from "../../Interfaces/IRow";
 import { applyJsTemplate } from "../utils";
 
@@ -33,13 +33,14 @@ const emit = defineEmits(["updateCondition", "clearCondition"]);
 const client = Client.newClient(schemaId);
 
 const options = ref();
+const keysByLabel = ref<Record<string, any>>({});
 loadOptions();
 
 function onUpdateCondition(newValue: string) {
   if (newValue === null) {
     emit("clearCondition", newValue);
   } else {
-    emit("updateCondition", newValue);
+    emit("updateCondition", keysByLabel.value[newValue]);
   }
 }
 
@@ -54,13 +55,12 @@ async function loadOptions() {
     convertRowToPrimaryKey(row, tableId, schemaId)
   );
   const keys = await Promise.all(keyPromises);
-  const keysByLabel = keys.reduce((acc: Record<string, any>, key: any) => {
+  keysByLabel.value = keys.reduce((acc: Record<string, any>, key: any) => {
     const label = applyJsTemplate(key, refLabel);
     acc[label] = key;
     return acc;
   }, {} as Record<string, any>);
-  options.value = Object.keys(keysByLabel)
-    .sort()
-    .map((label) => keysByLabel[label]);
+
+  options.value = Object.keys(keysByLabel.value).sort();
 }
 </script>
