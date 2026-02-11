@@ -20,7 +20,7 @@ import org.molgenis.emx2.tasks.Task;
  */
 public class ImportOntologiesTask extends Task {
 
-  static final String CSV_CHECKSUM_SETTING = "csvChecksum";
+  static final String CSV_CHECKSUM_SETTING = "mg_csvChecksum";
 
   private final Schema schema;
   private final TableStore store;

@@ -11,7 +11,7 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2Settings {
 
-  private static final String CSV_CHECKSUM_SETTING = "csvChecksum";
+  private static final String INTERNAL_SETTING_PREFIX = "mg_";
 
   private Emx2Settings() {
     // prevent
@@ -27,7 +27,7 @@ public class Emx2Settings {
 
     for (TableMetadata table : schema.getMetadata().getTables()) {
       for (Map.Entry<String, String> setting : table.getSettings().entrySet()) {
-        if (CSV_CHECKSUM_SETTING.equals(setting.getKey())) {
+        if (setting.getKey().startsWith(INTERNAL_SETTING_PREFIX)) {
           continue;
         }
         settings.add(
@@ -52,7 +52,7 @@ public class Emx2Settings {
     if (store.containsTable(Constants.SETTINGS_TABLE)) {
       for (Row setting : store.readTable(Constants.SETTINGS_TABLE)) {
         String settingName = setting.getString(SETTINGS_NAME);
-        if (CSV_CHECKSUM_SETTING.equals(settingName)) {
+        if (settingName.startsWith(INTERNAL_SETTING_PREFIX)) {
           continue;
         }
         String tableName = setting.getString(TABLE);
