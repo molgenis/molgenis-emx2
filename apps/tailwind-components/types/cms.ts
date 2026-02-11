@@ -117,6 +117,7 @@ export interface ISections {
   mg_tableclass?: string;
   id: string;
   enableFullScreenWidth?: boolean;
+  backgroundColor?: string;
 }
 
 export interface IHeadings {
@@ -126,6 +127,7 @@ export interface IHeadings {
   text?: string;
   level?: number;
   headingIsCentered?: boolean;
+  headingIsHidden?: boolean;
 }
 
 export interface IImages {

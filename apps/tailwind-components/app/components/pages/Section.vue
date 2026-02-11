@@ -7,7 +7,11 @@ withDefaults(defineProps<ISections>(), {
 </script>
 
 <template>
-  <div :id="id" class="w-full py-8 justify-center items-center">
+  <div
+    :id="id"
+    class="w-full py-8 justify-center items-center"
+    :style="backgroundColor ? `background-color: ${backgroundColor}` : ''"
+  >
     <div
       class="m-auto"
       :class="{

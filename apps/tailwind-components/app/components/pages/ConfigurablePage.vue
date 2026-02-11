@@ -27,6 +27,7 @@ const props = defineProps<{ content: IConfigurablePages }>();
       v-else-if="orderedBlock.block.mg_tableclass === 'cms.Sections'"
       :id="orderedBlock.block.id"
       :enable-full-screen-width="orderedBlock.block.enableFullScreenWidth"
+      :background-color="orderedBlock.block.backgroundColor"
     >
       <template
         v-for="orderedComponent in orderedBlock.block.componentOrder"
@@ -37,6 +38,7 @@ const props = defineProps<{ content: IConfigurablePages }>();
           :id="orderedComponent.component.id"
           :heading-is-centered="orderedComponent.component.headingIsCentered"
           :level="orderedComponent.component.level"
+          :heading-is-hidden="orderedComponent.component.headingIsHidden"
           class="mb-5"
         >
           {{ parsePageText(orderedComponent.component.text) }}

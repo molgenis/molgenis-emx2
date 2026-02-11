@@ -53,6 +53,7 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
             block {
                 id
                 enableFullScreenWidth
+                backgroundColor
                 mg_tableclass
                 
                 # page headings
@@ -79,6 +80,7 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
                         # Headings
                         level
                         headingIsCentered
+                        headingIsHidden
                         
                         # Paragraphs
                         paragraphIsCentered

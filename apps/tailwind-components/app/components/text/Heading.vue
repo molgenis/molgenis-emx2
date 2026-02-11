@@ -19,6 +19,7 @@ withDefaults(defineProps<IHeadings>(), {
       'text-heading-2xl': level === 5,
       'text-heading-xl': level === 6,
       'text-center': headingIsCentered,
+      'sr-only': headingIsHidden,
     }"
   >
     {{ text }}
