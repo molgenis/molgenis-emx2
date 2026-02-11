@@ -83,7 +83,9 @@ public class GraphqlExecutor {
 
   public @NotNull ExecutionResult execute(
       String query, Map<String, Object> variables, GraphqlSessionHandlerInterface sessionManager) {
-    assert (sessionManager != null);
+    if (sessionManager == null) {
+      throw new MolgenisException("sessionManager cannot be null");
+    }
     long start = System.currentTimeMillis();
     Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
 
