@@ -42,6 +42,7 @@ import RefListFilter from "./RefListFilter.vue";
 import StringFilter from "./StringFilter.vue";
 
 const filterTypeMap = {
+  AUTO_ID: StringFilter,
   STRING: StringFilter,
   STRING_ARRAY: StringFilter,
   EMAIL: StringFilter,
