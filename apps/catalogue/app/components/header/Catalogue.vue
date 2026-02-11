@@ -63,6 +63,13 @@ if (props.collectionCount > 0) {
   });
 }
 
+if (props.networkCount > 0) {
+  menu.push({
+    label: "Networks",
+    link: buildUrl(`/${currentResourceId}/networks`),
+  });
+}
+
 if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",

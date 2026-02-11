@@ -22,32 +22,32 @@ import {
   removeChildIfParentSelected,
   useCatalogueContext,
 } from "#imports";
-import { moduleToString } from "../../../../tailwind-components/app/utils/moduleToString";
+import { moduleToString } from "../../../tailwind-components/app/utils/moduleToString";
 import { computed, ref } from "vue";
 import ContentBlockIntro from "./content/ContentBlockIntro.vue";
-import ContentBlockDescription from "../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
+import ContentBlockDescription from "../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
 import ContentBlockOrganisations from "./content/ContentBlockOrganisations.vue";
 import ContentBlockContact from "./content/ContentBlockContact.vue";
 import ContentBlockPublications from "./content/ContentBlockPublications.vue";
 import SideNavigation from "./SideNavigation.vue";
 import ReferenceCardList from "./ReferenceCardList.vue";
 import ReferenceCard from "./ReferenceCard.vue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 import LayoutsDetailPage from "./layouts/DetailPage.vue";
-import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import ContentBlocks from "../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../tailwind-components/app/components/BreadCrumbs.vue";
+import ContentBlocks from "../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentCohortGeneralDesign from "./content/cohort/GeneralDesign.vue";
 import TableContent from "./table/Content.vue";
 import DatasetDisplay from "./DatasetDisplay.vue";
 import CollectionEventDisplay from "./CollectionEventDisplay.vue";
 import SubpopulationDisplay from "./SubpopulationDisplay.vue";
 import VariableDisplay from "./VariableDisplay.vue";
-import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ContentBlockData from "./content/ContentBlockData.vue";
-import ContentBlockAttachedFiles from "../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import ContentBlockAttachedFiles from "../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
 import CatalogueItemList from "./CatalogueItemList.vue";
-import type { Crumb } from "../../../../tailwind-components/types/types";
+import type { Crumb } from "../../../tailwind-components/types/types";
 
 interface Props {
   resourceId: string;

@@ -1,6 +1,6 @@
 import { useRoute } from "#app";
 import { computed } from "vue";
-import type { Crumb } from "../../../../tailwind-components/types/types";
+import type { Crumb } from "../../../tailwind-components/types/types";
 
 export const useCatalogueContext = () => {
   const route = useRoute();

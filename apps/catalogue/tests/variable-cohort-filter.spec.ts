@@ -28,4 +28,6 @@ test("filter variables by cohort", async ({ page, goto }) => {
     page.locator("div").filter({ hasText: /^testVarNoRepeats$/ })
   ).toBeVisible();
   await page.getByRole("button", { name: "Harmonisations" }).click();
+  //await expect(page.getByText('Available', { exact: true })).toBeVisible();
+  //await expect(page.locator('div').filter({ hasText: /^testVarNoRepeats$/ })).toBeVisible();
 });
