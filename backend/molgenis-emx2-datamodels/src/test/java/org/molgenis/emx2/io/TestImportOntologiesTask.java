@@ -32,11 +32,6 @@ class TestImportOntologiesTask {
     schema = db.getSchema(SCHEMA_NAME);
   }
 
-  @AfterAll
-  void teardown() {
-    db.dropSchemaIfExists(SCHEMA_NAME);
-  }
-
   @Test
   @org.junit.jupiter.api.Order(1)
   void firstImportStoresChecksums() {
