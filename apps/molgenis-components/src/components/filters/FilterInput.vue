@@ -40,6 +40,7 @@ import LongFilter from "./LongFilter.vue";
 import { deepClone } from "../utils.ts";
 
 const filterTypeMap = {
+  AUTO_ID: StringFilter,
   STRING: StringFilter,
   STRING_ARRAY: StringFilter,
   EMAIL: StringFilter,
