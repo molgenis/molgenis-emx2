@@ -27,6 +27,10 @@ export const useCatalogueContext = () => {
     if (!catalogueId.value) {
       return base;
     }
+    const pathResourceId = base.split("/")[1]?.split("?")[0];
+    if (pathResourceId === catalogueId.value) {
+      return base;
+    }
     const separator = base.includes("?") ? "&" : "?";
     return `${base}${separator}catalogue=${catalogueId.value}`;
   };

@@ -165,7 +165,7 @@ const networkCount = computed(() => data.value.data?.Networks_agg?.count);
           'Collections'
         "
         :count="collectionCount"
-        link="/all/collections?catalogue=all"
+        link="/all/collections"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
@@ -179,7 +179,7 @@ const networkCount = computed(() => data.value.data?.Networks_agg?.count);
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
-        link="/all/variables?catalogue=all"
+        link="/all/variables"
       />
     </LandingPrimary>
 

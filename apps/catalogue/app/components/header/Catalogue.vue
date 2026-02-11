@@ -40,6 +40,10 @@ const showCartModal = ref<boolean>(false);
 
 const buildUrl = (path: string) => {
   if (catalogueRouteParam) {
+    const pathResourceId = path.split("/")[1]?.split("?")[0];
+    if (pathResourceId === catalogueRouteParam) {
+      return path;
+    }
     return `${path}?catalogue=${catalogueRouteParam}`;
   }
   return path;
