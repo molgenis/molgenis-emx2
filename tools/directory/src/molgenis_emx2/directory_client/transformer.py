@@ -21,6 +21,8 @@ class Transformer:
         existing_biobanks: Table,
         eu_node_data: NodeData,
         diseases: OntologyTable,
+        catalog_id: str,
+        publisher_id: str,
     ):
         self.node_data = node_data
         self.quality = quality
@@ -28,6 +30,9 @@ class Transformer:
         self.existing_biobanks = existing_biobanks.rows_by_id
         self.eu_node_data = eu_node_data
         self.category_mapper = CategoryMapper(diseases)
+        self.catalog_id = catalog_id
+        self.publisher_id = publisher_id
+        self.diseases = diseases
 
         self.warnings = []
 
@@ -43,6 +48,8 @@ class Transformer:
         7. Add biobank labels (biobank name) to collections
         8. Adds the combined qualities to collections
         9. Sets the collections' categories
+        10. Adds all non-withdrawn collections to the main FDP catalog
+        11. Fill in FDP-related fields for collections
 
         """
         self._set_national_node_code()
@@ -54,6 +61,9 @@ class Transformer:
         self._set_biobank_labels()
         self._set_combined_qualities()
         self._set_collection_categories()
+        if self.catalog_id:
+            self._set_catalog_membership()
+        self._set_collection_fdp_fields()
         return self.warnings
 
     def _set_commercial_use_bool(self):
@@ -188,3 +198,29 @@ class Transformer:
             ):
                 for row in table.rows:
                     row["withdrawn"] = True
+
+    def _set_catalog_membership(self):
+        """
+        Adds all non-withdrawn collections to the FDP catalog
+        """
+        self.printer.print("Setting FDP catalog membership")
+        for row in self.node_data.collections.rows:
+            if not row['withdrawn']:
+                row['catalog'] = self.catalog_id
+
+    def _set_collection_fdp_fields(self):
+        """
+        Fill in FDP-related fields for collections
+        """
+        self.printer.print("Setting FDP-related fields for collections")
+        for row in self.node_data.collections.rows:
+            if self.publisher_id:
+                row['publisher'] = self.publisher_id
+            row['language'] = 'English'
+            row[
+                'license'
+            ] = 'https://ejp-rd-vp.github.io/resource-metadata-schema/license/v1.0.txt'
+            keywords = []
+            for diagnosis in row['diagnosis_available']:
+                keywords.append(self.diseases.rows_by_id[diagnosis]['label'])
+            row['keywords'] = keywords

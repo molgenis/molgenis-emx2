@@ -1,6 +1,6 @@
 import pytest
 
-from molgenis_emx2.directory_client import utils
+from src.molgenis_emx2.directory_client import utils
 
 
 @pytest.fixture

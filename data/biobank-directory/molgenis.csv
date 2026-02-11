@@ -1,12 +1,10 @@
 tableName,tableExtends,columnName,label,columnType,key,required,isReadonly,description,refSchema,refTable,refBack,refLabel,defaultValue,validation,message,computed,semantics
-QualityInfoBiobanks,,,,,,,,Biobank Quality Information,,,,,,,,,
-QualityInfoBiobanks,,id,ID,auto_id,1,true,true,,,,,,,,,QIB-${mg_autoid},
-QualityInfoBiobanks,,biobank,Biobank,ref,,true,,,,Biobanks,,${name},,,,,
-QualityInfoBiobanks,,quality_standard,Quality Standard,ontology,,true,,,DirectoryOntologies,QualityStandards,,${label},,,,,
-QualityInfoBiobanks,,assess_level_bio,Assessment Level,ontology,,true,,,DirectoryOntologies,AssessmentLevels,,${label},,,,,
-QualityInfoBiobanks,,certification_number,Certification Number,string,,false,,,,,,,,,,,
-QualityInfoBiobanks,,certification_report,Certification Report,hyperlink,,false,,,,,,,,,,,
-QualityInfoBiobanks,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
+Address,,,,,,,,"Structured VCard address",,,,,,,,,vcard:Address
+Address,,id,ID,string,1,true,,"Unique ID for the address",,,,,,,,,
+Address,,street,Street,string,,true,,"Street name",,,,,,,,,vcard:street-address
+Address,,city,Locality,string,,true,,"The locality",,,,,,,,,vcard:locality
+Address,,country,Country,string,,true,,"The name of the country",,,,,,,,,vcard:country-name
+Address,,postal_code,Postal Code,string,,true,,"The postal code",,,,,,,,,vcard:postal-code
 AlsoKnownIn,,,,,,,,"Biobank, collection or network also exists in …",,,,,,,,,
 AlsoKnownIn,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 AlsoKnownIn,,name_system,Name of the System,string,,true,,"Name of the source in which the biobank, collection or network also exists.",,,,,,,,,
@@ -14,20 +12,20 @@ AlsoKnownIn,,pid,Persistent Identifier,string,,false,,"Persistent Identifier of 
 AlsoKnownIn,,url,URL,hyperlink,,true,,"Link to the biobank, collection or network in the other source.",,,,,,,,,
 AlsoKnownIn,,national_node,National Node,ref,,true,,"The biobank, collection or network where this also known In refers to originates from this national node.",,NationalNodes,,${description},,,,,
 AlsoKnownIn,,label,Name of the System,string,,false,true,"Name of the source in which the biobank, collection or network also exists.",,,,,,,,name_system,
-Biobanks,,,,,,,,"Description of the biobank organisation, like name, location, network, contact person, collaboration opportunities and quality assessments.",,,,,,,,,
-Biobanks,,id,ID,string,1,true,true,"Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01.",,,,,,,,,
+Biobanks,,,,,,,,"Description of the biobank organisation, like name, location, network, contact person, collaboration opportunities and quality assessments.",,,,,,,,,"obo:OBIB_0000623,foaf:Organization"
+Biobanks,,id,ID,string,1,true,true,"Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01.",,,,,,,,,dcterms:identifier
 Biobanks,,pid,PID,string,2,true,true,Persistent Identifier.,,,,,,,,,
-Biobanks,,name,Name,string,,true,,Biobank name according to MIABIS 2.0 - MIABIS-2.0-03.,,,,,,,,,
+Biobanks,,name,Name,string,,true,,Biobank name according to MIABIS 2.0 - MIABIS-2.0-03.,,,,,,,,,foaf:name
 Biobanks,,acronym,Acronym,string,,false,,Biobank acronym - MIABIS-2.0-02.,,,,,,,,,
-Biobanks,,description,Description,text,,true,,Biobank description - MIABIS-2.0-08.,,,,,,,,,
-Biobanks,,url,URL,hyperlink,,false,,Biobank URL - MIABIS-2.0-04.,,,,,,,,,
-Biobanks,,location,Location,string,,false,,The city where the biobank is located.,,,,,,,,,
+Biobanks,,description,Description,text,,true,,Biobank description - MIABIS-2.0-08.,,,,,,,,,dcterms:description
+Biobanks,,url,URL,hyperlink,,false,,Biobank URL - MIABIS-2.0-04.,,,,,,,,,dcat:landingPage
+Biobanks,,location,Location,string,,false,,The city where the biobank is located.,,,,,,,,,dcterms:location
 Biobanks,,country,Country,ontology,,true,,Country hosting the biobank according to MIABIS 2.0 - MIABIS-2.0-06.,DirectoryOntologies,Countries,,${label},,,,,
 Biobanks,,latitude,Latitude,string,,false,,"Latitude of the biobank in the WGS84 system (the one used by GPS), positive is northern hemisphere.",,,,,,,,,
 Biobanks,,longitude,Longitude,string,,false,,"Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich.",,,,,,,,,
 Biobanks,,head,Head of the Biobank,ref,,false,,Person in charge of the biobank.,,Persons,,${email},,,,,
-Biobanks,,contact,Contact Person,ref,,true,,Contact person of the biobank.,,Persons,,${email},,,,,
-Biobanks,,juridical_person,Juridical Person,string,,true,,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,
+Biobanks,,contact,Contact Person,ref,,true,,Contact person of the biobank.,,Persons,,${email},,,,,dcat:contactPoint
+Biobanks,,juridical_person,Juridical Person,string,,true,,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,obo:OMRSE_00000038
 Biobanks,,network,Networks,ref_array,,false,,"Reference to a biobank network ID, to which the biobank belongs.",,Networks,,${name},,,,,
 Biobanks,,also_known,Also Known In,ref_array,,false,,The biobank also exists in …,,AlsoKnownIn,,${name_system},,,,,
 Biobanks,,collections,Collections,refback,,false,,Collections belonging to the biobank.,,Collections,biobank,${name},,,,,
@@ -37,6 +35,34 @@ Biobanks,,collaboration_commercial,Commercial Collaboration,bool,,false,,The bio
 Biobanks,,collaboration_non_for_profit,Non-for-profit Collaboration,bool,,false,,The biobank can be used for collaboration with non-for-profit partners.,,,,,,,,,
 Biobanks,,national_node,National Node,ref,,true,,The biobank originates from this national node.,,NationalNodes,,${description},,,,,
 Biobanks,,withdrawn,Withdrawn,bool,,true,,This biobank is withdrawn from the Directory.,,,,,false,,,,
+Catalogs,,,,,,,,DCAT v2 catalog entry,,,,,,,,,"dcat:Catalog,ldp:DirectContainer"
+Catalogs,,id,,string,1,TRUE,,Local database identifier of the catalog. Identifier of the metadata entry.,,,,,,,,,"afr:AFR_0000919"
+Catalogs,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,"dcterms:title,rdfs:label"
+Catalogs,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,, "foaf:homepage,dcat:landingPage"
+Catalogs,,has_version,,string,,,,Version of the catalog.,,,,,,,,,"dcterms:hasVersion,dcat:version"
+Catalogs,,description,,string,,,,Description of the catalog.,,,,,,,,,dcterms:description
+Catalogs,,logo,,hyperlink,,,,Logo of the catalog,,,,,,,,,foaf:logo
+Catalogs,,contact,,ref,,,,Organisation that functions as the contact point for the catalog,,Organisations,,,,,,,dcat:contactPoint
+Catalogs,,publisher,,ref_array,,,,The entity or entities (person or organization) responsible for the catalog.,,Publishers,,,,,,,dcterms:publisher
+Catalogs,,endpoint_url,,hyperlink,,,,The root location or primary endpoint of the service (a web-resolvable IRI).,,,,,,,,,dcat:endpointURL
+Catalogs,,referenced_by,,hyperlink_array,,,,"A link to a related resource that references, cites, or otherwise points to the described resource",,,,,,,,,dcterms:isReferencedBy
+Catalogs,,language,,ontology_array,,,,The language(s) used in the catalog.,DirectoryOntologies,Languages,,,,,,,dcterms:language
+Catalogs,,license,,hyperlink,,TRUE,,The reference to the usage license of the catalog.,,,,,,,,,dcterms:license
+Catalogs,,policy,,hyperlink,,,,Information about the access policies of the catalog,,,,,,,,,odrl:hasPolicy
+Catalogs,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
+Catalogs,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
+Catalogs,,conforms_to,,hyperlink,,true,,The specification of the catalog metadata schema.,,,,,,,,,dcterms:conformsTo
+Catalogs,,rights,,hyperlink_array,,,,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
+Catalogs,,access_rights,,ontology_array,,,,"Information about who can access the resource or an indication of its security status. Access rights may include information regarding access or restrictions based on privacy, security, or other policies.",DirectoryOntologies,AccessRights,,,,,,,dcterms:accessRights
+Catalogs,,collections,,refback,,,,The component collections of this catalog.,,Collections,catalog,,,,,,"ldp:contains,dcat:hasPart"
+Catalogs,,theme_taxonomy,,ontology_array,,TRUE,,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",DirectoryOntologies,Themes,,,,,,,dcat:themeTaxonomy
+Catalogs,,theme,,ontology_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,DirectoryOntologies,Themes,,,,,,,dcat:theme
+Catalogs,,keyword,,string_array,,,,Keyword(s) describing the catalog,,,,,,,,,dcat:keyword
+Catalogs,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+Catalogs,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+Catalogs,,ldp_membership_relation,,hyperlink_array,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.,,,,,"=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']",,,,ldp:hasMemberRelation
+Catalogs,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the catalog.,,Catalogs,,,,,,,ldp:membershipResource
+Catalogs,,fdp_metadata_identifier,,ref,,,,This attribute points to the catalog itself so as to generate the fdp-o:metadataIdentifier.,,Catalogs,,,,,,,fdp-o:metadataIdentifier
 CollectionFacts,,,,,,,,Collection Facts,,,,,,,,,
 CollectionFacts,,id,ID,string,1,true,true,Unique ID of the fact.,,,,,,,,,
 CollectionFacts,,collection,Collection ID,ref,,true,,ID of the collection where the fact belongs to.,,Collections,,${name},,,,,
@@ -48,33 +74,25 @@ CollectionFacts,,number_of_samples,NumberOfSamples,int,,false,,Number of samples
 CollectionFacts,,number_of_donors,NumberOfDonors,int,,false,,Number of donors.,,,,,,,,,
 CollectionFacts,,last_update,Date of Last Update,date,,true,,The date the fact information was last updated in the source system.,,,,,,,,,
 CollectionFacts,,national_node,National Node,ref,,true,,The collection this fact belongs to originates from this national node.,,NationalNodes,,${description},,,,,
-QualityInfoCollections,,,,,,,,Collection Quality Information,,,,,,,,,
-QualityInfoCollections,,id,ID,auto_id,1,true,true,,,,,,,,,QIC-${mg_autoid},
-QualityInfoCollections,,collection,Collection,ref,,true,,,,Collections,,${name},,,,,
-QualityInfoCollections,,quality_standard,Quality Standard,ontology,,true,,,DirectoryOntologies,QualityStandards,,${label},,,,,
-QualityInfoCollections,,assess_level_col,Assessment Level,ontology,,true,,,DirectoryOntologies,AssessmentLevels,,${label},,,,,
-QualityInfoCollections,,certification_number,Certification Number,string,,false,,,,,,,,,,,
-QualityInfoCollections,,certification_report,Certification Report,hyperlink,,false,,,,,,,,,,,
-QualityInfoCollections,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
-Collections,,,,,,,,"Description of the data and samples collected within a biobank, collections may be divided in sub-collections.",,,,,,,,,
+Collections,,,,,,,,"Description of the data and samples collected within a biobank, collections may be divided in sub-collections.",,,,,,,,,"ejp:Biobank"
 Collections,,descriptives,Descriptives,heading,,false,,Collection Descriptives,,,,,,,,,
-Collections,,id,ID,string,1,true,true,"Unique collection ID within BBMRI-ERIC based on MIABIS 2.0 standard, constructed from biobankID prefix + :collection: + local collection ID string - MIABIS-2.0-01.",,,,,,,,,
-Collections,,name,Name,string,,true,,Collection name according to MIABIS 2.0 - MIABIS-2.0-03.,,,,,,,,,
+Collections,,id,ID,string,1,true,true,"Unique collection ID within BBMRI-ERIC based on MIABIS 2.0 standard, constructed from biobankID prefix + :collection: + local collection ID string - MIABIS-2.0-01.",,,,,,,,,dcterms:identifier
+Collections,,name,Name,string,,true,,Collection name according to MIABIS 2.0 - MIABIS-2.0-03.,,,,,,,,,dcterms:title
 Collections,,acronym,Acronym,string,,false,,Collection acronym according to MIABIS 2.0 - MIABIS-2.0-02.,,,,,,,,,
-Collections,,description,Description,text,,true,,Collection description according to MIABIS 2.0 - MIABIS-2.0-08.,,,,,,,,,
-Collections,,url,URL,hyperlink,,false,,Collection URL - MIABIS-2.0-04.,,,,,,,,,
+Collections,,description,Description,text,,true,,Collection description according to MIABIS 2.0 - MIABIS-2.0-08.,,,,,,,,,dcterms:description
+Collections,,url,URL,hyperlink,,false,,Collection URL - MIABIS-2.0-04.,,,,,,,,,dcat:landingPage
 Collections,,location,Location,string,,false,,The city where the collection is located.,,,,,,,,,
-Collections,,country,Country,ontology,,true,,Country according to MIABIS 2.0 - MIABIS-2.0-07-H.,DirectoryOntologies,Countries,,${label},,,,,
+Collections,,country,Country,ontology,,true,,Country according to MIABIS 2.0 - MIABIS-2.0-07-H.,DirectoryOntologies,Countries,,${label},,,,,dcterms:spatial
 Collections,,latitude,Latitude,string,,false,,"Latitude of the collection in the WGS84 system (the one used by GPS), positive is northern hemisphere.",,,,,,,,,
 Collections,,longitude,Longitude,string,,false,,"Longitude of the collection in the WGS84 system (the one used by GPS), positive is to the East of Greenwich.",,,,,,,,,
 Collections,,head,Head of the Collection,ref,,false,,Person in charge of the collection.,,Persons,,${email},,,,,
-Collections,,contact,Contact Person,ref,,true,,Contact person of the collection.,,Persons,,${email},,,,,
+Collections,,contact,Contact Person,ref,,true,,Contact person of the collection.,,Persons,,${email},,,,,dcat:contactPoint
 Collections,,national_node,National Node,ref,,true,,The collection originates from this national node.,,NationalNodes,,${description},,,,,
 Collections,,withdrawn,Withdrawn,bool,,true,,This collection is withdrawn from the Directory.,,,,,false,,,,
 Collections,,belongs_to,Belongs to,heading,,false,,The collection belongs to ...,,,,,,,,,
 Collections,,parent_collection,Parent Collection,ref,,false,,"Reference to a collection ID, refers to the superior collection.",,Collections,,${name},,,,,
 Collections,,sub_collections,Sub Collections,refback,,false,,"Reference to a collection ID, refers to one or more sub-collections.",,Collections,parent_collection,${name},,,,,
-Collections,,biobank,Biobank,ref,,true,,"Reference to a biobank ID, to which the collection belongs.",,Biobanks,,${name},,,,,
+Collections,,biobank,Biobank,ref,,true,,"Reference to a biobank ID, to which the collection belongs.",,Biobanks,,${name},,,,,"obo:OBIB_0000735"
 Collections,,biobank_label,Biobank Label,string,,true,,"Name of the biobank, to which the collection belongs.",,,,,,,,,
 Collections,,network,Network,ref_array,,false,,"Reference to a network ID, to which the collection belongs.",,Networks,,${name},,,,,
 Collections,,also_known,Also Known In,ref_array,,false,,The collection also exists in …,,AlsoKnownIn,,${name_system},,,,,
@@ -91,15 +109,15 @@ Collections,,combined_quality,Combined Qualities,ontology_array,,false,,"The dir
 Collections,,donor_data,Donor Data,heading,,false,,Donor Data Characteristics,,,,,,,,,
 Collections,,number_of_donors,Number of Donors,int,,false,,Number of donors from who sample(s) were taken.,,,,,,,,,
 Collections,,order_of_magnitude_donors,Order of Magnitude Donors,ontology,,false,,Size of the collection donors measured as 10n samples.,DirectoryOntologies,SampleSizes,,${label},,,,,
-Collections,,sex,Sex Types,ontology_array,,false,,The sex type(s) of the individuals in the sample collection. - MIABIS-2.0-09.,DirectoryOntologies,SexTypes,,${label},,,,,http://purl.obolibrary.org/obo/PATO_0000047
-Collections,,diagnosis_available,Available Diagnoses,ref_array,,false,,"Available diagnosi(e)s in the collection, with the ontology prefix, possibly using * and ? wildcards, and prefix notation to denote diagnosis nomenclature - so far urn:miriam:icd: prefix for ICD-10, and urn:miriam:snomedct: prefix for SNOMED CT (examples being urn:miriam:icd:C*, urn:miriam:snomedct:25*) - MIABIS-2.0-17, adapted.",DirectoryOntologies,DiseaseTypes,,${label},,,,,http://purl.obolibrary.org/obo/OGMS_0000073
+Collections,,sex,Sex Types,ontology_array,,false,,The sex type(s) of the individuals in the sample collection. - MIABIS-2.0-09.,DirectoryOntologies,SexTypes,,${label},,,,,
+Collections,,diagnosis_available,Available Diagnoses,ref_array,,false,,"Available diagnosi(e)s in the collection, with the ontology prefix, possibly using * and ? wildcards, and prefix notation to denote diagnosis nomenclature - so far urn:miriam:icd: prefix for ICD-10, and urn:miriam:snomedct: prefix for SNOMED CT (examples being urn:miriam:icd:C*, urn:miriam:snomedct:25*) - MIABIS-2.0-17, adapted.",DirectoryOntologies,DiseaseTypes,,${label},,,,,
 Collections,,age_low,Age Low,int,,false,,Age of youngest sample donor at time of sample donation - MIABIS-2.0-10.,,,,,,,,,
 Collections,,age_high,Age High,int,,false,,Age of oldest sample donor at time of sample donation - MIABIS-2.0-11.,,,,,,,,,
 Collections,,age_unit,Age Unit,ontology,,false,,"Unit defining Age Low and Age High. Can be one of the following values: YEAR, MONTH, WEEK, DAY - MIABIS-2.0-08.",DirectoryOntologies,AgeUnits,,${label},,,,,
 Collections,,facts,Facts,refback,,false,,Collection facts.,,CollectionFacts,collection,,,,,,
 Collections,,sample_data,Sample Data,heading,,false,,Sample Data Characteristics,,,,,,,,,
-Collections,,materials,Materials,ontology_array,,false,,Collection contains material(s) of this/these type(s) (MIABIS-2.0-14).,DirectoryOntologies,MaterialTypes,,${label},,,,,http://purl.obolibrary.org/obo/NCIT_C93863
-Collections,,storage_temperatures,Storage Temperatures,ontology_array,,false,,Sample storage temperature(s) - SPREC 2.0 (MIABIS-2.0-15).,DirectoryOntologies,StorageTemperatureTypes,,${label},,,,,http://purl.obolibrary.org/obo/OMIABIS_0001013
+Collections,,materials,Materials,ontology_array,,false,,Collection contains material(s) of this/these type(s) (MIABIS-2.0-14).,DirectoryOntologies,MaterialTypes,,${label},,,,,
+Collections,,storage_temperatures,Storage Temperatures,ontology_array,,false,,Sample storage temperature(s) - SPREC 2.0 (MIABIS-2.0-15).,DirectoryOntologies,StorageTemperatureTypes,,${label},,,,,
 Collections,,imaging_data,Imaging Data,heading,,false,,Imaging Data Characteristics,,,,,,,,,
 Collections,,body_part_examined,Body Parts Examined,ontology_array,,false,,The examined body part(s).,DirectoryOntologies,BodyParts,,${label},,,,,
 Collections,,imaging_modality,Imaging Modalities,ontology_array,,false,,Imaging modality/modalities.,DirectoryOntologies,ImagingModalities,,${label},,,,,
@@ -113,14 +131,77 @@ Collections,,commercial_use,Available for Commercial Use,bool,,false,,Can commer
 Collections,,access_fee,Fee-based access to,ontology_array,,false,,"Denotes whether access to samples, data or images may be obtained on fee-based basis.",DirectoryOntologies,AccessTypes,,${label},,,,,
 Collections,,access_joint_project,Access via Join Projects to,ontology_array,,false,,"Denotes whether access to samples, data or images may be obtained on joint project basis.",DirectoryOntologies,AccessTypes,,${label},,,,,
 Collections,,access_description,Access Description,text,,false,,Short description of the access rules.,,,,,,,,,
-Collections,,access_uri,Access URI,hyperlink,,false,,URI describing the access policy.,,,,,,,,,
+Collections,,access_uri,Access URI,hyperlink,,false,,URI describing the access policy.,,,,,,,,,dcterms:accessRights
 Collections,,sop,PD/SOPs,ontology_array,,false,,Availability of Process Descriptions (PDs) and/or Standard Operating Procedures (SOPs).,DirectoryOntologies,SOPs,,${label},,,,,
+Collections,,rdf_helpers,RDF helpers,heading,,false,,Helper attributes to make RDF output compliant with various standards.,,,,,,,,,
+Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalogs,,,,,,,ldp:membershipResource
+Collections,,license,,hyperlink,,false,,A legal document under which this catalogue record is made available.,,,,,,,,,dcterms:license
+Collections,,publisher,,ref,,false,,An entity responsible for making the resource available.,,Publishers,,,,,,,dcterms:publisher
+Collections,,language,,ontology_array,,false,,The language(s) of the resource.,DirectoryOntologies,Languages,,,,,,,dcterms:language
+Collections,,keywords,,string_array,,false,,Keyword(s) describing the resource.,,,,,,,,,dcat:keyword
+Collections,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+Collections,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+Collections,,issued,,datetime,,true,,When this resource was first published,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
+Collections,,modified,,datetime,,true,,When this resource was last modified,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
 ContactPersonsNationalNodes,,,,,,,,Contact persons national nodes,,,,,,,,,
 ContactPersonsNationalNodes,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 ContactPersonsNationalNodes,,first_name,First name,string,,false,,First name.,,,,,,,,,
 ContactPersonsNationalNodes,,last_name,Last name,string,,true,,Last name.,,,,,,,,,
 ContactPersonsNationalNodes,,email,Email,email,,true,,Email address.,,,,,,,,,
 ContactPersonsNationalNodes,,role,Contact Role,string,,true,,Role of the contact person within the national node.,,,,,,,,,
+DataServices,,,,,,,,Entity to describe a DataService as defined by DCAT and EJP-RD Resource Metadata Schema,,,,,,,,,dcat:DataService
+DataServices,,id,ID,,1,true,,Unique ID of the Data Service,,,,,,,,,
+DataServices,,endpoint_url,Endpoint URL,hyperlink,,true,,URL of the endpoint of the data service,,,,,,,,,
+DataServices,,endpoint_description,Endpoint Description,text,,true,,Description of the endpoint of the data service,,,,,,,,,dcterms:endpointDescription
+DataServices,,conforms_to,,hyperlink,,true,,The specification of the data service,,,,,,,,,dcterms:conformsTo
+DataServices,,type,Data Service Type,hyperlink_array,,,,"The type of data service, for ejp-rd is one of VPBeacon2_Catalog, VPBeacon2_Individuals, VPBeacon2_Biosamples",,,,,,,,,dcterms:type
+DataServices,,title,,,,true,,Name of the data service,,,,,,,,,"dcterms:title,rdfs:label"
+DataServices,,url,URL,hyperlink,,false,,data service URL,,,,,,,,,dcat:landingPage
+DataServices,,logo,Logo,hyperlink,,,,The logo of the data service.,,,,,,,,,foaf:logo
+DataServices,,collection,Served Collection,ref,,false,,Reference to the served collection,,Collections,,,,,,,dcat:servesDataset
+DataServices,,catalog,Served Catalog,ref,,false,,Reference to the served catalog,,Catalogs,,,,,,,dcat:servesDataset
+DataServices,,part_of,Part Of,ref,,false,,The catalog where this data service is listed,,Catalogs,,,,,,,
+DataServices,,contact_organisation,Contact Organisation,ref,,false,,"Contact for the resource in case it is an organisation (e.g., a contact for a catalog)",,Organisations,,,,,,,dcat:contactPoint
+DataServices,,contact_individual,Contact Person,ref,,false,,"Contact for the resource in case it is a person (e.g., a contact for a collection)",,Persons,,,,,,,dcat:contactPoint
+DataServices,,EJP_RD_personalData,Contains personal data,,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+DataServices,,EJP_RD_vpConnection,Want to be part of the EJP-RD VP,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+DataServices,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue,,,,,,,,mg_insertedOn,"dcterms:issued,fdp-o:metadataIssued"
+DataServices,,modified,,datetime,,true,,When the metadata for this resource was last modified,,,,,,,,mg_updatedOn,"dcterms:modified,fdp-o:metadataModified"
+DataServices,,theme,,ontology_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,DirectoryOntologies,Themes,,,,,,,dcat:theme
+DataServices,,description,Description,text,,true,,Description of the data service,,,,,,,,,dcterms:description
+DataServices,,keyword,,string_array,,,,Keyword(s) describing the data service.,,,,,,,,,dcat:keyword
+DataServices,,language,,ontology_array,,,,The language(s) used in the data service.,DirectoryOntologies,Languages,,,,,,,dcterms:language
+DataServices,,license,,hyperlink,,true,,The reference to the usage license of the data service.,,,,,,,,,dcterms:license
+DataServices,,publisher,,ref,,true,,The publisher making the data service available.,,Publishers,,,,,,,dcterms:publisher
+Endpoints,,,,,,,,General information describing an endpoint,,,,,,,,,"ldp:DirectContainer"
+Endpoints,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier"
+Endpoints,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoints table.,,,,,,,,,rdf:type
+Endpoints,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
+Endpoints,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
+Endpoints,,url,,hyperlink,,,,The root location or primary endpoint of the service (a web-resolvable IRI).,,,,,,,,,dcat:endpointURL
+Endpoints,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalogs,,,,,,,"fdp-o:metadataCatalog,ldp:contains"
+Endpoints,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Publishers,,,,,,,dcterms:publisher
+Endpoints,,language,,ontology_array,,,,The language(s) used in the metadata record(s).,DirectoryOntologies,Languages,,,,,,,dcterms:language
+Endpoints,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
+Endpoints,,conforms_to,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
+Endpoints,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
+Endpoints,,access_rights,,ontology_array,,,,"Information about who can access the endpoint or an indication of its security status. Access rights may include information regarding access or restrictions based on privacy, security, or other policies.",DirectoryOntologies,AccessRights,,,,,,,dcterms:accessRights
+Endpoints,,contact,,ref,,,,Relevant contact information for the endpoint.,,Organisations,,,,,,,dcat:contactPoint
+Endpoints,,keyword,,string_array,,,,Keyword(s) describing the endpoint.,,,,,,,,,dcat:keyword
+Endpoints,,theme,,ontology_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,DirectoryOntologies,Themes,,,,,,,dcat:theme
+Endpoints,,end_point_description,,hyperlink_array,,,,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description.",,,,,,,,,dcat:endpointDescription
+Endpoints,,issued,,datetime,,true,,When the metadata for this resource was first published. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
+Endpoints,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
+Endpoints,,start_date,,date,,,,Date when the metadata service started its operations.,,,,,,,,,fdp-o:startDate
+Endpoints,,end_date,,date,,,,Date when the metadata service ended its operations.,,,,,,,,,fdp-o:endDate
+Endpoints,,ui_language,,ontology_array,,,,"The user interface language(s) of the endpoint, which is different from the dcat:Resource property of dcterms:language that relates to the language of the metadata record.",DirectoryOntologies,Languages,,,,,,,fdp-o:uiLanguage
+Endpoints,,version,,text,,,,Version of the metadata service software which exposes the endpoint.,,,,,,,,,"fdp-o:hasSoftwareVersion,dcterms:hasVersion"
+Endpoints,,conforms_to_FDP_spec,,hyperlink,,TRUE,,The relation should point to an URI that contains the version of the FDP specifications this instance of the endpoint conforms to.,,,,,,,,,fdp-o:conformsToFdpSpec
+Endpoints,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+Endpoints,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+Endpoints,,ldp_membership_relation,,hyperlink,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the endpoint with its member catalogs.,,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,,,,ldp:hasMemberRelation
+Endpoints,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the endpoint.,,Endpoints,,,,,,,ldp:membershipResource
+Endpoints,,fdp_metadata_identifier,,ref,,,,This attribute points to the endpoint itself so as to generate the fdp-o:metadataIdentifier.,,Endpoints,,,,,,,fdp-o:metadataIdentifier
 NationalNodes,,,,,,,,National Node Information,,,,,,,,,
 NationalNodes,,id,ID,string,1,true,true,Unique national node ID (in most of the cases a two letter country code).,,,,,,,,,
 NationalNodes,,description,Description,string,2,true,,Description,,,,,,,,,
@@ -144,14 +225,22 @@ Networks,,contact,Contact Person,ref,,true,,Contact person of the network.,,Pers
 Networks,,common_network_elements,Common Network Elements,ontology_array,,false,,Selection of elements that are the same for all biobanks/collections within the network.,DirectoryOntologies,CommonNetworkElements,,${label},,,,,
 Networks,,national_node,National Node,ref,,true,,The network originates from this national node.,,NationalNodes,,${description},,,,,
 Networks,,withdrawn,Withdrawn,bool,,true,,The network is withdrawn from the Directory.,,,,,false,,,,
-Persons,,,,,,,,"Information of the contact persons of a biobank, collection of network, like name, address and e-mail address.",,,,,,,,,
+Organisations,,,,,,,,Organisations which function as contact points,,,,,,,,,vcard:Organization
+Organisations,,id,ID,,1,true,,Unique ID of the organisation,,,,,,,,,
+Organisations,,full_name,Full name,,,true,,The full name of the organisation,,,,,,,,,vcard:fn
+Organisations,,email,E-mail address,email,,false,,The e-mail address of the organisation,,,,,,,,,vcard:hasEmail
+Organisations,,address,Address,ref,,false,,The address of the organisation,,Address,,,,,,,vcard:hasAddress
+Organisations,,phone,Phone number,,,false,,The telephone number of the organisation,,,,,,,,,vcard:hasTelephone
+Organisations,,url,URL,hyperlink,,false,,The URL of a web page containing information about the organisation,,,,,,,,,vcard:hasURL
+Persons,,,,,,,,"Information of the contact persons of a biobank, collection of network, like name, address and e-mail address.",,,,,,,,,"vcard:Kind,vcard:Individual"
 Persons,,id,ID,string,1,true,true,"Unique ID of the person, prefixed with bbmri-eric:contactID:",,,,,,,,,
 Persons,,title_before_name,Title before Name,string,,false,,"Title before name, values like ""prof. mr.""",,,,,,,,,
-Persons,,first_name,First Name,string,,false,,First name according to MIABIS 2.0 - MIABIS-2.0-07-A.,,,,,,,,,
-Persons,,last_name,Last Name,string,,false,,Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.,,,,,,,,,
+Persons,,first_name,First Name,string,,false,,First name according to MIABIS 2.0 - MIABIS-2.0-07-A.,,,,,,,,,vcard:hasGivenName
+Persons,,last_name,Last Name,string,,false,,Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.,,,,,,,,,vcard:hasFamilyName
 Persons,,title_after_name,Title after Name,string,,false,,"Title after name, values like ""Bsc.""",,,,,,,,,
-Persons,,email,Email address,email,,true,,Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.,,,,,,,,,
-Persons,,phone,Phone Number,string,,false,,Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.,,,,,,,,,
+Persons,,full_name,Full Name,,,,,The full name of the person,,,,,,,,"[title_before_name, first_name, last_name, title_after_name].join("" "")",vcard:fn
+Persons,,email,Email address,email,,true,,Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.,,,,,,,,,"vcard:email,vcard:hasEmail"
+Persons,,phone,Phone Number,string,,false,,Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.,,,,,,,,,vcard:hasTelephone
 Persons,,address,Address,text,,false,,Address according to MIABIS 2.0 - MIABIS-2.0-07-E.,,,,,,,,,
 Persons,,zip,Zip code,string,,false,,ZIP or postal code according to MIABIS 2.0 - MIABIS-2.0-07-F.,,,,,,,,,
 Persons,,city,City,string,,false,,City according to MIABIS 2.0 - MIABIS-2.0-07-G.,,,,,,,,,
@@ -161,6 +250,29 @@ Persons,,biobanks,Biobanks,refback,,false,true,Biobanks the person is connected 
 Persons,,collections,Collections,refback,,false,true,Collections the person is connected to.,,Collections,contact,${name},,,,,
 Persons,,networks,Networks,refback,,false,true,Networks the person is connected to.,,Networks,contact,${name},,,,,
 Persons,,national_node,National Node,ref,,true,,The person originates from this national node.,,NationalNodes,,${description},,,,,
+Publishers,,,,,,,,"A publisher of a resource, catalog, endpoint, etc.",,,,,,,,,"foaf:Agent"
+Publishers,,name,,string,1,TRUE,,A name and identifier for this publisher.,,,,,,,,,"foaf:name"
+Publishers,,description,,string,,,,Description of the publisher.,,,,,,,,,dcterms:description
+Publishers,,type,,hyperlink_array,,,,This publisher is of the following foaf type(s) (e.g. http://xmlns.com/foaf/0.1/Person),,,,,,,,,rdf:type
+Publishers,,url,,hyperlink,,,,The homepage of the publisher.,,,,,,,,,"foaf:homepage,dcat:landingPage"
+Publishers,,logo,,hyperlink,,,,The logo of the publisher.,,,,,,,,,foaf:logo
+Publishers,,mbox,,email,,,,E-mail address of the publisher.,,,,,,,,,"foaf:mbox"
+QualityInfoBiobanks,,,,,,,,Biobank Quality Information,,,,,,,,,
+QualityInfoBiobanks,,id,ID,auto_id,1,true,true,,,,,,,,,QIB-${mg_autoid},
+QualityInfoBiobanks,,biobank,Biobank,ref,,true,,,,Biobanks,,${name},,,,,
+QualityInfoBiobanks,,quality_standard,Quality Standard,ontology,,true,,,DirectoryOntologies,QualityStandards,,${label},,,,,
+QualityInfoBiobanks,,assess_level_bio,Assessment Level,ontology,,true,,,DirectoryOntologies,AssessmentLevels,,${label},,,,,
+QualityInfoBiobanks,,certification_number,Certification Number,string,,false,,,,,,,,,,,
+QualityInfoBiobanks,,certification_report,Certification Report,hyperlink,,false,,,,,,,,,,,
+QualityInfoBiobanks,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
+QualityInfoCollections,,,,,,,,Collection Quality Information,,,,,,,,,
+QualityInfoCollections,,id,ID,auto_id,1,true,true,,,,,,,,,QIC-${mg_autoid},
+QualityInfoCollections,,collection,Collection,ref,,true,,,,Collections,,${name},,,,,
+QualityInfoCollections,,quality_standard,Quality Standard,ontology,,true,,,DirectoryOntologies,QualityStandards,,${label},,,,,
+QualityInfoCollections,,assess_level_col,Assessment Level,ontology,,true,,,DirectoryOntologies,AssessmentLevels,,${label},,,,,
+QualityInfoCollections,,certification_number,Certification Number,string,,false,,,,,,,,,,,
+QualityInfoCollections,,certification_report,Certification Report,hyperlink,,false,,,,,,,,,,,
+QualityInfoCollections,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
 QualityInfoServices,,,,,,,,Service Quality Information,,,,,,,,,
 QualityInfoServices,,id,ID,auto_id,1,true,true,,,,,,,,,QIS-${mg_autoid},
 QualityInfoServices,,service,Service,ref,,true,,,,Services,,${name},,,,,

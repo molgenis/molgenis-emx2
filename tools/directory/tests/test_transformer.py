@@ -2,9 +2,9 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-from molgenis_emx2.directory_client.errors import DirectoryWarning
-from molgenis_emx2.directory_client.model import Node, QualityInfo, Table, TableType
-from molgenis_emx2.directory_client.transformer import Transformer
+from src.molgenis_emx2.directory_client.errors import DirectoryWarning
+from src.molgenis_emx2.directory_client.model import Node, QualityInfo, Table, TableType
+from src.molgenis_emx2.directory_client.transformer import Transformer
 
 
 @pytest.fixture
@@ -16,6 +16,7 @@ def transformer():
         existing_biobanks=MagicMock(),
         eu_node_data=MagicMock(),
         diseases=MagicMock(),
+        catalog_id=MagicMock(),
     )
 
 
@@ -104,7 +105,10 @@ def test_transformer_quality(node_data, transformer):
 
     assert node_data.biobanks.rows_by_id["bbmri-eric:ID:NL_test_quality_biobank1"][
         "quality"
-    ] == ["quality1", "quality2"]
+    ] == [
+        "quality1",
+        "quality2",
+    ]
     assert (
         "quality"
         not in node_data.biobanks.rows_by_id["bbmri-eric:ID:NL_biobank_noQual"]
@@ -260,3 +264,65 @@ def test_map_categories(transformer):
     transformer._set_collection_categories()
 
     category_mapper.map.assert_has_calls([call(collection1), call(collection2)])
+
+
+def test_transformer_catalog_membership(node_data, transformer):
+    for row in node_data.collections.rows:
+        assert "catalog" not in row
+
+    node_data = MagicMock()
+    node_data.collections.rows = [
+        {"biobank": "biobank1", "name": "Collections1", "withdrawn": False},
+        {"biobank": "biobank2", "name": "Collections2", "withdrawn": True},
+    ]
+    transformer.node_data = node_data
+    transformer.catalog_id = "catalog_id"
+    transformer._set_catalog_membership()
+
+    assert node_data.collections.rows[0]["catalog"] == "catalog_id"
+    assert "catalog" not in node_data.collections.rows[1]
+
+
+def test_transformer_fdp_fields(node_data, transformer):
+    # Check fields not already there
+    for row in node_data.collections.rows:
+        assert "publisher" not in row
+        assert "language" not in row
+        assert "license" not in row
+        assert "keywords" not in row
+
+    # Set up mock
+    node_data = MagicMock()
+    node_data.collections.rows = [
+        {"biobank": "biobank1", "name": "Collections1", "diagnosis_available": []},
+        {
+            "biobank": "biobank2",
+            "name": "Collections2",
+            "diagnosis_available": ["urn:miriam:icd:V61.6", "urn:miriam:icd:C18.0"],
+        },
+    ]
+    transformer.node_data = node_data
+    transformer.diseases.rows_by_id = {
+        "urn:miriam:icd:V61.6": {
+            "name": "urn:miriam:icd:V61.6",
+            "label": "Occupant of heavy transport vehicle injured in collision",
+        },
+        "urn:miriam:icd:C18.0": {
+            "name": "urn:miriam:icd:C18.0",
+            "label": "Malignant neoplasm of colon - Malignant neoplasm: Caecum",
+        },
+    }
+    transformer._set_collection_fdp_fields()
+
+    # Check fields correctly added
+    assert node_data.collections.rows[0]["publisher"] == "BBMRI-ERIC"
+    assert node_data.collections.rows[0]["language"] == "English"
+    assert (
+        node_data.collections.rows[0]["license"]
+        == "https://ejp-rd-vp.github.io/resource-metadata-schema/license/v1.0.txt"
+    )
+    assert node_data.collections.rows[0]["keywords"] == []
+    assert node_data.collections.rows[1]["keywords"] == [
+        "Occupant of heavy transport vehicle injured in collision",
+        "Malignant neoplasm of colon - Malignant neoplasm: Caecum",
+    ]
