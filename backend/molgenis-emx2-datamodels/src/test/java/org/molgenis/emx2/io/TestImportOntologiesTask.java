@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.io.ImportOntologiesTask.CSV_CHECKSUM_SETTING;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Order;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -33,7 +34,7 @@ class TestImportOntologiesTask {
   }
 
   @Test
-  @org.junit.jupiter.api.Order(1)
+  @Order(1)
   void firstImportStoresChecksums() {
     // clear any checksums from the profile import
     for (Table table : schema.getTablesSorted()) {
@@ -64,7 +65,7 @@ class TestImportOntologiesTask {
   }
 
   @Test
-  @org.junit.jupiter.api.Order(2)
+  @Order(2)
   void secondImportSkipsUnchangedTables() {
     TableStoreForCsvFilesClasspath store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
     ImportOntologiesTask task =
