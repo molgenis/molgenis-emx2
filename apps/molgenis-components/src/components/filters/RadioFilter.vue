@@ -1,0 +1,66 @@
+<template>
+  <InputRadio
+    v-if="options?.length"
+    :id="id"
+    :modelValue="condition"
+    :tableId="tableId"
+    :schemaId="schemaId"
+    :refLabel="refLabel"
+    :options="options"
+    @update:modelValue="onUpdateCondition"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import Client, { convertRowToPrimaryKey } from "../../client/client";
+import InputRadio from "../forms/InputRadio.vue";
+import { IQueryMetaData } from "metadata-utils/src/IQueryMetaData";
+import { IRow } from "../../Interfaces/IRow";
+import { applyJsTemplate } from "../utils";
+
+const { schemaId, tableId, refLabel, orderBy, filter } = defineProps<{
+  id: string;
+  condition?: Object;
+  tableId: string;
+  schemaId: string;
+  refLabel: string;
+  orderBy?: Record<string, string>;
+  filter?: Object;
+}>();
+
+const emit = defineEmits(["updateCondition", "clearCondition"]);
+const client = Client.newClient(schemaId);
+
+const options = ref();
+loadOptions();
+
+function onUpdateCondition(newValue: string) {
+  if (newValue === null) {
+    emit("clearCondition", newValue);
+  } else {
+    emit("updateCondition", newValue);
+  }
+}
+
+async function loadOptions() {
+  const queryOptions: IQueryMetaData = {
+    orderby: orderBy,
+    filter: filter,
+  };
+  const response = await client.fetchTableData(tableId, queryOptions);
+  const rows = response[tableId] || [];
+  const keyPromises = rows.map(async (row: IRow) =>
+    convertRowToPrimaryKey(row, tableId, schemaId)
+  );
+  const keys = await Promise.all(keyPromises);
+  const keysByLabel = keys.reduce((acc: Record<string, any>, key: any) => {
+    const label = applyJsTemplate(key, refLabel);
+    acc[label] = key;
+    return acc;
+  }, {} as Record<string, any>);
+  options.value = Object.keys(keysByLabel)
+    .sort()
+    .map((label) => keysByLabel[label]);
+}
+</script>
