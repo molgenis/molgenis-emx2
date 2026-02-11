@@ -676,6 +676,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           this.getListener().onSchemaChange();
         }
       } catch (Exception e) {
+        logger.info("Active user: {}", this.connectionProvider.getActiveUser());
+        logger.info("DSL Context active user: {}", jooq.fetchValue("select current_user"));
+        e.printStackTrace();
         throw new SqlMolgenisException("Transaction failed", e);
       }
     }

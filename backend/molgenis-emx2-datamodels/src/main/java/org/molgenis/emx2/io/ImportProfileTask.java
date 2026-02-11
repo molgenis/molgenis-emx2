@@ -59,6 +59,7 @@ public class ImportProfileTask extends Task {
             commitTask.setDescription("Committing");
           });
     } catch (Exception e) {
+      e.printStackTrace();
       try {
         commitTask.completeWithError("CommitTask failed: " + e.getMessage());
       } catch (MolgenisException e2) {
