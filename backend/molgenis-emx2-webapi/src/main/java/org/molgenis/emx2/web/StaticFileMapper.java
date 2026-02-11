@@ -49,7 +49,7 @@ public class StaticFileMapper {
     app.get("/apps/{app}", StaticFileMapper::returnIndexFile);
 
     /* Serve a custom app in a folder next to the jar */
-    app.get("/custom/{path...}", StaticFileMapper::addExternalFileToContext);
+    app.get("/ext/{path...}", StaticFileMapper::addExternalFileToContext);
 
     /* These are for all the user made schemas / tableview in bootstrap. */
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
