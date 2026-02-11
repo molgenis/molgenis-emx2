@@ -1,3 +1,4 @@
-id,in block,text,heading is centered,level
-home-section-features-h2,home-section-features,Features,false,2
-home-section-applications-h2,home-section-applications,Applications,false,2
+id,in block,text,level,heading is centered,heading is hidden
+home-section-features-h2,home-section-features,Features,2,false,false
+home-section-applications-h2,home-section-applications,Applications,2,false,false
+home-section-text-h2,home-section-text,Get started,2,false,true

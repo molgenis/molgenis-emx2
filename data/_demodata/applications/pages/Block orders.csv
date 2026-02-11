@@ -2,4 +2,5 @@ id,configurable page,block,order
 home-banner-order,home,molgenis-default-banner,0
 home-section-features-order,home,home-section-features,1
 home-section-applications-order,home,home-section-applications,2
+home-section-text-order,home,home-section-text,3
 about-us-banner-order,about-us,molgenis-default-banner,0

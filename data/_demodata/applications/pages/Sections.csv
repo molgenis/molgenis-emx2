@@ -1,3 +1,4 @@
-id,in container
-home-section-features,home
-home-section-applications,home
+id,in container,background color
+home-section-features,home,
+home-section-applications,home, "#f6f6f6"
+home-section-text,home
