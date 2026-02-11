@@ -757,20 +757,12 @@ public class MetadataUtils {
 
   public static void setRowLevelSecurity(SqlSchemaMetadata schema, TableMetadata table) {
     if (Boolean.TRUE.equals(table.hasRowLevelSecurity())) {
-      Field<Object> rlsFunction =
-          function(
-              "\"MOLGENIS\".enable_RLS_on_table",
-              Object.class,
-              val(schema.getName()),
-              val(table.getIdentifier()));
-      schema.getJooq().select(rlsFunction).execute();
+      // Use Java executor instead of PL/pgSQL function
+      SqlPermissionExecutor.enableRowLevelSecurity(
+          schema.getJooq(), schema.getName(), table.getIdentifier());
     } else {
-      schema
-          .getJooq()
-          .query(
-              "ALTER TABLE {0}.{1} DISABLE ROW LEVEL SECURITY",
-              name(schema.getName()), name(table.getIdentifier()))
-          .execute();
+      SqlPermissionExecutor.disableRowLevelSecurity(
+          schema.getJooq(), schema.getName(), table.getIdentifier());
     }
   }
 
