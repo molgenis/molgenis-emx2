@@ -3,6 +3,7 @@ import { useRoute, useRuntimeConfig, useFetch, createError } from "#app";
 import { logError } from "#imports";
 import { computed } from "vue";
 import { RESERVED_ROUTES } from "../../utils/constants";
+import { isCatalogueResource } from "../../utils/resourceTypeUtils";
 import CatalogueLandingView from "../../components/CatalogueLandingView.vue";
 import CollectionDetailView from "../../components/CollectionDetailView.vue";
 
@@ -56,9 +57,7 @@ if (!resource.value) {
 }
 
 const isCatalogue = computed(() => {
-  return resource.value?.type?.some(
-    (t: { name?: string }) => t.name === "Catalogue"
-  );
+  return isCatalogueResource(resource.value?.type);
 });
 </script>
 

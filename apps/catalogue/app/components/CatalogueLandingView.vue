@@ -2,16 +2,14 @@
 import { useRuntimeConfig, useHead, useFetch, createError } from "#app";
 import { logError, useCatalogueContext } from "#imports";
 import { computed } from "vue";
-import type { ISetting } from "../../../../metadata-utils/src/types";
+import type { ISetting } from "../../../metadata-utils/src/types";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import LandingPrimary from "../components/landing/Primary.vue";
 import LandingSecondary from "../components/landing/Secondary.vue";
 import LandingCardPrimary from "../components/landing/CardPrimary.vue";
 import LandingCardSecondary from "../components/landing/CardSecondary.vue";
-import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
-import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
-import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
+import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
+import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 
 interface Props {
   resourceId: string;
@@ -257,6 +255,21 @@ const aboutLink = resourceUrl(`${props.resourceId}/about`);
         "
         :count="collectionCount"
         :link="resourceUrl(`${resourceId}/collections`)"
+      />
+      <LandingCardPrimary
+        v-if="networkCount"
+        image="image-link"
+        title="Networks"
+        :description="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
+          'Networks &amp; Consortia'
+        "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings) ||
+          'Networks'
+        "
+        :count="networkCount"
+        :link="resourceUrl(`${resourceId}/networks`)"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
