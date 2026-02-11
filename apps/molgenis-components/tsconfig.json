@@ -8,6 +8,6 @@
     "isolatedModules": true,
     "allowJs": true,
     "types": ["vite/client"],
-    "lib": ["es2022", "dom"]
+    "lib": ["es2021", "dom"]
   }
 }
