@@ -34,6 +34,7 @@ const client = Client.newClient(schemaId);
 
 const options = ref();
 const keysByLabel = ref<Record<string, any>>({});
+
 loadOptions();
 
 function onUpdateCondition(newValue: string) {
@@ -55,11 +56,12 @@ async function loadOptions() {
     convertRowToPrimaryKey(row, tableId, schemaId)
   );
   const keys = await Promise.all(keyPromises);
-  keysByLabel.value = keys.reduce((acc: Record<string, any>, key: any) => {
+
+  keysByLabel.value = keys.reduce((accum: Record<string, any>, key: any) => {
     const label = applyJsTemplate(key, refLabel);
-    acc[label] = key;
-    return acc;
-  }, {} as Record<string, any>);
+    accum[label] = key;
+    return accum;
+  }, {});
 
   options.value = Object.keys(keysByLabel.value).sort();
 }
