@@ -3,6 +3,8 @@ package org.molgenis.emx2.web;
 import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -39,69 +41,109 @@ public class StaticFileMapper {
           }
         });
 
-    app.get("/catalog/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
-    app.get("/catalog/{app}/img/<asset>", StaticFileMapper::redirectImg);
-    app.get("/catalog/{app}/<asset>", StaticFileMapper::redirectResources);
-    app.get("/catalog/{app}/index.html", StaticFileMapper::returnIndexFile);
-    app.get("/catalog/{app}", StaticFileMapper::returnIndexFile);
-
+    /* Make the app paths explicit, do not merge them in the same way as schema browser */
     app.get("/apps/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
     app.get("/apps/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
     app.get("/apps/{app}/index.html", StaticFileMapper::returnIndexFile);
     app.get("/apps/{app}", StaticFileMapper::returnIndexFile);
+
+    /* Serve a custom app in a folder next to the jar */
+    app.get("/custom/{path...}", StaticFileMapper::addExternalFileToContext);
+
+    /* These are for all the user made schemas / tableview in bootstrap. */
+    app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
+    app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
+    app.get("*/{app}/<asset>", StaticFileMapper::redirectResources);
+    app.get("*/{app}/index.html", StaticFileMapper::returnIndexFile);
+    app.get("*/{app}", StaticFileMapper::returnIndexFile);
   }
 
   private static void redirectDirectory(Context ctx) {
     String path = "/public_html/apps/directory/" + ctx.pathParam("asset");
-    addFileToContext(ctx, path, null);
+    addInternalFileToContext(ctx, path, null);
   }
 
   private static void redirectImg(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/img/" + ctx.pathParam("asset");
-    addFileToContext(ctx, path, null);
+    addInternalFileToContext(ctx, path, null);
   }
 
   private static void redirectResources(Context ctx) {
-    addFileToContext(ctx, "/public_html" + ctx.path(), null);
+    addInternalFileToContext(ctx, "/public_html" + ctx.path(), null);
   }
 
   private static void redirectDocs(Context ctx) {
-    addFileToContext(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"), null);
+    addInternalFileToContext(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"), null);
   }
 
   private static void redirectAssets(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/assets/" + ctx.pathParam("asset");
-    addFileToContext(ctx, path, null);
+    addInternalFileToContext(ctx, path, null);
   }
 
   private static void returnIndexFile(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
-    addFileToContext(ctx, path, "text/html");
+    addInternalFileToContext(ctx, path, "text/html");
   }
 
   private static void returnUiAppIndex(Context ctx) {
-    addFileToContext(ctx, "/public_html/apps/ui/index.html", "text/html");
+    addInternalFileToContext(ctx, "/public_html/apps/ui/index.html", "text/html");
   }
 
-  public static void addFileToContext(Context ctx, String path, String mimeType) {
+  public static void addInternalFileToContext(Context ctx, String path, String mimeType) {
     try (InputStream in = StaticFileMapper.class.getResourceAsStream(path)) {
-      if (in == null) {
-        ctx.status(404).result("File not found: " + ctx.path());
-        return;
-      }
+
       if (mimeType == null) {
         mimeType = URLConnection.guessContentTypeFromName(path);
 
         if (mimeType == null) {
           mimeType = Files.probeContentType(Path.of(path));
         }
-
-        if (mimeType == null) {
-          mimeType = "application/octet-stream";
-        }
       }
+      addFileToContext(ctx, in, mimeType);
+    } catch (Exception e) {
+      ctx.status(404).result("File not found: " + ctx.path());
+    }
+  }
+
+  public static void addExternalFileToContext(Context ctx) {
+    String path = System.getProperty("user.dir") + "/custom-app/" + ctx.pathParam("path...");
+    String mimeType;
+
+    File file = new File(path);
+    /* Check if it's a file, and has an extension, if it is neither, then we fall back to index.html for SPA */
+    if ((!file.exists() || !file.isFile()) || !path.matches(".*\\.[A-Za-z0-9]{1,4}$")) {
+      path += "/index.html"; /* So we can determine mimetype automatically */
+      file = new File(path);
+    }
+
+    try (InputStream in = new FileInputStream(file)) {
+      mimeType = URLConnection.guessContentTypeFromName(path);
+
+      if (mimeType == null) {
+        mimeType = Files.probeContentType(Path.of(path));
+      }
+
+      addFileToContext(ctx, in, mimeType);
+    } catch (Exception e) {
+      ctx.status(404).result("File not found: " + ctx.path());
+    }
+  }
+
+  private static void addFileToContext(Context ctx, InputStream in, String mimeType) {
+    if (in == null) {
+      ctx.status(404).result("File not found: " + ctx.path());
+      return;
+    }
+
+    if (mimeType == null) {
+      mimeType = "application/octet-stream";
+    }
+
+    try {
       ctx.contentType(mimeType);
+
       ctx.result(ByteStreams.toByteArray(in));
     } catch (Exception e) {
       ctx.status(404).result("File not found: " + ctx.path());

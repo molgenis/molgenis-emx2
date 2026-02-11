@@ -63,14 +63,6 @@ public class MolgenisWebservice {
                       new JavalinJackson()
                           .updateMapper(
                               mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
-                  config.staticFiles.add(
-                      staticFiles -> {
-                        staticFiles.hostedPath = "/custom";
-                        staticFiles.directory = System.getProperty("user.dir") + "/custom-app";
-                        staticFiles.location = Location.EXTERNAL;
-                      });
-                  config.spaRoot.addFile(
-                      "/custom", System.getProperty("user.dir") + "/custom-app", Location.EXTERNAL);
                 })
             .start(port);
 

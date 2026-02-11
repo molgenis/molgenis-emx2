@@ -13,7 +13,7 @@ class StaticFileMapperTest {
     String path = "/index.html";
     String mimeType = "text/html";
 
-    StaticFileMapper.addFileToContext(ctx, path, mimeType);
+    StaticFileMapper.addInternalFileToContext(ctx, path, mimeType);
 
     verify(ctx).contentType(mimeType);
     verify(ctx).result("<html></html>".getBytes());
@@ -24,7 +24,7 @@ class StaticFileMapperTest {
     Context ctx = mock(Context.class);
     String path = "/test.txt";
 
-    StaticFileMapper.addFileToContext(ctx, path, null);
+    StaticFileMapper.addInternalFileToContext(ctx, path, null);
 
     verify(ctx).contentType("text/plain");
     verify(ctx).result("test".getBytes());
@@ -36,7 +36,7 @@ class StaticFileMapperTest {
     String path = "/non-existent-file.css";
     when(ctx.status(404)).thenReturn(ctx);
 
-    StaticFileMapper.addFileToContext(ctx, path, "text/plain");
+    StaticFileMapper.addInternalFileToContext(ctx, path, "text/plain");
 
     verify(ctx).status(404);
     verify(ctx).result("File not found: " + ctx.path());
