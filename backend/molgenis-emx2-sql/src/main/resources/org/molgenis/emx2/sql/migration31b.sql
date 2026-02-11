@@ -127,24 +127,35 @@ FROM table_privs tp
 DO $$
     DECLARE r TEXT;
     BEGIN
+        -- Only drop MG_ROLE_* group roles, NOT MG_USER_* roles (those are managed by Java)
         -- Reassign ownership and drop objects first
-        FOR r IN SELECT role_name FROM temp_migration.roles ORDER BY role_name DESC
+        FOR r IN SELECT role_name FROM temp_migration.roles WHERE NOT is_user_role ORDER BY role_name DESC
             LOOP
-                EXECUTE format('REASSIGN OWNED BY %I TO molgenis;', r);
-                EXECUTE format('DROP OWNED BY %I;', r);
+                BEGIN
+                    EXECUTE format('REASSIGN OWNED BY %I TO molgenis;', r);
+                    EXECUTE format('DROP OWNED BY %I;', r);
+                EXCEPTION WHEN insufficient_privilege THEN
+                    -- Non-superuser cannot REASSIGN OWNED BY; skip and try direct DROP ROLE
+                    NULL;
+                END;
             END LOOP;
 
-        -- Drop roles
-        FOR r IN SELECT role_name FROM temp_migration.roles ORDER BY role_name DESC
+        -- Drop group roles only
+        FOR r IN SELECT role_name FROM temp_migration.roles WHERE NOT is_user_role ORDER BY role_name DESC
             LOOP
-                EXECUTE format('DROP ROLE IF EXISTS %I;', r);
+                BEGIN
+                    EXECUTE format('DROP ROLE IF EXISTS %I;', r);
+                EXCEPTION WHEN OTHERS THEN
+                    -- Role may still own objects; skip cleanup for this role
+                    NULL;
+                END;
             END LOOP;
     END;
 $$;
 
 
 ------------------------------------------------------------------------------
--- 7. Re-create groups via MOLGENIS triggers
+-- 7. Populate group metadata (roles re-created by Java rebuildRolesFromMetadata)
 ------------------------------------------------------------------------------
 
 INSERT INTO "MOLGENIS".group_metadata (group_name, users)
@@ -153,7 +164,7 @@ FROM temp_migration.group_metadata;
 
 
 ------------------------------------------------------------------------------
--- 8. Re-create permissions via MOLGENIS triggers
+-- 8. Populate group permissions (grants applied by Java rebuildRolesFromMetadata)
 ------------------------------------------------------------------------------
 
 INSERT INTO "MOLGENIS".group_permissions (

@@ -193,9 +193,10 @@ public class Migrations {
 
           if (version < 32) {
             executeMigrationFile(
-                tdb, "migration31a.sql", "Permission triggers for table and row level security");
+                tdb, "migration31a.sql", "Permission tables for table and row level security");
             executeMigrationFile(
                 tdb, "migration31b.sql", "Migrate existing grants/roles to MOLGENIS tables");
+            migration32RebuildRoles((SqlDatabase) tdb);
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
@@ -333,5 +334,56 @@ public class Migrations {
         }
       }
     }
+  }
+
+  /**
+   * Re-creates PostgreSQL roles and grants from data migrated into group_metadata and
+   * group_permissions by migration31b.sql. Since triggers were removed, Java must rebuild the
+   * roles.
+   *
+   * <p>Uses {@link SqlPermissionExecutor#createSchemaGroups} per schema (which handles role
+   * creation, hierarchy, and grants), then re-adds user memberships.
+   */
+  private static void migration32RebuildRoles(SqlDatabase db) {
+    DSLContext jooq = db.getJooq();
+
+    // Re-create schema groups for each schema that has permission entries
+    List<String> schemas =
+        jooq.selectDistinct(field(name("table_schema"), String.class))
+            .from(table(name("MOLGENIS", "group_permissions")))
+            .where(field(name("table_schema")).isNotNull())
+            .fetchInto(String.class);
+
+    for (String schemaName : schemas) {
+      try {
+        SqlPermissionExecutor.createSchemaGroups(jooq, schemaName);
+      } catch (Exception e) {
+        logger.warn("Could not rebuild groups for schema {}: {}", schemaName, e.getMessage());
+      }
+    }
+
+    // Re-add users to their groups
+    var groups =
+        jooq.select(MetadataUtils.GROUP_NAME, MetadataUtils.USERS)
+            .from(MetadataUtils.GROUP_METADATA)
+            .fetch();
+
+    for (var group : groups) {
+      String groupName = group.get(MetadataUtils.GROUP_NAME);
+      List<String> users = group.get(MetadataUtils.USERS, List.class);
+      if (users != null) {
+        for (String username : users) {
+          try {
+            SqlPermissionExecutor.addUserToGroup(jooq, groupName, username);
+          } catch (Exception e) {
+            logger.warn(
+                "Could not add user {} to group {}: {}", username, groupName, e.getMessage());
+          }
+        }
+      }
+    }
+
+    logger.info(
+        "Migration 32: rebuilt roles for {} schemas and {} groups", schemas.size(), groups.size());
   }
 }

@@ -86,6 +86,10 @@ class SqlTableMetadataExecutor {
       // set audit trigger, logs insert, update and delete actions on table
       jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
     }
+
+    // Grant existing schema-level permissions to this new table
+    SqlPermissionExecutor.grantPermissionsForNewTable(
+        jooq, table.getSchemaName(), table.getTableName());
   }
 
   static void executeAlterName(DSLContext jooq, TableMetadata table, String newName) {

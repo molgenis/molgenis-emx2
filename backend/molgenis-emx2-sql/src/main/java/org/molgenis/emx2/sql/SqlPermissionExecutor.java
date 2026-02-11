@@ -362,7 +362,8 @@ class SqlPermissionExecutor {
   // ── Materialized view refresh ──────────────────────────────────────────────
 
   static void refreshPermissionsMaterializedView(DSLContext jooq) {
-    jooq.execute("REFRESH MATERIALIZED VIEW \"MOLGENIS\".user_permissions_mv");
+    // Use SECURITY DEFINER function so non-owner roles can refresh the view
+    jooq.execute("SELECT \"MOLGENIS\".refresh_user_permissions_mv()");
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
@@ -385,6 +386,14 @@ class SqlPermissionExecutor {
 
     jooq.execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schemaName), name(adminRole));
     jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(adminRole));
+
+    // Ensure MG_USER_admin is a member of MG_ROLE_ADMIN so it appears in the materialized view
+    String adminUser = MG_USER_PREFIX + "admin";
+    boolean adminUserExists =
+        jooq.fetchExists(selectOne().from("pg_roles").where(field("rolname").eq(adminUser)));
+    if (adminUserExists) {
+      jooq.execute("GRANT {0} TO {1}", name(adminRole), name(adminUser));
+    }
   }
 
   private static void createGroupWithPermissions(
