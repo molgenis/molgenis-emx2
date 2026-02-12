@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 public class GraphqlExecutor {
   private static final Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);
+  private static final Pattern FRAGMENT_PATTERN =
+      Pattern.compile("\\.\\.\\.\\s*([A-Za-z_][A-Za-z0-9_]*AllFields[0-9]?)");
   private final GraphQL graphql;
   private final Map<String, String> graphqlQueryFragments;
 
@@ -100,9 +102,7 @@ public class GraphqlExecutor {
 
     // we add fragments if contains "..."
     if (query.contains("...")) {
-      Pattern fragmentPattern =
-          Pattern.compile("\\.\\.\\.\\s*([A-Za-z_][A-Za-z0-9_]*AllFields[0-9]?)");
-      Matcher matcher = fragmentPattern.matcher(query);
+      Matcher matcher = FRAGMENT_PATTERN.matcher(query);
       while (matcher.find()) {
         String name = matcher.group(1);
         if (!graphqlQueryFragments.containsKey(name)) {
