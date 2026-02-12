@@ -16,8 +16,10 @@ import type {
 } from "../../../../../interfaces/types";
 import dateUtils from "../../../../utils/dateUtils";
 import type {
-  IResources,
+  ICollections,
+  INetworks,
   IVariables,
+  IOntologyNode,
 } from "../../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
@@ -52,9 +54,18 @@ const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema as string;
 
+const tableNameMap: Record<string, string> = {
+  collections: "Collections",
+  networks: "Networks",
+  about: "Networks",
+};
+const tableName =
+  tableNameMap[route.params.resourceType as string] || "Collections";
+const isCollection = tableName === "Collections";
+
 const query = `
-  query Resources($id: String) {
-    Resources(filter: { id: { equals: [$id] } }) {
+  query ${tableName}Detail($id: String) {
+    ${tableName}(filter: { id: { equals: [$id] } }) {
       id
       pid
       acronym
@@ -65,7 +76,9 @@ const query = `
         url
       }
       contactEmail
-      type {
+      ${
+        isCollection
+          ? `type {
         name
       }
       cohortType {
@@ -73,22 +86,36 @@ const query = `
       }
       registryOrHealthRecordType {
         name
+      }`
+          : ``
       }
-      networkType {
+      ${
+        isCollection
+          ? ``
+          : `networkType {
         name
+      }`
       }
-      clinicalStudyType {
+      ${
+        isCollection
+          ? `clinicalStudyType {
         name
+      }`
+          : ``
       }
       keywords
       externalIdentifiers {
         identifier
         externalIdentifierType{name}
       }
-      populationAgeGroups {
+      ${
+        isCollection
+          ? `populationAgeGroups {
         name order code parent { code }
       }
-      dateLastRefresh
+      dateLastRefresh`
+          : ``
+      }
       startYear
       endYear
       continents {
@@ -102,7 +129,9 @@ const query = `
         name
         order
       }
-      numberOfParticipants
+      ${
+        isCollection
+          ? `numberOfParticipants
       numberOfParticipantsWithSamples
       designDescription
       designSchematic ${moduleToString(fileFragment)}
@@ -123,13 +152,17 @@ const query = `
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
       exclusionCriteria ${moduleToString(ontologyFragment)}
-      otherExclusionCriteria
+      otherExclusionCriteria`
+          : ``
+      }
       publications(orderby: {title:ASC}) {
         doi
         title
         isDesignPublication
       }
-      collectionEvents {
+      ${
+        isCollection
+          ? `collectionEvents {
         name
         description
         startDate
@@ -143,6 +176,8 @@ const query = `
           name
         }
         coreVariables
+      }`
+          : ``
       }
       peopleInvolved {
         roleDescription
@@ -181,9 +216,11 @@ const query = `
             name
             order
           }
-        } 
+        }
       }
-      subpopulations {
+      ${
+        isCollection
+          ? `subpopulations {
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
       }
@@ -192,11 +229,17 @@ const query = `
       dataUseConditions ${moduleToString(ontologyFragment)}
       dataAccessFee
       releaseType ${moduleToString(ontologyFragment)}
-      releaseDescription
+      releaseDescription`
+          : ``
+      }
       fundingStatement
       acknowledgements
-      linkageOptions
-      prelinked
+      ${
+        isCollection
+          ? `linkageOptions
+      prelinked`
+          : ``
+      }
       documentation {
         name
         description
@@ -214,18 +257,22 @@ const query = `
         logo {
           url
         }
-        type {
+        catalogueType {
           name
         }
       }
       publications_agg {
         count
       }
-      subpopulations_agg {
+      ${
+        isCollection
+          ? `subpopulations_agg {
         count
       }
       collectionEvents_agg{
         count
+      }`
+          : ``
       }
     }
     Variables_agg(filter: { resource: { id: { equals: [$id] } } }) {
@@ -234,14 +281,16 @@ const query = `
   }
 `;
 const variables = { id: route.params.resource };
-interface IResourceQueryResponseValue extends IResources {
-  publications_agg: { count: number };
-  subpopulations_agg: { count: number };
-  collectionEvents_agg: { count: number };
+interface IResourceQueryResponseValue
+  extends Omit<ICollections, "type">,
+    Pick<INetworks, "networkType"> {
+  type?: IOntologyNode[];
+  publications_agg?: { count: number };
+  subpopulations_agg?: { count: number };
+  collectionEvents_agg?: { count: number };
 }
 interface IResponse {
-  data: {
-    Resources: IResourceQueryResponseValue[];
+  data: Record<string, IResourceQueryResponseValue[] | { count: number }> & {
     Variables_agg: { count: number };
   };
 }
@@ -257,9 +306,10 @@ if (error.value) {
   logError(error.value, "Error fetching resource metadata");
 }
 
-const resource = computed(
-  () => data.value?.data?.Resources[0] as IResourceQueryResponseValue
-);
+const resource = computed(() => {
+  const tableData = data.value?.data?.[tableName];
+  return (Array.isArray(tableData) ? tableData[0] : null) as IResourceQueryResponseValue;
+});
 const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subpopulations.value || !subpopulations.value.length) {
@@ -383,12 +433,11 @@ async function fetchDatasetOptions() {
 
 fetchDatasetOptions();
 
-const networks = computed(() =>
-  !resource.value?.partOfNetworks
-    ? []
-    : resource.value?.partOfNetworks.filter((c) =>
-        c.type.find((t) => t.name == "Network")
-      )
+const networks = computed(
+  () =>
+    (resource.value?.partOfNetworks ?? []) as (INetworks & {
+      catalogueType?: IOntologyNode;
+    })[]
 );
 
 const tocItems = computed(() => {
@@ -763,7 +812,7 @@ const showPopulation = computed(
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :resource="resource as IResources"
+          :resource="resource as ICollections"
         />
 
         <ContentBlock v-if="showPopulation" id="population" title="Population">
@@ -962,7 +1011,7 @@ const showPopulation = computed(
                {title: 'Network details',
                 url: `/${route.params.catalogue}/networks/${network.id}`,
                 },
-               network.type?.some( (type) => type.name === 'Catalogue')
+               network.catalogueType
                ? {
                 title: 'Catalogue',
                 url: `/${network.id}`,

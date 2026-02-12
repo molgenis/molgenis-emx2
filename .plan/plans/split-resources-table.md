@@ -96,56 +96,58 @@ Row order preserved from master. Only `tableName` column changed for moved rows.
 
 ---
 
-## Phase 3: Update DataCatalogueFlat.csv
+## Phase 3: Update DataCatalogueFlat.csv [DONE — NO CHANGES NEEDED]
 
-Verify alignment with new shared model. The specific model already has Collections/Catalogues — may need adjustments to match new inheritance structure.
+`data/_models/specific/dev/DataCatalogueFlat.csv` is a completely separate standalone model (no inheritance, no profile tags). It already has Collections/Catalogues tables with its own `collectionType`-based visibility. It is independent from the shared model we changed — no updates required.
 
 ---
 
-## Phase 4: Update catalogue app frontend
+## Phase 4: Update catalogue app frontend [DONE]
 
-### Key files to modify:
+### Files modified (11):
 
-**GraphQL queries** — change `Resources` → `Collections` or `Networks`:
-- `apps/catalogue/app/pages/[catalogue]/[resourceType]/index.vue` — search page
-- `apps/catalogue/app/pages/[catalogue]/[resourceType]/[resource]/index.vue` — detail page
-- `apps/catalogue/app/gql/resource.js` — shared query
-- `apps/catalogue/app/gql/variable.ts` — variable query
-- `apps/catalogue/app/composables/useHeaderData.ts` — header counts
+**GraphQL queries and composables:**
+- `useHeaderData.ts` — queries Catalogues/Collections_agg/Networks_agg directly, removed type.tags filters, uses mg_tableclass for variable filtering
+- `gql/resource.js` — queries Collections instead of Resources
+- `gql/variable.ts` — queries Networks instead of Resources, uses NetworksFilter
 
-**Landing pages:**
-- `apps/catalogue/app/components/landing/Central.vue`
-- `apps/catalogue/app/components/landing/CohortsOnly.vue`
-
-**Interfaces & stores:**
-- `apps/catalogue/app/interfaces/catalogue.ts` — IResources interface
-- `apps/catalogue/app/interfaces/types.ts` — IShoppingCart
-- `apps/catalogue/app/stores/useDatasetStore.ts`
+**Pages:**
+- `pages/index.vue` — queries Catalogues table directly (no type filter)
+- `pages/[catalogue]/index.vue` — queries Catalogues/Collections/Networks with proper filter types, uses Collections_groupBy
+- `pages/[catalogue]/[resourceType]/index.vue` — dynamic table name (Collections/Networks) based on route param
+- `pages/[catalogue]/[resourceType]/[resource]/index.vue` — dynamic table name, simplified partOfNetworks, uses catalogueType
+- `pages/[catalogue]/variables/index.vue` — queries Networks, uses mg_tableclass for unscoped filter
 
 **Components:**
-- `apps/catalogue/app/components/content/ContentBlockCatalogues.vue`
-- `apps/catalogue/app/components/ResourceCard.vue`
-- `apps/catalogue/app/components/store/ModalResourceList.vue`
-- `apps/catalogue/app/components/store/ModalResourceListItem.vue`
-- `apps/catalogue/app/pages/[catalogue]/variables/index.vue`
-- `apps/catalogue/app/pages/[catalogue]/variables/[variable].vue`
+- `Central.vue` — Resources_agg→Collections_agg, Resources_groupBy→Collections_groupBy
+- `CohortsOnly.vue` — same as Central.vue
 
-### Approach:
-- Collection search → query `Collections` table (no type filter needed)
-- Network search → query `Networks` table (no type filter needed)
-- Detail pages → route determines which table to query
-- Remove type-based filtering logic (`type.tags === "collection"` etc.)
+**Interfaces:**
+- `catalogue.ts` — removed rdfType from IResources
+
+### Not changed (no changes needed):
+- `types.ts`, `useDatasetStore.ts` — IResources interface still valid for all subtypes
+- `ResourceCard.vue` — type display works for Collections, gracefully empty for Networks
+- `ContentBlockCatalogues.vue` — no Resources references
+- Central.vue/CohortsOnly.vue templates — pre-existing bugs with Cohorts_agg etc., not related to this split
+
+### Key patterns used:
+- Dynamic table name mapping: `{ collections: 'Collections', networks: 'Networks' }`
+- `mg_tableclass` filter (format: `schema.TableName`) to identify Networks in variable queries
+- Removed all `type.tags` filters — table separation handles type discrimination
+- `partOfNetworks`/`parentNetworks` filters preserved, `type.name` checks removed
 
 ---
 
-## Verification
+## Phase 5: Verification and UI testing
+
+### TODO:
 1. Load model in dev, verify tables with correct inheritance
 2. `./gradlew test` — backend
-3. `pnpm test` — catalogue app
-4. DCAT/RDF: dcat:Catalog for Catalogues, dcat:Dataset for Collections
-5. Catalogue app: search, detail pages work
+3. `pnpm test` — catalogue app frontend tests
+4. Manual testing: catalogue app at port 3000
+5. DCAT/RDF: dcat:Catalog for Catalogues, dcat:Dataset for Collections
 
 ## Open questions
-- Phase 3: Does DataCatalogueFlat.csv need changes or is it independent?
-- Phase 4: How much frontend type-filtering logic needs removal vs adaptation?
-- Should existing CatalogueTest table count assertions be updated (was 24, now more)?
+- Does mg_tableclass filtering work through ref fields in GraphQL? (needs runtime verification)
+- Central.vue/CohortsOnly.vue have pre-existing broken template references — separate fix needed?

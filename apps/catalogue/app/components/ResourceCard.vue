@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
-import type { IResources } from "../../interfaces/catalogue";
+import type { ICollections } from "../../interfaces/catalogue";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "#app";
 import { useDatasetStore } from "#imports";
@@ -16,7 +16,7 @@ const route = useRoute();
 
 const props = withDefaults(
   defineProps<{
-    resource: IResources;
+    resource: ICollections;
     schema: string;
     compact?: boolean;
     catalogue?: string;

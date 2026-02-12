@@ -43,6 +43,13 @@ const route = useRoute();
 const router = useRouter();
 const pageSize = 10;
 
+const tableNameMap: Record<string, string> = {
+  collections: "Collections",
+  networks: "Networks",
+};
+const tableName =
+  tableNameMap[route.params.resourceType as string] || "Collections";
+
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 
@@ -194,28 +201,34 @@ const filters = computed(() => {
 
 const query = computed(() => {
   return `
-  query Resources($filter:ResourcesFilter, $orderby:Resourcesorderby){
-    Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+  query ${tableName}($filter:${tableName}Filter, $orderby:${tableName}orderby){
+    ${tableName}(limit: ${pageSize} offset: ${
+    offset.value
+  } filter:$filter  orderby:$orderby) {
       id
       name
       acronym
       description
       keywords
-      numberOfParticipants
       startYear
       endYear
-      type {
-          name
-      }
-      design {
-          name
-      }
       datasets {
         name
         label
       }
+      ${
+        tableName === "Collections"
+          ? `
+      numberOfParticipants
+      type { name }
+      design { name }
+      `
+          : `
+      networkType { name }
+      `
+      }
     }
-    Resources_agg (filter:$filter){
+    ${tableName}_agg (filter:$filter){
         count
     }
   }
@@ -229,16 +242,6 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (!result.type) {
-    if (route.params.resourceType === "collections") {
-      result.type = { tags: { equals: "collection" } };
-    }
-    if (route.params.resourceType === "networks") {
-      result.type = { tags: { equals: "network" } };
-    }
-  }
-
-  // add hard coded page specific filters
   if ("all" === route.params.catalogue) {
     return result;
   } else {
@@ -291,9 +294,9 @@ const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   },
 });
 
-const resources = computed(() => data.value?.data.Resources || []);
+const resources = computed(() => data.value?.data[tableName] || []);
 const numberOfResources = computed(
-  () => data.value?.data.Resources_agg.count || 0
+  () => data.value?.data[`${tableName}_agg`]?.count || 0
 );
 
 async function setCurrentPage(pageNumber: number) {
