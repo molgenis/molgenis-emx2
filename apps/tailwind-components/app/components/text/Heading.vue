@@ -3,7 +3,7 @@ import type { IHeadings } from "../../../types/cms";
 
 withDefaults(defineProps<IHeadings>(), {
   level: 2,
-  isCentered: false,
+  headingIsCentered: false,
 });
 </script>
 
@@ -18,7 +18,7 @@ withDefaults(defineProps<IHeadings>(), {
       'text-heading-3xl': level === 4,
       'text-heading-2xl': level === 5,
       'text-heading-xl': level === 6,
-      'text-center': isCentered,
+      'text-center': headingIsCentered,
     }"
   >
     {{ text }}

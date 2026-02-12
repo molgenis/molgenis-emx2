@@ -7,6 +7,8 @@ import type {
   Crumb,
   INotificationType,
 } from "../../../../../../tailwind-components/types/types";
+import type { IDeveloperPages } from "../../../../../../tailwind-components/types/cms";
+
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import ContentBlockModal from "../../../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import SideModal from "../../../../../../tailwind-components/app/components/SideModal.vue";
@@ -16,8 +18,8 @@ import Button from "../../../../../../tailwind-components/app/components/Button.
 import Message from "../../../../../../tailwind-components/app/components/Message.vue";
 import CodeEditor from "../../../../../../tailwind-components/app/components/editor/CodeEditor.vue";
 import HtmlPreview from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
+
 import {
-  type DeveloperPage,
   getPage,
   newDeveloperPage,
 } from "../../../../../../tailwind-components/app/utils/Pages";
@@ -38,10 +40,10 @@ const page = route.params.page as string;
 
 useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 
-const pageData = ref<DeveloperPage>(newDeveloperPage());
-const originalPageData = ref<DeveloperPage>(newDeveloperPage());
+const pageData = ref<IDeveloperPages>(newDeveloperPage());
+const originalPageData = ref<IDeveloperPages>(newDeveloperPage());
 
-pageData.value = await getPage(schema as string, page);
+pageData.value = (await getPage(schema as string, page)) as IDeveloperPages;
 originalPageData.value = { ...pageData.value };
 
 const hasUnsavedHtml = ref<boolean>(false);
@@ -49,7 +51,6 @@ const hasUnsavedCss = ref<boolean>(false);
 const hasUnsavedJs = ref<boolean>(false);
 
 const isSaving = ref<boolean>(false);
-const statusModal = ref<InstanceType<typeof SideModal>>();
 const statusModalData = ref<ModelStatus>({
   type: "info",
   message: "",
@@ -71,7 +72,7 @@ async function saveSetting() {
       type: "error",
       message: err.error ? err.error[0].message : err,
     };
-    console.log(statusModalData.value.message);
+    console.error(statusModalData.value.message);
   });
 
   if (response.data?.save) {
@@ -95,7 +96,7 @@ function hasUnsavedChanges(
   const newValueStr = JSON.stringify(newValue);
   const oldValueStr = JSON.stringify(oldValue);
   const originalValueStr = JSON.stringify(
-    originalPageData.value[type as keyof DeveloperPage]
+    originalPageData.value[type as keyof IDeveloperPages]
   );
   return newValueStr !== oldValueStr && newValueStr !== originalValueStr;
 }

@@ -9,12 +9,21 @@ nyx {
     verbosity = "INFO"
     preset = "simple"
     releasePrefix = "v"
+    git {
+        remotes {
+            origin {
+                authenticationMethod = "USER_PASSWORD"
+                user = "{{#environmentVariable}}GITHUB_TOKEN{{/environmentVariable}}"
+                password = ""
+            }
+        }
+    }
     releaseTypes {
         items {
             mainline {
                 matchBranches = "master"
-                gitTag = "true"
                 gitPush = "true"
+                gitTag = "true"
                 publish = "true"
                 description = "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
                 publicationServices = ["github"]
