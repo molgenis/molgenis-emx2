@@ -742,6 +742,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return jooq;
   }
 
+  public SqlRoleManager getRoleManager() {
+    return new SqlRoleManager(this);
+  }
+
   public DSLContext getJooqWithExtendedTimeout() {
     return jooq.configuration().derive(PROLONGED_TIMEOUT_JOOQ_SETTINGS).dsl();
   }

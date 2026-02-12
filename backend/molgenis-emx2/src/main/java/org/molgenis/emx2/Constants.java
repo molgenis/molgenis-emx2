@@ -9,7 +9,21 @@ public class Constants {
 
   public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
+  public static final String MG_GROUP = "mg_group";
+  public static final String MG_ROWLEVEL = "MG_ROWLEVEL";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
+
+  public static final String ROLE_EXISTS = "Exists";
+  public static final String ROLE_RANGE = "Range";
+  public static final String ROLE_AGGREGATOR = "Aggregator";
+  public static final String ROLE_COUNT = "Count";
+  public static final String ROLE_VIEWER = "Viewer";
+  public static final String ROLE_EDITOR = "Editor";
+  public static final String ROLE_MANAGER = "Manager";
+  public static final String ROLE_OWNER = "Owner";
+  public static final String ROLE_GROUP_VIEWER = "GroupViewer";
+  public static final String ROLE_GROUP_EDITOR = "GroupEditor";
+  public static final String MG_GLOBAL_PREFIX = "mg_global";
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";
