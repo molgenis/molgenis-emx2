@@ -13,17 +13,19 @@ By splitting into an inheritance hierarchy (all in one file), each table gets pr
 ```
 Resources (base - shared columns, NO rdf type)
 ├── Collections (extends Resources) → dcat:Dataset
-└── Networks (extends Resources) → foaf:Organisation (or similar)
+└── Networks (extends Resources) → foaf:Organisation
     └── Catalogues (extends Networks) → dcat:Catalog
 ```
 
-**CRUCIAL**: All tables stay in ONE file `Resources.csv` using `tableName` column to discriminate (like `Processes.csv` pattern). This preserves column order.
+**CRUCIAL**: All tables stay in ONE file `Resources.csv` using `tableName` column to discriminate (like `Processes.csv` pattern). Row order preserved — only `tableName` column changes.
 
 ---
 
-## Phase 1: Data Model — Edit Resources.csv
+## Phase 1: Data Model — Edit Resources.csv [DONE]
 
-### Resources (base table) — keep shared columns:
+Row order preserved from master. Only `tableName` column changed for moved rows. Table definition rows inserted before first column of each new table.
+
+### Resources (base table) — shared columns kept:
 - id, pid, name, local name, acronym
 - overview heading, hricore
 - website, description, keywords, contact email, logo
@@ -32,73 +34,65 @@ Resources (base - shared columns, NO rdf type)
 - issued, modified
 - internal/external identifiers (refbacks)
 - contributors heading, organisations involved, publisher, creator, people involved, contact point
-- part of networks (refback) — stays in Resources (all resources can be part of networks)
-- datasets (refback) — stays in Resources (networks define harmonized variable sets)
-- samplesets (refback)
-- counts (refback) — stays in Resources (counts applicable to networks too)
-- standards heading + mappings, common data models, ETL vocabularies — stays
+- part of networks (refback, refTable→Networks)
+- datasets (refback), samplesets (refback), counts (refback)
+- standards heading + mappings, common data models, ETL vocabularies
 - information heading, publications, documentation
 - funding sources, funding scheme, funding statement
 - citation requirements, acknowledgements, provenance statement, supplementary information
 - theme, applicable legislation
 - status
-- NO `rdf type` computed field (removed entirely)
-- NO `fdp endpoint`, `ldp membership relation`, `conforms to`, `has member relation`
-- NO `catalogue type`, `network type`
-- NO `type` (Resource types) — moves to Collections
-- NO `data resources`, `child networks`, `parent networks`
+- Simplified `required` expressions: removed type checks from keywords, creator, theme
 
-### Collections (extends Resources) — add rows with tableName=Collections:
-- Table row: `Collections,Resources,,,,,,,,,,dcat:Dataset,...`
-- type (ontology_array, Resource types — collection types)
+### Collections (extends Resources) — tableName=Collections:
+- type (ontology_array, Resource types)
 - cohort type, clinical study type, registry or health record type
-- design and structure section (all fields: design, design description, design schematic, data collection type, data collection description, reason sustained, record trigger, unit of observation)
-- subpopulations (refback), collection events (refback)
-- population section (all fields: number of participants, number of participants with samples, underlying population, population description, population of interest, population age groups, age min/max, inclusion/exclusion criteria, population entry/exit, population disease, oncology fields, population coverage/not covered)
-- available data and samples heading + areas of information, biospecimen, languages, multiple entries, data dictionary, disease details
-- linkage section (has identifier, identifier description, prelinked, linkage options/description/possibility, linked resources)
-- access conditions section (informed consent, access rights, data access/use conditions, access fees, access identifiable data, access third party, biospecimen access, governance, approval for publication)
-- updates section (release type/description, number of records, release frequency, refresh time, lag time, refresh period, date last refresh, preservation)
-- quality section (standard operating procedures, qualification, audit, completeness, quality description, validation, correction methods)
-- study details section (all EMA study fields)
-- study methods section
+- design and structure section, subpopulations/collection events refbacks
+- population section, available data and samples
+- linkage, access conditions, updates, quality sections
+- study details, study methods sections
+- Simplified `access rights` required expression
 
-### Networks (extends Resources) — add rows with tableName=Networks:
-- Table row: `Networks,Resources,,,,,,,,,,foaf:Organisation,...` (or appropriate semantic)
-- network type (ontology_array, CatalogueOntologies, Network types)
-- data resources (ref_array → Resources)
-- child networks (ref_array → Networks)
-- parent networks (refback from child networks)
+### Networks (extends Resources) — tableName=Networks:
+- network type (visible expression removed)
+- data resources (ref_array → Resources, both profile variants)
+- child networks (ref_array → Networks), parent networks (refback)
+- networks other
 
-### Catalogues (extends Networks) — add rows with tableName=Catalogues:
-- Table row: `Catalogues,Networks,,,,,,,,,,dcat:Catalog,...`
-- catalogue type (ontology, CatalogueOntologies, CatalogueTypes)
-- fdp endpoint (ref → Endpoint)
-- ldp membership relation (hyperlink)
-- conforms to (hyperlink)
-- has member relation (hyperlink)
+### Catalogues (extends Networks) — tableName=Catalogues:
+- catalogue type (visible expression removed), main catalogue (visible removed)
+- fdp endpoint, ldp membership relation, conforms to, has member relation
+
+### Deleted:
+- `rdf type` computed field removed entirely
 
 ---
 
-## Phase 2: Update referencing CSV model files
+## Phase 2: Update referencing CSV model files [DONE]
 
-### Change refTable to Collections:
-- `Subpopulations.csv`: refTable Resources → Collections
-- `Collection events.csv`: refTable Resources → Collections
-- `Subpopulation counts.csv`: references Subpopulations (no change needed)
+### Changed:
+- `Endpoint.csv`: `metadataCatalog` refTable → `Catalogues`
 
-### Keep refTable as Resources:
-- `Datasets.csv` — networks can define harmonized variables
-- `Samplesets.csv` — keep at Resources level
-- `Resource counts.csv` — counts applicable to networks too
+### Kept as Resources (inheritance handles it):
+- `Subpopulations.csv`, `Collection events.csv` — kept refTable=Resources
+  (Collections IS-A Resources, so refs work via inheritance; changing to Collections caused validation errors)
+- `Datasets.csv`, `Samplesets.csv`, `Resource counts.csv`
 - `Contacts.csv`, `Publications.csv`, `Documentation.csv`
-- `Variable mappings.csv`, `Dataset mappings.csv`, `Resource mappings.csv`
-- `External identifiers.csv`, `Internal identifiers.csv`
-- `Linkages.csv`, `Variables.csv`, `Variable values.csv`, `Reused variables.csv`
+- All mapping/identifier/variable CSVs
 - `Processes.csv`, `Individuals.csv`, `Materials.csv`, `Agents.csv`
 
-### Special case:
-- `Endpoint.csv`: `metadataCatalog` refTable → Catalogues
+### Demo data split [DONE]:
+- `datacatalogue/Resources.csv` → Collections (96), Networks (2), Catalogues (11)
+- `patient_registry/Resources.csv` → Collections (6), Catalogues (1)
+- `shared-examples/Resources.csv` → Collections (1)
+- `cohortstaging/Resources.csv` → Collections.csv (header only)
+- `networkstaging/Resources.csv` → Networks.csv (header only)
+- `_ontologies/Resources.csv` → Networks.csv (24 networks)
+- Removed `rdf type` column from all data files
+
+### Test [DONE]:
+- `ResourcesSplitTest.java` — verifies tables exist, inheritance correct, demo data loaded
+- All tests pass
 
 ---
 
@@ -150,3 +144,8 @@ Verify alignment with new shared model. The specific model already has Collectio
 3. `pnpm test` — catalogue app
 4. DCAT/RDF: dcat:Catalog for Catalogues, dcat:Dataset for Collections
 5. Catalogue app: search, detail pages work
+
+## Open questions
+- Phase 3: Does DataCatalogueFlat.csv need changes or is it independent?
+- Phase 4: How much frontend type-filtering logic needs removal vs adaptation?
+- Should existing CatalogueTest table count assertions be updated (was 24, now more)?
