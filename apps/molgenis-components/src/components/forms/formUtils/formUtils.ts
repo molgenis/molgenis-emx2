@@ -255,11 +255,11 @@ function getColumnValidationError(
   try {
     const result = executeExpression(validation, values, tableMetaData);
     if (result === false) {
-      return `Applying validation rule returned error: ${validation}`;
+      return validation;
     } else if (result === true || result === undefined) {
       return undefined;
     } else {
-      return `Applying validation rule returned error: ${result}`;
+      return result;
     }
   } catch (error) {
     return `Invalid validation expression '${validation}', reason: ${error}`;
