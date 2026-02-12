@@ -100,15 +100,15 @@ public class GraphqlExecutor {
 
     // we add fragments if contains "..."
     if (query.contains("...")) {
-      Pattern fragmentPattern = Pattern.compile("\\.\\.\\.\\s*(?!on\\b)([A-Za-z_][A-Za-z0-9_]*)");
+      Pattern fragmentPattern =
+          Pattern.compile("\\.\\.\\.\\s*([A-Za-z_][A-Za-z0-9_]*AllFields[0-9]?)");
       Matcher matcher = fragmentPattern.matcher(query);
       while (matcher.find()) {
         String name = matcher.group(1);
-        if (graphqlQueryFragments.containsKey(name)) {
-          query = graphqlQueryFragments.get(name) + "\n" + query;
-        } else if (!Pattern.compile("fragment\\s+" + name + "\\s+on\\s+").matcher(query).find()) {
+        if (!graphqlQueryFragments.containsKey(name)) {
           throw new MolgenisException("Graphql fragment not found: " + name);
         }
+        query = graphqlQueryFragments.get(name) + "\n" + query;
       }
     }
 
