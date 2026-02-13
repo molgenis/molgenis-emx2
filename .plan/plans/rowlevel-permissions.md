@@ -48,10 +48,10 @@ A single PG marker role `MG_ROWLEVEL` (no login, no privileges) tags row-level r
 
 ```sql
 CREATE ROLE "MG_ROWLEVEL" WITH NOLOGIN;
-GRANT "MG_ROWLEVEL" TO "MG_ROLE_myschema/GroupViewer";
+GRANT "MG_ROWLEVEL" TO "MG_ROLE_myschema/HospitalA";
 
-SELECT pg_has_role('MG_ROLE_myschema/GroupViewer', 'MG_ROWLEVEL', 'member');  -- true
-SELECT pg_has_role('MG_ROLE_myschema/Viewer', 'MG_ROWLEVEL', 'member');       -- false
+SELECT pg_has_role('MG_ROLE_myschema/HospitalA', 'MG_ROWLEVEL', 'member');  -- true
+SELECT pg_has_role('MG_ROLE_myschema/Viewer', 'MG_ROWLEVEL', 'member');     -- false
 ```
 
 ## Where Everything Lives (PG Catalog Only)
@@ -81,31 +81,38 @@ ALTER TABLE <schema>.<table> ENABLE ROW LEVEL SECURITY;
 - `ENABLE` not `FORCE` — table owner (molgenis superuser) bypasses RLS for DDL operations
 - Removing mg_group = disabling RLS (policies dropped, column optionally preserved)
 
-## Default Roles Per Schema
+## Default Roles Per Schema (Unchanged)
 
-When a schema is created, Java creates these roles (extending existing pattern):
+The existing 8 system roles per schema remain unchanged:
 
-| Role | PG Role | Row-Level | PG Grants |
-|------|---------|-----------|-----------|
-| Exists | MG_ROLE_schema/Exists | no | USAGE on schema |
-| Range | MG_ROLE_schema/Range | no | inherits Exists |
-| Aggregator | MG_ROLE_schema/Aggregator | no | inherits Range |
-| Count | MG_ROLE_schema/Count | no | inherits Aggregator |
-| Viewer | MG_ROLE_schema/Viewer | no | SELECT on all tables |
-| Editor | MG_ROLE_schema/Editor | no | INSERT/UPDATE/DELETE on all tables |
-| Manager | MG_ROLE_schema/Manager | no | ALL + WITH ADMIN OPTION |
-| Owner | MG_ROLE_schema/Owner | no | ALL + ADMIN |
-| GroupViewer | MG_ROLE_schema/GroupViewer | **yes** | SELECT on data tables, SELECT on ontology tables |
-| GroupEditor | MG_ROLE_schema/GroupEditor | **yes** | INSERT/UPDATE/DELETE on data tables |
+| Role | PG Role | PG Grants |
+|------|---------|-----------|
+| Exists | MG_ROLE_schema/Exists | USAGE on schema |
+| Range | MG_ROLE_schema/Range | inherits Exists |
+| Aggregator | MG_ROLE_schema/Aggregator | inherits Range |
+| Count | MG_ROLE_schema/Count | inherits Aggregator |
+| Viewer | MG_ROLE_schema/Viewer | SELECT on all tables |
+| Editor | MG_ROLE_schema/Editor | INSERT/UPDATE/DELETE on all tables |
+| Manager | MG_ROLE_schema/Manager | ALL + WITH ADMIN OPTION |
+| Owner | MG_ROLE_schema/Owner | ALL + ADMIN |
 
-**Inheritance chain** (critical — prevents pg_has_role transitivity bug):
-- GroupViewer inherits from Count (NOT from Viewer)
-- GroupEditor inherits from Count (NOT from GroupViewer)
-- This ensures `pg_has_role(GroupEditor, 'MG_ROWLEVEL', 'member')` = true only via direct grant
+All 8 system roles are protected from modification/deletion by SqlRoleManager.
 
-Row-level roles get: `GRANT MG_ROWLEVEL TO role`.
-GroupViewer/GroupEditor are NOT in Privileges enum — represented as String constants in SqlRoleManager.
-All system roles (8 enum + GroupViewer/GroupEditor) protected from modification/deletion.
+## Custom Row-Level Roles
+
+Admin creates custom roles per schema via SqlRoleManager. Each custom role has:
+- Per-table permissions (SELECT, INSERT, UPDATE, DELETE) — managed via GRANT/REVOKE
+- Optional MG_ROWLEVEL membership — makes it a row-level role
+- Members (users assigned to the role)
+
+Example workflow:
+```
+1. Admin creates role:     rm.createRole("myschema", "HospitalA", isRowLevel=true)
+2. Admin grants per-table: rm.grantTablePermission("myschema", "HospitalA", "patients", "SELECT")
+3. Admin assigns user:     rm.addMember("myschema", "HospitalA", "user1")
+4. Rows tagged:            mg_group = ['MG_ROLE_myschema/HospitalA']
+5. user1 queries:          sees only rows with matching mg_group
+```
 
 Global roles use schema prefix `mg_global`:
 - `MG_ROLE_mg_global/DataStewards` — cross-schema, accessed via `db.getSchema("mg_global")`
@@ -215,7 +222,7 @@ This logic lives in Java (SqlTable insert/update methods), not in triggers.
    - Create row-level role, verify MG_ROWLEVEL membership
    - Add/remove member, verify via pg_auth_members
    - Set per-table GRANT, verify via has_table_privilege
-   - System role protection (refuse modify/delete of Viewer, Editor, GroupViewer, GroupEditor, etc.)
+   - System role protection (refuse modify/delete of Viewer, Editor, etc.)
    - Global role creation (mg_global schema prefix)
    - Role description via COMMENT ON ROLE
    - **Negative tests**: duplicate role name (idempotent), delete system role, grant to non-existent table
@@ -241,13 +248,11 @@ This logic lives in Java (SqlTable insert/update methods), not in triggers.
 - `backend/molgenis-emx2/src/main/java/org/molgenis/emx2/Constants.java` (add MG_GROUP)
 
 ### Phase 2: Migration
-**Goal**: MG_ROWLEVEL marker role, new default roles
+**Goal**: Create MG_ROWLEVEL marker role
 
-1. Create `migration31.sql` (next after current migration30):
-   - Create `MG_ROWLEVEL` marker role (idempotent)
-   - Create GroupViewer + GroupEditor per existing schema (same loop pattern as migration10.sql)
-   - GroupViewer inherits from Count, GroupEditor inherits from Count
-   - `GRANT MG_ROWLEVEL TO` all new row-level roles
+1. Create `migration31.sql`:
+   - Create `MG_ROWLEVEL` marker role (idempotent, `CREATE ROLE IF NOT EXISTS` pattern)
+   - No per-schema roles created — custom roles are created on demand by admin via SqlRoleManager
    - Does NOT touch existing roles, grants, or table structure
 2. Update `Migrations.java`: bump `SOFTWARE_DATABASE_VERSION` to 32, add migration31 step
 
@@ -256,15 +261,15 @@ This logic lives in Java (SqlTable insert/update methods), not in triggers.
 - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/Migrations.java`
 
 ### Phase 3: SqlRoleManager (Java Layer)
-**Goal**: Central class for role operations, accessible via `database.getRoleManager()`
+**Goal**: Central class for custom role operations, accessible via `database.getRoleManager()`
 
 **API access pattern**:
 - `SqlRoleManager` constructed with `SqlDatabase` reference, uses `database.getJooq()` for current (possibly transactional) context
 - Accessible via `((SqlDatabase) database).getRoleManager()` (internal API)
-- Schema provides convenience helpers that delegate with schema name pre-filled (e.g., `schema.createRole(name, isRowLevel)`)
+- Schema provides convenience helpers that delegate with schema name pre-filled
 - Inside `tx()`: get RoleManager from the transactional `db` parameter to ensure correct jooq context
 
-1. Create `SqlRoleManager.java`:
+1. Implement `SqlRoleManager.java` (stub exists from Phase 1):
    - `createRole(schemaName, roleName, isRowLevel)` — idempotent CREATE ROLE + optional GRANT MG_ROWLEVEL
    - `deleteRole(schemaName, roleName)` — with system-role protection check
    - `addMember(schemaName, roleName, userName)` — GRANT role TO user
@@ -274,40 +279,31 @@ This logic lives in Java (SqlTable insert/update methods), not in triggers.
    - `getRowLevelRolesForUser(userName, schemaName)` — filtered for caching
    - `isRowLevel(schemaName, roleName)` — pg_has_role(role, MG_ROWLEVEL, member)
    - `roleExists(schemaName, roleName)` — query pg_roles
-   - `setTablePermission(schemaName, roleName, tableName, privilege)` — per-table GRANT
+   - `grantTablePermission(schemaName, roleName, tableName, privilege)` — per-table GRANT
    - `revokeTablePermission(schemaName, roleName, tableName, privilege)` — per-table REVOKE
    - `getRolesForSchema(schemaName)` — query pg_roles WHERE rolname LIKE prefix
-   - `isSystemRole(roleName)` — checks 8 enum values + GroupViewer/GroupEditor
+   - `isSystemRole(roleName)` — checks 8 existing enum values
    - `setDescription(schemaName, roleName, description)` — COMMENT ON ROLE
    - `getDescription(schemaName, roleName)` — shobj_description()
 
    Role creation is idempotent (`DO $$ IF NOT EXISTS...$$` pattern from existing codebase).
 
-2. System role constants:
+2. System role constants (in Constants.java):
    ```java
-   static final String GROUPVIEWER = "GroupViewer";
-   static final String GROUPEDITOR = "GroupEditor";
-   static final List<String> SYSTEM_ROLES = List.of(
-     "Exists", "Range", "Aggregator", "Count",
-     "Viewer", "Editor", "Manager", "Owner",
-     GROUPVIEWER, GROUPEDITOR);
+   ROLE_EXISTS, ROLE_RANGE, ROLE_AGGREGATOR, ROLE_COUNT,
+   ROLE_VIEWER, ROLE_EDITOR, ROLE_MANAGER, ROLE_OWNER
    ```
 
-3. Add `getRoleManager()` to `SqlDatabase`
+3. `getRoleManager()` already added to `SqlDatabase` (Phase 1)
 
-4. Update `SqlSchemaMetadataExecutor.executeCreateSchema()`:
-   - After creating existing 8 roles, also create GroupViewer + GroupEditor
-   - GRANT MG_ROWLEVEL TO new row-level roles
+4. Update `SqlSchemaMetadataExecutor.executeDropSchema()`:
+   - Drop custom roles for schema (query pg_roles by prefix, skip system roles)
 
-5. Update `SqlSchemaMetadataExecutor.executeDropSchema()`:
-   - Drop custom roles for schema (query pg_roles by prefix)
-
-6. Update `SqlTableMetadataExecutor.executeCreateTable()`:
-   - After existing grants, also GRANT to custom roles for this schema
+5. Update `SqlTableMetadataExecutor.executeCreateTable()`:
+   - After existing grants, also GRANT to custom roles that have permissions on this schema
 
 **Critical files**:
-- `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java` (implement stub from Phase 1)
-- `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlDatabase.java`
+- `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java` (implement stub)
 - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlSchemaMetadataExecutor.java`
 - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlTableMetadataExecutor.java`
 
@@ -387,13 +383,12 @@ This logic lives in Java (SqlTable insert/update methods), not in triggers.
 
 ## Migration Strategy
 
-Migration 31 (minimal, no custom tables):
+Migration 31 (minimal):
 1. Create `MG_ROWLEVEL` marker role (idempotent)
-2. For each existing schema: create GroupViewer + GroupEditor roles, GRANT MG_ROWLEVEL
-3. GroupViewer inherits Count, GroupEditor inherits Count (NOT from each other)
-4. Does NOT touch existing roles, grants, or table structure
-5. No custom metadata tables created
-6. Idempotent — safe to re-run (uses EXCEPTION WHEN duplicate_object pattern from migration10.sql)
+2. Does NOT touch existing roles, grants, or table structure
+3. No custom metadata tables created
+4. No per-schema roles created — custom roles are created on demand by admin
+5. Idempotent — safe to re-run
 
 ## Branch Strategy
 
@@ -421,11 +416,11 @@ Branch `mswertz/rowlevel-permissions-v2` created from master (current feat/rowle
 
 **Chosen**: Option 4. Zero custom tables. PG catalog is sole source of truth.
 
-### GroupViewer/GroupEditor NOT in Privileges enum
+### No predefined row-level roles (GroupViewer/GroupEditor removed)
 
-**Problem**: Adding to Privileges enum breaks `Privileges.values()` iteration in tests, GraphQL, etc.
+**Problem**: Original plan had GroupViewer/GroupEditor as system roles per schema. But all GroupViewer users would see the same rows — defeats the purpose of row-level security. The original `feat/rowlevel_permissions` branch also used custom groups, not predefined ones.
 
-**Chosen**: Keep enum as-is (8 values: EXISTS→OWNER). GroupViewer/GroupEditor are String constants in SqlRoleManager. System role protection checks both enum and constants.
+**Chosen**: No predefined row-level roles. Admin creates custom roles (e.g., HospitalA, HospitalB) via SqlRoleManager with per-table permissions. This matches the original branch's approach but with Java orchestration instead of triggers.
 
 ### ENABLE vs FORCE ROW LEVEL SECURITY
 
@@ -439,11 +434,11 @@ Branch `mswertz/rowlevel-permissions-v2` created from master (current feat/rowle
 
 **Chosen**: `DEFAULT NULL`. Policies handle NULL explicitly: `mg_group IS NULL` in USING means unassigned rows are visible; `mg_group IS NOT NULL` in WITH CHECK means row-level users must specify group.
 
-### GroupEditor inheritance
+### Custom roles have per-table permissions (not "all tables")
 
-**Problem**: If GroupEditor inherits GroupViewer, `pg_has_role(GroupEditor, 'MG_ROWLEVEL', 'member')` becomes true transitively.
+**Problem**: Original plan gave GroupViewer SELECT on all tables. Real use case needs granular control — a group might have SELECT on `patients` but no access to `financials`.
 
-**Chosen**: GroupEditor inherits from Count only. No inheritance from GroupViewer. Both get direct `GRANT MG_ROWLEVEL`.
+**Chosen**: Each custom role gets per-table GRANT/REVOKE via SqlRoleManager. Matches original branch's `group_permissions` model but stored purely in PG catalog (no custom metadata table).
 
 ## Review Findings (Incorporated)
 
@@ -456,11 +451,11 @@ All approved architecture. Critical findings integrated above:
 
 ## Open Questions (Resolved)
 
-1. ~~Extend Privileges enum?~~ → **No**, use String constants in SqlRoleManager
+1. ~~Extend Privileges enum?~~ → **No**, keep 8 values unchanged
 2. ~~Global group schema name?~~ → **mg_global**, accessed via virtual schema pattern
 3. ~~mg_group on all tables?~~ → **Only when RLS enabled** on that specific table
 4. ~~Need group_metadata table?~~ → **No**, use MG_ROWLEVEL marker role instead
 5. ~~FORCE or ENABLE RLS?~~ → **ENABLE** only (owner bypasses)
 6. ~~mg_group DEFAULT?~~ → **NULL** (not '{}')
-7. ~~GroupEditor inherits GroupViewer?~~ → **No**, both inherit Count independently
-8. ~~Privileges enum?~~ → **Keep 8 values**, constants for GroupViewer/GroupEditor
+7. ~~Need GroupViewer/GroupEditor per schema?~~ → **No**, admin creates custom roles with per-table permissions
+8. ~~Predefined row-level roles?~~ → **No**, custom roles only (matches original branch design)

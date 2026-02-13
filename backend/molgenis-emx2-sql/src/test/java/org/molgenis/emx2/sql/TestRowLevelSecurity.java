@@ -109,6 +109,10 @@ public class TestRowLevelSecurity {
 
           table.getMetadata().enableRowLevelSecurity();
 
+          SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
+          rm.createRole(schema.getName(), "GroupA", true);
+          rm.createRole(schema.getName(), "GroupB", true);
+
           db.addUser("rls_viewer");
           schema.addMember("rls_viewer", VIEWER.toString());
 
@@ -116,11 +120,15 @@ public class TestRowLevelSecurity {
               new Row()
                   .setString("id", "1")
                   .setString("data", "data1")
-                  .set(MG_GROUP, new String[] {"GroupA"}),
+                  .set(
+                      MG_GROUP,
+                      new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}),
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
-                  .set(MG_GROUP, new String[] {"GroupB"}));
+                  .set(
+                      MG_GROUP,
+                      new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_viewer");
 
@@ -142,6 +150,8 @@ public class TestRowLevelSecurity {
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA", true);
 
+          rm.createRole(schema.getName(), "GroupB", true);
+
           db.addUser("rls_both");
           rm.addMember(schema.getName(), "GroupA", "rls_both");
           schema.addMember("rls_both", VIEWER.toString());
@@ -156,7 +166,9 @@ public class TestRowLevelSecurity {
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
-                  .set(MG_GROUP, new String[] {"GroupB"}));
+                  .set(
+                      MG_GROUP,
+                      new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_both");
 
@@ -295,6 +307,10 @@ public class TestRowLevelSecurity {
 
           table.getMetadata().enableRowLevelSecurity();
 
+          SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
+          rm.createRole(schema.getName(), "GroupA", true);
+          rm.createRole(schema.getName(), "GroupB", true);
+
           db.addUser("rls_admin");
           schema.addMember("rls_admin", OWNER.toString());
 
@@ -302,11 +318,15 @@ public class TestRowLevelSecurity {
               new Row()
                   .setString("id", "1")
                   .setString("data", "data1")
-                  .set(MG_GROUP, new String[] {"GroupA"}),
+                  .set(
+                      MG_GROUP,
+                      new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}),
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
-                  .set(MG_GROUP, new String[] {"GroupB"}));
+                  .set(
+                      MG_GROUP,
+                      new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_admin");
 
@@ -325,11 +345,16 @@ public class TestRowLevelSecurity {
 
           table.getMetadata().enableRowLevelSecurity();
 
+          SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
+          rm.createRole(schema.getName(), "GroupA", true);
+
           table.insert(
               new Row()
                   .setString("id", "1")
                   .setString("data", "data1")
-                  .set(MG_GROUP, new String[] {"GroupA"}));
+                  .set(
+                      MG_GROUP,
+                      new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("anonymous");
 

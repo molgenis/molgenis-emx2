@@ -143,14 +143,6 @@ public class TestSqlRoleManager {
               MolgenisException.class,
               () -> rm.deleteRole("TestRM_systemProtection", "Editor"),
               "Should not allow deletion of system role Editor");
-          assertThrows(
-              MolgenisException.class,
-              () -> rm.deleteRole("TestRM_systemProtection", "GroupViewer"),
-              "Should not allow deletion of system role GroupViewer");
-          assertThrows(
-              MolgenisException.class,
-              () -> rm.deleteRole("TestRM_systemProtection", "GroupEditor"),
-              "Should not allow deletion of system role GroupEditor");
         });
   }
 

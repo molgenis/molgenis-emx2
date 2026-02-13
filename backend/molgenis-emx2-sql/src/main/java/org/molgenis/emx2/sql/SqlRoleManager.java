@@ -15,9 +15,7 @@ public class SqlRoleManager {
           ROLE_VIEWER,
           ROLE_EDITOR,
           ROLE_MANAGER,
-          ROLE_OWNER,
-          ROLE_GROUP_VIEWER,
-          ROLE_GROUP_EDITOR);
+          ROLE_OWNER);
 
   private final SqlDatabase database;
 
