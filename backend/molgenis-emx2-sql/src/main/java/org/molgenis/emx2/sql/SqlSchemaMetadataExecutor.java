@@ -10,7 +10,6 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
 class SqlSchemaMetadataExecutor {
@@ -23,6 +22,9 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().createSchema(schema.getName()).execute();
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
+
+    // Create default role hierarchy (replaces trigger-based create_or_update_schema_groups)
+    SqlPermissionExecutor.createSchemaGroups(db.getJooq(), schema.getName());
   }
 
   static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {
@@ -42,18 +44,9 @@ class SqlSchemaMetadataExecutor {
       schema.getDatabase().addUser(member.getUser());
     }
 
-    // Trigger wil grant permissions
+    // Add user to group and grant PostgreSQL role (replaces trigger-based approach)
     String groupName = schema.getName() + "/" + member.getRole();
-    jooq.update(GROUP_METADATA)
-        .set(
-            USERS,
-            DSL.when(
-                    DSL.not(DSL.condition("? = any(" + USERS + ")", member.getUser())),
-                    DSL.arrayAppend(USERS, member.getUser()))
-                .otherwise(USERS))
-        .where(GROUP_NAME.eq(groupName))
-        .execute();
-    jooq.execute("SELECT \"MOLGENIS\".refresh_user_permissions_mv()");
+    SqlPermissionExecutor.addUserToGroup(jooq, groupName, member.getUser());
   }
 
   static String getRolePrefix(String name) {
@@ -108,13 +101,8 @@ class SqlSchemaMetadataExecutor {
 
       for (Member m : schema.getMembers()) {
         if (usernames.contains(m.getUser())) {
-          String groupName = m.getRole();
-          db.getJooq()
-              .update(GROUP_METADATA)
-              .set(USERS, DSL.arrayRemove(USERS, m.getUser()))
-              .where(GROUP_NAME.eq(groupName))
-              .execute();
-          db.getJooq().execute("SELECT \"MOLGENIS\".refresh_user_permissions_mv()");
+          // Remove user from group and revoke PostgreSQL role (replaces trigger-based approach)
+          SqlPermissionExecutor.removeUserFromGroup(db.getJooq(), m.getRole(), m.getUser());
         }
       }
     } catch (DataAccessException dae) {

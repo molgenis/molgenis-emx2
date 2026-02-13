@@ -208,7 +208,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               .permissions()
               .forEach(
                   permission ->
-                      MetadataUtils.savePermissions(
+                      // Save metadata AND apply PostgreSQL grants (replaces trigger-based approach)
+                      SqlPermissionExecutor.grantPermissionsForGroup(
                           db.getJooq(), groupPermission.groupName(), permission));
         });
   }
