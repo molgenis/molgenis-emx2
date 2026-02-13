@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.Constants.MG_CAN_EDIT;
+import static org.molgenis.emx2.Constants.MG_ROLES;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -25,7 +25,7 @@ public class TestRowLevelSecurity {
   }
 
   @Test
-  public void testEnableRlsAddsMgGroupColumn() {
+  public void testEnableRlsAddsMgRolesColumn() {
     database.tx(
         db -> {
           Schema schema = db.dropCreateSchema("TestRLS_enableRls");
@@ -39,9 +39,9 @@ public class TestRowLevelSecurity {
                   .fetchOne(
                       "SELECT EXISTS(SELECT 1 FROM information_schema.columns "
                           + "WHERE table_schema = {0} AND table_name = {1} AND column_name = {2})",
-                      schema.getName(), "datatable", MG_CAN_EDIT)
+                      schema.getName(), "datatable", MG_ROLES)
                   .into(Boolean.class);
-          assertTrue(columnExists, "mg_can_edit column should exist after enabling RLS");
+          assertTrue(columnExists, "mg_roles column should exist after enabling RLS");
 
           Boolean rlsEnabled =
               jooq(db)
@@ -77,19 +77,19 @@ public class TestRowLevelSecurity {
                   .setString("id", "1")
                   .setString("data", "data1")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}),
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}),
               new Row()
                   .setString("id", "3")
                   .setString("data", "data3")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("rls_user1");
@@ -121,13 +121,13 @@ public class TestRowLevelSecurity {
                   .setString("id", "1")
                   .setString("data", "data1")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}),
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_viewer");
@@ -161,13 +161,13 @@ public class TestRowLevelSecurity {
                   .setString("id", "1")
                   .setString("data", "data1")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}),
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_both");
@@ -181,7 +181,7 @@ public class TestRowLevelSecurity {
   }
 
   @Test
-  public void testNullMgGroupVisibleToAll() {
+  public void testNullMgRolesVisibleToAll() {
     database.tx(
         db -> {
           Schema schema = db.dropCreateSchema("TestRLS_nullGroup");
@@ -202,7 +202,7 @@ public class TestRowLevelSecurity {
                   .setString("id", "2")
                   .setString("data", "private")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("rls_null_user");
@@ -210,7 +210,7 @@ public class TestRowLevelSecurity {
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertTrue(
               rows.stream().anyMatch(r -> "1".equals(r.getString("id"))),
-              "Row-level user should see rows with NULL mg_can_edit");
+              "Row-level user should see rows with NULL mg_roles");
         });
   }
 
@@ -241,10 +241,9 @@ public class TestRowLevelSecurity {
                   .fetchOne(
                       "SELECT EXISTS(SELECT 1 FROM information_schema.columns "
                           + "WHERE table_schema = {0} AND table_name = {1} AND column_name = {2})",
-                      schema.getName(), "datatable", MG_CAN_EDIT)
+                      schema.getName(), "datatable", MG_ROLES)
                   .into(Boolean.class);
-          assertTrue(
-              columnStillExists, "mg_can_edit column should be preserved after disabling RLS");
+          assertTrue(columnStillExists, "mg_roles column should be preserved after disabling RLS");
 
           Boolean rlsAfter =
               jooq(db)
@@ -282,11 +281,11 @@ public class TestRowLevelSecurity {
               new Row()
                   .setString("id", "1")
                   .setString("data", "data1")
-                  .set(MG_CAN_EDIT, new String[] {groupA}),
+                  .set(MG_ROLES, new String[] {groupA}),
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
-                  .set(MG_CAN_EDIT, new String[] {groupB}));
+                  .set(MG_ROLES, new String[] {groupB}));
 
           db.setActiveUser("rls_deleter");
           table.delete(new Row().setString("id", "1"));
@@ -320,13 +319,13 @@ public class TestRowLevelSecurity {
                   .setString("id", "1")
                   .setString("data", "data1")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}),
               new Row()
                   .setString("id", "2")
                   .setString("data", "data2")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_admin");
@@ -354,7 +353,7 @@ public class TestRowLevelSecurity {
                   .setString("id", "1")
                   .setString("data", "data1")
                   .set(
-                      MG_CAN_EDIT,
+                      MG_ROLES,
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("anonymous");

@@ -6,26 +6,27 @@ MOLGENIS EMX2 currently has schema-level roles (Viewer, Editor, Manager, Owner) 
 
 ### Feature overview
 
-**Row-level ACL columns** (per table, opt-in):
-- `mg_can_edit TEXT[]` — roles that can read+write this row (owning group)
-- `mg_can_view TEXT[]` — roles that can read this row (additional read-only grants)
+**Row-level access column** (per table, opt-in):
+- `mg_roles TEXT[]` — which roles can access this row
+- What a role can DO (SELECT, INSERT, UPDATE, DELETE) is controlled by table-level GRANTs
+- The row says WHO has access; the grant says WHAT they can do
 
 **Per-table visibility pattern** (different tables in the same schema can use different patterns):
-- **Pattern A** (public read, group write): everyone can SELECT, mg_can_edit members OR schema-level users can modify
-- **Pattern B** (group read+write): mg_can_edit/mg_can_view members OR schema-level users can SELECT, mg_can_edit members OR schema-level users can modify
-- **No RLS**: table has no mg_can_edit column, no row-level filtering (e.g. shared ontology tables)
+- **Pattern A** (public read, group write): everyone can SELECT, mg_roles members OR schema-level users can modify
+- **Pattern B** (group read+write): mg_roles members OR schema-level users can SELECT and modify
+- **No RLS**: table has no mg_roles column, no row-level filtering (e.g. shared ontology tables)
 
 Schema-level users (system roles like Viewer/Editor/Owner AND custom roles with `isRowLevel=false`) always bypass row-level filtering — they see and edit all rows according to their table-level permissions.
 
 **Permission granularity** (all using PostgreSQL native GRANT/REVOKE):
 - **Table-level**: GRANT SELECT/INSERT/UPDATE/DELETE ON table TO role
-- **Column-level**: GRANT SELECT/UPDATE(column) ON table TO role
-- **Row-level**: RLS policies filtering by mg_can_edit/mg_can_view arrays
+- **Column-level**: GRANT SELECT/UPDATE(column) ON table TO role (use sparingly, see 3.3)
+- **Row-level**: RLS policies filtering by mg_roles array
 
 **Workflow support**:
 - `mg_status` column with state machine (Draft -> Submitted -> Published -> Withdrawn) — new feature, does NOT replace existing mg_draft (to be discussed)
 - Column-level permission controls who can transition states
-- Append-only provenance table for audit trail
+- Append-only provenance table for audit trail (tamper-evident, not tamper-proof — see 3.9)
 
 **Role management** (custom roles via SqlRoleManager):
 - Create/delete custom roles per schema
@@ -33,15 +34,26 @@ Schema-level users (system roles like Viewer/Editor/Owner AND custom roles with 
 - Add/remove user membership
 - Row-level roles tagged via MG_ROWLEVEL marker
 
-### Naming: Linux ACL-inspired
+### How mg_roles + table GRANTs work together
 
-| Column | Linux analogy | Controls |
-|--------|---------------|----------|
-| `mg_can_edit` | Owning group (rw) | Who can read+write this row |
-| `mg_can_view` | Extended ACL / read group (r) | Who can read this row (in addition to mg_can_edit) |
-| Pattern A/B | "other" permissions | World-readable (A) or private (B) |
+| Role | Table GRANT | mg_roles | Result |
+|------|------------|----------|--------|
+| HospitalA | SELECT, INSERT, UPDATE | Listed in row | Can read, insert, update this row (not delete) |
+| Researcher | SELECT | Listed in row | Can read this row only |
+| Publisher | SELECT, UPDATE(mg_status) | Schema-level (bypasses) | Can read all rows, change status |
+| Viewer | SELECT | Schema-level (bypasses) | Can read all rows |
 
-Both columns are optional `TEXT[]` with GIN index. `mg_can_view` is useful on any RLS-enabled table where read/write separation is needed (most common with Pattern B, but also valid with Pattern A for explicit read-only grants).
+Single column. Row says WHO. Grant says WHAT.
+
+### Why TEXT[] (not a join table)
+
+A join table (`mg_row_access(table_name, row_id, role_name)`) was considered. TEXT[] chosen because:
+- Atomic: row + permissions in one INSERT (no dual-table consistency)
+- Import-friendly: one CSV row = one data row with mg_roles column
+- Composite PK safe: no need to serialize diverse PK types to TEXT
+- Fits MOLGENIS column model (like mg_draft, mg_insertedBy — all on the row)
+
+Trade-offs accepted: no FK to pg_roles (mitigated by application-layer validation on insert/import), no per-grant metadata (mitigated by provenance table).
 
 ---
 
@@ -71,11 +83,11 @@ These scenarios were developed using **synthetic personas** — AI-generated dom
 
 For large catalogues where per-submission review doesn't scale.
 
-| Role | SELECT | INSERT | UPDATE | DELETE | mg_status |
-|------|--------|--------|--------|--------|-----------|
-| OrgA (row-level) | All rows | Own rows only | Own rows only | None | Draft/Submitted only |
-| Publisher (schema-level) | All rows | All rows | All rows | All rows | Any state |
-| Viewer (schema-level) | All rows | - | - | - | - |
+| Role | Table GRANTs | mg_roles | mg_status |
+|------|-------------|----------|-----------|
+| OrgA (row-level) | SELECT, INSERT, UPDATE | Listed in own rows | Draft/Submitted only |
+| Publisher (schema-level) | SELECT, INSERT, UPDATE, DELETE | Bypasses | Any state |
+| Viewer (schema-level) | SELECT | Bypasses | - |
 
 Pattern A. Organizations responsible for own quality. Automated validation + periodic audits.
 
@@ -83,11 +95,11 @@ Pattern A. Organizations responsible for own quality. Automated validation + per
 
 For catalogues requiring central curation before publishing.
 
-| Role | SELECT | INSERT | UPDATE | DELETE | mg_status |
-|------|--------|--------|--------|--------|-----------|
-| OrgA (row-level) | All rows | Own rows only | Own Draft rows only | None | Draft/Submitted only |
-| Editor in Chief (schema-level) | All rows | All rows | All rows | All rows | Any state |
-| Viewer (schema-level) | Published only | - | - | - | - |
+| Role | Table GRANTs | mg_roles | mg_status |
+|------|-------------|----------|-----------|
+| OrgA (row-level) | SELECT, INSERT, UPDATE | Listed in own rows | Draft/Submitted only |
+| Editor in Chief (schema-level) | SELECT, INSERT, UPDATE, DELETE | Bypasses | Any state |
+| Viewer (schema-level) | SELECT | Bypasses | - |
 
 Pattern A with status-aware visibility. Editor controls full lifecycle:
 
@@ -154,22 +166,15 @@ Pattern A for metadata, Pattern B for data. DOI = never delete. Curators edit me
 
 ## 3. Requirements
 
-### 3.1 Row-level ACL
+### 3.1 Row-level access (mg_roles)
 
-**mg_can_edit** (owning group, read+write):
+**mg_roles** (which roles can access this row):
 - `TEXT[] DEFAULT NULL`, GIN indexed
-- Controls INSERT/UPDATE/DELETE access to the row
-- Also grants SELECT (members of mg_can_edit can always read their rows)
+- Lists role names that have row-level access to this row
+- What each role can DO is controlled by table-level GRANTs (SELECT, INSERT, UPDATE, DELETE)
 - Auto-assigned on INSERT if user has exactly 1 row-level role
-- Multiple values = shared ownership: `['HospitalA', 'HospitalB']`
+- Multiple values = shared access: `['HospitalA', 'HospitalB']`
 - NULL = visible to schema-level users only (safe default)
-
-**mg_can_view** (extended ACL, read-only):
-- `TEXT[] DEFAULT NULL`, GIN indexed, optional
-- Grants SELECT access in addition to mg_can_edit
-- Only needed on Pattern B tables where read/write separation is required
-- Use cases: approved researchers, departed collaborators, cross-institute projects
-- Time-limited: managed via role expiration + cleanup job
 
 **RLS policies:**
 
@@ -177,29 +182,32 @@ Pattern A (public read, group write):
 ```sql
 CREATE POLICY select_all ON table FOR SELECT USING (true);
 CREATE POLICY group_write ON table FOR INSERT
-  WITH CHECK (is_schema_level_user() OR mg_can_edit && current_user_roles());
+  WITH CHECK (is_schema_level_user() OR mg_roles && current_user_roles());
 CREATE POLICY group_update ON table FOR UPDATE
-  USING (is_schema_level_user() OR mg_can_edit && current_user_roles());
+  USING (is_schema_level_user() OR mg_roles && current_user_roles())
+  WITH CHECK (is_schema_level_user() OR mg_roles && current_user_roles());
 CREATE POLICY group_delete ON table FOR DELETE
-  USING (is_schema_level_user() OR mg_can_edit && current_user_roles());
+  USING (is_schema_level_user() OR mg_roles && current_user_roles());
 ```
 
 Pattern B (group read + group write):
 ```sql
 CREATE POLICY group_or_schema_read ON table FOR SELECT
   USING (is_schema_level_user()
-    OR mg_can_edit && current_user_roles()
-    OR mg_can_view && current_user_roles()
-    OR mg_can_edit IS NULL);
+    OR mg_roles && current_user_roles()
+    OR mg_roles IS NULL);
 CREATE POLICY group_write ON table FOR INSERT
-  WITH CHECK (is_schema_level_user() OR mg_can_edit && current_user_roles());
+  WITH CHECK (is_schema_level_user() OR mg_roles && current_user_roles());
 CREATE POLICY group_update ON table FOR UPDATE
-  USING (is_schema_level_user() OR mg_can_edit && current_user_roles());
+  USING (is_schema_level_user() OR mg_roles && current_user_roles())
+  WITH CHECK (is_schema_level_user() OR mg_roles && current_user_roles());
 CREATE POLICY group_delete ON table FOR DELETE
-  USING (is_schema_level_user() OR mg_can_edit && current_user_roles());
+  USING (is_schema_level_user() OR mg_roles && current_user_roles());
 ```
 
 `is_schema_level_user()` returns true for any user who has a non-MG_ROWLEVEL role in this schema. This includes the 8 system roles (Viewer through Owner) AND custom roles created with `isRowLevel=false`.
+
+**Important:** UPDATE policy has both `USING` (which rows you can update) AND `WITH CHECK` (what the row must look like after update). This prevents a user from removing themselves from mg_roles or adding other groups. Additional application-layer validation in `SqlTable.update()`: reject changes to mg_roles unless user is schema Manager+.
 
 ### 3.2 Table-level permissions
 
@@ -209,7 +217,9 @@ grantTablePermission(schema, role, table, privilege)   // SELECT, INSERT, UPDATE
 revokeTablePermission(schema, role, table, privilege)
 ```
 
-Enables: different roles see different tables. InstituteA gets SELECT on metadata tables, SELECT+INSERT+UPDATE on subject tables. Researcher gets SELECT only.
+This is how read vs write is controlled per role:
+- Role "HospitalA" with `GRANT SELECT, INSERT, UPDATE` on patients → can read+insert+update own rows, cannot delete
+- Role "Researcher" with `GRANT SELECT` on patients → read-only on own rows
 
 ### 3.3 Column-level permissions
 
@@ -223,11 +233,11 @@ GRANT SELECT(age, sex, diagnosis) ON subjects TO "MG_ROLE_rd3/ResearcherX";
 GRANT UPDATE(mg_status) ON datasets TO "MG_ROLE_catalogue/Publisher";
 ```
 
-Enables:
-- Researchers: demographics but not genomics
-- Curators: edit metadata columns but not data columns
-- Publisher: only role that can change mg_status
-- Stored in PG catalog (`information_schema.column_privileges`)
+**Use sparingly.** Column-level GRANTs have PG gotchas:
+- Breaks `SELECT *` (permission denied on ungrated columns)
+- UPDATE requires SELECT on WHERE columns
+- Grants don't cascade on schema changes (new columns not auto-granted)
+- Prefer views for complex column visibility; use column GRANTs mainly for `UPDATE(mg_status)` restriction
 
 ### 3.4 Per-table RLS pattern
 
@@ -254,8 +264,6 @@ Proposed column with configurable states:
 
 Controlled via column-level permissions: `GRANT UPDATE(mg_status)` to specific roles with app-level validation of allowed transitions.
 
-RLS write policy can be conditioned on status: org can UPDATE only when mg_status IN ('Draft', 'Revision needed').
-
 ### 3.6 Provenance table (append-only)
 
 Tracks all state changes, ownership transfers, and significant edits. Rows can never be edited or deleted.
@@ -268,18 +276,18 @@ Tracks all state changes, ownership transfers, and significant edits. Rows can n
 | table_name | TEXT | Which table |
 | row_id | TEXT | Which row |
 | action | TEXT | created, submitted, published, revision_requested, withdrawn, deleted, field_changed |
-| mg_can_edit | TEXT[] | Group of row at time of action |
+| mg_roles | TEXT[] | Group of row at time of action |
 | details | JSONB | Old/new values, notes, reason |
 
-Permissions: all roles INSERT only. No UPDATE/DELETE. Schema-level users SELECT all. Row-level users SELECT own rows (filtered by mg_can_edit).
+Permissions: all roles INSERT only. No UPDATE/DELETE. Schema-level users SELECT all. Row-level users SELECT own rows (filtered by mg_roles).
 
 Automatic entries via triggers or application layer on: record creation, status change, group change, deletion, key field changes.
 
 ### 3.7 Group inheritance across tables
 
 When child rows reference parent rows (Subject -> Samples -> Experiments):
-- Option A: Explicit mg_can_edit per row (user sets each)
-- Option B: Inherit from parent on INSERT (auto-copy mg_can_edit from referenced row)
+- Option A: Explicit mg_roles per row (user sets each)
+- Option B: Inherit from parent on INSERT (auto-copy mg_roles from referenced row)
 - Option C: Mixed (inherit by default, allow override)
 
 Open question: which default? Inheritance simplifies but may not fit all cases (e.g., sample sent to external lab).
@@ -289,11 +297,69 @@ Open question: which default? Inheritance simplifies but may not fit all cases (
 - **Create**: custom role per schema, tagged row-level via MG_ROWLEVEL marker
 - **Members**: add/remove users to role
 - **Permissions**: grant per-table and per-column privileges
-- **Archive**: remove all members but keep role in pg_roles (mg_can_edit references preserved)
-- **Delete**: only if no mg_can_edit/mg_can_view references exist, else warn
+- **Archive**: remove all members but keep role in pg_roles (mg_roles references preserved)
+- **Delete**: only if no mg_roles references exist, else warn
 - **Expiration**: role description JSON with expires field, scheduled cleanup job
 - **Templates**: predefined permission bundles ("Phenotype Analyst" = SELECT on tables X,Y,Z)
 - **Bulk creation**: 200+ groups via script/CSV import
+
+### 3.9 Security considerations
+
+#### Threat model
+
+RLS protects against:
+- **Authorized users exceeding their data scope** — user in GroupA cannot see GroupB rows
+- **Application-mediated access control** — GraphQL/API queries are filtered by PG policies
+
+RLS does NOT protect against:
+- **SQL injection** — application connects as table owner, owner bypasses ENABLE RLS
+- **Superuser/DBA access** — superuser sees everything
+- **Application bugs that skip SET ROLE** — runs as owner, bypasses RLS
+
+Trust boundaries: superuser and application owner role are trusted. User-level roles are untrusted and subject to RLS.
+
+#### ENABLE vs FORCE RLS
+
+Current choice: `ENABLE ROW LEVEL SECURITY` (table owner bypasses).
+
+FORCE RLS would require: separate `MG_APPLICATION` role (not table owner), superuser for DDL only. Significant architecture change to MOLGENIS connection management.
+
+Decision: **ENABLE for now**, with application-layer safeguards:
+- Java always executes `SET ROLE` before user queries
+- Test coverage: verify no code path skips SET ROLE
+- Document residual risk: application bugs can bypass RLS
+- FORCE as future hardening (separate epic after core RLS works)
+
+#### Privilege escalation prevention
+
+UPDATE policy includes `WITH CHECK` clause: after UPDATE, user's role must still be in mg_roles. Prevents user from adding other groups to mg_roles.
+
+Additional safeguard: application-layer validation in `SqlTable.update()` — changes to mg_roles column rejected unless user is schema Manager+.
+
+#### Role name validation
+
+mg_roles stores role names as TEXT[] (no FK to pg_roles). Mitigations:
+- Application validates role names against pg_roles on INSERT/import
+- SqlRoleManager.deleteRole() checks for mg_roles references before deleting
+- Import rejects unknown role names with clear error
+- Orphaned role names in mg_roles are harmless (no matching role = no access granted)
+
+#### Provenance: tamper-evident, not tamper-proof
+
+Provenance table is append-only via GRANT restrictions. Table owner CAN still delete (ENABLE RLS limitation). For compliance-grade audit, use pgaudit extension alongside. Document that provenance is tamper-evident (detects casual misuse) not tamper-proof (won't stop determined admin).
+
+#### Helper function performance
+
+`is_schema_level_user()` and `current_user_roles()` MUST NOT execute per-row. Implementation options:
+1. **Transaction-scoped SET LOCAL variables** (preferred): Java sets once per transaction, policies use `current_setting()`
+2. **STABLE SQL functions**: PG may cache per-statement (not guaranteed)
+3. **Temp table**: guaranteed single computation, more overhead
+
+Must benchmark with EXPLAIN ANALYZE to verify per-query execution, not per-row.
+
+#### GDPR right to erasure
+
+Append-only provenance + "can't delete published records" conflicts with GDPR Art. 17. Mitigation: use existing mg_deleted mechanism to tombstone records, NULL personal data fields. Provenance retains pseudonymized record of action. Detailed GDPR erasure workflow to be designed (separate epic).
 
 ---
 
@@ -301,8 +367,8 @@ Open question: which default? Inheritance simplifies but may not fit all cases (
 
 ### Ownership transfer (all personas)
 Researcher leaves, institute exits consortium, project ends, patient referred.
-- Bulk transfer: UPDATE mg_can_edit replacing GroupA with GroupB
-- Split ownership: append GroupB to mg_can_edit array
+- Bulk transfer: UPDATE mg_roles replacing GroupA with GroupB
+- Split ownership: append GroupB to mg_roles array
 - Archive role: remove members, keep role for provenance
 - UI needed long-term, SQL-first acceptable for v1
 
@@ -310,7 +376,7 @@ Researcher leaves, institute exits consortium, project ends, patient referred.
 External researchers, departed collaborators, approved projects.
 - PG roles don't support membership expiration natively
 - Role description JSON: `{"expires": "2027-02-13", "dac_ref": "DAC-2026-042"}`
-- Scheduled cleanup job removes expired memberships + cleans mg_can_view arrays
+- Scheduled cleanup job removes expired memberships
 
 ### COUNT-only access (Cohort PI, Clinician, Registry Owner, Research PI, Repository Admin)
 Feasibility queries, discovery, institutional reporting.
@@ -318,16 +384,17 @@ Feasibility queries, discovery, institutional reporting.
 - Separate epic: materialized views with permissions for scalable aggregation
 - Minimum cell size rule (>=5) for privacy
 - Per-institute aggregation with masking for small groups
+- Note: direct SQL users can bypass count restrictions (documented residual risk)
 
-### Import/export with mg_can_edit (Data Manager, Cohort PI, Repository Admin)
+### Import/export with mg_roles (Data Manager, Cohort PI, Repository Admin)
 - Auto-assign if user has exactly 1 row-level role
-- Explicit mg_can_edit column in CSV for multi-role users
+- Explicit mg_roles column in CSV for multi-role users
 - "Import as" context for managers importing on behalf of institute
 - Validation: reject unknown role values with clear error
 
 ### Deletion restrictions (all personas)
-- Row-level users cannot delete (not even own rows)
-- Only schema-level Editor/Manager can delete
+- Row-level users: deletion controlled by table-level GRANT (no GRANT DELETE = cannot delete)
+- Schema-level Editor/Manager: can delete according to their grants
 - Provenance entry required with reason for every deletion
 - Published/DOI records: app-level enforcement prevents deletion
 
@@ -372,6 +439,16 @@ Key insight: the "Staging" pattern (CohortsStaging, UMCGCohortsStaging, etc.) al
 **Column-level security:**
 - Google Cloud Spanner: fine-grained access control on rows, columns, or cells. [cloud.google.com](https://cloud.google.com/spanner/docs/fgac-about)
 
+### Review findings
+
+Three critical reviews conducted (synthetic AI reviewers, not human):
+
+**PG Expert** — challenged TEXT[] vs join table, helper function per-row execution risk, GIN index bloat on bulk updates, connection pooling + SET ROLE interaction, migration strategy for large tables. Key outcome: TEXT[] accepted with documented trade-offs; helper function performance is #1 implementation risk.
+
+**Pragmatist** — challenged scope (7 phases → 3 suggested), mg_can_view as YAGNI, Pattern A as unnecessary. Key outcome: mg_can_edit/mg_can_view simplified to single mg_roles column; table-level GRANTs control read vs write. Ship minimal, pilot with users.
+
+**Security Researcher** — found: no threat model, ENABLE vs FORCE RLS gap, privilege escalation via UPDATE without WITH CHECK, deletion test contradicting spec, provenance not tamper-proof, GDPR erasure unresolved. Key outcome: threat model added (3.9), WITH CHECK on UPDATE policies, ENABLE accepted with documented residual risk, FORCE as future epic.
+
 ---
 
 ## Design decisions
@@ -379,14 +456,18 @@ Key insight: the "Staging" pattern (CohortsStaging, UMCGCohortsStaging, etc.) al
 ### Resolved
 1. **No separate submission schema** — use mg_status in production schema
 2. **COUNT-only at API level** — enforced in GraphQL, not RLS policies; materialized views with permissions as separate epic
-3. **mg_can_edit=NULL default** — visible to schema-level users only (safe default)
+3. **mg_roles=NULL default** — visible to schema-level users only (safe default)
 4. **Role archival over deletion** — keep role in pg_roles for provenance
 5. **Pattern A vs B per-table** — essential, confirmed by all scenarios
-6. **Separate read/write columns** — mg_can_edit (rw) + mg_can_view (r), Linux ACL-inspired
-7. **Column-level permissions** — same GRANT/REVOKE as table-level, PG native
+6. **Single mg_roles column** — table-level GRANTs control read vs write (replaces two-column mg_can_edit/mg_can_view approach)
+7. **Column-level permissions** — same GRANT/REVOKE as table-level, PG native (use sparingly)
 8. **mg_status is a new feature** — does NOT replace mg_draft; coexists; exact design to be discussed
-9. **Append-only provenance table** — no UPDATE/DELETE, tracks all changes
-10. **Deletion by editor/admin only** — row-level users cannot delete
+9. **Append-only provenance table** — tamper-evident, not tamper-proof; pgaudit for compliance
+10. **Deletion via table-level GRANT** — no GRANT DELETE to row-level role = cannot delete
+11. **ENABLE RLS (not FORCE)** — accepted with documented residual risk; FORCE as future epic
+12. **TEXT[] over join table** — atomic operations, import-friendly, composite PK safe
+13. **WITH CHECK on UPDATE** — prevents privilege escalation via mg_roles modification
+14. **Helper functions via SET LOCAL** — must execute once per transaction, not per row
 
 ### Open (need product owner input)
 1. **mg_status scope and design**: is this in scope for RLS? If so: fixed states or configurable? Interaction with mg_draft?
