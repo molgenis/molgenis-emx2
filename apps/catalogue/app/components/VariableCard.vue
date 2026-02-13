@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { resourceIdPath } from "#imports";
 import { computed } from "vue";
-import type { IVariable } from "../../interfaces/types";
-import { getKey } from "~/utils/variableUtils";
+import { getKey } from "../utils/variableUtils";
 import ArrowRight from "../../../tailwind-components/app/components/global/icons/ArrowRight.vue";
+import type { IVariables } from "../../interfaces/catalogue";
 
 const props = withDefaults(
   defineProps<{
-    variable: IVariable;
+    variable: IVariables;
     schema: string;
     catalogue: string;
   }>(),

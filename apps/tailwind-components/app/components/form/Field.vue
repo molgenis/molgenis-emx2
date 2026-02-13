@@ -6,7 +6,6 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import Input from "../Input.vue";
 import Message from "../Message.vue";
-import { defineProps, defineEmits, defineModel } from "vue";
 
 const modelValue = defineModel<columnValue>({ required: true });
 

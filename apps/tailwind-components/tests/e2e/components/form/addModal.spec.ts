@@ -11,11 +11,9 @@ test("should show the add modal", async ({ page }) => {
   await expect(page.getByText("Demo data controls")).toBeVisible();
   await page.getByRole("button", { name: "Add Pet" }).click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "details" })).toBeVisible();
   await expect(
-    page.getByRole("listitem").filter({ hasText: "details" })
-  ).toBeVisible();
-  await expect(
-    page.getByRole("listitem").filter({ hasText: "Heading2" })
+    page.getByRole("link").filter({ hasText: "Heading2" })
   ).toBeVisible();
   await expect(page.getByText("3/3 required fields left")).toBeVisible();
   await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
@@ -47,4 +45,15 @@ test("should prefill default values", async ({ page }) => {
   await expect(page.getByRole("textbox", { name: "status" })).toHaveValue(
     "hallo"
   );
+});
+
+test("should re-evaluate required refs after clearing them", async ({
+  page,
+}) => {
+  await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Pet`);
+  await expect(page.getByText("Demo data controls")).toBeVisible();
+  await page.getByRole("button", { name: "Add Pet" }).click();
+  await page.getByText("cat", { exact: true }).click();
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.getByLabel("error")).toContainText("category is required");
 });

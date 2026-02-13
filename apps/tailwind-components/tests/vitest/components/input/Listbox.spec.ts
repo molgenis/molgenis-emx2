@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { InputListbox } from "#components";
+import InputListbox from "../../../../app/components/input/Listbox.vue";
 
 const wrapper = mount(InputListbox, {
   props: {

@@ -163,16 +163,19 @@ const {
   previousSection,
   nextSection,
   visibleColumns,
-  errorMap,
+  visibleColumnErrors,
   gotoSection,
   validateAllColumns,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
+  requiredMap,
 } = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(
-  () => Object.values(errorMap.value).filter((error) => error.length > 0).length
+  () =>
+    Object.values(visibleColumnErrors.value).filter((error) => error.length > 0)
+      .length
 );
 </script>
 
@@ -205,7 +208,8 @@ const numberOfFieldsWithErrors = computed(
           <FormFields
             class="grow"
             :columns="visibleColumns"
-            :errorMap="errorMap"
+            :visibleColumnErrors="visibleColumnErrors"
+            :requiredFields="requiredMap"
             :row-key="rowKey"
             v-model="formValues"
             @update="onUpdateColumn"
@@ -292,11 +296,11 @@ const numberOfFieldsWithErrors = computed(
             <div>
               <div>number of error: {{ numberOfFieldsWithErrors }}</div>
             </div>
-            <div v-if="Object.keys(errorMap).length">
+            <div v-if="Object.keys(visibleColumnErrors).length">
               <h3 class="text-label">Errors</h3>
 
               <dl class="flex flex-col">
-                <template v-for="(value, key) in errorMap">
+                <template v-for="(value, key) in visibleColumnErrors">
                   <dt class="font-bold">{{ key }}:</dt>
                   <dd v-if="value.length" class="ml-1">{{ value }}</dd>
                 </template>

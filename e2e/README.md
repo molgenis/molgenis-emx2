@@ -21,7 +21,7 @@ git switch -c feat/e2e-...
 ### Install the dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Running the tests

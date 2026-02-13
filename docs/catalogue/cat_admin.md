@@ -209,4 +209,15 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 6.0.1   | Add Resources.publications and Resources.information to INTEGRATE profile. To update reload updated molgenis.csv to INTEGRATE cohorts staging areas or add columns in schema editor.    |
 | 6.0.2   | Add Resources.catalogue types to NetworksStaging profile. To update reload updated molgenis.csv to Network staging areas or add column in schema editor   |
 | 6.0.3   | Delete visible expression=FALSE from Contacts.display name. To update reload updated molgenis.csv to catalogue schema or update in schema editor   |
-| 6.0.4   | Removed staging area profiles from rdf properties in Resources table. To update reload updated molgenis.csv to staging schemas or update in schema editor   |
+| 6.0.4   | Removed staging area profiles from rdf properties in Resources table. To update reload updated molgenis.csv and data to staging schemas or update in schema editor   |
+| 7.0.0  | Breaking change. Changes to strcuture of tables and addition and deletion of attributes to make data model compatible with HRICore2.x. See [diff](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/datamodel_6_to_7_diff.xlsx) for the exact changes. To update run migrations, see [README](https://github.com/molgenis/molgenis-emx2/raw/master/data/scripts/catalogue/README.md) 
+| 7.0.1  | Delete items that are not in healthdcat or hricore for dcat:catalogue from network staging profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   |
+| 7.0.2  | Add Organisations.department to UMCUCohorts profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   | 
+| 7.1.0  | Add Resources.continents columnType ontology_array. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor and load Continents.csv to CatalogueOntologies  |
+| 7.1.1  | Delete profiles for catalogue and catalogue staging templates from attributes that refer to MedDRA ontology. To update reload updated molgenis.csv and data to catalogue and staging schemas |
+| 7.1.2  | Change columnType for some attributes from int to non_negative_int to produce correct rdf export. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor |
+| 7.2.0  | Add Variables.generated_keywords for DataCatalogueFlat profile only. To update reload updated molgenis.csv to catalogue schema or update in schema editor  |
+| 7.3.0  | Adapt resource types in CatalogueOntologies and delete 'Resources.other type'. This affects the catalogue app as well. To update run migrations run_7.3.py, see [README](https://github.com/molgenis/molgenis-emx2/raw/master/data/scripts/catalogue/README.md)  |
+| 7.3.1  | Remove dcat:Dataset annotation and hricore conditional required items in Subpopulations and Collection events tables. To update reload updated molgenis.csv to catalogue schema |
+| 7.4.0  | Add 'Resources.main catalogue' boolean. When 'True' this setting will take the logo, description and title from the Resource stable to display on the global landing page. To update reload updated molgenis.csv to catalogue and network staging schemas  or update in schema editor.  |
+

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.MG_DRAFT;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFilterArray;
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
@@ -18,34 +18,96 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
 import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.io.emx2.Emx2Changelog;
+import org.molgenis.emx2.io.emx2.Emx2Members;
+import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
+
+  private static final int DEFAULT_CHANGELOG_LIMIT = 100;
+  private static final int DEFAULT_CHANGELOG_OFFSET = 0;
+
   private CsvApi() {
     // hide constructor
   }
 
   public static void create(Javalin app) {
-
     // schema level operations
     final String schemaPath = "/{schema}/api/csv";
     app.get(schemaPath, CsvApi::getMetadata);
     app.post(schemaPath, CsvApi::mergeMetadata);
     app.delete(schemaPath, CsvApi::discardMetadata);
 
+    app.get("/{schema}/api/csv/members", CsvApi::getMembers);
+    app.get("/{schema}/api/csv/settings", CsvApi::getSettings);
+    app.get("/{schema}/api/csv/changelog", CsvApi::getChangelog);
+
     // table level operations
     final String tablePath = "/{schema}/api/csv/{table}";
     app.get(tablePath, CsvApi::tableRetrieve);
     app.post(tablePath, CsvApi::tableUpdate);
     app.delete(tablePath, CsvApi::tableDelete);
+  }
+
+  private static void getChangelog(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
+      throw new MolgenisException("Unauthorized to get schema changelog");
+    }
+
+    int limit = parseIntParam(ctx, "limit").orElse(DEFAULT_CHANGELOG_LIMIT);
+    int offset = parseIntParam(ctx, "offset").orElse(DEFAULT_CHANGELOG_OFFSET);
+
+    StringWriter writer = new StringWriter();
+    Character separator = getSeparator(ctx);
+    TableStore store = new TableStoreForCsvInMemory();
+
+    Emx2Changelog.outputChangelog(store, schema, limit, offset);
+
+    CsvTableWriter.write(
+        store.readTable(CHANGELOG_TABLE),
+        List.of(
+            CHANGELOG_OPERATION,
+            CHANGELOG_STAMP,
+            CHANGELOG_USERID,
+            CHANGELOG_TABLENAME,
+            CHANGELOG_OLD,
+            CHANGELOG_NEW),
+        writer,
+        separator);
+
+    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_changelog_" + date + ".csv\"");
+    ctx.contentType(ACCEPT_CSV);
+    ctx.status(200);
+    ctx.result(writer.toString());
+  }
+
+  private static Optional<Integer> parseIntParam(Context ctx, String param) {
+    return Optional.ofNullable(ctx.queryParam(param))
+        .map(
+            arg -> {
+              try {
+                return Integer.valueOf(arg);
+              } catch (NumberFormatException e) {
+                throw new MolgenisException(
+                    "Invalid " + param + " provided, should be a number", e);
+              }
+            });
   }
 
   private static void discardMetadata(Context ctx) {
@@ -95,6 +157,65 @@ public class CsvApi {
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
+    ctx.status(200);
+    ctx.result(writer.toString());
+  }
+
+  private static void getMembers(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
+      throw new MolgenisException("Unauthorized to get schema members");
+    }
+
+    StringWriter writer = new StringWriter();
+    Character separator = getSeparator(ctx);
+    TableStore tableStore = new TableStoreForCsvInMemory(separator);
+
+    Emx2Members.outputRoles(tableStore, schema);
+
+    CsvTableWriter.write(
+        tableStore.readTable(Emx2Members.ROLES_TABLE),
+        List.of(Emx2Members.USER, Emx2Members.ROLE),
+        writer,
+        separator);
+
+    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_members_" + date + ".csv\"");
+    ctx.contentType(ACCEPT_CSV);
+    ctx.status(200);
+    ctx.result(writer.toString());
+  }
+
+  private static boolean isManagerOrOwnerOfSchema(Context ctx, Schema schema) {
+    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+    SqlSchemaMetadata sqlSchemaMetadata =
+        new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
+    List<String> roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
+    return roles.contains(Privileges.MANAGER.toString())
+        || roles.contains(Privileges.OWNER.toString());
+  }
+
+  private static void getSettings(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+
+    StringWriter writer = new StringWriter();
+    Character separator = getSeparator(ctx);
+    TableStore tableStore = new TableStoreForCsvInMemory(separator);
+
+    Emx2Settings.outputSettings(tableStore, schema);
+
+    CsvTableWriter.write(
+        tableStore.readTable(SETTINGS_TABLE),
+        List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE),
+        writer,
+        separator);
+    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_settings_" + date + ".csv\"");
+    ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
   }

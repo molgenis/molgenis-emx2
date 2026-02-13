@@ -1,17 +1,121 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, computed } from "vue";
 import Button from "./Button.vue";
 
-const showMore = ref(false);
+const props = withDefaults(
+  defineProps<{
+    lines?: number;
+    showLabels?: { more: string; less: string };
+  }>(),
+  {
+    lines: 3,
+    showLabels: () => ({ more: "show more", less: "show less" }),
+  }
+);
+
+const paragraphRef = ref<HTMLElement | null>(null);
+const expanded = ref(false);
+const measured = ref(false);
+const overflows = ref(false);
+
+const paragraphStyle = computed(() => {
+  const style: Record<string, string> = {
+    "--lines": String(props.lines),
+  };
+  if (!expanded.value) {
+    style.maxHeight = `calc(var(--lines) * 1lh)`;
+    style.overflow = "hidden";
+  }
+  return style;
+});
+
+const showButton = computed(() => !measured.value || overflows.value);
+
+function measureOverflow() {
+  const el = paragraphRef.value;
+  if (!el) return;
+
+  const { maxHeight, overflow } = el.style;
+  el.style.maxHeight = "none";
+  el.style.overflow = "visible";
+  const natural = el.scrollHeight;
+  el.style.maxHeight = maxHeight;
+  el.style.overflow = overflow;
+
+  const constrained =
+    parseFloat(getComputedStyle(el as unknown as Element).maxHeight) ||
+    el.clientHeight;
+  overflows.value = natural > constrained + 1;
+  measured.value = true;
+}
+
+let resizeObserver: ResizeObserver | null = null;
+
+onMounted(async () => {
+  await nextTick();
+  measureOverflow();
+  const el = paragraphRef.value;
+  if (el) {
+    resizeObserver = new ResizeObserver(measureOverflow);
+    resizeObserver.observe(el as unknown as Element);
+  }
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+});
+
+async function collapseAndScrollToTop() {
+  const el = paragraphRef.value;
+  expanded.value = false;
+  await nextTick();
+  el?.scrollIntoView({
+    block: "start",
+    behavior: "smooth",
+  });
+}
 </script>
 
 <template>
-  <div>
-    <div @click="showMore = true">
-      <slot  v-if="!showMore" name="button">
-        <Button type="text">show more</Button>
-      </slot>
+  <div class="expandable-paragraph">
+    <p
+      ref="paragraphRef"
+      class="paragraph"
+      :class="{ faded: !expanded && showButton }"
+      :style="paragraphStyle"
+      :aria-expanded="expanded"
+    >
+      <slot />
+    </p>
+    <div v-if="!expanded && showButton" class="button-container">
+      <Button type="text" size="tiny" @click="expanded = true">
+        {{ showLabels.more }}
+      </Button>
     </div>
-    <slot v-if="showMore"></slot>
+    <div v-if="expanded" class="button-container">
+      <Button type="text" size="tiny" @click="collapseAndScrollToTop">
+        {{ showLabels.less }}
+      </Button>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.expandable-paragraph {
+  width: 100%;
+}
+
+.paragraph {
+  margin: 0;
+  word-break: break-word;
+}
+
+.paragraph.faded {
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent);
+  mask-image: linear-gradient(to bottom, black 50%, transparent);
+}
+
+.button-container {
+  margin-top: 0.25em;
+}
+</style>

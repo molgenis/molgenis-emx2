@@ -6,7 +6,6 @@ import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.ContentType;
@@ -24,45 +23,50 @@ import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.util.SchemaMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MolgenisWebservice {
+
   public static final String SCHEMA = "schema";
-  public static final String EDITOR = "Editor";
-  public static final String MANAGER = "Manager";
-  public static final String ROLE = "role";
-  public static final String VIEWER = "Viewer";
   public static final long MAX_REQUEST_SIZE = 10_000_000L;
+
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+
   public static final String NUXT_OIDC_LOGOUT_PATH =
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  public static final ApplicationCachePerUser applicationCache =
+
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
-  public static OIDCController oidcController;
+  public static final OIDCController oidcController = new OIDCController();
+
+  private final Javalin app;
   static URL hostUrl;
 
-  private MolgenisWebservice() {
-    // hide constructor
+  public MolgenisWebservice() {
+    app =
+        Javalin.create(
+            config -> {
+              config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
+              config.router.ignoreTrailingSlashes = true;
+              config.router.treatMultipleSlashesAsSingleSlash = true;
+              config.jsonMapper(
+                  new JavalinJackson()
+                      .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
+              config.jetty.modifyServletContextHandler(
+                  context ->
+                      context.setMaxFormContentSize(
+                          Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
+                  );
+            });
   }
 
-  public static void start(int port) {
-    oidcController = new OIDCController();
-    Javalin app =
-        Javalin.create(
-                config -> {
-                  config.http.maxRequestSize = MAX_REQUEST_SIZE;
-                  config.router.ignoreTrailingSlashes = true;
-                  config.router.treatMultipleSlashesAsSingleSlash = true;
-                  config.jsonMapper(
-                      new JavalinJackson()
-                          .updateMapper(
-                              mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
-                })
-            .start(port);
+  public void start(int port) {
+    app.start(port);
 
     try {
       hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
@@ -89,7 +93,7 @@ public class MolgenisWebservice {
         ctx -> {
           // check for setting
           String landingPagePath =
-              applicationCache.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
+              APPLICATION_CACHE.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
           if (landingPagePath != null) {
             ctx.redirect(landingPagePath);
           } else {
@@ -121,7 +125,7 @@ public class MolgenisWebservice {
     FileApi.create(app);
     JsonYamlApi.create(app);
     TaskApi.create(app);
-    GraphqlApi.createGraphQLservice(app);
+    GraphqlApi.createGraphqlService(app);
     RDFApi.create(app);
     BeaconApi.create(app);
     CafeVariomeApi.create(app);
@@ -160,6 +164,10 @@ public class MolgenisWebservice {
         });
   }
 
+  public void stop() {
+    app.stop();
+  }
+
   private static void handleLoginCallback(Context ctx) {
     oidcController.handleLoginCallback(ctx);
   }
@@ -175,35 +183,39 @@ public class MolgenisWebservice {
       if (schema == null) {
         throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
       }
+      String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
       String role = schema.getRoleForActiveUser();
-      Optional<String> menuSettingValue = schema.getMetadata().findSettingValue("menu");
-      if (menuSettingValue.isPresent()) {
-        List<Map<String, String>> menu =
-            new ObjectMapper().readValue(menuSettingValue.get(), List.class);
-        menu =
-            menu.stream()
-                .filter(
-                    el ->
-                        role == null
-                            || role.equals(schema.getDatabase().getAdminUserName())
-                            || el.get(ROLE) == null
-                            || el.get(ROLE).equals(VIEWER)
-                                && List.of(VIEWER, EDITOR, MANAGER).contains(role)
-                            || el.get(ROLE).equals(EDITOR)
-                                && List.of(EDITOR, MANAGER).contains(role)
-                            || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
-                .toList();
-        if (!menu.isEmpty()) {
-          String location =
-              "/"
-                  + encodePathSegment(ctx.pathParam(SCHEMA))
-                  + "/"
-                  + menu.get(0).get("href").replace("../", "");
-          ctx.redirect(location);
-        }
-      } else {
+
+      SchemaMenu schemaMenu = SchemaMenu.fromSchema(schema);
+      if (schemaMenu.isEmpty()) {
         ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        return;
       }
+
+      SchemaMenu menuForRole;
+      if (ANONYMOUS.equals(currentUser)) {
+        menuForRole = schemaMenu.menuForAnonymousAndRole(role);
+      } else {
+        menuForRole = schemaMenu.menuForRole(role);
+      }
+
+      if (menuForRole.isEmpty()) {
+        logger.warn("No menu available for current user");
+        if (schema.getRoleForUser(ANONYMOUS).isEmpty()) {
+          ctx.redirect("/");
+        } else {
+          ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        }
+
+        return;
+      }
+
+      String location =
+          "/"
+              + encodePathSegment(ctx.pathParam(SCHEMA))
+              + "/"
+              + menuForRole.items().getFirst().href().replace("../", "");
+      ctx.redirect(location);
     } catch (Exception e) {
       logger.debug(e.getMessage());
       ctx.redirect("/");
@@ -217,7 +229,7 @@ public class MolgenisWebservice {
         "graphql: <a href=\"/api/graphql/\">/api/graphql    </a> <a href=\"/api/playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
-    for (String name : applicationCache.getDatabaseForUser(ctx).getSchemaNames()) {
+    for (String name : APPLICATION_CACHE.getDatabaseForUser(ctx).getSchemaNames()) {
       result.append("<li>").append(name);
       result.append(" <a href=\"/" + name + "/api/openapi\">openapi</a>");
       result.append(
@@ -288,10 +300,10 @@ public class MolgenisWebservice {
     if (schemaName == null) {
       return null;
     }
-    return applicationCache.getSchemaForUser(sanitize(schemaName), ctx);
+    return APPLICATION_CACHE.getSchemaForUser(sanitize(schemaName), ctx);
   }
 
   public static Collection<String> getSchemaNames(Context ctx) {
-    return applicationCache.getDatabaseForUser(ctx).getSchemaNames();
+    return APPLICATION_CACHE.getDatabaseForUser(ctx).getSchemaNames();
   }
 }

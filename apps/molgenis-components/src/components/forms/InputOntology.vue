@@ -291,6 +291,7 @@ export default {
         this.focus = false;
       }
       this.key++;
+      this.search = null;
     },
     deselect(item: string) {
       if (this.isMultiSelect) {

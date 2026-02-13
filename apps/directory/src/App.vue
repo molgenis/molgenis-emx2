@@ -7,6 +7,7 @@
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
       <div v-html="footer" />
+      <Footer id="directory-footer" :session="session" />
     </template>
   </Molgenis>
 </template>
@@ -16,8 +17,10 @@ import { useFavicon, usePreferredDark } from "@vueuse/core";
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import Error from "./components/Error.vue";
+import Footer from "./components/Footer.vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
 import router from "./router";
 import { useFiltersStore } from "./stores/filtersStore";
@@ -28,6 +31,8 @@ const query = computed(() => route.query);
 
 const filtersStore = useFiltersStore();
 const settingsStore = useSettingsStore();
+
+const { configurationFetched } = storeToRefs(settingsStore);
 
 const banner = computed(() => settingsStore.config.banner);
 const footer = computed(() => settingsStore.config.footer);
@@ -43,11 +48,14 @@ watch(session, () => {
   settingsStore.setSessionInformation(session.value);
 });
 
+watch(configurationFetched, () => {
+  initMatomo();
+});
+
 onMounted(async () => {
   filtersStore.bookmarkWaitingForApplication = true;
   await router.isReady();
   applyBookmark(query.value);
-  initMatomo();
   changeFavicon();
 });
 
@@ -78,6 +86,7 @@ function getFaviconUrl() {
 
 function initMatomo() {
   const { matomoUrl, matomoSiteId } = settingsStore.config;
+
   if (matomoUrl && matomoSiteId) {
     const _paq = (window._paq = window._paq || []);
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
