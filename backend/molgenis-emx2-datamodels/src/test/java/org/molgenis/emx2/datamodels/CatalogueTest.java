@@ -3,7 +3,6 @@ package org.molgenis.emx2.datamodels;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class CatalogueTest extends TestLoaders {
@@ -22,9 +21,8 @@ public class CatalogueTest extends TestLoaders {
     assertEquals(21, cohortStaging.getTableNames().size());
   }
 
-  @Disabled
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
-    assertEquals(15, networkStaging.getTableNames().size());
+    assertEquals(17, networkStaging.getTableNames().size());
   }
 }

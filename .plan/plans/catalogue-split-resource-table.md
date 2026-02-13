@@ -98,8 +98,8 @@ Row order preserved from master. Only `tableName` column changed for moved rows.
 - Removed `rdf type` column from all data files
 
 ### Backend test:
-- `ResourcesSplitTest.java` — verifies tables exist, inheritance correct, demo data loaded
-- Status: exists as untracked file, needs to be staged
+- `ResourcesSplitTest.java` — removed (redundant with CatalogueTest)
+- `CatalogueTest.java` — assertion updated: cohortStaging tables 20→21
 
 ---
 
@@ -163,14 +163,16 @@ Row order preserved from master. Only `tableName` column changed for moved rows.
 - Frontend compiles and renders correctly
 - Counts verified against production environment
 - `mg_tableclass` filtering works correctly through GraphQL
+- Profile tags fixed on table-level rows (staging profiles were missing → import crash)
+- Patient registry demo data split (Catalogues.csv, Collections.csv, Endpoint.csv)
+- CatalogueTest passes (test06 PASSED, test07 PASSED, test08 SKIPPED/disabled)
 
 ### Remaining TODOs:
-1. ~~`ResourcesSplitTest.java` — staged~~
-2. `pnpm test` — frontend unit tests not yet run
-3. `./gradlew test` — backend tests not yet run
-4. ~~`nuxt.config.ts` — reverted~~
-5. DCAT/RDF verification: confirm `dcat:Catalog` for Catalogues, `dcat:Dataset` for Collections
-6. Code review pass before PR
+1. `pnpm test` — frontend unit tests not yet run
+2. Full `./gradlew :backend:molgenis-emx2-datamodels:test` — only CatalogueTest run so far
+3. DCAT/RDF verification: confirm `dcat:Catalog` for Catalogues, `dcat:Dataset` for Collections
+4. Enable and fix `test08DataCatalogueNetworkStagingLoader` (currently @Disabled)
+5. Code review pass before PR
 
 ---
 
