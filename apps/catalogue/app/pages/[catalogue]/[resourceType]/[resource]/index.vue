@@ -308,7 +308,9 @@ if (error.value) {
 
 const resource = computed(() => {
   const tableData = data.value?.data?.[tableName];
-  return (Array.isArray(tableData) ? tableData[0] : null) as IResourceQueryResponseValue;
+  return (
+    Array.isArray(tableData) ? tableData[0] : null
+  ) as IResourceQueryResponseValue;
 });
 const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type {
-  ICollections,
-  INetworks,
-} from "../../../../interfaces/catalogue";
+import type { ICollections, INetworks } from "../../../../interfaces/catalogue";
 import type {
   INameObject,
   IDefinitionListItem,
