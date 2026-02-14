@@ -1,10 +1,11 @@
 name,label,parent,tags,codesystem,code,ontologyTermURI,definition
 Biobank,,,collection,EDAM,EDAM:3337,http://edamontology.org/topic_3337,Repositories of biological samples and associated databases
-Catalogue,,,,,,,Catalogue of resources
 Preclinical study,,,collection,,,,Preclinical scientific studies, e.g. studies on cell cultures or laboratory and animal studies generated prior to human testing
 Clinical trial,,,collection,SIO,SIO:001000,http://semanticscience.org/resource/SIO_001000,Studies testing medical interventions in humans, including clinical studies and clinical investigations
 Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,"An observational (often longitudinal) study of a defined population, including the use of e.g. questionnaires and surveys"
-Common data model,,,collection,,,,A standardised data model which allows for coherent data and information exchange
 Health records,,,collection,SCDO,SCDO:0000492,http://purl.obolibrary.org/obo/SCDO_0000492,"Electronic health records, including hospital administrative systems"
-Network,,,network,,,,"A network or consortium in which data collections are united"
 Registry,,,collection,,,,Organized database to collect uniform data about an underlying population with no primary scientific research goal
+Common data model,,,collection,,,,A standardised data model which allows for coherent data and information exchange
+Catalogue,,,,,,,Catalogue of resources
+Network,,,network,,,,"A network or consortium in which data collections are united"
+
