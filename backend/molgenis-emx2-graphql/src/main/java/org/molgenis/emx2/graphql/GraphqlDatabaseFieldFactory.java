@@ -1,12 +1,13 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.DESCRIPTION;
 import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.Constants.TABLE;
 import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
+import static org.molgenis.emx2.graphql.GraphqlPermissionUtils.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
@@ -51,6 +52,105 @@ public class GraphqlDatabaseFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
+          .build();
+
+  private static final GraphQLObjectType globalOutputPermissionType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisGlobalPermissionType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(TABLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ROW_LEVEL)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(EDIT_COLUMNS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(DENY_COLUMNS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .build();
+
+  private static final GraphQLObjectType globalOutputRoleInfoType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisGlobalRoleInfoType")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(PERMISSIONS)
+                  .type(GraphQLList.list(globalOutputPermissionType)))
+          .build();
+
+  private static final GraphQLInputObjectType globalInputPermissionType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisGlobalPermissionInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ROW_LEVEL)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SELECT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(EDIT_COLUMNS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(DENY_COLUMNS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .build();
+
+  private static final GraphQLInputObjectType globalInputRoleType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisGlobalRoleInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(PERMISSIONS)
+                  .type(GraphQLList.list(globalInputPermissionType)))
           .build();
 
   public GraphqlDatabaseFieldFactory() {
@@ -178,6 +278,36 @@ public class GraphqlDatabaseFieldFactory {
         .type(GraphQLList.list(outputSchemasType));
   }
 
+  public GraphQLFieldDefinition.Builder rolesQuery(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_roles")
+        .type(GraphQLList.list(globalOutputRoleInfoType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              Map<String, RoleInfo> roleMap = new LinkedHashMap<>();
+              for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
+                Schema schema = database.getSchema(schemaInfo.tableSchema());
+                if (schema != null) {
+                  for (RoleInfo roleInfo : schema.getRoleInfos()) {
+                    RoleInfo merged =
+                        roleMap.computeIfAbsent(
+                            roleInfo.getName(),
+                            name -> new RoleInfo(name).setDescription(roleInfo.getDescription()));
+                    for (Permission perm : roleInfo.getPermissions()) {
+                      perm.setSchema(schemaInfo.tableSchema());
+                      merged.addPermission(perm);
+                    }
+                  }
+                }
+              }
+              List<Map<String, Object>> result = new ArrayList<>();
+              for (RoleInfo roleInfo : roleMap.values()) {
+                result.add(roleInfoToMap(roleInfo));
+              }
+              return result;
+            });
+  }
+
   final GraphQLObjectType outputTaskType =
       GraphQLObjectType.newObject()
           .name("MolgenisTask")
@@ -234,6 +364,8 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputSettingsMetadataType)))
+        .argument(
+            GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(globalInputRoleType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
@@ -243,6 +375,7 @@ public class GraphqlDatabaseFieldFactory {
                       changeUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       changeSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+                      changeRoles(db, dataFetchingEnvironment.getArgument(ROLES), messageBuilder);
                     } catch (Exception e) {
                       throw new GraphqlException("change failed", e);
                     }
@@ -333,6 +466,41 @@ public class GraphqlDatabaseFieldFactory {
         }
       }
       hasSettings.changeSettings(settings);
+    }
+  }
+
+  private static void changeRoles(
+      Database database, List<Map<String, Object>> roleList, StringBuilder messageBuilder) {
+    if (roleList != null && !roleList.isEmpty() && !database.isAdmin()) {
+      throw new GraphqlException(
+          "Permission denied: global role management requires admin privileges");
+    }
+    if (roleList != null) {
+      for (Map<String, Object> roleMap : roleList) {
+        String roleName = (String) roleMap.get(NAME);
+        String description = (String) roleMap.get(DESCRIPTION);
+        List<Map<String, Object>> permissions =
+            (List<Map<String, Object>>) roleMap.get(PERMISSIONS);
+        if (permissions != null) {
+          Map<String, List<Map<String, Object>>> permsBySchema = new LinkedHashMap<>();
+          for (Map<String, Object> permMap : permissions) {
+            String schemaName = (String) permMap.get(SCHEMA_NAME);
+            if (schemaName == null) {
+              throw new GraphqlException("schema name is required for global role permissions");
+            }
+            permsBySchema.computeIfAbsent(schemaName, k -> new ArrayList<>()).add(permMap);
+          }
+          for (Map.Entry<String, List<Map<String, Object>>> entry : permsBySchema.entrySet()) {
+            Schema schema = database.getSchema(entry.getKey());
+            if (schema == null) {
+              throw new GraphqlException("Schema '" + entry.getKey() + "' not found");
+            }
+            schema.createRole(roleName, description);
+            applyPermissions(schema, roleName, entry.getValue());
+          }
+        }
+        messageBuilder.append("Changed role '" + roleName + "'. ");
+      }
     }
   }
 }

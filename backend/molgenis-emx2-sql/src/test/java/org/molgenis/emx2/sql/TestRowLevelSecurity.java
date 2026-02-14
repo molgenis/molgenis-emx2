@@ -66,8 +66,8 @@ public class TestRowLevelSecurity {
           table.getMetadata().enableRowLevelSecurity();
 
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
-          rm.createRole(schema.getName(), "GroupA", true);
-          rm.createRole(schema.getName(), "GroupB", true);
+          rm.createRole(schema.getName(), "GroupA");
+          rm.createRole(schema.getName(), "GroupB");
 
           db.addUser("rls_user1");
           rm.addMember(schema.getName(), "GroupA", "rls_user1");
@@ -110,8 +110,8 @@ public class TestRowLevelSecurity {
           table.getMetadata().enableRowLevelSecurity();
 
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
-          rm.createRole(schema.getName(), "GroupA", true);
-          rm.createRole(schema.getName(), "GroupB", true);
+          rm.createRole(schema.getName(), "GroupA");
+          rm.createRole(schema.getName(), "GroupB");
 
           db.addUser("rls_viewer");
           schema.addMember("rls_viewer", VIEWER.toString());
@@ -148,9 +148,9 @@ public class TestRowLevelSecurity {
           table.getMetadata().enableRowLevelSecurity();
 
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
-          rm.createRole(schema.getName(), "GroupA", true);
+          rm.createRole(schema.getName(), "GroupA");
 
-          rm.createRole(schema.getName(), "GroupB", true);
+          rm.createRole(schema.getName(), "GroupB");
 
           db.addUser("rls_both");
           rm.addMember(schema.getName(), "GroupA", "rls_both");
@@ -191,7 +191,7 @@ public class TestRowLevelSecurity {
           table.getMetadata().enableRowLevelSecurity();
 
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
-          rm.createRole(schema.getName(), "GroupA", true);
+          rm.createRole(schema.getName(), "GroupA");
 
           db.addUser("rls_null_user");
           rm.addMember(schema.getName(), "GroupA", "rls_null_user");
@@ -268,8 +268,8 @@ public class TestRowLevelSecurity {
           table.getMetadata().enableRowLevelSecurity();
 
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
-          rm.createRole(schema.getName(), "GroupA", true);
-          rm.createRole(schema.getName(), "GroupB", true);
+          rm.createRole(schema.getName(), "GroupA");
+          rm.createRole(schema.getName(), "GroupB");
 
           db.addUser("rls_deleter");
           rm.addMember(schema.getName(), "GroupA", "rls_deleter");
@@ -308,8 +308,8 @@ public class TestRowLevelSecurity {
           table.getMetadata().enableRowLevelSecurity();
 
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
-          rm.createRole(schema.getName(), "GroupA", true);
-          rm.createRole(schema.getName(), "GroupB", true);
+          rm.createRole(schema.getName(), "GroupA");
+          rm.createRole(schema.getName(), "GroupB");
 
           db.addUser("rls_admin");
           schema.addMember("rls_admin", OWNER.toString());
@@ -346,7 +346,7 @@ public class TestRowLevelSecurity {
           table.getMetadata().enableRowLevelSecurity();
 
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
-          rm.createRole(schema.getName(), "GroupA", true);
+          rm.createRole(schema.getName(), "GroupA");
 
           table.insert(
               new Row()

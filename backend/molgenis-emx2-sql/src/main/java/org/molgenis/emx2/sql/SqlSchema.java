@@ -430,6 +430,63 @@ public class SqlSchema implements Schema {
                     .equals(tableName.replace(" ", "").toLowerCase()));
   }
 
+  @Override
+  public void createRole(String roleName, String description) {
+    if (!getDatabase().isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
+      throw new MolgenisException(
+          "Permission denied: role management requires Manager or Owner privileges");
+    }
+    SqlRoleManager rm = ((SqlDatabase) getDatabase()).getRoleManager();
+    rm.createRole(getName(), roleName);
+    if (description != null) {
+      rm.setDescription(getName(), roleName, description);
+    }
+  }
+
+  @Override
+  public void deleteRole(String roleName) {
+    if (!getDatabase().isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
+      throw new MolgenisException(
+          "Permission denied: role management requires Manager or Owner privileges");
+    }
+    ((SqlDatabase) getDatabase()).getRoleManager().deleteRole(getName(), roleName);
+  }
+
+  @Override
+  public void setPermission(String roleName, Permission permission) {
+    if (!getDatabase().isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
+      throw new MolgenisException(
+          "Permission denied: role management requires Manager or Owner privileges");
+    }
+    ((SqlDatabase) getDatabase()).getRoleManager().setPermission(getName(), roleName, permission);
+  }
+
+  @Override
+  public void revokePermission(String roleName, String table, boolean rowLevel) {
+    if (!getDatabase().isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
+      throw new MolgenisException(
+          "Permission denied: role management requires Manager or Owner privileges");
+    }
+    ((SqlDatabase) getDatabase())
+        .getRoleManager()
+        .revokePermission(getName(), roleName, table, rowLevel);
+  }
+
+  @Override
+  public List<Permission> getPermissions(String roleName) {
+    return ((SqlDatabase) getDatabase()).getRoleManager().getPermissions(getName(), roleName);
+  }
+
+  @Override
+  public List<Permission> getAllPermissions() {
+    return ((SqlDatabase) getDatabase()).getRoleManager().getAllPermissions(getName());
+  }
+
+  @Override
+  public List<RoleInfo> getRoleInfos() {
+    return ((SqlDatabase) getDatabase()).getRoleManager().getRoleInfos(getName());
+  }
+
   public DSLContext getJooq() {
     return ((SqlDatabase) getDatabase()).getJooq();
   }

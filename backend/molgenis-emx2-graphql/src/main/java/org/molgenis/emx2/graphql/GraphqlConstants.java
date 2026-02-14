@@ -14,8 +14,8 @@ public class GraphqlConstants {
   public static final String TABLE_TYPE = "tableType";
   public static final String VALIDATION_EXPRESSION = "validation";
   public static final String FILTER_ARGUMENT = "filter";
-  public static final String KEY = "key";
   public static final String PASSWORD = "password";
+  public static final String KEY = "key";
   public static final String ENABLED = "enabled";
   public static final String ADMIN = "admin";
   public static final String EMAIL = "email";
@@ -54,8 +54,8 @@ public class GraphqlConstants {
   public static final String ORDERBY = "orderby";
   public static final String KEYS = "keys";
   public static final String LABEL = "label";
-  public static final String DESCRIPTION = "description";
   public static final String COUNT = "count";
+  public static final String DESCRIPTION = "description";
   public static final String SCHEMAS = "schemas";
   public static final String TASK_ID = "id";
   public static final String TASK_STATUS = "status";
@@ -65,6 +65,15 @@ public class GraphqlConstants {
   public static final String USER = "user";
   public static final String USERS = "users";
   public static final String ROLES = "roles";
+  public static final String PERMISSIONS = "permissions";
+  public static final String ROW_LEVEL = "rowLevel";
+  public static final String SELECT = "select";
+  public static final String INSERT = "insert";
+  public static final String UPDATE = "update";
+  public static final String DELETE = "delete";
+  public static final String EDIT_COLUMNS = "editColumns";
+  public static final String DENY_COLUMNS = "denyColumns";
+  public static final String SYSTEM = "system";
   public static final String MESSAGE = "message";
   public static final String TOKEN = "token";
   public static final String STATUS = "status";

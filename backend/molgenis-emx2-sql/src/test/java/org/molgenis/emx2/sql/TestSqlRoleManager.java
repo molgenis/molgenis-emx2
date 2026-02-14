@@ -1,17 +1,21 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 import static org.molgenis.emx2.Constants.MG_ROWLEVEL;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Permission;
+import org.molgenis.emx2.RoleInfo;
 import org.molgenis.emx2.Schema;
 
 @Tag("rowlevel")
@@ -32,38 +36,19 @@ public class TestSqlRoleManager {
   }
 
   @Test
-  public void testCreateCustomRole() {
+  public void testCreateRole() {
     database.tx(
         db -> {
           Schema schema = db.dropCreateSchema("TestRM_createRole");
           SqlRoleManager rm = roleManager(db);
-          rm.createRole(schema.getName(), "Analysts", false);
+          rm.createRole(schema.getName(), "Analysts");
 
           String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/Analysts";
           Result<Record> result =
               jooq(db).fetch("SELECT 1 FROM pg_roles WHERE rolname = {0}", fullRoleName);
           assertEquals(1, result.size(), "Role should exist in pg_roles");
-        });
-  }
 
-  @Test
-  public void testCreateRowLevelRole() {
-    database.tx(
-        db -> {
-          Schema schema = db.dropCreateSchema("TestRM_rowLevelRole");
-          SqlRoleManager rm = roleManager(db);
-          rm.createRole(schema.getName(), "DataGroup1", true);
-
-          String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/DataGroup1";
-          Result<Record> result =
-              jooq(db).fetch("SELECT 1 FROM pg_roles WHERE rolname = {0}", fullRoleName);
-          assertEquals(1, result.size(), "Role should exist in pg_roles");
-
-          Boolean isRowLevel =
-              jooq(db)
-                  .fetchOne("SELECT pg_has_role({0}, {1}, 'member')", fullRoleName, MG_ROWLEVEL)
-                  .into(Boolean.class);
-          assertTrue(isRowLevel, "Role should be member of MG_ROWLEVEL");
+          assertTrue(rm.roleExists(schema.getName(), "Analysts"), "roleExists should return true");
         });
   }
 
@@ -74,7 +59,7 @@ public class TestSqlRoleManager {
           Schema schema = db.dropCreateSchema("TestRM_addRemoveMember");
           db.addUser("rm_user1");
           SqlRoleManager rm = roleManager(db);
-          rm.createRole(schema.getName(), "TestRole", false);
+          rm.createRole(schema.getName(), "TestRole");
 
           rm.addMember(schema.getName(), "TestRole", "rm_user1");
 
@@ -103,28 +88,68 @@ public class TestSqlRoleManager {
           Schema schema = db.dropCreateSchema("TestRM_tablePermission");
           schema.create(table("TestTable").add(column("id").setPkey()));
           SqlRoleManager rm = roleManager(db);
-          rm.createRole(schema.getName(), "DataViewer", false);
+          rm.createRole(schema.getName(), "DataEditor");
 
-          rm.grantTablePermission(schema.getName(), "DataViewer", "TestTable", "SELECT");
+          Permission perm = new Permission();
+          perm.setTable("TestTable");
+          perm.setRowLevel(false);
+          perm.setInsert(true);
+          perm.setUpdate(true);
+          rm.setPermission(schema.getName(), "DataEditor", perm);
 
-          String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/DataViewer";
-          Boolean hasSelect =
+          String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/DataEditor";
+          Boolean hasInsert =
               jooq(db)
                   .fetchOne(
-                      "SELECT has_table_privilege({0}, {1}, 'SELECT')",
+                      "SELECT has_table_privilege({0}, {1}, 'INSERT')",
                       fullRoleName, "\"" + schema.getName() + "\".\"TestTable\"")
                   .into(Boolean.class);
-          assertTrue(hasSelect, "Role should have SELECT on table");
+          assertTrue(hasInsert, "Role should have INSERT on table");
 
-          rm.revokeTablePermission(schema.getName(), "DataViewer", "TestTable", "SELECT");
+          rm.revokePermission(schema.getName(), "DataEditor", "TestTable", false);
 
-          Boolean hasSelectAfter =
+          Boolean hasInsertAfter =
               jooq(db)
                   .fetchOne(
-                      "SELECT has_table_privilege({0}, {1}, 'SELECT')",
+                      "SELECT has_table_privilege({0}, {1}, 'INSERT')",
                       fullRoleName, "\"" + schema.getName() + "\".\"TestTable\"")
                   .into(Boolean.class);
-          assertFalse(hasSelectAfter, "Role should not have SELECT after revoke");
+          assertFalse(hasInsertAfter, "Role should not have INSERT after revoke");
+        });
+  }
+
+  @Test
+  public void testRowLevelPermission() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_rowLevel");
+          schema.create(table("People").add(column("id").setPkey()).add(column("name")));
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "RowRestricted");
+
+          Permission perm = new Permission();
+          perm.setTable("People");
+          perm.setRowLevel(true);
+          perm.setSelect(true);
+          rm.setPermission(schema.getName(), "RowRestricted", perm);
+
+          String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/RowRestricted";
+          Boolean isMgRowLevel =
+              jooq(db)
+                  .fetchOne("SELECT pg_has_role({0}, {1}, 'member')", fullRoleName, MG_ROWLEVEL)
+                  .into(Boolean.class);
+          assertTrue(isMgRowLevel, "Row-level role should be member of MG_ROWLEVEL");
+
+          Integer hasColumn =
+              jooq(db)
+                  .selectCount()
+                  .from("information_schema.columns")
+                  .where(field("table_schema").eq(inline(schema.getName())))
+                  .and(field("table_name").eq(inline("People")))
+                  .and(field("column_name").eq(inline("mg_roles")))
+                  .fetchOne(0, Integer.class);
+
+          assertTrue(hasColumn != null && hasColumn > 0, "mg_roles column should be added");
         });
   }
 
@@ -137,26 +162,12 @@ public class TestSqlRoleManager {
 
           assertThrows(
               MolgenisException.class,
-              () -> rm.deleteRole("TestRM_systemProtection", "Viewer"),
-              "Should not allow deletion of system role Viewer");
+              () -> rm.createRole("TestRM_systemProtection", "Viewer"),
+              "Should not allow creation of system role Viewer");
           assertThrows(
               MolgenisException.class,
-              () -> rm.deleteRole("TestRM_systemProtection", "Editor"),
-              "Should not allow deletion of system role Editor");
-        });
-  }
-
-  @Test
-  public void testGlobalRoleCreation() {
-    database.tx(
-        db -> {
-          SqlRoleManager rm = roleManager(db);
-          rm.createRole("mg_global", "GlobalAnalyst", false);
-
-          String fullRoleName = MG_ROLE_PREFIX + "mg_global/GlobalAnalyst";
-          Result<Record> result =
-              jooq(db).fetch("SELECT 1 FROM pg_roles WHERE rolname = {0}", fullRoleName);
-          assertEquals(1, result.size(), "Global role should exist in pg_roles");
+              () -> rm.deleteRole("TestRM_systemProtection", "Viewer"),
+              "Should not allow deletion of system role Viewer");
         });
   }
 
@@ -166,18 +177,12 @@ public class TestSqlRoleManager {
         db -> {
           Schema schema = db.dropCreateSchema("TestRM_description");
           SqlRoleManager rm = roleManager(db);
-          rm.createRole(schema.getName(), "DescribedRole", false);
+          rm.createRole(schema.getName(), "DescribedRole");
 
           String description = "This role is for testing descriptions";
           rm.setDescription(schema.getName(), "DescribedRole", description);
 
-          String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/DescribedRole";
-          String fetched =
-              jooq(db)
-                  .fetchOne(
-                      "SELECT shobj_description(oid, 'pg_authid') FROM pg_authid WHERE rolname = {0}",
-                      fullRoleName)
-                  .into(String.class);
+          String fetched = rm.getDescription(schema.getName(), "DescribedRole");
           assertEquals(description, fetched, "Role description should match");
         });
   }
@@ -188,10 +193,10 @@ public class TestSqlRoleManager {
         db -> {
           Schema schema = db.dropCreateSchema("TestRM_duplicate");
           SqlRoleManager rm = roleManager(db);
-          rm.createRole(schema.getName(), "DuplicateRole", false);
+          rm.createRole(schema.getName(), "DuplicateRole");
 
           assertDoesNotThrow(
-              () -> rm.createRole(schema.getName(), "DuplicateRole", false),
+              () -> rm.createRole(schema.getName(), "DuplicateRole"),
               "Creating duplicate role should be idempotent");
         });
   }
@@ -216,14 +221,120 @@ public class TestSqlRoleManager {
         db -> {
           Schema schema = db.dropCreateSchema("TestRM_grantNonExistent");
           SqlRoleManager rm = roleManager(db);
-          rm.createRole(schema.getName(), "TestRole", false);
+          rm.createRole(schema.getName(), "TestRole");
+
+          Permission perm = new Permission();
+          perm.setTable("NonExistentTable");
+          perm.setRowLevel(false);
+          perm.setSelect(true);
 
           assertThrows(
               MolgenisException.class,
-              () ->
-                  rm.grantTablePermission(
-                      schema.getName(), "TestRole", "NonExistentTable", "SELECT"),
+              () -> rm.setPermission(schema.getName(), "TestRole", perm),
               "Should throw when granting on non-existent table");
+        });
+  }
+
+  @Test
+  public void testGetPermissions() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_getPermissions");
+          schema.create(table("Table1").add(column("id").setPkey()));
+          schema.create(table("Table2").add(column("id").setPkey()));
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "MultiPermRole");
+
+          Permission perm1 = new Permission();
+          perm1.setTable("Table1");
+          perm1.setRowLevel(true);
+          perm1.setSelect(true);
+          perm1.setInsert(true);
+          rm.setPermission(schema.getName(), "MultiPermRole", perm1);
+
+          Permission perm2 = new Permission();
+          perm2.setTable("Table2");
+          perm2.setRowLevel(true);
+          perm2.setSelect(true);
+          rm.setPermission(schema.getName(), "MultiPermRole", perm2);
+
+          List<Permission> permissions = rm.getPermissions(schema.getName(), "MultiPermRole");
+          assertEquals(2, permissions.size(), "Should have 2 permissions");
+
+          Permission foundPerm1 =
+              permissions.stream()
+                  .filter(p -> "Table1".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(foundPerm1, "Should find Table1 permission");
+          assertEquals(Boolean.TRUE, foundPerm1.getSelect());
+          assertEquals(Boolean.TRUE, foundPerm1.getInsert());
+          assertEquals(true, foundPerm1.isRowLevel());
+
+          Permission foundPerm2 =
+              permissions.stream()
+                  .filter(p -> "Table2".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(foundPerm2, "Should find Table2 permission");
+          assertEquals(Boolean.TRUE, foundPerm2.getSelect());
+          assertEquals(true, foundPerm2.isRowLevel());
+        });
+  }
+
+  @Test
+  public void testGetRoleInfos() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_getRoleInfos");
+          schema.create(table("Table1").add(column("id").setPkey()));
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "InfoRole");
+          rm.setDescription(schema.getName(), "InfoRole", "Test description");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setRowLevel(false);
+          perm.setSelect(true);
+          rm.setPermission(schema.getName(), "InfoRole", perm);
+
+          List<RoleInfo> roleInfos = rm.getRoleInfos(schema.getName());
+          assertFalse(roleInfos.isEmpty(), "Should have roles");
+
+          RoleInfo infoRole =
+              roleInfos.stream()
+                  .filter(r -> "InfoRole".equals(r.getName()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(infoRole, "Should find InfoRole");
+          assertEquals("Test description", infoRole.getDescription());
+          assertFalse(infoRole.isSystem(), "InfoRole is not a system role");
+          assertEquals(1, infoRole.getPermissions().size(), "Should have 1 permission");
+        });
+  }
+
+  @Test
+  public void testDeleteRoleWithPermissions() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_deleteWithPerms");
+          schema.create(table("Table1").add(column("id").setPkey()));
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "ToDelete");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setRowLevel(false);
+          perm.setSelect(true);
+          rm.setPermission(schema.getName(), "ToDelete", perm);
+
+          rm.deleteRole(schema.getName(), "ToDelete");
+
+          assertFalse(
+              rm.roleExists(schema.getName(), "ToDelete"), "Role should not exist after delete");
+
+          List<Permission> permissions = rm.getPermissions(schema.getName(), "ToDelete");
+          assertEquals(0, permissions.size(), "Permissions should be deleted with role");
         });
   }
 }
