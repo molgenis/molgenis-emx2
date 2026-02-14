@@ -8,8 +8,9 @@ import LandingPrimary from "../components/landing/Primary.vue";
 import LandingSecondary from "../components/landing/Secondary.vue";
 import LandingCardPrimary from "../components/landing/CardPrimary.vue";
 import LandingCardSecondary from "../components/landing/CardSecondary.vue";
-import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
+import ShowMore from "../../../tailwind-components/app/components/ShowMore.vue";
+import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 
 interface Props {
   resourceId: string;
@@ -20,6 +21,7 @@ const props = defineProps<Props>();
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
 const { resourceUrl } = useCatalogueContext();
+const scoped = props.resourceId && props.resourceId !== "all";
 
 const cohortOnly = computed(() => {
   return config.public.cohortOnly;
@@ -184,13 +186,14 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
-  if (!data.value.data?.Resources) {
+  const resources = data.value.data?.Resources;
+  if (scoped && (!resources || resources.length === 0)) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Catalogue "' + props.resourceId + '" Not Found.',
     });
   }
-  return data.value.data?.Resources[0];
+  return resources?.[0];
 });
 
 const title = computed(() => {
@@ -204,6 +207,8 @@ const title = computed(() => {
 const description = computed(() => {
   if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value);
+  } else if (scoped && network.value?.description) {
+    return network.value?.description;
   } else {
     return "Select one of the content categories listed below.";
   }
@@ -228,14 +233,19 @@ const aboutLink = resourceUrl(`${props.resourceId}/about`);
 <template>
   <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
-      <template v-slot:description
-        >Welcome to the catalogue of
-        <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
-          network.id
-        }}</NuxtLink
-        >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select
-        one of the content categories listed below.</template
-      >
+      <template v-if="scoped" v-slot:description>
+        <ShowMore :lines="5">
+          Welcome to the catalogue of
+          <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
+            network.id
+          }}</NuxtLink
+          >{{ network.id && network.name ? ": " : "" }}{{ network.name }}.
+          {{ description }}.
+        </ShowMore>
+      </template>
+      <template v-else v-slot:description>
+        <ContentReadMore :text="description" />
+      </template>
     </PageHeader>
     <LandingPrimary>
       <LandingCardPrimary
@@ -283,7 +293,7 @@ const aboutLink = resourceUrl(`${props.resourceId}/about`);
         :link="resourceUrl(`${resourceId}/variables`)"
       />
       <LandingCardPrimary
-        v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
+        v-if="!cohortOnly && scoped && network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"

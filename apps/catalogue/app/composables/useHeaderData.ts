@@ -54,7 +54,7 @@ export async function useHeaderData() {
         variables: {
           networksFilter: scoped
             ? { id: { equals: catalogueRouteParam } }
-            : undefined,
+            : { mainCatalogue: { equals: true } },
           collectionsFilter: scoped
             ? {
                 type: { tags: { equals: "collection" } },
@@ -113,11 +113,15 @@ export async function useHeaderData() {
   const variableCount = data.Variables_agg.count || 0;
   const collectionCount = data.Collections_agg.count || 0;
   const networkCount = data.Networks_agg.count || 0;
-  const logoSrc = (
-    data._settings.find((setting) => setting.key === "CATALOGUE_LOGO_SRC") || {
-      value: "",
-    }
-  ).value;
+  const logoSrc =
+    catalogue?.logo?.url ??
+    (
+      data._settings.find(
+        (setting) => setting.key === "CATALOGUE_LOGO_SRC"
+      ) || {
+        value: "",
+      }
+    ).value;
 
   return { catalogue, variableCount, collectionCount, networkCount, logoSrc };
 }
