@@ -5,6 +5,8 @@ Clinical trial,,,collection,SIO,SIO:001000,http://semanticscience.org/resource/S
 Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,"An observational (often longitudinal) study of a defined population, including the use of e.g. questionnaires and surveys"
 Health records,,,collection,SCDO,SCDO:0000492,http://purl.obolibrary.org/obo/SCDO_0000492,"Electronic health records, including hospital administrative systems"
 Registry,,,collection,,,,Organized database to collect uniform data about an underlying population with no primary scientific research goal
+Reference data source,,,collection,,,,"Curated datasets that researchers link to or use alongside their
+primary collections, but that do not originate from a study, biobank, or registry"
 Common data model,,,collection,,,,A standardised data model which allows for coherent data and information exchange
 Catalogue,,,,,,,Catalogue of resources
 Network,,,network,,,,"A network or consortium in which data collections are united"
