@@ -1,4 +1,4 @@
-# Row-Level Permissions: Scenarios & Requirements v2.1.0
+# Row-Level Permissions: Scenarios & Requirements v2.8.0
 
 ## 1. Summary
 
@@ -6,22 +6,10 @@ MOLGENIS EMX2 currently has schema-level roles (Viewer, Editor, Manager, Owner) 
 
 ### Feature overview
 
-**Row-level access column** (per table, opt-in):
-- `mg_roles TEXT[]` -- which roles can access this row
-- What a role can DO (SELECT, INSERT, UPDATE, DELETE) is controlled by table-level GRANTs
-- The row says WHO has access; the grant says WHAT they can do
-
-**Per-table visibility pattern** (different tables in the same schema can use different patterns):
-- **Pattern A** (public read, group write): everyone can SELECT, mg_roles members OR schema-level users can modify
-- **Pattern B** (group read+write): mg_roles members OR schema-level users can SELECT and modify
-- **No RLS**: table has no mg_roles column, no row-level filtering (e.g. shared ontology tables)
-
-Schema-level users (the 8 system roles: Viewer/Editor/Owner etc.) always bypass row-level filtering -- they see and edit all rows according to their table-level permissions. Custom roles can be schema-level (default) OR row-level (via rowLevel flag on Permission). Only row-level custom roles are tagged MG_ROWLEVEL internally and participate in RLS filtering.
-
-**Permission granularity**:
-- **Table-level**: GRANT SELECT/INSERT/UPDATE/DELETE ON table TO role (PG native)
-- **Column-level**: editColumns/denyColumns in Permission (app-enforced via GraphQL/Java, not PG column-level GRANTs)
-- **Row-level**: RLS policies filtering by mg_roles array (PG native)
+- **Row-level access**: `mg_roles TEXT[]` column stores which roles can access each row (see spec section 5)
+- **One role per schema**: each user has exactly one role per schema, deterministic from membership (see spec section 1)
+- **Per-operation permissions**: each of SELECT/INSERT/UPDATE/DELETE can be TABLE (bypass RLS), ROW (filtered), or null (see spec section 1)
+- **Column-level access**: per-column editable/readonly/hidden overrides (see spec section 4)
 
 **Workflow support**:
 - `mg_status` column with state machine (Draft -> Submitted -> Published -> Withdrawn) -- new feature, does NOT replace existing mg_draft (to be discussed)
@@ -36,12 +24,13 @@ Schema-level users (the 8 system roles: Viewer/Editor/Owner etc.) always bypass 
 
 ### How mg_roles + table GRANTs work together
 
-| Role | Table GRANT | mg_roles | Result |
+| Role | Permissions | mg_roles | Result |
 |------|------------|----------|--------|
-| HospitalA | SELECT, INSERT, UPDATE | Listed in row | Can read, insert, update this row (not delete) |
-| Researcher | SELECT | Listed in row | Can read this row only |
-| Publisher | SELECT, UPDATE(mg_status) | Schema-level (bypasses) | Can read all rows, change status |
-| Viewer | SELECT | Schema-level (bypasses) | Can read all rows |
+| HospitalA | select=ROW, insert=ROW, update=ROW | Listed in row | See/edit own rows, can't delete |
+| Researcher | select=ROW | Listed in row | Read-only on tagged rows |
+| DataMonitor | select=TABLE | N/A (bypasses) | Read all rows |
+| Publisher | select=TABLE, update=TABLE | N/A (bypasses) | Read all, edit all, change status |
+| Viewer (system) | select=TABLE | N/A (system role) | Read all rows |
 
 Single column. Row says WHO. Grant says WHAT.
 
@@ -73,23 +62,23 @@ These scenarios were developed using **synthetic personas** -- AI-generated doma
 
 For large catalogues where per-submission review doesn't scale.
 
-| Role | Table GRANTs | mg_roles | mg_status |
-|------|-------------|----------|-----------|
-| OrgA (row-level) | SELECT, INSERT, UPDATE | Listed in own rows | Draft/Submitted only |
-| Publisher (schema-level) | SELECT, INSERT, UPDATE, DELETE | Bypasses | Any state |
-| Viewer (schema-level) | SELECT | Bypasses | - |
+| Role | Permissions | Result |
+|------|------------|--------|
+| OrgA | Patients: select=ROW, insert=ROW, update=ROW | See/edit own rows |
+| Publisher | Patients: select=TABLE, update=TABLE, delete=TABLE | See/edit all rows |
+| Viewer | Patients: select=TABLE | Read all rows |
 
-Pattern A. Organizations responsible for own quality. Automated validation + periodic audits.
+Organizations responsible for own quality. Automated validation + periodic audits.
 
 #### Variant B: Curated model (editor in chief)
 
 For catalogues requiring central curation before publishing.
 
-| Role | Table GRANTs | mg_roles | mg_status |
-|------|-------------|----------|-----------|
-| OrgA (row-level) | SELECT, INSERT, UPDATE | Listed in own rows | Draft/Submitted only |
-| Editor in Chief (schema-level) | SELECT, INSERT, UPDATE, DELETE | Bypasses | Any state |
-| Viewer (schema-level) | SELECT | Bypasses | - |
+| Role | Permissions | Result |
+|------|------------|--------|
+| OrgA | Patients: select=ROW, insert=ROW, update=ROW | See/edit own rows |
+| Editor in Chief | Patients: select=TABLE, update=TABLE, delete=TABLE | See/edit all rows |
+| Viewer | Patients: select=TABLE | Read all rows |
 
 Pattern A with status-aware visibility. Editor controls full lifecycle:
 
@@ -115,12 +104,10 @@ Draft -> Submitted -> Published -> Withdrawn
 
 | Role | Metadata tables | Subject tables |
 |------|----------------|----------------|
-| InstituteA (row-level) | SELECT all | SELECT own, COUNT all, INSERT/UPDATE own |
-| Metadata Viewer (schema-level) | SELECT all | COUNT only |
-| Data Monitor (schema-level) | SELECT all | SELECT all (read-only) |
-| Manager (schema-level) | SELECT all | SELECT all, UPDATE all |
-
-Pattern B on subject tables, Pattern A on metadata tables.
+| InstituteA | select=TABLE | select=ROW, insert=ROW, update=ROW |
+| Metadata Viewer | select=TABLE | select=TABLE (count-only at API level) |
+| Data Monitor | select=TABLE | select=TABLE |
+| Manager | select=TABLE | select=TABLE, update=TABLE |
 
 **Key perspectives:**
 - Cohort PI: per-institute consent for researcher access, time-limited, minimum cell size >=5
@@ -131,14 +118,14 @@ Pattern B on subject tables, Pattern A on metadata tables.
 
 **Current pain**: 5-10 studies in separate schemas. Cross-study queries impossible, reference tables duplicated.
 
-| Role | All tables |
-|------|------------|
-| StudyA team (row-level) | SELECT own, INSERT/UPDATE own |
-| StudyB team (row-level, embargoed) | SELECT own only |
-| Lab member (schema-level Viewer) | SELECT all non-embargoed |
-| PI (schema-level Manager) | SELECT all, UPDATE all |
+| Role | Permissions | Result |
+|------|------------|--------|
+| StudyA team | select=ROW, insert=ROW, update=ROW | See/edit own rows |
+| StudyB team (embargoed) | select=ROW | Read own rows only |
+| Lab member | select=TABLE | Read all non-embargoed |
+| PI | select=TABLE, update=TABLE | Read all, edit all |
 
-Pattern B. Cross-study analysis = automatic union of allowed rows. Embargo lifecycle via mg_status.
+Cross-study analysis = automatic union of allowed rows. Embargo lifecycle via mg_status.
 
 ### Scenario 4: Public data repository (Repository Admin)
 
@@ -146,11 +133,11 @@ Pattern B. Cross-study analysis = automatic union of allowed rows. Embargo lifec
 
 | Role | Metadata tables | Data tables |
 |------|----------------|-------------|
-| GroupA Depositor (row-level) | SELECT all, INSERT/UPDATE own | INSERT/UPDATE own |
-| Curator (schema-level) | SELECT/UPDATE all | SELECT all, no DELETE |
-| Anonymous | SELECT all | No access |
+| GroupA Depositor | select=TABLE, insert=ROW, update=ROW | insert=ROW, update=ROW |
+| Curator | select=TABLE, update=TABLE | select=TABLE |
+| Anonymous | select=TABLE | null (no access) |
 
-Pattern A for metadata, Pattern B for data. DOI = never delete. Curators edit metadata only (column-level).
+DOI = never delete. Curators edit metadata only (column-level).
 
 ---
 
@@ -159,62 +146,50 @@ Pattern A for metadata, Pattern B for data. DOI = never delete. Curators edit me
 ### 3.1 Row-level access (mg_roles)
 
 **mg_roles** (which roles can access this row):
-- `TEXT[] DEFAULT NULL`, GIN indexed
-- Lists role names that have row-level access to this row
-- What each role can DO is controlled by table-level GRANTs (SELECT, INSERT, UPDATE, DELETE)
-- Auto-assigned on INSERT if user has exactly 1 row-level role
+- Auto-assigned on INSERT from user's role (one role per schema)
 - Multiple values = shared access: `['HospitalA', 'HospitalB']`
 - NULL = visible to schema-level users only (safe default)
 
-See `rowlevel-spec.md` for RLS policy SQL and implementation details.
+See `rowlevel-spec.md` section 5 for RLS policy SQL, GIN index, and implementation details.
 
-**Important:** UPDATE policy has both `USING` (which rows you can update) AND `WITH CHECK` (what the row must look like after update). This prevents a user from removing themselves from mg_roles or adding other groups. Additional application-layer validation in `SqlTable.update()`: reject changes to mg_roles unless user is schema Manager+.
+**Role determination:**
+- One role per user per schema, from member record
+- No role switching needed -- role is deterministic
+- If user needs both visibility and data entry for a group: two accounts (standard in healthcare)
 
-### 3.2 Table-level permissions
+### 3.2 Per-operation permission levels
 
-Per-table GRANT/REVOKE per custom role. SqlRoleManager API:
-```java
-grantTablePermission(schema, role, table, privilege)   // SELECT, INSERT, UPDATE, DELETE
-revokeTablePermission(schema, role, table, privilege)
-```
+Each operation (SELECT/INSERT/UPDATE/DELETE) can be TABLE (bypass RLS), ROW (filtered by RLS), or null (no access). See spec section 1 (PermissionLevel enum) and section 4 (operation grants) for details.
 
-This is how read vs write is controlled per role:
-- Role "HospitalA" with `GRANT SELECT, INSERT, UPDATE` on patients -> can read+insert+update own rows, cannot delete
-- Role "Researcher" with `GRANT SELECT` on patients -> read-only on own rows
+### 3.3 Column-level access
 
-### 3.3 Column-level permissions (deny-list)
+Per-column access control via `columns` field containing three string arrays:
 
-Column restrictions stored in column metadata, enforced at app layer (GraphQL/Java). Two lists per role+table:
+- `editable: [String]` -- editable columns (override default to EDITABLE)
+- `readonly: [String]` -- read-only columns (override default to VIEW)
+- `hidden: [String]` -- hidden columns (not visible in API)
 
-- **`editColumns`** (allow-list): if set, only these columns are updatable; rest is view-only
-- **`denyColumns`** (deny-list): if set, these columns are hidden entirely
-
-Both can be combined. Unlisted columns inherit table-level permission.
+Table-level permission sets the default for unlisted columns:
+- `update: ROW/TABLE` -> unlisted = EDITABLE (use readonly/hidden to restrict)
+- `update: null` -> unlisted = VIEW (use editable to promote)
 
 ```graphql
-change(permissions: [
-  { role: "HospitalA", table: "patients", select: true, insert: true, update: true,
-    editColumns: ["name", "dob", "mg_status"], denyColumns: ["ssn"] }
-])
+{ table: "patients", select: ROW, update: ROW,
+  columns: { hidden: ["ssn", "genetic_markers"] } }
 ```
-HospitalA can: see all columns except ssn, edit only name/dob/mg_status, view rest read-only.
 
-Benefits over PG column-level GRANTs:
-- `editColumns` is compact for "restrict editing to a few" (3 items vs 47 exceptions)
-- No need to update GRANTs when schema changes (new columns visible+view-only by default)
-- No `SELECT *` breakage
-- Stored alongside existing column metadata
+HospitalA can: see and edit all columns except ssn and genetic_markers (hidden).
 
-Trade-off: not PG-enforced -- direct SQL users bypass column filtering (documented residual risk, same as COUNT-only access).
+```graphql
+{ table: "patients", select: ROW,
+  columns: { editable: ["name", "dob"], hidden: ["ssn"] } }
+```
 
-### 3.4 Per-table RLS pattern
+Researcher can: see all columns except ssn, edit only name and dob.
 
-Same schema can have tables with different patterns:
-- Pattern A (public read): catalogues, metadata, reference tables
-- Pattern B (group read): patient data, sensitive tables, embargoed data
-- No RLS: shared ontology tables, system tables
+### 3.4 Per-table RLS enablement
 
-Configured via `table.getMetadata().enableRowLevelSecurity(pattern)`.
+Tables with at least one ROW-level permission get RLS enabled automatically. Different roles on the same table can have different access patterns (e.g., one role has select=TABLE while another has select=ROW). See spec section 5 for policy details.
 
 ### 3.5 mg_status state machine (to be discussed)
 
@@ -259,6 +234,11 @@ When child rows reference parent rows (Subject -> Samples -> Experiments):
 - Option C: Mixed (inherit by default, allow override)
 
 Open question: which default? Inheritance simplifies but may not fit all cases (e.g., sample sent to external lab).
+
+With one-role-per-schema model:
+- Default behavior: child rows inherit user's role on INSERT (mg_roles = ARRAY[user_role])
+- Override: Manager can set mg_roles explicitly on any row
+- Cross-group references: schema-level users can create references across groups
 
 ### 3.8 Role lifecycle
 
@@ -308,9 +288,9 @@ Feasibility queries, discovery, institutional reporting.
 - Note: direct SQL users can bypass count restrictions (documented residual risk)
 
 ### Import/export with mg_roles (Data Manager, Cohort PI, Repository Admin)
-- Auto-assign if user has exactly 1 row-level role
+- Auto-assign from user's role on import
 - Explicit mg_roles column in CSV for multi-role users
-- "Import as" context for managers importing on behalf of institute
+- Manager uses separate account or asks admin to import on their behalf
 - Validation: reject unknown role values with clear error
 
 ### Deletion restrictions (all personas)
@@ -370,6 +350,15 @@ Three critical reviews conducted (synthetic AI reviewers, not human):
 
 **Security Researcher** -- found: no threat model, ENABLE vs FORCE RLS gap, privilege escalation via UPDATE without WITH CHECK, deletion test contradicting spec, provenance not tamper-proof, GDPR erasure unresolved. Key outcome: threat model added (3.9), WITH CHECK on UPDATE policies, ENABLE accepted with documented residual risk, FORCE as future epic.
 
+**v2.2 Review Round** (6 concurrent reviews: Architecture, Security, API Design, PG RLS Best Practices, Permission API Patterns, Codebase Exploration):
+- Adopted one-role-per-schema model (resolves multi-role ambiguity, improves RLS performance 5-10x)
+- Added WITH CHECK to RLS policies (prevents privilege escalation)
+- Simplified to single unified RLS policy per table (was 4 separate)
+- Added explicit revocation via drop(permissions) endpoint
+- Added introspection queries (myPermissions, permissionsOf)
+- Added CSV import/export for roles+permissions
+- Long-term ideas moved to rowlevel-future.md
+
 ---
 
 ## Design decisions
@@ -381,7 +370,7 @@ Three critical reviews conducted (synthetic AI reviewers, not human):
 4. Role archival over deletion -- keep role in pg_roles for provenance
 5. Pattern A vs B per-table -- essential, confirmed by all scenarios
 6. Single mg_roles column -- table-level GRANTs control read vs write
-7. Column-level via editColumns/denyColumns -- app-enforced, not PG column GRANTs
+7. Column-level via ColumnAccess (editable/readonly/hidden string arrays) -- app-enforced, not PG column GRANTs
 8. mg_status is a new feature -- does NOT replace mg_draft
 9. Append-only provenance table -- tamper-evident, not tamper-proof
 10. Deletion via table-level GRANT -- no GRANT DELETE = cannot delete
@@ -391,3 +380,11 @@ Three critical reviews conducted (synthetic AI reviewers, not human):
 14. Helper functions via SET LOCAL -- must execute once per transaction
 15. No user-defined role inheritance for v1 -- flat roles, multiple memberships
 16. Custom roles can be schema-level (default) or row-level (via rowLevel flag)
+17. One role per user per schema -- deterministic from membership, no switching needed; simplifies auto-population, performance, and mental model
+18. Cross-group queries via schema-level roles -- Viewer/Manager see all data, row-level users see their group only; two accounts for dual needs
+19. Per-operation permission level (TABLE/ROW/null) -- replaces boolean rowLevel flag and per-table Pattern A/B; more flexible, same table can have different patterns per role
+20. permission_metadata SELECT-only for PUBLIC -- prevents metadata tampering
+21. Orphaned mg_roles cleanup on role deletion -- prevents role re-creation attack
+22. Explicit revocation via drop(permissions) -- clearer than implicit isRevocation() pattern
+23. CSV import for roles+permissions -- single denormalized file for bulk setup
+24. Inverted column access model (editable/readonly/hidden string arrays) -- three lists grouped by access level, table-level permission sets default for unlisted columns, no separate readonly flag or wildcard needed
