@@ -481,8 +481,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public List<Permission> getMyPermissions() {
-    return ((SqlDatabase) getDatabase()).getRoleManager().getMyPermissions(getName());
+  public List<Permission> getPermissionsForActiveUser() {
+    return ((SqlDatabase) getDatabase()).getRoleManager().getPermissionsForActiveUser(getName());
   }
 
   public DSLContext getJooq() {

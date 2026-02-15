@@ -12,14 +12,10 @@ SELECT
   rp.editable_columns,
   rp.readonly_columns,
   rp.hidden_columns
-FROM pg_tables t
-LEFT JOIN "MOLGENIS".rls_permissions rp
-  ON rp.role_name = :role
-  AND rp.table_schema = t.schemaname
-  AND rp.table_name = t.tablename
-WHERE t.schemaname = :schema
-  AND (has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'SELECT')
-    OR has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'INSERT')
-    OR has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'UPDATE')
-    OR has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'DELETE')
-    OR rp.select_level IS NOT NULL)
+FROM "MOLGENIS".rls_permissions rp
+JOIN pg_tables t
+  ON t.schemaname = rp.table_schema
+  AND t.tablename = rp.table_name
+WHERE rp.role_name = :role
+  AND rp.table_schema = :schema
+  AND rp.table_name != '*'

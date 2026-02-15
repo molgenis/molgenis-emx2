@@ -191,6 +191,7 @@ public class SqlRoleManager {
             .and(RP_ROLE.eq(fullRole))
             .execute();
       } catch (Exception e) {
+        logger.error("Failed to revoke all permissions for {} in {}", fullRole, schemaName, e);
       }
     } else {
       String targetTable = "*".equals(tableName) ? "*" : tableName;
@@ -302,6 +303,8 @@ public class SqlRoleManager {
             .execute();
       }
     } catch (Exception e) {
+      logger.error(
+          "Failed to revoke RLS permissions for {} on {}.{}", fullRole, schemaName, tableName, e);
     }
   }
 
@@ -634,12 +637,13 @@ public class SqlRoleManager {
         permissions.add(wp);
       }
     } catch (Exception e) {
+      logger.error("Failed to get permissions for {} in {}", roleName, schemaName, e);
     }
 
     return permissions;
   }
 
-  public List<Permission> getMyPermissions(String schemaName) {
+  public List<Permission> getPermissionsForActiveUser(String schemaName) {
     String activeUser = database.getActiveUser();
     if (activeUser == null || "anonymous".equals(activeUser)) {
       return Collections.emptyList();
@@ -750,6 +754,7 @@ public class SqlRoleManager {
           .and(RP_TABLE.eq(tableName))
           .execute();
     } catch (Exception e) {
+      logger.error("Failed to cleanup table permissions for {}.{}", schemaName, tableName, e);
     }
   }
 
@@ -757,6 +762,7 @@ public class SqlRoleManager {
     try {
       jooq().deleteFrom(RLS_PERMISSIONS_TABLE).where(RP_SCHEMA.eq(schemaName)).execute();
     } catch (Exception e) {
+      logger.error("Failed to cleanup schema permissions for {}", schemaName, e);
     }
   }
 

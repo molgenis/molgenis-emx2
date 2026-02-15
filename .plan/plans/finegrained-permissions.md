@@ -6,9 +6,9 @@ Add fine-grained permissions to MOLGENIS EMX2 so different groups can work in th
 
 Two sources of truth:
 - **PG catalog**: table-level grants (SELECT/INSERT/UPDATE/DELETE) via `GRANT`/`REVOKE`, queried with `has_table_privilege()`. Also role membership and inheritance.
-- **`MOLGENIS.rls_permissions`**: select level (VARCHAR: EXISTS/RANGE/AGGREGATOR/COUNT/TABLE/ROW), RLS restriction flags (boolean: insert_rls/update_rls/delete_rls), column access overrides (VARCHAR[]: editable/readonly/hidden), and grant permission (boolean).
+- **`MOLGENIS.rls_permissions`**: select level (VARCHAR: EXISTS/RANGE/AGGREGATOR/COUNT/TABLE/ROW), RLS restriction flags (boolean: insert_rls/update_rls/delete_rls), column access overrides (VARCHAR[]: editable/readonly/hidden), and grant permission (boolean). This is the source of truth for custom roles.
 
-`SqlRoleManager` combines both sources via inline SQL queries loaded from resource files (`permissions_query.sql`, `permissions_explain_query.sql`).
+`SqlRoleManager` combines both sources via inline SQL queries loaded from resource files (`permissions_query.sql`, `permissions_explain_query.sql`). `permissions_query.sql` uses INNER JOIN from rls_permissions (driving table) with pg_tables and has_table_privilege().
 
 Column-level access (editable/readonly/hidden) is enforced at application layer (GraphQL field filtering + SqlTable mutation validation), not PG. RLS row filtering uses pre-computed session variable lists -- no per-row subqueries. 5 session variables: `active_role`, `rls_select_tables`, `rls_insert_tables`, `rls_update_tables`, `rls_delete_tables`. System roles have no entries in `rls_permissions`, so their lists are empty = unrestricted.
 
@@ -82,8 +82,8 @@ System roles and custom roles are managed via the same mechanism:
 ### Phase 2: Migration -- NEEDS UPDATE (v5.0 changes)
 - `rls_permissions_create.sql`: separate SQL resource file with CREATE TABLE + PK (reusable from migration and SqlRoleManager)
 - `migration31.sql`: references `rls_permissions_create.sql`, GRANT SELECT to PUBLIC, creates `MG_ROLE_*/Admin` global system role
-- `permissions_query.sql`: joins pg_tables + rls_permissions + has_table_privilege() (used by SqlRoleManager.getRoleInfo())
-- `permissions_explain_query.sql`: recursive role tree + aclexplode() for introspection API (myPermissions)
+- `permissions_query.sql`: joins rls_permissions + pg_tables + has_table_privilege() (rls_permissions is driving table, used by SqlRoleManager.getRoleInfo())
+- `permissions_explain_query.sql`: reserved for future admin introspection
 - **v5.0 changes**:
   - Rename table from `permission_metadata` to `rls_permissions`
   - Hybrid storage: VARCHAR `select_level` for SELECT (6 levels) + boolean `_rls` flags for INSERT/UPDATE/DELETE
@@ -203,21 +203,21 @@ System roles and custom roles are managed via the same mechanism:
   - `backend/molgenis-emx2/src/main/java/org/molgenis/emx2/Database.java`
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlSchema.java`
 
-### Phase 6: GraphQL API -- NEEDS UPDATE (v5.0 + v5.2 changes)
-- Schema-level: `_schema { roles }` query with RoleInfo type, `change(roles)` / `drop(roles)` mutations
-- Schema-level: `change(permissions)` / `drop(permissions)` for per-table grants
-- Database-level: `_roles` query (cross-schema), `change(roles)` mutation with schemaName
-- GraphqlPermissionUtils: shared conversion logic between schema and database factories
-- Authorization added: schema role management requires Manager+ in that schema; global role management and `_roles` query require database admin
-- **v5.0 changes**: GraphQL types expose `select`/`insert`/`update`/`delete` as String ("TABLE", "ROW", or null) derived from combining PG grants with `rls_permissions` boolean flags. PermissionLevel enum is the domain/API model.
-- **v5.2 changes**: `inherits` field removed from RoleInfo GraphQL type. `grant` boolean field added to Permission GraphQL type (for role management capability). Custom roles have no inheritance -- entire access defined by permission matrix.
-- **`_schema { roles }` restricted to Manager+** -- same authorization as `members`. Non-managers use `_schema { myPermissions }` to see their own effective permissions.
-- **`MolgenisPermissionType` has `schema` field** -- populated for global role permissions (to indicate which schema the table belongs to), null for schema-local permissions.
-- Introspection: `_schema { myPermissions }` query returning effective permissions with source role (powered by `permissions_explain_query.sql`)
-- Introspection: `_schema { permissionsOf(email: "...") }` for Manager+ to check any user
-- Explicit revocation: extend `drop(permissions)` mutation with MolgenisPermissionDropInput
-- CSV endpoint: POST/GET `/<schema>/api/csv/roles` for bulk role+permission import/export
-- Role cloning: `cloneFrom` parameter on role creation to copy permissions from existing role
+### Phase 6: GraphQL API -- IN PROGRESS
+- Schema-level: `_schema { roles }` query with RoleInfo type, `change(roles)` / `drop(roles)` mutations -- DONE
+- Schema-level: `change(permissions)` / `drop(permissions)` for per-table grants -- DONE
+- Database-level: `_roles` query (cross-schema), `change(roles)` mutation with schemaName -- DONE
+- GraphqlPermissionUtils: shared conversion logic between schema and database factories -- DONE
+- Authorization added: schema role management requires Manager+ in that schema; global role management and `_roles` query require database admin -- DONE
+- **v5.0 changes**: GraphQL types expose `select`/`insert`/`update`/`delete` as String ("TABLE", "ROW", or null) derived from combining PG grants with `rls_permissions` boolean flags. PermissionLevel enum is the domain/API model. -- DONE
+- **v5.2 changes**: `inherits` field removed from RoleInfo GraphQL type. `grant` boolean field added to Permission GraphQL type (for role management capability). Custom roles have no inheritance -- entire access defined by permission matrix. -- DONE
+- **`_schema { roles }` restricted to Manager+ or Owner only** -- same authorization as `members`. Non-managers use `_session { permissions }` to see their own effective permissions. -- DONE
+- **`MolgenisPermissionType` has `schema` field** -- populated for global role permissions (to indicate which schema the table belongs to), null for schema-local permissions. -- DONE
+- Introspection: `_session { permissions }` added for any authenticated user to see own effective permissions -- DONE
+- Introspection: `permissionsOf(email)` removed (redundant, managers have members + roles) -- DONE
+- Explicit revocation: extend `drop(permissions)` mutation with MolgenisPermissionDropInput -- NOT STARTED
+- CSV endpoint: POST/GET `/<schema>/api/csv/roles` for bulk role+permission import/export -- NOT STARTED
+- Role cloning: `cloneFrom` parameter on role creation to copy permissions from existing role -- NOT STARTED
 - Files:
   - `backend/molgenis-emx2-graphql/src/main/java/org/molgenis/emx2/graphql/GraphqlSchemaFieldFactory.java`
   - `backend/molgenis-emx2-graphql/src/main/java/org/molgenis/emx2/graphql/GraphqlDatabaseFieldFactory.java`
@@ -271,7 +271,7 @@ All questions from v2.3 resolved. See "Resolved" section below.
 ### Resolved by v2.3 Reviews
 - One role per schema: deterministic from membership, no switching (resolved ambiguity in auto-population and multi-role queries)
 - CSV import format: single denormalized file for roles+permissions
-- Introspection API: myPermissions + permissionsOf queries
+- Introspection API: `_session { permissions }` for own permissions; `permissionsOf` removed (managers use members + roles)
 - Explicit revocation: drop(permissions) endpoint
 - Performance: pre-computed session variable lists, no per-row subqueries
 

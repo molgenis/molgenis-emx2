@@ -176,20 +176,21 @@ public class TestGraphqlRolePermissions {
 
   @Test
   @org.junit.jupiter.api.Order(6)
-  public void testQueryRolesAsNonAdmin() throws Exception {
+  public void testQueryAsNonAdmin() throws Exception {
     try {
       database.setActiveUser("gql_analyst1");
-      graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+      Schema freshSchema = database.getSchema(SCHEMA_NAME);
+      graphql = new GraphqlApiFactory().createGraphqlForSchema(freshSchema, null);
 
-      JsonNode roles = execute("{ _schema { roles { name } } }");
-      boolean foundAnalysts = false;
-      for (JsonNode role : roles.at("/_schema/roles")) {
-        if ("Analysts".equals(role.get("name").asText())) {
-          foundAnalysts = true;
-          break;
-        }
+      JsonNode perms = execute("{ _session { permissions { table select } } }");
+      assertNotNull(perms.at("/_session/permissions"), "Non-admin can query own permissions");
+
+      try {
+        execute("{ _schema { roles { name } } }");
+        fail("Non-Manager user should not be able to query roles");
+      } catch (Exception e) {
+        assertTrue(e.getMessage().contains("roles"), "Expected field error for roles");
       }
-      assertTrue(foundAnalysts, "Non-admin users should be able to query their own role");
 
       try {
         execute("mutation { change(roles: [{name: \"TestRole\"}]) { message } }");
@@ -267,10 +268,10 @@ public class TestGraphqlRolePermissions {
       graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
 
       JsonNode result =
-          execute("{ _schema { myPermissions { table select insert update delete } } }");
-      JsonNode myPermissions = result.at("/_schema/myPermissions");
-      assertNotNull(myPermissions, "myPermissions should be present");
-      assertTrue(myPermissions.isArray(), "myPermissions should be an array");
+          execute("{ _session { permissions { table select insert update delete } } }");
+      JsonNode myPermissions = result.at("/_session/permissions");
+      assertNotNull(myPermissions, "permissions should be present");
+      assertTrue(myPermissions.isArray(), "permissions should be an array");
       assertEquals(2, myPermissions.size(), "Should have 2 permissions");
 
       boolean foundPatients = false;
@@ -293,6 +294,57 @@ public class TestGraphqlRolePermissions {
       graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
       execute("mutation { drop(roles: [\"MyTestRole\"]) { message } }");
     }
+  }
+
+  @Test
+  @org.junit.jupiter.api.Order(10)
+  public void testDropPermissionsViaGraphql() throws Exception {
+    execute("mutation { change(roles: [{name: \"DropPermsRole\"}]) { message } }");
+    execute(
+        "mutation { change(roles: [{name: \"DropPermsRole\", permissions: [{table: \"Samples\", select: \"TABLE\"}]}]) { message } }");
+
+    JsonNode rolesBefore = execute("{ _schema { roles { name permissions { table select } } } }");
+    JsonNode roleBefore = null;
+    for (JsonNode role : rolesBefore.at("/_schema/roles")) {
+      if ("DropPermsRole".equals(role.get("name").asText())) {
+        roleBefore = role;
+        break;
+      }
+    }
+    assertNotNull(roleBefore, "DropPermsRole should exist");
+
+    boolean hasSamplesPermissionBefore = false;
+    for (JsonNode perm : roleBefore.get("permissions")) {
+      if ("Samples".equals(perm.get("table").asText())) {
+        hasSamplesPermissionBefore = true;
+        break;
+      }
+    }
+    assertTrue(hasSamplesPermissionBefore, "Should have Samples permission before drop");
+
+    execute(
+        "mutation { drop(permissions: [{role: \"DropPermsRole\", table: \"Samples\"}]) { message } }");
+
+    JsonNode rolesAfter = execute("{ _schema { roles { name permissions { table select } } } }");
+    JsonNode roleAfter = null;
+    for (JsonNode role : rolesAfter.at("/_schema/roles")) {
+      if ("DropPermsRole".equals(role.get("name").asText())) {
+        roleAfter = role;
+        break;
+      }
+    }
+    assertNotNull(roleAfter, "DropPermsRole should still exist");
+
+    boolean hasSamplesPermissionAfter = false;
+    for (JsonNode perm : roleAfter.get("permissions")) {
+      if ("Samples".equals(perm.get("table").asText())) {
+        hasSamplesPermissionAfter = true;
+        break;
+      }
+    }
+    assertFalse(hasSamplesPermissionAfter, "Samples permission should be removed");
+
+    execute("mutation { drop(roles: [\"DropPermsRole\"]) { message } }");
   }
 
   @AfterAll

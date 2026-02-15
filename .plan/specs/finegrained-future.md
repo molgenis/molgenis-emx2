@@ -127,6 +127,11 @@ For organizations needing strong isolation beyond row-level. Separate module. Ea
 
 ## Admin Enhancements
 
+### Unify system role grant management into SqlRoleManager
+Currently system roles (Viewer, Editor, etc.) get PG grants via hardcoded logic in SqlSchemaMetadataExecutor/SqlDatabaseExecutor, while custom roles are managed by SqlRoleManager. Unifying both into SqlRoleManager would give a single code path for all grant management and simplify new table creation. Low urgency since getMyPermissions() already returns a unified view for both role types.
+- Complexity: Medium (high regression risk, needs careful migration)
+- Source: Phase 4c implementation review
+
 ### Global admin system role (`MG_ROLE_*/Admin`)
 **MOVED TO MAIN SPEC** -- now part of the core design (finegrained-spec.md section 3).
 

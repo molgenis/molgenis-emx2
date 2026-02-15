@@ -292,33 +292,33 @@ SELECT-only grant prevents metadata tampering by non-admin users.
 
 ### Permissions query (inline in SqlRoleManager)
 
-No view — `SqlRoleManager.getRoleInfo()` / `getRoleInfos()` loads this query from `permissions_query.sql` resource file:
+No view — `SqlRoleManager.getRoleInfo()` / `getRoleInfos()` loads this query from `permissions_query.sql` resource file.
+
+This query is for custom roles only (system roles have no rls_permissions entries, so this returns empty for them):
 
 ```sql
 SELECT
-  t.tablename as table_name,
-  has_table_privilege(:role, :schema||'.'||t.tablename, 'SELECT') as can_select,
-  has_table_privilege(:role, :schema||'.'||t.tablename, 'INSERT') as can_insert,
-  has_table_privilege(:role, :schema||'.'||t.tablename, 'UPDATE') as can_update,
-  has_table_privilege(:role, :schema||'.'||t.tablename, 'DELETE') as can_delete,
+  t.tablename AS table_name,
+  has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'SELECT') AS can_select,
+  has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'INSERT') AS can_insert,
+  has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'UPDATE') AS can_update,
+  has_table_privilege(:role, format('%I.%I', :schema, t.tablename), 'DELETE') AS can_delete,
   rp.select_level,
-  COALESCE(rp.insert_rls, false) as insert_rls,
-  COALESCE(rp.update_rls, false) as update_rls,
-  COALESCE(rp.delete_rls, false) as delete_rls,
+  COALESCE(rp.insert_rls, false) AS insert_rls,
+  COALESCE(rp.update_rls, false) AS update_rls,
+  COALESCE(rp.delete_rls, false) AS delete_rls,
   rp.grant_permission,
   rp.editable_columns, rp.readonly_columns, rp.hidden_columns
-FROM pg_tables t
-LEFT JOIN "MOLGENIS".rls_permissions rp
-  ON rp.role_name = :role
-  AND rp.table_schema = t.schemaname
-  AND rp.table_name = t.tablename
-WHERE t.schemaname = :schema
-  AND (has_table_privilege(:role, :schema||'.'||t.tablename, 'SELECT')
-    OR has_table_privilege(:role, :schema||'.'||t.tablename, 'INSERT')
-    OR has_table_privilege(:role, :schema||'.'||t.tablename, 'UPDATE')
-    OR has_table_privilege(:role, :schema||'.'||t.tablename, 'DELETE')
-    OR rp.select_level IS NOT NULL)
+FROM "MOLGENIS".rls_permissions rp
+JOIN pg_tables t
+  ON t.schemaname = rp.table_schema
+  AND t.tablename = rp.table_name
+WHERE rp.role_name = :role
+  AND rp.table_schema = :schema
+  AND rp.table_name != '*'
 ```
+
+Key differences from old version: rls_permissions is the driving table (INNER JOIN), not pg_tables with LEFT JOIN. This means only tables with rls_permissions entries are returned. The `format('%I.%I', ...)` ensures proper PG identifier quoting. The `table_name != '*'` excludes wildcard entries.
 
 Reading semantics (mapped to Java):
 - `can_select=true, select_level=NULL` -> `SelectLevel.TABLE` (PG grant, no restriction)
@@ -445,7 +445,7 @@ Role management operations are restricted based on scope and caller:
 
 **Schema roles query** (`_schema { roles }` on schema endpoint):
 - Requires `grant=true` permission on `table='*'` for this schema, OR Owner system role, OR database admin
-- Non-managers use `_schema { myPermissions }` to see their own effective permissions
+- Non-managers use `_session { permissions }` to see their own effective permissions
 
 ### Schema-local custom roles
 
@@ -561,7 +561,7 @@ cohortA.grant("HospitalA", new Permission()
 
 #### Query: `_schema { roles, members }`
 
-**Authorization:** Both `roles` and `members` require `grant=true` permission, Owner system role, or database admin (see section 3 "Authorization"). Non-managers use `_schema { myPermissions }` for their own effective permissions.
+**Authorization:** Both `roles` and `members` require `grant=true` permission, Owner system role, or database admin (see section 3 "Authorization"). Non-managers use `_session { permissions }` for their own effective permissions.
 
 Output types:
 
@@ -791,24 +791,15 @@ Processing in `changeRoles()`:
 
 ## 4b. Introspection API
 
-### Schema-level: `_schema { myPermissions }`
+### Session-level: `_session { permissions }`
 
-Returns effective permissions for the current user, with source role information.
+Returns effective permissions for the current user. Available to any authenticated user (shows own permissions only).
 
-**MolgenisEffectivePermissionType**:
-```graphql
-type MolgenisEffectivePermissionType {
-  table: String
-  select: String   # effective SelectLevel
-  insert: String   # effective ModifyLevel
-  update: String   # effective ModifyLevel
-  delete: String   # effective ModifyLevel
-  columns: MolgenisColumnAccessType
-  sourceRole: String   # role name that provides this permission
-}
-```
+Uses the same `MolgenisPermissionType` as section 4 (not a separate type). No `sourceRole` field — just the effective per-table permissions.
 
-Available to any authenticated user (shows own permissions only). Manager+ can query for any user via `_schema { permissionsOf(email: "user@example.com") }`.
+Data fetcher calls `schema.getPermissionsForActiveUser()` which delegates to `SqlRoleManager.getPermissionsForActiveUser(schemaName)`. This queries rls_permissions for the user's active role and returns Permission objects.
+
+The `permissions_explain_query.sql` is reserved for future admin introspection (source role attribution).
 
 ## 5. Permission Semantics
 
@@ -1065,6 +1056,7 @@ void grant(String roleName, Permission permission);
 void revoke(String roleName, Permission permission);
 RoleInfo getRoleInfo(String roleName);
 List<RoleInfo> getRoleInfos();
+List<Permission> getPermissionsForActiveUser();
 ```
 
 All delegate to `SqlRoleManager` with `getName()` (schema name) prepended.

@@ -460,14 +460,27 @@ public class TestSqlRoleManager {
 
           rm.cleanupTablePermissions(schema.getName(), "CleanTable");
 
-          List<Permission> permissions = rm.getPermissions(schema.getName(), "CleanRole");
-          Permission cleanPerm =
-              permissions.stream()
-                  .filter(p -> "CleanTable".equals(p.getTable()))
-                  .findFirst()
-                  .orElse(null);
-          assertNotNull(cleanPerm, "PG grants still exist after cleanup");
-          assertNull(cleanPerm.getInsert(), "No insert permission");
+          Integer rlsCount =
+              jooq(db)
+                  .selectCount()
+                  .from("\"MOLGENIS\".\"rls_permissions\"")
+                  .where(field("table_schema").eq(inline(schema.getName())))
+                  .and(field("table_name").eq(inline("CleanTable")))
+                  .fetchOne(0, Integer.class);
+          assertEquals(0, rlsCount, "rls_permissions rows should be deleted");
+
+          String fullRole = SqlRoleManager.fullRoleName(schema.getName(), "CleanRole");
+          Boolean canSelect =
+              jooq(db)
+                  .select(
+                      field(
+                          "has_table_privilege({0}, format('%I.%I', {1}, {2}), 'SELECT')",
+                          Boolean.class,
+                          inline(fullRole),
+                          inline(schema.getName()),
+                          inline("CleanTable")))
+                  .fetchOne(0, Boolean.class);
+          assertTrue(canSelect, "PG SELECT grant should still exist after cleanup");
         });
   }
 
@@ -1128,7 +1141,7 @@ public class TestSqlRoleManager {
 
           db.setActiveUser("myperms_user");
 
-          List<Permission> myPermissions = rm.getMyPermissions(schema.getName());
+          List<Permission> myPermissions = rm.getPermissionsForActiveUser(schema.getName());
           assertEquals(2, myPermissions.size(), "Should have 2 permissions");
 
           Permission foundPerm1 =
@@ -1158,7 +1171,7 @@ public class TestSqlRoleManager {
           Schema schema = db.dropCreateSchema("TestRM_myPermsAnon");
           db.clearActiveUser();
           SqlRoleManager rm = roleManager(db);
-          List<Permission> myPermissions = rm.getMyPermissions(schema.getName());
+          List<Permission> myPermissions = rm.getPermissionsForActiveUser(schema.getName());
           assertEquals(0, myPermissions.size(), "Anonymous should have no permissions");
         });
   }
@@ -1171,7 +1184,7 @@ public class TestSqlRoleManager {
           db.addUser("norole_user");
           db.setActiveUser("norole_user");
           SqlRoleManager rm = roleManager(db);
-          List<Permission> myPermissions = rm.getMyPermissions(schema.getName());
+          List<Permission> myPermissions = rm.getPermissionsForActiveUser(schema.getName());
           assertEquals(0, myPermissions.size(), "User with no role should have no permissions");
         });
   }
@@ -1189,7 +1202,7 @@ public class TestSqlRoleManager {
           schema.addMember("viewer_user", "Viewer");
           db.setActiveUser("viewer_user");
 
-          List<Permission> viewerPerms = rm.getMyPermissions(schema.getName());
+          List<Permission> viewerPerms = rm.getPermissionsForActiveUser(schema.getName());
           assertEquals(2, viewerPerms.size(), "Viewer should see 2 table permissions");
           for (Permission p : viewerPerms) {
             assertEquals(SelectLevel.TABLE, p.getSelect());
@@ -1203,7 +1216,7 @@ public class TestSqlRoleManager {
           schema.addMember("editor_user", "Editor");
           db.setActiveUser("editor_user");
 
-          List<Permission> editorPerms = rm.getMyPermissions(schema.getName());
+          List<Permission> editorPerms = rm.getPermissionsForActiveUser(schema.getName());
           assertEquals(2, editorPerms.size(), "Editor should see 2 table permissions");
           for (Permission p : editorPerms) {
             assertEquals(SelectLevel.TABLE, p.getSelect());
@@ -1217,7 +1230,7 @@ public class TestSqlRoleManager {
           schema.addMember("count_user", "Count");
           db.setActiveUser("count_user");
 
-          List<Permission> countPerms = rm.getMyPermissions(schema.getName());
+          List<Permission> countPerms = rm.getPermissionsForActiveUser(schema.getName());
           assertEquals(2, countPerms.size(), "Count should see 2 table permissions");
           for (Permission p : countPerms) {
             assertEquals(SelectLevel.COUNT, p.getSelect());

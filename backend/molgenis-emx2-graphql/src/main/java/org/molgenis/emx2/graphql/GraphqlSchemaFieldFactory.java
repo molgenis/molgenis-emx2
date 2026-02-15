@@ -117,6 +117,14 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
+  private static final GraphQLInputObjectType inputDropPermissionType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisPermissionDropInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
+          .build();
   private static final GraphQLObjectType columnAccessSchemaOutputType =
       new GraphQLObjectType.Builder()
           .name("MolgenisColumnAccessType")
@@ -134,7 +142,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
 
-  private static final GraphQLObjectType outputPermissionType =
+  static final GraphQLObjectType outputPermissionType =
       new GraphQLObjectType.Builder()
           .name("MolgenisPermissionType")
           .field(
@@ -635,6 +643,7 @@ public class GraphqlSchemaFieldFactory {
                 dropTables(s, dataFetchingEnvironment, message);
                 dropMembers(s, dataFetchingEnvironment, message);
                 dropRoles(s, dataFetchingEnvironment, message);
+                dropPermissions(s, dataFetchingEnvironment, message);
                 dropColumns(s, dataFetchingEnvironment, message);
                 dropSettings(s, dataFetchingEnvironment, message);
                 // this sync is a bit sad.
@@ -642,7 +651,7 @@ public class GraphqlSchemaFieldFactory {
                     .sync((SqlSchemaMetadata) s.getMetadata());
               });
       Map<String, String> result = new LinkedHashMap<>();
-      result.put(GraphqlConstants.DETAIL, message.toString());
+      result.put(MESSAGE, message.toString());
       return result;
     };
   }
@@ -736,6 +745,22 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
+  private static void dropPermissions(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<Map<String, String>> permissions = dataFetchingEnvironment.getArgument(PERMISSIONS);
+    if (permissions != null) {
+      for (Map<String, String> permMap : permissions) {
+        String roleName = permMap.get(ROLE);
+        String tableName = permMap.get(TABLE);
+        Permission perm = new Permission();
+        perm.setTable(tableName);
+        schema.revoke(roleName, perm);
+        message.append(
+            "Dropped permissions for role '" + roleName + "' on table '" + tableName + "'\n");
+      }
+    }
+  }
+
   private static void dropSettings(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
@@ -784,28 +809,14 @@ public class GraphqlSchemaFieldFactory {
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(SETTINGS)
-                    .type(GraphQLList.list(outputSettingsType)))
-            .field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(ROLES)
-                    .type(GraphQLList.list(outputRoleInfoType)))
-            .field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name("myPermissions")
-                    .type(GraphQLList.list(outputPermissionType))
-                    .dataFetcher(
-                        dataFetchingEnvironment -> {
-                          List<Permission> perms = schema.getMyPermissions();
-                          List<Map<String, Object>> result = new ArrayList<>();
-                          for (Permission p : perms) {
-                            result.add(permissionToMap(p));
-                          }
-                          return result;
-                        }));
-
+                    .type(GraphQLList.list(outputSettingsType)));
     List<String> roles = schema.getInheritedRolesForActiveUser();
     if (roles.contains(Privileges.MANAGER.toString())
         || roles.contains(Privileges.OWNER.toString())) {
+      builder.field(
+          GraphQLFieldDefinition.newFieldDefinition()
+              .name(ROLES)
+              .type(GraphQLList.list(outputRoleInfoType)));
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition()
               .name(MEMBERS)
@@ -1024,6 +1035,10 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .argument(
             GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(Scalars.GraphQLString)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(PERMISSIONS)
+                .type(GraphQLList.list(inputDropPermissionType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)

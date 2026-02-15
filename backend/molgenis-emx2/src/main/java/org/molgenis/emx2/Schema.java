@@ -94,5 +94,5 @@ public interface Schema {
 
   List<RoleInfo> getRoleInfos();
 
-  List<Permission> getMyPermissions();
+  List<Permission> getPermissionsForActiveUser();
 }
