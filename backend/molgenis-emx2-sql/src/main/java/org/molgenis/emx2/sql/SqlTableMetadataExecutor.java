@@ -277,18 +277,19 @@ class SqlTableMetadataExecutor {
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
-      // disableChangeLog
-      disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
+      SqlDatabase db = (SqlDatabase) table.getSchema().getDatabase();
 
-      // drop search trigger
+      db.getRoleManager()
+          .cleanupTablePermissions(table.getSchema().getName(), table.getTableName());
+
+      disableChangeLog(db, table);
+
       jooq.execute(
           "DROP FUNCTION IF EXISTS {0} CASCADE",
           name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
 
-      // drop trigger function if extended
       dropMgTableClassCannotUpdateCheck((SqlTableMetadata) table, jooq);
 
-      // drop audit trigger
       jooq.execute(
           ChangeLogUtils.buildAuditTriggerRemove(
               table.getSchema().getName(), table.getTableName()));
@@ -296,14 +297,12 @@ class SqlTableMetadataExecutor {
           ChangeLogUtils.buildProcessAuditFunctionRemove(
               table.getSchema().getName(), table.getTableName()));
 
-      // drop all triggers from all columns
       List<Column> columns = table.getStoredColumns();
       sortColumnsByDependency(columns);
       for (Column c : columns) {
         executeRemoveColumn(jooq, c);
       }
 
-      // drop the table
       jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).execute();
       MetadataUtils.deleteTable(jooq, table);
     } catch (DataAccessException dae) {

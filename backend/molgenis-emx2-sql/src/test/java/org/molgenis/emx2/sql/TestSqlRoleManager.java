@@ -1227,4 +1227,145 @@ public class TestSqlRoleManager {
           db.becomeAdmin();
         });
   }
+
+  @Test
+  public void testDeleteRoleCleansMgRoles() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_delRoleClean");
+          schema.create(table("TestTable").add(column("id").setPkey()));
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "TestRole");
+
+          Permission perm = new Permission();
+          perm.setTable("TestTable");
+          perm.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "TestRole", perm);
+
+          String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/TestRole";
+
+          schema
+              .getTable("TestTable")
+              .insert(
+                  new Row()
+                      .setString("id", "row1")
+                      .setStringArray("mg_roles", new String[] {fullRoleName}));
+          schema
+              .getTable("TestTable")
+              .insert(
+                  new Row()
+                      .setString("id", "row2")
+                      .setStringArray("mg_roles", new String[] {fullRoleName, "OtherRole"}));
+
+          Result<?> beforeDelete =
+              jooq(db)
+                  .select(field(name("id")), field(name("mg_roles")))
+                  .from(org.jooq.impl.DSL.table(name(schema.getName(), "TestTable")))
+                  .fetch();
+          assertEquals(2, beforeDelete.size(), "Should have 2 rows before delete");
+
+          rm.deleteRole(schema.getName(), "TestRole");
+
+          Result<?> afterDelete =
+              jooq(db)
+                  .select(field(name("id")), field(name("mg_roles")))
+                  .from(org.jooq.impl.DSL.table(name(schema.getName(), "TestTable")))
+                  .fetch();
+
+          for (org.jooq.Record rec : afterDelete) {
+            Object rolesObj = rec.get(field(name("mg_roles")));
+            if (rolesObj != null) {
+              String[] roles;
+              if (rolesObj instanceof String[]) {
+                roles = (String[]) rolesObj;
+              } else {
+                try {
+                  roles = (String[]) ((java.sql.Array) rolesObj).getArray();
+                } catch (Exception e) {
+                  throw new RuntimeException(e);
+                }
+              }
+              for (String role : roles) {
+                assertNotEquals(
+                    fullRoleName, role, "mg_roles should not contain deleted role name");
+              }
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testDropTableCleansPermissions() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_dropTblClean");
+          schema.create(table("ToDropTable").add(column("id").setPkey()));
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "TableRole");
+
+          Permission perm = new Permission();
+          perm.setTable("ToDropTable");
+          perm.setSelect(SelectLevel.TABLE);
+          rm.grant(schema.getName(), "TableRole", perm);
+
+          Integer countBefore =
+              jooq(db)
+                  .selectCount()
+                  .from("\"MOLGENIS\".\"rls_permissions\"")
+                  .where(field("table_schema").eq(inline(schema.getName())))
+                  .and(field("table_name").eq(inline("ToDropTable")))
+                  .fetchOne(0, Integer.class);
+          assertTrue(countBefore != null && countBefore > 0, "Permission should exist before drop");
+
+          schema.dropTable("ToDropTable");
+
+          Integer countAfter =
+              jooq(db)
+                  .selectCount()
+                  .from("\"MOLGENIS\".\"rls_permissions\"")
+                  .where(field("table_schema").eq(inline(schema.getName())))
+                  .and(field("table_name").eq(inline("ToDropTable")))
+                  .fetchOne(0, Integer.class);
+          assertEquals(0, countAfter, "Permission should be deleted after table drop");
+        });
+  }
+
+  @Test
+  public void testDropSchemaCleansPermissions() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_dropSchClean");
+          schema.create(table("Table1").add(column("id").setPkey()));
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "SchemaRole");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "SchemaRole", perm);
+
+          Integer countBefore =
+              jooq(db)
+                  .selectCount()
+                  .from("\"MOLGENIS\".\"rls_permissions\"")
+                  .where(field("table_schema").eq(inline(schema.getName())))
+                  .fetchOne(0, Integer.class);
+          assertTrue(
+              countBefore != null && countBefore > 0,
+              "Permissions should exist before schema drop");
+
+          db.dropSchema("TestRM_dropSchClean");
+
+          Integer countAfter =
+              jooq(db)
+                  .selectCount()
+                  .from("\"MOLGENIS\".\"rls_permissions\"")
+                  .where(field("table_schema").eq(inline("TestRM_dropSchClean")))
+                  .fetchOne(0, Integer.class);
+          assertEquals(0, countAfter, "All permissions should be deleted after schema drop");
+        });
+  }
 }
