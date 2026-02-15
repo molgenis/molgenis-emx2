@@ -27,7 +27,7 @@ Fields:
 Helpers:
 - `hasRowLevelPermissions()` -- true if select is ROW or any modify is ROW
 
-Schema-wide access is NOT expressed via Permission. Use system roles or `Database.grantGlobalRole()` instead.
+Schema-wide access is NOT expressed via Permission. Use system roles or `Database.addGlobalRoleInherits()` instead.
 
 Usage patterns:
 
@@ -39,7 +39,7 @@ schema.grant("Researcher", new Permission()
 
 **Global role — inherit system role in a schema** (separate from Permission):
 ```java
-database.grantGlobalRole("HospitalA", "CohortA", "Editor");
+database.addGlobalRoleInherits("HospitalA", "CohortA", "Editor");
 ```
 
 **Global role — per-table RLS override** (via Schema.grant, same as schema-local):
@@ -55,7 +55,7 @@ Used in:
 - `SqlRoleManager.setPermission(schemaName, roleName, permission)` -- maps domain → storage
 - `SqlRoleManager.revokePermission(schemaName, roleName, permission)` -- removes grants + rls_permissions
 
-Note: `inherits` (role inheritance for global roles) is managed via `Database.grantGlobalRole()`, NOT via Permission. See "Global role grant model" in section 3.
+Note: `inherits` (role inheritance for global roles) is managed via `Database.addGlobalRoleInherits()`, NOT via Permission. See "Global role grant model" in section 3.
 
 ### SelectLevel enum (`org.molgenis.emx2.SelectLevel`) -- DOMAIN MODEL
 
@@ -91,7 +91,7 @@ Used in:
 - `Permission.getInsert/getUpdate/getDelete()` -- the insert/update/delete field type
 - `ModifyLevel.valueOf(String)` -- parsing GraphQL/CSV string input to enum
 - `SqlRoleManager.syncRlsPermissions()` -- maps ROW → `true`, TABLE → `false` for `*_rls` booleans
-- `SqlRoleManager.getPermissions()` -- maps from boolean back to ModifyLevel
+- `SqlRoleManager.getRoleInfo()` -- maps from boolean back to ModifyLevel
 
 ### Domain ↔ Storage mapping (in SqlRoleManager)
 
@@ -108,7 +108,7 @@ For schema-local roles (direct per-operation grants):
 | `insert = ROW` | GRANT INSERT | `insert_rls = true` |
 | (same pattern for update, delete) | | |
 
-For global roles (inherit one role per schema, via `Database.grantGlobalRole()`):
+For global roles (inherit one role per schema, via `Database.addGlobalRoleInherits()`):
 
 | Domain | PG action |
 |--------|-----------|
@@ -190,7 +190,7 @@ Global roles are a single PG role with `*` as the schema part. They inherit role
 Role determination per request:
 - User accesses `/<schema>/api/...`
 - Application looks up member record: `SELECT role FROM members WHERE user = ?`
-- If system role: NO entry in `rls_permissions` -> all 4 rls lists are empty -> sees everything
+- If system role: unrestricted (see section 3 "System roles")
 - If schema-local or global custom role: active_role set to full PG role name. Session variables pre-computed from `rls_permissions`. Each RLS policy checks its own list.
 
 Session setup in SqlUserAwareConnectionProvider.acquire():
@@ -202,7 +202,7 @@ SET LOCAL molgenis.rls_update_tables = '<comma_separated_fq_table_names>';
 SET LOCAL molgenis.rls_delete_tables = '<comma_separated_fq_table_names>';
 ```
 
-5 session variables. Pre-computed with 1 query at tx start from `rls_permissions`.
+See section 6 for session variable details.
 
 No role switching API needed. Role is deterministic from membership.
 
@@ -274,7 +274,7 @@ Upsert strategy: INSERT ... ON CONFLICT ... DO UPDATE (matching on PK).
 
 **Role name format**: `role_name` stores the full PG role name (e.g., `MG_ROLE_schema/HospitalA`). This aligns with `molgenis.active_role` session variable so the RLS policy can do a direct lookup without parsing.
 
-**Key insight**: `select_level = 'ROW'` means ROW-level filtering for SELECT. `select_level = 'TABLE'` or no row means unrestricted SELECT (PG GRANT controls access). `select_level` in EXISTS..COUNT means app-enforced restrictions (no PG SELECT grant). System role users simply have NO entries in `rls_permissions`, so their session variable lists are empty -> nothing restricted -> sees everything. No special-casing needed.
+**Key insight**: `select_level = 'ROW'` means ROW-level filtering for SELECT. `select_level = 'TABLE'` or no row means unrestricted SELECT (PG GRANT controls access). `select_level` in EXISTS..COUNT means app-enforced restrictions (no PG SELECT grant). System role users are unrestricted (see section 3). No special-casing needed.
 
 ```sql
 GRANT SELECT ON "MOLGENIS"."rls_permissions" TO PUBLIC;
@@ -322,7 +322,7 @@ Reading semantics (mapped to Java):
 
 ### Permissions explain query (inline in SqlRoleManager)
 
-`SqlRoleManager.getRoleInfo()` uses a second query from `permissions_explain_query.sql` to show which inherited role causes each permission per table. Powers the `sourceRole` field in the introspection API.
+The introspection API (`_schema { myPermissions }`) uses `permissions_explain_query.sql` to show which inherited role causes each permission per table. Powers the `sourceRole` field in `MolgenisEffectivePermissionType`.
 
 ```sql
 WITH RECURSIVE role_tree AS (
@@ -427,7 +427,7 @@ Role management operations are restricted based on scope and caller:
 - Enforced at GraphQL mutation level (`change(roles)` / `drop(roles)` on schema endpoint)
 - Cannot see or modify global (`MG_ROLE_*/*`) roles
 
-**Global role operations** (database-level `change(roles)`, `Database.grantGlobalRole()`, etc.):
+**Global role operations** (database-level `change(roles)`, `Database.addGlobalRoleInherits()`, etc.):
 - Requires database admin (member of `MG_ROLE_*/Admin` or PG superuser)
 - Creates single PG role (`MG_ROLE_*/<name>`), applies grants per schema
 
@@ -436,8 +436,8 @@ Role management operations are restricted based on scope and caller:
 - Placed inside the admin-only query block in `GraphqlDatabaseFieldFactory`
 
 **Schema roles query** (`_schema { roles }` on schema endpoint):
-- Available to any authenticated user with access to the schema
-- Members list within `_schema` still requires Manager+ (unchanged)
+- Requires Manager or Owner role in the schema, or database admin (same as `members`)
+- Non-managers use `_schema { myPermissions }` to see their own effective permissions
 
 ### Schema-local custom roles
 
@@ -494,7 +494,7 @@ On creation:
 1. PG role created (idempotent)
 2. Custom role granted to `session_user WITH ADMIN OPTION`
 
-Authorization: database admin (member of `MG_ROLE_*/Admin`) only. Schema managers cannot create, modify, or delete global roles.
+Authorization: see section 3 "Authorization". Database admin only.
 
 Naming conflicts prevented by convention: `MG_ROLE_*/HospitalA` (global) is a different PG role from `MG_ROLE_CohortA/HospitalA` (local). No collision possible.
 
@@ -541,7 +541,7 @@ cohortA.grant("HospitalA", new Permission()
 
 **Querying global role permissions**:
 - `Database.getGlobalRoleInherits("HospitalA")` -- returns `Map<String, List<String>>` (schema → role names)
-- `Schema.getPermissions("HospitalA")` -- returns per-table RLS overrides (same as schema-local roles)
+- `Schema.getRoleInfo("HospitalA").getPermissions()` -- returns per-table RLS overrides (same as schema-local roles)
 
 ### Role discovery
 
@@ -555,6 +555,8 @@ cohortA.grant("HospitalA", new Permission()
 ### Schema-level API (per-schema endpoint)
 
 #### Query: `_schema { roles, members }`
+
+**Authorization:** Both `roles` and `members` require Manager or Owner role (see section 3 "Authorization"). Non-managers use `_schema { myPermissions }` for their own effective permissions.
 
 Output types:
 
@@ -572,6 +574,7 @@ type MolgenisRoleInfoType {
 **MolgenisPermissionType** (`outputPermissionType`) -- for schema-local roles:
 ```graphql
 type MolgenisPermissionType {
+  schema: String   # populated for global roles, null for schema-local
   table: String
   select: String   # SelectLevel: "EXISTS".."ROW", or null
   insert: String   # ModifyLevel: "TABLE", "ROW", or null
@@ -603,7 +606,7 @@ Data fetching: `queryFetcher()` calls `schema.getRoleInfos()` and `schema.getMem
 
 #### Mutation: `change(roles, members)`
 
-**Authorization:** Requires Manager or Owner role in the schema, or database admin. Unauthenticated or insufficiently privileged users receive a permission error.
+**Authorization:** See section 3 "Authorization". Requires Manager+.
 
 **Input types:**
 
@@ -721,7 +724,7 @@ Export: GET `/<schema>/api/csv/roles` returns same format.
 
 #### Query: `_roles`
 
-**Authorization:** Requires database admin (member of `MG_ROLE_*/Admin`). This query is placed inside the admin-only query block in `GraphqlDatabaseFieldFactory`, so non-admin users do not see it in the schema.
+**Authorization:** See section 3 "Authorization". Database admin only. Placed inside the admin-only query block in `GraphqlDatabaseFieldFactory`.
 
 Output type — separates role hierarchy (`schemas`) from per-table permissions:
 
@@ -752,7 +755,7 @@ Data fetching in `rolesQuery()`:
 
 #### Mutation: `change(roles)` for global roles
 
-**Authorization:** Requires database admin (member of `MG_ROLE_*/Admin`).
+**Authorization:** See section 3 "Authorization". Database admin only.
 
 **MolgenisGlobalRoleInput** (`globalInputRoleType`):
 ```graphql
@@ -809,7 +812,7 @@ System roles and custom roles use the same grant mechanism. Both get PG table gr
 
 Controlled via PG `GRANT`/`REVOKE` executed by `SqlRoleManager.syncPermissionGrants()`. See "Domain ↔ Storage mapping" in section 1 for full mapping tables.
 
-All permissions are per-table. Schema-wide access is handled by system roles or `Database.grantGlobalRole()`.
+All permissions are per-table. Schema-wide access is handled by system roles or `Database.addGlobalRoleInherits()`.
 
 ### Column-level access (app-enforced)
 
@@ -859,12 +862,32 @@ Custom roles do NOT automatically get access to new tables. Admin must explicitl
 
 **RLS enablement**: Not all tables need RLS. RLS is only enabled on a table when at least one role has an RLS restriction on it.
 
+### Cleanup on drop
+
+**Table drop** (`Schema.dropTable()`): before dropping, clean up all permission state:
+```sql
+DELETE FROM "MOLGENIS".rls_permissions WHERE table_schema = :schema AND table_name = :table;
+```
+PG grants are automatically dropped when the table is dropped.
+
+**Schema drop** (`Database.dropSchema()`): before `DROP SCHEMA CASCADE`, clean up:
+```sql
+DELETE FROM "MOLGENIS".rls_permissions WHERE table_schema = :schema;
+```
+PG `DROP SCHEMA CASCADE` drops all `MG_ROLE_<schema>/*` roles, which automatically breaks any `GRANT ... TO MG_ROLE_*/<global>` inheritance chains. Global roles simply lose their inherited privileges for that schema.
+
 ### Merge semantics
 
-- Multiple permissions per role accumulate (one per scope key: schema + table)
-- Table-level grants: `GRANT`/`REVOKE` applied directly to PG catalog (no upsert needed)
-- RLS flags + column restrictions: upsert via ON CONFLICT on `(table_schema, role_name, table_name)` in `rls_permissions`
-- Revocation: revokes PG grants for that scope AND deletes rows from `rls_permissions` if present
+Grants on the same (role, schema, table) **merge** — non-null fields in the new Permission overwrite, null fields are left unchanged. This allows incremental permission building:
+```java
+schema.grant("Researcher", new Permission().setTable("Patients").setSelect(SelectLevel.ROW));
+schema.grant("Researcher", new Permission().setTable("Patients").setInsert(ModifyLevel.TABLE));
+// Result: Patients has select=ROW AND insert=TABLE
+```
+
+- PG grants: additive (`GRANT` applied, no implicit `REVOKE`). Use explicit `revoke()` to remove.
+- RLS flags + column restrictions: upsert via ON CONFLICT, using `COALESCE(EXCLUDED.field, existing.field)` to preserve unset fields
+- Revocation: revokes PG grants for non-null fields AND clears corresponding `rls_permissions` flags. Deletes row if all fields become null/false.
 
 ## 6. RLS Implementation
 
@@ -952,6 +975,13 @@ CREATE POLICY <table>_rls_update ON <schema>.<table> FOR UPDATE
     OR (COALESCE(current_setting('molgenis.active_role', true), '') <> ''
         AND mg_roles @> ARRAY[current_setting('molgenis.active_role', true)])
   )
+  WITH CHECK (
+    '<schema>.<table>' != ALL(string_to_array(
+        COALESCE(current_setting('molgenis.rls_update_tables', true), ''), ','))
+    OR mg_roles IS NULL
+    OR (COALESCE(current_setting('molgenis.active_role', true), '') <> ''
+        AND mg_roles @> ARRAY[current_setting('molgenis.active_role', true)])
+  )
 ```
 
 **DELETE policy** (`<table>_rls_delete`):
@@ -966,7 +996,7 @@ CREATE POLICY <table>_rls_delete ON <schema>.<table> FOR DELETE
   )
 ```
 
-Note: INSERT uses only WITH CHECK (no existing rows to filter). UPDATE/DELETE use only USING (checks existing rows). SELECT uses only USING.
+Note: INSERT uses only WITH CHECK (no existing rows to filter). UPDATE uses BOTH USING (which existing rows can be seen) and WITH CHECK (what the new row values must satisfy). DELETE and SELECT use only USING.
 
 Logic: if table is NOT in that operation's rls list -> allow all rows (TABLE level). If table IS in rls list -> check mg_roles.
 
@@ -1108,6 +1138,13 @@ On deleteRole, BEFORE dropping role:
 | `setDescription(schemaName, roleName, description)` | `COMMENT ON ROLE`. |
 | `getDescription(schemaName, roleName)` | `shobj_description(oid, 'pg_authid')`. |
 
+### Cleanup
+
+| Method | Behavior |
+|--------|----------|
+| `cleanupTablePermissions(schemaName, tableName)` | Deletes all `rls_permissions` rows for that table. Called by `Schema.dropTable()` before table drop. |
+| `cleanupSchemaPermissions(schemaName)` | Deletes all `rls_permissions` rows for that schema. Called by `Database.dropSchema()` before schema cascade. |
+
 ### RLS enablement
 
 | Method | Behavior |
@@ -1152,6 +1189,7 @@ public static boolean isGlobalRole(String fullRoleName)
 | `RLS_INSERT_TABLES` | `"rls_insert_tables"` |
 | `RLS_UPDATE_TABLES` | `"rls_update_tables"` |
 | `RLS_DELETE_TABLES` | `"rls_delete_tables"` |
+| `SYSTEM_ROLES` | `Set.of(ROLE_EXISTS, ROLE_RANGE, ROLE_AGGREGATOR, ROLE_COUNT, ROLE_VIEWER, ROLE_EDITOR, ROLE_MANAGER, ROLE_OWNER, ROLE_ADMIN)` |
 
 ### `org.molgenis.emx2.graphql.GraphqlConstants`
 
@@ -1195,7 +1233,7 @@ Stored in `backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/`:
 |------|---------|---------|
 | `rls_permissions_create.sql` | migration31.sql, SqlRoleManager | CREATE TABLE with PK on `(table_schema, role_name, table_name)` |
 | `permissions_query.sql` | SqlRoleManager.getRoleInfo() | Joins pg_tables + rls_permissions + has_table_privilege() |
-| `permissions_explain_query.sql` | SqlRoleManager.getRoleInfo() | Recursive role tree + aclexplode() for source attribution |
+| `permissions_explain_query.sql` | Introspection API (myPermissions) | Recursive role tree + aclexplode() for source attribution |
 
 `rls_permissions` columns:
 - `role_name` (VARCHAR) -- full PG role name (e.g., `MG_ROLE_schema/HospitalA`)
