@@ -15,7 +15,9 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
@@ -55,6 +57,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
+  private String rlsContextCacheKey;
   private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
       (String)
@@ -663,6 +666,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         jooq.transaction(
             config -> {
               db.inTx = true;
+              db.rlsContextCacheKey = null;
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               ctx.execute(
@@ -755,38 +759,50 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   public void setRlsContextForSchema(String schemaName) {
+    setRlsContext();
+  }
+
+  public void setRlsContext() {
     String activeUser = getActiveUser();
     if (activeUser == null || ADMIN_USER.equals(activeUser) || ANONYMOUS.equals(activeUser)) {
       clearRlsContext();
       return;
     }
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String cacheKey = activeUser;
+    if (cacheKey.equals(rlsContextCacheKey)) {
+      return;
+    }
     String pgUser = MG_USER_PREFIX + activeUser;
     try {
-      Result<Record> records =
+      Result<Record> roleRecords =
           jooq.fetch(
               "SELECT r.rolname FROM pg_roles r"
                   + " JOIN pg_auth_members am ON am.roleid = r.oid"
                   + " JOIN pg_roles m ON m.oid = am.member"
                   + " WHERE m.rolname = {0} AND r.rolname LIKE {1}",
-              pgUser, rolePrefix + "%");
+              pgUser, MG_ROLE_PREFIX + "%");
 
-      String customRole = null;
+      List<String> customRoles = new ArrayList<>();
       boolean hasSystemRole = false;
-      for (Record record : records) {
+      for (Record record : roleRecords) {
         String fullRole = record.get("rolname", String.class);
-        String shortRole = fullRole.substring(rolePrefix.length());
-        if (SqlRoleManager.SYSTEM_ROLE_NAMES.contains(shortRole)) {
-          hasSystemRole = true;
-        } else {
-          customRole = shortRole;
+        int lastSlash = fullRole.lastIndexOf('/');
+        if (lastSlash > 0) {
+          String shortRole = fullRole.substring(lastSlash + 1);
+          if (SqlRoleManager.SYSTEM_ROLE_NAMES.contains(shortRole)) {
+            hasSystemRole = true;
+            break;
+          } else {
+            customRoles.add(fullRole);
+          }
         }
       }
 
       if (hasSystemRole) {
         clearRlsContext();
-      } else if (customRole != null) {
-        setRlsContextForSchema(schemaName, customRole);
+      } else if (!customRoles.isEmpty()) {
+        buildRlsSessionVars(customRoles);
+        rlsContextCacheKey = cacheKey;
       } else {
         clearRlsContext();
       }
@@ -795,13 +811,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
-  public void setRlsContextForSchema(String schemaName, String userRole) {
-    if (userRole == null || SqlRoleManager.SYSTEM_ROLE_NAMES.contains(userRole)) {
-      clearRlsContext();
-      return;
-    }
-    String fullRole = SqlRoleManager.fullRoleName(schemaName, userRole);
-    jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(fullRole));
+  private void buildRlsSessionVars(List<String> roleNames) {
+    String activeRoles = String.join(",", roleNames);
+    jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(activeRoles));
+
+    Field<String> fRoleName = DSL.field(name("role_name"), String.class);
+    Field<String> fTableSchema = DSL.field(name("table_schema"), String.class);
+    Field<String> fTableName = DSL.field(name("table_name"), String.class);
+    Field<String> fSelectLevel = DSL.field(name("select_level"), String.class);
+    Field<Boolean> fInsertRls = DSL.field(name("insert_rls"), Boolean.class);
+    Field<Boolean> fUpdateRls = DSL.field(name("update_rls"), Boolean.class);
+    Field<Boolean> fDeleteRls = DSL.field(name("delete_rls"), Boolean.class);
+    org.jooq.Table<?> rlsPerms = DSL.table(name("MOLGENIS", "rls_permissions"));
 
     StringBuilder selectTables = new StringBuilder();
     StringBuilder insertTables = new StringBuilder();
@@ -809,55 +830,81 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     StringBuilder deleteTables = new StringBuilder();
 
     try {
-      Result<Record> rlsRows =
-          jooq.fetch(
-              "SELECT table_schema, table_name, select_level, insert_rls, update_rls, delete_rls"
-                  + " FROM \"MOLGENIS\".\"rls_permissions\""
-                  + " WHERE role_name = {0}"
-                  + " AND (select_level = 'ROW' OR insert_rls = true OR update_rls = true OR delete_rls = true)",
-              fullRole);
+      Condition hasRowLevel =
+          fSelectLevel
+              .eq("ROW")
+              .or(fInsertRls.eq(true))
+              .or(fUpdateRls.eq(true))
+              .or(fDeleteRls.eq(true));
 
-      List<String> wildcardSchemas = new ArrayList<>();
+      var rlsRows =
+          jooq.select(fTableSchema, fTableName, fSelectLevel, fInsertRls, fUpdateRls, fDeleteRls)
+              .from(rlsPerms)
+              .where(fRoleName.in(roleNames))
+              .and(hasRowLevel)
+              .fetch();
+
+      Map<String, PermissionAccumulator> wildcardPerms = new HashMap<>();
       for (Record row : rlsRows) {
-        String tSchema = row.get("table_schema", String.class);
-        String tName = row.get("table_name", String.class);
+        String tSchema = row.get(fTableSchema);
+        String tName = row.get(fTableName);
+        String selectLevel = row.get(fSelectLevel);
+        Boolean insertRls = row.get(fInsertRls);
+        Boolean updateRls = row.get(fUpdateRls);
+        Boolean deleteRls = row.get(fDeleteRls);
 
         if ("*".equals(tName)) {
-          wildcardSchemas.add(tSchema);
-          String selectLevel = row.get("select_level", String.class);
-          Boolean insertRls = row.get("insert_rls", Boolean.class);
-          Boolean updateRls = row.get("update_rls", Boolean.class);
-          Boolean deleteRls = row.get("delete_rls", Boolean.class);
-
-          Result<Record> rlsTables =
-              jooq.fetch(
-                  "SELECT t.tablename FROM pg_tables t"
-                      + " JOIN pg_class c ON c.relname = t.tablename"
-                      + " JOIN pg_namespace n ON c.relnamespace = n.oid AND n.nspname = t.schemaname"
-                      + " WHERE t.schemaname = {0} AND c.relrowsecurity = true",
-                  tSchema);
-
-          for (Record tableRecord : rlsTables) {
-            String tableName = tableRecord.get("tablename", String.class);
-            String fqTable = tSchema + "." + tableName;
-            if ("ROW".equals(selectLevel)) appendTable(selectTables, fqTable);
-            if (Boolean.TRUE.equals(insertRls)) appendTable(insertTables, fqTable);
-            if (Boolean.TRUE.equals(updateRls)) appendTable(updateTables, fqTable);
-            if (Boolean.TRUE.equals(deleteRls)) appendTable(deleteTables, fqTable);
-          }
+          PermissionAccumulator acc =
+              wildcardPerms.computeIfAbsent(tSchema, k -> new PermissionAccumulator());
+          if ("ROW".equals(selectLevel)) acc.hasSelectRow = true;
+          if (Boolean.TRUE.equals(insertRls)) acc.hasInsertRls = true;
+          if (Boolean.TRUE.equals(updateRls)) acc.hasUpdateRls = true;
+          if (Boolean.TRUE.equals(deleteRls)) acc.hasDeleteRls = true;
         } else {
           String fqTable = tSchema + "." + tName;
-          String selectLevel = row.get("select_level", String.class);
-          Boolean insertRls = row.get("insert_rls", Boolean.class);
-          Boolean updateRls = row.get("update_rls", Boolean.class);
-          Boolean deleteRls = row.get("delete_rls", Boolean.class);
           if ("ROW".equals(selectLevel)) appendTable(selectTables, fqTable);
           if (Boolean.TRUE.equals(insertRls)) appendTable(insertTables, fqTable);
           if (Boolean.TRUE.equals(updateRls)) appendTable(updateTables, fqTable);
           if (Boolean.TRUE.equals(deleteRls)) appendTable(deleteTables, fqTable);
         }
       }
+
+      Field<String> fSchemaname = DSL.field(name("t", "schemaname"), String.class);
+      Field<String> fTablename = DSL.field(name("t", "tablename"), String.class);
+      Field<Boolean> fRelRowSecurity = DSL.field(name("c", "relrowsecurity"), Boolean.class);
+      Field<String> fRelname = DSL.field(name("c", "relname"), String.class);
+      Field<Object> fRelnamespace = DSL.field(name("c", "relnamespace"));
+      Field<Object> fOid = DSL.field(name("n", "oid"));
+      Field<String> fNspname = DSL.field(name("n", "nspname"), String.class);
+
+      for (Map.Entry<String, PermissionAccumulator> entry : wildcardPerms.entrySet()) {
+        String tSchema = entry.getKey();
+        PermissionAccumulator acc = entry.getValue();
+
+        var rlsTables =
+            jooq.select(fTablename)
+                .from(DSL.table(name("pg_tables")).as("t"))
+                .join(DSL.table(name("pg_class")).as("c"))
+                .on(fRelname.eq(fTablename))
+                .join(DSL.table(name("pg_namespace")).as("n"))
+                .on(fRelnamespace.eq(fOid).and(fNspname.eq(fSchemaname)))
+                .where(fSchemaname.eq(tSchema))
+                .and(fRelRowSecurity.eq(true))
+                .fetch();
+
+        for (Record tableRecord : rlsTables) {
+          String tableName = tableRecord.get(fTablename);
+          String fqTable = tSchema + "." + tableName;
+          if (acc.hasSelectRow) appendTable(selectTables, fqTable);
+          if (acc.hasInsertRls) appendTable(insertTables, fqTable);
+          if (acc.hasUpdateRls) appendTable(updateTables, fqTable);
+          if (acc.hasDeleteRls) appendTable(deleteTables, fqTable);
+        }
+      }
     } catch (Exception e) {
+      logger.error("Failed to load RLS permissions, clearing context for safety", e);
+      clearRlsContext();
+      return;
     }
 
     jooq.execute("SET LOCAL molgenis.rls_select_tables = {0}", inline(selectTables.toString()));
@@ -866,7 +913,23 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     jooq.execute("SET LOCAL molgenis.rls_delete_tables = {0}", inline(deleteTables.toString()));
   }
 
+  private static class PermissionAccumulator {
+    boolean hasSelectRow = false;
+    boolean hasInsertRls = false;
+    boolean hasUpdateRls = false;
+    boolean hasDeleteRls = false;
+  }
+
+  public void setRlsContextForSchema(String schemaName, String userRole) {
+    if (userRole == null || SqlRoleManager.SYSTEM_ROLE_NAMES.contains(userRole)) {
+      clearRlsContext();
+      return;
+    }
+    buildRlsSessionVars(List.of(SqlRoleManager.fullRoleName(schemaName, userRole)));
+  }
+
   public void clearRlsContext() {
+    rlsContextCacheKey = null;
     jooq.execute("SET LOCAL molgenis.active_role = ''");
     jooq.execute("SET LOCAL molgenis.rls_select_tables = ''");
     jooq.execute("SET LOCAL molgenis.rls_insert_tables = ''");

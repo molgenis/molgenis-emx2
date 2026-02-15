@@ -788,7 +788,20 @@ public class GraphqlSchemaFieldFactory {
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(ROLES)
-                    .type(GraphQLList.list(outputRoleInfoType)));
+                    .type(GraphQLList.list(outputRoleInfoType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name("myPermissions")
+                    .type(GraphQLList.list(outputPermissionType))
+                    .dataFetcher(
+                        dataFetchingEnvironment -> {
+                          List<Permission> perms = schema.getMyPermissions();
+                          List<Map<String, Object>> result = new ArrayList<>();
+                          for (Permission p : perms) {
+                            result.add(permissionToMap(p));
+                          }
+                          return result;
+                        }));
 
     List<String> roles = schema.getInheritedRolesForActiveUser();
     if (roles.contains(Privileges.MANAGER.toString())

@@ -251,6 +251,50 @@ public class TestGraphqlRolePermissions {
     execute("mutation { drop(roles: [\"Restricted\"]) { message } }");
   }
 
+  @Test
+  @org.junit.jupiter.api.Order(9)
+  public void testQueryMyPermissions() throws Exception {
+    execute("mutation { change(roles: [{name: \"MyTestRole\"}]) { message } }");
+    execute(
+        "mutation { change(roles: [{name: \"MyTestRole\", permissions: [{table: \"Patients\", select: \"ROW\", insert: \"ROW\"}, {table: \"Samples\", select: \"TABLE\"}]}]) { message } }");
+
+    database.addUser("myperms_test_user");
+    execute(
+        "mutation { change(members: {email: \"myperms_test_user\", role: \"MyTestRole\"}) { message } }");
+
+    try {
+      database.setActiveUser("myperms_test_user");
+      graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+
+      JsonNode result =
+          execute("{ _schema { myPermissions { table select insert update delete } } }");
+      JsonNode myPermissions = result.at("/_schema/myPermissions");
+      assertNotNull(myPermissions, "myPermissions should be present");
+      assertTrue(myPermissions.isArray(), "myPermissions should be an array");
+      assertEquals(2, myPermissions.size(), "Should have 2 permissions");
+
+      boolean foundPatients = false;
+      boolean foundSamples = false;
+      for (JsonNode perm : myPermissions) {
+        if ("Patients".equals(perm.get("table").asText())) {
+          foundPatients = true;
+          assertEquals("ROW", perm.get("select").asText());
+          assertEquals("ROW", perm.get("insert").asText());
+        }
+        if ("Samples".equals(perm.get("table").asText())) {
+          foundSamples = true;
+          assertEquals("TABLE", perm.get("select").asText());
+        }
+      }
+      assertTrue(foundPatients, "Should find Patients permission");
+      assertTrue(foundSamples, "Should find Samples permission");
+    } finally {
+      database.becomeAdmin();
+      graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+      execute("mutation { drop(roles: [\"MyTestRole\"]) { message } }");
+    }
+  }
+
   @AfterAll
   static void tearDown() {
     if (database != null) {

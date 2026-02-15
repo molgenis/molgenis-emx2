@@ -93,4 +93,6 @@ public interface Schema {
   RoleInfo getRoleInfo(String roleName);
 
   List<RoleInfo> getRoleInfos();
+
+  List<Permission> getMyPermissions();
 }

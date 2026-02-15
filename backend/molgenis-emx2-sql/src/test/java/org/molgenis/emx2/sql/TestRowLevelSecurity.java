@@ -97,7 +97,6 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("rls_user1");
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName(), "GroupA");
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(2, rows.size(), "Row-level user should see only GroupA rows");
@@ -141,7 +140,6 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_viewer");
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(2, rows.size(), "Schema-level Viewer should see all rows");
@@ -186,7 +184,6 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_both");
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(
@@ -227,7 +224,6 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("rls_null_user");
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertTrue(
@@ -317,11 +313,9 @@ public class TestRowLevelSecurity {
                   .set(MG_ROLES, new String[] {groupB}));
 
           db.setActiveUser("rls_deleter");
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
           table.delete(new Row().setString("id", "1"));
 
           db.becomeAdmin();
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(1, rows.size(), "Only GroupB row should remain");
           assertEquals("2", rows.get(0).getString("id"));
@@ -363,7 +357,6 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_admin");
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(2, rows.size(), "Owner should see all rows bypassing RLS");
@@ -397,12 +390,78 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("anonymous");
-          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           assertThrows(
               MolgenisException.class,
               () -> schema.getTable("DataTable").retrieveRows(),
               "Anonymous user should not see any rows");
+
+          db.becomeAdmin();
+        });
+  }
+
+  @Test
+  public void testCrossSchemaRls() {
+    database.tx(
+        db -> {
+          Schema schemaA = db.dropCreateSchema("TestRLS_crossA");
+          Table patients =
+              schemaA.create(table("Patients").add(column("id").setPkey()).add(column("name")));
+
+          Schema schemaB = db.dropCreateSchema("TestRLS_crossB");
+          Table samples =
+              schemaB.create(table("Samples").add(column("id").setPkey()).add(column("data")));
+
+          SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
+
+          rm.createRole(schemaA.getName(), "GroupA");
+          rm.createRole(schemaB.getName(), "GroupA");
+
+          Permission permA = new Permission();
+          permA.setTable("Patients");
+          permA.setSelect(SelectLevel.ROW);
+          rm.grant(schemaA.getName(), "GroupA", permA);
+
+          Permission permB = new Permission();
+          permB.setTable("Samples");
+          permB.setSelect(SelectLevel.ROW);
+          rm.grant(schemaB.getName(), "GroupA", permB);
+
+          db.addUser("cross_user");
+          rm.addMember(schemaA.getName(), "GroupA", "cross_user");
+          rm.addMember(schemaB.getName(), "GroupA", "cross_user");
+
+          String roleA = SqlRoleManager.fullRoleName(schemaA.getName(), "GroupA");
+          String roleB = SqlRoleManager.fullRoleName(schemaB.getName(), "GroupA");
+
+          patients.insert(
+              new Row()
+                  .setString("id", "p1")
+                  .setString("name", "Alice")
+                  .set(MG_ROLES, new String[] {roleA}),
+              new Row()
+                  .setString("id", "p2")
+                  .setString("name", "Bob")
+                  .set(MG_ROLES, new String[] {"OTHER_ROLE"}));
+          samples.insert(
+              new Row()
+                  .setString("id", "s1")
+                  .setString("data", "sample1")
+                  .set(MG_ROLES, new String[] {roleB}),
+              new Row()
+                  .setString("id", "s2")
+                  .setString("data", "sample2")
+                  .set(MG_ROLES, new String[] {"OTHER_ROLE"}));
+
+          db.setActiveUser("cross_user");
+
+          List<Row> patientRows = schemaA.getTable("Patients").retrieveRows();
+          assertEquals(1, patientRows.size(), "Should only see own patient");
+          assertEquals("p1", patientRows.get(0).getString("id"));
+
+          List<Row> sampleRows = schemaB.getTable("Samples").retrieveRows();
+          assertEquals(1, sampleRows.size(), "Should only see own sample");
+          assertEquals("s1", sampleRows.get(0).getString("id"));
 
           db.becomeAdmin();
         });

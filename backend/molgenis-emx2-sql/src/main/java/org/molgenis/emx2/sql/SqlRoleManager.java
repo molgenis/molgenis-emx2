@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.jooq.DSLContext;
@@ -437,8 +438,7 @@ public class SqlRoleManager {
         "CREATE POLICY {0} ON {1} FOR SELECT USING ("
             + "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_select_tables', true), ''), ',')) "
             + "OR {3} IS NULL "
-            + "OR (COALESCE(current_setting('molgenis.active_role', true), '') <> '' "
-            + "AND {3} @> ARRAY[current_setting('molgenis.active_role', true)])"
+            + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')"
             + ")",
         name(tableName + "_rls_select"), jooqTable, inline(fqTable), name(MG_ROLES));
 
@@ -446,16 +446,14 @@ public class SqlRoleManager {
         "CREATE POLICY {0} ON {1} FOR INSERT WITH CHECK ("
             + "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_insert_tables', true), ''), ',')) "
             + "OR {3} IS NULL "
-            + "OR (COALESCE(current_setting('molgenis.active_role', true), '') <> '' "
-            + "AND {3} @> ARRAY[current_setting('molgenis.active_role', true)])"
+            + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')"
             + ")",
         name(tableName + "_rls_insert"), jooqTable, inline(fqTable), name(MG_ROLES));
 
     String updateExpr =
         "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_update_tables', true), ''), ',')) "
             + "OR {3} IS NULL "
-            + "OR (COALESCE(current_setting('molgenis.active_role', true), '') <> '' "
-            + "AND {3} @> ARRAY[current_setting('molgenis.active_role', true)])";
+            + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')";
     ctx.execute(
         "CREATE POLICY {0} ON {1} FOR UPDATE USING ("
             + updateExpr
@@ -471,8 +469,7 @@ public class SqlRoleManager {
         "CREATE POLICY {0} ON {1} FOR DELETE USING ("
             + "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_delete_tables', true), ''), ',')) "
             + "OR {3} IS NULL "
-            + "OR (COALESCE(current_setting('molgenis.active_role', true), '') <> '' "
-            + "AND {3} @> ARRAY[current_setting('molgenis.active_role', true)])"
+            + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')"
             + ")",
         name(tableName + "_rls_delete"), jooqTable, inline(fqTable), name(MG_ROLES));
   }
@@ -593,6 +590,61 @@ public class SqlRoleManager {
     } catch (Exception e) {
     }
 
+    return permissions;
+  }
+
+  public List<Permission> getMyPermissions(String schemaName) {
+    String activeUser = database.getActiveUser();
+    if (activeUser == null || "anonymous".equals(activeUser)) {
+      return Collections.emptyList();
+    }
+    SqlSchema schema = database.getSchema(schemaName);
+    if (schema == null) {
+      return Collections.emptyList();
+    }
+    String roleName = schema.getRoleForUser(activeUser);
+    if (roleName == null || roleName.isEmpty()) {
+      return Collections.emptyList();
+    }
+    if (SYSTEM_ROLE_NAMES.contains(roleName)) {
+      return getSystemRolePermissions(schema, roleName);
+    }
+    return getPermissions(schemaName, roleName);
+  }
+
+  private List<Permission> getSystemRolePermissions(SqlSchema schema, String roleName) {
+    List<Permission> permissions = new ArrayList<>();
+    for (String tableName : schema.getTableNames()) {
+      Permission perm = new Permission(tableName);
+      switch (roleName) {
+        case ROLE_OWNER:
+        case ROLE_MANAGER:
+        case ROLE_EDITOR:
+          perm.setSelect(SelectLevel.TABLE);
+          perm.setInsert(ModifyLevel.TABLE);
+          perm.setUpdate(ModifyLevel.TABLE);
+          perm.setDelete(ModifyLevel.TABLE);
+          break;
+        case ROLE_VIEWER:
+          perm.setSelect(SelectLevel.TABLE);
+          break;
+        case ROLE_COUNT:
+          perm.setSelect(SelectLevel.COUNT);
+          break;
+        case ROLE_AGGREGATOR:
+          perm.setSelect(SelectLevel.AGGREGATOR);
+          break;
+        case ROLE_RANGE:
+          perm.setSelect(SelectLevel.RANGE);
+          break;
+        case ROLE_EXISTS:
+          perm.setSelect(SelectLevel.EXISTS);
+          break;
+        default:
+          break;
+      }
+      permissions.add(perm);
+    }
     return permissions;
   }
 

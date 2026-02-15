@@ -196,6 +196,8 @@ public class SqlTable implements Table {
       String tableName,
       Iterable<Row> rows,
       MutationType transactionType) {
+    ((SqlDatabase) db).setRlsContextForSchema(schemaName);
+
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
@@ -518,6 +520,7 @@ public class SqlTable implements Table {
     try {
       db.tx(
           db2 -> {
+            ((SqlDatabase) db2).setRlsContextForSchema(getSchema().getName());
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
 
             // delete in batches

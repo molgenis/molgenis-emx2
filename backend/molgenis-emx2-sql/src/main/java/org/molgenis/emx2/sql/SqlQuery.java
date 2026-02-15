@@ -75,6 +75,8 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> retrieveRows(Option... options) {
+    ((SqlDatabase) schema.getDatabase()).setRlsContextForSchema(schema.getName());
+
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();

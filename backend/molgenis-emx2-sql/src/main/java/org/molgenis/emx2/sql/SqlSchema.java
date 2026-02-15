@@ -480,6 +480,11 @@ public class SqlSchema implements Schema {
     return ((SqlDatabase) getDatabase()).getRoleManager().getRoleInfos(getName());
   }
 
+  @Override
+  public List<Permission> getMyPermissions() {
+    return ((SqlDatabase) getDatabase()).getRoleManager().getMyPermissions(getName());
+  }
+
   public DSLContext getJooq() {
     return ((SqlDatabase) getDatabase()).getJooq();
   }

@@ -16,6 +16,7 @@ import org.molgenis.emx2.ModifyLevel;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Permission;
 import org.molgenis.emx2.RoleInfo;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SelectLevel;
 
@@ -26,6 +27,11 @@ public class TestSqlRoleManager {
   @BeforeAll
   public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
+  }
+
+  @BeforeEach
+  public void resetAdmin() {
+    database.becomeAdmin();
   }
 
   private DSLContext jooq(Database db) {
@@ -919,6 +925,306 @@ public class TestSqlRoleManager {
           assertTrue(updateRls == null, "update_rls should be NULL");
           assertTrue(deleteRls == null, "delete_rls should be NULL");
           assertEquals(Boolean.TRUE, grantPerm, "grant_permission should be true");
+        });
+  }
+
+  @Test
+  public void testCustomRoleSelectEnforcement() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_selectEnforce");
+          schema.create(table("Table1").add(column("id").setPkey()).add(column("value")));
+
+          schema
+              .getTable("Table1")
+              .insert(new Row().setString("id", "t1_row1").setString("value", "val1"));
+
+          db.addUser("select_user");
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "Reader");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setSelect(SelectLevel.TABLE);
+          rm.grant(schema.getName(), "Reader", perm);
+
+          rm.addMember(schema.getName(), "Reader", "select_user");
+
+          db.setActiveUser("select_user");
+          assertDoesNotThrow(
+              () -> schema.getTable("Table1").retrieveRows(),
+              "User with TABLE SELECT permission should be able to read");
+
+          db.becomeAdmin();
+        });
+  }
+
+  @Test
+  public void testCustomRoleInsertEnforcement() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_insertEnforce");
+          schema.create(table("Table1").add(column("id").setPkey()));
+
+          db.addUser("insert_user");
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "Writer");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setSelect(SelectLevel.TABLE);
+          perm.setInsert(ModifyLevel.TABLE);
+          rm.grant(schema.getName(), "Writer", perm);
+
+          rm.addMember(schema.getName(), "Writer", "insert_user");
+
+          db.setActiveUser("insert_user");
+          assertDoesNotThrow(
+              () -> schema.getTable("Table1").insert(new Row().setString("id", "row1")),
+              "User with INSERT permission should be able to insert");
+
+          db.becomeAdmin();
+        });
+  }
+
+  @Test
+  public void testCustomRoleUpdateEnforcement() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_updateEnforce");
+          schema.create(table("Table1").add(column("id").setPkey()).add(column("name")));
+
+          schema
+              .getTable("Table1")
+              .insert(new Row().setString("id", "row1").setString("name", "original"));
+
+          db.addUser("update_user");
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "Updater");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setSelect(SelectLevel.TABLE);
+          perm.setUpdate(ModifyLevel.TABLE);
+          rm.grant(schema.getName(), "Updater", perm);
+
+          rm.addMember(schema.getName(), "Updater", "update_user");
+
+          db.setActiveUser("update_user");
+          assertDoesNotThrow(
+              () ->
+                  schema
+                      .getTable("Table1")
+                      .update(new Row().setString("id", "row1").setString("name", "updated")),
+              "User with UPDATE permission should be able to update");
+
+          db.becomeAdmin();
+        });
+  }
+
+  @Test
+  public void testCustomRoleDeleteEnforcement() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_deleteEnforce");
+          schema.create(table("Table1").add(column("id").setPkey()));
+
+          schema.getTable("Table1").insert(new Row().setString("id", "row1"));
+
+          db.addUser("delete_user");
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "Deleter");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setSelect(SelectLevel.TABLE);
+          perm.setDelete(ModifyLevel.TABLE);
+          rm.grant(schema.getName(), "Deleter", perm);
+
+          rm.addMember(schema.getName(), "Deleter", "delete_user");
+
+          db.setActiveUser("delete_user");
+          assertDoesNotThrow(
+              () -> schema.getTable("Table1").delete(new Row().setString("id", "row1")),
+              "User with DELETE permission should be able to delete");
+
+          db.becomeAdmin();
+        });
+  }
+
+  @Test
+  public void testCustomRoleMultiplePermissions() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_multiPerm");
+          schema.create(table("Table1").add(column("id").setPkey()).add(column("name")));
+
+          schema
+              .getTable("Table1")
+              .insert(new Row().setString("id", "row1").setString("name", "original"));
+
+          db.addUser("multi_user");
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "MultiRole");
+
+          Permission perm = new Permission();
+          perm.setTable("Table1");
+          perm.setSelect(SelectLevel.TABLE);
+          perm.setInsert(ModifyLevel.TABLE);
+          perm.setUpdate(ModifyLevel.TABLE);
+          perm.setDelete(ModifyLevel.TABLE);
+          rm.grant(schema.getName(), "MultiRole", perm);
+
+          rm.addMember(schema.getName(), "MultiRole", "multi_user");
+
+          db.setActiveUser("multi_user");
+
+          assertDoesNotThrow(() -> schema.getTable("Table1").retrieveRows(), "Should allow SELECT");
+          assertDoesNotThrow(
+              () -> schema.getTable("Table1").insert(new Row().setString("id", "row2")),
+              "Should allow INSERT");
+          assertDoesNotThrow(
+              () ->
+                  schema
+                      .getTable("Table1")
+                      .update(new Row().setString("id", "row1").setString("name", "updated")),
+              "Should allow UPDATE");
+          assertDoesNotThrow(
+              () -> schema.getTable("Table1").delete(new Row().setString("id", "row2")),
+              "Should allow DELETE");
+
+          db.becomeAdmin();
+        });
+  }
+
+  @Test
+  public void testGetMyPermissions() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_myPermissions");
+          schema.create(table("Data1").add(column("id").setPkey()));
+          schema.create(table("Data2").add(column("id").setPkey()));
+          db.addUser("myperms_user");
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "CustomRole");
+
+          Permission perm1 = new Permission();
+          perm1.setTable("Data1");
+          perm1.setSelect(SelectLevel.ROW);
+          perm1.setInsert(ModifyLevel.ROW);
+          rm.grant(schema.getName(), "CustomRole", perm1);
+
+          Permission perm2 = new Permission();
+          perm2.setTable("Data2");
+          perm2.setSelect(SelectLevel.TABLE);
+          rm.grant(schema.getName(), "CustomRole", perm2);
+
+          rm.addMember(schema.getName(), "CustomRole", "myperms_user");
+
+          db.setActiveUser("myperms_user");
+
+          List<Permission> myPermissions = rm.getMyPermissions(schema.getName());
+          assertEquals(2, myPermissions.size(), "Should have 2 permissions");
+
+          Permission foundPerm1 =
+              myPermissions.stream()
+                  .filter(p -> "Data1".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(foundPerm1, "Should find Data1 permission");
+          assertEquals(SelectLevel.ROW, foundPerm1.getSelect());
+          assertEquals(ModifyLevel.ROW, foundPerm1.getInsert());
+
+          Permission foundPerm2 =
+              myPermissions.stream()
+                  .filter(p -> "Data2".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(foundPerm2, "Should find Data2 permission");
+          assertEquals(SelectLevel.TABLE, foundPerm2.getSelect());
+          assertNull(foundPerm2.getInsert());
+        });
+  }
+
+  @Test
+  public void testGetMyPermissionsAsAnonymous() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_myPermsAnon");
+          db.clearActiveUser();
+          SqlRoleManager rm = roleManager(db);
+          List<Permission> myPermissions = rm.getMyPermissions(schema.getName());
+          assertEquals(0, myPermissions.size(), "Anonymous should have no permissions");
+        });
+  }
+
+  @Test
+  public void testGetMyPermissionsNoRole() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_myPermsNoRole");
+          db.addUser("norole_user");
+          db.setActiveUser("norole_user");
+          SqlRoleManager rm = roleManager(db);
+          List<Permission> myPermissions = rm.getMyPermissions(schema.getName());
+          assertEquals(0, myPermissions.size(), "User with no role should have no permissions");
+        });
+  }
+
+  @Test
+  public void testGetMyPermissionsSystemRoles() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_sysRolePerms");
+          schema.create(table("Patients").add(column("id").setPkey()));
+          schema.create(table("Samples").add(column("id").setPkey()));
+          SqlRoleManager rm = roleManager(db);
+
+          db.addUser("viewer_user");
+          schema.addMember("viewer_user", "Viewer");
+          db.setActiveUser("viewer_user");
+
+          List<Permission> viewerPerms = rm.getMyPermissions(schema.getName());
+          assertEquals(2, viewerPerms.size(), "Viewer should see 2 table permissions");
+          for (Permission p : viewerPerms) {
+            assertEquals(SelectLevel.TABLE, p.getSelect());
+            assertNull(p.getInsert(), "Viewer should not have insert");
+            assertNull(p.getUpdate(), "Viewer should not have update");
+            assertNull(p.getDelete(), "Viewer should not have delete");
+          }
+
+          db.becomeAdmin();
+          db.addUser("editor_user");
+          schema.addMember("editor_user", "Editor");
+          db.setActiveUser("editor_user");
+
+          List<Permission> editorPerms = rm.getMyPermissions(schema.getName());
+          assertEquals(2, editorPerms.size(), "Editor should see 2 table permissions");
+          for (Permission p : editorPerms) {
+            assertEquals(SelectLevel.TABLE, p.getSelect());
+            assertEquals(ModifyLevel.TABLE, p.getInsert());
+            assertEquals(ModifyLevel.TABLE, p.getUpdate());
+            assertEquals(ModifyLevel.TABLE, p.getDelete());
+          }
+
+          db.becomeAdmin();
+          db.addUser("count_user");
+          schema.addMember("count_user", "Count");
+          db.setActiveUser("count_user");
+
+          List<Permission> countPerms = rm.getMyPermissions(schema.getName());
+          assertEquals(2, countPerms.size(), "Count should see 2 table permissions");
+          for (Permission p : countPerms) {
+            assertEquals(SelectLevel.COUNT, p.getSelect());
+            assertNull(p.getInsert());
+          }
+
+          db.becomeAdmin();
         });
   }
 }
