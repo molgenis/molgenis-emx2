@@ -1368,4 +1368,134 @@ public class TestSqlRoleManager {
           assertEquals(0, countAfter, "All permissions should be deleted after schema drop");
         });
   }
+
+  @Test
+  public void testAutoPopulateMgRolesOnInsert() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_autoPopulate");
+          schema.create(table("Patients").add(column("id").setPkey()).add(column("name")));
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "HospitalA");
+
+          Permission perm = new Permission();
+          perm.setTable("Patients");
+          perm.setSelect(SelectLevel.ROW);
+          perm.setInsert(ModifyLevel.TABLE);
+          rm.grant(schema.getName(), "HospitalA", perm);
+
+          db.addUser("auto_user");
+          rm.addMember(schema.getName(), "HospitalA", "auto_user");
+
+          db.setActiveUser("auto_user");
+
+          schema
+              .getTable("Patients")
+              .insert(new Row().setString("id", "patient1").setString("name", "Alice"));
+
+          Result<?> result =
+              jooq(db)
+                  .select(field(name("id")), field(name("mg_roles")))
+                  .from(org.jooq.impl.DSL.table(name(schema.getName(), "Patients")))
+                  .where(field(name("id")).eq("patient1"))
+                  .fetch();
+
+          assertEquals(1, result.size(), "Should have inserted 1 row");
+          org.jooq.Record rec = result.get(0);
+          Object rolesObj = rec.get(field(name("mg_roles")));
+          assertNotNull(rolesObj, "mg_roles should be auto-populated");
+
+          String[] roles;
+          if (rolesObj instanceof String[]) {
+            roles = (String[]) rolesObj;
+          } else {
+            try {
+              roles = (String[]) ((java.sql.Array) rolesObj).getArray();
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+
+          String expectedRole = MG_ROLE_PREFIX + schema.getName() + "/HospitalA";
+          assertEquals(1, roles.length, "Should have 1 role auto-populated");
+          assertEquals(
+              expectedRole, roles[0], "Auto-populated role should match user's custom role");
+
+          db.setActiveUser("auto_user");
+          schema
+              .getTable("Patients")
+              .insert(
+                  new Row()
+                      .setString("id", "patient2")
+                      .setString("name", "Bob")
+                      .setStringArray("mg_roles", new String[] {"ExplicitRole"}));
+
+          db.becomeAdmin();
+
+          Result<?> result2 =
+              jooq(db)
+                  .select(field(name("id")), field(name("mg_roles")))
+                  .from(org.jooq.impl.DSL.table(name(schema.getName(), "Patients")))
+                  .where(field(name("id")).eq("patient2"))
+                  .fetch();
+
+          org.jooq.Record rec2 = result2.get(0);
+          Object rolesObj2 = rec2.get(field(name("mg_roles")));
+          String[] roles2;
+          if (rolesObj2 instanceof String[]) {
+            roles2 = (String[]) rolesObj2;
+          } else {
+            try {
+              roles2 = (String[]) ((java.sql.Array) rolesObj2).getArray();
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+
+          assertEquals(1, roles2.length, "Should have 1 explicit role");
+          assertEquals("ExplicitRole", roles2[0], "Explicit mg_roles should be preserved");
+        });
+  }
+
+  @Test
+  public void testWildcardGrantsAppliedToNewTable() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_wildcardNew");
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "ReadAllRole");
+
+          Permission wildcardPerm = new Permission();
+          wildcardPerm.setTable("*");
+          wildcardPerm.setSelect(SelectLevel.TABLE);
+          wildcardPerm.setInsert(ModifyLevel.TABLE);
+          rm.grant(schema.getName(), "ReadAllRole", wildcardPerm);
+
+          schema.create(table("NewTable").add(column("id").setPkey()));
+
+          Permission newTablePerm = new Permission();
+          newTablePerm.setTable("NewTable");
+          newTablePerm.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "ReadAllRole", newTablePerm);
+
+          String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/ReadAllRole";
+          String tableFqn = "\"" + schema.getName() + "\".\"NewTable\"";
+
+          Boolean hasSelect =
+              jooq(db)
+                  .fetchOne(
+                      "SELECT has_table_privilege({0}, {1}, 'SELECT')", fullRoleName, tableFqn)
+                  .into(Boolean.class);
+          assertTrue(hasSelect, "Role should have SELECT on new table from wildcard grant");
+
+          Boolean hasInsert =
+              jooq(db)
+                  .fetchOne(
+                      "SELECT has_table_privilege({0}, {1}, 'INSERT')", fullRoleName, tableFqn)
+                  .into(Boolean.class);
+          assertTrue(hasInsert, "Role should have INSERT on new table from wildcard grant");
+        });
+  }
 }

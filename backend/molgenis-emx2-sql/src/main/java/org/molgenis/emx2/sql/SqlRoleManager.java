@@ -21,8 +21,11 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Permission;
 import org.molgenis.emx2.RoleInfo;
 import org.molgenis.emx2.SelectLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SqlRoleManager {
+  private static final Logger logger = LoggerFactory.getLogger(SqlRoleManager.class);
   static final Set<String> SYSTEM_ROLE_NAMES =
       Set.of(
           ROLE_EXISTS,
@@ -472,6 +475,49 @@ public class SqlRoleManager {
             + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')"
             + ")",
         name(tableName + "_rls_delete"), jooqTable, inline(fqTable), name(MG_ROLES));
+
+    applySchemaWideGrantsForNewTable(schemaName, tableName);
+  }
+
+  public void applySchemaWideGrantsForNewTable(String schemaName, String tableName) {
+    try {
+      Result<?> wildcardPerms =
+          jooq()
+              .selectFrom(RLS_PERMISSIONS_TABLE)
+              .where(RP_SCHEMA.eq(schemaName))
+              .and(RP_TABLE.eq("*"))
+              .fetch();
+
+      if (wildcardPerms.isEmpty()) {
+        return;
+      }
+
+      org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
+
+      for (org.jooq.Record perm : wildcardPerms) {
+        String fullRole = perm.get(RP_ROLE);
+        String selectLevel = perm.get(RP_SELECT_LEVEL);
+        Boolean insertRls = perm.get(RP_INSERT_RLS);
+        Boolean updateRls = perm.get(RP_UPDATE_RLS);
+        Boolean deleteRls = perm.get(RP_DELETE_RLS);
+
+        if (selectLevel != null) {
+          jooq().execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
+        }
+        if (insertRls != null) {
+          jooq().execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
+        }
+        if (updateRls != null) {
+          jooq().execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
+        }
+        if (deleteRls != null) {
+          jooq().execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
+        }
+      }
+    } catch (Exception e) {
+      logger.error(
+          "Failed to apply schema-wide grants for new table {}.{}", schemaName, tableName, e);
+    }
   }
 
   public void disableRowLevelSecurity(String schemaName, String tableName) {
