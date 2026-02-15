@@ -88,7 +88,7 @@ public interface Schema {
 
   void setPermission(String roleName, Permission permission);
 
-  void revokePermission(String roleName, String table, boolean rowLevel);
+  void revokePermission(String roleName, String table);
 
   List<Permission> getPermissions(String roleName);
 

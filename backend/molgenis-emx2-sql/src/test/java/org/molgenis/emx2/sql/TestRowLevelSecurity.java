@@ -32,14 +32,15 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
+          SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
+          rm.enableRowLevelSecurity(schema.getName(), "DataTable");
 
           Boolean columnExists =
               jooq(db)
                   .fetchOne(
                       "SELECT EXISTS(SELECT 1 FROM information_schema.columns "
                           + "WHERE table_schema = {0} AND table_name = {1} AND column_name = {2})",
-                      schema.getName(), "datatable", MG_ROLES)
+                      schema.getName(), "DataTable", MG_ROLES)
                   .into(Boolean.class);
           assertTrue(columnExists, "mg_roles column should exist after enabling RLS");
 
@@ -49,7 +50,7 @@ public class TestRowLevelSecurity {
                       "SELECT relrowsecurity FROM pg_class "
                           + "WHERE relname = {0} AND relnamespace = "
                           + "(SELECT oid FROM pg_namespace WHERE nspname = {1})",
-                      "datatable", schema.getName())
+                      "DataTable", schema.getName())
                   .into(Boolean.class);
           assertTrue(rlsEnabled, "RLS should be enabled on table");
         });
@@ -63,11 +64,14 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
-
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA");
           rm.createRole(schema.getName(), "GroupB");
+
+          Permission permA = new Permission();
+          permA.setTable("DataTable");
+          permA.setSelect(PermissionLevel.ROW);
+          rm.setPermission(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_user1");
           rm.addMember(schema.getName(), "GroupA", "rls_user1");
@@ -93,9 +97,12 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("rls_user1");
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName(), "GroupA");
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(2, rows.size(), "Row-level user should see only GroupA rows");
+
+          db.becomeAdmin();
         });
   }
 
@@ -107,11 +114,14 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
-
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA");
           rm.createRole(schema.getName(), "GroupB");
+
+          Permission permA = new Permission();
+          permA.setTable("DataTable");
+          permA.setSelect(PermissionLevel.ROW);
+          rm.setPermission(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_viewer");
           schema.addMember("rls_viewer", VIEWER.toString());
@@ -131,9 +141,12 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_viewer");
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(2, rows.size(), "Schema-level Viewer should see all rows");
+
+          db.becomeAdmin();
         });
   }
 
@@ -145,12 +158,14 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
-
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA");
-
           rm.createRole(schema.getName(), "GroupB");
+
+          Permission permA = new Permission();
+          permA.setTable("DataTable");
+          permA.setSelect(PermissionLevel.ROW);
+          rm.setPermission(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_both");
           rm.addMember(schema.getName(), "GroupA", "rls_both");
@@ -171,12 +186,15 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_both");
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(
               2,
               rows.size(),
               "User with both row-level and schema-level roles should see all rows");
+
+          db.becomeAdmin();
         });
   }
 
@@ -188,10 +206,13 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
-
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA");
+
+          Permission permA = new Permission();
+          permA.setTable("DataTable");
+          permA.setSelect(PermissionLevel.ROW);
+          rm.setPermission(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_null_user");
           rm.addMember(schema.getName(), "GroupA", "rls_null_user");
@@ -206,11 +227,14 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("rls_null_user");
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertTrue(
               rows.stream().anyMatch(r -> "1".equals(r.getString("id"))),
               "Row-level user should see rows with NULL mg_roles");
+
+          db.becomeAdmin();
         });
   }
 
@@ -222,7 +246,8 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
+          SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
+          rm.enableRowLevelSecurity(schema.getName(), "DataTable");
 
           Boolean rlsBefore =
               jooq(db)
@@ -230,18 +255,18 @@ public class TestRowLevelSecurity {
                       "SELECT relrowsecurity FROM pg_class "
                           + "WHERE relname = {0} AND relnamespace = "
                           + "(SELECT oid FROM pg_namespace WHERE nspname = {1})",
-                      "datatable", schema.getName())
+                      "DataTable", schema.getName())
                   .into(Boolean.class);
           assertTrue(rlsBefore, "RLS should be enabled before disable");
 
-          table.getMetadata().disableRowLevelSecurity();
+          rm.disableRowLevelSecurity(schema.getName(), "DataTable");
 
           Boolean columnStillExists =
               jooq(db)
                   .fetchOne(
                       "SELECT EXISTS(SELECT 1 FROM information_schema.columns "
                           + "WHERE table_schema = {0} AND table_name = {1} AND column_name = {2})",
-                      schema.getName(), "datatable", MG_ROLES)
+                      schema.getName(), "DataTable", MG_ROLES)
                   .into(Boolean.class);
           assertTrue(columnStillExists, "mg_roles column should be preserved after disabling RLS");
 
@@ -251,7 +276,7 @@ public class TestRowLevelSecurity {
                       "SELECT relrowsecurity FROM pg_class "
                           + "WHERE relname = {0} AND relnamespace = "
                           + "(SELECT oid FROM pg_namespace WHERE nspname = {1})",
-                      "datatable", schema.getName())
+                      "DataTable", schema.getName())
                   .into(Boolean.class);
           assertFalse(rlsAfter, "RLS should be disabled after disable");
         });
@@ -265,11 +290,15 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
-
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA");
           rm.createRole(schema.getName(), "GroupB");
+
+          Permission permA = new Permission();
+          permA.setTable("DataTable");
+          permA.setSelect(PermissionLevel.ROW);
+          permA.setDelete(PermissionLevel.ROW);
+          rm.setPermission(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_deleter");
           rm.addMember(schema.getName(), "GroupA", "rls_deleter");
@@ -288,9 +317,11 @@ public class TestRowLevelSecurity {
                   .set(MG_ROLES, new String[] {groupB}));
 
           db.setActiveUser("rls_deleter");
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
           table.delete(new Row().setString("id", "1"));
 
           db.becomeAdmin();
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(1, rows.size(), "Only GroupB row should remain");
           assertEquals("2", rows.get(0).getString("id"));
@@ -305,11 +336,14 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
-
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA");
           rm.createRole(schema.getName(), "GroupB");
+
+          Permission permA = new Permission();
+          permA.setTable("DataTable");
+          permA.setSelect(PermissionLevel.ROW);
+          rm.setPermission(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_admin");
           schema.addMember("rls_admin", OWNER.toString());
@@ -329,9 +363,12 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupB")}));
 
           db.setActiveUser("rls_admin");
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           List<Row> rows = schema.getTable("DataTable").retrieveRows();
           assertEquals(2, rows.size(), "Owner should see all rows bypassing RLS");
+
+          db.becomeAdmin();
         });
   }
 
@@ -343,10 +380,13 @@ public class TestRowLevelSecurity {
           Table table =
               schema.create(table("DataTable").add(column("id").setPkey()).add(column("data")));
 
-          table.getMetadata().enableRowLevelSecurity();
-
           SqlRoleManager rm = ((SqlDatabase) db).getRoleManager();
           rm.createRole(schema.getName(), "GroupA");
+
+          Permission permA = new Permission();
+          permA.setTable("DataTable");
+          permA.setSelect(PermissionLevel.ROW);
+          rm.setPermission(schema.getName(), "GroupA", permA);
 
           table.insert(
               new Row()
@@ -357,11 +397,14 @@ public class TestRowLevelSecurity {
                       new String[] {SqlRoleManager.fullRoleName(schema.getName(), "GroupA")}));
 
           db.setActiveUser("anonymous");
+          ((SqlDatabase) db).setRlsContextForSchema(schema.getName());
 
           assertThrows(
               MolgenisException.class,
               () -> schema.getTable("DataTable").retrieveRows(),
               "Anonymous user should not see any rows");
+
+          db.becomeAdmin();
         });
   }
 }

@@ -21,7 +21,6 @@ public class Constants {
   public static final String ROLE_EDITOR = "Editor";
   public static final String ROLE_MANAGER = "Manager";
   public static final String ROLE_OWNER = "Owner";
-  public static final String MG_GLOBAL_PREFIX = "mg_global";
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";

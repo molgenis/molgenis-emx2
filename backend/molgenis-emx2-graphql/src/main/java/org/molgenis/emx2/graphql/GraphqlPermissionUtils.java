@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.molgenis.emx2.ColumnAccess;
 import org.molgenis.emx2.Permission;
+import org.molgenis.emx2.PermissionLevel;
 import org.molgenis.emx2.RoleInfo;
 import org.molgenis.emx2.Schema;
 
@@ -19,14 +21,39 @@ public class GraphqlPermissionUtils {
   static Permission mapToPermission(Map<String, Object> permMap) {
     Permission perm = new Permission();
     perm.setTable((String) permMap.get(TABLE));
-    perm.setRowLevel(Boolean.TRUE.equals(permMap.get(ROW_LEVEL)));
-    perm.setSelect((Boolean) permMap.get(SELECT));
-    perm.setInsert((Boolean) permMap.get(INSERT));
-    perm.setUpdate((Boolean) permMap.get(UPDATE));
-    perm.setDelete((Boolean) permMap.get(DELETE));
-    perm.setEditColumns((List<String>) permMap.get(EDIT_COLUMNS));
-    perm.setDenyColumns((List<String>) permMap.get(DENY_COLUMNS));
+
+    if (permMap.get(SELECT) != null) {
+      perm.setSelect(parsePermissionLevel(permMap.get(SELECT)));
+    }
+    if (permMap.get(INSERT) != null) {
+      perm.setInsert(parsePermissionLevel(permMap.get(INSERT)));
+    }
+    if (permMap.get(UPDATE) != null) {
+      perm.setUpdate(parsePermissionLevel(permMap.get(UPDATE)));
+    }
+    if (permMap.get(DELETE) != null) {
+      perm.setDelete(parsePermissionLevel(permMap.get(DELETE)));
+    }
+
+    Map<String, Object> columnsMap = (Map<String, Object>) permMap.get(COLUMN_ACCESS);
+    if (columnsMap != null) {
+      ColumnAccess columnAccess = new ColumnAccess();
+      columnAccess.setEditable((List<String>) columnsMap.get(EDITABLE));
+      columnAccess.setReadonly((List<String>) columnsMap.get(READONLY_FIELD));
+      columnAccess.setHidden((List<String>) columnsMap.get(HIDDEN));
+      perm.setColumnAccess(columnAccess);
+    }
+
     return perm;
+  }
+
+  private static PermissionLevel parsePermissionLevel(Object value) {
+    if (value instanceof String) {
+      return PermissionLevel.valueOf(((String) value).toUpperCase());
+    } else if (value instanceof Boolean && Boolean.TRUE.equals(value)) {
+      return PermissionLevel.TABLE;
+    }
+    return null;
   }
 
   static Map<String, Object> permissionToMap(Permission perm) {
@@ -35,13 +62,19 @@ public class GraphqlPermissionUtils {
       permMap.put(SCHEMA_NAME, perm.getSchema());
     }
     permMap.put(TABLE, perm.getTable());
-    permMap.put(ROW_LEVEL, perm.isRowLevel());
-    permMap.put(SELECT, perm.getSelect());
-    permMap.put(INSERT, perm.getInsert());
-    permMap.put(UPDATE, perm.getUpdate());
-    permMap.put(DELETE, perm.getDelete());
-    permMap.put(EDIT_COLUMNS, perm.getEditColumns());
-    permMap.put(DENY_COLUMNS, perm.getDenyColumns());
+    permMap.put(SELECT, perm.getSelect() != null ? perm.getSelect().toString() : null);
+    permMap.put(INSERT, perm.getInsert() != null ? perm.getInsert().toString() : null);
+    permMap.put(UPDATE, perm.getUpdate() != null ? perm.getUpdate().toString() : null);
+    permMap.put(DELETE, perm.getDelete() != null ? perm.getDelete().toString() : null);
+
+    if (perm.getColumnAccess() != null) {
+      Map<String, Object> columnsMap = new LinkedHashMap<>();
+      columnsMap.put(EDITABLE, perm.getColumnAccess().getEditable());
+      columnsMap.put(READONLY_FIELD, perm.getColumnAccess().getReadonly());
+      columnsMap.put(HIDDEN, perm.getColumnAccess().getHidden());
+      permMap.put(COLUMN_ACCESS, columnsMap);
+    }
+
     return permMap;
   }
 
@@ -65,7 +98,7 @@ public class GraphqlPermissionUtils {
       for (Map<String, Object> permMap : permissions) {
         Permission perm = mapToPermission(permMap);
         if (perm.isRevocation()) {
-          schema.revokePermission(roleName, perm.getTable(), perm.isRowLevel());
+          schema.revokePermission(roleName, perm.getTable());
         } else {
           schema.setPermission(roleName, perm);
         }

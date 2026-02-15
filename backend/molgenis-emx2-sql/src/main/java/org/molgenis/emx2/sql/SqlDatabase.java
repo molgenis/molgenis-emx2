@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
@@ -663,6 +665,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               db.inTx = true;
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
+              ctx.execute(
+                  "SET LOCAL molgenis.bypass_schemas = '*';"
+                      + " SET LOCAL molgenis.active_role = '';"
+                      + " SET LOCAL molgenis.bypass_select = '';"
+                      + " SET LOCAL molgenis.bypass_modify = ''");
               db.setJooq(ctx);
               transaction.run(db);
               db.tableListenersExecutePostCommit();
@@ -744,6 +751,62 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public SqlRoleManager getRoleManager() {
     return new SqlRoleManager(this);
+  }
+
+  public void setRlsContextForSchema(String schemaName) {
+    String activeUser = getActiveUser();
+    if (activeUser == null || ADMIN_USER.equals(activeUser) || ANONYMOUS.equals(activeUser)) {
+      setRlsBypassSchema(schemaName);
+      return;
+    }
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String pgUser = MG_USER_PREFIX + activeUser;
+    try {
+      Result<Record> records =
+          jooq.fetch(
+              "SELECT r.rolname FROM pg_roles r"
+                  + " JOIN pg_auth_members am ON am.roleid = r.oid"
+                  + " JOIN pg_roles m ON m.oid = am.member"
+                  + " WHERE m.rolname = {0} AND r.rolname LIKE {1}",
+              pgUser, rolePrefix + "%");
+
+      String customRole = null;
+      boolean hasSystemRole = false;
+      for (Record record : records) {
+        String fullRole = record.get("rolname", String.class);
+        String shortRole = fullRole.substring(rolePrefix.length());
+        if (SqlRoleManager.SYSTEM_ROLES.contains(shortRole)) {
+          hasSystemRole = true;
+        } else {
+          customRole = shortRole;
+        }
+      }
+
+      if (hasSystemRole) {
+        setRlsBypassSchema(schemaName);
+      } else if (customRole != null) {
+        setRlsContextForSchema(schemaName, customRole);
+      } else {
+        setRlsBypassSchema(schemaName);
+      }
+    } catch (Exception e) {
+      setRlsBypassSchema(schemaName);
+    }
+  }
+
+  public void setRlsContextForSchema(String schemaName, String userRole) {
+    if (userRole == null || SqlRoleManager.SYSTEM_ROLES.contains(userRole)) {
+      setRlsBypassSchema(schemaName);
+    } else {
+      String fullRole = SqlRoleManager.fullRoleName(schemaName, userRole);
+      jooq.execute("SET LOCAL molgenis.bypass_schemas = ''");
+      jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(fullRole));
+    }
+  }
+
+  private void setRlsBypassSchema(String schemaName) {
+    jooq.execute("SET LOCAL molgenis.bypass_schemas = {0}", inline(schemaName));
+    jooq.execute("SET LOCAL molgenis.active_role = ''");
   }
 
   public DSLContext getJooqWithExtendedTimeout() {

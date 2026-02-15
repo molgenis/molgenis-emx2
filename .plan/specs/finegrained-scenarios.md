@@ -150,7 +150,7 @@ DOI = never delete. Curators edit metadata only (column-level).
 - Multiple values = shared access: `['HospitalA', 'HospitalB']`
 - NULL = visible to schema-level users only (safe default)
 
-See `rowlevel-spec.md` section 5 for RLS policy SQL, GIN index, and implementation details.
+See `finegrained-spec.md` section 5 for RLS policy SQL, GIN index, and implementation details.
 
 **Role determination:**
 - One role per user per schema, from member record
@@ -258,9 +258,9 @@ With one-role-per-schema model:
 Key security requirements:
 - RLS protects authorized users from exceeding their data scope (PG-enforced policies)
 - UPDATE policies must include WITH CHECK to prevent privilege escalation via mg_roles modification
-- Helper functions (is_schema_level_user, current_user_roles) must execute once per transaction, not per row
+- Helper functions (bypass_schemas, current_user_roles) must execute once per transaction, not per row
 
-See `rowlevel-spec.md` for detailed security model, threat analysis, and implementation details.
+See `finegrained-spec.md` for detailed security model, threat analysis, and implementation details.
 
 ---
 
@@ -357,7 +357,7 @@ Three critical reviews conducted (synthetic AI reviewers, not human):
 - Added explicit revocation via drop(permissions) endpoint
 - Added introspection queries (myPermissions, permissionsOf)
 - Added CSV import/export for roles+permissions
-- Long-term ideas moved to rowlevel-future.md
+- Long-term ideas moved to finegrained-future.md
 
 ---
 

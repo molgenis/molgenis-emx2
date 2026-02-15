@@ -117,31 +117,40 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
+  private static final GraphQLObjectType columnAccessSchemaOutputType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisColumnAccessType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(EDITABLE)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(READONLY_FIELD)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HIDDEN)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .build();
+
   private static final GraphQLObjectType outputPermissionType =
       new GraphQLObjectType.Builder()
           .name("MolgenisPermissionType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(TABLE).type(Scalars.GraphQLString))
           .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(ROW_LEVEL)
-                  .type(Scalars.GraphQLBoolean))
+              GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(Scalars.GraphQLString))
           .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(Scalars.GraphQLBoolean))
+              GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(Scalars.GraphQLString))
           .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(Scalars.GraphQLBoolean))
+              GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(Scalars.GraphQLString))
           .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(Scalars.GraphQLBoolean))
+              GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(EDIT_COLUMNS)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(DENY_COLUMNS)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
+                  .name(COLUMN_ACCESS)
+                  .type(columnAccessSchemaOutputType))
           .build();
 
   private static final GraphQLObjectType outputRoleInfoType =
@@ -163,6 +172,23 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(outputPermissionType)))
           .build();
 
+  private static final GraphQLInputObjectType columnAccessSchemaInputType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisColumnAccessInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(EDITABLE)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(READONLY_FIELD)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(HIDDEN)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .build();
+
   private static final GraphQLInputObjectType inputPermissionType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisPermissionInput")
@@ -170,32 +196,24 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(ROW_LEVEL)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
                   .name(SELECT)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(INSERT)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(UPDATE)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DELETE)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(EDIT_COLUMNS)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(DENY_COLUMNS)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
+                  .name(COLUMN_ACCESS)
+                  .type(columnAccessSchemaInputType))
           .build();
 
   private static final GraphQLInputObjectType inputRoleType =

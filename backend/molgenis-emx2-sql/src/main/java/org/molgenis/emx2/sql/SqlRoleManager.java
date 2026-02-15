@@ -10,8 +10,10 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
+import org.molgenis.emx2.ColumnAccess;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Permission;
+import org.molgenis.emx2.PermissionLevel;
 import org.molgenis.emx2.RoleInfo;
 
 public class SqlRoleManager {
@@ -32,10 +34,12 @@ public class SqlRoleManager {
   private static final org.jooq.Field<String> PM_SCHEMA = field(name("table_schema"), VARCHAR);
   private static final org.jooq.Field<String> PM_ROLE = field(name("role_name"), VARCHAR);
   private static final org.jooq.Field<String> PM_TABLE = field(name("table_name"), VARCHAR);
-  private static final org.jooq.Field<String[]> PM_EDIT_COLUMNS =
-      field(name("edit_columns"), VARCHAR.getArrayDataType());
-  private static final org.jooq.Field<String[]> PM_DENY_COLUMNS =
-      field(name("deny_columns"), VARCHAR.getArrayDataType());
+  private static final org.jooq.Field<String[]> PM_EDITABLE_COLUMNS =
+      field(name("editable_columns"), VARCHAR.getArrayDataType());
+  private static final org.jooq.Field<String[]> PM_READONLY_COLUMNS =
+      field(name("readonly_columns"), VARCHAR.getArrayDataType());
+  private static final org.jooq.Field<String[]> PM_HIDDEN_COLUMNS =
+      field(name("hidden_columns"), VARCHAR.getArrayDataType());
 
   private final SqlDatabase database;
 
@@ -75,6 +79,22 @@ public class SqlRoleManager {
       jooq().execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
       jooq().execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
       jooq().execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
+
+      Integer hasColumn =
+          jooq()
+              .selectCount()
+              .from("information_schema.columns")
+              .where(field("table_schema").eq(inline(schemaName)))
+              .and(field("table_name").eq(inline(tableName)))
+              .and(field("column_name").eq(inline(MG_ROLES)))
+              .fetchOne(0, Integer.class);
+
+      if (hasColumn != null && hasColumn > 0) {
+        jooq()
+            .execute(
+                "UPDATE {0} SET {1} = array_remove({1}, {2}) WHERE {1} @> ARRAY[{2}]",
+                jooqTable, name(MG_ROLES), inline(fullRole));
+      }
     }
 
     jooq()
@@ -142,14 +162,14 @@ public class SqlRoleManager {
     }
 
     if (permission.isRevocation()) {
-      revokePermission(schemaName, roleName, tableName, permission.isRowLevel());
+      revokePermission(schemaName, roleName, tableName);
       return;
     }
 
     syncPermissionGrants(schemaName, roleName, permission);
     syncColumnRestrictions(schemaName, roleName, permission);
 
-    if (permission.isRowLevel()) {
+    if (permission.hasRowLevelPermissions()) {
       String fullRole = fullRoleName(schemaName, roleName);
       jooq().execute("GRANT {0} TO {1}", name(MG_ROWLEVEL), name(fullRole));
 
@@ -165,7 +185,8 @@ public class SqlRoleManager {
       return;
     }
 
-    if (permission.getEditColumns() == null && permission.getDenyColumns() == null) {
+    ColumnAccess columnAccess = permission.getColumnAccess();
+    if (columnAccess == null) {
       jooq()
           .deleteFrom(PERMISSION_METADATA)
           .where(PM_SCHEMA.eq(schemaName))
@@ -181,32 +202,41 @@ public class SqlRoleManager {
         .set(PM_ROLE, roleName)
         .set(PM_TABLE, tableName)
         .set(
-            PM_EDIT_COLUMNS,
-            permission.getEditColumns() != null
-                ? permission.getEditColumns().toArray(new String[0])
+            PM_EDITABLE_COLUMNS,
+            columnAccess.getEditable() != null
+                ? columnAccess.getEditable().toArray(new String[0])
                 : null)
         .set(
-            PM_DENY_COLUMNS,
-            permission.getDenyColumns() != null
-                ? permission.getDenyColumns().toArray(new String[0])
+            PM_READONLY_COLUMNS,
+            columnAccess.getReadonly() != null
+                ? columnAccess.getReadonly().toArray(new String[0])
+                : null)
+        .set(
+            PM_HIDDEN_COLUMNS,
+            columnAccess.getHidden() != null
+                ? columnAccess.getHidden().toArray(new String[0])
                 : null)
         .onConflict(PM_SCHEMA, PM_ROLE, PM_TABLE)
         .doUpdate()
         .set(
-            PM_EDIT_COLUMNS,
-            permission.getEditColumns() != null
-                ? permission.getEditColumns().toArray(new String[0])
+            PM_EDITABLE_COLUMNS,
+            columnAccess.getEditable() != null
+                ? columnAccess.getEditable().toArray(new String[0])
                 : null)
         .set(
-            PM_DENY_COLUMNS,
-            permission.getDenyColumns() != null
-                ? permission.getDenyColumns().toArray(new String[0])
+            PM_READONLY_COLUMNS,
+            columnAccess.getReadonly() != null
+                ? columnAccess.getReadonly().toArray(new String[0])
+                : null)
+        .set(
+            PM_HIDDEN_COLUMNS,
+            columnAccess.getHidden() != null
+                ? columnAccess.getHidden().toArray(new String[0])
                 : null)
         .execute();
   }
 
-  public void revokePermission(
-      String schemaName, String roleName, String tableName, boolean rowLevel) {
+  public void revokePermission(String schemaName, String roleName, String tableName) {
     String fullRole = fullRoleName(schemaName, roleName);
 
     if (tableName != null) {
@@ -238,7 +268,15 @@ public class SqlRoleManager {
           .execute();
     }
 
-    if (rowLevel) {
+    boolean hasAnyRowLevelPerms = false;
+    for (Permission perm : getPermissions(schemaName, roleName)) {
+      if (perm.hasRowLevelPermissions()) {
+        hasAnyRowLevelPerms = true;
+        break;
+      }
+    }
+
+    if (!hasAnyRowLevelPerms) {
       jooq().execute("REVOKE {0} FROM {1}", name(MG_ROWLEVEL), name(fullRole));
     }
   }
@@ -246,6 +284,7 @@ public class SqlRoleManager {
   public List<Permission> getPermissions(String schemaName, String roleName) {
     String fullRole = fullRoleName(schemaName, roleName);
     List<Permission> permissions = new ArrayList<>();
+    boolean isRowLevel = isRowLevelRole(fullRole);
 
     for (String tableName : database.getSchema(schemaName).getTableNames()) {
       String qualifiedTable = schemaName + "." + tableName;
@@ -261,11 +300,22 @@ public class SqlRoleManager {
           || Boolean.TRUE.equals(hasDelete)) {
         Permission p = new Permission();
         p.setTable(tableName);
-        p.setRowLevel(isRowLevelRole(fullRole));
-        p.setSelect(hasSelect);
-        p.setInsert(hasInsert);
-        p.setUpdate(hasUpdate);
-        p.setDelete(hasDelete);
+        p.setSelect(
+            Boolean.TRUE.equals(hasSelect)
+                ? (isRowLevel ? PermissionLevel.ROW : PermissionLevel.TABLE)
+                : null);
+        p.setInsert(
+            Boolean.TRUE.equals(hasInsert)
+                ? (isRowLevel ? PermissionLevel.ROW : PermissionLevel.TABLE)
+                : null);
+        p.setUpdate(
+            Boolean.TRUE.equals(hasUpdate)
+                ? (isRowLevel ? PermissionLevel.ROW : PermissionLevel.TABLE)
+                : null);
+        p.setDelete(
+            Boolean.TRUE.equals(hasDelete)
+                ? (isRowLevel ? PermissionLevel.ROW : PermissionLevel.TABLE)
+                : null);
 
         mergeColumnRestrictions(schemaName, roleName, tableName, p);
         permissions.add(p);
@@ -317,14 +367,20 @@ public class SqlRoleManager {
             .fetchOne();
 
     if (record != null) {
-      String[] editCols = record.get(PM_EDIT_COLUMNS);
-      if (editCols != null) {
-        permission.setEditColumns(List.of(editCols));
+      ColumnAccess columnAccess = new ColumnAccess();
+      String[] editableCols = record.get(PM_EDITABLE_COLUMNS);
+      if (editableCols != null) {
+        columnAccess.setEditable(List.of(editableCols));
       }
-      String[] denyCols = record.get(PM_DENY_COLUMNS);
-      if (denyCols != null) {
-        permission.setDenyColumns(List.of(denyCols));
+      String[] readonlyCols = record.get(PM_READONLY_COLUMNS);
+      if (readonlyCols != null) {
+        columnAccess.setReadonly(List.of(readonlyCols));
       }
+      String[] hiddenCols = record.get(PM_HIDDEN_COLUMNS);
+      if (hiddenCols != null) {
+        columnAccess.setHidden(List.of(hiddenCols));
+      }
+      permission.setColumnAccess(columnAccess);
     }
   }
 
@@ -395,11 +451,13 @@ public class SqlRoleManager {
         name(tableName + "_" + MG_ROLES + "_idx"), jooqTable, name(MG_ROLES));
 
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
+    jooq.execute("ALTER TABLE {0} FORCE ROW LEVEL SECURITY", jooqTable);
 
     String policySelect = tableName + "_rls_select";
     String policyModify = tableName + "_rls_modify";
 
     jooq.execute("DROP POLICY IF EXISTS {0} ON {1}", name(policySelect), jooqTable);
+    jooq.execute("DROP POLICY IF EXISTS {0} ON {1}", name(policyModify), jooqTable);
     jooq.execute("DROP POLICY IF EXISTS {0} ON {1}", name(policyModify + "_insert"), jooqTable);
     jooq.execute("DROP POLICY IF EXISTS {0} ON {1}", name(policyModify + "_update"), jooqTable);
     jooq.execute("DROP POLICY IF EXISTS {0} ON {1}", name(policyModify + "_delete"), jooqTable);
@@ -408,37 +466,39 @@ public class SqlRoleManager {
         "CREATE POLICY {0} ON {1} FOR SELECT\n"
             + "  USING (\n"
             + "    {2} IS NULL\n"
-            + "    OR pg_has_role(current_setting('molgenis.user', true)::text, {3}, 'member')\n"
-            + "    OR {2} && string_to_array(current_setting('molgenis.roles', true), ',')\n"
+            + "    OR COALESCE(current_setting('molgenis.bypass_schemas', true), '*') = '*' OR {4} = ANY(string_to_array(current_setting('molgenis.bypass_schemas', true), ','))\n"
+            + "    OR {3} = ANY(string_to_array(COALESCE(current_setting('molgenis.bypass_select', true), ''), ','))\n"
+            + "    OR (COALESCE(current_setting('molgenis.active_role', true), '') <> '' AND {2} @> ARRAY[current_setting('molgenis.active_role', true)])\n"
             + "  )",
-        name(policySelect), jooqTable, name(MG_ROLES), inline(MG_ROWLEVEL));
+        name(policySelect), jooqTable, name(MG_ROLES), inline(tableName), inline(schemaName));
 
     jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR INSERT\n"
+        "CREATE POLICY {0} ON {1} FOR ALL\n"
+            + "  USING (\n"
+            + "    {2} IS NULL\n"
+            + "    OR COALESCE(current_setting('molgenis.bypass_schemas', true), '*') = '*' OR {4} = ANY(string_to_array(current_setting('molgenis.bypass_schemas', true), ','))\n"
+            + "    OR {3} = ANY(string_to_array(COALESCE(current_setting('molgenis.bypass_modify', true), ''), ','))\n"
+            + "    OR (COALESCE(current_setting('molgenis.active_role', true), '') <> '' AND {2} @> ARRAY[current_setting('molgenis.active_role', true)])\n"
+            + "  )\n"
             + "  WITH CHECK (\n"
             + "    {2} IS NULL\n"
-            + "    OR pg_has_role(current_setting('molgenis.user', true)::text, {3}, 'member')\n"
-            + "    OR {2} && string_to_array(current_setting('molgenis.roles', true), ',')\n"
+            + "    OR COALESCE(current_setting('molgenis.bypass_schemas', true), '*') = '*' OR {4} = ANY(string_to_array(current_setting('molgenis.bypass_schemas', true), ','))\n"
+            + "    OR {3} = ANY(string_to_array(COALESCE(current_setting('molgenis.bypass_modify', true), ''), ','))\n"
+            + "    OR (COALESCE(current_setting('molgenis.active_role', true), '') <> '' AND {2} @> ARRAY[current_setting('molgenis.active_role', true)])\n"
             + "  )",
-        name(policyModify + "_insert"), jooqTable, name(MG_ROLES), inline(MG_ROWLEVEL));
+        name(policyModify), jooqTable, name(MG_ROLES), inline(tableName), inline(schemaName));
+  }
 
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR UPDATE\n"
-            + "  USING (\n"
-            + "    {2} IS NULL\n"
-            + "    OR pg_has_role(current_setting('molgenis.user', true)::text, {3}, 'member')\n"
-            + "    OR {2} && string_to_array(current_setting('molgenis.roles', true), ',')\n"
-            + "  )",
-        name(policyModify + "_update"), jooqTable, name(MG_ROLES), inline(MG_ROWLEVEL));
+  public void disableRowLevelSecurity(String schemaName, String tableName) {
+    DSLContext jooq = jooq();
+    org.jooq.Table jooqTable = table(name(schemaName, tableName));
 
-    jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR DELETE\n"
-            + "  USING (\n"
-            + "    {2} IS NULL\n"
-            + "    OR pg_has_role(current_setting('molgenis.user', true)::text, {3}, 'member')\n"
-            + "    OR {2} && string_to_array(current_setting('molgenis.roles', true), ',')\n"
-            + "  )",
-        name(policyModify + "_delete"), jooqTable, name(MG_ROLES), inline(MG_ROWLEVEL));
+    String policySelect = tableName + "_rls_select";
+    String policyModify = tableName + "_rls_modify";
+
+    jooq.execute("DROP POLICY IF EXISTS {0} ON {1}", name(policySelect), jooqTable);
+    jooq.execute("DROP POLICY IF EXISTS {0} ON {1}", name(policyModify), jooqTable);
+    jooq.execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
   }
 
   private void syncPermissionGrants(String schemaName, String roleName, Permission permission) {
@@ -454,28 +514,20 @@ public class SqlRoleManager {
     for (String tableName : tables) {
       org.jooq.Table jooqTable = table(name(schemaName, tableName));
 
-      if (Boolean.TRUE.equals(permission.getSelect())) {
+      if (permission.getSelect() != null) {
         jooq().execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
-      } else if (Boolean.FALSE.equals(permission.getSelect())) {
-        jooq().execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
       }
 
-      if (Boolean.TRUE.equals(permission.getInsert())) {
+      if (permission.getInsert() != null) {
         jooq().execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
-      } else if (Boolean.FALSE.equals(permission.getInsert())) {
-        jooq().execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
       }
 
-      if (Boolean.TRUE.equals(permission.getUpdate())) {
+      if (permission.getUpdate() != null) {
         jooq().execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
-      } else if (Boolean.FALSE.equals(permission.getUpdate())) {
-        jooq().execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
       }
 
-      if (Boolean.TRUE.equals(permission.getDelete())) {
+      if (permission.getDelete() != null) {
         jooq().execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
-      } else if (Boolean.FALSE.equals(permission.getDelete())) {
-        jooq().execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
       }
     }
   }

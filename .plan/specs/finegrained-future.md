@@ -85,6 +85,12 @@ Record WHY a user can see a row (consent path, DAC approval reference). Extends 
 
 ## Workflow
 
+### Provenance / Audit Trail
+Append-only provenance table per schema targeting 21 CFR Part 11 compliance. Records: who, what, when, old value, new value, reason. Non-alterable audit trail. Automatic entries via triggers or application layer on: record creation, field changes, deletion, mg_roles changes. Permissions: all roles INSERT only. No UPDATE/DELETE. Schema-level users SELECT all. Row-level users SELECT own rows.
+- Complexity: High
+- Source: Scenarios (all personas), Security Review
+- PO Decision: Out of scope for RLS feature, separate epic
+
 ### mg_status state machine
 Column with configurable states (Draft, Submitted, Published, Withdrawn) for submission/publication workflows. Does NOT replace existing mg_draft. Separate from RLS -- uses column-level permissions to control who can transition states. Relevant for catalogue submissions, embargo lifecycle, curation workflows.
 - Complexity: High
@@ -104,10 +110,10 @@ Pre-computed aggregations with permissions for scalable count/feasibility querie
 - Complexity: High
 - Source: Scenarios
 
-### Permission caching
-Cache RoleInfo objects in application layer with schema-version invalidation. Caffeine cache for user role memberships. Avoids repeated PG catalog lookups on every request.
-- Complexity: Medium
-- Source: Architecture Review
+### RLS session variable caching
+Cache `Map<fullRoleName, RlsLists>` in memory (the 4 per-operation table lists), skip the `rls_permissions` query on tx start. Invalidate when `DatabaseChangeListener` fires on permission changes. Data changes rarely (only admin actions) but is read on every tx. For now 1 query per tx is fine — simple indexed lookup on `role_name`. Clean optimization path for later.
+- Complexity: Low
+- Source: Architecture Review, PO Discussion
 
 ### Concurrent GIN index creation
 Use CREATE INDEX CONCURRENTLY for production migrations on large tables. Prevents table locks during index builds on existing data.
@@ -118,6 +124,16 @@ Use CREATE INDEX CONCURRENTLY for production migrations on large tables. Prevent
 For organizations needing strong isolation beyond row-level. Separate module. Each tenant gets its own PG schema with independent RLS policies, preventing any cross-tenant data leakage by design.
 - Complexity: High
 - Source: PG Research
+
+## Admin Enhancements
+
+### Global admin system role (`MG_ROLE_*/Admin`)
+**MOVED TO MAIN SPEC** -- now part of the core design (finegrained-spec.md section 3).
+
+### Admin role impersonation
+Allow admin to "become" any other role for testing/debugging purposes. E.g., `SET LOCAL molgenis.impersonate = 'MG_ROLE_CohortA/HospitalA'` to see exactly what a HospitalA user sees. Must be admin-only, logged in audit trail.
+- Complexity: Medium
+- Source: PO Discussion
 
 ## API Enhancements
 

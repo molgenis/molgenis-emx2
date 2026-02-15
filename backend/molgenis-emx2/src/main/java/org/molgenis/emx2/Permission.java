@@ -1,24 +1,20 @@
 package org.molgenis.emx2;
 
-import java.util.List;
 import java.util.Objects;
 
 public class Permission {
   private String schema;
   private String table;
-  private boolean isRowLevel;
-  private Boolean select;
-  private Boolean insert;
-  private Boolean update;
-  private Boolean delete;
-  private List<String> editColumns;
-  private List<String> denyColumns;
+  private PermissionLevel select;
+  private PermissionLevel insert;
+  private PermissionLevel update;
+  private PermissionLevel delete;
+  private ColumnAccess columnAccess;
 
   public Permission() {}
 
-  public Permission(String tableName, boolean isRowLevel) {
+  public Permission(String tableName) {
     this.table = tableName;
-    this.isRowLevel = isRowLevel;
   }
 
   public String getSchema() {
@@ -39,76 +35,64 @@ public class Permission {
     return this;
   }
 
-  public boolean isRowLevel() {
-    return isRowLevel;
-  }
-
-  public Permission setRowLevel(boolean isRowLevel) {
-    this.isRowLevel = isRowLevel;
-    return this;
-  }
-
-  public Boolean getSelect() {
+  public PermissionLevel getSelect() {
     return select;
   }
 
-  public Permission setSelect(Boolean select) {
+  public Permission setSelect(PermissionLevel select) {
     this.select = select;
     return this;
   }
 
-  public Boolean getInsert() {
+  public PermissionLevel getInsert() {
     return insert;
   }
 
-  public Permission setInsert(Boolean insert) {
+  public Permission setInsert(PermissionLevel insert) {
     this.insert = insert;
     return this;
   }
 
-  public Boolean getUpdate() {
+  public PermissionLevel getUpdate() {
     return update;
   }
 
-  public Permission setUpdate(Boolean update) {
+  public Permission setUpdate(PermissionLevel update) {
     this.update = update;
     return this;
   }
 
-  public Boolean getDelete() {
+  public PermissionLevel getDelete() {
     return delete;
   }
 
-  public Permission setDelete(Boolean delete) {
+  public Permission setDelete(PermissionLevel delete) {
     this.delete = delete;
     return this;
   }
 
-  public List<String> getEditColumns() {
-    return editColumns;
+  public ColumnAccess getColumnAccess() {
+    return columnAccess;
   }
 
-  public Permission setEditColumns(List<String> editColumns) {
-    this.editColumns = editColumns;
-    return this;
-  }
-
-  public List<String> getDenyColumns() {
-    return denyColumns;
-  }
-
-  public Permission setDenyColumns(List<String> denyColumns) {
-    this.denyColumns = denyColumns;
+  public Permission setColumnAccess(ColumnAccess columnAccess) {
+    this.columnAccess = columnAccess;
     return this;
   }
 
   public boolean isRevocation() {
-    return (select == null || !select)
-        && (insert == null || !insert)
-        && (update == null || !update)
-        && (delete == null || !delete)
-        && editColumns == null
-        && denyColumns == null;
+    return select == null
+        && insert == null
+        && update == null
+        && delete == null
+        && columnAccess == null;
+  }
+
+  public boolean hasRowLevelPermissions() {
+    return select == PermissionLevel.ROW
+        || insert == PermissionLevel.ROW
+        || update == PermissionLevel.ROW
+        || delete == PermissionLevel.ROW;
   }
 
   public boolean isSchemaWide() {
@@ -119,14 +103,12 @@ public class Permission {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Permission that = (Permission) o;
-    return isRowLevel == that.isRowLevel
-        && Objects.equals(schema, that.schema)
-        && Objects.equals(table, that.table);
+    return Objects.equals(schema, that.schema) && Objects.equals(table, that.table);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(schema, table, isRowLevel);
+    return Objects.hash(schema, table);
   }
 
   @Override
@@ -138,8 +120,6 @@ public class Permission {
         + ", table='"
         + table
         + '\''
-        + ", isRowLevel="
-        + isRowLevel
         + ", select="
         + select
         + ", insert="
@@ -148,10 +128,8 @@ public class Permission {
         + update
         + ", delete="
         + delete
-        + ", editColumns="
-        + editColumns
-        + ", denyColumns="
-        + denyColumns
+        + ", columnAccess="
+        + columnAccess
         + '}';
   }
 }

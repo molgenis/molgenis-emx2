@@ -462,14 +462,12 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void revokePermission(String roleName, String table, boolean rowLevel) {
+  public void revokePermission(String roleName, String table) {
     if (!getDatabase().isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
       throw new MolgenisException(
           "Permission denied: role management requires Manager or Owner privileges");
     }
-    ((SqlDatabase) getDatabase())
-        .getRoleManager()
-        .revokePermission(getName(), roleName, table, rowLevel);
+    ((SqlDatabase) getDatabase()).getRoleManager().revokePermission(getName(), roleName, table);
   }
 
   @Override

@@ -10,9 +10,10 @@ CREATE TABLE IF NOT EXISTS "MOLGENIS"."permission_metadata" (
     table_schema VARCHAR NOT NULL,
     role_name VARCHAR NOT NULL,
     table_name VARCHAR NOT NULL,
-    edit_columns VARCHAR[],
-    deny_columns VARCHAR[],
+    editable_columns VARCHAR[],
+    readonly_columns VARCHAR[],
+    hidden_columns VARCHAR[],
     PRIMARY KEY (table_schema, role_name, table_name)
 );
 
-GRANT ALL ON "MOLGENIS"."permission_metadata" TO PUBLIC;
+GRANT SELECT ON "MOLGENIS"."permission_metadata" TO PUBLIC;

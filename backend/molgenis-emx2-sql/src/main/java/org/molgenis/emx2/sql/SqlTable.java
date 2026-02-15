@@ -389,19 +389,24 @@ public class SqlTable implements Table {
     if (columns.size() == 0) return count;
     List<Field> insertFields =
         columns.stream().map(c -> c.getJooqField()).collect(Collectors.toList());
+    boolean hasMgRoles = !rows.isEmpty() && rows.get(0).getColumnNames().contains(MG_ROLES);
+    if (hasMgRoles) {
+      insertFields.add(field(name(MG_ROLES)));
+    }
     InsertValuesStepN<org.jooq.Record> step =
         table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
 
-    // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      // get values
       Map values = getSelectedRowValues(columns, row);
       if (!inherit) {
         values.put(MG_INSERTEDBY, getActiveUser(table));
         values.put(MG_INSERTEDON, now);
         values.put(MG_UPDATEDBY, getActiveUser(table));
         values.put(MG_UPDATEDON, now);
+      }
+      if (hasMgRoles) {
+        values.put(MG_ROLES, row.getStringArray(MG_ROLES));
       }
       step.values(values.values());
     }
@@ -453,11 +458,15 @@ public class SqlTable implements Table {
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
     LocalDateTime now = LocalDateTime.now();
+    boolean hasMgRoles = !rows.isEmpty() && rows.get(0).getColumnNames().contains(MG_ROLES);
     for (Row row : rows) {
       Map values = getSelectedRowValues(columns, row);
       if (!inherit) {
         values.put(MG_UPDATEDBY, getActiveUser(table));
         values.put(MG_UPDATEDON, now);
+      }
+      if (hasMgRoles) {
+        values.put(MG_ROLES, row.getStringArray(MG_ROLES));
       }
 
       list.add(

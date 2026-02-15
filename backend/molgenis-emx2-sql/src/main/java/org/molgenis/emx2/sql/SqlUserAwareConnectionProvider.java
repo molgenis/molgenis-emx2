@@ -26,10 +26,8 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     try {
       connection = super.acquire();
       if (getActiveUser().equals(ADMIN_USER) || this.isAdmin) {
-        // as admin you are actually session user
         DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE; SET jit='off';");
       } else {
-        // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
                 "RESET ROLE; SET jit='off'; SET ROLE {0}", name(MG_USER_PREFIX + getActiveUser()));
@@ -37,7 +35,6 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
       return connection;
     } catch (DataAccessException dae) {
       super.release(connection);
-      // if invalid user we will not return a connection, not even anonymous
       throw new SqlMolgenisException("Set active user failed'", dae);
     }
   }

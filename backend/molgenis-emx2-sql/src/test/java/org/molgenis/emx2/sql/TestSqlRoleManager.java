@@ -15,6 +15,7 @@ import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Permission;
+import org.molgenis.emx2.PermissionLevel;
 import org.molgenis.emx2.RoleInfo;
 import org.molgenis.emx2.Schema;
 
@@ -92,9 +93,8 @@ public class TestSqlRoleManager {
 
           Permission perm = new Permission();
           perm.setTable("TestTable");
-          perm.setRowLevel(false);
-          perm.setInsert(true);
-          perm.setUpdate(true);
+          perm.setInsert(PermissionLevel.TABLE);
+          perm.setUpdate(PermissionLevel.TABLE);
           rm.setPermission(schema.getName(), "DataEditor", perm);
 
           String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/DataEditor";
@@ -106,7 +106,7 @@ public class TestSqlRoleManager {
                   .into(Boolean.class);
           assertTrue(hasInsert, "Role should have INSERT on table");
 
-          rm.revokePermission(schema.getName(), "DataEditor", "TestTable", false);
+          rm.revokePermission(schema.getName(), "DataEditor", "TestTable");
 
           Boolean hasInsertAfter =
               jooq(db)
@@ -129,8 +129,7 @@ public class TestSqlRoleManager {
 
           Permission perm = new Permission();
           perm.setTable("People");
-          perm.setRowLevel(true);
-          perm.setSelect(true);
+          perm.setSelect(PermissionLevel.ROW);
           rm.setPermission(schema.getName(), "RowRestricted", perm);
 
           String fullRoleName = MG_ROLE_PREFIX + schema.getName() + "/RowRestricted";
@@ -225,8 +224,7 @@ public class TestSqlRoleManager {
 
           Permission perm = new Permission();
           perm.setTable("NonExistentTable");
-          perm.setRowLevel(false);
-          perm.setSelect(true);
+          perm.setSelect(PermissionLevel.TABLE);
 
           assertThrows(
               MolgenisException.class,
@@ -247,15 +245,13 @@ public class TestSqlRoleManager {
 
           Permission perm1 = new Permission();
           perm1.setTable("Table1");
-          perm1.setRowLevel(true);
-          perm1.setSelect(true);
-          perm1.setInsert(true);
+          perm1.setSelect(PermissionLevel.ROW);
+          perm1.setInsert(PermissionLevel.ROW);
           rm.setPermission(schema.getName(), "MultiPermRole", perm1);
 
           Permission perm2 = new Permission();
           perm2.setTable("Table2");
-          perm2.setRowLevel(true);
-          perm2.setSelect(true);
+          perm2.setSelect(PermissionLevel.ROW);
           rm.setPermission(schema.getName(), "MultiPermRole", perm2);
 
           List<Permission> permissions = rm.getPermissions(schema.getName(), "MultiPermRole");
@@ -267,9 +263,9 @@ public class TestSqlRoleManager {
                   .findFirst()
                   .orElse(null);
           assertNotNull(foundPerm1, "Should find Table1 permission");
-          assertEquals(Boolean.TRUE, foundPerm1.getSelect());
-          assertEquals(Boolean.TRUE, foundPerm1.getInsert());
-          assertEquals(true, foundPerm1.isRowLevel());
+          assertEquals(PermissionLevel.ROW, foundPerm1.getSelect());
+          assertEquals(PermissionLevel.ROW, foundPerm1.getInsert());
+          assertTrue(foundPerm1.hasRowLevelPermissions());
 
           Permission foundPerm2 =
               permissions.stream()
@@ -277,8 +273,8 @@ public class TestSqlRoleManager {
                   .findFirst()
                   .orElse(null);
           assertNotNull(foundPerm2, "Should find Table2 permission");
-          assertEquals(Boolean.TRUE, foundPerm2.getSelect());
-          assertEquals(true, foundPerm2.isRowLevel());
+          assertEquals(PermissionLevel.ROW, foundPerm2.getSelect());
+          assertTrue(foundPerm2.hasRowLevelPermissions());
         });
   }
 
@@ -294,8 +290,7 @@ public class TestSqlRoleManager {
 
           Permission perm = new Permission();
           perm.setTable("Table1");
-          perm.setRowLevel(false);
-          perm.setSelect(true);
+          perm.setSelect(PermissionLevel.TABLE);
           rm.setPermission(schema.getName(), "InfoRole", perm);
 
           List<RoleInfo> roleInfos = rm.getRoleInfos(schema.getName());
@@ -324,8 +319,7 @@ public class TestSqlRoleManager {
 
           Permission perm = new Permission();
           perm.setTable("Table1");
-          perm.setRowLevel(false);
-          perm.setSelect(true);
+          perm.setSelect(PermissionLevel.TABLE);
           rm.setPermission(schema.getName(), "ToDelete", perm);
 
           rm.deleteRole(schema.getName(), "ToDelete");

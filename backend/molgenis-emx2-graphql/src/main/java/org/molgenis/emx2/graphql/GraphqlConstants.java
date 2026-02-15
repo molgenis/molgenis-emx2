@@ -66,13 +66,14 @@ public class GraphqlConstants {
   public static final String USERS = "users";
   public static final String ROLES = "roles";
   public static final String PERMISSIONS = "permissions";
-  public static final String ROW_LEVEL = "rowLevel";
   public static final String SELECT = "select";
   public static final String INSERT = "insert";
   public static final String UPDATE = "update";
   public static final String DELETE = "delete";
-  public static final String EDIT_COLUMNS = "editColumns";
-  public static final String DENY_COLUMNS = "denyColumns";
+  public static final String COLUMN_ACCESS = "columns";
+  public static final String EDITABLE = "editable";
+  public static final String READONLY_FIELD = "readonly";
+  public static final String HIDDEN = "hidden";
   public static final String SYSTEM = "system";
   public static final String MESSAGE = "message";
   public static final String TOKEN = "token";
