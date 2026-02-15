@@ -115,6 +115,8 @@ public class SqlRoleManager {
 
     revokeAllMemberships(fullRole);
     jooq().execute("DROP ROLE IF EXISTS {0}", name(fullRole));
+    database.clearRlsContext();
+    database.getListener().schemaChanged(schemaName);
   }
 
   public boolean roleExists(String schemaName, String roleName) {
@@ -174,6 +176,8 @@ public class SqlRoleManager {
         enableRowLevelSecurity(schemaName, tableName);
       }
     }
+    database.clearRlsContext();
+    database.getListener().schemaChanged(schemaName);
   }
 
   public void revoke(String schemaName, String roleName, Permission permission) {
@@ -204,6 +208,8 @@ public class SqlRoleManager {
       }
       revokeRlsPermissions(schemaName, fullRole, targetTable, permission);
     }
+    database.clearRlsContext();
+    database.getListener().schemaChanged(schemaName);
   }
 
   private void revokeTableGrants(

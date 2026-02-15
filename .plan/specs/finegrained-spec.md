@@ -200,14 +200,16 @@ Role determination per request:
 - If system role: unrestricted (see section 3 "System roles")
 - If schema-local or global custom role: active_role set to full PG role name. Session variables pre-computed from `rls_permissions`. Each RLS policy checks its own list.
 
-Session setup in SqlUserAwareConnectionProvider.acquire():
+Session setup in SqlUserAwareConnectionProvider.acquire() — uses session-level SET (not SET LOCAL) so vars persist across statements. Values are cached on the provider and invalidated via DatabaseListener.onSchemaChange()/onUserChange():
 ```sql
-SET LOCAL molgenis.active_role = '<full_pg_role_name>';
-SET LOCAL molgenis.rls_select_tables = '<comma_separated_fq_table_names>';
-SET LOCAL molgenis.rls_insert_tables = '<comma_separated_fq_table_names>';
-SET LOCAL molgenis.rls_update_tables = '<comma_separated_fq_table_names>';
-SET LOCAL molgenis.rls_delete_tables = '<comma_separated_fq_table_names>';
+SET molgenis.active_role = '<full_pg_role_name>';
+SET molgenis.rls_select_tables = '<comma_separated_fq_table_names>';
+SET molgenis.rls_insert_tables = '<comma_separated_fq_table_names>';
+SET molgenis.rls_update_tables = '<comma_separated_fq_table_names>';
+SET molgenis.rls_delete_tables = '<comma_separated_fq_table_names>';
 ```
+
+release() resets all 5 vars to empty. Inside transactions, SET LOCAL is also used for proper isolation.
 
 See section 6 for session variable details.
 
@@ -904,14 +906,25 @@ Idempotent: checks `information_schema.columns` before adding column.
 
 ### Session variables
 
-5 session variables set once per transaction in SqlUserAwareConnectionProvider.acquire():
+5 session variables managed at two levels:
+
+**Connection level** (SqlUserAwareConnectionProvider):
+- SET in acquire(), reset to empty in release()
+- Cached as String fields on the provider — skip recomputation when cache is warm
+- Cache invalidated by DatabaseListener.onSchemaChange() and onUserChange()
+
+**Transaction level** (SqlDatabase.tx()):
+- SET LOCAL used inside transactions for proper isolation
+- buildRlsSessionVars() stores computed values on provider AND does SET LOCAL when inTx
+
+Variables:
 - `molgenis.active_role` -- user's full PG role name (e.g., `MG_ROLE_schema/HospitalA`)
 - `molgenis.rls_select_tables` -- comma-separated fully-qualified table names where this user gets row-filtered for SELECT
 - `molgenis.rls_insert_tables` -- comma-separated fully-qualified table names where this user gets row-filtered for INSERT
 - `molgenis.rls_update_tables` -- comma-separated fully-qualified table names where this user gets row-filtered for UPDATE
 - `molgenis.rls_delete_tables` -- comma-separated fully-qualified table names where this user gets row-filtered for DELETE
 
-Pre-computed at tx start with 1 query:
+Pre-computed with 1 query:
 ```sql
 SELECT table_schema || '.' || table_name, select_level, insert_rls, update_rls, delete_rls
 FROM "MOLGENIS".rls_permissions
@@ -930,20 +943,13 @@ WHERE t.schemaname = :schema AND c.relrowsecurity = true
 ```
 Each RLS-enabled table inherits the `*` row's flags unless overridden by a per-table entry.
 
-Transaction defaults (set in tx()):
-```sql
-SET LOCAL molgenis.active_role = '';
-SET LOCAL molgenis.rls_select_tables = '';
-SET LOCAL molgenis.rls_insert_tables = '';
-SET LOCAL molgenis.rls_update_tables = '';
-SET LOCAL molgenis.rls_delete_tables = '';
-```
-
 Empty lists = nothing restricted = backward compatible.
 
-SET LOCAL scope: transaction-only, auto-resets on COMMIT/ROLLBACK. Safe for HikariCP connection pooling.
+**Cache invalidation** — two levels:
+1. **Immediate** (same transaction): SqlRoleManager.grant(), revoke(), deleteRole() call `database.clearRlsContext()` + `database.getListener().schemaChanged()`. This clears `rlsContextCacheKey` so the next `setRlsContext()` recomputes within the same transaction.
+2. **Cross-transaction** (post-commit): DatabaseListener.onSchemaChange() fires after commit, calls `connectionProvider.clearRlsCache()`. Next `acquire()` uses empty cached strings, and next `setRlsContext()` recomputes fresh values.
 
-Error handling: if SET ROLE fails, close connection (force HikariCP discard) and throw MolgenisException. Never return connection with unknown role state.
+Error handling: if SET ROLE fails in acquire(), connection is released and MolgenisException thrown. Never return connection with unknown role state.
 
 ### RLS policies
 

@@ -1511,4 +1511,94 @@ public class TestSqlRoleManager {
           assertTrue(hasInsert, "Role should have INSERT on new table from wildcard grant");
         });
   }
+
+  @Test
+  public void testRlsCacheInvalidationOnPermissionChange() {
+    String schemaName = "TestRM_cacheInvalidate";
+
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema(schemaName);
+          schema.create(table("Patients").add(column("id").setPkey()).add(column("name")));
+
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schemaName, "HospitalA");
+          rm.createRole(schemaName, "HospitalB");
+
+          Permission perm = new Permission();
+          perm.setTable("Patients");
+          perm.setSelect(SelectLevel.ROW);
+          rm.grant(schemaName, "HospitalA", perm);
+
+          db.addUser("cache_user");
+          rm.addMember(schemaName, "HospitalA", "cache_user");
+
+          String roleA = MG_ROLE_PREFIX + schemaName + "/HospitalA";
+          String roleB = MG_ROLE_PREFIX + schemaName + "/HospitalB";
+
+          schema
+              .getTable("Patients")
+              .insert(
+                  new Row()
+                      .setString("id", "p1")
+                      .setString("name", "Alice")
+                      .setStringArray("mg_roles", new String[] {roleA}),
+                  new Row()
+                      .setString("id", "p2")
+                      .setString("name", "Bob")
+                      .setStringArray("mg_roles", new String[] {roleB}),
+                  new Row()
+                      .setString("id", "p3")
+                      .setString("name", "Charlie")
+                      .setStringArray("mg_roles", new String[] {roleA}));
+        });
+
+    database.tx(
+        db -> {
+          db.setActiveUser("cache_user");
+          List<Row> rowsBefore = db.getSchema(schemaName).getTable("Patients").retrieveRows();
+          assertEquals(
+              2, rowsBefore.size(), "User with ROW permission should see only HospitalA rows");
+          assertTrue(rowsBefore.stream().anyMatch(r -> "p1".equals(r.getString("id"))));
+          assertTrue(rowsBefore.stream().anyMatch(r -> "p3".equals(r.getString("id"))));
+        });
+
+    database.tx(
+        db -> {
+          SqlRoleManager rm = roleManager(db);
+          Permission upgradePerm = new Permission();
+          upgradePerm.setTable("Patients");
+          upgradePerm.setSelect(SelectLevel.TABLE);
+          rm.grant(schemaName, "HospitalA", upgradePerm);
+        });
+
+    database.tx(
+        db -> {
+          db.setActiveUser("cache_user");
+          List<Row> rowsAfter = db.getSchema(schemaName).getTable("Patients").retrieveRows();
+          assertEquals(
+              3,
+              rowsAfter.size(),
+              "After upgrading to TABLE, user should see all rows (cache invalidated)");
+        });
+
+    database.tx(
+        db -> {
+          SqlRoleManager rm = roleManager(db);
+          Permission downgradePerm = new Permission();
+          downgradePerm.setTable("Patients");
+          downgradePerm.setSelect(SelectLevel.ROW);
+          rm.grant(schemaName, "HospitalA", downgradePerm);
+        });
+
+    database.tx(
+        db -> {
+          db.setActiveUser("cache_user");
+          List<Row> rowsDowngraded = db.getSchema(schemaName).getTable("Patients").retrieveRows();
+          assertEquals(
+              2,
+              rowsDowngraded.size(),
+              "After downgrading to ROW, user should see filtered rows again");
+        });
+  }
 }

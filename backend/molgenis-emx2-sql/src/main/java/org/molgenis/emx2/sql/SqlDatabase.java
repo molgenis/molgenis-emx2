@@ -73,11 +73,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         @Override
         public void onUserChange() {
           clearCache();
+          rlsContextCacheKey = null;
+          connectionProvider.clearRlsCache();
         }
 
         @Override
         public void onSchemaChange() {
           clearCache();
+          rlsContextCacheKey = null;
+          connectionProvider.clearRlsCache();
           super.onSchemaChange();
           logger.info("cleared caches after commit that includes changes on schema(s)");
         }
@@ -91,6 +95,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
     this.connectionProvider.setAdmin(copy.connectionProvider.isAdmin());
+    this.connectionProvider.setRlsSessionVars(
+        copy.connectionProvider.getRlsActiveRole(),
+        copy.connectionProvider.getRlsSelectTables(),
+        copy.connectionProvider.getRlsInsertTables(),
+        copy.connectionProvider.getRlsUpdateTables(),
+        copy.connectionProvider.getRlsDeleteTables());
     this.jooq = jooq;
     databaseVersion = MetadataUtils.getVersion(jooq);
 
@@ -616,10 +626,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (inTx) {
       try {
         if (username.equals(ADMIN_USER) || user.isAdmin()) {
-          // admin user is session user, so remove role
           jooq.execute("RESET ROLE;");
         } else {
-          // any other user should be set
           jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
         }
       } catch (DataAccessException dae) {
@@ -633,6 +641,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.connectionProvider.setActiveUser(username);
     this.connectionProvider.setAdmin(user != null && user.isAdmin());
     this.clearCache();
+    if (inTx) {
+      setRlsContext();
+    }
   }
 
   @Override
@@ -666,15 +677,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         jooq.transaction(
             config -> {
               db.inTx = true;
-              db.rlsContextCacheKey = null;
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
-              ctx.execute(
-                  "SET LOCAL molgenis.active_role = '';"
-                      + " SET LOCAL molgenis.rls_select_tables = '';"
-                      + " SET LOCAL molgenis.rls_insert_tables = '';"
-                      + " SET LOCAL molgenis.rls_update_tables = '';"
-                      + " SET LOCAL molgenis.rls_delete_tables = ''");
               db.setJooq(ctx);
               transaction.run(db);
               db.tableListenersExecutePostCommit();
@@ -813,7 +817,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   private void buildRlsSessionVars(List<String> roleNames) {
     String activeRoles = String.join(",", roleNames);
-    jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(activeRoles));
 
     Field<String> fRoleName = DSL.field(name("role_name"), String.class);
     Field<String> fTableSchema = DSL.field(name("table_schema"), String.class);
@@ -907,10 +910,20 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return;
     }
 
-    jooq.execute("SET LOCAL molgenis.rls_select_tables = {0}", inline(selectTables.toString()));
-    jooq.execute("SET LOCAL molgenis.rls_insert_tables = {0}", inline(insertTables.toString()));
-    jooq.execute("SET LOCAL molgenis.rls_update_tables = {0}", inline(updateTables.toString()));
-    jooq.execute("SET LOCAL molgenis.rls_delete_tables = {0}", inline(deleteTables.toString()));
+    connectionProvider.setRlsSessionVars(
+        activeRoles,
+        selectTables.toString(),
+        insertTables.toString(),
+        updateTables.toString(),
+        deleteTables.toString());
+
+    if (inTx) {
+      jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(activeRoles));
+      jooq.execute("SET LOCAL molgenis.rls_select_tables = {0}", inline(selectTables.toString()));
+      jooq.execute("SET LOCAL molgenis.rls_insert_tables = {0}", inline(insertTables.toString()));
+      jooq.execute("SET LOCAL molgenis.rls_update_tables = {0}", inline(updateTables.toString()));
+      jooq.execute("SET LOCAL molgenis.rls_delete_tables = {0}", inline(deleteTables.toString()));
+    }
   }
 
   private static class PermissionAccumulator {
@@ -930,11 +943,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void clearRlsContext() {
     rlsContextCacheKey = null;
-    jooq.execute("SET LOCAL molgenis.active_role = ''");
-    jooq.execute("SET LOCAL molgenis.rls_select_tables = ''");
-    jooq.execute("SET LOCAL molgenis.rls_insert_tables = ''");
-    jooq.execute("SET LOCAL molgenis.rls_update_tables = ''");
-    jooq.execute("SET LOCAL molgenis.rls_delete_tables = ''");
+    connectionProvider.clearRlsCache();
+    if (inTx) {
+      jooq.execute("SET LOCAL molgenis.active_role = ''");
+      jooq.execute("SET LOCAL molgenis.rls_select_tables = ''");
+      jooq.execute("SET LOCAL molgenis.rls_insert_tables = ''");
+      jooq.execute("SET LOCAL molgenis.rls_update_tables = ''");
+      jooq.execute("SET LOCAL molgenis.rls_delete_tables = ''");
+    }
   }
 
   private void appendTable(StringBuilder sb, String fqTable) {

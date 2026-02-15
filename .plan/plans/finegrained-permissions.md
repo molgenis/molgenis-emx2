@@ -62,7 +62,7 @@ System roles and custom roles are managed via the same mechanism:
 
 ## Phase Status
 
-### Phase 1: Tests First -- NEEDS UPDATE (v5.0 changes)
+### Phase 1: Tests First -- DONE
 - TestSqlRoleManager: 10 tests for role CRUD (create, delete, members, grants, system protection)
 - TestRowLevelSecurity: 8 end-to-end RLS tests (will be activated in Phase 4)
 - **Grant system tests** (new, in TestSqlRoleManager):
@@ -79,7 +79,7 @@ System roles and custom roles are managed via the same mechanism:
   - `backend/molgenis-emx2-sql/src/test/java/org/molgenis/emx2/sql/TestSqlRoleManager.java`
   - `backend/molgenis-emx2-sql/src/test/java/org/molgenis/emx2/sql/TestRowLevelSecurity.java`
 
-### Phase 2: Migration -- NEEDS UPDATE (v5.0 changes)
+### Phase 2: Migration -- DONE
 - `rls_permissions_create.sql`: separate SQL resource file with CREATE TABLE + PK (reusable from migration and SqlRoleManager)
 - `migration31.sql`: references `rls_permissions_create.sql`, GRANT SELECT to PUBLIC, creates `MG_ROLE_*/Admin` global system role
 - `permissions_query.sql`: joins rls_permissions + pg_tables + has_table_privilege() (rls_permissions is driving table, used by SqlRoleManager.getRoleInfo())
@@ -98,7 +98,7 @@ System roles and custom roles are managed via the same mechanism:
   - `backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/permissions_explain_query.sql`
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/Migrations.java`
 
-### Phase 3: SqlRoleManager -- NEEDS UPDATE (v5.0 changes)
+### Phase 3: SqlRoleManager -- DONE
 - Central Java class for custom role management via PG catalog
 - CRUD for roles, members, permissions (GRANT/REVOKE)
 - System role protection (9 roles: 8 per-schema + Admin, checked via `SYSTEM_ROLES` constant)
@@ -114,72 +114,66 @@ System roles and custom roles are managed via the same mechanism:
 - Files:
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java`
 
-### Phase 4: RLS Policies + Session Setup -- IN PROGRESS
+### Phase 4: RLS Policies + Session Setup -- DONE
 
-**Prerequisites** (from Phase 5 gaps -- must complete first):
+**Prerequisites** (from Phase 5 gaps):
 - Create ColumnAccess.java (editable/readonly/hidden) -- DONE
-- Permission.java uses PermissionLevel enum (TABLE/ROW) -- DONE (enum is the domain model; boolean flags are storage-only in rls_permissions)
-- Update all references: SqlRoleManager, GraphqlPermissionUtils, tests
+- Permission.java uses PermissionLevel enum (TABLE/ROW) -- DONE
+- Update all references: SqlRoleManager, GraphqlPermissionUtils, tests -- DONE
 
-#### 4a: Session Variables + Connection Safety (NOT STARTED)
-- **Current state**: SqlUserAwareConnectionProvider only does RESET ROLE + SET ROLE, no session variables
-- Add 5 session variables in acquire():
-  - `SET LOCAL molgenis.active_role = '<full_pg_role_name>'`
-  - `SET LOCAL molgenis.rls_select_tables = '<comma_separated_fq_tables>'`
-  - `SET LOCAL molgenis.rls_insert_tables = '<comma_separated_fq_tables>'`
-  - `SET LOCAL molgenis.rls_update_tables = '<comma_separated_fq_tables>'`
-  - `SET LOCAL molgenis.rls_delete_tables = '<comma_separated_fq_tables>'`
-- Pre-compute all 4 rls lists with 1 query against `rls_permissions`. **Wildcard expansion** (spec section 6): `table_name='*'` entries in `rls_permissions` must be expanded to all RLS-enabled tables in that schema when computing session variable lists
-- System roles have no `rls_permissions` entries -> empty lists -> unrestricted (no special-casing)
-- Transaction defaults in tx(): all five set to `''` (empty = nothing restricted = backward compatible)
-- Role determined from member record lookup (one role per user per schema, no switching)
-- Add SET ROLE failure handling: close connection on error, never return with unknown role state
+#### 4a: Session Variables + Connection Safety -- DONE
+- 5 session variables set in `acquire()` (session-level SET) and `release()` resets to empty -- DONE
+- Cached as String fields on SqlUserAwareConnectionProvider, skip recomputation when warm -- DONE
+- Inside transactions: SET LOCAL used for proper isolation via buildRlsSessionVars() -- DONE
+- Pre-compute all 4 rls lists via `buildRlsSessionVars()` (SqlDatabase.java) -- DONE
+- Wildcard expansion: queries pg_class for RLS-enabled tables (SqlDatabase.java) -- DONE
+- System roles have no rls_permissions entries -> empty lists -> unrestricted -- DONE
+- Role determined from member record lookup -- DONE
+- Cache invalidation: DatabaseListener.onSchemaChange() and onUserChange() call connectionProvider.clearRlsCache() -- DONE
+- Immediate cache invalidation: SqlRoleManager.grant(), revoke(), deleteRole() call clearRlsContext() + schemaChanged() -- DONE
+- Test: `testRlsCacheInvalidationOnPermissionChange` verifies cross-transaction cache invalidation (ROW→TABLE→ROW cycle) -- DONE
 - Files:
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlUserAwareConnectionProvider.java`
-  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlDatabase.java` (tx() defaults)
+  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlDatabase.java`
+  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java`
 
-#### 4b: RLS Policies (NOT STARTED)
-- Four policies per table: SELECT, INSERT, UPDATE, DELETE — each checks its own session variable
-- All use session variable lists (no EXISTS subquery)
-- **Wildcard expansion**: session variable lists are pre-computed at connection time; `table_name='*'` entries are expanded to all RLS-enabled tables so policies only need simple list membership checks
-- Pattern: `'<schema>.<table>' != ALL(string_to_array(rls_<op>_tables, ','))` -> if table NOT in list, allow all rows
-- If table IS in list -> check `mg_roles @> ARRAY[active_role]`
-- Table name and schema name embedded as literals in policy at creation time
-- **UPDATE policy has both USING and WITH CHECK** — USING filters which rows can be seen for update, WITH CHECK prevents updating mg_roles to unauthorized values (privilege escalation prevention)
-- INSERT uses only WITH CHECK (no existing rows). DELETE and SELECT use only USING.
-- enableRowLevelSecurity() in SqlRoleManager creates all four policies
+#### 4b: RLS Policies -- DONE
+- Four policies per table (SELECT, INSERT, UPDATE, DELETE) each checking its own session variable -- DONE
+- Pattern uses `!= ALL(string_to_array(...))` with `mg_roles @> ARRAY[active_role]` -- DONE
+- UPDATE policy has both USING and WITH CHECK -- DONE
+- INSERT uses only WITH CHECK, DELETE and SELECT use only USING -- DONE
+- Table/schema name embedded as literals in policy at creation time -- DONE
+- enableRowLevelSecurity() creates all four policies -- DONE
 - Files:
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java`
 
-#### 4c: mg_roles Column + Auto-Population + Unified Table Creation Grants (NOT STARTED)
-- mg_roles TEXT[] column with GIN index on opt-in tables
-- Auto-populate from user's role on INSERT (if table has RLS)
-- Reject mg_roles modification on UPDATE unless Manager+
-- **Derive-from-catalog on table creation**: when `SqlTableMetadataExecutor.createTable()` creates a new table, after applying system role grants, call `SqlRoleManager.applySchemaWideGrantsForNewTable()`. This method checks what grants each custom role has on ALL existing tables via `has_table_privilege()`. If a privilege is granted on ALL existing tables, it is granted on the new table. Checks `rls_permissions` for schema-wide RLS entries and applies to new table.
-- **Schema-wide setPermission**: when `setPermission()` is called with `table == null`, iterate all current tables and apply grants, store schema-wide row with `table_name = '*'` in `rls_permissions`
-- **`enableRowLevelSecurity()` + wildcard**: when enabling RLS on a table, check for `table_name='*'` entries in `rls_permissions` for all custom roles in this schema. If a role has a `*` entry with RLS flags set, apply corresponding grants and RLS restrictions to the new table.
+#### 4c: mg_roles Column + Auto-Population + Unified Table Creation Grants -- DONE
+- mg_roles TEXT[] column with GIN index on opt-in tables -- DONE
+- Auto-populate from user's role on INSERT via `getUserRoleForAutoPopulate()` (SqlTable.java) -- DONE
+- `applySchemaWideGrantsForNewTable()` queries wildcard entries and applies grants (SqlRoleManager.java) -- DONE
+- Schema-wide setPermission with `table='*'` stores wildcard row and applies to all existing tables -- DONE
+- Wildcard expansion on enableRowLevelSecurity() -- DONE
 - Files:
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlTable.java`
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlTableMetadataExecutor.java`
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java`
 
-#### 4e: Cleanup on Drop (NOT STARTED)
-- **NEW**: `cleanupTablePermissions(schemaName, tableName)` in SqlRoleManager -- deletes all `rls_permissions` rows for that table. PG grants auto-drop with table.
-- **NEW**: `cleanupSchemaPermissions(schemaName)` in SqlRoleManager -- deletes all `rls_permissions` rows for that schema. PG `DROP SCHEMA CASCADE` handles roles/grants.
-- `Schema.dropTable()` must call `cleanupTablePermissions()` BEFORE dropping the table
-- `Database.dropSchema()` must call `cleanupSchemaPermissions()` BEFORE `DROP SCHEMA CASCADE`
-- Without cleanup, orphaned `rls_permissions` rows would accumulate and could cause stale session variable lists
-- Files:
-  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java`
-  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlSchema.java` (dropTable hook)
-  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlDatabase.java` (dropSchema hook)
-
-#### 4d: Security Fixes (NOT STARTED)
-- Fix migration31.sql: GRANT SELECT (not ALL) on `rls_permissions` to PUBLIC
-- Add orphaned mg_roles cleanup to deleteRole()
+#### 4d: Security Fixes -- DONE
+- GRANT SELECT (not ALL) on rls_permissions to PUBLIC in migration31.sql -- DONE
+- Orphaned mg_roles cleanup in deleteRole() via `array_remove()` -- DONE
 - Files:
   - `backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/migration31.sql`
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java`
+
+#### 4e: Cleanup on Drop -- DONE
+- `cleanupTablePermissions(schemaName, tableName)` in SqlRoleManager -- DONE
+- `cleanupSchemaPermissions(schemaName)` in SqlRoleManager -- DONE
+- `dropTable()` hook calls cleanup BEFORE dropping (SqlTableMetadataExecutor.java) -- DONE
+- `dropSchema()` hook calls cleanup BEFORE DROP SCHEMA CASCADE (SqlSchemaMetadataExecutor.java) -- DONE
+- Files:
+  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java`
+  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlTableMetadataExecutor.java`
+  - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlSchemaMetadataExecutor.java`
 
 ### Phase 5: Domain Model -- DONE (updated v5.2)
 - **DONE**: Permission.java with SelectLevel/ModifyLevel enums per operation + schema field for global role permissions + `grant` boolean field (for role management capability). TABLE = PG GRANT only. ROW = PG GRANT + rls_permissions entry.
@@ -203,19 +197,19 @@ System roles and custom roles are managed via the same mechanism:
   - `backend/molgenis-emx2/src/main/java/org/molgenis/emx2/Database.java`
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlSchema.java`
 
-### Phase 6: GraphQL API -- IN PROGRESS
+### Phase 6: GraphQL API -- MOSTLY DONE (3 items remaining)
 - Schema-level: `_schema { roles }` query with RoleInfo type, `change(roles)` / `drop(roles)` mutations -- DONE
 - Schema-level: `change(permissions)` / `drop(permissions)` for per-table grants -- DONE
 - Database-level: `_roles` query (cross-schema), `change(roles)` mutation with schemaName -- DONE
 - GraphqlPermissionUtils: shared conversion logic between schema and database factories -- DONE
 - Authorization added: schema role management requires Manager+ in that schema; global role management and `_roles` query require database admin -- DONE
 - **v5.0 changes**: GraphQL types expose `select`/`insert`/`update`/`delete` as String ("TABLE", "ROW", or null) derived from combining PG grants with `rls_permissions` boolean flags. PermissionLevel enum is the domain/API model. -- DONE
-- **v5.2 changes**: `inherits` field removed from RoleInfo GraphQL type. `grant` boolean field added to Permission GraphQL type (for role management capability). Custom roles have no inheritance -- entire access defined by permission matrix. -- DONE
+- **v5.2 changes**: `inherits` field removed from RoleInfo GraphQL type. Custom roles have no inheritance -- entire access defined by permission matrix. -- DONE
 - **`_schema { roles }` restricted to Manager+ or Owner only** -- same authorization as `members`. Non-managers use `_session { permissions }` to see their own effective permissions. -- DONE
 - **`MolgenisPermissionType` has `schema` field** -- populated for global role permissions (to indicate which schema the table belongs to), null for schema-local permissions. -- DONE
 - Introspection: `_session { permissions }` added for any authenticated user to see own effective permissions -- DONE
 - Introspection: `permissionsOf(email)` removed (redundant, managers have members + roles) -- DONE
-- Explicit revocation: extend `drop(permissions)` mutation with MolgenisPermissionDropInput -- NOT STARTED
+- Explicit revocation: `drop(permissions)` with MolgenisPermissionDropInput -- PARTIALLY DONE (mechanism works, but `grant` field not exposed in GraphQL output types or mapped in GraphqlPermissionUtils)
 - CSV endpoint: POST/GET `/<schema>/api/csv/roles` for bulk role+permission import/export -- NOT STARTED
 - Role cloning: `cloneFrom` parameter on role creation to copy permissions from existing role -- NOT STARTED
 - Files:
@@ -225,6 +219,15 @@ System roles and custom roles are managed via the same mechanism:
   - `backend/molgenis-emx2-graphql/src/main/java/org/molgenis/emx2/graphql/GraphqlConstants.java`
   - `backend/molgenis-emx2-graphql/src/main/java/org/molgenis/emx2/graphql/GraphqlApiFactory.java`
   - `backend/molgenis-emx2-webapi/src/main/java/org/molgenis/emx2/web/CsvApi.java` (or similar)
+
+## Next Steps (priority order)
+
+1. **Phase 6 finish**: expose `grant` field in GraphQL output types + map in GraphqlPermissionUtils (small fix)
+2. **Phase 6 finish**: CSV endpoint `/api/csv/roles` for bulk role+permission import/export
+3. **Phase 6 finish**: role cloning `cloneFrom` parameter
+4. **Phase 7a**: schema import/export with RLS config
+5. **Phase 7b**: Admin UI permission matrix
+6. **Optional**: harden 4a — move session vars into connection provider if non-tx DB access paths exist
 
 ### Phase 7a: Import/Export -- NOT STARTED
 - Schema export/import with RLS config (mg_roles column, role definitions, permissions)
