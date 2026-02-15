@@ -210,8 +210,8 @@ System roles and custom roles are managed via the same mechanism:
 - Introspection: `_session { permissions }` added for any authenticated user to see own effective permissions -- DONE
 - Introspection: `permissionsOf(email)` removed (redundant, managers have members + roles) -- DONE
 - Explicit revocation: `drop(permissions)` with MolgenisPermissionDropInput -- PARTIALLY DONE (mechanism works, but `grant` field not exposed in GraphQL output types or mapped in GraphqlPermissionUtils)
-- CSV endpoint: POST/GET `/<schema>/api/csv/roles` for bulk role+permission import/export -- NOT STARTED
-- Role cloning: `cloneFrom` parameter on role creation to copy permissions from existing role -- NOT STARTED
+- CSV endpoint: POST/GET `/<schema>/api/csv/roles` for bulk role+permission import/export -- MOVED TO FUTURE
+- Role cloning: `cloneFrom` parameter on role creation to copy permissions from existing role -- MOVED TO FUTURE
 - Files:
   - `backend/molgenis-emx2-graphql/src/main/java/org/molgenis/emx2/graphql/GraphqlSchemaFieldFactory.java`
   - `backend/molgenis-emx2-graphql/src/main/java/org/molgenis/emx2/graphql/GraphqlDatabaseFieldFactory.java`
@@ -223,11 +223,9 @@ System roles and custom roles are managed via the same mechanism:
 ## Next Steps (priority order)
 
 1. **Phase 6 finish**: expose `grant` field in GraphQL output types + map in GraphqlPermissionUtils (small fix)
-2. **Phase 6 finish**: CSV endpoint `/api/csv/roles` for bulk role+permission import/export
-3. **Phase 6 finish**: role cloning `cloneFrom` parameter
-4. **Phase 7a**: schema import/export with RLS config
-5. **Phase 7b**: Admin UI permission matrix
-6. **Optional**: harden 4a — move session vars into connection provider if non-tx DB access paths exist
+2. **Phase 7b**: Admin UI permission matrix
+3. **Phase 7a**: schema import/export with RLS config
+4. **Optional**: harden 4a — move session vars into connection provider if non-tx DB access paths exist
 
 ### Phase 7a: Import/Export -- NOT STARTED
 - Schema export/import with RLS config (mg_roles column, role definitions, permissions)

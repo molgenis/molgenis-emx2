@@ -35,6 +35,9 @@ public class GraphqlPermissionUtils {
     if (permMap.get(DELETE) != null) {
       perm.setDelete(parseModifyLevel(permMap.get(DELETE)));
     }
+    if (permMap.get(GRANT) != null) {
+      perm.setGrant((Boolean) permMap.get(GRANT));
+    }
 
     Map<String, Object> columnsMap = (Map<String, Object>) permMap.get(COLUMN_ACCESS);
     if (columnsMap != null) {
@@ -76,6 +79,7 @@ public class GraphqlPermissionUtils {
     permMap.put(INSERT, perm.getInsert() != null ? perm.getInsert().toString() : null);
     permMap.put(UPDATE, perm.getUpdate() != null ? perm.getUpdate().toString() : null);
     permMap.put(DELETE, perm.getDelete() != null ? perm.getDelete().toString() : null);
+    permMap.put(GRANT, perm.getGrant());
 
     if (perm.getColumnAccess() != null) {
       Map<String, Object> columnsMap = new LinkedHashMap<>();

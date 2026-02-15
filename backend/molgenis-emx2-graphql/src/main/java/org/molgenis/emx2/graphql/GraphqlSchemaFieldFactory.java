@@ -156,6 +156,8 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(Scalars.GraphQLString))
           .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(GRANT).type(Scalars.GraphQLBoolean))
+          .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_ACCESS)
                   .type(columnAccessSchemaOutputType))
@@ -218,6 +220,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(DELETE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GRANT)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_ACCESS)

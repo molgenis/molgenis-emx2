@@ -347,6 +347,69 @@ public class TestGraphqlRolePermissions {
     execute("mutation { drop(roles: [\"DropPermsRole\"]) { message } }");
   }
 
+  @Test
+  @org.junit.jupiter.api.Order(11)
+  public void testGrantFieldRoundTrip() throws Exception {
+    execute(
+        "mutation { change(roles: [{name: \"GrantTestRole\", permissions: [{table: \"Patients\", select: \"TABLE\", grant: true}]}]) { message } }");
+
+    JsonNode roles = execute("{ _schema { roles { name permissions { table select grant } } } }");
+    JsonNode grantTestRole = null;
+    for (JsonNode role : roles.at("/_schema/roles")) {
+      if ("GrantTestRole".equals(role.get("name").asText())) {
+        grantTestRole = role;
+        break;
+      }
+    }
+    assertNotNull(grantTestRole, "GrantTestRole should exist");
+
+    boolean foundPatientsPermission = false;
+    for (JsonNode perm : grantTestRole.get("permissions")) {
+      if ("Patients".equals(perm.get("table").asText())) {
+        foundPatientsPermission = true;
+        assertEquals("TABLE", perm.get("select").asText());
+        assertNotNull(perm.get("grant"), "grant field should be present");
+        assertTrue(perm.get("grant").asBoolean(), "grant should be true");
+        break;
+      }
+    }
+    assertTrue(foundPatientsPermission, "Patients permission should exist");
+
+    execute(
+        "mutation { change(roles: [{name: \"GrantTestRole\", permissions: [{table: \"Samples\", select: \"TABLE\", grant: false}]}]) { message } }");
+
+    JsonNode rolesAfter =
+        execute("{ _schema { roles { name permissions { table select grant } } } }");
+    JsonNode grantTestRoleAfter = null;
+    for (JsonNode role : rolesAfter.at("/_schema/roles")) {
+      if ("GrantTestRole".equals(role.get("name").asText())) {
+        grantTestRoleAfter = role;
+        break;
+      }
+    }
+    assertNotNull(grantTestRoleAfter, "GrantTestRole should still exist");
+
+    boolean foundPatientsWithGrant = false;
+    boolean foundSamplesWithoutGrant = false;
+    for (JsonNode perm : grantTestRoleAfter.get("permissions")) {
+      if ("Patients".equals(perm.get("table").asText())) {
+        foundPatientsWithGrant = true;
+        assertTrue(perm.get("grant").asBoolean(), "Patients grant should still be true");
+      }
+      if ("Samples".equals(perm.get("table").asText())) {
+        foundSamplesWithoutGrant = true;
+        JsonNode grantNode = perm.get("grant");
+        assertTrue(
+            grantNode == null || grantNode.isNull() || !grantNode.asBoolean(),
+            "Samples grant should be false or null");
+      }
+    }
+    assertTrue(foundPatientsWithGrant, "Patients permission with grant=true should exist");
+    assertTrue(foundSamplesWithoutGrant, "Samples permission should exist");
+
+    execute("mutation { drop(roles: [\"GrantTestRole\"]) { message } }");
+  }
+
   @AfterAll
   static void tearDown() {
     if (database != null) {

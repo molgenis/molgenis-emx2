@@ -75,6 +75,7 @@ public class GraphqlConstants {
   public static final String READONLY_FIELD = "readonly";
   public static final String HIDDEN = "hidden";
   public static final String SYSTEM = "system";
+  public static final String GRANT = "grant";
   public static final String MESSAGE = "message";
   public static final String TOKEN = "token";
   public static final String STATUS = "status";

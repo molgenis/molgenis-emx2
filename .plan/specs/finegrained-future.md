@@ -142,11 +142,17 @@ Allow admin to "become" any other role for testing/debugging purposes. E.g., `SE
 
 ## API Enhancements
 
+### CSV endpoint for bulk role+permission import/export
+POST/GET `/<schema>/api/csv/roles` for bulk role+permission management via CSV files. Single denormalized file format for roles+permissions.
+- Complexity: Medium
+- Source: Phase 6 design
+- PO Decision: Deferred from Phase 6
+
 ### Role templates / cloneFrom
 Predefined permission bundles. Simplest approach: `cloneFrom` parameter on role creation copies permissions from existing role. For formal templates: stored named bundles ("DataSubmitter" = SELECT+INSERT+UPDATE on tables X,Y,Z). CSV import already handles bulk creation.
 - Complexity: Low (cloneFrom), Medium (formal templates)
 - Source: API Review, Scenarios
-- PO Decision: cloneFrom in scope for Phase 6, formal templates deferred
+- PO Decision: Deferred from Phase 6
 
 ### Permission diff / dry-run
 Preview impact of permission changes before applying. `change(roles: [...], dryRun: true)` returning summary of changes. Prevents accidental lockouts or over-permissioning.
