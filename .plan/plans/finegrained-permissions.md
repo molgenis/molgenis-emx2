@@ -65,7 +65,16 @@ System roles and custom roles are managed via the same mechanism:
 ### Phase 1: Tests First -- NEEDS UPDATE (v5.0 changes)
 - TestSqlRoleManager: 10 tests for role CRUD (create, delete, members, grants, system protection)
 - TestRowLevelSecurity: 8 end-to-end RLS tests (will be activated in Phase 4)
-- **v5.0 changes**: Update test assertions for PermissionLevel enum (TABLE/ROW). Remove MG_ROWLEVEL references. Update session variable names (`rls_select_tables`, `rls_insert_tables`, `rls_update_tables`, `rls_delete_tables`).
+- **Grant system tests** (new, in TestSqlRoleManager):
+  - `setPermission()` + verify PG grants via `has_table_privilege(role, table, 'SELECT'/'INSERT'/etc.)`
+  - `setPermission()` + verify `rls_permissions` rows via direct SQL query
+  - `setPermission()` + verify `getRoleInfo()` returns matching domain objects (round-trip through `permissions_query.sql`)
+  - `revokePermission()` + verify both PG grants and `rls_permissions` rows are cleaned up
+  - Test all SelectLevel values (EXISTS through ROW) and ModifyLevel values (TABLE, ROW)
+  - Test `grant=true` stored as `grant_permission` and read back correctly
+  - Test `table="*"` wildcard stored and expanded correctly
+  - Test merge semantics: two grants on same (role, table) merge non-null fields
+- **v5.0 changes**: Update test assertions for SelectLevel/ModifyLevel enums. Remove MG_ROWLEVEL references. Update session variable names (`rls_select_tables`, `rls_insert_tables`, `rls_update_tables`, `rls_delete_tables`).
 - Files:
   - `backend/molgenis-emx2-sql/src/test/java/org/molgenis/emx2/sql/TestSqlRoleManager.java`
   - `backend/molgenis-emx2-sql/src/test/java/org/molgenis/emx2/sql/TestRowLevelSecurity.java`
