@@ -17,17 +17,18 @@ Single class for both schema-local and global roles.
 
 Fields:
 - `schema` (String) -- schema name, required
-- `table` (String) -- table name, required (always a specific table, no wildcards)
+- `table` (String) -- table name, required. Use `"*"` for schema-wide default (applies to all RLS-enabled tables)
 - `select` (SelectLevel) -- EXISTS, RANGE, AGGREGATOR, COUNT, TABLE, ROW, or null
 - `insert` (ModifyLevel) -- TABLE, ROW, or null
 - `update` (ModifyLevel) -- TABLE, ROW, or null
 - `delete` (ModifyLevel) -- TABLE, ROW, or null
 - `columnAccess` (ColumnAccess) -- per-column access overrides, nullable
+- `grant` (Boolean) -- true = can manage roles, members, and permissions in this schema. Only meaningful on `table="*"` entries.
 
 Helpers:
 - `hasRowLevelPermissions()` -- true if select is ROW or any modify is ROW
 
-Schema-wide access is NOT expressed via Permission. Use system roles or `Database.addGlobalRoleInherits()` instead.
+Schema-wide access for custom roles is expressed via `table="*"` in Permission. System roles use PG role inheritance instead.
 
 Usage patterns:
 
@@ -107,6 +108,8 @@ For schema-local roles (direct per-operation grants):
 | `insert = TABLE` | GRANT INSERT | `insert_rls = false` (or no entry) |
 | `insert = ROW` | GRANT INSERT | `insert_rls = true` |
 | (same pattern for update, delete) | | |
+| `grant = true` | none | `grant_permission = true` |
+| `grant = false/null` | none | `grant_permission = null` (or no entry) |
 
 For global roles (inherit one role per schema, via `Database.addGlobalRoleInherits()`):
 
@@ -131,6 +134,11 @@ For global roles (inherit one role per schema, via `Database.addGlobalRoleInheri
 | true | false | `ModifyLevel.TABLE` |
 | true | true | `ModifyLevel.ROW` |
 | false | * | `null` |
+
+| grant_permission | → Domain |
+|-----------------|----------|
+| true | `grant = true` |
+| false/NULL | `grant = null` |
 
 
 ### ColumnAccess class (`org.molgenis.emx2.ColumnAccess`) -- DOMAIN MODEL
@@ -158,7 +166,6 @@ Fields:
 - `name` (String) -- short role name (e.g., "Viewer", "HospitalA")
 - `description` (String) -- from `COMMENT ON ROLE`
 - `system` (boolean) -- true = built-in system role, protected from modification/deletion
-- `inherits` (List\<String\>) -- inherited role names (system or custom), empty if none
 - `permissions` (Set\<Permission\>) -- per-table grants for this role (on top of inherited roles)
 
 Constructor: `new RoleInfo(name)` initializes with empty permissions set.
@@ -257,18 +264,19 @@ No PG enum type — `select_level` is VARCHAR, validated by Java `SelectLevel.va
 |--------|------|-------|
 | role_name | VARCHAR | NOT NULL, full PG role name (e.g., `MG_ROLE_schema/HospitalA`) |
 | table_schema | VARCHAR | NOT NULL |
-| table_name | VARCHAR | NOT NULL, always a specific table name |
+| table_name | VARCHAR | NOT NULL. Specific table name or `'*'` for schema-wide default |
 | select_level | VARCHAR | EXISTS, RANGE, AGGREGATOR, COUNT, TABLE, ROW (validated by Java) |
 | insert_rls | BOOLEAN | true = row-filtered for INSERT |
 | update_rls | BOOLEAN | true = row-filtered for UPDATE |
 | delete_rls | BOOLEAN | true = row-filtered for DELETE |
+| grant_permission | BOOLEAN | nullable, true = can manage roles and permissions |
 | editable_columns | VARCHAR[] | nullable |
 | readonly_columns | VARCHAR[] | nullable |
 | hidden_columns | VARCHAR[] | nullable |
 
 Primary key: `(table_schema, role_name, table_name)`.
 
-Every entry is per-table. No schema-wide entries — schema-wide access is handled by system role inheritance.
+Every entry is per-table, except `table_name = '*'` which is a schema-wide default. The `*` entry applies to all RLS-enabled tables in the schema. Per-table entries override the `*` default. Schema-wide access for system roles is still handled by system role inheritance.
 
 Upsert strategy: INSERT ... ON CONFLICT ... DO UPDATE (matching on PK).
 
@@ -297,6 +305,7 @@ SELECT
   COALESCE(rp.insert_rls, false) as insert_rls,
   COALESCE(rp.update_rls, false) as update_rls,
   COALESCE(rp.delete_rls, false) as delete_rls,
+  rp.grant_permission,
   rp.editable_columns, rp.readonly_columns, rp.hidden_columns
 FROM pg_tables t
 LEFT JOIN "MOLGENIS".rls_permissions rp
@@ -422,10 +431,9 @@ System roles have NO entries in `rls_permissions`. Their session variable lists 
 
 Role management operations are restricted based on scope and caller:
 
-**Schema-local role operations** (`createRole`, `deleteRole`, `setPermission`, `revokePermission`):
-- Requires Manager or Owner role in that schema, OR database admin
-- Enforced at GraphQL mutation level (`change(roles)` / `drop(roles)` on schema endpoint)
-- Cannot see or modify global (`MG_ROLE_*/*`) roles
+**Schema-local role operations** (`createRole`, `deleteRole`, `grant`, `revoke`):
+- Requires `grant=true` permission on `table='*'` for this schema, OR Owner system role, OR database admin
+- Enforced at GraphQL mutation level and in `Schema.grant()` / `Schema.revoke()`
 
 **Global role operations** (database-level `change(roles)`, `Database.addGlobalRoleInherits()`, etc.):
 - Requires database admin (member of `MG_ROLE_*/Admin` or PG superuser)
@@ -436,7 +444,7 @@ Role management operations are restricted based on scope and caller:
 - Placed inside the admin-only query block in `GraphqlDatabaseFieldFactory`
 
 **Schema roles query** (`_schema { roles }` on schema endpoint):
-- Requires Manager or Owner role in the schema, or database admin (same as `members`)
+- Requires `grant=true` permission on `table='*'` for this schema, OR Owner system role, OR database admin
 - Non-managers use `_schema { myPermissions }` to see their own effective permissions
 
 ### Schema-local custom roles
@@ -450,39 +458,36 @@ On creation:
 2. Custom role granted membership in the schema's Exists role (USAGE on schema)
 3. Custom role granted to `session_user WITH ADMIN OPTION`
 
-### Schema-local role inheritance
+### Schema-wide permissions via wildcard
 
-A schema-local custom role can inherit **multiple** roles in the same schema (system or custom). This gives the custom role all privileges of the inherited roles as a baseline, with per-table overrides on top.
+A custom role's data access is fully defined by the permission matrix. Use `table="*"` for a schema-wide default that applies to all RLS-enabled tables:
 
-**Add inheritance** (via `Schema.addRoleInherits()`):
 ```java
-schema.addRoleInherits("Researcher", "Viewer");
-schema.addRoleInherits("Researcher", "Curator");
+schema.createRole("HospitalA", "Hospital A staff");
+schema.grant("HospitalA", new Permission()
+    .setTable("*").setSelect(SelectLevel.ROW)
+    .setInsert(ModifyLevel.ROW).setUpdate(ModifyLevel.ROW));
 ```
 
-PG implementation: `GRANT MG_ROLE_<schema>/Viewer TO MG_ROLE_<schema>/Researcher`
+This grants SELECT, INSERT, UPDATE on all RLS-enabled tables, restricted to own-group rows. When new tables get RLS enabled, HospitalA automatically gets row-filtered access.
 
-**Remove inheritance**:
+Per-table entries override the wildcard default:
 ```java
-schema.removeRoleInherits("Researcher", "Curator");
+schema.grant("HospitalA", new Permission()
+    .setTable("Patients").setDelete(ModifyLevel.ROW));
+schema.grant("HospitalA", new Permission()
+    .setTable("Diseases").setSelect(SelectLevel.TABLE));
 ```
 
-**Query inheritance**:
+Result: HospitalA can also delete own Patients (override adds DELETE), and can see all Diseases (override to TABLE removes row filter for that table).
+
+**Grant permission**: To give a custom role management capabilities (manage roles, members, permissions):
 ```java
-List<String> inherits = schema.getRoleInherits("Researcher"); // ["Viewer", "Curator"]
+schema.grant("HospitalA", new Permission()
+    .setTable("*").setGrant(true));
 ```
 
-**Example**: Researcher who can view everything but only edit Patients and Samples:
-```java
-schema.createRole("Researcher", "Read all, edit some");
-schema.addRoleInherits("Researcher", "Viewer");
-schema.grant("Researcher", new Permission()
-    .setTable("Patients").setInsert(ModifyLevel.TABLE).setUpdate(ModifyLevel.TABLE));
-schema.grant("Researcher", new Permission()
-    .setTable("Samples").setInsert(ModifyLevel.TABLE).setUpdate(ModifyLevel.TABLE));
-```
-
-Same PG mechanism as global role grants — both are `GRANT parent TO child`.
+This replaces the need to inherit Manager. Roles with `grant=true` can access `_schema { roles, members }` and call `change(roles)` / `drop(roles)` mutations.
 
 ### Global custom roles
 
@@ -556,7 +561,7 @@ cohortA.grant("HospitalA", new Permission()
 
 #### Query: `_schema { roles, members }`
 
-**Authorization:** Both `roles` and `members` require Manager or Owner role (see section 3 "Authorization"). Non-managers use `_schema { myPermissions }` for their own effective permissions.
+**Authorization:** Both `roles` and `members` require `grant=true` permission, Owner system role, or database admin (see section 3 "Authorization"). Non-managers use `_schema { myPermissions }` for their own effective permissions.
 
 Output types:
 
@@ -566,7 +571,6 @@ type MolgenisRoleInfoType {
   name: String
   description: String
   system: Boolean
-  inherits: [String]     # inherited role names, empty if none
   permissions: [MolgenisPermissionType]
 }
 ```
@@ -580,6 +584,7 @@ type MolgenisPermissionType {
   insert: String   # ModifyLevel: "TABLE", "ROW", or null
   update: String   # ModifyLevel: "TABLE", "ROW", or null
   delete: String   # ModifyLevel: "TABLE", "ROW", or null
+  grant: Boolean
   columns: MolgenisColumnAccessType
 }
 
@@ -606,7 +611,7 @@ Data fetching: `queryFetcher()` calls `schema.getRoleInfos()` and `schema.getMem
 
 #### Mutation: `change(roles, members)`
 
-**Authorization:** See section 3 "Authorization". Requires Manager+.
+**Authorization:** Requires `grant=true` permission, Owner role, or database admin (see section 3).
 
 **Input types:**
 
@@ -615,7 +620,6 @@ Data fetching: `queryFetcher()` calls `schema.getRoleInfos()` and `schema.getMem
 input MolgenisRoleInput {
   name: String
   description: String
-  inherits: [String]     # roles to inherit, or empty/omit
   permissions: [MolgenisPermissionInput]
 }
 ```
@@ -628,6 +632,7 @@ input MolgenisPermissionInput {
   insert: String   # ModifyLevel: "TABLE", "ROW", or omit
   update: String   # ModifyLevel: "TABLE", "ROW", or omit
   delete: String   # ModifyLevel: "TABLE", "ROW", or omit
+  grant: Boolean
   columns: MolgenisColumnAccessInput
 }
 
@@ -658,7 +663,7 @@ Processing logic in `changeMembers()`:
 
 #### Mutation: `drop(roles, members, permissions)`
 
-**Authorization:** Requires Manager or Owner role in the schema, or database admin.
+**Authorization:** Requires `grant=true` permission, Owner role, or database admin (see section 3).
 
 ```graphql
 mutation {
@@ -690,13 +695,14 @@ POST to `/<schema>/api/csv/roles` with CSV body:
 
 **Schema-local roles** (POST `/<schema>/api/csv/roles`):
 ```csv
-role,description,inherits,table,select,insert,update,delete,editable,readonly,hidden
-Researcher,Read-only researcher,Viewer,Patients,ROW,,,,name;dob,,ssn
-Curator,Data curator,Editor,Patients,,,,,,,
-Publisher,,Editor,Patients,,,TABLE,,,mg_status,,
+role,description,table,select,insert,update,delete,grant,editable,readonly,hidden
+HospitalA,Hospital A staff,*,ROW,ROW,ROW,,,,,,
+HospitalA,,Patients,,,,ROW,,,,
+Researcher,Read-only researcher,*,ROW,,,,,,,
+Curator,Data curator,*,TABLE,TABLE,TABLE,TABLE,true,,,
 ```
 
-`inherits` = role to inherit (system or custom), set on first row per role. `select` accepts SelectLevel (EXISTS/RANGE/AGGREGATOR/COUNT/TABLE/ROW). `insert`/`update`/`delete` accept ModifyLevel (TABLE/ROW).
+`select` accepts SelectLevel (EXISTS/RANGE/AGGREGATOR/COUNT/TABLE/ROW). `insert`/`update`/`delete` accept ModifyLevel (TABLE/ROW). `grant` is true/false for management capabilities.
 
 **Global roles** (POST `/api/csv/globalroles`, database admin only):
 ```csv
@@ -860,6 +866,8 @@ When `SqlTableMetadataExecutor.createTable()` creates a new table:
 
 Custom roles do NOT automatically get access to new tables. Admin must explicitly `grant()` per table. This is intentional — custom roles are for fine-grained per-table control.
 
+**Exception**: Custom roles with `table_name = '*'` entries in `rls_permissions` DO get automatic access to new RLS-enabled tables. When `enableRowLevelSecurity()` is called on a table, it checks for `*` entries and applies their PG grants to the new table.
+
 **RLS enablement**: Not all tables need RLS. RLS is only enabled on a table when at least one role has an RLS restriction on it.
 
 ### Cleanup on drop
@@ -921,6 +929,15 @@ WHERE role_name = :active_role
 ```
 
 Java groups result into 4 comma-separated lists (only ROW-level SELECT tables go into `rls_select_tables`).
+
+**Wildcard expansion**: If the query returns a row with `table_name = '*'`, Java expands it by querying all RLS-enabled tables in the schema:
+```sql
+SELECT tablename FROM pg_tables t
+JOIN pg_class c ON c.relname = t.tablename
+JOIN pg_namespace n ON c.relnamespace = n.oid AND n.nspname = t.schemaname
+WHERE t.schemaname = :schema AND c.relrowsecurity = true
+```
+Each RLS-enabled table inherits the `*` row's flags unless overridden by a per-table entry.
 
 Transaction defaults (set in tx()):
 ```sql
@@ -1044,9 +1061,6 @@ Per-table permission methods (work for both schema-local and global roles):
 ```java
 void createRole(String roleName, String description);
 void deleteRole(String roleName);
-void addRoleInherits(String roleName, String parentRoleName);
-void removeRoleInherits(String roleName, String parentRoleName);
-List<String> getRoleInherits(String roleName);
 void grant(String roleName, Permission permission);
 void revoke(String roleName, Permission permission);
 RoleInfo getRoleInfo(String roleName);
@@ -1112,7 +1126,7 @@ On deleteRole, BEFORE dropping role:
 
 | Method | Behavior |
 |--------|----------|
-| `setPermission(schemaName, roleName, permission)` | Maps domain model (SelectLevel/ModifyLevel) to storage. Syncs PG grants via `syncPermissionGrants()`, upserts to `rls_permissions` via `syncRlsPermissions()`. Always per-table. Enables RLS on table if select=ROW or any modify=ROW. Called by `Schema.grant()`. |
+| `setPermission(schemaName, roleName, permission)` | Maps domain model (SelectLevel/ModifyLevel) to storage. Syncs PG grants via `syncPermissionGrants()`, upserts to `rls_permissions` via `syncRlsPermissions()`. Always per-table. Enables RLS on table if select=ROW or any modify=ROW. If `table="*"`, stores schema-wide default. If `grant=true`, maps to Manager-level authorization check. Called by `Schema.grant()`. |
 | `revokePermission(schemaName, roleName, permission)` | For each non-null field in permission: revokes that PG grant and clears corresponding rls_permissions flag. Null fields left unchanged. Deletes rls_permissions row if all fields become null/false. Called by `Schema.revoke()`. |
 | `getRoleInfo(schemaName, roleName)` | Builds RoleInfo from pg_roles + inline permissions query. Called by `Schema.getRoleInfo()`. |
 | `syncRlsPermissions(schemaName, roleName, permission)` | Upserts `select_level` (VARCHAR), `insert_rls`/`update_rls`/`delete_rls` (boolean), and column restrictions to `rls_permissions` using full PG role name. Maps domain enums to storage types. Always per-table. Deletes row if all fields are null/false. |
@@ -1214,7 +1228,7 @@ Permission-related constants added for this feature:
 | `EMAIL` | `"email"` | Member field name |
 | `SCHEMA_NAME` | `"schema"` | Global permission field |
 | `SCHEMAS` | `"schemas"` | Global role schema grants |
-| `INHERITS` | `"inherits"` | RoleInfo inherited roles field |
+| `GRANT` | `"grant"` | Permission field (Boolean) |
 
 ## 10. Migration
 
@@ -1238,9 +1252,10 @@ Stored in `backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/`:
 `rls_permissions` columns:
 - `role_name` (VARCHAR) -- full PG role name (e.g., `MG_ROLE_schema/HospitalA`)
 - `table_schema` (VARCHAR)
-- `table_name` (VARCHAR) -- always a specific table name
+- `table_name` (VARCHAR) -- specific table name or `'*'` for schema-wide default
 - `select_level` (VARCHAR) -- EXISTS, RANGE, AGGREGATOR, COUNT, TABLE, ROW (validated by Java)
 - `insert_rls`, `update_rls`, `delete_rls` (BOOLEAN, nullable) -- RLS restriction flags
+- `grant_permission` (BOOLEAN, nullable) -- true = can manage roles and permissions
 - `editable_columns`, `readonly_columns`, `hidden_columns` (VARCHAR[], nullable) -- column-level restrictions
 
 ### Migrations.java
@@ -1261,6 +1276,7 @@ Trust boundaries: superuser and application owner role are trusted. User-level r
 - Application-layer validation: `SqlTable.insertBatch()` / `SqlTable.updateBatch()` reject mg_roles changes unless user is Manager+
 - System role protection: SqlRoleManager refuses to create/modify/delete system roles
 - Orphaned mg_roles cleanup on role deletion prevents role re-creation attack
+- Grant permission check: only roles with `grant=true` on `table='*'` can manage other roles' permissions. Enforced at application layer.
 
 ### Role name validation
 
