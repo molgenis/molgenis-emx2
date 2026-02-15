@@ -1,6 +1,6 @@
 package org.molgenis.emx2;
 
-public enum PermissionLevel {
+public enum ModifyLevel {
   TABLE,
   ROW
 }

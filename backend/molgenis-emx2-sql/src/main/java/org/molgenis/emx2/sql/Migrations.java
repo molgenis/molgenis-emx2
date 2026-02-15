@@ -192,8 +192,9 @@ public class Migrations {
           }
 
           if (version < 32) {
+            executeMigrationFile(tdb, "rls_permissions_create.sql", "create rls_permissions table");
             executeMigrationFile(
-                tdb, "migration31.sql", "create MG_ROWLEVEL role and permission_metadata table");
+                tdb, "migration31.sql", "grant rls_permissions access and create Admin role");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

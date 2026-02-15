@@ -5,11 +5,12 @@ import java.util.Objects;
 public class Permission {
   private String schema;
   private String table;
-  private PermissionLevel select;
-  private PermissionLevel insert;
-  private PermissionLevel update;
-  private PermissionLevel delete;
+  private SelectLevel select;
+  private ModifyLevel insert;
+  private ModifyLevel update;
+  private ModifyLevel delete;
   private ColumnAccess columnAccess;
+  private Boolean grant;
 
   public Permission() {}
 
@@ -35,38 +36,38 @@ public class Permission {
     return this;
   }
 
-  public PermissionLevel getSelect() {
+  public SelectLevel getSelect() {
     return select;
   }
 
-  public Permission setSelect(PermissionLevel select) {
+  public Permission setSelect(SelectLevel select) {
     this.select = select;
     return this;
   }
 
-  public PermissionLevel getInsert() {
+  public ModifyLevel getInsert() {
     return insert;
   }
 
-  public Permission setInsert(PermissionLevel insert) {
+  public Permission setInsert(ModifyLevel insert) {
     this.insert = insert;
     return this;
   }
 
-  public PermissionLevel getUpdate() {
+  public ModifyLevel getUpdate() {
     return update;
   }
 
-  public Permission setUpdate(PermissionLevel update) {
+  public Permission setUpdate(ModifyLevel update) {
     this.update = update;
     return this;
   }
 
-  public PermissionLevel getDelete() {
+  public ModifyLevel getDelete() {
     return delete;
   }
 
-  public Permission setDelete(PermissionLevel delete) {
+  public Permission setDelete(ModifyLevel delete) {
     this.delete = delete;
     return this;
   }
@@ -80,19 +81,29 @@ public class Permission {
     return this;
   }
 
+  public Boolean getGrant() {
+    return grant;
+  }
+
+  public Permission setGrant(Boolean grant) {
+    this.grant = grant;
+    return this;
+  }
+
   public boolean isRevocation() {
     return select == null
         && insert == null
         && update == null
         && delete == null
+        && grant == null
         && columnAccess == null;
   }
 
   public boolean hasRowLevelPermissions() {
-    return select == PermissionLevel.ROW
-        || insert == PermissionLevel.ROW
-        || update == PermissionLevel.ROW
-        || delete == PermissionLevel.ROW;
+    return select == SelectLevel.ROW
+        || insert == ModifyLevel.ROW
+        || update == ModifyLevel.ROW
+        || delete == ModifyLevel.ROW;
   }
 
   public boolean isSchemaWide() {
@@ -130,6 +141,8 @@ public class Permission {
         + delete
         + ", columnAccess="
         + columnAccess
+        + ", grant="
+        + grant
         + '}';
   }
 }

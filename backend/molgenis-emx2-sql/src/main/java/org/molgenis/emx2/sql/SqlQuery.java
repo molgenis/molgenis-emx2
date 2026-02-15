@@ -187,7 +187,8 @@ public class SqlQuery extends QueryBean {
     if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
     List<String> roles = schema.getInheritedRolesForActiveUser();
     if (roles.contains(VIEWER.toString())) return;
-    boolean hasCustomRole = roles.stream().anyMatch(r -> !SqlRoleManager.SYSTEM_ROLES.contains(r));
+    boolean hasCustomRole =
+        roles.stream().anyMatch(r -> !SqlRoleManager.SYSTEM_ROLE_NAMES.contains(r));
     if (hasCustomRole) return;
     throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
   }

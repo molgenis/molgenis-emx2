@@ -86,13 +86,11 @@ public interface Schema {
 
   void deleteRole(String roleName);
 
-  void setPermission(String roleName, Permission permission);
+  void grant(String roleName, Permission permission);
 
-  void revokePermission(String roleName, String table);
+  void revoke(String roleName, Permission permission);
 
-  List<Permission> getPermissions(String roleName);
-
-  List<Permission> getAllPermissions();
+  RoleInfo getRoleInfo(String roleName);
 
   List<RoleInfo> getRoleInfos();
 }

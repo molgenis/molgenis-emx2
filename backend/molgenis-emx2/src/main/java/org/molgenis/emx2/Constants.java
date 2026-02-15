@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.Operator.*;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class Constants {
@@ -10,7 +11,6 @@ public class Constants {
   public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
   public static final String MG_ROLES = "mg_roles";
-  public static final String MG_ROWLEVEL = "MG_ROWLEVEL";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
 
   public static final String ROLE_EXISTS = "Exists";
@@ -21,6 +21,24 @@ public class Constants {
   public static final String ROLE_EDITOR = "Editor";
   public static final String ROLE_MANAGER = "Manager";
   public static final String ROLE_OWNER = "Owner";
+  public static final String ROLE_ADMIN = "Admin";
+  public static final String GLOBAL_SCHEMA = "*";
+  public static final String ACTIVE_ROLE = "active_role";
+  public static final String RLS_SELECT_TABLES = "rls_select_tables";
+  public static final String RLS_INSERT_TABLES = "rls_insert_tables";
+  public static final String RLS_UPDATE_TABLES = "rls_update_tables";
+  public static final String RLS_DELETE_TABLES = "rls_delete_tables";
+  public static final Set<String> SYSTEM_ROLES =
+      Set.of(
+          ROLE_EXISTS,
+          ROLE_RANGE,
+          ROLE_AGGREGATOR,
+          ROLE_COUNT,
+          ROLE_VIEWER,
+          ROLE_EDITOR,
+          ROLE_MANAGER,
+          ROLE_OWNER,
+          ROLE_ADMIN);
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";

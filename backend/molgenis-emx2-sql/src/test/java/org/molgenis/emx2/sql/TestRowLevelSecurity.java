@@ -70,8 +70,8 @@ public class TestRowLevelSecurity {
 
           Permission permA = new Permission();
           permA.setTable("DataTable");
-          permA.setSelect(PermissionLevel.ROW);
-          rm.setPermission(schema.getName(), "GroupA", permA);
+          permA.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_user1");
           rm.addMember(schema.getName(), "GroupA", "rls_user1");
@@ -120,8 +120,8 @@ public class TestRowLevelSecurity {
 
           Permission permA = new Permission();
           permA.setTable("DataTable");
-          permA.setSelect(PermissionLevel.ROW);
-          rm.setPermission(schema.getName(), "GroupA", permA);
+          permA.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_viewer");
           schema.addMember("rls_viewer", VIEWER.toString());
@@ -164,8 +164,8 @@ public class TestRowLevelSecurity {
 
           Permission permA = new Permission();
           permA.setTable("DataTable");
-          permA.setSelect(PermissionLevel.ROW);
-          rm.setPermission(schema.getName(), "GroupA", permA);
+          permA.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_both");
           rm.addMember(schema.getName(), "GroupA", "rls_both");
@@ -211,8 +211,8 @@ public class TestRowLevelSecurity {
 
           Permission permA = new Permission();
           permA.setTable("DataTable");
-          permA.setSelect(PermissionLevel.ROW);
-          rm.setPermission(schema.getName(), "GroupA", permA);
+          permA.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_null_user");
           rm.addMember(schema.getName(), "GroupA", "rls_null_user");
@@ -296,9 +296,9 @@ public class TestRowLevelSecurity {
 
           Permission permA = new Permission();
           permA.setTable("DataTable");
-          permA.setSelect(PermissionLevel.ROW);
-          permA.setDelete(PermissionLevel.ROW);
-          rm.setPermission(schema.getName(), "GroupA", permA);
+          permA.setSelect(SelectLevel.ROW);
+          permA.setDelete(ModifyLevel.ROW);
+          rm.grant(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_deleter");
           rm.addMember(schema.getName(), "GroupA", "rls_deleter");
@@ -342,8 +342,8 @@ public class TestRowLevelSecurity {
 
           Permission permA = new Permission();
           permA.setTable("DataTable");
-          permA.setSelect(PermissionLevel.ROW);
-          rm.setPermission(schema.getName(), "GroupA", permA);
+          permA.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "GroupA", permA);
 
           db.addUser("rls_admin");
           schema.addMember("rls_admin", OWNER.toString());
@@ -385,8 +385,8 @@ public class TestRowLevelSecurity {
 
           Permission permA = new Permission();
           permA.setTable("DataTable");
-          permA.setSelect(PermissionLevel.ROW);
-          rm.setPermission(schema.getName(), "GroupA", permA);
+          permA.setSelect(SelectLevel.ROW);
+          rm.grant(schema.getName(), "GroupA", permA);
 
           table.insert(
               new Row()

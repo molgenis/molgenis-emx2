@@ -453,31 +453,26 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void setPermission(String roleName, Permission permission) {
+  public void grant(String roleName, Permission permission) {
     if (!getDatabase().isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
       throw new MolgenisException(
           "Permission denied: role management requires Manager or Owner privileges");
     }
-    ((SqlDatabase) getDatabase()).getRoleManager().setPermission(getName(), roleName, permission);
+    ((SqlDatabase) getDatabase()).getRoleManager().grant(getName(), roleName, permission);
   }
 
   @Override
-  public void revokePermission(String roleName, String table) {
+  public void revoke(String roleName, Permission permission) {
     if (!getDatabase().isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
       throw new MolgenisException(
           "Permission denied: role management requires Manager or Owner privileges");
     }
-    ((SqlDatabase) getDatabase()).getRoleManager().revokePermission(getName(), roleName, table);
+    ((SqlDatabase) getDatabase()).getRoleManager().revoke(getName(), roleName, permission);
   }
 
   @Override
-  public List<Permission> getPermissions(String roleName) {
-    return ((SqlDatabase) getDatabase()).getRoleManager().getPermissions(getName(), roleName);
-  }
-
-  @Override
-  public List<Permission> getAllPermissions() {
-    return ((SqlDatabase) getDatabase()).getRoleManager().getAllPermissions(getName());
+  public RoleInfo getRoleInfo(String roleName) {
+    return ((SqlDatabase) getDatabase()).getRoleManager().getRoleInfo(getName(), roleName);
   }
 
   @Override

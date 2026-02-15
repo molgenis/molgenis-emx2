@@ -666,10 +666,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               ctx.execute(
-                  "SET LOCAL molgenis.bypass_schemas = '*';"
-                      + " SET LOCAL molgenis.active_role = '';"
-                      + " SET LOCAL molgenis.bypass_select = '';"
-                      + " SET LOCAL molgenis.bypass_modify = ''");
+                  "SET LOCAL molgenis.active_role = '';"
+                      + " SET LOCAL molgenis.rls_select_tables = '';"
+                      + " SET LOCAL molgenis.rls_insert_tables = '';"
+                      + " SET LOCAL molgenis.rls_update_tables = '';"
+                      + " SET LOCAL molgenis.rls_delete_tables = ''");
               db.setJooq(ctx);
               transaction.run(db);
               db.tableListenersExecutePostCommit();
@@ -756,7 +757,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void setRlsContextForSchema(String schemaName) {
     String activeUser = getActiveUser();
     if (activeUser == null || ADMIN_USER.equals(activeUser) || ANONYMOUS.equals(activeUser)) {
-      setRlsBypassSchema(schemaName);
+      clearRlsContext();
       return;
     }
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
@@ -775,7 +776,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       for (Record record : records) {
         String fullRole = record.get("rolname", String.class);
         String shortRole = fullRole.substring(rolePrefix.length());
-        if (SqlRoleManager.SYSTEM_ROLES.contains(shortRole)) {
+        if (SqlRoleManager.SYSTEM_ROLE_NAMES.contains(shortRole)) {
           hasSystemRole = true;
         } else {
           customRole = shortRole;
@@ -783,30 +784,99 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
 
       if (hasSystemRole) {
-        setRlsBypassSchema(schemaName);
+        clearRlsContext();
       } else if (customRole != null) {
         setRlsContextForSchema(schemaName, customRole);
       } else {
-        setRlsBypassSchema(schemaName);
+        clearRlsContext();
       }
     } catch (Exception e) {
-      setRlsBypassSchema(schemaName);
+      clearRlsContext();
     }
   }
 
   public void setRlsContextForSchema(String schemaName, String userRole) {
-    if (userRole == null || SqlRoleManager.SYSTEM_ROLES.contains(userRole)) {
-      setRlsBypassSchema(schemaName);
-    } else {
-      String fullRole = SqlRoleManager.fullRoleName(schemaName, userRole);
-      jooq.execute("SET LOCAL molgenis.bypass_schemas = ''");
-      jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(fullRole));
+    if (userRole == null || SqlRoleManager.SYSTEM_ROLE_NAMES.contains(userRole)) {
+      clearRlsContext();
+      return;
     }
+    String fullRole = SqlRoleManager.fullRoleName(schemaName, userRole);
+    jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(fullRole));
+
+    StringBuilder selectTables = new StringBuilder();
+    StringBuilder insertTables = new StringBuilder();
+    StringBuilder updateTables = new StringBuilder();
+    StringBuilder deleteTables = new StringBuilder();
+
+    try {
+      Result<Record> rlsRows =
+          jooq.fetch(
+              "SELECT table_schema, table_name, select_level, insert_rls, update_rls, delete_rls"
+                  + " FROM \"MOLGENIS\".\"rls_permissions\""
+                  + " WHERE role_name = {0}"
+                  + " AND (select_level = 'ROW' OR insert_rls = true OR update_rls = true OR delete_rls = true)",
+              fullRole);
+
+      List<String> wildcardSchemas = new ArrayList<>();
+      for (Record row : rlsRows) {
+        String tSchema = row.get("table_schema", String.class);
+        String tName = row.get("table_name", String.class);
+
+        if ("*".equals(tName)) {
+          wildcardSchemas.add(tSchema);
+          String selectLevel = row.get("select_level", String.class);
+          Boolean insertRls = row.get("insert_rls", Boolean.class);
+          Boolean updateRls = row.get("update_rls", Boolean.class);
+          Boolean deleteRls = row.get("delete_rls", Boolean.class);
+
+          Result<Record> rlsTables =
+              jooq.fetch(
+                  "SELECT t.tablename FROM pg_tables t"
+                      + " JOIN pg_class c ON c.relname = t.tablename"
+                      + " JOIN pg_namespace n ON c.relnamespace = n.oid AND n.nspname = t.schemaname"
+                      + " WHERE t.schemaname = {0} AND c.relrowsecurity = true",
+                  tSchema);
+
+          for (Record tableRecord : rlsTables) {
+            String tableName = tableRecord.get("tablename", String.class);
+            String fqTable = tSchema + "." + tableName;
+            if ("ROW".equals(selectLevel)) appendTable(selectTables, fqTable);
+            if (Boolean.TRUE.equals(insertRls)) appendTable(insertTables, fqTable);
+            if (Boolean.TRUE.equals(updateRls)) appendTable(updateTables, fqTable);
+            if (Boolean.TRUE.equals(deleteRls)) appendTable(deleteTables, fqTable);
+          }
+        } else {
+          String fqTable = tSchema + "." + tName;
+          String selectLevel = row.get("select_level", String.class);
+          Boolean insertRls = row.get("insert_rls", Boolean.class);
+          Boolean updateRls = row.get("update_rls", Boolean.class);
+          Boolean deleteRls = row.get("delete_rls", Boolean.class);
+          if ("ROW".equals(selectLevel)) appendTable(selectTables, fqTable);
+          if (Boolean.TRUE.equals(insertRls)) appendTable(insertTables, fqTable);
+          if (Boolean.TRUE.equals(updateRls)) appendTable(updateTables, fqTable);
+          if (Boolean.TRUE.equals(deleteRls)) appendTable(deleteTables, fqTable);
+        }
+      }
+    } catch (Exception e) {
+    }
+
+    jooq.execute("SET LOCAL molgenis.rls_select_tables = {0}", inline(selectTables.toString()));
+    jooq.execute("SET LOCAL molgenis.rls_insert_tables = {0}", inline(insertTables.toString()));
+    jooq.execute("SET LOCAL molgenis.rls_update_tables = {0}", inline(updateTables.toString()));
+    jooq.execute("SET LOCAL molgenis.rls_delete_tables = {0}", inline(deleteTables.toString()));
   }
 
-  private void setRlsBypassSchema(String schemaName) {
-    jooq.execute("SET LOCAL molgenis.bypass_schemas = {0}", inline(schemaName));
+  public void clearRlsContext() {
     jooq.execute("SET LOCAL molgenis.active_role = ''");
+    jooq.execute("SET LOCAL molgenis.rls_select_tables = ''");
+    jooq.execute("SET LOCAL molgenis.rls_insert_tables = ''");
+    jooq.execute("SET LOCAL molgenis.rls_update_tables = ''");
+    jooq.execute("SET LOCAL molgenis.rls_delete_tables = ''");
+  }
+
+  private void appendTable(StringBuilder sb, String fqTable) {
+    if (sb.length() > 0) sb.append(",");
+    sb.append(fqTable);
   }
 
   public DSLContext getJooqWithExtendedTimeout() {
@@ -999,5 +1069,35 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Updating of role failed", dae);
     }
+  }
+
+  @Override
+  public void createGlobalRole(String roleName, String description) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public void deleteGlobalRole(String roleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public void addGlobalRoleInherits(String globalRoleName, String schemaName, String roleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public void removeGlobalRoleInherits(String globalRoleName, String schemaName, String roleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public Map<String, List<String>> getGlobalRoleInherits(String globalRoleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public List<RoleInfo> getGlobalRoleInfos() {
+    throw new UnsupportedOperationException("Not yet implemented");
   }
 }

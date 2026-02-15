@@ -8,10 +8,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.ColumnAccess;
+import org.molgenis.emx2.ModifyLevel;
 import org.molgenis.emx2.Permission;
-import org.molgenis.emx2.PermissionLevel;
 import org.molgenis.emx2.RoleInfo;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectLevel;
 
 public class GraphqlPermissionUtils {
 
@@ -23,16 +24,16 @@ public class GraphqlPermissionUtils {
     perm.setTable((String) permMap.get(TABLE));
 
     if (permMap.get(SELECT) != null) {
-      perm.setSelect(parsePermissionLevel(permMap.get(SELECT)));
+      perm.setSelect(parseSelectLevel(permMap.get(SELECT)));
     }
     if (permMap.get(INSERT) != null) {
-      perm.setInsert(parsePermissionLevel(permMap.get(INSERT)));
+      perm.setInsert(parseModifyLevel(permMap.get(INSERT)));
     }
     if (permMap.get(UPDATE) != null) {
-      perm.setUpdate(parsePermissionLevel(permMap.get(UPDATE)));
+      perm.setUpdate(parseModifyLevel(permMap.get(UPDATE)));
     }
     if (permMap.get(DELETE) != null) {
-      perm.setDelete(parsePermissionLevel(permMap.get(DELETE)));
+      perm.setDelete(parseModifyLevel(permMap.get(DELETE)));
     }
 
     Map<String, Object> columnsMap = (Map<String, Object>) permMap.get(COLUMN_ACCESS);
@@ -47,11 +48,20 @@ public class GraphqlPermissionUtils {
     return perm;
   }
 
-  private static PermissionLevel parsePermissionLevel(Object value) {
+  private static SelectLevel parseSelectLevel(Object value) {
     if (value instanceof String) {
-      return PermissionLevel.valueOf(((String) value).toUpperCase());
+      return SelectLevel.valueOf(((String) value).toUpperCase());
     } else if (value instanceof Boolean && Boolean.TRUE.equals(value)) {
-      return PermissionLevel.TABLE;
+      return SelectLevel.TABLE;
+    }
+    return null;
+  }
+
+  private static ModifyLevel parseModifyLevel(Object value) {
+    if (value instanceof String) {
+      return ModifyLevel.valueOf(((String) value).toUpperCase());
+    } else if (value instanceof Boolean && Boolean.TRUE.equals(value)) {
+      return ModifyLevel.TABLE;
     }
     return null;
   }
@@ -98,9 +108,9 @@ public class GraphqlPermissionUtils {
       for (Map<String, Object> permMap : permissions) {
         Permission perm = mapToPermission(permMap);
         if (perm.isRevocation()) {
-          schema.revokePermission(roleName, perm.getTable());
+          schema.revoke(roleName, perm);
         } else {
-          schema.setPermission(roleName, perm);
+          schema.grant(roleName, perm);
         }
       }
     }
