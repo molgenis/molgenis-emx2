@@ -8,6 +8,7 @@
     :refLabel="refLabel"
     :options="options"
     @update:modelValue="onUpdateCondition"
+    direction="vertical"
   />
 </template>
 

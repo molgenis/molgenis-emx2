@@ -8,9 +8,10 @@
     :errorMessage="errorMessage"
   >
     <div
-      class="input-group"
       @mouseenter="isMouseOver = true"
       @mouseleave="isMouseOver = false"
+      class="input-group"
+      :class="direction === 'vertical' ? 'flex-column' : 'flex-row'"
     >
       <div
         v-for="(item, idx) in options"
@@ -58,6 +59,11 @@ export default {
       type: Boolean,
       required: false,
       default: true,
+    },
+    direction: {
+      type: String,
+      required: false,
+      default: "horizontal",
     },
   },
   data() {
