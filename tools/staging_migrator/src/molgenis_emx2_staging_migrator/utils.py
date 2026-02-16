@@ -46,6 +46,7 @@ def resource_ref_cols(schema: Schema, table_name: str) -> list[str]:
 
 def process_statement(df: pd.DataFrame) -> pd.DataFrame:
     """Processes any statement of consent by modifying the rows in the table for which no consent is given."""
+    df = df.loc[~df["email"].isna()]
     statement = "statement of consent personal data"
     if statement not in df.columns:
         return df

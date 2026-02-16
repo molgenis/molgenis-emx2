@@ -78,10 +78,11 @@ def test_process_organisations():
 
 def test_process_contacts():
     """Unit test for the `process_contacts` method."""
-    contacts_csv = """resource,role,first name,last name,statement of consent personal data
-    R1,Principal Investigator,A1,B1,true
-    R2,Primary contact,A2,B2,true
-    R3,Participant,A3,B3,false"""
+    contacts_csv = """resource,role,first name,last name,statement of consent personal data,email
+    R1,Principal Investigator,A1,B1,true,A1B1@R1.com
+    R2,Primary contact,A2,B2,true,A2B2@R2.com
+    R3,Participant,A3,B3,false,
+    R4,Participant,A3,B4,false,A4B4@R4.com"""
     contacts_df = pd.read_csv(io.StringIO(contacts_csv))
 
     processed_contacts = process_statement(contacts_df)
