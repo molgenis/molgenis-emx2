@@ -123,6 +123,14 @@ const navigation = computed(() => {
     items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
     items.push({ label: "Pages", link: `/${schema.value}/pages/` });
   }
+  if (
+    schema.value &&
+    (isAdmin.value ||
+      session.value?.roles?.includes("Manager") ||
+      session.value?.roles?.includes("Owner"))
+  ) {
+    items.push({ label: "Roles", link: `/${schema.value}/roles` });
+  }
   if (isAdmin.value) {
     items.push({ label: "Admin", link: `/admin` });
   }
