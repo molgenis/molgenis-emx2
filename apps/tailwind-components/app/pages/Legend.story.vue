@@ -3,10 +3,6 @@
     <div class="basis-1/2 bg-sidebar-gradient">
       <FormLegend :sections="sections" @go-to-section="handleGoToRequest" />
     </div>
-    <div class="basis-1/2 text-title p-4">
-      <h3>Active header: {{ activeHeader }}</h3>
-      <div class="py-4">mock active element: {{ mockActiveElem }}</div>
-    </div>
   </div>
 </template>
 
@@ -25,7 +21,7 @@ const mainSectionFields: LegendHeading[] = [
     id: "overview",
     errorCount: computed(() => 1),
     type: "HEADING",
-    isActive: computed(() => mockActiveElem.value === "overview"),
+    isActive: true,
     isVisible: computed(() => true),
   },
   {
@@ -33,7 +29,7 @@ const mainSectionFields: LegendHeading[] = [
     id: "population",
     errorCount: computed(() => 2),
     type: "HEADING",
-    isActive: computed(() => mockActiveElem.value === "population"),
+    isActive: false,
     isVisible: computed(() => true),
   },
   {
@@ -41,7 +37,7 @@ const mainSectionFields: LegendHeading[] = [
     id: "contents",
     errorCount: computed(() => 0),
     type: "HEADING",
-    isActive: computed(() => mockActiveElem.value === "contents"),
+    isActive: false,
     isVisible: computed(() => true),
   },
 ];
@@ -52,7 +48,7 @@ const accessSectionFields: LegendHeading[] = [
     id: "data-registration",
     errorCount: computed(() => 16),
     type: "HEADING",
-    isActive: computed(() => mockActiveElem.value === "data-registration"),
+    isActive: false,
     isVisible: computed(() => true),
   },
   {
@@ -60,7 +56,7 @@ const accessSectionFields: LegendHeading[] = [
     id: "information",
     errorCount: computed(() => 0),
     type: "HEADING",
-    isActive: computed(() => mockActiveElem.value === "information"),
+    isActive: false,
     isVisible: computed(() => true),
   },
 ];
@@ -72,11 +68,7 @@ const sections: LegendSection[] = [
     errorCount: computed(() => 3),
     type: "SECTION",
     headers: mainSectionFields,
-    isActive: computed(
-      () =>
-        mockActiveElem.value === "main" ||
-        mainSectionFields.some((field) => field.isActive.value === true)
-    ),
+    isActive: false,
     isVisible: computed(() => true),
   },
   {
@@ -85,11 +77,7 @@ const sections: LegendSection[] = [
     errorCount: computed(() => 0),
     type: "SECTION",
     headers: accessSectionFields,
-    isActive: computed(
-      () =>
-        mockActiveElem.value === "access" ||
-        accessSectionFields.some((field) => field.isActive.value === true)
-    ),
+    isActive: false,
     isVisible: computed(() => true),
   },
 ];
@@ -97,18 +85,4 @@ const sections: LegendSection[] = [
 function handleGoToRequest(id: string) {
   mockActiveElem.value = id;
 }
-
-const activeHeader = computed(() => {
-  for (const section of sections) {
-    if (section.isActive) {
-      return section;
-    }
-    for (const header of section.headers) {
-      if ((header as any).isActive) {
-        return header;
-      }
-    }
-  }
-  return null;
-});
 </script>

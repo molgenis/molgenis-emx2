@@ -440,16 +440,17 @@ export function buildGraphqlFilter(
         : [];
       if (conditions.length) {
         if (
+          col.columnType.startsWith("AUTO_ID") ||
           col.columnType.startsWith("STRING") ||
           col.columnType.startsWith("TEXT") ||
           col.columnType.startsWith("JSON")
         ) {
           filter[col.id] = { like: conditions };
-        } else if (col.columnType.startsWith("BOOL")) {
-          filter[col.id] = { equals: conditions };
         } else if (
+          col.columnType.startsWith("BOOL") ||
           col.columnType.startsWith("REF") ||
-          col.columnType.startsWith("ONTOLOGY")
+          col.columnType.startsWith("ONTOLOGY") ||
+          col.columnType.startsWith("RADIO")
         ) {
           filter[col.id] = { equals: conditions };
         } else if (

@@ -214,6 +214,7 @@ export default {
             case "REFBACK":
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
+            case "RADIO":
               query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":

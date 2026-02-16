@@ -15,10 +15,11 @@ order,name,code,parent,definition,ontologyTermURI
 14,Death registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030051
 15,Cancer registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030052
 16,Disease registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030053
-17,Vaccination registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030054
-18,Drug registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030055
-19,Biobank,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030056
-20,Administrative healthcare claims,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030057
-21,Spontaneous reporting of adverse drug reactions,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030058
-22,Specialist ambulatory care records,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030059
-23,Other,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000031053
+17,Rare disease registry,,,,
+18,Vaccination registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030054
+19,Drug registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030055
+20,Biobank,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030056
+21,Administrative healthcare claims,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030057
+22,Spontaneous reporting of adverse drug reactions,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030058
+23,Specialist ambulatory care records,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030059
+24,Other,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000031053
