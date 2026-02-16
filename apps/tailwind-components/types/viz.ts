@@ -13,10 +13,23 @@ export interface ChartContext {
   description?: string;
 }
 
+export interface ChartLegendOptions {
+    legendIsEnabled?: boolean;
+    legendIsStacked?: boolean;
+    legendPosition?: LegendPosition;
+    legendHoverEventsAreEnabled?: boolean;
+}
+
+export interface ChartOptions extends ChartLegendOptions {
+    hoverEventsAreEnabled?: boolean;
+    clickEventsAreEnabled?: boolean;
+    animationsAreEnabled?: boolean;
+}
+
 export type PieChartData = Record<string, number>;
 export type ColorPalette = Record<string, string>;
 
-export interface PieCharts extends Charts {
+export interface PieCharts extends Charts, ChartOptions {
   data: PieChartData;
   margins?: number;
   colorPalette?: ColorPalette;
@@ -25,10 +38,16 @@ export interface PieCharts extends Charts {
   showValuesAsPercentages?: boolean;
   asDonutChart?: boolean;
   strokeColor?: string;
-  hoverEventsAreEnabled?: boolean;
-  clickEventsAreEnabled?: boolean;
-  legendIsEnabled?: boolean;
-  legendIsStacked?: boolean;
-  legendPosition?: LegendPosition;
-  legendHoverEventsAreEnabled?: boolean;
+}
+
+
+export interface ColumnCharts extends Charts, ChartOptions {
+    data: PieChartData[];
+    marginTop?: number;
+    marginRight?: number;
+    marginBottom?: number;
+    marginLeft?: number;
+    columnColor?: string;
+    columnColorOnHover?: string;
+    colorPalette?: ColorPalette;
 }
