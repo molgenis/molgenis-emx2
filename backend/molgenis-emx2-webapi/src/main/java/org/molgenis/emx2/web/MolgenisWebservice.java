@@ -11,7 +11,6 @@ import io.javalin.Javalin;
 import io.javalin.http.ContentType;
 import io.javalin.http.Context;
 import io.javalin.http.HttpResponseException;
-import io.javalin.http.staticfiles.Location;
 import io.javalin.json.JavalinJackson;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import io.swagger.util.Yaml;
