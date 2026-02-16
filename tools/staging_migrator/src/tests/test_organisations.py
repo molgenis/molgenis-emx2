@@ -1,11 +1,11 @@
 """
 Tests the correct publication of an Organisation from a staging area onto a catalogue schema.
 """
-
-
+import io
 import logging
 import os
 
+import pandas as pd
 import pytest
 import sys
 
@@ -59,3 +59,18 @@ async def test_organisations():
         # migrator.delete_resource()
 
 
+def test_process_organisations():
+    """Unit tests for the `process_organisations` method."""
+    orgs_csv = """resource,id,type,name,organisation,other organisation,department,website,email,logo,role,is lead organisation
+    R1,O1,Organisation,Org1,Leiden University Medical Center,,,O1@O1.com,,,,true
+    R2,O2,Organisation,Org2,University Medical Center Groningen,,,O2@O2.com,,,,
+    R3,O3,Organisation,Org3,Hanze,,,O3@O3.com,,,,false
+    """
+    orgs_df = pd.read_csv(io.StringIO(orgs_csv), sep=",")
+
+    server_url = os.environ.get('MG_URL')
+    with StagingMigrator(url=server_url) as migrator:
+        processed_orgs = migrator.process_organisations(orgs_df)
+    assert processed_orgs["organisation name"].values.tolist() == ['Leiden University Medical Center', 'University Medical Center Groningen', 'Hanze']
+    assert processed_orgs["organisation pid"].values.tolist() == ['ROR:05xvt9f17', 'ROR:03cv38k47', None]
+    assert processed_orgs["organisation website"].values.tolist() == ['https://www.lumc.nl', 'https://www.umcg.nl', None]

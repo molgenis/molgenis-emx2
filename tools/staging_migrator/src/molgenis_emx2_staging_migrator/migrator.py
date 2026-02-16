@@ -253,10 +253,19 @@ class StagingMigrator(Client):
 
     def process_organisations(self, source_orgs: pd.DataFrame) -> pd.DataFrame:
         """Processes the organisations table by combining information from CatalogueOntologies."""
-        orgs = list(set(source_orgs['organisation'].values))
         ontology_organisations = self.get("Organisations", schema="CatalogueOntologies", as_df=True)
-        oo = ontology_organisations.loc[ontology_organisations['name'].isin(orgs)]
 
+        def pid_func(org: str):
+            return ontology_organisations.set_index('name')["code"].to_dict().get(org, None)
+        def website_func(org: str):
+            return ontology_organisations.set_index('name')["website"].to_dict().get(org, None)
+
+        target_orgs = source_orgs.copy()
+        target_orgs["organisation name"] = target_orgs["organisation"].copy()
+        target_orgs["organisation pid"] = target_orgs["organisation"].apply(pid_func)
+        target_orgs["organisation website"] = target_orgs["organisation"].apply(website_func)
+
+        return target_orgs
 
 
     @staticmethod
