@@ -42,7 +42,7 @@ const conditionLabel = computed(() =>
 loadOptions();
 
 function onUpdateCondition(newValue: string) {
-  if (newValue === null) {
+  if (!newValue) {
     emit("clearCondition", newValue);
   } else {
     emit("updateCondition", keysByLabel.value[newValue]);

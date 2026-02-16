@@ -70,7 +70,7 @@ export default {
     radioValue() {
       this.$emit("update:modelValue", this.radioValue);
     },
-    value(newValue) {
+    modelValue(newValue) {
       this.radioValue = newValue;
     },
   },
