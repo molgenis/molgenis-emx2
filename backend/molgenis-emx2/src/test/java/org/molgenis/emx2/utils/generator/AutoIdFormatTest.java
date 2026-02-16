@@ -2,6 +2,9 @@ package org.molgenis.emx2.utils.generator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+import java.util.stream.IntStream;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -90,5 +93,20 @@ class AutoIdFormatTest {
   void givenFormat_whenMaxValueExceedsLongSize_thenMaxValueIsMaxLongSize() {
     AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.MIXED, 11);
     assertEquals(Long.MAX_VALUE, format.getMaxValue());
+  }
+
+  @Test
+  void givenValue_thenMapToFormat() {
+    List<String> expected =
+        IntStream.range(0, 10000)
+            .boxed()
+            .map(Object::toString)
+            .map(str -> StringUtils.leftPad(str, 4, '0'))
+            .toList();
+
+    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 4);
+    List<String> actual = IntStream.range(0, 10000).boxed().map(format::mapToFormat).toList();
+
+    assertEquals(expected, actual);
   }
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 public record AutoIdFormat(Format format, int length) {
 
@@ -96,5 +97,20 @@ public record AutoIdFormat(Format format, int length) {
     }
 
     return result;
+  }
+
+  public String mapToFormat(long value) {
+    StringBuilder builder = new StringBuilder();
+
+    long n = value;
+    int base = format.characters.length();
+
+    while (n > 0) {
+      long remainder = n % base;
+      builder.insert(0, format.getCharacters().charAt((int) remainder));
+      n = n / base;
+    }
+
+    return StringUtils.leftPad(builder.toString(), length, format.characters.charAt(0));
   }
 }
