@@ -234,6 +234,44 @@ See the description of the [Schema](use_usingpyclient.md#schema) metadata object
 | `name`    | str  | the name of the schema | True     | None    |
 
 
+### get_schema_settings
+```python
+def get_schema_settings(self, name: str = None) -> list[dict]:
+    ...
+```
+Retrieves the settings of a schema and returns them in a list of dictionaries.
+
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| `name`    | str  | the name of the schema | True     | None    |
+
+
+### get_schema_members
+```python
+def get_schema_members(self, name: str = None) -> list[dict]:
+    ...
+```
+Retrieves the members of a schema and returns them in a list of dictionaries.
+Raises a PermissionDeniedException if the user has insufficient permissions for viewing the members of the schema.
+
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| `name`    | str  | the name of the schema | True     | None    |
+
+
+### get_schema_roles
+```python
+def get_schema_roles(self, name: str = None) -> list[dict]:
+    ...
+```
+Retrieves the roles of a schema and returns them in a list of dictionaries.
+
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| `name`    | str  | the name of the schema | True     | None    |
+
+
+
 ### export
 ```python
 async def export(self, 
@@ -261,7 +299,6 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 
 ##### examples
 ```python
-
 # Export the table 'Resources' on the schema 'MySchema' from the CSV API to a BytesIO object 
 resources_raw: BytesIO = await client.export(schema='MySchema', table='Resources')  
 
@@ -269,6 +306,38 @@ resources_raw: BytesIO = await client.export(schema='MySchema', table='Resources
 await client.export(schema='MySchema', table='Resources', filename='Resources-export.xlsx')
 ```
 
+### export_schema
+```python
+async def export_schema(self, 
+                        schema: str = None, 
+                        fmt: str = 'csv',
+                        filename: str = None) -> BytesIO: 
+    ...
+```
+Asynchronously exports a schema's metadata to a file in the desired format and `BytesIO` object in memory.
+The format options are `'csv`', `'json'` and `'yaml'`.
+Only writes to a file if the file name is specified. The format is in that case inferred from the file name's extension.
+Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
+Throws a `ValueError` if neither `fmt` nor `filename` is supplied.
+
+
+| parameter  | type | description                                | required | default                 |
+|------------|------|--------------------------------------------|----------|-------------------------|
+| `schema`   | str  | the name of a schema                       | False    | `client.default_schema` |
+| `fmt`      | str  | the format of the output                   | False    | `None`                  |
+| `filename` | str  | the name of the file to export the data to | False    | `None`                  |
+
+##### examples
+```python
+# Export the metadata for schema 'MySchema' from the CSV API to a BytesIO object 
+csv_bytes: BytesIO = await client.export_schema(schema='MySchema', fmt='csv')  
+
+# Export the metadata for schema 'MySchema' from the JSON API to the file 'MySchema.json' 
+await client.export_schema(schema='MySchema', fmt='json')
+
+# Export the metadata for schema 'MySchema' from the YAML API to the file 'MySchema.yaml' 
+await client.export_schema(schema='MySchema', fmt='yaml')
+```
 
 ### save_table
 ```python
@@ -459,7 +528,7 @@ async def recreate_schema(self,
                           name: str = None,
                           description: str = None,
                           template: str = None,
-                          include_demo_data: bool = None):
+                          include_demo_data: bool = False):
     ...
 ```
 Recreates a schema on the EMX2 server by deleting and subsequently creating it without data on the EMX2 server.

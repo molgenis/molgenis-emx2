@@ -11,11 +11,11 @@ Resources,,name,text,3,TRUE,,,,,,dcterms:title,Name used in international projec
 Resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging",,,
 Resources,,acronym,,,,,,,,,dcterms:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,type,ontology_array,,TRUE,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
-Resources,,type other,,,,,,,,,,"If other, describe the type of resource","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCUCohorts",,,type?.some(item => item.name === 'Other type')
 Resources,,catalogue type,ontology,,,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,"DataCatalogueFlat,NetworksStaging",,,type?.some(item => item.name === 'Catalogue')
+Resources,,main catalogue,bool,,,,,,,,,Is this the main catalogue of this catalogue server?,"DataCatalogueFlat,NetworksStaging",,,type?.some(item => item.name === 'Catalogue')
 Resources,,cohort type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,,Type of cohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,type?.some(item => item.name === 'Cohort study')
 Resources,,clinical study type,ontology_array,,,CatalogueOntologies,Clinical study types,,,,,Type of clinical study,"DataCatalogueFlat,EMA",,,type?.some(item => item.name === 'Clinical trial')
-Resources,,RWD type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Type of registry or health record,"DataCatalogueFlat,EMA,RWEStaging",,,type?.some(item => item.name === 'Data source' | item.name === 'Databank' | item.name === 'Registry'  | item.name === 'Health records')
+Resources,,registry or health record type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Type of registry or health record,"DataCatalogueFlat,EMA,RWEStaging",,,type?.some(item => item.name === 'Data source' | item.name === 'Databank' | item.name === 'Registry'  | item.name === 'Health records')
 Resources,,network type,ontology_array,,,CatalogueOntologies,Network types,,,,,Type of network,"DataCatalogueFlat,NetworksStaging",,,type?.some(item => item.name === 'Network')
 Resources,,website,hyperlink,,,,,,,,"dcat:landingPage,foaf:homepage",Link to the website or homepage,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,description,text,,if(hricore === true) 'This field is mandatory for HRICore compatibility',,,,,,dcterms:description,Short description,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
@@ -47,17 +47,18 @@ Resources,,data resources,ref_array,,,,Resources,,,,dcat:dataset,"List of other 
 Resources,,data resources,ref_array,,,catalogue,Resources,,,,dcat:dataset,"List of other data collections included in this network, e.g. cohorts, biobanks or real world data sources. Do not list other networks or catalogues here",NetworksStaging,,,
 Resources,,part of networks,refback,,,,Resources,,data resources,,,List of other collections included in this resource,"DataCatalogueFlat,EMA",,,
 Resources,,population,heading,,,,,,,,,Description of the population that is sampled in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
-Resources,,number of participants,int,,,,,,,,healthdcatap:numberOfUniqueIndividuals,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
-Resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogueFlat,CohortsStaging,RWEStaging,UMCGCohortsStaging,INTEGRATE",,,
+Resources,,number of participants,non_negative_int,,,,,,,,healthdcatap:numberOfUniqueIndividuals,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
+Resources,,number of participants with samples,non_negative_int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogueFlat,CohortsStaging,RWEStaging,UMCGCohortsStaging,INTEGRATE",,,
 Resources,,underlying population,text,,,,,,,,healthdcatap:populationCoverage,Provide a summary description of the underlying population from which participants are sampled,"DataCatalogueFlat,RWEStaging",,,
 Resources,,population description,text,,,,,,,,healthdcatap:populationCoverage,A short description of the study population,EMA,,,
 Resources,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,Select population of interest,"DataCatalogueFlat,EMA,StudiesStaging",,,
 Resources,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogueFlat,EMA,StudiesStaging",,,
 Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:spatial,Countries where data/samples from this resource largely originate from,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
+Resources,,continents,ontology_array,,,CatalogueOntologies,Continents,,,,dcterms:spatial,Continent(s) where data/samples from this resource originate from,"DataCatalogueFlat,CohortsStaging",,,
 Resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dcterms:spatial,Geographical regions where data/samples from this resource largely originate from,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
-Resources,,age min,int,,,,,,,,healthdcatap:minimumTypicalAge,Minimum age of participants within this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
-Resources,,age max,int,,,,,,,,healthdcatap:maximumTypicalAge,Maximum age of participants within this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
+Resources,,age min,non_negative_int,,,,,,,,healthdcatap:minimumTypicalAge,Minimum age of participants within this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
+Resources,,age max,non_negative_int,,,,,,,,healthdcatap:maximumTypicalAge,Maximum age of participants within this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion Exclusion Criteria,,,,,Inclusion criteria applied to the participants of this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,exclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion Exclusion Criteria,,,,,Exclusion criteria applied to the participants of this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
@@ -99,7 +100,7 @@ Resources,,procedures vocabulary other,text,,,,,,,,,"If 'other', what procedures
 Resources,,biomarker data vocabulary other,text,,,,,,,,,"If 'other', what biomarker data vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging",,,
 Resources,,diagnosis medical event vocabulary other,text,,,,,,,,,"If 'other', what diagnosis medical event vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging",,,
 Resources,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,"DataCatalogueFlat,RWEStaging",,,
-Resources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on","DataCatalogueFlat,EMA,RWEStaging",,,
+Resources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA,,,
 Resources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,EMA,,,
 Resources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Biospecimens,,,,,"If the data bank contains biospecimens, what types of specimen","DataCatalogueFlat,RWEStaging",,,
 Resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,Languages that the records are recorded in (ISO 639),"DataCatalogueFlat,EMA,RWEStaging",,,
@@ -202,7 +203,7 @@ Resources,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,
 Resources,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied,EMA,,,
 Resources,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied,EMA,,,
 Resources,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,EMA,,,
-Resources,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,"DataCatalogueFlat,EMA,StudiesStaging",,,
+Resources,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,EMA,,,
 Resources,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,EMA,,,
 Resources,,data extraction date,date,,,,,,,,,Date on which the study data was extracted,"DataCatalogueFlat,StudiesStaging",,,
 Resources,,study methods,heading,,,,,,,,,Methodological aspects,"DataCatalogueFlat,EMA,StudiesStaging",,,

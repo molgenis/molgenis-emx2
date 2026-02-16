@@ -1,4 +1,3 @@
-import csv
 import json
 import logging
 import pathlib
@@ -9,18 +8,17 @@ from warnings import warn
 
 import pandas as pd
 import requests
-from requests import Response
 
 from . import graphql_queries as queries
-from . import utils
-from .constants import HEADING, DATE, DATETIME, SECTION
-from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
+from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT
+from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
                          NoSuchColumnException, ReferenceException)
 from .metadata import Schema, Table
-from .utils import parse_nested_pkeys, convert_dtypes
+from .utils import parse_nested_pkeys, convert_dtypes, prepare_filter, format_optional_params, prep_data_or_file, \
+    check_schema
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -130,6 +128,8 @@ class Client:
 
     def signout(self):
         """Signs the client out of the EMX2 server."""
+        if self.signin_status != "success":
+            raise SignoutError("Could not sign out as user is not signed in.")
         response = self.session.post(
             url=self.api_graphql,
             json={'query': queries.signout()}
@@ -207,7 +207,7 @@ class Client:
         self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def save_schema(self, table: str, name: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """
         Imports or updates records in a table of a named schema.
         Deprecated and replaced by `save_table`.
@@ -215,7 +215,7 @@ class Client:
         warn("`save_schema` is deprecated. Use `save_table` instead.")
         return self.save_table(table, name, file, data)
 
-    def save_table(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def save_table(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
         :param table: the name of the table
@@ -230,17 +230,12 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        import_data = self._prep_data_or_file(file_path=file, data=data)
+        import_data = prep_data_or_file(file_path=file, data=data)
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
@@ -275,9 +270,7 @@ class Client:
         if not file_path.exists():
             raise FileNotFoundError(f"No file found at {file_path!r}.")
 
-        schema = schema if schema else self.default_schema
-        if not schema:
-            raise NoSuchSchemaException(f"Specify the schema where the file should be uploaded.")
+        schema = check_schema(schema, self.default_schema, self.schema_names)
 
         api_url = f"{self.url}/{schema}/api/"
         if file_path.suffix == '.csv':
@@ -320,12 +313,7 @@ class Client:
         :param schema: name of a schema
         :type schema: str
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
@@ -352,7 +340,7 @@ class Client:
             table = file_name.split(file_path.suffix)[0]
             return self.save_table(table=table, schema=schema, file=str(file_path))
         api_url = f"{self.url}/{schema}/api/csv"
-        data = self._prep_data_or_file(file_path=str(file_path))
+        data = prep_data_or_file(file_path=str(file_path))
 
         if self._job:
             api_url += "?parentJob=" + self._job
@@ -372,7 +360,7 @@ class Client:
             raise PyclientException(msg)
         return msg
 
-    def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
+    def delete_records(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
         :param table: the name of the table
@@ -387,17 +375,12 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        import_data = self._prep_data_or_file(file_path=file, data=data)
+        import_data = prep_data_or_file(file_path=file, data=data)
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
@@ -441,12 +424,7 @@ class Client:
         :returns: list of dictionaries or pandas DataFrame
         :rtype: list | pd.DataFrame
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
@@ -455,7 +433,7 @@ class Client:
         table_meta = schema_metadata.get_table(by='name', value=table)
         table_id = table_meta.id
 
-        filter_part = self._prepare_filter(query_filter, table, schema)
+        filter_part = prepare_filter(query_filter, table, schema_metadata)
 
         if filter_part:
             filter_part = "?filter=" + json.dumps(filter_part)
@@ -482,11 +460,14 @@ class Client:
             try:
                 response_data = response_data[columns]
             except KeyError as e:
-                if "not in index" in e.args[0]:
-                    raise NoSuchColumnException(f"Columns {e.args[0]}")
+                if e.args[0].startswith("None of [Index(['"):
+                    missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
+                    msg = f"Columns {missing_cols} not found."
+                elif "not in index" in e.args[0]:
+                    msg = f"Columns {e.args[0]}"
                 else:
-                    raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
-                                                f" not in index.")
+                    msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
+                raise NoSuchColumnException(msg)
             response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         if not as_df:
             response_data = response_data.to_dict('records')
@@ -512,12 +493,7 @@ class Client:
         :returns: list of records
         :rtype: list[dict]"""
 
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
@@ -526,7 +502,7 @@ class Client:
         table_meta = schema_metadata.get_table(by='name', value=table)
         table_id = table_meta.id
 
-        filter_part = self._prepare_filter(query_filter, table, schema)
+        filter_part = prepare_filter(query_filter, table, schema_metadata)
         query_url = f"{self.url}/{current_schema}/graphql"
 
         query = self._parse_get_table_query(table_id, current_schema, columns)
@@ -554,9 +530,7 @@ class Client:
                          Ignored when parameter filename is specified, default False
         :type as_excel: bool
         """
-        current_schema = schema if schema is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
 
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
@@ -581,7 +555,7 @@ class Client:
         if fmt == 'xlsx':
             if table is None:
                 # Export the whole schema
-                url = f"{self.url}/{current_schema}/api/excel"
+                url = f"{self.url}/{current_schema}/api/excel?async=true"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
@@ -594,7 +568,7 @@ class Client:
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
-                url = f"{self.url}/{current_schema}/api/excel/{table_id}"
+                url = f"{self.url}/{current_schema}/api/excel/{table_id}?async=true"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
@@ -606,7 +580,7 @@ class Client:
                     log.info("Exported data from table %s in schema %s.", table, current_schema)
         else:
             if table is None:
-                url = f"{self.url}/{current_schema}/api/zip"
+                url = f"{self.url}/{current_schema}/api/zip?async=true"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
@@ -620,7 +594,7 @@ class Client:
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
-                url = f"{self.url}/{current_schema}/api/csv/{table_id}"
+                url = f"{self.url}/{current_schema}/api/csv/{table_id}?async=true"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
@@ -633,7 +607,39 @@ class Client:
 
         return BytesIO(response.content)
 
-    async def create_schema(self, name: str = None,
+    async def export_schema(self, schema: str = None, fmt: str = None, filename: str = None):
+        """
+        Exports the schema definition.
+
+        :param schema: the name of the schema
+        :type schema: str
+        :param fmt: the format of the output
+        :type fmt: str
+        :param filename: the name of the file to write to
+        :param filename: str
+        """
+        current_schema = check_schema(schema, self.default_schema, self.schema_names)
+        if not fmt and not filename:
+            raise ValueError("Supply a value for `fmt` or `filename`.")
+        _fmt = fmt if not filename else filename.split('.')[-1]
+
+        fmts = ["csv", "json", "yaml"]
+        if _fmt.lower() not in fmts:
+            raise NotImplementedError(f"Cannot export schema definition in format {_fmt!r}. "
+                                      f"Select one from {fmts}.")
+
+        url = f"{self.url}/{current_schema}/api/{_fmt}"
+        response = self.session.get(url=url)
+        self._validate_graphql_response(response)
+
+        if filename:
+            with open(filename, "wb") as file:
+                file.write(response.content)
+
+        return BytesIO(response.content)
+
+
+    async def create_schema(self, name: str,
                             description: str = None,
                             template: str = None,
                             include_demo_data: bool = False):
@@ -655,7 +661,7 @@ class Client:
         if name in self.schema_names:
             raise PyclientException(f"Schema with name {name!r} already exists.")
         query = queries.create_schema()
-        variables = self._format_optional_params(name=name, description=description,
+        variables = format_optional_params(name=name, description=description,
                                                  template=template, include_demo_data=include_demo_data,
                                                  parent_job=self._job)
 
@@ -669,7 +675,6 @@ class Client:
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
         )
-
         # Catch process URL
         process_id = response.json().get('data').get('createSchema').get('taskId')
 
@@ -689,9 +694,7 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(name, self.default_schema, self.schema_names)
 
         query = queries.delete_schema()
         variables = {'id': current_schema}
@@ -720,9 +723,7 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(name, self.default_schema, self.schema_names)
 
         query = queries.update_schema()
         variables = {'name': current_schema, 'description': description}
@@ -742,7 +743,7 @@ class Client:
     async def recreate_schema(self, name: str = None,
                               description: str = None,
                               template: str = None,
-                              include_demo_data: bool = None):
+                              include_demo_data: bool = False):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
 
@@ -759,9 +760,7 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(name, self.default_schema, self.schema_names)
 
         schema_meta = [db for db in self.schemas if db.name == current_schema][0]
         schema_description = description if description else schema_meta.get('description', None)
@@ -791,9 +790,7 @@ class Client:
         :returns: metadata of the schema
         :rtype: metadata.Schema
         """
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        current_schema = check_schema(name, self.default_schema, self.schema_names)
 
         query = queries.list_schema_meta()
         response = self.session.post(
@@ -813,184 +810,56 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
-    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> dict | None:
-        """Prepares a GraphQL filter based on the expression passed into `get`."""
-        if expr in [None, ""]:
-            return None
-        statements = expr.split(' and ')
-        _filter = dict()
-        for stmt in statements:
-            if '==' in stmt:
-                _filter.update(**self.__prepare_equals_filter(stmt, _table, _schema))
-            elif '>' in stmt:
-                _filter.update(**self.__prepare_greater_filter(stmt, _table, _schema))
-            elif '<' in stmt:
-                _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
-            elif '!=' in stmt:
-                _filter.update(**self.__prepare_unequal_filter(stmt, _table, _schema))
-            elif 'between' in stmt:
-                _filter.update(**self.__prepare_between_filter(stmt, _table, _schema))
-            else:
-                raise ValueError(f"Cannot process statement {stmt!r}, "
-                                 f"ensure specifying one of the operators '==', '>', '<', '!=', 'between' "
-                                 f"in your statement.")
-        return _filter
+    def get_schema_settings(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as list of dictionaries."""
+        current_schema = check_schema(name, self.default_schema, self.schema_names)
 
-    def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
-        """Prepares the filter part if the statement filters on equality."""
-        _col = stmt.split('==')[0].strip()
-        _val = stmt.split('==')[1].strip()
+        query = queries.list_schema_settings()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
 
-        col_id = ''.join(_col.split('`'))
+        response_json = response.json()
+        settings = response_json.get('data').get('_schema').get('settings')
 
-        if '.' in col_id:
-            return self.__prepare_nested_filter(col_id, _val, "equals")
+        return settings
 
-        schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
-        match col.get('columnType'):
-            case 'BOOL':
-                val = False
-                if str(_val).lower() == 'true':
-                    val = True
-            case _:
-                try:
-                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
-                except json.decoder.JSONDecodeError:
-                    val = ''.join(_val.split('`'))
+    def get_schema_members(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as a list of dictionaries."""
+        current_schema = check_schema(name, self.default_schema, self.schema_names)
 
-        return {col.id: {'equals': val}}
+        query = queries.list_schema_members()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
 
-    def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
-        """Prepares the filter part if the statement filters on greater than."""
-        exclusive = '=' not in stmt
-        stmt = stmt.replace('=', '')
+        response_json = response.json()
+        members = response_json.get('data').get('_schema').get('members')
 
-        _col = stmt.split('>')[0].strip()
-        _val = stmt.split('>')[1].strip()
+        return members
 
-        col_id = ''.join(_col.split('`'))
+    def get_schema_roles(self, name: str = None) -> list[dict]:
+        """Retrieves the schema's settings and returns it as a list of dictionaries."""
+        current_schema = check_schema(name, self.default_schema, self.schema_names)
 
-        schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+        query = queries.list_schema_roles()
+        response = self.session.post(
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
+        )
+        self._validate_graphql_response(response)
 
-        match col.get('columnType'):
-            case 'INT':
-                val = int(_val) + 1 * exclusive
-            case 'DECIMAL':
-                val = float(_val) + 0.0000001 * exclusive
-            case _:
-                raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
+        response_json = response.json()
+        roles = response_json.get('data').get('_schema').get('roles')
 
-        return {col.id: {"between": [val, None]}}
-
-    def __prepare_smaller_filter(self, stmt: str, _table: str, _schema: str) -> dict:
-        """Prepares the filter part if the statement filters on greater than."""
-        exclusive = '=' not in stmt
-        stmt = stmt.replace('=', '')
-
-        _col = stmt.split('<')[0].strip()
-        _val = stmt.split('<')[1].strip()
-
-        col_id = ''.join(_col.split('`'))
-
-        schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
-
-        match col.get('columnType'):
-            case 'INT':
-                val = int(_val) - 1 * exclusive
-            case 'DECIMAL':
-                val = float(_val) - 0.0000001 * exclusive
-            case _:
-                raise NotImplementedError(f"Cannot perform filter '<' on column with type {col.get('columnType')}.")
-
-        return {col.id: {"between": [None, val]}}
-
-    def __prepare_unequal_filter(self, stmt: str, _table: str, _schema: str) -> dict:
-        """Prepares the filter part if the statement filters on greater than."""
-        _col = stmt.split('!=')[0].strip()
-        _val = stmt.split('!=')[1].strip()
-
-        col_id = ''.join(_col.split('`'))
-
-        if '.' in col_id:
-            return self.__prepare_nested_filter(col_id, _val, "not_equals")
-
-        schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
-
-        match col.get('columnType'):
-            case _:
-                try:
-                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
-                except json.decoder.JSONDecodeError:
-                    val = ''.join(_val.split('`'))
-
-        return {col.id: {"not_equals": val}}
-
-    def __prepare_between_filter(self, stmt: str, _table: str, _schema: str) -> dict:
-        """Prepares the filter part if values between a certain range are requested."""
-        stmt.replace('=', '')
-        _col = stmt.split('between')[0].strip()
-        _val = stmt.split('between')[1].strip()
-
-        try:
-            val = json.loads(_val)
-        except json.decoder.JSONDecodeError:
-            msg = ("To filter on values between a and b, supply them as a list, [a, b]. "
-                   "Ensure the values for a and b are numeric.")
-            raise ValueError(msg)
-        col_id = ''.join(_col.split('`'))
-
-        schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
-        if (col_type := col.get('columnType')) not in ['INT', 'DECIMAL']:
-            raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
-
-        return {col.id: {'between': val}}
-
-    def __prepare_nested_filter(self, columns: str, value: str | int | float | list, comparison: str):
-        _filter = {}
-        current = _filter
-        for (i, segment) in enumerate(columns.split('.')[:-1]):
-            current[segment] = {}
-            current = current[segment]
-        last_segment = columns.split('.')[-1]
-        current[last_segment] = {comparison: self.__prepare_value(value)}
-        return _filter
-
-    @staticmethod
-    def __prepare_value(value: str):
-        if value.startswith('[') and value.endswith(']'):
-            return json.loads(value.replace('\'', '"'))
-        return value
-
-    @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
-        """Prepares the data from memory or loaded from disk for addition or deletion action.
-
-        :param file_path: path to the file to be prepared
-        :type file_path: str
-        :param data: data to be prepared
-        :type data: list
-
-        :returns: prepared data in dataframe format
-        :rtype: pd.DataFrame
-        """
-
-        if file_path is not None:
-            return utils.read_file(file_path=file_path)
-
-        if data is not None:
-            if isinstance(data, pd.DataFrame):
-                return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-            else:
-                return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-
-        message = "No data to import. Specify a file location or a dataset."
-        log.error(message)
-        raise FileNotFoundError(message)
+        return roles
 
     def set_schema(self, name: str) -> str:
         """Sets the default schema to the schema supplied as argument.
@@ -1060,7 +929,7 @@ class Client:
                 task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
 
-    def _validate_graphql_response(self, response: Response, mutation: str = None, fallback_error_message: str = None):
+    def _validate_graphql_response(self, response, mutation: str = None, fallback_error_message: str = None):
         """Validates a GraphQL response and prints the appropriate message.
 
         :param response: a graphql response from the server
@@ -1091,6 +960,14 @@ class Client:
                 msg = response.json().get("errors", [])[0].get('message', '')
                 log.error(msg)
                 raise ReferenceException(msg)
+            if "Cannot create schema from template" in response.text:
+                msg = response.json().get("errors", [])[0].get('message', '')
+                log.error(msg)
+                raise NonExistentTemplateException("Selected template does not exist.")
+            if "Field \'members\' in type \'MolgenisSchema\' is undefined" in response.text:
+                msg = response.json().get("errors", [])[0].get('message')
+                log.error(msg)
+                raise PermissionDeniedException("Cannot access members on this schema.")
 
             msg = response.json().get("errors", [])[0].get('message', '')
             log.error(msg)
@@ -1126,19 +1003,6 @@ class Client:
             else:
                 message = f"Failed to validate response for {mutation!r}"
                 log.error(message)
-
-    @staticmethod
-    def _format_optional_params(**kwargs):
-        """Parses optional keyword arguments to a format suitable for GraphQL queries."""
-        keys = kwargs.keys()
-        args = {key: kwargs[key] for key in keys if (key != 'self') and (key is not None)}
-        if 'name' in args.keys():
-            args['name'] = args.pop('name')
-        if 'include_demo_data' in args.keys():
-            args['includeDemoData'] = args.pop('include_demo_data')
-        if 'parent_job' in args.keys():
-            args['parentJob'] = args.pop('parent_job')
-        return args
 
     def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
         """Checks whether the requested table is present in the schema.
@@ -1182,6 +1046,11 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata(schema)
         table_metadata: Table = schema_metadata.get_table('id', table_id)
 
+        if columns is not None:
+            if not all(col in map(lambda c: c.id, table_metadata.columns) for col in columns):
+                unknown_cols = "'" + "', '".join([col for col in columns if col not in map(lambda c: c.id, table_metadata.columns)]) + "'"
+                raise NoSuchColumnException(f"Columns {unknown_cols} not found.")
+
         query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
                  f"  {table_id}(filter: $filter) {{\n")
 
@@ -1190,9 +1059,9 @@ class Client:
                 continue
             if col.get('columnType') in [HEADING, SECTION]:
                 continue
-            elif col.get('columnType').startswith('ONTOLOGY'):
+            elif col.get('columnType').startswith(ONTOLOGY):
                 query += f"    {col.get('id')} {{name}}\n"
-            elif col.get('columnType').startswith('REF'):
+            elif col.get('columnType').startswith(REF) or col.get('columnType') in [RADIO, SELECT]:
                 if (ref_schema := col.get('refSchemaName', schema)) == schema:
                     pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
                 else:
@@ -1201,7 +1070,7 @@ class Client:
                 query += f"    {col.get('id')} {{"
                 query += parse_nested_pkeys(pkeys)
                 query += "}\n"
-            elif col.get('columnType').startswith('FILE'):
+            elif col.get('columnType').startswith(FILE):
                 query += f"    {col.get('id')} {{id}}\n"
             else:
                 query += f"    {col.get('id')}\n"

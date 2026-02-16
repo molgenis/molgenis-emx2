@@ -7,6 +7,7 @@
       :disabled="disabled"
       :data-valid="valid"
       :data-invalid="invalid"
+      :year-range="[432, 2060]"
       type="Date"
       v-model:="internalValue"
       @update:modelValue="handleUpdate"
@@ -60,9 +61,12 @@ function handleUpdate(newValue: string) {
 }
 
 function handleBlur() {
-  //check that actually something relevant happened
   if (internalValue.value !== props.modelValue) {
     emit("blur");
+  }
+
+  if (!internalValue.value) {
+    setPlaceholder();
   }
 }
 

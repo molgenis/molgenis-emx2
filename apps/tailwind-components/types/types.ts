@@ -52,6 +52,15 @@ export interface ITreeNodeState extends ITreeNode {
   children: ITreeNodeState[];
   /* if a node is selectable */
   selectable: boolean;
+  /* pagination: current offset for loading more children */
+  loadMoreOffset?: number;
+  /* pagination: total count of children available */
+  loadMoreTotal?: number;
+  /* pagination: whether there are more children to load */
+  loadMoreHasMore?: boolean;
+  /* whether this node is showing all children (bypassing search filter) */
+  showingAll?: boolean;
+  unfilteredTotal?: number;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";

@@ -48,7 +48,8 @@
           <FormFields
             schemaId="catalogue-demo"
             :columns="visibleColumns"
-            :error-map="errorMap"
+            :visibleColumnErrors="visibleColumnErrors"
+            :requiredFields="{}"
             v-model="formValues"
             @update="onUpdateColumn"
             @blur="onBlurColumn"
@@ -153,7 +154,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
-  errorMap,
+  visibleColumnErrors,
   sections,
   onUpdateColumn,
   onBlurColumn,

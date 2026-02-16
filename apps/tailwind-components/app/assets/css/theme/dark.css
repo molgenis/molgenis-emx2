@@ -33,13 +33,11 @@
   --background-color-button-outline-hover: var(--color-gray-900);
 
   --background-color-content: var(--color-gray-700);
-
   --background-color-form: var(--color-gray-900);
   --background-color-form-legend: var(--color-gray-900);
   --background-color-footer: var(--color-gray-700);
   --background-color-modal: var(--color-gray-900);
   --background-color-modal-footer: var(--color-gray-900);
-
   --background-color-input: var(--gray-800);
   --background-color-input-focused: var(--color-green-200);
   --background-color-input-checked: var(--color-green-500);
@@ -47,10 +45,9 @@
   --background-color-pagination-hover: var(--color-gray-700);
   --background-color-hover: var(--color-gray-900);
   --background-color-input: var(--color-gray-600);
-
   --background-color-table: var(--color-gray-700);
-
   --background-color-ref-dropdown-toolbar: var(--color-gray-900);
+  --background-color-code-output: var(--color-gray-600);
 
   --text-color-link: var(--color-green-500);
   --text-color-link-inverted: var(--color-green-500);
@@ -123,4 +120,8 @@
   /** labels */
   --background-color-label-draft: var(--color-stroke-light);
   --text-color-label-draft: var(--color-white);
+
+  /* visualisations: need css and svg defintions */
+  --chart-text: var(--color-white);
+  --chart-paths: var(--color-gray-100);
 }

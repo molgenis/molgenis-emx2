@@ -32,9 +32,9 @@ public class StaticFileMapper {
 
     app.get("/apps/ui/{schema}/", StaticFileMapper::returnUiAppIndex);
     app.get(
-        "/apps/ui/{schema}/{path}",
+        "/apps/ui/{schema}/<path>",
         ctx -> {
-          if (ctx.pathParam("path").contains(".") || ctx.pathParam("path").contains("/")) {
+          if (ctx.pathParam("path").contains(".")) {
             redirectResources(ctx);
           } else {
             returnUiAppIndex(ctx);

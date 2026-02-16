@@ -1,28 +1,26 @@
 import {
   computed,
-  ref,
-  watch,
-  type MaybeRef,
-  unref,
   isRef,
+  ref,
+  unref,
+  watch,
   type ComputedRef,
+  type MaybeRef,
   type Ref,
 } from "vue";
+import { toFormData } from "../../../metadata-utils/src/toFormData";
 import type {
-  columnValue,
-  ITableMetaData,
-  IColumn,
   columnId,
+  columnValue,
+  IColumn,
+  ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
-import { toFormData } from "../../../metadata-utils/src/toFormData";
+import { getColumnError } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
-import {
-  getColumnError,
-  isRequired,
-} from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import { useSession } from "#imports";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+import { useSession } from "./useSession";
+
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
   formValuesRef: MaybeRef<Record<columnId, columnValue>>,
@@ -58,20 +56,27 @@ export default function useForm(
 
   const formValueKeys = metadata.value.columns.map((col) => col.id);
 
+  const extractParamsFromExpression = (expression: string) => {
+    const params: string[] = [];
+    if (expression === "") {
+      return params;
+    }
+    for (const key of formValueKeys) {
+      // regex finds formValue keys used inside the expression
+      const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
+      if (regex.test(expression)) {
+        params.push(key);
+      }
+    }
+    return params;
+  };
+
   // setup visibility signals
   const visibilityMap = metadata.value.columns.reduce((acc, column) => {
     const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
 
     const exprString = column.visible;
-    const params: string[] = [];
-
-    for (const key of formValueKeys) {
-      // regex finds formValue keys used inside the expression
-      const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
-      if (regex.test(exprString || "")) {
-        params.push(key);
-      }
-    }
+    const params: string[] = extractParamsFromExpression(exprString || "");
 
     const paramsString = params.join(", ");
     const visibilityFunction = new Function(
@@ -88,6 +93,49 @@ export default function useForm(
         )
     );
 
+    return acc;
+  }, {} as Record<columnId, ComputedRef<boolean>>);
+
+  const requiredMap = metadata.value.columns.reduce((acc, column) => {
+    if (typeof column.required === "boolean") {
+      acc[column.id] = computed(() => !!column.required);
+    } else if (
+      column.required?.toLocaleLowerCase() === "true" ||
+      column.required?.toLocaleLowerCase() === "false"
+    ) {
+      const requiredBool = column.required.toLocaleLowerCase() === "true";
+      acc[column.id] = computed(() => requiredBool);
+    } else if (typeof column.required === "string") {
+      try {
+        const requiredExpression = column.required;
+        const cleanExpression =
+          requiredExpression.replaceAll('"', "'") || "false";
+        const params: string[] =
+          extractParamsFromExpression(requiredExpression);
+        const paramsString = params.join(", ");
+        const requiredFunction = new Function(
+          paramsString,
+          "return eval(`" + cleanExpression + "`)"
+        );
+        acc[column.id] = computed(
+          () =>
+            !!requiredFunction.apply(
+              null,
+              params.map((p) => formValues.value[p])
+            )
+        );
+      } catch (e) {
+        console.error(
+          "Error creating required function for column",
+          column.id,
+          e
+        );
+        acc[column.id] = computed(() => false);
+      }
+    } else {
+      // default to not required
+      acc[column.id] = computed(() => false);
+    }
     return acc;
   }, {} as Record<columnId, ComputedRef<boolean>>);
 
@@ -115,16 +163,12 @@ export default function useForm(
         isVisible: computed(() =>
           columns.some((col) => visibilityMap[col.id]?.value === true)
         ),
-        isActive: computed(
-          () =>
-            visibleColumnIds.value.has(column.id) ||
-            section.headers.some((header) =>
-              visibleColumnIds.value.has(header.id)
-            )
+        isActive: computed(() =>
+          section.headers.some((header) => unref(header.isActive))
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
-            if (errorMap.value[col.id]) {
+            if (visibleColumnErrors.value[col.id]) {
               return acc + 1;
             }
             return acc;
@@ -136,7 +180,7 @@ export default function useForm(
     }
   });
 
-  // second pass to get headings and colums
+  // second pass to get headings and columns
   metadata.value.columns.forEach((column) => {
     if (column.columnType !== "SECTION") {
       const section = sections.value.find(
@@ -157,14 +201,12 @@ export default function useForm(
           isVisible: computed(() =>
             headingColumns.some((col) => visibilityMap[col.id]?.value === true)
           ),
-          isActive: computed(
-            () =>
-              visibleColumnIds.value.has(column.id) ||
-              headingColumns.some((col) => visibleColumnIds.value.has(col.id))
+          isActive: computed(() =>
+            headingColumns.some((col) => visibleColumnIds.value.has(col.id))
           ),
           errorCount: computed(() => {
             return headingColumns.reduce((acc, col) => {
-              if (errorMap.value[col.id]) {
+              if (visibleColumnErrors.value[col.id]) {
                 return acc + 1;
               }
               return acc;
@@ -192,7 +234,7 @@ export default function useForm(
     return metadata.value?.columns.filter(
       (column: IColumn) =>
         visibilityMap[column.id]?.value === true &&
-        isRequired(column.required) &&
+        requiredMap[column.id]?.value === true &&
         column.columnType !== "AUTO_ID"
     );
   });
@@ -218,17 +260,18 @@ export default function useForm(
       emptyRequiredFields.value.length > 1 ? "fields" : "field";
     if (emptyRequiredFields.value.length === 0) {
       return "All required fields are filled";
+    } else {
+      return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
     }
-    return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
   });
 
   const errorMessage = computed(() => {
-    const errorCount = Object.values(errorMap.value).filter(
+    const errorCount = Object.values(visibleColumnErrors.value).filter(
       (value) => value !== ""
     ).length;
     const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
     return errorCount > 0
-      ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
+      ? `${errorCount} ${fieldLabel} attention before you can save this ${metadata.value.label}`
       : "";
   });
 
@@ -282,36 +325,31 @@ export default function useForm(
   };
 
   const validateAllColumns = () => {
+    errorMap.value = {};
     metadata.value.columns.forEach((column) => {
+      validateColumn(column);
+    });
+  };
+
+  const validateKeyColumns = () => {
+    errorMap.value = {};
+    const keyColumns = metadata.value.columns.filter((col) => col.key === 1);
+    keyColumns.forEach((column) => {
       validateColumn(column);
     });
   };
 
   const validateColumn = (column: IColumn) => {
     const error = getColumnError(column, formValues.value, metadata.value);
-
     if (error) {
       errorMap.value[column.id] = error;
     } else {
-      errorMap.value[column.id] = metadata.value.columns
-        .filter((c) => c.validation?.includes(column.id))
-        .map((c) => {
-          const result = getColumnError(c, formValues.value, metadata.value);
-          return result;
-        })
-        .join("");
+      delete errorMap.value[column.id];
     }
-
-    // remove empty entries from the map
-    Object.entries(errorMap.value).forEach(([key, value]) => {
-      if (value == "" || value == undefined || value == null) {
-        delete errorMap.value[key];
-      }
-    });
   };
 
   const gotoPreviousError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -329,7 +367,7 @@ export default function useForm(
   };
 
   const gotoNextError = () => {
-    const keys = Object.keys(errorMap.value);
+    const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
       return;
     }
@@ -431,8 +469,17 @@ export default function useForm(
     );
   });
 
+  // reactive intersection of visible columns and error columns
+  const visibleColumnErrors = computed(() => {
+    const visibleColIds = visibleColumns.value.map((col) => col.id);
+    const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
+      visibleColIds.includes(key)
+    );
+    return Object.fromEntries(visibleErrors);
+  });
+
   const currentSection = computed(() => {
-    const activeSections = sections.value.filter((s) => s.isActive.value);
+    const activeSections = sections.value.filter((s) => unref(s.isActive));
     if (activeSections.length < 1) {
       return sections.value[0]?.id || null;
     } else {
@@ -472,7 +519,8 @@ export default function useForm(
         );
       }
     }
-    throw new Error(message, error);
+    // if we don't suspect a session timeout, rethrow the original error
+    throw error;
   }
 
   function scrollTo(elementId: string) {
@@ -484,7 +532,7 @@ export default function useForm(
       if (container && elementId === "mg_top_of_form-form-field") {
         container.scrollTo({
           top: 0,
-          behavior: "smooth",
+          behavior: "auto",
         });
       } else {
         const target = document.getElementById(elementId);
@@ -492,7 +540,7 @@ export default function useForm(
           const SCROLL_PADDING = 32;
           const offset =
             target.offsetTop - container.offsetTop - SCROLL_PADDING;
-          container.scrollTo({ top: offset, behavior: "smooth" });
+          container.scrollTo({ top: offset, behavior: "auto" });
         } else {
           // try again on the next frame until the element exists
           requestAnimationFrame(attemptScroll);
@@ -525,9 +573,11 @@ export default function useForm(
     sections,
     currentSection,
     visibleColumns,
-    errorMap,
+    visibleColumnErrors,
     validateAllColumns,
+    validateKeyColumns,
     lastScrollTo, //for debug
     visibleColumnIds,
+    requiredMap,
   };
 }

@@ -47,6 +47,8 @@ export type CellValueType =
   | "EMAIL_ARRAY"
   | "HYPERLINK"
   | "HYPERLINK_ARRAY"
+  | "NON_NEGATIVE_INT"
+  | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
   | "MULTISELECT";
 
@@ -117,7 +119,7 @@ interface LegendItem {
   type: HeadingType;
   errorCount: ComputedRef<number>;
   isVisible: ComputedRef<boolean>;
-  isActive: ComputedRef<boolean>;
+  isActive: ComputedRef<boolean> | boolean;
 }
 export interface LegendSection extends LegendItem {
   type: "SECTION";
@@ -130,18 +132,38 @@ export interface LegendHeading extends LegendItem {
 export type columnId = string;
 export type columnValue =
   | string
+  | string[]
   | number
+  | number[]
   | boolean
   | null
   | undefined
   | columnValueObject
-  | columnValue[]
+  | columnValueObject[]
   | fileValue;
 
 export type recordValue = Record<string, columnValue>;
 
 export interface columnValueObject {
   [x: string]: columnValue;
+}
+
+export function isColumnValueObject(
+  value: columnValue
+): value is columnValueObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function isColumnValueObjectArray(
+  value: columnValue
+): value is columnValueObject[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === "object" && item !== null && !Array.isArray(item)
+    )
+  );
 }
 
 export type fileValue = {
@@ -151,6 +173,19 @@ export type fileValue = {
   extension: string;
   url: string;
 };
+
+export function isFileValue(value: columnValue): value is fileValue {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "id" in value &&
+    "size" in value &&
+    "filename" in value &&
+    "extension" in value &&
+    "url" in value
+  );
+}
 
 export type IInputValue = string | number | boolean;
 

@@ -21,6 +21,14 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PATH="/home/molgenis/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN node --version
 RUN npm --version
+
+# ------------------------
+# Install pnpm (via Corepack)
+# ------------------------
+RUN corepack enable
+RUN corepack prepare pnpm@10.24.0 --activate
+RUN pnpm --version
+
 USER root 
 
 
@@ -37,12 +45,13 @@ RUN curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.s
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin/kubectl
-#
-##helm repo
-RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
-RUN apt-get update
-RUN apt-get install helm -y
+
+# Helm (binary install – works on noble)
+RUN curl -fsSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz \
+  | tar -xz \
+ && mv linux-amd64/helm /usr/local/bin/helm \
+ && chmod +x /usr/local/bin/helm \
+ && rm -rf linux-amd64
 #
 
 # Azure CLI Tools

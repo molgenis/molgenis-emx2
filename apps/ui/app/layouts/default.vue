@@ -56,11 +56,11 @@
         </template>
       </Header>
 
-      <main class="mb-auto">
+      <main class="flex-1">
         <slot />
       </main>
 
-      <FooterComponent />
+      <FooterComponent class="mt-[7.8125rem]" />
     </div>
   </div>
 </template>
@@ -116,6 +116,9 @@ const isAdmin = computed(() => session.value?.admin);
 
 const navigation = computed(() => {
   const items = [];
+  if (schema.value) {
+    items.push({ label: "SHACL", link: `/${schema.value}/shacl` });
+  }
   if (schema.value && isAdmin.value) {
     items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
     items.push({ label: "Pages", link: `/${schema.value}/pages/` });

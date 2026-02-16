@@ -1,4 +1,6 @@
 resource,id,type,name,organisation,other organisation,department,website,email,logo,logo_filename,role,organisation name,organisation pid,organisation website,is lead organisation,mg_draft
+main catalogue,UMCG,Organisation,,University Medical Center Groningen,,Genomics Coordination Center,,info@umcg.nl,,,,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,true,false
+testCohort2,test organisation,Organisation,,,Test organisation without ROR,,,test@email.com,,,"Data provider,Surveillance",Test organisation without ROR,https://no-ror-id.org,https://website-test-organisation.org,false,
 FEF,UEF,Organisation,,University of Eastern Finland,,,,test@email.com,,,,University of Eastern Finland,https://ror.org/00cyydd11,https://www.uef.fi,true,
 PANIC,UEF,Organisation,,University of Eastern Finland,,,,test@email.com,,,,University of Eastern Finland,https://ror.org/00cyydd11,https://www.uef.fi,true,
 SYSDIMET,UEF,Organisation,,University of Eastern Finland,,,,test@email.com,,,,University of Eastern Finland,https://ror.org/00cyydd11,https://www.uef.fi,true,

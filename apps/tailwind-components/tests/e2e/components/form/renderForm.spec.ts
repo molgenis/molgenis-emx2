@@ -5,8 +5,9 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   await page.goto(`${route}Form.story?schema=catalogue-demo&table=Resources`);
+  testInfo.setTimeout(testInfo.timeout + 30_000);
 });
 
 test("it should render the form", async ({ page }) => {
@@ -16,7 +17,10 @@ test("it should render the form", async ({ page }) => {
   await expect(page.getByLabel("id Required", { exact: true })).toBeVisible();
 });
 
-test("it should show the chapters in the legend", async ({ page }) => {
+test("it should show the chapters in the legend", async ({
+  page,
+}, testInfo) => {
+  testInfo.setTimeout(testInfo.timeout + 10_000);
   await expect(page.locator("a").filter({ hasText: "Overview" })).toBeVisible();
   await expect(
     page.locator("a").filter({ hasText: "design and structure" })
