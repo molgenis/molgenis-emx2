@@ -2,7 +2,7 @@
   <InputRadio
     v-if="options?.length"
     :id="id"
-    :modelValue="condition"
+    :modelValue="conditionLabel"
     :tableId="tableId"
     :schemaId="schemaId"
     :refLabel="refLabel"
@@ -19,21 +19,23 @@ import { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import { IRow } from "../../Interfaces/IRow";
 import { applyJsTemplate } from "../utils";
 
-const { schemaId, tableId, refLabel, orderBy, filter } = defineProps<{
-  id: string;
-  condition?: Object;
-  tableId: string;
-  schemaId: string;
-  refLabel: string;
-  orderBy?: Record<string, string>;
-  filter?: Object;
-}>();
+const { schemaId, tableId, refLabel, orderBy, filter, condition } =
+  defineProps<{
+    id: string;
+    condition?: Record<string, any>;
+    tableId: string;
+    schemaId: string;
+    refLabel: string;
+    orderBy?: Record<string, string>;
+    filter?: Object;
+  }>();
 
 const emit = defineEmits(["updateCondition", "clearCondition"]);
 const client = Client.newClient(schemaId);
 
 const options = ref();
 const keysByLabel = ref<Record<string, any>>({});
+const conditionLabel = ref(applyJsTemplate(condition || {}, refLabel));
 
 loadOptions();
 
