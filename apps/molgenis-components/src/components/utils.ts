@@ -132,7 +132,7 @@ export function flipSign(value: string | null): string {
 export function applyJsTemplate(
   object: Record<string, any>,
   labelTemplate: string
-): string | undefined {
+): string {
   if (object === undefined || object === null) {
     return "";
   }
