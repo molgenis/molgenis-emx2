@@ -25,6 +25,7 @@ then
   kubectl delete namespace $NAME || true
 fi
 # Create certs from environement
+#
 echo ${CERTDEVMOLGENIS_KEY} | base64 --decode >> /tmp/cert_key 
 echo ${CERTDEVMOLGENIS_PEM} | base64 --decode >> /tmp/cert_pem
 
