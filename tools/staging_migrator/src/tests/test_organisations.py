@@ -12,6 +12,7 @@ import sys
 from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
+from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_statement
 from staging_migrator.src.tests.utils import RESOURCES_PATH, zip_folder
 
 CATALOGUE = 'catalogue'
@@ -74,3 +75,14 @@ def test_process_organisations():
     assert processed_orgs["organisation name"].values.tolist() == ['Leiden University Medical Center', 'University Medical Center Groningen', 'Hanze']
     assert processed_orgs["organisation pid"].values.tolist() == ['ROR:05xvt9f17', 'ROR:03cv38k47', None]
     assert processed_orgs["organisation website"].values.tolist() == ['https://www.lumc.nl', 'https://www.umcg.nl', None]
+
+def test_process_contacts():
+    """Unit test for the `process_contacts` method."""
+    contacts_csv = """resource,role,first name,last name,statement of consent personal data
+    R1,Principal Investigator,A1,B1,true
+    R2,Primary contact,A2,B2,true
+    R3,Participant,A3,B3,false"""
+    contacts_df = pd.read_csv(io.StringIO(contacts_csv))
+
+    processed_contacts = process_statement(contacts_df)
+    assert processed_contacts["mg_delete"].values.tolist() == [False, False, True]

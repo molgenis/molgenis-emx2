@@ -44,25 +44,14 @@ def resource_ref_cols(schema: Schema, table_name: str) -> list[str]:
     return list(map(lambda col: col.name, table_schema.get_columns("refTableId", "Resources")))
 
 
-def has_statement_of_consent(table: Table) -> int:
-    """Checks whether this table has a column that asks for a statement of consent."""
-    consent_cols = ['statement of consent personal data',
-                    'statement of consent email']
-
-    col_names = map(str, table.columns)
-
-    return 1 * (consent_cols[0] in col_names) + 2 * (consent_cols[1] in col_names)
-
-
-def process_statement(df: pd.DataFrame, consent_val: int) -> pd.DataFrame:
+def process_statement(df: pd.DataFrame) -> pd.DataFrame:
     """Processes any statement of consent by modifying the rows in the table for which no consent is given."""
-
+    statement = "statement of consent personal data"
+    if statement not in df.columns:
+        return df
     # Remove rows without any data consent
-    if consent_val % 2 == 1:
-        df['mg_delete'] = ~df['statement of consent personal data'].replace({nan: False})
-    # Replace email values for rows without email consent
-    if consent_val > 1:
-        df.loc[~df['statement of consent email'], 'email'] = None
+    df['mg_delete'] = ~df[statement].replace({nan: False})
+    df = df.drop(columns=[statement])
 
     log.info("Implemented statement of consent in Contacts table.")
 

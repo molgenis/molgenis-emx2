@@ -12,7 +12,7 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTable
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
-from .utils import prepare_primary_keys, has_statement_of_consent, process_statement, resource_ref_cols, load_table, \
+from .utils import prepare_primary_keys, process_statement, resource_ref_cols, load_table, \
     set_all_delete
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
@@ -126,6 +126,8 @@ class StagingMigrator(Client):
                 updated_table: pd.DataFrame = self._get_filtered(table)
                 if table.id == "Organisations":
                     updated_table = self.process_organisations(updated_table)
+                if table.id == "Contacts":
+                    updated_table = process_statement(updated_table)
 
 
     def create_zip(self):
@@ -273,8 +275,6 @@ class StagingMigrator(Client):
         """
         Applies transformation on a table's data given its contents.
         """
-        if (consent_val := has_statement_of_consent(table)) != 0:
-            return process_statement(df, consent_val=consent_val)
         return df
 
 
