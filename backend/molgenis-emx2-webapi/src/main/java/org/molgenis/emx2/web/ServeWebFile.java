@@ -62,7 +62,6 @@ public class ServeWebFile {
 
     try {
       ctx.contentType(mimeType);
-
       ctx.result(ByteStreams.toByteArray(in));
     } catch (Exception e) {
       ctx.status(404).result("File not found: " + ctx.path());
