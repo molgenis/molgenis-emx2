@@ -38,7 +38,7 @@ public class FormattedIdGenerator implements IdGenerator {
     if (COMPUTED_AUTOID_TOKEN.equals(format)) {
       return SnowflakeIdGenerator.getInstance();
     } else {
-      AutoIdConfig config = AutoIdConfig.fromComputedString(format);
+      AutoIdFormat config = AutoIdFormat.fromComputedString(format);
       return ConfiguringIdGenerator.fromAutoIdConfig(config);
     }
   }
