@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record AutoIdConfig(Format format, int length) {
+public record AutoIdFormat(Format format, int length) {
 
   private static final Pattern JS_TOKEN_PATTERN =
       Pattern.compile("\\$\\{mg_autoid(\\((?<args>.*)\\))?}");
@@ -26,19 +26,19 @@ public record AutoIdConfig(Format format, int length) {
     }
   }
 
-  public static AutoIdConfig fromComputedString(String computedString) {
+  public static AutoIdFormat fromComputedString(String computedString) {
     Format format = Format.MIXED;
     int length = 12;
 
     Matcher matcher = JS_TOKEN_PATTERN.matcher(computedString);
 
     if (!matcher.find()) {
-      return new AutoIdConfig(format, length);
+      return new AutoIdFormat(format, length);
     }
 
     String args = matcher.group("args");
     if (args == null || args.isBlank()) {
-      return new AutoIdConfig(format, length);
+      return new AutoIdFormat(format, length);
     }
 
     Map<String, Object> argMap = parseArgs(args);
@@ -59,7 +59,7 @@ public record AutoIdConfig(Format format, int length) {
       }
     }
 
-    return new AutoIdConfig(format, length);
+    return new AutoIdFormat(format, length);
   }
 
   private static Map<String, Object> parseArgs(String args) {
