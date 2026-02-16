@@ -20,6 +20,25 @@ E.g. http://localhost:8080/pet%20store/tables/ will serve app in /apps/tables/ (
 Then within your app, you will have graphql simply at 'graphql' path. This makes it easy to have apps run in different
 contexts.
 
+## Custom apps
+
+MOLGENIS has a feature where you can add a folder next to the ```
+molgenis-emx2-<version>-all.jar``` named ```custom-app``` where you can serve your own app.
+
+Within this folder, you can then place your own ```html``` files, optionally in subfolders and then they will be 
+available on ```https://<molgenis-url>/ext/```.
+
+**Example**: 
+```cli
+molgenis-emx2-<version>-all.jar
+custom-app
+     |_ my-app
+          |_ index.html
+```
+
+This is now accessible on ```https://<molgenis-url>/ext/my-app```. It automatically searches for an html file when no 
+extension is given. This also makes it work with SPA.
+
 ## Each schema has settings endpoint
 
 To ease creation of user settings, each schema has _settings endpoint in grahpq that can be edited by users with the manager
