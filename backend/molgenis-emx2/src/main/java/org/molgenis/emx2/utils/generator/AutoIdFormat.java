@@ -81,4 +81,20 @@ public record AutoIdFormat(Format format, int length) {
 
     return argMap;
   }
+
+  public long getMaxValue() {
+    long result = 1;
+    int characterLength = format.characters.length();
+    long limit = Long.MAX_VALUE / characterLength;
+
+    for (int i = 0; i < length; i++) {
+      if (result > limit) {
+        return Long.MAX_VALUE;
+      }
+
+      result *= characterLength;
+    }
+
+    return result;
+  }
 }
