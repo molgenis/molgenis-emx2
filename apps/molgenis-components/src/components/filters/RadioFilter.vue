@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import Client, { convertRowToPrimaryKey } from "../../client/client";
-import InputRadio from "../forms/InputRadio.vue";
+import { computed, ref } from "vue";
 import { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
+import Client, { convertRowToPrimaryKey } from "../../client/client";
 import { IRow } from "../../Interfaces/IRow";
+import InputRadio from "../forms/InputRadio.vue";
 import { applyJsTemplate } from "../utils";
 
 const { schemaId, tableId, refLabel, orderBy, filter, condition } =
@@ -35,7 +35,9 @@ const client = Client.newClient(schemaId);
 
 const options = ref();
 const keysByLabel = ref<Record<string, any>>({});
-const conditionLabel = ref(applyJsTemplate(condition || {}, refLabel));
+const conditionLabel = computed(() =>
+  applyJsTemplate(condition || {}, refLabel)
+);
 
 loadOptions();
 
