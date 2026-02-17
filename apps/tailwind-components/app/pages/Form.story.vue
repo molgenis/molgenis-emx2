@@ -23,54 +23,7 @@ interface Schema {
 const route = useRoute();
 const router = useRouter();
 
-const schemaId = (route.query.schema as string) ?? "pet store";
-
-const { data: schemaMeta } = await useAsyncData(schemaId + " form data", () =>
-  fetchMetadata(schemaId)
-);
-
-const schemaTablesIds = computed(() =>
-  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
-);
-
-const tableId = (route.query.table as string) ?? schemaTablesIds.value[0];
-const metadata = computed(() => {
-  const tableMetadata = (schemaMeta.value as ISchemaMetaData)?.tables.find(
-    (table) => table.id === tableId
-  );
-  if (!tableMetadata) {
-    throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
-  }
-  return tableMetadata;
-});
-
-const rowIndex = route.query.rowIndex
-  ? parseInt(route.query.rowIndex as string)
-  : undefined;
-const formValues = ref<Record<string, columnValue>>({});
-const numberOfRows = ref(0);
-
-const sizeResp = await $fetch(`/${schemaId}/graphql`, {
-  method: "POST",
-  body: {
-    query: `query ${tableId} {
-          ${tableId}_agg {
-            count
-          }
-        }`,
-  },
-});
-numberOfRows.value = sizeResp.data[tableId + "_agg"].count;
-
-// Only fetch row data if rowIndex is provided
-if (rowIndex !== undefined) {
-  const valuesResp = await fetchTableData(schemaId, tableId, {
-    limit: 1,
-    offset: rowIndex - 1, // adjust for 0-based index
-  });
-
-  formValues.value = valuesResp.rows[0] ?? {};
-}
+const schemaId = ref((route.query.schema as string) ?? "pet store");
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
@@ -78,21 +31,64 @@ const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   body: { query: `{ _schemas { id,label,description } }` },
 });
 
+const { data: schemaMeta, refresh: refreshSchemaMeta } = await useAsyncData(
+  schemaId.value + " form data",
+  () => fetchMetadata(schemaId.value)
+);
+
+const schemaTablesIds = computed(() =>
+  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
+);
+
+const tableId = ref((route.query.table as string) ?? schemaTablesIds.value[0]);
+const metadata = computed(() => {
+  const tableMetadata = (schemaMeta.value as ISchemaMetaData)?.tables.find(
+    (table) => table.id === tableId.value
+  );
+  return tableMetadata ?? schemaMeta.value?.tables[0]!;
+});
+
+const rowIndex = ref(
+  route.query.rowIndex ? parseInt(route.query.rowIndex as string) : undefined
+);
+const formValues = ref<Record<string, columnValue>>({});
+const numberOfRows = ref(0);
+
+async function fetchRows() {
+  const sizeResp = await $fetch(`/${schemaId.value}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query ${tableId.value} {
+          ${tableId.value}_agg {
+            count
+          }
+        }`,
+    },
+  });
+  numberOfRows.value = sizeResp.data[tableId.value + "_agg"].count;
+
+  // Only fetch row data if rowIndex is provided
+  if (rowIndex.value !== undefined) {
+    const valuesResp = await fetchTableData(schemaId.value, tableId.value, {
+      limit: 1,
+      offset: rowIndex.value - 1, // adjust for 0-based index
+    });
+
+    formValues.value = valuesResp.rows[0] ?? {};
+  } else {
+    // If no rowIndex, reset form values to empty for insert mode
+    formValues.value = {};
+  }
+}
+
+// trigger on page load
+await fetchRows();
+let form = useForm(metadata, formValues);
+
 const schemaIds = computed(() =>
   (schemas.value?.data?._schemas ?? [])
     .sort((a, b) => a.label.localeCompare(b.label))
     .map((s) => s.id)
-);
-
-const form = useForm(metadata, formValues);
-
-// reload demo on route change
-watch(
-  () => route.fullPath,
-  async () => {
-    console.log("Route changed, reloading form demo");
-    router.go(0);
-  }
 );
 
 const numberOfFieldsWithErrors = computed(
@@ -100,6 +96,33 @@ const numberOfFieldsWithErrors = computed(
     Object.values(form.visibleColumnErrors.value).filter(
       (error) => error.length > 0
     ).length
+);
+
+async function resetForm() {
+  await refreshSchemaMeta();
+  schemaId.value = (route.query.schema as string) ?? schemaIds.value[0];
+  tableId.value = (route.query.table as string) ?? schemaTablesIds.value[0];
+  rowIndex.value = route.query.rowIndex
+    ? parseInt(route.query.rowIndex as string)
+    : undefined;
+  await fetchRows();
+  console.log(
+    "schemaMeta refreshed: ",
+    schemaId.value,
+    ", ",
+    tableId.value,
+    " rowIndex: ",
+    rowIndex.value
+  );
+  form = useForm(metadata, formValues);
+}
+
+watch(
+  () => route.query,
+  async () => {
+    await resetForm();
+  },
+  { deep: true }
 );
 </script>
 
@@ -112,7 +135,11 @@ const numberOfFieldsWithErrors = computed(
           class="bg-form p-4"
           :class="form.sections.value.length > 0 ? 'col-span-3' : 'col-span-4'"
         >
-          <Form :form="form" :initializeAsInsert="rowIndex === undefined" />
+          <Form
+            :key="`${route.query.schema}-${route.query.table}-${route.query.rowIndex}`"
+            :form="form"
+            :initializeAsInsert="rowIndex === undefined"
+          />
         </div>
       </div>
       <div class="w-full max-w-[33.333%] ml-6 h-screen">
