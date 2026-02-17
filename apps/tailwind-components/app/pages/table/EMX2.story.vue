@@ -17,8 +17,8 @@ const route = useRoute();
 
 const isEditable = ref(false);
 const metadata = ref<ITableMetaData>();
-const schemaId = ref<string>((route.query.schema as string) || "type test");
-const tableId = ref<string>((route.query.table as string) || "Types");
+const schemaId = ref<string>((route.query.schema as string) || "");
+const tableId = ref<string>((route.query.table as string) || "");
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({

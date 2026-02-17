@@ -38,22 +38,40 @@
       </header>
     </template>
 
-    <Form
+    <div
       v-if="visible"
-      ref="edit-modal-form"
-      :metadata="metadata"
-      :formValues="formValues"
-      :constantValues="constantValues"
-      :initializeAsInsert="isInsert"
-    />
+      class="min-h-0 flex-1"
+      :class="{
+        'grid grid-cols-4 gap-1': form?.showLegend.value,
+        'overflow-y-auto': !form?.showLegend.value,
+      }"
+    >
+      <div
+        v-if="form?.showLegend.value"
+        class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
+      >
+        <FormLegend
+          class="sticky top-0"
+          :sections="form.sections.value"
+          @goToSection="gotoSection"
+        />
+      </div>
+
+      <Form
+        class="col-span-3"
+        v-if="form !== undefined"
+        :form="form"
+        :constantValues="constantValues"
+      />
+    </div>
 
     <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-        @error-prev="gotoPreviousError"
-        @error-next="gotoNextError"
+        @error-prev="form?.gotoPreviousError"
+        @error-next="form?.gotoNextError"
       />
     </TransitionSlideUp>
     <TransitionSlideUp>
@@ -84,8 +102,8 @@
       <div class="flex justify-between items-center flex-none">
         <FormRequiredInfoSection
           :message="requiredMessage"
-          @required-next="gotoNextRequiredField"
-          @required-prev="gotoPreviousRequiredField"
+          @required-next="form?.gotoNextRequiredField"
+          @required-prev="form?.gotoPreviousRequiredField"
         />
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
@@ -116,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, useTemplateRef, watch, nextTick } from "vue";
+import { computed, ref, toRaw, watch, nextTick, watchEffect } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
@@ -131,13 +149,12 @@ import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
-import type { ComponentPublicInstance } from "vue";
 import Form from "./Form.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
-import { on } from "events";
+import useForm, { type UseForm } from "../../composables/useForm";
 
 const props = withDefaults(
   defineProps<{
@@ -153,9 +170,6 @@ const props = withDefaults(
   }
 );
 
-type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
-const form = useTemplateRef<FormType>("edit-modal-form");
-
 const saving = ref(false);
 const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
@@ -167,6 +181,16 @@ const emit = defineEmits([
 ]);
 
 const visible = defineModel<boolean>("visible");
+
+// lazy init formContext (form) when modal is opened
+let form: UseForm | undefined;
+watchEffect(() => {
+  if (visible.value) {
+    form = useForm(props.metadata, formValues);
+  } else {
+    form = undefined;
+  }
+});
 
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
@@ -191,35 +215,24 @@ function initFormValues() {
   return Object.assign(values, props.constantValues || {});
 }
 
-function gotoPreviousError() {
-  form.value?.gotoPreviousError();
-}
-
-function gotoNextError() {
-  form.value?.gotoNextError();
-}
-
-function gotoPreviousRequiredField() {
-  form.value?.gotoPreviousRequiredField();
-}
-
-function gotoNextRequiredField() {
-  form.value?.gotoNextRequiredField();
-}
-
 const requiredMessage = computed(() => {
   if (!visible.value) {
     return "";
   }
-  return form.value?.requiredMessage || "";
+  return form?.requiredMessage.value || "";
 });
 
 const errorMessage = computed(() => {
   if (!visible.value) {
     return "";
   }
-  return form.value?.errorMessage || "";
+  return form?.errorMessage.value || "";
 });
+
+function gotoSection(sectionId: string) {
+  console.log("Going to section", sectionId);
+  form?.gotoSection(sectionId);
+}
 
 function onCancel() {
   visible.value = false;
@@ -243,23 +256,17 @@ async function onSave(draft: boolean) {
   saving.value = true;
   await nextTick();
 
-  const isReadyForSubmit = draft
-    ? form.value?.isDraftValid()
-    : form.value?.isValid();
+  const isReadyForSubmit = draft ? form?.isDraftValid() : form?.isValid();
 
   if (isReadyForSubmit) {
     try {
       formValues.value["mg_draft"] = draft;
 
-      if (!form.value) {
-        throw new Error("Form reference is not available");
-      }
-
       let resp: IRow | null = null;
       if (isInsert.value) {
-        resp = await form.value.insertInto();
+        resp = await form?.insertInto();
       } else {
-        resp = await form.value.updateInto();
+        resp = await form?.updateInto();
       }
 
       if (!resp) {
