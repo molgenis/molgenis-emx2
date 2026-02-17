@@ -86,7 +86,7 @@ class AutoIdFormatTest {
   @Test
   void givenFormat_thenCalculateNrValues() {
     AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 5);
-    assertEquals(100_000, format.getMaxValue());
+    assertEquals(99_999, format.getMaxValue());
   }
 
   @Test

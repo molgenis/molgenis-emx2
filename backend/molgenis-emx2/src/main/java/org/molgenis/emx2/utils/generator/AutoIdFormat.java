@@ -86,7 +86,7 @@ public record AutoIdFormat(Format format, int length) {
   public long getMaxValue() {
     long result = 1;
     int characterLength = format.characters.length();
-    long limit = Long.MAX_VALUE / characterLength;
+    long limit = Long.MAX_VALUE / (characterLength);
 
     for (int i = 0; i < length; i++) {
       if (result > limit) {
@@ -96,7 +96,7 @@ public record AutoIdFormat(Format format, int length) {
       result *= characterLength;
     }
 
-    return result;
+    return result - 1;
   }
 
   public String mapToFormat(long value) {
