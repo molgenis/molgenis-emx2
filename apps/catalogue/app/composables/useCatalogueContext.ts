@@ -1,52 +1,31 @@
 import { useRoute } from "#app";
 import { computed } from "vue";
 import type { Crumb } from "../../../tailwind-components/types/types";
+import {
+  getCatalogueId,
+  buildResourceUrl,
+  buildCatalogueBreadcrumbs,
+} from "../utils/catalogueContextUtils";
 
 export const useCatalogueContext = () => {
   const route = useRoute();
 
   const catalogueId = computed(() => {
-    const queryParam = route.query.catalogue;
-    if (typeof queryParam === "string") return queryParam;
-
-    const resourceId = route.params.resourceId as string;
-    if (!resourceId) return null;
-
-    const pathAfterResource = route.path.slice(`/${resourceId}`.length);
-    if (pathAfterResource.length > 1) {
-      return resourceId;
-    }
-
-    return null;
+    return getCatalogueId(
+      route.query.catalogue as string | undefined,
+      route.params.resourceId as string | undefined,
+      route.path
+    );
   });
 
   const isCatalogueScoped = computed(() => catalogueId.value !== null);
 
   const resourceUrl = (path: string) => {
-    const base = path.startsWith("/") ? path : `/${path}`;
-    if (!catalogueId.value) {
-      return base;
-    }
-    const pathResourceId = base.split("/")[1]?.split("?")[0];
-    if (pathResourceId === catalogueId.value) {
-      return base;
-    }
-    const separator = base.includes("?") ? "&" : "?";
-    return `${base}${separator}catalogue=${catalogueId.value}`;
+    return buildResourceUrl(path, catalogueId.value);
   };
 
   const buildBreadcrumbs = (items: Crumb[]): Crumb[] => {
-    if (!catalogueId.value) {
-      return items;
-    }
-
-    return [
-      {
-        label: catalogueId.value,
-        url: resourceUrl(catalogueId.value),
-      },
-      ...items,
-    ];
+    return buildCatalogueBreadcrumbs(items, catalogueId.value);
   };
 
   return {
