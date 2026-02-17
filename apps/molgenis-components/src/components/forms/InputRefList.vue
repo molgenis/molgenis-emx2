@@ -190,10 +190,13 @@ export default {
       this.selection = this.selection.filter(
         (row: IRow) => !deepEqual(row, key)
       );
+      if (!this.selection.length) {
+        this.selection = null;
+      }
       this.emitSelection();
     },
     clearValue() {
-      this.selection = [];
+      this.selection = null;
       this.emitSelection();
     },
     handleUpdateSelection(newSelection: KeyObject[]) {
@@ -262,10 +265,14 @@ export default {
   },
   watch: {
     async modelValue() {
-      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
-        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
-      );
-      this.selection = await Promise.all(keyList);
+      if (!this.modelValue) {
+        this.selection = null;
+      } else {
+        const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+          convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+        );
+        this.selection = await Promise.all(keyList);
+      }
     },
     filter() {
       if (!this.loading) {
@@ -280,7 +287,7 @@ export default {
     await this.loadOptions();
     this.loading = true;
     if (!this.modelValue) {
-      this.selection = [];
+      this.selection = null;
     } else {
       const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
         convertRowToPrimaryKey(row, this.tableId, this.schemaId)

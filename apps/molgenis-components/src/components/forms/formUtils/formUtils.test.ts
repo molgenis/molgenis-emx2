@@ -13,7 +13,7 @@ import {
   buildGraphqlFilter,
   isInvalidBigInt,
 } from "./formUtils";
-import type { ITableMetaData, IColumn } from "metadata-utils";
+import { ITableMetaData, IColumn } from "metadata-utils/src/types.js";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
@@ -841,12 +841,27 @@ describe("buildGraphqlFilter", () => {
         columnType: "AUTO_ID",
         id: "autoIdColumn",
         conditions: ["123e4567-e89b-12d3-a456-426614174000"],
-      },
+      } as IColumn,
     ];
 
     const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
     expect(result).toEqual({
       autoIdColumn: { like: ["123e4567-e89b-12d3-a456-426614174000"] },
+    });
+  });
+
+  test("it should set an equals filter for a multi select column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "MULTISELECT",
+        id: "multiSelectColumn",
+        conditions: ["option1", "option2"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      multiSelectColumn: { equals: ["option1", "option2"] },
     });
   });
 
@@ -856,7 +871,7 @@ describe("buildGraphqlFilter", () => {
         columnType: "INVALID_TYPE",
         id: "invalidColumn",
         conditions: ["value"],
-      } as IColumn,
+      } as unknown as IColumn,
     ];
 
     const errorCallbackMock = vi.fn();
