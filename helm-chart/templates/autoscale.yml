@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "emx2.fullname" . }}-scaler
+  namespace: {{ include "emx2.fullname" .}} 
+spec:
+  scaleTargetRef:
+    name: {{ include "emx2.fullname" .}}
+  minReplicaCount: 0 # when sleeping we don't have the preview
+  maxReplicaCount: 1 # maximum one preview server
+  pollingInterval: 10  # check every 10 secs if we need to scale up the preview
+  cooldownPeriod: 5  # very short now so we can check
+  triggers:
+  - type: http
+    metadata:
+      endpoint: /  # we use the root to trigger awakening the preview
+      method: GET
+      threshold: "1"  # Scale up when at least one request is detected
+      targetValue: "1"  # Target value for scaling up
