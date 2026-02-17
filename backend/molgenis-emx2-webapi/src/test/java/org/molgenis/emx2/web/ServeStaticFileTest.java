@@ -37,7 +37,7 @@ class ServeStaticFileTest {
   public void testServeOnlyContext() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.pathParam("path")).thenReturn("my-app/index.html");
+    when(ctx.path()).thenReturn("my-app/index.html");
 
     ServeStaticFile.serve(ctx);
 
@@ -56,7 +56,7 @@ class ServeStaticFileTest {
   public void testServeOnlyContext_AutoServeIndexHtml() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.pathParam("path")).thenReturn("/my-app");
+    when(ctx.path()).thenReturn("/my-app");
 
     ServeStaticFile.serve(ctx);
 
@@ -75,11 +75,11 @@ class ServeStaticFileTest {
   public void testServeOnlyContext_FileNotFound() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.pathParam("path")).thenReturn("/non-existent");
+    when(ctx.path()).thenReturn("/non-existent");
 
     ServeStaticFile.serve(ctx);
 
     verify(ctx).status(404);
-    verify(ctx).result("File not found: " + ctx.path());
+    verify(ctx).result("File not found: /non-existent");
   }
 }
