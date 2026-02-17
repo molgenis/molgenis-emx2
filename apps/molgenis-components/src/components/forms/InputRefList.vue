@@ -190,9 +190,6 @@ export default {
       this.selection = this.selection.filter(
         (row: IRow) => !deepEqual(row, key)
       );
-      if (!this.selection.length) {
-        this.selection = [];
-      }
       this.emitSelection();
     },
     clearValue() {
