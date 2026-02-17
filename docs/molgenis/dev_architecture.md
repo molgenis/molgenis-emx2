@@ -34,10 +34,14 @@ molgenis-emx2-<version>-all.jar
 custom-app
      |_ my-app
           |_ index.html
+          |_ assets
+                |_ my-theme.css
 ```
 
 This is now accessible on ```https://<molgenis-url>/ext/my-app```. It automatically searches for an html file when no 
 extension is given. This also makes it work with SPA.
+
+**N.B.** It is important that all your links in the html are relative, e.g. ```<link rel="stylesheet" href="assets/my-theme.css">``` and that the relative base is the name of the folder of the app e.g. ```<base href="my-app/">```
 
 ## Each schema has settings endpoint
 
