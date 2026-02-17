@@ -35,7 +35,8 @@ public class StaticFileMapper {
         });
 
     /* Serve a custom app in a folder next to the jar */
-    app.get("/ext/{path...}", ServeWebFile::Serve);
+    app.get("/ext/{app}", ServeStaticFile::serve);
+    app.get("/ext/{app}/<asset>", ServeStaticFile::serve);
 
     /* These are for all the user made schemas / tableview in bootstrap and internal apps. */
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
@@ -48,33 +49,33 @@ public class StaticFileMapper {
 
   private static void redirectDirectory(Context ctx) {
     String path = "/public_html/apps/directory/" + ctx.pathParam("asset");
-    ServeWebFile.Serve(ctx, path);
+    ServeStaticFile.serve(ctx, path);
   }
 
   private static void redirectImg(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/img/" + ctx.pathParam("asset");
-    ServeWebFile.Serve(ctx, path);
+    ServeStaticFile.serve(ctx, path);
   }
 
   private static void redirectResources(Context ctx) {
-    ServeWebFile.Serve(ctx, "/public_html" + ctx.path());
+    ServeStaticFile.serve(ctx, "/public_html" + ctx.path());
   }
 
   private static void redirectDocs(Context ctx) {
-    ServeWebFile.Serve(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"));
+    ServeStaticFile.serve(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"));
   }
 
   private static void redirectAssets(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/assets/" + ctx.pathParam("asset");
-    ServeWebFile.Serve(ctx, path);
+    ServeStaticFile.serve(ctx, path);
   }
 
   private static void returnIndexFile(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
-    ServeWebFile.Serve(ctx, path);
+    ServeStaticFile.serve(ctx, path);
   }
 
   private static void returnUiAppIndex(Context ctx) {
-    ServeWebFile.Serve(ctx, "/public_html/apps/ui/index.html");
+    ServeStaticFile.serve(ctx, "/public_html/apps/ui/index.html");
   }
 }

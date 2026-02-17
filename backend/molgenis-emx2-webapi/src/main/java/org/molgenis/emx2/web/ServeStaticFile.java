@@ -8,11 +8,38 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class ServeWebFile {
+public class ServeStaticFile {
+
+  private static final String CUSTOM_APP_FOLDER = "/custom-app/";
+
+  private static Path getJarDirectory() {
+    try {
+      Path jarPath =
+          Paths.get(
+              ServeStaticFile.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+      /* Check if we are in the main jar and not in web-api like in IDE */
+      if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
+        // Running from a JAR
+        return jarPath.getParent();
+      } else {
+        // Running from IDE (classes folder)
+        return jarPath
+            .getParent() /* libs */
+            .getParent() /* build */
+            .getParent() /* webapi */
+            .getParent() /* backend */
+            .getParent(); /* Root */
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Cannot determine JAR location", e);
+    }
+  }
 
   /* Serve internal file */
-  public static void Serve(Context ctx, String path) {
+  public static void serve(Context ctx, String path) {
 
     try (InputStream in = StaticFileMapper.class.getResourceAsStream(path)) {
       String mimeType = URLConnection.guessContentTypeFromName(path);
@@ -27,8 +54,8 @@ public class ServeWebFile {
   }
 
   /* When only ctx is given, serve external file */
-  public static void Serve(Context ctx) {
-    String path = System.getProperty("user.dir") + "/custom-app/" + ctx.pathParam("path...");
+  public static void serve(Context ctx) {
+    String path = getJarDirectory() + CUSTOM_APP_FOLDER + ctx.path().replace("/ext/", "");
 
     File file = new File(path);
     /* Check if it's a file, and has an extension, if it is neither, then we fall back to index.html for SPA */
