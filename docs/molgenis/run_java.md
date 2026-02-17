@@ -7,6 +7,12 @@ Steps:
     ```console
     psql postgres
     ```
+
+    Or on macOS:
+
+    ```
+      psql -U postgres
+    ```
 * Then in psql console paste
     ```console
     create database molgenis;
@@ -66,3 +72,16 @@ rm -R /opt/homebrew/var/postgres
 initdb -d  /opt/homebrew/var/postgres
 brew services restart postgresql 
 ```
+
+# FAQ
+
+If you previously had an installation of Molgenis and want to start fresh, here is a .sql file which you can execute:
+
+You can download the file here: [get clean permissions and db sql file](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/clean-permissions-and-db.sql)
+
+```
+psql -U postgres -f clean-permissions-and-db.sql
+```
+
+You will be prompted to enter the password of the user postgres.
+
