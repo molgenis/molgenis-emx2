@@ -292,7 +292,7 @@ export default {
         canEdit: false,
         canView: true,
         schema: "pet store",
-        table: "User"
+        table: "Pet"
       }
     },
     computed: {
