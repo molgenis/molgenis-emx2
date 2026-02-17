@@ -216,11 +216,6 @@ export default {
             case "ONTOLOGY_ARRAY":
             case "RADIO":
             case "MULTISELECT":
-              console.log(
-                "stringifying conditions for column:",
-                column.id,
-                conditions
-              ); // Debug log
               query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":
