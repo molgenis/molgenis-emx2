@@ -115,6 +115,8 @@ class StagingMigrator(Client):
         upload_stream = BytesIO()
         updated_tables = list()
 
+        source_profile = self._get_source_profile()
+
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
             for file_name in sorted(source_archive.namelist()):
@@ -125,16 +127,18 @@ class StagingMigrator(Client):
                     continue
 
                 updated_table: pd.DataFrame = self._get_filtered(table)
-                if table.id == "Organisations":
-                    updated_table = self.process_organisations(updated_table)
-                if table.id == "Contacts":
-                    updated_table = process_statement(updated_table)
-                if table.id in ["CollectionEvents", "Subpopulations"]:
-                    updated_table = self._copy_resource_columns(updated_table)
 
-                if len(updated_table.index) != 0:
-                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
-                    updated_tables.append(Path(file_name).stem)
+                if source_profile in ["CohortStaging", "UMCGCohortsStaging"]:
+                    if table.id == "Organisations":
+                        updated_table = self.process_organisations(updated_table)
+                    if table.id == "Contacts":
+                        updated_table = process_statement(updated_table)
+                    if table.id in ["CollectionEvents", "Subpopulations"]:
+                        updated_table = self._copy_resource_columns(updated_table)
+
+                    if len(updated_table.index) != 0:
+                        upload_archive.writestr(file_name, updated_table.to_csv(index=False))
+                        updated_tables.append(Path(file_name).stem)
 
         # Return zip
         if len(updated_tables) == 0:
@@ -399,3 +403,13 @@ class StagingMigrator(Client):
                 table_df[rc] = table_df["resource"].apply(lambda r: resources.loc[resources['id'] == r, rc])
 
         return table_df
+
+    def _get_source_profile(self) -> str | None:
+        """Returns the profile(s) of the source, defaults to None."""
+        source_meta = self.get_schema_metadata(self.source)
+        if "Profiles" not in map(lambda t: t.id, source_meta.tables):
+            return None
+        try:
+            return source_meta.get_table('id', "Profiles").descriptions
+        except AttributeError:
+            return None
