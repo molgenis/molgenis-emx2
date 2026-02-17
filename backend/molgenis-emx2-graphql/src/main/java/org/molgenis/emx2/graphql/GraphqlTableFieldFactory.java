@@ -603,7 +603,7 @@ public class GraphqlTableFieldFactory {
           subFilters.add(and(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         }
       } else if (entry.getKey().equals(FILTER_SEARCH)) {
-        if (entry.getValue() instanceof String && !entry.getValue().toString().trim().equals("")) {
+        if (entry.getValue() instanceof String && !entry.getValue().toString().trim().isEmpty()) {
           subFilters.add(
               f(
                   Operator
@@ -878,7 +878,7 @@ public class GraphqlTableFieldFactory {
       }
 
       String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
-      if (search != null && !search.trim().equals("")) {
+      if (search != null && !search.trim().isEmpty()) {
         q.search(search);
       }
       logger.info(

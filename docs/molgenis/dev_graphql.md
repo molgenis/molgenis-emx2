@@ -216,6 +216,116 @@ mutation {
 }
 ```
 
+## Permissions
+
+#### Permission groups
+
+Permission groups can be edited via the change mutation.
+
+Create a new group. `tableId` is optional; leave it blank if the permissions are for the whole schema.  
+If `groupName` is an existing group name, the group will be updated.
+
+```graphql
+mutation {
+  change(
+    groups: [
+      {
+        groupName: "pet store/specialGroup"
+        users: ["test@test.com", "test2@test.com"]
+        permissions: [
+          {
+            tableSchema: "pet store"
+            tableId: "Order"
+            isRowLevel: true
+            hasSelect: true
+            hasInsert: true
+            hasUpdate: true
+            hasDelete: true
+            hasAdmin: false
+          }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+This will assign users `test@test.com` and `test2@test.com` to the `pet store/specialGroup`.
+
+To query all the permission groups use:
+```graphql
+query {
+  _permissions {
+    groupName
+    users
+    permissions {
+      tableSchema
+      tableName
+      isRowLevel
+      hasSelect
+      hasInsert
+      hasUpdate
+      hasDelete
+      hasAdmin
+    }
+  }
+}
+```
+
+
+#### Row-level security
+
+To enable row-level security on a table, we need to use the change mutation on database/schema level. The following
+query will enable row-level security on the `Order` table:
+
+```graphql
+mutation {
+  change(
+    tables: [{ name: "Order", rowLevelSecurity: true }]
+  ) {
+    message
+  }
+}
+```
+
+To assign a row to a row-level permission group, we use the `mg_group` column. We can use the update mutation as
+follows:
+
+```graphql
+mutation {
+  update(
+    Order: [
+      {
+        mg_group: ["pet store/specialGroup"],
+        orderId: "ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919"
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+This will give the `pet store/specialGroup` we just created, with users `test@test.com` and `test2@test.com`, access to
+update and delete the row with orderId `ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919`.
+
+When logged in as `test@test.com`, we need to specify the `mg_group` when inserting a row into the `Order` table:
+
+```graphql
+mutation {
+  insert(
+    Order: {
+      pet: {name: "pooky"},
+      quantity: 55,
+      mg_group: "pet store/specialGroup"
+  }) { message }
+}
+```
+
+If the `mg_group` is left empty, it will try to insert the row without the row-level security group. This will get
+rejected when user `test@test.com` doesn't have global insert privileges on the `Order` table.
+
 ## Functions available for each database
 
 ### query schema

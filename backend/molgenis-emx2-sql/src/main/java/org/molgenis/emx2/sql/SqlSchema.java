@@ -288,6 +288,10 @@ public class SqlSchema implements Schema {
         if (mergeTable.getSemantics() != null) {
           oldTable.setSemantics(mergeTable.getSemantics());
         }
+        if (mergeTable.hasRowLevelSecurity() != null) {
+          oldTable.setRowLevelSecurity(mergeTable.hasRowLevelSecurity());
+          MetadataUtils.setRowLevelSecurity(targetSchema, mergeTable);
+        }
         // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());
         MetadataUtils.saveTableMetadata(targetSchema.getJooq(), oldTable);

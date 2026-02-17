@@ -14,12 +14,14 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
+import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
+import org.jooq.impl.DefaultConfiguration;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
@@ -108,8 +110,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, DEFAULT_JOOQ_SETTINGS);
+    Configuration config =
+        new DefaultConfiguration()
+            .set(connectionProvider)
+            .set(DEFAULT_JOOQ_SETTINGS)
+            .set(SQLDialect.POSTGRES)
+            .set(new NoticeListener());
 
+    this.jooq = DSL.using(config);
     if (init) {
       try {
         // elevate privileges for init (prevent reload)
@@ -442,6 +450,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
+  public List<GroupPermission> getPermissions() {
+    return MetadataUtils.loadPermissions(this);
+  }
+
+  @Override
   public Database setSettings(Map<String, String> settings) {
     if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");
@@ -587,12 +600,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 .execute());
     log(start, (admin ? "Granting" : "Revoking") + " admin rights to user " + user);
     listener.onSchemaChange();
-  }
-
-  public void addRole(String role) {
-    long start = System.currentTimeMillis();
-    executeCreateRole(getJooq(), role);
-    log(start, "created role " + role);
   }
 
   @Override

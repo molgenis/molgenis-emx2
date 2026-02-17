@@ -32,30 +32,6 @@ class SqlTableMetadataExecutor {
     jooq.execute("CREATE TABLE {0}()", jooqTable);
     MetadataUtils.saveTableMetadata(jooq, table);
 
-    // grant rights to schema manager, editor and viewer role
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.EXISTS.toString()));
-    // todo: Do we need to add RANGE, AGGREGATOR and VIEWER here also?
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.RANGE.toString()));
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.AGGREGATOR.toString()));
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.COUNT.toString()));
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.VIEWER.toString()));
-    jooq.execute(
-        "GRANT INSERT, UPDATE, DELETE, REFERENCES, TRUNCATE ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.EDITOR.toString()));
-    jooq.execute(
-        "ALTER TABLE {0} OWNER TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
-
     // create columns from primary key of superclass
     if (table.getInheritName() != null) {
       if (table.getInheritedTable() == null) {
@@ -355,9 +331,7 @@ class SqlTableMetadataExecutor {
             triggerfunction, name(searchColumnName(tableName)), mgSearchVector);
 
     jooq.execute(functionBody);
-    jooq.execute(
-        "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
-        name(getRolePrefix(table) + Privileges.MANAGER.toString()));
+
     return triggerfunction;
   }
 
@@ -389,6 +363,7 @@ class SqlTableMetadataExecutor {
 
   private static void executeAddMetaColumns(TableMetadata table) {
     // negative positions so they don't interfere with the positions of user provided columns
+    table.add(column(MG_GROUP).setType(STRING_ARRAY).setPosition(-6));
     table.add(column(MG_DRAFT).setType(BOOL).setPosition(-5));
     table.add(column(MG_INSERTEDBY).setPosition(-4));
     table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(-3));

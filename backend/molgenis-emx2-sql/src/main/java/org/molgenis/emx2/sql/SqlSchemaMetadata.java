@@ -194,6 +194,25 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
+  public void setPermissions(List<GroupPermission> permissions) {
+    getDatabase().tx(db -> setPermissionsTransaction((SqlDatabase) db, getName(), permissions));
+  }
+
+  private static void setPermissionsTransaction(
+      SqlDatabase db, String schemaName, List<GroupPermission> groupPermissions) {
+    groupPermissions.forEach(
+        groupPermission -> {
+          MetadataUtils.saveGroupMetadata(
+              db.getJooq(), groupPermission.groupName(), groupPermission.users());
+          groupPermission
+              .permissions()
+              .forEach(
+                  permission ->
+                      MetadataUtils.savePermissions(
+                          db.getJooq(), groupPermission.groupName(), permission));
+        });
+  }
+
   private static SqlSchemaMetadata setSettingsTransaction(
       SqlDatabase db, String schemaName, Map<String, String> settings) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
@@ -258,6 +277,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 result.addAll(
                     SqlSchemaMetadataExecutor.getInheritedRoleForUser(
                         adminJooq, getName(), username.trim())));
+
+    // TODO: move fine grained roles to db
+    boolean isCustomRole = !result.isEmpty() && result.stream().noneMatch(Privileges::contains);
+    if (isCustomRole) {
+      return List.of("Viewer", "Count", "Aggregator", "Range", "Exists");
+    }
+
     return result;
   }
 

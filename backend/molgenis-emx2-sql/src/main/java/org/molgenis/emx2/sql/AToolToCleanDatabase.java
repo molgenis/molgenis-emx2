@@ -16,7 +16,7 @@ public class AToolToCleanDatabase {
   }
 
   public static void deleteAll() {
-    SqlDatabase db = new SqlDatabase(true);
+    SqlDatabase db = new SqlDatabase(false);
     jooq = db.getJooq();
     db.becomeAdmin();
     jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();

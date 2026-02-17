@@ -26,6 +26,8 @@ public class MetadataUtils {
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
+  public static final org.jooq.Table GROUP_METADATA = table(name(MOLGENIS, "group_metadata"));
+  public static final org.jooq.Table GROUP_PERMISSIONS = table(name(MOLGENIS, "group_permissions"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
 
@@ -56,6 +58,8 @@ public class MetadataUtils {
   private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
+  private static final Field<Boolean> ROW_LEVEL_SECURITY =
+      field(name("row_level_security"), BOOLEAN.nullable(false));
 
   // column
   private static final Field<String> COLUMN_NAME =
@@ -105,6 +109,23 @@ public class MetadataUtils {
   private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
   public static final Field<Boolean> USER_ENABLED = field(name("enabled"), BOOLEAN.nullable(false));
   public static final Field<Boolean> USER_ADMIN = field(name("admin"), BOOLEAN);
+
+  public static final Field<String[]> USERS =
+      field(name("users"), VARCHAR.nullable(true).getArrayType());
+  static final org.jooq.Field<String> GROUP_NAME =
+      field(name("group_name"), VARCHAR.nullable(false));
+  static final org.jooq.Field<Boolean> IS_ROW_LEVEL =
+      field(name("is_row_level"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_SELECT =
+      field(name("has_select"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_INSERT =
+      field(name("has_insert"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_UPDATE =
+      field(name("has_update"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_DELETE =
+      field(name("has_delete"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_ADMIN =
+      field(name("has_admin"), BOOLEAN.nullable(false));
 
   // settings field, reused by all other metadata
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
@@ -359,6 +380,7 @@ public class MetadataUtils {
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
               TABLE_TYPE,
+              ROW_LEVEL_SECURITY,
               SETTINGS)
           .values(
               table.getSchema().getName(),
@@ -369,6 +391,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
+              table.hasRowLevelSecurity(),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -378,6 +401,7 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
+          .set(ROW_LEVEL_SECURITY, table.hasRowLevelSecurity())
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -498,6 +522,7 @@ public class MetadataUtils {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
     table.setInheritName(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
+    table.setRowLevelSecurity(r.get(ROW_LEVEL_SECURITY, Boolean.class));
     table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
     table.setDescriptions(
         r.get(TABLE_DESCRIPTION) != null ? r.get(TABLE_DESCRIPTION, Map.class) : new TreeMap<>());
@@ -728,5 +753,97 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
+  }
+
+  public static void setRowLevelSecurity(SqlSchemaMetadata schema, TableMetadata table) {
+    if (Boolean.TRUE.equals(table.hasRowLevelSecurity())) {
+      Field<Object> rlsFunction =
+          function(
+              "\"MOLGENIS\".enable_RLS_on_table",
+              Object.class,
+              val(schema.getName()),
+              val(table.getIdentifier()));
+      schema.getJooq().select(rlsFunction).execute();
+    } else {
+      schema
+          .getJooq()
+          .query(
+              "ALTER TABLE {0}.{1} DISABLE ROW LEVEL SECURITY",
+              name(schema.getName()), name(table.getIdentifier()))
+          .execute();
+    }
+  }
+
+  public static void savePermissions(DSLContext jooq, String groupName, Permission permission) {
+    jooq.insertInto(GROUP_PERMISSIONS)
+        .columns(
+            GROUP_NAME,
+            TABLE_SCHEMA,
+            TABLE_NAME,
+            IS_ROW_LEVEL,
+            HAS_SELECT,
+            HAS_INSERT,
+            HAS_UPDATE,
+            HAS_DELETE,
+            HAS_ADMIN)
+        .values(
+            groupName,
+            permission.tableSchema(),
+            permission.tableId(),
+            permission.isRowLevel(),
+            permission.hasSelect(),
+            permission.hasInsert(),
+            permission.hasUpdate(),
+            permission.hasDelete(),
+            permission.hasAdmin())
+        .onConflict(GROUP_NAME)
+        .doUpdate()
+        .set(TABLE_SCHEMA, permission.tableSchema())
+        .set(TABLE_NAME, permission.tableId())
+        .set(IS_ROW_LEVEL, permission.isRowLevel())
+        .set(HAS_SELECT, permission.hasSelect())
+        .set(HAS_INSERT, permission.hasInsert())
+        .set(HAS_UPDATE, permission.hasUpdate())
+        .set(HAS_DELETE, permission.hasDelete())
+        .set(HAS_ADMIN, permission.hasAdmin())
+        .execute();
+    jooq.execute("SELECT \"MOLGENIS\".refresh_user_permissions_mv()");
+  }
+
+  public static void saveGroupMetadata(DSLContext jooq, String groupName, List<String> users) {
+    jooq.insertInto(GROUP_METADATA)
+        .columns(GROUP_NAME, USERS)
+        .values(groupName, users)
+        .onConflict(GROUP_NAME)
+        .doUpdate()
+        .set(USERS, users)
+        .execute();
+  }
+
+  public static List<GroupPermission> loadPermissions(SqlDatabase db) {
+    return db.getJooq()
+        .select(
+            field(name("metadata", "group_name"), String.class).as("groupName"),
+            field(name("metadata", "users"), String[].class)
+                .convertFrom(arr -> arr == null ? List.of() : List.of(arr))
+                .as("users"),
+            multiset(
+                    select(
+                            field(name("p", "table_name"), String.class).as("tableId"),
+                            field(name("p", "table_schema"), String.class).as("tableSchema"),
+                            field(name("p", "is_row_level"), Boolean.class).as("isRowLevel"),
+                            field(name("p", "has_select"), Boolean.class).as("hasSelect"),
+                            field(name("p", "has_insert"), Boolean.class).as("hasInsert"),
+                            field(name("p", "has_update"), Boolean.class).as("hasUpdate"),
+                            field(name("p", "has_delete"), Boolean.class).as("hasDelete"),
+                            field(name("p", "has_admin"), Boolean.class).as("hasAdmin"))
+                        .from(table(name("MOLGENIS", "group_permissions")).as("p"))
+                        .where(
+                            field(name("p", "group_name"))
+                                .eq(field(name("metadata", "group_name")))))
+                .convertFrom(r -> r.into(Permission.class))
+                .as("permissions"))
+        .from(table(name("MOLGENIS", "group_metadata")).as("metadata"))
+        .fetchInto(GroupPermission.class);
   }
 }
