@@ -2,6 +2,8 @@ package org.molgenis.emx2.web;
 
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
+import org.molgenis.emx2.MolgenisException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -22,19 +24,18 @@ public class ServeStaticFile {
 
       /* Check if we are in the main jar and not in web-api like in IDE */
       if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
-        // Running from a JAR
         return jarPath.getParent();
       } else {
-        // Running from IDE (classes folder)
+        // Running from IDE/CLI (classes folder)
         return jarPath
             .getParent() /* libs */
             .getParent() /* build */
             .getParent() /* webapi */
             .getParent() /* backend */
-            .getParent(); /* Root */
+            .getParent();/* Root */
       }
     } catch (Exception e) {
-      throw new RuntimeException("Cannot determine JAR location", e);
+      throw new MolgenisException("Cannot determine JAR location", e);
     }
   }
 
