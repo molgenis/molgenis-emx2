@@ -82,8 +82,10 @@ def test_process_contacts():
     R1,Principal Investigator,A1,B1,true,A1B1@R1.com
     R2,Primary contact,A2,B2,true,A2B2@R2.com
     R3,Participant,A3,B3,false,
-    R4,Participant,A3,B4,false,A4B4@R4.com"""
+    R4,Participant,A4,B4,false,A4B4@R4.com"""
     contacts_df = pd.read_csv(io.StringIO(contacts_csv))
 
     processed_contacts = process_statement(contacts_df)
+    assert "A3" not in processed_contacts["first name"].values
     assert processed_contacts["mg_delete"].values.tolist() == [False, False, True]
+

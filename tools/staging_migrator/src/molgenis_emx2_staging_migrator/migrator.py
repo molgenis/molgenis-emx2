@@ -107,6 +107,7 @@ class StagingMigrator(Client):
 
         # Download data from the target schema for upload in case of an error during execution
         self.download_schema_zip(schema=self.target, schema_type='target', include_system_columns=True)
+
         # Download source data
         source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
                                                     include_system_columns=True)
@@ -128,6 +129,27 @@ class StagingMigrator(Client):
                     updated_table = self.process_organisations(updated_table)
                 if table.id == "Contacts":
                     updated_table = process_statement(updated_table)
+                if table.id in ["CollectionEvents", "Subpopulations"]:
+                    updated_table = self._copy_resource_columns(updated_table)
+
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
+                    updated_tables.append(Path(file_name).stem)
+
+        # Return zip
+        if len(updated_tables) == 0:
+            log.info(f"No data to migrate.")
+            upload_stream.flush()
+            return upload_stream
+        log.info(f"Migrating tables {', '.join(updated_tables)}.")
+
+        filepath = BASE_DIR.joinpath(f"update.zip")
+        if Path(filepath).exists():
+            Path(filepath).unlink()
+        Path(filepath).write_bytes(upload_stream.getbuffer())
+
+        self.upload_zip_stream(upload_stream)
+
 
 
     def create_zip(self):
@@ -250,6 +272,7 @@ class StagingMigrator(Client):
 
         # Combine the new, updated and missing rows
         filtered_df = pd.concat([new_df, updated_df, missing_df])
+        filtered_df = filtered_df[[col for col in filtered_df.columns if (not col.startswith('mg_') or col == 'mg_delete')]]
 
         return filtered_df
 
@@ -366,3 +389,13 @@ class StagingMigrator(Client):
             if Path(filename).exists():
                 log.debug(f"Deleting file {zp!r}.")
                 Path(filename).unlink()
+
+    def _copy_resource_columns(self, table_df: pd.DataFrame) -> pd.DataFrame:
+        """Inserts values for columns 'publisher', 'creator', 'contact point' from Resources into this table."""
+        resources = load_table('source', self.get_schema_metadata(self.source).get_table('name', 'Resources'))
+        cols = ["publisher", "creator", "contact point"]
+        for rc in resources.columns:
+            if any(map(lambda c: rc.startswith(c), cols)):
+                table_df[rc] = table_df["resource"].apply(lambda r: resources.loc[resources['id'] == r, rc])
+
+        return table_df
