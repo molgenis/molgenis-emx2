@@ -2,8 +2,6 @@ package org.molgenis.emx2.web;
 
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
-import org.molgenis.emx2.MolgenisException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -11,6 +9,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.molgenis.emx2.MolgenisException;
 
 public class ServeStaticFile {
 
@@ -32,7 +31,7 @@ public class ServeStaticFile {
             .getParent() /* build */
             .getParent() /* webapi */
             .getParent() /* backend */
-            .getParent();/* Root */
+            .getParent(); /* Root */
       }
     } catch (Exception e) {
       throw new MolgenisException("Cannot determine JAR location", e);
@@ -66,13 +65,7 @@ public class ServeStaticFile {
     }
 
     try (InputStream in = new FileInputStream(file)) {
-      String mimeType = URLConnection.guessContentTypeFromName(path);
-
-      if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(path));
-      }
-
-      send(ctx, in, mimeType);
+      send(ctx, in, URLConnection.guessContentTypeFromName(path));
     } catch (Exception e) {
       ctx.status(404).result("File not found: " + ctx.path());
     }

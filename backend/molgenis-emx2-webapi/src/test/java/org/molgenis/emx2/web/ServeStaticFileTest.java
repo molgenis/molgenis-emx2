@@ -80,6 +80,6 @@ class ServeStaticFileTest {
     ServeStaticFile.serve(ctx);
 
     verify(ctx).status(404);
-    verify(ctx).result("File not found: /non-existent");
+    verify(ctx, times(2)).result("File not found: " + ctx.path());
   }
 }
