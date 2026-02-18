@@ -144,7 +144,7 @@
             rel="noopener noreferrer"
             target="_blank"
             class="text-link underline hover:bg-link-hover"
-            >Cohort and Biobank Coordination Hub (CBCH)</a
+            >researchdatacatalogue@umcg.nl</a
           >
               with information, including the title of your study (and if available the abbreviation)
               and the people (name and email address) who need access and/or will be filling in the metadata.
