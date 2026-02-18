@@ -216,7 +216,7 @@
           <DisplayList>
             <DisplayListItem>
               <a
-                href="https:ri.//https://molgeniscatalogue.org"
+                href="https://molgeniscatalogue.org"
                 rel="noopener noreferrer"
                 target="_blank"
                 class="text-link underline hover:bg-link-hover"
@@ -288,7 +288,7 @@
             </DisplayListItem>
             <DisplayListItem>
               <a
-                href="https://lifecycle-project.eu/for-scientists/variable-catalogue/"
+                href="https://molgeniscatalogue.org/LifeCycle"
                 rel="noopener noreferrer"
                 target="_blank"
                 class="text-link underline hover:bg-link-hover"
