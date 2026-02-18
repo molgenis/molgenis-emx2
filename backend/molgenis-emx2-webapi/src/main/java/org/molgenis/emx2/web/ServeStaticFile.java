@@ -25,7 +25,7 @@ public class ServeStaticFile {
       if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
         return jarPath.getParent();
       } else {
-        // Running from IDE/CLI (classes folder)
+        /* Running from IDE/CLI (classes folder) */
         return jarPath
             .getParent() /* libs */
             .getParent() /* build */

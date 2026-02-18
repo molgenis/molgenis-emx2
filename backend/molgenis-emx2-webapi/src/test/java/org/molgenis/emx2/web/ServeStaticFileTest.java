@@ -49,14 +49,14 @@ class ServeStaticFileTest {
     String htmlOutput = new String(bytes, StandardCharsets.UTF_8);
     System.out.println(htmlOutput);
 
-    assertTrue(htmlOutput.contains("<h1>Hello from custom app!</h1>"));
+    assertTrue(htmlOutput.contains("<!doctype html>"));
   }
 
   @Test
   public void testServeOnlyContext_AutoServeIndexHtml() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.path()).thenReturn("/my-app");
+    when(ctx.path()).thenReturn("/ext/my-app");
 
     ServeStaticFile.serve(ctx);
 
@@ -68,14 +68,24 @@ class ServeStaticFileTest {
     String htmlOutput = new String(bytes, StandardCharsets.UTF_8);
     System.out.println(htmlOutput);
 
-    assertTrue(htmlOutput.contains("<h1>Hello from custom app!</h1>"));
+    assertTrue(htmlOutput.contains("<div id=\"app\"></div>"));
+  }
+
+  @Test
+  public void testServeOnlyContext_ForbiddenOnPathTraversalAttempt() {
+    Context ctx = mock(Context.class);
+    when(ctx.status(anyInt())).thenReturn(ctx);
+    when(ctx.path()).thenReturn("/ext/../../my-app");
+
+    ServeStaticFile.serve(ctx);
+    verify(ctx).status(403);
   }
 
   @Test
   public void testServeOnlyContext_FileNotFound() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.path()).thenReturn("/non-existent");
+    when(ctx.path()).thenReturn("ext/non-existent-app");
 
     ServeStaticFile.serve(ctx);
 
