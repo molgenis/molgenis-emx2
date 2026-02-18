@@ -52,8 +52,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRoute } from "#app/composables/router";
+import { ref, computed, watch } from "vue";
+import { useRoute, useRouter } from "#app/composables/router";
 import { useHead } from "#app";
 import { useSession } from "../../../../tailwind-components/app/composables/useSession";
 import {
@@ -75,6 +75,7 @@ import RoleEditor from "~/components/RoleEditor.vue";
 import PermissionMatrix from "~/components/PermissionMatrix.vue";
 
 const route = useRoute();
+const router = useRouter();
 const schema = route.params.schema as string;
 
 useHead({ title: `Roles - ${schema} - Molgenis` });
@@ -89,7 +90,7 @@ const isManager = computed(() => {
 
 const roles = ref<IRoleInfo[]>([]);
 const tables = ref<ITableInfo[]>([]);
-const selectedRoleName = ref("");
+const selectedRoleName = ref((route.query.role as string) || "");
 const loading = ref(true);
 const errorMessage = ref("");
 const successMessage = ref("");
@@ -98,6 +99,10 @@ const schemaLabel = ref(schema);
 const selectedRole = computed(
   () => roles.value.find((role) => role.name === selectedRoleName.value) || null
 );
+
+watch(selectedRoleName, (name) => {
+  router.replace({ query: name ? { role: name } : {} });
+});
 
 const crumbs: Crumb[] = [
   { label: schema, url: `/${schema}` },
@@ -111,7 +116,10 @@ async function loadData() {
     const data = await getRolesAndTables(schema);
     roles.value = data.roles;
     tables.value = data.tables;
-    if (!selectedRoleName.value && data.roles.length) {
+    const matchesExisting = data.roles.some(
+      (role) => role.name === selectedRoleName.value
+    );
+    if ((!selectedRoleName.value || !matchesExisting) && data.roles.length) {
       const firstCustom = data.roles.find((role) => !role.system);
       selectedRoleName.value = firstCustom?.name || data.roles[0]!.name;
     }
