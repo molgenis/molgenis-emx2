@@ -17,12 +17,12 @@ public class ServeStaticFile {
   private static final String CUSTOM_APP_FOLDER = "/custom-app/";
 
   private static Path getJarDirectory() {
+    Path jarPath = null;
     try {
-      Path jarPath =
+      jarPath =
           Paths.get(
               ServeStaticFile.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-      System.out.println(jarPath);
       /* Check if we are in the main jar and not in web-api like in IDE */
       if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
         return jarPath.getParent();
@@ -37,13 +37,11 @@ public class ServeStaticFile {
         return emx2Home;
       } else {
         String classFile = ServeStaticFile.class.getName().replace('.', '/') + ".class";
-        System.out.println(classFile);
         URL resource = ServeStaticFile.class.getClassLoader().getResource(classFile);
-        System.out.println(resource);
         return Paths.get(resource.toURI());
       }
     } catch (Exception e) {
-      throw new MolgenisException("Cannot determine JAR location", e);
+      throw new MolgenisException("Cannot determine JAR location " + jarPath.toString(), e);
     }
   }
 
