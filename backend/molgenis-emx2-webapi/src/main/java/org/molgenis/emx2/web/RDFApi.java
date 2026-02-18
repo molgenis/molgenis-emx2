@@ -13,13 +13,14 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.google.common.net.MediaType;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
-import io.javalin.http.NotAcceptableResponse;
+import io.javalin.http.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
@@ -69,51 +70,80 @@ public class RDFApi {
   }
 
   private static void defineApiRoutePerPrefix(Javalin app, String prefix) {
-    defineApiRoutes(app, prefix, API_RDF, null);
-    defineApiRoutes(app, prefix, API_TTL, RDFFormat.TURTLE);
-    defineApiRoutes(app, prefix, API_JSONLD, RDFFormat.JSONLD);
+    defineApiRoutes(app, prefix, API_RDF, RDFApi::selectRdfFormat);
+    defineApiRoutes(app, prefix, API_TTL, (ctx) -> RDFFormat.TURTLE);
+    defineApiRoutes(app, prefix, API_JSONLD, (ctx) -> RDFFormat.JSONLD);
   }
 
   private static void defineApiRoutes(
-      Javalin app, String prefix, String apiLocation, RDFFormat format) {
-    app.get(prefix + apiLocation, (ctx) -> databaseGet(ctx, format));
-    app.head(prefix + apiLocation, (ctx) -> databaseHead(ctx, format));
-    app.get(prefix + "{schema}" + apiLocation, (ctx) -> schemaGet(ctx, format));
-    app.head(prefix + "{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
-    app.get(prefix + "{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
-    app.head(prefix + "{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
-    app.get(prefix + "{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
-    app.head(prefix + "{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
-    app.get(
+      Javalin app, String prefix, String apiLocation, Function<Context, RDFFormat> formatFunction) {
+    defineApiCallMethods(
+        app,
+        prefix + apiLocation,
+        (ctx) -> databaseGet(ctx, formatFunction),
+        (ctx) -> databaseHead(ctx, formatFunction),
+        RDFApi::defaultOptions);
+
+    defineApiCallMethods(
+        app,
+        prefix + "{schema}" + apiLocation,
+        (ctx) -> schemaGet(ctx, formatFunction.apply(ctx)),
+        (ctx) -> headerRdfAndValidation(ctx, formatFunction.apply(ctx)),
+        RDFApi::defaultOptions);
+
+    defineApiCallMethods(
+        app,
+        prefix + "{schema}" + apiLocation + "/{table}",
+        (ctx) -> tableGet(ctx, formatFunction.apply(ctx)),
+        (ctx) -> headerRdfAndValidation(ctx, formatFunction.apply(ctx)),
+        RDFApi::defaultOptions);
+
+    defineApiCallMethods(
+        app,
+        prefix + "{schema}" + apiLocation + "/{table}/{row}",
+        (ctx) -> rowGet(ctx, formatFunction.apply(ctx)),
+        (ctx) -> headerRdfAndValidation(ctx, formatFunction.apply(ctx)),
+        RDFApi::defaultOptions);
+
+    defineApiCallMethods(
+        app,
         prefix + "{schema}" + apiLocation + "/{table}/column/{column}",
-        (ctx) -> rdfForColumn(ctx, format));
-    app.head(
-        prefix + "{schema}" + apiLocation + "/{table}/column/{column}",
-        (ctx) -> rdfHead(ctx, format));
+        (ctx) -> columnGet(ctx, formatFunction.apply(ctx)),
+        (ctx) -> headerRdfAndValidation(ctx, formatFunction.apply(ctx)),
+        RDFApi::defaultOptions);
   }
 
-  private static void rdfHead(Context ctx, RDFFormat format) {
-    setFormat(ctx, format);
+  private static void defineApiCallMethods(
+      Javalin app, String route, Handler getHandler, Handler headHandler, Handler optionsHandler) {
+    app.get(route, getHandler);
+    app.head(route, headHandler);
+    app.options(route, optionsHandler);
   }
 
-  private static void databaseHead(Context ctx, RDFFormat format) {
+  private static void defaultOptions(Context ctx) {
+    ctx.header("Allow", "GET, HEAD, OPTIONS");
+  }
+
+  private static void databaseHead(Context ctx, Function<Context, RDFFormat> formatFunction) {
     if (ctx.queryParam("shacls") != null) {
-      ctx.contentType(ACCEPT_YAML);
+      validateShaclSetFormat(ctx);
+      headerShaclSets(ctx);
     } else {
-      setFormat(ctx, format);
+      headerRdfAndValidation(ctx, formatFunction.apply(ctx));
     }
   }
 
-  private static void databaseGet(Context ctx, RDFFormat format) throws IOException {
+  private static void databaseGet(Context ctx, Function<Context, RDFFormat> formatFunction) throws IOException {
     if (ctx.queryParam("shacls") != null) {
-      shaclSetsYaml(ctx);
+      validateShaclSetFormat(ctx);
+      databaseShaclSetsGet(ctx);
     } else {
-      rdfForDatabase(ctx, format);
+      databaseRdfGet(ctx, formatFunction.apply(ctx));
     }
   }
 
-  private static void shaclSetsYaml(Context ctx) throws IOException {
-    ctx.contentType(ACCEPT_YAML);
+  private static void databaseShaclSetsGet(Context ctx) throws IOException {
+    headerShaclSets(ctx);
 
     // Only show available SHACLs if there are any schema's available to validate on.
     if (APPLICATION_CACHE.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
@@ -135,8 +165,8 @@ public class RDFApi {
     }
   }
 
-  private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
-    format = setFormat(ctx, format);
+  private static void databaseRdfGet(Context ctx, RDFFormat format) throws IOException {
+    headerRdfAndValidation(ctx, format);
 
     Database db = APPLICATION_CACHE.getDatabaseForUser(ctx);
     Collection<String> availableSchemas = getSchemaNames(ctx);
@@ -173,36 +203,24 @@ public class RDFApi {
 
   private static void schemaGet(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
+    Schema schema = getSchema(ctx);
     if (ctx.queryParam("validate") != null) {
-      shaclForSchema(ctx, format);
+      ShaclSet shaclSet = retrieveShaclSet(ctx, sanitize(ctx.queryParam("validate")));
+      runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
     } else {
-      rdfForSchema(ctx, format);
+      runRdfService(ctx, schema, format, method, schema);
     }
   }
 
-  private static void rdfForSchema(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
-    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
-    Schema schema = getSchema(ctx);
-    runRdfService(ctx, schema, format, method, schema);
-  }
-
-  private static void shaclForSchema(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
-    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
-    Schema schema = getSchema(ctx);
-    ShaclSet shaclSet = retrieveShaclSet(ctx, sanitize(ctx.queryParam("validate")));
-    runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
-  }
-
-  private static void rdfForTable(Context ctx, RDFFormat format)
+  private static void tableGet(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class);
     Table table = getTableByIdOrName(ctx);
     runRdfService(ctx, table.getSchema(), format, method, table);
   }
 
-  private static void rdfForRow(Context ctx, RDFFormat format)
+  private static void rowGet(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
     Method method =
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
@@ -211,7 +229,7 @@ public class RDFApi {
     runRdfService(ctx, table.getSchema(), format, method, table, primaryKey);
   }
 
-  private static void rdfForColumn(Context ctx, RDFFormat format)
+  private static void columnGet(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, Column.class);
     Table table = getTableByIdOrName(ctx);
@@ -222,11 +240,10 @@ public class RDFApi {
   private static void runRdfService(
       final Context ctx,
       final Schema schema,
-      RDFFormat format,
+      final RDFFormat format,
       final Method method,
       final Object... methodArgs)
       throws IOException {
-    format = setFormat(ctx, format);
     String baseUrl = extractBaseURL(ctx);
 
     Class serviceClass = RdfSchemaService.class;
@@ -242,12 +259,11 @@ public class RDFApi {
   private static void runRdfValidationService(
       final Context ctx,
       final Schema schema,
-      RDFFormat format,
+      final RDFFormat format,
       final ShaclSet shaclSet,
       final Method method,
       final Object... methodArgs)
       throws IOException {
-    format = setFormat(ctx, format);
     String baseUrl = extractBaseURL(ctx);
 
     Class serviceClass = RdfSchemaValidationService.class;
@@ -270,7 +286,7 @@ public class RDFApi {
       final Object[] serviceArgs,
       final Method method,
       final Object... methodArgs) {
-    ctx.contentType(format.getDefaultMIMEType());
+    headerRdfAndValidation(ctx, format);
 
     try (RdfService<?> rdfService =
         serviceClass.getConstructor(serviceArgClasses).newInstance(serviceArgs)) {
@@ -289,25 +305,38 @@ public class RDFApi {
   private static ShaclSet retrieveShaclSet(Context ctx, String id) {
     ShaclSet shaclSet = ShaclSelector.get(id);
     if (shaclSet == null) {
-      ctx.status(404);
-      throw new MolgenisException("Validation set could not be found.");
+      throw new NotFoundResponse("Validation set could not be found.");
     }
     return shaclSet;
   }
 
-  private static RDFFormat setFormat(Context ctx, RDFFormat format) {
-    if (format == null) format = selectFormat(ctx);
+  private static void headerRdfAndValidation(Context ctx, RDFFormat format) {
+    ctx.header(
+        "Accept",
+        acceptedMediaTypes.stream().map(MediaType::toString).collect(Collectors.joining(", ")));
     ctx.contentType(format.getDefaultMIMEType());
-    return format;
   }
 
-  public static RDFFormat selectFormat(Context ctx) {
-    MediaType mediaType = getContentType(ctx, acceptedMediaTypes);
+  private static void headerShaclSets(Context ctx) {
+    ctx.header("Accept", ACCEPT_YAML);
+    ctx.contentType(ACCEPT_YAML);
+  }
+
+  public static void validateShaclSetFormat(Context ctx) {
+    retrieveAcceptedFormat(ctx, List.of(MediaType.parse(ACCEPT_YAML)));
+  }
+
+  public static RDFFormat selectRdfFormat(Context ctx) {
+    return mediaTypeRdfFormatMap.get(retrieveAcceptedFormat(ctx, acceptedMediaTypes));
+  }
+
+  private static MediaType retrieveAcceptedFormat(Context ctx, List<MediaType> allowedMediaTypes) {
+    MediaType mediaType = getContentType(ctx, allowedMediaTypes);
     if (mediaType == null) {
       throw new NotAcceptableResponse(
-          "Only the following accept-header values are supported: "
-              + acceptedMediaTypes.stream().map(MediaType::toString).toList());
+        "Only the following accept-header values are supported: "
+          + allowedMediaTypes.stream().map(MediaType::toString).toList());
     }
-    return mediaTypeRdfFormatMap.get(mediaType);
+    return mediaType;
   }
 }
