@@ -51,7 +51,8 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
   }
 
   private static long getCollectiveSequenceLimit(List<AutoIdFormat> formats) {
-    return LongPack.maxPackValue(formats.stream().map(AutoIdFormat::getMaxValue).toList());
+    // Sequences start counting at 1, not at 0
+    return LongPack.maxPackValue(formats.stream().map(AutoIdFormat::getMaxValue).toList()) + 1;
   }
 
   @Override
