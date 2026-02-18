@@ -17,10 +17,10 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   private String activeUser;
   private boolean isAdmin = false;
   private String rlsActiveRole = "";
-  private String rlsSelectTables = "";
-  private String rlsInsertTables = "";
-  private String rlsUpdateTables = "";
-  private String rlsDeleteTables = "";
+  private String rlsBypassSelect = "";
+  private String rlsBypassInsert = "";
+  private String rlsBypassUpdate = "";
+  private String rlsBypassDelete = "";
 
   public SqlUserAwareConnectionProvider(DataSource source) {
     super(source);
@@ -32,38 +32,41 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     try {
       connection = super.acquire();
       if (getActiveUser().equals(ADMIN_USER) || this.isAdmin) {
+        // as admin you are actually session user
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
                 "RESET ROLE; SET jit='off';"
                     + " SET molgenis.active_role = {0};"
-                    + " SET molgenis.rls_select_tables = {1};"
-                    + " SET molgenis.rls_insert_tables = {2};"
-                    + " SET molgenis.rls_update_tables = {3};"
-                    + " SET molgenis.rls_delete_tables = {4}",
+                    + " SET molgenis.rls_bypass_select = {1};"
+                    + " SET molgenis.rls_bypass_insert = {2};"
+                    + " SET molgenis.rls_bypass_update = {3};"
+                    + " SET molgenis.rls_bypass_delete = {4}",
                 inline(rlsActiveRole),
-                inline(rlsSelectTables),
-                inline(rlsInsertTables),
-                inline(rlsUpdateTables),
-                inline(rlsDeleteTables));
+                inline(rlsBypassSelect),
+                inline(rlsBypassInsert),
+                inline(rlsBypassUpdate),
+                inline(rlsBypassDelete));
       } else {
+        // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
                 "RESET ROLE; SET jit='off'; SET ROLE {0};"
                     + " SET molgenis.active_role = {1};"
-                    + " SET molgenis.rls_select_tables = {2};"
-                    + " SET molgenis.rls_insert_tables = {3};"
-                    + " SET molgenis.rls_update_tables = {4};"
-                    + " SET molgenis.rls_delete_tables = {5}",
+                    + " SET molgenis.rls_bypass_select = {2};"
+                    + " SET molgenis.rls_bypass_insert = {3};"
+                    + " SET molgenis.rls_bypass_update = {4};"
+                    + " SET molgenis.rls_bypass_delete = {5}",
                 name(MG_USER_PREFIX + getActiveUser()),
                 inline(rlsActiveRole),
-                inline(rlsSelectTables),
-                inline(rlsInsertTables),
-                inline(rlsUpdateTables),
-                inline(rlsDeleteTables));
+                inline(rlsBypassSelect),
+                inline(rlsBypassInsert),
+                inline(rlsBypassUpdate),
+                inline(rlsBypassDelete));
       }
       return connection;
     } catch (DataAccessException dae) {
       super.release(connection);
+      // if invalid user we will not return a connection, not even anonymous
       throw new SqlMolgenisException("Set active user failed'", dae);
     }
   }
@@ -71,14 +74,15 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   @Override
   public void release(Connection connection) {
     try {
+      // sql reports might have changes this, therefore ensure always reset
       DSL.using(connection, SQLDialect.POSTGRES)
           .execute(
               "RESET ROLE; RESET search_path;"
                   + " SET molgenis.active_role = '';"
-                  + " SET molgenis.rls_select_tables = '';"
-                  + " SET molgenis.rls_insert_tables = '';"
-                  + " SET molgenis.rls_update_tables = '';"
-                  + " SET molgenis.rls_delete_tables = ''");
+                  + " SET molgenis.rls_bypass_select = '';"
+                  + " SET molgenis.rls_bypass_insert = '';"
+                  + " SET molgenis.rls_bypass_update = '';"
+                  + " SET molgenis.rls_bypass_delete = ''");
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("release of connection failed ", dae);
     }
@@ -109,42 +113,42 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
 
   public void setRlsSessionVars(
       String activeRole,
-      String selectTables,
-      String insertTables,
-      String updateTables,
-      String deleteTables) {
+      String selectBypass,
+      String insertBypass,
+      String updateBypass,
+      String deleteBypass) {
     this.rlsActiveRole = activeRole;
-    this.rlsSelectTables = selectTables;
-    this.rlsInsertTables = insertTables;
-    this.rlsUpdateTables = updateTables;
-    this.rlsDeleteTables = deleteTables;
+    this.rlsBypassSelect = selectBypass;
+    this.rlsBypassInsert = insertBypass;
+    this.rlsBypassUpdate = updateBypass;
+    this.rlsBypassDelete = deleteBypass;
   }
 
   public void clearRlsCache() {
     this.rlsActiveRole = "";
-    this.rlsSelectTables = "";
-    this.rlsInsertTables = "";
-    this.rlsUpdateTables = "";
-    this.rlsDeleteTables = "";
+    this.rlsBypassSelect = "";
+    this.rlsBypassInsert = "";
+    this.rlsBypassUpdate = "";
+    this.rlsBypassDelete = "";
   }
 
   public String getRlsActiveRole() {
     return rlsActiveRole;
   }
 
-  public String getRlsSelectTables() {
-    return rlsSelectTables;
+  public String getRlsBypassSelect() {
+    return rlsBypassSelect;
   }
 
-  public String getRlsInsertTables() {
-    return rlsInsertTables;
+  public String getRlsBypassInsert() {
+    return rlsBypassInsert;
   }
 
-  public String getRlsUpdateTables() {
-    return rlsUpdateTables;
+  public String getRlsBypassUpdate() {
+    return rlsBypassUpdate;
   }
 
-  public String getRlsDeleteTables() {
-    return rlsDeleteTables;
+  public String getRlsBypassDelete() {
+    return rlsBypassDelete;
   }
 }

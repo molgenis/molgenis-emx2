@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.molgenis.emx2.ColumnAccess;
@@ -438,6 +439,13 @@ public class SqlRoleManager {
         name(tableName + "_" + MG_ROLES + "_idx"), jooqTable, name(MG_ROLES));
     ctx.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
 
+    createRlsPolicies(ctx, schemaName, tableName);
+
+    applySchemaWideGrantsForNewTable(schemaName, tableName);
+  }
+
+  private void createRlsPolicies(DSLContext ctx, String schemaName, String tableName) {
+    org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
     String fqTable = schemaName + "." + tableName;
 
     ctx.execute("DROP POLICY IF EXISTS {0} ON {1}", name(tableName + "_rls_select"), jooqTable);
@@ -448,7 +456,8 @@ public class SqlRoleManager {
 
     ctx.execute(
         "CREATE POLICY {0} ON {1} FOR SELECT USING ("
-            + "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_select_tables', true), ''), ',')) "
+            + "current_setting('molgenis.rls_bypass_select', true) = '*' "
+            + "OR {2} = ANY(string_to_array(COALESCE(current_setting('molgenis.rls_bypass_select', true), ''), ',')) "
             + "OR {3} IS NULL "
             + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')"
             + ")",
@@ -456,14 +465,16 @@ public class SqlRoleManager {
 
     ctx.execute(
         "CREATE POLICY {0} ON {1} FOR INSERT WITH CHECK ("
-            + "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_insert_tables', true), ''), ',')) "
+            + "current_setting('molgenis.rls_bypass_insert', true) = '*' "
+            + "OR {2} = ANY(string_to_array(COALESCE(current_setting('molgenis.rls_bypass_insert', true), ''), ',')) "
             + "OR {3} IS NULL "
             + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')"
             + ")",
         name(tableName + "_rls_insert"), jooqTable, inline(fqTable), name(MG_ROLES));
 
     String updateExpr =
-        "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_update_tables', true), ''), ',')) "
+        "current_setting('molgenis.rls_bypass_update', true) = '*' "
+            + "OR {2} = ANY(string_to_array(COALESCE(current_setting('molgenis.rls_bypass_update', true), ''), ',')) "
             + "OR {3} IS NULL "
             + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')";
     ctx.execute(
@@ -479,13 +490,12 @@ public class SqlRoleManager {
 
     ctx.execute(
         "CREATE POLICY {0} ON {1} FOR DELETE USING ("
-            + "{2} != ALL(string_to_array(COALESCE(current_setting('molgenis.rls_delete_tables', true), ''), ',')) "
+            + "current_setting('molgenis.rls_bypass_delete', true) = '*' "
+            + "OR {2} = ANY(string_to_array(COALESCE(current_setting('molgenis.rls_bypass_delete', true), ''), ',')) "
             + "OR {3} IS NULL "
             + "OR {3} && string_to_array(COALESCE(current_setting('molgenis.active_role', true), ''), ',')"
             + ")",
         name(tableName + "_rls_delete"), jooqTable, inline(fqTable), name(MG_ROLES));
-
-    applySchemaWideGrantsForNewTable(schemaName, tableName);
   }
 
   public void applySchemaWideGrantsForNewTable(String schemaName, String tableName) {
@@ -671,7 +681,7 @@ public class SqlRoleManager {
       return Collections.emptyList();
     }
     if (SYSTEM_ROLE_NAMES.contains(roleName)) {
-      return getSystemRolePermissions(schema, roleName);
+      return expandSystemRolePermissions(schema, roleName);
     }
     return getPermissions(schemaName, roleName);
   }
@@ -714,6 +724,21 @@ public class SqlRoleManager {
     }
     permissions.add(perm);
     return permissions;
+  }
+
+  private List<Permission> expandSystemRolePermissions(SqlSchema schema, String roleName) {
+    Permission wildcard = getSystemRolePermissions(schema, roleName).get(0);
+    List<Permission> expanded = new ArrayList<>();
+    for (String tableName : schema.getTableNames()) {
+      Permission perm = new Permission(tableName);
+      perm.setSelect(wildcard.getSelect());
+      perm.setInsert(wildcard.getInsert());
+      perm.setUpdate(wildcard.getUpdate());
+      perm.setDelete(wildcard.getDelete());
+      perm.setGrant(wildcard.getGrant());
+      expanded.add(perm);
+    }
+    return expanded;
   }
 
   private SelectLevel mapSelectLevel(Boolean canSelect, String selectLevel) {
@@ -809,6 +834,50 @@ public class SqlRoleManager {
                 + "END\n"
                 + "$$;",
             inline(fullRole));
+  }
+
+  public void recreateAllRlsPolicies() {
+    DSLContext ctx = jooq();
+    try {
+      Field<String> fSchemaname = field(name("t", "schemaname"), String.class);
+      Field<String> fTablename = field(name("t", "tablename"), String.class);
+      Field<String> fRelname = field(name("c", "relname"), String.class);
+      Field<Object> fRelnamespace = field(name("c", "relnamespace"));
+      Field<Boolean> fRelRowSecurity = field(name("c", "relrowsecurity"), Boolean.class);
+      Field<Object> fOid = field(name("n", "oid"));
+      Field<String> fNspname = field(name("n", "nspname"), String.class);
+
+      Field<String> fColName = field(name("col", "column_name"), String.class);
+      Field<String> fColSchema = field(name("col", "table_schema"), String.class);
+      Field<String> fColTable = field(name("col", "table_name"), String.class);
+
+      var rlsTables =
+          ctx.select(fSchemaname, fTablename)
+              .from(table(name("pg_tables")).as("t"))
+              .join(table(name("pg_class")).as("c"))
+              .on(fRelname.eq(fTablename))
+              .join(table(name("pg_namespace")).as("n"))
+              .on(fRelnamespace.eq(fOid).and(fNspname.eq(fSchemaname)))
+              .join(table(name("information_schema", "columns")).as("col"))
+              .on(
+                  fColSchema
+                      .eq(fSchemaname)
+                      .and(fColTable.eq(fTablename))
+                      .and(fColName.eq(inline(MG_ROLES))))
+              .where(fRelRowSecurity.eq(true))
+              .and(fSchemaname.ne(inline("pg_catalog")))
+              .and(fSchemaname.ne(inline("information_schema")))
+              .fetch();
+
+      for (Record tableRecord : rlsTables) {
+        String schemaName = tableRecord.get(fSchemaname);
+        String tableName = tableRecord.get(fTablename);
+        createRlsPolicies(ctx, schemaName, tableName);
+      }
+    } catch (Exception e) {
+      logger.error("Failed to recreate RLS policies", e);
+      throw new MolgenisException("Failed to recreate RLS policies", e);
+    }
   }
 
   private static Boolean toRlsFlag(ModifyLevel level) {
