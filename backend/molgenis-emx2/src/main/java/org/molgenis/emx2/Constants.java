@@ -22,12 +22,6 @@ public class Constants {
   public static final String ROLE_MANAGER = "Manager";
   public static final String ROLE_OWNER = "Owner";
   public static final String ROLE_ADMIN = "Admin";
-  public static final String GLOBAL_SCHEMA = "*";
-  public static final String ACTIVE_ROLE = "active_role";
-  public static final String RLS_SELECT_TABLES = "rls_select_tables";
-  public static final String RLS_INSERT_TABLES = "rls_insert_tables";
-  public static final String RLS_UPDATE_TABLES = "rls_update_tables";
-  public static final String RLS_DELETE_TABLES = "rls_delete_tables";
   public static final Set<String> SYSTEM_ROLES =
       Set.of(
           ROLE_EXISTS,
