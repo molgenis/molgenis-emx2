@@ -136,9 +136,9 @@ class StagingMigrator(Client):
                     if table.id in ["CollectionEvents", "Subpopulations"]:
                         updated_table = self._copy_resource_columns(updated_table)
 
-                    if len(updated_table.index) != 0:
-                        upload_archive.writestr(file_name, updated_table.to_csv(index=False))
-                        updated_tables.append(Path(file_name).stem)
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
+                    updated_tables.append(Path(file_name).stem)
 
         # Return zip
         if len(updated_tables) == 0:
@@ -410,6 +410,6 @@ class StagingMigrator(Client):
         if "Profiles" not in map(lambda t: t.id, source_meta.tables):
             return None
         try:
-            return source_meta.get_table('id', "Profiles").descriptions
+            return source_meta.get_table('id', "Profiles").descriptions[0].get('value')
         except AttributeError:
             return None
