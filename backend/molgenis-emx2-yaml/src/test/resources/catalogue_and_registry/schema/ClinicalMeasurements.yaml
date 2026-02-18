@@ -1,0 +1,43 @@
+---
+table:
+  table: Clinical measurements
+  description: Additional clinical measurements collected as part of the clinical
+    observation
+  columns:
+  - name: part of clinical observation
+    type: select
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C87853
+    description: "A reference to a specific clinical observation (e.g., \"Ind001_Phen001\"\
+      )"
+    refTable: Clinical observations
+  - name: code
+    type: ontology
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25162
+    description: "A unique code that identifies or categorises this clinical measurement\
+      \ (e.g., \"Metabolomics\")"
+    refTable: Analyses performed
+    refSchema: CatalogueOntologies
+  - name: variable
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C54166
+    description: A name that describes the clinical measurement (e.g.. "Blood platelet
+      count")
+  - name: value
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25712
+    description: "The value that was measured, collected, derived, etc. (e.g. \"55345\"\
+      )"
+  - name: unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25709
+    description: "A value that specifes the measured value (e.g., \"Per Millimeter\"\
+      )"
+    refTable: Units
+    refSchema: CatalogueOntologies

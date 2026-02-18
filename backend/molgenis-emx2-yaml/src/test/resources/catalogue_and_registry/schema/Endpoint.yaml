@@ -1,0 +1,126 @@
+---
+table:
+  table: Endpoint
+  description: General information describing an endpoint
+  columns:
+  - name: id
+    key: 1
+    semantics:
+    - schema:identifier
+    - dcterms:identifier
+    description: "A unique proper name or character sequence that identifies this\
+      \ particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier.\
+      \ In RD3: subjectID."
+  - name: type
+    type: hyperlink_array
+    semantics:
+    - rdf:type
+    description: This row is an instance of one or more of these class(es) other than
+      the Endpoint table.
+  - name: name
+    type: string_array
+    semantics:
+    - dcterms:title
+    description: A name given to the resource.
+  - name: version
+    type: text
+    semantics:
+    - dcterms:hasVersion
+    description: An account of the resource version.
+  - name: description
+    type: text
+    semantics:
+    - dcterms:description
+    description: An account of the resource.
+  - name: publisher
+    type: ref_array
+    semantics:
+    - dcterms:publisher
+    description: An entity responsible for making the resource available.
+    refTable: Agents
+  - name: language
+    type: hyperlink_array
+    semantics:
+    - dcterms:language
+    description: A language of the resource.
+  - name: license
+    type: hyperlink
+    semantics:
+    - dcterms:license
+    description: A legal document giving official permission to do something with
+      the resource.
+  - name: conformsTo
+    type: hyperlink
+    semantics:
+    - dcterms:conformsTo
+    description: An established standard to which the described resource conforms.
+  - name: rights
+    type: hyperlink_array
+    semantics:
+    - dcterms:rights
+    description: Information about rights held in and over the resource.
+  - name: accessRights
+    type: hyperlink_array
+    semantics:
+    - dcterms:accessRights
+    description: Information about who access the resource or an indication of its
+      security status.
+  - name: contact
+    type: ref
+    semantics:
+    - dcat:contactPoint
+    description: Relevant contact information for the cataloged resource
+    refTable: Contacts
+  - name: keyword
+    type: string_array
+    semantics:
+    - dcat:keyword
+    description: A keyword or tag describing a resource.
+  - name: theme
+    type: hyperlink_array
+    semantics:
+    - dcat:theme
+    description: A main category of the resource. A resource can have multiple themes.
+  - name: endPointDescription
+    type: hyperlink_array
+    semantics:
+    - dcat:endpointDescription
+    description: "A description of the service end-point, including its operations,\
+      \ parameters etc."
+  - name: metadataCatalog
+    type: ref_array
+    semantics:
+    - fdp-o:metadataCatalog
+    description: "With the definition of the FDP as a type of metadata service that\
+      \ serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog\
+      \ is represented by this predicate."
+    refTable: Resources
+  - name: conformsToFdpSpec
+    type: hyperlink
+    semantics:
+    - fdp-o:conformsToFdpSpec
+    description: The relation should point to an URI that contains the version of
+      the FDP specifications for which this instance of the FDP conforms to
+  - name: EJP_RD_personalData
+    semantics:
+    - ejp:personalData
+    description: "Set to true if the resource onboarded to the EJP-RD Virtual Platform\
+      \ contains personal data, personal data meaning data related to identified or\
+      \ identifiable persons (as per GDPR definition), otherwise false. Must be String\
+      \ as workaround for current FDP reference implementation limitations."
+  - name: EJP_RD_vpConnection
+    type: hyperlink
+    semantics:
+    - ejp:vpConnection
+    description: This property must be attached to every entity that you wish the
+      EJP-RD Virtual Platform to explore.
+  - name: issued
+    type: datetime
+    semantics:
+    - dcterms:issued
+    - fdp-o:metadataIssued
+  - name: modified
+    type: datetime
+    semantics:
+    - dcterms:modified
+    - fdp-o:metadataModified

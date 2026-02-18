@@ -1,0 +1,10 @@
+---
+schema:
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Endpoint
+    columns:
+    - id
+    - name
+    - description
+    - publisher

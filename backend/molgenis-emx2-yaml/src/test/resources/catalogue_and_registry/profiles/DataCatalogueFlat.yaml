@@ -1,0 +1,470 @@
+---
+schema:
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Collection events
+    columns:
+    - resource
+    - name
+    - pid
+    - description
+    - subpopulations
+    - keywords
+    - start date
+    - end date
+    - age groups
+    - number of participants
+    - areas of information
+    - data categories
+    - sample categories
+    - standardized tools
+    - standardized tools other
+    - core variables
+    - contact point
+    - publisher
+    - creator
+    - issued
+    - modified
+    - theme
+    - access rights
+    - applicable legislation
+    - provenance statement
+  - table: Variable values
+    columns:
+    - resource
+    - dataset
+    - variable
+    - value
+    - label
+    - order
+    - is missing
+    - ontology term URI
+    - since version
+    - until version
+  - table: Publications
+    columns:
+    - resource
+    - doi
+    - title
+    - is design publication
+    - reference
+  - table: Documentation
+    columns:
+    - resource
+    - name
+    - type
+    - description
+    - url
+    - file
+  - table: Internal identifiers
+    columns:
+    - resource
+    - identifier
+    - internal identifier type
+    - internal identifier type other
+  - table: Reused variables
+    columns:
+    - resource
+    - variable
+  - table: Agents
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - department
+    - website
+    - email
+    - logo
+    - role
+    - organisation name
+    - organisation pid
+    - organisation website
+  - table: Dataset mappings
+    columns:
+    - source
+    - source dataset
+    - target
+    - target dataset
+    - order
+    - description
+    - syntax
+  - table: Endpoint
+    columns:
+    - id
+    - type
+    - name
+    - version
+    - description
+    - publisher
+    - language
+    - license
+    - conformsTo
+    - rights
+    - accessRights
+    - contact
+    - keyword
+    - theme
+    - endPointDescription
+    - metadataCatalog
+    - conformsToFdpSpec
+    - EJP_RD_personalData
+    - EJP_RD_vpConnection
+    - issued
+    - modified
+  - table: Datasets
+    columns:
+    - resource
+    - name
+    - label
+    - dataset type
+    - unit of observation
+    - keywords
+    - description
+    - number of rows
+    - mapped to
+    - mapped from
+    - since version
+    - until version
+  - table: Resource counts
+    columns:
+    - resource
+    - age group
+    - population size
+    - active size
+    - no individuals with samples
+    - mean observation years
+    - mean years active
+    - median age
+    - proportion female
+  - table: Profiles
+    columns:
+    - DataCatalogueFlat
+  - table: Resources
+    columns:
+    - rdf type
+    - fdp endpoint
+    - ldp membership relation
+    - overview
+    - hricore
+    - id
+    - pid
+    - name
+    - local name
+    - acronym
+    - type
+    - type other
+    - catalogue type
+    - cohort type
+    - clinical study type
+    - RWD type
+    - network type
+    - website
+    - description
+    - keywords
+    - internal identifiers
+    - external identifiers
+    - start year
+    - end year
+    - time span description
+    - contact email
+    - logo
+    - status
+    - conforms to
+    - has member relation
+    - issued
+    - modified
+    - design and structure
+    - design
+    - design description
+    - design schematic
+    - data collection type
+    - data collection description
+    - reason sustained
+    - record trigger
+    - unit of observation
+    - subpopulations
+    - collection events
+    - data resources
+    - part of networks
+    - population
+    - number of participants
+    - number of participants with samples
+    - underlying population
+    - population of interest
+    - population of interest other
+    - countries
+    - regions
+    - population age groups
+    - age min
+    - age max
+    - inclusion criteria
+    - other inclusion criteria
+    - exclusion criteria
+    - other exclusion criteria
+    - population entry
+    - population entry other
+    - population exit
+    - population exit other
+    - population disease
+    - population oncology topology
+    - population oncology morphology
+    - population coverage
+    - population not covered
+    - counts
+    - contributors
+    - organisations involved
+    - publisher
+    - creator
+    - people involved
+    - contact point
+    - child networks
+    - parent networks
+    - available data and samples
+    - datasets
+    - samplesets
+    - areas of information
+    - areas of information rwd
+    - quality of life other
+    - cause of death code other
+    - indication vocabulary other
+    - genetic data vocabulary other
+    - care setting other
+    - medicinal product vocabulary other
+    - prescriptions vocabulary other
+    - dispensings vocabulary other
+    - procedures vocabulary other
+    - biomarker data vocabulary other
+    - diagnosis medical event vocabulary other
+    - data dictionary available
+    - disease details
+    - biospecimen collected
+    - languages
+    - multiple entries
+    - linkage
+    - has identifier
+    - identifier description
+    - prelinked
+    - linkage options
+    - linkage possibility
+    - linked resources
+    - access conditions
+    - informed consent type
+    - informed consent required
+    - informed consent other
+    - access rights
+    - data access conditions
+    - data use conditions
+    - data access conditions description
+    - data access fee
+    - access identifiable data
+    - access identifiable data route
+    - access subject details
+    - access subject details route
+    - access third party
+    - access third party conditions
+    - access non EU
+    - access non EU conditions
+    - biospecimen access
+    - biospecimen access conditions
+    - governance details
+    - approval for publication
+    - updates
+    - release type
+    - release description
+    - number of records
+    - release frequency
+    - refresh time
+    - lag time
+    - refresh period
+    - date last refresh
+    - preservation
+    - preservation duration
+    - quality
+    - standard operating procedures
+    - qualification
+    - qualifications description
+    - audit possible
+    - completeness
+    - completeness over time
+    - completeness results
+    - quality description
+    - quality over time
+    - access for validation
+    - quality validation frequency
+    - quality validation methods
+    - correction methods
+    - quality validation results
+    - standards
+    - mappings to common data models
+    - common data models other
+    - ETL standard vocabularies
+    - ETL standard vocabularies other
+    - information
+    - publications
+    - funding sources
+    - funding scheme
+    - funding statement
+    - citation requirements
+    - acknowledgements
+    - provenance statement
+    - documentation
+    - supplementary information
+    - theme
+    - applicable legislation
+    - study details
+    - collection start planned
+    - collection start actual
+    - analysis start planned
+    - analysis start actual
+    - data sources
+    - medical conditions studied
+    - data extraction date
+    - study methods
+    - analysis plan
+    - objectives
+    - results
+  - table: Resource mappings
+    columns:
+    - source
+    - source version
+    - target
+    - target version
+    - cdms other
+    - mapping status
+    - ETL frequency
+    - ETL specification url
+    - ETL specification document
+  - table: Variable mappings
+    columns:
+    - source
+    - source dataset
+    - source variables
+    - source variables other datasets
+    - target
+    - target dataset
+    - target variable
+    - repeats
+    - match
+    - description
+    - syntax
+    - comments
+  - table: Samplesets
+    columns:
+    - resource
+    - name
+    - sample types
+  - table: External identifiers
+    columns:
+    - resource
+    - identifier
+    - external identifier type
+    - external identifier type other
+  - table: Subpopulations
+    columns:
+    - resource
+    - name
+    - pid
+    - description
+    - keywords
+    - number of participants
+    - counts
+    - inclusion start
+    - inclusion end
+    - age groups
+    - age min
+    - age max
+    - main medical condition
+    - comorbidity
+    - countries
+    - regions
+    - inclusion criteria
+    - other inclusion criteria
+    - exclusion criteria
+    - other exclusion criteria
+    - contact point
+    - publisher
+    - creator
+    - issued
+    - modified
+    - theme
+    - access rights
+    - applicable legislation
+    - provenance statement
+  - table: Linkages
+    columns:
+    - resource
+    - linked resource
+    - linkage strategy
+    - linkage variable
+    - linkage variable unique
+    - linkage completeness
+    - pre linked
+  - table: Organisations
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - department
+    - website
+    - email
+    - logo
+    - role
+    - organisation name
+    - organisation pid
+    - organisation website
+    - is lead organisation
+  - table: Subpopulation counts
+    columns:
+    - resource
+    - subpopulation
+    - age group
+    - N total
+    - N female
+    - N male
+  - table: Contacts
+    columns:
+    - resource
+    - role
+    - role description
+    - first name
+    - last name
+    - display name
+    - prefix
+    - initials
+    - title
+    - organisation
+    - email
+    - orcid
+    - homepage
+    - photo
+    - expertise
+  - table: Version
+  - table: Variables
+    columns:
+    - resource
+    - dataset
+    - name
+    - useExternalDefinition
+    - label
+    - description
+    - collection event
+    - format
+    - unit
+    - since version
+    - until version
+    - reused in resources
+    - repeat unit
+    - repeat min
+    - repeat max
+    - example values
+    - permitted values
+    - keywords
+    - vocabularies
+    - notes
+    - mappings

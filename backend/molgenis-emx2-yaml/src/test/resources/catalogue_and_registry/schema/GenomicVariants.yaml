@@ -1,0 +1,119 @@
+---
+table:
+  table: Genomic variants
+  description: Beacon v2 GenomicVariation see also https://www.ga4gh.org/product/categorical-variation-catvar/
+  columns:
+  - name: Variant Definition
+    type: heading
+  - name: id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164813
+    - bc2:variantInternalId
+    description: A unique identifier maintained by an authoritative database that
+      represents a genetic variation. E.g. 20:2447955..2447958c>g
+  - name: alternative ids
+    type: string_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C90353
+    description: A backup sequence of characters used to identify an entity
+  - name: variant type
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C17004
+    description: The regular and simultaneous occurrence of alternative nucleotide
+      sequences at equivalent locations of the genetic material among individuals
+      of a single interbreeding population that are not maintained by recurrent mutation.
+      Polymorphisms may range in size from single nucleotide to large nucleotide sequence
+      variation visible at the chromosomal level. e.g. SNP
+    refTable: Variant types
+    refSchema: CatalogueOntologies
+  - name: variant effect type
+    semantics:
+    - http://purl.obolibrary.org/obo/SO_0001818
+    description: E.g. benign
+  - name: genomic HGVS id
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C172243
+    description: E.g. NC_000017.11:g.43057063G>A
+  - name: transcript HGVS ids
+    type: string_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C172244
+    description: E.g. NC_000023.10(NM004006.2):c.357+1G
+  - name: protein HGVS ids
+    type: string_array
+    semantics:
+    - http://ensembl.org/glossary/ENSGLOSSARY_0000274
+    description: E.g. NP_009225.1:p.Glu1817Ter
+  - name: genomic assembly id
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164388
+    description: "E.g. GRCh37. In Beacon, this is the assembly ID"
+    refTable: Genome accessions
+    refSchema: CatalogueOntologies
+  - name: refseq assembly id
+    type: string_array
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100606
+    description: A centrally registered identifier symbol that specifies an individual
+      sequence record in a public sequence repository and used as a basis for comparison
+      against another sequence. E.g. 11
+  - name: gene id
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48664
+    description: E.g. TTN
+  - name: chromosome
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C13203
+    description: "A structure found in the nucleus of human cells that is comprised\
+      \ of a strand of linearized double-stranded DNA plus proteins that package the\
+      \ DNA in a condensed coil form and regulate chromosomal function. In beacon,\
+      \ this is the refSeqId / reference name"
+    refTable: Chromosomes
+    refSchema: CatalogueOntologies
+  - name: chromosomal region
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000614
+    description: "An extended part of a chromosome representing a term of convenience\
+      \ in order to hierarchically organize morphologically defined chromosome features:\
+      \ chromosome > arm > region > band > sub-band."
+  - name: start position
+    type: long
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000894
+    description: The starting position of a sequence feature or interval. E.g. 2447955
+  - name: stop position
+    type: long
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000895
+    description: The ending position of a sequence feature or interval. E.g. 2447955
+  - name: reference allele
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000036
+    description: An allele whose sequence matches what is consdiered to be the reference
+      sequence at that location in the genome.
+  - name: alternate allele
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000002
+    - http://ensembl.org/glossary/ENSGLOSSARY_0000109
+    description: Any allele of a variant which is not the in the reference genome
+      currently being studied. The alternative allele is not necessarily the minor
+      allele.
+  - name: cDNA
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C324
+    description: Single-stranded DNA that is complementary to messenger RNA or DNA
+      that has been synthesized from messenger RNA by reverse transcriptase.
+  - name: Consensus Classification
+    type: heading
+  - name: used in interpretations
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000125
+    description: "A reference to one or more processes (i.e., variant interpretations)\
+      \ where a variant was used"
+    refTable: Variant interpretations
+    refBack: variants

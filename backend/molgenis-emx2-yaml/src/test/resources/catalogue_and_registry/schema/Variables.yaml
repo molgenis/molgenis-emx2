@@ -1,0 +1,92 @@
+---
+table:
+  table: Variables
+  description: Definition of a variable
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource that this variable is part of
+    refTable: Resources
+  - name: dataset
+    type: ref
+    key: 1
+    description: Dataset that this variable is part of
+    refTable: Datasets
+  - name: name
+    key: 1
+    description: "Name of the variable, unique within a dataset"
+  - name: useExternalDefinition
+    type: ref
+    description: Refer to variable definition in other datasets
+    refTable: Variables
+  - name: label
+    description: "Human readable name, if applicable"
+  - name: description
+    type: text
+    description: Description of the variable
+  - name: collection event
+    type: ref_array
+    description: In case of protocolised data collection this defines the moment(s)
+      in time this variable is collected on
+    refTable: Collection events
+  - name: format
+    type: ontology
+    description: "Data type, e.g. string, integer, decimal, date, datetime, etc."
+    refTable: Formats
+    refSchema: CatalogueOntologies
+  - name: unit
+    type: ontology
+    description: "In case of a continuous variable, the unit that the variable values\
+      \ are expressed in"
+    refTable: Units
+    refSchema: CatalogueOntologies
+  - name: since version
+    description: When this variable was introduced
+  - name: until version
+    description: "When this variable was removed, if applicable"
+  - name: reused in resources
+    type: refback
+    description: Listing of variables from other resources that are reused by this
+      resource
+    refTable: Reused variables
+    refBack: variable
+  - name: repeat unit
+    type: ontology
+    description: "The repeat unit, in case the variable was repeatedly collected over\
+      \ time, e.g. month or week"
+    refTable: Variable repeat units
+    refSchema: CatalogueOntologies
+  - name: repeat min
+    type: int
+    description: The first repeat unit
+  - name: repeat max
+    type: int
+    description: The last repeat unit
+  - name: example values
+    type: string_array
+    description: Example values for this variable
+  - name: permitted values
+    type: refback
+    description: "Listing of variable values, filled out in Variable values table"
+    refTable: Variable values
+    refBack: variable
+  - name: keywords
+    type: ontology_array
+    description: Keywords that will make the variable easier to find
+    refTable: Keywords
+    refSchema: CatalogueOntologies
+  - name: vocabularies
+    type: ontology_array
+    description: Vocabularies used to express the values of this variable
+    refTable: Vocabularies
+    refSchema: CatalogueOntologies
+  - name: notes
+    type: text
+    description: Any other information on this variable
+  - name: mappings
+    type: refback
+    description: "Listing of harmonised variables this variable was mapped to, filled\
+      \ out in Variable mappings table"
+    refTable: Variable mappings
+    refBack: target variable
