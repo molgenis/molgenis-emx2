@@ -10,8 +10,6 @@ const props = defineProps<{
   constantValues?: IRow;
 }>();
 
-const emit = defineEmits(["view", "leaving-view", "blur"]);
-
 const observerOptions = {
   root: null,
   rootMargin: "-45% 0px -45% 0px",

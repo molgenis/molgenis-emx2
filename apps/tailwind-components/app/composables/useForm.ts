@@ -630,7 +630,6 @@ export default function useForm(
   };
 }
 
-export type mode = "insert" | "update";
 export interface UseForm {
   values: ComputedRef<IRow>;
   rowKey: Ref<Record<string, columnValue>>;
