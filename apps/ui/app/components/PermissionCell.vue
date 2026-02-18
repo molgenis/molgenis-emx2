@@ -1,22 +1,21 @@
 <template>
   <td class="px-2 py-1">
-    <select
-      :value="displayValue"
-      :disabled="disabled"
-      :class="cellClasses"
-      class="w-full px-1 py-0.5 text-sm border rounded bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
-      @change="handleChange"
-    >
-      <option value="">—</option>
-      <option v-for="opt in options" :key="String(opt)" :value="String(opt)">
-        {{ optionLabel(String(opt)) }}
-      </option>
-    </select>
+    <div :class="cellClasses">
+      <InputSelect
+        id="permission-cell"
+        v-model="internalValue"
+        :options="selectOptions"
+        :disabled="disabled"
+        placeholder="—"
+        class="!h-7 !text-sm !px-1 !py-0.5"
+      />
+    </div>
   </td>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
+import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 
 const props = defineProps<{
   modelValue: string | boolean | null;
@@ -40,10 +39,14 @@ const displayValue = computed(() => {
   return "";
 });
 
-function optionLabel(value: string): string {
-  if (props.isGrant && value === "true") return "Yes";
-  return value;
-}
+const selectOptions = computed(() => {
+  return props.options.map((opt) => {
+    if (typeof opt === "string") {
+      return props.isGrant && opt === "true" ? "Yes" : opt;
+    }
+    return String(opt);
+  });
+});
 
 const isInherited = computed(
   () =>
@@ -57,17 +60,23 @@ const cellClasses = computed(() => ({
   "font-semibold": !isInherited.value && displayValue.value !== "",
 }));
 
-function handleChange(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  const raw = target.value;
-  if (raw === "") {
-    emit("update:modelValue", null);
-    return;
-  }
-  if (props.isGrant) {
-    emit("update:modelValue", raw === "true");
-    return;
-  }
-  emit("update:modelValue", raw);
-}
+const internalValue = computed({
+  get: () => {
+    const val = displayValue.value;
+    if (props.isGrant && val === "true") return "Yes";
+    return val;
+  },
+  set: (value: string | number | undefined | null) => {
+    const strValue = String(value);
+    if (strValue === "—" || strValue === "") {
+      emit("update:modelValue", null);
+      return;
+    }
+    if (props.isGrant) {
+      emit("update:modelValue", strValue === "Yes" || strValue === "true");
+      return;
+    }
+    emit("update:modelValue", strValue);
+  },
+});
 </script>

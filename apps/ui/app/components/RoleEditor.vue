@@ -1,16 +1,13 @@
 <template>
   <div class="flex flex-wrap items-center gap-3 mb-4">
     <div class="flex items-center gap-2">
-      <label class="text-sm font-medium">Role:</label>
-      <select
-        :value="selectedRole"
-        class="px-2 py-1 text-sm border rounded bg-white"
-        @change="handleRoleChange"
-      >
-        <option v-for="role in roles" :key="role.name" :value="role.name">
-          {{ role.name }}{{ role.system ? " (system)" : "" }}
-        </option>
-      </select>
+      <InputLabel>Role:</InputLabel>
+      <InputSelect
+        id="role-select"
+        v-model="internalSelectedRole"
+        :options="roleOptions"
+        class="text-sm min-w-[200px]"
+      />
     </div>
     <div v-if="selectedRoleInfo?.description" class="text-sm text-gray-500">
       {{ selectedRoleInfo.description }}
@@ -43,18 +40,18 @@
   >
     <div class="flex flex-col gap-3 p-4">
       <div>
-        <label class="block text-sm font-medium mb-1">Role Name</label>
-        <input
+        <InputLabel>Role Name</InputLabel>
+        <InputString
+          id="new-role-name"
           v-model="newRoleName"
-          class="w-full px-2 py-1 text-sm border rounded"
           placeholder="Enter role name"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium mb-1">Description</label>
-        <input
+        <InputLabel>Description</InputLabel>
+        <InputString
+          id="new-role-description"
           v-model="newRoleDescription"
-          class="w-full px-2 py-1 text-sm border rounded"
           placeholder="Enter description (optional)"
         />
       </div>
@@ -102,6 +99,9 @@ import { ref, computed } from "vue";
 import type { IRoleInfo } from "~/util/roleUtils";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
+import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import InputLabel from "../../../tailwind-components/app/components/input/Label.vue";
 
 const props = defineProps<{
   roles: IRoleInfo[];
@@ -123,10 +123,21 @@ const selectedRoleInfo = computed(() =>
   props.roles.find((role) => role.name === props.selectedRole)
 );
 
-function handleRoleChange(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  emit("select", target.value);
-}
+const roleOptions = computed(() =>
+  props.roles.map((role) => `${role.name}${role.system ? " (system)" : ""}`)
+);
+
+const internalSelectedRole = computed({
+  get: () => {
+    const info = selectedRoleInfo.value;
+    return info ? `${info.name}${info.system ? " (system)" : ""}` : "";
+  },
+  set: (value: string | number | undefined | null) => {
+    const strValue = String(value);
+    const roleName = strValue.replace(/ \(system\)$/, "");
+    emit("select", roleName);
+  },
+});
 
 function handleCreate(hide: () => void) {
   const name = newRoleName.value.trim();

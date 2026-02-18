@@ -15,16 +15,13 @@
     </ContentBlock>
 
     <ContentBlock v-else-if="errorMessage" class="mt-3">
-      <p class="text-red-600">{{ errorMessage }}</p>
+      <Message id="error-message" invalid>{{ errorMessage }}</Message>
     </ContentBlock>
 
     <ContentBlock v-else class="mt-3" title="Permission Matrix">
-      <div
-        v-if="successMessage"
-        class="mb-3 p-2 bg-green-100 text-green-800 rounded text-sm"
-      >
+      <Message v-if="successMessage" id="success-message" valid class="mb-3">
         {{ successMessage }}
-      </div>
+      </Message>
 
       <RoleEditor
         v-if="roles.length"
@@ -71,6 +68,7 @@ import Container from "../../../../tailwind-components/app/components/Container.
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
 import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import Message from "../../../../tailwind-components/app/components/Message.vue";
 import RoleEditor from "~/components/RoleEditor.vue";
 import PermissionMatrix from "~/components/PermissionMatrix.vue";
 
