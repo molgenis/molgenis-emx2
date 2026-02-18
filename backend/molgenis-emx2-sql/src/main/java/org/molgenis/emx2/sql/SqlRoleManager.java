@@ -678,7 +678,7 @@ public class SqlRoleManager {
 
   private List<Permission> getSystemRolePermissions(SqlSchema schema, String roleName) {
     List<Permission> permissions = new ArrayList<>();
-      Permission perm = new Permission("*");
+    Permission perm = new Permission("*");
     switch (roleName) {
       case ROLE_OWNER:
       case ROLE_MANAGER:
@@ -717,12 +717,11 @@ public class SqlRoleManager {
   }
 
   private SelectLevel mapSelectLevel(Boolean canSelect, String selectLevel) {
-    if (Boolean.TRUE.equals(canSelect)) {
-      if ("ROW".equals(selectLevel)) return SelectLevel.ROW;
-      return SelectLevel.TABLE;
-    }
     if (selectLevel != null) {
       return SelectLevel.valueOf(selectLevel);
+    }
+    if (Boolean.TRUE.equals(canSelect)) {
+      return SelectLevel.TABLE;
     }
     return null;
   }

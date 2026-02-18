@@ -1601,4 +1601,125 @@ public class TestSqlRoleManager {
               "After downgrading to ROW, user should see filtered rows again");
         });
   }
+
+  @Test
+  public void testSystemRolePermissions() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_sysPerms");
+          schema.create(table("Table1").add(column("id").setPkey()));
+          SqlRoleManager rm = roleManager(db);
+
+          List<Permission> viewerPerms = rm.getPermissions(schema.getName(), "Viewer");
+          assertEquals(1, viewerPerms.size(), "Viewer should have 1 wildcard permission");
+          assertEquals("*", viewerPerms.get(0).getTable());
+          assertEquals(SelectLevel.TABLE, viewerPerms.get(0).getSelect());
+          assertNull(viewerPerms.get(0).getInsert());
+          assertNull(viewerPerms.get(0).getDelete());
+
+          List<Permission> editorPerms = rm.getPermissions(schema.getName(), "Editor");
+          assertEquals(1, editorPerms.size(), "Editor should have 1 wildcard permission");
+          assertEquals("*", editorPerms.get(0).getTable());
+          assertEquals(SelectLevel.TABLE, editorPerms.get(0).getSelect());
+          assertEquals(ModifyLevel.TABLE, editorPerms.get(0).getInsert());
+          assertEquals(ModifyLevel.TABLE, editorPerms.get(0).getUpdate());
+          assertEquals(ModifyLevel.TABLE, editorPerms.get(0).getDelete());
+
+          List<Permission> managerPerms = rm.getPermissions(schema.getName(), "Manager");
+          assertEquals(1, managerPerms.size());
+          assertEquals("*", managerPerms.get(0).getTable());
+          assertTrue(managerPerms.get(0).getGrant(), "Manager should have grant");
+
+          List<Permission> countPerms = rm.getPermissions(schema.getName(), "Count");
+          assertEquals(1, countPerms.size());
+          assertEquals(SelectLevel.COUNT, countPerms.get(0).getSelect());
+
+          List<Permission> existsPerms = rm.getPermissions(schema.getName(), "Exists");
+          assertEquals(1, existsPerms.size());
+          assertEquals(SelectLevel.EXISTS, existsPerms.get(0).getSelect());
+        });
+  }
+
+  @Test
+  public void testSelectLevelPriorityOverPgGrant() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_selectPriority");
+          schema.create(table("Data").add(column("id").setPkey()));
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "CountOnly");
+
+          Permission perm = new Permission();
+          perm.setTable("Data");
+          perm.setSelect(SelectLevel.COUNT);
+          rm.grant(schema.getName(), "CountOnly", perm);
+
+          List<Permission> permissions = rm.getPermissions(schema.getName(), "CountOnly");
+          Permission dataPerm =
+              permissions.stream()
+                  .filter(p -> "Data".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(dataPerm, "Should find Data permission");
+          assertEquals(
+              SelectLevel.COUNT,
+              dataPerm.getSelect(),
+              "Select level should be COUNT, not TABLE");
+        });
+  }
+
+  @Test
+  public void testWildcardWithPerTableOverride() {
+    database.tx(
+        db -> {
+          Schema schema = db.dropCreateSchema("TestRM_wildcardOverride");
+          schema.create(table("Table1").add(column("id").setPkey()));
+          schema.create(table("Table2").add(column("id").setPkey()));
+          SqlRoleManager rm = roleManager(db);
+          rm.createRole(schema.getName(), "Curator");
+
+          Permission wildcardPerm = new Permission();
+          wildcardPerm.setTable("*");
+          wildcardPerm.setSelect(SelectLevel.TABLE);
+          rm.grant(schema.getName(), "Curator", wildcardPerm);
+
+          Permission table1Perm = new Permission();
+          table1Perm.setTable("Table1");
+          table1Perm.setSelect(SelectLevel.TABLE);
+          table1Perm.setInsert(ModifyLevel.TABLE);
+          table1Perm.setUpdate(ModifyLevel.TABLE);
+          table1Perm.setDelete(ModifyLevel.TABLE);
+          table1Perm.setGrant(true);
+          rm.grant(schema.getName(), "Curator", table1Perm);
+
+          List<Permission> permissions = rm.getPermissions(schema.getName(), "Curator");
+
+          Permission wc =
+              permissions.stream()
+                  .filter(p -> "*".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(wc, "Should find wildcard permission");
+          assertEquals(SelectLevel.TABLE, wc.getSelect());
+          assertNull(wc.getInsert());
+
+          Permission t1 =
+              permissions.stream()
+                  .filter(p -> "Table1".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNotNull(t1, "Should find Table1 override");
+          assertEquals(SelectLevel.TABLE, t1.getSelect());
+          assertEquals(ModifyLevel.TABLE, t1.getInsert());
+          assertEquals(ModifyLevel.TABLE, t1.getDelete());
+          assertTrue(t1.getGrant(), "Table1 should have grant");
+
+          Permission t2 =
+              permissions.stream()
+                  .filter(p -> "Table2".equals(p.getTable()))
+                  .findFirst()
+                  .orElse(null);
+          assertNull(t2, "Table2 should not have explicit permission");
+        });
+  }
 }
