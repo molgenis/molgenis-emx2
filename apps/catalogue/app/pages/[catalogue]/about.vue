@@ -52,6 +52,7 @@
             >Cohort and Biobank Coordination Hub (CBCH)</a
           >
           and 
+          <a
           href="https://umcgresearch.org/w/dcc"
             rel="noopener noreferrer"
             target="_blank"
