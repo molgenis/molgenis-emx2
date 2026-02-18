@@ -216,6 +216,9 @@ class SqlSchemaMetadataExecutor {
 
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
+      // clean up rls_permissions before dropping schema
+      db.getRoleManager().cleanupSchemaPermissions(schemaName);
+
       Schema schema = db.getSchema(schemaName);
       // reload because we must have latest state
       ((SqlSchemaMetadata) schema.getMetadata()).reload();

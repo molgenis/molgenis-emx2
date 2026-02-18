@@ -3,6 +3,8 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.Operator.*;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Constants {
@@ -34,6 +36,22 @@ public class Constants {
   public static final String ROLE = "role";
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";
+
+  public static final String MG_ROLES = "mg_roles";
+  public static final String GLOBAL_SCHEMA = "*";
+
+  // PostgreSQL session variable names for RLS enforcement
+  public static final String RLS_ACTIVE_ROLE = "molgenis.active_role";
+  public static final String RLS_SELECT_TABLES = "molgenis.rls_select_tables";
+  public static final String RLS_INSERT_TABLES = "molgenis.rls_insert_tables";
+  public static final String RLS_UPDATE_TABLES = "molgenis.rls_update_tables";
+  public static final String RLS_DELETE_TABLES = "molgenis.rls_delete_tables";
+
+  /** System role names derived from the Privileges enum, plus "Admin". Immutable. */
+  public static final Set<String> SYSTEM_ROLES =
+      Stream.concat(
+              Arrays.stream(Privileges.values()).map(Privileges::toString), Stream.of("Admin"))
+          .collect(Collectors.toUnmodifiableSet());
 
   public static final String MG_TABLECLASS = "mg_tableclass";
   public static final String MG_DRAFT = "mg_draft";

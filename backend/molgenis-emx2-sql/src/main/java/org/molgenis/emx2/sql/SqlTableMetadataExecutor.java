@@ -277,6 +277,11 @@ class SqlTableMetadataExecutor {
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
+      // clean up rls_permissions for this table
+      ((SqlDatabase) table.getSchema().getDatabase())
+          .getRoleManager()
+          .cleanupTablePermissions(table.getSchema().getName(), table.getTableName());
+
       // disableChangeLog
       disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
 
