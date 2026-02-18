@@ -1662,9 +1662,7 @@ public class TestSqlRoleManager {
                   .orElse(null);
           assertNotNull(dataPerm, "Should find Data permission");
           assertEquals(
-              SelectLevel.COUNT,
-              dataPerm.getSelect(),
-              "Select level should be COUNT, not TABLE");
+              SelectLevel.COUNT, dataPerm.getSelect(), "Select level should be COUNT, not TABLE");
         });
   }
 
@@ -1695,10 +1693,7 @@ public class TestSqlRoleManager {
           List<Permission> permissions = rm.getPermissions(schema.getName(), "Curator");
 
           Permission wc =
-              permissions.stream()
-                  .filter(p -> "*".equals(p.getTable()))
-                  .findFirst()
-                  .orElse(null);
+              permissions.stream().filter(p -> "*".equals(p.getTable())).findFirst().orElse(null);
           assertNotNull(wc, "Should find wildcard permission");
           assertEquals(SelectLevel.TABLE, wc.getSelect());
           assertNull(wc.getInsert());
