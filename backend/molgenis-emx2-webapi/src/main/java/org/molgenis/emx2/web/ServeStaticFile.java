@@ -22,6 +22,7 @@ public class ServeStaticFile {
           Paths.get(
               ServeStaticFile.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
+      System.out.println(jarPath);
       /* Check if we are in the main jar and not in web-api like in IDE */
       if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
         return jarPath.getParent();
@@ -37,7 +38,9 @@ public class ServeStaticFile {
       }
       else {
         String classFile = ServeStaticFile.class.getName().replace('.', '/') + ".class";
+        System.out.println(classFile);
         URL resource = ServeStaticFile.class.getClassLoader().getResource(classFile);
+        System.out.println(resource);
         return Paths.get(resource.toURI());
       }
     } catch (Exception e) {
