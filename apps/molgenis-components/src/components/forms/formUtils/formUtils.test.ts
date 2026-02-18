@@ -820,9 +820,38 @@ describe("buildGraphqlFilter", () => {
     });
   });
 
+  test("it should set an equals filter for a RADIO filter", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "RADIO",
+        id: "radioColumn",
+        conditions: ["option1"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      radioColumn: { equals: ["option1"] },
+    });
+  });
+
+  test("it should set a like filter for an AUTO_ID column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "AUTO_ID",
+        id: "autoIdColumn",
+        conditions: ["123e4567-e89b-12d3-a456-426614174000"],
+      },
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      autoIdColumn: { like: ["123e4567-e89b-12d3-a456-426614174000"] },
+    });
+  });
+
   test("it should call the error callback for invalid column types", () => {
     const columns: IColumn[] = [
-      //@ts-expect-error
       {
         columnType: "INVALID_TYPE",
         id: "invalidColumn",
