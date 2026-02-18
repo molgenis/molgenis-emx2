@@ -7,9 +7,10 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.autoid.IdGeneratorService;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.generator.IdGeneratorService;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -17,14 +18,15 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
+  public static List<Row> applyValidationAndComputed(
+      List<Column> columns, List<Row> rows, DSLContext jooq) {
     for (Row row : rows) {
-      applyValidationAndComputed(columns, row);
+      applyValidationAndComputed(columns, row, jooq);
     }
     return rows;
   }
 
-  public static void applyValidationAndComputed(List<Column> columns, Row row) {
+  public static void applyValidationAndComputed(List<Column> columns, Row row, DSLContext jooq) {
     Map<String, Object> graph = convertRowToMap(columns, row);
     addJavaScriptBindings(columns, graph);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
@@ -33,7 +35,7 @@ public class SqlTypeUtils extends TypeUtils {
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
 
-        applyAutoId(c, row);
+        applyAutoId(c, row, jooq);
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
           try {
@@ -95,9 +97,9 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void applyAutoId(Column c, Row row) {
+  private static void applyAutoId(Column c, Row row, DSLContext jooq) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-      String id = new IdGeneratorService().generateIdForColumn(c);
+      String id = new IdGeneratorService(jooq).generateIdForColumn(c);
       row.set(c.getName(), id);
     }
   }

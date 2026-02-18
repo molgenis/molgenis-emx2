@@ -328,11 +328,13 @@ public class SqlTable implements Table {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
       List<Row> rows =
           applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName));
+              table.getMetadata().getColumns(), subclassRows.get(subclassName), schema.getJooq());
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
+      List<Row> rows =
+          applyValidationAndComputed(
+              insertColumns, subclassRows.get(subclassName), schema.getJooq());
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));

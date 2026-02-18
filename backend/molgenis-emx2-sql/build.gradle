@@ -1,5 +1,6 @@
 dependencies {
     implementation 'org.postgresql:postgresql:42.6.0'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.1'
     implementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2')
