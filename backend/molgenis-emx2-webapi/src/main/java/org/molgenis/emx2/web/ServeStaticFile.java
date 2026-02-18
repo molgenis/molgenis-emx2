@@ -26,12 +26,14 @@ public class ServeStaticFile {
         return jarPath.getParent();
       } else {
         /* Running from IDE/CLI (classes folder) */
-        return jarPath
-            .getParent() /* libs */
-            .getParent() /* build */
-            .getParent() /* webapi */
-            .getParent() /* backend */
-            .getParent(); /* Root */
+        Path emx2Home = jarPath.getParent();
+        if (!emx2Home.toString().endsWith("molgenis-emx2")) {
+          do {
+            emx2Home = emx2Home.getParent();
+          } while (!emx2Home.toString().endsWith("molgenis-emx2"));
+        }
+
+        return emx2Home;
       }
     } catch (Exception e) {
       throw new MolgenisException("Cannot determine JAR location", e);
