@@ -102,6 +102,7 @@ public class GraphqlSessionFieldFactory {
                   // token can only be created as that user
                   // to make sure we don't change database user we create new instance
                   Database temp = new SqlDatabase(false);
+                  temp.clearCache();
                   temp.setActiveUser(userName);
                   return new GraphqlApiMutationResultWithToken(
                       GraphqlApiMutationResult.Status.SUCCESS,
