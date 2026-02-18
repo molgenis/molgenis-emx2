@@ -26,7 +26,7 @@ public class ServeStaticFile {
       /* Check if we are in the main jar and not in web-api like in IDE */
       if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
         return jarPath.getParent();
-      } else if(jarPath.getParent() != null) {
+      } else if (jarPath.getParent() != null) {
         /* Running from IDE/CLI (classes folder) */
         Path emx2Home = jarPath.getParent();
         if (!emx2Home.toString().endsWith("molgenis-emx2")) {
@@ -35,8 +35,7 @@ public class ServeStaticFile {
           } while (!emx2Home.toString().endsWith("molgenis-emx2"));
         }
         return emx2Home;
-      }
-      else {
+      } else {
         String classFile = ServeStaticFile.class.getName().replace('.', '/') + ".class";
         System.out.println(classFile);
         URL resource = ServeStaticFile.class.getClassLoader().getResource(classFile);
