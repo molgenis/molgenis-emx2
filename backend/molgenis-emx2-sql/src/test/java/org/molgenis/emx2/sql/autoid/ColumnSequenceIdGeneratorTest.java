@@ -3,6 +3,9 @@ package org.molgenis.emx2.sql.autoid;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +37,22 @@ class ColumnSequenceIdGeneratorTest {
   void givenColumnWithoutComputed_thenThrow() {
     Column column = addColumnWithComputedToSchema(null);
     assertThrows(IllegalArgumentException.class, () -> new ColumnSequenceIdGenerator(column, jooq));
+  }
+
+  @Test
+  void givenSequence_thenUseCompleteSet() {
+    Column column = addColumnWithComputedToSchema("${mg_autoid(length=1, format=numbers)}");
+    ColumnSequenceIdGenerator generator = new ColumnSequenceIdGenerator(column, jooq);
+
+    List<String> expectedIds = IntStream.range(0, 10).boxed().map(String::valueOf).toList();
+    List<String> actualIds = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      actualIds.add(generator.generateId());
+    }
+
+    assertEquals(expectedIds, actualIds);
+    assertThrows(
+        MolgenisException.class, generator::generateId, "Unable to generate value for sequence");
   }
 
   @Test
