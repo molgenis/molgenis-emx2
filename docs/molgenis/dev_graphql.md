@@ -395,16 +395,36 @@ In this case, `not_equals` compares primary keys, `name` for Pet.
 }
 ```
 
-To ease standard queries the api also implements graphql fragments for each table that will expand to all fields. In addition, for columns of type
-refs/ref_array/ontolgy/ontology_array, the fragment will include primary key (i.e. key=1) of the referenced table.
+### Fragments
 
-```graqphl
+To simplify common queries, the API provides GraphQL fragments for each table. These fragments automatically expand to include all fields of the table.
+
+For columns of type `ref`, `ref_array`, `ontology`, or `ontology_array`, the fragment also includes the primary key (i.e., key=1) of the referenced table. This allows you to seamlessly query related tables without manually specifying nested fields.
+
+Note: these fragments are a server-side extension. GraphQL editors like GraphiQL may show validation warnings for unknown fragments, but the queries will execute correctly.
+
+#### Example 1: Basic usage
+```graphql
 {
   Pet (filter: { not_equals: { name: "pooky" } }) {
     ...PetAllFields
   }
 }
 ```
+
+#### Example 2: Querying nested references
+```graphql
+{
+  Order(filter: { equals: { orderId: "ORDER:..." } }) {
+    ...OrderAllFields2
+  }
+}
+```
+
+Depth variants are available for each table:
+- `...{Table}AllFields` - all fields, references include primary key only (depth 1)
+- `...{Table}AllFields2` - references expanded to depth 2
+- `...{Table}AllFields3` - references expanded to depth 3
 
 ### mutation example
 
