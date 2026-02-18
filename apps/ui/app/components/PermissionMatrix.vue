@@ -1,5 +1,9 @@
 <template>
   <div v-if="role">
+    <p v-if="readonly" class="text-sm text-gray-500 mb-3">
+      System role — permissions are built-in and cannot be edited. Use custom
+      roles for fine-grained permissions.
+    </p>
     <Table>
       <template #head>
         <TableHeadRow>
@@ -118,9 +122,6 @@
         Discard
       </Button>
     </div>
-    <p v-if="readonly" class="text-sm text-gray-500 mt-2">
-      System roles are read-only
-    </p>
   </div>
 </template>
 
@@ -155,7 +156,7 @@ const emit = defineEmits<{
 
 const selectOptions = SELECT_OPTIONS;
 const modifyOptions = MODIFY_OPTIONS;
-const grantStringOptions = ["true", "false"];
+const grantStringOptions = ["true"];
 
 const dataTables = computed(() => getDataTables(props.tables));
 

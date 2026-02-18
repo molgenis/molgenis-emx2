@@ -557,6 +557,14 @@ public class SqlRoleManager {
   }
 
   public List<Permission> getPermissions(String schemaName, String roleName) {
+    if (isSystemRole(roleName)) {
+      SqlSchema schema = database.getSchema(schemaName);
+      if (schema == null) {
+        return Collections.emptyList();
+      }
+      return getSystemRolePermissions(schema, roleName);
+    }
+
     String fullRole = fullRoleName(schemaName, roleName);
     List<Permission> permissions = new ArrayList<>();
 

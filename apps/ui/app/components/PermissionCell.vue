@@ -41,10 +41,7 @@ const displayValue = computed(() => {
 });
 
 function optionLabel(value: string): string {
-  if (props.isGrant) {
-    if (value === "true") return "Yes";
-    if (value === "false") return "No";
-  }
+  if (props.isGrant && value === "true") return "Yes";
   return value;
 }
 
