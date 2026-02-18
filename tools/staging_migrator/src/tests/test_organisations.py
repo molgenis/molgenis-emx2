@@ -39,7 +39,7 @@ async def test_migration():
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
         migrator.set_source(STAGING_AREA)
-        migrator.migrate_cohort_staging(keep_zips=True)
+        migrator.migrate(keep_zips=True)
 
         resources = migrator.get("Resources", schema=CATALOGUE, query_filter=f"id == {STAGING_AREA!r}")
         assert len(resources) == 1

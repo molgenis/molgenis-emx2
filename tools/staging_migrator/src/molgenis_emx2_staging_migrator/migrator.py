@@ -102,60 +102,6 @@ class StagingMigrator(Client):
             # Remove any downloaded files from disk
             self.cleanup()
 
-    def migrate_cohort_staging(self, keep_zips: bool = False):
-        """Performs the migration from a cohort staging area to a catalogue schema."""
-
-        # Download data from the target schema for upload in case of an error during execution
-        self.download_schema_zip(schema=self.target, schema_type='target', include_system_columns=True)
-
-        # Download source data
-        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
-                                                    include_system_columns=True)
-        source_metadata = self.get_schema_metadata(self.source)
-        upload_stream = BytesIO()
-        updated_tables = list()
-
-        source_profile = self._get_source_profile()
-
-        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
-              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
-            for file_name in sorted(source_archive.namelist()):
-                try:
-                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
-                except NoSuchTableException:
-                    log.debug(f"Skipping file {file_name!r}.")
-                    continue
-
-                updated_table: pd.DataFrame = self._get_filtered(table)
-
-                if source_profile in ["CohortStaging", "UMCGCohortsStaging"]:
-                    if table.id == "Organisations":
-                        updated_table = self.process_organisations(updated_table)
-                    if table.id == "Contacts":
-                        updated_table = process_statement(updated_table)
-                    if table.id in ["CollectionEvents", "Subpopulations"]:
-                        updated_table = self._copy_resource_columns(updated_table)
-
-                if len(updated_table.index) != 0:
-                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
-                    updated_tables.append(Path(file_name).stem)
-
-        # Return zip
-        if len(updated_tables) == 0:
-            log.info(f"No data to migrate.")
-            upload_stream.flush()
-            return upload_stream
-        log.info(f"Migrating tables {', '.join(updated_tables)}.")
-
-        filepath = BASE_DIR.joinpath(f"update.zip")
-        if Path(filepath).exists():
-            Path(filepath).unlink()
-        Path(filepath).write_bytes(upload_stream.getbuffer())
-
-        self.upload_zip_stream(upload_stream)
-
-
-
     def create_zip(self):
         """
         Creates a ZIP file containing tables to be uploaded to the target schema.
@@ -163,6 +109,7 @@ class StagingMigrator(Client):
         source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
                                                     include_system_columns=True)
 
+        source_profile = self._get_source_profile()
         source_metadata = self.get_schema_metadata(self.source)
         upload_stream = BytesIO()
         updated_tables = list()
@@ -182,9 +129,17 @@ class StagingMigrator(Client):
                     continue
                 log.debug(f"Processing table {table.name!r}.")
                 updated_table: pd.DataFrame = self._get_filtered(table)
-                modified_table: pd.DataFrame = self._modify_table(updated_table, table)
-                if len(modified_table.index) != 0:
-                    upload_archive.writestr(file_name, modified_table.to_csv(index=False))
+
+                if source_profile in ["CohortStaging", "UMCGCohortsStaging"]:
+                    if table.id == "Organisations":
+                        updated_table = self.process_organisations(updated_table)
+                    if table.id == "Contacts":
+                        updated_table = process_statement(updated_table)
+                    if table.id in ["CollectionEvents", "Subpopulations"]:
+                        updated_table = self._copy_resource_columns(updated_table)
+
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
                     updated_tables.append(Path(file_name).stem)
 
         # Return zip
