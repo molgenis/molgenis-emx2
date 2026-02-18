@@ -51,7 +51,14 @@
             class="text-link underline hover:bg-link-hover"
             >Cohort and Biobank Coordination Hub (CBCH)</a
           >
-          and the Digital Competence Center (DCC) of the UMCG. This database was
+          and 
+          href="https://umcgresearch.org/w/dcc"
+            rel="noopener noreferrer"
+            target="_blank"
+            class="text-link underline hover:bg-link-hover"
+            >the Digital Competence Center (DCC)</a
+          >
+          of the UMCG. This database was
           created using the MOLGENIS molgenis-emx2 open source software
           (license: LGPLv3). Please cite
           <a
@@ -86,7 +93,7 @@
             Related Health Problems)</a
           >,
           <a
-            href="https://www.orphadata.com/orphanet-nomenclature-for-coding/"
+            href="https://www.orphacode.org/"
             rel="noopener noreferrer"
             target="_blank"
             class="text-link underline hover:bg-link-hover"
@@ -113,7 +120,7 @@
             class="text-link underline hover:bg-link-hover"
             >researchdatacatalogue@umcg.nl</a
           >
-          . Questions about the Molgenis software can be sent to
+          . Questions about the MOLGENIS software can be sent to
           <a
             href="mailto:support@molgenis.org"
             rel="noopener noreferrer"
@@ -121,6 +128,45 @@
             class="text-link underline hover:bg-link-hover"
             >support@molgenis.org</a
           >.
+          </ContentBlock>
+        <ContentBlock id="privacy" title="Registration Process for UMCG Research Data Catalogue">
+          If you wish to register your UMCG  resource (data and/or sample collections), 
+          please follow the instructions below. All human-related datasets can be 
+          registered, including cohort studies, biobanks, registers, clinical studies
+          and trials, etc. In the catalogue, only metadata is registered, not actual
+          research data or outcomes.
+          <DisplayList>
+            <DisplayListItem>
+              1) Send an email to 
+            <a
+            href="researchdatacatalogue@umcg.nl"
+            rel="noopener noreferrer"
+            target="_blank"
+            class="text-link underline hover:bg-link-hover"
+            >Cohort and Biobank Coordination Hub (CBCH)</a
+          >
+              with information, including the title of your study (and if available the abbreviation)
+              and the people (name and email address) who need access and/or will be filling in the metadata.
+                             
+            </DisplayListItem>
+            <DisplayListItem>
+              2)	A staging area (metadata entry portal) for the catalogue will be created and you will
+              be granted access using your UMCG login credentials. You will receive a manual which explains
+              the most important steps for entering the metadata. 
+            </DisplayListItem>
+            <DisplayListItem>
+              You may copy and transfer part of the content to individual third
+              parties for their personal use, but only if you acknowledge the
+              website as the source of the material transferred.
+            </DisplayListItem>
+            <DisplayListItem>
+              3)	Contact us after completing the metadata,  so that we can put the page online.
+            </DisplayListItem>
+            <DisplayListItem>
+              4)	A persistent URL (DOI) will be created which you can use for your publications 
+              and your study will be put online.
+            </DisplayListItem>
+          </DisplayList>
         </ContentBlock>
         <ContentBlock id="privacy" title="Disclaimer &amp; Privacy">
           The metadata has been filled in manually by the steward of each
