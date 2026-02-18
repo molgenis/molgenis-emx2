@@ -56,7 +56,10 @@ public class ServeStaticFile {
   /* When only ctx is given, serve external file */
   public static void serve(Context ctx) {
     /* Do some sanitization, just in case someone can slip a path traversal into the mix */
-    Path staticRoot = Paths.get(getJarDirectory() + CUSTOM_APP_FOLDER).toAbsolutePath().normalize(); /* normalize means: resolve all the ./ .. etc to its full path */
+    Path staticRoot =
+        Paths.get(getJarDirectory() + CUSTOM_APP_FOLDER)
+            .toAbsolutePath()
+            .normalize(); /* normalize means: resolve all the ./ .. etc to its full path */
     Path requestedPath = staticRoot.resolve(ctx.path().replace("/ext/", "")).normalize();
 
     if (!requestedPath.startsWith(staticRoot)) {
