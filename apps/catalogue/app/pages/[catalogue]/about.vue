@@ -216,6 +216,15 @@
           <DisplayList>
             <DisplayListItem>
               <a
+                href="https:ri.//https://molgeniscatalogue.org"
+                rel="noopener noreferrer"
+                target="_blank"
+                class="text-link underline hover:bg-link-hover"
+                >Health Data and Samples Catalogue</a
+              >
+          <DisplayListItem>
+            </DisplayListItem>
+              <a
                 href="https://catalogue.bbmri.nl/"
                 rel="noopener noreferrer"
                 target="_blank"
