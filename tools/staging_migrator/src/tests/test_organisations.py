@@ -27,37 +27,38 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 load_dotenv()
 
 @pytest.mark.asyncio
-async def test_organisations():
+async def test_migration():
     """
-    Creates a staging area schema.
-    Uploads data to this staging area.
-    Migrates the data using the StagingMigrator.
+    Migrates data from 'testCohort' to 'catalogue' using the StagingMigrator.
     Asserts the data has been copied correctly to the catalogue.
-    Deletes the entries from the catalogue.
-    Deletes the staging area schema.
     :return:
     """
 
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
 
-    zip_folder("test_organisations")
+    with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
+        migrator.set_source(STAGING_AREA)
+        migrator.migrate_cohort_staging(keep_zips=True)
+
+        resources = migrator.get("Resources", schema=CATALOGUE, query_filter=f"id == {STAGING_AREA!r}")
+        assert len(resources) == 1
+
+@pytest.mark.asyncio
+async def test_delete_resource():
+    """Tests the `delete_resource` method."""
+
+    server_url = os.environ.get('MG_URL')
+    token = os.environ.get('MG_TOKEN')
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
-
-        # if STAGING_AREA in migrator.schema_names:
-        #     await migrator.delete_schema(STAGING_AREA)
-        # await migrator.create_schema(name=STAGING_AREA, template="DATA_CATALOGUE_COHORT_STAGING")
         migrator.set_source(STAGING_AREA)
-        # await migrator.upload_file(schema=STAGING_AREA, file_path=RESOURCES_PATH /"test_organisations.zip")
+        migrator.delete_resource()
 
-        assert len(migrator.get(schema=STAGING_AREA, table="Resources")) == 1
+        resources = migrator.get("Resources", schema=CATALOGUE, query_filter=f"id == {STAGING_AREA!r}")
+        assert len(resources) == 0
 
-        migrator.migrate_cohort_staging(keep_zips=True)
-        # Raises error
-        # 'Import failed: Transaction failed: insert or update on table "Resources" violates foreign key (ref_array) constraint. Details: Key ("creator.resource","creator.id")=(XYZ,org1) is not present in table "Organisations", column(s)("resource","id") in 163ms'
 
-        # migrator.delete_resource()
 
 
 def test_process_organisations():
