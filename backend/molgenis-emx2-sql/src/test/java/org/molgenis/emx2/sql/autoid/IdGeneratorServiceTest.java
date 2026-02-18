@@ -1,18 +1,40 @@
-package org.molgenis.emx2.utils.generator;
+package org.molgenis.emx2.sql.autoid;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jooq.DSLContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 class IdGeneratorServiceTest {
 
-  private static final IdGeneratorService SERVICE = new IdGeneratorService();
+  private static final String SCHEMA_NAME = IdGeneratorServiceTest.class.getSimpleName();
+
+  private static SqlDatabase database;
+  private static DSLContext jooq;
+
+  private static final IdGeneratorService SERVICE = new IdGeneratorService(jooq);
+
+  @BeforeAll
+  static void setup() {
+    database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+  }
+
+  @BeforeEach
+  void setupSchema() {
+    database.dropCreateSchema(SCHEMA_NAME);
+    jooq = database.getJooq();
+  }
 
   @Test
   void givenNoneAutoIdColumn_thenThrow() {

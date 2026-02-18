@@ -1,16 +1,25 @@
-package org.molgenis.emx2.utils.generator;
+package org.molgenis.emx2.sql.autoid;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.concurrent.TimeUnit;
+import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.utils.generator.IdGenerator;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class IdGeneratorService {
 
   private static final Cache<String, IdGenerator> STRATEGY_CACHE =
       Caffeine.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
+
+  private final DSLContext jooq;
+
+  public IdGeneratorService(DSLContext jooq) {
+    this.jooq = jooq;
+  }
 
   public String generateIdForColumn(Column column) {
     if (!ColumnType.AUTO_ID.equals(column.getColumnType())) {
@@ -18,21 +27,21 @@ public class IdGeneratorService {
     }
 
     if (column.getComputed() != null) {
-      return new IdGeneratorService().generateId(column.getComputed());
+      return generateId(column);
     } else {
       return SnowflakeIdGenerator.getInstance().generateId();
     }
   }
 
-  private String generateId(String strategy) {
-    IdGenerator generator = STRATEGY_CACHE.getIfPresent(strategy);
+  private String generateId(Column column) {
+    IdGenerator generator = STRATEGY_CACHE.getIfPresent(column.getComputed());
     if (generator == null) {
       try {
-        generator = FormattedIdGenerator.fromFormat(strategy);
-        STRATEGY_CACHE.put(strategy, generator);
+        generator = new ColumnSequenceIdGenerator(column, jooq);
+        STRATEGY_CACHE.put(column.getComputed(), generator);
       } catch (IllegalArgumentException e) {
         throw new MolgenisException(
-            "unable to generate auto-id for computed value: " + strategy, e);
+            "unable to generate auto-id for computed value: " + column.getComputed(), e);
       }
     }
 
