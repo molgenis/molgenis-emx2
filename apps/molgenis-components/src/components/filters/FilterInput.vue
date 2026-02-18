@@ -22,22 +22,24 @@
         :showAddButton="index === conditions.length"
         :tableId="tableId"
         :schemaId="schemaId"
+        :refLabel="refLabel"
       ></component>
     </div>
   </div>
 </template>
 
 <script>
-import StringFilter from "./StringFilter.vue";
-import IntegerFilter from "./IntegerFilter.vue";
-import DecimalFilter from "./DecimalFilter.vue";
+import { deepClone } from "../utils.ts";
+import BooleanFilter from "./BooleanFilter.vue";
 import DateFilter from "./DateFilter.vue";
 import DateTimeFilter from "./DateTimeFilter.vue";
-import BooleanFilter from "./BooleanFilter.vue";
-import RefListFilter from "./RefListFilter.vue";
-import OntologyFilter from "./OntologyFilter.vue";
+import DecimalFilter from "./DecimalFilter.vue";
+import IntegerFilter from "./IntegerFilter.vue";
 import LongFilter from "./LongFilter.vue";
-import { deepClone } from "../utils.ts";
+import OntologyFilter from "./OntologyFilter.vue";
+import RadioFilter from "./RadioFilter.vue";
+import RefListFilter from "./RefListFilter.vue";
+import StringFilter from "./StringFilter.vue";
 
 const filterTypeMap = {
   AUTO_ID: StringFilter,
@@ -69,6 +71,7 @@ const filterTypeMap = {
   REF_ARRAY: RefListFilter,
   ONTOLOGY: OntologyFilter,
   ONTOLOGY_ARRAY: OntologyFilter,
+  RADIO: RadioFilter,
 };
 
 export default {
@@ -82,6 +85,7 @@ export default {
     BooleanFilter,
     RefListFilter,
     OntologyFilter,
+    RadioFilter,
   },
   props: {
     id: {
@@ -281,6 +285,21 @@ export default {
         <div>conditions: {{ conditions8 }}</div>
       </demo-item>
     </div>
+    <div class="mt-3">
+      <label>Radio filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-radio"
+            columnType="RADIO"
+            tableId="Tag"
+            schemaId="pet store"
+            :conditions="conditions9"
+            @updateConditions="conditions9 = $event"
+            refLabel="${name}"
+        />
+        <div>conditions: {{ conditions9 }}</div>
+      </demo-item>
+    </div>
   </div>
 </template>
 <script>
@@ -295,7 +314,8 @@ export default {
         conditions5: [],
         conditions6: [],
         conditions7: [],
-        conditions8: []
+        conditions8: [],
+        conditions9: []
       };
     },
   };
