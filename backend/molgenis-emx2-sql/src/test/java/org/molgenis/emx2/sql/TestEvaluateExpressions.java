@@ -20,12 +20,12 @@ import org.molgenis.emx2.*;
 
 class TestEvaluateExpressions {
 
-  private static Database db;
+  private static SqlDatabase db;
   private static Schema schema;
 
   @BeforeAll
   static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestEvaluateExpressions.class.getSimpleName());
   }
 
@@ -98,7 +98,8 @@ class TestEvaluateExpressions {
   void testCheckValidationSuccess() {
     String validation = "true && true";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    assertDoesNotThrow(() -> applyValidationAndComputed(tableMetadata.getColumns(), new Row()));
+    assertDoesNotThrow(
+        () -> applyValidationAndComputed(tableMetadata.getColumns(), new Row(), db.getJooq()));
   }
 
   @Test
@@ -106,7 +107,9 @@ class TestEvaluateExpressions {
     String validation = "name === 'pietje'";
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
     assertDoesNotThrow(
-        () -> applyValidationAndComputed(tableMetadata.getColumns(), new Row("Name", "pietje")));
+        () ->
+            applyValidationAndComputed(
+                tableMetadata.getColumns(), new Row("Name", "pietje"), db.getJooq()));
   }
 
   @Test
@@ -115,7 +118,8 @@ class TestEvaluateExpressions {
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
     List<Column> columns = tableMetadata.getColumns();
     Row row = new Row("Name", "piet");
-    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row));
+    assertThrows(
+        MolgenisException.class, () -> applyValidationAndComputed(columns, row, db.getJooq()));
   }
 
   @Tag("windowsFail")
@@ -130,7 +134,10 @@ class TestEvaluateExpressions {
         this is very invalid\\n
              ^\\n,
         """;
-    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row), expected);
+    assertThrows(
+        MolgenisException.class,
+        () -> applyValidationAndComputed(columns, row, db.getJooq()),
+        expected);
   }
 
   @Test
@@ -142,7 +149,9 @@ class TestEvaluateExpressions {
 
     List<Column> columns = table.getColumns();
 
-    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, new Row()));
+    assertThrows(
+        MolgenisException.class,
+        () -> applyValidationAndComputed(columns, new Row(), db.getJooq()));
   }
 
   @Test
@@ -157,7 +166,7 @@ class TestEvaluateExpressions {
     List<Column> columns = table.getColumns();
 
     Row row = new Row();
-    applyValidationAndComputed(columns, row);
+    applyValidationAndComputed(columns, row, db.getJooq());
     String generatedId = row.get("id", String.class);
     Matcher matcher = Pattern.compile("\\d").matcher(generatedId);
     assertTrue(matcher.find());
@@ -168,7 +177,7 @@ class TestEvaluateExpressions {
     String validation = "false";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"));
+      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"), db.getJooq());
     } catch (MolgenisException exception) {
       assertEquals("Validation error on column 'name': false.", exception.getMessage());
     }

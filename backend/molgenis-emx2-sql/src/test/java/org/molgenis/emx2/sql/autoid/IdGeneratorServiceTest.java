@@ -9,21 +9,17 @@ import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 class IdGeneratorServiceTest {
 
   private static final String SCHEMA_NAME = IdGeneratorServiceTest.class.getSimpleName();
 
   private static SqlDatabase database;
-  private static DSLContext jooq;
-
-  private static final IdGeneratorService SERVICE = new IdGeneratorService(jooq);
+  private static IdGeneratorService service;
+  private TableMetadata table;
 
   @BeforeAll
   static void setup() {
@@ -32,21 +28,23 @@ class IdGeneratorServiceTest {
 
   @BeforeEach
   void setupSchema() {
-    database.dropCreateSchema(SCHEMA_NAME);
-    jooq = database.getJooq();
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
+    DSLContext jooq = database.getJooq();
+    service = new IdGeneratorService(jooq);
+    table = schema.create(TableMetadata.table("Person")).getMetadata();
   }
 
   @Test
   void givenNoneAutoIdColumn_thenThrow() {
     Column column = new Column("column").setType(ColumnType.BOOL);
-    assertThrows(MolgenisException.class, () -> SERVICE.generateIdForColumn(column));
+    assertThrows(MolgenisException.class, () -> service.generateIdForColumn(column));
   }
 
   @Test
   void givenColumnWithNoComputed_thenUseSnowflakeFormat() {
-    SnowflakeIdGenerator.init("123");
-    Column column = new Column("column").setType(ColumnType.AUTO_ID);
-    String id = SERVICE.generateIdForColumn(column);
+    table.add(Column.column("column").setType(ColumnType.AUTO_ID));
+    Column column = table.getColumn("column");
+    String id = service.generateIdForColumn(column);
     Matcher matcher = Pattern.compile("[a-zA-Z\\d]{10}").matcher(id);
     assertTrue(
         matcher.find(),
@@ -58,11 +56,12 @@ class IdGeneratorServiceTest {
 
   @Test
   void givenColumnWithComputed_thenGenerateStrategy() {
-    Column column =
-        new Column("column")
+    table.add(
+        Column.column("column")
             .setType(ColumnType.AUTO_ID)
-            .setComputed("${mg_autoid(length=1, format=numbers)}");
-    String id = SERVICE.generateIdForColumn(column);
+            .setComputed("${mg_autoid(length=1, format=numbers)}"));
+    Column column = table.getColumn("column");
+    String id = service.generateIdForColumn(column);
     Matcher matcher = Pattern.compile("\\d").matcher(id);
     assertTrue(
         matcher.find(),

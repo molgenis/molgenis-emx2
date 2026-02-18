@@ -11,12 +11,30 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
 
 import java.util.*;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 class TestSqlTypeUtils {
+
+  private static final String SCHEMA_NAME = TestSqlTypeUtils.class.getSimpleName();
+
+  private static SqlDatabase database;
+  private static DSLContext jooq;
+
+  @BeforeAll
+  static void setup() {
+    database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+  }
+
+  @BeforeEach
+  void setupSchema() {
+    database.dropCreateSchema(SCHEMA_NAME);
+    jooq = database.getJooq();
+  }
 
   @BeforeAll
   static void before() {
@@ -30,12 +48,12 @@ class TestSqlTypeUtils {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
 
     final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    applyValidationAndComputed(tableMetadata.getColumns(), row, jooq);
     assertNotNull(row.getString("myCol"));
 
     // and now it should change on update
     final Row copy = new Row(row);
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
+    applyValidationAndComputed(tableMetadata.getColumns(), copy, jooq);
     assertEquals(row.getString("myCol"), copy.getString("myCol"));
   }
 
@@ -48,14 +66,14 @@ class TestSqlTypeUtils {
                 .setType(ColumnType.AUTO_ID)
                 .setComputed("foo-" + Constants.COMPUTED_AUTOID_TOKEN + "-bar"));
     final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    applyValidationAndComputed(tableMetadata.getColumns(), row, jooq);
     assertTrue(row.getString("myCol").startsWith("foo"));
     assertTrue(row.getString("myCol").endsWith("bar"));
 
     // and now it should change on update
     final Row copy = new Row(row);
 
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
+    applyValidationAndComputed(tableMetadata.getColumns(), copy, jooq);
     assertEquals(row.getString("myCol"), row.getString("myCol"));
   }
 
@@ -77,7 +95,7 @@ class TestSqlTypeUtils {
     List<Column> columns = List.of(column("SPAM blocklist", ColumnType.EMAIL_ARRAY));
     Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
 
-    assertDoesNotThrow(() -> applyValidationAndComputed(columns, row));
+    assertDoesNotThrow(() -> applyValidationAndComputed(columns, row, jooq));
   }
 
   @Test
