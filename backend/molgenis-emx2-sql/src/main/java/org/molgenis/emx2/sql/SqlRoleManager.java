@@ -678,37 +678,41 @@ public class SqlRoleManager {
 
   private List<Permission> getSystemRolePermissions(SqlSchema schema, String roleName) {
     List<Permission> permissions = new ArrayList<>();
-    for (String tableName : schema.getTableNames()) {
-      Permission perm = new Permission(tableName);
-      switch (roleName) {
-        case ROLE_OWNER:
-        case ROLE_MANAGER:
-        case ROLE_EDITOR:
-          perm.setSelect(SelectLevel.TABLE);
-          perm.setInsert(ModifyLevel.TABLE);
-          perm.setUpdate(ModifyLevel.TABLE);
-          perm.setDelete(ModifyLevel.TABLE);
-          break;
-        case ROLE_VIEWER:
-          perm.setSelect(SelectLevel.TABLE);
-          break;
-        case ROLE_COUNT:
-          perm.setSelect(SelectLevel.COUNT);
-          break;
-        case ROLE_AGGREGATOR:
-          perm.setSelect(SelectLevel.AGGREGATOR);
-          break;
-        case ROLE_RANGE:
-          perm.setSelect(SelectLevel.RANGE);
-          break;
-        case ROLE_EXISTS:
-          perm.setSelect(SelectLevel.EXISTS);
-          break;
-        default:
-          break;
-      }
-      permissions.add(perm);
+      Permission perm = new Permission("*");
+    switch (roleName) {
+      case ROLE_OWNER:
+      case ROLE_MANAGER:
+        perm.setSelect(SelectLevel.TABLE);
+        perm.setInsert(ModifyLevel.TABLE);
+        perm.setUpdate(ModifyLevel.TABLE);
+        perm.setDelete(ModifyLevel.TABLE);
+        perm.setGrant(true);
+        break;
+      case ROLE_EDITOR:
+        perm.setSelect(SelectLevel.TABLE);
+        perm.setInsert(ModifyLevel.TABLE);
+        perm.setUpdate(ModifyLevel.TABLE);
+        perm.setDelete(ModifyLevel.TABLE);
+        break;
+      case ROLE_VIEWER:
+        perm.setSelect(SelectLevel.TABLE);
+        break;
+      case ROLE_COUNT:
+        perm.setSelect(SelectLevel.COUNT);
+        break;
+      case ROLE_AGGREGATOR:
+        perm.setSelect(SelectLevel.AGGREGATOR);
+        break;
+      case ROLE_RANGE:
+        perm.setSelect(SelectLevel.RANGE);
+        break;
+      case ROLE_EXISTS:
+        perm.setSelect(SelectLevel.EXISTS);
+        break;
+      default:
+        break;
     }
+    permissions.add(perm);
     return permissions;
   }
 
