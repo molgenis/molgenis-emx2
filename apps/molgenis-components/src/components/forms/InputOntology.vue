@@ -32,10 +32,10 @@
           class="p-2 fa fa-times"
           style="vertical-align: middle"
           @click.stop="clearSelection"
-          v-if="showExpanded && selectionWithoutChildren.length > 0"
+          v-show="showExpanded && selectionWithoutChildren.length > 0"
         />
         <span :class="{ 'input-group': showExpanded }">
-          <div v-if="showExpanded" class="input-group-prepend">
+          <div v-show="showExpanded" class="input-group-prepend">
             <button
               class="btn border-right-0 border btn-outline-primary"
               type="button"
@@ -61,7 +61,7 @@
             <i
               class="p-2 fa fa-times"
               style="vertical-align: middle"
-              v-if="!showExpanded && selectionWithoutChildren.length > 0"
+              v-show="!showExpanded && selectionWithoutChildren.length > 0"
             ></i>
           </span>
           <i
@@ -467,6 +467,7 @@ export default {
     modelValue: {
       deep: true,
       handler() {
+        this.search = null;
         this.applySelection(this.modelValue);
         //vue has problem to react on changes deep changes in selection tree
         //therefore we use this key to force updates in this component
