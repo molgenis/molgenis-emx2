@@ -41,7 +41,7 @@ public class ServeStaticFile {
   /* Serve internal file */
   public static void serve(Context ctx, String path) {
 
-    try (InputStream in = StaticFileMapper.class.getResourceAsStream(path)) {
+    try (InputStream in = ServeStaticFile.class.getResourceAsStream(path)) {
       String mimeType = URLConnection.guessContentTypeFromName(path);
 
       if (mimeType == null) {
@@ -55,7 +55,17 @@ public class ServeStaticFile {
 
   /* When only ctx is given, serve external file */
   public static void serve(Context ctx) {
-    String path = getJarDirectory() + CUSTOM_APP_FOLDER + ctx.path().replace("/ext/", "");
+    /* Do some sanitization, just in case someone can slip a path traversal into the mix */
+    Path staticRoot = Paths.get(getJarDirectory() + CUSTOM_APP_FOLDER).toAbsolutePath().normalize(); /* normalize means: resolve all the ./ .. etc to its full path */
+    Path requestedPath = staticRoot.resolve(ctx.path().replace("/ext/", "")).normalize();
+
+    if (!requestedPath.startsWith(staticRoot)) {
+      /* Suspected path traversal: reject the request */
+      ctx.status(403).result("Forbidden");
+      return;
+    }
+
+    String path = requestedPath.toString();
 
     File file = new File(path);
     /* Check if it's a file, and has an extension, if it is neither, then we fall back to index.html for SPA */

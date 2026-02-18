@@ -19,10 +19,7 @@ public class StaticFileMapper {
   public static void create(Javalin app) {
 
     app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
-
     app.get("*/docs/<asset>", StaticFileMapper::redirectDocs);
-    app.get("/{schema}/directory/<asset>", StaticFileMapper::redirectDirectory);
-
     app.get("/apps/ui/{schema}/", StaticFileMapper::returnUiAppIndex);
     app.get(
         "/apps/ui/{schema}/<path>",
@@ -33,28 +30,20 @@ public class StaticFileMapper {
             returnUiAppIndex(ctx);
           }
         });
-
     /* Serve a custom app in a folder next to the jar */
-    app.get("/ext/{app}", ServeStaticFile::serve);
     app.get("/ext/{app}/<asset>", ServeStaticFile::serve);
-
-    /* These are for all the user made schemas / tableview in bootstrap and internal apps. */
-    app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
-    app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
-    app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
-
-    app.get("*/{app}/index.html", StaticFileMapper::returnIndexFile);
+    app.get("/ext/{app}", ServeStaticFile::serve);
+    app.get("*/{app}/<asset>", StaticFileMapper::redirectInternal);
     app.get("*/{app}", StaticFileMapper::returnIndexFile);
   }
 
-  private static void redirectDirectory(Context ctx) {
-    String path = "/public_html/apps/directory/" + ctx.pathParam("asset");
-    ServeStaticFile.serve(ctx, path);
-  }
-
-  private static void redirectImg(Context ctx) {
-    String path = "/public_html/apps/" + ctx.pathParam("app") + "/img/" + ctx.pathParam("asset");
-    ServeStaticFile.serve(ctx, path);
+  private static void redirectInternal(Context ctx) {
+    String ctxPath = ctx.path();
+    /* just to be sure */
+    if (!ctxPath.contains(("apps/"))) {
+      ctxPath = "/apps" + ctxPath;
+    }
+    ServeStaticFile.serve(ctx, "/public_html" + ctxPath);
   }
 
   private static void redirectResources(Context ctx) {
@@ -63,11 +52,6 @@ public class StaticFileMapper {
 
   private static void redirectDocs(Context ctx) {
     ServeStaticFile.serve(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"));
-  }
-
-  private static void redirectAssets(Context ctx) {
-    String path = "/public_html/apps/" + ctx.pathParam("app") + "/assets/" + ctx.pathParam("asset");
-    ServeStaticFile.serve(ctx, path);
   }
 
   private static void returnIndexFile(Context ctx) {
