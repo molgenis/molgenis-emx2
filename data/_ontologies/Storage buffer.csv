@@ -1,0 +1,6 @@
+name,definition,codesystem,code,ontologyTermURI
+nuclease free water,,,,
+lowTE buffer,,,,
+TE buffer,,CHMO,CHMO:0002069,http://purl.obolibrary.org/obo/CHMO_0002069
+EB buffer,,,,
+Other,,,,
