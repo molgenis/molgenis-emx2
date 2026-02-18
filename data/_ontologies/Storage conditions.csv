@@ -23,6 +23,6 @@ name,definition,codesystem,code,ontologyTermURI
 "PP tube 40–500 μL (-35) to (-18)°C","Polypropylene tube 40–500 μL at (-35) to (-18)°C","SPRECv3.0","T","https://medical-data-models.org/details/40242#Storage_T"
 "PP tube 40–500 μL <-135°C","Polypropylene tube 40–500 μL at <-135°C, may correspond to liquid nitrogen vapor phase or to -150°C electrical freezer","SPRECv3.0","W","https://medical-data-models.org/details/40242#Storage_W"
 "Original primary container (-35) to (-18)°C or (-85) to (-60)°C","Original primary container at (-35) to (-18)°C or (-85) to (-60)°C","SPRECv3.0","Y","https://medical-data-models.org/details/40242#Storage_Y"
-4 Degrees Celsius (fridge),A temperature of 4 celsius (fridge),NCIT,NCIT:C185332,http://purl.obolibrary.org/obo/NCIT_C185332
+4 Degrees Celsius (fridge),A temperature of 4 degrees celsius (fridge),NCIT,NCIT:C185332,http://purl.obolibrary.org/obo/NCIT_C185332
 "Unknown","Unknown","SPRECv3.0","X","https://medical-data-models.org/details/40242#Storage_X"
 "Other","Other","SPRECv3.0","Z","https://medical-data-models.org/details/40242#Storage_Z"
