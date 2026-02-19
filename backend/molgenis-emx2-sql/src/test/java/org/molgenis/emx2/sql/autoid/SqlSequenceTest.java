@@ -34,23 +34,23 @@ class SqlSequenceTest {
 
   @Test
   void givenColumn_thenCreateSequence() {
-    assertTrue(jooq.meta().getSequences().isEmpty());
-    SqlSequence.create(jooq, schema.getName(), "create_sequence", 12345);
+    assertTrue(jooq.meta().getSchemas(SCHEMA_NAME).getFirst().getSequences().isEmpty());
+    SqlSequence.create(jooq, SCHEMA_NAME, "create_sequence", 12345);
 
-    Sequence<?> actual = jooq.meta().getSequences().getFirst();
-    assertSequenceMatches(actual, DSL.name(schema.getName(), "create_sequence"), 12345L);
+    Sequence<?> actual = jooq.meta().getSchemas(SCHEMA_NAME).getFirst().getSequences().getFirst();
+    assertSequenceMatches(actual, DSL.name(SCHEMA_NAME, "create_sequence"), 12345L);
   }
 
   @Test
   void givenSequence_thenExists() {
-    assertFalse(SqlSequence.exists(jooq, schema.getName(), "exists"));
-    SqlSequence.create(jooq, schema.getName(), "exists", 321);
-    assertTrue(SqlSequence.exists(jooq, schema.getName(), "exists"));
+    assertFalse(SqlSequence.exists(jooq, SCHEMA_NAME, "exists"));
+    SqlSequence.create(jooq, SCHEMA_NAME, "exists", 321);
+    assertTrue(SqlSequence.exists(jooq, SCHEMA_NAME, "exists"));
   }
 
   @Test
   void givenExistingSequence_thenReturnCurrentValue() {
-    SqlSequence sequence = SqlSequence.create(jooq, schema.getName(), "current_value", 123);
+    SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "current_value", 123);
     assertEquals(0, sequence.currentValue());
     sequence.nextValue();
     assertEquals(1, sequence.currentValue());
@@ -58,13 +58,13 @@ class SqlSequenceTest {
 
   @Test
   void givenNonExistingSequence_whenCurrentValue_thenThrow() {
-    SqlSequence sequence = new SqlSequence(jooq, schema.getName(), "non-existing");
+    SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, "non-existing");
     assertThrows(MolgenisException.class, sequence::currentValue);
   }
 
   @Test
   void givenExistingSequence_thenReturnNextValue() {
-    SqlSequence sequence = SqlSequence.create(jooq, schema.getName(), "next_value", 123);
+    SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "next_value", 123);
     assertEquals(1, sequence.nextValue());
     assertEquals(2, sequence.nextValue());
     assertEquals(3, sequence.nextValue());
@@ -72,31 +72,31 @@ class SqlSequenceTest {
 
   @Test
   void givenNonExistingSchema_whenRequestingNextValue_thenThrow() {
-    SqlSequence sequence = new SqlSequence(jooq, schema.getName(), "non-existing");
+    SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, "non-existing");
     assertThrows(MolgenisException.class, sequence::nextValue);
   }
 
   @Test
   void givenSequence_thenGetLimit() {
-    SqlSequence sequence = SqlSequence.create(jooq, schema.getName(), "get_limit", 1234);
+    SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "get_limit", 1234);
     assertEquals(1234, sequence.limit());
   }
 
   @Test
   void givenNonExistingSequence_whenRequestingLimit_thenThrow() {
-    SqlSequence sequence = new SqlSequence(jooq, schema.getName(), "get_limit");
+    SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, "get_limit");
     assertThrows(MolgenisException.class, sequence::limit);
   }
 
   @Test
   void givenSequence_thenDelete() {
-    SqlSequence sequence = SqlSequence.create(jooq, schema.getName(), "delete", 1234);
+    SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "delete", 1234);
     sequence.delete();
-    assertFalse(SqlSequence.exists(jooq, schema.getName(), "delete"));
+    assertFalse(SqlSequence.exists(jooq, SCHEMA_NAME, "delete"));
   }
 
   private void assertSequenceMatches(Sequence<?> seq, Name name, long maxValue) {
-    assertEquals(schema.getName(), seq.getSchema().getName());
+    assertEquals(SCHEMA_NAME, seq.getSchema().getName());
     assertEquals(seq.getQualifiedName(), name);
     assertEquals(maxValue, DSL.val(seq.getMaxvalue()).getValue());
   }
