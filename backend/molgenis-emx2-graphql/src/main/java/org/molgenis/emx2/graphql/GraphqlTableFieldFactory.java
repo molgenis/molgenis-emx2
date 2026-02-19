@@ -5,15 +5,16 @@ import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableType.ONTOLOGIES;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLJsonAsString;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.transform;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 
 import graphql.Scalars;
+import graphql.language.*;
 import graphql.schema.*;
 import java.util.*;
 import java.util.function.Function;
@@ -55,7 +56,7 @@ public class GraphqlTableFieldFactory {
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableAggTypes = new LinkedHashMap<>();
-  private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap();
+  private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableOrderByInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> rowInputTypes = new LinkedHashMap<>();
@@ -82,6 +83,10 @@ public class GraphqlTableFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getIdentifier())
         .type(GraphQLList.list(tableType))
+        .description(
+            String.format(
+                "Retrieve from table '%s'. Use {%s{...All%sFields}} to select all fields including foreign key nested queries",
+                table.getTableName(), table.getIdentifier(), table.getIdentifier()))
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
@@ -303,45 +308,47 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
-    String tableGroupByType = table.getIdentifier() + "GroupBy";
-    if (!tableGroupByTypes.containsKey(tableGroupByType)) {
-      // add reference in case of self reference
-      tableGroupByTypes.put(tableGroupByType, GraphQLTypeReference.typeRef(tableGroupByType));
-      // group by options, for now only ref, refArray
-      GraphQLObjectType.Builder groupByBuilder =
-          GraphQLObjectType.newObject().name(tableGroupByType);
-      groupByBuilder.field(
-          GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
-      List<Column> aggCols =
-          table.getColumnsIncludingSubclasses().stream()
-              .filter(c -> c.getColumnType().isNumericType())
-              .toList();
-      if (aggCols.size() > 0) {
-        GraphQLObjectType.Builder sumBuilder =
-            GraphQLObjectType.newObject().name(tableGroupByType + "_" + SUM_FIELD);
-        for (Column aggCol : aggCols) {
-          sumBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(aggCol.getIdentifier())
-                  .type(graphQLTypeOf(aggCol)));
-        }
-        groupByBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
-      }
+    String tableGroupByType = getTableTypeIdentifier(table) + "GroupBy";
 
-      for (Column column : table.getColumnsIncludingSubclasses()) {
-        // for now only 'ref' types. We might want to have truncating actions for the other types.
-        if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
-          groupByBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(column.getIdentifier())
-                  .type(createTableObjectType(column.getRefTable())));
-        } else if (!column.isReference() && hasViewPermission(table)) {
-          createTableField(column, groupByBuilder);
-        }
-      }
-      tableGroupByTypes.put(tableGroupByType, groupByBuilder.build());
+    if (tableGroupByTypes.containsKey(tableGroupByType)) {
+      // add reference in case of self reference
+      return tableGroupByTypes.get(tableGroupByType);
     }
+
+    tableGroupByTypes.put(tableGroupByType, GraphQLTypeReference.typeRef(tableGroupByType));
+
+    GraphQLObjectType.Builder groupByBuilder = GraphQLObjectType.newObject().name(tableGroupByType);
+    groupByBuilder.field(
+        GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+    List<Column> aggCols =
+        table.getColumnsIncludingSubclasses().stream()
+            .filter(c -> c.getColumnType().isNumericType())
+            .toList();
+    if (aggCols.size() > 0) {
+      GraphQLObjectType.Builder sumBuilder =
+          GraphQLObjectType.newObject().name(tableGroupByType + "_" + SUM_FIELD);
+      for (Column aggCol : aggCols) {
+        sumBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(aggCol.getIdentifier())
+                .type(graphQLTypeOf(aggCol)));
+      }
+      groupByBuilder.field(
+          GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
+    }
+
+    for (Column column : table.getColumnsIncludingSubclasses()) {
+      if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
+        groupByBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(column.getIdentifier())
+                .type(createTableObjectType(column.getRefTable())));
+      } else if (!column.isReference() && hasViewPermission(table)) {
+        createTableField(column, groupByBuilder);
+      }
+    }
+    tableGroupByTypes.put(tableGroupByType, groupByBuilder.build());
+
     return tableGroupByTypes.get(tableGroupByType);
   }
 

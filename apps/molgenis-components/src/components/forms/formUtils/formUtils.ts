@@ -450,9 +450,11 @@ export function buildGraphqlFilter(
           col.columnType.startsWith("BOOL") ||
           col.columnType.startsWith("REF") ||
           col.columnType.startsWith("ONTOLOGY") ||
-          col.columnType.startsWith("RADIO")
+          col.columnType.startsWith("RADIO") ||
+          col.columnType.startsWith("MULTISELECT") ||
+          col.columnType.startsWith("SELECT")
         ) {
-          filter[col.id] = { equals: conditions };
+          filter[col.id] = { equals: conditions.flat() };
         } else if (
           ["DECIMAL", "DECIMAL_ARRAY", "INT", "INT_ARRAY"].includes(
             col.columnType

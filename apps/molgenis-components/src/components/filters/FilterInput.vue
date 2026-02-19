@@ -66,6 +66,8 @@ const filterTypeMap = {
   DATETIME_ARRAY: DateTimeFilter,
   BOOL: BooleanFilter,
   BOOl_ARRAY: BooleanFilter,
+  SELECT: RefListFilter,
+  MULTISELECT: RefListFilter,
   REF: RefListFilter,
   REFBACK: RefListFilter,
   REF_ARRAY: RefListFilter,
@@ -128,6 +130,7 @@ export default {
     },
     isMultiConditionFilter() {
       return [
+        "MULTI_SELECT",
         "REF",
         "REF_ARRAY",
         "REFBACK",
