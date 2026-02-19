@@ -417,7 +417,7 @@
 </style>
 
 <script lang="ts">
-import { IColumn, ISetting, ITableMetaData } from "metadata-utils";
+import { IColumn, ISetting, ITableMetaData } from "metadata-utils/src";
 import Client from "../../client/client";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
@@ -425,19 +425,17 @@ import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import EditModal from "../forms/EditModal.vue";
+import { buildGraphqlFilter } from "../forms/formUtils/formUtils";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import MessageError from "../forms/MessageError.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
-import {
-  applyComputed,
-  convertRowToPrimaryKey,
-  deepClone,
-  isRefType,
-} from "../utils";
+import Task from "../task/Task.vue";
+import { applyComputed, convertRowToPrimaryKey, isRefType } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -446,9 +444,6 @@ import SelectionBox from "./SelectionBox.vue";
 import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
-import Task from "../task/Task.vue";
-import LayoutModal from "../layout/LayoutModal.vue";
-import { buildGraphqlFilter } from "../forms/formUtils/formUtils";
 
 const View: Record<string, string> = {
   TABLE: "table",
@@ -510,7 +505,7 @@ export default {
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: undefined,
       graphqlError: "",
-      taskId: String,
+      taskId: "",
       taskDone: false,
       success: false,
       isDeleteAllModalShown: false,
@@ -827,17 +822,15 @@ function getColumnIds(
   columns: IColumn[],
   property: "showColumn" | "showFilter"
 ) {
-  return (
-    columns
-      //@ts-ignore TODO: remove column input modification in TableMolgenis
-      .filter(
-        (column) =>
-          column[property] &&
-          column.columnType !== "HEADING" &&
-          column.columnType !== "SECTION"
-      )
-      .map((column) => column.id)
-  );
+  return columns
+    .filter(
+      (column) =>
+        //@ts-ignore TODO: remove column input modification in TableMolgenis
+        column[property] &&
+        column.columnType !== "HEADING" &&
+        column.columnType !== "SECTION"
+    )
+    .map((column) => column.id);
 }
 
 function getCondition(columnType: string, condition: string) {
