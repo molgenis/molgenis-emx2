@@ -3,6 +3,7 @@ package org.molgenis.emx2.utils.generator;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.LongStream;
@@ -12,11 +13,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class FeistelIdRandomizerTest {
 
+  private static final byte[] KEY = HexFormat.of().parseHex("2B7E151628AED2A6ABF7158809CF4F3C");
+
   @ParameterizedTest
   @ValueSource(longs = {10, 100, 1000, 1024, 10000, 100_000})
   void givenCompleteSet_whenRandomized_thenResultIsShuffledSet(long domain) {
     List<Long> original = LongStream.range(0, domain).boxed().toList();
-    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(domain);
+    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(domain, KEY);
 
     List<Long> randomized = original.stream().map(randomizer::randomize).toList();
     assertNotEquals(original, randomized);
@@ -27,7 +30,7 @@ class FeistelIdRandomizerTest {
 
   @Test
   void givenValue_whenRandomizedMultipleTimes_thenResultIsSame() {
-    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(1000);
+    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(1000, KEY);
 
     Set<Long> results = new HashSet<>();
     for (int i = 0; i < 100; i++) {
@@ -42,7 +45,7 @@ class FeistelIdRandomizerTest {
   void givenAutoIdFormatDomain_whenRandomized_thenResultIsUnique() {
     // 4-digit numeric: 10^4 = 10000
     long numericDomain = 10_000;
-    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(numericDomain);
+    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(numericDomain, KEY);
 
     Set<Long> seen = new HashSet<>();
     for (long i = 0; i < numericDomain; i++) {
@@ -56,7 +59,7 @@ class FeistelIdRandomizerTest {
   void givenLettersDomain_whenRandomized_thenCoversFullRange() {
     // 2-char letters: 52^2 = 2704
     long lettersDomain = 52L * 52;
-    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(lettersDomain);
+    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(lettersDomain, KEY);
 
     Set<Long> seen = new HashSet<>();
     for (long i = 0; i < lettersDomain; i++) {
@@ -69,7 +72,7 @@ class FeistelIdRandomizerTest {
 
   @Test
   void givenSmallDomain_thenStillProducesBijection() {
-    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(2);
+    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(2, KEY);
 
     Set<Long> results = new HashSet<>();
     results.add(randomizer.randomize(0));
@@ -82,7 +85,7 @@ class FeistelIdRandomizerTest {
   @ParameterizedTest
   @ValueSource(longs = {10, 100, 1000, 1024, 10000, 100_000})
   void givenRandomizedValue_whenReversed_thenReturnsOriginal(long domain) {
-    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(domain);
+    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(domain, KEY);
 
     for (long i = 0; i < domain; i++) {
       long randomized = randomizer.randomize(i);
@@ -93,8 +96,20 @@ class FeistelIdRandomizerTest {
 
   @Test
   void givenDomainLessThanTwo_thenThrows() {
-    assertThrows(IllegalArgumentException.class, () -> new FeistelIdRandomizer(1));
-    assertThrows(IllegalArgumentException.class, () -> new FeistelIdRandomizer(0));
-    assertThrows(IllegalArgumentException.class, () -> new FeistelIdRandomizer(-1));
+    assertThrows(IllegalArgumentException.class, () -> new FeistelIdRandomizer(1, KEY));
+    assertThrows(IllegalArgumentException.class, () -> new FeistelIdRandomizer(0, KEY));
+    assertThrows(IllegalArgumentException.class, () -> new FeistelIdRandomizer(-1, KEY));
+  }
+
+  @Test
+  void givenSameInput_whenKeyChanges_thenOutputIsDifferent() {
+    FeistelIdRandomizer randomizer = new FeistelIdRandomizer(50, KEY);
+    long original = randomizer.randomize(42);
+
+    FeistelIdRandomizer randomizer2 =
+        new FeistelIdRandomizer(50, HexFormat.of().parseHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
+    long changed = randomizer2.randomize(42);
+
+    assertNotEquals(original, changed);
   }
 }
