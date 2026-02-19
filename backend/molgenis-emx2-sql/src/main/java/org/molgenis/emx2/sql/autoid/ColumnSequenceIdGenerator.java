@@ -57,7 +57,7 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
       } else {
         computedFormat = computedFormat.replaceAll(FUNCTION_PATTERN.pattern(), "%s");
         String name = getSequenceNameForColumn(column);
-        if (!SqlSequence.exists(jooq, column.getSchemaName(), column.getName())) {
+        if (!SqlSequence.exists(jooq, column.getSchemaName(), column.getQualifiedName())) {
           long limit = getCollectiveSequenceLimit(formats);
           sequence = SqlSequence.create(jooq, column.getSchemaName(), name, limit);
         } else {
@@ -73,6 +73,7 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
     return String.join(
         "-",
         column.getSchemaName(),
+        column.getTableName(),
         column.getName(),
         HexFormat.of().toHexDigits(column.getComputed().hashCode()));
   }

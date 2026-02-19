@@ -73,11 +73,7 @@ class ColumnSequenceIdGeneratorTest {
     Column column = addColumnWithComputedToSchema(computed);
     new ColumnSequenceIdGenerator(column, jooq);
     String expectedSequenceName =
-        SCHEMA_NAME
-            + "-"
-            + column.getName()
-            + "-"
-            + HexFormat.of().toHexDigits(computed.hashCode());
+        SCHEMA_NAME + "-Person-id-" + HexFormat.of().toHexDigits(computed.hashCode());
     assertTrue(SqlSequence.exists(jooq, SCHEMA_NAME, expectedSequenceName));
   }
 
@@ -97,6 +93,8 @@ class ColumnSequenceIdGeneratorTest {
   private static void assertColumnHasSequenceWithLimit(Column column, long expectedLimit) {
     String name =
         SCHEMA_NAME
+            + "-"
+            + column.getTableName()
             + "-"
             + column.getName()
             + "-"
