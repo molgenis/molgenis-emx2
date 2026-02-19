@@ -2,5 +2,5 @@ dependencies {
     implementation 'org.graalvm.js:js:25.0.1'
     implementation 'org.graalvm.js:js-scriptengine:25.0.1'
     testImplementation 'io.javalin:javalin-testtools:6.5.0'
-    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
 }

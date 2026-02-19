@@ -1,6 +1,10 @@
 package org.molgenis.emx2.sql.autoid;
 
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.MOLGENIS_ID_RANDOMIZER_KEY;
+
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
@@ -8,12 +12,20 @@ import java.util.regex.Pattern;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.generator.AutoIdFormat;
 import org.molgenis.emx2.utils.generator.FeistelIdRandomizer;
 import org.molgenis.emx2.utils.generator.IdGenerator;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class ColumnSequenceIdGenerator implements IdGenerator {
+
+  private static final byte[] KEY =
+      HexFormat.of()
+          .parseHex(
+              (String)
+                  EnvironmentProperty.getParameter(
+                      MOLGENIS_ID_RANDOMIZER_KEY, "2B7E151628AED2A6ABF7158809CF4F3C", STRING));
 
   private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?<func>\\$\\{mg_autoid[^}]*})");
   private static final String SNOWFLAKE_PLACEHOLDER = "%sf%";
@@ -62,7 +74,7 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
         "-",
         column.getSchemaName(),
         column.getName(),
-        String.valueOf(column.getComputed().hashCode()));
+        HexFormat.of().toHexDigits(column.getComputed().hashCode()));
   }
 
   private static long getCollectiveSequenceLimit(List<AutoIdFormat> formats) {
@@ -76,7 +88,7 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
 
     if (!formats.isEmpty()) {
       long nextValue = sequence.nextValue() - 1; // Sequences start counting at 1, not at 0
-      long randomized = new FeistelIdRandomizer(sequence.limit()).randomize(nextValue);
+      long randomized = new FeistelIdRandomizer(sequence.limit(), KEY).randomize(nextValue);
 
       List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
       List<Long> numbers = LongPack.fromValue(randomized, maxValues).numbers();

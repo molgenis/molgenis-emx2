@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +72,12 @@ class ColumnSequenceIdGeneratorTest {
     String computed = "FOO-${mg_autoid(length=3, format=numbers)}}-BAR";
     Column column = addColumnWithComputedToSchema(computed);
     new ColumnSequenceIdGenerator(column, jooq);
-    String expectedSequenceName = SCHEMA_NAME + "-" + column.getName() + "-" + computed.hashCode();
+    String expectedSequenceName =
+        SCHEMA_NAME
+            + "-"
+            + column.getName()
+            + "-"
+            + HexFormat.of().toHexDigits(computed.hashCode());
     assertTrue(SqlSequence.exists(jooq, SCHEMA_NAME, expectedSequenceName));
   }
 
@@ -89,7 +95,12 @@ class ColumnSequenceIdGeneratorTest {
   }
 
   private static void assertColumnHasSequenceWithLimit(Column column, long expectedLimit) {
-    String name = SCHEMA_NAME + "-" + column.getName() + "-" + column.getComputed().hashCode();
+    String name =
+        SCHEMA_NAME
+            + "-"
+            + column.getName()
+            + "-"
+            + HexFormat.of().toHexDigits(column.getComputed().hashCode());
     assertTrue(SqlSequence.exists(jooq, SCHEMA_NAME, name));
     SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, name);
     assertEquals(expectedLimit, sequence.limit());
