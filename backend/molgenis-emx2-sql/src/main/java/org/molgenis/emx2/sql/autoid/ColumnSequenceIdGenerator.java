@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.utils.generator.AutoIdFormat;
+import org.molgenis.emx2.utils.generator.FeistelIdRandomizer;
 import org.molgenis.emx2.utils.generator.IdGenerator;
 
 public class ColumnSequenceIdGenerator implements IdGenerator {
@@ -57,15 +58,17 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
 
   @Override
   public String generateId() {
-    List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
     long nextValue = sequence.nextValue() - 1; // Sequences start counting at 1, not at 0
-    List<Long> numbers = LongPack.fromValue(nextValue, maxValues).numbers();
-    List<String> vals = new ArrayList<>();
+    long randomized = new FeistelIdRandomizer(sequence.limit()).randomize(nextValue);
 
+    List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
+    List<Long> numbers = LongPack.fromValue(randomized, maxValues).numbers();
+
+    List<String> idValues = new ArrayList<>();
     for (int i = 0; i < numbers.size(); i++) {
-      vals.add(formats.get(i).mapToFormat(numbers.get(i)));
+      AutoIdFormat currentFormat = formats.get(i);
+      idValues.add(currentFormat.mapToFormat(numbers.get(i)));
     }
-
-    return format.formatted(vals.toArray());
+    return format.formatted(idValues.toArray());
   }
 }

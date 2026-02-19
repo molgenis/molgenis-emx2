@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Column.column;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.StringUtils;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,16 +42,26 @@ class ColumnSequenceIdGeneratorTest {
 
   @Test
   void givenSequence_thenUseCompleteSet() {
-    Column column = addColumnWithComputedToSchema("${mg_autoid(length=1, format=numbers)}");
+    Column column = addColumnWithComputedToSchema("${mg_autoid(length=2, format=numbers)}");
     ColumnSequenceIdGenerator generator = new ColumnSequenceIdGenerator(column, jooq);
 
-    List<String> expectedIds = IntStream.range(0, 10).boxed().map(String::valueOf).toList();
+    List<String> expectedIds =
+        IntStream.range(0, 100)
+            .boxed()
+            .map(String::valueOf)
+            .map(id -> StringUtils.leftPad(id, 2, "0"))
+            .toList();
+
     List<String> actualIds = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
       actualIds.add(generator.generateId());
     }
 
-    assertEquals(expectedIds, actualIds);
+    assertNotEquals(expectedIds, actualIds);
+    List<String> sorted = actualIds.stream().sorted().toList();
+    assertEquals(expectedIds, sorted);
+
+    // Exhaust id
     assertThrows(
         MolgenisException.class, generator::generateId, "Unable to generate value for sequence");
   }
@@ -62,10 +73,10 @@ class ColumnSequenceIdGeneratorTest {
             "FOO-${mg_autoid(length=3, format=numbers)}-${mg_autoid(length=5, format=numbers)}");
     ColumnSequenceIdGenerator generator = new ColumnSequenceIdGenerator(column, jooq);
 
-    assertEquals("FOO-000-00000", generator.generateId());
-    assertEquals("FOO-000-00001", generator.generateId());
-    assertEquals("FOO-000-00002", generator.generateId());
-    assertColumnHasSequenceWithLimit(column, 99999999);
+    assertEquals("FOO-133-37247", generator.generateId());
+    assertEquals("FOO-493-84838", generator.generateId());
+    assertEquals("FOO-696-23934", generator.generateId());
+    assertColumnHasSequenceWithLimit(column, 100000000);
   }
 
   private static void assertColumnHasSequenceWithLimit(Column column, long expectedLimit) {
