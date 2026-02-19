@@ -14,16 +14,16 @@ export interface ChartContext {
 }
 
 export interface ChartLegendOptions {
-    legendIsEnabled?: boolean;
-    legendIsStacked?: boolean;
-    legendPosition?: LegendPosition;
-    legendHoverEventsAreEnabled?: boolean;
+  legendIsEnabled?: boolean;
+  legendIsStacked?: boolean;
+  legendPosition?: LegendPosition;
+  legendHoverEventsAreEnabled?: boolean;
 }
 
 export interface ChartOptions extends ChartLegendOptions {
-    hoverEventsAreEnabled?: boolean;
-    clickEventsAreEnabled?: boolean;
-    animationsAreEnabled?: boolean;
+  hoverEventsAreEnabled?: boolean;
+  clickEventsAreEnabled?: boolean;
+  animationsAreEnabled?: boolean;
 }
 
 export type PieChartData = Record<string, number>;
@@ -40,14 +40,32 @@ export interface PieCharts extends Charts, ChartOptions {
   strokeColor?: string;
 }
 
-
 export interface ColumnCharts extends Charts, ChartOptions {
-    data: PieChartData[];
-    marginTop?: number;
-    marginRight?: number;
-    marginBottom?: number;
-    marginLeft?: number;
-    columnColor?: string;
-    columnColorOnHover?: string;
-    colorPalette?: ColorPalette;
+  data: any;
+  xvar: string;
+  yvar: string;
+  ymax?: number;
+  yTickValues?: number[];
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  breakXAxisLabelsAt?: string;
+  columnColor?: string;
+  columnColorOnHover?: string;
+  columnBorderColor?: string;
+  colorPalette?: ColorPalette;
+  marginTop?: number;
+  marginRight?: number;
+  marginBottom?: number;
+  marginLeft?: number;
+  showGridLines?: boolean;
+}
+
+export interface NumericAxisTickData {
+  limit: number;
+  ticks: number[];
+}
+
+export interface CategoricalAxisTickData {
+  count: number;
+  domains: string[];
 }
