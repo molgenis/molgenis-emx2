@@ -32,7 +32,7 @@ public class ServeStaticFile {
         do {
           emx2Home = emx2Home.getParent();
         } while (!emx2Home.toString().endsWith("molgenis-emx2")
-            || !emx2Home.toString().endsWith("molgenis")); /* latter is for CircleCi */
+            && !emx2Home.toString().endsWith("molgenis")); /* latter is for CircleCi */
         return emx2Home;
       }
     } catch (Exception e) {
