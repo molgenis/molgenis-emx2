@@ -5,7 +5,6 @@ import io.javalin.http.Context;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +25,7 @@ public class ServeStaticFile {
       /* Check if we are in the main jar and not in web-api like in IDE */
       if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
         return jarPath.getParent();
-      } else if (jarPath.getParent() != null) {
+      } else {
         /* Running from IDE/CLI (classes folder) */
         Path emx2Home = jarPath.getParent();
 
@@ -34,12 +33,7 @@ public class ServeStaticFile {
           emx2Home = emx2Home.getParent();
         } while (!emx2Home.toString().endsWith("molgenis-emx2")
             || !emx2Home.toString().endsWith("molgenis")); /* latter is for CircleCi */
-
         return emx2Home;
-      } else {
-        String classFile = ServeStaticFile.class.getName().replace('.', '/') + ".class";
-        URL resource = ServeStaticFile.class.getClassLoader().getResource(classFile);
-        return Paths.get(resource.toURI());
       }
     } catch (Exception e) {
       throw new MolgenisException("Cannot determine JAR location", e);
