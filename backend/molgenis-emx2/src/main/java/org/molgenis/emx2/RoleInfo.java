@@ -1,8 +1,10 @@
 package org.molgenis.emx2;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RoleInfo {
   private String name;
   private String description;

@@ -6,10 +6,10 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.graphql.GraphqlPermissionUtils.permissionToMap;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputPermissionType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
@@ -24,6 +24,7 @@ import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -169,7 +170,7 @@ public class GraphqlSessionFieldFactory {
                 List<Permission> perms = schema.getPermissionsForActiveUser();
                 List<Map<String, Object>> permList = new ArrayList<>();
                 for (Permission p : perms) {
-                  permList.add(permissionToMap(p));
+                  permList.add(MAPPER.convertValue(p, Map.class));
                 }
                 result.put(PERMISSIONS, permList);
               }

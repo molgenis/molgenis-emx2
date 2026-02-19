@@ -7,9 +7,9 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
-import static org.molgenis.emx2.graphql.GraphqlPermissionUtils.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
@@ -19,6 +19,7 @@ import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   static final GraphQLType lastUpdateMetadataType =
       new GraphQLObjectType.Builder()
@@ -326,7 +327,7 @@ public class GraphqlDatabaseFieldFactory {
               }
               List<Map<String, Object>> result = new ArrayList<>();
               for (RoleInfo roleInfo : roleMap.values()) {
-                result.add(roleInfoToMap(roleInfo));
+                result.add(MAPPER.convertValue(roleInfo, Map.class));
               }
               return result;
             });
@@ -520,7 +521,14 @@ public class GraphqlDatabaseFieldFactory {
               throw new GraphqlException("Schema '" + entry.getKey() + "' not found");
             }
             schema.createRole(roleName, description);
-            applyPermissions(schema, roleName, entry.getValue());
+            for (Map<String, Object> permMap : entry.getValue()) {
+              Permission perm = MAPPER.convertValue(permMap, Permission.class);
+              if (perm.isRevocation()) {
+                schema.revoke(roleName, perm);
+              } else {
+                schema.grant(roleName, perm);
+              }
+            }
           }
         }
         messageBuilder.append("Changed role '" + roleName + "'. ");

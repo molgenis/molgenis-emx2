@@ -1,7 +1,10 @@
 package org.molgenis.emx2;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Permission {
   private String schema;
   private String table;
@@ -18,6 +21,7 @@ public class Permission {
     this.table = tableName;
   }
 
+  @JsonProperty("schemaName")
   public String getSchema() {
     return schema;
   }
@@ -72,6 +76,7 @@ public class Permission {
     return this;
   }
 
+  @JsonProperty("columns")
   public ColumnAccess getColumnAccess() {
     return columnAccess;
   }

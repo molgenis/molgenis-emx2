@@ -1,7 +1,9 @@
 package org.molgenis.emx2;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnAccess {
   private List<String> editable;
   private List<String> readonly;

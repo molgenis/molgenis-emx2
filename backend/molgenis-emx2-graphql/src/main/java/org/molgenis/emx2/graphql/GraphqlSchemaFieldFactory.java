@@ -7,7 +7,6 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutation
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.DESCRIPTION;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
-import static org.molgenis.emx2.graphql.GraphqlPermissionUtils.*;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 import static org.molgenis.emx2.settings.ReportUtils.getReportAsJson;
 import static org.molgenis.emx2.settings.ReportUtils.getReportCount;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
   private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -622,7 +622,7 @@ public class GraphqlSchemaFieldFactory {
 
       List<Map<String, Object>> roles = new ArrayList<>();
       for (RoleInfo roleInfo : schema.getRoleInfos()) {
-        roles.add(roleInfoToMap(roleInfo));
+        roles.add(MAPPER.convertValue(roleInfo, Map.class));
       }
       result.put(ROLES, roles);
 
@@ -978,7 +978,18 @@ public class GraphqlSchemaFieldFactory {
         String roleName = (String) roleMap.get(GraphqlConstants.NAME);
         String description = (String) roleMap.get(DESCRIPTION);
         schema.createRole(roleName, description);
-        applyPermissions(schema, roleName, (List<Map<String, Object>>) roleMap.get(PERMISSIONS));
+        List<Map<String, Object>> permissions =
+            (List<Map<String, Object>>) roleMap.get(PERMISSIONS);
+        if (permissions != null) {
+          for (Map<String, Object> permMap : permissions) {
+            Permission perm = MAPPER.convertValue(permMap, Permission.class);
+            if (perm.isRevocation()) {
+              schema.revoke(roleName, perm);
+            } else {
+              schema.grant(roleName, perm);
+            }
+          }
+        }
       }
     }
   }
