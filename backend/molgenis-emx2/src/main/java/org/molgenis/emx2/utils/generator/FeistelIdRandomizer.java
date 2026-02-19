@@ -2,7 +2,6 @@ package org.molgenis.emx2.utils.generator;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Shuffles sequential numbers (0, 1, 2, ...) into a seemingly random order, while guaranteeing:
@@ -22,8 +21,6 @@ import org.bouncycastle.util.encoders.Hex;
  * 473,891,12,...,307 where every number 0-999 appears exactly once.
  */
 public class FeistelIdRandomizer implements IdRandomizer {
-
-  private static final byte[] KEY = Hex.decode("2B7E151628AED2A6ABF7158809CF4F3C");
 
   /** More rounds = more scrambling. 4 is standard for format-preserving encryption. */
   private static final int ROUNDS = 4;
@@ -45,7 +42,7 @@ public class FeistelIdRandomizer implements IdRandomizer {
 
   private final SecretKeySpec aesKey;
 
-  public FeistelIdRandomizer(long domain) {
+  public FeistelIdRandomizer(long domain, byte[] key) {
     if (domain < 2) {
       throw new IllegalArgumentException("Domain must be at least 2");
     }
@@ -61,7 +58,7 @@ public class FeistelIdRandomizer implements IdRandomizer {
     // Create bitmask: e.g. halfBits=5 -> halfMask = 0b11111 = 31
     this.halfMask = (1L << halfBits) - 1;
 
-    this.aesKey = new SecretKeySpec(KEY, "AES");
+    this.aesKey = new SecretKeySpec(key, "AES");
   }
 
   /** Scrambles a sequential input into a pseudo-random output within [0, domain). */
