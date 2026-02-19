@@ -138,40 +138,40 @@
           datasets can be registered, including cohort studies, biobanks,
           registers, clinical studies and trials, etc. In the catalogue, only
           metadata is registered, not actual research data or outcomes.
-          <DisplayList>
-            <DisplayListItem>
-              1) Send an email to
+          <ol>
+            <li>
+              Send an email to
               <a
-                href="researchdatacatalogue@umcg.nl"
-                rel="noopener noreferrer"
-                target="_blank"
-                class="text-link underline hover:bg-link-hover"
-                >researchdatacatalogue@umcg.nl</a
+            href="mailto:researchdatacatalogue@umcg.nl"
+            rel="noopener noreferrer"
+            target="_blank"
+            class="text-link underline hover:bg-link-hover"
+            >researchdatacatalogue@umcg.nl</a
               >
               with information, including the title of your study (and if
               available the abbreviation) and the people (name and email
               address) who need access and/or will be filling in the metadata.
-            </DisplayListItem>
-            <DisplayListItem>
-              2) A staging area (metadata entry portal) for the catalogue will
+            </li>
+            <li>
+              A staging area (metadata entry portal) for the catalogue will
               be created and you will be granted access using your UMCG login
               credentials. You will receive a manual which explains the most
               important steps for entering the metadata.
-            </DisplayListItem>
-            <DisplayListItem>
+            </li>
+            <li>
               You may copy and transfer part of the content to individual third
               parties for their personal use, but only if you acknowledge the
               website as the source of the material transferred.
-            </DisplayListItem>
-            <DisplayListItem>
-              3) Contact us after completing the metadata, so that we can put
+            </li>
+            <li>
+              Contact us after completing the metadata, so that we can put
               the page online.
-            </DisplayListItem>
-            <DisplayListItem>
-              4) A persistent URL (DOI) will be created which you can use for
+            </li>
+            <li>
+              A persistent URL (DOI) will be created which you can use for
               your publications and your study will be put online.
-            </DisplayListItem>
-          </DisplayList>
+            </li>
+          </ol>
         </ContentBlock>
         <ContentBlock id="privacy" title="Disclaimer &amp; Privacy">
           The metadata has been filled in manually by the steward of each
