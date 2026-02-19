@@ -215,6 +215,7 @@ export default {
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
             case "RADIO":
+            case "MULTISELECT":
               query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":
@@ -289,7 +290,7 @@ export default {
     data() {
       return {
         canEdit: false,
-        canView: false,
+        canView: true,
         schema: "pet store",
         table: "Pet"
       }
