@@ -32,7 +32,7 @@ public class ServeStaticFile {
         do {
           emx2Home = emx2Home.getParent();
         } while (!emx2Home.toString().endsWith("molgenis-emx2")
-            && !emx2Home.toString().endsWith("molgenis")); /* latter is for CircleCi */
+            && !emx2Home.toString().endsWith("molgenis/repo")); /* latter is for CircleCi */
         return emx2Home;
       }
     } catch (Exception e) {
@@ -82,7 +82,7 @@ public class ServeStaticFile {
     try (InputStream in = new FileInputStream(file)) {
       send(ctx, in, URLConnection.guessContentTypeFromName(path));
     } catch (Exception e) {
-      ctx.status(404).result("File not found: " + path);
+      ctx.status(404).result("File not found: " + ctx.path());
     }
   }
 
