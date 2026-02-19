@@ -2,7 +2,7 @@
 import { useHead, useRuntimeConfig, navigateTo, useFetch } from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
-import type { IResources, IResources_agg } from "../../interfaces/catalogue";
+import type { ICatalogues, ICatalogues_agg } from "../../interfaces/catalogue";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
@@ -27,15 +27,12 @@ definePageMeta({
 
 const query = computed(() => {
   return `
-  query Resources{
-    Resources(filter:{type:{name:{equals:"Catalogue"}}}) {
+  query Catalogues{
+    Catalogues {
       id
       name
       acronym
       description
-      type {
-        name
-      }
       catalogueType {
         name
       }
@@ -59,7 +56,7 @@ interface Resp<T, U> {
 const graphqlURL = computed(
   () => `/${useRuntimeConfig().public.schema}/graphql`
 );
-const { data } = await useFetch<Resp<IResources, IResources_agg>>(
+const { data } = await useFetch<Resp<ICatalogues, ICatalogues_agg>>(
   graphqlURL.value,
   {
     method: "POST",
@@ -67,7 +64,7 @@ const { data } = await useFetch<Resp<IResources, IResources_agg>>(
   }
 );
 
-const catalogues = data.value?.data?.Resources as IResources[];
+const catalogues = data.value?.data?.Catalogues as ICatalogues[];
 const groupedCatalogues = catalogues
   ? Object.groupBy(
       catalogues.filter((c) => !c.mainCatalogue),
@@ -78,7 +75,7 @@ Object.keys(groupedCatalogues).forEach((key) => {
   groupedCatalogues[key]?.sort((a, b) => a.id.localeCompare(b.id));
 });
 
-const mainCatalogue = computed<IResources | null>(() => {
+const mainCatalogue = computed<ICatalogues | null>(() => {
   return catalogues?.find((catalogue) => catalogue.mainCatalogue) ?? null;
 });
 

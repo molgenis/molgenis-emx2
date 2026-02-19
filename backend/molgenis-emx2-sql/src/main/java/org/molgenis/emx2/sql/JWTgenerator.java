@@ -26,8 +26,12 @@ public class JWTgenerator {
   private static void init(Database database) {
     try {
       Objects.requireNonNull(database);
-      // we can be sure that this exists see SqlDatabase.init
-      sharedSecret = database.getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET).getBytes();
+      String secret = database.getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+      if (secret == null) {
+        database.clearCache();
+        secret = database.getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+      }
+      sharedSecret = secret.getBytes();
       // check enough bytes
       if (sharedSecret.length < 32) {
         throw new MolgenisException(
