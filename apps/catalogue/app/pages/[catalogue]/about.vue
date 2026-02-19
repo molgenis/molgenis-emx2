@@ -53,7 +53,7 @@
           >
           and 
           <a
-          href="https://umcgresearch.org/w/dcc"
+            href="https://umcgresearch.org/w/dcc"
             rel="noopener noreferrer"
             target="_blank"
             class="text-link underline hover:bg-link-hover"
@@ -131,7 +131,7 @@
           >.
           </ContentBlock>
         <ContentBlock id="privacy" title="Registration Process for UMCG Research Data Catalogue">
-          If you wish to register your UMCG  resource (data and/or sample collections), 
+          If you wish to register your UMCG resource (data and/or sample collections),
           please follow the instructions below. All human-related datasets can be 
           registered, including cohort studies, biobanks, registers, clinical studies
           and trials, etc. In the catalogue, only metadata is registered, not actual
@@ -139,16 +139,15 @@
           <DisplayList>
             <DisplayListItem>
               1) Send an email to 
-            <a
-            href="researchdatacatalogue@umcg.nl"
-            rel="noopener noreferrer"
-            target="_blank"
-            class="text-link underline hover:bg-link-hover"
-            >researchdatacatalogue@umcg.nl</a
-          >
+              <a
+                href="researchdatacatalogue@umcg.nl"
+                rel="noopener noreferrer"
+                target="_blank"
+                class="text-link underline hover:bg-link-hover"
+                >researchdatacatalogue@umcg.nl</a
+              >
               with information, including the title of your study (and if available the abbreviation)
               and the people (name and email address) who need access and/or will be filling in the metadata.
-                             
             </DisplayListItem>
             <DisplayListItem>
               2)	A staging area (metadata entry portal) for the catalogue will be created and you will
@@ -222,8 +221,8 @@
                 class="text-link underline hover:bg-link-hover"
                 >Health Data and Samples Catalogue</a
               >
-          <DisplayListItem>
             </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://catalogue.bbmri.nl/"
                 rel="noopener noreferrer"
