@@ -21,7 +21,11 @@ const bannerHtml = computed(() => {
   <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
 
   <HeaderCatalogue
-    v-if="route.params.catalogue"
+    v-if="
+      route.params.resourceId ||
+      route.query.catalogue ||
+      route.path.startsWith('/all')
+    "
     :catalogue="headerData.catalogue"
     :variableCount="headerData.variableCount"
     :collectionCount="headerData.collectionCount"

@@ -1,25 +1,29 @@
 <script setup lang="ts">
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { buildTree } from "#imports";
-import { moduleToString } from "../../../../../../../tailwind-components/app/utils/moduleToString";
+import { buildTree, useCatalogueContext } from "#imports";
+import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, reactive } from "vue";
-import type { ISubpopulations } from "../../../../../../interfaces/catalogue";
-import type { IMgError } from "../../../../../../interfaces/types";
-import dateUtils from "../../../../../utils/dateUtils";
-import subpopulationGql from "../../../../../gql/subpopulation";
-import { removeChildIfParentSelected } from "../../../../../utils/treeHelpers";
-import LayoutsDetailPage from "../../../../../components/layouts/DetailPage.vue";
-import PageHeader from "../../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import SideNavigation from "../../../../../components/SideNavigation.vue";
-import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
-import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentOntology from "../../../../../components/content/Ontology.vue";
-import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
-import type { Crumb } from "../../../../../../../tailwind-components/types/types";
+import type { ISubpopulations } from "../../../../interfaces/catalogue";
+import type { IMgError } from "../../../../interfaces/types";
+import dateUtils from "../../../utils/dateUtils";
+import subpopulationGql from "../../../gql/subpopulation";
+import { removeChildIfParentSelected } from "../../../utils/treeHelpers";
+import LayoutsDetailPage from "../../../components/layouts/DetailPage.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import SideNavigation from "../../../components/SideNavigation.vue";
+import ContentBlocks from "../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import ContentBlock from "../../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentOntology from "../../../components/content/Ontology.vue";
+import CatalogueItemList from "../../../components/CatalogueItemList.vue";
+import type { Crumb } from "../../../../../tailwind-components/types/types";
+
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema as string;
+const { buildBreadcrumbs, resourceUrl } = useCatalogueContext();
+
+const resourceId = route.params.resourceId as string;
 const query = moduleToString(subpopulationGql);
 
 interface ISubpopulationQueryResponse {
@@ -35,7 +39,7 @@ const { data } = await useFetch<ISubpopulationQueryResponse, IMgError>(
     body: {
       query,
       variables: {
-        id: route.params.resource,
+        id: resourceId,
         name: route.params.subpopulation,
       },
     },
@@ -57,32 +61,20 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const pageCrumbs: Crumb[] = [
+const pageCrumbs: Crumb[] = buildBreadcrumbs([
   {
-    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
-    url: `/${route.params.catalogue}`,
+    label: resourceId,
+    url: resourceUrl(resourceId),
   },
-
-  {
-    label: route.params.resourceType as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}`,
-  },
-
-  {
-    label: route.params.resource as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`,
-  },
-
   {
     label: "Subpopulations",
-    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations`,
+    url: "",
   },
-
   {
     label: route.params.subpopulation as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${route.params.subpopulation}`,
+    url: "",
   },
-];
+]);
 
 function renderList(
   list: any[],

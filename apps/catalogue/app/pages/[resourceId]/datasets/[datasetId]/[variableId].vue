@@ -1,54 +1,47 @@
 <script setup lang="ts">
-import variableQuery from "../../../../../gql/variable";
-import type {
-  IVariables,
-  IVariableMappings,
-} from "../../../../../../interfaces/catalogue";
-import { buildFilterFromKeysObject } from "metadata-utils";
+import variableQuery from "../../../../gql/variable";
+import type { IVariables } from "../../../../../interfaces/catalogue";
+import { buildFilterFromKeysObject } from "../../../../../../metadata-utils/src";
 import { useRoute } from "#app/composables/router";
-import { moduleToString } from "#imports";
+import { moduleToString, useCatalogueContext } from "#imports";
 import { useFetch, useHead, useRuntimeConfig } from "#app";
-import HarmonisationListPerVariable from "../../../../../components/harmonisation/HarmonisationListPerVariable.vue";
-import HarmonisationGridPerVariable from "../../../../../components/harmonisation/HarmonisationGridPerVariable.vue";
-import HarmonisationVariableDetails from "../../../../../components/harmonisation/VariableDetails.vue";
-import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
-import LayoutsDetailPage from "../../../../../components/layouts/DetailPage.vue";
-import PageHeader from "../../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import SideNavigation from "../../../../../components/SideNavigation.vue";
-import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
+import HarmonisationListPerVariable from "../../../../components/harmonisation/HarmonisationListPerVariable.vue";
+import HarmonisationGridPerVariable from "../../../../components/harmonisation/HarmonisationGridPerVariable.vue";
+import HarmonisationVariableDetails from "../../../../components/harmonisation/VariableDetails.vue";
+import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
+import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import SideNavigation from "../../../../components/SideNavigation.vue";
+import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
 
 import {
   useQueryParams,
   calcIndividualVariableHarmonisationStatus,
 } from "#imports";
 import { computed, reactive } from "vue";
-import type { Crumb } from "../../../../../../../tailwind-components/types/types";
+import type { Crumb } from "../../../../../../tailwind-components/types/types";
+
 const route = useRoute();
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
+const { buildBreadcrumbs, resourceUrl } = useCatalogueContext();
 
 const query = moduleToString(variableQuery);
-const scoped = route.params.catalogue !== "all";
-const catalogueRouteParam = route.params.catalogue as string;
+const resourceId = route.params.resourceId as string;
 const { key } = useQueryParams();
 const variableFilter = buildFilterFromKeysObject(key);
-const resourceFilter = scoped
-  ? {
-      _or: [
-        { resources: { equals: [{ id: catalogueRouteParam }] } },
-        {
-          resources: {
-            partOfResources: { id: { equals: catalogueRouteParam } },
-          },
-        },
-      ],
-    }
-  : {};
-
-type VariableDetailsWithMappingAndRepeats = IVariables &
-  IVariableMappings & { nRepeats: number };
+const resourceFilter = {
+  _or: [
+    { resources: { equals: [{ id: resourceId }] } },
+    {
+      resources: {
+        partOfResources: { id: { equals: resourceId } },
+      },
+    },
+  ],
+};
 
 const { data } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
@@ -59,18 +52,10 @@ const variable = computed(() => data.value.data.Variables[0]);
 const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
-const crumbs: Crumb[] = [
+const crumbs: Crumb[] = buildBreadcrumbs([
   {
-    label: route.params.catalogue as string,
-    url: `/${route.params.catalogue}`,
-  },
-  {
-    label: route.params.resourceType as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}`,
-  },
-  {
-    label: route.params.resource as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}#Variables`,
+    label: resourceId,
+    url: resourceUrl(resourceId),
   },
   {
     label: "Variables",
@@ -80,7 +65,7 @@ const crumbs: Crumb[] = [
     label: variable.value?.name,
     url: "",
   },
-];
+]);
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];
@@ -114,8 +99,14 @@ if (resourcesWithMapping.value.length > 0) {
   });
 }
 
-const titlePrefix =
-  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+if (resourcesWithMapping.value.length === 0) {
+  tocItems.push({
+    label: "Harmonisation",
+    id: "harmonisation-details-no-mapping",
+  });
+}
+
+const titlePrefix = `${resourceId} `;
 useHead({
   title: titlePrefix + variable.value.name,
   meta: [
@@ -138,9 +129,6 @@ useHead({
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
-        <!-- <template #title-suffix>
-          <IconButton icon="star" label="Favorite" />
-        </template> -->
       </PageHeader>
     </template>
     <template v-if="tocItems.length > 1" #side>
@@ -205,6 +193,14 @@ useHead({
           description="Select a data source to see the details of the harmonisation"
         >
           <HarmonisationVariableDetails :variable="variable" />
+        </ContentBlock>
+
+        <ContentBlock
+          v-if="resourcesWithMapping.length === 0"
+          id="harmonisation-details-no-mapping"
+          title="Harmonisation"
+          description="No mapping found for this variable"
+        >
         </ContentBlock>
       </ContentBlocks>
     </template>

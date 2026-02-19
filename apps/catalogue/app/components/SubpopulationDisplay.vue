@@ -26,7 +26,7 @@ const { data, error } = await useFetch<Resp<ISubpopulations>>(
     method: "POST",
     body: {
       query: query,
-      variables: { id: route.params.resource, name: id },
+      variables: { id: route.params.resourceId, name: id },
     },
   }
 );

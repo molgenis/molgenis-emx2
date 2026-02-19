@@ -19,6 +19,5 @@ test("network detail resource listing resource detail should show the resoource 
     waitUntil: "hydration",
   });
   await page.getByText("acronym for test cohort 1").click();
-  //await page.getByRole('button', { name: 'Detail page' }).click();
   await expect(page.locator("h1")).toContainText("acronym for test cohort 1");
 });
