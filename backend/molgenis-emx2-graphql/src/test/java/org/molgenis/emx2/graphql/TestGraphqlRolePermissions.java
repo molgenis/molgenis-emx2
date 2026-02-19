@@ -3,11 +3,10 @@ package org.molgenis.emx2.graphql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.GraphQL;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -17,7 +16,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestGraphqlRolePermissions {
   private static Database database;
   private static Schema schema;
-  private static GraphQL graphql;
+  private static GraphqlExecutor graphqlExecutor;
   private static final String SCHEMA_NAME = "TestGqlRolePerms";
 
   @BeforeAll
@@ -27,11 +26,11 @@ public class TestGraphqlRolePermissions {
     schema.create(
         table("Patients").add(column("id").setPkey()).add(column("name")),
         table("Samples").add(column("id").setPkey()));
-    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+    graphqlExecutor = new GraphqlExecutor(schema);
   }
 
   private JsonNode execute(String query) throws Exception {
-    String result = convertExecutionResultToJson(graphql.execute(query));
+    String result = convertExecutionResultToJson(graphqlExecutor.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").toString());
@@ -180,7 +179,7 @@ public class TestGraphqlRolePermissions {
     try {
       database.setActiveUser("gql_analyst1");
       Schema freshSchema = database.getSchema(SCHEMA_NAME);
-      graphql = new GraphqlApiFactory().createGraphqlForSchema(freshSchema, null);
+      graphqlExecutor = new GraphqlExecutor(freshSchema);
 
       JsonNode perms = execute("{ _session { permissions { table select } } }");
       assertNotNull(perms.at("/_session/permissions"), "Non-admin can query own permissions");
@@ -202,7 +201,7 @@ public class TestGraphqlRolePermissions {
       }
     } finally {
       database.becomeAdmin();
-      graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+      graphqlExecutor = new GraphqlExecutor(schema);
     }
   }
 
@@ -265,7 +264,7 @@ public class TestGraphqlRolePermissions {
 
     try {
       database.setActiveUser("myperms_test_user");
-      graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+      graphqlExecutor = new GraphqlExecutor(schema);
 
       JsonNode result =
           execute("{ _session { permissions { table select insert update delete } } }");
@@ -291,7 +290,7 @@ public class TestGraphqlRolePermissions {
       assertTrue(foundSamples, "Should find Samples permission");
     } finally {
       database.becomeAdmin();
-      graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+      graphqlExecutor = new GraphqlExecutor(schema);
       execute("mutation { drop(roles: [\"MyTestRole\"]) { message } }");
     }
   }
