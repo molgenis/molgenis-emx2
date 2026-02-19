@@ -82,7 +82,7 @@ public class ServeStaticFile {
     try (InputStream in = new FileInputStream(file)) {
       send(ctx, in, URLConnection.guessContentTypeFromName(path));
     } catch (Exception e) {
-      ctx.status(404).result("File not found: " + ctx.path());
+      ctx.status(404).result("File not found: " + path);
     }
   }
 
