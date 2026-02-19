@@ -215,6 +215,7 @@ export default {
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
             case "RADIO":
+            case "SELECT":
             case "MULTISELECT":
               query[column.id] = JSON.stringify(conditions);
               break;

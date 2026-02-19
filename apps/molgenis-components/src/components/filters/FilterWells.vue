@@ -15,9 +15,9 @@
         >
           <span v-if="Array.isArray(condition)">
             <FilterWell
-              v-if="filter.columnType.includes('MULTISELECT')"
+              v-if="isSelectType(filter.columnType)"
               @click="remove(filterIndex, conditionIndex)"
-              :label="getMultiSelectLabel(filter, condition)"
+              :label="getSelectLabel(filter, condition)"
             />
             <FilterWell
               v-else-if="condition[0] !== null && condition[1] !== null"
@@ -119,13 +119,16 @@ export default {
       }
       this.$emit("updateFilters", update);
     },
-    getMultiSelectLabel(filter, condition) {
+    getSelectLabel(filter, condition) {
       const labels = condition
         .map((value) =>
           applyJsTemplate({ value }, filter.refLabel || filter.refLabelDefault)
         )
         .join(", ");
       return filter.label + " contains:" + labels;
+    },
+    isSelectType(columnType) {
+      return ["MULTISELECT", "SELECT"].includes(columnType);
     },
   },
 };
