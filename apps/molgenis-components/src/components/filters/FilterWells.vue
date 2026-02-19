@@ -8,35 +8,40 @@
         </button>
         ) :
       </div>
-      <span v-for="(facet, facetIndex) in filters" :key="facet.id">
+      <span v-for="(filter, filterIndex) in filters" :key="filter.id">
         <span
-          v-for="(condition, conditionIndex) in facet.conditions"
+          v-for="(condition, conditionIndex) in filter.conditions"
           :key="conditionIndex"
         >
           <span v-if="Array.isArray(condition)">
             <FilterWell
-              v-if="condition[0] !== null && condition[1] !== null"
-              @click="remove(facetIndex, conditionIndex)"
+              v-if="isSelectType(filter.columnType)"
+              @click="remove(filterIndex, conditionIndex)"
+              :label="getSelectLabel(filter, condition)"
+            />
+            <FilterWell
+              v-else-if="condition[0] !== null && condition[1] !== null"
+              @click="remove(filterIndex, conditionIndex)"
               :label="
-                condition[0] + ' &lt; ' + facet.label + ' &lt; ' + condition[1]
+                condition[0] + ' &lt; ' + filter.label + ' &lt; ' + condition[1]
               "
             />
             <FilterWell
               v-else-if="condition[0] !== null"
-              @click="remove(facetIndex, conditionIndex)"
-              :label="condition[0] + ' &lt; ' + facet.id"
+              @click="remove(filterIndex, conditionIndex)"
+              :label="condition[0] + ' &lt; ' + filter.id"
             />
 
             <FilterWell
               v-else-if="condition[1] !== null"
-              @click="remove(facetIndex, conditionIndex)"
-              :label="facet.label + ' &lt; ' + condition[1]"
+              @click="remove(filterIndex, conditionIndex)"
+              :label="filter.label + ' &lt; ' + condition[1]"
             />
           </span>
           <span v-else>
             <FilterWell
-              @click="remove(facetIndex, conditionIndex)"
-              :label="facet.label + ' = ' + renderValue(condition)"
+              @click="remove(filterIndex, conditionIndex)"
+              :label="filter.label + ' = ' + renderValue(condition)"
             />
           </span>
         </span>
@@ -45,6 +50,7 @@
   </span>
 </template>
 <script>
+import { applyJsTemplate } from "../utils";
 import FilterWell from "./FilterWell.vue";
 
 export default {
@@ -106,12 +112,23 @@ export default {
     },
     removeAll() {
       let update = this.filters;
-      for (var idx in update) {
+      for (let idx in update) {
         if (Array.isArray(update[idx].conditions)) {
           update[idx].conditions.splice(0); // use splice to avoid removing vue reactivity
         }
       }
       this.$emit("updateFilters", update);
+    },
+    getSelectLabel(filter, condition) {
+      const labels = condition
+        .map((value) =>
+          applyJsTemplate({ value }, filter.refLabel || filter.refLabelDefault)
+        )
+        .join(", ");
+      return filter.label + " contains:" + labels;
+    },
+    isSelectType(columnType) {
+      return ["MULTISELECT", "SELECT", "CHECKBOX"].includes(columnType);
     },
   },
 };
