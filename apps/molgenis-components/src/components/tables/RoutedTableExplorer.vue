@@ -217,6 +217,7 @@ export default {
             case "RADIO":
             case "SELECT":
             case "MULTISELECT":
+            case "CHECKBOX":
               query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":

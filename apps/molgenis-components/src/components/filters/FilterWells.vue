@@ -128,7 +128,7 @@ export default {
       return filter.label + " contains:" + labels;
     },
     isSelectType(columnType) {
-      return ["MULTISELECT", "SELECT"].includes(columnType);
+      return ["MULTISELECT", "SELECT", "CHECKBOX"].includes(columnType);
     },
   },
 };

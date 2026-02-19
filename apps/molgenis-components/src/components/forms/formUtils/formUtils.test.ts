@@ -880,6 +880,21 @@ describe("buildGraphqlFilter", () => {
     });
   });
 
+  test("it should set an equals filter for a checkbox column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "CHECKBOX",
+        id: "checkboxColumn",
+        conditions: ["option1"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      checkboxColumn: { equals: ["option1"] },
+    });
+  });
+
   test("it should call the error callback for invalid column types", () => {
     const columns: IColumn[] = [
       {

@@ -68,6 +68,7 @@ const filterTypeMap = {
   BOOl_ARRAY: BooleanFilter,
   SELECT: RefListFilter,
   MULTISELECT: RefListFilter,
+  CHECKBOX: RefListFilter,
   REF: RefListFilter,
   REFBACK: RefListFilter,
   REF_ARRAY: RefListFilter,
