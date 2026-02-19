@@ -1,0 +1,117 @@
+- generic [active] [ref=e1]:
+    - generic [ref=e3]:
+        - generic [ref=e4]:
+            - generic:
+                - img
+        - generic [ref=e5]:
+            - banner [ref=e6]:
+                - generic [ref=e8]:
+                    - link "Go to home" [ref=e9] [cursor=pointer]:
+                        - /url: /
+                        - generic [ref=e10]: Go to home
+                        - img [ref=e11]
+                    - generic [ref=e17]:
+                        - navigation [ref=e18]:
+                            - link "SHACL" [ref=e19] [cursor=pointer]:
+                                - /url: /pet store csv/shacl
+                        - button "Toggle theme" [ref=e20] [cursor=pointer]:
+                            - generic [ref=e21]:
+                                - img [ref=e22]
+                                - generic [ref=e24]: Light mode
+                            - generic [ref=e25]:
+                                - img [ref=e26]
+                                - generic [ref=e28]: Dark mode
+                        - button "Signin" [ref=e30] [cursor=pointer]:
+                            - img [ref=e31]
+                            - generic [ref=e34]: Signin
+            - main [ref=e35]:
+                - generic [ref=e36]:
+                    - generic [ref=e37]:
+                        - navigation "breadcrumb" [ref=e39]:
+                            - list [ref=e40]:
+                                - listitem [ref=e41]:
+                                    - link "pet store csv" [ref=e42] [cursor=pointer]:
+                                        - /url: /pet store csv
+                                    - img [ref=e44]
+                                - listitem [ref=e46]:
+                                    - generic [ref=e47]: roles
+                        - heading "Roles in pet store csv" [level=1] [ref=e50]
+                    - paragraph [ref=e52]: You need Manager or Owner access to manage roles.
+            - generic [ref=e54]:
+                - generic [ref=e55]:
+                    - heading "Created with MOLGENIS" [level=3] [ref=e56]
+                    - list [ref=e57]:
+                        - listitem [ref=e58]:
+                            - link "About Molgenis" [ref=e59] [cursor=pointer]:
+                                - /url: http://molgenis.org
+                                - img [ref=e60]
+                                - generic [ref=e62]: About Molgenis
+                        - listitem [ref=e63]:
+                            - link "MOLGENIS.org" [ref=e64] [cursor=pointer]:
+                                - /url: http://molgenis.org
+                                - img [ref=e65]
+                                - generic [ref=e67]: MOLGENIS.org
+                                - img [ref=e68]
+                        - listitem [ref=e70]:
+                            - img [ref=e71]
+                            - generic [ref=e73]: Need help?
+                            - link "Contact us" [ref=e74] [cursor=pointer]:
+                                - /url: mailto:support@molgenis.org
+                - generic [ref=e75]:
+                    - heading "Running a custom MOLGENIS version" [level=3] [ref=e76]
+                    - list [ref=e77]:
+                        - listitem [ref=e78]:
+                            - link "MOLGENIS on GitHub" [ref=e79] [cursor=pointer]:
+                                - /url: https://github.com/molgenis/molgenis-emx2
+                                - img [ref=e80]
+                                - generic [ref=e82]: MOLGENIS on GitHub
+                                - img [ref=e83]
+                        - listitem [ref=e85]:
+                            - link "Open Source LGPLv3 License" [ref=e86] [cursor=pointer]:
+                                - /url: https://molgenis.org/LICENSE-LGPLv3.html
+                                - img [ref=e87]
+                                - generic [ref=e89]: Open Source LGPLv3 License
+                                - img [ref=e90]
+                        - listitem [ref=e92]:
+                            - link "Privacy Policy" [ref=e93] [cursor=pointer]:
+                                - /url: https://molgenis.org/MOLGENIS_Privacy_Policy.pdf
+                                - img [ref=e94]
+                                - generic [ref=e96]: Privacy Policy
+                                - img [ref=e97]
+                - generic [ref=e99]:
+                    - heading "Please cite on use" [level=3] [ref=e100]
+                    - list [ref=e101]:
+                        - listitem [ref=e102]:
+                            - link "Swertz & Gini (2022)" [ref=e103] [cursor=pointer]:
+                                - /url: https://www.ncbi.nlm.nih.gov/pubmed/36463884
+                                - img [ref=e104]
+                                - generic [ref=e106]: Swertz & Gini (2022)
+                                - img [ref=e107]
+                        - listitem [ref=e109]:
+                            - link "Van der Velde et al (2018)" [ref=e110] [cursor=pointer]:
+                                - /url: https://www.ncbi.nlm.nih.gov/pubmed/30165396
+                                - img [ref=e111]
+                                - generic [ref=e113]: Van der Velde et al (2018)
+                                - img [ref=e114]
+                        - listitem [ref=e116]:
+                            - link "Swertz et al (2010)" [ref=e117] [cursor=pointer]:
+                                - /url: https://www.ncbi.nlm.nih.gov/pubmed/21210979
+                                - img [ref=e118]
+                                - generic [ref=e120]: Swertz et al (2010)
+                                - img [ref=e121]
+    - generic:
+        - img
+    - generic:
+        - generic:
+            - generic:
+                - button "Go to parent" [disabled]
+                - button "Open in editor"
+                - button "Close"
+    - generic [ref=e123]:
+        - button "Toggle Nuxt DevTools" [ref=e124] [cursor=pointer]:
+            - img [ref=e125]
+        - generic "Page load time" [ref=e128]:
+            - generic [ref=e129]: "189"
+            - generic [ref=e130]: ms
+        - button "Toggle Component Inspector" [ref=e132] [cursor=pointer]:
+            - img [ref=e133]

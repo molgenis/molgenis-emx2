@@ -18,6 +18,8 @@ import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Record6;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
@@ -835,7 +837,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     Set<String> bypassDelete = new LinkedHashSet<>();
 
     try {
-      var rlsRows =
+      Result<Record6<String, String, String, Boolean, Boolean, Boolean>> rlsRows =
           jooq.select(fTableSchema, fTableName, fSelectLevel, fInsertRls, fUpdateRls, fDeleteRls)
               .from(rlsPerms)
               .where(fRoleName.in(roleNames))
@@ -886,7 +888,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         String tSchema = entry.getKey();
         PermissionAccumulator acc = entry.getValue();
 
-        var rlsTables =
+        Result<Record1<String>> rlsTables =
             jooq.select(fTablename)
                 .from(DSL.table(name("pg_tables")).as("t"))
                 .join(DSL.table(name("pg_class")).as("c"))

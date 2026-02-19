@@ -19,14 +19,18 @@
       <template #body>
         <TableRow>
           <TableCell class="font-semibold">* (all tables)</TableCell>
-          <TableCell v-if="readonly">{{ wildcardPerm.select || "—" }}</TableCell>
+          <TableCell v-if="readonly">{{
+            wildcardPerm.select || "—"
+          }}</TableCell>
           <PermissionCell
             v-else
             :modelValue="wildcardPerm.select"
             :options="selectOptions"
             @update:modelValue="updateWildcard('select', $event)"
           />
-          <TableCell v-if="readonly">{{ wildcardPerm.insert || "—" }}</TableCell>
+          <TableCell v-if="readonly">{{
+            wildcardPerm.insert || "—"
+          }}</TableCell>
           <TableCell
             v-else-if="isModifyDisabled(wildcardPerm.select)"
             class="bg-gray-50 text-gray-400 text-center"
@@ -40,7 +44,9 @@
             :options="getModifyOptions(wildcardPerm.select)"
             @update:modelValue="updateWildcard('insert', $event)"
           />
-          <TableCell v-if="readonly">{{ wildcardPerm.update || "—" }}</TableCell>
+          <TableCell v-if="readonly">{{
+            wildcardPerm.update || "—"
+          }}</TableCell>
           <TableCell
             v-else-if="isModifyDisabled(wildcardPerm.select)"
             class="bg-gray-50 text-gray-400 text-center"
@@ -54,7 +60,9 @@
             :options="getModifyOptions(wildcardPerm.select)"
             @update:modelValue="updateWildcard('update', $event)"
           />
-          <TableCell v-if="readonly">{{ wildcardPerm.delete || "—" }}</TableCell>
+          <TableCell v-if="readonly">{{
+            wildcardPerm.delete || "—"
+          }}</TableCell>
           <TableCell
             v-else-if="isModifyDisabled(wildcardPerm.select)"
             class="bg-gray-50 text-gray-400 text-center"
@@ -68,7 +76,9 @@
             :options="getModifyOptions(wildcardPerm.select)"
             @update:modelValue="updateWildcard('delete', $event)"
           />
-          <TableCell v-if="readonly">{{ wildcardPerm.grant ? "Yes" : "—" }}</TableCell>
+          <TableCell v-if="readonly">{{
+            wildcardPerm.grant ? "Yes" : "—"
+          }}</TableCell>
           <TableCell
             v-else-if="isGrantDisabled(wildcardPerm.select)"
             class="bg-gray-50 text-gray-400 text-center"

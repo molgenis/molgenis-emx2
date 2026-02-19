@@ -15,6 +15,7 @@ import java.util.Set;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.molgenis.emx2.ColumnAccess;
 import org.molgenis.emx2.ModifyLevel;
@@ -917,7 +918,7 @@ public class SqlRoleManager {
       Field<String> fColSchema = field(name("col", "table_schema"), String.class);
       Field<String> fColTable = field(name("col", "table_name"), String.class);
 
-      var rlsTables =
+      Result<Record2<String, String>> rlsTables =
           ctx.select(fSchemaname, fTablename)
               .from(table(name("pg_tables")).as("t"))
               .join(table(name("pg_class")).as("c"))
