@@ -26,10 +26,10 @@ public class IdGeneratorService {
       throw new MolgenisException("Column type needs to be " + ColumnType.AUTO_ID);
     }
 
-    if (column.getComputed() != null) {
-      return generateId(column);
-    } else {
+    if (column.getComputed() == null) {
       return SnowflakeIdGenerator.getInstance().generateId();
+    } else {
+      return generateId(column);
     }
   }
 

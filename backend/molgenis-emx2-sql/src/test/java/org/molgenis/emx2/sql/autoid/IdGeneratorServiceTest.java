@@ -16,6 +16,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 class IdGeneratorServiceTest {
 
   private static final String SCHEMA_NAME = IdGeneratorServiceTest.class.getSimpleName();
+  public static final String SNOWFLAKE_REGEX = "[a-zA-Z\\d]{10}";
 
   private static SqlDatabase database;
   private static IdGeneratorService service;
@@ -43,15 +44,31 @@ class IdGeneratorServiceTest {
   @Test
   void givenColumnWithNoComputed_thenUseSnowflakeFormat() {
     table.add(Column.column("column").setType(ColumnType.AUTO_ID));
+
     Column column = table.getColumn("column");
-    String id = service.generateIdForColumn(column);
-    Matcher matcher = Pattern.compile("[a-zA-Z\\d]{10}").matcher(id);
-    assertTrue(
-        matcher.find(),
-        "Generated id: "
-            + id
-            + ", does not match expected pattern: "
-            + matcher.pattern().toString());
+    assertColumnProducesIdMatchingFormat(column, SNOWFLAKE_REGEX);
+  }
+
+  @Test
+  void givenAutoIdWithJustAutoIdToken_thenUseSnowflakeFormat() {
+    table.add(
+        Column.column("column")
+            .setType(ColumnType.AUTO_ID)
+            .setComputed(Constants.COMPUTED_AUTOID_TOKEN));
+
+    Column column = table.getColumn("column");
+    assertColumnProducesIdMatchingFormat(column, SNOWFLAKE_REGEX);
+  }
+
+  @Test
+  void givenJustAutoIdWithPrePostFix_thenUseSnowflakeFormat() {
+    table.add(
+        Column.column("column")
+            .setType(ColumnType.AUTO_ID)
+            .setComputed("PRE-" + Constants.COMPUTED_AUTOID_TOKEN + "-POST"));
+
+    Column column = table.getColumn("column");
+    assertColumnProducesIdMatchingFormat(column, "PRE-" + SNOWFLAKE_REGEX + "-POST");
   }
 
   @Test
@@ -59,10 +76,14 @@ class IdGeneratorServiceTest {
     table.add(
         Column.column("column")
             .setType(ColumnType.AUTO_ID)
-            .setComputed("${mg_autoid(length=1, format=numbers)}"));
+            .setComputed("${mg_autoid(length=2, format=numbers)}"));
     Column column = table.getColumn("column");
+    assertColumnProducesIdMatchingFormat(column, "\\d{2}");
+  }
+
+  private static void assertColumnProducesIdMatchingFormat(Column column, String regex) {
     String id = service.generateIdForColumn(column);
-    Matcher matcher = Pattern.compile("\\d").matcher(id);
+    Matcher matcher = Pattern.compile(regex).matcher(id);
     assertTrue(
         matcher.find(),
         "Generated id: "
