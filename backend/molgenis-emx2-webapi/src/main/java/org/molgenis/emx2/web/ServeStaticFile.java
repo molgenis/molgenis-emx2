@@ -28,12 +28,11 @@ public class ServeStaticFile {
       } else {
         /* Running from IDE/CLI (classes folder) */
         Path emx2Home = jarPath.getParent();
-
         do {
           emx2Home = emx2Home.getParent();
-        } while (!emx2Home.toString().endsWith("molgenis-emx2")
-            && !emx2Home.toString().endsWith("molgenis/repo")); /* latter is for CircleCi */
-        return emx2Home;
+        } while (!emx2Home.toString().endsWith("backend"));
+        /* One more above backend is root */
+        return emx2Home.getParent();
       }
     } catch (Exception e) {
       throw new MolgenisException("Cannot determine JAR location", e);
