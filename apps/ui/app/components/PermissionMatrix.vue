@@ -19,34 +19,67 @@
       <template #body>
         <TableRow>
           <TableCell class="font-semibold">* (all tables)</TableCell>
+          <TableCell v-if="readonly">{{ wildcardPerm.select || "—" }}</TableCell>
           <PermissionCell
+            v-else
             :modelValue="wildcardPerm.select"
             :options="selectOptions"
-            :disabled="readonly"
             @update:modelValue="updateWildcard('select', $event)"
           />
+          <TableCell v-if="readonly">{{ wildcardPerm.insert || "—" }}</TableCell>
+          <TableCell
+            v-else-if="isModifyDisabled(wildcardPerm.select)"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = TABLE or ROW"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="wildcardPerm.insert"
-            :options="modifyOptions"
-            :disabled="readonly"
+            :options="getModifyOptions(wildcardPerm.select)"
             @update:modelValue="updateWildcard('insert', $event)"
           />
+          <TableCell v-if="readonly">{{ wildcardPerm.update || "—" }}</TableCell>
+          <TableCell
+            v-else-if="isModifyDisabled(wildcardPerm.select)"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = TABLE or ROW"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="wildcardPerm.update"
-            :options="modifyOptions"
-            :disabled="readonly"
+            :options="getModifyOptions(wildcardPerm.select)"
             @update:modelValue="updateWildcard('update', $event)"
           />
+          <TableCell v-if="readonly">{{ wildcardPerm.delete || "—" }}</TableCell>
+          <TableCell
+            v-else-if="isModifyDisabled(wildcardPerm.select)"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = TABLE or ROW"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="wildcardPerm.delete"
-            :options="modifyOptions"
-            :disabled="readonly"
+            :options="getModifyOptions(wildcardPerm.select)"
             @update:modelValue="updateWildcard('delete', $event)"
           />
+          <TableCell v-if="readonly">{{ wildcardPerm.grant ? "Yes" : "—" }}</TableCell>
+          <TableCell
+            v-else-if="isGrantDisabled(wildcardPerm.select)"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = ROW or TABLE"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="wildcardPerm.grant"
             :options="grantStringOptions"
-            :disabled="readonly"
             isGrant
             @update:modelValue="updateWildcard('grant', $event)"
           />
@@ -54,39 +87,82 @@
         </TableRow>
         <TableRow v-for="table in dataTables" :key="table.id">
           <TableCell>{{ table.label }}</TableCell>
+          <TableCell v-if="readonly">{{
+            getTablePerm(table.id)?.select ?? wildcardPerm.select ?? "—"
+          }}</TableCell>
           <PermissionCell
+            v-else
             :modelValue="getTablePerm(table.id)?.select ?? null"
             :options="selectOptions"
             :inherited="wildcardPerm.select"
-            :disabled="readonly"
             @update:modelValue="updateTablePerm(table.id, 'select', $event)"
           />
+          <TableCell v-if="readonly">{{
+            getTablePerm(table.id)?.insert ?? wildcardPerm.insert ?? "—"
+          }}</TableCell>
+          <TableCell
+            v-else-if="isModifyDisabled(getEffectiveSelect(table.id))"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = TABLE or ROW"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="getTablePerm(table.id)?.insert ?? null"
-            :options="modifyOptions"
+            :options="getModifyOptions(getEffectiveSelect(table.id))"
             :inherited="wildcardPerm.insert"
-            :disabled="readonly"
             @update:modelValue="updateTablePerm(table.id, 'insert', $event)"
           />
+          <TableCell v-if="readonly">{{
+            getTablePerm(table.id)?.update ?? wildcardPerm.update ?? "—"
+          }}</TableCell>
+          <TableCell
+            v-else-if="isModifyDisabled(getEffectiveSelect(table.id))"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = TABLE or ROW"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="getTablePerm(table.id)?.update ?? null"
-            :options="modifyOptions"
+            :options="getModifyOptions(getEffectiveSelect(table.id))"
             :inherited="wildcardPerm.update"
-            :disabled="readonly"
             @update:modelValue="updateTablePerm(table.id, 'update', $event)"
           />
+          <TableCell v-if="readonly">{{
+            getTablePerm(table.id)?.delete ?? wildcardPerm.delete ?? "—"
+          }}</TableCell>
+          <TableCell
+            v-else-if="isModifyDisabled(getEffectiveSelect(table.id))"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = TABLE or ROW"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="getTablePerm(table.id)?.delete ?? null"
-            :options="modifyOptions"
+            :options="getModifyOptions(getEffectiveSelect(table.id))"
             :inherited="wildcardPerm.delete"
-            :disabled="readonly"
             @update:modelValue="updateTablePerm(table.id, 'delete', $event)"
           />
+          <TableCell v-if="readonly">{{
+            getTablePerm(table.id)?.grant ? "Yes" : "—"
+          }}</TableCell>
+          <TableCell
+            v-else-if="isGrantDisabled(getEffectiveSelect(table.id))"
+            class="bg-gray-50 text-gray-400 text-center"
+            title="Requires SELECT = ROW or TABLE"
+          >
+            —
+          </TableCell>
           <PermissionCell
+            v-else
             :modelValue="getTablePerm(table.id)?.grant ?? null"
             :options="grantStringOptions"
             :inherited="wildcardPerm.grant"
-            :disabled="readonly"
             isGrant
             @update:modelValue="updateTablePerm(table.id, 'grant', $event)"
           />
@@ -158,6 +234,50 @@ const selectOptions = SELECT_OPTIONS;
 const modifyOptions = MODIFY_OPTIONS;
 const grantStringOptions = ["true"];
 
+function getModifyOptions(selectLevel: string | null): string[] {
+  if (!selectLevel) return [];
+  const selectIndex = SELECT_OPTIONS.indexOf(selectLevel);
+  const tableIndex = SELECT_OPTIONS.indexOf("TABLE");
+  const rowIndex = SELECT_OPTIONS.indexOf("ROW");
+
+  if (selectIndex < tableIndex) return [];
+  if (selectIndex === tableIndex) return ["TABLE", "ROW"];
+  if (selectIndex === rowIndex) return ["ROW"];
+  return [];
+}
+
+function isModifyDisabled(selectLevel: string | null): boolean {
+  return getModifyOptions(selectLevel).length === 0;
+}
+
+function isGrantDisabled(selectLevel: string | null): boolean {
+  if (!selectLevel) return true;
+  const selectIndex = SELECT_OPTIONS.indexOf(selectLevel);
+  const tableIndex = SELECT_OPTIONS.indexOf("TABLE");
+  return selectIndex < tableIndex;
+}
+
+function correctModifyValue(
+  value: string | null,
+  selectLevel: string | null
+): string | null {
+  if (!value) return null;
+  const allowed = getModifyOptions(selectLevel);
+  if (allowed.length === 0) return null;
+  if (allowed.includes(value)) return value;
+  if (value === "TABLE" && allowed.includes("ROW")) return "ROW";
+  return null;
+}
+
+function correctGrantValue(
+  value: string | boolean | null,
+  selectLevel: string | null
+): string | boolean | null {
+  if (!value) return null;
+  if (isGrantDisabled(selectLevel)) return null;
+  return value;
+}
+
 const dataTables = computed(() => getDataTables(props.tables));
 
 const emptyPerm = (): IPermission => ({
@@ -194,6 +314,11 @@ function hasExplicitPerm(tableId: string): boolean {
   return editedPerms.value.has(tableId);
 }
 
+function getEffectiveSelect(tableId: string): string | null {
+  const tablePerm = getTablePerm(tableId);
+  return tablePerm?.select ?? wildcardPerm.value.select;
+}
+
 const isDirty = computed(() => {
   const originalMap = new Map<string, IPermission>();
   for (const perm of props.role.permissions) {
@@ -218,7 +343,16 @@ const isDirty = computed(() => {
 
 function updateWildcard(field: string, value: string | boolean | null) {
   const current = editedPerms.value.get("*") || emptyPerm();
-  const updated = { ...current, table: "*", [field]: value };
+  let updated = { ...current, table: "*", [field]: value };
+
+  if (field === "select") {
+    const selectValue = value as string | null;
+    updated.insert = correctModifyValue(updated.insert, selectValue);
+    updated.update = correctModifyValue(updated.update, selectValue);
+    updated.delete = correctModifyValue(updated.delete, selectValue);
+    updated.grant = correctGrantValue(updated.grant, selectValue);
+  }
+
   editedPerms.value = new Map(editedPerms.value).set("*", updated);
 }
 
@@ -236,7 +370,16 @@ function updateTablePerm(
     grant: null,
     columns: null,
   };
-  const updated = { ...current, [field]: value };
+  let updated = { ...current, [field]: value };
+
+  if (field === "select") {
+    const selectValue = value as string | null;
+    updated.insert = correctModifyValue(updated.insert, selectValue);
+    updated.update = correctModifyValue(updated.update, selectValue);
+    updated.delete = correctModifyValue(updated.delete, selectValue);
+    updated.grant = correctGrantValue(updated.grant, selectValue);
+  }
+
   const allNull =
     updated.select === null &&
     updated.insert === null &&

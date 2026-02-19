@@ -149,6 +149,70 @@ public class SqlRoleManager {
     jooq().execute("REVOKE {0} FROM {1}", name(fullRole), name(fullUser));
   }
 
+  private void validatePermissionCombination(
+      String schemaName, String fullRole, String tableName, Permission permission) {
+    boolean hasModify =
+        permission.getInsert() != null
+            || permission.getUpdate() != null
+            || permission.getDelete() != null;
+    boolean hasSelect = permission.getSelect() != null;
+    boolean hasGrant = permission.getGrant() != null && permission.getGrant();
+
+    SelectLevel effectiveSelect = permission.getSelect();
+    if (!hasSelect && (hasModify || hasGrant) && tableName != null) {
+      Record existingRec =
+          jooq()
+              .selectFrom(RLS_PERMISSIONS_TABLE)
+              .where(RP_SCHEMA.eq(schemaName))
+              .and(RP_ROLE.eq(fullRole))
+              .and(RP_TABLE.eq(tableName))
+              .fetchOne();
+      if (existingRec != null) {
+        String selectLevelStr = existingRec.get(RP_SELECT_LEVEL);
+        if (selectLevelStr != null) {
+          effectiveSelect = SelectLevel.valueOf(selectLevelStr);
+        }
+      }
+    }
+
+    if (hasGrant) {
+      if (effectiveSelect == null
+          || effectiveSelect == SelectLevel.EXISTS
+          || effectiveSelect == SelectLevel.RANGE
+          || effectiveSelect == SelectLevel.AGGREGATOR
+          || effectiveSelect == SelectLevel.COUNT) {
+        throw new MolgenisException(
+            "Cannot grant permission management with SELECT level below ROW");
+      }
+    }
+
+    if (effectiveSelect == null && hasModify) {
+      throw new MolgenisException(
+          "Cannot grant INSERT/UPDATE/DELETE without at least SELECT=TABLE permission");
+    }
+
+    if (effectiveSelect == SelectLevel.EXISTS
+        || effectiveSelect == SelectLevel.RANGE
+        || effectiveSelect == SelectLevel.AGGREGATOR
+        || effectiveSelect == SelectLevel.COUNT) {
+      if (hasModify) {
+        throw new MolgenisException(
+            "Cannot grant INSERT/UPDATE/DELETE with "
+                + effectiveSelect
+                + " select level (read-only metadata level)");
+      }
+    }
+
+    if (effectiveSelect == SelectLevel.ROW) {
+      if (permission.getInsert() == ModifyLevel.TABLE
+          || permission.getUpdate() == ModifyLevel.TABLE
+          || permission.getDelete() == ModifyLevel.TABLE) {
+        throw new MolgenisException(
+            "Cannot grant TABLE-level INSERT/UPDATE/DELETE with ROW-level SELECT (cannot modify rows you can't see)");
+      }
+    }
+  }
+
   public void grant(String schemaName, String roleName, Permission permission) {
     if (!roleExists(schemaName, roleName)) {
       throw new MolgenisException("Role does not exist: " + roleName);
@@ -161,6 +225,8 @@ public class SqlRoleManager {
     }
 
     String fullRole = fullRoleName(schemaName, roleName);
+
+    validatePermissionCombination(schemaName, fullRole, tableName, permission);
 
     if ("*".equals(tableName)) {
       syncRlsPermissions(schemaName, fullRole, "*", permission);

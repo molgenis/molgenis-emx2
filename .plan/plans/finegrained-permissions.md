@@ -197,7 +197,7 @@ System roles and custom roles are managed via the same mechanism:
   - `backend/molgenis-emx2/src/main/java/org/molgenis/emx2/Database.java`
   - `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlSchema.java`
 
-### Phase 6: GraphQL API -- MOSTLY DONE (3 items remaining)
+### Phase 6: GraphQL API -- DONE
 - Schema-level: `_schema { roles }` query with RoleInfo type, `change(roles)` / `drop(roles)` mutations -- DONE
 - Schema-level: `change(permissions)` / `drop(permissions)` for per-table grants -- DONE
 - Database-level: `_roles` query (cross-schema), `change(roles)` mutation with schemaName -- DONE
@@ -209,7 +209,7 @@ System roles and custom roles are managed via the same mechanism:
 - **`MolgenisPermissionType` has `schema` field** -- populated for global role permissions (to indicate which schema the table belongs to), null for schema-local permissions. -- DONE
 - Introspection: `_session { permissions }` added for any authenticated user to see own effective permissions -- DONE
 - Introspection: `permissionsOf(email)` removed (redundant, managers have members + roles) -- DONE
-- Explicit revocation: `drop(permissions)` with MolgenisPermissionDropInput -- PARTIALLY DONE (mechanism works, but `grant` field not exposed in GraphQL output types or mapped in GraphqlPermissionUtils)
+- Explicit revocation: `drop(permissions)` with MolgenisPermissionDropInput -- DONE
 - CSV endpoint: POST/GET `/<schema>/api/csv/roles` for bulk role+permission import/export -- MOVED TO FUTURE
 - Role cloning: `cloneFrom` parameter on role creation to copy permissions from existing role -- MOVED TO FUTURE
 - Files:
@@ -220,19 +220,55 @@ System roles and custom roles are managed via the same mechanism:
   - `backend/molgenis-emx2-graphql/src/main/java/org/molgenis/emx2/graphql/GraphqlApiFactory.java`
   - `backend/molgenis-emx2-webapi/src/main/java/org/molgenis/emx2/web/CsvApi.java` (or similar)
 
+### Phase 6b: Permission Combination Validation -- IN PROGRESS
+- Backend: `SqlRoleManager.grant()` rejects invalid SELECT + INSERT/UPDATE/DELETE combinations
+- UI: PermissionMatrix constrains modification dropdowns based on SELECT level
+- Rules: EXISTS/RANGE/AGGREGATOR/COUNT → no modifications; ROW → modifications must be ROW; TABLE → any modification level
+- Merge validation: when adding INSERT to existing permission, checks existing SELECT level
+- See spec: `finegrained-spec.md` → "Permission Combination Validation"
+
 ## Next Steps (priority order)
 
-1. **Phase 6 finish**: expose `grant` field in GraphQL output types + map in GraphqlPermissionUtils (small fix)
-2. **Phase 7b**: Admin UI permission matrix
+1. **Phase 7b Step 9**: Column-level permissions in permission matrix UI
+2. **Phase 7b Step 10**: Global roles admin UI (`/admin/roles`)
 3. **Phase 7a**: schema import/export with RLS config
 4. **Optional**: harden 4a — move session vars into connection provider if non-tx DB access paths exist
 
 ### Phase 7a: Import/Export -- NOT STARTED
-- Schema export/import with RLS config (mg_roles column, role definitions, permissions)
-- Files (to modify):
-  - `backend/molgenis-emx2-io/src/main/java/org/molgenis/emx2/io/emx2/Emx2.java`
 
-### Phase 7b: Admin UI -- NOT STARTED
+Add two new CSV sheets to schema export/import for custom roles and their permissions.
+
+#### 7a-1: Emx2Roles.java — Custom role definitions
+- New sheet: `molgenis_roles` with columns: `role`, `description`
+- Only exports non-system roles (filter out SYSTEM_ROLES)
+- `outputRoles(Schema, TableStoreWriter)` — export custom roles
+- `inputRoles(Schema, TableStore)` — import custom roles via `schema.createRole()`
+- Authorization: Manager+ only (same pattern as Emx2Members)
+- File: `backend/molgenis-emx2-io/src/main/java/org/molgenis/emx2/io/emx2/Emx2Roles.java`
+
+#### 7a-2: Emx2Permissions.java — Role permission matrix
+- New sheet: `molgenis_permissions` with columns: `role`, `table`, `select`, `insert`, `update`, `delete`, `grant`, `editable_columns`, `readonly_columns`, `hidden_columns`
+- `outputPermissions(Schema, TableStoreWriter)` — export non-system role permissions
+- `inputPermissions(Schema, TableStore)` — import via `schema.grant(Permission)`
+- Column access arrays serialized as comma-separated strings
+- Null = no access for that operation
+- `table = "*"` = schema-wide wildcard
+- File: `backend/molgenis-emx2-io/src/main/java/org/molgenis/emx2/io/emx2/Emx2Permissions.java`
+
+#### 7a-3: Wire into pipeline
+- Export: `MolgenisIO.outputAll()` — add `Emx2Roles.outputRoles()` + `Emx2Permissions.outputPermissions()` after settings
+- Import: `ImportMetadataTask.run()` — add `Emx2Roles.inputRoles()` before `Emx2Permissions.inputPermissions()` (order matters: roles must exist before granting)
+- Files to modify:
+  - `backend/molgenis-emx2-io/src/main/java/org/molgenis/emx2/io/MolgenisIO.java`
+  - `backend/molgenis-emx2-io/src/main/java/org/molgenis/emx2/io/ImportMetadataTask.java`
+
+#### 7a-4: Tests
+- Test round-trip: create schema with custom roles + permissions → export → import into new schema → verify roles and permissions match
+- Test that system roles are NOT exported
+- Test that import order is correct (roles before permissions)
+- File: `backend/molgenis-emx2-io/src/test/java/org/molgenis/emx2/io/TestEmx2RolesImportExport.java`
+
+### Phase 7b: Admin UI -- MOSTLY DONE (Step 8 remaining)
 
 Permission matrix UI for role management. Admin sees a grid per custom role:
 

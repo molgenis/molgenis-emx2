@@ -94,6 +94,36 @@ Used in:
 - `SqlRoleManager.syncRlsPermissions()` -- maps ROW → `true`, TABLE → `false` for `*_rls` booleans
 - `SqlRoleManager.getRoleInfo()` -- maps from boolean back to ModifyLevel
 
+### Permission Combination Validation
+
+Not all combinations of SELECT + INSERT/UPDATE/DELETE are valid. `SqlRoleManager.grant()` enforces these rules before applying any grants or writing to `rls_permissions`:
+
+| SELECT level | Allowed INSERT/UPDATE/DELETE |
+|---|---|
+| null | none (no access = no modifications) |
+| EXISTS, RANGE, AGGREGATOR, COUNT | none (metadata-only access, no data modifications) |
+| TABLE | TABLE, ROW, or null (full read → can modify all or own rows) |
+| ROW | ROW or null only (can only modify rows you can see) |
+
+GRANT also requires a minimum SELECT level:
+
+| SELECT level | GRANT allowed? |
+|---|---|
+| null, EXISTS, RANGE, AGGREGATOR, COUNT | No (can't manage permissions without data access) |
+| TABLE, ROW | Yes (ROW: can manage mg_roles on own rows; TABLE: full grant) |
+
+Invalid combinations are rejected with a `MolgenisException`. Examples:
+- `SELECT=COUNT + INSERT=TABLE` → rejected (can't insert if you only see counts)
+- `SELECT=ROW + UPDATE=TABLE` → rejected (can't update all rows if you only see your own)
+- `INSERT=TABLE` without any SELECT → rejected (need read access to write)
+- `SELECT=TABLE + DELETE=ROW` → allowed (see everything, delete only own rows)
+- `SELECT=EXISTS + GRANT=true` → rejected (can't grant permissions with metadata-only access)
+- `SELECT=ROW + GRANT=true` → allowed (can manage mg_roles on own rows)
+
+For merge grants (adding INSERT to an existing permission that already has SELECT), the existing SELECT level is looked up from `rls_permissions` and validated against the new modification levels.
+
+The UI (PermissionMatrix) enforces the same rules: modification dropdowns show "—" when SELECT < TABLE, grant shows "—" when SELECT < ROW.
+
 ### Domain ↔ Storage mapping (in SqlRoleManager)
 
 **Writing** (`setPermission()`):

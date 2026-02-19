@@ -40,12 +40,13 @@ const displayValue = computed(() => {
 });
 
 const selectOptions = computed(() => {
-  return props.options.map((opt) => {
+  const mapped = props.options.map((opt) => {
     if (typeof opt === "string") {
       return props.isGrant && opt === "true" ? "Yes" : opt;
     }
     return String(opt);
   });
+  return ["—", ...mapped];
 });
 
 const isInherited = computed(

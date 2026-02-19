@@ -159,8 +159,63 @@ mutation {
 - `SqlRoleManager.getPermissions()`: system roles return wildcard `*` permission
 - Manager/Owner include `grant=true`
 
-### Step 8: Tests + Stories — TODO
-- `roleUtils.test.ts` — test data transformation
+### Step 8: Tests + Stories — DONE
+- `roleUtils.test.ts` — 7 tests for getDataTables, SELECT_OPTIONS, MODIFY_OPTIONS
+- `PermissionCell.vue` story — dropdown variants demo
+- `PermissionMatrix.vue` story — custom + system role demo
+
+### Step 9: Column-level permissions in matrix — TODO
+- Expand per-table rows to show column access (editable/readonly/hidden)
+- Each table row gets an expandable detail section
+- Lists all table columns with tri-state selector: editable (default), readonly, hidden
+- Changes saved alongside the permission matrix
+- Requires:
+  - Fetch column metadata per table (already available in `_schema { tables { columns } }`)
+  - Add column access editing to PermissionMatrix.vue
+  - Wire into save mutation (already supported by backend)
+
+### Step 10: Global roles admin UI — TODO
+
+Admin UI for managing global roles (`MG_ROLE_*/<name>`) that span multiple schemas.
+
+**Route**: `/admin/roles` (database-level, admin only)
+
+**Layout**:
+```
+┌──────────────────────────────────────────────────────┐
+│ Global Roles                                          │
+├──────────────────────────────────────────────────────┤
+│ Role: [▼ DataSteward ] [+ New] [Delete]               │
+│ Description: Can manage data across schemas           │
+│                                                       │
+│ Schema Permissions:                                   │
+│ ┌──────────┬──────────────────────────────────────┐   │
+│ │ Schema   │ Role in Schema         │ Actions     │   │
+│ ├──────────┼──────────────────────────────────────┤   │
+│ │ Biobank  │ Viewer (system)        │ [Change][x] │   │
+│ │ Registry │ Analysts (custom)      │ [Change][x] │   │
+│ │ Research │ Curator (custom)       │ [Change][x] │   │
+│ └──────────┴──────────────────────────────────────┘   │
+│                                                       │
+│ [+ Add Schema Permission]                             │
+│                                                       │
+│ Preview: click a schema row to see its permission     │
+│ matrix (read-only) so you know what you're assigning  │
+└──────────────────────────────────────────────────────┘
+```
+
+**Key features**:
+- List all schemas where this global role has a membership
+- For each schema: show which role (system or custom) is assigned
+- **Quick preview**: click schema row to expand and show that role's permission matrix (read-only)
+- **Add schema permission**: modal to pick schema → pick role → assigns membership
+- **Change**: swap to different role in that schema
+- **Remove**: revoke membership in that schema
+- **Create new schema role inline**: from the "Add schema" flow, option to jump to schema's `/roles` page to create a custom role first
+
+**GraphQL queries needed**:
+- `{ _roles { name, description, permissions { schema, table, select, insert, update, delete, grant } } }` (database-level)
+- `mutation { change(roles: [...]) { message } }` (database-level)
 
 ## Files
 
