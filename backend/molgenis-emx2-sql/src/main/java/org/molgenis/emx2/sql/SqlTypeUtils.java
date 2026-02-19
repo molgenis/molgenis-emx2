@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
+import org.molgenis.emx2.utils.generator.IdGeneratorService;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -32,6 +32,7 @@ public class SqlTypeUtils extends TypeUtils {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
+
         applyAutoId(c, row);
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
@@ -96,13 +97,8 @@ public class SqlTypeUtils extends TypeUtils {
 
   private static void applyAutoId(Column c, Row row) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-      String id = SnowflakeIdGenerator.getInstance().generateId();
-      // do we use a template containing ${mg_autoid} for pre/postfixing ?
-      if (c.getComputed() != null) {
-        row.set(c.getName(), c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, id));
-      }
-      // otherwise simply put the id
-      else row.set(c.getName(), id);
+      String id = new IdGeneratorService().generateIdForColumn(c);
+      row.set(c.getName(), id);
     }
   }
 
