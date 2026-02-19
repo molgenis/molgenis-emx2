@@ -1,4 +1,4 @@
-import type { ChartAxisTickData } from "../../types/viz";
+import type { NumericAxisTickData } from "../../types/viz";
 
 import { select } from "d3";
 const d3 = { select };
@@ -57,16 +57,17 @@ export function breakXAxisLabels(svg: any, breakXAxisLabelsAt: string) {
 export function generateAxisTickData(
   data: any,
   key: string
-): ChartAxisTickData {
+): NumericAxisTickData {
   const values: number[] = [
     ...data.map((row: Record<string, any>) => row[key] as number),
   ];
   const max = Math.max(...values);
+  const min = Math.min(...values);
   const limit = max < 10 ? 10 : max;
   const interval = calculateInterval(limit);
   const limitAdjusted = Math.ceil(limit / interval) * interval;
   const ticks = seqAlongBy(0, limitAdjusted, interval);
-  return { limit: limitAdjusted, ticks: ticks };
+  return { limit: limitAdjusted, ticks: ticks, max: max, min: min };
 }
 
 /**

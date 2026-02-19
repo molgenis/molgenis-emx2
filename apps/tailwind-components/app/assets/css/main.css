@@ -278,7 +278,7 @@
     /* visualisations: need css and svg defintions */
     --chart-text: var(--color-gray-900);
     --chart-paths: var(--color-gray-600);
-    --chart-gridlines: var(--color-gray-400);
+    --chart-gridlines: var(--color-gray-200);
   }
 }
 

@@ -24,7 +24,6 @@ const d3 = {
 };
 
 import ChartContext from "../ChartContext.vue";
-import ChartLegend from "../ChartLegend/ChartLegend.vue";
 
 import type {
   ColumnCharts,
@@ -32,31 +31,25 @@ import type {
   NumericAxisTickData,
   CategoricalAxisTickData,
 } from "../../../../types/viz";
-import {
-  setChartLegendLayoutCss,
-  breakXAxisLabels,
-  generateAxisTickData,
-} from "../../../utils/viz";
+import { breakXAxisLabels, generateAxisTickData } from "../../../utils/viz";
 
 type DatasetRow = Record<string, any>;
 
 const props = withDefaults(defineProps<ColumnCharts>(), {
-  width: 250,
-  height: 250,
+  width: 300,
+  height: 300,
   marginTop: 10,
   marginRight: 10,
   marginBottom: 60,
   marginLeft: 60,
-  columnColor: "#6C85B5",
-  columnColorOnHover: "#163D89",
+  columnColor: "#014f9e",
+  columnColorOnHover: "#53a9ff",
   hoverEventsAreEnabled: true,
   clickEventsAreEnabled: false,
   animationsAreEnabled: true,
   legendIsEnabled: false,
   legendIsStacked: false,
-  legendPosition: "top",
-  legendHoverEventsAreEnabled: false,
-  showGridLines: false,
+  enableGridlines: false,
 });
 
 const emits = defineEmits(["column-clicked"]);
@@ -73,15 +66,15 @@ const internalBottomMargin = ref<number>(0);
 
 const xScale = ref();
 const yScale = ref();
-const xAxis = ref();
-const yAxis = ref();
+
+// define values that might become props later
+const columnPaddingInner: number = 0.2;
+const columnPaddingOuter: number = 0.2;
+const columnAlign: number = 0.5;
 
 const yAxisData = computed<NumericAxisTickData>(() => {
   const autoTickData = generateAxisTickData(props.data, props.yvar);
-  const ticks: NumericAxisTickData = {
-    limit: autoTickData.limit,
-    ticks: autoTickData.ticks,
-  };
+  const ticks: NumericAxisTickData = { ...autoTickData };
 
   if (props.ymax) {
     ticks.limit = props.ymax;
@@ -102,15 +95,6 @@ const xAxisData = computed<CategoricalAxisTickData>(() => {
     data.domains = values;
   }
   return data;
-});
-
-// define values that might become props later
-const columnPaddingInner: number = 0.2;
-const columnPaddingOuter: number = 0.2;
-const columnAlign: number = 0.5;
-
-const chartLayoutCss = computed<string>(() => {
-  return setChartLegendLayoutCss(props.legendIsEnabled, props.legendPosition);
 });
 
 const colorPalette = computed<ColorPalette>(() => {
@@ -159,11 +143,10 @@ function renderChartAxes() {
   const chartAxisGroup = chartArea.value.select("g.axes");
   chartAxisGroup.selectAll("*").remove();
 
-  // initialise generates and bind axes to chart
   xScale.value = createXAxisGenerator();
   yScale.value = createYAxisGenerator();
 
-  if (props.showGridLines) {
+  if (props.enableGridlines) {
     const gridlines = chartAxisGroup.append("g").attr("class", "gridlines");
     const xGridlines = gridlines.append("g").attr("class", "x");
     const yGridlines = gridlines.append("g").attr("class", "y");
@@ -195,18 +178,16 @@ function renderChartAxes() {
       .attr("class", "stroke-chart-gridlines");
   }
 
-  xAxis.value = d3.axisBottom(xScale.value);
-  yAxis.value = d3.axisLeft(yScale.value).tickValues(yAxisData.value.ticks);
+  const xAxis = d3.axisBottom(xScale.value);
+  const yAxis = d3.axisLeft(yScale.value).tickValues(yAxisData.value.ticks);
 
-  chartAxisGroup.append("g").attr("class", "y-axis").call(yAxis.value);
-
+  chartAxisGroup.append("g").attr("class", "y-axis").call(yAxis);
   chartAxisGroup
     .append("g")
     .attr("class", "x-axis")
     .attr("transform", `translate(0,${height.value})`)
-    .call(xAxis.value);
+    .call(xAxis);
 
-  // apply tailwind styles
   chartAxisGroup.selectAll(".tick line").attr("class", "stroke-chart-paths");
   chartAxisGroup.selectAll("path").attr("class", "stroke-chart-paths");
   chartAxisGroup
@@ -221,7 +202,6 @@ function renderChartAxes() {
 function onMouseOver(event: Event) {
   const rect = event.target as HTMLElement;
   const text = rect.nextSibling as HTMLElement;
-  rect.style.cursor = "pointer";
   rect.style.fill = props.columnColorOnHover;
   text.style.opacity = "1";
 }
@@ -229,7 +209,6 @@ function onMouseOver(event: Event) {
 function onMouseOut(event: Event, row: DatasetRow) {
   const rect = event.target as HTMLElement;
   const text = rect.nextSibling as HTMLElement;
-  rect.style.cursor = "default";
   rect.style.fill = colorPalette.value[row[props.xvar]] as string;
   text.style.opacity = "0";
 }
@@ -238,7 +217,6 @@ function renderColumns() {
   const chartColumnArea = chartArea.value.select("g.columns");
   chartColumnArea.selectAll("*").remove();
 
-  // group svg elements by data point: rect+text
   const groups = chartColumnArea
     .selectAll("g")
     .data(props.data)
@@ -251,6 +229,10 @@ function renderColumns() {
     .attr("fill", (row: DatasetRow) => colorPalette.value[row[props.xvar]])
     .attr("width", xScale.value.bandwidth())
     .attr("x", (row: DatasetRow) => xScale.value(row[props.xvar]));
+
+  if (props.columnBorderColor) {
+    columns.attr("stroke", props.columnBorderColor).attr("stroke-width", "1");
+  }
 
   if (props.animationsAreEnabled) {
     columns
@@ -277,6 +259,7 @@ function renderColumns() {
 
   if (props.hoverEventsAreEnabled) {
     columns
+      .style("cursor", "pointer")
       .on("mouseover", onMouseOver)
       .on("mouseout", (event: Event, row: DatasetRow) =>
         onMouseOut(event, row)
@@ -284,9 +267,11 @@ function renderColumns() {
   }
 
   if (props.clickEventsAreEnabled) {
-    columns.on("click", (_: Event, row: DatasetRow) => {
-      emits("column-clicked", row);
-    });
+    columns
+      .style("cursor", "pointer")
+      .on("click", (_: Event, row: DatasetRow) => {
+        emits("column-clicked", row);
+      });
   }
 
   groups
@@ -304,17 +289,14 @@ function renderColumns() {
 function renderChartAxisTitles() {
   const axisTitles = svg.value.select("g.titles");
   axisTitles.selectAll("*").remove();
-  if (props.xAxisLabel && props.xAxisLabel !== "") {
+  if (props.xAxisLabel) {
     axisTitles
       .append("text")
       .attr("class", "fill-chart-text text-body-base")
       .attr("x", width.value / 2)
       .attr("y", () => {
-        const minY = Math.min(
-          props.data.map((row: DatasetRow) => row[props.yvar])
-        );
-        if (minY < 0) {
-          return yScale.value(minY) + internalBottomMargin.value;
+        if (yAxisData.value.min < 0) {
+          return yScale.value(yAxisData.value.min) + internalBottomMargin.value;
         } else {
           return yScale.value(0) + internalBottomMargin.value * 0.8;
         }
@@ -323,7 +305,7 @@ function renderChartAxisTitles() {
       .text(props.xAxisLabel);
   }
 
-  if (props.yAxisLabel && props.yAxisLabel !== "") {
+  if (props.yAxisLabel) {
     axisTitles
       .append("text")
       .attr("class", "fill-chart-text -rotate-90 text-body-base")
@@ -364,23 +346,11 @@ watch(
 </script>
 
 <template>
-  <div ref="container" class="grid gap-2.5 w-full" :class="chartLayoutCss">
+  <div ref="container" class="grid gap-2.5 w-full chart_layout_default">
     <ChartContext
       :title="title"
       :description="description"
       style="grid-area: context"
-    />
-    <ChartLegend
-      v-if="legendIsEnabled"
-      :legend-id="id"
-      :data="colorPalette"
-      :stack-legend="legendIsStacked"
-      :enable-hovering="legendHoverEventsAreEnabled"
-      style="grid-area: legend"
-      class="mb-2.5"
-      :class="{
-        'm-auto': legendIsEnabled && legendPosition === 'bottom',
-      }"
     />
     <div style="grid-area: chart">
       <svg

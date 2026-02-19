@@ -20,7 +20,7 @@ export interface ChartLegendOptions {
   legendHoverEventsAreEnabled?: boolean;
 }
 
-export interface ChartOptions extends ChartLegendOptions {
+export interface ChartOptions {
   hoverEventsAreEnabled?: boolean;
   clickEventsAreEnabled?: boolean;
   animationsAreEnabled?: boolean;
@@ -29,7 +29,7 @@ export interface ChartOptions extends ChartLegendOptions {
 export type PieChartData = Record<string, number>;
 export type ColorPalette = Record<string, string>;
 
-export interface PieCharts extends Charts, ChartOptions {
+export interface PieCharts extends Charts, ChartOptions, ChartLegendOptions {
   data: PieChartData;
   margins?: number;
   colorPalette?: ColorPalette;
@@ -57,12 +57,14 @@ export interface ColumnCharts extends Charts, ChartOptions {
   marginRight?: number;
   marginBottom?: number;
   marginLeft?: number;
-  showGridLines?: boolean;
+  enableGridlines?: boolean;
 }
 
 export interface NumericAxisTickData {
   limit: number;
   ticks: number[];
+  min: number;
+  max: number;
 }
 
 export interface CategoricalAxisTickData {
