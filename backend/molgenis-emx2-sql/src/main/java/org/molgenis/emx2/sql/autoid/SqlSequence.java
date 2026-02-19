@@ -4,6 +4,7 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Operator;
 import org.jooq.exception.DataAccessException;
+import org.jooq.exception.DataException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.MolgenisException;
 
@@ -63,6 +64,8 @@ public class SqlSequence {
       return jooq.select(DSL.field("nextval('" + DSL.name(schema, name) + "')", Long.class))
           .fetchOne()
           .value1();
+    } catch (DataException e) {
+      throw new MolgenisException("Unable to generate value for sequence");
     } catch (DataAccessException e) {
       throw new MolgenisException("No sequence with name: " + name + " for schema: " + schema);
     }
