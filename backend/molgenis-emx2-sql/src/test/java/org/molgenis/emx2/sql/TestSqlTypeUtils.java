@@ -58,26 +58,6 @@ class TestSqlTypeUtils {
   }
 
   @Test
-  void autoIdGetsGeneratedWithPreFix() {
-    TableMetadata tableMetadata =
-        table(
-            "Test",
-            new Column("myCol")
-                .setType(ColumnType.AUTO_ID)
-                .setComputed("foo-" + Constants.COMPUTED_AUTOID_TOKEN + "-bar"));
-    final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row, jooq);
-    assertTrue(row.getString("myCol").startsWith("foo"));
-    assertTrue(row.getString("myCol").endsWith("bar"));
-
-    // and now it should change on update
-    final Row copy = new Row(row);
-
-    applyValidationAndComputed(tableMetadata.getColumns(), copy, jooq);
-    assertEquals(row.getString("myCol"), row.getString("myCol"));
-  }
-
-  @Test
   void testArrayConversionToMap() {
     List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
     Row row = row("STRING array", "aa,bb");

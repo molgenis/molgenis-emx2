@@ -7,13 +7,18 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.utils.generator.AutoIdFormat;
 import org.molgenis.emx2.utils.generator.FeistelIdRandomizer;
 import org.molgenis.emx2.utils.generator.IdGenerator;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class ColumnSequenceIdGenerator implements IdGenerator {
 
   private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?<func>\\$\\{mg_autoid[^}]*})");
+  private static final String SNOWFLAKE_PLACEHOLDER = "%sf%";
+  private static final SnowflakeIdGenerator SNOWFLAKE_ID_GENERATOR =
+      SnowflakeIdGenerator.getInstance();
 
   private final List<AutoIdFormat> formats;
   private final String format;
@@ -24,23 +29,32 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
       throw new IllegalArgumentException("Column needs to have a computed value");
     }
 
-    try (Scanner scanner = new Scanner(column.getComputed())) {
+    String computedFormat =
+        column.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, SNOWFLAKE_PLACEHOLDER);
+
+    try (Scanner scanner = new Scanner(computedFormat)) {
       formats =
           scanner
               .findAll(FUNCTION_PATTERN)
               .map(MatchResult::group)
               .map(AutoIdFormat::fromComputedString)
               .toList();
-      format = column.getComputed().replaceAll(FUNCTION_PATTERN.pattern(), "%s");
 
-      String name = getSequenceNameForColumn(column);
-      if (!SqlSequence.exists(jooq, column.getSchemaName(), column.getName())) {
-        long limit = getCollectiveSequenceLimit(formats);
-        sequence = SqlSequence.create(jooq, column.getSchemaName(), name, limit);
+      if (formats.isEmpty()) {
+        sequence = null;
       } else {
-        sequence = new SqlSequence(jooq, column.getSchemaName(), name);
+        computedFormat = computedFormat.replaceAll(FUNCTION_PATTERN.pattern(), "%s");
+        String name = getSequenceNameForColumn(column);
+        if (!SqlSequence.exists(jooq, column.getSchemaName(), column.getName())) {
+          long limit = getCollectiveSequenceLimit(formats);
+          sequence = SqlSequence.create(jooq, column.getSchemaName(), name, limit);
+        } else {
+          sequence = new SqlSequence(jooq, column.getSchemaName(), name);
+        }
       }
     }
+
+    format = computedFormat;
   }
 
   private static String getSequenceNameForColumn(Column column) {
@@ -58,17 +72,23 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
 
   @Override
   public String generateId() {
-    long nextValue = sequence.nextValue() - 1; // Sequences start counting at 1, not at 0
-    long randomized = new FeistelIdRandomizer(sequence.limit()).randomize(nextValue);
+    String result = format.replace(SNOWFLAKE_PLACEHOLDER, SNOWFLAKE_ID_GENERATOR.generateId());
 
-    List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
-    List<Long> numbers = LongPack.fromValue(randomized, maxValues).numbers();
+    if (!formats.isEmpty()) {
+      long nextValue = sequence.nextValue() - 1; // Sequences start counting at 1, not at 0
+      long randomized = new FeistelIdRandomizer(sequence.limit()).randomize(nextValue);
 
-    List<String> idValues = new ArrayList<>();
-    for (int i = 0; i < numbers.size(); i++) {
-      AutoIdFormat currentFormat = formats.get(i);
-      idValues.add(currentFormat.mapToFormat(numbers.get(i)));
+      List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
+      List<Long> numbers = LongPack.fromValue(randomized, maxValues).numbers();
+
+      List<String> idValues = new ArrayList<>();
+      for (int i = 0; i < numbers.size(); i++) {
+        AutoIdFormat currentFormat = formats.get(i);
+        idValues.add(currentFormat.mapToFormat(numbers.get(i)));
+      }
+      return result.formatted(idValues.toArray());
     }
-    return format.formatted(idValues.toArray());
+
+    return result;
   }
 }

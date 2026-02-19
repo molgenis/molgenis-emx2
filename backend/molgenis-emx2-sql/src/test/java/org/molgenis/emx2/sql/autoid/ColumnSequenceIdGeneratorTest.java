@@ -67,6 +67,15 @@ class ColumnSequenceIdGeneratorTest {
   }
 
   @Test
+  void givenColumnWithAutoId_thenSetUpSequenceWithRelatedName() {
+    String computed = "FOO-${mg_autoid(length=3, format=numbers)}}-BAR";
+    Column column = addColumnWithComputedToSchema(computed);
+    new ColumnSequenceIdGenerator(column, jooq);
+    String expectedSequenceName = SCHEMA_NAME + "-" + column.getName() + "-" + computed.hashCode();
+    assertTrue(SqlSequence.exists(jooq, SCHEMA_NAME, expectedSequenceName));
+  }
+
+  @Test
   void shouldHandleMultiple() {
     Column column =
         addColumnWithComputedToSchema(
