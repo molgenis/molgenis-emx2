@@ -12,6 +12,7 @@ import {
   isJsonObjectOrArray,
   buildGraphqlFilter,
   isInvalidBigInt,
+  readableStringArray,
 } from "./formUtils";
 import { ITableMetaData, IColumn } from "metadata-utils/src/types.js";
 const { AUTO_ID, HEADING } = constants;
@@ -195,7 +196,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ email: "Invalid email address" });
+    expect(result.email).to.contain("invalid email address");
   });
 
   test("it should return no error for a valid UUID ARRAY", () => {
@@ -218,9 +219,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      uuid: "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'",
-    });
+    expect(result.uuid).to.contain("must use a valid UUID format");
   });
 
   test("it should return no error for a valid hyperlink array", () => {
@@ -240,7 +239,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "hyperlink", columnType: "HYPERLINK_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
+    expect(result.hyperlink).to.contain("invalid hyperlink");
   });
 
   test("it should return no error for a valid long", () => {
@@ -456,9 +455,9 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer(s)",
-    });
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
   });
 
   test("it should return an error for an invalid non negative integer array", () => {
@@ -469,9 +468,9 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer(s)",
-    });
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
   });
 
   test("it should return no error for a successful validation", () => {
@@ -620,6 +619,32 @@ describe("getSaveDisabledMessage", () => {
     const rowErrors = { id1: "some error", id2: "another error" };
     const result = getSaveDisabledMessage(rowErrors);
     expect(result).to.equal("There are 2 error(s) preventing saving");
+  });
+});
+
+describe("readableStringArray", () => {
+  test("it should return a readable string from an array of strings", () => {
+    const array = ["apple", "banana", "cherry"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple', 'banana' and 'cherry' are healthy");
+  });
+
+  test("it should handle arrays with one item", () => {
+    const array = ["apple"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' is healthy");
+  });
+
+  test("it should handle arrays with two items", () => {
+    const array = ["apple", "banana"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' and 'banana' are healthy");
+  });
+
+  test("it should handle empty arrays", () => {
+    const array: string[] = [];
+    const result = readableStringArray(array);
+    expect(result).toEqual("");
   });
 });
 
