@@ -29,11 +29,12 @@ public class ServeStaticFile {
       } else if (jarPath.getParent() != null) {
         /* Running from IDE/CLI (classes folder) */
         Path emx2Home = jarPath.getParent();
-        if (!emx2Home.toString().endsWith("molgenis-emx2")) {
-          do {
-            emx2Home = emx2Home.getParent();
-          } while (!emx2Home.toString().endsWith("molgenis-emx2"));
-        }
+
+        do {
+          emx2Home = emx2Home.getParent();
+        } while (!emx2Home.toString().endsWith("molgenis-emx2")
+            || !emx2Home.toString().endsWith("molgenis")); /* latter is for CircleCi */
+
         return emx2Home;
       } else {
         String classFile = ServeStaticFile.class.getName().replace('.', '/') + ".class";
@@ -41,7 +42,7 @@ public class ServeStaticFile {
         return Paths.get(resource.toURI());
       }
     } catch (Exception e) {
-      throw new MolgenisException("Cannot determine JAR location " + jarPath.toString(), e);
+      throw new MolgenisException("Cannot determine JAR location", e);
     }
   }
 
