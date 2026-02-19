@@ -34,7 +34,7 @@
     "@popperjs/core": "2.11.8",
     "@vueuse/core": "10.7.0",
     "@vueuse/integrations": "10.7.0",
-    "axios": "1.12.0",
+    "axios": "1.13.5",
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "graphql-request": "6.1.0",
