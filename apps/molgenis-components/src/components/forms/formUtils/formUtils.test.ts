@@ -865,6 +865,21 @@ describe("buildGraphqlFilter", () => {
     });
   });
 
+  test("it should set an equals filter for a select column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "SELECT",
+        id: "selectColumn",
+        conditions: ["option1"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      selectColumn: { equals: ["option1"] },
+    });
+  });
+
   test("it should call the error callback for invalid column types", () => {
     const columns: IColumn[] = [
       {

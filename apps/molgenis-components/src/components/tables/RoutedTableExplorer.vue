@@ -39,8 +39,8 @@
 </template>
 
 <script>
-import TableExplorer from "./TableExplorer.vue";
 import { deepClone } from "../utils";
+import TableExplorer from "./TableExplorer.vue";
 
 export default {
   name: "RoutedTableExplorer",
@@ -215,6 +215,7 @@ export default {
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
             case "RADIO":
+            case "SELECT":
             case "MULTISELECT":
               query[column.id] = JSON.stringify(conditions);
               break;
