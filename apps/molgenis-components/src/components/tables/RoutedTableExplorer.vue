@@ -39,8 +39,8 @@
 </template>
 
 <script>
-import TableExplorer from "./TableExplorer.vue";
 import { deepClone } from "../utils";
+import TableExplorer from "./TableExplorer.vue";
 
 export default {
   name: "RoutedTableExplorer",
