@@ -170,7 +170,8 @@ jobs:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
           GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
-          MAX_RETRIES=40
+          #DP 10 voor het te forceren
+          MAX_RETRIES=10
           RETRY=0
           
           while true; do
@@ -189,6 +190,16 @@ jobs:
             RETRY=$((RETRY + 1))
             if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
             echo "❌ Gave up after $MAX_RETRIES attempts"
+
+            echo "📌 Pods in namespace $NS:"
+            kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o wide
+
+            echo "📌 Events:"
+            kubectl get events -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" --sort-by=.metadata.creationTimestamp | tail -n 40
+
+            echo "📌 Logs from backend:"
+            kubectl logs -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -l app=emx2-backend --tail=200
+
             exit 1
             fi
             
