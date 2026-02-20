@@ -8,7 +8,6 @@ import static org.molgenis.emx2.ColumnType.INT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
-import graphql.GraphQL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -19,7 +18,7 @@ class GraphqlSchemaFieldFactoryChangelogTest {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  private GraphQL graphql;
+  private GraphqlExecutor graphql;
 
   @BeforeEach
   void setup() {
@@ -39,7 +38,7 @@ class GraphqlSchemaFieldFactoryChangelogTest {
     person.insert(new Row("ID", 2).set("First_Name", "Jaskier").set("Last_Name", "Dandelion"));
     person.insert(new Row("ID", 3).set("First_Name", "Ciri").set("Last_Name", "of Cintra"));
 
-    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+    graphql = new GraphqlExecutor(schema, taskService);
   }
 
   @Test
@@ -76,7 +75,7 @@ class GraphqlSchemaFieldFactoryChangelogTest {
   }
 
   private Change[] queryChanges(String query) {
-    ExecutionResult execute = graphql.execute(query);
+    ExecutionResult execute = graphql.executeWithoutSession(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("_changes");
     return MAPPER.convertValue(jsonNode, Change[].class);
   }
