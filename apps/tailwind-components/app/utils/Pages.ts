@@ -96,6 +96,16 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
                         width
                         height
                         imageIsCentered
+                        
+                        # navigation groups and cards
+                        links {
+                            title
+                            description
+                            url
+                            urlLabel
+                            urlIsExternal
+                        }
+                        
                     }
                 }
             }

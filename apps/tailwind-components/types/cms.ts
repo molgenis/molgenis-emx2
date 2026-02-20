@@ -97,7 +97,9 @@ export interface IComponents
     IOrderedLists,
     IParagraphs,
     ITextElements,
-    IUnorderedLists {
+    IUnorderedLists,
+    INavigationGroups,
+    INavigationCards {
   mg_tableclass?: string;
   id: string;
   inBlock?: any;
@@ -166,6 +168,21 @@ export interface IUnorderedLists {
   id: string;
   inBlock?: any;
   items?: string[];
+}
+
+export interface INavigationGroups {
+  mg_tableclass?: string;
+  id: string;
+  links?: INavigationCards[];
+}
+
+export interface INavigationCards {
+  title?: string;
+  description?: string;
+  url?: string;
+  urlLabel?: string;
+  urlIsExternal?: boolean;
+  displayedInNavigationGroup?: INavigationGroups[];
 }
 
 export interface IWebFetchPriorities {
