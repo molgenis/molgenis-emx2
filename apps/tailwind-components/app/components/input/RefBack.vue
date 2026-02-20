@@ -12,7 +12,7 @@ import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
-import { computed, ref, watch } from "vue";
+import { computed, ref, unref, watch, type MaybeRef } from "vue";
 import Message from "../Message.vue";
 import Button from "../Button.vue";
 
@@ -24,7 +24,7 @@ const props = withDefaults(
       refLabel: string;
       canEdit?: boolean;
       refBackColumn: string;
-      refBackPrimaryKey?: columnValue;
+      refBackPrimaryKey?: MaybeRef<columnValue>;
     }
   >(),
   {
@@ -34,11 +34,12 @@ const props = withDefaults(
 
 const modelValue = defineModel<columnValueObject[] | null>();
 
-const hasPrimaryKey = computed(() =>
-  props.refBackPrimaryKey
-    ? Boolean(Object.values(props.refBackPrimaryKey).length)
-    : false
-);
+const hasPrimaryKey = computed(() => {
+  const primaryKey = unref(props.refBackPrimaryKey);
+  return primaryKey && typeof primaryKey === "object"
+    ? Boolean(Object.values(primaryKey).length)
+    : false;
+});
 
 const metadata = await fetchTableMetadata(props.refSchemaId, props.refTableId);
 
@@ -46,7 +47,7 @@ async function reloadItems() {
   const resp = await fetchTableData(props.refSchemaId, props.refTableId, {
     filter: {
       [props.refBackColumn]: {
-        equals: props.refBackPrimaryKey,
+        equals: unref(props.refBackPrimaryKey),
       },
     },
   });
@@ -133,7 +134,7 @@ function afterRowEdited(row: columnValueObject) {
 
 const addModalConstantValues = computed(() => {
   const result: IRow = {};
-  result[props.refBackColumn as string] = props.refBackPrimaryKey;
+  result[props.refBackColumn as string] = unref(props.refBackPrimaryKey);
   return result;
 });
 </script>

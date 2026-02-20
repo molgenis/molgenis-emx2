@@ -13,7 +13,6 @@ test.describe(
   () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
-      await page.getByText("_top", { exact: true }).click({ delay: 300 });
     });
 
     test("it should update the model value when a field is filled out", async ({

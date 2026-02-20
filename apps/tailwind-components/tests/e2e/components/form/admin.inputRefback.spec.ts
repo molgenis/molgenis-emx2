@@ -23,8 +23,11 @@ test("adding an order via the pet.order refback should update the parent (pet), 
     .fill("3");
   await page.getByRole("textbox", { name: "price" }).click();
   await page.getByRole("textbox", { name: "price" }).fill("3");
-  await page.locator("#fields-container #status-form-field-input").click();
-  await page.locator("#fields-container #status-form-field-input").fill("e2e");
+  const statusInput = await page.locator(
+    '[id="pet store-Order-status-form-field-input"]'
+  );
+  await statusInput.click();
+  await statusInput.fill("e2e");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   // test the order appears in the pet order refback list
   const orders = page.locator("ul.border.divide-y > li");

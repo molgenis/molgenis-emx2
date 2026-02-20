@@ -48,7 +48,7 @@ test("performance of the ontology input should not degrade", async ({
 
   await page
     .locator(
-      "#hpo-form-field-input-ontology > .flex.items-center.justify-between"
+      '[id="patient registry demo-Subject-hpo-form-field-input-ontology"] > .flex.items-center.justify-between'
     )
     .click();
   await page.getByPlaceholder("Search in terms").fill("cystic");
