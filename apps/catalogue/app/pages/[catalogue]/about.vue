@@ -10,6 +10,7 @@
           { id: 'intro', label: 'Introduction' },
           { id: 'standards', label: 'Standards' },
           { id: 'contact', label: 'Contact' },
+          { id: 'registration', label: 'Registration Process for UMCG Research Data Catalogue' },
           { id: 'privacy', label: 'Privacy' },
           { id: 'terms', label: 'Terms' },
           { id: 'other', label: 'Links' },
@@ -130,7 +131,7 @@
           >.
         </ContentBlock>
         <ContentBlock
-          id="privacy"
+          id="registration"
           title="Registration Process for UMCG Research Data Catalogue"
         >
           If you wish to register your UMCG resource (data and/or sample
