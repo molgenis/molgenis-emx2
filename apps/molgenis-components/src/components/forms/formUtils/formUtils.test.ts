@@ -502,7 +502,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      validation: "Applying validation rule returned error: validation > 1",
+      validation: "validation > 1",
     });
   });
 
