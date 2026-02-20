@@ -11,7 +11,6 @@ import static org.molgenis.emx2.sql.SqlQuery.SUM_FIELD;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import graphql.ExecutionResult;
-import graphql.GraphQL;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -175,9 +174,9 @@ public class TestSumQuery {
     assertTrue(json.contains("9")); // for Type b, Type a
 
     // test that the graphql also works
-    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+    GraphqlExecutor graphql = new GraphqlExecutor(schema);
     ExecutionResult result =
-        graphql.execute(
+        graphql.executeWithoutSession(
             """
             {Samples_groupBy {
               count

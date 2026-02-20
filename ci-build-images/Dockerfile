@@ -26,7 +26,7 @@ RUN npm --version
 # Install pnpm (via Corepack)
 # ------------------------
 RUN corepack enable
-RUN corepack prepare pnpm@10.24.0 --activate
+RUN corepack prepare pnpm@latest --activate
 RUN pnpm --version
 
 USER root 
