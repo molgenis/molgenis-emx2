@@ -3,13 +3,10 @@ package org.molgenis.emx2.web.service;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
-import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
 
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.List;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +16,6 @@ public class CatalogueSiteMap {
 
   private static final String TYPE_NETWORK = "Network";
   private static final String RESOURCE = "resource";
-
-  private enum ResourcePath {
-    networks,
-    collections,
-  }
 
   private final Schema schema;
   private final String baseUrl;
@@ -42,20 +34,18 @@ public class CatalogueSiteMap {
             "Expected table 'Resources' not found in schema: %s".formatted(schema.getName()));
       }
       resourceTable
-          .select(s("id"), s("type"))
+          .select(s("id"))
           .retrieveRows()
           .forEach(
               resource -> {
-                String collectionId = resource.getString("id");
-                ResourcePath resourcePath = getResourcePath(resource);
+                String resourceId = resource.getString("id");
                 try {
-                  wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
+                  wsg.addUrl(urlForResource(baseUrl, resourceId));
                 } catch (MalformedURLException e) {
                   logger.error(
-                      "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
+                      "Failed to generate sitemap url (schema: {} , id: {}",
                       schema.getName(),
-                      resourcePath.name(),
-                      collectionId,
+                      resourceId,
                       e);
                 }
               });
@@ -89,25 +79,10 @@ public class CatalogueSiteMap {
     }
   }
 
-  private ResourcePath getResourcePath(Row resource) {
-    List<String> types = Arrays.asList(resource.getStringArray("type", false));
-    // no switch bool in java 21
-    if (types.contains(TYPE_NETWORK)) {
-      return ResourcePath.networks;
-    } else {
-      return ResourcePath.collections;
-    }
-  }
-
-  private WebSitemapUrl urlForResource(
-      String resourceBasePath, ResourcePath resourcePath, String resourceId)
+  private WebSitemapUrl urlForResource(String resourceBasePath, String resourceId)
       throws MalformedURLException {
     return new WebSitemapUrl.Options(
-            "%s/all/%s/%s"
-                .formatted(
-                    resourceBasePath,
-                    encodePathSegment(resourcePath.name()),
-                    encodePathSegment(resourceId)))
+            "%s/%s".formatted(resourceBasePath, encodePathSegment(resourceId)))
         .build();
   }
 
@@ -116,22 +91,13 @@ public class CatalogueSiteMap {
     String resource = variable.getString(RESOURCE);
     String dataset = variable.getString("dataset");
 
-    // human-readable key
-    String variableIdPathSegment = String.join("-", variableId, resource, dataset, resource);
-
-    // JSON query parameter value
-    String variableIdQueryParamValue =
-        String.format(
-            "{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"},\"dataset\":{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"}}}",
-            variableId, resource, dataset, resource);
-
-    // note segment and query have their own encoding
     return new WebSitemapUrl.Options(
-            "%s/all/variables/%s%s"
+            "%s/%s/datasets/%s/%s"
                 .formatted(
                     baseUrl,
-                    encodePathSegment(variableIdPathSegment),
-                    "?keys=" + encodeQueryParam(variableIdQueryParamValue)))
+                    encodePathSegment(resource),
+                    encodePathSegment(dataset),
+                    encodePathSegment(variableId)))
         .build();
   }
 }

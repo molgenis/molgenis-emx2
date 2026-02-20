@@ -12,7 +12,7 @@ import InputTree from "../../../../tailwind-components/app/components/input/Tree
 const props = withDefaults(
   defineProps<{
     tableId: string;
-    filter: Record<string, IFilter>;
+    filter: Record<string, unknown>;
     modelValue: IFilterCondition[];
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;

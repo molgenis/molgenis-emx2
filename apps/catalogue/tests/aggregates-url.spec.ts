@@ -11,11 +11,11 @@ test.describe("Aggregates URL", () => {
       },
     ]);
 
-    await goto("/FORCE-NEN%20collections", { waitUntil: "hydration" });
+    await goto("/FORCE-NEN", { waitUntil: "hydration" });
   });
 
   test.afterEach(async ({ goto }) => {
-    await goto("/FORCE-NEN%20collections", { waitUntil: "hydration" });
+    await goto("/FORCE-NEN", { waitUntil: "hydration" });
   });
 
   test("Aggregates URLs are properly defined", async ({ page }) => {

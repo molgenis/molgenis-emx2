@@ -2,8 +2,7 @@
 import dateUtils from "~/utils/dateUtils";
 import type { IResources } from "../../interfaces/catalogue";
 import { computed, ref, watch } from "vue";
-import { useRoute } from "#app";
-import { useDatasetStore } from "#imports";
+import { useCatalogueContext, useDatasetStore } from "#imports";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
@@ -11,8 +10,6 @@ import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 const datasetStore = useDatasetStore();
 
 const cutoff = 250;
-
-const route = useRoute();
 
 const props = withDefaults(
   defineProps<{
@@ -58,6 +55,9 @@ function onInput() {
 watch([datasetStore.datasets], () => {
   isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
 });
+
+const { resourceUrl: buildResourceUrl } = useCatalogueContext();
+const resourceUrl = computed(() => buildResourceUrl(props.resource.id));
 </script>
 
 <template>
@@ -66,7 +66,7 @@ watch([datasetStore.datasets], () => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${catalogue}/${route.params.resourceType}/${resource.id}`"
+            :to="resourceUrl"
             class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
           >
             {{ resource?.acronym || resource?.name }}
@@ -97,7 +97,7 @@ watch([datasetStore.datasets], () => {
             @input="onInput"
           />
         </label>
-        <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
+        <NuxtLink :to="resourceUrl">
           <IconButton
             icon="arrow-right"
             class="text-link hidden xl:flex xl:justify-end"
