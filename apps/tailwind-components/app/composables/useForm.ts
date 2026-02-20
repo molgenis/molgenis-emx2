@@ -225,11 +225,15 @@ export default function useForm(
   const gotoSection = (id: string) => {
     sections.value.forEach((section) => {
       if (section.id === id) {
-        scrollTo(id + "-form-field");
+        scrollTo(
+          `${metadata.value.schemaId}-${metadata.value.id}-${id}-form-field`
+        );
       }
       section.headers.forEach((header) => {
         if (header.id === id) {
-          scrollTo(id + "-form-field");
+          scrollTo(
+            `${metadata.value.schemaId}-${metadata.value.id}-${id}-form-field`
+          );
         }
       });
     });

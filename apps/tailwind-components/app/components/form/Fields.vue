@@ -18,12 +18,14 @@ const observerOptions = {
 
 const columns = computed(() => props.form.visibleColumns.value);
 
+const prefix = `${props.form.metadata.value.schemaId}-${props.form.metadata.value.id}`;
+
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);
 
   if (highest) {
     const col = columns.value.find(
-      (c) => highest.target.id === `${c.id}-form-field`
+      (c) => highest.target.id === `${prefix}-${c.id}-form-field`
     );
     if (col) {
       props.form.onViewColumn(col);
@@ -33,7 +35,7 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const leaving = entries.find((entry) => entry.isIntersecting === false);
   if (leaving) {
     const col = columns.value.find(
-      (c) => leaving.target.id === `${c.id}-form-field`
+      (c) => leaving.target.id === `${prefix}-${c.id}-form-field`
     );
     if (col) {
       props.form.onLeaveViewColumn(col);
@@ -46,7 +48,7 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   <template v-for="column in columns" :key="column.id">
     <div
       v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
-      :id="`${column.id}-form-field`"
+      :id="`${prefix}-${column.id}-form-field`"
     >
       <h2
         class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"

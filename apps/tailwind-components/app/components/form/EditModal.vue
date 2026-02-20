@@ -231,7 +231,6 @@ const errorMessage = computed(() => {
 });
 
 function gotoSection(sectionId: string) {
-  console.log("Going to section", sectionId);
   form?.gotoSection(sectionId);
 }
 
