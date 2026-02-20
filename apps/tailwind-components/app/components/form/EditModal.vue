@@ -154,6 +154,7 @@ import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
+import FormLegend from "./Legend.vue";
 import useForm, { type UseForm } from "../../composables/useForm";
 
 const props = withDefaults(
