@@ -2,11 +2,10 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.GraphQL;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ public class TestGraphqlCrossSchemaRefs {
   private static final String schemaName1 = TestGraphqlCrossSchemaRefs.class.getSimpleName() + "1";
   private static final String schemaName2 = TestGraphqlCrossSchemaRefs.class.getSimpleName() + "2";
 
-  private static GraphQL graphql;
+  private static GraphqlExecutor graphql;
   private static Schema schema1;
   private static Schema schema2;
 
@@ -35,7 +34,7 @@ public class TestGraphqlCrossSchemaRefs {
     schema2 = database.createSchema(schemaName2);
 
     CrossSchemaReferenceExample.create(schema1, schema2);
-    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema2);
+    graphql = new GraphqlExecutor(schema2);
   }
 
   @Test
@@ -63,7 +62,7 @@ public class TestGraphqlCrossSchemaRefs {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(graphql.execute(query));
+    String result = convertExecutionResultToJson(graphql.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

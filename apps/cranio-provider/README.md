@@ -12,7 +12,6 @@ cranio-provider
         - Surgical overview for the current center
     - Cleft lip and palate
         - Overview for the current center
-        - Overview for all centers
     - Genetic Deafness (TBD)
     - Larynxcleft (TBD)
 ```
