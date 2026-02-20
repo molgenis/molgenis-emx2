@@ -10,7 +10,10 @@
           { id: 'intro', label: 'Introduction' },
           { id: 'standards', label: 'Standards' },
           { id: 'contact', label: 'Contact' },
-          { id: 'registration', label: 'Registration Process for UMCG Research Data Catalogue' },
+          {
+            id: 'registration',
+            label: 'Registration Process for UMCG Research Data Catalogue',
+          },
           { id: 'privacy', label: 'Privacy' },
           { id: 'terms', label: 'Terms' },
           { id: 'other', label: 'Links' },
@@ -139,23 +142,23 @@
           datasets can be registered, including cohort studies, biobanks,
           registers, clinical studies and trials, etc. In the catalogue, only
           metadata is registered, not actual research data or outcomes.
-          <ol>
+          <ol class="list-decimal ml-4 mt-2.5 [&_li]:mb-1.5">
             <li>
               Send an email to
               <a
-            href="mailto:researchdatacatalogue@umcg.nl"
-            rel="noopener noreferrer"
-            target="_blank"
-            class="text-link underline hover:bg-link-hover"
-            >researchdatacatalogue@umcg.nl</a
+                href="mailto:researchdatacatalogue@umcg.nl"
+                rel="noopener noreferrer"
+                target="_blank"
+                class="text-link underline hover:bg-link-hover"
+                >researchdatacatalogue@umcg.nl</a
               >
               with information, including the title of your study (and if
               available the abbreviation) and the people (name and email
               address) who need access and/or will be filling in the metadata.
             </li>
             <li>
-              A staging area (metadata entry portal) for the catalogue will
-              be created and you will be granted access using your UMCG login
+              A staging area (metadata entry portal) for the catalogue will be
+              created and you will be granted access using your UMCG login
               credentials. You will receive a manual which explains the most
               important steps for entering the metadata.
             </li>
@@ -165,12 +168,12 @@
               website as the source of the material transferred.
             </li>
             <li>
-              Contact us after completing the metadata, so that we can put
-              the page online.
+              Contact us after completing the metadata, so that we can put the
+              page online.
             </li>
             <li>
-              A persistent URL (DOI) will be created which you can use for
-              your publications and your study will be put online.
+              A persistent URL (DOI) will be created which you can use for your
+              publications and your study will be put online.
             </li>
           </ol>
         </ContentBlock>
