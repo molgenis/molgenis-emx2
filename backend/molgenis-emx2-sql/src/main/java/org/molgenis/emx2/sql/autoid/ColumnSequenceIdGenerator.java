@@ -97,8 +97,8 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
     String result = format.replace(SNOWFLAKE_PLACEHOLDER, SNOWFLAKE_ID_GENERATOR.generateId());
 
     if (!formats.isEmpty()) {
-      long nextValue = sequence.nextValue() - 1; // Sequences start counting at 1, not at 0
-      long randomized = new FeistelIdRandomizer(sequence.limit(), key).randomize(nextValue);
+      long nextValue = sequence.getNextValue() - 1; // Sequences start counting at 1, not at 0
+      long randomized = new FeistelIdRandomizer(sequence.getLimit(), key).randomize(nextValue);
 
       List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
       List<Long> numbers = LongPack.fromValue(randomized, maxValues).numbers();

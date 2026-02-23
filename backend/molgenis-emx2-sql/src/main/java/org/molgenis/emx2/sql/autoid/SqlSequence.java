@@ -7,8 +7,9 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.exception.DataException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Sequence;
 
-public class SqlSequence {
+public class SqlSequence implements Sequence {
 
   private final DSLContext jooq;
   private final String name;
@@ -41,7 +42,8 @@ public class SqlSequence {
         .isNotEmpty();
   }
 
-  public long currentValue() {
+  @Override
+  public long getCurrentValue() {
     try {
       Long currentValue =
           jooq.select(
@@ -59,7 +61,8 @@ public class SqlSequence {
     }
   }
 
-  public long nextValue() {
+  @Override
+  public long getNextValue() {
     try {
       return jooq.select(DSL.field("nextval('" + DSL.name(schema, name) + "')", Long.class))
           .fetchOne()
@@ -71,7 +74,8 @@ public class SqlSequence {
     }
   }
 
-  public long limit() {
+  @Override
+  public long getLimit() {
     List<Long> limit =
         jooq.select(DSL.field("maximum_value"))
             .from("information_schema.sequences")

@@ -81,4 +81,6 @@ public interface Schema {
   Table getTableByNameOrIdCaseInsensitive(String name);
 
   boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
+
+  List<Sequence> getSequences();
 }

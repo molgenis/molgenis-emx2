@@ -116,7 +116,7 @@ class ColumnSequenceIdGeneratorTest {
             + HexFormat.of().toHexDigits(column.getComputed().hashCode());
     assertTrue(SqlSequence.exists(jooq, SCHEMA_NAME, name));
     SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, name);
-    assertEquals(expectedLimit, sequence.limit());
+    assertEquals(expectedLimit, sequence.getLimit());
   }
 
   private Column addColumnWithComputedToSchema(String computed) {

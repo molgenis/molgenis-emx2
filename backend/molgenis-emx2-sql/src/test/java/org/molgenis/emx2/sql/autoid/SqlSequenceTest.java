@@ -49,43 +49,43 @@ class SqlSequenceTest {
   }
 
   @Test
-  void givenExistingSequence_thenReturnCurrentValue() {
+  void givenExistingSequence_thenReturnGetCurrentValue() {
     SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "current_value", 123);
-    assertEquals(0, sequence.currentValue());
-    sequence.nextValue();
-    assertEquals(1, sequence.currentValue());
+    assertEquals(0, sequence.getCurrentValue());
+    sequence.getNextValue();
+    assertEquals(1, sequence.getCurrentValue());
   }
 
   @Test
-  void givenNonExistingSequence_whenCurrentValue_thenThrow() {
+  void givenNonExistingSequence_whenGetCurrentValue_thenThrow() {
     SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, "non-existing");
-    assertThrows(MolgenisException.class, sequence::currentValue);
+    assertThrows(MolgenisException.class, sequence::getCurrentValue);
   }
 
   @Test
-  void givenExistingSequence_thenReturnNextValue() {
+  void givenExistingSequence_thenReturnGetNextValue() {
     SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "next_value", 123);
-    assertEquals(1, sequence.nextValue());
-    assertEquals(2, sequence.nextValue());
-    assertEquals(3, sequence.nextValue());
+    assertEquals(1, sequence.getNextValue());
+    assertEquals(2, sequence.getNextValue());
+    assertEquals(3, sequence.getNextValue());
   }
 
   @Test
-  void givenNonExistingSchema_whenRequestingNextValue_thenThrow() {
+  void givenNonExistingSchema_whenRequestingGetNextValue_thenThrow() {
     SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, "non-existing");
-    assertThrows(MolgenisException.class, sequence::nextValue);
+    assertThrows(MolgenisException.class, sequence::getNextValue);
   }
 
   @Test
   void givenSequence_thenGetLimit() {
     SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "get_limit", 1234);
-    assertEquals(1234, sequence.limit());
+    assertEquals(1234, sequence.getLimit());
   }
 
   @Test
-  void givenNonExistingSequence_whenRequestingLimit_thenThrow() {
+  void givenNonExistingSequence_whenRequestingGetLimit_thenThrow() {
     SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, "get_limit");
-    assertThrows(MolgenisException.class, sequence::limit);
+    assertThrows(MolgenisException.class, sequence::getLimit);
   }
 
   @Test
