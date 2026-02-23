@@ -2,7 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.jsonld.RestOverGraphql.*;
+import static org.molgenis.emx2.rdf.jsonld.JsonLdUtils.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.DownloadApiUtils.*;
 

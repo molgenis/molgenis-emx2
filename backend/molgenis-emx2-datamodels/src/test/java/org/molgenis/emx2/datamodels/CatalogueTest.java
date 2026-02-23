@@ -2,8 +2,8 @@ package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.jsonld.RestOverGraphql.convertToTurtle;
 import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
+import static org.molgenis.emx2.rdf.jsonld.JsonLdUtils.convertToTurtle;
 
 import java.util.Map;
 import org.junit.jupiter.api.Disabled;
@@ -49,7 +49,7 @@ public class CatalogueTest extends TestLoaders {
         String.format(
             "query($limit:Int){%s(limit:$limit){...%sAllFields}}",
             resourcesIdentifier, resourcesIdentifier);
-    //todo: make useful select and filter
+    // todo: make useful select and filter
     Map filteredData = graphqlExecutor.queryAsMap(filteredQuery, Map.of("limit", 1));
     String filteredTtl = convertToTurtle(context, filteredData);
 

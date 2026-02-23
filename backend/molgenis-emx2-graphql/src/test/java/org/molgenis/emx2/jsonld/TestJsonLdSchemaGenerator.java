@@ -7,8 +7,8 @@ import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.TYPE_TEST;
-import static org.molgenis.emx2.jsonld.RestOverGraphql.*;
 import static org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchemaAsMap;
+import static org.molgenis.emx2.rdf.jsonld.JsonLdUtils.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -89,9 +89,15 @@ public class TestJsonLdSchemaGenerator {
     Schema schema = database.getSchema(schemaName);
     schema.getTable("Types").insert(createTypeTestRow());
     GraphqlExecutor graphQL = new GraphqlExecutor(schema);
-    String ttl = getTableAsTurtle(graphQL, "Types", "http://localhost:8080");
+    String schemaUrl = "http://localhost:8080";
+    Map jsonLdSchema = generateJsonLdSchemaAsMap(schema.getMetadata(), schemaUrl);
+
+    Map typesData = graphQL.queryAsMap("{Types{...TypesAllFields}}", Map.of());
+    String ttl = convertToTurtle(jsonLdSchema, typesData);
     System.out.println(ttl);
-    ttl = getAllAsTurtle(graphQL, "http://localhost:8080");
+
+    Map allData = graphQL.queryAsMap(graphQL.getSelectAllQuery(), Map.of());
+    ttl = convertToTurtle(jsonLdSchema, allData);
     System.out.println(ttl);
   }
 
@@ -103,7 +109,11 @@ public class TestJsonLdSchemaGenerator {
     PET_STORE.getImportTask(database, schemaName, "Pet Store", true).run();
     Schema schema = database.getSchema(schemaName);
     GraphqlExecutor graphQL = new GraphqlExecutor(schema);
-    String result = getAllAsJsonLd(graphQL, "http://localhost:8080", null);
+    Map context = generateJsonLdSchemaAsMap(schema.getMetadata(), "http://localhost:8080");
+    Map data = graphQL.queryAsMap(graphQL.getSelectAllQuery(), Map.of());
+    Map<String, Object> wrapper = new LinkedHashMap<>(context);
+    wrapper.put("data", data);
+    String result = mapper.writeValueAsString(wrapper);
     assertTrue(result.contains("@context"));
     assertTrue(result.contains("Pet"));
   }
@@ -116,7 +126,7 @@ public class TestJsonLdSchemaGenerator {
     PET_STORE.getImportTask(database, schemaName, "Pet Store", true).run();
     Schema schema = database.getSchema(schemaName);
     GraphqlExecutor graphQL = new GraphqlExecutor(schema);
-    String result = getTableAsJson(graphQL, "Pet", Map.of());
+    String result = graphQL.queryAsString("{Pet{...PetAllFields}}", Map.of());
     assertTrue(result.contains("Pet"));
   }
 
