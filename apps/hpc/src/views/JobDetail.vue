@@ -61,6 +61,27 @@
         </div>
       </div>
 
+      <div v-if="job.output_artifact_id" class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Output Artifact</strong>
+          <StatusBadge :status="job.output_artifact_id.status" />
+        </div>
+        <div class="card-body">
+          <dl class="mb-0">
+            <dt>Artifact ID</dt>
+            <dd><code>{{ job.output_artifact_id.id?.substring(0, 8) }}</code></dd>
+            <dt>Type</dt>
+            <dd>{{ job.output_artifact_id.type || "-" }}</dd>
+          </dl>
+          <router-link
+            :to="`/artifacts/${job.output_artifact_id.id}`"
+            class="btn btn-outline-primary btn-sm"
+          >
+            View Details
+          </router-link>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header"><strong>Transition History</strong></div>
         <div class="card-body p-0">

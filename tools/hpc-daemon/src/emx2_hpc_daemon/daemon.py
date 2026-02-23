@@ -217,7 +217,12 @@ class HpcDaemon:
             self.client.transition_job(job_id, "FAILED", detail=str(e))
 
     def _upload_output_artifacts(self, job_id: str, output_dir: str) -> str | None:
-        """Upload output files as a new artifact. Returns artifact ID or None."""
+        """Register output files as a new artifact. Returns artifact ID or None.
+
+        Supports two modes based on config.emx2.artifact_residence:
+        - posix: registers path only (no binary upload), content_url = file:// URI
+        - managed: uploads binary content to EMX2 server
+        """
         output_path = Path(output_dir)
         output_files = [
             f
@@ -229,47 +234,88 @@ class HpcDaemon:
             logger.debug("No output files to upload for job %s", job_id)
             return None
 
+        residence = self.config.emx2.artifact_residence
+
         try:
-            # Create output artifact
-            artifact = self.client.create_artifact(
-                artifact_type="blob",
-                fmt="mixed",
-                residence="managed",
-                metadata={"job_id": job_id},
-            )
-            artifact_id = artifact["id"]
-
-            # Upload each file
-            total_size = 0
-            hasher = hashlib.sha256()
-            for f in output_files:
-                content = f.read_bytes()
-                hasher.update(content)
-                total_size += len(content)
-                self.client.upload_artifact_file(
-                    artifact_id,
-                    path=f.name,
-                    file_content=content,
-                    role="output",
-                )
-
-            # Commit
-            self.client.commit_artifact(
-                artifact_id,
-                sha256=hasher.hexdigest(),
-                size_bytes=total_size,
-            )
-            logger.info(
-                "Uploaded %d output files as artifact %s for job %s",
-                len(output_files),
-                artifact_id,
-                job_id,
-            )
-            return artifact_id
-
+            if residence == "posix":
+                return self._register_posix_artifact(job_id, output_dir, output_files)
+            else:
+                return self._upload_managed_artifact(job_id, output_files)
         except Exception:
             logger.exception("Failed to upload output artifacts for job %s", job_id)
             return None
+
+    def _register_posix_artifact(
+        self, job_id: str, output_dir: str, output_files: list[Path]
+    ) -> str:
+        """Register a posix artifact with file metadata only (no binary upload)."""
+        content_url = f"file://{output_dir}"
+        artifact = self.client.create_artifact(
+            artifact_type="blob",
+            fmt="mixed",
+            residence="posix",
+            metadata={"job_id": job_id},
+            content_url=content_url,
+        )
+        artifact_id = artifact["id"]
+
+        # Commit immediately (REGISTERED → COMMITTED for external artifacts)
+        total_size = sum(f.stat().st_size for f in output_files)
+        hasher = hashlib.sha256()
+        for f in output_files:
+            hasher.update(f.read_bytes())
+
+        self.client.commit_artifact(
+            artifact_id,
+            sha256=hasher.hexdigest(),
+            size_bytes=total_size,
+        )
+        logger.info(
+            "Registered posix artifact %s (%d files) for job %s at %s",
+            artifact_id,
+            len(output_files),
+            job_id,
+            content_url,
+        )
+        return artifact_id
+
+    def _upload_managed_artifact(
+        self, job_id: str, output_files: list[Path]
+    ) -> str:
+        """Upload output files as a managed artifact with binary content."""
+        artifact = self.client.create_artifact(
+            artifact_type="blob",
+            fmt="mixed",
+            residence="managed",
+            metadata={"job_id": job_id},
+        )
+        artifact_id = artifact["id"]
+
+        total_size = 0
+        hasher = hashlib.sha256()
+        for f in output_files:
+            content = f.read_bytes()
+            hasher.update(content)
+            total_size += len(content)
+            self.client.upload_artifact_file(
+                artifact_id,
+                path=f.name,
+                file_content=content,
+                role="output",
+            )
+
+        self.client.commit_artifact(
+            artifact_id,
+            sha256=hasher.hexdigest(),
+            size_bytes=total_size,
+        )
+        logger.info(
+            "Uploaded %d output files as artifact %s for job %s",
+            len(output_files),
+            artifact_id,
+            job_id,
+        )
+        return artifact_id
 
     def _check_server_cancellations(self) -> None:
         """Check if any tracked jobs were cancelled server-side and propagate."""
@@ -309,19 +355,21 @@ class HpcDaemon:
 
             try:
                 detail = f"Slurm state: {new_status}"
+                output_artifact_id = None
 
                 # On successful completion, upload output artifacts
                 if new_status == "COMPLETED" and tracked.output_dir:
-                    artifact_id = self._upload_output_artifacts(
+                    output_artifact_id = self._upload_output_artifacts(
                         tracked.emx2_job_id, tracked.output_dir
                     )
-                    if artifact_id:
-                        detail += f"; output artifact: {artifact_id}"
+                    if output_artifact_id:
+                        detail += f"; output artifact: {output_artifact_id}"
 
                 self.client.transition_job(
                     tracked.emx2_job_id,
                     new_status,
                     detail=detail,
+                    output_artifact_id=output_artifact_id,
                 )
                 tracked.status = new_status
                 logger.info(

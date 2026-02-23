@@ -226,7 +226,10 @@ public class JobsApi {
       }
 
       String slurmJobId = (String) body.get("slurm_job_id");
-      Row result = jobService.transitionJob(jobId, targetStatus, workerId, detail, slurmJobId);
+      String outputArtifactId = (String) body.get("output_artifact_id");
+      Row result =
+          jobService.transitionJob(
+              jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId);
       if (result == null) {
         Row existing = jobService.getJob(jobId);
         if (existing == null) {
@@ -274,7 +277,7 @@ public class JobsApi {
 
     Row result =
         jobService.transitionJob(
-            jobId, HpcJobStatus.CANCELLED, workerId, "Cancelled via API", null);
+            jobId, HpcJobStatus.CANCELLED, workerId, "Cancelled via API", null, null);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
@@ -385,6 +388,7 @@ public class JobsApi {
       }
     }
 
+    response.put("output_artifact_id", job.getString("output_artifact_id"));
     response.put("created_at", job.getString("created_at"));
     response.put("claimed_at", job.getString("claimed_at"));
     response.put("submitted_at", job.getString("submitted_at"));

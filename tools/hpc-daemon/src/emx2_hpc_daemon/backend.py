@@ -153,7 +153,11 @@ class SlurmBackend(ExecutionBackend):
 
     @staticmethod
     def _stage_input_artifacts(job: dict, input_dir: str, client: HpcClient) -> None:
-        """Download input artifacts to the job's input directory."""
+        """Download or symlink input artifacts to the job's input directory.
+
+        For posix artifacts with file:// content_url, creates symlinks.
+        For managed artifacts, downloads via GET.
+        """
         inputs = job.get("inputs")
         if not inputs:
             return
@@ -170,14 +174,35 @@ class SlurmBackend(ExecutionBackend):
                 artifact_id = item if isinstance(item, str) else item.get("artifact_id")
                 if artifact_id:
                     try:
-                        downloaded = client.download_artifact_files(
-                            artifact_id, input_dir
-                        )
-                        logger.info(
-                            "Staged %d files from artifact %s",
-                            len(downloaded),
-                            artifact_id,
-                        )
+                        artifact = client.get_artifact(artifact_id)
+                        residence = artifact.get("residence", "managed")
+                        content_url = artifact.get("content_url")
+
+                        if (
+                            residence == "posix"
+                            and content_url
+                            and content_url.startswith("file://")
+                        ):
+                            # Symlink posix artifact directory
+                            posix_path = content_url[len("file://") :]
+                            link_path = Path(input_dir) / artifact_id
+                            link_path.symlink_to(posix_path)
+                            logger.info(
+                                "Symlinked posix artifact %s: %s -> %s",
+                                artifact_id,
+                                link_path,
+                                posix_path,
+                            )
+                        else:
+                            # Download managed artifact files
+                            downloaded = client.download_artifact_files(
+                                artifact_id, input_dir
+                            )
+                            logger.info(
+                                "Staged %d files from artifact %s",
+                                len(downloaded),
+                                artifact_id,
+                            )
                     except Exception:
                         logger.exception(
                             "Failed to stage artifact %s", artifact_id

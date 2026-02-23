@@ -58,14 +58,19 @@ public final class LinkBuilder {
 
     switch (status) {
       case CREATED -> {
-        links.put("upload", HateoasLink.post(BASE + "/artifacts/" + artifactId + "/files"));
+        links.put("upload", HateoasLink.put(BASE + "/artifacts/" + artifactId + "/files/{path}"));
+        links.put("upload_legacy", HateoasLink.post(BASE + "/artifacts/" + artifactId + "/files"));
       }
       case UPLOADING -> {
-        links.put("upload", HateoasLink.post(BASE + "/artifacts/" + artifactId + "/files"));
+        links.put("upload", HateoasLink.put(BASE + "/artifacts/" + artifactId + "/files/{path}"));
+        links.put("upload_legacy", HateoasLink.post(BASE + "/artifacts/" + artifactId + "/files"));
         links.put("commit", HateoasLink.post(BASE + "/artifacts/" + artifactId + "/commit"));
       }
       case REGISTERED -> {
         links.put("commit", HateoasLink.post(BASE + "/artifacts/" + artifactId + "/commit"));
+      }
+      case COMMITTED -> {
+        links.put("download", HateoasLink.get(BASE + "/artifacts/" + artifactId + "/files/{path}"));
       }
       default -> {}
     }

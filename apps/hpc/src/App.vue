@@ -23,6 +23,15 @@
                 Workers
               </router-link>
             </li>
+            <li class="nav-item">
+              <router-link
+                to="/artifacts"
+                class="nav-link"
+                :class="{ active: $route.path.startsWith('/artifacts') }"
+              >
+                Artifacts
+              </router-link>
+            </li>
           </ul>
         </div>
       </div>

@@ -181,6 +181,7 @@ class HpcClient:
         status: str,
         detail: str | None = None,
         slurm_job_id: str | None = None,
+        output_artifact_id: str | None = None,
     ) -> dict:
         """Report a job status transition."""
         body = {
@@ -191,6 +192,8 @@ class HpcClient:
             body["detail"] = detail
         if slurm_job_id:
             body["slurm_job_id"] = slurm_job_id
+        if output_artifact_id:
+            body["output_artifact_id"] = output_artifact_id
         return self._request("POST", f"/api/hpc/jobs/{job_id}/transition", json=body)
 
     def get_job(self, job_id: str) -> dict:
@@ -220,7 +223,9 @@ class HpcClient:
         result = self._request("GET", f"/api/hpc/artifacts/{artifact_id}/files")
         return result.get("items", [])
 
-    def download_artifact_file(self, artifact_id: str, file_id: str, dest_path: str) -> None:
+    def download_artifact_file(
+        self, artifact_id: str, file_path: str, dest_path: str
+    ) -> None:
         """Download a single artifact file to a local path.
 
         For managed artifacts, downloads the file content from the server.
@@ -228,18 +233,23 @@ class HpcClient:
         """
         from pathlib import Path
 
-        path = f"/api/hpc/artifacts/{artifact_id}/files/{file_id}/content"
-        headers = self._headers("GET", path, "")
+        url_path = f"/api/hpc/artifacts/{artifact_id}/files/{file_path}"
+        headers = self._headers("GET", url_path, "")
 
-        response = self._http.request("GET", path, headers=headers)
+        response = self._http.request("GET", url_path, headers=headers)
         if response.status_code == 404:
-            raise NotFoundError(f"Artifact file {file_id} not found")
+            raise NotFoundError(f"Artifact file {file_path} not found")
         response.raise_for_status()
 
         dest = Path(dest_path)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(response.content)
-        logger.info("Downloaded artifact file %s to %s (%d bytes)", file_id, dest_path, len(response.content))
+        logger.info(
+            "Downloaded artifact file %s to %s (%d bytes)",
+            file_path,
+            dest_path,
+            len(response.content),
+        )
 
     def download_artifact_files(self, artifact_id: str, dest_dir: str) -> list[str]:
         """Download all files from an artifact to a directory.
@@ -254,10 +264,14 @@ class HpcClient:
             file_path = f.get("path", f.get("id", "unknown"))
             local_path = Path(dest_dir) / file_path
             try:
-                self.download_artifact_file(artifact_id, f["id"], str(local_path))
+                self.download_artifact_file(artifact_id, file_path, str(local_path))
                 downloaded.append(str(local_path))
             except Exception:
-                logger.warning("Failed to download file %s from artifact %s", f.get("id"), artifact_id)
+                logger.warning(
+                    "Failed to download file %s from artifact %s",
+                    file_path,
+                    artifact_id,
+                )
         return downloaded
 
     def create_artifact(
@@ -266,6 +280,7 @@ class HpcClient:
         fmt: str | None = None,
         residence: str = "managed",
         metadata: dict | None = None,
+        content_url: str | None = None,
     ) -> dict:
         """Create a new artifact."""
         body: dict = {"type": artifact_type, "residence": residence}
@@ -273,6 +288,8 @@ class HpcClient:
             body["format"] = fmt
         if metadata:
             body["metadata"] = metadata
+        if content_url:
+            body["content_url"] = content_url
         return self._request("POST", "/api/hpc/artifacts", json=body)
 
     def upload_artifact_file(
@@ -283,19 +300,22 @@ class HpcClient:
         content_type: str = "application/octet-stream",
         role: str | None = None,
     ) -> dict:
-        """Upload a file to an artifact (metadata-only for now; multipart coming)."""
-        import hashlib
+        """Upload a file to an artifact via PUT with raw binary body."""
+        url_path = f"/api/hpc/artifacts/{artifact_id}/files/{path}"
+        # For binary uploads, sign over empty string (HMAC fix)
+        headers = self._headers("PUT", url_path, "")
+        headers["Content-Type"] = content_type
 
-        sha256 = hashlib.sha256(file_content).hexdigest()
-        body = {
-            "path": path,
-            "sha256": sha256,
-            "size_bytes": len(file_content),
-            "content_type": content_type,
-        }
-        if role:
-            body["role"] = role
-        return self._request("POST", f"/api/hpc/artifacts/{artifact_id}/files", json=body)
+        response = self._http.request(
+            "PUT", url_path, content=file_content, headers=headers
+        )
+        if response.status_code == 404:
+            raise NotFoundError(f"Artifact {artifact_id} not found")
+        response.raise_for_status()
+
+        if response.status_code == 204 or not response.content:
+            return {}
+        return response.json()
 
     def commit_artifact(self, artifact_id: str, sha256: str, size_bytes: int) -> dict:
         """Commit an artifact with final hash and size."""

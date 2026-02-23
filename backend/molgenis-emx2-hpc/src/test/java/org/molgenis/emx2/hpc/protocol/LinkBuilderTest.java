@@ -40,15 +40,18 @@ class LinkBuilderTest {
   void uploadingArtifactHasUploadAndCommitLinks() {
     Map<String, HateoasLink> links = LinkBuilder.forArtifact("art-1", ArtifactStatus.UPLOADING);
     assertNotNull(links.get("upload"));
+    assertEquals("PUT", links.get("upload").method());
     assertNotNull(links.get("commit"));
     assertNotNull(links.get("files"));
   }
 
   @Test
-  void committedArtifactHasOnlySelfAndFilesLinks() {
+  void committedArtifactHasDownloadAndFilesLinks() {
     Map<String, HateoasLink> links = LinkBuilder.forArtifact("art-1", ArtifactStatus.COMMITTED);
     assertNotNull(links.get("self"));
     assertNotNull(links.get("files"));
+    assertNotNull(links.get("download"));
+    assertEquals("GET", links.get("download").method());
     assertNull(links.get("upload"));
     assertNull(links.get("commit"));
   }

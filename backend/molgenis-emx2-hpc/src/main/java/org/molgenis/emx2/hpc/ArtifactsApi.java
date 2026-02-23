@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.hpc.protocol.HpcHeaders;
@@ -210,7 +211,7 @@ public class ArtifactsApi {
     }
   }
 
-  /** GET /api/hpc/artifacts/{id}/files — list files in an artifact. */
+  /** GET /api/hpc/artifacts/{id}/files — list files in an artifact with pagination. */
   public void listFiles(Context ctx) {
     String artifactId = ctx.pathParam("id");
     try {
@@ -220,7 +221,12 @@ public class ArtifactsApi {
           ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
       return;
     }
-    List<Row> files = artifactService.listFiles(artifactId);
+    String prefix = ctx.queryParam("prefix");
+    int limit = parseIntParam(ctx.queryParam("limit"), 100);
+    int offset = parseIntParam(ctx.queryParam("offset"), 0);
+
+    List<Row> files = artifactService.listFiles(artifactId, prefix, limit, offset);
+    int totalCount = artifactService.countFiles(artifactId, prefix);
 
     List<Map<String, Object>> items =
         files.stream()
@@ -233,11 +239,245 @@ public class ArtifactsApi {
                   m.put("sha256", f.getString("sha256"));
                   m.put("size_bytes", f.getString("size_bytes"));
                   m.put("content_type", f.getString("content_type"));
+                  m.put(
+                      "_links",
+                      Map.of(
+                          "content",
+                          Map.of(
+                              "href",
+                              "/api/hpc/artifacts/" + artifactId + "/files/" + f.getString("path"),
+                              "method",
+                              "GET")));
                   return m;
                 })
             .toList();
 
-    ctx.json(Map.of("items", items, "count", items.size()));
+    Map<String, Object> response = new LinkedHashMap<>();
+    response.put("items", items);
+    response.put("count", items.size());
+    response.put("total_count", totalCount);
+    response.put("limit", limit);
+    response.put("offset", offset);
+    ctx.json(response);
+  }
+
+  /** PUT /api/hpc/artifacts/{id}/files/{path} — upload file by path. */
+  public void uploadFileByPath(Context ctx) {
+    String artifactId = ctx.pathParam("id");
+    String filePath = ctx.pathParam("path");
+    try {
+      InputValidator.requireUuid(artifactId, "id");
+    } catch (IllegalArgumentException e) {
+      ProblemDetail.send(
+          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      return;
+    }
+    if (filePath == null || filePath.isBlank()) {
+      ProblemDetail.send(
+          ctx, 400, "Bad Request", "file path is required", ctx.header(HpcHeaders.REQUEST_ID));
+      return;
+    }
+    try {
+      String ct = ctx.header("Content-Type");
+      boolean isMultipart = ct != null && ct.startsWith("multipart/form-data");
+
+      byte[] fileBytes;
+      String contentType;
+      String role = null;
+
+      if (isMultipart) {
+        File tempFile = File.createTempFile("hpc_upload_", ".tmp");
+        tempFile.deleteOnExit();
+        ctx.attribute(
+            "org.eclipse.jetty.multipartConfig",
+            new MultipartConfigElement(tempFile.getAbsolutePath()));
+        Part filePart = ctx.req().getPart("file");
+        if (filePart == null) {
+          ProblemDetail.send(
+              ctx,
+              400,
+              "Bad Request",
+              "Multipart 'file' part is required",
+              ctx.header(HpcHeaders.REQUEST_ID));
+          return;
+        }
+        try (InputStream input = filePart.getInputStream()) {
+          fileBytes = input.readAllBytes();
+        }
+        contentType = ctx.formParam("content_type");
+        if (contentType == null) {
+          contentType = filePart.getContentType();
+        }
+        role = ctx.formParam("role");
+      } else {
+        fileBytes = ctx.bodyAsBytes();
+        contentType = ct;
+      }
+
+      if (contentType == null || contentType.isBlank()) {
+        contentType = "application/octet-stream";
+      }
+
+      // Compute SHA-256
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      String sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
+      long sizeBytes = fileBytes.length;
+
+      BinaryFileWrapper content = new BinaryFileWrapper(contentType, filePath, fileBytes);
+
+      String fileId =
+          artifactService.uploadFileByPath(
+              artifactId, filePath, role, sha256, sizeBytes, contentType, content);
+
+      Map<String, Object> response = new LinkedHashMap<>();
+      response.put("id", fileId);
+      response.put("artifact_id", artifactId);
+      response.put("path", filePath);
+      response.put("sha256", sha256);
+      response.put("size_bytes", sizeBytes);
+
+      ctx.status(201);
+      ctx.json(response);
+    } catch (MolgenisException e) {
+      if (e.getMessage() != null && e.getMessage().contains("not found")) {
+        ProblemDetail.send(
+            ctx, 404, "Not Found", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      } else {
+        ProblemDetail.send(
+            ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      }
+    } catch (Exception e) {
+      ProblemDetail.send(
+          ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+    }
+  }
+
+  /** GET /api/hpc/artifacts/{id}/files/{path} — download file content. */
+  public void downloadFile(Context ctx) {
+    String artifactId = ctx.pathParam("id");
+    String filePath = ctx.pathParam("path");
+    try {
+      InputValidator.requireUuid(artifactId, "id");
+    } catch (IllegalArgumentException e) {
+      ProblemDetail.send(
+          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      return;
+    }
+    try {
+      Row file = artifactService.getFileWithContent(artifactId, filePath);
+      if (file == null) {
+        // Check if parent artifact has a content_url for redirect
+        Row artifact = artifactService.getArtifact(artifactId);
+        if (artifact != null && artifact.getString("content_url") != null) {
+          ctx.redirect(artifact.getString("content_url") + "/" + filePath);
+          return;
+        }
+        ProblemDetail.send(
+            ctx,
+            404,
+            "Not Found",
+            "File " + filePath + " not found in artifact " + artifactId,
+            ctx.header(HpcHeaders.REQUEST_ID));
+        return;
+      }
+
+      byte[] bytes = file.getBinary("content_contents");
+      if (bytes == null) {
+        // Metadata-only file — check parent artifact for content_url
+        Row artifact = artifactService.getArtifact(artifactId);
+        if (artifact != null && artifact.getString("content_url") != null) {
+          ctx.redirect(artifact.getString("content_url") + "/" + filePath);
+          return;
+        }
+        ProblemDetail.send(
+            ctx,
+            404,
+            "Not Found",
+            "File " + filePath + " has no content",
+            ctx.header(HpcHeaders.REQUEST_ID));
+        return;
+      }
+
+      String contentType = file.getString("content_mimetype");
+      if (contentType == null) {
+        contentType = file.getString("content_type");
+      }
+      if (contentType == null) {
+        contentType = "application/octet-stream";
+      }
+
+      ctx.header("Content-Type", contentType);
+      ctx.header("Content-Disposition", "attachment; filename=\"" + filePath + "\"");
+      if (file.getString("sha256") != null) {
+        ctx.header("X-Content-SHA256", file.getString("sha256"));
+      }
+      ctx.header("Content-Length", String.valueOf(bytes.length));
+      ctx.result(bytes);
+    } catch (Exception e) {
+      ProblemDetail.send(
+          ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+    }
+  }
+
+  /** HEAD /api/hpc/artifacts/{id}/files/{path} — file metadata in headers. */
+  public void headFile(Context ctx) {
+    String artifactId = ctx.pathParam("id");
+    String filePath = ctx.pathParam("path");
+    try {
+      InputValidator.requireUuid(artifactId, "id");
+    } catch (IllegalArgumentException e) {
+      ProblemDetail.send(
+          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      return;
+    }
+    Row file = artifactService.getFileMetadata(artifactId, filePath);
+    if (file == null) {
+      ctx.status(404);
+      return;
+    }
+    if (file.getString("sha256") != null) {
+      ctx.header("X-Content-SHA256", file.getString("sha256"));
+    }
+    if (file.getString("size_bytes") != null) {
+      ctx.header("Content-Length", file.getString("size_bytes"));
+    }
+    if (file.getString("content_type") != null) {
+      ctx.header("Content-Type", file.getString("content_type"));
+    }
+    ctx.status(200);
+  }
+
+  /** DELETE /api/hpc/artifacts/{id}/files/{path} — delete file before commit. */
+  public void deleteFile(Context ctx) {
+    String artifactId = ctx.pathParam("id");
+    String filePath = ctx.pathParam("path");
+    try {
+      InputValidator.requireUuid(artifactId, "id");
+    } catch (IllegalArgumentException e) {
+      ProblemDetail.send(
+          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      return;
+    }
+    try {
+      boolean deleted = artifactService.deleteFile(artifactId, filePath);
+      if (!deleted) {
+        ProblemDetail.send(
+            ctx,
+            404,
+            "Not Found",
+            "File " + filePath + " not found in artifact " + artifactId,
+            ctx.header(HpcHeaders.REQUEST_ID));
+        return;
+      }
+      ctx.status(204);
+    } catch (MolgenisException e) {
+      if (e.getMessage() != null && e.getMessage().contains("committed")) {
+        ProblemDetail.send(ctx, 409, "Conflict", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      } else {
+        ProblemDetail.send(
+            ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      }
+    }
   }
 
   /**
@@ -290,6 +530,16 @@ public class ArtifactsApi {
     } catch (Exception e) {
       ProblemDetail.send(
           ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+    }
+  }
+
+  private static int parseIntParam(String value, int defaultValue) {
+    if (value == null) return defaultValue;
+    try {
+      int v = Integer.parseInt(value);
+      return Math.max(0, v);
+    } catch (NumberFormatException e) {
+      return defaultValue;
     }
   }
 

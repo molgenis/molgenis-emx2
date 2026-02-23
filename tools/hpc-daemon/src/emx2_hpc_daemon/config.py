@@ -43,6 +43,7 @@ class EmxConfig:
     worker_id: str = "hpc-daemon-01"
     shared_secret: str = ""
     auth_mode: str = "hmac"
+    artifact_residence: str = "managed"
 
 
 @dataclass

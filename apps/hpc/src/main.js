@@ -4,6 +4,8 @@ import App from "./App.vue";
 import JobList from "./views/JobList.vue";
 import JobDetail from "./views/JobDetail.vue";
 import WorkerList from "./views/WorkerList.vue";
+import ArtifactList from "./views/ArtifactList.vue";
+import ArtifactDetail from "./views/ArtifactDetail.vue";
 
 import "molgenis-components/dist/style.css";
 
@@ -22,6 +24,15 @@ const router = createRouter({
     {
       path: "/workers",
       component: WorkerList,
+    },
+    {
+      path: "/artifacts",
+      component: ArtifactList,
+    },
+    {
+      path: "/artifacts/:id",
+      component: ArtifactDetail,
+      props: true,
     },
   ],
 });

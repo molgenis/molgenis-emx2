@@ -36,6 +36,16 @@ public final class HpcSchemaInitializer {
 
           // Skip if already initialized (check for the main jobs table)
           if (schema.getTableNames().contains("HpcJobs")) {
+            // Migration: add output_artifact_id column if missing
+            Table jobsTable = schema.getTable("HpcJobs");
+            if (jobsTable.getMetadata().getColumn("output_artifact_id") == null) {
+              jobsTable
+                  .getMetadata()
+                  .add(
+                      column("output_artifact_id")
+                          .setType(ColumnType.REF)
+                          .setRefTable("HpcArtifacts"));
+            }
             return;
           }
 
@@ -160,6 +170,13 @@ public final class HpcSchemaInitializer {
                   column("size_bytes").setType(ColumnType.LONG),
                   column("content").setType(ColumnType.FILE),
                   column("content_type")));
+
+          // Add output_artifact_id REF after HpcArtifacts table exists
+          schema
+              .getTable("HpcJobs")
+              .getMetadata()
+              .add(
+                  column("output_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
         });
   }
 }

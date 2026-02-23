@@ -19,6 +19,39 @@
         <textarea v-model="form.parametersJson" class="form-control form-control-sm" rows="3"
           placeholder='{"key": "value"}'></textarea>
       </div>
+      <div class="mb-3">
+        <label class="form-label">Input Artifacts</label>
+        <div class="d-flex gap-2 mb-1">
+          <select v-model="selectedArtifact" class="form-select form-select-sm">
+            <option value="">Select a committed artifact...</option>
+            <option v-for="a in availableArtifacts" :key="a.id" :value="a.id">
+              {{ a.id?.substring(0, 8) }} - {{ a.type || "blob" }} ({{ a.format || "?" }})
+            </option>
+          </select>
+          <button
+            class="btn btn-outline-primary btn-sm"
+            :disabled="!selectedArtifact"
+            @click="addArtifact"
+          >
+            Add
+          </button>
+        </div>
+        <div v-if="form.inputs.length">
+          <span
+            v-for="(id, idx) in form.inputs"
+            :key="id"
+            class="badge bg-light text-dark border me-1"
+          >
+            {{ id?.substring(0, 8) }}
+            <button
+              type="button"
+              class="btn-close btn-close-sm ms-1"
+              style="font-size: 0.6em"
+              @click="form.inputs.splice(idx, 1)"
+            ></button>
+          </span>
+        </div>
+      </div>
       <button class="btn btn-primary btn-sm" @click="handleSubmit" :disabled="submitting">
         {{ submitting ? "Submitting..." : "Submit Job" }}
       </button>
@@ -27,8 +60,8 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
-import { submitJob } from "../composables/useHpcApi.js";
+import { ref, reactive, onMounted } from "vue";
+import { submitJob, fetchArtifacts } from "../composables/useHpcApi.js";
 
 const emit = defineEmits(["submitted", "close"]);
 
@@ -36,9 +69,28 @@ const form = reactive({
   processor: "",
   profile: "",
   parametersJson: "",
+  inputs: [],
 });
 const error = ref(null);
 const submitting = ref(false);
+const selectedArtifact = ref("");
+const availableArtifacts = ref([]);
+
+function addArtifact() {
+  if (selectedArtifact.value && !form.inputs.includes(selectedArtifact.value)) {
+    form.inputs.push(selectedArtifact.value);
+  }
+  selectedArtifact.value = "";
+}
+
+async function loadArtifacts() {
+  try {
+    const result = await fetchArtifacts({ status: "COMMITTED", limit: 100 });
+    availableArtifacts.value = result.items;
+  } catch {
+    // silently ignore — artifact selection is optional
+  }
+}
 
 async function handleSubmit() {
   error.value = null;
@@ -57,14 +109,19 @@ async function handleSubmit() {
   }
   submitting.value = true;
   try {
-    await submitJob({
+    const payload = {
       processor: form.processor,
       profile: form.profile || undefined,
       parameters,
-    });
+    };
+    if (form.inputs.length) {
+      payload.inputs = form.inputs;
+    }
+    await submitJob(payload);
     form.processor = "";
     form.profile = "";
     form.parametersJson = "";
+    form.inputs = [];
     emit("submitted");
   } catch (e) {
     error.value = e.message;
@@ -72,4 +129,6 @@ async function handleSubmit() {
     submitting.value = false;
   }
 }
+
+onMounted(loadArtifacts);
 </script>

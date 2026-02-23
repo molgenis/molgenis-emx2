@@ -128,7 +128,12 @@ public class JobService {
    * state machine. Returns the updated job row, or null if the transition is invalid.
    */
   public Row transitionJob(
-      String jobId, HpcJobStatus targetStatus, String workerId, String detail, String slurmJobId) {
+      String jobId,
+      HpcJobStatus targetStatus,
+      String workerId,
+      String detail,
+      String slurmJobId,
+      String outputArtifactId) {
     Row[] result = new Row[1];
     database.tx(
         db -> {
@@ -163,6 +168,9 @@ public class JobService {
           }
           if (slurmJobId != null) {
             job.set("slurm_job_id", slurmJobId);
+          }
+          if (outputArtifactId != null) {
+            job.set("output_artifact_id", outputArtifactId);
           }
 
           // Set timestamp fields based on target status

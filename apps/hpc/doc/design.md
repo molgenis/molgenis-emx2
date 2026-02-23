@@ -73,10 +73,10 @@ The system is divided into two trust domains connected by outbound HTTPS from th
 EMX2 exposes three API surfaces:
 
 - **Workers API** — registration of head nodes and their capabilities.
-- **Jobs API** — job listing, filtering by capability, atomic claiming, and state transitions.
-- **Artifact API** — metadata, content storage, and integrity verification.
+- **Jobs API** — job listing, filtering by capability, atomic claiming, state transitions, and output artifact linking.
+- **Artifact API** — lifecycle management (create/upload/commit), path-based file operations (PUT/GET/HEAD/DELETE), paginated file listing, and integrity verification. Exposes an S3-minimal surface for managed artifacts.
 
-These are backed by tables in the EMX2 `_SYSTEM_` schema (prefixed with `Hpc` to avoid collisions) and a managed artifact repository. The system tables hold job state, worker registrations, capability advertisements, transition audit logs, and artifact metadata. The artifact repository provides governed, content-addressed storage for managed artifacts.
+These are backed by tables in the EMX2 `_SYSTEM_` schema (prefixed with `Hpc` to avoid collisions). The system tables hold job state (including `output_artifact_id` foreign key to artifacts), worker registrations, capability advertisements, transition audit logs, artifact metadata, and artifact file content (stored in EMX2 FILE columns for managed residence). A Vue-based HPC dashboard provides browser access to jobs, workers, and artifacts including direct file upload.
 
 All endpoints live under `/api/hpc/*` with a shared before-handler that validates protocol headers and (when configured) HMAC authentication. The health endpoint (`/api/hpc/health`) is exempt from authentication.
 
@@ -86,7 +86,7 @@ The HPC side consists of:
 
 - **Head Node Controller** — a daemon that registers capabilities, polls for pending jobs, maps processor + profile to Slurm parameters, submits `sbatch`, and reports the result back to EMX2.
 - **Slurm Controller** — the cluster's workload manager, unchanged from its standard role.
-- **Apptainer Runtime** — executes the workload inside an Apptainer (formerly Singularity) container on a compute node. A wrapper around the container handles communication with EMX2: posting status transitions, verifying input artifacts, uploading outputs and logs.
+- **Apptainer Runtime** — executes the workload inside an Apptainer (formerly Singularity) container on a compute node. The daemon handles all communication with EMX2: staging input artifacts (symlink for posix, download for managed), monitoring Slurm job state, uploading or registering output artifacts, and posting status transitions.
 - **NFS Shared Storage** — an NFS export mounted on the head node and all compute nodes. Stores Apptainer SIF images, POSIX-resident artifacts, and shared scratch data.
 - **Local Scratch** — per-node temporary storage, discarded after job completion.
 
@@ -94,11 +94,11 @@ The HPC side consists of:
 
 | Concern | Owner |
 |---------|-------|
-| Job registry, lifecycle state, artifact metadata | EMX2 |
-| Capability registration, job claiming, Slurm submission | Head Node Controller |
-| Workload execution, input verification, output upload | Apptainer Runtime |
+| Job registry, lifecycle state, artifact metadata, managed file storage | EMX2 |
+| Capability registration, job claiming, Slurm submission, artifact staging | Head Node Controller |
+| Workload execution | Apptainer Runtime |
 | Scheduling, resource allocation, node dispatch | Slurm Controller |
-| Managed data storage, integrity, retention | Artifact Repository |
+| Managed artifact binary content (FILE columns) | EMX2 Database |
 | Shared data between jobs, POSIX-resident artifacts | NFS |
 
 ## Head Node Daemon
@@ -128,9 +128,9 @@ The happy-path sequence proceeds in four phases.
 
 **Phase 2 — Slurm submission.** The head node maps the job's processor and profile to an Apptainer SIF image (stored on NFS) and a set of Slurm parameters, then submits via `sbatch`. It reports the Slurm job ID back to EMX2 as a SUBMITTED transition.
 
-**Phase 3 — Execution.** Slurm dispatches the job to a compute node. The Apptainer runtime wrapper starts and posts a STARTED transition to EMX2. It fetches input artifact metadata and verifies SHA-256 hashes — for artifacts on NFS this is a local filesystem read; for managed artifacts it downloads via the Artifact API. If verification passes, it runs the workload.
+**Phase 3 — Execution.** Slurm dispatches the job to a compute node. The daemon monitors the job via `squeue`/`sacct` and posts a STARTED transition to EMX2 when execution begins. Before submission, the daemon stages input artifacts: for posix artifacts it symlinks the `file://` path into the job's input directory (zero-copy); for managed artifacts it downloads files via `GET /api/hpc/artifacts/{id}/files/{path}`. SHA-256 hashes are verified on access. If verification passes, the workload runs.
 
-**Phase 4 — Output and completion.** The wrapper creates output artifacts (and a log artifact), uploads files to the artifact repository, and commits them. It posts a COMPLETED transition with the output and log artifact URIs.
+**Phase 4 — Output and completion.** The daemon creates an output artifact, uploads files (for managed residence) or registers the output directory path (for posix residence), and commits. It posts a COMPLETED transition with the `output_artifact_id` field linking the job to its output artifact. The artifact ID is stored as a foreign key on the job record, making outputs discoverable via GraphQL.
 
 At every step, the client discovers what it can do next from hypermedia links in the response. If a transition is not legal in the current state, the corresponding link is absent. Failure at any point results in a FAILED transition with a reason code (see Job Lifecycle, below).
 
@@ -140,7 +140,7 @@ The architecture is deliberately minimal:
 
 - **EMX2 is the system of record** for jobs, lifecycle state, and artifact metadata.
 - **HPC is responsible for execution** via Slurm and Apptainer. EMX2 never tells the cluster how to schedule.
-- **Inputs and outputs are referenced by URI only.** Content is addressed by `https://`, `s3://`, or `file://` URIs depending on where it lives. No raw bytes flow through the job protocol.
+- **Inputs and outputs are tracked as artifacts.** Jobs reference artifacts by ID. Content is accessed via the artifact file API (managed) or directly via `file://`, `s3://`, or `https://` URIs (external). Managed artifacts store binary content in EMX2; external artifacts store only metadata.
 - **Workers declare capabilities; EMX2 assigns only compatible jobs.** There is no negotiation.
 - **The API is resource-oriented.** State transitions are sub-resources of jobs. Responses include hypermedia links advertising legal next actions.
 - **Everything is recoverable.** Transitions are idempotent, timeouts detect stuck jobs, and the system converges to a consistent state after any single failure.
@@ -219,7 +219,7 @@ A job passes through a strict state machine. Every transition is recorded as a s
 | SUBMITTED | STARTED | Apptainer wrapper or daemon | Execution begins |
 | SUBMITTED | FAILED | Head node or EMX2 | Slurm rejection or timeout |
 | SUBMITTED | CANCELLED | Head node or EMX2 | Cancel; head node issues `scancel` |
-| STARTED | COMPLETED | Apptainer wrapper or daemon | Outputs committed |
+| STARTED | COMPLETED | Apptainer wrapper or daemon | Outputs committed; `output_artifact_id` set |
 | STARTED | FAILED | Apptainer wrapper | Runtime error or hash mismatch |
 | STARTED | CANCELLED | EMX2 | Cancel; wrapper terminates |
 
@@ -292,15 +292,17 @@ Since all nodes share the same NFS export, mount availability is not a per-node 
 
 ## Residence: Managed Repository
 
-Managed artifacts are stored in a governed repository under EMX2's control. The repository should expose an S3-compatible interface in addition to the REST API, enabling tools like DuckDB, pandas, and Spark to access artifacts using their native S3 connectors. The S3 interface provides standard `GetObject`, `PutObject`, and `HeadObject` operations, plus presigned URL generation for time-limited access.
+Managed artifacts are stored in EMX2's database using the FILE column type. The artifact file API exposes an S3-minimal surface — path-based `PUT` (upload), `GET` (download), `HEAD` (metadata), and `DELETE` operations on individual files within an artifact, plus paginated listing. This maps cleanly to WebDAV semantics and makes future S3-compatible gateway implementation straightforward.
 
-Artifact metadata includes both the REST content URL and the S3 URI so consumers can choose the appropriate access path.
+The file API uses path-addressed URLs: `/api/hpc/artifacts/{id}/files/{path}`. Paths are logical names within the artifact (e.g. `data.parquet`, `model/weights.bin`) and support any depth. The server computes SHA-256 on upload and returns it in the response; clients do not need to pre-compute hashes for individual file uploads (though the overall artifact hash is provided at commit time).
+
+For analytical tools (DuckDB, pandas), committed artifacts can be accessed via the GET endpoint with standard HTTP range requests. A future S3-compatible gateway could proxy these paths to provide native S3 connector support.
 
 ## Multi-File Artifacts and Integrity
 
 Some artifacts consist of multiple files: a model with a tokenizer sidecar, a VCF with a tabix index. Multi-file artifacts include a file manifest listing each file's path, role (`primary`, `index`, `metadata`, `ancillary`), size, and individual SHA-256 hash.
 
-For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash computed over sorted file paths and their individual hashes (see Appendix B.3). Any modification to any constituent file is detectable.
+For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash computed over sorted file paths and their individual hashes (see Appendix B.4). Any modification to any constituent file is detectable.
 
 Input artifacts must be COMMITTED before a job can reference them. The Apptainer wrapper verifies hashes before execution — for managed artifacts it downloads and hashes locally; for NFS artifacts it reads from the mount. A mismatch results in a FAILED transition with reason `input_hash_mismatch`. Output artifacts are immutable after commit.
 
@@ -343,6 +345,12 @@ External artifacts (POSIX, S3, HTTP, reference) skip the upload phase: REGISTERE
 
 Artifacts are immutable after COMMITTED. If an artifact stalls in CREATED or UPLOADING with no activity within a configured timeout, it transitions to FAILED and becomes eligible for garbage collection.
 
+## Job→Artifact Link
+
+Jobs can reference output artifacts via the `output_artifact_id` field, which is a foreign key to the `HpcArtifacts` table. When the daemon completes a job and uploads (or registers) output artifacts, it passes the `output_artifact_id` in the COMPLETED transition request. EMX2 stores this link on the job record, making it queryable via GraphQL (`output_artifact_id { id type { name } status { name } }`).
+
+Input artifacts are referenced in the job's `inputs` field (a JSON array of artifact IDs). The daemon stages input artifacts before execution: for managed artifacts it downloads files via GET; for posix artifacts it symlinks the `file://` path into the job's input directory. This two-residence model means that large datasets on NFS incur zero transfer overhead, while smaller browser-uploaded artifacts are served from the managed store.
+
 # API Design
 
 This section describes the principles governing the API. Full endpoint specifications with request and response payloads are in Appendix A.
@@ -369,7 +377,7 @@ EMX2 echoes `X-Request-Id` in error responses for traceability.
 
 ## Resource Model and Hypermedia
 
-The API is organised around two resources: **jobs** and **artifacts**. State transitions on jobs are a **transitions** sub-resource: each transition is a created resource (`POST` returns `201 Created`), the history is queryable, and the job representation includes `_links` advertising legal next actions. Clients follow links rather than hardcoding URL patterns (HATEOAS). All URLs in `_links` and `artifact_url` fields are opaque — clients dereference them as-is.
+The API is organised around two resources: **jobs** and **artifacts**. State transitions on jobs are a **transitions** sub-resource: each transition is a created resource (`POST` returns `201 Created`), the history is queryable, and the job representation includes `_links` advertising legal next actions. Clients follow links rather than hardcoding URL patterns (HATEOAS). All URLs in `_links` fields are opaque — clients dereference them as-is.
 
 ## Error Responses
 
@@ -383,7 +391,7 @@ All endpoints are under `/api/hpc`. Detailed specifications are in Appendix A.
 
 **Jobs API:** `POST /api/hpc/jobs` (create), `GET /api/hpc/jobs` (list/filter), `GET /api/hpc/jobs/{id}`, `POST /api/hpc/jobs/{id}/claim`, `POST /api/hpc/jobs/{id}/transition`, `POST /api/hpc/jobs/{id}/cancel`, `DELETE /api/hpc/jobs/{id}`, `GET /api/hpc/jobs/{id}/transitions`.
 
-**Artifact API:** `POST /api/hpc/artifacts`, `GET /api/hpc/artifacts/{id}`, `POST /api/hpc/artifacts/{id}/files`, `GET /api/hpc/artifacts/{id}/files`, `POST /api/hpc/artifacts/{id}/commit`.
+**Artifact API:** `POST /api/hpc/artifacts` (create), `GET /api/hpc/artifacts/{id}` (metadata), `PUT /api/hpc/artifacts/{id}/files/{path}` (upload file by path), `GET /api/hpc/artifacts/{id}/files/{path}` (download file), `HEAD /api/hpc/artifacts/{id}/files/{path}` (file metadata), `DELETE /api/hpc/artifacts/{id}/files/{path}` (delete file before commit), `GET /api/hpc/artifacts/{id}/files` (list files, paginated), `POST /api/hpc/artifacts/{id}/commit` (commit). Legacy: `POST /api/hpc/artifacts/{id}/files` (multipart upload, retained for backward compatibility).
 
 **Health:** `GET /api/hpc/health` (exempt from authentication).
 
@@ -457,7 +465,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 **NFS immutability by convention.** The protocol registers NFS paths as artifacts but cannot enforce immutability on them. If an operator modifies a file after it has been committed, the hash check will catch it at runtime — but the job will fail rather than being prevented. In environments with strict data governance this may need filesystem-level write protection (e.g. read-only snapshots or chattr).
 
-**S3-compatible managed storage.** Exposing an S3 interface alongside the REST API gives analytical tools native access, but adds operational complexity. REST-only with range-request support is simpler but forces tools like DuckDB to use HTTP rather than S3 connectors.
+**S3-minimal file surface.** The artifact file API exposes path-based GET/PUT/HEAD/DELETE operations that map to S3 semantics (`GetObject`, `PutObject`, `HeadObject`, `DeleteObject`). This is sufficient for the current use case and makes a future S3-compatible gateway straightforward to implement. Until then, analytical tools access managed artifacts via HTTP GET with range request support.
 
 **Authentication mechanism.** The wire format (headers, nonce, timestamp) is defined; the signing mechanism is deliberately left open. This accommodates different institutional PKI, but means the authentication layer must be fully designed during implementation.
 
@@ -471,13 +479,22 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 | Concurrency enforcement | Worker-side only. Workers declare `max_concurrent_jobs` during registration and self-enforce. |
 | API version scheme | Date-based strings (e.g. `2025-01`) rather than integers. |
 
+## Resolved Since Initial Design
+
+| Decision | Resolution |
+|----------|------------|
+| Managed storage access pattern | S3-minimal surface via path-based REST endpoints (`PUT/GET/HEAD/DELETE /files/{path}`). S3-compatible gateway deferred. |
+| Job→artifact linking | `output_artifact_id` REF column on HpcJobs, set during COMPLETED transition. |
+| Input artifact staging | Two-path: symlink for posix, download for managed. Configured via `artifact_residence` in daemon config. |
+| Browser upload | Direct PUT with raw binary body; browser computes SHA-256 via SubtleCrypto. No multipart required. |
+
 ## Open Design Decisions
 
 | Decision | Options | Considerations |
 |----------|---------|----------------|
 | Timeout values | Per-processor, per-profile, or global | Must accommodate longest GPU job; too short → false failures. |
-| Managed storage S3 layout | Bucket-per-scope vs. path-based | Bucket-per-scope gives natural access control; path-based is simpler. |
 | Artifact retention | TTL, reference-counted, or manual | Out of protocol scope, but the store must accommodate the chosen strategy. |
+| S3-compatible gateway | MinIO proxy, custom gateway, or none | Current path-based API maps to S3 semantics; gateway adds DuckDB/pandas native S3 support. |
 
 
 \newpage
@@ -618,7 +635,12 @@ Reports a state transition. Rejects invalid transitions with `409 Conflict`. Ide
 **COMPLETED** (after outputs committed):
 
 ```json
-{ "status": "COMPLETED", "worker_id": "hpc-headnode-01", "detail": "exit code 0" }
+{
+  "status": "COMPLETED",
+  "worker_id": "hpc-headnode-01",
+  "detail": "exit code 0",
+  "output_artifact_id": "art_abc123-..."
+}
 ```
 
 **FAILED** (head node or wrapper):
@@ -669,30 +691,50 @@ Follows RFC 9457 (Problem Details for HTTP APIs) structure.
 
 ## A.3 Artifact API {.unnumbered}
 
-### GET /api/hpc/artifacts/{id} {.unnumbered}
+### POST /api/hpc/artifacts {.unnumbered}
 
-Returns full metadata. Examples for different residences:
+Creates an artifact. Managed artifacts start in CREATED; external artifacts (posix, s3, http, reference) start in REGISTERED.
 
-**Managed tabular artifact:**
+**Managed:** `{ "type": "tabular", "format": "parquet", "residence": "managed" }`
+
+**NFS:** `{ "type": "blob", "format": "mixed", "residence": "posix", "content_url": "file:///nfs/outputs/job-123" }`
+
+**S3:** `{ "type": "tabular", "format": "parquet", "residence": "s3", "content_url": "s3://..." }`
+
+**Response:** `201 Created`
 
 ```json
 {
-  "artifact_id": "art_abc",
-  "artifact_url": "https://artifact.example.org/artifacts/art_abc",
+  "id": "art_abc123-...",
+  "type": "tabular",
+  "status": "CREATED",
+  "_links": {
+    "self": { "href": "/api/hpc/artifacts/art_abc123-...", "method": "GET" },
+    "upload": { "href": "/api/hpc/artifacts/art_abc123-.../files/{path}", "method": "PUT" },
+    "upload_legacy": { "href": "/api/hpc/artifacts/art_abc123-.../files", "method": "POST" },
+    "files": { "href": "/api/hpc/artifacts/art_abc123-.../files", "method": "GET" }
+  }
+}
+```
+
+### GET /api/hpc/artifacts/{id} {.unnumbered}
+
+Returns full metadata with HATEOAS links. Links vary by status: CREATED/UPLOADING include `upload` and (for UPLOADING) `commit`; COMMITTED includes `download`; all include `files`.
+
+**Managed artifact (committed):**
+
+```json
+{
+  "id": "art_abc",
   "type": "tabular", "format": "parquet", "residence": "managed",
-  "state": "COMMITTED", "sha256": "b3a3f0...", "size_bytes": 52428800,
-  "content_url": "https://artifact.example.org/artifacts/art_abc/content",
-  "s3_url": "s3://emx2-artifacts/art_abc/data.parquet",
-  "schema": {
-    "columns": [
-      { "name": "record_id", "type": "VARCHAR", "nullable": false },
-      { "name": "text", "type": "VARCHAR", "nullable": false },
-      { "name": "embedding", "type": "FLOAT[]", "nullable": false },
-      { "name": "similarity_score", "type": "DOUBLE", "nullable": true }
-    ],
-    "row_count": 1284000, "row_group_count": 13
-  },
-  "created_at": "2026-02-21T10:00:00Z", "committed_at": "2026-02-21T10:05:00Z"
+  "status": "COMMITTED", "sha256": "b3a3f0...", "size_bytes": 52428800,
+  "content_url": null,
+  "created_at": "2026-02-21T10:00:00", "committed_at": "2026-02-21T10:05:00",
+  "_links": {
+    "self": { "href": "/api/hpc/artifacts/art_abc", "method": "GET" },
+    "download": { "href": "/api/hpc/artifacts/art_abc/files/{path}", "method": "GET" },
+    "files": { "href": "/api/hpc/artifacts/art_abc/files", "method": "GET" }
+  }
 }
 ```
 
@@ -700,46 +742,137 @@ Returns full metadata. Examples for different residences:
 
 **S3 artifact:** `"residence": "s3"`, `"content_url": "s3://data-lake/outputs/analysis.parquet"`
 
-**Multi-file model on NFS:**
+### PUT /api/hpc/artifacts/{id}/files/{path} {.unnumbered}
+
+Uploads a file to an artifact by path. The `{path}` segment is the logical file name within the artifact (e.g. `data.parquet`, `model/weights.bin`). Upserts: if a file already exists at that path, it is replaced. Transitions the artifact from CREATED to UPLOADING on the first upload.
+
+Accepts two body formats:
+
+- **Raw binary** (preferred): `Content-Type` describes the file's media type; body is the raw file bytes. The server computes SHA-256 and stores the file.
+- **Multipart**: `Content-Type: multipart/form-data` with a `file` part and optional `role`, `content_type` form params.
+
+**Request** (raw binary):
+
+```
+PUT /api/hpc/artifacts/art_abc/files/data.parquet
+Content-Type: application/vnd.apache.parquet
+X-EMX2-API-Version: 2025-01
+...
+
+<raw file bytes>
+```
+
+**Response:** `201 Created`
 
 ```json
 {
-  "artifact_id": "art_model_nfs",
+  "id": "file-uuid-...",
+  "artifact_id": "art_abc",
+  "path": "data.parquet",
+  "sha256": "b3a3f0...",
+  "size_bytes": 52428800
+}
+```
+
+**HMAC note:** For non-JSON request bodies (raw binary uploads), the HMAC signature is computed over an empty string rather than the file bytes. This avoids encoding issues with large binary payloads and matches the token auth path.
+
+### GET /api/hpc/artifacts/{id}/files/{path} {.unnumbered}
+
+Downloads file content. Returns the raw bytes with appropriate `Content-Type`, `Content-Disposition: attachment`, `Content-Length`, and `X-Content-SHA256` headers.
+
+For managed artifacts with stored content, serves bytes directly. For posix/external artifacts where the file metadata exists but no binary is stored, returns `302 Found` redirecting to `{content_url}/{path}`.
+
+**Response headers:**
+
+```
+Content-Type: application/vnd.apache.parquet
+Content-Disposition: attachment; filename="data.parquet"
+Content-Length: 52428800
+X-Content-SHA256: b3a3f0...
+```
+
+### HEAD /api/hpc/artifacts/{id}/files/{path} {.unnumbered}
+
+Returns file metadata as headers without body content. Useful for checking existence and integrity without downloading.
+
+**Response headers:** `X-Content-SHA256`, `Content-Length`, `Content-Type`. Status `200 OK` if found, `404 Not Found` otherwise.
+
+### DELETE /api/hpc/artifacts/{id}/files/{path} {.unnumbered}
+
+Deletes a file from an artifact. Only allowed when the artifact is not yet COMMITTED.
+
+**Response:** `204 No Content` on success, `409 Conflict` if artifact is committed, `404 Not Found` if file does not exist.
+
+### GET /api/hpc/artifacts/{id}/files {.unnumbered}
+
+Lists files in an artifact with pagination and optional prefix filtering.
+
+**Query parameters:** `prefix` (filter paths starting with this string), `limit` (default 100), `offset` (default 0).
+
+**Response:** `200 OK`
+
+```json
+{
+  "items": [
+    {
+      "id": "file-uuid-...",
+      "path": "data.parquet",
+      "role": "primary",
+      "sha256": "b3a3f0...",
+      "size_bytes": 52428800,
+      "content_type": "application/vnd.apache.parquet",
+      "_links": {
+        "content": {
+          "href": "/api/hpc/artifacts/art_abc/files/data.parquet",
+          "method": "GET"
+        }
+      }
+    }
+  ],
+  "count": 1,
+  "total_count": 1,
+  "limit": 100,
+  "offset": 0
+}
+```
+
+### POST /api/hpc/artifacts/{id}/files (legacy) {.unnumbered}
+
+Uploads a file to an artifact. Retained for backward compatibility. Accepts either JSON metadata-only (`{ "path": "...", "sha256": "...", "size_bytes": ... }`) or multipart with a `file` part. New clients should prefer `PUT /files/{path}`.
+
+### POST /api/hpc/artifacts/{id}/commit {.unnumbered}
+
+Commits the artifact with a top-level SHA-256 hash and total size. The artifact must be in UPLOADING (managed) or REGISTERED (external) status. Immutable after commit — subsequent uploads and deletes are rejected.
+
+**Request:** `{ "sha256": "abc123...", "size_bytes": 1024 }`
+
+**Response:** `200 OK` with full artifact metadata.
+
+### Artifact examples by residence {.unnumbered}
+
+**Multi-file model on NFS (posix):**
+
+```json
+{
+  "id": "art_model_nfs",
   "type": "model", "format": "gguf", "residence": "posix",
-  "state": "COMMITTED", "sha256": "d1e2f3...",
-  "content_url": "file:///nfs/models/llama-3-8b/",
-  "files": [
+  "status": "COMMITTED", "sha256": "d1e2f3...",
+  "content_url": "file:///nfs/models/llama-3-8b/"
+}
+```
+
+File listing for this artifact:
+
+```json
+{
+  "items": [
     { "path": "model.gguf", "role": "primary", "size_bytes": 4294967296, "sha256": "a1b2c3..." },
     { "path": "tokenizer.json", "role": "metadata", "size_bytes": 524288, "sha256": "d4e5f6..." }
   ]
 }
 ```
 
-### POST /api/hpc/artifacts {.unnumbered}
-
-Creates an artifact. Type, format, and residence are required.
-
-**Managed:** `{ "type": "tabular", "format": "parquet", "residence": "managed" }`
-
-**S3:** `{ "type": "tabular", "format": "parquet", "residence": "s3", "content_url": "s3://...", "sha256": "..." }`
-
-**NFS:** `{ "type": "tabular", "format": "parquet", "residence": "posix", "content_url": "file:///nfs/...", "sha256": "..." }`
-
-**Response:** `201 Created` with full metadata and HATEOAS links.
-
-### POST /api/hpc/artifacts/{id}/files {.unnumbered}
-
-Uploads a file to a managed artifact. Accepts either JSON metadata or multipart file upload. File content is stored in the EMX2 FILE column.
-
-### POST /api/hpc/artifacts/{id}/commit {.unnumbered}
-
-Commits the artifact with a top-level SHA-256 hash and total size. Immutable after commit.
-
-**Request:** `{ "sha256": "abc123...", "size_bytes": 1024 }`
-
-### GET /api/hpc/artifacts/{id}/files {.unnumbered}
-
-Lists files in a multi-file artifact.
+For posix artifacts, the daemon registers file metadata without binary content. Consumers access files directly via the NFS mount at the `content_url` path. The GET file endpoint returns a `302` redirect to `{content_url}/{path}` for files without stored binary content.
 
 # Appendix B: State Machine Reference {.unnumbered}
 
@@ -757,13 +890,25 @@ All states include `self` and `transitions` (read) links.
 | FAILED | *(terminal)* |
 | CANCELLED | *(terminal)* |
 
-## B.2 Artifact Lifecycle Transitions {.unnumbered}
+## B.2 Hypermedia Link Mapping (Artifacts) {.unnumbered}
 
-**Managed:** CREATED → UPLOADING (first upload) → COMMITTED (complete; hash computed). CREATED or UPLOADING → FAILED (timeout).
+All states include `self` and `files` (list) links.
+
+| Current state | Mutation links |
+|---------------|---------------|
+| CREATED | `upload` (PUT), `upload_legacy` (POST) |
+| UPLOADING | `upload` (PUT), `upload_legacy` (POST), `commit` |
+| REGISTERED | `commit` |
+| COMMITTED | `download` (GET template) |
+| FAILED | *(terminal)* |
+
+## B.3 Artifact Lifecycle Transitions {.unnumbered}
+
+**Managed:** CREATED → UPLOADING (first `PUT /files/{path}`) → COMMITTED (`POST /commit`). CREATED or UPLOADING → FAILED (timeout).
 
 **External (POSIX, S3, HTTP, reference):** REGISTERED → COMMITTED (verified) or REGISTERED → FAILED (unreachable / hash mismatch).
 
-## B.3 Tree Hash {.unnumbered}
+## B.4 Tree Hash {.unnumbered}
 
 ```
 sha256_tree = SHA256(concat(for each file in sorted(paths): path + ":" + sha256_hex(file_bytes)))

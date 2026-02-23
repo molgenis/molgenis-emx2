@@ -120,6 +120,10 @@ public class HpcApi {
     app.get("/api/hpc/artifacts/{id}", artifactsApi::getArtifact);
     app.post("/api/hpc/artifacts/{id}/files", artifactsApi::uploadFile);
     app.get("/api/hpc/artifacts/{id}/files", artifactsApi::listFiles);
+    app.put("/api/hpc/artifacts/{id}/files/{path}", artifactsApi::uploadFileByPath);
+    app.get("/api/hpc/artifacts/{id}/files/{path}", artifactsApi::downloadFile);
+    app.head("/api/hpc/artifacts/{id}/files/{path}", artifactsApi::headFile);
+    app.delete("/api/hpc/artifacts/{id}/files/{path}", artifactsApi::deleteFile);
     app.post("/api/hpc/artifacts/{id}/commit", artifactsApi::commitArtifact);
 
     logger.info("HPC API: routes registered under /api/hpc/*");
@@ -157,10 +161,15 @@ public class HpcApi {
 
   private static void verifyHmac(Context ctx, HmacVerifier verifier) {
     try {
+      // For non-JSON bodies (binary uploads), sign over empty string to avoid
+      // encoding issues with large binary payloads
+      String ct = ctx.header("Content-Type");
+      boolean isJson = ct != null && ct.startsWith("application/json");
+      String body = isJson ? ctx.body() : "";
       verifier.verify(
           ctx.method().name(),
           ctx.path(),
-          ctx.body(),
+          body,
           ctx.header("Authorization"),
           ctx.header(HpcHeaders.TIMESTAMP),
           ctx.header(HpcHeaders.NONCE));
