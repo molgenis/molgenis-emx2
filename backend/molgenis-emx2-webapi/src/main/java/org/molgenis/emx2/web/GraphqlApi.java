@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
+import static org.molgenis.emx2.web.Constants.ACCEPT_JSONLD;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
@@ -63,6 +64,10 @@ public class GraphqlApi {
     app.get(schemaPath, GraphqlApi::handleSchemaRequests);
     app.post(schemaPath, GraphqlApi::handleSchemaRequests);
 
+    final String graphqlLdPath = "/{schema}/graphql-ld";
+    app.get(graphqlLdPath, ctx -> handleSchemaRequests(ctx, true));
+    app.post(graphqlLdPath, ctx -> handleSchemaRequests(ctx, true));
+
     // per schema graphql
     final String schemaAppPath = "/{schema}/{app}/graphql"; // NOSONAR
     app.get(schemaAppPath, GraphqlApi::handleSchemaRequests);
@@ -76,6 +81,10 @@ public class GraphqlApi {
   }
 
   public static void handleSchemaRequests(Context ctx) throws IOException {
+    handleSchemaRequests(ctx, false);
+  }
+
+  public static void handleSchemaRequests(Context ctx, boolean jsonLd) throws IOException {
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
     // apps and api is not a schema but a resource
@@ -90,8 +99,13 @@ public class GraphqlApi {
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
     GraphqlExecutor graphqlForSchema = APPLICATION_CACHE.getSchemaGraphqlForUser(schemaName, ctx);
-    ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    ctx.json(executeQuery(graphqlForSchema, ctx));
+    if (jsonLd) {
+      ctx.header(CONTENT_TYPE, ACCEPT_JSONLD);
+      ctx.json(executeQueryAsJsonLd(graphqlForSchema, ctx));
+    } else {
+      ctx.header(CONTENT_TYPE, ACCEPT_JSON);
+      ctx.json(executeQuery(graphqlForSchema, ctx));
+    }
   }
 
   private static String executeQuery(GraphqlExecutor graphqlApi, Context ctx) throws IOException {
@@ -106,6 +120,23 @@ public class GraphqlApi {
 
     if (logger.isInfoEnabled())
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
+    return result;
+  }
+
+  private static String executeQueryAsJsonLd(GraphqlExecutor graphqlApi, Context ctx)
+      throws IOException {
+    String query = getQueryFromRequest(ctx);
+    Map<String, Object> variables = getVariablesFromRequest(ctx);
+    GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
+    long start = System.currentTimeMillis();
+
+    ExecutionResult executionResult = graphqlApi.execute(query, variables, sessionManager);
+    String schemaPath = ctx.path().substring(0, ctx.path().indexOf("/graphql-ld"));
+    String baseUrl = ctx.scheme() + "://" + ctx.host() + schemaPath;
+    String result = graphqlApi.convertExecutionResultToJsonLd(executionResult, baseUrl);
+
+    if (logger.isInfoEnabled())
+      logger.info("graphql-ld request completed in {}ms", +(System.currentTimeMillis() - start));
     return result;
   }
 

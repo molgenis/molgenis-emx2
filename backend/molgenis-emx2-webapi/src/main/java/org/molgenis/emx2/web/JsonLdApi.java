@@ -6,6 +6,7 @@ import static org.molgenis.emx2.rdf.jsonld.JsonLdUtils.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.DownloadApiUtils.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -34,6 +35,10 @@ public class JsonLdApi {
     String jsonldApi = "/{schema}/api/jsonld-rest/";
     app.get(jsonldApi + "_schema", JsonLdApi::getSchema);
     app.get(jsonldApi + "_context", JsonLdApi::getSchema);
+    app.post(jsonldApi + "{table}", ctx -> postTable(ctx, "jsonld"));
+    app.delete(jsonldApi + "{table}", ctx -> deleteTable(ctx, "jsonld"));
+    app.put(jsonldApi + "{table}/*", ctx -> putRow(ctx, "jsonld"));
+    app.delete(jsonldApi + "{table}/*", ctx -> deleteRow(ctx, "jsonld"));
   }
 
   private static GraphqlExecutor getGraphqlForSchema(Context ctx) {
@@ -64,11 +69,8 @@ public class JsonLdApi {
 
   private static void getSchema(Context ctx) throws IOException {
     GraphqlExecutor graphqlApi = getGraphqlForSchema(ctx);
-    Map<String, Object> context =
-        ApplicationCachePerUser.getInstance()
-            .getJsonLdContext(schemaBaseUrl(ctx), graphqlApi.getSchema().getMetadata());
     ctx.contentType(ACCEPT_JSONLD);
-    ctx.result(JSON_MAPPER.writeValueAsString(context));
+    ctx.result(JSON_MAPPER.writeValueAsString(graphqlApi.getJsonLdContextMap(schemaBaseUrl(ctx))));
     ctx.status(200);
   }
 
@@ -77,10 +79,7 @@ public class JsonLdApi {
     String customQuery = ctx.queryParam("query");
     String query = customQuery != null ? customQuery : graphqlApi.getSelectAllQuery();
     Map<String, Object> data = graphqlApi.queryAsMap(query, Map.of());
-    Map<String, Object> context =
-        ApplicationCachePerUser.getInstance()
-            .getJsonLdContext(schemaBaseUrl(ctx), graphqlApi.getSchema().getMetadata());
-    respondWithData(ctx, format, context, data);
+    respondWithData(ctx, format, graphqlApi.getJsonLdContextMap(schemaBaseUrl(ctx)), data);
   }
 
   private static void getTable(Context ctx, String format) throws IOException {
@@ -90,30 +89,36 @@ public class JsonLdApi {
     Map<String, Object> variables = buildQueryVariables(ctx);
     String query = buildParameterizedTableQuery(tableId);
     Map<String, Object> data = graphqlApi.queryAsMap(query, variables);
-    Map<String, Object> context =
-        ApplicationCachePerUser.getInstance()
-            .getJsonLdContext(schemaBaseUrl(ctx), graphqlApi.getSchema().getMetadata());
-    respondWithData(ctx, format, context, data);
+    respondWithData(ctx, format, graphqlApi.getJsonLdContextMap(schemaBaseUrl(ctx)), data);
   }
 
-  private static Optional<Row> fetchRowByPrimaryKey(Table table, String id) {
+  private static Map<String, Object> parsePrimaryKeyFromPath(Table table, String id) {
     List<String> primaryKeyNames = table.getMetadata().getPrimaryKeys();
     DownloadApiUtils.validatePrimaryKeyCount(primaryKeyNames);
-    Query query = table.query();
+    Map<String, Object> pkValues = new LinkedHashMap<>();
     if (primaryKeyNames.size() == 1) {
       Column pkColumn = table.getMetadata().getColumn(primaryKeyNames.get(0));
-      Object typedId = convertToColumnType(id, pkColumn);
-      query.where(f(primaryKeyNames.get(0), EQUALS, typedId));
+      pkValues.put(primaryKeyNames.get(0), convertToColumnType(id, pkColumn));
     } else {
       String[] parts = id.split("/");
       DownloadApiUtils.validateCompositeKeyParts(parts, primaryKeyNames);
       for (int i = 0; i < primaryKeyNames.size(); i++) {
         Column pkColumn = table.getMetadata().getColumn(primaryKeyNames.get(i));
-        Object typedValue = convertToColumnType(parts[i], pkColumn);
-        query.where(f(primaryKeyNames.get(i), EQUALS, typedValue));
+        pkValues.put(primaryKeyNames.get(i), convertToColumnType(parts[i], pkColumn));
       }
     }
-    List<Row> results = query.retrieveRows();
+    return pkValues;
+  }
+
+  private static Filter buildPrimaryKeyFilter(Map<String, Object> pkValues) {
+    List<Filter> filters =
+        pkValues.entrySet().stream().map(e -> f(e.getKey(), EQUALS, e.getValue())).toList();
+    return FilterBean.and(filters);
+  }
+
+  private static Optional<Row> fetchRowByPrimaryKey(Table table, String id) {
+    Map<String, Object> pkValues = parsePrimaryKeyFromPath(table, id);
+    List<Row> results = table.query().where(buildPrimaryKeyFilter(pkValues)).retrieveRows();
     return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
   }
 
@@ -126,10 +131,123 @@ public class JsonLdApi {
       ctx.result("{ \"message\": \"Row not found\" }");
       return;
     }
-    Map<String, Object> context =
-        ApplicationCachePerUser.getInstance()
-            .getJsonLdContext(schemaBaseUrl(ctx), table.getSchema().getMetadata());
-    respondWithData(ctx, format, context, result.get().getValueMap());
+    GraphqlExecutor graphqlApi = getGraphqlForSchema(ctx);
+    respondWithData(
+        ctx,
+        format,
+        graphqlApi.getJsonLdContextMap(schemaBaseUrl(ctx)),
+        result.get().getValueMap());
+  }
+
+  private static void postTable(Context ctx, String format) throws IOException {
+    if ("ttl".equals(format)) {
+      throw new MolgenisException("Import not supported for Turtle format");
+    }
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    long start = System.currentTimeMillis();
+    String body = ctx.body();
+    List<Map<String, Object>> rowMaps = parseBodyToRowList(body, table);
+    List<Map<String, Object>> cleaned = new ArrayList<>();
+    for (Map<String, Object> rowMap : rowMaps) {
+      cleaned.add(stripJsonLdKeywords(rowMap));
+    }
+    List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), cleaned);
+    int count = table.save(rows);
+    long elapsed = System.currentTimeMillis() - start;
+    ctx.contentType("application/json");
+    ctx.result(
+        JSON_MAPPER.writeValueAsString(
+            Map.of("message", "imported " + count + " rows in " + elapsed + "ms")));
+    ctx.status(200);
+  }
+
+  private static void deleteTable(Context ctx, String format) throws IOException {
+    if ("ttl".equals(format)) {
+      throw new MolgenisException("Delete not supported for Turtle format");
+    }
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    long start = System.currentTimeMillis();
+    List<Map<String, Object>> rowMaps =
+        JSON_MAPPER.readValue(ctx.body(), new TypeReference<List<Map<String, Object>>>() {});
+    List<Row> rows = TypeUtils.convertToPrimaryKeyRows(table.getMetadata(), rowMaps);
+    int count = table.delete(rows);
+    long elapsed = System.currentTimeMillis() - start;
+    ctx.contentType("application/json");
+    ctx.result(
+        JSON_MAPPER.writeValueAsString(
+            Map.of("message", "deleted " + count + " rows in " + elapsed + "ms")));
+    ctx.status(200);
+  }
+
+  private static void putRow(Context ctx, String format) throws IOException {
+    if ("ttl".equals(format)) {
+      throw new MolgenisException("Update not supported for Turtle format");
+    }
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    String id = DownloadApiUtils.extractIdFromPath(ctx, table);
+    long start = System.currentTimeMillis();
+    Map<String, Object> bodyMap =
+        JSON_MAPPER.readValue(ctx.body(), new TypeReference<Map<String, Object>>() {});
+    Map<String, Object> cleaned = stripJsonLdKeywords(bodyMap);
+    Map<String, Object> rowMap = new LinkedHashMap<>(cleaned);
+    parsePrimaryKeyFromPath(table, id).forEach(rowMap::put);
+    List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), List.of(rowMap));
+    table.save(rows);
+    long elapsed = System.currentTimeMillis() - start;
+    ctx.contentType("application/json");
+    ctx.result(
+        JSON_MAPPER.writeValueAsString(Map.of("message", "updated row in " + elapsed + "ms")));
+    ctx.status(200);
+  }
+
+  private static void deleteRow(Context ctx, String format) throws IOException {
+    if ("ttl".equals(format)) {
+      throw new MolgenisException("Delete not supported for Turtle format");
+    }
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    String id = DownloadApiUtils.extractIdFromPath(ctx, table);
+    long start = System.currentTimeMillis();
+    Map<String, Object> pkMap = parsePrimaryKeyFromPath(table, id);
+    List<Row> rows = TypeUtils.convertToPrimaryKeyRows(table.getMetadata(), List.of(pkMap));
+    table.delete(rows);
+    long elapsed = System.currentTimeMillis() - start;
+    ctx.contentType("application/json");
+    ctx.result(
+        JSON_MAPPER.writeValueAsString(Map.of("message", "deleted row in " + elapsed + "ms")));
+    ctx.status(200);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<Map<String, Object>> parseBodyToRowList(String body, Table table)
+      throws IOException {
+    Object parsed = JSON_MAPPER.readValue(body, Object.class);
+    if (parsed instanceof List) {
+      return (List<Map<String, Object>>) parsed;
+    }
+    if (parsed instanceof Map) {
+      Map<String, Object> bodyMap = (Map<String, Object>) parsed;
+      String tableId = table.getMetadata().getIdentifier();
+      for (String key : List.of(tableId, "data", "@graph")) {
+        if (bodyMap.containsKey(key)) {
+          Object value = bodyMap.get(key);
+          if (value instanceof List) {
+            return (List<Map<String, Object>>) value;
+          }
+          if (value instanceof Map) {
+            Map<String, Object> nested = (Map<String, Object>) value;
+            if (nested.containsKey(tableId)) {
+              Object tableData = nested.get(tableId);
+              if (tableData instanceof List) {
+                return (List<Map<String, Object>>) tableData;
+              }
+            }
+            return List.of(nested);
+          }
+        }
+      }
+      return List.of(bodyMap);
+    }
+    return List.of();
   }
 
   private static Object convertToColumnType(String value, Column column) {

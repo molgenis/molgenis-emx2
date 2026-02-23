@@ -162,6 +162,12 @@ public class GraphqlTableFieldFactory {
       for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
         createTableField(col, tableBuilder);
       }
+      if (!table.getPrimaryKeyColumns().isEmpty()) {
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(Constants.MG_ID)
+                .type(Scalars.GraphQLString));
+      }
       tableTypes.put(tableObjectType, tableBuilder.build());
     }
     return tableTypes.get(tableObjectType);

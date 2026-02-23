@@ -1,7 +1,6 @@
 package org.molgenis.emx2.jsonld;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -73,11 +72,21 @@ public class TestJsonLdSchemaGenerator {
     Schema schema = database.getSchema(schemaName);
     GraphqlExecutor graphQL = new GraphqlExecutor(schema);
     ExecutionResult result = graphQL.executeWithoutSession("{Pet{...PetAllFields}}");
+    Map<String, Object> data = result.getData();
+
+    List<Map<String, Object>> pets = (List<Map<String, Object>>) data.get("Pet");
+    assertNotNull(pets, "Pet list should not be null");
+    assertFalse(pets.isEmpty(), "Pet list should not be empty");
+    for (Map<String, Object> pet : pets) {
+      String mgId = (String) pet.get(MG_ID);
+      assertNotNull(mgId, "mg_id should be present for each Pet row");
+      assertTrue(mgId.startsWith("Pet/name="), "mg_id should start with Pet/name=, got: " + mgId);
+    }
+
     String schemaUrl = "http://localhost:8080";
     Map jsonLdSchema = generateJsonLdSchemaAsMap(schema.getMetadata(), schemaUrl);
-    Map data = result.getData();
     String ttl = convertToTurtle(jsonLdSchema, data);
-    System.out.println(ttl);
+    assertTrue(ttl.contains("Pet/name="), "TTL should contain Pet resource identifiers");
   }
 
   @Test

@@ -267,6 +267,19 @@ public class SqlQuery extends QueryBean {
     return functionCallField.as(name(column.getIdentifier()));
   }
 
+  private Field<String> buildMgIdField(TableMetadata table, String tableAlias) {
+    Field<String> result = inline(table.getIdentifier() + "/");
+    String separator = "";
+    for (Field<?> pkField : table.getPrimaryKeyFields()) {
+      result =
+          result
+              .concat(inline(separator + convertToCamelCase(pkField.getName()) + "="))
+              .concat(field(name(alias(tableAlias), pkField.getName())).cast(String.class));
+      separator = "&";
+    }
+    return result.as(MG_ID);
+  }
+
   @Override
   public String retrieveJSON() {
     SelectColumn select = getSelect();
@@ -585,6 +598,10 @@ public class SqlQuery extends QueryBean {
     }
 
     for (SelectColumn select : selection.getSubselect()) {
+      if (MG_ID.equals(select.getColumn())) {
+        fields.add(buildMgIdField(table, tableAlias));
+        continue;
+      }
       Column column =
           select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
               ? getColumnByName(

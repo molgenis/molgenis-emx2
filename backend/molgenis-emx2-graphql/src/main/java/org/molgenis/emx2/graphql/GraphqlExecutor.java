@@ -26,6 +26,7 @@ public class GraphqlExecutor {
       Pattern.compile("\\.\\.\\.\\s*([A-Za-z_][A-Za-z0-9_]*AllFields[0-9]?)");
   private final GraphQL graphql;
   private final Map<String, String> graphqlQueryFragments;
+  private final Map<String, Map<String, Object>> jsonLdContextCache = new LinkedHashMap<>();
   private Schema schema;
 
   private void init() {
@@ -42,6 +43,21 @@ public class GraphqlExecutor {
     // tests show conversions below is under 3ms
     Map<String, Object> toSpecificationResult = executionResult.toSpecification();
     return JsonUtil.getWriter().writeValueAsString(toSpecificationResult);
+  }
+
+  public Map<String, Object> getJsonLdContextMap(String baseUrl) {
+    return jsonLdContextCache.computeIfAbsent(
+        baseUrl,
+        url ->
+            org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchemaAsMap(
+                schema.getMetadata(), url));
+  }
+
+  public String convertExecutionResultToJsonLd(ExecutionResult executionResult, String baseUrl)
+      throws JsonProcessingException {
+    Map<String, Object> result = new LinkedHashMap<>(getJsonLdContextMap(baseUrl));
+    result.put("data", executionResult.getData());
+    return JsonUtil.getWriter().writeValueAsString(result);
   }
 
   /** bit unfortunate that we have to convert from json to map and back */
