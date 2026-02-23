@@ -41,7 +41,7 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type status { name } }
+      output_artifact_id { id name type { name } status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -66,7 +66,7 @@ export async function fetchJobDetail(jobId) {
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type status { name } }
+      output_artifact_id { id name type { name } status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -328,7 +328,7 @@ function normalizeJob(job) {
       ? {
           id: output.id,
           name: output.name,
-          type: output.type,
+          type: output.type?.name ?? output.type,
           status: output.status?.name ?? output.status,
         }
       : null,
