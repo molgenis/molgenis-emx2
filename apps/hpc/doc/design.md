@@ -508,6 +508,18 @@ The reference implementation SHOULD use **HMAC-SHA256** as the default. The cano
 
 Replay protection SHOULD enforce a 5-minute timestamp drift window and an LRU nonce cache.
 
+## Server-Side Authentication Cascade
+
+The `/api/hpc/*` before-handler accepts three authentication methods, tried in order:
+
+1. **HMAC-SHA256** — daemon requests carrying an `Authorization: HMAC-SHA256 <signature>` header. The server recomputes the signature over the canonical request string (including query parameters) using the shared secret and compares.
+2. **JWT token** — requests with an `x-molgenis-token` header. The server validates the token via EMX2's standard JWT verification (`JWTgenerator`).
+3. **Session cookie** — browser requests from signed-in EMX2 users. The server reads the `username` attribute from the servlet session (set by the standard EMX2 sign-in flow).
+
+If none of the three methods yields an authenticated identity, the server returns `401 Unauthorized`. The health endpoint (`/api/hpc/health`) is exempt from authentication.
+
+This cascade allows the HPC daemon to authenticate via HMAC (the primary path), while the browser-based management UI authenticates via the user's existing EMX2 session without needing access to the shared secret.
+
 ## What EMX2 Enforces
 
 EMX2 is the sole authority for job state, lifecycle transitions, and artifact metadata. Workers MUST NOT unilaterally change anything — they can only *request* transitions, which EMX2 validates against the state machine before accepting. This means even a compromised worker can only submit requests that are legal given the current state; it cannot, for example, mark someone else's job as completed or overwrite a committed artifact.

@@ -81,26 +81,34 @@ public class HpcApi {
             throw new io.javalin.http.BadRequestResponse(e.getMessage());
           }
 
-          // Authentication: try HMAC first, then JWT token, then reject if HMAC was configured
+          // Authentication: try HMAC first, then JWT token, then session cookie, then reject
           String authHeader = ctx.header("Authorization");
           String tokenHeader = ctx.header("x-molgenis-token");
           if (authHeader != null && !authHeader.isBlank()) {
-            // HMAC authentication (existing path)
+            // HMAC authentication (daemon)
             if (hmacVerifier != null) {
               verifyHmac(ctx, hmacVerifier);
             }
           } else if (tokenHeader != null && !tokenHeader.isBlank()) {
             // JWT token authentication
             verifyToken(ctx, database, tokenHeader);
-          } else if (hmacVerifier != null) {
-            // HMAC was configured but no auth credentials provided
-            ProblemDetail.send(
-                ctx,
-                401,
-                "Unauthorized",
-                "Missing authentication: provide Authorization (HMAC) or x-molgenis-token header",
-                ctx.header(HpcHeaders.REQUEST_ID));
-            throw new io.javalin.http.UnauthorizedResponse("Missing authentication credentials");
+          } else {
+            // Session-based authentication (browser UI)
+            String sessionUser = null;
+            jakarta.servlet.http.HttpSession session = ctx.req().getSession(false);
+            if (session != null) {
+              sessionUser = (String) session.getAttribute("username");
+            }
+            if (sessionUser == null || sessionUser.isBlank()) {
+              ProblemDetail.send(
+                  ctx,
+                  401,
+                  "Unauthorized",
+                  "Missing authentication: provide Authorization (HMAC), x-molgenis-token, or sign in",
+                  ctx.header(HpcHeaders.REQUEST_ID));
+              throw new io.javalin.http.UnauthorizedResponse("Missing authentication credentials");
+            }
+            logger.debug("HPC session auth: user '{}'", sessionUser);
           }
         });
 
