@@ -17,8 +17,8 @@ public class AToolToCleanDatabase {
     jooq = db.getJooq();
     db.becomeAdmin();
 
-    executeSqlStep("clean-db-remove-molgenis-schema.sql");
     executeSqlStep("clean-db-remove-foreign-keys.sql");
+    executeSqlStep("clean-db-remove-molgenis-schema.sql");
     executeSqlStep("clean-db-remove-user-schemas.sql");
     executeSqlStep("clean-db-remove-all-roles.sql");
     MetadataUtils.resetVersion();
