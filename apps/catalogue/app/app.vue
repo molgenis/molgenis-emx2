@@ -19,6 +19,8 @@ const analyticsService = computed(() => {
       return "siteimprove";
     } else if (config.public.analyticsProvider === "google-analytics") {
       return "google-analytics";
+    } else if (config.public.analyticsProvider === "piwik-pro") {
+      return "piwik-pro";
     } else {
       return "";
     }
@@ -50,6 +52,12 @@ if (
   initialize(config.public.analyticsKey);
 }
 
+const scriptMap: Record<string, string> = {
+  "google-analytics": `https://www.googletagmanager.com/gtag/js?id=${config.public.analyticsKey}`,
+  siteimprove: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+  "piwik-pro": `https://umcg.containers.piwik.pro/${config.public.analyticsKey}.js`,
+};
+
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
   : "/_nuxt-styles/img/molgenis.ico";
@@ -70,10 +78,10 @@ useHead({
   script:
     config.public.analyticsKey &&
     isAnalyticsAllowedCookie.value &&
-    analyticsService.value === "siteimprove"
+    analyticsService.value
       ? [
           {
-            src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+            src: scriptMap[analyticsService.value],
             async: true,
             tagPosition: "bodyClose",
           },

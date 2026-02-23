@@ -1,5 +1,4 @@
-export type providerId = "site-improve";
-
+export type providerId = "site-improve" | "google-analytics" | "piwik-pro";
 export interface Provider {
   id: providerId;
   options: ProviderOptions;

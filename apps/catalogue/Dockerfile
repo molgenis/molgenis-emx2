@@ -42,11 +42,14 @@ ENV NUXT_PUBLIC_SITE_TITLE=$NUXT_PUBLIC_SITE_TITLE
 # Set feature flag for cohort only app
 ENV NUXT_PUBLIC_COHORT_ONLY=$NUXT_PUBLIC_COHORT_ONLY
 
-# pass optional analytics key 
+# Optional analytics key
 ENV NUXT_PUBLIC_ANALYTICS_KEY=$NUXT_PUBLIC_ANALYTICS_KEY
 
-# pass optional name of analytics provider (for example: "google-analytics" defaults to "siteimprove") 
+# Optional name of analytics provider (for example: "google-analytics" defaults to "siteimprove")
 ENV NUXT_PUBLIC_ANALYTICS_PROVIDER=$NUXT_PUBLIC_ANALYTICS_PROVIDER
+
+# Optional domain for analytics provider
+ENV NUXT_PUBLIC_ANALYTICS_DOMAIN=$NUXT_PUBLIC_ANALYTICS_DOMAIN
 
 ## Start the server
 CMD node .output/server/index.mjs
