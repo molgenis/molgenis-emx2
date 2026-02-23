@@ -308,7 +308,9 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
   };
   const gotoPreviousRequiredField = () => {
@@ -332,10 +334,14 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
   };
 
@@ -377,7 +383,9 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === previousErrorColumnId
       );
-      scrollTo(`${previousErrorColumnId}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${previousErrorColumnId}-form-field`
+      );
     }
   };
 
@@ -394,7 +402,9 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === nextErrorColumnId
       );
-      scrollTo(`${nextErrorColumnId}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${nextErrorColumnId}-form-field`
+      );
     }
   };
 
@@ -545,8 +555,8 @@ export default function useForm(
     const container = document.getElementById(scrollContainerId.value);
 
     //lazy scroll, might need to wait for elements to be mounted first
-    function attemptScroll() {
-      if (container && elementId === "mg_top_of_form-form-field") {
+    function attemptScroll(depth = 0) {
+      if (container && elementId.endsWith("mg_top_of_form-form-field")) {
         container.scrollTo({
           top: 0,
           behavior: "auto",
@@ -560,7 +570,9 @@ export default function useForm(
           container.scrollTo({ top: offset, behavior: "auto" });
         } else {
           // try again on the next frame until the element exists
-          requestAnimationFrame(attemptScroll);
+          if (depth < 100) {
+            requestAnimationFrame(() => attemptScroll(depth + 1));
+          }
         }
       }
     }

@@ -106,9 +106,13 @@ describe("useForm", () => {
       formValues
     );
     gotoNextRequiredField();
-    expect(lastScrollTo.value).equals("col2-form-field");
+    expect(lastScrollTo.value).equals(
+      "vi test table metadata-vi test table metadata-col2-form-field"
+    );
     gotoNextRequiredField();
-    expect(lastScrollTo.value).equals("col4-form-field");
+    expect(lastScrollTo.value).equals(
+      "vi test table metadata-vi test table metadata-col4-form-field"
+    );
   });
 
   test("should go to the previous required field", () => {
@@ -121,9 +125,13 @@ describe("useForm", () => {
       formValues
     );
     gotoPreviousRequiredField();
-    expect(lastScrollTo.value).equals("col2-form-field");
+    expect(lastScrollTo.value).equals(
+      "vi test table metadata-vi test table metadata-col2-form-field"
+    );
     gotoPreviousRequiredField();
-    expect(lastScrollTo.value).equals("col4-form-field");
+    expect(lastScrollTo.value).equals(
+      "vi test table metadata-vi test table metadata-col4-form-field"
+    );
   });
 
   test("setting a value on required field should update the message", () => {
@@ -158,7 +166,9 @@ describe("useForm", () => {
     );
     validateAllColumns();
     gotoNextError();
-    expect(lastScrollTo.value).equals("col2-form-field");
+    expect(lastScrollTo.value).equals(
+      "vi test table metadata-vi test table metadata-col2-form-field"
+    );
   });
 
   test("should go to the previous error", () => {
@@ -169,7 +179,9 @@ describe("useForm", () => {
     );
     validateAllColumns();
     gotoPreviousError();
-    expect(lastScrollTo.value).equals("col6-form-field");
+    expect(lastScrollTo.value).equals(
+      "vi test table metadata-vi test table metadata-col6-form-field"
+    );
   });
 
   test("should return empty list in case of table meta without columns", () => {
