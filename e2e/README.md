@@ -22,6 +22,7 @@ git switch -c feat/e2e-...
 
 ```bash
 pnpm install
+npx playwright install
 ```
 
 ### Running the tests
