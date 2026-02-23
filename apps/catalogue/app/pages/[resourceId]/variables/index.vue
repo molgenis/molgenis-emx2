@@ -19,6 +19,7 @@ import {
   useRuntimeConfig,
   createError,
 } from "#app";
+import { useCatalogueContext } from "#imports";
 import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
 import { buildQueryFilter } from "../../../utils/buildQueryFilter";
 import { computed } from "vue";
@@ -50,9 +51,11 @@ const schema = config.public.schema as string;
 const route = useRoute();
 const router = useRouter();
 const pageSize = 30;
+const { buildBreadcrumbs, resourceUrl } = useCatalogueContext();
 
-const titlePrefix =
-  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+const resourceId = route.params.resourceId as string;
+
+const titlePrefix = `${resourceId} `;
 useHead({
   title: titlePrefix + "Variables",
   meta: [
@@ -64,9 +67,6 @@ useHead({
 });
 
 type view = "list" | "harmonisation";
-
-const scoped = route.params.catalogue !== "all";
-const catalogueRouteParam = route.params.catalogue as string;
 
 const activeName = computed(() => {
   return (route.query.view as view | undefined) || "list";
@@ -153,42 +153,45 @@ const pageFilterTemplate: IFilter[] = [
 ];
 
 async function fetchResourceOptions(): Promise<INode[]> {
+  const queryBody: any = {
+    query: `
+          query Resources($resourcesFilter: ResourcesFilter) {
+            Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
+              id
+              name
+            }
+          }
+        `,
+  };
+
+  if (resourceId !== "all") {
+    queryBody.variables = {
+      resourcesFilter: {
+        _or: [
+          {
+            partOfNetworks: { equals: [{ id: resourceId }] },
+          },
+          {
+            parentNetworks: { equals: [{ id: resourceId }] },
+          },
+          {
+            partOfNetworks: {
+              childNetworks: { equals: [{ id: resourceId }] },
+            },
+          },
+          {
+            partOfNetworks: {
+              parentNetworks: { equals: [{ id: resourceId }] },
+            },
+          },
+        ],
+      },
+    };
+  }
+
   const { data, error } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
-    body: {
-      query: `
-            query Resources($resourcesFilter: ResourcesFilter) {
-              Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
-                id
-                name
-              }
-            }
-          `,
-      variables: scoped
-        ? {
-            resourcesFilter: {
-              _or: [
-                {
-                  partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
-                },
-                {
-                  parentNetworks: { equals: [{ id: catalogueRouteParam }] },
-                },
-                {
-                  partOfNetworks: {
-                    childNetworks: { equals: [{ id: catalogueRouteParam }] },
-                  },
-                },
-                {
-                  partOfNetworks: {
-                    parentNetworks: { equals: [{ id: catalogueRouteParam }] },
-                  },
-                },
-              ],
-            },
-          }
-        : { resource: { type: { name: { equals: "Network" } } } },
-    },
+    body: queryBody,
   });
 
   return data?.Resources?.length
@@ -202,14 +205,11 @@ async function fetchResourceOptions(): Promise<INode[]> {
 }
 
 const filters = computed(() => {
-  // if there are not query conditions just use the page defaults
   if (!route.query?.conditions) {
     return [...pageFilterTemplate];
   }
 
-  // get conditions from query
   const conditions = conditionsFromPathQuery(route.query.conditions as string);
-  // merge with page defaults
   const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
   return filters;
 });
@@ -264,39 +264,47 @@ const filter = computed(() => {
 
 const fetchData = async () => {
   let resourcesFilter: any = {};
-  if (scoped) {
+
+  const resourceConditions = (
+    filters.value.find((f) => f.id === "resources") as IRefArrayFilter
+  )?.conditions;
+
+  if (resourceId === "all") {
+    if (resourceConditions.length) {
+      resourcesFilter = {
+        equals: resourceConditions.map((c) => ({ id: c.name })),
+      };
+    }
+  } else {
     resourcesFilter = {
       _or: [
         {
-          parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+          parentNetworks: { equals: [{ id: resourceId }] },
         },
         {
           partOfNetworks: {
             _or: [
-              { equals: [{ id: catalogueRouteParam }] },
+              { equals: [{ id: resourceId }] },
               {
-                childNetworks: { equals: [{ id: catalogueRouteParam }] },
+                childNetworks: { equals: [{ id: resourceId }] },
               },
               {
-                parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+                parentNetworks: { equals: [{ id: resourceId }] },
               },
             ],
           },
         },
       ],
     };
+
+    if (resourceConditions.length) {
+      resourcesFilter = {
+        ...resourcesFilter,
+        equals: resourceConditions.map((c) => ({ id: c.name })),
+      };
+    }
   }
 
-  // add 'special' filter for harmonisation x-axis if 'resources' filter is set
-  const resourceConditions = (
-    filters.value.find((f) => f.id === "resources") as IRefArrayFilter
-  )?.conditions;
-  if (resourceConditions.length) {
-    resourcesFilter = {
-      ...resourcesFilter,
-      equals: resourceConditions.map((c) => ({ id: c.name })),
-    };
-  }
   const variableResourceFilter = resourceConditions.length
     ? {
         mappings: {
@@ -305,47 +313,44 @@ const fetchData = async () => {
         },
       }
     : undefined;
-  const variables = scoped
-    ? {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{
-            _or: [
-              { resource: { id: { equals: catalogueRouteParam } } },
-              {
-                resource: {
-                  type: { name: { equals: "Network" } },
-                  parentNetworks: { id: { equals: catalogueRouteParam } },
+
+  const variablesFilter: any = {
+    ...filter.value,
+    ...variableResourceFilter,
+  };
+
+  if (resourceId === "all") {
+    variablesFilter.resource = { type: { name: { equals: "Network" } } };
+  } else {
+    variablesFilter._or = [
+      { resource: { id: { equals: resourceId } } },
+      {
+        resource: {
+          type: { name: { equals: "Network" } },
+          parentNetworks: { id: { equals: resourceId } },
+        },
+      },
+      {
+        reusedInResources: {
+          _or: [
+            { resource: { id: { equals: resourceId } } },
+            {
+              resource: {
+                parentNetworks: {
+                  id: { equals: resourceId },
                 },
               },
-              {
-                reusedInResources: {
-                  _or: [
-                    { resource: { id: { equals: catalogueRouteParam } } },
-                    {
-                      resource: {
-                        parentNetworks: {
-                          id: { equals: catalogueRouteParam },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+            },
+          ],
         },
-        resourcesFilter,
-      }
-    : {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{ resource: { type: { name: { equals: "Network" } } } },
-        },
-        resourcesFilter,
-      };
+      },
+    ];
+  }
+
+  const variables = {
+    variablesFilter,
+    resourcesFilter,
+  };
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
@@ -357,14 +362,12 @@ const fetchData = async () => {
   });
 };
 
-// We need to use the useAsyncData hook to fetch the data because sadly multiple backendend calls need to be synchronized to create the final query
-// todo: update datamodel to allow for single fetch from single indexed table
 const {
   data: variableRecords,
   error,
   pending,
 } = await useAsyncData<any, IMgError>(
-  `variables-page-${catalogueRouteParam}-${JSON.stringify(route.query)}`,
+  `variables-page-${resourceId}-${JSON.stringify(route.query)}`,
   fetchData,
   { watch: [computed(() => route.query.conditions), offset] }
 );
@@ -377,7 +380,7 @@ if (error.value) {
 }
 
 function onFilterChange(filters: IFilter[]) {
-  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+  const conditions = toPathQueryConditions(filters) || undefined;
 
   router.push({
     path: route.path,
@@ -385,10 +388,16 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-const crumbs: Crumb[] = [
-  { label: `${route.params.catalogue}`, url: `/${route.params.catalogue}` },
-  { label: "variables", url: "" },
-];
+const crumbs: Crumb[] =
+  resourceId === "all"
+    ? [
+        { label: "home", url: "/" },
+        { label: "variables", url: "" },
+      ]
+    : buildBreadcrumbs([
+        { label: resourceId, url: resourceUrl(resourceId) },
+        { label: "variables", url: "" },
+      ]);
 </script>
 
 <template>
@@ -403,7 +412,6 @@ const crumbs: Crumb[] = [
     <template #main>
       <SearchResults>
         <template #header>
-          <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
             title="Variables"
             description="A complete overview of harmonised variables"
@@ -483,7 +491,7 @@ const crumbs: Crumb[] = [
                 <VariableCard
                   :variable="variable"
                   :schema="schema"
-                  :catalogue="route.params.catalogue as string"
+                  :catalogue="resourceId"
                 />
               </CardListItem>
             </CardList>

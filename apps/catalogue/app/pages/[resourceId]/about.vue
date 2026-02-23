@@ -103,7 +103,7 @@
         </ContentBlock>
         <ContentBlock id="contact" title="Contact">
           If you are interested in one of the UMCG data and sample resources,
-          please use the contact details mentioned on the individual resource’s
+          please use the contact details mentioned on the individual resource's
           profile page for correspondence. For general questions about the UMCG
           Research Data Catalogue please contact
           <a
@@ -316,7 +316,7 @@ useHead({
 });
 
 const { data, error } = await useGqlFetch<IManifestResponse, IMgError>(
-  ` 
+  `
     query manifest{
       _manifest {
         ImplementationVersion

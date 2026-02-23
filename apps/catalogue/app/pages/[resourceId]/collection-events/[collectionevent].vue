@@ -1,30 +1,32 @@
 <script setup lang="ts">
-import dateUtils from "../../../../../utils/dateUtils";
-import collectionEventGql from "../../../../../gql/collectionEvent";
+import dateUtils from "../../../utils/dateUtils";
+import collectionEventGql from "../../../gql/collectionEvent";
 import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
-} from "../../../../../../interfaces/types";
+} from "../../../../interfaces/types";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { logError, buildTree } from "#imports";
-import { moduleToString } from "../../../../../../../tailwind-components/app/utils/moduleToString";
+import { logError, buildTree, useCatalogueContext } from "#imports";
+import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, reactive } from "vue";
-import { removeChildIfParentSelected } from "../../../../../utils/treeHelpers";
-import LayoutsDetailPage from "../../../../../components/layouts/DetailPage.vue";
-import PageHeader from "../../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import SideNavigation from "../../../../../components/SideNavigation.vue";
-import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
-import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentOntology from "../../../../../components/content/Ontology.vue";
-import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
-import type { Crumb } from "../../../../../../../tailwind-components/types/types";
+import { removeChildIfParentSelected } from "../../../utils/treeHelpers";
+import LayoutsDetailPage from "../../../components/layouts/DetailPage.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import SideNavigation from "../../../components/SideNavigation.vue";
+import ContentBlocks from "../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import ContentBlock from "../../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentOntology from "../../../components/content/Ontology.vue";
+import CatalogueItemList from "../../../components/CatalogueItemList.vue";
+import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
 const route = useRoute();
+const { buildBreadcrumbs, resourceUrl } = useCatalogueContext();
 
+const resourceId = route.params.resourceId as string;
 const query = moduleToString(collectionEventGql);
 
 const { data, error } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
@@ -32,7 +34,7 @@ const { data, error } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   body: {
     query,
     variables: {
-      id: route.params.resource,
+      id: resourceId,
       name: route.params.collectionevent,
     },
   },
@@ -55,28 +57,21 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const pageCrumbs: Crumb[] = [
+const pageCrumbs: Crumb[] = buildBreadcrumbs([
   {
-    label: cohortOnly.value ? "home" : (route.params.catalogue as string),
-    url: `/${route.params.catalogue}`,
-  },
-  {
-    label: route.params.resourceType as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}`,
-  },
-  {
-    label: route.params.resource as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`,
+    label: resourceId,
+    url: resourceUrl(resourceId),
   },
   {
     label: "Collection events",
-    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events`,
+    url: "",
   },
   {
     label: route.params.collectionevent as string,
-    url: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${route.params.collectionevent}`,
+    url: "",
   },
-];
+]);
+
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
 }

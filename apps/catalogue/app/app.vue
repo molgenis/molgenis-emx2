@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { useRuntimeConfig, useCookie, useHead } from "#app";
+import {
+  useRuntimeConfig,
+  useCookie,
+  useHead,
+  useRoute,
+  useRequestURL,
+} from "#app";
 import { useGtag, useDatasetStore, useTheme } from "#imports";
 import { computed, ref } from "vue";
 import BottomModal from "../app/components/BottomModal.vue";
@@ -12,6 +18,9 @@ const { initialize } = useGtag();
 
 const datasetStore = useDatasetStore();
 await datasetStore.isDatastoreEnabled();
+
+const route = useRoute();
+const requestURL = useRequestURL();
 
 const analyticsService = computed(() => {
   if (typeof config.public.analyticsProvider === "string") {
@@ -53,9 +62,18 @@ if (
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
   : "/_nuxt-styles/img/molgenis.ico";
+
+const canonicalUrl = computed(() => {
+  const origin = requestURL.origin;
+  return `${origin}${route.path}`;
+});
+
 useHead({
   htmlAttrs: { "data-theme": theme },
-  link: [{ rel: "icon", href: faviconHref }],
+  link: [
+    { rel: "icon", href: faviconHref },
+    { rel: "canonical", href: canonicalUrl },
+  ],
   titleTemplate: (titleChunk) => {
     if (titleChunk && config.public.siteTitle) {
       return `${titleChunk} | ${config.public.siteTitle}`;
