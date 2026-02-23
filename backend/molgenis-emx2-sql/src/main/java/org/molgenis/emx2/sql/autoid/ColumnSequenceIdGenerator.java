@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql.autoid;
 
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.AUTOID_RANDOMIZER_KEY_SETTING;
 import static org.molgenis.emx2.Constants.MOLGENIS_ID_RANDOMIZER_KEY;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class ColumnSequenceIdGenerator implements IdGenerator {
 
-  private static final byte[] KEY =
+  private static final byte[] DEFAULT_KEY =
       HexFormat.of()
           .parseHex(
               (String)
@@ -35,11 +36,19 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
   private final List<AutoIdFormat> formats;
   private final String format;
   private final SqlSequence sequence;
+  private final byte[] key;
 
   public ColumnSequenceIdGenerator(Column column, DSLContext jooq) {
     if (column.getComputed() == null) {
       throw new IllegalArgumentException("Column needs to have a computed value");
     }
+
+    key =
+        column
+            .getSchema()
+            .findSettingValue(AUTOID_RANDOMIZER_KEY_SETTING)
+            .map(String::getBytes)
+            .orElse(DEFAULT_KEY);
 
     String computedFormat =
         column.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, SNOWFLAKE_PLACEHOLDER);
@@ -57,7 +66,7 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
       } else {
         computedFormat = computedFormat.replaceAll(FUNCTION_PATTERN.pattern(), "%s");
         String name = getSequenceNameForColumn(column);
-        if (!SqlSequence.exists(jooq, column.getSchemaName(), column.getQualifiedName())) {
+        if (!SqlSequence.exists(jooq, column.getSchemaName(), name)) {
           long limit = getCollectiveSequenceLimit(formats);
           sequence = SqlSequence.create(jooq, column.getSchemaName(), name, limit);
         } else {
@@ -89,7 +98,7 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
 
     if (!formats.isEmpty()) {
       long nextValue = sequence.nextValue() - 1; // Sequences start counting at 1, not at 0
-      long randomized = new FeistelIdRandomizer(sequence.limit(), KEY).randomize(nextValue);
+      long randomized = new FeistelIdRandomizer(sequence.limit(), key).randomize(nextValue);
 
       List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
       List<Long> numbers = LongPack.fromValue(randomized, maxValues).numbers();
