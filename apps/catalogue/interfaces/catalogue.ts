@@ -1,4 +1,4 @@
-// Generated (on: 2026-02-12T20:22:38.317550) from Generator.java for schema: catalogue-demo
+// Generated (on: 2026-02-23T12:20:27.083469) from Generator.java for schema: catalogue-demo
 
 export interface IFile {
   id?: string;
@@ -189,8 +189,9 @@ export interface ICatalogues {
   hasMemberRelation?: string;
   issued?: string;
   modified?: string;
-  dataResources?: IResources[];
-  partOfNetworks?: INetworks[];
+  subpopulations?: ISubpopulations[];
+  collectionEvents?: ICollectionEvents[];
+  dataResources?: ICollections[];
   countries?: IOntologyNode[];
   continents?: IOntologyNode[];
   regions?: IOntologyNode[];
@@ -204,6 +205,7 @@ export interface ICatalogues {
   parentNetworks?: INetworks[];
   datasets?: IDatasets[];
   samplesets?: ISamplesets[];
+  linkedResources?: ILinkages[];
   mappingsToCommonDataModels?: IDatasetMappings[];
   commonDataModelsOther?: string;
   eTLStandardVocabularies?: IOntologyNode[];
@@ -1067,8 +1069,9 @@ export interface INetworks {
   status?: IOntologyNode;
   issued?: string;
   modified?: string;
-  dataResources?: IResources[];
-  partOfNetworks?: INetworks[];
+  subpopulations?: ISubpopulations[];
+  collectionEvents?: ICollectionEvents[];
+  dataResources?: ICollections[];
   countries?: IOntologyNode[];
   continents?: IOntologyNode[];
   regions?: IOntologyNode[];
@@ -1082,6 +1085,7 @@ export interface INetworks {
   parentNetworks?: INetworks[];
   datasets?: IDatasets[];
   samplesets?: ISamplesets[];
+  linkedResources?: ILinkages[];
   mappingsToCommonDataModels?: IDatasetMappings[];
   commonDataModelsOther?: string;
   eTLStandardVocabularies?: IOntologyNode[];
@@ -1374,7 +1378,8 @@ export interface IResources {
   status?: IOntologyNode;
   issued?: string;
   modified?: string;
-  partOfNetworks?: INetworks[];
+  subpopulations?: ISubpopulations[];
+  collectionEvents?: ICollectionEvents[];
   countries?: IOntologyNode[];
   continents?: IOntologyNode[];
   regions?: IOntologyNode[];
@@ -1386,6 +1391,7 @@ export interface IResources {
   contactPoint?: IContacts;
   datasets?: IDatasets[];
   samplesets?: ISamplesets[];
+  linkedResources?: ILinkages[];
   mappingsToCommonDataModels?: IDatasetMappings[];
   commonDataModelsOther?: string;
   eTLStandardVocabularies?: IOntologyNode[];
