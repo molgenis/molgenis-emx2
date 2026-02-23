@@ -252,14 +252,6 @@ class StagingMigrator(Client):
         return target_orgs
 
 
-    @staticmethod
-    def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
-        """
-        Applies transformation on a table's data given its contents.
-        """
-        return df
-
-
     def download_schema_zip(self, schema: str, schema_type: SchemaType,
                             include_system_columns: bool = True) -> Path:
         """Download target schema as zip, save in case upload fails."""
