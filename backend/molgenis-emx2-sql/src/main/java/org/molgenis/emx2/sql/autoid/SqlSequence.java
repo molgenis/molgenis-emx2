@@ -75,6 +75,11 @@ public class SqlSequence implements Sequence {
   }
 
   @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
   public long getLimit() {
     List<Long> limit =
         jooq.select(DSL.field("maximum_value"))
