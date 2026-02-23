@@ -185,13 +185,20 @@ const visible = defineModel<boolean>("visible");
 
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
-watchEffect(() => {
-  if (visible.value) {
-    form = useForm(props.metadata, formValues);
-  } else {
-    form = undefined;
-  }
-});
+
+watch(
+  visible,
+  (newValue, oldValue) => {
+    if (newValue && !oldValue) {
+      form = useForm(props.metadata, formValues);
+    }
+
+    if (!newValue && oldValue) {
+      form = undefined;
+    }
+  },
+  { immediate: true }
+);
 
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
