@@ -48,6 +48,8 @@ class StagingMigrator(Client):
         elif source is not None:
             self.set_source(source)
         self._verify_schemas()
+        self.warnings = []
+        self.errors = []
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -243,6 +245,12 @@ class StagingMigrator(Client):
             return ontology_organisations.set_index('name')["code"].to_dict().get(org, None)
         def website_func(org: str):
             return ontology_organisations.set_index('name')["website"].to_dict().get(org, None)
+
+        missing_orgs = source_orgs.loc[source_orgs["organisation"] == None, ["resource", "id"]]
+        for row in missing_orgs.itertuples():
+            msg = f"No organisation for (resource, id) = ({row.resource}, {row.id})"
+            log.warning(msg)
+            self.warnings.append(msg)
 
         target_orgs = source_orgs.copy()
         target_orgs["organisation name"] = target_orgs["organisation"].copy()
