@@ -2861,7 +2861,7 @@ class WebApiSmokeTests extends ApiTestBase {
     @BeforeAll
     static void setupUser() {
       database.setUserPassword("foo", "testtest");
-      setupSession("foo", "testtest");
+      login("foo", "testtest");
     }
 
     @AfterAll

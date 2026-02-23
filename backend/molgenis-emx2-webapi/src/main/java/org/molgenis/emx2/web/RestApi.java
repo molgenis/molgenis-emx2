@@ -106,7 +106,7 @@ public class RestApi {
 
   private static GraphqlExecutor getGraphqlForSchema(Context ctx) {
     String schemaName = MolgenisWebservice.sanitize(ctx.pathParam("schema"));
-    return MolgenisWebservice.applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    return ApplicationCachePerUser.getInstance().getSchemaGraphqlForUser(schemaName, ctx);
   }
 
   private static void registerSchemaEndpoints(Javalin app, String path, Format format) {
@@ -213,7 +213,7 @@ public class RestApi {
       throws IOException {
     if (format == Format.TTL) {
       Map<String, Object> context =
-          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+          ApplicationCachePerUser.getInstance().getJsonLdContext(meta.getName(), schemaUrl, meta);
       return convertToTurtle(context, Map.of());
     }
     if (format == Format.JSONLD) {
@@ -280,12 +280,12 @@ public class RestApi {
       throws IOException {
     if (format == Format.TTL) {
       Map<String, Object> context =
-          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+          ApplicationCachePerUser.getInstance().getJsonLdContext(meta.getName(), schemaUrl, meta);
       return convertToTurtle(context, data);
     }
     if (format == Format.JSONLD) {
       Map<String, Object> context =
-          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+          ApplicationCachePerUser.getInstance().getJsonLdContext(meta.getName(), schemaUrl, meta);
       Map<String, Object> wrapper = new LinkedHashMap<>();
       wrapper.putAll(context);
       wrapper.put("data", data);
@@ -417,12 +417,12 @@ public class RestApi {
       throws IOException {
     if (format == Format.TTL) {
       Map<String, Object> context =
-          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+          ApplicationCachePerUser.getInstance().getJsonLdContext(meta.getName(), schemaUrl, meta);
       return convertToTurtle(context, data);
     }
     if (format == Format.JSONLD) {
       Map<String, Object> context =
-          MolgenisWebservice.applicationCache.getJsonLdContext(meta.getName(), schemaUrl, meta);
+          ApplicationCachePerUser.getInstance().getJsonLdContext(meta.getName(), schemaUrl, meta);
       Map<String, Object> wrapper = new LinkedHashMap<>();
       wrapper.putAll(context);
       wrapper.put("data", data);
@@ -656,13 +656,13 @@ public class RestApi {
     }
 
     String args = argParts.isEmpty() ? "" : "(" + String.join(",", argParts) + ")";
-    return String.format("{%s%s{...All%sFields}}", tableId, args, tableId);
+    return String.format("{%s%s{...%sAllFields}}", tableId, args, tableId);
   }
 
   private static void getShaclSets(Context ctx) throws IOException {
     ctx.contentType(ACCEPT_YAML);
 
-    if (MolgenisWebservice.applicationCache.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
+    if (ApplicationCachePerUser.getInstance().getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 

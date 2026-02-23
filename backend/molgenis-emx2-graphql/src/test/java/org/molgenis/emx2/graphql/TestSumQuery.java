@@ -189,8 +189,7 @@ public class TestSumQuery {
               }
             }}
             """,
-            Map.of(),
-            new GraphqlExecutor.DummySessionHandler());
+            Map.of());
     json = JsonUtil.getWriter().writeValueAsString(result.toSpecification().get("data"));
     assertEquals(
         """

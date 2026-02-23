@@ -12,7 +12,6 @@ import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import java.util.List;
-import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;

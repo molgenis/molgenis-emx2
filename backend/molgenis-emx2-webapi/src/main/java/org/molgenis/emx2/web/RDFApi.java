@@ -67,6 +67,7 @@ public class RDFApi {
 
   private static void defineApiRoutePerPrefix(Javalin app, String prefix) {
     defineApiRoutes(app, prefix, "/api/rdf", null);
+    defineApiRoutes(app, prefix, "/api/rdf-legacy", null);
     defineApiRoutes(app, prefix, "/api/ttl-legacy", RDFFormat.TURTLE);
     defineApiRoutes(app, prefix, "/api/jsonld-legacy", RDFFormat.JSONLD);
   }
