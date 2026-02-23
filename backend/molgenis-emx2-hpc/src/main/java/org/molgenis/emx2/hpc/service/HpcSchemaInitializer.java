@@ -36,21 +36,6 @@ public final class HpcSchemaInitializer {
 
           // Skip if already initialized (check for the main jobs table)
           if (schema.getTableNames().contains("HpcJobs")) {
-            // Migration: add output_artifact_id column if missing
-            Table jobsTable = schema.getTable("HpcJobs");
-            if (jobsTable.getMetadata().getColumn("output_artifact_id") == null) {
-              jobsTable
-                  .getMetadata()
-                  .add(
-                      column("output_artifact_id")
-                          .setType(ColumnType.REF)
-                          .setRefTable("HpcArtifacts"));
-            }
-            // Migration: add name column to HpcArtifacts if missing
-            Table artifactsTable = schema.getTable("HpcArtifacts");
-            if (artifactsTable.getMetadata().getColumn("name") == null) {
-              artifactsTable.getMetadata().add(column("name"));
-            }
             return;
           }
 
@@ -74,17 +59,6 @@ public final class HpcSchemaInitializer {
               row("name", "s3"),
               row("name", "http"),
               row("name", "reference"));
-
-          Table artifactTypeTable =
-              schema.create(table("HpcArtifactType").setTableType(TableType.ONTOLOGIES));
-          artifactTypeTable.insert(
-              row("name", "tabular"),
-              row("name", "model"),
-              row("name", "dataset"),
-              row("name", "log"),
-              row("name", "report"),
-              row("name", "container"),
-              row("name", "blob"));
 
           // --- Data tables ---
 
@@ -145,8 +119,7 @@ public final class HpcSchemaInitializer {
                   "HpcArtifacts",
                   column("id").setPkey(),
                   column("name"),
-                  column("type").setType(ColumnType.ONTOLOGY).setRefTable("HpcArtifactType"),
-                  column("format"),
+                  column("type"),
                   column("residence")
                       .setType(ColumnType.ONTOLOGY)
                       .setRefTable("HpcArtifactResidence"),

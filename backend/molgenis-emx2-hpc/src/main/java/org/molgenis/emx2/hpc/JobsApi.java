@@ -371,7 +371,6 @@ public class JobsApi {
       if (artifact != null) {
         ref.put("name", artifact.getString("name"));
         ref.put("type", artifact.getString("type"));
-        ref.put("format", artifact.getString("format"));
         ref.put("status", artifact.getString("status"));
       }
     } catch (Exception e) {

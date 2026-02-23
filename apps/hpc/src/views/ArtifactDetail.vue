@@ -18,8 +18,6 @@
                 <dd>{{ artifact.name || "-" }}</dd>
                 <dt>Type</dt>
                 <dd>{{ artifact.type || "-" }}</dd>
-                <dt>Format</dt>
-                <dd>{{ artifact.format || "-" }}</dd>
                 <dt>Residence</dt>
                 <dd>{{ artifact.residence || "-" }}</dd>
                 <dt>SHA-256</dt>

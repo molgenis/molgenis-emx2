@@ -41,7 +41,7 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type { name } format status { name } }
+      output_artifact_id { id name type status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -66,7 +66,7 @@ export async function fetchJobDetail(jobId) {
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type { name } format status { name } }
+      output_artifact_id { id name type status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -194,9 +194,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
       offset: ${offset},
       orderby: { created_at: DESC }
     ) {
-      id name
-      type { name }
-      format
+      id name type
       residence { name }
       status { name }
       sha256 size_bytes content_url metadata
@@ -219,9 +217,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
 export async function fetchArtifactDetail(artifactId) {
   const query = `{
     HpcArtifacts(filter: { id: { equals: "${artifactId}" } }) {
-      id name
-      type { name }
-      format
+      id name type
       residence { name }
       status { name }
       sha256 size_bytes content_url metadata
@@ -244,12 +240,11 @@ export async function fetchArtifactDetail(artifactId) {
 
 /**
  * Create a new artifact via the REST API.
- * @param {Object} opts - { type, format, residence }
+ * @param {Object} opts - { name, type, residence }
  */
-export async function createArtifact({ name, type = "blob", format, residence = "managed" } = {}) {
+export async function createArtifact({ name, type = "blob", residence = "managed" } = {}) {
   const body = { type, residence };
   if (name) body.name = name;
-  if (format) body.format = format;
   const resp = await fetch(`${REST_BASE}/artifacts`, {
     method: "POST",
     headers: {
@@ -333,8 +328,7 @@ function normalizeJob(job) {
       ? {
           id: output.id,
           name: output.name,
-          type: output.type?.name ?? output.type,
-          format: output.format,
+          type: output.type,
           status: output.status?.name ?? output.status,
         }
       : null,
@@ -345,7 +339,6 @@ function normalizeJob(job) {
 function normalizeArtifact(artifact) {
   return {
     ...artifact,
-    type: artifact.type?.name ?? artifact.type,
     residence: artifact.residence?.name ?? artifact.residence,
     status: artifact.status?.name ?? artifact.status,
   };

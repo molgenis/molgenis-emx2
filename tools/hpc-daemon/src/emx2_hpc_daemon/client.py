@@ -357,7 +357,6 @@ class HpcClient:
     def create_artifact(
         self,
         artifact_type: str = "blob",
-        fmt: str | None = None,
         residence: str = "managed",
         metadata: dict | None = None,
         content_url: str | None = None,
@@ -367,8 +366,6 @@ class HpcClient:
         body: dict = {"type": artifact_type, "residence": residence}
         if name:
             body["name"] = name
-        if fmt:
-            body["format"] = fmt
         if metadata:
             body["metadata"] = metadata
         if content_url:

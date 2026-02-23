@@ -100,8 +100,6 @@
             <dd><code>{{ job.output_artifact_id.id?.substring(0, 8) }}</code></dd>
             <dt>Type</dt>
             <dd>{{ job.output_artifact_id.type || "-" }}</dd>
-            <dt>Format</dt>
-            <dd>{{ job.output_artifact_id.format || "-" }}</dd>
           </dl>
           <router-link
             :to="`/artifacts/${job.output_artifact_id.id}`"

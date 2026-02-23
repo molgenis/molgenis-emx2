@@ -7,7 +7,6 @@ public record Artifact(
     String id,
     String name,
     String type,
-    String format,
     String residence,
     ArtifactStatus status,
     String sha256,

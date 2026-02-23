@@ -15,17 +15,7 @@
         </div>
         <div class="mb-2">
           <label class="form-label">Type</label>
-          <select v-model="form.type" class="form-select form-select-sm">
-            <option value="blob">blob</option>
-            <option value="tabular">tabular</option>
-            <option value="model">model</option>
-            <option value="dataset">dataset</option>
-            <option value="report">report</option>
-          </select>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Format</label>
-          <input v-model="form.format" class="form-control form-control-sm" placeholder="e.g. csv, parquet, tar.gz" />
+          <input v-model="form.type" class="form-control form-control-sm" placeholder="e.g. csv, parquet, model, dataset" />
         </div>
         <div class="mb-3">
           <label class="form-label">Files *</label>
@@ -78,8 +68,7 @@ const emit = defineEmits(["created", "close"]);
 
 const form = reactive({
   name: "",
-  type: "blob",
-  format: "",
+  type: "",
 });
 const selectedFiles = ref([]);
 const step = ref("metadata"); // metadata | uploading | done
@@ -106,8 +95,7 @@ async function startUpload() {
     // Create artifact
     const result = await createArtifact({
       name: form.name.trim(),
-      type: form.type,
-      format: form.format || undefined,
+      type: form.type.trim() || undefined,
     });
     artifactId.value = result.id;
 

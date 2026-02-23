@@ -296,7 +296,6 @@ class HpcDaemon:
         )
         artifact = self.client.create_artifact(
             artifact_type="blob",
-            fmt="mixed",
             residence="posix",
             metadata={"job_id": job_id},
             content_url=content_url,
@@ -353,7 +352,6 @@ class HpcDaemon:
         )
         artifact = self.client.create_artifact(
             artifact_type="blob",
-            fmt="mixed",
             residence="managed",
             metadata={"job_id": job_id},
             name=f"output-{job_id[:8]}",

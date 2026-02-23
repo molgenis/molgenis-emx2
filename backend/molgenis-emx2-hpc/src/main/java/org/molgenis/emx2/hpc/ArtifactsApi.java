@@ -48,14 +48,13 @@ public class ArtifactsApi {
       Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
       String name = (String) body.get("name");
       String type = (String) body.get("type");
-      String format = (String) body.get("format");
       String residence = (String) body.get("residence");
       String contentUrl = (String) body.get("content_url");
       String metadata =
           body.get("metadata") != null ? MAPPER.writeValueAsString(body.get("metadata")) : null;
 
       String artifactId =
-          artifactService.createArtifact(name, type, format, residence, contentUrl, metadata);
+          artifactService.createArtifact(name, type, residence, contentUrl, metadata);
 
       boolean isExternal = residence != null && !"managed".equals(residence);
       ArtifactStatus status = isExternal ? ArtifactStatus.REGISTERED : ArtifactStatus.CREATED;
@@ -550,7 +549,6 @@ public class ArtifactsApi {
     response.put("id", artifact.getString("id"));
     response.put("name", artifact.getString("name"));
     response.put("type", artifact.getString("type"));
-    response.put("format", artifact.getString("format"));
     response.put("residence", artifact.getString("residence"));
     response.put("status", artifact.getString("status"));
     response.put("sha256", artifact.getString("sha256"));

@@ -245,32 +245,11 @@ Artifacts are the primary data objects in the system: job inputs, job outputs, m
 
 ## Classification
 
-Every artifact is described along three dimensions.
+Every artifact is described along two dimensions.
 
-**Type** describes the semantic role — what the artifact represents to consumers.
+**Type** is a free-text label describing what the artifact is. There is no fixed ontology — users write whatever is meaningful for their context: `csv`, `parquet`, `onnx-model`, `vcf`, `log`, `report`, `sif`, etc. Per-file `content_type` covers media type details, so a single field suffices for artifact-level classification.
 
-| Type | Description | Typical formats |
-|------|-------------|-----------------|
-| `tabular` | Structured row/column data | Parquet, CSV |
-| `model` | Trained model weights or pipelines | GGUF, ONNX, SafeTensors |
-| `dataset` | Multi-file scientific data | VCF + index, FASTA + .fai, Zarr |
-| `log` | Execution logs from the Apptainer runtime | JSONL, plain text |
-| `report` | Human-readable output | PDF, HTML, PNG |
-| `container` | Apptainer image | SIF, OCI tar |
-| `blob` | Opaque binary | Any |
-
-The type registry is extensible; new types can be added without protocol changes.
-
-**Format** identifies the file encoding. For multi-file artifacts this describes the primary data file; ancillary files are described in the file manifest.
-
-| Format | Media type | Notes |
-|--------|-----------|-------|
-| `parquet` | `application/vnd.apache.parquet` | Columnar; supports remote range-request queries. |
-| `csv` | `text/csv` | Row-oriented; queryable but less efficient at scale. |
-| `gguf` | `application/octet-stream` | Quantised LLM weights for llama.cpp. |
-| `onnx` | `application/onnx` | Open Neural Network Exchange format. |
-| `jsonl` | `application/jsonlines` | Newline-delimited JSON; structured logs. |
-| `binary` | `application/octet-stream` | Opaque. |
+**Name** is a human-readable identifier for the artifact. Names are optional but strongly encouraged — without one, artifacts are identified only by truncated UUIDs in the UI. The daemon auto-generates names like `output-<job-id-prefix>` for job outputs.
 
 **Residence** specifies where the content physically lives.
 
@@ -308,7 +287,7 @@ Input artifacts must be COMMITTED before a job can reference them. The Apptainer
 
 ## Schema Metadata
 
-Tabular artifacts (`parquet` or `csv` format) include a `schema` field describing column names, types, nullability, row count, and (for Parquet) row group count. This is extracted automatically from the Parquet file footer at commit time, so consumers can discover data shape without downloading the file.
+Tabular artifacts (e.g. `type: "parquet"` or `type: "csv"`) include a `schema` field describing column names, types, nullability, row count, and (for Parquet) row group count. This is extracted automatically from the Parquet file footer at commit time, so consumers can discover data shape without downloading the file.
 
 This metadata makes artifacts directly queryable. Tools like DuckDB can read a Parquet file from its NFS path or HTTP URL using range requests — fetching the footer first, then only the needed columns and rows. For NFS-resident artifacts this happens with zero network overhead. In practice, EMX2 application code or analytical scripts use this to inspect job outputs without pulling entire datasets: a SQL query against the artifact's `content_url` (or NFS path) returns results in place.
 
@@ -387,7 +366,7 @@ Client errors return structured JSON with `type`, `title`, `status`, and `detail
 
 All endpoints are under `/api/hpc`. Detailed specifications are in Appendix A.
 
-**Workers API:** `POST /api/hpc/workers/register`, `POST /api/hpc/workers/{id}/heartbeat`.
+**Workers API:** `POST /api/hpc/workers/register`, `POST /api/hpc/workers/{id}/heartbeat`, `DELETE /api/hpc/workers/{id}`.
 
 **Jobs API:** `POST /api/hpc/jobs` (create), `GET /api/hpc/jobs` (list/filter), `GET /api/hpc/jobs/{id}`, `POST /api/hpc/jobs/{id}/claim`, `POST /api/hpc/jobs/{id}/transition`, `POST /api/hpc/jobs/{id}/cancel`, `DELETE /api/hpc/jobs/{id}`, `GET /api/hpc/jobs/{id}/transitions`.
 
@@ -487,6 +466,9 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 | Job→artifact linking | `output_artifact_id` REF column on HpcJobs, set during COMPLETED transition. |
 | Input artifact staging | Two-path: symlink for posix, download for managed. Residence is configured per-profile in the daemon config (`artifact_residence` on each `ProfileEntry`). |
 | Browser upload | Direct PUT with raw binary body; browser computes SHA-256 via SubtleCrypto. No multipart required. |
+| Artifact classification | Single free-text `type` field (e.g. `csv`, `parquet`, `gguf`). Per-file `content_type` covers media type details. |
+| Artifact naming | `name` field on artifacts for human-readable identification. Daemon auto-generates names for job outputs. |
+| Worker deletion | `DELETE /api/hpc/workers/{id}` removes stale workers. Capabilities deleted, job `worker_id` nullified. |
 
 ## Open Design Decisions
 
@@ -544,6 +526,12 @@ Registers a worker or updates its registration. Idempotent — subsequent calls 
 Lightweight heartbeat. Updates `last_heartbeat_at` without re-submitting capabilities. The daemon sends this periodically (default: every 120 seconds) between poll cycles.
 
 **Response:** `200 OK` with `{"worker_id": "...", "status": "ok"}`.
+
+### DELETE /api/hpc/workers/{id} {.unnumbered}
+
+Removes a worker and its capabilities. Jobs previously assigned to this worker retain their history but have their `worker_id` nullified. Useful for cleaning up stale workers that are no longer active.
+
+**Response:** `204 No Content`, `404 Not Found`.
 
 ## A.2 Jobs API {.unnumbered}
 
@@ -695,18 +683,19 @@ Follows RFC 9457 (Problem Details for HTTP APIs) structure.
 
 Creates an artifact. Managed artifacts start in CREATED; external artifacts (posix, s3, http, reference) start in REGISTERED.
 
-**Managed:** `{ "type": "tabular", "format": "parquet", "residence": "managed" }`
+**Managed:** `{ "name": "my-dataset", "type": "parquet", "residence": "managed" }`
 
-**NFS:** `{ "type": "blob", "format": "mixed", "residence": "posix", "content_url": "file:///nfs/outputs/job-123" }`
+**NFS:** `{ "name": "output-abc123", "type": "blob", "residence": "posix", "content_url": "file:///nfs/outputs/job-123" }`
 
-**S3:** `{ "type": "tabular", "format": "parquet", "residence": "s3", "content_url": "s3://..." }`
+**S3:** `{ "name": "analysis-results", "type": "parquet", "residence": "s3", "content_url": "s3://..." }`
 
 **Response:** `201 Created`
 
 ```json
 {
   "id": "art_abc123-...",
-  "type": "tabular",
+  "name": "my-dataset",
+  "type": "parquet",
   "status": "CREATED",
   "_links": {
     "self": { "href": "/api/hpc/artifacts/art_abc123-...", "method": "GET" },
@@ -726,7 +715,7 @@ Returns full metadata with HATEOAS links. Links vary by status: CREATED/UPLOADIN
 ```json
 {
   "id": "art_abc",
-  "type": "tabular", "format": "parquet", "residence": "managed",
+  "name": "my-dataset", "type": "parquet", "residence": "managed",
   "status": "COMMITTED", "sha256": "b3a3f0...", "size_bytes": 52428800,
   "content_url": null,
   "created_at": "2026-02-21T10:00:00", "committed_at": "2026-02-21T10:05:00",
@@ -855,7 +844,7 @@ Commits the artifact with a top-level SHA-256 hash and total size. The artifact 
 ```json
 {
   "id": "art_model_nfs",
-  "type": "model", "format": "gguf", "residence": "posix",
+  "name": "llama-3-8b", "type": "gguf", "residence": "posix",
   "status": "COMMITTED", "sha256": "d1e2f3...",
   "content_url": "file:///nfs/models/llama-3-8b/"
 }

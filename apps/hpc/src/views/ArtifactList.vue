@@ -27,7 +27,6 @@
             <th>ID</th>
             <th>Name</th>
             <th>Type</th>
-            <th>Format</th>
             <th>Residence</th>
             <th>Status</th>
             <th>Size</th>
@@ -44,14 +43,13 @@
             <td><code>{{ a.id?.substring(0, 8) }}</code></td>
             <td>{{ a.name || a.id?.substring(0, 8) }}</td>
             <td>{{ a.type || "-" }}</td>
-            <td>{{ a.format || "-" }}</td>
             <td>{{ a.residence || "-" }}</td>
             <td><StatusBadge :status="a.status" /></td>
             <td>{{ formatSize(a.size_bytes) }}</td>
             <td>{{ formatDate(a.created_at) }}</td>
           </tr>
           <tr v-if="!items.length">
-            <td colspan="8" class="text-center text-muted">No artifacts found</td>
+            <td colspan="7" class="text-center text-muted">No artifacts found</td>
           </tr>
         </tbody>
       </table>
