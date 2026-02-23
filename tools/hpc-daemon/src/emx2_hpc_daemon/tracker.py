@@ -7,6 +7,7 @@ loop. On restart, can reconcile with EMX2 server and Slurm state.
 from __future__ import annotations
 
 import logging
+import time
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ class TrackedJob:
     output_dir: str | None = None
     processor: str | None = None
     profile: str | None = None
+    claimed_at: float = 0.0  # time.monotonic() at tracking time
 
 
 class JobTracker:
@@ -34,6 +36,8 @@ class JobTracker:
 
     def track(self, emx2_job_id: str, **kwargs) -> TrackedJob:
         """Start tracking a job."""
+        if "claimed_at" not in kwargs:
+            kwargs["claimed_at"] = time.monotonic()
         job = TrackedJob(emx2_job_id=emx2_job_id, **kwargs)
         self._jobs[emx2_job_id] = job
         logger.debug("Tracking job %s", emx2_job_id)

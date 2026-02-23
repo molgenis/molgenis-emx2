@@ -20,6 +20,7 @@ import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.protocol.ProblemDetail;
 import org.molgenis.emx2.hpc.service.ArtifactService;
+import org.molgenis.emx2.hpc.service.CommitResult;
 
 /**
  * Artifact CRUD endpoints:
@@ -124,7 +125,6 @@ public class ArtifactsApi {
       boolean isMultipart = ct != null && ct.startsWith("multipart/form-data");
 
       String path;
-      String role;
       String sha256;
       Long sizeBytes;
       String contentType;
@@ -162,7 +162,6 @@ public class ArtifactsApi {
         if (path == null || path.isBlank()) {
           path = filePart.getSubmittedFileName();
         }
-        role = ctx.formParam("role");
         sha256 = ctx.formParam("sha256");
         if (sha256 == null) {
           sha256 = computedSha256;
@@ -180,7 +179,6 @@ public class ArtifactsApi {
         // JSON metadata-only mode
         Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
         path = (String) body.get("path");
-        role = (String) body.get("role");
         sha256 = (String) body.get("sha256");
         sizeBytes =
             body.get("size_bytes") != null ? ((Number) body.get("size_bytes")).longValue() : null;
@@ -194,8 +192,7 @@ public class ArtifactsApi {
       }
 
       String fileId =
-          artifactService.uploadFile(
-              artifactId, path, role, sha256, sizeBytes, contentType, content);
+          artifactService.uploadFile(artifactId, path, sha256, sizeBytes, contentType, content);
 
       Map<String, Object> response = new LinkedHashMap<>();
       response.put("id", fileId);
@@ -236,7 +233,6 @@ public class ArtifactsApi {
                   Map<String, Object> m = new LinkedHashMap<>();
                   m.put("id", f.getString("id"));
                   m.put("path", f.getString("path"));
-                  m.put("role", f.getString("role"));
                   m.put("sha256", f.getString("sha256"));
                   m.put("size_bytes", f.getString("size_bytes"));
                   m.put("content_type", f.getString("content_type"));
@@ -284,7 +280,6 @@ public class ArtifactsApi {
 
       byte[] fileBytes;
       String contentType;
-      String role = null;
 
       if (isMultipart) {
         File tempFile = File.createTempFile("hpc_upload_", ".tmp");
@@ -309,7 +304,6 @@ public class ArtifactsApi {
         if (contentType == null) {
           contentType = filePart.getContentType();
         }
-        role = ctx.formParam("role");
       } else {
         fileBytes = ctx.bodyAsBytes();
         contentType = ct;
@@ -328,7 +322,7 @@ public class ArtifactsApi {
 
       String fileId =
           artifactService.uploadFileByPath(
-              artifactId, filePath, role, sha256, sizeBytes, contentType, content);
+              artifactId, filePath, sha256, sizeBytes, contentType, content);
 
       Map<String, Object> response = new LinkedHashMap<>();
       response.put("id", fileId);
@@ -502,32 +496,27 @@ public class ArtifactsApi {
       Long sizeBytes =
           body.get("size_bytes") != null ? ((Number) body.get("size_bytes")).longValue() : null;
 
-      Row committed = artifactService.commitArtifact(artifactId, sha256, sizeBytes);
-      if (committed == null) {
-        Row existing = artifactService.getArtifact(artifactId);
-        if (existing == null) {
-          ProblemDetail.send(
-              ctx,
-              404,
-              "Not Found",
-              "Artifact " + artifactId + " not found",
-              ctx.header(HpcHeaders.REQUEST_ID));
-        } else {
-          ProblemDetail.send(
-              ctx,
-              409,
-              "Conflict",
-              "Artifact "
-                  + artifactId
-                  + " cannot be committed from status "
-                  + existing.getString("status"),
-              ctx.header(HpcHeaders.REQUEST_ID));
-        }
+      CommitResult commitResult = artifactService.commitArtifact(artifactId, sha256, sizeBytes);
+      if (commitResult == null) {
+        // Artifact not found
+        ProblemDetail.send(
+            ctx,
+            404,
+            "Not Found",
+            "Artifact " + artifactId + " not found",
+            ctx.header(HpcHeaders.REQUEST_ID));
+        return;
+      }
+      if (!commitResult.isSuccess()) {
+        int status = commitResult.isHashMismatch() ? 409 : 409;
+        String title = commitResult.isHashMismatch() ? "Hash Mismatch" : "Conflict";
+        ProblemDetail.send(
+            ctx, status, title, commitResult.error(), ctx.header(HpcHeaders.REQUEST_ID));
         return;
       }
 
       ctx.status(200);
-      ctx.json(artifactToResponse(committed));
+      ctx.json(artifactToResponse(commitResult.artifact()));
     } catch (Exception e) {
       ProblemDetail.send(
           ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));

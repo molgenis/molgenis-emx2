@@ -14,6 +14,7 @@ from pathlib import Path
 
 from .client import HpcClient
 from .config import DaemonConfig
+from .hashing import compute_tree_hash
 from .profiles import resolve_profile
 from .slurm import (
     cancel_job,
@@ -35,6 +36,64 @@ SLURM_TO_HPC_STATUS = {
     "OUT_OF_MEMORY": "FAILED",
     "NODE_FAIL": "FAILED",
 }
+
+
+def _verify_artifact_hash(
+    artifact: dict, artifact_dir: Path, artifact_id: str
+) -> None:
+    """Verify SHA-256 of staged input artifact files against expected hash.
+
+    Raises ValueError("input_hash_mismatch") on mismatch.
+    """
+    expected_hash = artifact.get("sha256")
+    if not expected_hash:
+        logger.warning(
+            "Artifact %s has no sha256 — skipping hash verification",
+            artifact_id,
+        )
+        return
+
+    # Collect all files in the artifact directory
+    if not artifact_dir.is_dir():
+        # Single file — check if it's a file directly
+        if artifact_dir.is_file():
+            actual_hash = compute_tree_hash(
+                [(artifact_dir.name, artifact_dir.read_bytes())]
+            )
+        else:
+            logger.warning(
+                "Artifact %s directory not found at %s — skipping hash verification",
+                artifact_id,
+                artifact_dir,
+            )
+            return
+    else:
+        file_list = sorted(
+            f for f in artifact_dir.rglob("*") if f.is_file()
+        )
+        if not file_list:
+            logger.warning(
+                "No files found in artifact %s at %s — skipping hash verification",
+                artifact_id,
+                artifact_dir,
+            )
+            return
+
+        # Build (relative_path, content) pairs
+        pairs: list[tuple[str, bytes]] = []
+        for f in file_list:
+            rel_path = str(f.relative_to(artifact_dir))
+            pairs.append((rel_path, f.read_bytes()))
+        actual_hash = compute_tree_hash(pairs)
+
+    if actual_hash != expected_hash:
+        raise ValueError(
+            f"input_hash_mismatch: artifact {artifact_id} "
+            f"expected={expected_hash} actual={actual_hash}"
+        )
+    logger.debug(
+        "Hash verified for artifact %s: %s", artifact_id, actual_hash
+    )
 
 
 @dataclass
@@ -248,6 +307,10 @@ class SlurmBackend(ExecutionBackend):
                                 link_path,
                                 posix_path,
                             )
+                            # Verify hash for posix artifacts
+                            _verify_artifact_hash(
+                                artifact, Path(posix_path), artifact_id
+                            )
                         else:
                             # Download managed artifact files
                             files = client.list_artifact_files(artifact_id)
@@ -268,10 +331,16 @@ class SlurmBackend(ExecutionBackend):
                                 len(downloaded),
                                 artifact_id,
                             )
+                            # Verify hash for managed artifacts
+                            artifact_dir = Path(input_dir) / artifact_id
+                            _verify_artifact_hash(
+                                artifact, artifact_dir, artifact_id
+                            )
                     except Exception:
                         logger.exception(
                             "Failed to stage artifact %s", artifact_id
                         )
+                        raise
 
 
 class SimulatedBackend(ExecutionBackend):

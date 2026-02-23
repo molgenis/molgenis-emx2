@@ -6,7 +6,12 @@ import static org.molgenis.emx2.Operator.LIKE;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 import org.molgenis.emx2.*;
@@ -71,7 +76,6 @@ public class ArtifactService {
   public String uploadFile(
       String artifactId,
       String path,
-      String role,
       String sha256,
       Long sizeBytes,
       String contentType,
@@ -101,7 +105,6 @@ public class ArtifactService {
                   "id", fileId,
                   "artifact_id", artifactId,
                   "path", path,
-                  "role", role,
                   "sha256", sha256,
                   "size_bytes", sizeBytes,
                   "content_type", contentType);
@@ -114,13 +117,14 @@ public class ArtifactService {
   }
 
   /**
-   * Commits an artifact, setting its final SHA-256 and size. Validates that the artifact is in a
-   * commitable state (UPLOADING or REGISTERED).
+   * Commits an artifact with tree hash computation and verification. Computes the tree hash from
+   * stored files, verifies against the client-provided hash (if any), and sets the final SHA-256
+   * and size. Validates that the artifact is in a commitable state (UPLOADING or REGISTERED).
    *
-   * @return the updated artifact row, or null if the artifact cannot be committed
+   * @return a CommitResult indicating success, wrong state, or hash mismatch
    */
-  public Row commitArtifact(String artifactId, String sha256, Long sizeBytes) {
-    Row[] result = new Row[1];
+  public CommitResult commitArtifact(String artifactId, String sha256, Long sizeBytes) {
+    CommitResult[] result = new CommitResult[1];
     database.tx(
         db -> {
           db.becomeAdmin();
@@ -134,17 +138,87 @@ public class ArtifactService {
           Row artifact = rows.getFirst();
           ArtifactStatus current = ArtifactStatus.valueOf(artifact.getString("status"));
           if (!current.canTransitionTo(ArtifactStatus.COMMITTED)) {
-            return; // cannot commit from this state
+            result[0] =
+                CommitResult.wrongState(
+                    "Artifact "
+                        + artifactId
+                        + " cannot be committed from status "
+                        + current.name());
+            return;
           }
 
+          // Compute tree hash from stored files
+          List<Row> files =
+              schema
+                  .getTable("HpcArtifactFiles")
+                  .where(f("artifact_id", EQUALS, artifactId))
+                  .retrieveRows();
+
+          String computedHash = computeTreeHash(files);
+          long computedSize =
+              files.stream().mapToLong(f -> parseLong(f.getString("size_bytes"))).sum();
+
+          // Verify client-provided hash if present
+          if (sha256 != null && computedHash != null && !sha256.equals(computedHash)) {
+            result[0] =
+                CommitResult.hashMismatch(
+                    "hash_mismatch: client=" + sha256 + " computed=" + computedHash);
+            return;
+          }
+
+          // Use computed values when client doesn't provide them
+          String finalHash = sha256 != null ? sha256 : computedHash;
+          long finalSize = sizeBytes != null ? sizeBytes : computedSize;
+
           artifact.set("status", ArtifactStatus.COMMITTED.name());
-          artifact.set("sha256", sha256);
-          artifact.set("size_bytes", sizeBytes);
+          artifact.set("sha256", finalHash);
+          artifact.set("size_bytes", finalSize);
           artifact.set("committed_at", LocalDateTime.now());
           artifactsTable.update(artifact);
-          result[0] = artifact;
+          result[0] = CommitResult.success(artifact);
         });
     return result[0];
+  }
+
+  /**
+   * Computes the tree hash for a set of artifact files. Single-file: SHA-256 of the file. Multi-
+   * file: SHA-256 of concatenated "path:sha256_hex" strings, sorted by path.
+   */
+  static String computeTreeHash(List<Row> files) {
+    if (files.isEmpty()) {
+      return null;
+    }
+
+    List<Row> sorted =
+        files.stream().sorted(Comparator.comparing(f -> f.getString("path"))).toList();
+
+    if (sorted.size() == 1) {
+      // Single-file: use the file's own sha256
+      return sorted.getFirst().getString("sha256");
+    }
+
+    // Multi-file: tree hash
+    StringBuilder sb = new StringBuilder();
+    for (Row file : sorted) {
+      sb.append(file.getString("path")).append(":").append(file.getString("sha256"));
+    }
+
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] hash = digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
+      return HexFormat.of().formatHex(hash);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("SHA-256 not available", e);
+    }
+  }
+
+  private static long parseLong(String value) {
+    if (value == null) return 0;
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      return 0;
+    }
   }
 
   /** Gets an artifact by ID. */
@@ -219,7 +293,6 @@ public class ArtifactService {
                       s("id"),
                       s("artifact_id"),
                       s("path"),
-                      s("role"),
                       s("sha256"),
                       s("size_bytes"),
                       s("content_type"),
@@ -262,7 +335,6 @@ public class ArtifactService {
   public String uploadFileByPath(
       String artifactId,
       String path,
-      String role,
       String sha256,
       Long sizeBytes,
       String contentType,
@@ -297,7 +369,6 @@ public class ArtifactService {
           if (!existing.isEmpty()) {
             // Update existing file
             Row fileRow = existing.getFirst();
-            fileRow.set("role", role);
             fileRow.set("sha256", sha256);
             fileRow.set("size_bytes", sizeBytes);
             fileRow.set("content_type", contentType);
@@ -314,7 +385,6 @@ public class ArtifactService {
                     "id", newId,
                     "artifact_id", artifactId,
                     "path", path,
-                    "role", role,
                     "sha256", sha256,
                     "size_bytes", sizeBytes,
                     "content_type", contentType);

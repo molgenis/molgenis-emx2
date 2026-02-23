@@ -378,7 +378,6 @@ class HpcClient:
         path: str,
         file_content: bytes,
         content_type: str = "application/octet-stream",
-        role: str | None = None,
     ) -> dict:
         """Upload a file to an artifact via PUT with raw binary body."""
         url_path = f"/api/hpc/artifacts/{artifact_id}/files/{path}"

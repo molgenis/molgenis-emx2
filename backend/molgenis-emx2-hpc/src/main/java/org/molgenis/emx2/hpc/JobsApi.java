@@ -50,6 +50,10 @@ public class JobsApi {
       String inputs =
           body.get("inputs") != null ? MAPPER.writeValueAsString(body.get("inputs")) : null;
       String submitUser = (String) body.get("submit_user");
+      Integer timeoutSeconds =
+          body.get("timeout_seconds") != null
+              ? ((Number) body.get("timeout_seconds")).intValue()
+              : null;
 
       try {
         InputValidator.requireString(processor, "processor");
@@ -61,7 +65,8 @@ public class JobsApi {
         return;
       }
 
-      String jobId = jobService.createJob(processor, profile, parameters, inputs, submitUser);
+      String jobId =
+          jobService.createJob(processor, profile, parameters, inputs, submitUser, timeoutSeconds);
       Map<String, Object> response = new LinkedHashMap<>();
       response.put("id", jobId);
       response.put("status", HpcJobStatus.PENDING.name());
@@ -96,6 +101,9 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs — list jobs with optional filtering and pagination. */
   public void listJobs(Context ctx) {
+    // Expire stale jobs with per-job timeouts before listing
+    jobService.expireStaleJobs();
+
     String status = ctx.queryParam("status");
     String processor = ctx.queryParam("processor");
     String profile = ctx.queryParam("profile");
@@ -430,6 +438,7 @@ public class JobsApi {
       response.put("output_artifact", enrichArtifactRef(outputArtifactId));
     }
     response.put("output_artifact_id", outputArtifactId);
+    response.put("timeout_seconds", job.getInteger("timeout_seconds"));
     response.put("created_at", job.getString("created_at"));
     response.put("claimed_at", job.getString("claimed_at"));
     response.put("submitted_at", job.getString("submitted_at"));

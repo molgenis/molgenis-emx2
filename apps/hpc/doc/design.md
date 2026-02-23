@@ -233,7 +233,11 @@ The protocol is designed to converge to a consistent state after any single fail
 
 **Idempotent transitions.** A transition request is identical when `job_id`, `status`, `worker_id`, and all payload fields match a previously accepted transition. Duplicates return `200 OK`. Non-identical submissions to the same state return `409 Conflict`. This allows safe retries on network failure.
 
-**Timeout-driven state progression.** If a job stalls, EMX2 resolves it. CLAIMED with no SUBMITTED within timeout → FAILED, CANCELLED, or reset to PENDING (a deployment-time choice). STARTED with no terminal transition within timeout → FAILED. Timeouts should be generous enough for long-running GPU jobs and tunable per-processor or per-profile.
+**Timeout-driven state progression.** Two enforcement tiers prevent jobs from stalling indefinitely:
+
+- **Per-job timeout (EMX2-enforced).** Jobs may carry an optional `timeout_seconds` field. EMX2 checks CLAIMED and STARTED jobs lazily (on each poll cycle). If `claimed_at + timeout_seconds < now` for a CLAIMED job, or `started_at + timeout_seconds < now` for a STARTED job, EMX2 transitions the job to FAILED with a timeout detail message. This provides fine-grained, per-job control when callers know the expected duration.
+
+- **Per-profile timeout (daemon-enforced).** Each profile in the daemon config carries `claim_timeout_seconds` (default 300) and `execution_timeout_seconds` (default 0 = rely on Slurm wall time). The daemon checks tracked jobs against these limits on each monitor cycle. On timeout, it transitions the job to FAILED and issues `scancel` if a Slurm job ID is known. This acts as a safety net for jobs that lack a per-job timeout.
 
 **Infrastructure termination.** If Slurm kills a job unexpectedly (node failure, preemption, wall-time exceeded), the Apptainer wrapper should detect this and post FAILED. If the wrapper itself is killed, the timeout mechanism applies.
 
@@ -279,7 +283,7 @@ For analytical tools (DuckDB, pandas), committed artifacts can be accessed via t
 
 ## Multi-File Artifacts and Integrity
 
-Some artifacts consist of multiple files: a model with a tokenizer sidecar, a VCF with a tabix index. Multi-file artifacts include a file manifest listing each file's path, role (`primary`, `index`, `metadata`, `ancillary`), size, and individual SHA-256 hash.
+Some artifacts consist of multiple files: a model with a tokenizer sidecar, a VCF with a tabix index. Multi-file artifacts include a file manifest listing each file's path, size, and individual SHA-256 hash.
 
 For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash computed over sorted file paths and their individual hashes (see Appendix B.4). Any modification to any constituent file is detectable.
 
@@ -326,7 +330,7 @@ Artifacts are immutable after COMMITTED. If an artifact stalls in CREATED or UPL
 
 ## Job→Artifact Link
 
-Jobs can reference output artifacts via the `output_artifact_id` field, which is a foreign key to the `HpcArtifacts` table. When the daemon completes a job and uploads (or registers) output artifacts, it passes the `output_artifact_id` in the COMPLETED transition request. EMX2 stores this link on the job record, making it queryable via GraphQL (`output_artifact_id { id type { name } status { name } }`).
+Jobs can reference output artifacts via the `output_artifact_id` field, which is a foreign key to the `HpcArtifacts` table. When the daemon completes a job and uploads (or registers) output artifacts, it passes the `output_artifact_id` in the COMPLETED transition request. EMX2 stores this link on the job record, making it queryable via GraphQL (`output_artifact_id { id name type status { name } }`).
 
 Input artifacts are referenced in the job's `inputs` field (a JSON array of artifact IDs). The daemon stages input artifacts before execution: for managed artifacts it downloads files via GET; for posix artifacts it symlinks the `file://` path into the job's input directory. This two-residence model means that large datasets on NFS incur zero transfer overhead, while smaller browser-uploaded artifacts are served from the managed store.
 
@@ -469,12 +473,12 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 | Artifact classification | Single free-text `type` field (e.g. `csv`, `parquet`, `gguf`). Per-file `content_type` covers media type details. |
 | Artifact naming | `name` field on artifacts for human-readable identification. Daemon auto-generates names for job outputs. |
 | Worker deletion | `DELETE /api/hpc/workers/{id}` removes stale workers. Capabilities deleted, job `worker_id` nullified. |
+| Timeout model | Two-tier: per-job `timeout_seconds` (EMX2-enforced, optional) and per-profile `claim_timeout_seconds` / `execution_timeout_seconds` (daemon-enforced, configurable). |
 
 ## Open Design Decisions
 
 | Decision | Options | Considerations |
 |----------|---------|----------------|
-| Timeout values | Per-processor, per-profile, or global | Must accommodate longest GPU job; too short → false failures. |
 | Artifact retention | TTL, reference-counted, or manual | Out of protocol scope, but the store must accommodate the chosen strategy. |
 | S3-compatible gateway | MinIO proxy, custom gateway, or none | Current path-based API maps to S3 semantics; gateway adds DuckDB/pandas native S3 support. |
 
@@ -738,7 +742,7 @@ Uploads a file to an artifact by path. The `{path}` segment is the logical file 
 Accepts two body formats:
 
 - **Raw binary** (preferred): `Content-Type` describes the file's media type; body is the raw file bytes. The server computes SHA-256 and stores the file.
-- **Multipart**: `Content-Type: multipart/form-data` with a `file` part and optional `role`, `content_type` form params.
+- **Multipart**: `Content-Type: multipart/form-data` with a `file` part and optional `content_type` form param.
 
 **Request** (raw binary):
 
@@ -806,7 +810,6 @@ Lists files in an artifact with pagination and optional prefix filtering.
     {
       "id": "file-uuid-...",
       "path": "data.parquet",
-      "role": "primary",
       "sha256": "b3a3f0...",
       "size_bytes": 52428800,
       "content_type": "application/vnd.apache.parquet",
@@ -827,7 +830,7 @@ Lists files in an artifact with pagination and optional prefix filtering.
 
 ### POST /api/hpc/artifacts/{id}/files (legacy) {.unnumbered}
 
-Uploads a file to an artifact. Retained for backward compatibility. Accepts either JSON metadata-only (`{ "path": "...", "sha256": "...", "size_bytes": ... }`) or multipart with a `file` part. New clients should prefer `PUT /files/{path}`.
+Uploads a file to an artifact. Retained for backward compatibility. Accepts either JSON metadata-only (`{ "path": "...", "sha256": "...", "size_bytes": ... }`) or multipart with a `file` part and optional `content_type` form param. New clients should prefer `PUT /files/{path}`.
 
 ### POST /api/hpc/artifacts/{id}/commit {.unnumbered}
 
@@ -855,8 +858,8 @@ File listing for this artifact:
 ```json
 {
   "items": [
-    { "path": "model.gguf", "role": "primary", "size_bytes": 4294967296, "sha256": "a1b2c3..." },
-    { "path": "tokenizer.json", "role": "metadata", "size_bytes": 524288, "sha256": "d4e5f6..." }
+    { "path": "model.gguf", "size_bytes": 4294967296, "sha256": "a1b2c3..." },
+    { "path": "tokenizer.json", "size_bytes": 524288, "sha256": "d4e5f6..." }
   ]
 }
 ```

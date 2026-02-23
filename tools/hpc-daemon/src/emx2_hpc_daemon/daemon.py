@@ -382,7 +382,6 @@ class HpcDaemon:
                 artifact_id,
                 path=f.name,
                 file_content=content,
-                role="output",
             )
 
         commit_result = self.client.commit_artifact(
@@ -430,9 +429,83 @@ class HpcDaemon:
                     tracked.emx2_job_id,
                 )
 
+    def _check_profile_timeouts(self) -> None:
+        """Check if any tracked jobs have exceeded their profile timeouts."""
+        now = time.monotonic()
+        for tracked in list(self.tracker.active_jobs()):
+            profile_key = f"{tracked.processor}:{tracked.profile or ''}"
+            resolved = resolve_profile(
+                self.config, tracked.processor or "", tracked.profile or ""
+            )
+            if resolved is None:
+                continue
+
+            elapsed = now - tracked.claimed_at
+
+            if (
+                tracked.status == "SUBMITTED"
+                and resolved.claim_timeout_seconds > 0
+                and elapsed > resolved.claim_timeout_seconds
+            ):
+                detail = (
+                    f"timeout: claim_timeout_seconds "
+                    f"({resolved.claim_timeout_seconds}s) exceeded "
+                    f"for profile {profile_key}"
+                )
+                logger.warning(
+                    "Job %s exceeded claim timeout: %s",
+                    tracked.emx2_job_id,
+                    detail,
+                )
+                try:
+                    self.client.transition_job(
+                        tracked.emx2_job_id, "FAILED", detail=detail
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed to report timeout for job %s",
+                        tracked.emx2_job_id,
+                    )
+                self.tracker.remove(tracked.emx2_job_id)
+
+            elif (
+                tracked.status == "STARTED"
+                and resolved.execution_timeout_seconds > 0
+                and elapsed > resolved.execution_timeout_seconds
+            ):
+                detail = (
+                    f"timeout: execution_timeout_seconds "
+                    f"({resolved.execution_timeout_seconds}s) exceeded "
+                    f"for profile {profile_key}"
+                )
+                logger.warning(
+                    "Job %s exceeded execution timeout: %s",
+                    tracked.emx2_job_id,
+                    detail,
+                )
+                if tracked.slurm_job_id:
+                    try:
+                        self._backend.cancel(tracked.slurm_job_id)
+                    except Exception:
+                        logger.exception(
+                            "Failed to scancel job %s",
+                            tracked.slurm_job_id,
+                        )
+                try:
+                    self.client.transition_job(
+                        tracked.emx2_job_id, "FAILED", detail=detail
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed to report timeout for job %s",
+                        tracked.emx2_job_id,
+                    )
+                self.tracker.remove(tracked.emx2_job_id)
+
     def _monitor_running_jobs(self) -> None:
         """Check status of all tracked jobs and report transitions."""
         self._check_server_cancellations()
+        self._check_profile_timeouts()
 
         for tracked in self.tracker.active_jobs():
             if not tracked.slurm_job_id:

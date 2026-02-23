@@ -101,7 +101,8 @@ public final class HpcSchemaInitializer {
                   column("claimed_at").setType(ColumnType.DATETIME),
                   column("submitted_at").setType(ColumnType.DATETIME),
                   column("started_at").setType(ColumnType.DATETIME),
-                  column("completed_at").setType(ColumnType.DATETIME)));
+                  column("completed_at").setType(ColumnType.DATETIME),
+                  column("timeout_seconds").setType(ColumnType.INT)));
 
           schema.create(
               table(
@@ -144,7 +145,6 @@ public final class HpcSchemaInitializer {
                       .setRefTable("HpcArtifacts")
                       .setRequired(true),
                   column("path").setRequired(true),
-                  column("role"),
                   column("sha256"),
                   column("size_bytes").setType(ColumnType.LONG),
                   column("content").setType(ColumnType.FILE),

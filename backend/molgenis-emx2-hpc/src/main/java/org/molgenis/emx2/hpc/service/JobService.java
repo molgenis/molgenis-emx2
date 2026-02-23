@@ -42,24 +42,31 @@ public class JobService {
 
   /** Creates a new job in PENDING status. Returns the job ID. */
   public String createJob(
-      String processor, String profile, String parameters, String inputs, String submitUser) {
+      String processor,
+      String profile,
+      String parameters,
+      String inputs,
+      String submitUser,
+      Integer timeoutSeconds) {
     String jobId = UUID.randomUUID().toString();
     database.tx(
         db -> {
           db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
-          schema
-              .getTable("HpcJobs")
-              .insert(
-                  row(
-                      "id", jobId,
-                      "processor", processor,
-                      "profile", profile,
-                      "parameters", parameters,
-                      "status", HpcJobStatus.PENDING.name(),
-                      "inputs", inputs,
-                      "submit_user", submitUser,
-                      "created_at", LocalDateTime.now()));
+          Row jobRow =
+              row(
+                  "id", jobId,
+                  "processor", processor,
+                  "profile", profile,
+                  "parameters", parameters,
+                  "status", HpcJobStatus.PENDING.name(),
+                  "inputs", inputs,
+                  "submit_user", submitUser,
+                  "created_at", LocalDateTime.now());
+          if (timeoutSeconds != null) {
+            jobRow.set("timeout_seconds", timeoutSeconds);
+          }
+          schema.getTable("HpcJobs").insert(jobRow);
 
           recordTransition(schema, jobId, null, HpcJobStatus.PENDING, null, "Job created");
         });
@@ -320,6 +327,75 @@ public class JobService {
    */
   public List<Row> listPendingJobs(String processor, String profile) {
     return listJobs(HpcJobStatus.PENDING.name(), processor, profile, 100, 0);
+  }
+
+  /**
+   * Expires jobs that have exceeded their per-job timeout_seconds. Checks CLAIMED and STARTED jobs
+   * with a non-null timeout_seconds and transitions them to FAILED if the timeout has elapsed.
+   * Called lazily from listJobs() so it runs once per poll cycle.
+   */
+  public void expireStaleJobs() {
+    database.tx(
+        db -> {
+          db.becomeAdmin();
+          Schema schema = db.getSchema(systemSchemaName);
+          Table jobsTable = schema.getTable("HpcJobs");
+          LocalDateTime now = LocalDateTime.now();
+
+          // Check CLAIMED jobs
+          List<Row> claimedJobs =
+              jobsTable
+                  .where(f("status", f("name", EQUALS, HpcJobStatus.CLAIMED.name())))
+                  .retrieveRows();
+          for (Row job : claimedJobs) {
+            Integer timeout = job.getInteger("timeout_seconds");
+            if (timeout == null) continue;
+            String claimedAtStr = job.getString("claimed_at");
+            if (claimedAtStr == null) continue;
+            LocalDateTime claimedAt = LocalDateTime.parse(claimedAtStr);
+            if (claimedAt.plusSeconds(timeout).isBefore(now)) {
+              String jobId = job.getString("id");
+              logger.info("Expiring CLAIMED job {} (timeout {}s exceeded)", jobId, timeout);
+              job.set("status", HpcJobStatus.FAILED.name());
+              job.set("completed_at", now);
+              jobsTable.update(job);
+              recordTransition(
+                  schema,
+                  jobId,
+                  HpcJobStatus.CLAIMED,
+                  HpcJobStatus.FAILED,
+                  null,
+                  "timeout: claimed but not submitted within " + timeout + "s");
+            }
+          }
+
+          // Check STARTED jobs
+          List<Row> startedJobs =
+              jobsTable
+                  .where(f("status", f("name", EQUALS, HpcJobStatus.STARTED.name())))
+                  .retrieveRows();
+          for (Row job : startedJobs) {
+            Integer timeout = job.getInteger("timeout_seconds");
+            if (timeout == null) continue;
+            String startedAtStr = job.getString("started_at");
+            if (startedAtStr == null) continue;
+            LocalDateTime startedAt = LocalDateTime.parse(startedAtStr);
+            if (startedAt.plusSeconds(timeout).isBefore(now)) {
+              String jobId = job.getString("id");
+              logger.info("Expiring STARTED job {} (timeout {}s exceeded)", jobId, timeout);
+              job.set("status", HpcJobStatus.FAILED.name());
+              job.set("completed_at", now);
+              jobsTable.update(job);
+              recordTransition(
+                  schema,
+                  jobId,
+                  HpcJobStatus.STARTED,
+                  HpcJobStatus.FAILED,
+                  null,
+                  "timeout: execution exceeded " + timeout + "s");
+            }
+          }
+        });
   }
 
   /** Returns the audit trail of transitions for a job. */
