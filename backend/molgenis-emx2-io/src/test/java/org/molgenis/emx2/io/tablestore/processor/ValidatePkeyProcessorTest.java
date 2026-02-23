@@ -139,4 +139,43 @@ class ValidatePkeyProcessorTest {
 
     assertDoesNotThrow(() -> processor.process(rows, store));
   }
+
+  @Test
+  void givenAutoId_whenValuePastSequence_thenInvalidate() {
+    TableMetadata tableMetadata =
+        TableMetadata.table(
+            "autoid",
+            column("id")
+                .setType(ColumnType.AUTO_ID)
+                .setPkey()
+                .setComputed("${mg_autoid(format=numbers, length=2)}"));
+    schema.create(tableMetadata);
+
+    Task task = new Task().start();
+    ValidatePkeyProcessor processor = new ValidatePkeyProcessor(tableMetadata, task);
+    Iterator<Row> rows = List.of(row("id", "100")).iterator();
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
+
+    assertThrows(MolgenisException.class, () -> processor.process(rows, store));
+    assertEquals(TaskStatus.ERROR, task.getStatus());
+    assertTrue(task.getDescription().startsWith("Invalid values found in table autoid: [100]"));
+  }
+
+  @Test
+  void givenAutoId_whenValueWithinSequence_thenValidate() {
+    TableMetadata tableMetadata =
+        TableMetadata.table(
+            "autoid",
+            column("id")
+                .setType(ColumnType.AUTO_ID)
+                .setPkey()
+                .setComputed("${mg_autoid(format=numbers, length=2)}"));
+    schema.create(tableMetadata);
+
+    Task task = new Task().start();
+    ValidatePkeyProcessor processor = new ValidatePkeyProcessor(tableMetadata, task);
+    Iterator<Row> rows = List.of(row("autoid", "99")).iterator();
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
+    assertDoesNotThrow(() -> processor.process(rows, store));
+  }
 }
