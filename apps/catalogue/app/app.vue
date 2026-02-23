@@ -55,7 +55,7 @@ if (
 const scriptMap: Record<string, string> = {
   "google-analytics": `https://www.googletagmanager.com/gtag/js?id=${config.public.analyticsKey}`,
   siteimprove: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
-  "piwik-pro": `https://umcg.containers.piwik.pro/${config.public.analyticsKey}.js`,
+  "piwik-pro": `https://${config.public.analyticsDomain}/${config.public.analyticsKey}.js`,
 };
 
 const faviconHref = config.public.emx2Theme
