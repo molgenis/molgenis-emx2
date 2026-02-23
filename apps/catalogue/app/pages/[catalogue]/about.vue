@@ -237,7 +237,7 @@
                 rel="noopener noreferrer"
                 target="_blank"
                 class="text-link underline hover:bg-link-hover"
-                >Bbmri-NL</a
+                >BBMRI-NL</a
               >
             </DisplayListItem>
             <DisplayListItem>
