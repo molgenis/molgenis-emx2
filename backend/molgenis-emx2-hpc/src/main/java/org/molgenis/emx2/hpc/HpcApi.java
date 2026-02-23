@@ -180,9 +180,12 @@ public class HpcApi {
       String ct = ctx.header("Content-Type");
       boolean isJson = ct != null && ct.startsWith("application/json");
       String body = isJson ? ctx.body() : "";
+      // Use path + query string so the signature covers query parameters too
+      String signedPath =
+          ctx.queryString() != null ? ctx.path() + "?" + ctx.queryString() : ctx.path();
       verifier.verify(
           ctx.method().name(),
-          ctx.path(),
+          signedPath,
           body,
           ctx.header("Authorization"),
           ctx.header(HpcHeaders.TIMESTAMP),

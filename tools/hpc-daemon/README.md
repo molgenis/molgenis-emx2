@@ -14,13 +14,13 @@ uv pip install -e .
 
 ## Configuration
 
-The daemon reads a YAML config file. Environment variables can be referenced with `${VAR}` syntax.
+The daemon reads a YAML config file. Environment variables can be referenced with `${VAR}` syntax. Secrets should use `shared_secret_file` to read from a file with restricted permissions.
 
 ```yaml
 emx2:
   base_url: "https://emx2.example.org"
   worker_id: "hpc-headnode-01"
-  shared_secret: "${EMX2_HPC_SECRET}"
+  shared_secret_file: /etc/emx2-hpc/secret  # chmod 600, owned by service user
   auth_mode: "hmac"  # or "token"
 
 worker:
