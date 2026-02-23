@@ -78,7 +78,8 @@ useHead({
   script:
     config.public.analyticsKey &&
     isAnalyticsAllowedCookie.value &&
-    analyticsService.value
+    analyticsService.value &&
+    scriptMap[analyticsService.value]
       ? [
           {
             src: scriptMap[analyticsService.value],
