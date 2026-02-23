@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql.autoid;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.*;
 
 import java.util.ArrayList;
 import java.util.HexFormat;
@@ -88,6 +89,20 @@ class ColumnSequenceIdGeneratorTest {
     assertEquals("FOO-493-84838", generator.generateId());
     assertEquals("FOO-696-23934", generator.generateId());
     assertColumnHasSequenceWithLimit(column, 100000000);
+  }
+
+  @Test
+  void givenSchemaWithSettings_thenUseKeyFromSettingsForRandomizer() {
+    Column column = addColumnWithComputedToSchema("FOO-${mg_autoid(length=4, format=numbers)}");
+    ColumnSequenceIdGenerator generator = new ColumnSequenceIdGenerator(column, jooq);
+    assertEquals("FOO-2871", generator.generateId());
+
+    schema
+        .getMetadata()
+        .setSetting(AUTOID_RANDOMIZER_KEY_SETTING, "FD79FFE0C8F6051B42DC7A3B4660F244");
+
+    generator = new ColumnSequenceIdGenerator(column, jooq);
+    assertNotEquals("FOO-1819", generator.generateId());
   }
 
   private static void assertColumnHasSequenceWithLimit(Column column, long expectedLimit) {
