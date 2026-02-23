@@ -11,11 +11,14 @@ import io.javalin.http.Context;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
+import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
+import org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
@@ -78,6 +81,7 @@ public class ApplicationCachePerUser {
   private final Cache<UserSchemaKey, Schema> schemaCache;
   private final Cache<UserKey, GraphqlExecutor> graphqlDatabaseCache;
   private final Cache<UserSchemaKey, GraphqlExecutor> graphqlSchemaCache;
+  private final Cache<String, Map<String, Object>> jsonLdContextCache;
   private static final ApplicationCachePerUser INSTANCE = new ApplicationCachePerUser();
 
   private ApplicationCachePerUser() {
@@ -100,6 +104,11 @@ public class ApplicationCachePerUser {
         Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
             .maximumSize(APP_GQL_SCHEMA_CACHE_SIZE)
+            .build();
+    jsonLdContextCache =
+        Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
+            .maximumSize(APP_SCHEMA_CACHE_SIZE)
             .build();
   }
 
@@ -226,15 +235,18 @@ public class ApplicationCachePerUser {
     return null;
   }
 
-  /**
-   * this method is used to reset cache of all sessions, necessary when for example metadata changes
-   */
+  public Map<String, Object> getJsonLdContext(String schemaUrl, SchemaMetadata meta) {
+    return jsonLdContextCache.get(
+        schemaUrl, k -> JsonLdSchemaGenerator.generateJsonLdSchemaAsMap(meta, schemaUrl));
+  }
+
   public void clearAllCaches() {
     oidcController.reloadConfig();
     databaseCache.invalidateAll();
     schemaCache.invalidateAll();
     graphqlSchemaCache.invalidateAll();
     graphqlDatabaseCache.invalidateAll();
+    jsonLdContextCache.invalidateAll();
     logger.info("cleared all caches");
   }
 }

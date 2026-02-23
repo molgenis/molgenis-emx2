@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
@@ -25,6 +26,7 @@ public class GraphqlExecutor {
       Pattern.compile("\\.\\.\\.\\s*([A-Za-z_][A-Za-z0-9_]*AllFields[0-9]?)");
   private final GraphQL graphql;
   private final Map<String, String> graphqlQueryFragments;
+  private Schema schema;
 
   private void init() {
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
@@ -68,6 +70,7 @@ public class GraphqlExecutor {
     init();
     this.graphql = GraphqlFactory.forSchema(schema, taskService);
     this.graphqlQueryFragments = GraphqlTableFragmentGenerator.generate(schema);
+    this.schema = schema;
   }
 
   public GraphqlExecutor(Schema schema) {
@@ -140,6 +143,44 @@ public class GraphqlExecutor {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return executionResult;
+  }
+
+  public Schema getSchema() {
+    return this.schema;
+  }
+
+  public String queryAsString(String query, Map<String, Object> variables) {
+    try {
+      ExecutionResult result = executeWithoutSession(query, variables);
+      return convertExecutionResultToJson(result);
+    } catch (Exception e) {
+      throw new MolgenisException(e.getMessage(), e);
+    }
+  }
+
+  public Map queryAsMap(String query, Map<String, Object> variables) {
+    try {
+      ExecutionResult result = executeWithoutSession(query, variables);
+      return result.getData();
+    } catch (Exception e) {
+      throw new MolgenisException(e.getMessage(), e);
+    }
+  }
+
+  public String getSelectAllQuery() {
+    String query =
+        this.getSchema().getMetadata().getTables().stream()
+            .map(
+                table ->
+                    String.format(
+                        "%s{...%sAllFields}", table.getIdentifier(), table.getIdentifier()))
+            .collect(Collectors.joining("\n"));
+    return "{" + query + "}";
+  }
+
+  public String getJsonLdSchema(String schemaUrl) {
+    return org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator.generateJsonLdSchema(
+        schema.getMetadata(), schemaUrl);
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {

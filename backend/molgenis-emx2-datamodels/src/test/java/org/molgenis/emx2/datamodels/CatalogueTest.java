@@ -1,10 +1,15 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.jsonld.RestOverGraphql.convertToTurtle;
 import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
 
+import java.util.Map;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
+import org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator;
 
 public class CatalogueTest extends TestLoaders {
 
@@ -26,5 +31,32 @@ public class CatalogueTest extends TestLoaders {
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     assertEquals(15, networkStaging.getTableNames().size());
+  }
+
+  @Test
+  public void test09CatalogueFilteredDcatExport() throws Exception {
+    GraphqlExecutor graphqlExecutor = new GraphqlExecutor(dataCatalogue);
+    Map<String, Object> context =
+        JsonLdSchemaGenerator.generateJsonLdSchemaAsMap(
+            dataCatalogue.getMetadata(), "http://localhost/catalogue");
+
+    String fullQuery = graphqlExecutor.getSelectAllQuery();
+    Map fullData = graphqlExecutor.queryAsMap(fullQuery, Map.of());
+    String fullTtl = convertToTurtle(context, fullData);
+
+    String resourcesIdentifier = dataCatalogue.getTable("Resources").getMetadata().getIdentifier();
+    String filteredQuery =
+        String.format(
+            "query($limit:Int){%s(limit:$limit){...%sAllFields}}",
+            resourcesIdentifier, resourcesIdentifier);
+    //todo: make useful select and filter
+    Map filteredData = graphqlExecutor.queryAsMap(filteredQuery, Map.of("limit", 1));
+    String filteredTtl = convertToTurtle(context, filteredData);
+
+    assertTrue(fullTtl.contains("@prefix"));
+    assertTrue(fullTtl.contains("dcat:"));
+    assertTrue(filteredTtl.contains("@prefix"));
+    assertTrue(fullTtl.length() > filteredTtl.length());
+    assertTrue(filteredTtl.length() > filteredTtl.indexOf("@prefix") + 200);
   }
 }
