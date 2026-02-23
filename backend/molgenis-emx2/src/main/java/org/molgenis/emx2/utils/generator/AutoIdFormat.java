@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.molgenis.emx2.MolgenisException;
 
 public record AutoIdFormat(Format format, int length) {
 
@@ -112,5 +113,31 @@ public record AutoIdFormat(Format format, int length) {
     }
 
     return StringUtils.leftPad(builder.toString(), length, format.characters.charAt(0));
+  }
+
+  public long getValue(String input) {
+    if (!valueCompliesToFormat(input)) {
+      throw new MolgenisException("Given value does not comply with expected format");
+    }
+
+    long result = 0;
+    int base = format.characters.length();
+
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      int index = format.characters.indexOf(c);
+      if (index == -1) {
+        throw new IllegalArgumentException("Invalid character in formatted value: " + c);
+      }
+      result = result * base + index;
+    }
+
+    return result;
+  }
+
+  public boolean valueCompliesToFormat(String value) {
+    return Pattern.compile("[" + format().getCharacters() + "]{" + length() + "}")
+        .matcher(value)
+        .matches();
   }
 }

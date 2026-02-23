@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.MolgenisException;
 
 class AutoIdFormatTest {
 
@@ -108,5 +109,26 @@ class AutoIdFormatTest {
     List<String> actual = IntStream.range(0, 10000).boxed().map(format::mapToFormat).toList();
 
     assertEquals(expected, actual);
+  }
+
+  @Test
+  void givenValue_thenReverse() {
+    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.MIXED, 4);
+    assertEquals(1337, format.getValue("AAVj"));
+    assertEquals(14_776_335, format.getValue("9999"));
+    assertEquals(1, format.getValue("AAAB"));
+    assertEquals(0, format.getValue("AAAA"));
+  }
+
+  @Test
+  void givenValue_whenOutOfRange_thenThrow() {
+    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.MIXED, 4);
+    assertThrows(MolgenisException.class, () -> format.getValue("AAAAA"));
+  }
+
+  @Test
+  void givenValue_whenDifferentCharacters_thenThrow() {
+    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 4);
+    assertThrows(MolgenisException.class, () -> format.getValue("A"));
   }
 }
