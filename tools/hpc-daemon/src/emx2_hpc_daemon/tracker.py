@@ -26,6 +26,7 @@ class TrackedJob:
     processor: str | None = None
     profile: str | None = None
     claimed_at: float = 0.0  # time.monotonic() at tracking time
+    last_progress_hash: str | None = None
 
     @property
     def profile_key(self) -> str:

@@ -35,6 +35,24 @@ def test_resolve_no_match(sample_config):
     assert resolved is None
 
 
+def test_resolve_entrypoint_profile(sample_config):
+    from emx2_hpc_daemon.config import ProfileEntry
+
+    sample_config.profiles["vtm-pipeline:gpu-large"] = ProfileEntry(
+        entrypoint="/nfs/scripts/vtm-pipeline.sh",
+        partition="gpu",
+        cpus=16,
+        memory="128G",
+        time="08:00:00",
+    )
+    resolved = resolve_profile(sample_config, "vtm-pipeline", "gpu-large")
+    assert resolved is not None
+    assert resolved.entrypoint == "/nfs/scripts/vtm-pipeline.sh"
+    assert resolved.sif_image == ""
+    assert resolved.partition == "gpu"
+    assert resolved.cpus == 16
+
+
 def test_derive_capabilities(sample_config):
     caps = derive_capabilities(sample_config)
     assert len(caps) == 2

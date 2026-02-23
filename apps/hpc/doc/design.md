@@ -44,7 +44,7 @@ Molgenis EMX2 is a metadata-driven platform for scientific data built around FAI
 
 This document proposes a protocol for bridging EMX2 with one or more HPC clusters managed by Slurm. The design addresses a specific institutional constraint: the HPC environment cannot accept inbound connections. All communication must be initiated from the HPC side.
 
-The result is an outbound-only job execution bridge. HPC workers poll EMX2 for work, claim jobs, execute them inside Apptainer containers, and report results — all without EMX2 needing to reach into the cluster.
+The result is an outbound-only job execution bridge. HPC workers poll EMX2 for work, claim jobs, execute them (inside Apptainer containers or via wrapper scripts), and report results — all without EMX2 needing to reach into the cluster.
 
 ## Scope
 
@@ -86,7 +86,7 @@ The HPC side consists of:
 
 - **Head Node Controller** — a daemon that registers capabilities, polls for pending jobs, maps processor + profile to Slurm parameters, submits `sbatch`, and reports the result back to EMX2.
 - **Slurm Controller** — the cluster's workload manager, unchanged from its standard role.
-- **Apptainer Runtime** — executes the workload inside an Apptainer (formerly Singularity) container on a compute node. The daemon handles all communication with EMX2: staging input artifacts (symlink for posix, download for managed), monitoring Slurm job state, uploading or registering output artifacts, and posting status transitions.
+- **Apptainer Runtime / Wrapper Script** — executes the workload on a compute node, either inside an Apptainer (formerly Singularity) container or via a wrapper script executed directly on the host. The daemon handles all communication with EMX2: staging input artifacts (symlink for posix, download for managed), monitoring Slurm job state, reading filesystem-based progress updates, uploading or registering output artifacts, and posting status transitions. The workload itself has no direct EMX2 access — its only output channel is the filesystem (exit code, output files, and an optional `.hpc_progress.json` progress file).
 - **NFS Shared Storage** — an NFS export mounted on the head node and all compute nodes. Stores Apptainer SIF images, POSIX-resident artifacts, and shared scratch data.
 - **Local Scratch** — per-node temporary storage, discarded after job completion.
 
@@ -96,7 +96,7 @@ The HPC side consists of:
 |---------|-------|
 | Job registry, lifecycle state, artifact metadata, managed file storage | EMX2 |
 | Capability registration, job claiming, Slurm submission, artifact staging | Head Node Controller |
-| Workload execution | Apptainer Runtime |
+| Workload execution | Apptainer Runtime or Wrapper Script |
 | Scheduling, resource allocation, node dispatch | Slurm Controller |
 | Managed artifact binary content (FILE columns) | EMX2 Database |
 | Shared data between jobs, POSIX-resident artifacts | NFS |
@@ -116,6 +116,8 @@ Both `run` and `once` accept a `--simulate` flag that walks jobs through all lif
 
 The daemon sends periodic heartbeats (default: every 120 seconds) to keep the worker registration alive. On startup, it recovers tracking state for non-terminal jobs from a previous run. On SIGTERM/SIGINT, it stops accepting new work and exits gracefully; Slurm jobs continue running independently and are recovered on next startup.
 
+During the monitor loop, the daemon also checks for a `.hpc_progress.json` file in each STARTED job's output directory. When the workload writes this file (with optional `phase`, `message`, and `progress` fields), the daemon reads it and relays the progress as a transition detail update to EMX2. This provides in-flight progress visibility without leaking any credentials into the job environment.
+
 Configuration is via a YAML file specifying EMX2 connection details, Slurm parameters, Apptainer settings, and profile-to-resource mappings.
 
 # End-to-End Protocol
@@ -126,11 +128,11 @@ The happy-path sequence proceeds in four phases.
 
 **Phase 1 — Registration and job acquisition.** The head node registers its capabilities with the Workers API, then polls the Jobs API for pending jobs that match its declared processors and profiles. When it finds one, it claims it. The claim is atomic: if two workers try to claim the same job, only one succeeds.
 
-**Phase 2 — Slurm submission.** The head node maps the job's processor and profile to an Apptainer SIF image (stored on NFS) and a set of Slurm parameters, then submits via `sbatch`. It reports the Slurm job ID back to EMX2 as a SUBMITTED transition.
+**Phase 2 — Input staging and Slurm submission.** The head node stages input artifacts: for posix artifacts it symlinks the `file://` path into the job's input directory (zero-copy); for managed artifacts it downloads files via `GET /api/hpc/artifacts/{id}/files/{path}`. SHA-256 hashes are verified after staging. The head node then maps the job's processor and profile to execution parameters — either an Apptainer SIF image or a wrapper script entrypoint — and a set of Slurm parameters, then submits via `sbatch`. It reports the Slurm job ID back to EMX2 as a SUBMITTED transition.
 
-**Phase 3 — Execution.** Slurm dispatches the job to a compute node. The daemon monitors the job via `squeue`/`sacct` and posts a STARTED transition to EMX2 when execution begins. Before submission, the daemon stages input artifacts: for posix artifacts it symlinks the `file://` path into the job's input directory (zero-copy); for managed artifacts it downloads files via `GET /api/hpc/artifacts/{id}/files/{path}`. SHA-256 hashes are verified on access. If verification passes, the workload runs.
+**Phase 3 — Execution and monitoring.** Slurm dispatches the job to a compute node, where it runs either inside an Apptainer container or as a wrapper script (see §5). The daemon monitors the job via `squeue`/`sacct` and posts a STARTED transition to EMX2 when execution begins. During execution, the daemon checks for a `.hpc_progress.json` file in the job's output directory and relays progress updates to EMX2 as transition detail updates. All EMX2 communication is driven by the daemon — the workload itself has no direct access to EMX2.
 
-**Phase 4 — Output and completion.** The daemon creates an output artifact, uploads files (for managed residence) or registers the output directory path (for posix residence), and commits. It posts a COMPLETED transition with the `output_artifact_id` field linking the job to its output artifact. The artifact ID is stored as a foreign key on the job record, making outputs discoverable via GraphQL.
+**Phase 4 — Output and completion.** When the daemon detects job completion via Slurm, it creates an output artifact, uploads files (for managed residence) or registers the output directory path (for posix residence), and commits. It posts a COMPLETED transition with the `output_artifact_id` field linking the job to its output artifact. The artifact ID is stored as a foreign key on the job record, making outputs discoverable via GraphQL.
 
 At every step, the client discovers what it can do next from hypermedia links in the response. If a transition is not legal in the current state, the corresponding link is absent. Failure at any point results in a FAILED transition with a reason code (see Job Lifecycle, below).
 
@@ -165,6 +167,35 @@ text-embedding:v3 + gpu-medium
 ```
 
 This mapping is maintained locally on the HPC system and may evolve independently of the protocol.
+
+## Wrapper Scripts (Entrypoint Mode)
+
+Not all workloads fit the "run one container command" model. Multi-process orchestration, module loads, venv activation, and structured teardown require direct host access. For these cases, profiles can specify an `entrypoint` instead of (or alongside) `sif_image`.
+
+When `entrypoint` is set, the batch script exports well-defined environment variables and `exec`s the wrapper script directly on the host:
+
+```yaml
+profiles:
+  vtm-pipeline:gpu-large:
+    entrypoint: /nfs/scripts/vtm-pipeline.sh
+    partition: gpu
+    cpus: 16
+    memory: 128G
+    time: "08:00:00"
+```
+
+The wrapper script contract:
+
+- **`HPC_JOB_ID`** — the EMX2 job identifier.
+- **`HPC_INPUT_DIR`** — directory containing staged input artifacts (read from here).
+- **`HPC_OUTPUT_DIR`** — directory for output files (write results here).
+- **`HPC_WORK_DIR`** — scratch working directory.
+- **`HPC_PARAMETERS`** — JSON string with the full job parameters object.
+- Any extra environment variables from the profile or job parameters.
+
+The wrapper's responsibilities: read inputs from `HPC_INPUT_DIR`, write results to `HPC_OUTPUT_DIR`, and exit 0 on success. Optionally, write `.hpc_progress.json` to `HPC_OUTPUT_DIR` for in-flight progress reporting. The wrapper has no direct EMX2 access — the daemon handles all API communication.
+
+Use wrapper scripts when you need multi-process orchestration, host-level module systems, or any setup that doesn't fit inside a single container exec. Use Apptainer containers when you want reproducible, isolated execution with a single SIF image.
 
 ## Why Hybrid Profiles
 
@@ -218,12 +249,12 @@ A job passes through a strict state machine. Every transition is recorded as a s
 | CLAIMED | SUBMITTED | Head node | After `sbatch` |
 | CLAIMED | FAILED | EMX2 or Head node | Timeout or submission error |
 | CLAIMED | CANCELLED | Head node or EMX2 | Cancel before submission |
-| SUBMITTED | STARTED | Apptainer wrapper or daemon | Execution begins |
+| SUBMITTED | STARTED | Daemon (monitoring Slurm state) | Execution begins |
 | SUBMITTED | FAILED | Head node or EMX2 | Slurm rejection or timeout |
 | SUBMITTED | CANCELLED | Head node or EMX2 | Cancel; head node issues `scancel` |
-| STARTED | COMPLETED | Apptainer wrapper or daemon | Outputs committed; `output_artifact_id` set |
-| STARTED | FAILED | Apptainer wrapper | Runtime error or hash mismatch |
-| STARTED | CANCELLED | EMX2 | Cancel; wrapper terminates |
+| STARTED | COMPLETED | Daemon (monitoring Slurm state) | Outputs committed; `output_artifact_id` set |
+| STARTED | FAILED | Daemon (monitoring Slurm state) | Runtime error, hash mismatch, or timeout |
+| STARTED | CANCELLED | EMX2 | Cancel; daemon issues `scancel` |
 
 All other transitions are rejected with `409 Conflict`. Jobs in terminal states (COMPLETED, FAILED, CANCELLED) cannot transition further.
 
@@ -241,7 +272,7 @@ The protocol is designed to converge to a consistent state after any single fail
 
 - **Per-profile timeout (daemon-enforced).** Each profile in the daemon config carries `claim_timeout_seconds` (default 300) and `execution_timeout_seconds` (default 0 = rely on Slurm wall time). The daemon checks tracked jobs against these limits on each monitor cycle. On timeout, it transitions the job to FAILED and issues `scancel` if a Slurm job ID is known. This acts as a safety net for jobs that lack a per-job timeout.
 
-**Infrastructure termination.** If Slurm kills a job unexpectedly (node failure, preemption, wall-time exceeded), the Apptainer wrapper should detect this and post FAILED. If the wrapper itself is killed, the timeout mechanism applies.
+**Infrastructure termination.** If Slurm kills a job unexpectedly (node failure, preemption, wall-time exceeded), the daemon detects this via `squeue`/`sacct` on the next monitor cycle and posts a FAILED transition. The workload (whether container or wrapper script) has no direct EMX2 access — its only output channel is the filesystem: exit code, output files in `HPC_OUTPUT_DIR`, and an optional `.hpc_progress.json` progress file. The daemon is responsible for interpreting these signals and posting appropriate transitions.
 
 **Concurrency control.** Workers declare `max_concurrent_jobs` during registration and are responsible for not over-claiming. EMX2 may optionally enforce an upper bound.
 
@@ -436,7 +467,7 @@ EMX2 is the sole authority for job state, lifecycle transitions, and artifact me
 A minimal, deterministic bridge between EMX2 and HPC infrastructure with these invariants:
 
 - **Outbound-only communication.** EMX2 never initiates connections to the cluster.
-- **Apptainer-based execution.** SIF images on NFS, invoked by Slurm on compute nodes.
+- **Flexible execution.** Either Apptainer containers (SIF images on NFS) or wrapper scripts, invoked by Slurm on compute nodes.
 - **NFS as the primary shared data path.** Artifacts co-located with compute require no transfer.
 - **Resource-oriented API with HATEOAS.** Clients discover actions from server responses.
 - **Typed, content-addressed artifacts.** A single metadata model governs everything from queryable Parquet tables to multi-gigabyte model weights, with SHA-256 integrity verification.

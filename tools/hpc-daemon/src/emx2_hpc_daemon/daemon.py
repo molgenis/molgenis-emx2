@@ -18,6 +18,7 @@ Slurm jobs continue independently after daemon shutdown.
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import signal
 import socket
@@ -489,6 +490,49 @@ class HpcDaemon:
                     )
                 self.tracker.remove(tracked.emx2_job_id)
 
+    def _check_progress_file(self, tracked) -> None:
+        """Read .hpc_progress.json from output_dir and relay updates to EMX2."""
+        if tracked.status != "STARTED" or not tracked.output_dir:
+            return
+
+        progress_path = Path(tracked.output_dir) / ".hpc_progress.json"
+        if not progress_path.is_file():
+            return
+
+        try:
+            raw = progress_path.read_bytes()
+            content_hash = hashlib.md5(raw).hexdigest()
+            if content_hash == tracked.last_progress_hash:
+                return
+
+            tracked.last_progress_hash = content_hash
+            progress = json.loads(raw)
+
+            parts = []
+            if "phase" in progress:
+                parts.append(progress["phase"])
+            if "message" in progress:
+                parts.append(progress["message"])
+            if "progress" in progress:
+                parts.append(f"{progress['progress']:.0%}")
+            detail = "; ".join(parts) if parts else "progress update"
+
+            self.client.transition_job(
+                tracked.emx2_job_id,
+                "STARTED",
+                detail=f"progress: {detail}",
+            )
+            logger.debug(
+                "Relayed progress for job %s: %s",
+                tracked.emx2_job_id,
+                detail,
+            )
+        except (json.JSONDecodeError, OSError):
+            logger.debug(
+                "Could not read progress file for job %s",
+                tracked.emx2_job_id,
+            )
+
     def _monitor_running_jobs(self) -> None:
         """Check status of all tracked jobs and report transitions."""
         self._check_server_cancellations()
@@ -497,6 +541,9 @@ class HpcDaemon:
         for tracked in self.tracker.active_jobs():
             if not tracked.slurm_job_id:
                 continue
+
+            # Relay in-flight progress before checking for state changes
+            self._check_progress_file(tracked)
 
             new_status = self._backend.query_status(
                 tracked.slurm_job_id, tracked.status

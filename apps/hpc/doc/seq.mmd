@@ -4,7 +4,7 @@ sequenceDiagram
     participant Workers as Workers API
     participant Jobs as Jobs API
     participant Slurm as Slurm Controller
-    participant Runtime as Apptainer Runtime
+    participant Workload as Workload (Container or Wrapper)
     participant Artifact as Artifact API
     participant SharedFS as Shared Filesystem
     participant DB as System Database
@@ -22,48 +22,67 @@ sequenceDiagram
     Jobs->>DB: atomically mark CLAIMED
     Jobs-->>Controller: {job, _links: {submit, cancel}}
 
-    Note over Controller,DB: Phase 2: Slurm Submission
+    Note over Controller,DB: Phase 2: Input Staging & Slurm Submission
 
-    Controller->>Slurm: sbatch (mapped image + params)
+    alt Input artifacts present
+        alt residence = posix
+            Controller->>SharedFS: symlink file:// path into input_dir
+        else residence = managed
+            Controller->>Artifact: GET /artifacts/{id}/files/{path}
+            Artifact-->>Controller: file bytes
+            Controller->>SharedFS: write to input_dir
+        end
+        Controller->>Controller: verify SHA-256
+    end
+
+    Controller->>Slurm: sbatch (container or wrapper script)
     Slurm-->>Controller: slurm_job_id
 
     Controller->>Jobs: POST /jobs/{job_id}/transitions {SUBMITTED, slurm_job_id}
     Jobs->>DB: persist transition + update status
     Jobs-->>Controller: 201 Created {transition, job: {_links: {start, cancel}}}
 
-    Note over Controller,DB: Phase 3: Execution
+    Note over Controller,DB: Phase 3: Execution & Monitoring
 
-    Slurm->>Runtime: dispatch to compute node
-    Runtime->>Jobs: POST /jobs/{job_id}/transitions {STARTED}
-    Jobs->>DB: persist transition + update status
-    Jobs-->>Runtime: 201 Created {transition, job: {_links: {complete, fail, cancel}}}
+    Slurm->>Workload: dispatch to compute node
 
-    Runtime->>Artifact: GET /artifacts/{id} (metadata)
-    Artifact-->>Runtime: {residence, state: COMMITTED, sha256, content_url}
+    loop Daemon monitor loop (poll interval)
+        Controller->>Slurm: squeue/sacct (check job state)
+        Slurm-->>Controller: RUNNING | COMPLETED | FAILED | ...
 
-    alt residence = posix
-        Runtime->>SharedFS: read from file:// path
-    else residence = managed | s3 | http
-        Runtime->>Artifact: GET /artifacts/{id}/content
+        alt State changed to RUNNING (first time)
+            Controller->>Jobs: POST /jobs/{job_id}/transitions {STARTED}
+            Jobs->>DB: persist transition + update status
+        end
+
+        opt .hpc_progress.json exists in output_dir
+            Controller->>SharedFS: read .hpc_progress.json
+            SharedFS-->>Controller: {phase, message, progress}
+            Controller->>Jobs: POST /jobs/{job_id}/transitions {STARTED, detail: progress}
+        end
     end
 
-    Runtime->>Runtime: verify sha256
-
-    alt Hash mismatch
-        Runtime->>Jobs: POST /jobs/{job_id}/transitions {FAILED, reason: input_hash_mismatch}
-        Jobs->>DB: persist transition + update status
-    else Hash valid
-        Runtime->>Runtime: execute workload
+    Workload->>SharedFS: write results to output_dir
+    opt Progress reporting
+        Workload->>SharedFS: write .hpc_progress.json
     end
 
     Note over Controller,DB: Phase 4: Output & Completion
 
-    Runtime->>Artifact: POST /artifacts {type, format, residence}
-    Artifact-->>Runtime: {artifact_url}
+    alt Slurm reports COMPLETED
+        alt residence = posix
+            Controller->>Artifact: POST /artifacts {type, residence: posix, content_url: file://...}
+            Controller->>Artifact: POST /artifacts/{id}/commit {sha256, size_bytes}
+        else residence = managed
+            Controller->>Artifact: POST /artifacts {type, residence: managed}
+            Controller->>Artifact: PUT /artifacts/{id}/files/{path}
+            Controller->>Artifact: POST /artifacts/{id}/commit {sha256, size_bytes}
+        end
 
-    Runtime->>Artifact: PUT /artifacts/{id}/files/{path}
-    Runtime->>Artifact: POST /artifacts/{id}/complete
-
-    Runtime->>Jobs: POST /jobs/{job_id}/transitions {COMPLETED, outputs[], logs[]}
-    Jobs->>DB: persist transition + update status
-    Jobs-->>Runtime: 201 Created {transition, job: {_links: {self, transitions}}}
+        Controller->>Jobs: POST /jobs/{job_id}/transitions {COMPLETED, output_artifact_id}
+        Jobs->>DB: persist transition + update status
+        Jobs-->>Controller: 201 Created
+    else Slurm reports FAILED / TIMEOUT / CANCELLED
+        Controller->>Jobs: POST /jobs/{job_id}/transitions {FAILED, detail}
+        Jobs->>DB: persist transition + update status
+    end

@@ -145,7 +145,7 @@ class SlurmBackend(ExecutionBackend):
 
         logger.debug(
             "Resolved profile for %s:%s → partition=%s, cpus=%d, mem=%s, "
-            "time=%s, sif=%s, artifact_residence=%s",
+            "time=%s, sif=%s, entrypoint=%s, artifact_residence=%s",
             processor,
             profile,
             resolved.partition,
@@ -153,6 +153,7 @@ class SlurmBackend(ExecutionBackend):
             resolved.memory,
             resolved.time,
             resolved.sif_image,
+            resolved.entrypoint,
             resolved.artifact_residence,
         )
 
@@ -201,10 +202,12 @@ class SlurmBackend(ExecutionBackend):
             input_dir=str(input_dir),
             output_dir=str(output_dir),
             extra_args=resolved.extra_args,
-            bind_paths=self._config.apptainer.bind_paths,
+            bind_paths=self._config.apptainer.bind_paths if not resolved.entrypoint else None,
             account=self._config.slurm.default_account or None,
             container_command=container_command,
             environment=environment,
+            entrypoint=resolved.entrypoint or None,
+            parameters=parameters if isinstance(parameters, dict) else None,
         )
 
         script_path = base_dir / "job.sbatch"

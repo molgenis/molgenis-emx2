@@ -66,3 +66,16 @@ def test_profile_key_property():
 
     tracker.track("job-2", processor="text-embedding", profile=None)
     assert tracker.get("job-2").profile_key == "text-embedding:"
+
+
+def test_last_progress_hash_default():
+    tracker = JobTracker()
+    job = tracker.track("job-1", status="STARTED")
+    assert job.last_progress_hash is None
+
+
+def test_last_progress_hash_update():
+    tracker = JobTracker()
+    tracker.track("job-1", status="STARTED")
+    tracker.update("job-1", last_progress_hash="abc123")
+    assert tracker.get("job-1").last_progress_hash == "abc123"

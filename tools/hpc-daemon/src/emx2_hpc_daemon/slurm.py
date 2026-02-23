@@ -6,9 +6,11 @@ a clean interface for the daemon to submit jobs, check status, and cancel.
 
 from __future__ import annotations
 
+import json as _json
 import logging
 import re
 import subprocess
+import textwrap
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -111,6 +113,121 @@ def cancel_job(slurm_job_id: str) -> None:
         logger.error("scancel %s timed out", slurm_job_id)
 
 
+def _format_sbatch_directives(
+    job_id: str,
+    partition: str,
+    cpus: int,
+    memory: str,
+    time_limit: str,
+    output_dir: str,
+    account: str | None = None,
+    extra_args: list[str] | None = None,
+) -> str:
+    """Format the #SBATCH directive block."""
+    lines = textwrap.dedent(f"""\
+        #SBATCH --job-name=emx2-{job_id[:8]}
+        #SBATCH --partition={partition}
+        #SBATCH --cpus-per-task={cpus}
+        #SBATCH --mem={memory}
+        #SBATCH --time={time_limit}
+        #SBATCH --output={output_dir}/slurm-%j.out
+        #SBATCH --error={output_dir}/slurm-%j.err""")
+    if account:
+        lines += f"\n#SBATCH --account={account}"
+    for arg in extra_args or []:
+        lines += f"\n#SBATCH {arg}"
+    return lines
+
+
+def _format_env_exports(environment: dict[str, str] | None) -> str:
+    """Format extra environment variable exports."""
+    if not environment:
+        return ""
+    return "\n".join(f'export {k}="{v}"' for k, v in environment.items())
+
+
+def _format_entrypoint_body(
+    job_id: str,
+    work_dir: str,
+    input_dir: str,
+    output_dir: str,
+    entrypoint: str,
+    environment: dict[str, str] | None = None,
+    parameters: dict | None = None,
+) -> str:
+    """Format the entrypoint/wrapper execution body."""
+    params_json = _json.dumps(parameters) if parameters else "{}"
+    env_exports = _format_env_exports(environment)
+    env_block = f"\n{env_exports}" if env_exports else ""
+
+    return textwrap.dedent(f"""\
+        # Entrypoint wrapper execution
+        export HPC_JOB_ID="{job_id}"
+        export HPC_INPUT_DIR="{input_dir}"
+        export HPC_OUTPUT_DIR="{output_dir}"
+        export HPC_WORK_DIR="{work_dir}"
+        export HPC_PARAMETERS='{params_json}'{env_block}
+
+        exec {entrypoint}""")
+
+
+def _format_apptainer_body(
+    job_id: str,
+    sif_image: str,
+    work_dir: str,
+    input_dir: str,
+    output_dir: str,
+    bind_paths: list[str] | None = None,
+    container_command: str | None = None,
+    environment: dict[str, str] | None = None,
+) -> str:
+    """Format the Apptainer container execution body."""
+    bind_parts = [
+        f"{input_dir}:/input:ro",
+        f"{output_dir}:/output",
+        f"{work_dir}:/work",
+    ]
+    bind_parts.extend(bind_paths or [])
+    bind_str = ",".join(bind_parts)
+
+    env_flags = f'--env "EMX2_JOB_ID={job_id}"'
+    for k, v in (environment or {}).items():
+        env_flags += f' --env "{k}={v}"'
+
+    if container_command is None:
+        container_command = (
+            '/bin/bash -c \'echo "Container started"; ls /input; echo "Done"\''
+        )
+
+    return textwrap.dedent(f"""\
+        # Run container via Apptainer
+        STDOUT_LOG={output_dir}/container-stdout.log
+        STDERR_LOG={output_dir}/container-stderr.log
+
+        EXIT_CODE=0
+        apptainer exec \\
+          --cleanenv \\
+          --bind {bind_str} \\
+          --pwd /work \\
+          {env_flags} \\
+          {sif_image} \\
+          {container_command} \\
+          > "$STDOUT_LOG" 2> "$STDERR_LOG" \\
+          || EXIT_CODE=$?
+
+        echo "Exit code: $EXIT_CODE"
+        echo "End time: $(date -Iseconds)"
+
+        # Show last lines of stderr if failed
+        if [ "$EXIT_CODE" -ne 0 ] && [ -s "$STDERR_LOG" ]; then
+            echo "--- Last 20 lines of stderr ---"
+            tail -20 "$STDERR_LOG"
+            echo "--- End stderr ---"
+        fi
+
+        exit $EXIT_CODE""")
+
+
 def generate_batch_script(
     job_id: str,
     sif_image: str,
@@ -126,112 +243,43 @@ def generate_batch_script(
     account: str | None = None,
     container_command: str | None = None,
     environment: dict[str, str] | None = None,
+    entrypoint: str | None = None,
+    parameters: dict | None = None,
 ) -> str:
     """
-    Generate a Slurm batch script for running an Apptainer container.
+    Generate a Slurm batch script.
 
-    Args:
-        job_id: EMX2 job identifier.
-        sif_image: Path to the .sif container image.
-        partition: Slurm partition.
-        cpus: Number of CPUs.
-        memory: Memory allocation (e.g., "16G").
-        time_limit: Wall time (e.g., "01:00:00").
-        work_dir: Host working directory (bind-mounted as /work).
-        input_dir: Host input directory (bind-mounted as /input:ro).
-        output_dir: Host output directory (bind-mounted as /output).
-        extra_args: Additional #SBATCH directives.
-        bind_paths: Additional bind mount paths.
-        account: Slurm account.
-        container_command: Command to run inside the container. If None, uses
-            a default command that lists inputs and reports success.
-        environment: Extra environment variables to pass into the container.
+    Supports two execution modes:
 
-    Returns the script content as a string.
+    - **Apptainer mode** (``sif_image`` set): runs the workload inside an
+      Apptainer container with bind-mounted directories.
+    - **Wrapper/entrypoint mode** (``entrypoint`` set): exports well-defined
+      env vars and ``exec``s the wrapper script directly on the host.
     """
-    lines = [
-        "#!/bin/bash",
-        f"#SBATCH --job-name=emx2-{job_id[:8]}",
-        f"#SBATCH --partition={partition}",
-        f"#SBATCH --cpus-per-task={cpus}",
-        f"#SBATCH --mem={memory}",
-        f"#SBATCH --time={time_limit}",
-        f"#SBATCH --output={output_dir}/slurm-%j.out",
-        f"#SBATCH --error={output_dir}/slurm-%j.err",
-    ]
-
-    if account:
-        lines.append(f"#SBATCH --account={account}")
-
-    if extra_args:
-        for arg in extra_args:
-            lines.append(f"#SBATCH {arg}")
-
-    lines.extend(
-        [
-            "",
-            "set -euo pipefail",
-            "",
-            f'export EMX2_JOB_ID="{job_id}"',
-            f'echo "EMX2 HPC Job: {job_id}"',
-            f'echo "Slurm Job ID: $SLURM_JOB_ID"',
-            f'echo "Start time: $(date -Iseconds)"',
-            "",
-        ]
+    sbatch = _format_sbatch_directives(
+        job_id, partition, cpus, memory, time_limit, output_dir,
+        account=account, extra_args=extra_args,
     )
 
-    # Build bind mount arguments
-    bind_parts = [
-        f"{input_dir}:/input:ro",
-        f"{output_dir}:/output",
-        f"{work_dir}:/work",
-    ]
-    if bind_paths:
-        bind_parts.extend(bind_paths)
-    bind_str = ",".join(bind_parts)
+    preamble = textwrap.dedent(f"""\
+        set -euo pipefail
 
-    # Build environment flags
-    env_flags = f'--env "EMX2_JOB_ID={job_id}"'
-    if environment:
-        for key, value in environment.items():
-            env_flags += f' --env "{key}={value}"'
+        export EMX2_JOB_ID="{job_id}"
+        echo "EMX2 HPC Job: {job_id}"
+        echo "Slurm Job ID: $SLURM_JOB_ID"
+        echo "Start time: $(date -Iseconds)"
+    """)
 
-    # Container command
-    if container_command is None:
-        container_command = (
-            '/bin/bash -c \'echo "Container started"; ls /input; echo "Done"\''
+    if entrypoint:
+        body = _format_entrypoint_body(
+            job_id, work_dir, input_dir, output_dir, entrypoint,
+            environment=environment, parameters=parameters,
+        )
+    else:
+        body = _format_apptainer_body(
+            job_id, sif_image, work_dir, input_dir, output_dir,
+            bind_paths=bind_paths, container_command=container_command,
+            environment=environment,
         )
 
-    # Create stdout/stderr log paths
-    lines.extend(
-        [
-            "# Run container via Apptainer",
-            f"STDOUT_LOG={output_dir}/container-stdout.log",
-            f"STDERR_LOG={output_dir}/container-stderr.log",
-            "",
-            "EXIT_CODE=0",
-            f"apptainer exec \\",
-            f"  --cleanenv \\",
-            f"  --bind {bind_str} \\",
-            f"  --pwd /work \\",
-            f"  {env_flags} \\",
-            f"  {sif_image} \\",
-            f"  {container_command} \\",
-            f'  > "$STDOUT_LOG" 2> "$STDERR_LOG" \\',
-            "  || EXIT_CODE=$?",
-            "",
-            f'echo "Exit code: $EXIT_CODE"',
-            f'echo "End time: $(date -Iseconds)"',
-            "",
-            '# Show last lines of stderr if failed',
-            'if [ "$EXIT_CODE" -ne 0 ] && [ -s "$STDERR_LOG" ]; then',
-            '    echo "--- Last 20 lines of stderr ---"',
-            '    tail -20 "$STDERR_LOG"',
-            '    echo "--- End stderr ---"',
-            "fi",
-            "",
-            "exit $EXIT_CODE",
-        ]
-    )
-
-    return "\n".join(lines) + "\n"
+    return f"#!/bin/bash\n{sbatch}\n\n{preamble}\n{body}\n"

@@ -18,6 +18,7 @@ class ResolvedProfile:
     processor: str
     profile: str
     sif_image: str
+    entrypoint: str
     partition: str
     cpus: int
     memory: str
@@ -52,6 +53,7 @@ def resolve_profile(
         processor=processor,
         profile=profile or "default",
         sif_image=entry.sif_image,
+        entrypoint=entry.entrypoint,
         partition=entry.partition or config.slurm.default_partition,
         cpus=entry.cpus,
         memory=entry.memory,

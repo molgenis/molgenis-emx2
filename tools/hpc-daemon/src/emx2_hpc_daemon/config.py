@@ -59,9 +59,17 @@ class SlurmConfig:
 
 @dataclass
 class ProfileEntry:
-    """Maps a processor/profile key to Slurm + Apptainer parameters."""
+    """Maps a processor/profile key to Slurm + execution parameters.
+
+    Execution mode is determined by which field is set:
+    - ``sif_image``: run inside an Apptainer container
+    - ``entrypoint``: exec a wrapper script with well-defined env vars
+
+    At least one of ``sif_image`` or ``entrypoint`` must be set.
+    """
 
     sif_image: str = ""
+    entrypoint: str = ""
     partition: str = "normal"
     cpus: int = 4
     memory: str = "16G"
