@@ -15,16 +15,18 @@ class HpcJobStatusTest {
   }
 
   @Test
-  void claimedCanTransitionToSubmittedAndCancelled() {
+  void claimedCanTransitionToSubmittedFailedAndCancelled() {
     assertTrue(HpcJobStatus.CLAIMED.canTransitionTo(HpcJobStatus.SUBMITTED));
+    assertTrue(HpcJobStatus.CLAIMED.canTransitionTo(HpcJobStatus.FAILED));
     assertTrue(HpcJobStatus.CLAIMED.canTransitionTo(HpcJobStatus.CANCELLED));
     assertFalse(HpcJobStatus.CLAIMED.canTransitionTo(HpcJobStatus.COMPLETED));
     assertFalse(HpcJobStatus.CLAIMED.canTransitionTo(HpcJobStatus.PENDING));
   }
 
   @Test
-  void submittedCanTransitionToStartedAndCancelled() {
+  void submittedCanTransitionToStartedFailedAndCancelled() {
     assertTrue(HpcJobStatus.SUBMITTED.canTransitionTo(HpcJobStatus.STARTED));
+    assertTrue(HpcJobStatus.SUBMITTED.canTransitionTo(HpcJobStatus.FAILED));
     assertTrue(HpcJobStatus.SUBMITTED.canTransitionTo(HpcJobStatus.CANCELLED));
     assertFalse(HpcJobStatus.SUBMITTED.canTransitionTo(HpcJobStatus.COMPLETED));
   }

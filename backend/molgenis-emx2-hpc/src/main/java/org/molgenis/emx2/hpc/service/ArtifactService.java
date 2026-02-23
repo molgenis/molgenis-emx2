@@ -17,6 +17,8 @@ import java.util.UUID;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Artifact lifecycle: create, upload files, commit with SHA-256 verification. Supports two paths:
@@ -27,6 +29,11 @@ import org.molgenis.emx2.sql.SqlDatabase;
  * </ul>
  */
 public class ArtifactService {
+
+  private static final Logger logger = LoggerFactory.getLogger(ArtifactService.class);
+
+  /** Default stale timeout: 1 hour for artifacts stuck in CREATED or UPLOADING. */
+  private static final long DEFAULT_STALE_TIMEOUT_SECONDS = 3600;
 
   private final SqlDatabase database;
   private final String systemSchemaName;
@@ -219,6 +226,41 @@ public class ArtifactService {
     } catch (NumberFormatException e) {
       return 0;
     }
+  }
+
+  /**
+   * Expires artifacts that have been stuck in CREATED or UPLOADING for longer than the stale
+   * timeout. Transitions them to FAILED so they become eligible for garbage collection.
+   */
+  public void expireStaleArtifacts() {
+    database.tx(
+        db -> {
+          db.becomeAdmin();
+          Schema schema = db.getSchema(systemSchemaName);
+          Table artifactsTable = schema.getTable("HpcArtifacts");
+          LocalDateTime cutoff = LocalDateTime.now().minusSeconds(DEFAULT_STALE_TIMEOUT_SECONDS);
+
+          for (String statusName :
+              List.of(ArtifactStatus.CREATED.name(), ArtifactStatus.UPLOADING.name())) {
+            List<Row> stale =
+                artifactsTable.where(f("status", f("name", EQUALS, statusName))).retrieveRows();
+            for (Row artifact : stale) {
+              String createdAtStr = artifact.getString("created_at");
+              if (createdAtStr == null) continue;
+              LocalDateTime createdAt = LocalDateTime.parse(createdAtStr);
+              if (createdAt.isBefore(cutoff)) {
+                String artifactId = artifact.getString("id");
+                logger.info(
+                    "Expiring stale artifact {} (status={}, created_at={})",
+                    artifactId,
+                    statusName,
+                    createdAtStr);
+                artifact.set("status", ArtifactStatus.FAILED.name());
+                artifactsTable.update(artifact);
+              }
+            }
+          }
+        });
   }
 
   /** Gets an artifact by ID. */

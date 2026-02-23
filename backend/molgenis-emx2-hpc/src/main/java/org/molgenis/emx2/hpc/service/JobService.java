@@ -7,11 +7,15 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
@@ -31,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class JobService {
 
   private static final Logger logger = LoggerFactory.getLogger(JobService.class);
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private final SqlDatabase database;
   private final String systemSchemaName;
@@ -53,6 +58,13 @@ public class JobService {
         db -> {
           db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
+
+          // Validate that all input artifacts are COMMITTED
+          if (inputs != null && !inputs.isBlank()) {
+            List<String> artifactIds = extractArtifactIds(inputs);
+            validateArtifactsCommitted(schema, artifactIds);
+          }
+
           Row jobRow =
               row(
                   "id", jobId,
@@ -438,5 +450,60 @@ public class JobService {
                 workerId,
                 "detail",
                 detail));
+  }
+
+  /**
+   * Extracts artifact IDs from the inputs JSON. Supports: JSON array of strings, JSON array of
+   * objects with "artifact_id" field, or JSON object with string values (name→artifact_id mapping).
+   */
+  static List<String> extractArtifactIds(String inputsJson) {
+    List<String> ids = new ArrayList<>();
+    try {
+      JsonNode node = MAPPER.readTree(inputsJson);
+      if (node.isArray()) {
+        for (JsonNode element : node) {
+          if (element.isTextual()) {
+            ids.add(element.asText());
+          } else if (element.isObject() && element.has("artifact_id")) {
+            ids.add(element.get("artifact_id").asText());
+          }
+        }
+      } else if (node.isObject()) {
+        node.fields()
+            .forEachRemaining(
+                entry -> {
+                  if (entry.getValue().isTextual()) {
+                    ids.add(entry.getValue().asText());
+                  }
+                });
+      }
+    } catch (Exception e) {
+      logger.warn("Could not parse inputs JSON for artifact validation: {}", e.getMessage());
+    }
+    return ids;
+  }
+
+  /**
+   * Validates that all referenced artifacts exist and are in COMMITTED status. Throws
+   * MolgenisException if any artifact is missing or not committed.
+   */
+  private static void validateArtifactsCommitted(Schema schema, List<String> artifactIds) {
+    if (artifactIds.isEmpty()) return;
+    Table artifactsTable = schema.getTable("HpcArtifacts");
+    List<String> problems = new ArrayList<>();
+    for (String artifactId : artifactIds) {
+      List<Row> rows = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
+      if (rows.isEmpty()) {
+        problems.add("artifact " + artifactId + " not found");
+      } else {
+        String status = rows.getFirst().getString("status");
+        if (!ArtifactStatus.COMMITTED.name().equals(status)) {
+          problems.add("artifact " + artifactId + " is " + status + ", expected COMMITTED");
+        }
+      }
+    }
+    if (!problems.isEmpty()) {
+      throw new MolgenisException("Input artifacts not ready: " + String.join("; ", problems));
+    }
   }
 }

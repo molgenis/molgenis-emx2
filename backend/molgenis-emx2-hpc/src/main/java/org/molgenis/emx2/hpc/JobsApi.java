@@ -101,8 +101,9 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs — list jobs with optional filtering and pagination. */
   public void listJobs(Context ctx) {
-    // Expire stale jobs with per-job timeouts before listing
+    // Expire stale jobs and artifacts before listing
     jobService.expireStaleJobs();
+    artifactService.expireStaleArtifacts();
 
     String status = ctx.queryParam("status");
     String processor = ctx.queryParam("processor");

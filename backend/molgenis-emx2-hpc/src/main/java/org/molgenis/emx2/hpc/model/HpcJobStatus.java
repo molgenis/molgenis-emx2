@@ -9,12 +9,13 @@ import java.util.Set;
  *
  * <pre>
  *   PENDING → CLAIMED → SUBMITTED → STARTED → COMPLETED
- *                                            → FAILED
+ *   CLAIMED → FAILED (timeout)
+ *   SUBMITTED → FAILED (Slurm rejection or timeout)
+ *   STARTED → FAILED (runtime error, hash mismatch, or timeout)
  *   PENDING → CANCELLED
  *   CLAIMED → CANCELLED
  *   SUBMITTED → CANCELLED
  *   STARTED → CANCELLED
- *   STARTED → FAILED
  * </pre>
  */
 public enum HpcJobStatus {
@@ -31,8 +32,8 @@ public enum HpcJobStatus {
 
   static {
     PENDING.allowedTransitions = EnumSet.of(CLAIMED, CANCELLED);
-    CLAIMED.allowedTransitions = EnumSet.of(SUBMITTED, CANCELLED);
-    SUBMITTED.allowedTransitions = EnumSet.of(STARTED, CANCELLED);
+    CLAIMED.allowedTransitions = EnumSet.of(SUBMITTED, FAILED, CANCELLED);
+    SUBMITTED.allowedTransitions = EnumSet.of(STARTED, FAILED, CANCELLED);
     STARTED.allowedTransitions = EnumSet.of(COMPLETED, FAILED, CANCELLED);
   }
 

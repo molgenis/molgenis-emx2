@@ -200,6 +200,7 @@ A job passes through a strict state machine. Every transition is recorded as a s
   \draw[arr] (claimed)   -- (submitted);
   \draw[arr] (submitted) -- (started);
   \draw[arr] (started)   -- (completed);
+  \draw[arr] (claimed)   -- (failed);
   \draw[arr] (submitted) -- (failed);
   \draw[arr] (started)   -- (failed);
   \draw[arr] (pending)   -- (cancelled);
@@ -215,6 +216,7 @@ A job passes through a strict state machine. Every transition is recorded as a s
 | PENDING | CLAIMED | Head node | Atomic claim |
 | PENDING | CANCELLED | EMX2 or user | Cancel before claim |
 | CLAIMED | SUBMITTED | Head node | After `sbatch` |
+| CLAIMED | FAILED | EMX2 or Head node | Timeout or submission error |
 | CLAIMED | CANCELLED | Head node or EMX2 | Cancel before submission |
 | SUBMITTED | STARTED | Apptainer wrapper or daemon | Execution begins |
 | SUBMITTED | FAILED | Head node or EMX2 | Slurm rejection or timeout |
