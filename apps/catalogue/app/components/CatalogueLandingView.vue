@@ -1,39 +1,30 @@
 <script setup lang="ts">
-import {
-  useRoute,
-  useRuntimeConfig,
-  useHead,
-  useFetch,
-  createError,
-} from "#app";
-import { logError } from "#imports";
+import { useRuntimeConfig, useHead, useFetch, createError } from "#app";
+import { logError, useCatalogueContext } from "#imports";
 import { computed } from "vue";
-import type { ISetting } from "../../../../metadata-utils/src/types";
-import LayoutsLandingPage from "../../components/layouts/LandingPage.vue";
-import LandingPrimary from "../../components/landing/Primary.vue";
-import LandingSecondary from "../../components/landing/Secondary.vue";
-import LandingCardPrimary from "../../components/landing/CardPrimary.vue";
-import LandingCardSecondary from "../../components/landing/CardSecondary.vue";
-import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
-import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
+import type { ISetting } from "../../../metadata-utils/src/types";
+import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
+import LandingPrimary from "../components/landing/Primary.vue";
+import LandingSecondary from "../components/landing/Secondary.vue";
+import LandingCardPrimary from "../components/landing/CardPrimary.vue";
+import LandingCardSecondary from "../components/landing/CardSecondary.vue";
+import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
+import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 
-const route = useRoute();
+interface Props {
+  resourceId: string;
+}
+
+const props = defineProps<Props>();
+
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
-
-const catalogueRouteParam = route.params.catalogue;
-
-const scoped = route.params.catalogue !== "all";
-const catalogue = scoped ? route.params.catalogue : undefined;
+const { resourceUrl } = useCatalogueContext();
 
 const cohortOnly = computed(() => {
-  const routeSetting = route.query["cohort-only"] as string;
-  return routeSetting == "true" || config.public.cohortOnly;
+  return config.public.cohortOnly;
 });
 
-//networksfilter retrieves the catalogues
-//resources are within the current catalogue
 const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
         Resources(filter:$networksFilter) {
               id,
@@ -89,84 +80,74 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
         }
       }`;
 
-const networksFilter = scoped
-  ? { id: { equals: catalogueRouteParam } }
-  : undefined;
+const networksFilter = { id: { equals: props.resourceId } };
 
-const collectionsFilter = scoped
-  ? {
-      _and: [
-        { type: { tags: { equals: "collection" } } },
+const collectionsFilter = {
+  _and: [
+    { type: { tags: { equals: "collection" } } },
+    {
+      _or: [
+        { partOfNetworks: { id: { equals: props.resourceId } } },
         {
-          _or: [
-            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
-            {
-              partOfNetworks: {
-                parentNetworks: { id: { equals: catalogueRouteParam } },
-              },
-            },
-          ],
+          partOfNetworks: {
+            parentNetworks: { id: { equals: props.resourceId } },
+          },
         },
       ],
-    }
-  : { type: { tags: { equals: "collection" } } };
+    },
+  ],
+};
 
-const networkFilter = scoped
-  ? {
-      _and: [
-        { type: { tags: { equals: "network" } } },
+const networkFilter = {
+  _and: [
+    { type: { tags: { equals: "network" } } },
+    {
+      _or: [
+        { parentNetworks: { id: { equals: props.resourceId } } },
         {
-          _or: [
-            { parentNetworks: { id: { equals: catalogueRouteParam } } },
-            {
-              parentNetworks: {
-                parentNetworks: { id: { equals: catalogueRouteParam } },
-              },
-            },
-          ],
+          parentNetworks: {
+            parentNetworks: { id: { equals: props.resourceId } },
+          },
         },
       ],
-    }
-  : { type: { tags: { equals: "network" } } };
+    },
+  ],
+};
 
 const { data, error } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
-  key: `lading-page-${catalogueRouteParam}`,
+  key: `landing-page-${props.resourceId}`,
   body: {
     query,
     variables: {
       networksFilter,
       collectionsFilter,
       networkFilter,
-      variablesFilter: scoped
-        ? {
-            _or: [
-              { resource: { id: { equals: catalogueRouteParam } } },
-              //also include network of networks
-              {
-                resource: {
-                  type: { name: { equals: "Network" } },
-                  parentNetworks: { id: { equals: catalogueRouteParam } },
-                },
-              },
-              {
-                reusedInResources: {
-                  _or: [
-                    { resource: { id: { equals: catalogueRouteParam } } },
-                    {
-                      resource: {
-                        parentNetworks: {
-                          id: { equals: catalogueRouteParam },
-                        },
-                      },
+      variablesFilter: {
+        _or: [
+          { resource: { id: { equals: props.resourceId } } },
+          {
+            resource: {
+              type: { name: { equals: "Network" } },
+              parentNetworks: { id: { equals: props.resourceId } },
+            },
+          },
+          {
+            reusedInResources: {
+              _or: [
+                { resource: { id: { equals: props.resourceId } } },
+                {
+                  resource: {
+                    parentNetworks: {
+                      id: { equals: props.resourceId },
                     },
-                  ],
+                  },
                 },
-              },
-            ],
-          }
-        : //should only include harmonised variables
-          { resource: { type: { name: { equals: "Network" } } } },
+              ],
+            },
+          },
+        ],
+      },
     },
   },
 });
@@ -207,19 +188,17 @@ const network = computed(() => {
   if (scoped && (!resources || resources.length === 0)) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
+      statusMessage: 'Catalogue "' + props.resourceId + '" Not Found.',
     });
   }
   return resources?.[0];
 });
 
 const title = computed(() => {
-  if (catalogue) {
-    return catalogue as string;
-  } else if (getSettingValue("CATALOGUE_LANDING_TITLE", settings.value)) {
+  if (getSettingValue("CATALOGUE_LANDING_TITLE", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_TITLE", settings.value) as string;
   } else {
-    return "Browse all catalogue contents";
+    return props.resourceId;
   }
 });
 
@@ -234,11 +213,11 @@ const description = computed(() => {
 });
 
 useHead({
-  title: scoped ? `${catalogue} Catalogue` : "Catalogue",
+  title: `${props.resourceId} Catalogue`,
   meta: [
     {
       name: "description",
-      content: scoped ? network.value?.description : description.value,
+      content: network.value?.description,
     },
   ],
 });
@@ -246,25 +225,20 @@ useHead({
 const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
 const networkCount = computed(() => data.value.data?.Networks_agg?.count);
 
-const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
+const aboutLink = resourceUrl(`${props.resourceId}/about`);
 </script>
 
 <template>
   <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
-      <template v-if="scoped" v-slot:description>
-        <ShowMore :lines="5">
-          Welcome to the catalogue of
-          <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
-            network.id
-          }}</NuxtLink
-          >{{ network.id && network.name ? ": " : "" }}{{ network.name }}.
-          {{ description }}.
-        </ShowMore>
-      </template>
-      <template v-else v-slot:description>
-        <ContentReadMore :text="description" />
-      </template>
+      <template v-slot:description
+        >Welcome to the catalogue of
+        <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
+          network.id
+        }}</NuxtLink
+        >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select
+        one of the content categories listed below.</template
+      >
     </PageHeader>
     <LandingPrimary>
       <LandingCardPrimary
@@ -280,11 +254,11 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
           'Collections'
         "
         :count="collectionCount"
-        :link="`/${catalogueRouteParam}/collections`"
+        :link="resourceUrl(`${resourceId}/collections`)"
       />
       <LandingCardPrimary
-        v-if="networkCount && !cohortOnly"
-        image="image-diagram"
+        v-if="networkCount"
+        image="image-link"
         title="Networks"
         :description="
           getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
@@ -295,7 +269,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
           'Networks'
         "
         :count="networkCount"
-        :link="`/${catalogueRouteParam}/networks`"
+        :link="resourceUrl(`${resourceId}/networks`)"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
@@ -309,7 +283,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
-        :link="`/${catalogueRouteParam}/variables`"
+        :link="resourceUrl(`${resourceId}/variables`)"
       />
       <LandingCardPrimary
         v-if="!cohortOnly && scoped && network.id === 'FORCE-NEN collections'"

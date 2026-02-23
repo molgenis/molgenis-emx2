@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { resourceIdPath } from "#imports";
+import { useCatalogueContext } from "#imports";
 import { computed } from "vue";
 import { getKey } from "../utils/variableUtils";
 import ArrowRight from "../../../tailwind-components/app/components/global/icons/ArrowRight.vue";
@@ -16,7 +16,15 @@ const props = withDefaults(
 
 const variableKey = computed(() => getKey(props.variable));
 
-const resourcePathId = resourceIdPath(variableKey.value);
+const { resourceUrl } = useCatalogueContext();
+const variableUrl = computed(() => {
+  const key = variableKey.value;
+  return resourceUrl(
+    `${props.variable.resource.id}/datasets/${props.variable.dataset.name}/${
+      props.variable.name
+    }?keys=${JSON.stringify(key)}`
+  );
+});
 
 const repeats = computed(() =>
   props.variable.repeatMax
@@ -36,7 +44,7 @@ const repeats = computed(() =>
       <div class="md:basis-2/5 p-2">
         <h2>
           <NuxtLink
-            :to="`/${catalogue}/variables/${resourcePathId}`"
+            :to="variableUrl"
             class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
           >
             {{ variable?.name }}
@@ -56,7 +64,7 @@ const repeats = computed(() =>
         </p>
       </div>
       <div class="hidden basis-1/5 xl:flex xl:justify-end">
-        <NuxtLink :to="`/${catalogue}/variables/${resourcePathId}`">
+        <NuxtLink :to="variableUrl">
           <ArrowRight width="24" class="text-link" />
           <span class="sr-only">go to page on {{ variable.name }}</span>
         </NuxtLink>
