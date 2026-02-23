@@ -121,9 +121,9 @@ public class JsonLdUtils {
         checkTypeOrId(idVal, localPrefixes, nodePath + "@id");
       }
 
-      var fields = node.fields();
+      Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
       while (fields.hasNext()) {
-        var entry = fields.next();
+        Map.Entry<String, JsonNode> entry = fields.next();
         if (!"@context".equals(entry.getKey())) {
           scanNode(entry.getValue(), localPrefixes, nodePath + entry.getKey() + ".", depth + 1);
         }
@@ -144,9 +144,9 @@ public class JsonLdUtils {
     }
 
     if (ctxObj.isObject()) {
-      var fields = ctxObj.fields();
+      Iterator<Map.Entry<String, JsonNode>> fields = ctxObj.fields();
       while (fields.hasNext()) {
-        var entry = fields.next();
+        Map.Entry<String, JsonNode> entry = fields.next();
         String key = entry.getKey();
         JsonNode val = entry.getValue();
 
@@ -181,9 +181,9 @@ public class JsonLdUtils {
     }
 
     if (ctxObj.isObject()) {
-      var fields = ctxObj.fields();
+      Iterator<Map.Entry<String, JsonNode>> fields = ctxObj.fields();
       while (fields.hasNext()) {
-        var entry = fields.next();
+        Map.Entry<String, JsonNode> entry = fields.next();
         String key = entry.getKey();
         JsonNode val = entry.getValue();
 
