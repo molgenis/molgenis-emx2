@@ -15,6 +15,7 @@ import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.protocol.ProblemDetail;
 import org.molgenis.emx2.hpc.service.ArtifactService;
 import org.molgenis.emx2.hpc.service.JobService;
+import org.molgenis.emx2.hpc.service.WorkerService;
 
 /**
  * Job lifecycle endpoints:
@@ -33,10 +34,13 @@ public class JobsApi {
 
   private final JobService jobService;
   private final ArtifactService artifactService;
+  private final WorkerService workerService;
 
-  public JobsApi(JobService jobService, ArtifactService artifactService) {
+  public JobsApi(
+      JobService jobService, ArtifactService artifactService, WorkerService workerService) {
     this.jobService = jobService;
     this.artifactService = artifactService;
+    this.workerService = workerService;
   }
 
   /** POST /api/hpc/jobs — create a new job in PENDING status. */
@@ -102,9 +106,10 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs — list jobs with optional filtering and pagination. */
   public void listJobs(Context ctx) {
-    // Expire stale jobs and artifacts before listing
+    // Expire stale jobs, artifacts, and workers before listing
     jobService.expireStaleJobs();
     artifactService.expireStaleArtifacts();
+    workerService.expireStaleWorkers();
 
     String status = ctx.queryParam("status");
     String processor = ctx.queryParam("processor");
@@ -124,6 +129,7 @@ public class JobsApi {
     response.put("offset", offset);
     response.put("_links", Map.of("self", Map.of("href", "/api/hpc/jobs", "method", "GET")));
 
+    ctx.header("X-Total-Count", String.valueOf(totalCount));
     ctx.json(response);
   }
 

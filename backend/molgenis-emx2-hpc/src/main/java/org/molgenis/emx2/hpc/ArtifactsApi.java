@@ -260,6 +260,7 @@ public class ArtifactsApi {
     response.put("total_count", totalCount);
     response.put("limit", limit);
     response.put("offset", offset);
+    ctx.header("X-Total-Count", String.valueOf(totalCount));
     ctx.json(response);
   }
 

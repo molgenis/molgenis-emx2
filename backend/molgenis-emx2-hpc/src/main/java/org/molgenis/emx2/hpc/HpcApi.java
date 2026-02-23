@@ -6,6 +6,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.hpc.protocol.HmacVerifier;
 import org.molgenis.emx2.hpc.protocol.HpcHeaders;
@@ -50,8 +51,19 @@ public class HpcApi {
 
     // Create API handlers
     WorkersApi workersApi = new WorkersApi(workerService);
-    JobsApi jobsApi = new JobsApi(jobService, artifactService);
+    JobsApi jobsApi = new JobsApi(jobService, artifactService, workerService);
     ArtifactsApi artifactsApi = new ArtifactsApi(artifactService);
+
+    // After-handler: propagate X-Trace-Id on all HPC responses
+    app.after(
+        "/api/hpc/*",
+        ctx -> {
+          String traceId = ctx.header(HpcHeaders.TRACE_ID);
+          if (traceId == null || traceId.isBlank()) {
+            traceId = UUID.randomUUID().toString();
+          }
+          ctx.header(HpcHeaders.TRACE_ID, traceId);
+        });
 
     // Before-handler: validate protocol headers and HMAC auth on all HPC endpoints
     app.before(
