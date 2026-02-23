@@ -52,11 +52,6 @@
                   Your center's overview
                 </router-link>
               </li>
-              <li>
-                <router-link :to="{ name: 'provider-clp-all-centers' }">
-                  All centers
-                </router-link>
-              </li>
             </ul>
           </Accordion>
         </li>
