@@ -87,12 +87,28 @@ class HpcClient:
         for attempt in range(self.max_retries):
             try:
                 headers = self._headers(method, path, body)
+
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        ">>> %s %s%s", method, self.base_url, path
+                    )
+                    if body:
+                        logger.debug(">>> body: %s", body)
+
                 response = self._http.request(
                     method,
                     path,
                     content=body if body else None,
                     headers=headers,
                 )
+
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        "<<< %d %s (%d bytes)",
+                        response.status_code,
+                        response.reason_phrase,
+                        len(response.content),
+                    )
 
                 if response.status_code == 404:
                     raise NotFoundError(f"{method} {path}: not found")
@@ -119,11 +135,20 @@ class HpcClient:
 
                 if not (200 <= response.status_code < 300):
                     # Unhandled non-2xx (e.g. 400 Bad Request)
+                    if logger.isEnabledFor(logging.DEBUG):
+                        logger.debug(
+                            "<<< error body: %s",
+                            response.text[:500],
+                        )
                     response.raise_for_status()
 
                 if response.status_code == 204 or not response.content:
                     return {}
-                return response.json()
+
+                data = response.json()
+                if logger.isEnabledFor(logging.DEBUG):
+                    self._log_response(method, path, data)
+                return data
 
             except (httpx.ConnectError, httpx.TimeoutException) as e:
                 if attempt < self.max_retries - 1:
@@ -140,6 +165,48 @@ class HpcClient:
                 raise
 
         return {}  # unreachable
+
+    def _log_response(self, method: str, path: str, data: dict) -> None:
+        """Log response body summary and HATEOAS links at DEBUG level."""
+        # Log HATEOAS links prominently
+        links = data.get("_links", {})
+        if links:
+            parts = []
+            for rel, link in links.items():
+                m = link.get("method", "GET")
+                href = link.get("href", "?")
+                parts.append(f"{rel}={m} {href}")
+            logger.debug("<<< _links: %s", " | ".join(parts))
+
+        # Log key fields (skip _links which is already logged above)
+        summary_keys = [
+            "id", "status", "processor", "profile", "worker_id",
+            "type", "format", "residence", "sha256", "size_bytes",
+            "content_url", "slurm_job_id", "output_artifact_id",
+            "parameters", "inputs",
+            "total_count",
+        ]
+        summary = {
+            k: data[k] for k in summary_keys if k in data and data[k] is not None
+        }
+        if summary:
+            logger.debug("<<< %s", summary)
+
+        # For list responses, log item count
+        items = data.get("items")
+        if isinstance(items, list):
+            logger.debug("<<< %d items returned", len(items))
+            # Log first item's links as a sample
+            if items and "_links" in items[0]:
+                first_links = items[0]["_links"]
+                parts = []
+                for rel, link in first_links.items():
+                    m = link.get("method", "GET")
+                    href = link.get("href", "?")
+                    parts.append(f"{rel}={m} {href}")
+                logger.debug(
+                    "<<< items[0]._links: %s", " | ".join(parts)
+                )
 
     # --- High-level API methods ---
 
@@ -209,9 +276,14 @@ class HpcClient:
         links = response.get("_links", {})
         link = links.get(rel)
         if not link:
+            available = list(links.keys())
+            logger.debug(
+                "No '%s' link in response (available: %s)", rel, available
+            )
             raise KeyError(f"No '{rel}' link in response")
         method = link.get("method", "GET")
         href = link["href"]
+        logger.debug("Following HATEOAS link '%s' -> %s %s", rel, method, href)
         return self._request(method, href)
 
     def get_artifact(self, artifact_id: str) -> dict:
@@ -236,7 +308,15 @@ class HpcClient:
         url_path = f"/api/hpc/artifacts/{artifact_id}/files/{file_path}"
         headers = self._headers("GET", url_path, "")
 
+        logger.debug(">>> GET %s%s (binary download)", self.base_url, url_path)
         response = self._http.request("GET", url_path, headers=headers)
+        logger.debug(
+            "<<< %d %s (%d bytes, Content-Type: %s)",
+            response.status_code,
+            response.reason_phrase,
+            len(response.content),
+            response.headers.get("content-type", "?"),
+        )
         if response.status_code == 404:
             raise NotFoundError(f"Artifact file {file_path} not found")
         response.raise_for_status()
@@ -281,9 +361,12 @@ class HpcClient:
         residence: str = "managed",
         metadata: dict | None = None,
         content_url: str | None = None,
+        name: str | None = None,
     ) -> dict:
         """Create a new artifact."""
         body: dict = {"type": artifact_type, "residence": residence}
+        if name:
+            body["name"] = name
         if fmt:
             body["format"] = fmt
         if metadata:
@@ -306,8 +389,21 @@ class HpcClient:
         headers = self._headers("PUT", url_path, "")
         headers["Content-Type"] = content_type
 
+        logger.debug(
+            ">>> PUT %s%s (binary upload, %d bytes, %s)",
+            self.base_url,
+            url_path,
+            len(file_content),
+            content_type,
+        )
         response = self._http.request(
             "PUT", url_path, content=file_content, headers=headers
+        )
+        logger.debug(
+            "<<< %d %s (%d bytes)",
+            response.status_code,
+            response.reason_phrase,
+            len(response.content),
         )
         if response.status_code == 404:
             raise NotFoundError(f"Artifact {artifact_id} not found")

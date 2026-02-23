@@ -38,7 +38,12 @@ public class ArtifactService {
    * @return the artifact ID
    */
   public String createArtifact(
-      String type, String format, String residence, String contentUrl, String metadata) {
+      String name,
+      String type,
+      String format,
+      String residence,
+      String contentUrl,
+      String metadata) {
     String artifactId = UUID.randomUUID().toString();
     boolean isExternal = residence != null && !"managed".equals(residence);
     ArtifactStatus initialStatus = isExternal ? ArtifactStatus.REGISTERED : ArtifactStatus.CREATED;
@@ -51,6 +56,7 @@ public class ArtifactService {
               .insert(
                   row(
                       "id", artifactId,
+                      "name", name,
                       "type", type,
                       "format", format,
                       "residence", residence != null ? residence : "managed",

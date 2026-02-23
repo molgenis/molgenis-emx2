@@ -22,6 +22,8 @@ class TrackedJob:
     work_dir: str | None = None
     input_dir: str | None = None
     output_dir: str | None = None
+    processor: str | None = None
+    profile: str | None = None
 
 
 class JobTracker:
@@ -85,5 +87,7 @@ class JobTracker:
                     emx2_job_id=emx2_id,
                     slurm_job_id=job_data.get("slurm_job_id"),
                     status=job_data.get("status", "CLAIMED"),
+                    processor=job_data.get("processor"),
+                    profile=job_data.get("profile"),
                 )
                 logger.info("Recovered tracking for job %s", emx2_id)

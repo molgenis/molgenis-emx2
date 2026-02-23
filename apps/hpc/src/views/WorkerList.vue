@@ -14,6 +14,7 @@
             <th>Capabilities</th>
             <th>Registered</th>
             <th>Last Heartbeat</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -36,6 +37,16 @@
                 {{ formatDate(w.last_heartbeat_at) }}
               </span>
             </td>
+            <td>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                title="Remove worker"
+                :disabled="deletingWorker === w.worker_id"
+                @click.stop="onDeleteWorker(w.worker_id)"
+              >
+                Remove
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -45,12 +56,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
-import { fetchWorkers } from "../composables/useHpcApi.js";
+import { fetchWorkers, deleteWorker } from "../composables/useHpcApi.js";
 import { formatDate } from "../utils/jobs.js";
 
 const workers = ref([]);
 const loading = ref(false);
 const error = ref(null);
+const deletingWorker = ref(null);
 let refreshInterval = null;
 
 function heartbeatClass(ts) {
@@ -58,6 +70,19 @@ function heartbeatClass(ts) {
   const age = Date.now() - new Date(ts).getTime();
   // stale if no heartbeat in 5 minutes
   return age > 5 * 60 * 1000 ? "text-danger" : "text-success";
+}
+
+async function onDeleteWorker(workerId) {
+  if (!confirm(`Remove worker "${workerId}"? Jobs assigned to this worker will retain their history.`)) return;
+  deletingWorker.value = workerId;
+  try {
+    await deleteWorker(workerId);
+    await loadWorkers();
+  } catch (e) {
+    error.value = e.message;
+  } finally {
+    deletingWorker.value = null;
+  }
 }
 
 async function loadWorkers() {

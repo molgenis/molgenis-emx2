@@ -46,6 +46,7 @@ public class ArtifactsApi {
   public void createArtifact(Context ctx) {
     try {
       Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
+      String name = (String) body.get("name");
       String type = (String) body.get("type");
       String format = (String) body.get("format");
       String residence = (String) body.get("residence");
@@ -54,13 +55,14 @@ public class ArtifactsApi {
           body.get("metadata") != null ? MAPPER.writeValueAsString(body.get("metadata")) : null;
 
       String artifactId =
-          artifactService.createArtifact(type, format, residence, contentUrl, metadata);
+          artifactService.createArtifact(name, type, format, residence, contentUrl, metadata);
 
       boolean isExternal = residence != null && !"managed".equals(residence);
       ArtifactStatus status = isExternal ? ArtifactStatus.REGISTERED : ArtifactStatus.CREATED;
 
       Map<String, Object> response = new LinkedHashMap<>();
       response.put("id", artifactId);
+      response.put("name", name);
       response.put("type", type);
       response.put("status", status.name());
       response.put("_links", LinkBuilder.forArtifact(artifactId, status));
@@ -546,6 +548,7 @@ public class ArtifactsApi {
   private Map<String, Object> artifactToResponse(Row artifact) {
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("id", artifact.getString("id"));
+    response.put("name", artifact.getString("name"));
     response.put("type", artifact.getString("type"));
     response.put("format", artifact.getString("format"));
     response.put("residence", artifact.getString("residence"));

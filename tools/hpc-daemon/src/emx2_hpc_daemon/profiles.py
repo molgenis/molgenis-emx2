@@ -23,6 +23,7 @@ class ResolvedProfile:
     memory: str
     time: str
     extra_args: list[str]
+    artifact_residence: str
 
 
 def resolve_profile(
@@ -56,6 +57,7 @@ def resolve_profile(
         memory=entry.memory,
         time=entry.time,
         extra_args=entry.extra_args or [],
+        artifact_residence=entry.artifact_residence,
     )
 
 

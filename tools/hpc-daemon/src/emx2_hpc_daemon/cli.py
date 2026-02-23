@@ -34,21 +34,15 @@ class JsonFormatter(logging.Formatter):
         return json_module.dumps(log_entry)
 
 
-@click.group()
-@click.option(
-    "--config",
-    "-c",
-    default="config.yaml",
-    help="Path to config file",
-    type=click.Path(exists=True),
-)
-@click.option("--verbose", "-v", is_flag=True, help="Enable debug logging")
-@click.option("--json-logs", is_flag=True, help="Output structured JSON logs")
-@click.pass_context
-def main(ctx, config, verbose, json_logs):
-    """EMX2 HPC Daemon — outbound execution bridge for HPC clusters."""
-    level = logging.DEBUG if verbose else logging.INFO
+def _setup_logging(verbose: bool, json_logs: bool) -> None:
+    """Configure logging. Idempotent — only applies on first call."""
+    if logging.root.handlers:
+        # Already configured (e.g. group-level --verbose). Upgrade to DEBUG if requested.
+        if verbose:
+            logging.root.setLevel(logging.DEBUG)
+        return
 
+    level = logging.DEBUG if verbose else logging.INFO
     if json_logs:
         handler = logging.StreamHandler()
         handler.setFormatter(JsonFormatter())
@@ -60,15 +54,46 @@ def main(ctx, config, verbose, json_logs):
             format="%(asctime)s %(levelname)-8s %(name)s — %(message)s",
         )
 
+    # Silence noisy HTTP internals — our client already logs what matters
+    for noisy in ("httpcore", "httpx", "hpack", "urllib3"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
+
+
+# Common options shared by all subcommands so -v works in any position
+_verbose_option = click.option(
+    "--verbose", "-v", is_flag=True, help="Enable debug logging"
+)
+_json_logs_option = click.option(
+    "--json-logs", is_flag=True, help="Output structured JSON logs"
+)
+
+
+@click.group()
+@click.option(
+    "--config",
+    "-c",
+    default="config.yaml",
+    help="Path to config file",
+    type=click.Path(exists=True),
+)
+@_verbose_option
+@_json_logs_option
+@click.pass_context
+def main(ctx, config, verbose, json_logs):
+    """EMX2 HPC Daemon — outbound execution bridge for HPC clusters."""
+    _setup_logging(verbose, json_logs)
     ctx.ensure_object(dict)
     ctx.obj["config"] = load_config(config)
 
 
 @main.command()
 @click.option("--simulate", is_flag=True, help="Simulate Slurm execution")
+@_verbose_option
+@_json_logs_option
 @click.pass_context
-def run(ctx, simulate):
+def run(ctx, simulate, verbose, json_logs):
     """Start the daemon main loop."""
+    _setup_logging(verbose, json_logs)
     from .daemon import HpcDaemon
 
     config = ctx.obj["config"]
@@ -78,9 +103,12 @@ def run(ctx, simulate):
 
 @main.command()
 @click.option("--simulate", is_flag=True, help="Simulate Slurm execution")
+@_verbose_option
+@_json_logs_option
 @click.pass_context
-def once(ctx, simulate):
+def once(ctx, simulate, verbose, json_logs):
     """Run a single poll-claim-monitor cycle, then exit."""
+    _setup_logging(verbose, json_logs)
     from .daemon import HpcDaemon
 
     config = ctx.obj["config"]
@@ -89,9 +117,12 @@ def once(ctx, simulate):
 
 
 @main.command()
+@_verbose_option
+@_json_logs_option
 @click.pass_context
-def register(ctx):
+def register(ctx, verbose, json_logs):
     """Register this worker with EMX2 and exit."""
+    _setup_logging(verbose, json_logs)
     from .daemon import HpcDaemon
 
     config = ctx.obj["config"]
@@ -111,9 +142,12 @@ def register(ctx):
 
 
 @main.command()
+@_verbose_option
+@_json_logs_option
 @click.pass_context
-def check(ctx):
+def check(ctx, verbose, json_logs):
     """Validate config, connectivity, and Slurm command availability."""
+    _setup_logging(verbose, json_logs)
     config = ctx.obj["config"]
     ok = True
 
@@ -125,7 +159,10 @@ def check(ctx):
     click.echo(f"  Profiles: {len(config.profiles)}")
     for key in config.profiles:
         p = config.profiles[key]
-        click.echo(f"    {key}: {p.sif_image} ({p.partition}, {p.cpus}cpu, {p.memory})")
+        click.echo(
+            f"    {key}: {p.sif_image} ({p.partition}, {p.cpus}cpu, {p.memory},"
+            f" artifacts={p.artifact_residence})"
+        )
 
     # Check Slurm commands
     click.echo("\nSlurm commands:")

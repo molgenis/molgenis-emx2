@@ -75,4 +75,30 @@ public class WorkersApi {
           ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
     }
   }
+
+  /** DELETE /api/hpc/workers/{id} — remove a worker and its capabilities. */
+  public void deleteWorker(Context ctx) {
+    String workerId = ctx.pathParam("id");
+    if (workerId == null || workerId.isBlank()) {
+      ProblemDetail.send(
+          ctx, 400, "Bad Request", "worker id is required", ctx.header(HpcHeaders.REQUEST_ID));
+      return;
+    }
+    try {
+      Row deleted = workerService.deleteWorker(workerId);
+      if (deleted == null) {
+        ProblemDetail.send(
+            ctx,
+            404,
+            "Not Found",
+            "Worker " + workerId + " not found",
+            ctx.header(HpcHeaders.REQUEST_ID));
+        return;
+      }
+      ctx.status(204);
+    } catch (Exception e) {
+      ProblemDetail.send(
+          ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+    }
+  }
 }

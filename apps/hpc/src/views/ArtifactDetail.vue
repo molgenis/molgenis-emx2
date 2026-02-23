@@ -5,13 +5,17 @@
     <div v-else-if="artifact">
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <strong>Artifact {{ artifact.id }}</strong>
+          <strong>{{ artifact.name || "Artifact" }}</strong>
           <StatusBadge :status="artifact.status" />
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <dl>
+                <dt>ID</dt>
+                <dd><code>{{ artifact.id }}</code></dd>
+                <dt>Name</dt>
+                <dd>{{ artifact.name || "-" }}</dd>
                 <dt>Type</dt>
                 <dd>{{ artifact.type || "-" }}</dd>
                 <dt>Format</dt>

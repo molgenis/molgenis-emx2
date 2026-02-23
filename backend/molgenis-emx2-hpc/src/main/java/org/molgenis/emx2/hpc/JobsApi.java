@@ -11,6 +11,7 @@ import org.molgenis.emx2.hpc.protocol.HpcHeaders;
 import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.protocol.ProblemDetail;
+import org.molgenis.emx2.hpc.service.ArtifactService;
 import org.molgenis.emx2.hpc.service.JobService;
 
 /**
@@ -30,9 +31,11 @@ public class JobsApi {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
   private final JobService jobService;
+  private final ArtifactService artifactService;
 
-  public JobsApi(JobService jobService) {
+  public JobsApi(JobService jobService, ArtifactService artifactService) {
     this.jobService = jobService;
+    this.artifactService = artifactService;
   }
 
   /** POST /api/hpc/jobs — create a new job in PENDING status. */
@@ -360,6 +363,23 @@ public class JobsApi {
     ctx.json(response);
   }
 
+  private Map<String, Object> enrichArtifactRef(String artifactId) {
+    Map<String, Object> ref = new LinkedHashMap<>();
+    ref.put("id", artifactId);
+    try {
+      Row artifact = artifactService.getArtifact(artifactId);
+      if (artifact != null) {
+        ref.put("name", artifact.getString("name"));
+        ref.put("type", artifact.getString("type"));
+        ref.put("format", artifact.getString("format"));
+        ref.put("status", artifact.getString("status"));
+      }
+    } catch (Exception e) {
+      // If artifact lookup fails, return minimal ref
+    }
+    return ref;
+  }
+
   private Map<String, Object> jobToResponse(Row job) {
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("id", job.getString("id"));
@@ -370,7 +390,7 @@ public class JobsApi {
     response.put("slurm_job_id", job.getString("slurm_job_id"));
     response.put("submit_user", job.getString("submit_user"));
 
-    // Include parameters and inputs as parsed JSON if present, raw string otherwise
+    // Include parameters as parsed JSON if present, raw string otherwise
     String parametersStr = job.getString("parameters");
     if (parametersStr != null) {
       try {
@@ -379,16 +399,38 @@ public class JobsApi {
         response.put("parameters", parametersStr);
       }
     }
+
+    // Enrich inputs: resolve artifact IDs to objects with name, type, status
     String inputsStr = job.getString("inputs");
     if (inputsStr != null) {
       try {
-        response.put("inputs", MAPPER.readValue(inputsStr, Object.class));
+        Object parsed = MAPPER.readValue(inputsStr, Object.class);
+        if (parsed instanceof List<?> inputList) {
+          List<Object> enriched =
+              inputList.stream()
+                  .map(
+                      item -> {
+                        if (item instanceof String artifactId) {
+                          return enrichArtifactRef(artifactId);
+                        }
+                        return item;
+                      })
+                  .toList();
+          response.put("inputs", enriched);
+        } else {
+          response.put("inputs", parsed);
+        }
       } catch (Exception e) {
         response.put("inputs", inputsStr);
       }
     }
 
-    response.put("output_artifact_id", job.getString("output_artifact_id"));
+    // Enrich output artifact
+    String outputArtifactId = job.getString("output_artifact_id");
+    if (outputArtifactId != null) {
+      response.put("output_artifact", enrichArtifactRef(outputArtifactId));
+    }
+    response.put("output_artifact_id", outputArtifactId);
     response.put("created_at", job.getString("created_at"));
     response.put("claimed_at", job.getString("claimed_at"));
     response.put("submitted_at", job.getString("submitted_at"));

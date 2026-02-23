@@ -27,7 +27,7 @@ from pathlib import Path
 from .backend import ExecutionBackend, SimulatedBackend, SlurmBackend
 from .client import ClaimConflict, HpcClient
 from .config import DaemonConfig
-from .profiles import derive_capabilities
+from .profiles import derive_capabilities, resolve_profile
 from .tracker import JobTracker
 
 logger = logging.getLogger(__name__)
@@ -162,6 +162,11 @@ class HpcDaemon:
 
         # Poll for each capability
         capabilities = derive_capabilities(self.config)
+        logger.debug(
+            "Polling for jobs across %d capabilities: %s",
+            len(capabilities),
+            [f"{c['processor']}:{c['profile']}" for c in capabilities],
+        )
         for cap in capabilities:
             if not self._running:
                 break
@@ -192,6 +197,13 @@ class HpcDaemon:
     def _submit_job(self, job: dict) -> None:
         """Submit a job via the execution backend."""
         job_id = job["id"]
+        logger.debug(
+            "Submitting job %s (processor=%s, profile=%s, inputs=%s)",
+            job_id,
+            job.get("processor"),
+            job.get("profile"),
+            job.get("inputs"),
+        )
         try:
             result = self._backend.submit(job, self.client)
             self.tracker.track(
@@ -201,6 +213,8 @@ class HpcDaemon:
                 work_dir=result.work_dir,
                 input_dir=result.input_dir,
                 output_dir=result.output_dir,
+                processor=job.get("processor"),
+                profile=job.get("profile"),
             )
             self.client.transition_job(
                 job_id,
@@ -216,10 +230,16 @@ class HpcDaemon:
             logger.exception("Failed to submit job %s", job_id)
             self.client.transition_job(job_id, "FAILED", detail=str(e))
 
-    def _upload_output_artifacts(self, job_id: str, output_dir: str) -> str | None:
+    def _upload_output_artifacts(
+        self,
+        job_id: str,
+        output_dir: str,
+        processor: str | None = None,
+        profile: str | None = None,
+    ) -> str | None:
         """Register output files as a new artifact. Returns artifact ID or None.
 
-        Supports two modes based on config.emx2.artifact_residence:
+        Supports two modes based on the profile's artifact_residence setting:
         - posix: registers path only (no binary upload), content_url = file:// URI
         - managed: uploads binary content to EMX2 server
         """
@@ -234,7 +254,25 @@ class HpcDaemon:
             logger.debug("No output files to upload for job %s", job_id)
             return None
 
-        residence = self.config.emx2.artifact_residence
+        logger.debug(
+            "Output files for job %s: %s",
+            job_id,
+            [f"{f.name} ({f.stat().st_size}b)" for f in output_files],
+        )
+
+        # Resolve residence from the job's profile; fall back to "managed"
+        residence = "managed"
+        if processor:
+            resolved = resolve_profile(self.config, processor, profile or "")
+            if resolved:
+                residence = resolved.artifact_residence
+        logger.debug(
+            "Artifact residence for job %s (processor=%s, profile=%s): %s",
+            job_id,
+            processor,
+            profile,
+            residence,
+        )
 
         try:
             if residence == "posix":
@@ -250,14 +288,29 @@ class HpcDaemon:
     ) -> str:
         """Register a posix artifact with file metadata only (no binary upload)."""
         content_url = f"file://{output_dir}"
+        logger.debug(
+            "Creating posix artifact for job %s: content_url=%s, files=%d",
+            job_id,
+            content_url,
+            len(output_files),
+        )
         artifact = self.client.create_artifact(
             artifact_type="blob",
             fmt="mixed",
             residence="posix",
             metadata={"job_id": job_id},
             content_url=content_url,
+            name=f"output-{job_id[:8]}",
         )
         artifact_id = artifact["id"]
+        logger.debug(
+            "Created posix artifact %s, _links: %s",
+            artifact_id,
+            {
+                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
+                for rel, lnk in artifact.get("_links", {}).items()
+            },
+        )
 
         # Commit immediately (REGISTERED → COMMITTED for external artifacts)
         total_size = sum(f.stat().st_size for f in output_files)
@@ -265,10 +318,20 @@ class HpcDaemon:
         for f in output_files:
             hasher.update(f.read_bytes())
 
-        self.client.commit_artifact(
+        commit_result = self.client.commit_artifact(
             artifact_id,
             sha256=hasher.hexdigest(),
             size_bytes=total_size,
+        )
+        logger.debug(
+            "Committed posix artifact %s: sha256=%s, size=%d, _links: %s",
+            artifact_id,
+            hasher.hexdigest(),
+            total_size,
+            {
+                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
+                for rel, lnk in commit_result.get("_links", {}).items()
+            },
         )
         logger.info(
             "Registered posix artifact %s (%d files) for job %s at %s",
@@ -283,13 +346,27 @@ class HpcDaemon:
         self, job_id: str, output_files: list[Path]
     ) -> str:
         """Upload output files as a managed artifact with binary content."""
+        logger.debug(
+            "Creating managed artifact for job %s (%d files)",
+            job_id,
+            len(output_files),
+        )
         artifact = self.client.create_artifact(
             artifact_type="blob",
             fmt="mixed",
             residence="managed",
             metadata={"job_id": job_id},
+            name=f"output-{job_id[:8]}",
         )
         artifact_id = artifact["id"]
+        logger.debug(
+            "Created managed artifact %s, _links: %s",
+            artifact_id,
+            {
+                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
+                for rel, lnk in artifact.get("_links", {}).items()
+            },
+        )
 
         total_size = 0
         hasher = hashlib.sha256()
@@ -297,6 +374,12 @@ class HpcDaemon:
             content = f.read_bytes()
             hasher.update(content)
             total_size += len(content)
+            logger.debug(
+                "Uploading file %s (%d bytes) to artifact %s",
+                f.name,
+                len(content),
+                artifact_id,
+            )
             self.client.upload_artifact_file(
                 artifact_id,
                 path=f.name,
@@ -304,10 +387,20 @@ class HpcDaemon:
                 role="output",
             )
 
-        self.client.commit_artifact(
+        commit_result = self.client.commit_artifact(
             artifact_id,
             sha256=hasher.hexdigest(),
             size_bytes=total_size,
+        )
+        logger.debug(
+            "Committed managed artifact %s: sha256=%s, size=%d, _links: %s",
+            artifact_id,
+            hasher.hexdigest(),
+            total_size,
+            {
+                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
+                for rel, lnk in commit_result.get("_links", {}).items()
+            },
         )
         logger.info(
             "Uploaded %d output files as artifact %s for job %s",
@@ -351,7 +444,21 @@ class HpcDaemon:
                 tracked.slurm_job_id, tracked.status
             )
             if new_status is None:
+                logger.debug(
+                    "Job %s (slurm %s): no status change from %s",
+                    tracked.emx2_job_id,
+                    tracked.slurm_job_id,
+                    tracked.status,
+                )
                 continue
+
+            logger.debug(
+                "Job %s (slurm %s): %s → %s",
+                tracked.emx2_job_id,
+                tracked.slurm_job_id,
+                tracked.status,
+                new_status,
+            )
 
             try:
                 detail = f"Slurm state: {new_status}"
@@ -360,7 +467,10 @@ class HpcDaemon:
                 # On successful completion, upload output artifacts
                 if new_status == "COMPLETED" and tracked.output_dir:
                     output_artifact_id = self._upload_output_artifacts(
-                        tracked.emx2_job_id, tracked.output_dir
+                        tracked.emx2_job_id,
+                        tracked.output_dir,
+                        processor=tracked.processor,
+                        profile=tracked.profile,
                     )
                     if output_artifact_id:
                         detail += f"; output artifact: {output_artifact_id}"

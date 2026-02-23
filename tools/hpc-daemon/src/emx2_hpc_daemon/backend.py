@@ -84,6 +84,19 @@ class SlurmBackend(ExecutionBackend):
         if resolved is None:
             raise ValueError(f"No profile for {processor}:{profile}")
 
+        logger.debug(
+            "Resolved profile for %s:%s → partition=%s, cpus=%d, mem=%s, "
+            "time=%s, sif=%s, artifact_residence=%s",
+            processor,
+            profile,
+            resolved.partition,
+            resolved.cpus,
+            resolved.memory,
+            resolved.time,
+            resolved.sif_image,
+            resolved.artifact_residence,
+        )
+
         # Create working directories
         base_dir = Path(self._config.apptainer.tmp_dir) / job_id
         work_dir = base_dir / "work"
@@ -108,6 +121,14 @@ class SlurmBackend(ExecutionBackend):
             if isinstance(parameters, dict):
                 container_command = parameters.get("command")
                 environment = parameters.get("environment")
+
+        logger.debug(
+            "Job %s parameters: %s (command=%s, env=%s)",
+            job_id,
+            job.get("parameters"),
+            container_command,
+            environment,
+        )
 
         # Generate batch script
         script_content = generate_batch_script(
@@ -160,6 +181,7 @@ class SlurmBackend(ExecutionBackend):
         """
         inputs = job.get("inputs")
         if not inputs:
+            logger.debug("Job %s has no input artifacts", job.get("id", "?"))
             return
 
         if isinstance(inputs, str):
@@ -169,6 +191,13 @@ class SlurmBackend(ExecutionBackend):
                 logger.warning("Could not parse job inputs: %s", inputs)
                 return
 
+        logger.debug(
+            "Staging %d input artifact(s) for job %s: %s",
+            len(inputs) if isinstance(inputs, list) else 0,
+            job.get("id", "?"),
+            inputs,
+        )
+
         if isinstance(inputs, list):
             for item in inputs:
                 artifact_id = item if isinstance(item, str) else item.get("artifact_id")
@@ -177,6 +206,32 @@ class SlurmBackend(ExecutionBackend):
                         artifact = client.get_artifact(artifact_id)
                         residence = artifact.get("residence", "managed")
                         content_url = artifact.get("content_url")
+                        logger.debug(
+                            "Input artifact %s: type=%s, format=%s, "
+                            "residence=%s, status=%s, sha256=%s, "
+                            "size_bytes=%s, content_url=%s",
+                            artifact_id,
+                            artifact.get("type"),
+                            artifact.get("format"),
+                            residence,
+                            artifact.get("status"),
+                            artifact.get("sha256"),
+                            artifact.get("size_bytes"),
+                            content_url,
+                        )
+
+                        # Log artifact's HATEOAS links
+                        links = artifact.get("_links", {})
+                        if links:
+                            parts = [
+                                f"{rel}={lnk.get('method', 'GET')} {lnk.get('href', '?')}"
+                                for rel, lnk in links.items()
+                            ]
+                            logger.debug(
+                                "Input artifact %s _links: %s",
+                                artifact_id,
+                                " | ".join(parts),
+                            )
 
                         if (
                             residence == "posix"
@@ -195,6 +250,16 @@ class SlurmBackend(ExecutionBackend):
                             )
                         else:
                             # Download managed artifact files
+                            files = client.list_artifact_files(artifact_id)
+                            logger.debug(
+                                "Artifact %s has %d file(s): %s",
+                                artifact_id,
+                                len(files),
+                                [
+                                    f"{f.get('path')} ({f.get('size_bytes', '?')}b)"
+                                    for f in files
+                                ],
+                            )
                             downloaded = client.download_artifact_files(
                                 artifact_id, input_dir
                             )

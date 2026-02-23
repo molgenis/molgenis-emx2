@@ -46,6 +46,11 @@ public final class HpcSchemaInitializer {
                           .setType(ColumnType.REF)
                           .setRefTable("HpcArtifacts"));
             }
+            // Migration: add name column to HpcArtifacts if missing
+            Table artifactsTable = schema.getTable("HpcArtifacts");
+            if (artifactsTable.getMetadata().getColumn("name") == null) {
+              artifactsTable.getMetadata().add(column("name"));
+            }
             return;
           }
 
@@ -139,6 +144,7 @@ public final class HpcSchemaInitializer {
               table(
                   "HpcArtifacts",
                   column("id").setPkey(),
+                  column("name"),
                   column("type").setType(ColumnType.ONTOLOGY).setRefTable("HpcArtifactType"),
                   column("format"),
                   column("residence")

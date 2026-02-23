@@ -12,6 +12,24 @@ def test_resolve_exact_match(sample_config):
     assert resolved.memory == "64G"
 
 
+def test_resolve_default_artifact_residence(sample_config):
+    resolved = resolve_profile(sample_config, "text-embedding", "gpu-medium")
+    assert resolved is not None
+    assert resolved.artifact_residence == "managed"
+
+
+def test_resolve_posix_artifact_residence(sample_config):
+    from emx2_hpc_daemon.config import ProfileEntry
+
+    sample_config.profiles["posix-processor:default"] = ProfileEntry(
+        sif_image="/nfs/images/posix.sif",
+        artifact_residence="posix",
+    )
+    resolved = resolve_profile(sample_config, "posix-processor", "default")
+    assert resolved is not None
+    assert resolved.artifact_residence == "posix"
+
+
 def test_resolve_no_match(sample_config):
     resolved = resolve_profile(sample_config, "nonexistent", "profile")
     assert resolved is None

@@ -25,6 +25,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Name</th>
             <th>Type</th>
             <th>Format</th>
             <th>Residence</th>
@@ -41,6 +42,7 @@
             @click="$router.push(`/artifacts/${a.id}`)"
           >
             <td><code>{{ a.id?.substring(0, 8) }}</code></td>
+            <td>{{ a.name || a.id?.substring(0, 8) }}</td>
             <td>{{ a.type || "-" }}</td>
             <td>{{ a.format || "-" }}</td>
             <td>{{ a.residence || "-" }}</td>
@@ -49,7 +51,7 @@
             <td>{{ formatDate(a.created_at) }}</td>
           </tr>
           <tr v-if="!items.length">
-            <td colspan="7" class="text-center text-muted">No artifacts found</td>
+            <td colspan="8" class="text-center text-muted">No artifacts found</td>
           </tr>
         </tbody>
       </table>

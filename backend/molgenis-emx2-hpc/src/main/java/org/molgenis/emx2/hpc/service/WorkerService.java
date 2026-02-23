@@ -88,6 +88,47 @@ public class WorkerService {
     return result[0];
   }
 
+  /**
+   * Deletes a worker and its capabilities. Nullifies worker_id on any jobs referencing this worker.
+   *
+   * @return the deleted worker row, or null if not found
+   */
+  public Row deleteWorker(String workerId) {
+    Row[] result = new Row[1];
+    database.tx(
+        db -> {
+          db.becomeAdmin();
+          Schema schema = db.getSchema(systemSchemaName);
+          Table workersTable = schema.getTable("HpcWorkers");
+
+          List<Row> rows = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          if (rows.isEmpty()) {
+            return;
+          }
+          Row worker = rows.getFirst();
+
+          // Delete capabilities (FK dependency)
+          Table capTable = schema.getTable("HpcWorkerCapabilities");
+          List<Row> caps = capTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          for (Row cap : caps) {
+            capTable.delete(cap);
+          }
+
+          // Nullify worker_id on any jobs referencing this worker
+          Table jobsTable = schema.getTable("HpcJobs");
+          List<Row> jobs = jobsTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          for (Row job : jobs) {
+            job.set("worker_id", (String) null);
+            jobsTable.update(job);
+          }
+
+          // Delete the worker
+          workersTable.delete(worker);
+          result[0] = worker;
+        });
+    return result[0];
+  }
+
   /** Updates the heartbeat timestamp for a worker. */
   public void heartbeat(String workerId) {
     database.tx(

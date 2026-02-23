@@ -485,7 +485,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 |----------|------------|
 | Managed storage access pattern | S3-minimal surface via path-based REST endpoints (`PUT/GET/HEAD/DELETE /files/{path}`). S3-compatible gateway deferred. |
 | Job→artifact linking | `output_artifact_id` REF column on HpcJobs, set during COMPLETED transition. |
-| Input artifact staging | Two-path: symlink for posix, download for managed. Configured via `artifact_residence` in daemon config. |
+| Input artifact staging | Two-path: symlink for posix, download for managed. Residence is configured per-profile in the daemon config (`artifact_residence` on each `ProfileEntry`). |
 | Browser upload | Direct PUT with raw binary body; browser computes SHA-256 via SubtleCrypto. No multipart required. |
 
 ## Open Design Decisions

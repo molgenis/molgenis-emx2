@@ -43,7 +43,6 @@ class EmxConfig:
     worker_id: str = "hpc-daemon-01"
     shared_secret: str = ""
     auth_mode: str = "hmac"
-    artifact_residence: str = "managed"
 
 
 @dataclass
@@ -68,6 +67,7 @@ class ProfileEntry:
     memory: str = "16G"
     time: str = "01:00:00"
     extra_args: list[str] = field(default_factory=list)
+    artifact_residence: str = "managed"
 
 
 @dataclass

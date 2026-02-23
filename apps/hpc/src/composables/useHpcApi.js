@@ -41,7 +41,7 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id type { name } status { name } }
+      output_artifact_id { id name type { name } format status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -66,7 +66,7 @@ export async function fetchJobDetail(jobId) {
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id type { name } status { name } }
+      output_artifact_id { id name type { name } format status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -153,6 +153,22 @@ export async function fetchWorkers() {
   }));
 }
 
+/**
+ * Delete a worker via the REST API.
+ * @param {string} workerId
+ * @returns {Promise<void>}
+ */
+export async function deleteWorker(workerId) {
+  const resp = await fetch(`${REST_BASE}/workers/${workerId}`, {
+    method: "DELETE",
+    headers: hpcHeaders(),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `HTTP ${resp.status}`);
+  }
+}
+
 // --- Artifact API ---
 
 /**
@@ -178,7 +194,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
       offset: ${offset},
       orderby: { created_at: DESC }
     ) {
-      id
+      id name
       type { name }
       format
       residence { name }
@@ -203,7 +219,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
 export async function fetchArtifactDetail(artifactId) {
   const query = `{
     HpcArtifacts(filter: { id: { equals: "${artifactId}" } }) {
-      id
+      id name
       type { name }
       format
       residence { name }
@@ -230,8 +246,9 @@ export async function fetchArtifactDetail(artifactId) {
  * Create a new artifact via the REST API.
  * @param {Object} opts - { type, format, residence }
  */
-export async function createArtifact({ type = "blob", format, residence = "managed" } = {}) {
+export async function createArtifact({ name, type = "blob", format, residence = "managed" } = {}) {
   const body = { type, residence };
+  if (name) body.name = name;
   if (format) body.format = format;
   const resp = await fetch(`${REST_BASE}/artifacts`, {
     method: "POST",
@@ -315,7 +332,9 @@ function normalizeJob(job) {
     output_artifact_id: output
       ? {
           id: output.id,
+          name: output.name,
           type: output.type?.name ?? output.type,
+          format: output.format,
           status: output.status?.name ?? output.status,
         }
       : null,

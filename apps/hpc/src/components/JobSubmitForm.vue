@@ -25,7 +25,7 @@
           <select v-model="selectedArtifact" class="form-select form-select-sm">
             <option value="">Select a committed artifact...</option>
             <option v-for="a in availableArtifacts" :key="a.id" :value="a.id">
-              {{ a.id?.substring(0, 8) }} - {{ a.type || "blob" }} ({{ a.format || "?" }})
+              {{ a.name || a.id?.substring(0, 8) }} - {{ a.type || "blob" }} ({{ a.format || "?" }})
             </option>
           </select>
           <button

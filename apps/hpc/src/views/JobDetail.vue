@@ -54,9 +54,35 @@
             <strong>Parameters</strong>
             <pre class="bg-light p-2 rounded mt-1"><code>{{ formatJson(job.parameters) }}</code></pre>
           </div>
-          <div v-if="job.inputs">
-            <strong>Inputs</strong>
-            <pre class="bg-light p-2 rounded mt-1"><code>{{ formatJson(job.inputs) }}</code></pre>
+          <div v-if="job.inputs && job.inputs.length">
+            <strong>Input Artifacts</strong>
+            <table class="table table-sm mt-1">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="input in normalizedInputs" :key="input.id || input">
+                  <td>{{ input.name || input.id?.substring(0, 8) || input }}</td>
+                  <td>
+                    <span v-if="input.type" class="badge bg-light text-dark border">{{ input.type }}</span>
+                    <span v-else>-</span>
+                  </td>
+                  <td><StatusBadge v-if="input.status" :status="input.status" /><span v-else>-</span></td>
+                  <td>
+                    <router-link
+                      v-if="input.id"
+                      :to="`/artifacts/${input.id}`"
+                      class="btn btn-outline-primary btn-sm"
+                    >View</router-link>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -68,10 +94,14 @@
         </div>
         <div class="card-body">
           <dl class="mb-0">
+            <dt>Name</dt>
+            <dd>{{ job.output_artifact_id.name || "-" }}</dd>
             <dt>Artifact ID</dt>
             <dd><code>{{ job.output_artifact_id.id?.substring(0, 8) }}</code></dd>
             <dt>Type</dt>
             <dd>{{ job.output_artifact_id.type || "-" }}</dd>
+            <dt>Format</dt>
+            <dd>{{ job.output_artifact_id.format || "-" }}</dd>
           </dl>
           <router-link
             :to="`/artifacts/${job.output_artifact_id.id}`"
@@ -119,7 +149,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { fetchJobDetail, deleteJob } from "../composables/useHpcApi.js";
 import { formatDate } from "../utils/jobs.js";
@@ -135,6 +165,15 @@ const transitions = ref([]);
 const loading = ref(true);
 const error = ref(null);
 const deleting = ref(false);
+
+const normalizedInputs = computed(() => {
+  const inputs = job.value?.inputs;
+  if (!inputs || !Array.isArray(inputs)) return [];
+  return inputs.map((item) => {
+    if (typeof item === "string") return { id: item };
+    return item;
+  });
+});
 
 async function onDelete() {
   if (!confirm(`Delete job ${props.id}?`)) return;

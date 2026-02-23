@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 /** Typed, content-addressed artifact. Can be input to or output from a job. */
 public record Artifact(
     String id,
+    String name,
     String type,
     String format,
     String residence,

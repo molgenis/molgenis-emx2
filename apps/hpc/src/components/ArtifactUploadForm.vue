@@ -10,6 +10,10 @@
       <!-- Step 1: Metadata -->
       <div v-if="step === 'metadata'">
         <div class="mb-2">
+          <label class="form-label">Name *</label>
+          <input v-model="form.name" class="form-control form-control-sm" placeholder="e.g. my-dataset-v1" />
+        </div>
+        <div class="mb-2">
           <label class="form-label">Type</label>
           <select v-model="form.type" class="form-select form-select-sm">
             <option value="blob">blob</option>
@@ -32,7 +36,7 @@
         </div>
         <button
           class="btn btn-primary btn-sm"
-          :disabled="!selectedFiles.length"
+          :disabled="!selectedFiles.length || !form.name.trim()"
           @click="startUpload"
         >
           Upload
@@ -73,6 +77,7 @@ import { createArtifact, uploadArtifactFile, commitArtifact } from "../composabl
 const emit = defineEmits(["created", "close"]);
 
 const form = reactive({
+  name: "",
   type: "blob",
   format: "",
 });
@@ -100,6 +105,7 @@ async function startUpload() {
   try {
     // Create artifact
     const result = await createArtifact({
+      name: form.name.trim(),
       type: form.type,
       format: form.format || undefined,
     });

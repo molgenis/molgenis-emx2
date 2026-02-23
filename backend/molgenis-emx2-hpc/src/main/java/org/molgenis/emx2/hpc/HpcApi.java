@@ -50,7 +50,7 @@ public class HpcApi {
 
     // Create API handlers
     WorkersApi workersApi = new WorkersApi(workerService);
-    JobsApi jobsApi = new JobsApi(jobService);
+    JobsApi jobsApi = new JobsApi(jobService, artifactService);
     ArtifactsApi artifactsApi = new ArtifactsApi(artifactService);
 
     // Before-handler: validate protocol headers and HMAC auth on all HPC endpoints
@@ -97,6 +97,7 @@ public class HpcApi {
 
     // Worker endpoints
     app.post("/api/hpc/workers/register", workersApi::register);
+    app.delete("/api/hpc/workers/{id}", workersApi::deleteWorker);
     app.post(
         "/api/hpc/workers/{id}/heartbeat",
         ctx -> {
