@@ -113,4 +113,9 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
 
     return result;
   }
+
+  public void updateSequenceForValue(String value) {
+    // TODO: Remove support for multiple formats before we can validate the sequence value
+    return;
+  }
 }

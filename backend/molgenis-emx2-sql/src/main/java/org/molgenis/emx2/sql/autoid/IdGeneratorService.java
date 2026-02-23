@@ -2,6 +2,8 @@ package org.molgenis.emx2.sql.autoid;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+
+import java.util.HexFormat;
 import java.util.concurrent.TimeUnit;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
@@ -29,11 +31,11 @@ public class IdGeneratorService {
     if (column.getComputed() == null) {
       return SnowflakeIdGenerator.getInstance().generateId();
     } else {
-      return generateId(column);
+      return getGenerator(column).generateId();
     }
   }
 
-  private String generateId(Column column) {
+  private IdGenerator getGenerator(Column column) {
     IdGenerator generator = STRATEGY_CACHE.getIfPresent(column.getComputed());
     if (generator == null) {
       try {
@@ -45,6 +47,16 @@ public class IdGeneratorService {
       }
     }
 
-    return generator.generateId();
+    return generator;
+  }
+
+  public void updateGeneratorForValue(Column column, String value) {
+    if (!ColumnType.AUTO_ID.equals(column.getColumnType())) {
+      return;
+    }
+
+    if (getGenerator(column) instanceof ColumnSequenceIdGenerator generator) {
+      generator.updateSequenceForValue(value);
+    }
   }
 }

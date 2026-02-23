@@ -34,7 +34,6 @@ public class SqlTypeUtils extends TypeUtils {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
-
         applyAutoId(c, row, jooq);
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
@@ -98,9 +97,13 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   private static void applyAutoId(Column c, Row row, DSLContext jooq) {
+    IdGeneratorService generator = new IdGeneratorService(jooq);
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-      String id = new IdGeneratorService(jooq).generateIdForColumn(c);
+      String id = generator.generateIdForColumn(c);
       row.set(c.getName(), id);
+    } else {
+      String autoid = row.get(c.getName(), c.getPrimitiveColumnType());
+      generator.updateGeneratorForValue(c, autoid);
     }
   }
 
