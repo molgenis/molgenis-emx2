@@ -1,6 +1,8 @@
 package org.molgenis.emx2.hpc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.molgenis.emx2.hpc.protocol.InputValidator.parseIntParam;
+import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
+
 import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +31,6 @@ import org.molgenis.emx2.hpc.service.JobService;
  */
 public class JobsApi {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
   private final JobService jobService;
   private final ArtifactService artifactService;
 
@@ -124,16 +125,6 @@ public class JobsApi {
     response.put("_links", Map.of("self", Map.of("href", "/api/hpc/jobs", "method", "GET")));
 
     ctx.json(response);
-  }
-
-  private static int parseIntParam(String value, int defaultValue) {
-    if (value == null) return defaultValue;
-    try {
-      int v = Integer.parseInt(value);
-      return Math.max(0, v);
-    } catch (NumberFormatException e) {
-      return defaultValue;
-    }
   }
 
   /**

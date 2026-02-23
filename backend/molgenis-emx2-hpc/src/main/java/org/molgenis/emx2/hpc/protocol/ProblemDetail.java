@@ -1,7 +1,8 @@
 package org.molgenis.emx2.hpc.protocol;
 
+import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,8 +12,6 @@ import java.util.Map;
  * responses for error cases.
  */
 public final class ProblemDetail {
-
-  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private ProblemDetail() {}
 

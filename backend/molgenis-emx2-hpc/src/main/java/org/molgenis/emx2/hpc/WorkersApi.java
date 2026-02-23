@@ -1,6 +1,7 @@
 package org.molgenis.emx2.hpc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
+
 import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.molgenis.emx2.hpc.service.WorkerService;
  */
 public class WorkersApi {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
   private final WorkerService workerService;
 
   public WorkersApi(WorkerService workerService) {

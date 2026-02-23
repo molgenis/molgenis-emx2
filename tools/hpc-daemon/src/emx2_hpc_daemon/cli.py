@@ -128,7 +128,7 @@ def register(ctx, verbose, json_logs):
     config = ctx.obj["config"]
     daemon = HpcDaemon(config)
     try:
-        daemon._register()
+        daemon.register()
         capabilities = derive_capabilities(config)
         click.echo(f"Registered worker {config.emx2.worker_id}")
         click.echo(f"  Capabilities: {len(capabilities)}")

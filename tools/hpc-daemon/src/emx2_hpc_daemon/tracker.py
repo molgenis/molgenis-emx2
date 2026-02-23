@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +27,16 @@ class TrackedJob:
     profile: str | None = None
     claimed_at: float = 0.0  # time.monotonic() at tracking time
 
+    @property
+    def profile_key(self) -> str:
+        """Return the 'processor:profile' key used for timeout lookups."""
+        return f"{self.processor}:{self.profile or ''}"
+
 
 class JobTracker:
     """Tracks active (non-terminal) jobs managed by this daemon."""
+
+    _VALID_FIELDS = frozenset(f.name for f in fields(TrackedJob))
 
     def __init__(self):
         self._jobs: dict[str, TrackedJob] = {}
@@ -44,13 +51,18 @@ class JobTracker:
         return job
 
     def update(self, emx2_job_id: str, **kwargs) -> TrackedJob | None:
-        """Update tracking info for a job."""
+        """Update tracking info for a job.
+
+        Raises ValueError if any kwarg is not a valid TrackedJob field.
+        """
         job = self._jobs.get(emx2_job_id)
         if job is None:
             return None
+        unknown = set(kwargs) - self._VALID_FIELDS
+        if unknown:
+            raise ValueError(f"Unknown TrackedJob fields: {unknown}")
         for key, value in kwargs.items():
-            if hasattr(job, key):
-                setattr(job, key, value)
+            setattr(job, key, value)
         return job
 
     def remove(self, emx2_job_id: str) -> TrackedJob | None:

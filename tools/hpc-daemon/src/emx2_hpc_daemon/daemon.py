@@ -25,7 +25,7 @@ import time
 from pathlib import Path
 
 from .backend import ExecutionBackend, SimulatedBackend, SlurmBackend
-from .client import ClaimConflict, HpcClient
+from .client import ClaimConflict, HpcClient, format_links
 from .config import DaemonConfig
 from .profiles import derive_capabilities, resolve_profile
 from .tracker import JobTracker
@@ -70,7 +70,7 @@ class HpcDaemon:
 
         try:
             # Step 1: Register with EMX2
-            self._register()
+            self.register()
 
             # Step 2: Recover any in-flight jobs from a previous run
             self._recover_jobs()
@@ -98,7 +98,7 @@ class HpcDaemon:
             self._hostname,
         )
         try:
-            self._register()
+            self.register()
             self._recover_jobs()
             self._poll_and_claim()
             self._monitor_running_jobs()
@@ -108,7 +108,7 @@ class HpcDaemon:
         finally:
             self.client.close()
 
-    def _register(self) -> None:
+    def register(self) -> None:
         """Register this worker with capabilities derived from profiles."""
         capabilities = derive_capabilities(self.config)
         try:
@@ -305,10 +305,7 @@ class HpcDaemon:
         logger.debug(
             "Created posix artifact %s, _links: %s",
             artifact_id,
-            {
-                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
-                for rel, lnk in artifact.get("_links", {}).items()
-            },
+            format_links(artifact.get("_links", {})),
         )
 
         # Commit immediately (REGISTERED → COMMITTED for external artifacts)
@@ -327,10 +324,7 @@ class HpcDaemon:
             artifact_id,
             hasher.hexdigest(),
             total_size,
-            {
-                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
-                for rel, lnk in commit_result.get("_links", {}).items()
-            },
+            format_links(commit_result.get("_links", {})),
         )
         logger.info(
             "Registered posix artifact %s (%d files) for job %s at %s",
@@ -360,10 +354,7 @@ class HpcDaemon:
         logger.debug(
             "Created managed artifact %s, _links: %s",
             artifact_id,
-            {
-                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
-                for rel, lnk in artifact.get("_links", {}).items()
-            },
+            format_links(artifact.get("_links", {})),
         )
 
         total_size = 0
@@ -394,10 +385,7 @@ class HpcDaemon:
             artifact_id,
             hasher.hexdigest(),
             total_size,
-            {
-                rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
-                for rel, lnk in commit_result.get("_links", {}).items()
-            },
+            format_links(commit_result.get("_links", {})),
         )
         logger.info(
             "Uploaded %d output files as artifact %s for job %s",
@@ -433,7 +421,6 @@ class HpcDaemon:
         """Check if any tracked jobs have exceeded their profile timeouts."""
         now = time.monotonic()
         for tracked in list(self.tracker.active_jobs()):
-            profile_key = f"{tracked.processor}:{tracked.profile or ''}"
             resolved = resolve_profile(
                 self.config, tracked.processor or "", tracked.profile or ""
             )
@@ -450,7 +437,7 @@ class HpcDaemon:
                 detail = (
                     f"timeout: claim_timeout_seconds "
                     f"({resolved.claim_timeout_seconds}s) exceeded "
-                    f"for profile {profile_key}"
+                    f"for profile {tracked.profile_key}"
                 )
                 logger.warning(
                     "Job %s exceeded claim timeout: %s",
@@ -476,7 +463,7 @@ class HpcDaemon:
                 detail = (
                     f"timeout: execution_timeout_seconds "
                     f"({resolved.execution_timeout_seconds}s) exceeded "
-                    f"for profile {profile_key}"
+                    f"for profile {tracked.profile_key}"
                 )
                 logger.warning(
                     "Job %s exceeded execution timeout: %s",

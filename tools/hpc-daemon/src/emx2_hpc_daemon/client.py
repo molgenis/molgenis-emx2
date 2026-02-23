@@ -22,6 +22,14 @@ logger = logging.getLogger(__name__)
 
 API_VERSION = "2025-01"
 
+
+def format_links(links: dict) -> dict[str, str]:
+    """Format HATEOAS links for debug logging: {rel: 'METHOD href', ...}."""
+    return {
+        rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
+        for rel, lnk in links.items()
+    }
+
 # Exceptions for specific error conditions
 
 

@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 
-from .client import HpcClient
+from .client import HpcClient, format_links
 from .config import DaemonConfig
 from .hashing import compute_tree_hash
 from .profiles import resolve_profile
@@ -282,14 +282,10 @@ class SlurmBackend(ExecutionBackend):
                         # Log artifact's HATEOAS links
                         links = artifact.get("_links", {})
                         if links:
-                            parts = [
-                                f"{rel}={lnk.get('method', 'GET')} {lnk.get('href', '?')}"
-                                for rel, lnk in links.items()
-                            ]
                             logger.debug(
                                 "Input artifact %s _links: %s",
                                 artifact_id,
-                                " | ".join(parts),
+                                format_links(links),
                             )
 
                         if (

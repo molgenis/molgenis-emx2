@@ -51,4 +51,15 @@ public final class InputValidator {
           fieldName + " must be at most " + MAX_TEXT_LENGTH + " characters");
     }
   }
+
+  /** Parses an integer query parameter, returning the default on null or invalid input. */
+  public static int parseIntParam(String value, int defaultValue) {
+    if (value == null) return defaultValue;
+    try {
+      int v = Integer.parseInt(value);
+      return Math.max(0, v);
+    } catch (NumberFormatException e) {
+      return defaultValue;
+    }
+  }
 }

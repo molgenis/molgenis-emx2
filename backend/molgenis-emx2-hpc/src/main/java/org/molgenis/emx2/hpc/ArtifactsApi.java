@@ -1,6 +1,8 @@
 package org.molgenis.emx2.hpc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.molgenis.emx2.hpc.protocol.InputValidator.parseIntParam;
+import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
+
 import io.javalin.http.Context;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.Part;
@@ -35,7 +37,6 @@ import org.molgenis.emx2.hpc.service.CommitResult;
  */
 public class ArtifactsApi {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
   private final ArtifactService artifactService;
 
   public ArtifactsApi(ArtifactService artifactService) {
@@ -120,6 +121,7 @@ public class ArtifactsApi {
           ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
       return;
     }
+    File tempFile = null;
     try {
       String ct = ctx.header("Content-Type");
       boolean isMultipart = ct != null && ct.startsWith("multipart/form-data");
@@ -132,8 +134,7 @@ public class ArtifactsApi {
 
       if (isMultipart) {
         // Configure multipart handling
-        File tempFile = File.createTempFile("hpc_upload_", ".tmp");
-        tempFile.deleteOnExit();
+        tempFile = File.createTempFile("hpc_upload_", ".tmp");
         ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
             new MultipartConfigElement(tempFile.getAbsolutePath()));
@@ -206,6 +207,10 @@ public class ArtifactsApi {
     } catch (Exception e) {
       ProblemDetail.send(
           ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+    } finally {
+      if (tempFile != null) {
+        tempFile.delete();
+      }
     }
   }
 
@@ -274,6 +279,7 @@ public class ArtifactsApi {
           ctx, 400, "Bad Request", "file path is required", ctx.header(HpcHeaders.REQUEST_ID));
       return;
     }
+    File tempFile = null;
     try {
       String ct = ctx.header("Content-Type");
       boolean isMultipart = ct != null && ct.startsWith("multipart/form-data");
@@ -282,8 +288,7 @@ public class ArtifactsApi {
       String contentType;
 
       if (isMultipart) {
-        File tempFile = File.createTempFile("hpc_upload_", ".tmp");
-        tempFile.deleteOnExit();
+        tempFile = File.createTempFile("hpc_upload_", ".tmp");
         ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
             new MultipartConfigElement(tempFile.getAbsolutePath()));
@@ -344,6 +349,10 @@ public class ArtifactsApi {
     } catch (Exception e) {
       ProblemDetail.send(
           ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+    } finally {
+      if (tempFile != null) {
+        tempFile.delete();
+      }
     }
   }
 
@@ -520,16 +529,6 @@ public class ArtifactsApi {
     } catch (Exception e) {
       ProblemDetail.send(
           ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-    }
-  }
-
-  private static int parseIntParam(String value, int defaultValue) {
-    if (value == null) return defaultValue;
-    try {
-      int v = Integer.parseInt(value);
-      return Math.max(0, v);
-    } catch (NumberFormatException e) {
-      return defaultValue;
     }
   }
 

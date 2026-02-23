@@ -17,11 +17,11 @@ import org.molgenis.emx2.sql.SqlDatabase;
  */
 public class WorkerService {
 
-  private final SqlDatabase database;
+  private final TxHelper tx;
   private final String systemSchemaName;
 
   public WorkerService(SqlDatabase database, String systemSchemaName) {
-    this.database = database;
+    this.tx = new TxHelper(database);
     this.systemSchemaName = systemSchemaName;
   }
 
@@ -36,10 +36,8 @@ public class WorkerService {
    */
   public Row registerOrHeartbeat(
       String workerId, String hostname, List<Map<String, Object>> capabilities) {
-    Row[] result = new Row[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
           Table workersTable = schema.getTable("HpcWorkers");
           Table capTable = schema.getTable("HpcWorkerCapabilities");
@@ -83,9 +81,8 @@ public class WorkerService {
             }
           }
 
-          result[0] = workerRow;
+          return workerRow;
         });
-    return result[0];
   }
 
   /**
@@ -94,16 +91,14 @@ public class WorkerService {
    * @return the deleted worker row, or null if not found
    */
   public Row deleteWorker(String workerId) {
-    Row[] result = new Row[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
           Table workersTable = schema.getTable("HpcWorkers");
 
           List<Row> rows = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
           if (rows.isEmpty()) {
-            return;
+            return null;
           }
           Row worker = rows.getFirst();
 
@@ -124,16 +119,14 @@ public class WorkerService {
 
           // Delete the worker
           workersTable.delete(worker);
-          result[0] = worker;
+          return worker;
         });
-    return result[0];
   }
 
   /** Updates the heartbeat timestamp for a worker. */
   public void heartbeat(String workerId) {
-    database.tx(
+    tx.tx(
         db -> {
-          db.becomeAdmin();
           Table workersTable = db.getSchema(systemSchemaName).getTable("HpcWorkers");
           List<Row> rows = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
           if (!rows.isEmpty()) {

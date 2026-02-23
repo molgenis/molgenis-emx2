@@ -6,10 +6,11 @@ import static org.jooq.impl.DSL.table;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,13 +36,12 @@ import org.slf4j.LoggerFactory;
 public class JobService {
 
   private static final Logger logger = LoggerFactory.getLogger(JobService.class);
-  private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  private final SqlDatabase database;
+  private final TxHelper tx;
   private final String systemSchemaName;
 
   public JobService(SqlDatabase database, String systemSchemaName) {
-    this.database = database;
+    this.tx = new TxHelper(database);
     this.systemSchemaName = systemSchemaName;
   }
 
@@ -54,9 +54,8 @@ public class JobService {
       String submitUser,
       Integer timeoutSeconds) {
     String jobId = UUID.randomUUID().toString();
-    database.tx(
+    tx.tx(
         db -> {
-          db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
 
           // Validate that all input artifacts are COMMITTED
@@ -98,10 +97,8 @@ public class JobService {
    * conflict) or not found.
    */
   public Row claimJob(String jobId, String workerId) {
-    Row[] result = new Row[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
 
           // Atomic UPDATE: only succeeds if job is still PENDING
@@ -120,7 +117,7 @@ public class JobService {
           if (affected == 0) {
             logger.warn(
                 "Claim failed for job={} by worker={} (not PENDING or not found)", jobId, workerId);
-            return;
+            return null;
           }
 
           recordTransition(
@@ -135,11 +132,8 @@ public class JobService {
 
           // Re-fetch the row to return consistent data
           List<Row> rows = schema.getTable("HpcJobs").where(f("id", EQUALS, jobId)).retrieveRows();
-          if (!rows.isEmpty()) {
-            result[0] = rows.getFirst();
-          }
+          return rows.isEmpty() ? null : rows.getFirst();
         });
-    return result[0];
   }
 
   /**
@@ -153,31 +147,28 @@ public class JobService {
       String detail,
       String slurmJobId,
       String outputArtifactId) {
-    Row[] result = new Row[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
           Table jobsTable = schema.getTable("HpcJobs");
 
           List<Row> rows = jobsTable.where(f("id", EQUALS, jobId)).retrieveRows();
           if (rows.isEmpty()) {
-            return;
+            return null;
           }
           Row job = rows.getFirst();
           HpcJobStatus currentStatus = HpcJobStatus.valueOf(job.getString("status"));
 
           // Idempotent: if already in target status, check if identical transition
           if (currentStatus == targetStatus) {
-            result[0] = job; // idempotent success
-            return;
+            return job; // idempotent success
           }
 
           // Validate transition
           if (!currentStatus.canTransitionTo(targetStatus)) {
             logger.warn(
                 "Invalid transition for job={}: {} -> {}", jobId, currentStatus, targetStatus);
-            return;
+            return null;
           }
 
           // Apply transition
@@ -210,9 +201,8 @@ public class JobService {
               targetStatus,
               workerId);
 
-          result[0] = job;
+          return job;
         });
-    return result[0];
   }
 
   /**
@@ -220,16 +210,14 @@ public class JobService {
    * the job row if deleted, null if not found.
    */
   public Row deleteJob(String jobId) {
-    Row[] result = new Row[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
           Table jobsTable = schema.getTable("HpcJobs");
 
           List<Row> rows = jobsTable.where(f("id", EQUALS, jobId)).retrieveRows();
           if (rows.isEmpty()) {
-            return;
+            return null;
           }
           Row job = rows.getFirst();
           HpcJobStatus status = HpcJobStatus.valueOf(job.getString("status"));
@@ -253,40 +241,33 @@ public class JobService {
 
           // Delete the job
           jobsTable.delete(job);
-          result[0] = job;
           logger.info("Job deleted: id={} status={}", jobId, status);
+          return job;
         });
-    return result[0];
   }
 
   /** Gets a job by ID. Returns null if not found. */
   public Row getJob(String jobId) {
-    Row[] result = new Row[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           List<Row> rows =
               db.getSchema(systemSchemaName)
                   .getTable("HpcJobs")
                   .where(f("id", EQUALS, jobId))
                   .retrieveRows();
-          if (!rows.isEmpty()) {
-            result[0] = rows.getFirst();
-          }
+          return rows.isEmpty() ? null : rows.getFirst();
         });
-    return result[0];
   }
 
   /**
    * Lists jobs with optional filters, pagination, and sorting. When status is null, defaults to
    * PENDING (backwards compatible with worker polling).
    */
+  // TODO: Use DB-level LIMIT/OFFSET when EMX2 Query API supports it
   public List<Row> listJobs(
       String status, String processor, String profile, int limit, int offset) {
-    List<Row>[] result = new List[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           Table jobsTable = db.getSchema(systemSchemaName).getTable("HpcJobs");
 
           // Build filter chain
@@ -305,17 +286,14 @@ public class JobService {
           // Apply offset and limit
           int start = Math.min(offset, allRows.size());
           int end = Math.min(start + limit, allRows.size());
-          result[0] = allRows.subList(start, end);
+          return allRows.subList(start, end);
         });
-    return result[0];
   }
 
   /** Counts jobs matching the given filters. Used for pagination metadata. */
   public int countJobs(String status, String processor, String profile) {
-    int[] count = new int[1];
-    database.tx(
+    return tx.txResult(
         db -> {
-          db.becomeAdmin();
           Table jobsTable = db.getSchema(systemSchemaName).getTable("HpcJobs");
 
           String filterStatus = (status != null) ? status : HpcJobStatus.PENDING.name();
@@ -328,9 +306,8 @@ public class JobService {
             query = query.where(f("profile", EQUALS, profile));
           }
 
-          count[0] = query.retrieveRows().size();
+          return query.retrieveRows().size();
         });
-    return count[0];
   }
 
   /**
@@ -347,9 +324,8 @@ public class JobService {
    * Called lazily from listJobs() so it runs once per poll cycle.
    */
   public void expireStaleJobs() {
-    database.tx(
+    tx.tx(
         db -> {
-          db.becomeAdmin();
           Schema schema = db.getSchema(systemSchemaName);
           Table jobsTable = schema.getTable("HpcJobs");
           LocalDateTime now = LocalDateTime.now();
@@ -364,7 +340,14 @@ public class JobService {
             if (timeout == null) continue;
             String claimedAtStr = job.getString("claimed_at");
             if (claimedAtStr == null) continue;
-            LocalDateTime claimedAt = LocalDateTime.parse(claimedAtStr);
+            LocalDateTime claimedAt;
+            try {
+              claimedAt = LocalDateTime.parse(claimedAtStr);
+            } catch (DateTimeParseException e) {
+              logger.warn(
+                  "Unparseable claimed_at '{}' for job {}", claimedAtStr, job.getString("id"));
+              continue;
+            }
             if (claimedAt.plusSeconds(timeout).isBefore(now)) {
               String jobId = job.getString("id");
               logger.info("Expiring CLAIMED job {} (timeout {}s exceeded)", jobId, timeout);
@@ -391,7 +374,14 @@ public class JobService {
             if (timeout == null) continue;
             String startedAtStr = job.getString("started_at");
             if (startedAtStr == null) continue;
-            LocalDateTime startedAt = LocalDateTime.parse(startedAtStr);
+            LocalDateTime startedAt;
+            try {
+              startedAt = LocalDateTime.parse(startedAtStr);
+            } catch (DateTimeParseException e) {
+              logger.warn(
+                  "Unparseable started_at '{}' for job {}", startedAtStr, job.getString("id"));
+              continue;
+            }
             if (startedAt.plusSeconds(timeout).isBefore(now)) {
               String jobId = job.getString("id");
               logger.info("Expiring STARTED job {} (timeout {}s exceeded)", jobId, timeout);
@@ -412,17 +402,12 @@ public class JobService {
 
   /** Returns the audit trail of transitions for a job. */
   public List<Row> getTransitions(String jobId) {
-    List<Row>[] result = new List[1];
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          result[0] =
-              db.getSchema(systemSchemaName)
-                  .getTable("HpcJobTransitions")
-                  .where(f("job_id", EQUALS, jobId))
-                  .retrieveRows();
-        });
-    return result[0];
+    return tx.txResult(
+        db ->
+            db.getSchema(systemSchemaName)
+                .getTable("HpcJobTransitions")
+                .where(f("job_id", EQUALS, jobId))
+                .retrieveRows());
   }
 
   private static void recordTransition(
