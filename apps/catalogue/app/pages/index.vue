@@ -9,19 +9,6 @@ import Button from "../../../tailwind-components/app/components/Button.vue";
 import ContentBlockCatalogues from "../components/content/ContentBlockCatalogues.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
 
-const pageDescription =
-  "A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health.";
-
-useHead({
-  title: "Health Data and Samples Catalogue",
-  meta: [
-    {
-      name: "description",
-      content: pageDescription,
-    },
-  ],
-});
-
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
   middleware: [
@@ -52,6 +39,7 @@ const query = computed(() => {
       catalogueType {
         name
       }
+      mainCatalogue
       logo {
         id
         size
@@ -79,19 +67,46 @@ const { data } = await useFetch<Resp<IResources, IResources_agg>>(
   }
 );
 
-const catalogues = data.value?.data?.Resources;
+const catalogues = data.value?.data?.Resources as IResources[];
 const groupedCatalogues = catalogues
-  ? Object.groupBy(catalogues, (c) => c.catalogueType?.name ?? "theme")
+  ? Object.groupBy(
+      catalogues.filter((c) => !c.mainCatalogue),
+      (c) => c.catalogueType?.name ?? "theme"
+    )
   : { theme: [], project: [], organisation: [] };
 Object.keys(groupedCatalogues).forEach((key) => {
   groupedCatalogues[key]?.sort((a, b) => a.id.localeCompare(b.id));
 });
+
+const mainCatalogue = computed<IResources | null>(() => {
+  return catalogues?.find((catalogue) => catalogue.mainCatalogue) ?? null;
+});
+
+const pageDescription = computed(
+  () =>
+    mainCatalogue.value?.description ||
+    "A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health."
+);
+
+const pageTitle = computed(
+  () => mainCatalogue.value?.name || "Health Data and Samples Catalogue"
+);
+
+useHead(() => ({
+  title: pageTitle.value,
+  meta: [
+    {
+      name: "description",
+      content: pageDescription.value,
+    },
+  ],
+}));
 </script>
 
 <template>
   <LayoutsLandingPage>
     <PageHeader
-      title="European Health Research Data and Sample Catalogue"
+      :title="pageTitle"
       :description="pageDescription"
       :truncate="false"
     >

@@ -58,6 +58,9 @@ export interface ITreeNodeState extends ITreeNode {
   loadMoreTotal?: number;
   /* pagination: whether there are more children to load */
   loadMoreHasMore?: boolean;
+  /* whether this node is showing all children (bypassing search filter) */
+  showingAll?: boolean;
+  unfilteredTotal?: number;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";

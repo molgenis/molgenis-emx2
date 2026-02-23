@@ -4,3 +4,5 @@ features-paragraph-order,home-section-features,home-section-features-p,1
 applications-heading-order,home-section-applications,home-section-applications-h2,0
 applications-paragraph-order,home-section-applications,home-section-applications-p,1
 applications-paragraph-2-order,home-section-applications,home-section-applications-p-2,2
+home-section-heading-order,home-section-navigation,home-section-navigation-heading,0
+home-section-nav-group-order,home-section-navigation,home-section-nav-group,1

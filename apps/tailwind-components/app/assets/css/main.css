@@ -284,6 +284,10 @@
 
     /** tooltips */
     --text-color-icon-neutral: var(--color-blue-200);
+
+    /* visualisations: need css and svg defintions */
+    --chart-text: var(--color-gray-900);
+    --chart-paths: var(--color-gray-600);
   }
 }
 
@@ -302,4 +306,24 @@
   --border-color-toggle-active: var(--background-color-input-checked);
   --border-color-toggle-inactive: var(--border-color-input);
   --border-color-toggle-hover: var(--border-color-input-focused);
+}
+
+.chart_layout_with_legend_top {
+  grid-template-areas:
+    "context"
+    "legend"
+    "chart";
+}
+
+.chart_layout_with_legend_bottom {
+  grid-template-areas:
+    "context"
+    "chart"
+    "legend";
+}
+
+.chart_layout_default {
+  grid-template-areas:
+    "context"
+    "chart";
 }

@@ -29,7 +29,7 @@
           <ChartLegendMarker :markerType="markerType" :fill="data[key]" />
           <input
             :id="`legend-input-${legendId}-${key}`"
-            class="sr-only [&:focus~span]:underline"
+            class="sr-only"
             :class="{
               '[&:checked~span]:line-through': enableMultiSelect,
               '[&~span]:hover:underline': !enableMultiSelect,
@@ -44,7 +44,7 @@
             v-model="legendSelections"
             @change="$emit('legend-item-clicked', legendSelections)"
           />
-          <span class="text-current">{{ key }}</span>
+          <span class="fill-chart-text">{{ key }}</span>
         </label>
       </div>
       <div
@@ -58,7 +58,7 @@
         @mouseout="$emit('legend-item-mouseout', key)"
       >
         <ChartLegendMarker :markerType="markerType" :fill="data[key]" />
-        <span>{{ key }}</span>
+        <span class="text-chart-text hover:cursor-pointer">{{ key }}</span>
       </div>
     </li>
   </ul>

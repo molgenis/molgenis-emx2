@@ -90,8 +90,8 @@ if (!cohortOnly.value) {
     link: `/`,
   });
   menu.push({
-    label: "Upload data",
-    link: "/apps/central/#/",
+    label: "Add data",
+    link: "/" + config.public.schema + "/pages/#/data-manager-portal",
   });
   menu.push({
     label: "Manuals",
@@ -106,9 +106,7 @@ if (!cohortOnly.value) {
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${catalogueRouteParam}`"
-          :image="
-            catalogueRouteParam === 'all' ? logoSrc : catalogue?.logo?.url
-          "
+          :image="catalogue?.logo?.url ?? logoSrc"
           :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />
@@ -129,9 +127,7 @@ if (!cohortOnly.value) {
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
               :link="`/${catalogueRouteParam}`"
-              :image="
-                catalogueRouteParam === 'all' ? logoSrc : catalogue?.logo?.url
-              "
+              :image="catalogue?.logo?.url ?? logoSrc"
             />
           </div>
 

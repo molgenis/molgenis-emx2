@@ -5,11 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.GraphQL;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqlAggregatePermission {
-  private static GraphQL grapql;
+  private static GraphqlExecutor grapql;
   private static Database database;
   private static final String schemaName = TestGraphqlAggregatePermission.class.getSimpleName();
   private static Schema schema;
@@ -37,8 +36,7 @@ public class TestGraphqlAggregatePermission {
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     database.setActiveUser("AGGREGATE_TEST_USER");
     taskService = new TaskServiceInMemory();
-    grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+    grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
   }
 
   @Test
@@ -67,7 +65,7 @@ public class TestGraphqlAggregatePermission {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result = convertExecutionResultToJson(grapql.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

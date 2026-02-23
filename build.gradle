@@ -123,16 +123,24 @@ tasks.register('dockerClean', Delete) {
 }
 
 String getGitHash() {
-    // git hash
-    def command = Runtime.getRuntime().exec("git rev-parse --short HEAD")
-    def result = command.waitFor()
-    if (result != 0) {
-        throw new IOException("Command 'getGitHash()' exited with " + result)
+    try {
+        // Use ProcessBuilder to properly inherit environment and handle git command
+        def process = new ProcessBuilder('git', 'rev-parse', '--short', 'HEAD')
+            .directory(rootProject.projectDir)
+            .redirectErrorStream(true)
+            .start()
+        process.waitFor()
+
+        if (process.exitValue() == 0) {
+            return process.inputStream.text.trim()
+        } else {
+            logger.warn("Git command failed, using 'unknown' as hash")
+            return "unknown"
+        }
+    } catch (Exception e) {
+        logger.warn("Failed to get git hash: ${e.message}, using 'unknown' as hash")
+        return "unknown"
     }
-
-    String gitCommitHash = command.inputStream.text.trim()
-
-    return gitCommitHash
 }
 
 application {

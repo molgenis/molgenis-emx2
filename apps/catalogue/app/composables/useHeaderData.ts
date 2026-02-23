@@ -12,7 +12,6 @@ interface IHeaderQuery {
   Variables_agg: { count: number };
   Collections_agg: { count: number };
   Networks_agg: { count: number };
-  Datasets_agg: { count: number };
   _settings: { key: "CATALOGUE_LOGO_SRC"; value: string }[];
 }
 
@@ -20,7 +19,7 @@ export async function useHeaderData() {
   const route = useRoute();
   const config = useRuntimeConfig();
   const schema = config.public.schema as string;
-  const scoped = route.params.catalogue !== "all";
+  const scoped = route.params.catalogue && route.params.catalogue !== "all";
   const catalogueRouteParam = route.params.catalogue;
 
   const { data, error } = await $fetch<Resp<IHeaderQuery>>(
@@ -29,7 +28,7 @@ export async function useHeaderData() {
       method: "POST",
       body: {
         query: `
-            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter,$datasetsFilter:DatasetsFilter) {
+            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter) {
               Resources(filter:$networksFilter) {
                 id,
                 logo { url }
@@ -43,9 +42,6 @@ export async function useHeaderData() {
               Networks_agg: Resources_agg(filter:$networkFilter) {
                   count
               }
-              Datasets_agg(filter:$datasetsFilter) {
-                  count
-              }
               _settings (keys: [
                 "CATALOGUE_LOGO_SRC"
               ]){
@@ -56,7 +52,7 @@ export async function useHeaderData() {
         variables: {
           networksFilter: scoped
             ? { id: { equals: catalogueRouteParam } }
-            : undefined,
+            : { mainCatalogue: { equals: true } },
           collectionsFilter: scoped
             ? {
                 type: { tags: { equals: "collection" } },
@@ -100,21 +96,6 @@ export async function useHeaderData() {
               }
             : //should only include harmonised variables
               { resource: { type: { name: { equals: "Network" } } } },
-          datasetsFilter: scoped
-            ? {
-                resource: {
-                  _or: [
-                    { id: { equals: catalogueRouteParam } },
-                    { partOfNetworks: { id: { equals: catalogueRouteParam } } },
-                    {
-                      partOfNetworks: {
-                        parentNetworks: { id: { equals: catalogueRouteParam } },
-                      },
-                    },
-                  ],
-                },
-              }
-            : undefined,
         },
       },
     }
@@ -130,19 +111,15 @@ export async function useHeaderData() {
   const variableCount = data.Variables_agg.count || 0;
   const collectionCount = data.Collections_agg.count || 0;
   const networkCount = data.Networks_agg.count || 0;
-  const datasetCount = data.Datasets_agg.count || 0;
-  const logoSrc = (
-    data._settings.find((setting) => setting.key === "CATALOGUE_LOGO_SRC") || {
-      value: "",
-    }
-  ).value;
+  const logoSrc =
+    catalogue?.logo?.url ??
+    (
+      data._settings.find(
+        (setting) => setting.key === "CATALOGUE_LOGO_SRC"
+      ) || {
+        value: "",
+      }
+    ).value;
 
-  return {
-    catalogue,
-    variableCount,
-    collectionCount,
-    networkCount,
-    datasetCount,
-    logoSrc,
-  };
+  return { catalogue, variableCount, collectionCount, networkCount, logoSrc };
 }
