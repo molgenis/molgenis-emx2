@@ -63,31 +63,37 @@
           <p>Export data by downloading various file formats:</p>
           <div>
             <p>
-              Export schema as <a :href="`/${schema}/api/csv`">csv</a> /
-              <a :href="`/${schema}/api/json`">json</a> /
-              <a :href="`/${schema}/api/yaml`">yaml</a>
+              Export schema as <a :href="`/${schema}/api/csv/_schema`">csv</a> /
+              <a :href="`/${schema}/api/json/_schema`">json</a> /
+              <a :href="`/${schema}/api/yaml/_schema`">yaml</a>
             </p>
 
             <p>
               Export schema+data in one file as
-              <a :href="`/${schema}/api/excel`">excel</a> /
-              <a :href="`/${schema}/api/zip`">csv.zip</a> /
+              <a :href="`/${schema}/api/excel/_all`">excel</a> /
+              <a :href="`/${schema}/api/zip/_all`">csv.zip</a> /
               <a :href="`/${schema}/api/ttl`">ttl</a> /
               <a :href="`/${schema}/api/jsonld`">jsonld</a>
+              <a :href="`/${schema}/api/ttl2`"
+                >ttl filtered by graphql query (experimental)</a
+              >
+              <a :href="`/${schema}/api/ttl2/_schema`"
+                >json-ld schema @context file</a
+              >
             </p>
 
             <div>
               Export schema information:
               <ul>
                 <li>
-                  Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
+                  Settings: <a :href="`/${schema}/api/csv/_settings`">csv</a>
                 </li>
                 <li v-if="isManagerOrOwner">
-                  Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                  Members: <a :href="`/${schema}/api/csv/_members`">csv</a>
                 </li>
                 <li v-if="isManagerOrOwner">
                   Changelog:
-                  <a :href="`/${schema}/api/csv/changelog?limit=100&offset=0`">
+                  <a :href="`/${schema}/api/csv/_changelog?limit=100&offset=0`">
                     csv
                   </a>
                 </li>
@@ -100,7 +106,9 @@
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
                   <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
-                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a> /
+                  <a :href="`/${schema}/api/json/` + table.id">json</a> /
+                  <a :href="`/${schema}/api/yaml/` + table.id">yaml</a>
                 </li>
               </ul>
             </div>

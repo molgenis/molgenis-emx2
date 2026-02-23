@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSender;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -35,7 +34,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -222,7 +225,7 @@ class WebApiSmokeTests extends ApiTestBase {
     database.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
-    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip");
+    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_all");
 
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
@@ -230,7 +233,7 @@ class WebApiSmokeTests extends ApiTestBase {
         .sessionId(sessionId)
         .multiPart(zipFile)
         .when()
-        .post("/pet store zip/api/zip")
+        .post("/pet store zip/api/zip/_all")
         .then()
         .statusCode(200);
 
@@ -240,7 +243,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .sessionId(sessionId)
             .accept(ACCEPT_CSV)
             .when()
-            .get("/pet store zip/api/csv")
+            .get("/pet store zip/api/csv/_schema")
             .asString();
     assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
@@ -413,7 +416,7 @@ class WebApiSmokeTests extends ApiTestBase {
     byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
     File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
     acceptFileUpload(addUpdateTableFile, "molgenis", false);
-    String actual = getContentAsString("/api/csv");
+    String actual = getContentAsString("/api/csv/_schema");
     assertEquals(header + expected, actual);
   }
 
@@ -423,7 +426,7 @@ class WebApiSmokeTests extends ApiTestBase {
     database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     // download csv metadata and data from existing schema
-    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv");
+    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/_schema");
     byte[] contentsCategoryData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Category");
     byte[] contentsOrderData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Order");
     byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
@@ -453,7 +456,7 @@ class WebApiSmokeTests extends ApiTestBase {
     acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES, false);
 
     // download csv from the new schema
-    String contentsMetaNew = getContentAsString("/api/csv");
+    String contentsMetaNew = getContentAsString("/api/csv/_schema");
     String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
@@ -491,7 +494,7 @@ class WebApiSmokeTests extends ApiTestBase {
   void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
     database.dropCreateSchema(CSV_TEST_SCHEMA);
 
-    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/_members");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(
@@ -511,7 +514,7 @@ class WebApiSmokeTests extends ApiTestBase {
     database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/_members");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_members_\\d{12}\\.csv\"");
@@ -528,7 +531,7 @@ class WebApiSmokeTests extends ApiTestBase {
     database.dropCreateSchema(CSV_TEST_SCHEMA);
 
     Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/_settings");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_settings_\\d{12}\\.csv\"");
@@ -547,7 +550,7 @@ class WebApiSmokeTests extends ApiTestBase {
     schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
 
     Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/_changelog");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
@@ -575,7 +578,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .accept(ACCEPT_CSV)
             .param("offset", "1")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
 
     Pattern contentDisposition =
         Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
@@ -596,7 +599,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .accept(ACCEPT_CSV)
             .param("limit", "1001")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
@@ -618,14 +621,14 @@ class WebApiSmokeTests extends ApiTestBase {
             .accept(ACCEPT_CSV)
             .param("limit", "invalid-value")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
                   {
                     "errors" : [
                       {
-                        "message" : "Invalid limit provided, should be a number: For input string: \\"invalid-value\\""
+                        "message" : "Invalid limit provided, should be a number: NumberFormatException: For input string: \\"invalid-value\\""
                       }
                     ]
                   }""",
@@ -640,14 +643,14 @@ class WebApiSmokeTests extends ApiTestBase {
             .accept(ACCEPT_CSV)
             .param("offset", "invalid-value")
             .when()
-            .get("/pet store/api/csv/changelog");
+            .get("/pet store/api/csv/_changelog");
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
                     {
                       "errors" : [
                         {
-                          "message" : "Invalid offset provided, should be a number: For input string: \\"invalid-value\\""
+                          "message" : "Invalid offset provided, should be a number: NumberFormatException: For input string: \\"invalid-value\\""
                         }
                       ]
                     }""",
@@ -656,7 +659,7 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
-    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
+    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/_changelog");
 
     assertEquals(400, response.getStatusCode());
     assertEquals(
@@ -703,7 +706,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .body(content)
             .header("fileName", table)
             .when()
-            .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""));
+            .post("/" + CSV_TEST_SCHEMA + "/api/csv/_schema" + (async ? "?async=true" : ""));
 
     response.then().statusCode(200);
 
@@ -725,7 +728,8 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testJsonYamlApi() {
-    String schemaJson = given().sessionId(sessionId).when().get("/pet store/api/json").asString();
+    String schemaJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/_schema").asString();
 
     database.dropCreateSchema("pet store json");
 
@@ -733,16 +737,17 @@ class WebApiSmokeTests extends ApiTestBase {
         .sessionId(sessionId)
         .body(schemaJson)
         .when()
-        .post("/pet store json/api/json")
+        .post("/pet store json/api/json/_schema")
         .then()
         .statusCode(200);
 
     String schemaJson2 =
-        given().sessionId(sessionId).when().get("/pet store json/api/json").asString();
+        given().sessionId(sessionId).when().get("/pet store json/api/json/_schema").asString();
 
     assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
 
-    String schemaYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml").asString();
+    String schemaYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/_schema").asString();
 
     database.dropCreateSchema("pet store yaml");
 
@@ -750,12 +755,12 @@ class WebApiSmokeTests extends ApiTestBase {
         .sessionId(sessionId)
         .body(schemaYaml)
         .when()
-        .post("/pet store yaml/api/yaml")
+        .post("/pet store yaml/api/yaml/_schema")
         .then()
         .statusCode(200);
 
     String schemaYaml2 =
-        given().sessionId(sessionId).when().get("/pet store yaml/api/yaml").asString();
+        given().sessionId(sessionId).when().get("/pet store yaml/api/yaml/_schema").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
 
@@ -763,7 +768,7 @@ class WebApiSmokeTests extends ApiTestBase {
         .sessionId(sessionId)
         .body(schemaYaml2)
         .when()
-        .delete("/pet store yaml/api/yaml")
+        .delete("/pet store yaml/api/yaml/_schema")
         .then()
         .statusCode(200);
 
@@ -771,7 +776,7 @@ class WebApiSmokeTests extends ApiTestBase {
         .sessionId(sessionId)
         .body(schemaJson2)
         .when()
-        .delete("/pet store json/api/json")
+        .delete("/pet store json/api/json/_schema")
         .then()
         .statusCode(200);
 
@@ -780,37 +785,129 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testJsonYamlTableApi() {
+    String tableJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(tableJson.contains("Pet"), "JSON should contain Pet data");
+
+    String tableYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/Pet").asString();
+    assertTrue(tableYaml.contains("name"), "YAML should contain name field");
+    assertFalse(tableYaml.startsWith("["), "YAML should not start with [");
+    assertTrue(
+        tableYaml.contains("-") || tableYaml.contains("name:"), "YAML should have YAML syntax");
+  }
+
+  @Test
+  void testJsonYamlDataApi() {
+    String dataJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/_data").asString();
+    assertTrue(dataJson.contains("Pet"), "JSON data should contain Pet table");
+
+    String dataYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/_data").asString();
+    assertTrue(dataYaml.contains("Pet"), "YAML data should contain Pet table");
+  }
+
+  @Test
+  void testJsonYamlAllApi() {
+    String allJson = given().sessionId(sessionId).when().get("/pet store/api/json/_all").asString();
+    assertTrue(allJson.contains("schema"), "JSON _all should contain schema");
+    assertTrue(allJson.contains("data"), "JSON _all should contain data");
+
+    String allYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml/_all").asString();
+    assertTrue(allYaml.contains("schema"), "YAML _all should contain schema");
+    assertTrue(allYaml.contains("data"), "YAML _all should contain data");
+  }
+
+  @Test
+  void testJsonYamlMembersApi() {
+    String membersJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/_members").asString();
+    assertTrue(membersJson.contains(PET_SHOP_OWNER), "JSON members should contain pet_shop_owner");
+
+    String membersYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/_members").asString();
+    assertTrue(membersYaml.contains(PET_SHOP_OWNER), "YAML members should contain pet_shop_owner");
+  }
+
+  @Test
+  void testJsonYamlSettingsApi() {
+    given().sessionId(sessionId).when().get("/pet store/api/json/_settings").then().statusCode(200);
+
+    given().sessionId(sessionId).when().get("/pet store/api/yaml/_settings").then().statusCode(200);
+  }
+
+  @Test
+  void testJsonYamlChangelogApi() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .get("/pet store/api/json/_changelog?limit=10&offset=0")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .get("/pet store/api/yaml/_changelog?limit=10&offset=0")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
+  void testJsonYamlRowApi() {
+    String tableJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+
+    if (tableJson.contains("\"name\"")) {
+      given()
+          .sessionId(sessionId)
+          .when()
+          .get("/pet store/api/json/Pet/spike")
+          .then()
+          .statusCode(200);
+
+      given()
+          .sessionId(sessionId)
+          .when()
+          .get("/pet store/api/yaml/Pet/spike")
+          .then()
+          .statusCode(200);
+    }
+  }
+
+  @Test
   void testExcelApi() throws IOException, InterruptedException {
 
-    // download json schema
     String schemaCSV =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/_schema")
+            .asString();
 
     // create a new schema for excel
     database.dropCreateSchema("pet store excel");
 
-    // download excel contents from schema
-    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel");
+    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel/_all");
     File excelFile = createTempFile(excelContents, ".xlsx");
 
-    // upload excel into new schema
     String message =
         given()
             .sessionId(sessionId)
             .multiPart(excelFile)
             .when()
-            .post("/pet store excel/api/excel?async=true")
+            .post("/pet store excel/api/excel/_all?async=true")
             .asString();
 
     Map<String, String> val = new ObjectMapper().readValue(message, Map.class);
     String url = val.get("url");
     String id = val.get("id");
 
-    // poll task until complete
     Response poll = given().sessionId(sessionId).when().get(url);
     int count = 0;
-    // poll while running
-    // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (poll.body().asString().contains("UNKNOWN")
         || poll.body().asString().contains("RUNNING")) {
       if (count++ > 100) {
@@ -822,7 +919,6 @@ class WebApiSmokeTests extends ApiTestBase {
     assertFalse(
         poll.body().asString().contains("FAILED") || poll.body().asString().contains("ERROR"));
 
-    // check if id in tasks list
     assertTrue(
         given()
             .sessionId(sessionId)
@@ -832,19 +928,164 @@ class WebApiSmokeTests extends ApiTestBase {
             .asString()
             .contains(id));
 
-    // check if schema equal using json representation
     String schemaCSV2 =
         given()
             .sessionId(sessionId)
             .accept(ACCEPT_CSV)
             .when()
-            .get("/pet store excel/api/csv")
+            .get("/pet store excel/api/csv/_schema")
             .asString();
 
     assertTrue(schemaCSV2.contains("Pet"));
 
-    // delete a new schema for excel
+    byte[] schemaExcel = getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_schema");
+    assertTrue(schemaExcel.length > 0);
+
+    byte[] dataExcel = getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_data");
+    assertTrue(dataExcel.length > 0);
+
+    byte[] membersExcel =
+        getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_members");
+    assertTrue(membersExcel.length > 0);
+
+    byte[] settingsExcel =
+        getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_settings");
+    assertTrue(settingsExcel.length > 0);
+
+    byte[] changelogExcel =
+        getContentAsByteArray(ACCEPT_EXCEL, "/pet store excel/api/excel/_changelog");
+    assertTrue(changelogExcel.length > 0);
+
     database.dropSchema("pet store excel");
+  }
+
+  @Test
+  void testExcelApi_tableExcelUploadDownload() throws IOException {
+    String path = "/pet store/api/excel/Tag";
+
+    byte[] tagData = getContentAsByteArray(ACCEPT_EXCEL, path);
+    assertTrue(tagData.length > 0);
+
+    Path tempDir = Files.createTempDirectory("test");
+    tempDir.toFile().deleteOnExit();
+    Path updateFile = tempDir.resolve("update.xlsx");
+    TableStore updateStore = new TableStoreForXlsxFile(updateFile);
+    updateStore.writeTable(
+        "Tag", List.of("name", "parent"), List.of(row("name", "orange", "parent", "colors")));
+    File updateTempFile = updateFile.toFile();
+    updateTempFile.deleteOnExit();
+
+    String response =
+        given().sessionId(sessionId).multiPart(updateTempFile).when().post(path).asString();
+    assertTrue(response.contains("Imported"));
+
+    byte[] updatedData = getContentAsByteArray(ACCEPT_EXCEL, path);
+    File updatedTempFile = createTempFile(updatedData, ".xlsx");
+    TableStore updatedStore = new TableStoreForXlsxFile(updatedTempFile.toPath());
+    boolean foundOrange = false;
+    for (Row r : updatedStore.readTable("Tag")) {
+      if ("orange".equals(r.getString("name"))) {
+        foundOrange = true;
+        break;
+      }
+    }
+    assertTrue(foundOrange);
+
+    Path deleteFile = tempDir.resolve("delete.xlsx");
+    TableStore deleteStore = new TableStoreForXlsxFile(deleteFile);
+    deleteStore.writeTable("Tag", List.of("name"), List.of(row("name", "orange")));
+    File deleteTempFile = deleteFile.toFile();
+    deleteTempFile.deleteOnExit();
+
+    String deleteResponse =
+        given().sessionId(sessionId).multiPart(deleteTempFile).when().delete(path).asString();
+    assertTrue(deleteResponse.contains("Deleted"));
+
+    byte[] afterDeleteData = getContentAsByteArray(ACCEPT_EXCEL, path);
+    File afterDeleteTempFile = createTempFile(afterDeleteData, ".xlsx");
+    TableStore afterDeleteStore = new TableStoreForXlsxFile(afterDeleteTempFile.toPath());
+    boolean orangeStillExists = false;
+    for (Row r : afterDeleteStore.readTable("Tag")) {
+      if ("orange".equals(r.getString("name"))) {
+        orangeStillExists = true;
+        break;
+      }
+    }
+    assertFalse(orangeStillExists);
+  }
+
+  @Test
+  void testZipApi() throws IOException {
+    byte[] allZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_all");
+    assertTrue(allZip.length > 0);
+
+    byte[] schemaZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_schema");
+    assertTrue(schemaZip.length > 0);
+
+    byte[] dataZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_data");
+    assertTrue(dataZip.length > 0);
+
+    byte[] membersZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_members");
+    assertTrue(membersZip.length > 0);
+
+    byte[] settingsZip = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/_settings");
+    assertTrue(settingsZip.length > 0);
+  }
+
+  @Test
+  void testZipApi_tableZipUploadDownload() throws IOException {
+    String path = "/pet store/api/zip/Tag";
+
+    byte[] zipData = getContentAsByteArray(ACCEPT_ZIP, path);
+    assertTrue(zipData.length > 0);
+
+    Path tempDir = Files.createTempDirectory("test");
+    tempDir.toFile().deleteOnExit();
+
+    Path uploadFile = tempDir.resolve("upload.zip");
+    TableStore uploadStore = new TableStoreForCsvInZipFile(uploadFile);
+    uploadStore.writeTable(
+        "Tag", List.of("name", "parent"), List.of(row("name", "testpurple", "parent", "colors")));
+    File uploadTempFile = uploadFile.toFile();
+    uploadTempFile.deleteOnExit();
+
+    String uploadResponse =
+        given().sessionId(sessionId).multiPart(uploadTempFile).when().post(path).asString();
+    assertTrue(uploadResponse.contains("Imported"));
+
+    byte[] updatedData = getContentAsByteArray(ACCEPT_ZIP, path);
+    File updatedTempFile = createTempFile(updatedData, ".zip");
+    TableStore updatedStore = new TableStoreForCsvInZipFile(updatedTempFile.toPath());
+    boolean foundPurple = false;
+    for (Row r : updatedStore.readTable("Tag")) {
+      if ("testpurple".equals(r.getString("name"))) {
+        foundPurple = true;
+        break;
+      }
+    }
+    assertTrue(foundPurple);
+
+    Path deleteFile = tempDir.resolve("delete.zip");
+    TableStore deleteStore = new TableStoreForCsvInZipFile(deleteFile);
+    deleteStore.writeTable("Tag", List.of("name"), List.of(row("name", "testpurple")));
+    File deleteTempFile = deleteFile.toFile();
+    deleteTempFile.deleteOnExit();
+
+    String deleteResponse =
+        given().sessionId(sessionId).multiPart(deleteTempFile).when().delete(path).asString();
+    assertTrue(deleteResponse.contains("Deleted"), "ZIP delete response: " + deleteResponse);
+
+    byte[] afterDeleteData = getContentAsByteArray(ACCEPT_ZIP, path);
+    File afterDeleteTempFile = createTempFile(afterDeleteData, ".zip");
+    TableStore afterDeleteStore = new TableStoreForCsvInZipFile(afterDeleteTempFile.toPath());
+    boolean testpurpleStillExists = false;
+    for (Row r : afterDeleteStore.readTable("Tag")) {
+      if ("testpurple".equals(r.getString("name"))) {
+        testpurpleStillExists = true;
+        break;
+      }
+    }
+    assertFalse(testpurpleStillExists);
   }
 
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
@@ -1137,214 +1378,6 @@ class WebApiSmokeTests extends ApiTestBase {
   @Test
   void testMolgenisWebservice_robotsDotTxt() {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
-  }
-
-  @Test
-  void testRdfApiRequest() {
-    final String urlPrefix = "http://localhost:" + PORT;
-
-    final String defaultContentType = "text/turtle";
-    final String jsonldContentType = "application/ld+json";
-    final String ttlContentType = "text/turtle";
-    final String n3ContentType = "text/n3";
-    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
-    final String defaultContentTypeWithInvalidCharset = "text/turtle; charset=utf-16";
-
-    // skip 'all schemas' test because data is way to big (i.e.
-    // get("http://localhost:PORT/api/rdf");)
-
-    // Validate individual API points for /api/rdf
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf");
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category");
-    rdfApiRequest(200, defaultContentType)
-        .get(urlPrefix + "/pet store/api/rdf/Category/column/name");
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category/name=cat");
-    rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
-
-    // Validate API point with charset
-    rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
-        .get(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(406, defaultContentTypeWithInvalidCharset, EXCEPTION_CONTENT_TYPE)
-        .get(urlPrefix + "/pet store/api/rdf");
-
-    // Validate convenience API points
-    rdfApiRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/jsonld");
-    rdfApiRequest(200, ttlContentType).get(urlPrefix + "/pet store/api/ttl");
-
-    // Validate non-default content-type for /api/rdf
-    rdfApiContentTypeRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/rdf");
-
-    // Validate convenience API points with incorrect given content-type request
-    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
-        .get(urlPrefix + "/pet store/api/jsonld");
-    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
-        .get(urlPrefix + "/pet store/api/ttl");
-
-    // Validate head for API points
-    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/rdf");
-    rdfApiRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/jsonld");
-    rdfApiRequest(200, ttlContentType).head(urlPrefix + "/pet store/api/ttl");
-
-    // Validate head for API points with incorrect given content-type for convenience API points
-    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
-        .head(urlPrefix + "/pet store/api/jsonld");
-    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
-        .head(urlPrefix + "/pet store/api/ttl");
-
-    // Validate SHACL validation requests
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf?validate=fdp-v1.2");
-    rdfApiRequest(400, EXCEPTION_CONTENT_TYPE)
-        .get(urlPrefix + "/pet store/api/rdf?validate=nonExisting"); // TODO: expect 404
-
-    // TODO: Fix HEAD to be equal to GET requests
-    //  (out-of-scope because changes also influence other requests to RDF API)
-    // Validate head for SHACL validation requests
-    //    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet
-    // store/api/rdf?validate=fdp-v1.2");
-    //    rdfApiRequest(404, EXCEPTION_CONTENT_TYPE)
-    //            .head(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
-
-    // Validate SHACL SETS API request
-    rdfApiRequest(200, ACCEPT_YAML).get(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
-        .get(urlPrefix + "/api/rdf?shacls");
-
-    // Validate head for SHACL SETS API request
-    rdfApiRequest(200, ACCEPT_YAML).head(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
-        .head(urlPrefix + "/api/rdf?shacls");
-
-    // Validate multi-content type negotiation
-    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/ld+json", jsonldContentType);
-    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
-        .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
-        .head(urlPrefix + "/pet store/api/rdf");
-  }
-
-  @Test
-  void testRdfApiContent() {
-    // Output from global API call.
-    String resultBase =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
-            .getBody()
-            .asString();
-
-    // Output from global API call with invalid schema.
-    // TODO: https://github.com/molgenis/molgenis-emx2/issues/4954 (fix to return 204)
-    String resultBaseNonExisting =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
-            .getBody()
-            .asString();
-
-    // Output shacl sets
-    String resultShaclSetsYaml =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/api/rdf?shacls")
-            .getBody()
-            .asString();
-
-    // Output schema API call.
-    String resultSchema =
-        given()
-            .sessionId(sessionId)
-            .when()
-            .get("http://localhost:" + PORT + "/pet store/api/rdf")
-            .getBody()
-            .asString();
-
-    assertAll(
-        // Validate base API.
-        () -> assertFalse(resultBase.contains("CatalogueOntologies")),
-        () ->
-            assertTrue(
-                resultBaseNonExisting.contains(
-                    "Schema 'thisSchemaTotallyDoesNotExist' unknown or permission denied")),
-        () ->
-            assertTrue(
-                resultBase.contains(
-                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
-        // Validate schema API.
-        () ->
-            assertTrue(
-                resultSchema.contains(
-                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
-        // Test on small snippet to validate "files:" is absent (and all other fields are present)
-        () ->
-            assertTrue(
-                resultShaclSetsYaml.contains(
-                    """
-                    - id: dcat-ap-v3
-                      name: DCAT-AP
-                      version: 3.0.0
-                      sources:
-                      - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v2.0.2""")));
-  }
-
-  /**
-   * Request that does not define a content type but does validate on this.
-   *
-   * @param expectStatusCode
-   * @param expectContentType
-   * @return
-   */
-  private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
-    return given()
-        .sessionId(sessionId)
-        .expect()
-        .statusCode(expectStatusCode)
-        .header("Content-Type", expectContentType)
-        .when();
-  }
-
-  /**
-   * Request that does define a content type and validates on this.
-   *
-   * @param expectStatusCode
-   * @param contentType
-   * @return
-   */
-  private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
-    return rdfApiContentTypeRequest(expectStatusCode, contentType, contentType);
-  }
-
-  /**
-   * Request that defines given & expected content types individually and validates on this.
-   *
-   * @param expectStatusCode
-   * @param expectedContentType
-   * @return
-   */
-  private RequestSender rdfApiContentTypeRequest(
-      int expectStatusCode, String givenContentType, String expectedContentType) {
-    return given()
-        .sessionId(sessionId)
-        .header("Accept", givenContentType)
-        .expect()
-        .statusCode(expectStatusCode)
-        .header("Content-Type", expectedContentType)
-        .when();
-  }
-
-  /**
-   * Request that only validates on status code.
-   *
-   * @param expectStatusCode
-   * @return
-   */
-  private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
-    return given().sessionId(sessionId).expect().statusCode(expectStatusCode).when();
   }
 
   @Test
@@ -1733,15 +1766,15 @@ class WebApiSmokeTests extends ApiTestBase {
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("application/ld+json")
+        .contentType(Constants.ACCEPT_JSONLD)
         .statusCode(200)
         .when()
-        .get("/pet store/api/jsonld");
+        .get("/pet store/api/jsonld/_data");
 
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("application/ld+json")
+        .contentType(Constants.ACCEPT_JSONLD)
         .statusCode(200)
         .when()
         .get("/pet store/api/jsonld/Pet");
@@ -1752,15 +1785,15 @@ class WebApiSmokeTests extends ApiTestBase {
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("text/turtle")
+        .contentType(Constants.ACCEPT_TTL)
         .statusCode(200)
         .when()
-        .get("/pet store/api/ttl");
+        .get("/pet store/api/ttl/_data");
 
     given()
         .sessionId(sessionId)
         .expect()
-        .contentType("text/turtle")
+        .contentType(Constants.ACCEPT_TTL)
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
@@ -1939,5 +1972,983 @@ class WebApiSmokeTests extends ApiTestBase {
         .body(containsString("jvm_memory_used_bytes"))
         .when()
         .get(MetricsController.METRICS_PATH);
+  }
+
+  @Test
+  void testJsonLdImportExport() {
+    String jsonLdData =
+        given().sessionId(sessionId).when().get("/pet store/api/jsonld/_data").asString();
+    assertTrue(jsonLdData.contains("@context"));
+    assertTrue(jsonLdData.contains("Pet"));
+
+    String response =
+        given()
+            .sessionId(sessionId)
+            .contentType(Constants.ACCEPT_JSON)
+            .body(jsonLdData)
+            .when()
+            .post("/pet store/api/jsonld/Pet")
+            .asString();
+    assertTrue(response.contains("imported"), "Pet response: " + response);
+  }
+
+  @Test
+  void testJsonYamlTablePostDelete() {
+    String insertDataJson = "[{\"name\":\"testdog\",\"category\":{\"name\":\"dog\"},\"weight\":5}]";
+    String insertDataYaml = "- name: testcat\n  category:\n    name: cat\n  weight: 3";
+
+    String response =
+        given()
+            .sessionId(sessionId)
+            .contentType(Constants.ACCEPT_JSON)
+            .body(insertDataJson)
+            .when()
+            .post("/pet store/api/json/Pet")
+            .asString();
+    assertTrue(response.contains("imported"), "Expected success, got: " + response);
+
+    String tableJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(tableJson.contains("testdog"), "JSON should contain inserted data");
+
+    String deleteDataJson = "[{\"name\":\"testdog\"}]";
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body(deleteDataJson)
+        .when()
+        .delete("/pet store/api/json/Pet")
+        .then()
+        .statusCode(200);
+
+    String tableJsonAfterDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertFalse(tableJsonAfterDelete.contains("testdog"), "JSON should not contain deleted data");
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_PLAIN)
+        .body(insertDataYaml)
+        .when()
+        .post("/pet store/api/yaml/Pet")
+        .then()
+        .statusCode(200);
+
+    String tableYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/Pet").asString();
+    assertTrue(tableYaml.contains("testcat"), "YAML should contain inserted data");
+
+    String deleteDataYaml = "- name: testcat";
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_PLAIN)
+        .body(deleteDataYaml)
+        .when()
+        .delete("/pet store/api/yaml/Pet")
+        .then()
+        .statusCode(200);
+
+    String tableYamlAfterDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/Pet").asString();
+    assertFalse(tableYamlAfterDelete.contains("testcat"), "YAML should not contain deleted data");
+  }
+
+  @Test
+  void testJsonYamlRowPut() {
+    String insertDataJson = "[{\"name\":\"testdog\",\"category\":{\"name\":\"dog\"},\"weight\":5}]";
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body(insertDataJson)
+        .when()
+        .post("/pet store/api/json/Pet")
+        .then()
+        .statusCode(200);
+
+    String updateDataJson =
+        "{\"name\":\"testdog\",\"category\":{\"name\":\"dog\"},\"weight\":5,\"status\":\"updated\"}";
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body(updateDataJson)
+        .when()
+        .put("/pet store/api/json/Pet/testdog")
+        .then()
+        .statusCode(200);
+
+    String rowJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet/testdog").asString();
+    assertTrue(rowJson.contains("updated"), "JSON row should be updated");
+
+    String updateDataYaml =
+        "name: testdog\ncategory:\n  name: dog\nweight: 5\nstatus: updated_yaml";
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_PLAIN)
+        .body(updateDataYaml)
+        .when()
+        .put("/pet store/api/yaml/Pet/testdog")
+        .then()
+        .statusCode(200);
+
+    String rowYaml =
+        given().sessionId(sessionId).when().get("/pet store/api/yaml/Pet/testdog").asString();
+    assertTrue(rowYaml.contains("updated_yaml"), "YAML row should be updated");
+
+    String deleteDataJson = "[{\"name\":\"testdog\"}]";
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body(deleteDataJson)
+        .when()
+        .delete("/pet store/api/json/Pet")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
+  void testJsonYamlRowDelete() {
+    String insertDataJson =
+        "[{\"name\":\"testrowdelete\",\"category\":{\"name\":\"dog\"},\"weight\":5}]";
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body(insertDataJson)
+        .when()
+        .post("/pet store/api/json/Pet")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .delete("/pet store/api/json/Pet/testrowdelete")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .get("/pet store/api/json/Pet/testrowdelete")
+        .then()
+        .statusCode(404);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_PLAIN)
+        .body(insertDataJson)
+        .when()
+        .post("/pet store/api/yaml/Pet")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .delete("/pet store/api/yaml/Pet/testrowdelete")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .get("/pet store/api/yaml/Pet/testrowdelete")
+        .then()
+        .statusCode(404);
+  }
+
+  @Test
+  void testRowNotFound() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .get("/pet store/api/json/Pet/nonexistent")
+        .then()
+        .statusCode(404);
+
+    String upsertData = "{\"name\":\"upserttest\",\"category\":{\"name\":\"dog\"},\"weight\":5}";
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body(upsertData)
+        .when()
+        .put("/pet store/api/json/Pet/upserttest")
+        .then()
+        .statusCode(200);
+
+    String rowJson =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet/upserttest").asString();
+    assertTrue(rowJson.contains("upserttest"), "PUT should create row via upsert");
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .delete("/pet store/api/json/Pet/upserttest")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
+  void testMembersUnauthorized() {
+    Response response = given().accept(ACCEPT_JSON).when().get("/pet store/api/json/_members");
+
+    assertEquals(400, response.getStatusCode());
+    assertTrue(
+        response.body().asString().contains("Unauthorized"),
+        "Should be unauthorized for anonymous user");
+  }
+
+  @Test
+  void testChangelogUnauthorized() {
+    Response response = given().accept(ACCEPT_JSON).when().get("/pet store/api/json/_changelog");
+
+    assertEquals(400, response.getStatusCode());
+    assertTrue(
+        response.body().asString().contains("Unauthorized"),
+        "Should be unauthorized for anonymous user");
+  }
+
+  static Stream<Arguments> restApiFormats() {
+    return Stream.of(
+        Arguments.of("json", ACCEPT_JSON),
+        Arguments.of("yaml", ACCEPT_YAML),
+        Arguments.of("jsonld", ACCEPT_JSONLD),
+        Arguments.of("ttl", ACCEPT_TTL),
+        Arguments.of("csv", ACCEPT_CSV),
+        Arguments.of("excel", ACCEPT_EXCEL));
+  }
+
+  @ParameterizedTest(name = "GET _schema for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetSchema(String format, String contentType) {
+    if (format.equals("csv")) {
+      given()
+          .sessionId(sessionId)
+          .accept(contentType)
+          .when()
+          .get("/pet store/api/csv/_schema")
+          .then()
+          .statusCode(200)
+          .contentType(contentType);
+    } else if (format.equals("excel")) {
+      given()
+          .sessionId(sessionId)
+          .when()
+          .get("/pet store/api/excel/_schema")
+          .then()
+          .statusCode(200);
+    } else {
+      String response =
+          given()
+              .sessionId(sessionId)
+              .when()
+              .get("/pet store/api/" + format + "/_schema")
+              .then()
+              .statusCode(200)
+              .contentType(contentType)
+              .extract()
+              .asString();
+      if (format.equals("json") || format.equals("yaml")) {
+        assertTrue(response.contains("tables"), format + " _schema should contain 'tables'");
+      } else if (format.equals("jsonld")) {
+        assertTrue(response.contains("@context"), "jsonld _schema should contain '@context'");
+      }
+    }
+  }
+
+  @ParameterizedTest(name = "GET _data for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetData(String format, String contentType) {
+    if (format.equals("csv")) return;
+    if (format.equals("excel")) {
+      given().sessionId(sessionId).when().get("/pet store/api/excel/_data").then().statusCode(200);
+      return;
+    }
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/" + format + "/_data")
+            .then()
+            .statusCode(200)
+            .contentType(contentType)
+            .extract()
+            .asString();
+    assertTrue(response.contains("Pet"), format + " _data should contain 'Pet'");
+  }
+
+  @ParameterizedTest(name = "GET _all for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetAll(String format, String contentType) {
+    if (format.equals("csv")) return;
+    if (format.equals("excel")) {
+      given().sessionId(sessionId).when().get("/pet store/api/excel/_all").then().statusCode(200);
+      return;
+    }
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/" + format + "/_all")
+            .then()
+            .statusCode(200)
+            .contentType(contentType)
+            .extract()
+            .asString();
+    if (format.equals("json") || format.equals("yaml")) {
+      assertTrue(response.contains("schema"), format + " _all should contain 'schema'");
+      assertTrue(response.contains("data"), format + " _all should contain 'data'");
+    }
+    assertTrue(response.contains("Pet"), format + " _all should contain 'Pet'");
+  }
+
+  @ParameterizedTest(name = "GET table for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetTable(String format, String contentType) {
+    if (format.equals("excel")) {
+      given()
+          .sessionId(sessionId)
+          .when()
+          .get("/pet store/api/excel/Pet")
+          .then()
+          .statusCode(200)
+          .contentType(ACCEPT_EXCEL);
+      return;
+    }
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/" + format + "/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .asString();
+    assertTrue(
+        response.toLowerCase().contains("spike") || response.toLowerCase().contains("pet"),
+        format + " table query should return pet data");
+  }
+
+  @ParameterizedTest(name = "GET row for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetRow(String format, String contentType) {
+    if (format.equals("csv") || format.equals("excel") || format.equals("ttl")) return;
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/" + format + "/Pet/spike")
+            .then()
+            .statusCode(200)
+            .contentType(contentType)
+            .extract()
+            .asString();
+    assertTrue(response.toLowerCase().contains("spike"), format + " row query should return spike");
+  }
+
+  @ParameterizedTest(name = "GET _members for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetMembers(String format, String contentType) {
+    if (format.equals("csv") || format.equals("excel") || format.equals("ttl")) return;
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/" + format + "/_members")
+            .then()
+            .statusCode(200)
+            .contentType(contentType)
+            .extract()
+            .asString();
+    assertTrue(
+        response.contains(PET_SHOP_OWNER), format + " _members should contain " + PET_SHOP_OWNER);
+  }
+
+  @ParameterizedTest(name = "GET _settings for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetSettings(String format, String contentType) {
+    if (format.equals("csv") || format.equals("excel") || format.equals("ttl")) return;
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/" + format + "/_settings")
+            .then()
+            .statusCode(200)
+            .contentType(contentType)
+            .extract()
+            .asString();
+    assertFalse(response.contains("errors"), format + " _settings should not contain errors");
+  }
+
+  @ParameterizedTest(name = "GET _changelog for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetChangelog(String format, String contentType) {
+    if (format.equals("csv") || format.equals("excel") || format.equals("ttl")) return;
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/" + format + "/_changelog")
+            .then()
+            .statusCode(200)
+            .contentType(contentType)
+            .extract()
+            .asString();
+    assertFalse(response.contains("errors"), format + " _changelog should not contain errors");
+  }
+
+  @ParameterizedTest(name = "GET _context for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiGetContext(String format, String contentType) {
+    if (!format.equals("jsonld")) return;
+    String response =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/pet store/api/jsonld/_context")
+            .then()
+            .statusCode(200)
+            .contentType(Constants.ACCEPT_JSONLD)
+            .extract()
+            .asString();
+    assertTrue(response.contains("@context"), "jsonld _context should contain @context");
+  }
+
+  @ParameterizedTest(name = "POST _schema for {0}")
+  @MethodSource("restApiFormats")
+  void testRestApiPostSchema(String format, String contentType) {
+    if (format.equals("csv") || format.equals("excel") || format.equals("ttl")) return;
+    String schemaBody =
+        format.equals("yaml")
+            ? "tables:\n  - name: TestTable\n    columns:\n      - name: id\n        key: 1"
+            : "{\"tables\":[{\"name\":\"TestTable\",\"columns\":[{\"name\":\"id\",\"key\":1}]}]}";
+    given()
+        .sessionId(sessionId)
+        .body(schemaBody)
+        .when()
+        .post("/pet store/api/" + format + "/_schema")
+        .then()
+        .statusCode(200);
+  }
+
+  static Stream<Arguments> writeFormats() {
+    return Stream.of(Arguments.of("json", ACCEPT_JSON), Arguments.of("yaml", ACCEPT_PLAIN));
+  }
+
+  @ParameterizedTest(name = "POST+GET+DELETE table for {0}")
+  @MethodSource("writeFormats")
+  void testRestApiPostTableWithStateVerification(String format, String reqContentType) {
+    String petName = "testPost" + format + System.currentTimeMillis();
+    String body = formatTableBody(format, petName, "dog", 5);
+
+    String postResponse =
+        given()
+            .sessionId(sessionId)
+            .contentType(reqContentType)
+            .body(body)
+            .when()
+            .post("/pet store/api/" + format + "/Pet")
+            .asString();
+    assertTrue(postResponse.contains("imported"), format + " POST failed: " + postResponse);
+
+    String getResponse =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(getResponse.contains(petName), format + " GET after POST should contain " + petName);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body("[{\"name\":\"" + petName + "\"}]")
+        .when()
+        .delete("/pet store/api/json/Pet")
+        .asString();
+
+    String afterDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertFalse(afterDelete.contains(petName), format + " should be deleted");
+  }
+
+  @ParameterizedTest(name = "PUT+GET row for {0}")
+  @MethodSource("writeFormats")
+  void testRestApiPutRowWithStateVerification(String format, String reqContentType) {
+    int newWeight = 99;
+    String body = formatRowBody(format, "spike", "dog", newWeight);
+
+    String putResponse =
+        given()
+            .sessionId(sessionId)
+            .contentType(reqContentType)
+            .body(body)
+            .when()
+            .put("/pet store/api/" + format + "/Pet/spike")
+            .asString();
+    assertTrue(putResponse.contains("updated"), format + " PUT failed: " + putResponse);
+
+    String getResponse =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet/spike").asString();
+    assertTrue(
+        getResponse.contains(String.valueOf(newWeight)),
+        format + " GET after PUT should contain weight " + newWeight);
+  }
+
+  @ParameterizedTest(name = "DELETE row for {0}")
+  @MethodSource("writeFormats")
+  void testRestApiDeleteRowWithStateVerification(String format, String reqContentType) {
+    String petName = "testDel" + format + System.currentTimeMillis();
+    String insertBody = formatTableBody(format, petName, "dog", 1);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(reqContentType)
+        .body(insertBody)
+        .when()
+        .post("/pet store/api/" + format + "/Pet")
+        .asString();
+
+    String beforeDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(beforeDelete.contains(petName), format + " pet should exist before delete");
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .delete("/pet store/api/" + format + "/Pet/" + petName)
+        .asString();
+
+    String afterDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertFalse(afterDelete.contains(petName), format + " pet should not exist after delete");
+  }
+
+  @ParameterizedTest(name = "DELETE _schema for {0}")
+  @MethodSource("writeFormats")
+  void testRestApiDeleteSchema(String format, String reqContentType) {
+    String schemaBody =
+        format.equals("yaml")
+            ? "tables:\n  - name: Pet\n    columns:\n      - name: photoUrls"
+            : "{\"tables\":[{\"name\":\"Pet\",\"columns\":[{\"name\":\"photoUrls\"}]}]}";
+
+    given()
+        .sessionId(sessionId)
+        .contentType(reqContentType)
+        .body(schemaBody)
+        .when()
+        .delete("/pet store/api/" + format + "/_schema")
+        .then()
+        .statusCode(200);
+  }
+
+  @ParameterizedTest(name = "DELETE table rows for {0}")
+  @MethodSource("writeFormats")
+  void testRestApiDeleteTableRows(String format, String reqContentType) {
+    String petName1 = "testDelRows1_" + format + System.currentTimeMillis();
+    String petName2 = "testDelRows2_" + format + System.currentTimeMillis();
+
+    String insertBody1 = formatTableBody(format, petName1, "dog", 3);
+    String insertBody2 = formatTableBody(format, petName2, "cat", 2);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(reqContentType)
+        .body(insertBody1)
+        .when()
+        .post("/pet store/api/" + format + "/Pet")
+        .asString();
+
+    given()
+        .sessionId(sessionId)
+        .contentType(reqContentType)
+        .body(insertBody2)
+        .when()
+        .post("/pet store/api/" + format + "/Pet")
+        .asString();
+
+    String beforeDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(beforeDelete.contains(petName1), format + " should contain " + petName1);
+    assertTrue(beforeDelete.contains(petName2), format + " should contain " + petName2);
+
+    String deleteBody =
+        format.equals("yaml")
+            ? "- name: " + petName1 + "\n- name: " + petName2
+            : "[{\"name\":\"" + petName1 + "\"},{\"name\":\"" + petName2 + "\"}]";
+
+    given()
+        .sessionId(sessionId)
+        .contentType(reqContentType)
+        .body(deleteBody)
+        .when()
+        .delete("/pet store/api/" + format + "/Pet")
+        .asString();
+
+    String afterDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertFalse(afterDelete.contains(petName1), format + " should not contain " + petName1);
+    assertFalse(afterDelete.contains(petName2), format + " should not contain " + petName2);
+  }
+
+  @ParameterizedTest(name = "DELETE row by id for {0}")
+  @MethodSource("writeFormats")
+  void testRestApiDeleteRowById(String format, String reqContentType) {
+    String petName = "testDelById_" + format + System.currentTimeMillis();
+    String insertBody = formatTableBody(format, petName, "dog", 4);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(reqContentType)
+        .body(insertBody)
+        .when()
+        .post("/pet store/api/" + format + "/Pet")
+        .asString();
+
+    String beforeDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(beforeDelete.contains(petName), format + " pet should exist before DELETE");
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .delete("/pet store/api/" + format + "/Pet/" + petName)
+        .then()
+        .statusCode(200);
+
+    String afterDelete =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertFalse(afterDelete.contains(petName), format + " pet should not exist after DELETE");
+  }
+
+  @Test
+  void testRestApiPostTableJsonLdWithStateVerification() {
+    String petName = "testLdPet" + System.currentTimeMillis();
+    String body =
+        "{\"data\":{\"Pet\":[{\"name\":\""
+            + petName
+            + "\",\"category\":{\"name\":\"dog\"},\"weight\":1}]}}";
+
+    String postResponse =
+        given()
+            .sessionId(sessionId)
+            .contentType(Constants.ACCEPT_JSONLD)
+            .body(body)
+            .when()
+            .post("/pet store/api/jsonld/Pet")
+            .asString();
+    assertTrue(postResponse.contains("imported"), "jsonld POST failed: " + postResponse);
+
+    String getResponse =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(getResponse.contains(petName), "jsonld GET after POST should contain " + petName);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(ACCEPT_JSON)
+        .body("[{\"name\":\"" + petName + "\"}]")
+        .when()
+        .delete("/pet store/api/json/Pet")
+        .asString();
+  }
+
+  private String formatTableBody(String format, String name, String category, int weight) {
+    if (format.equals("yaml")) {
+      return "- name: " + name + "\n  category:\n    name: " + category + "\n  weight: " + weight;
+    } else if (format.equals("csv")) {
+      return "name,category,weight\n" + name + "," + category + "," + weight;
+    }
+    return "[{\"name\":\""
+        + name
+        + "\",\"category\":{\"name\":\""
+        + category
+        + "\"},\"weight\":"
+        + weight
+        + "}]";
+  }
+
+  private String formatRowBody(String format, String name, String category, int weight) {
+    if (format.equals("yaml")) {
+      return "name: " + name + "\ncategory:\n  name: " + category + "\nweight: " + weight;
+    }
+    return "{\"name\":\""
+        + name
+        + "\",\"category\":{\"name\":\""
+        + category
+        + "\"},\"weight\":"
+        + weight
+        + "}";
+  }
+
+  @Test
+  void testExcelApiPostTableWithStateVerification() throws IOException {
+    String petName = "testExcelPet" + System.currentTimeMillis();
+
+    Path tempFile = Files.createTempFile("pet_test", ".xlsx");
+    try (var workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      var sheet = workbook.createSheet("Pet");
+      var headerRow = sheet.createRow(0);
+      headerRow.createCell(0).setCellValue("name");
+      headerRow.createCell(1).setCellValue("category");
+      headerRow.createCell(2).setCellValue("weight");
+      var dataRow = sheet.createRow(1);
+      dataRow.createCell(0).setCellValue(petName);
+      dataRow.createCell(1).setCellValue("dog");
+      dataRow.createCell(2).setCellValue(5);
+      try (var out = Files.newOutputStream(tempFile)) {
+        workbook.write(out);
+      }
+    }
+
+    given()
+        .sessionId(sessionId)
+        .multiPart(tempFile.toFile())
+        .when()
+        .post("/pet store/api/excel/Pet")
+        .then()
+        .statusCode(200);
+
+    String getResponse =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(getResponse.contains(petName), "excel GET after POST should contain " + petName);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body("[{\"name\":\"" + petName + "\"}]")
+        .when()
+        .delete("/pet store/api/json/Pet")
+        .asString();
+
+    Files.deleteIfExists(tempFile);
+  }
+
+  @Test
+  void testZipApiPostTableWithStateVerification() throws IOException {
+    String petName = "testZipPet" + System.currentTimeMillis();
+
+    Path tempFile = Files.createTempFile("pet_test", ".zip");
+    try (var zos = new java.util.zip.ZipOutputStream(Files.newOutputStream(tempFile))) {
+      zos.putNextEntry(new java.util.zip.ZipEntry("Pet.csv"));
+      String csvContent = "name,category,weight\n" + petName + ",dog,5";
+      zos.write(csvContent.getBytes(StandardCharsets.UTF_8));
+      zos.closeEntry();
+    }
+
+    given()
+        .sessionId(sessionId)
+        .multiPart(tempFile.toFile())
+        .when()
+        .post("/pet store/api/zip/Pet")
+        .then()
+        .statusCode(200);
+
+    String getResponse =
+        given().sessionId(sessionId).when().get("/pet store/api/json/Pet").asString();
+    assertTrue(getResponse.contains(petName), "zip GET after POST should contain " + petName);
+
+    given()
+        .sessionId(sessionId)
+        .contentType(Constants.ACCEPT_JSON)
+        .body("[{\"name\":\"" + petName + "\"}]")
+        .when()
+        .delete("/pet store/api/json/Pet")
+        .asString();
+
+    Files.deleteIfExists(tempFile);
+  }
+
+  @Test
+  void testGraphqlLdEndpoint() {
+    String query = "{\"query\": \"{ Pet { name category { name } } }\"}";
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .contentType(Constants.ACCEPT_JSON)
+            .body(query)
+            .when()
+            .post("/pet store/api/graphql-ld")
+            .then()
+            .statusCode(200)
+            .contentType(containsString(Constants.ACCEPT_JSONLD))
+            .extract()
+            .response();
+
+    String body = response.asString();
+    assertTrue(body.contains("@context"), "Response should contain @context");
+    assertTrue(body.contains("data"), "Response should contain data");
+  }
+
+  @Test
+  void testDataApiContentNegotiation() {
+    Response jsonResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", Constants.ACCEPT_JSON)
+            .when()
+            .get("/pet store/api/data/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonBody = jsonResponse.asString();
+    assertTrue(jsonBody.startsWith("[") || jsonBody.startsWith("{"), "Should be JSON format");
+
+    Response jsonLdResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", Constants.ACCEPT_JSONLD)
+            .when()
+            .get("/pet store/api/data/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonLdBody = jsonLdResponse.asString();
+    assertTrue(jsonLdBody.contains("@context"), "JSON-LD should contain @context");
+
+    Response csvResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", Constants.ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/data/Pet")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String csvBody = csvResponse.asString();
+    assertTrue(csvBody.contains(",") || csvBody.contains("\n"), "Should be CSV format");
+  }
+
+  @Test
+  void testDataApiSystemEndpoints() {
+    Response jsonSchemaResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", Constants.ACCEPT_JSON)
+            .when()
+            .get("/pet store/api/data/_schema")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonSchemaBody = jsonSchemaResponse.asString();
+    assertTrue(
+        jsonSchemaBody.contains("tables") || jsonSchemaBody.contains("schema"),
+        "Schema should contain metadata");
+
+    Response jsonLdDataResponse =
+        given()
+            .sessionId(sessionId)
+            .header("Accept", Constants.ACCEPT_JSONLD)
+            .when()
+            .get("/pet store/api/data/_data")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    String jsonLdDataBody = jsonLdDataResponse.asString();
+    assertTrue(jsonLdDataBody.contains("@context"), "Data endpoint should support JSON-LD");
+  }
+
+  @Nested
+  class MenuBasedRedirects {
+
+    @BeforeAll
+    static void setupUser() {
+      database.setUserPassword("foo", "testtest");
+      setupSession("foo", "testtest");
+    }
+
+    @AfterAll
+    static void cleanSession() {
+      setAdminSession();
+    }
+
+    @Test
+    void givenSchema_whenNoMenu_thenRedirectToTables() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-menu");
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/" + testSchema.getName() + "/tables");
+      database.dropSchema(testSchema.getName());
+    }
+
+    @Test
+    void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "no-match");
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/");
+      database.dropSchema(testSchema.getName());
+    }
+
+    @Test
+    void givenSchema_whenMenuForRole_thenRedirectToFirstItem() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "first-item");
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/" + testSchema.getName() + "/from-menu");
+      database.dropSchema(testSchema.getName());
+    }
+
+    @Test
+    void givenSchemaWithAnonymousUser_whenInsufficientRoleForMenu_thenRedirectToTables() {
+      Schema testSchema = setupSchema(getClass().getSimpleName() + "anonymous");
+      testSchema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+      testSchema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+      given()
+          .redirects()
+          .follow(false)
+          .sessionId(sessionId)
+          .when()
+          .get("/" + testSchema.getName() + "/")
+          .then()
+          .header("Location", "/" + testSchema.getName() + "/tables");
+      database.dropSchema(testSchema.getName());
+    }
+
+    private String menuForRole(String role) {
+      return """
+            [
+              {
+                "label": "Tables",
+                "href": "from-menu",
+                "role": "%s",
+                "key": "y0768",
+                "submenu": []
+              }
+            ]
+            """
+          .formatted(role);
+    }
+
+    private static Schema setupSchema(String testSchemaName) {
+      database.dropCreateSchema(testSchemaName);
+      Schema testSchema = database.getSchema(testSchemaName);
+      testSchema.addMember("foo", Privileges.VIEWER.toString());
+      return testSchema;
+    }
   }
 }

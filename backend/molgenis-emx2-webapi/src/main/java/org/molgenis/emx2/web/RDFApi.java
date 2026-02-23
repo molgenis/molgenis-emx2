@@ -1,8 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.API_JSONLD;
-import static org.molgenis.emx2.Constants.API_RDF;
-import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
 import static org.molgenis.emx2.web.Constants.ACCEPT_YAML;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
@@ -24,9 +21,9 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.PrimaryKey;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfRootService;
 import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.RdfSchemaValidationService;
@@ -69,9 +66,9 @@ public class RDFApi {
   }
 
   private static void defineApiRoutePerPrefix(Javalin app, String prefix) {
-    defineApiRoutes(app, prefix, API_RDF, null);
-    defineApiRoutes(app, prefix, API_TTL, RDFFormat.TURTLE);
-    defineApiRoutes(app, prefix, API_JSONLD, RDFFormat.JSONLD);
+    defineApiRoutes(app, prefix, "/api/rdf", null);
+    defineApiRoutes(app, prefix, "/api/ttl-legacy", RDFFormat.TURTLE);
+    defineApiRoutes(app, prefix, "/api/jsonld-legacy", RDFFormat.JSONLD);
   }
 
   private static void defineApiRoutes(
@@ -298,6 +295,8 @@ public class RDFApi {
   private static RDFFormat setFormat(Context ctx, RDFFormat format) {
     if (format == null) format = selectFormat(ctx);
     ctx.contentType(format.getDefaultMIMEType());
+    ctx.header("Deprecation", "true");
+    ctx.header("Link", "</api/ttl>; rel=\"successor-version\"");
     return format;
   }
 

@@ -19,6 +19,56 @@ You can download a [schema](use_schema.md) in the following formats:
 * YAML
 * CSV
 
+### Schema API endpoints
+
+For programmatic schema access, use these REST endpoints:
+
+**GET (download schema metadata only):**
+```text
+/{schema}/api/csv/_schema
+/{schema}/api/json/_schema
+/{schema}/api/yaml/_schema
+/{schema}/api/excel/_schema
+/{schema}/api/zip/_schema
+```
+
+**POST (merge schema):**
+```text
+/{schema}/api/csv/_schema
+/{schema}/api/json/_schema
+/{schema}/api/yaml/_schema
+/{schema}/api/excel/_schema
+/{schema}/api/zip/_schema
+```
+
+**DELETE (remove schema elements):**
+```text
+/{schema}/api/csv/_schema
+/{schema}/api/json/_schema
+/{schema}/api/yaml/_schema
+/{schema}/api/excel/_schema
+/{schema}/api/zip/_schema
+```
+
+### Complete export endpoints
+
+For complete database exports (schema + all data + members + settings):
+
+**GET/POST:**
+```text
+/{schema}/api/excel/_all
+/{schema}/api/zip/_all
+```
+
+### Data-only endpoints
+
+For exporting all table data without schema metadata:
+
+**GET/POST:**
+```text
+/{schema}/api/excel/_data
+/{schema}/api/zip/_data
+```
 
 Each table provides its own dedicated download links.
 
@@ -35,7 +85,7 @@ When downloading the changelog, you can control pagination using URL query param
 
 #### Example
 ```text
-http://{SERVER_NAME}/{SCHEMA}/api/csv/changelog?limit=200&offset=20
+http://{SERVER_NAME}/{SCHEMA}/api/csv/_changelog?limit=200&offset=20
 ```
 This request returns a CSV file with up to 200 changelog entries, excluding the 20 most recent ones.
 
