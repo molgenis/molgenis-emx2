@@ -42,6 +42,7 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
       status { name }
       worker_id { worker_id }
       output_artifact_id { id name type { name } status { name } }
+      log_artifact_id { id name type { name } status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -67,6 +68,7 @@ export async function fetchJobDetail(jobId) {
       status { name }
       worker_id { worker_id }
       output_artifact_id { id name type { name } status { name } }
+      log_artifact_id { id name type { name } status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -320,6 +322,7 @@ export function artifactFileDownloadUrl(artifactId, filePath) {
 /** Flatten REF/ONTOLOGY objects to plain strings. */
 function normalizeJob(job) {
   const output = job.output_artifact_id;
+  const log = job.log_artifact_id;
   return {
     ...job,
     status: job.status?.name ?? job.status,
@@ -330,6 +333,14 @@ function normalizeJob(job) {
           name: output.name,
           type: output.type?.name ?? output.type,
           status: output.status?.name ?? output.status,
+        }
+      : null,
+    log_artifact_id: log
+      ? {
+          id: log.id,
+          name: log.name,
+          type: log.type?.name ?? log.type,
+          status: log.status?.name ?? log.status,
         }
       : null,
   };

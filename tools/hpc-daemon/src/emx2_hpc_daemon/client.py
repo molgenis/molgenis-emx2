@@ -190,7 +190,7 @@ class HpcClient:
         summary_keys = [
             "id", "status", "processor", "profile", "worker_id",
             "type", "format", "residence", "sha256", "size_bytes",
-            "content_url", "slurm_job_id", "output_artifact_id",
+            "content_url", "slurm_job_id", "output_artifact_id", "log_artifact_id",
             "parameters", "inputs",
             "total_count",
         ]
@@ -257,6 +257,7 @@ class HpcClient:
         detail: str | None = None,
         slurm_job_id: str | None = None,
         output_artifact_id: str | None = None,
+        log_artifact_id: str | None = None,
     ) -> dict:
         """Report a job status transition."""
         body = {
@@ -269,6 +270,8 @@ class HpcClient:
             body["slurm_job_id"] = slurm_job_id
         if output_artifact_id:
             body["output_artifact_id"] = output_artifact_id
+        if log_artifact_id:
+            body["log_artifact_id"] = log_artifact_id
         return self._request("POST", f"/api/hpc/jobs/{job_id}/transition", json=body)
 
     def get_job(self, job_id: str) -> dict:

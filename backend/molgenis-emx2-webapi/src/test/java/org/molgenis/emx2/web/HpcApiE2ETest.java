@@ -93,17 +93,63 @@ class HpcApiE2ETest extends ApiTestBase {
 
   private static Response transitionHelper(
       String jobId, String status, String workerId, String detail) {
-    String body =
-        detail != null
-            ? """
-            {"status": "%s", "worker_id": "%s", "detail": "%s"}
+    return transitionHelper(jobId, status, workerId, detail, null, null);
+  }
+
+  private static Response transitionHelper(
+      String jobId,
+      String status,
+      String workerId,
+      String detail,
+      String outputArtifactId,
+      String logArtifactId) {
+    StringBuilder sb = new StringBuilder("{");
+    sb.append("\"status\": \"%s\", \"worker_id\": \"%s\"".formatted(status, workerId));
+    if (detail != null) sb.append(", \"detail\": \"%s\"".formatted(detail));
+    if (outputArtifactId != null)
+      sb.append(", \"output_artifact_id\": \"%s\"".formatted(outputArtifactId));
+    if (logArtifactId != null) sb.append(", \"log_artifact_id\": \"%s\"".formatted(logArtifactId));
+    sb.append("}");
+    return hpcRequest().body(sb.toString()).when().post("/api/hpc/jobs/{id}/transition", jobId);
+  }
+
+  /** Helper: create a managed artifact, commit it, return its ID. */
+  private static String createCommittedArtifact(String type, String name) {
+    String artifactId =
+        hpcRequest()
+            .body(
+                """
+                {"type": "%s", "residence": "managed", "name": "%s"}
+                """
+                    .formatted(type, name))
+            .when()
+            .post("/api/hpc/artifacts")
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath()
+            .getString("id");
+
+    // Upload a file via JSON metadata to transition CREATED → UPLOADING
+    hpcRequest()
+        .body(
             """
-                .formatted(status, workerId, detail)
-            : """
-            {"status": "%s", "worker_id": "%s"}
-            """
-                .formatted(status, workerId);
-    return hpcRequest().body(body).when().post("/api/hpc/jobs/{id}/transition", jobId);
+            {"path": "test.txt", "sha256": "abc123", "size_bytes": 12, "content_type": "text/plain"}
+            """)
+        .when()
+        .post("/api/hpc/artifacts/{id}/files", artifactId)
+        .then()
+        .statusCode(201);
+
+    // Commit: UPLOADING → COMMITTED (omit sha256 to skip hash verification)
+    hpcRequest()
+        .body("{}")
+        .when()
+        .post("/api/hpc/artifacts/{id}/commit", artifactId)
+        .then()
+        .statusCode(200);
+
+    return artifactId;
   }
 
   @BeforeAll
@@ -141,8 +187,7 @@ class HpcApiE2ETest extends ApiTestBase {
                   "processor": "lifecycle-test",
                   "profile": "gpu-medium",
                   "submit_user": "test-user",
-                  "parameters": {"model": "bge-large", "batch_size": 32},
-                  "inputs": {"dataset": "corpus-01"}
+                  "parameters": {"model": "bge-large", "batch_size": 32}
                 }
                 """)
             .when()
@@ -330,11 +375,12 @@ class HpcApiE2ETest extends ApiTestBase {
         .body("count", equalTo(1))
         .body("items[0].path", equalTo("results/output.csv"));
 
-    // Commit artifact
+    // Commit artifact — sha256 must match the single file's sha256 (tree hash for 1 file = file
+    // hash)
     hpcRequest()
         .body(
             """
-            {"sha256": "overall-hash-abc", "size_bytes": 1024}
+            {"sha256": "abc123def456", "size_bytes": 1024}
             """)
         .when()
         .post("/api/hpc/artifacts/{id}/commit", artifactId)
@@ -433,5 +479,102 @@ class HpcApiE2ETest extends ApiTestBase {
         .body("items.find { it.to_status == 'PENDING' }", notNullValue())
         .body("items.find { it.to_status == 'CLAIMED' }", notNullValue())
         .body("items.find { it.to_status == 'SUBMITTED' }", notNullValue());
+  }
+
+  // ── 11. Log artifact on completed job ──────────────────────────────────
+
+  @Test
+  @Order(110)
+  void completedJobWithLogAndOutputArtifacts() {
+    // Create two committed artifacts: one output, one log
+    String outputArtifactId = createCommittedArtifact("blob", "output-e2e");
+    String logArtifactId = createCommittedArtifact("log", "log-e2e");
+
+    // Verify log artifact was created with type=log
+    hpcRequest()
+        .when()
+        .get("/api/hpc/artifacts/{id}", logArtifactId)
+        .then()
+        .statusCode(200)
+        .body("type", equalTo("log"))
+        .body("name", equalTo("log-e2e"))
+        .body("status", equalTo("COMMITTED"));
+
+    // Create job and advance to STARTED
+    String jobId = createJobHelper("log-artifact-test");
+    claimJobHelper(jobId, WORKER_A).then().statusCode(200);
+    transitionHelper(jobId, "SUBMITTED", WORKER_A).then().statusCode(200);
+    transitionHelper(jobId, "STARTED", WORKER_A).then().statusCode(200);
+
+    // STARTED → COMPLETED with both artifact IDs
+    transitionHelper(jobId, "COMPLETED", WORKER_A, "exit code 0", outputArtifactId, logArtifactId)
+        .then()
+        .statusCode(200)
+        .body("status", equalTo("COMPLETED"))
+        .body("output_artifact_id", equalTo(outputArtifactId))
+        .body("log_artifact_id", equalTo(logArtifactId))
+        .body("output_artifact.id", equalTo(outputArtifactId))
+        .body("output_artifact.type", equalTo("blob"))
+        .body("log_artifact.id", equalTo(logArtifactId))
+        .body("log_artifact.type", equalTo("log"));
+
+    // GET the job — verify both artifacts are persisted
+    hpcRequest()
+        .when()
+        .get("/api/hpc/jobs/{id}", jobId)
+        .then()
+        .statusCode(200)
+        .body("output_artifact_id", equalTo(outputArtifactId))
+        .body("log_artifact_id", equalTo(logArtifactId))
+        .body("output_artifact.name", equalTo("output-e2e"))
+        .body("log_artifact.name", equalTo("log-e2e"));
+  }
+
+  // ── 12. Log artifact on failed job (no output artifact) ─────────────────
+
+  @Test
+  @Order(120)
+  void failedJobWithLogArtifactOnly() {
+    String logArtifactId = createCommittedArtifact("log", "log-fail-e2e");
+
+    String jobId = createJobHelper("log-fail-test");
+    claimJobHelper(jobId, WORKER_A).then().statusCode(200);
+    transitionHelper(jobId, "SUBMITTED", WORKER_A).then().statusCode(200);
+    transitionHelper(jobId, "STARTED", WORKER_A).then().statusCode(200);
+
+    // STARTED → FAILED with only log artifact (no output)
+    transitionHelper(jobId, "FAILED", WORKER_A, "segfault", null, logArtifactId)
+        .then()
+        .statusCode(200)
+        .body("status", equalTo("FAILED"))
+        .body("output_artifact_id", nullValue())
+        .body("log_artifact_id", equalTo(logArtifactId))
+        .body("log_artifact.id", equalTo(logArtifactId))
+        .body("log_artifact.type", equalTo("log"));
+
+    // GET the job — verify persisted correctly
+    hpcRequest()
+        .when()
+        .get("/api/hpc/jobs/{id}", jobId)
+        .then()
+        .statusCode(200)
+        .body("status", equalTo("FAILED"))
+        .body("log_artifact_id", equalTo(logArtifactId))
+        .body("output_artifact_id", nullValue());
+  }
+
+  // ── 13. Job listing includes log_artifact_id ──────────────────────────
+
+  @Test
+  @Order(130)
+  void jobListingIncludesLogArtifactId() {
+    // List COMPLETED jobs — at least one should have a log artifact
+    hpcRequest()
+        .queryParam("status", "COMPLETED")
+        .when()
+        .get("/api/hpc/jobs")
+        .then()
+        .statusCode(200)
+        .body("items", hasSize(greaterThanOrEqualTo(1)));
   }
 }

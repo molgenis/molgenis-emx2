@@ -146,7 +146,8 @@ public class JobService {
       String workerId,
       String detail,
       String slurmJobId,
-      String outputArtifactId) {
+      String outputArtifactId,
+      String logArtifactId) {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
@@ -181,6 +182,9 @@ public class JobService {
           }
           if (outputArtifactId != null) {
             job.set("output_artifact_id", outputArtifactId);
+          }
+          if (logArtifactId != null) {
+            job.set("log_artifact_id", logArtifactId);
           }
 
           // Set timestamp fields based on target status

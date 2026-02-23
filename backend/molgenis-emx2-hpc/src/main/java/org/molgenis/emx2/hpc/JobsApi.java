@@ -236,9 +236,10 @@ public class JobsApi {
 
       String slurmJobId = (String) body.get("slurm_job_id");
       String outputArtifactId = (String) body.get("output_artifact_id");
+      String logArtifactId = (String) body.get("log_artifact_id");
       Row result =
           jobService.transitionJob(
-              jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId);
+              jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId, logArtifactId);
       if (result == null) {
         Row existing = jobService.getJob(jobId);
         if (existing == null) {
@@ -286,7 +287,7 @@ public class JobsApi {
 
     Row result =
         jobService.transitionJob(
-            jobId, HpcJobStatus.CANCELLED, workerId, "Cancelled via API", null, null);
+            jobId, HpcJobStatus.CANCELLED, workerId, "Cancelled via API", null, null, null);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
@@ -436,6 +437,13 @@ public class JobsApi {
       response.put("output_artifact", enrichArtifactRef(outputArtifactId));
     }
     response.put("output_artifact_id", outputArtifactId);
+
+    // Enrich log artifact
+    String logArtifactId = job.getString("log_artifact_id");
+    if (logArtifactId != null) {
+      response.put("log_artifact", enrichArtifactRef(logArtifactId));
+    }
+    response.put("log_artifact_id", logArtifactId);
     response.put("timeout_seconds", job.getInteger("timeout_seconds"));
     response.put("created_at", job.getString("created_at"));
     response.put("claimed_at", job.getString("claimed_at"));

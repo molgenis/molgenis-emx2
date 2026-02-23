@@ -19,36 +19,18 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <dl>
-                <dt>Processor</dt>
-                <dd>{{ job.processor }}</dd>
-                <dt>Profile</dt>
-                <dd>{{ job.profile || "-" }}</dd>
-                <dt>Submitted By</dt>
-                <dd>{{ job.submit_user || "-" }}</dd>
-                <dt>Worker</dt>
-                <dd>{{ job.worker_id || "-" }}</dd>
-                <dt>Slurm Job ID</dt>
-                <dd>{{ job.slurm_job_id || "-" }}</dd>
-              </dl>
-            </div>
-            <div class="col-md-6">
-              <dl>
-                <dt>Created</dt>
-                <dd>{{ formatDate(job.created_at) }}</dd>
-                <dt>Claimed</dt>
-                <dd>{{ formatDate(job.claimed_at) }}</dd>
-                <dt>Submitted</dt>
-                <dd>{{ formatDate(job.submitted_at) }}</dd>
-                <dt>Started</dt>
-                <dd>{{ formatDate(job.started_at) }}</dd>
-                <dt>Completed</dt>
-                <dd>{{ formatDate(job.completed_at) }}</dd>
-              </dl>
-            </div>
-          </div>
+          <dl>
+            <dt>Processor</dt>
+            <dd>{{ job.processor }}</dd>
+            <dt>Profile</dt>
+            <dd>{{ job.profile || "-" }}</dd>
+            <dt>Submitted By</dt>
+            <dd>{{ job.submit_user || "-" }}</dd>
+            <dt>Worker</dt>
+            <dd>{{ job.worker_id || "-" }}</dd>
+            <dt>Slurm Job ID</dt>
+            <dd>{{ job.slurm_job_id || "-" }}</dd>
+          </dl>
 
           <div v-if="job.parameters" class="mb-3">
             <strong>Parameters</strong>
@@ -103,6 +85,29 @@
           </dl>
           <router-link
             :to="`/artifacts/${job.output_artifact_id.id}`"
+            class="btn btn-outline-primary btn-sm"
+          >
+            View Details
+          </router-link>
+        </div>
+      </div>
+
+      <div v-if="job.log_artifact_id" class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Log Artifact</strong>
+          <StatusBadge :status="job.log_artifact_id.status" />
+        </div>
+        <div class="card-body">
+          <dl class="mb-0">
+            <dt>Name</dt>
+            <dd>{{ job.log_artifact_id.name || "-" }}</dd>
+            <dt>Artifact ID</dt>
+            <dd><code>{{ job.log_artifact_id.id?.substring(0, 8) }}</code></dd>
+            <dt>Type</dt>
+            <dd>{{ job.log_artifact_id.type || "-" }}</dd>
+          </dl>
+          <router-link
+            :to="`/artifacts/${job.log_artifact_id.id}`"
             class="btn btn-outline-primary btn-sm"
           >
             View Details

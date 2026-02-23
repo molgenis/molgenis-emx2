@@ -231,6 +231,47 @@ class HpcDaemon:
             logger.exception("Failed to submit job %s", job_id)
             self.client.transition_job(job_id, "FAILED", detail=str(e))
 
+    @staticmethod
+    def _classify_output_files(
+        output_dir: str,
+    ) -> tuple[list[Path], list[Path]]:
+        """Classify files in output_dir into (output_files, log_files).
+
+        Log files: slurm-*.out, slurm-*.err, container-stdout.log,
+                   container-stderr.log, and any other *.log files.
+        Excluded from both: .hpc_progress.json
+        Output files: everything else.
+        """
+        output_path = Path(output_dir)
+        output_files: list[Path] = []
+        log_files: list[Path] = []
+
+        for f in output_path.iterdir():
+            if not f.is_file():
+                continue
+            if f.name == ".hpc_progress.json":
+                continue
+            if (
+                f.name.startswith("slurm-")
+                or f.name.endswith(".log")
+            ):
+                log_files.append(f)
+            else:
+                output_files.append(f)
+
+        return output_files, log_files
+
+    def _resolve_residence(
+        self, processor: str | None, profile: str | None
+    ) -> str:
+        """Resolve artifact residence from profile config, defaulting to 'managed'."""
+        residence = "managed"
+        if processor:
+            resolved = resolve_profile(self.config, processor, profile or "")
+            if resolved:
+                residence = resolved.artifact_residence
+        return residence
+
     def _upload_output_artifacts(
         self,
         job_id: str,
@@ -244,12 +285,7 @@ class HpcDaemon:
         - posix: registers path only (no binary upload), content_url = file:// URI
         - managed: uploads binary content to EMX2 server
         """
-        output_path = Path(output_dir)
-        output_files = [
-            f
-            for f in output_path.iterdir()
-            if f.is_file() and not f.name.startswith("slurm-")
-        ]
+        output_files, _ = self._classify_output_files(output_dir)
 
         if not output_files:
             logger.debug("No output files to upload for job %s", job_id)
@@ -261,12 +297,7 @@ class HpcDaemon:
             [f"{f.name} ({f.stat().st_size}b)" for f in output_files],
         )
 
-        # Resolve residence from the job's profile; fall back to "managed"
-        residence = "managed"
-        if processor:
-            resolved = resolve_profile(self.config, processor, profile or "")
-            if resolved:
-                residence = resolved.artifact_residence
+        residence = self._resolve_residence(processor, profile)
         logger.debug(
             "Artifact residence for job %s (processor=%s, profile=%s): %s",
             job_id,
@@ -284,8 +315,49 @@ class HpcDaemon:
             logger.exception("Failed to upload output artifacts for job %s", job_id)
             return None
 
+    def _upload_log_artifact(
+        self,
+        job_id: str,
+        output_dir: str,
+        processor: str | None = None,
+        profile: str | None = None,
+    ) -> str | None:
+        """Upload log files as a separate log artifact. Returns artifact ID or None."""
+        _, log_files = self._classify_output_files(output_dir)
+
+        if not log_files:
+            logger.debug("No log files to upload for job %s", job_id)
+            return None
+
+        logger.debug(
+            "Log files for job %s: %s",
+            job_id,
+            [f"{f.name} ({f.stat().st_size}b)" for f in log_files],
+        )
+
+        residence = self._resolve_residence(processor, profile)
+
+        try:
+            if residence == "posix":
+                return self._register_posix_artifact(
+                    job_id, output_dir, log_files, artifact_type="log",
+                    name_prefix="log",
+                )
+            else:
+                return self._upload_managed_artifact(
+                    job_id, log_files, artifact_type="log", name_prefix="log",
+                )
+        except Exception:
+            logger.exception("Failed to upload log artifacts for job %s", job_id)
+            return None
+
     def _register_posix_artifact(
-        self, job_id: str, output_dir: str, output_files: list[Path]
+        self,
+        job_id: str,
+        output_dir: str,
+        output_files: list[Path],
+        artifact_type: str = "blob",
+        name_prefix: str = "output",
     ) -> str:
         """Register a posix artifact with file metadata only (no binary upload)."""
         content_url = f"file://{output_dir}"
@@ -296,11 +368,11 @@ class HpcDaemon:
             len(output_files),
         )
         artifact = self.client.create_artifact(
-            artifact_type="blob",
+            artifact_type=artifact_type,
             residence="posix",
             metadata={"job_id": job_id},
             content_url=content_url,
-            name=f"output-{job_id[:8]}",
+            name=f"{name_prefix}-{job_id[:8]}",
         )
         artifact_id = artifact["id"]
         logger.debug(
@@ -310,20 +382,30 @@ class HpcDaemon:
         )
 
         # Commit immediately (REGISTERED → COMMITTED for external artifacts)
-        total_size = sum(f.stat().st_size for f in output_files)
-        hasher = hashlib.sha256()
-        for f in output_files:
-            hasher.update(f.read_bytes())
+        # Tree hash: single file = file sha256; multi-file = SHA-256 of
+        # concatenated "path:sha256" strings sorted by path (matches Java)
+        file_hashes = []
+        total_size = 0
+        for f in sorted(output_files, key=lambda p: p.name):
+            content = f.read_bytes()
+            file_hashes.append((f.name, hashlib.sha256(content).hexdigest()))
+            total_size += len(content)
+
+        if len(file_hashes) == 1:
+            tree_hash = file_hashes[0][1]
+        else:
+            tree_str = "".join(f"{p}:{h}" for p, h in file_hashes)
+            tree_hash = hashlib.sha256(tree_str.encode()).hexdigest()
 
         commit_result = self.client.commit_artifact(
             artifact_id,
-            sha256=hasher.hexdigest(),
+            sha256=tree_hash,
             size_bytes=total_size,
         )
         logger.debug(
             "Committed posix artifact %s: sha256=%s, size=%d, _links: %s",
             artifact_id,
-            hasher.hexdigest(),
+            tree_hash,
             total_size,
             format_links(commit_result.get("_links", {})),
         )
@@ -337,7 +419,11 @@ class HpcDaemon:
         return artifact_id
 
     def _upload_managed_artifact(
-        self, job_id: str, output_files: list[Path]
+        self,
+        job_id: str,
+        output_files: list[Path],
+        artifact_type: str = "blob",
+        name_prefix: str = "output",
     ) -> str:
         """Upload output files as a managed artifact with binary content."""
         logger.debug(
@@ -346,10 +432,10 @@ class HpcDaemon:
             len(output_files),
         )
         artifact = self.client.create_artifact(
-            artifact_type="blob",
+            artifact_type=artifact_type,
             residence="managed",
             metadata={"job_id": job_id},
-            name=f"output-{job_id[:8]}",
+            name=f"{name_prefix}-{job_id[:8]}",
         )
         artifact_id = artifact["id"]
         logger.debug(
@@ -359,10 +445,11 @@ class HpcDaemon:
         )
 
         total_size = 0
-        hasher = hashlib.sha256()
-        for f in output_files:
+        file_hashes: list[tuple[str, str]] = []  # (path, sha256hex)
+        for f in sorted(output_files, key=lambda p: p.name):
             content = f.read_bytes()
-            hasher.update(content)
+            file_hash = hashlib.sha256(content).hexdigest()
+            file_hashes.append((f.name, file_hash))
             total_size += len(content)
             logger.debug(
                 "Uploading file %s (%d bytes) to artifact %s",
@@ -376,15 +463,23 @@ class HpcDaemon:
                 file_content=content,
             )
 
+        # Tree hash: single file = file sha256; multi-file = SHA-256 of
+        # concatenated "path:sha256" strings sorted by path (matches Java)
+        if len(file_hashes) == 1:
+            tree_hash = file_hashes[0][1]
+        else:
+            tree_str = "".join(f"{p}:{h}" for p, h in file_hashes)
+            tree_hash = hashlib.sha256(tree_str.encode()).hexdigest()
+
         commit_result = self.client.commit_artifact(
             artifact_id,
-            sha256=hasher.hexdigest(),
+            sha256=tree_hash,
             size_bytes=total_size,
         )
         logger.debug(
             "Committed managed artifact %s: sha256=%s, size=%d, _links: %s",
             artifact_id,
-            hasher.hexdigest(),
+            tree_hash,
             total_size,
             format_links(commit_result.get("_links", {})),
         )
@@ -568,23 +663,37 @@ class HpcDaemon:
             try:
                 detail = f"Slurm state: {new_status}"
                 output_artifact_id = None
+                log_artifact_id = None
 
-                # On successful completion, upload output artifacts
-                if new_status == "COMPLETED" and tracked.output_dir:
-                    output_artifact_id = self._upload_output_artifacts(
+                # On completion or failure, upload artifacts
+                if new_status in ("COMPLETED", "FAILED") and tracked.output_dir:
+                    # Upload log artifact (useful on both success and failure)
+                    log_artifact_id = self._upload_log_artifact(
                         tracked.emx2_job_id,
                         tracked.output_dir,
                         processor=tracked.processor,
                         profile=tracked.profile,
                     )
-                    if output_artifact_id:
-                        detail += f"; output artifact: {output_artifact_id}"
+                    if log_artifact_id:
+                        detail += f"; log artifact: {log_artifact_id}"
+
+                    # Upload output artifacts (primarily on success)
+                    if new_status == "COMPLETED":
+                        output_artifact_id = self._upload_output_artifacts(
+                            tracked.emx2_job_id,
+                            tracked.output_dir,
+                            processor=tracked.processor,
+                            profile=tracked.profile,
+                        )
+                        if output_artifact_id:
+                            detail += f"; output artifact: {output_artifact_id}"
 
                 self.client.transition_job(
                     tracked.emx2_job_id,
                     new_status,
                     detail=detail,
                     output_artifact_id=output_artifact_id,
+                    log_artifact_id=log_artifact_id,
                 )
                 tracked.status = new_status
                 logger.info(
