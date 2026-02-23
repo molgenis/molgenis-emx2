@@ -187,7 +187,8 @@ Analytics can be enabled by setting the following environment variables:
 
 `NUXT_PUBLIC_ANALYTICS_PROVIDER`: The analytics provider. Either `siteimprove` for [Siteimprove](https://www.siteimprove.com/)
 or `google-analytics` for [Google Analytics](https://marketingplatform.google.com/about/analytics/).
-Defaults to `siteimprove`.
+
+`NUXT_PUBLIC_ANALYTICS_DOMAIN`: optional analytics domain as used by some providers.
 
 ## Data model changelog
 
