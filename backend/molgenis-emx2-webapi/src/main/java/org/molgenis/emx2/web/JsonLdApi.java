@@ -26,15 +26,15 @@ public class JsonLdApi {
   private JsonLdApi() {}
 
   public static void create(Javalin app) {
+    String jsonldApi = "/{schema}/api/jsonld-rest/";
+    app.get(jsonldApi + "_schema", JsonLdApi::getSchema);
+    app.get(jsonldApi + "_context", JsonLdApi::getSchema);
     for (String format : List.of("jsonld", "ttl")) {
       String api = "/{schema}/api/" + format + "-rest/";
       app.get(api + "_all", ctx -> getAll(ctx, format));
       app.get(api + "{table}", ctx -> getTable(ctx, format));
       app.get(api + "{table}/*", ctx -> getRow(ctx, format));
     }
-    String jsonldApi = "/{schema}/api/jsonld-rest/";
-    app.get(jsonldApi + "_schema", JsonLdApi::getSchema);
-    app.get(jsonldApi + "_context", JsonLdApi::getSchema);
     app.post(jsonldApi + "{table}", ctx -> postTable(ctx, "jsonld"));
     app.delete(jsonldApi + "{table}", ctx -> deleteTable(ctx, "jsonld"));
     app.put(jsonldApi + "{table}/*", ctx -> putRow(ctx, "jsonld"));
