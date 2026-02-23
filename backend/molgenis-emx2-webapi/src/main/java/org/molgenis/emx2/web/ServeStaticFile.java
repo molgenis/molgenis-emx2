@@ -1,5 +1,7 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.ColumnType.STRING;
+
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
 import java.io.File;
@@ -9,16 +11,22 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class ServeStaticFile {
 
-  private static final String CUSTOM_APP_FOLDER = "/custom-app/";
+  private static final String CUSTOM_APP_FOLDER = "custom-app/";
+
+  public static final String CUSTOM_APP_PATH =
+      (String) EnvironmentProperty.getParameter(Constants.CUSTOM_APP_PATH, "", STRING);
 
   private static Path getJarDirectory() {
-    Path jarPath = null;
+
     try {
-      jarPath =
+      Path jarPath =
           Paths.get(
               ServeStaticFile.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
@@ -56,11 +64,14 @@ public class ServeStaticFile {
 
   /* When only ctx is given, serve external file */
   public static void serve(Context ctx) {
-    /* Do some sanitization, just in case someone can slip a path traversal into the mix */
+    /* Do some sanitization, just in case someone can slip a path traversal into the mix
+     * normalize means: resolve all the ./ .. etc to its full path */
     Path staticRoot =
-        Paths.get(getJarDirectory() + CUSTOM_APP_FOLDER)
+        Paths.get(
+                Objects.requireNonNullElseGet(
+                    CUSTOM_APP_PATH, () -> getJarDirectory() + "/" + CUSTOM_APP_FOLDER))
             .toAbsolutePath()
-            .normalize(); /* normalize means: resolve all the ./ .. etc to its full path */
+            .normalize();
     Path requestedPath = staticRoot.resolve(ctx.path().replace("/ext/", "")).normalize();
 
     if (!requestedPath.startsWith(staticRoot)) {

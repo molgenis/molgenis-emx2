@@ -43,6 +43,18 @@ extension is given. This also makes it work with SPA.
 
 **N.B.** It is important that all your links in the html are relative, e.g. ```<link rel="stylesheet" href="assets/my-theme.css">``` and that the relative base is the name of the folder of the app e.g. ```<base href="my-app/">```
 
+### Customizing the folder
+
+You can also use an environment variable to point to the folder. It has to be the complete path like:
+
+```CUSTOM_APP_PATH=c:/path/to/app```
+
+Or you can start the jar with the following command
+```
+java -DCUSTOM_APP_PATH=c:/path/to/app -jar molgenis-emx2-<version>-SNAPSHOT-all.jar
+```
+
+
 ## Each schema has settings endpoint
 
 To ease creation of user settings, each schema has _settings endpoint in grahpq that can be edited by users with the manager
