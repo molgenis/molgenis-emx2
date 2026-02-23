@@ -45,7 +45,7 @@ ENV NUXT_PUBLIC_COHORT_ONLY=$NUXT_PUBLIC_COHORT_ONLY
 # Optional analytics key
 ENV NUXT_PUBLIC_ANALYTICS_KEY=$NUXT_PUBLIC_ANALYTICS_KEY
 
-# Optional name of analytics provider (for example: "google-analytics" defaults to "siteimprove")
+# Optional name of analytics provider (for example: "google-analytics" or "siteimprove")
 ENV NUXT_PUBLIC_ANALYTICS_PROVIDER=$NUXT_PUBLIC_ANALYTICS_PROVIDER
 
 # Optional domain for analytics provider
