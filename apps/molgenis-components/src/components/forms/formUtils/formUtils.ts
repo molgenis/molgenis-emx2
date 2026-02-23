@@ -448,6 +448,7 @@ export function buildGraphqlFilter(
           filter[col.id] = { like: conditions };
         } else if (
           col.columnType.startsWith("BOOL") ||
+          col.columnType.startsWith("CHECKBOX") ||
           col.columnType.startsWith("REF") ||
           col.columnType.startsWith("ONTOLOGY") ||
           col.columnType.startsWith("RADIO") ||
