@@ -194,7 +194,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
       offset: ${offset},
       orderby: { created_at: DESC }
     ) {
-      id name type
+      id name type { name }
       residence { name }
       status { name }
       sha256 size_bytes content_url metadata
@@ -217,7 +217,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
 export async function fetchArtifactDetail(artifactId) {
   const query = `{
     HpcArtifacts(filter: { id: { equals: "${artifactId}" } }) {
-      id name type
+      id name type { name }
       residence { name }
       status { name }
       sha256 size_bytes content_url metadata
@@ -339,6 +339,7 @@ function normalizeJob(job) {
 function normalizeArtifact(artifact) {
   return {
     ...artifact,
+    type: artifact.type?.name ?? artifact.type,
     residence: artifact.residence?.name ?? artifact.residence,
     status: artifact.status?.name ?? artifact.status,
   };
