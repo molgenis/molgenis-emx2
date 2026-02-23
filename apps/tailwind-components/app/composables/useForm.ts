@@ -1,10 +1,8 @@
 import {
   computed,
   isRef,
-  readonly,
   ref,
   unref,
-  useId,
   watch,
   type ComputedRef,
   type MaybeRef,
@@ -40,6 +38,14 @@ export default function useForm(
   const formValues = ref(unref(formValuesRef));
 
   const scrollContainerId = ref("");
+
+  function getScrollContainerId() {
+    return scrollContainerId;
+  }
+
+  function setScrollContainerId(id: string) {
+    scrollContainerId.value = id;
+  }
 
   if (isRef(formValuesRef)) {
     watch(formValuesRef, (val) => (formValues.value = val), {
@@ -629,7 +635,8 @@ export default function useForm(
     resetRowKey,
     rowKey,
     showLegend,
-    scrollContainerId,
+    getScrollContainerId,
+    setScrollContainerId,
     metadata: metadata,
   };
 }
@@ -637,7 +644,8 @@ export default function useForm(
 export interface UseForm {
   values: ComputedRef<IRow>;
   rowKey: Ref<Record<string, columnValue>>;
-  scrollContainerId: Ref<string>;
+  getScrollContainerId: () => Ref<string>;
+  setScrollContainerId: (id: string) => void;
   metadata: Ref<ITableMetaData>;
 
   /* ───────────── triggers (re)fetch on demand ───────────── */

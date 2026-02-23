@@ -18,11 +18,10 @@ if (!props.initializeAsInsert) {
 }
 
 // make sure unique scroll container id is generated and shared via useFrom
-props.form.scrollContainerId.value = useId();
-const scrollContainerId = props.form.scrollContainerId.value;
+props.form.setScrollContainerId(useId());
 </script>
 <template>
-  <div :id="scrollContainerId" class="overflow-y-auto p-12.5">
+  <div :id="form.getScrollContainerId().value" class="overflow-y-auto p-12.5">
     <FormFields :form="form" :constantValues="constantValues" />
   </div>
 </template>

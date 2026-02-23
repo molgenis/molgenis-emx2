@@ -15,7 +15,8 @@ describe("Form.vue", () => {
     return {
       resetRowKey: vi.fn().mockResolvedValue(undefined),
       visibleColumns: vi.fn().mockResolvedValue([]),
-      scrollContainerId: { value: "mocked-id" },
+      getScrollContainerId: vi.fn().mockReturnValue("mocked-id"),
+      setScrollContainerId: vi.fn(),
       metadata: { value: { schemaId: "mocked-schema", id: "mocked-id" } },
     };
   }

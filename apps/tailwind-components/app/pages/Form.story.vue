@@ -81,7 +81,6 @@ async function fetchRows() {
   }
 }
 
-// trigger on page load
 await fetchRows();
 let form = useForm(metadata, formValues);
 
