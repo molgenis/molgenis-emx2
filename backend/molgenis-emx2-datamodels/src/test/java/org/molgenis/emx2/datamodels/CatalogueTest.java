@@ -105,6 +105,7 @@ public class CatalogueTest extends TestLoaders {
 
     Map allData = graphqlExecutor.queryAsMap(graphqlExecutor.getSelectAllQuery(), Map.of());
     String ttl = convertToTurtle(context, allData);
-    assertTrue(ttl.contains("resource=testCohort1"), "TTL should contain composite key identifiers");
+    assertTrue(
+        ttl.contains("resource=testCohort1"), "TTL should contain composite key identifiers");
   }
 }
