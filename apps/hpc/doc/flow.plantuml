@@ -1,0 +1,137 @@
+@startuml
+title EMX2 ↔ HPC Job Orchestration
+
+skinparam defaultFontSize 13
+skinparam defaultFontColor #111111
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam titleFontSize 18
+skinparam titleFontColor #111111
+
+' ── Global node styles ──
+skinparam node {
+  FontSize 14
+  FontColor #111111
+  FontStyle bold
+  BorderColor #7A8B99
+  BackgroundColor #E8EDF2
+  RoundCorner 10
+}
+
+skinparam component {
+  FontSize 12
+  FontColor #111111
+  BorderColor #8899AA
+  BackgroundColor #F0F4F8
+  RoundCorner 6
+}
+
+skinparam database {
+  FontSize 11
+  FontColor #111111
+  BorderColor #8899AA
+  BackgroundColor #F0F4F8
+}
+
+skinparam cloud {
+  FontSize 14
+  FontColor #111111
+  FontStyle bold
+  BorderColor #7A8B99
+  BackgroundColor #E8EDF2
+}
+
+skinparam arrow {
+  Color #333333
+  FontSize 11
+  FontColor #555555
+  Thickness 1.5
+}
+
+skinparam note {
+  FontSize 10
+  FontColor #444444
+  BorderColor #BBBBBB
+  BackgroundColor #F9F9F3
+}
+
+' =========================
+' HPC Environment (LEFT)
+' =========================
+node "HPC Environment\n(outbound-only)" as HPC #EDE8DC {
+
+  component "Head Node Controller\n(polls, claims, submits)" as Controller #F5F0E5
+  component "Processor Registry\n(capabilities → execution)" as Registry #F5F0E5
+  component "Slurm Controller\n(sbatch → slurmctld)" as Slurm #F5F0E5
+
+  node "Compute Nodes" as Compute #E5DFD0 {
+    component "Apptainer Runtime\n(workload runner)" as Runtime #F5F0E5
+  }
+
+  database "NFS\n(SIF images, POSIX artifacts)" as NFS #F5F0E5
+
+  Controller --> Registry : resolve processor\n+ profile
+  Controller --> Slurm : sbatch\n(SIF image + slurm params)
+  Slurm --> Compute : schedule
+  Compute --> Runtime : run container
+  Runtime <--> NFS : read/write\nPOSIX artifacts
+}
+
+' =========================
+' EMX2 Application Domain (RIGHT)
+' =========================
+cloud "Application Domain" as EMX2 #E8EDF2 {
+
+  component "Workers API\n(POST /workers/register)" as WorkersAPI #F0F4F8
+  component "Jobs API\n(GET /jobs, POST /claim,\nPOST /transitions)" as JobsAPI #F0F4F8
+  component "Artifact API\n(metadata + content)" as ArtifactAPI #F0F4F8
+  database "Artifact Repository\n(managed storage)" as ArtifactStore #F0F4F8
+}
+
+' =========================
+' Outbound-only interactions
+' =========================
+Controller --> WorkersAPI : register capabilities
+Controller --> JobsAPI : poll + claim
+Controller --> JobsAPI : transition: SUBMITTED\n(+ slurm_job_id)
+
+Runtime --> JobsAPI : transition: STARTED
+Runtime --> JobsAPI : transition: COMPLETED / FAILED\n(+ output & log URIs)
+
+Runtime --> ArtifactAPI : download managed inputs
+Runtime --> ArtifactAPI : upload outputs + logs,\ncommit artifacts
+
+' =========================
+' Notes
+' =========================
+note right of HPC
+  Outbound-only network.
+  No inbound connections.
+  All arrows cross the
+  boundary from HPC → EMX2.
+end note
+
+note right of Registry
+  Maps processor + profile to:
+  - Apptainer SIF image (on NFS)
+  - Slurm partition, GPUs, mem, time
+end note
+
+note right of ArtifactStore
+  Artifacts are typed,
+  content-addressed (SHA-256),
+  and immutable after commit.
+  Residences: managed, posix,
+  s3, http, reference.
+end note
+
+note right of JobsAPI
+  State transitions are
+  sub-resources of jobs.
+  Responses include _links
+  (HATEOAS). Transitions
+  are idempotent.
+end note
+
+@enduml

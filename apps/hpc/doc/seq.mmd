@@ -1,0 +1,69 @@
+sequenceDiagram
+
+    participant Controller as Head Node Controller
+    participant Workers as Workers API
+    participant Jobs as Jobs API
+    participant Slurm as Slurm Controller
+    participant Runtime as Apptainer Runtime
+    participant Artifact as Artifact API
+    participant SharedFS as Shared Filesystem
+    participant DB as System Database
+
+    Note over Controller,DB: Phase 1: Registration & Job Acquisition
+
+    Controller->>Workers: POST /workers/register (signed, X-Trace-Id)
+    Workers->>DB: persist worker + capabilities
+    Workers-->>Controller: 200 OK
+
+    Controller->>Jobs: GET /jobs?status=pending&worker_id=HPC01 (signed)
+    Jobs-->>Controller: [{job_id, processor, profile, inputs[], _links: {claim}}]
+
+    Controller->>Jobs: POST /jobs/{job_id}/claim (signed)
+    Jobs->>DB: atomically mark CLAIMED
+    Jobs-->>Controller: {job, _links: {submit, cancel}}
+
+    Note over Controller,DB: Phase 2: Slurm Submission
+
+    Controller->>Slurm: sbatch (mapped image + params)
+    Slurm-->>Controller: slurm_job_id
+
+    Controller->>Jobs: POST /jobs/{job_id}/transitions {SUBMITTED, slurm_job_id}
+    Jobs->>DB: persist transition + update status
+    Jobs-->>Controller: 201 Created {transition, job: {_links: {start, cancel}}}
+
+    Note over Controller,DB: Phase 3: Execution
+
+    Slurm->>Runtime: dispatch to compute node
+    Runtime->>Jobs: POST /jobs/{job_id}/transitions {STARTED}
+    Jobs->>DB: persist transition + update status
+    Jobs-->>Runtime: 201 Created {transition, job: {_links: {complete, fail, cancel}}}
+
+    Runtime->>Artifact: GET /artifacts/{id} (metadata)
+    Artifact-->>Runtime: {residence, state: COMMITTED, sha256, content_url}
+
+    alt residence = posix
+        Runtime->>SharedFS: read from file:// path
+    else residence = managed | s3 | http
+        Runtime->>Artifact: GET /artifacts/{id}/content
+    end
+
+    Runtime->>Runtime: verify sha256
+
+    alt Hash mismatch
+        Runtime->>Jobs: POST /jobs/{job_id}/transitions {FAILED, reason: input_hash_mismatch}
+        Jobs->>DB: persist transition + update status
+    else Hash valid
+        Runtime->>Runtime: execute workload
+    end
+
+    Note over Controller,DB: Phase 4: Output & Completion
+
+    Runtime->>Artifact: POST /artifacts {type, format, residence}
+    Artifact-->>Runtime: {artifact_url}
+
+    Runtime->>Artifact: PUT /artifacts/{id}/files/{path}
+    Runtime->>Artifact: POST /artifacts/{id}/complete
+
+    Runtime->>Jobs: POST /jobs/{job_id}/transitions {COMPLETED, outputs[], logs[]}
+    Jobs->>DB: persist transition + update status
+    Jobs-->>Runtime: 201 Created {transition, job: {_links: {self, transitions}}}

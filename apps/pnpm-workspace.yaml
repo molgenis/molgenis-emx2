@@ -3,6 +3,7 @@ packages:
   - molgenis-components
   - emx2-analytics
   - helloworld
+  - hpc
   - settings
   - central
   - schema

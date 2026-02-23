@@ -1,0 +1,12 @@
+{
+  "theme": "neutral",
+  "backgroundColor": "white",
+  "flowchart": { "htmlLabels": false },
+  "sequence": { "useMaxWidth": true },
+  "themeVariables": {
+    "fontFamily": "IBM Plex Sans, Arial, sans-serif",
+    "fontSize": "14px",
+    "primaryTextColor": "#111111",
+    "lineColor": "#333333"
+  }
+}
