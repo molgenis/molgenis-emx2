@@ -6,7 +6,17 @@
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <strong>{{ artifact.name || "Artifact" }}</strong>
-          <StatusBadge :status="artifact.status" />
+          <div class="d-flex align-items-center gap-2">
+            <StatusBadge :status="artifact.status" />
+            <button
+              class="btn btn-outline-danger btn-sm"
+              title="Delete artifact"
+              :disabled="deleting"
+              @click="onDelete"
+            >
+              &#x1f5d1; Delete
+            </button>
+          </div>
         </div>
         <div class="card-body">
           <div class="row">
@@ -66,14 +76,13 @@
                 <td>{{ formatSize(f.size_bytes) }}</td>
                 <td>{{ f.content_type || "-" }}</td>
                 <td>
-                  <a
+                  <button
                     v-if="artifact.residence === 'managed' && artifact.status === 'COMMITTED'"
-                    :href="downloadUrl(f.path)"
                     class="btn btn-outline-primary btn-sm"
-                    target="_blank"
+                    @click="onDownload(f.path)"
                   >
                     Download
-                  </a>
+                  </button>
                   <span v-else-if="artifact.residence === 'posix'" class="text-muted small">
                     {{ artifact.content_url }}/{{ f.path }}
                   </span>
@@ -93,7 +102,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchArtifactDetail, artifactFileDownloadUrl } from "../composables/useHpcApi.js";
+import { useRouter } from "vue-router";
+import { fetchArtifactDetail, downloadArtifactFile, deleteArtifact } from "../composables/useHpcApi.js";
 import { formatDate } from "../utils/jobs.js";
 import StatusBadge from "../components/StatusBadge.vue";
 
@@ -101,10 +111,12 @@ const props = defineProps({
   id: { type: String, required: true },
 });
 
+const router = useRouter();
 const artifact = ref(null);
 const files = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const deleting = ref(false);
 
 function formatSize(bytes) {
   if (bytes == null) return "-";
@@ -126,8 +138,25 @@ function formatJson(val) {
   return JSON.stringify(val, null, 2);
 }
 
-function downloadUrl(filePath) {
-  return artifactFileDownloadUrl(props.id, filePath);
+async function onDownload(filePath) {
+  try {
+    await downloadArtifactFile(props.id, filePath);
+  } catch (e) {
+    error.value = e.message;
+  }
+}
+
+async function onDelete() {
+  if (!confirm(`Delete artifact ${props.id}?`)) return;
+  deleting.value = true;
+  try {
+    await deleteArtifact(props.id);
+    router.push("/artifacts");
+  } catch (e) {
+    error.value = e.message;
+  } finally {
+    deleting.value = false;
+  }
 }
 
 onMounted(async () => {

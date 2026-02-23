@@ -131,6 +131,7 @@ public class HpcApi {
     // Artifact endpoints
     app.post("/api/hpc/artifacts", artifactsApi::createArtifact);
     app.get("/api/hpc/artifacts/{id}", artifactsApi::getArtifact);
+    app.delete("/api/hpc/artifacts/{id}", artifactsApi::deleteArtifact);
     app.post("/api/hpc/artifacts/{id}/files", artifactsApi::uploadFile);
     app.get("/api/hpc/artifacts/{id}/files", artifactsApi::listFiles);
     app.put("/api/hpc/artifacts/{id}/files/{path}", artifactsApi::uploadFileByPath);

@@ -315,8 +315,38 @@ export async function commitArtifact(artifactId, { sha256, size_bytes } = {}) {
  * @param {string} filePath
  * @returns {string}
  */
+export async function deleteArtifact(artifactId) {
+  const resp = await fetch(`${REST_BASE}/artifacts/${artifactId}`, {
+    method: "DELETE",
+    headers: hpcHeaders(),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `HTTP ${resp.status}`);
+  }
+}
+
 export function artifactFileDownloadUrl(artifactId, filePath) {
   return `${REST_BASE}/artifacts/${artifactId}/files/${filePath}`;
+}
+
+/**
+ * Download an artifact file using fetch (includes required protocol headers).
+ * Triggers a browser file-save dialog.
+ */
+export async function downloadArtifactFile(artifactId, filePath) {
+  const url = artifactFileDownloadUrl(artifactId, filePath);
+  const resp = await fetch(url, { headers: hpcHeaders() });
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Download failed: ${resp.status} ${text}`);
+  }
+  const blob = await resp.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filePath.split("/").pop() || filePath;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 /** Flatten REF/ONTOLOGY objects to plain strings. */

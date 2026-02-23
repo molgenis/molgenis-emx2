@@ -262,6 +262,45 @@ public class ArtifactService {
         });
   }
 
+  /**
+   * Deletes an artifact, its files, and nullifies any job references to it. Returns the artifact
+   * row if deleted, null if not found.
+   */
+  public Row deleteArtifact(String artifactId) {
+    return tx.txResult(
+        db -> {
+          Schema schema = db.getSchema(systemSchemaName);
+          Table artifactsTable = schema.getTable("HpcArtifacts");
+
+          List<Row> rows = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
+          if (rows.isEmpty()) {
+            return null;
+          }
+          Row artifact = rows.getFirst();
+
+          // Delete files first (FK dependency)
+          Table filesTable = schema.getTable("HpcArtifactFiles");
+          List<Row> files = filesTable.where(f("artifact_id", EQUALS, artifactId)).retrieveRows();
+          for (Row file : files) {
+            filesTable.delete(file);
+          }
+
+          // Nullify job references (output_artifact_id, log_artifact_id)
+          Table jobsTable = schema.getTable("HpcJobs");
+          for (String refColumn : List.of("output_artifact_id", "log_artifact_id")) {
+            List<Row> jobs = jobsTable.where(f(refColumn, EQUALS, artifactId)).retrieveRows();
+            for (Row job : jobs) {
+              job.set(refColumn, (String) null);
+              jobsTable.update(job);
+            }
+          }
+
+          artifactsTable.delete(artifact);
+          logger.info("Artifact deleted: id={} files={}", artifactId, files.size());
+          return artifact;
+        });
+  }
+
   /** Gets an artifact by ID. */
   public Row getArtifact(String artifactId) {
     return tx.txResult(

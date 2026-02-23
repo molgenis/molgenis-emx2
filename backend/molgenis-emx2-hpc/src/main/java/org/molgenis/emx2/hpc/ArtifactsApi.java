@@ -76,6 +76,34 @@ public class ArtifactsApi {
     }
   }
 
+  /** DELETE /api/hpc/artifacts/{id} — delete an artifact and its files. */
+  public void deleteArtifact(Context ctx) {
+    String artifactId = ctx.pathParam("id");
+    try {
+      InputValidator.requireUuid(artifactId, "id");
+    } catch (IllegalArgumentException e) {
+      ProblemDetail.send(
+          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      return;
+    }
+    try {
+      Row deleted = artifactService.deleteArtifact(artifactId);
+      if (deleted == null) {
+        ProblemDetail.send(
+            ctx,
+            404,
+            "Not Found",
+            "Artifact " + artifactId + " not found",
+            ctx.header(HpcHeaders.REQUEST_ID));
+        return;
+      }
+      ctx.status(204);
+    } catch (Exception e) {
+      ProblemDetail.send(
+          ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+    }
+  }
+
   /** GET /api/hpc/artifacts/{id} — get artifact with HATEOAS links. */
   public void getArtifact(Context ctx) {
     String artifactId = ctx.pathParam("id");
