@@ -6,15 +6,16 @@
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <strong>{{ artifact.name || "Artifact" }}</strong>
-          <div class="d-flex align-items-center gap-2">
+          <div class="hpc-actions-tight">
             <StatusBadge :status="artifact.status" />
             <button
-              class="btn btn-outline-danger btn-sm"
+              class="btn btn-outline-danger btn-sm hpc-icon-btn hpc-icon-btn-label"
               title="Delete artifact"
               :disabled="deleting"
               @click="onDelete"
             >
-              &#x1f5d1; Delete
+              <HpcIconTrash />
+              <span>Delete</span>
             </button>
           </div>
         </div>
@@ -104,6 +105,7 @@ import { useRouter } from "vue-router";
 import { fetchArtifactDetail, downloadArtifactFile, deleteArtifact } from "../composables/useHpcApi.js";
 import { formatDate } from "../utils/jobs.js";
 import StatusBadge from "../components/StatusBadge.vue";
+import HpcIconTrash from "../components/HpcIconTrash.vue";
 
 const props = defineProps({
   id: { type: String, required: true },

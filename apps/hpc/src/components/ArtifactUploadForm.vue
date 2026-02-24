@@ -1,65 +1,103 @@
 <template>
-  <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <strong>Upload New Artifact</strong>
+  <section class="hpc-form-shell mb-3">
+    <div class="hpc-form-header">
+      <div>
+        <p class="hpc-form-title">Upload New Artifact</p>
+        <p class="hpc-form-subtitle">
+          Create metadata, upload one or more files, then commit the artifact.
+        </p>
+      </div>
       <button class="btn btn-sm btn-outline-secondary" @click="$emit('close')">Cancel</button>
     </div>
-    <div class="card-body">
-      <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
-      <!-- Step 1: Metadata -->
-      <div v-if="step === 'metadata'">
-        <div class="mb-2">
-          <label class="form-label">Name *</label>
-          <input v-model="form.name" class="form-control form-control-sm" placeholder="e.g. my-dataset-v1" />
+    <div v-if="error" class="alert alert-danger mb-3">{{ error }}</div>
+
+    <div v-if="step === 'metadata'" class="hpc-form-stack">
+      <section class="hpc-form-section">
+        <div class="hpc-form-section-head">
+          <p class="hpc-form-section-title">Basics</p>
+          <p class="hpc-form-section-subtitle">Name is required; type is optional but useful for filtering.</p>
         </div>
-        <div class="mb-2">
-          <label class="form-label">Type</label>
-          <input v-model="form.type" class="form-control form-control-sm" placeholder="e.g. csv, parquet, model, dataset" />
+        <div class="hpc-form-grid hpc-form-grid-2">
+          <div class="hpc-form-field">
+            <label class="form-label">Name *</label>
+            <input
+              v-model="form.name"
+              class="form-control form-control-sm"
+              placeholder="e.g. my-dataset-v1"
+            />
+          </div>
+          <div class="hpc-form-field">
+            <label class="form-label">Type</label>
+            <input
+              v-model="form.type"
+              class="form-control form-control-sm"
+              placeholder="e.g. csv, parquet, log, model"
+            />
+          </div>
         </div>
-        <div class="mb-3">
+      </section>
+
+      <section class="hpc-form-section">
+        <div class="hpc-form-section-head">
+          <p class="hpc-form-section-title">Files</p>
+          <p class="hpc-form-section-subtitle">
+            Select one or more files. They upload first, then the artifact is committed with a combined hash.
+          </p>
+        </div>
+        <div class="hpc-form-field">
           <label class="form-label">Files *</label>
           <input type="file" class="form-control form-control-sm" multiple @change="onFilesSelected" />
-          <small v-if="selectedFiles.length" class="text-muted">
-            {{ selectedFiles.length }} file(s) selected
+          <small class="hpc-field-help">
+            Multi-file uploads are supported. Large files may take longer while the hash is computed before commit.
           </small>
         </div>
+        <ul v-if="selectedFiles.length" class="hpc-file-list">
+          <li v-for="file in selectedFiles" :key="`${file.name}-${file.size}`">
+            {{ file.name }} ({{ formatSize(file.size) }})
+          </li>
+        </ul>
+      </section>
 
-        <button
-          class="btn btn-primary btn-sm"
-          :disabled="!canSubmit"
-          @click="startUpload"
-        >
-          Upload
+      <div class="hpc-form-actions">
+        <button class="btn btn-primary btn-sm" :disabled="!canSubmit" @click="startUpload">
+          Upload Artifact
         </button>
       </div>
+    </div>
 
-      <!-- Step 2: Uploading -->
-      <div v-else-if="step === 'uploading'">
-        <p>Uploading {{ uploadedCount }} / {{ selectedFiles.length }} files...</p>
+    <div v-else-if="step === 'uploading'" class="hpc-form-stack">
+      <section class="hpc-form-section">
+        <div class="hpc-form-section-head">
+          <p class="hpc-form-section-title">Uploading</p>
+          <p class="hpc-form-section-subtitle">
+            Sending files sequentially and committing when all uploads complete.
+          </p>
+        </div>
+        <div class="hpc-progress-label">
+          <span>Uploading {{ uploadedCount }} / {{ selectedFiles.length }} files</span>
+          <strong>{{ progressPercent }}%</strong>
+        </div>
         <div class="progress mb-2">
-          <div
-            class="progress-bar"
-            :style="{ width: progressPercent + '%' }"
-          >
+          <div class="progress-bar" :style="{ width: progressPercent + '%' }">
             {{ progressPercent }}%
           </div>
         </div>
-        <small v-if="currentFile" class="text-muted">{{ currentFile }}</small>
-      </div>
+        <small v-if="currentFile" class="hpc-field-help mb-0">Current file: {{ currentFile }}</small>
+      </section>
+    </div>
 
-      <!-- Step 3: Done -->
-      <div v-else-if="step === 'done'">
-        <div class="alert alert-success mb-2">
-          Artifact <code>{{ artifactId?.substring(0, 8) }}</code>
-          committed successfully.
+    <div v-else-if="step === 'done'" class="hpc-form-stack">
+      <section class="hpc-form-section">
+        <div class="alert alert-success mb-0">
+          Artifact <code>{{ artifactId?.substring(0, 8) }}</code> committed successfully.
         </div>
-        <button class="btn btn-outline-primary btn-sm" @click="$emit('created')">
-          Close
-        </button>
+      </section>
+      <div class="hpc-form-actions">
+        <button class="btn btn-outline-primary btn-sm" @click="$emit('created')">Close</button>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -87,6 +125,13 @@ const progressPercent = computed(() => {
 const canSubmit = computed(() => {
   return form.name.trim() && selectedFiles.value.length > 0;
 });
+
+function formatSize(bytes) {
+  const n = Number(bytes || 0);
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function onFilesSelected(e) {
   selectedFiles.value = Array.from(e.target.files);

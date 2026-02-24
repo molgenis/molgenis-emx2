@@ -1,55 +1,78 @@
 <template>
-  <div>
-    <div v-if="loading && !workers.length" class="text-center py-4">Loading...</div>
-    <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
-    <div v-else-if="!workers.length" class="text-center text-muted py-4">
-      No workers registered
+  <div class="hpc-page-view">
+    <section class="hpc-surface hpc-toolbar-card">
+      <div class="hpc-toolbar-row">
+        <div>
+          <p class="hpc-toolbar-title">Workers</p>
+          <p class="hpc-toolbar-subtitle">
+            Track worker heartbeats and capability profiles. Data refreshes automatically every 15s.
+          </p>
+        </div>
+        <div class="hpc-toolbar-controls">
+          <span class="hpc-meta-chip">
+            <strong>Registered</strong>
+            {{ workers.length }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <div v-if="loading && !workers.length" class="hpc-surface hpc-feedback text-center">
+      Loading workers...
+    </div>
+    <div v-else-if="error" class="alert alert-danger hpc-feedback mb-0">{{ error }}</div>
+    <div v-else-if="!workers.length" class="hpc-surface hpc-empty text-center">
+      <p class="text-muted">No workers registered</p>
     </div>
     <div v-else>
-      <table class="table table-sm table-hover">
-        <thead>
-          <tr>
-            <th>Worker ID</th>
-            <th>Hostname</th>
-            <th>Capabilities</th>
-            <th>Registered</th>
-            <th>Last Heartbeat</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="w in workers" :key="w.worker_id">
-            <td><code>{{ w.worker_id }}</code></td>
-            <td>{{ w.hostname || "-" }}</td>
-            <td>
-              <span
-                v-for="(cap, i) in w.capabilities"
-                :key="i"
-                class="badge bg-light text-dark border me-1"
-              >
-                {{ cap.processor }}:{{ cap.profile }}
-              </span>
-              <span v-if="!w.capabilities.length" class="text-muted">-</span>
-            </td>
-            <td>{{ formatDate(w.registered_at) }}</td>
-            <td>
-              <span :class="heartbeatClass(w.last_heartbeat_at)">
-                {{ formatDate(w.last_heartbeat_at) }}
-              </span>
-            </td>
-            <td>
-              <button
-                class="btn btn-outline-danger btn-sm"
-                title="Remove worker"
-                :disabled="deletingWorker === w.worker_id"
-                @click.stop="onDeleteWorker(w.worker_id)"
-              >
-                Remove
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <section class="hpc-surface hpc-table-card">
+        <div class="hpc-table-wrap">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>Worker ID</th>
+                <th>Hostname</th>
+                <th>Capabilities</th>
+                <th>Registered</th>
+                <th>Last Heartbeat</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="w in workers" :key="w.worker_id">
+                <td><code class="hpc-inline-code">{{ w.worker_id }}</code></td>
+                <td>{{ w.hostname || "-" }}</td>
+                <td>
+                  <span
+                    v-for="(cap, i) in w.capabilities"
+                    :key="i"
+                    class="badge me-1 mb-1 hpc-badge-chip"
+                  >
+                    {{ cap.processor }}:{{ cap.profile }}
+                  </span>
+                  <span v-if="!w.capabilities.length" class="text-muted">-</span>
+                </td>
+                <td>{{ formatDate(w.registered_at) }}</td>
+                <td>
+                  <span :class="heartbeatClass(w.last_heartbeat_at)">
+                    {{ formatDate(w.last_heartbeat_at) }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    title="Remove worker"
+                    :disabled="deletingWorker === w.worker_id"
+                    @click.stop="onDeleteWorker(w.worker_id)"
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </div>
 </template>

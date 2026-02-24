@@ -1,115 +1,126 @@
 <template>
-  <div>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="d-flex gap-2">
-        <select v-model="statusFilter" class="form-select form-select-sm" style="width: auto">
-          <option value="">All Statuses</option>
-          <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
-        </select>
-        <input
-          v-model="processorFilter"
-          class="form-control form-control-sm"
-          placeholder="Filter by processor"
-          style="width: 200px"
-        />
+  <div class="hpc-page-view">
+    <section class="hpc-surface hpc-toolbar-card">
+      <div class="hpc-toolbar-row">
+        <div>
+          <p class="hpc-toolbar-title">Jobs</p>
+          <p class="hpc-toolbar-subtitle">
+            Filter, inspect, cancel, and clean up submitted HPC runs.
+          </p>
+        </div>
+        <div class="hpc-actions-tight">
+          <button
+            v-if="hasTerminalJobs"
+            class="btn btn-outline-secondary btn-sm"
+            :disabled="clearing"
+            @click="onClearCompleted"
+          >
+            Clear Completed
+          </button>
+          <button class="btn btn-primary btn-sm" @click="showForm = !showForm">
+            {{ showForm ? "Hide Form" : "+ New Job" }}
+          </button>
+        </div>
       </div>
-      <div class="d-flex gap-2">
-        <button
-          v-if="hasTerminalJobs"
-          class="btn btn-outline-secondary btn-sm"
-          :disabled="clearing"
-          @click="onClearCompleted"
-        >
-          Clear Completed
-        </button>
-        <button class="btn btn-primary btn-sm" @click="showForm = !showForm">
-          {{ showForm ? "Hide Form" : "+ New Job" }}
-        </button>
-      </div>
-    </div>
+    </section>
 
     <JobSubmitForm
       v-if="showForm"
+      class="hpc-surface"
       @submitted="onJobSubmitted"
       @close="showForm = false"
     />
 
-    <div v-if="loading && !items.length" class="text-center py-4">Loading...</div>
-    <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
+    <div v-if="loading && !items.length" class="hpc-surface hpc-feedback text-center">
+      Loading jobs...
+    </div>
+    <div v-else-if="error" class="alert alert-danger hpc-feedback mb-0">{{ error }}</div>
     <div v-else>
-      <table class="table table-sm table-hover">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Processor</th>
-            <th>Profile</th>
-            <th>Status</th>
-            <th>Submitted By</th>
-            <th>Created</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="job in items"
-            :key="job.id"
-            style="cursor: pointer"
-            @click="$router.push(`/jobs/${job.id}`)"
-          >
-            <td><code>{{ job.id?.substring(0, 8) }}</code></td>
-            <td>{{ job.processor }}</td>
-            <td>{{ job.profile || "-" }}</td>
-            <td><StatusBadge :status="job.status" /></td>
-            <td>{{ job.submit_user || "-" }}</td>
-            <td>{{ formatDate(job.created_at) }}</td>
-            <td>
-              <button
-                v-if="isTerminal(job.status)"
-                class="btn btn-outline-danger btn-sm"
-                title="Delete job"
-                :disabled="deleting"
-                @click.stop="onDelete(job)"
-              >
-                &#x1f5d1;
-              </button>
-              <button
-                v-else
-                class="btn btn-outline-warning btn-sm"
-                title="Cancel job"
-                :disabled="cancelling"
-                @click.stop="onCancel(job)"
-              >
-                Cancel
-              </button>
-            </td>
-          </tr>
-          <tr v-if="!items.length">
-            <td colspan="7" class="text-center text-muted">No jobs found</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="d-flex justify-content-between align-items-center">
-        <small class="text-muted">
-          Showing {{ items.length }} of {{ totalCount }} jobs
-        </small>
-        <div class="btn-group btn-group-sm">
-          <button
-            class="btn btn-outline-secondary"
-            :disabled="offset === 0"
-            @click="offset = Math.max(0, offset - limit)"
-          >
-            &laquo; Prev
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            :disabled="offset + limit >= totalCount"
-            @click="offset += limit"
-          >
-            Next &raquo;
-          </button>
+      <section class="hpc-surface hpc-table-card">
+        <div class="hpc-table-controls">
+          <div class="hpc-toolbar-controls">
+            <select v-model="statusFilter" class="form-select form-select-sm">
+              <option value="">All Statuses</option>
+              <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
+            </select>
+          </div>
         </div>
-      </div>
+        <div class="hpc-table-wrap">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Processor</th>
+                <th>Profile</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="job in items"
+                :key="job.id"
+                class="hpc-row-link"
+                @click="$router.push(`/jobs/${job.id}`)"
+              >
+                <td><code class="hpc-inline-code">{{ job.id?.substring(0, 8) }}</code></td>
+                <td>{{ job.processor }}</td>
+                <td>{{ job.profile || "-" }}</td>
+                <td><StatusBadge :status="job.status" /></td>
+                <td>{{ formatDate(job.created_at) }}</td>
+                <td>
+                  <div class="hpc-actions-tight">
+                    <button
+                      v-if="isTerminal(job.status)"
+                      class="btn btn-outline-danger btn-sm hpc-icon-btn"
+                      title="Delete job"
+                      :disabled="deleting"
+                      @click.stop="onDelete(job)"
+                    >
+                      <HpcIconTrash />
+                    </button>
+                    <button
+                      v-else
+                      class="btn btn-outline-warning btn-sm"
+                      title="Cancel job"
+                      :disabled="cancelling"
+                      @click.stop="onCancel(job)"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="!items.length">
+                <td colspan="6" class="text-center text-muted py-4">No jobs found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hpc-table-footer">
+          <small class="hpc-muted-note">
+            Showing {{ items.length }} of {{ totalCount }} jobs
+          </small>
+          <div class="btn-group btn-group-sm">
+            <button
+              class="btn btn-outline-secondary"
+              :disabled="offset === 0"
+              @click="offset = Math.max(0, offset - limit)"
+            >
+              &laquo; Prev
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              :disabled="offset + limit >= totalCount"
+              @click="offset += limit"
+            >
+              Next &raquo;
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -120,6 +131,7 @@ import { fetchJobs, deleteJob, cancelJob } from "../composables/useHpcApi.js";
 import { JOB_STATUSES, formatDate, isTerminal } from "../utils/jobs.js";
 import StatusBadge from "../components/StatusBadge.vue";
 import JobSubmitForm from "../components/JobSubmitForm.vue";
+import HpcIconTrash from "../components/HpcIconTrash.vue";
 
 const statuses = JOB_STATUSES;
 
@@ -128,7 +140,6 @@ const totalCount = ref(0);
 const loading = ref(false);
 const error = ref(null);
 const statusFilter = ref("");
-const processorFilter = ref("");
 const offset = ref(0);
 const limit = ref(25);
 const showForm = ref(false);
@@ -145,7 +156,6 @@ async function loadJobs() {
   try {
     const result = await fetchJobs({
       status: statusFilter.value || undefined,
-      processor: processorFilter.value || undefined,
       limit: limit.value,
       offset: offset.value,
     });
@@ -205,7 +215,7 @@ function onJobSubmitted() {
   loadJobs();
 }
 
-watch([statusFilter, processorFilter], () => {
+watch(statusFilter, () => {
   offset.value = 0;
   loadJobs();
 });

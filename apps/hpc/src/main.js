@@ -8,6 +8,7 @@ import ArtifactList from "./views/ArtifactList.vue";
 import ArtifactDetail from "./views/ArtifactDetail.vue";
 
 import "molgenis-components/dist/style.css";
+import "./styles/hpc-theme.css";
 
 const router = createRouter({
   history: createWebHashHistory(),

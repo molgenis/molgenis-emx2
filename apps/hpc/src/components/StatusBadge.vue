@@ -1,5 +1,8 @@
 <template>
-  <span class="badge" :class="badgeClass">{{ status }}</span>
+  <span class="hpc-status-pill" :class="statusClass">
+    <span class="hpc-status-dot" aria-hidden="true"></span>
+    <span>{{ label }}</span>
+  </span>
 </template>
 
 <script setup>
@@ -9,22 +12,24 @@ const props = defineProps({
   status: { type: String, required: true },
 });
 
-const badgeClass = computed(() => {
+const label = computed(() => String(props.status || "").replaceAll("_", " "));
+
+const statusClass = computed(() => {
   const map = {
     // Job statuses
-    PENDING: "bg-warning text-dark",
-    CLAIMED: "bg-info text-dark",
-    SUBMITTED: "bg-primary",
-    STARTED: "bg-primary",
-    COMPLETED: "bg-success",
-    FAILED: "bg-danger",
-    CANCELLED: "bg-secondary",
+    PENDING: "is-warn",
+    CLAIMED: "is-info",
+    SUBMITTED: "is-primary",
+    STARTED: "is-primary",
+    COMPLETED: "is-success",
+    FAILED: "is-danger",
+    CANCELLED: "is-muted",
     // Artifact statuses
-    CREATED: "bg-warning text-dark",
-    UPLOADING: "bg-info text-dark",
-    REGISTERED: "bg-info text-dark",
-    COMMITTED: "bg-success",
+    CREATED: "is-warn",
+    UPLOADING: "is-info",
+    REGISTERED: "is-info",
+    COMMITTED: "is-success",
   };
-  return map[props.status] || "bg-secondary";
+  return map[props.status] || "is-muted";
 });
 </script>

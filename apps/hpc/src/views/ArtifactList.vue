@@ -1,91 +1,106 @@
 <template>
-  <div>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="d-flex gap-2">
-        <select v-model="statusFilter" class="form-select form-select-sm" style="width: auto">
-          <option value="">All Statuses</option>
-          <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
-        </select>
+  <div class="hpc-page-view">
+    <section class="hpc-surface hpc-toolbar-card">
+      <div class="hpc-toolbar-row">
+        <div>
+          <p class="hpc-toolbar-title">Artifacts</p>
+          <p class="hpc-toolbar-subtitle">
+            Browse uploaded outputs and inspect artifact metadata and file contents.
+          </p>
+        </div>
+        <div class="hpc-toolbar-controls">
+          <select v-model="statusFilter" class="form-select form-select-sm">
+            <option value="">All Statuses</option>
+            <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
+          </select>
+          <button class="btn btn-primary btn-sm" @click="showForm = !showForm">
+            {{ showForm ? "Hide Form" : "+ New Artifact" }}
+          </button>
+        </div>
       </div>
-      <button class="btn btn-primary btn-sm" @click="showForm = !showForm">
-        {{ showForm ? "Hide Form" : "+ New Artifact" }}
-      </button>
-    </div>
+    </section>
 
     <ArtifactUploadForm
       v-if="showForm"
+      class="hpc-surface"
       @created="onArtifactCreated"
       @close="showForm = false"
     />
 
-    <div v-if="loading && !items.length" class="text-center py-4">Loading...</div>
-    <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
+    <div v-if="loading && !items.length" class="hpc-surface hpc-feedback text-center">
+      Loading artifacts...
+    </div>
+    <div v-else-if="error" class="alert alert-danger hpc-feedback mb-0">{{ error }}</div>
     <div v-else>
-      <table class="table table-sm table-hover">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Residence</th>
-            <th>Status</th>
-            <th>Size</th>
-            <th>Created</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="a in items"
-            :key="a.id"
-            style="cursor: pointer"
-            @click="$router.push(`/artifacts/${a.id}`)"
-          >
-            <td><code>{{ a.id?.substring(0, 8) }}</code></td>
-            <td>{{ a.name || a.id?.substring(0, 8) }}</td>
-            <td>{{ a.type || "-" }}</td>
-            <td>{{ a.residence || "-" }}</td>
-            <td><StatusBadge :status="a.status" /></td>
-            <td>{{ formatSize(a.size_bytes) }}</td>
-            <td>{{ formatDate(a.created_at) }}</td>
-            <td>
-              <button
-                class="btn btn-outline-danger btn-sm"
-                title="Delete artifact"
-                :disabled="deleting"
-                @click.stop="onDelete(a)"
+      <section class="hpc-surface hpc-table-card">
+        <div class="hpc-table-wrap">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Residence</th>
+                <th>Status</th>
+                <th>Size</th>
+                <th>Created</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="a in items"
+                :key="a.id"
+                class="hpc-row-link"
+                @click="$router.push(`/artifacts/${a.id}`)"
               >
-                &#x1f5d1;
-              </button>
-            </td>
-          </tr>
-          <tr v-if="!items.length">
-            <td colspan="8" class="text-center text-muted">No artifacts found</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="d-flex justify-content-between align-items-center">
-        <small class="text-muted">
-          Showing {{ items.length }} of {{ totalCount }} artifacts
-        </small>
-        <div class="btn-group btn-group-sm">
-          <button
-            class="btn btn-outline-secondary"
-            :disabled="offset === 0"
-            @click="offset = Math.max(0, offset - limit)"
-          >
-            &laquo; Prev
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            :disabled="offset + limit >= totalCount"
-            @click="offset += limit"
-          >
-            Next &raquo;
-          </button>
+                <td><code class="hpc-inline-code">{{ a.id?.substring(0, 8) }}</code></td>
+                <td>{{ a.name || a.id?.substring(0, 8) }}</td>
+                <td>{{ a.type || "-" }}</td>
+                <td>{{ a.residence || "-" }}</td>
+                <td><StatusBadge :status="a.status" /></td>
+                <td>{{ formatSize(a.size_bytes) }}</td>
+                <td>{{ formatDate(a.created_at) }}</td>
+                <td>
+                  <button
+                    class="btn btn-outline-danger btn-sm hpc-icon-btn"
+                    title="Delete artifact"
+                    :disabled="deleting"
+                    @click.stop="onDelete(a)"
+                  >
+                    <HpcIconTrash />
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="!items.length">
+                <td colspan="8" class="text-center text-muted py-4">No artifacts found</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
+
+        <div class="hpc-table-footer">
+          <small class="hpc-muted-note">
+            Showing {{ items.length }} of {{ totalCount }} artifacts
+          </small>
+          <div class="btn-group btn-group-sm">
+            <button
+              class="btn btn-outline-secondary"
+              :disabled="offset === 0"
+              @click="offset = Math.max(0, offset - limit)"
+            >
+              &laquo; Prev
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              :disabled="offset + limit >= totalCount"
+              @click="offset += limit"
+            >
+              Next &raquo;
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -96,6 +111,7 @@ import { fetchArtifacts, deleteArtifact } from "../composables/useHpcApi.js";
 import { formatDate } from "../utils/jobs.js";
 import StatusBadge from "../components/StatusBadge.vue";
 import ArtifactUploadForm from "../components/ArtifactUploadForm.vue";
+import HpcIconTrash from "../components/HpcIconTrash.vue";
 
 const statuses = ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"];
 
