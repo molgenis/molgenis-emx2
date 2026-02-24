@@ -246,7 +246,7 @@ class StagingMigrator(Client):
         def website_func(org: str):
             return ontology_organisations.set_index('name')["website"].to_dict().get(org, None)
 
-        missing_orgs = source_orgs.loc[source_orgs["organisation"] == None, ["resource", "id"]]
+        missing_orgs = source_orgs.loc[source_orgs["organisation"].isna(), ["resource", "id"]]
         for row in missing_orgs.itertuples():
             msg = f"No organisation for (resource, id) = ({row.resource}, {row.id})"
             log.warning(msg)
