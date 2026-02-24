@@ -99,6 +99,7 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
                         
                         # navigation groups and cards
                         links {
+                            id
                             title
                             description
                             url

@@ -177,6 +177,7 @@ export interface INavigationGroups {
 }
 
 export interface INavigationCards {
+  id: string;
   title?: string;
   description?: string;
   url?: string;

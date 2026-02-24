@@ -7,17 +7,19 @@ const props = defineProps<INavigationGroups>();
 
 <template>
   <ul
-    class="list-none flex justify-stretch items-center flex-col md:flex-row md:flex-wrap gap-5"
+    :id="id"
+    class="w-full m-0 list-none flex justify-center items-center flex-col md:flex-row gap-5"
     aria-label="subnavigation"
   >
-    <template v-for="link in links" :key="link.url">
+    <template v-for="link in links" :key="link.id">
       <NavigationCards
+        :id="link.id"
         :title="link.title"
         :description="link.description"
         :url="link.url"
         :url-is-external="link.urlIsExternal"
         :url-label="link.urlLabel"
-        class="grow w-full md:w-auto"
+        class="w-full md:w-80"
       />
     </template>
   </ul>
