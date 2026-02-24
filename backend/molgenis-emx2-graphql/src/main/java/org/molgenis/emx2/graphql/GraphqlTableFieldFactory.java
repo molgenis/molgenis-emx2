@@ -26,7 +26,14 @@ import org.slf4j.LoggerFactory;
 
 public class GraphqlTableFieldFactory {
   private static final Logger logger = LoggerFactory.getLogger(GraphqlTableFieldFactory.class);
-  // static types
+  private static final GraphQLInputObjectType MG_ID_FILTER_TYPE =
+      GraphQLInputObjectType.newInputObject()
+          .name("MolgenisMgIdFilter")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(FILTER_EQUALS)
+                  .type(Scalars.GraphQLString))
+          .build();
   private static final GraphQLEnumType orderByEnum =
       GraphQLEnumType.newEnum()
           .name("MolgenisOrderByEnum")
@@ -441,6 +448,11 @@ public class GraphqlTableFieldFactory {
                 GraphQLInputObjectField.newInputObjectField()
                     .name(FILTER_NOT_EQUALS)
                     .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                    .build())
+            .field(
+                GraphQLInputObjectField.newInputObjectField()
+                    .name(Constants.MG_ID)
+                    .type(MG_ID_FILTER_TYPE)
                     .build());
       }
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
@@ -659,6 +671,12 @@ public class GraphqlTableFieldFactory {
                   f(Operator.SEARCH_INCLUDING_PARENTS, ((List) entry.getValue()).toArray()));
         }
         // skip match all, handled on parent column
+      } else if (entry.getKey().equals(Constants.MG_ID)) {
+        Map<String, Object> mgIdFilter = (Map<String, Object>) entry.getValue();
+        String mgIdValue = (String) mgIdFilter.get(FILTER_EQUALS);
+        if (mgIdValue != null) {
+          subFilters.add(f(Constants.MG_ID, Operator.EQUALS, mgIdValue));
+        }
       } else {
         // find column by escaped name
         Column c = table.getColumnByIdIncludingSubclasses(entry.getKey());

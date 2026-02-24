@@ -268,12 +268,12 @@ public class SqlQuery extends QueryBean {
   }
 
   private Field<String> buildMgIdField(TableMetadata table, String tableAlias) {
-    Field<String> result = inline(table.getIdentifier() + "/");
+    Field<String> result = inline(MgIdUtils.encodePrefix(table));
     String separator = "";
     for (Field<?> pkField : table.getPrimaryKeyFields()) {
       result =
           result
-              .concat(inline(separator + convertToCamelCase(pkField.getName()) + "="))
+              .concat(inline(separator + MgIdUtils.encodeKeyName(pkField.getName()) + "="))
               .concat(field(name(alias(tableAlias), pkField.getName())).cast(String.class));
       separator = "&";
     }
@@ -499,11 +499,9 @@ public class SqlQuery extends QueryBean {
             MATCH_ALL,
             MATCH_ANY_INCLUDING_CHILDREN,
             SEARCH_INCLUDING_PARENTS:
-          // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
             return whereCondition(
                 tableAlias,
-                // use the table itself
                 new Column("name")
                     .setType(ColumnType.ONTOLOGY)
                     .setRefSchemaName(table.getSchemaName())
@@ -511,9 +509,10 @@ public class SqlQuery extends QueryBean {
                 filter.getOperator(),
                 filter.getValues());
           }
-          // else use default
         default:
-          // then it must be a column filter
+          if (MG_ID.equals(filter.getColumn())) {
+            return parseMgIdCondition(table, subAlias, filter.getValues());
+          }
           return whereCondition(
               subAlias,
               getColumnByName(table, filter.getColumn()),
@@ -1143,6 +1142,8 @@ public class SqlQuery extends QueryBean {
               filters.getSubfilters().stream()
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
+    } else if (MG_ID.equals(filters.getColumn())) {
+      conditions.add(parseMgIdCondition(table, tableAlias, filters.getValues()));
     } else {
       Column column =
           getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
@@ -1175,6 +1176,16 @@ public class SqlQuery extends QueryBean {
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
+  }
+
+  private Condition parseMgIdCondition(TableMetadata table, String tableAlias, Object[] values) {
+    MgIdUtils.DecodedMgId decoded = MgIdUtils.decode((String) values[0]);
+    Map<String, String> columnValues = MgIdUtils.toColumnValues(table, decoded);
+    List<Condition> pkConditions = new ArrayList<>();
+    for (Map.Entry<String, String> entry : columnValues.entrySet()) {
+      pkConditions.add(field(name(alias(tableAlias), entry.getKey())).eq(inline(entry.getValue())));
+    }
+    return and(pkConditions);
   }
 
   private Condition whereCondition(

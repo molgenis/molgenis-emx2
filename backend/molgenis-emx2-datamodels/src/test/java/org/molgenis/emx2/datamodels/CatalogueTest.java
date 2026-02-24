@@ -111,6 +111,29 @@ public class CatalogueTest extends TestLoaders {
   }
 
   @Test
+  public void test12CatalogueMgIdFilter() {
+    GraphqlExecutor graphqlExecutor = new GraphqlExecutor(dataCatalogue);
+
+    Map allResult = graphqlExecutor.queryAsMap("{CollectionEvents{mg_id name}}", Map.of());
+    List<Map<String, Object>> allEvents =
+        (List<Map<String, Object>>) allResult.get("CollectionEvents");
+    assertFalse(allEvents.isEmpty());
+
+    String firstMgId = (String) allEvents.get(0).get(MG_ID);
+    assertNotNull(firstMgId);
+
+    String filteredQuery =
+        String.format(
+            "{CollectionEvents(filter:{mg_id:{equals:\"%s\"}}){mg_id name}}", firstMgId);
+    Map filteredResult = graphqlExecutor.queryAsMap(filteredQuery, Map.of());
+    List<Map<String, Object>> filteredEvents =
+        (List<Map<String, Object>>) filteredResult.get("CollectionEvents");
+
+    assertEquals(1, filteredEvents.size());
+    assertEquals(firstMgId, filteredEvents.get(0).get(MG_ID));
+  }
+
+  @Test
   public void test11CatalogueJsonLdAdheresToShacl() throws Exception {
     GraphqlExecutor graphqlExecutor = new GraphqlExecutor(dataCatalogue);
     Map<String, Object> context =
