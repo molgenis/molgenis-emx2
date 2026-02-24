@@ -97,43 +97,52 @@ def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
     Uses the EMX2 GraphQL API to set MOLGENIS_HPC_SHARED_SECRET, then makes
     an HMAC-authenticated request to trigger table creation.
     """
-    # Sign in as admin
-    signin_query = """
-    mutation {
-      signin(email: "admin", password: "admin") {
-            token
-      }
-    }
-    """
-    r = httpx.post(
-        f"{emx2_base_url}/api/graphql",
-        json={"query": signin_query},
-        timeout=10,
-    )
-    r.raise_for_status()
-    data = r.json()
-    token = data["data"]["signin"]["token"]
-    logger.info("Signed in as admin, got token")
+    # Check if HPC is already enabled (e.g. secret set via UI before test run)
+    health_r = httpx.get(f"{emx2_base_url}/api/hpc/health", timeout=5)
+    health = health_r.json()
+    logger.info("HPC health before bootstrap: %s", health)
 
-    # Set the HPC shared secret via GraphQL settings mutation
-    settings_query = (
+    if not health.get("hpc_enabled"):
+        # Sign in as admin
+        signin_query = """
+        mutation {
+          signin(email: "admin", password: "admin") {
+                token
+          }
+        }
         """
-    mutation {
-      change(settings: [{key: "MOLGENIS_HPC_SHARED_SECRET", value: "%s"}]) {
-        message
-      }
-    }
-    """
-        % shared_secret
-    )
-    r = httpx.post(
-        f"{emx2_base_url}/api/graphql",
-        json={"query": settings_query},
-        headers={"x-molgenis-token": token},
-        timeout=10,
-    )
-    r.raise_for_status()
-    logger.info("Set HPC shared secret in EMX2")
+        r = httpx.post(
+            f"{emx2_base_url}/api/graphql",
+            json={"query": signin_query},
+            timeout=10,
+        )
+        r.raise_for_status()
+        data = r.json()
+        token = data["data"]["signin"]["token"]
+        logger.info("Signed in as admin, got token")
+
+        # Set the HPC shared secret via GraphQL settings mutation
+        settings_query = (
+            """
+        mutation {
+          change(settings: [{key: "MOLGENIS_HPC_SHARED_SECRET", value: "%s"}]) {
+            message
+          }
+        }
+        """
+            % shared_secret
+        )
+        r = httpx.post(
+            f"{emx2_base_url}/api/graphql",
+            json={"query": settings_query},
+            headers={"x-molgenis-token": token},
+            timeout=10,
+        )
+        r.raise_for_status()
+        settings_data = r.json()
+        if "errors" in settings_data:
+            raise RuntimeError(f"Failed to set HPC secret: {settings_data['errors']}")
+        logger.info("Set HPC shared secret in EMX2: %s", settings_data)
 
     # Make an authenticated request to trigger lazy init of HPC tables
     client = HpcClient(

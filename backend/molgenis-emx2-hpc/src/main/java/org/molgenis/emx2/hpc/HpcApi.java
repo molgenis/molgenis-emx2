@@ -282,15 +282,18 @@ public class HpcApi {
 
   /**
    * Attempts to initialize HPC services. Returns null if {@code MOLGENIS_HPC_SHARED_SECRET} is not
-   * set. Reads the setting inside a transaction to get the current value from the database, not the
-   * potentially stale in-memory cache.
+   * set. Reads the setting directly from the database via a transaction to pick up changes made
+   * after this SqlDatabase instance was created (e.g. secret set via GraphQL on a fresh DB).
    */
   private static HpcContext tryInit(SqlDatabase database) {
-    // Read setting inside a tx so we get the current DB value, not the startup-time cache
+    // Read setting via tx + becomeAdmin so we get the current DB value,
+    // not the potentially stale in-memory cache of this SqlDatabase instance
     String[] secretHolder = new String[1];
     database.tx(
         db -> {
           db.becomeAdmin();
+          // clearCache reloads settings from the database; safe inside a tx copy
+          db.clearCache();
           secretHolder[0] = db.getSetting(HPC_SECRET_SETTING);
         });
     String secret = secretHolder[0];

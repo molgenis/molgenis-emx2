@@ -34,9 +34,8 @@ public final class HpcSchemaInitializer {
             schema = db.getSchema(systemSchemaName);
           }
 
-          // If already initialized, run migrations for new columns then return
+          // Already initialized — nothing to do
           if (schema.getTableNames().contains("HpcJobs")) {
-            migrate(schema);
             return;
           }
 
@@ -162,15 +161,5 @@ public final class HpcSchemaInitializer {
               .getMetadata()
               .add(column("log_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
         });
-  }
-
-  /** Adds columns that were introduced after the initial schema creation. Idempotent. */
-  private static void migrate(Schema schema) {
-    TableMetadata jobs = schema.getTable("HpcJobs").getMetadata();
-
-    // Added in: log artifact support
-    if (jobs.getColumn("log_artifact_id") == null) {
-      jobs.add(column("log_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
-    }
   }
 }

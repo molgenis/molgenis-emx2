@@ -8,6 +8,29 @@ function gqlString(value) {
   return JSON.stringify(String(value));
 }
 
+/**
+ * Returns true if the error indicates HPC tables don't exist yet
+ * (e.g. FieldUndefined for HpcJobs, HpcWorkers, etc.).
+ */
+function isSchemaNotReady(err) {
+  const msg = err?.response?.errors?.[0]?.message ?? err?.message ?? "";
+  return msg.includes("FieldUndefined") || msg.includes("is undefined");
+}
+
+/**
+ * Check whether HPC is enabled via the health endpoint.
+ * Returns { ok, hpc_enabled, database } or null on error.
+ */
+export async function fetchHpcHealth() {
+  try {
+    const resp = await fetch(`${REST_BASE}/health`);
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch {
+    return null;
+  }
+}
+
 /** Common REST headers for HPC API calls. */
 function hpcHeaders() {
   return {
@@ -46,8 +69,8 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type { name } status { name } }
-      log_artifact_id { id name type { name } status { name } }
+      output_artifact_id { id name type status { name } }
+      log_artifact_id { id name type status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -55,11 +78,18 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
     ${aggLine}
   }`;
 
-  const data = await request(GRAPHQL_URL, query);
-  return {
-    items: (data.HpcJobs || []).map(normalizeJob),
-    totalCount: data.HpcJobs_agg?.count ?? 0,
-  };
+  try {
+    const data = await request(GRAPHQL_URL, query);
+    return {
+      items: (data.HpcJobs || []).map(normalizeJob),
+      totalCount: data.HpcJobs_agg?.count ?? 0,
+    };
+  } catch (err) {
+    if (isSchemaNotReady(err)) {
+      return { items: [], totalCount: 0, schemaNotReady: true };
+    }
+    throw err;
+  }
 }
 
 /**
@@ -72,8 +102,8 @@ export async function fetchJobDetail(jobId) {
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type { name } status { name } }
-      log_artifact_id { id name type { name } status { name } }
+      output_artifact_id { id name type status { name } }
+      log_artifact_id { id name type status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -86,12 +116,19 @@ export async function fetchJobDetail(jobId) {
     }
   }`;
 
-  const data = await request(GRAPHQL_URL, query);
-  const job = data.HpcJobs?.[0];
-  return {
-    job: job ? normalizeJob(job) : null,
-    transitions: data.HpcJobTransitions || [],
-  };
+  try {
+    const data = await request(GRAPHQL_URL, query);
+    const job = data.HpcJobs?.[0];
+    return {
+      job: job ? normalizeJob(job) : null,
+      transitions: data.HpcJobTransitions || [],
+    };
+  } catch (err) {
+    if (isSchemaNotReady(err)) {
+      return { job: null, transitions: [], schemaNotReady: true };
+    }
+    throw err;
+  }
 }
 
 /**
@@ -164,20 +201,25 @@ export async function fetchWorkers() {
     }
   }`;
 
-  const data = await request(GRAPHQL_URL, query);
-  const workers = data.HpcWorkers || [];
-  const caps = data.HpcWorkerCapabilities || [];
+  try {
+    const data = await request(GRAPHQL_URL, query);
+    const workers = data.HpcWorkers || [];
+    const caps = data.HpcWorkerCapabilities || [];
 
-  return workers.map((w) => ({
-    ...w,
-    capabilities: caps
-      .filter((c) => (c.worker_id?.worker_id ?? c.worker_id) === w.worker_id)
-      .map(({ processor, profile, max_concurrent_jobs }) => ({
-        processor,
-        profile,
-        max_concurrent_jobs,
-      })),
-  }));
+    return workers.map((w) => ({
+      ...w,
+      capabilities: caps
+        .filter((c) => (c.worker_id?.worker_id ?? c.worker_id) === w.worker_id)
+        .map(({ processor, profile, max_concurrent_jobs }) => ({
+          processor,
+          profile,
+          max_concurrent_jobs,
+        })),
+    }));
+  } catch (err) {
+    if (isSchemaNotReady(err)) return [];
+    throw err;
+  }
 }
 
 /**
@@ -221,7 +263,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
       offset: ${offset},
       orderby: { created_at: DESC }
     ) {
-      id name type { name }
+      id name type
       residence { name }
       status { name }
       sha256 size_bytes content_url metadata
@@ -230,11 +272,18 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
     ${aggLine}
   }`;
 
-  const data = await request(GRAPHQL_URL, query);
-  return {
-    items: (data.HpcArtifacts || []).map(normalizeArtifact),
-    totalCount: data.HpcArtifacts_agg?.count ?? 0,
-  };
+  try {
+    const data = await request(GRAPHQL_URL, query);
+    return {
+      items: (data.HpcArtifacts || []).map(normalizeArtifact),
+      totalCount: data.HpcArtifacts_agg?.count ?? 0,
+    };
+  } catch (err) {
+    if (isSchemaNotReady(err)) {
+      return { items: [], totalCount: 0, schemaNotReady: true };
+    }
+    throw err;
+  }
 }
 
 /**
@@ -244,7 +293,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
 export async function fetchArtifactDetail(artifactId) {
   const query = `{
     HpcArtifacts(filter: { id: { equals: ${gqlString(artifactId)} } }) {
-      id name type { name }
+      id name type
       residence { name }
       status { name }
       sha256 size_bytes content_url metadata
@@ -253,16 +302,23 @@ export async function fetchArtifactDetail(artifactId) {
     HpcArtifactFiles(
       filter: { artifact_id: { id: { equals: ${gqlString(artifactId)} } } }
     ) {
-      id path role sha256 size_bytes content_type
+      id path sha256 size_bytes content_type
     }
   }`;
 
-  const data = await request(GRAPHQL_URL, query);
-  const artifact = data.HpcArtifacts?.[0];
-  return {
-    artifact: artifact ? normalizeArtifact(artifact) : null,
-    files: data.HpcArtifactFiles || [],
-  };
+  try {
+    const data = await request(GRAPHQL_URL, query);
+    const artifact = data.HpcArtifacts?.[0];
+    return {
+      artifact: artifact ? normalizeArtifact(artifact) : null,
+      files: data.HpcArtifactFiles || [],
+    };
+  } catch (err) {
+    if (isSchemaNotReady(err)) {
+      return { artifact: null, files: [], schemaNotReady: true };
+    }
+    throw err;
+  }
 }
 
 /**
@@ -387,7 +443,7 @@ function normalizeJob(job) {
       ? {
           id: output.id,
           name: output.name,
-          type: output.type?.name ?? output.type,
+          type: output.type,
           status: output.status?.name ?? output.status,
         }
       : null,
@@ -395,7 +451,7 @@ function normalizeJob(job) {
       ? {
           id: log.id,
           name: log.name,
-          type: log.type?.name ?? log.type,
+          type: log.type,
           status: log.status?.name ?? log.status,
         }
       : null,
@@ -406,7 +462,7 @@ function normalizeJob(job) {
 function normalizeArtifact(artifact) {
   return {
     ...artifact,
-    type: artifact.type?.name ?? artifact.type,
+    type: artifact.type,
     residence: artifact.residence?.name ?? artifact.residence,
     status: artifact.status?.name ?? artifact.status,
   };
