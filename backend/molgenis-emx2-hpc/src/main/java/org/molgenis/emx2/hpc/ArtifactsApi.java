@@ -8,6 +8,7 @@ import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -353,7 +354,11 @@ public class ArtifactsApi {
         contentType = ct;
       }
 
-      if (contentType == null || contentType.isBlank()) {
+      // Detect content type from file extension; fall back to HTTP header, then octet-stream
+      String guessed = URLConnection.guessContentTypeFromName(filePath);
+      if (guessed != null) {
+        contentType = guessed;
+      } else if (contentType == null || contentType.isBlank()) {
         contentType = "application/octet-stream";
       }
 
