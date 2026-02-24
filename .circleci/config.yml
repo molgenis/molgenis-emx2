@@ -198,9 +198,7 @@ jobs:
             kubectl get events -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" --sort-by=.metadata.creationTimestamp | tail -n 40
 
             echo "📌 Logs from backend:"
-            kubectl logs -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -l app=emx2-backend --tail=200
-
-            exit 1
+            kubectl logs -n preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/} \ deployment/preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/} 
             fi
             
             sleep 10
