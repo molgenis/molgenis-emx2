@@ -10,7 +10,7 @@ public class StaticFileMapperTest extends ApiTestBase {
 
   @Test
   void testCanFetchFileFromPublicHtmlFolder() {
-    Response restResponse = RestAssured.get("/test-app/test-assets/styling.css");
+    Response restResponse = RestAssured.get("apps/test-app/test-assets/styling.css");
 
     String mimeType = restResponse.getHeader("Content-type");
     Assert.assertTrue(Objects.equals(mimeType, "text/css"));
