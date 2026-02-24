@@ -111,6 +111,7 @@ def _make_daemon(sample_config) -> tuple[HpcDaemon, MagicMock]:
     # Default: create_artifact returns an id, commit_artifact returns {}
     mock_client.create_artifact.side_effect = _fake_create_artifact
     mock_client.upload_artifact_file.return_value = {}
+    mock_client.register_artifact_file.return_value = {}
     mock_client.commit_artifact.return_value = {}
     mock_client.transition_job.return_value = {}
     mock_client.get_job.return_value = {"status": "STARTED"}
@@ -426,11 +427,68 @@ class TestPosixResidenceArtifactUpload:
         residences = [c.kwargs["residence"] for c in create_calls]
         assert all(r == "posix" for r in residences)
 
-        # No upload_artifact_file calls for posix (only register + commit)
+        # No binary upload_artifact_file calls for posix
         assert mock_client.upload_artifact_file.call_count == 0
 
-        # But commit_artifact should be called for each
+        # But register_artifact_file should be called for each file
+        # (1 output file + 1 log file = 2 register calls)
+        assert mock_client.register_artifact_file.call_count == 2
+
+        # Verify register was called with correct metadata for the output file
+        reg_calls = mock_client.register_artifact_file.call_args_list
+        reg_kwargs_list = [c.kwargs for c in reg_calls]
+        result_reg = next(k for k in reg_kwargs_list if k["path"] == "result.csv")
+        assert result_reg["sha256"] == hashlib.sha256(b"data").hexdigest()
+        assert result_reg["size_bytes"] == len(b"data")
+
+        # commit_artifact should be called for each artifact
         assert mock_client.commit_artifact.call_count == 2
+
+    def test_posix_registers_file_metadata(
+        self, sample_config, tmp_path: Path
+    ):
+        """Posix artifact flow registers metadata for each file with correct hashes."""
+        sample_config.profiles["text-embedding:gpu-medium"].artifact_residence = "posix"
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        file_a = output_dir / "alpha.txt"
+        file_b = output_dir / "beta.bin"
+        file_a.write_text("aaa")
+        file_b.write_bytes(b"\x00\x01\x02")
+
+        daemon.tracker.track(
+            emx2_job_id="job-posix-meta",
+            slurm_job_id="sim-posix-meta",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+        )
+
+        daemon._monitor_running_jobs()
+
+        # register_artifact_file called for each output file (2) + 0 log files
+        reg_calls = mock_client.register_artifact_file.call_args_list
+        reg_paths = sorted(c.kwargs["path"] for c in reg_calls)
+        assert "alpha.txt" in reg_paths
+        assert "beta.bin" in reg_paths
+
+        # Verify hashes match
+        alpha_reg = next(c.kwargs for c in reg_calls if c.kwargs["path"] == "alpha.txt")
+        assert alpha_reg["sha256"] == hashlib.sha256(b"aaa").hexdigest()
+        assert alpha_reg["size_bytes"] == 3
+
+        beta_reg = next(c.kwargs for c in reg_calls if c.kwargs["path"] == "beta.bin")
+        assert beta_reg["sha256"] == hashlib.sha256(b"\x00\x01\x02").hexdigest()
+        assert beta_reg["size_bytes"] == 3
+
+        # No binary uploads
+        assert mock_client.upload_artifact_file.call_count == 0
+
+        # commit_artifact called with correct tree hash
+        assert mock_client.commit_artifact.call_count >= 1
 
 
 # ---------------------------------------------------------------------------

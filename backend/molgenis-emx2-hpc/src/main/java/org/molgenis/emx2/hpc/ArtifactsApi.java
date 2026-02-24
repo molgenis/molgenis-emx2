@@ -55,6 +55,14 @@ public class ArtifactsApi {
       String metadata =
           body.get("metadata") != null ? MAPPER.writeValueAsString(body.get("metadata")) : null;
 
+      try {
+        InputValidator.validateContentUrl(contentUrl, residence);
+      } catch (IllegalArgumentException e) {
+        ProblemDetail.send(
+            ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+        return;
+      }
+
       String artifactId =
           artifactService.createArtifact(name, type, residence, contentUrl, metadata);
 

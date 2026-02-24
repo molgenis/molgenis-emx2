@@ -52,6 +52,41 @@ public final class InputValidator {
     }
   }
 
+  /**
+   * Validates content_url for posix artifacts. For posix residence, requires a {@code file://}
+   * scheme pointing to an absolute path with no traversal ({@code ..}) segments or null bytes.
+   */
+  public static void validateContentUrl(String contentUrl, String residence) {
+    if (!"posix".equals(residence)) {
+      return; // only validate for posix
+    }
+    if (contentUrl == null || contentUrl.isBlank()) {
+      throw new IllegalArgumentException("content_url is required for posix artifacts");
+    }
+    if (contentUrl.length() > MAX_STRING_LENGTH) {
+      throw new IllegalArgumentException(
+          "content_url must be at most " + MAX_STRING_LENGTH + " characters");
+    }
+    if (contentUrl.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("content_url must not contain null bytes");
+    }
+    if (!contentUrl.startsWith("file://")) {
+      throw new IllegalArgumentException("content_url must start with file:// for posix artifacts");
+    }
+    String path = contentUrl.substring("file://".length());
+    if (!path.startsWith("/")) {
+      throw new IllegalArgumentException(
+          "content_url must be an absolute path (file:///...) for posix artifacts");
+    }
+    // Check for path traversal
+    for (String segment : path.split("/")) {
+      if ("..".equals(segment)) {
+        throw new IllegalArgumentException(
+            "content_url must not contain path traversal (..) segments");
+      }
+    }
+  }
+
   /** Parses an integer query parameter, returning the default on null or invalid input. */
   public static int parseIntParam(String value, int defaultValue) {
     if (value == null) return defaultValue;

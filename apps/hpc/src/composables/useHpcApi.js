@@ -264,9 +264,10 @@ export async function fetchArtifactDetail(artifactId) {
  * Create a new artifact via the REST API.
  * @param {Object} opts - { name, type, residence }
  */
-export async function createArtifact({ name, type = "blob", residence = "managed" } = {}) {
+export async function createArtifact({ name, type = "blob", residence = "managed", content_url } = {}) {
   const body = { type, residence };
   if (name) body.name = name;
+  if (content_url) body.content_url = content_url;
   const resp = await fetch(`${REST_BASE}/artifacts`, {
     method: "POST",
     headers: {

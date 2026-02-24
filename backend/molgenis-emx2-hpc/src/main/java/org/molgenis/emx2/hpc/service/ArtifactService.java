@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
+import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,9 @@ public class ArtifactService {
    */
   public String createArtifact(
       String name, String type, String residence, String contentUrl, String metadata) {
+    // Defense-in-depth: validate content_url even if API layer already did
+    InputValidator.validateContentUrl(contentUrl, residence);
+
     String artifactId = UUID.randomUUID().toString();
     boolean isExternal = residence != null && !"managed".equals(residence);
     ArtifactStatus initialStatus = isExternal ? ArtifactStatus.REGISTERED : ArtifactStatus.CREATED;
@@ -106,6 +110,9 @@ public class ArtifactService {
           if (ArtifactStatus.CREATED.name().equals(currentStatus)) {
             artifact.set("status", ArtifactStatus.UPLOADING.name());
             artifactsTable.update(artifact);
+          } else if (!ArtifactStatus.REGISTERED.name().equals(currentStatus)
+              && !ArtifactStatus.UPLOADING.name().equals(currentStatus)) {
+            throw new MolgenisException("Cannot add files to artifact in status " + currentStatus);
           }
 
           // Insert file record
@@ -414,6 +421,9 @@ public class ArtifactService {
           if (ArtifactStatus.CREATED.name().equals(currentStatus)) {
             artifact.set("status", ArtifactStatus.UPLOADING.name());
             artifactsTable.update(artifact);
+          } else if (!ArtifactStatus.REGISTERED.name().equals(currentStatus)
+              && !ArtifactStatus.UPLOADING.name().equals(currentStatus)) {
+            throw new MolgenisException("Cannot add files to artifact in status " + currentStatus);
           }
 
           // Check if file already exists at this path

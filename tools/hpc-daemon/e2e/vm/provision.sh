@@ -320,6 +320,13 @@ profiles:
     memory: "256M"
     time: "00:05:00"
     artifact_residence: "managed"
+  "e2e-test:posix":
+    entrypoint: "/opt/e2e/scripts/e2e_job_posix.sh"
+    partition: "normal"
+    cpus: 1
+    memory: "256M"
+    time: "00:05:00"
+    artifact_residence: "posix"
 
 apptainer:
   tmp_dir: "/data/jobs/tmp"

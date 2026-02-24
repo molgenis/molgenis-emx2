@@ -20,6 +20,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import mimetypes
 import signal
 import socket
 import time
@@ -490,15 +491,25 @@ class HpcDaemon:
             format_links(artifact.get("_links", {})),
         )
 
-        # Commit immediately (REGISTERED → COMMITTED for external artifacts)
+        # Compute hashes and register file metadata before committing
         # Tree hash: single file = file sha256; multi-file = SHA-256 of
         # concatenated "path:sha256" strings sorted by path (matches Java)
         file_hashes = []
         total_size = 0
         for f in sorted(output_files, key=lambda p: p.name):
             content = f.read_bytes()
-            file_hashes.append((f.name, hashlib.sha256(content).hexdigest()))
-            total_size += len(content)
+            fhash = hashlib.sha256(content).hexdigest()
+            fsize = len(content)
+            file_hashes.append((f.name, fhash))
+            total_size += fsize
+            content_type = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
+            self.client.register_artifact_file(
+                artifact_id,
+                path=f.name,
+                sha256=fhash,
+                size_bytes=fsize,
+                content_type=content_type,
+            )
 
         if len(file_hashes) == 1:
             tree_hash = file_hashes[0][1]

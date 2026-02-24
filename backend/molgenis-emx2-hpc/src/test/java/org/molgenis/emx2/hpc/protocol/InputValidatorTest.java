@@ -76,4 +76,64 @@ class InputValidatorTest {
     assertThrows(
         IllegalArgumentException.class, () -> InputValidator.optionalText(hugeStr, "detail"));
   }
+
+  // --- validateContentUrl ---
+
+  @Test
+  void posixContentUrlValidAbsolutePath() {
+    assertDoesNotThrow(
+        () -> InputValidator.validateContentUrl("file:///data/shared/output", "posix"));
+  }
+
+  @Test
+  void posixContentUrlRejectsTraversal() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateContentUrl("file:///data/jobs/../etc/passwd", "posix"));
+  }
+
+  @Test
+  void posixContentUrlRejectsWrongScheme() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateContentUrl("http://evil.com/payload", "posix"));
+  }
+
+  @Test
+  void posixContentUrlRejectsBarePath() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateContentUrl("/bare/path", "posix"));
+  }
+
+  @Test
+  void posixContentUrlRejectsRelativePath() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateContentUrl("file://relative/path", "posix"));
+  }
+
+  @Test
+  void posixContentUrlRejectsNull() {
+    assertThrows(
+        IllegalArgumentException.class, () -> InputValidator.validateContentUrl(null, "posix"));
+  }
+
+  @Test
+  void managedContentUrlAllowsNull() {
+    assertDoesNotThrow(() -> InputValidator.validateContentUrl(null, "managed"));
+  }
+
+  @Test
+  void posixContentUrlRejectsNullBytes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateContentUrl("file:///data/\0evil", "posix"));
+  }
+
+  @Test
+  void nonPosixResidenceSkipsValidation() {
+    assertDoesNotThrow(() -> InputValidator.validateContentUrl(null, null));
+    assertDoesNotThrow(() -> InputValidator.validateContentUrl("anything", "managed"));
+  }
 }

@@ -432,6 +432,26 @@ class HpcClient:
             return {}
         return response.json()
 
+    def register_artifact_file(
+        self,
+        artifact_id: str,
+        path: str,
+        sha256: str,
+        size_bytes: int,
+        content_type: str = "application/octet-stream",
+    ) -> dict:
+        """Register file metadata (no binary upload) for a posix artifact."""
+        return self._request(
+            "POST",
+            f"/api/hpc/artifacts/{artifact_id}/files",
+            json={
+                "path": path,
+                "sha256": sha256,
+                "size_bytes": size_bytes,
+                "content_type": content_type,
+            },
+        )
+
     def commit_artifact(self, artifact_id: str, sha256: str, size_bytes: int) -> dict:
         """Commit an artifact with final hash and size."""
         return self._request(
