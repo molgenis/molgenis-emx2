@@ -77,14 +77,18 @@ function stringArrayValidationCheck(
     "PERIOD_ARRAY",
     "NON_NEGATIVE_INT_ARRAY",
   ].includes(type);
-
   const incorrectFields = errorMessage?.match(CONSTANTS.SELECT_QUOTED_REGEX);
   if (
     isTypeWithPartialError &&
     incorrectFields &&
     incorrectFields?.length > 0
   ) {
-    return incorrectFields?.includes(`'${value}'`) ? true : false;
+    const test = incorrectFields?.includes(
+      `'${value?.toString()?.replaceAll("'", "\\'")}'`
+    )
+      ? true
+      : false;
+    return test;
   }
   return invalid;
 }
