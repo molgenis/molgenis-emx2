@@ -9,7 +9,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.rio.*;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
+import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +34,11 @@ public class JsonLdUtils {
     wrapper.putAll(jsonLdSchema);
     wrapper.put("data", graphqlLikeData);
     try (StringReader reader = new StringReader(mapper.writeValueAsString(wrapper))) {
-      Model model = Rio.parse(reader, "", RDFFormat.JSONLD);
+      RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+      parser.getParserConfig().set(BasicParserSettings.VERIFY_URI_SYNTAX, false);
+      Model model = new LinkedHashModel();
+      parser.setRDFHandler(new StatementCollector(model));
+      parser.parse(reader, "");
       StringWriter writer = new StringWriter();
       Rio.write(model, writer, RDFFormat.TURTLE);
       return writer.toString();

@@ -15,6 +15,7 @@ import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.molgenis.emx2.web.util.EncodingHelpers;
 
 public class JsonLdApi {
 
@@ -47,9 +48,8 @@ public class JsonLdApi {
   }
 
   private static String schemaBaseUrl(Context ctx) {
-    String path = ctx.path();
-    String schemaPath = path.substring(0, path.indexOf("/api/"));
-    return ctx.scheme() + "://" + ctx.host() + schemaPath;
+    String schemaName = MolgenisWebservice.sanitize(ctx.pathParam("schema"));
+    return ctx.scheme() + "://" + ctx.host() + "/" + EncodingHelpers.encodePathSegment(schemaName);
   }
 
   private static void respondWithData(

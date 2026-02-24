@@ -23,6 +23,7 @@ public class JsonLdSchemaGenerator {
 
   public static Map<String, Object> generateJsonLdSchemaAsMap(
       SchemaMetadata schema, String schemaUrl) {
+    schemaUrl = schemaUrl.replace(" ", "%20");
     final String PREFIX = schema.getIdentifier() + ":";
 
     Map<String, String> schemaNamespaces =
