@@ -25,9 +25,9 @@ const {
 const BIG_INT_ERROR = `Invalid long: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 const INT_ERROR = `Invalid integer: must be value from ${MIN_INT} to ${MAX_INT}`;
 const PERIOD_EXPLANATION =
-  "must start with a P and should contain at least a Y(year), M(month) or D(day): e.g. \"P1Y3M14D\"";
+  'must start with a P and should contain at least a Y(year), M(month) or D(day): e.g. "P1Y3M14D"';
 const UUID_EXPLANATION =
-  "must use a valid UUID format (rfc9562): e.g. \"123e4567-e89b-12d3-a456-426614174000\"";
+  'must use a valid UUID format (rfc9562): e.g. "123e4567-e89b-12d3-a456-426614174000"';
 export const NON_NEGATIVE_INT_ERROR = `Invalid non negative integer: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
