@@ -6,7 +6,9 @@ import hashlib
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from emx2_hpc_daemon.daemon import HpcDaemon
+from emx2_hpc_daemon.backend import StatusResult
+from emx2_hpc_daemon.daemon import HpcDaemon, _build_slurm_detail
+from emx2_hpc_daemon.slurm import SlurmJobInfo
 
 
 def _get_transition_call(mock_client, index=0):
@@ -213,7 +215,11 @@ class TestMonitorUploadsArtifacts:
         )
 
         # Make the simulated backend return FAILED instead of COMPLETED
-        daemon._backend.query_status = MagicMock(return_value="FAILED")
+        failed_result = StatusResult(
+            hpc_status="FAILED",
+            slurm_info=SlurmJobInfo(state="FAILED", exit_code="1:0", reason="NonZeroExitCode"),
+        )
+        daemon._backend.query_status = MagicMock(return_value=failed_result)
 
         daemon._monitor_running_jobs()
 
@@ -337,7 +343,11 @@ class TestMonitorUploadsArtifacts:
             profile="gpu-medium",
         )
 
-        daemon._backend.query_status = MagicMock(return_value="FAILED")
+        failed_result = StatusResult(
+            hpc_status="FAILED",
+            slurm_info=SlurmJobInfo(state="FAILED", exit_code="1:0", reason="NonZeroExitCode"),
+        )
+        daemon._backend.query_status = MagicMock(return_value=failed_result)
 
         daemon._monitor_running_jobs()
 
@@ -614,3 +624,70 @@ class TestTreeHashComputation:
         assert mock_client.commit_artifact.call_count == 1
         call_kwargs = mock_client.commit_artifact.call_args.kwargs
         assert call_kwargs["sha256"] == expected
+
+
+# ---------------------------------------------------------------------------
+# Slurm detail string tests
+# ---------------------------------------------------------------------------
+
+
+class TestBuildSlurmDetail:
+    """Verify _build_slurm_detail produces structured detail strings."""
+
+    def test_completed_job_minimal(self):
+        info = SlurmJobInfo(state="COMPLETED", exit_code="0:0", reason="None")
+        detail = _build_slurm_detail(info)
+        assert detail == "slurm_state=COMPLETED"
+
+    def test_failed_with_exit_code(self):
+        info = SlurmJobInfo(
+            state="FAILED", exit_code="137:0", reason="NonZeroExitCode",
+            node_list="gpu-01", elapsed="00:45:12",
+        )
+        detail = _build_slurm_detail(info)
+        assert "slurm_state=FAILED" in detail
+        assert "exit_code=137:0" in detail
+        assert "reason=NonZeroExitCode" in detail
+        assert "node=gpu-01" in detail
+        assert "elapsed=00:45:12" in detail
+
+    def test_oom_preserves_slurm_state(self):
+        """OUT_OF_MEMORY should appear as slurm_state, not just 'FAILED'."""
+        info = SlurmJobInfo(
+            state="OUT_OF_MEMORY", exit_code="137:0", reason="OutOfMemory",
+            node_list="compute-02",
+        )
+        detail = _build_slurm_detail(info)
+        assert "slurm_state=OUT_OF_MEMORY" in detail
+        assert "reason=OutOfMemory" in detail
+
+    def test_pending_with_reason(self):
+        info = SlurmJobInfo(state="PENDING", reason="Priority")
+        detail = _build_slurm_detail(info)
+        assert "slurm_state=PENDING" in detail
+        assert "reason=Priority" in detail
+
+    def test_transition_detail_includes_slurm_metadata(self, sample_config, tmp_path: Path):
+        """End-to-end: completed job transition should have structured detail."""
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        (output_dir / "result.csv").write_text("data")
+
+        daemon.tracker.track(
+            emx2_job_id="job-detail-001",
+            slurm_job_id="sim-detail-001",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+        )
+
+        daemon._monitor_running_jobs()
+
+        _, status, kwargs = _get_transition_call(mock_client)
+        assert status == "COMPLETED"
+        # SimulatedBackend returns exit_code="0:0" and reason="None",
+        # so detail should be minimal but include slurm_state
+        assert "slurm_state=COMPLETED" in kwargs["detail"]

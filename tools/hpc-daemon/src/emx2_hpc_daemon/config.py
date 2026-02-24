@@ -50,6 +50,7 @@ class EmxConfig:
 class WorkerConfig:
     poll_interval_seconds: int = 30
     max_concurrent_jobs: int = 10
+    queue_report_interval_seconds: int = 300  # report Slurm PENDING status every 5 min
 
 
 @dataclass
@@ -112,8 +113,11 @@ def load_config(path: str | Path) -> DaemonConfig:
         config.emx2 = EmxConfig(**{k: v for k, v in raw["emx2"].items()})
 
     # shared_secret_file takes priority over shared_secret
+    # Resolve relative paths against the config file's directory
     if config.emx2.shared_secret_file:
         secret_path = Path(config.emx2.shared_secret_file)
+        if not secret_path.is_absolute():
+            secret_path = Path(path).parent / secret_path
         if not secret_path.is_file():
             raise FileNotFoundError(
                 f"shared_secret_file not found: {secret_path}"

@@ -57,8 +57,12 @@ class MockSlurmCluster:
             if job_id and job_id in self._jobs:
                 state = self._jobs[job_id]
                 if state in ("PENDING", "RUNNING"):
+                    # Format: State|Reason|NodeList
+                    reason = "Priority" if state == "PENDING" else "None"
+                    node = "" if state == "PENDING" else "mock-node-01"
                     return subprocess.CompletedProcess(
-                        cmd, returncode=0, stdout=f"{state}\n", stderr=""
+                        cmd, returncode=0,
+                        stdout=f"{state}|{reason}|{node}\n", stderr=""
                     )
             # Job not in squeue (finished or not found)
             return subprocess.CompletedProcess(
@@ -75,11 +79,17 @@ class MockSlurmCluster:
 
             if job_id and job_id in self._jobs:
                 state = self._jobs[job_id]
+                # Format: State|ExitCode|Reason|NodeList|Elapsed
+                exit_code = "0:0" if state == "COMPLETED" else "1:0"
+                reason = "None" if state == "COMPLETED" else state
                 return subprocess.CompletedProcess(
-                    cmd, returncode=0, stdout=f"{state}\n", stderr=""
+                    cmd, returncode=0,
+                    stdout=f"{state}|{exit_code}|{reason}|mock-node-01|00:01:00\n",
+                    stderr=""
                 )
             return subprocess.CompletedProcess(
-                cmd, returncode=0, stdout="UNKNOWN\n", stderr=""
+                cmd, returncode=0,
+                stdout="UNKNOWN||||00:00:00\n", stderr=""
             )
 
         elif program == "scancel":

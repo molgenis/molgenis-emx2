@@ -17,6 +17,7 @@ from .config import DaemonConfig
 from .hashing import compute_tree_hash
 from .profiles import resolve_profile
 from .slurm import (
+    SlurmJobInfo,
     cancel_job,
     generate_batch_script,
     query_status,
@@ -106,6 +107,14 @@ class SubmitResult:
     output_dir: str | None = None
 
 
+@dataclass
+class StatusResult:
+    """Result of a status query: the new HPC status plus Slurm metadata."""
+
+    hpc_status: str  # e.g. "STARTED", "COMPLETED", "FAILED"
+    slurm_info: SlurmJobInfo  # full Slurm metadata for detail strings
+
+
 class ExecutionBackend(ABC):
     """Strategy interface for job execution."""
 
@@ -117,11 +126,16 @@ class ExecutionBackend(ABC):
         """
 
     @abstractmethod
-    def query_status(self, slurm_job_id: str, current_status: str) -> str | None:
+    def query_status(self, slurm_job_id: str, current_status: str) -> StatusResult | None:
         """Query the current status of a submitted job.
 
-        Returns the new HPC status string, or None if unchanged.
+        Returns a StatusResult with the new HPC status and Slurm metadata,
+        or None if the status hasn't changed.
         """
+
+    def query_slurm_info(self, slurm_job_id: str) -> SlurmJobInfo | None:
+        """Query raw Slurm info without status mapping. Override for real Slurm."""
+        return None
 
     @abstractmethod
     def cancel(self, slurm_job_id: str) -> None:
@@ -224,12 +238,15 @@ class SlurmBackend(ExecutionBackend):
             output_dir=str(output_dir),
         )
 
-    def query_status(self, slurm_job_id: str, current_status: str) -> str | None:
-        slurm_state = query_status(slurm_job_id)
-        hpc_status = SLURM_TO_HPC_STATUS.get(slurm_state)
+    def query_status(self, slurm_job_id: str, current_status: str) -> StatusResult | None:
+        info = query_status(slurm_job_id)
+        hpc_status = SLURM_TO_HPC_STATUS.get(info.state)
         if hpc_status is None or hpc_status == current_status:
             return None
-        return hpc_status
+        return StatusResult(hpc_status=hpc_status, slurm_info=info)
+
+    def query_slurm_info(self, slurm_job_id: str) -> SlurmJobInfo | None:
+        return query_status(slurm_job_id)
 
     def cancel(self, slurm_job_id: str) -> None:
         cancel_job(slurm_job_id)
@@ -387,8 +404,23 @@ class SimulatedBackend(ExecutionBackend):
             output_dir=str(output_dir),
         )
 
-    def query_status(self, slurm_job_id: str, current_status: str) -> str | None:
-        return {"SUBMITTED": "STARTED", "STARTED": "COMPLETED"}.get(current_status)
+    def query_status(self, slurm_job_id: str, current_status: str) -> StatusResult | None:
+        hpc_status = {"SUBMITTED": "STARTED", "STARTED": "COMPLETED"}.get(current_status)
+        if hpc_status is None:
+            return None
+        simulated_state = {"STARTED": "RUNNING", "COMPLETED": "COMPLETED"}.get(
+            hpc_status, hpc_status
+        )
+        return StatusResult(
+            hpc_status=hpc_status,
+            slurm_info=SlurmJobInfo(
+                state=simulated_state,
+                exit_code="0:0" if hpc_status == "COMPLETED" else "",
+                reason="None",
+                node_list="simulated",
+                elapsed="00:00:01",
+            ),
+        )
 
     def cancel(self, slurm_job_id: str) -> None:
         pass

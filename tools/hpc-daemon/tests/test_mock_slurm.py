@@ -54,9 +54,10 @@ class TestSlurmModuleWithMock:
         with patch("subprocess.run", side_effect=cluster.mock_subprocess_run):
             slurm_id = submit_job(script)
             cluster.set_state(slurm_id, "RUNNING")
-            status = query_status(slurm_id)
+            info = query_status(slurm_id)
 
-        assert status == "RUNNING"
+        assert info.state == "RUNNING"
+        assert info.node_list == "mock-node-01"
 
     def test_query_status_completed(self, tmp_dir):
         cluster = MockSlurmCluster()
@@ -67,9 +68,11 @@ class TestSlurmModuleWithMock:
             slurm_id = submit_job(script)
             cluster.set_state(slurm_id, "COMPLETED")
             # Completed jobs are found by sacct (not squeue)
-            status = query_status(slurm_id)
+            info = query_status(slurm_id)
 
-        assert status == "COMPLETED"
+        assert info.state == "COMPLETED"
+        assert info.exit_code == "0:0"
+        assert info.elapsed == "00:01:00"
 
     def test_cancel_job(self, tmp_dir):
         cluster = MockSlurmCluster()
@@ -90,10 +93,10 @@ class TestSlurmModuleWithMock:
 
         with patch("subprocess.run", side_effect=cluster.mock_subprocess_run):
             slurm_id = submit_job(script)
-            assert query_status(slurm_id) == "PENDING"
+            assert query_status(slurm_id).state == "PENDING"
 
             cluster.set_state(slurm_id, "RUNNING")
-            assert query_status(slurm_id) == "RUNNING"
+            assert query_status(slurm_id).state == "RUNNING"
 
             cluster.set_state(slurm_id, "COMPLETED")
-            assert query_status(slurm_id) == "COMPLETED"
+            assert query_status(slurm_id).state == "COMPLETED"

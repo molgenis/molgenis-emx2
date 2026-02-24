@@ -27,6 +27,7 @@ class TrackedJob:
     profile: str | None = None
     claimed_at: float = 0.0  # time.monotonic() at tracking time
     last_progress_hash: str | None = None
+    last_queue_report: float = 0.0  # time.monotonic() of last queue status report
 
     @property
     def profile_key(self) -> str:

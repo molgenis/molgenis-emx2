@@ -160,9 +160,12 @@ public class JobService {
           Row job = rows.getFirst();
           HpcJobStatus currentStatus = HpcJobStatus.valueOf(job.getString("status"));
 
-          // Idempotent: if already in target status, check if identical transition
+          // Same-state transition: record detail if provided (e.g. queue status updates)
           if (currentStatus == targetStatus) {
-            return job; // idempotent success
+            if (detail != null && !detail.isBlank()) {
+              recordTransition(schema, jobId, currentStatus, targetStatus, workerId, detail);
+            }
+            return job;
           }
 
           // Validate transition

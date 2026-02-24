@@ -29,11 +29,29 @@ from .backend import ExecutionBackend, SimulatedBackend, SlurmBackend
 from .client import ClaimConflict, HpcClient, format_links
 from .config import DaemonConfig
 from .profiles import derive_capabilities, resolve_profile
+from .slurm import SlurmJobInfo
 from .tracker import JobTracker
 
 logger = logging.getLogger(__name__)
 
 TERMINAL_STATUSES = frozenset({"COMPLETED", "FAILED", "CANCELLED"})
+
+
+def _build_slurm_detail(info: SlurmJobInfo) -> str:
+    """Build a structured detail string from Slurm job metadata.
+
+    Example: "slurm_state=OUT_OF_MEMORY; exit_code=137:0; reason=OutOfMemory; node=gpu-01; elapsed=00:45:12"
+    """
+    parts = [f"slurm_state={info.state}"]
+    if info.exit_code and info.exit_code != "0:0":
+        parts.append(f"exit_code={info.exit_code}")
+    if info.reason and info.reason not in ("None", ""):
+        parts.append(f"reason={info.reason}")
+    if info.node_list:
+        parts.append(f"node={info.node_list}")
+    if info.elapsed:
+        parts.append(f"elapsed={info.elapsed}")
+    return "; ".join(parts)
 
 
 class HpcDaemon:
@@ -535,6 +553,12 @@ class HpcDaemon:
                     f"({resolved.claim_timeout_seconds}s) exceeded "
                     f"for profile {tracked.profile_key}"
                 )
+                if tracked.slurm_job_id:
+                    slurm_info = self._backend.query_slurm_info(tracked.slurm_job_id)
+                    if slurm_info:
+                        detail += f"; slurm_state={slurm_info.state}"
+                        if slurm_info.reason and slurm_info.reason != "None":
+                            detail += f"; reason={slurm_info.reason}"
                 logger.warning(
                     "Job %s exceeded claim timeout: %s",
                     tracked.emx2_job_id,
@@ -561,6 +585,12 @@ class HpcDaemon:
                     f"({resolved.execution_timeout_seconds}s) exceeded "
                     f"for profile {tracked.profile_key}"
                 )
+                if tracked.slurm_job_id:
+                    slurm_info = self._backend.query_slurm_info(tracked.slurm_job_id)
+                    if slurm_info:
+                        detail += f"; slurm_state={slurm_info.state}"
+                        if slurm_info.reason and slurm_info.reason != "None":
+                            detail += f"; reason={slurm_info.reason}"
                 logger.warning(
                     "Job %s exceeded execution timeout: %s",
                     tracked.emx2_job_id,
@@ -628,10 +658,48 @@ class HpcDaemon:
                 tracked.emx2_job_id,
             )
 
+    def _report_queue_status(self) -> None:
+        """Report Slurm queue status for jobs stuck in SUBMITTED state.
+
+        Periodically posts a same-state transition with the Slurm PENDING
+        reason so EMX2 has visibility into queued jobs.
+        """
+        interval = self.config.worker.queue_report_interval_seconds
+        if interval <= 0:
+            return
+
+        now = time.monotonic()
+        for tracked in self.tracker.active_jobs():
+            if tracked.status != "SUBMITTED" or not tracked.slurm_job_id:
+                continue
+            if (now - tracked.last_queue_report) < interval:
+                continue
+
+            slurm_info = self._backend.query_slurm_info(tracked.slurm_job_id)
+            if slurm_info is None or slurm_info.state != "PENDING":
+                continue
+
+            elapsed_s = int(now - tracked.claimed_at)
+            detail = _build_slurm_detail(slurm_info) + f"; queued={elapsed_s}s"
+            try:
+                self.client.transition_job(
+                    tracked.emx2_job_id, "SUBMITTED", detail=detail
+                )
+                tracked.last_queue_report = now
+                logger.info(
+                    "Queue status for job %s: %s", tracked.emx2_job_id, detail
+                )
+            except Exception:
+                logger.exception(
+                    "Failed to report queue status for job %s",
+                    tracked.emx2_job_id,
+                )
+
     def _monitor_running_jobs(self) -> None:
         """Check status of all tracked jobs and report transitions."""
         self._check_server_cancellations()
         self._check_profile_timeouts()
+        self._report_queue_status()
 
         for tracked in self.tracker.active_jobs():
             if not tracked.slurm_job_id:
@@ -640,10 +708,10 @@ class HpcDaemon:
             # Relay in-flight progress before checking for state changes
             self._check_progress_file(tracked)
 
-            new_status = self._backend.query_status(
+            result = self._backend.query_status(
                 tracked.slurm_job_id, tracked.status
             )
-            if new_status is None:
+            if result is None:
                 logger.debug(
                     "Job %s (slurm %s): no status change from %s",
                     tracked.emx2_job_id,
@@ -651,6 +719,9 @@ class HpcDaemon:
                     tracked.status,
                 )
                 continue
+
+            new_status = result.hpc_status
+            info = result.slurm_info
 
             logger.debug(
                 "Job %s (slurm %s): %s → %s",
@@ -661,7 +732,7 @@ class HpcDaemon:
             )
 
             try:
-                detail = f"Slurm state: {new_status}"
+                detail = _build_slurm_detail(info)
                 output_artifact_id = None
                 log_artifact_id = None
 
@@ -675,7 +746,7 @@ class HpcDaemon:
                         profile=tracked.profile,
                     )
                     if log_artifact_id:
-                        detail += f"; log artifact: {log_artifact_id}"
+                        detail += f"; log_artifact={log_artifact_id}"
 
                     # Upload output artifacts (primarily on success)
                     if new_status == "COMPLETED":
@@ -686,7 +757,7 @@ class HpcDaemon:
                             profile=tracked.profile,
                         )
                         if output_artifact_id:
-                            detail += f"; output artifact: {output_artifact_id}"
+                            detail += f"; output_artifact={output_artifact_id}"
 
                 self.client.transition_job(
                     tracked.emx2_job_id,

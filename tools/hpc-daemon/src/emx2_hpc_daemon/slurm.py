@@ -11,11 +11,23 @@ import logging
 import re
 import subprocess
 import textwrap
+from dataclasses import dataclass
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 COMMAND_TIMEOUT = 30  # seconds
+
+
+@dataclass
+class SlurmJobInfo:
+    """Structured metadata from squeue/sacct for a Slurm job."""
+
+    state: str  # e.g. "FAILED", "COMPLETED", "RUNNING", "PENDING"
+    exit_code: str = ""  # e.g. "137:0" (job:step), empty for active jobs
+    reason: str = ""  # e.g. "OutOfMemory", "Priority", "None"
+    node_list: str = ""  # e.g. "gpu-node-01"
+    elapsed: str = ""  # e.g. "01:23:45", empty for active jobs
 
 
 class SlurmError(Exception):
@@ -47,27 +59,35 @@ def submit_job(script_path: str | Path) -> str:
     return slurm_id
 
 
-def query_status(slurm_job_id: str) -> str:
+def query_status(slurm_job_id: str) -> SlurmJobInfo:
     """
     Query the status of a Slurm job via squeue/sacct.
 
-    Returns one of: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED, TIMEOUT, UNKNOWN.
-    First tries squeue (for active jobs), falls back to sacct (for finished jobs).
+    Returns a SlurmJobInfo with state plus available metadata (exit code,
+    reason, node, elapsed time). First tries squeue (for active jobs),
+    falls back to sacct (for finished jobs).
     """
     # Try squeue first (for running/pending jobs)
+    # Format: State|Reason|NodeList
     try:
         result = subprocess.run(
-            ["squeue", "-j", slurm_job_id, "-h", "-o", "%T"],
+            ["squeue", "-j", slurm_job_id, "-h", "-o", "%T|%R|%N"],
             capture_output=True,
             text=True,
             timeout=COMMAND_TIMEOUT,
         )
         if result.returncode == 0 and result.stdout.strip():
-            return result.stdout.strip()
+            parts = result.stdout.strip().split("|", 2)
+            return SlurmJobInfo(
+                state=parts[0],
+                reason=parts[1] if len(parts) > 1 else "",
+                node_list=parts[2] if len(parts) > 2 else "",
+            )
     except (subprocess.TimeoutExpired, FileNotFoundError):
         pass
 
     # Fall back to sacct (for completed jobs)
+    # Format: State|ExitCode|Reason|NodeList|Elapsed
     try:
         result = subprocess.run(
             [
@@ -77,7 +97,7 @@ def query_status(slurm_job_id: str) -> str:
                 "-n",
                 "-X",
                 "-o",
-                "State",
+                "State,ExitCode,Reason,NodeList,Elapsed",
                 "--parsable2",
             ],
             capture_output=True,
@@ -85,15 +105,22 @@ def query_status(slurm_job_id: str) -> str:
             timeout=COMMAND_TIMEOUT,
         )
         if result.returncode == 0 and result.stdout.strip():
-            # sacct may return states like "COMPLETED", "FAILED", "CANCELLED by ..."
-            state = result.stdout.strip().split("\n")[0]
+            line = result.stdout.strip().split("\n")[0]
+            parts = line.split("|")
+            state = parts[0] if len(parts) > 0 else "UNKNOWN"
             # Normalize "CANCELLED by 1000" → "CANCELLED"
             state = re.split(r"\s+by\s+", state)[0]
-            return state
+            return SlurmJobInfo(
+                state=state,
+                exit_code=parts[1] if len(parts) > 1 else "",
+                reason=parts[2] if len(parts) > 2 else "",
+                node_list=parts[3] if len(parts) > 3 else "",
+                elapsed=parts[4] if len(parts) > 4 else "",
+            )
     except (subprocess.TimeoutExpired, FileNotFoundError):
         pass
 
-    return "UNKNOWN"
+    return SlurmJobInfo(state="UNKNOWN")
 
 
 def cancel_job(slurm_job_id: str) -> None:
