@@ -37,7 +37,7 @@ To ensure good data visualisation, please follow these recommendations.
 | marginRight           | amount of space to add on the right side of the chart   | `number`   | -        | `10`          |
 | marginBottom          | amount of space to add below the chart                  | `number`   | -        | `60`          |
 | marginLeft            | Amount of space to add on the left side of the chart    | `number`   | -        | `60` /`25`    |
-| enableGridlines       | If true, gridlines will be shown                        | `boolean`  | -        | `false`       |
+| enableGridlines       | If true, gridlines will be shown                        | `bool`     | -        | `false`       |
 | hoverEventsAreEnabled | Enable hover events on segments                         | `bool`     | _        | `true`        |
 | clickEventsAreEnabled | Enable events when a segment is clicked                 | `bool`     | _        | `false`       |
 | animationsAreEnabled  | If true, columns will be drawn over 300ms               | `bool`     | -        | `true`        |
