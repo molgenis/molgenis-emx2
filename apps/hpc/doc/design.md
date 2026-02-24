@@ -120,9 +120,7 @@ Configuration SHOULD be via a YAML file specifying EMX2 connection details, Slur
 
 # End-to-End Protocol
 
-![HPC Sequence](./seq.pdf)
-
-The happy-path sequence proceeds in four phases.
+The happy-path sequence proceeds in four phases (see Appendix B for the sequence diagram).
 
 **Phase 1 — Registration and job acquisition.** The head node registers its capabilities with the Workers API, then polls the Jobs API for pending jobs that match its declared processors and profiles. When it finds one, it claims it. The claim MUST be atomic: if two workers try to claim the same job, only one succeeds.
 
@@ -316,7 +314,7 @@ For analytical tools (DuckDB, pandas), committed artifacts could be accessed via
 
 Some artifacts consist of multiple files: a model with a tokenizer sidecar, a VCF with a tabix index. Multi-file artifacts MUST include a file manifest listing each file's path, size, and individual SHA-256 hash.
 
-For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash computed over sorted file paths and their individual hashes (see Appendix B.4). Any modification to any constituent file would be detectable.
+For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash computed over sorted file paths and their individual hashes (see Appendix C.4). Any modification to any constituent file would be detectable.
 
 Input artifacts MUST be COMMITTED before a job can reference them. The daemon verifies hashes before execution — for managed artifacts it downloads and hashes locally; for NFS artifacts it reads from the mount. A mismatch MUST result in a FAILED transition with reason `input_hash_mismatch`. Output artifacts MUST be immutable after commit.
 
@@ -487,26 +485,22 @@ The `Authorization` header contains an HMAC-SHA256 signature computed over a can
 
 ## Provisioning
 
-Each head node MUST be provisioned with two things before it can communicate with EMX2:
+Each head node MUST be provisioned with a unique **`worker_id`** that identifies the head node across all API calls, and credentials for at least one of the supported authentication mechanisms (see below).
 
-- A unique **`worker_id`** that identifies the head node across all API calls.
-- A **shared secret** (for HMAC-based signing) or a **key pair** (for asymmetric signing or mTLS).
+These credentials are configured in EMX2. Revoked or changed credentials take effect immediately.
 
-These credentials are issued by EMX2 and SHOULD be rotatable without disrupting running jobs — during rotation, EMX2 SHOULD accept both the old and new credentials for a configurable grace period. Revoked credentials MUST be rejected immediately.
+## Supported Authentication Mechanisms
 
-## Signing Mechanism Options
+Every daemon-to-EMX2 request MUST be authenticated by at least one of the following mechanisms. Deployments COULD use either; HMAC-SHA256 is preferred for production.
 
-The protocol defines *what* is signed (method, path, body hash, timestamp, nonce) and *what headers carry it*, but leaves the choice of *how* the signature is computed as a deployment decision. Three options are considered:
+| Mechanism | How it works | Notes |
+|-----------|-------------|-------|
+| **HMAC-SHA256** *(preferred)* | Worker and EMX2 share a secret key. The worker computes a keyed hash over a canonical request string (`METHOD\nPATH\nSHA256(body)\nTIMESTAMP\nNONCE`); EMX2 recomputes it and compares. Transmitted as `Authorization: HMAC-SHA256 <hex>`. | Provides per-request integrity, origin verification, and replay protection. The shared secret SHOULD be stored in a file with restricted permissions (mode `0600`) and referenced via `shared_secret_file` in the daemon configuration. |
+| **JWT / API token** | Worker authenticates with an EMX2 API token via the `x-molgenis-token` header. EMX2 validates the token through its standard token verification. | Simpler to set up; useful for development or when the infrastructure already has token management. Does not provide per-request integrity or replay protection. |
 
-| Mechanism | How it works | When to prefer it |
-|-----------|-------------|-------------------|
-| **HMAC-SHA256** | Worker and EMX2 share a secret key. The worker computes a keyed hash over the canonical request string; EMX2 recomputes it and compares. | Simplest to implement; good when both sides can securely share a symmetric key. **Recommended as the reference implementation.** |
-| **JWT** | Worker signs a short-lived JSON Web Token containing the request claims. EMX2 verifies the signature using the worker's public key or shared secret. | Useful when the infrastructure already has JWT tooling, or when tokens need to be inspected by intermediaries. |
-| **mTLS** | Both sides present X.509 certificates during the TLS handshake. The connection itself authenticates the caller. | Strongest guarantee, but requires certificate management and TLS termination at the right point in the network. |
+The shared secret for HMAC SHOULD be stored as a database setting (`MOLGENIS_HPC_SHARED_SECRET`, minimum 32 characters). When no secret is configured, HMAC verification is disabled (suitable for development only).
 
-The reference implementation SHOULD use **HMAC-SHA256** as the default. The canonical request string is `METHOD\nPATH\nSHA256(body)\nTIMESTAMP\nNONCE`, transmitted as `Authorization: HMAC-SHA256 <hex>`. The shared secret would be stored as a database setting (`MOLGENIS_HPC_SHARED_SECRET`, minimum 32 characters). When no secret is configured, HMAC verification SHOULD be disabled (suitable for development only).
-
-Replay protection SHOULD enforce a 5-minute timestamp drift window and an LRU nonce cache.
+When HMAC is enabled, replay protection SHOULD enforce a 5-minute timestamp drift window and an LRU nonce cache.
 
 ## Server-Side Authentication Cascade
 
@@ -547,7 +541,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 **S3-minimal file surface.** The proposed artifact file API exposes path-based GET/PUT/HEAD/DELETE operations that map to S3 semantics (`GetObject`, `PutObject`, `HeadObject`, `DeleteObject`). This is sufficient for the initial use case and makes a future S3-compatible gateway straightforward to implement. Until then, analytical tools would access managed artifacts via HTTP GET with range request support.
 
-**Authentication mechanism.** The wire format (headers, nonce, timestamp) is defined; the signing mechanism is deliberately left open. This accommodates different institutional PKI, but means the authentication layer must be fully specified during implementation.
+**Authentication mechanism.** Two mechanisms are supported: HMAC-SHA256 (recommended for production, provides per-request integrity and replay protection) and JWT/API tokens (simpler, suitable for development). Browser-based access is handled via session cookies. See §8 for details.
 
 ## Open Design Decisions
 
@@ -560,7 +554,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 # Appendix A: API Reference {.unnumbered}
 
-Full endpoint specifications. All endpoints require the standard headers from §8.2. URLs shown here are illustrative; in practice, clients MUST follow `_links` from server responses.
+Full endpoint specifications. All endpoints require authentication as described in §8. URLs shown here are illustrative; in practice, clients MUST follow `_links` from server responses.
 
 ## A.1 Workers API {.unnumbered}
 
@@ -939,9 +933,13 @@ File listing for this artifact:
 
 For posix artifacts, the daemon registers file metadata without binary content. Consumers access files directly via the NFS mount at the `content_url` path. The GET file endpoint returns a `302` redirect to `{content_url}/{path}` for files without stored binary content.
 
-# Appendix B: State Machine Reference {.unnumbered}
+# Appendix B: Sequence Diagram {.unnumbered}
 
-## B.1 Hypermedia Link Mapping (Jobs) {.unnumbered}
+![HPC Sequence](./seq.pdf)
+
+# Appendix C: State Machine Reference {.unnumbered}
+
+## C.1 Hypermedia Link Mapping (Jobs) {.unnumbered}
 
 All states include `self` and `transitions` (read) links.
 
@@ -955,7 +953,7 @@ All states include `self` and `transitions` (read) links.
 | FAILED | *(terminal)* |
 | CANCELLED | *(terminal)* |
 
-## B.2 Hypermedia Link Mapping (Artifacts) {.unnumbered}
+## C.2 Hypermedia Link Mapping (Artifacts) {.unnumbered}
 
 All states include `self` and `files` (list) links.
 
@@ -967,13 +965,13 @@ All states include `self` and `files` (list) links.
 | COMMITTED | `download` (GET template) |
 | FAILED | *(terminal)* |
 
-## B.3 Artifact Lifecycle Transitions {.unnumbered}
+## C.3 Artifact Lifecycle Transitions {.unnumbered}
 
 **Managed:** CREATED → UPLOADING (first `PUT /files/{path}`) → COMMITTED (`POST /commit`). CREATED or UPLOADING → FAILED (timeout).
 
 **External (POSIX, S3, HTTP, reference):** REGISTERED → COMMITTED (verified) or REGISTERED → FAILED (unreachable / hash mismatch).
 
-## B.4 Tree Hash {.unnumbered}
+## C.4 Tree Hash {.unnumbered}
 
 ```
 sha256_tree = SHA256(concat(for each file in sorted(paths): path + ":" + sha256_hex(file_bytes)))
