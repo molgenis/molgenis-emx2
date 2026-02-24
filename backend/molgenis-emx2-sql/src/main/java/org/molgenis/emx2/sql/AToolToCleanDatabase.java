@@ -1,12 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.name;
-
-import java.util.List;
+import java.io.IOException;
+import java.util.Objects;
 import org.jooq.DSLContext;
-import org.jooq.ForeignKey;
-import org.jooq.Schema;
-import org.jooq.Table;
+import org.molgenis.emx2.MolgenisException;
 
 public class AToolToCleanDatabase {
   private static DSLContext jooq;
@@ -19,48 +16,25 @@ public class AToolToCleanDatabase {
     SqlDatabase db = new SqlDatabase(true);
     jooq = db.getJooq();
     db.becomeAdmin();
-    jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
-    deleteAllForeignKeyConstraints();
-    deleteAllSchemas();
-    deleteAllRoles();
+
+    executeSqlStep("clean-db-remove-foreign-keys.sql");
+    executeSqlStep("clean-db-remove-molgenis-schema.sql");
+    executeSqlStep("clean-db-remove-user-schemas.sql");
+    executeSqlStep("clean-db-remove-all-roles.sql");
     MetadataUtils.resetVersion();
     new SqlDatabase(true);
   }
 
-  private static void deleteAllRoles() {
-    for (String roleName : jooq.selectFrom(name("pg_roles")).fetchSet("rolname", String.class)) {
-      if (roleName.startsWith("MG_")
-          || roleName.startsWith("test")
-          || roleName.startsWith("user_")) {
-        String dbName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
-        jooq.execute(
-            "REVOKE ALL PRIVILEGES ON DATABASE {0} FROM {1}", name(dbName), name(roleName));
-        jooq.execute("DROP ROLE {0}", name(roleName));
-      }
-    }
-  }
-
-  private static void deleteAllSchemas() {
-    for (Schema s : jooq.meta().getSchemas()) {
-      String schemaName = s.getName();
-      if (!schemaName.startsWith("pg_")
-          && !"information_schema".equals(schemaName)
-          && !"public".equals(schemaName)) {
-        jooq.dropSchema(name(s.getName())).cascade().execute();
-      }
-    }
-  }
-
-  private static void deleteAllForeignKeyConstraints() {
-    for (Schema s : jooq.meta().getSchemas()) {
-      String name = s.getName();
-      if (!name.startsWith("pg_") && !"information_schema".equals(name) && !"public".equals(name)) {
-        for (Table t : s.getTables()) {
-          for (ForeignKey k : (List<ForeignKey>) t.getReferences()) {
-            jooq.alterTable(t).dropConstraint(k.getName()).execute();
-          }
-        }
-      }
+  private static void executeSqlStep(String step) {
+    try {
+      String sql =
+          new String(
+              Objects.requireNonNull(
+                      AToolToCleanDatabase.class.getResourceAsStream("utility-sql/" + step))
+                  .readAllBytes());
+      jooq.execute(sql);
+    } catch (IOException e) {
+      throw new MolgenisException("Clean database failed", e);
     }
   }
 }

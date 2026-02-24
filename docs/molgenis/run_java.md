@@ -7,6 +7,12 @@ Steps:
     ```console
     psql postgres
     ```
+
+    Or on macOS:
+
+    ```
+      psql -U postgres
+    ```
 * Then in psql console paste
     ```console
     create database molgenis;
@@ -66,3 +72,16 @@ rm -R /opt/homebrew/var/postgres
 initdb -d  /opt/homebrew/var/postgres
 brew services restart postgresql 
 ```
+
+# FAQ
+
+If you previously had an installation of Molgenis and want to start fresh, use this [AToolToCleanTheDatabase](/apps/docs/#/molgenis/run_updates?id=delete-all-schemas-tool)
+
+Alternatively, if you want to execute the ```SQL``` step by step, [here is a link](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/utility-sql) to the files:
+
+Execution order:
+
+1. clean-db-remove-molgenis-schema.sql
+2. clean-db-remove-foreign-keys.sql
+3. clean-db-remove-user-schemas.sql
+4. clean-db-remove-all-roles.sql
