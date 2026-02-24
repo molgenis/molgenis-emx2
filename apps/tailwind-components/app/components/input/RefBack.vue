@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-import type { IInputProps } from "../../../types/types";
+import { computed, ref, unref, watch, type MaybeRef } from "vue";
 import type {
   IRow,
   columnValue,
   columnValueObject,
 } from "../../../../metadata-utils/src/types";
-import InputRefListItem from "./ref/ListItem.vue";
+import type { IInputProps } from "../../../types/types";
 import fetchRowData from "../../composables/fetchRowData";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import Button from "../Button.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
-import { computed, ref, unref, watch, type MaybeRef } from "vue";
 import Message from "../Message.vue";
-import Button from "../Button.vue";
+import InputRefListItem from "./ref/ListItem.vue";
 
 const props = withDefaults(
   defineProps<
@@ -34,6 +34,8 @@ const props = withDefaults(
 
 const modelValue = defineModel<columnValueObject[] | null>();
 
+const metadata = await fetchTableMetadata(props.refSchemaId, props.refTableId);
+
 const hasPrimaryKey = computed(() => {
   const primaryKey = unref(props.refBackPrimaryKey);
   return primaryKey && typeof primaryKey === "object"
@@ -41,7 +43,13 @@ const hasPrimaryKey = computed(() => {
     : false;
 });
 
-const metadata = await fetchTableMetadata(props.refSchemaId, props.refTableId);
+const addModalConstantValues = computed(() => {
+  const result: IRow = {};
+  result[props.refBackColumn as string] = unref(props.refBackPrimaryKey);
+  return result;
+});
+
+watch(() => props.refTableId, reloadItems);
 
 async function reloadItems() {
   const resp = await fetchTableData(props.refSchemaId, props.refTableId, {
@@ -92,22 +100,16 @@ async function removeRefBackItem(rowIndex: number) {
   }
 }
 
-function afterRowDeleted(row: columnValueObject) {
+function afterRowDeleted() {
   crudRow.value = null;
   showDeleteModal.value = false;
   reloadItems();
 }
 
-function afterRowAdded(row: columnValueObject) {
+function afterRowAdded() {
   showAddModal.value = false;
   reloadItems();
 }
-
-watch(showDeleteModal, (newValue) => {
-  if (newValue === false) {
-    crudRow.value = null;
-  }
-});
 
 async function editRefBackItem(rowIndex: number) {
   if (modelValue.value && modelValue.value[rowIndex]) {
@@ -126,18 +128,19 @@ async function editRefBackItem(rowIndex: number) {
   }
 }
 
-function afterRowEdited(row: columnValueObject) {
+function afterRowEdited() {
   showEditModal.value = false;
   crudRow.value = null;
   reloadItems();
 }
 
-const addModalConstantValues = computed(() => {
-  const result: IRow = {};
-  result[props.refBackColumn as string] = unref(props.refBackPrimaryKey);
-  return result;
+watch(showDeleteModal, (newValue) => {
+  if (newValue === false) {
+    crudRow.value = null;
+  }
 });
 </script>
+
 <template>
   <div v-if="!hasPrimaryKey" class="my-3">
     <Message class="p-6" id="`${id}-key-msg`">
