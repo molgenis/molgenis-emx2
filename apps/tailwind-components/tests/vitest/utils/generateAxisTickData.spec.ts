@@ -16,7 +16,7 @@ describe("generatAxisTickData (viz):", () => {
   });
 
   test("ticks intervals are cleanly and evenly spaced (25)", () => {
-    expect(JSON.stringify(tickData.ticks)).toBe("[0,25,50,75,100]");
+    expect(tickData.ticks).toEqual([0, 25, 50, 75, 100]);
   });
 
   test("min is always the lowest value in the dataset", () => {

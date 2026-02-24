@@ -281,7 +281,11 @@ onMounted(() => {
   useEventListener("resize", renderChart);
 });
 
-watch(props, () => renderChart(), { deep: true });
+watch(
+  () => [props.data, props.asDonutChart, props.showLabels, props.showValues],
+  () => renderChart(),
+  { deep: true }
+);
 </script>
 
 <template>
@@ -311,7 +315,7 @@ watch(props, () => renderChart(), { deep: true });
         width="100%"
         :height="height"
         preserve-aspect-ratio="xMinYMin"
-        :view-box="viewBox"
+        :viewBox="viewBox"
       >
         <g class="chart-area" :transform="chartAreaTransform">
           <g class="pie-slices"></g>

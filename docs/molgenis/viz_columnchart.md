@@ -25,7 +25,7 @@ To ensure good data visualisation, please follow these recommendations.
 | xvar                  | the name of the column to plot along the x axis         | `string`   | `true`   | -             |
 | yvar                  | the name of the column to plot along the y axis         | `string`   | `true`   | -             |
 | ymax                  | the max value to show on the y-axis                     | `number`   | -        | -             |
-| yTicksValues          | an array of y-axis breakpoints                          | `number[]` | -        | _             |
+| yTickValues           | an array of y-axis breakpoints                          | `number[]` | -        | _             |
 | xAxisLabel            | A title to display on the x-axis                        | `string`   | -        | -             |
 | yAxisLabel            | A title to display on the y-axis                        | `string`   | -        | -             |
 | breakXAxisLabelsAt    | A character(s) to break long x-axis labels on new lines | `string`   | -        | -             |
@@ -84,5 +84,5 @@ const data = [
         :hover-events-are-enabled="true"
         @column-clicked="selection = $event"
     />
-<template>
+</template>
 ```

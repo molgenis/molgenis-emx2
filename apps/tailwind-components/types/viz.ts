@@ -58,7 +58,6 @@ export interface ColumnCharts extends Charts, ChartOptions {
   marginRight?: number;
   marginBottom?: number;
   marginLeft?: number;
-  enableGridlines?: boolean;
 }
 
 export interface NumericAxisTickData {
@@ -73,14 +72,14 @@ export interface CategoricalAxisTickData {
   domains: string[];
 }
 
-export interface INewNumericAxisGenerator {
+export interface NewNumericAxisGeneratorProps {
   domainMin?: number;
   domainLimit: number;
   rangeStart: number;
   rangeEnd?: number;
 }
 
-export interface INewCategoricalAxisGenerator {
+export interface NewCategoricalAxisGeneratorProps {
   domains: string[];
   rangeStart?: number;
   rangeEnd: number;

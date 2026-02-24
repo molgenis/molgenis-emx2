@@ -19,7 +19,7 @@ describe("calculateInterval (viz):", () => {
   });
 
   test("value between 50 and 100 returns 25", () => {
-    expect(calculateInterval(100)).toBe(25);
+    expect(calculateInterval(80)).toBe(25);
   });
 
   test("value between 10 and 50 returns 10", () => {

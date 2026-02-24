@@ -1,8 +1,9 @@
 import type {
   NumericAxisTickData,
-  INewNumericAxisGenerator,
-  INewCategoricalAxisGenerator,
+  NewNumericAxisGeneratorProps,
+  NewCategoricalAxisGeneratorProps,
   LegendPosition,
+  DatasetRow,
 } from "../../types/viz";
 
 import { select, scaleBand, scaleLinear } from "d3";
@@ -36,18 +37,19 @@ export function setChartLegendLayoutCss(
 // splits x-axis labels at a specific character by creating two span elements
 export function breakXAxisLabels(svg: any, breakXAxisLabelsAt: string) {
   const separator: string = breakXAxisLabelsAt;
-  const axisText = svg.selectAll("g.chart-axis-x .tick text");
-  axisText.call((labels: Record<string, any>) => {
-    labels.each(function () {
-      // @ts-expect-error
-      const node = d3.select(this);
-      const valueArray: string[] = node.text().split(separator);
-      node.text("");
-      valueArray.forEach((value: string) => {
-        node.append("tspan").attr("x", 0).attr("dy", "1em").text(value);
+  const axisText = svg.selectAll("g.chart-area g.axes .x-axis .tick text");
+  axisText.call(
+    (labels: d3.Selection<SVGTextElement, {}, HTMLElement, any>) => {
+      labels.each(function () {
+        const node = d3.select(this);
+        const valueArray: string[] = node.text().split(separator);
+        node.text("");
+        valueArray.forEach((value: string) => {
+          node.append("tspan").attr("x", 0).attr("dy", "1em").text(value);
+        });
       });
-    });
-  });
+    }
+  );
 }
 
 /**
@@ -60,7 +62,7 @@ export function breakXAxisLabels(svg: any, breakXAxisLabelsAt: string) {
  * @returns an object containing the limit (i.e., max value) and ticks
  */
 export function generateAxisTickData(
-  data: any,
+  data: DatasetRow[],
   key: string
 ): NumericAxisTickData {
   const values: number[] = [
@@ -158,7 +160,7 @@ export function newNumericAxisGenerator({
   domainLimit,
   rangeStart,
   rangeEnd = 0,
-}: INewNumericAxisGenerator) {
+}: NewNumericAxisGeneratorProps) {
   return d3
     .scaleLinear()
     .domain([domainMin, domainLimit])
@@ -180,7 +182,7 @@ export function newCategoricalAxisGenerator({
   domains,
   rangeStart = 0,
   rangeEnd,
-}: INewCategoricalAxisGenerator) {
+}: NewCategoricalAxisGeneratorProps) {
   return d3
     .scaleBand()
     .range([rangeStart, rangeEnd])

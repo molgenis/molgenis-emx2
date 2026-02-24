@@ -31,6 +31,7 @@ const clickedElem = ref<Record<string, number>>();
         y-axis-label="Number of participants"
         :click-events-are-enabled="enableClicks"
         :hover-events-are-enabled="enableHover"
+        break-x-axis-labels-at=" "
         @column-clicked="clickedElem = $event"
       />
       <ComponentOutput class="mt-2.5" v-if="enableClicks">

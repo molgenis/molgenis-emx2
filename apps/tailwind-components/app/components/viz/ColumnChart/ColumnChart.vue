@@ -44,16 +44,13 @@ const props = withDefaults(defineProps<ColumnCharts>(), {
   height: 300,
   marginTop: 10,
   marginRight: 10,
-  marginBottom: 60,
-  marginLeft: 60,
+  marginBottom: 70,
+  marginLeft: 45,
   columnColor: "#014f9e",
   columnColorOnHover: "#53a9ff",
   hoverEventsAreEnabled: true,
   clickEventsAreEnabled: false,
   animationsAreEnabled: true,
-  legendIsEnabled: false,
-  legendIsStacked: false,
-  enableGridlines: false,
 });
 
 const emits = defineEmits(["column-clicked"]);
@@ -61,8 +58,8 @@ const emits = defineEmits(["column-clicked"]);
 const parentElem = ref<HTMLElement>();
 const container = useTemplateRef("container");
 
-const svg = ref();
-const chartArea = ref();
+const svg = ref(); // receives d3.select("svg");
+const chartArea = ref(); // receives d3.select("svg g.chart-area");
 const width = ref<number>(props.width);
 const height = ref<number>(props.height);
 const internalLeftMargin = ref<number>(0);
@@ -109,7 +106,8 @@ const colorPalette = computed<ColorPalette>(() => {
 function setChartDimensions() {
   parentElem.value = container.value?.parentNode as HTMLElement;
   internalLeftMargin.value = props.yAxisLabel ? props.marginLeft : 25;
-  internalBottomMargin.value = props.xAxisLabel ? props.marginBottom : 25;
+  internalBottomMargin.value =
+    props.xAxisLabel || props.breakXAxisLabelsAt ? props.marginBottom : 25;
 
   height.value = props.height - props.marginTop - internalBottomMargin.value;
   width.value =
@@ -119,8 +117,8 @@ function setChartDimensions() {
 }
 
 function renderChartAxes() {
-  const chartAxisGroup = chartArea.value.select("g.axes");
-  chartAxisGroup.selectAll("*").remove();
+  const chartAxisGroup = chartArea.value?.select("g.axes");
+  chartAxisGroup?.selectAll("*").remove();
 
   xScale.value = newCategoricalAxisGenerator({
     domains: xAxisData.value.domains,
@@ -251,7 +249,7 @@ function renderChartAxisTitles() {
         if (yAxisData.value.min < 0) {
           return yScale.value(yAxisData.value.min) + internalBottomMargin.value;
         } else {
-          return yScale.value(0) + internalBottomMargin.value * 0.8;
+          return yScale.value(0) + internalBottomMargin.value * 0.9;
         }
       })
       .attr("dy", "0.5em")
