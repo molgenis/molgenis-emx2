@@ -19,6 +19,10 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class ServeStaticFile {
 
+  private ServeStaticFile() {
+    // hide constructor
+  }
+
   private static final String CUSTOM_APP_FOLDER = "custom-app/";
   private static final String INTERNAL_APP_FOLDER = "/public_html/";
   private static final String NOT_FOUND = "File not found: ";
@@ -50,7 +54,7 @@ public class ServeStaticFile {
     }
   }
 
-  private static boolean TryServeJarApp(Context ctx, String potentialFile) {
+  private static boolean tryServeJarApp(Context ctx, String potentialFile) {
     String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
 
     try (InputStream in = ServeStaticFile.class.getResourceAsStream(potentialFile)) {
@@ -68,7 +72,7 @@ public class ServeStaticFile {
     return false;
   }
 
-  private static boolean TryServeExternalApp(Context ctx, String potentialFile) {
+  private static boolean tryServeExternalApp(Context ctx, String potentialFile) {
     String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
 
     try (InputStream in = new FileInputStream(potentialFile)) {
@@ -132,11 +136,11 @@ public class ServeStaticFile {
         internalAppsDirectory.resolve(fallbackFileBase).toAbsolutePath().normalize().toString();
 
     if (isFile) {
-      boolean internalRequestFound = TryServeJarApp(ctx, requestedInternalFilePath);
+      boolean internalRequestFound = tryServeJarApp(ctx, requestedInternalFilePath);
       if (internalRequestFound) return;
     }
 
-    boolean internalFallbackFound = TryServeJarApp(ctx, internalFallbackFile);
+    boolean internalFallbackFound = tryServeJarApp(ctx, internalFallbackFile);
     if (internalFallbackFound) return;
 
     /* External can not use apps */
@@ -162,11 +166,11 @@ public class ServeStaticFile {
     }
 
     if (isFile) {
-      boolean externalRequestFound = TryServeExternalApp(ctx, requestedExternalFilePath.toString());
+      boolean externalRequestFound = tryServeExternalApp(ctx, requestedExternalFilePath.toString());
       if (externalRequestFound) return;
     }
 
-    boolean externalFallbackFound = TryServeExternalApp(ctx, externalFallbackFile);
+    boolean externalFallbackFound = tryServeExternalApp(ctx, externalFallbackFile);
     if (externalFallbackFound) return;
 
     /* Tried out best to serve something, sadly nothing was found! */
