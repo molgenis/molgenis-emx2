@@ -16,7 +16,7 @@
       }"
     >
       <template v-for="type in Object.keys(demoValue)">
-        <FormField
+        <Field
           :type="type as CellValueType"
           v-model="demoValue[type]"
           :id="'input-' + type"
