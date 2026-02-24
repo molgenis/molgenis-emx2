@@ -198,7 +198,8 @@ jobs:
             kubectl get events -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" --sort-by=.metadata.creationTimestamp | tail -n 40
 
             echo "📌 Logs from backend:"
-            kubectl logs -n preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/} \ deployment/preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/} 
+            POD=$(kubectl get pods -n $NS -o jsonpath='{.items[0].metadata.name}')
+            kubectl logs -n $NS $POD -c emx2 --tail=200
             fi
             
             sleep 10
