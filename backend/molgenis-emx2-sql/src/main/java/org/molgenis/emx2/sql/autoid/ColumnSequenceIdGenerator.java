@@ -27,19 +27,17 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
                       MOLGENIS_ID_RANDOMIZER_KEY, "2B7E151628AED2A6ABF7158809CF4F3C", STRING));
 
   private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?<func>\\$\\{mg_autoid[^}]*})");
-
   private final AutoIdFormat autoIdFormat;
-  private final String format;
   private final SqlSequence sequence;
-  private final byte[] key;
+  private final String prefix;
+  private final String suffix;
+  private final FeistelIdRandomizer randomizer;
 
   public ColumnSequenceIdGenerator(Column column, DSLContext jooq) {
     if (column.getComputed() == null) {
       throw new IllegalArgumentException("Column needs to have a computed value");
     }
-
-    key =
-        column
+    byte[] key = column
             .getSchema()
             .findSettingValue(AUTOID_RANDOMIZER_KEY_SETTING)
             .map(String::getBytes)
@@ -62,8 +60,11 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
             "Invalid computed value provided, only one autoid instance is allowed");
       }
 
+      String[] split = computedFormat.split(FUNCTION_PATTERN.pattern());
+      prefix = (split.length >= 1) ? split[0] : "";
+      suffix = (split.length == 2) ? split[1] : "";
+
       autoIdFormat = results.getFirst();
-      computedFormat = computedFormat.replaceAll(FUNCTION_PATTERN.pattern(), "%s");
       String name = getSequenceNameForColumn(column);
       if (!SqlSequence.exists(jooq, column.getSchemaName(), name)) {
         long limit = autoIdFormat.getMaxValue() + 1;
@@ -71,9 +72,8 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
       } else {
         sequence = new SqlSequence(jooq, column.getSchemaName(), name);
       }
+      randomizer = new FeistelIdRandomizer(sequence.getLimit(), key);
     }
-
-    format = computedFormat;
   }
 
   private static String getSequenceNameForColumn(Column column) {
@@ -88,11 +88,18 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
   @Override
   public String generateId() {
     long nextValue = sequence.getNextValue() - 1; // Sequences start counting at 1, not at 0
-    long randomized = new FeistelIdRandomizer(sequence.getLimit(), key).randomize(nextValue);
-    return format.formatted(autoIdFormat.mapToFormat(randomized));
+    long randomized = randomizer.randomize(nextValue);
+    return prefix + autoIdFormat.mapToFormat(randomized) + suffix;
   }
 
   public void updateSequenceForValue(String value) {
-    // TODO: Remove support for multiple formats before we can validate the sequence value
+    String cleaned = value.replaceFirst(prefix, "").replaceFirst(suffix, "");
+
+    long raw = autoIdFormat.getValue(cleaned);
+    long reversed = randomizer.reverse(raw);
+
+    if (sequence.getCurrentValue() < reversed) {
+      sequence.setCurrentValue(reversed + 1);
+    }
   }
 }

@@ -100,6 +100,46 @@ class ColumnSequenceIdGeneratorTest {
     assertNotEquals("FOO-1819", generator.generateId());
   }
 
+  @Test
+  void givenValue_whenSurpassesCurrentSequenceValue_thenUpdateSequence() {
+    Column column = addColumnWithComputedToSchema("${mg_autoid(length=3, format=numbers)}");
+    ColumnSequenceIdGenerator generator = new ColumnSequenceIdGenerator(column, jooq);
+    generator.generateId();
+    String name =
+        String.join(
+            "-",
+            column.getSchemaName(),
+            column.getTableName(),
+            column.getName(),
+            HexFormat.of().toHexDigits(column.getComputed().hashCode()));
+    SqlSequence sequence = new SqlSequence(jooq, column.getSchemaName(), name);
+    assertEquals(1, sequence.getCurrentValue());
+
+    generator.updateSequenceForValue("123");
+    // 295 is randomized to 123
+    assertEquals(296, sequence.getCurrentValue());
+  }
+
+  @Test
+  void givenValue_whenLowerThanSequenceValue_thenDontUpdateSequence() {
+    Column column = addColumnWithComputedToSchema("${mg_autoid(length=3, format=numbers)}");
+    ColumnSequenceIdGenerator generator = new ColumnSequenceIdGenerator(column, jooq);
+    generator.generateId();
+    String name =
+        String.join(
+            "-",
+            column.getSchemaName(),
+            column.getTableName(),
+            column.getName(),
+            HexFormat.of().toHexDigits(column.getComputed().hashCode()));
+    SqlSequence sequence = new SqlSequence(jooq, column.getSchemaName(), name);
+    sequence.setCurrentValue(567);
+
+    generator.updateSequenceForValue("123");
+    // 295 is randomized to 123
+    assertEquals(567, sequence.getCurrentValue());
+  }
+
   private Column addColumnWithComputedToSchema(String computed) {
     return schema
         .create(
