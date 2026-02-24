@@ -64,7 +64,7 @@ def upload_csv(file_name: str):
         client.export(schema='catalogue', fmt='csv')
 
         # Download schema csv
-        response = client.session.get(f"{client.url}/catalogue/api/csv")
+        response = client.session.get(f"{client.url}/catalogue/api/csv/_schema")
         with open("molgenis.csv", "wb") as f:
             f.write(response.content)
 

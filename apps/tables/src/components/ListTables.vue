@@ -9,8 +9,8 @@
     </MessageWarning>
     <div v-else>
       Download all tables:
-      <a :href="`/${schema.id}/api/zip`">zip</a> |
-      <a :href="`/${schema.id}/api/excel`">excel</a> |
+      <a :href="`/${schema.id}/api/zip/_all`">zip</a> |
+      <a :href="`/${schema.id}/api/excel/_all`">excel</a> |
       <a :href="`/${schema.id}/api/jsonld`">jsonld</a> |
       <a :href="`/${schema.id}/api/ttl`">ttl</a><br />
       <InputSearch
