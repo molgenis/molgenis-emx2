@@ -485,20 +485,24 @@ The `Authorization` header contains an HMAC-SHA256 signature computed over a can
 
 ## Provisioning
 
+HPC functionality is lazily initialized: the HPC schema tables in `_SYSTEM_` are only created on first use, and all endpoints except `/api/hpc/health` return `503 Service Unavailable` until HPC is enabled. This keeps the `_SYSTEM_` schema clean for deployments that do not use HPC.
+
+**To enable HPC**, set the `MOLGENIS_HPC_SHARED_SECRET` database setting on the `_SYSTEM_` schema (minimum 32 characters). This setting acts as the activation signal — without it, no HPC tables are created and the API is unavailable. Once the setting is configured, the first authenticated request triggers schema initialization.
+
 Each head node MUST be provisioned with a unique **`worker_id`** that identifies the head node across all API calls, and credentials for at least one of the supported authentication mechanisms (see below).
 
 These credentials are configured in EMX2. Revoked or changed credentials take effect immediately.
 
 ## Supported Authentication Mechanisms
 
-Every daemon-to-EMX2 request MUST be authenticated by at least one of the following mechanisms. Deployments COULD use either; HMAC-SHA256 is preferred for production.
+Every daemon-to-EMX2 request MUST be authenticated by at least one of the following mechanisms. Deployments can use either; HMAC-SHA256 is preferred for production. Note that `MOLGENIS_HPC_SHARED_SECRET` must be set regardless of which mechanism the daemon uses (it activates the HPC API); the daemon may then authenticate via HMAC using that same secret, or via JWT tokens.
 
 | Mechanism | How it works | Notes |
 |-----------|-------------|-------|
 | **HMAC-SHA256** *(preferred)* | Worker and EMX2 share a secret key. The worker computes a keyed hash over a canonical request string; EMX2 recomputes it and compares. Transmitted as `Authorization: HMAC-SHA256 <hex>`. | Provides per-request integrity, origin verification, and replay protection. The shared secret SHOULD be stored in a file with restricted permissions (mode `0600`) and referenced via `shared_secret_file` in the daemon configuration. |
 | **JWT / API token** | Worker authenticates with an EMX2 API token via the `x-molgenis-token` header. EMX2 validates the token through its standard token verification. | Simpler to set up; useful for development or when the infrastructure already has token management. Does not provide per-request integrity or replay protection. |
 
-The shared secret for HMAC SHOULD be stored as a database setting (`MOLGENIS_HPC_SHARED_SECRET`, minimum 32 characters). When no secret is configured, HMAC verification is disabled (suitable for development only).
+The shared secret MUST be stored as a database setting (`MOLGENIS_HPC_SHARED_SECRET`, minimum 32 characters) on the `_SYSTEM_` schema. This setting is required — when it is not configured, the entire HPC API is unavailable (all endpoints except `/api/hpc/health` return `503 Service Unavailable`). For development, use a simple test secret; the daemon's `--simulate` flag can exercise the full lifecycle without Slurm.
 
 When HMAC is enabled, replay protection SHOULD enforce a 5-minute timestamp drift window and an LRU nonce cache.
 

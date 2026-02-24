@@ -12,6 +12,17 @@ Requires Python 3.11+. Install with [uv](https://docs.astral.sh/uv/):
 uv pip install -e .
 ```
 
+## Prerequisites
+
+Before starting the daemon, the `MOLGENIS_HPC_SHARED_SECRET` database setting must be configured on the `_SYSTEM_` schema in EMX2. This setting activates the HPC API — without it, all HPC endpoints return `503 Service Unavailable` and the daemon cannot connect. The HPC schema tables are created automatically on first use once the secret is set.
+
+You can verify the setting is active by checking the health endpoint:
+
+```bash
+curl https://emx2.example.org/api/hpc/health
+# Should return: {"status":"ok","hpc_enabled":true,...}
+```
+
 ## Configuration
 
 The daemon reads a YAML config file. Environment variables can be referenced with `${VAR}` syntax. Secrets should use `shared_secret_file` to read from a file with restricted permissions.
