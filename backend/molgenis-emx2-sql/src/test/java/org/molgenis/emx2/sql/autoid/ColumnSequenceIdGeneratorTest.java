@@ -79,16 +79,11 @@ class ColumnSequenceIdGeneratorTest {
   }
 
   @Test
-  void shouldHandleMultiple() {
+  void whenMultipleFormatsProvided_thenThrow() {
     Column column =
         addColumnWithComputedToSchema(
             "FOO-${mg_autoid(length=3, format=numbers)}-${mg_autoid(length=5, format=numbers)}");
-    ColumnSequenceIdGenerator generator = new ColumnSequenceIdGenerator(column, jooq);
-
-    assertEquals("FOO-133-37247", generator.generateId());
-    assertEquals("FOO-493-84838", generator.generateId());
-    assertEquals("FOO-696-23934", generator.generateId());
-    assertColumnHasSequenceWithLimit(column, 100000000);
+    assertThrows(MolgenisException.class, () -> new ColumnSequenceIdGenerator(column, jooq));
   }
 
   @Test
@@ -103,20 +98,6 @@ class ColumnSequenceIdGeneratorTest {
 
     generator = new ColumnSequenceIdGenerator(column, jooq);
     assertNotEquals("FOO-1819", generator.generateId());
-  }
-
-  private static void assertColumnHasSequenceWithLimit(Column column, long expectedLimit) {
-    String name =
-        SCHEMA_NAME
-            + "-"
-            + column.getTableName()
-            + "-"
-            + column.getName()
-            + "-"
-            + HexFormat.of().toHexDigits(column.getComputed().hashCode());
-    assertTrue(SqlSequence.exists(jooq, SCHEMA_NAME, name));
-    SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, name);
-    assertEquals(expectedLimit, sequence.getLimit());
   }
 
   private Column addColumnWithComputedToSchema(String computed) {

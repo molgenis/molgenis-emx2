@@ -81,6 +81,19 @@ class IdGeneratorServiceTest {
     assertColumnProducesIdMatchingFormat(column, "\\d{2}");
   }
 
+  @Test
+  void givenColumnWithMultipleAutoId_thenThrow() {
+    table.add(
+        Column.column("column")
+            .setType(ColumnType.AUTO_ID)
+            .setComputed("${mg_autoid(length=2, format=numbers)}${mg_autoid}"));
+    Column column = table.getColumn("column");
+    assertThrows(
+        MolgenisException.class,
+        () -> service.generateIdForColumn(column),
+        "Cannot generate autoid for column ${mg_autoid(length=2, format=numbers)}${mg_autoid} because mg_autoid can only be used once");
+  }
+
   private static void assertColumnProducesIdMatchingFormat(Column column, String regex) {
     String id = service.generateIdForColumn(column);
     Matcher matcher = Pattern.compile(regex).matcher(id);
