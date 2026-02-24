@@ -34,29 +34,21 @@ class ServeStaticFileTest {
   }
 
   @Test
-  public void testServeOnlyContext() {
+  public void testServeAppAsset_OnSchemaPath() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.path()).thenReturn("my-app/index.html");
+    when(ctx.path()).thenReturn("/schema/test-app/test-assets/styling.css");
 
     ServeStaticFile.serve(ctx);
 
-    /* Grab what was outputted */
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
-    verify(ctx).result(captor.capture());
-
-    byte[] bytes = captor.getValue();
-    String htmlOutput = new String(bytes, StandardCharsets.UTF_8);
-    System.out.println(htmlOutput);
-
-    assertTrue(htmlOutput.contains("<!doctype html>"));
+    verify(ctx).contentType("text/css");
   }
 
   @Test
-  public void testServeOnlyContext_AutoServeIndexHtml() {
+  public void testServeExternal_AutoServeIndexHtml() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.path()).thenReturn("/ext/my-app");
+    when(ctx.path()).thenReturn("/schema/example-app");
 
     ServeStaticFile.serve(ctx);
 
@@ -72,10 +64,10 @@ class ServeStaticFileTest {
   }
 
   @Test
-  public void testServeOnlyContext_ForbiddenOnPathTraversalAttempt() {
+  public void testServeOnlyContext_NotFoundOnPathTraversalAttempt() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.path()).thenReturn("/ext/../../my-app");
+    when(ctx.path()).thenReturn("/apps/../../example-app");
 
     ServeStaticFile.serve(ctx);
     verify(ctx).status(403);
@@ -85,7 +77,7 @@ class ServeStaticFileTest {
   public void testServeOnlyContext_FileNotFound() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
-    when(ctx.path()).thenReturn("ext/non-existent-app");
+    when(ctx.path()).thenReturn("/non-existent-app");
 
     ServeStaticFile.serve(ctx);
 

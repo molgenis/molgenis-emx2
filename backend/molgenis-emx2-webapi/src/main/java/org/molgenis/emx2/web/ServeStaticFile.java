@@ -4,13 +4,14 @@ import static org.molgenis.emx2.ColumnType.STRING;
 
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
@@ -19,6 +20,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 public class ServeStaticFile {
 
   private static final String CUSTOM_APP_FOLDER = "custom-app/";
+  private static final String INTERNAL_APP_FOLDER = "/public_html/";
 
   public static final String CUSTOM_APP_PATH =
       (String) EnvironmentProperty.getParameter(Constants.CUSTOM_APP_PATH, "", STRING);
@@ -47,6 +49,40 @@ public class ServeStaticFile {
     }
   }
 
+  private static boolean TryServeJarApp(Context ctx, String potentialFile) {
+    String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
+
+    try (InputStream in = ServeStaticFile.class.getResourceAsStream(potentialFile)) {
+      if (mimeType == null) {
+        mimeType = Files.probeContentType(Path.of(potentialFile));
+      }
+      /* App found inside the jar! */
+      if (in != null) {
+        send(ctx, in, mimeType);
+        return true;
+      }
+    } catch (Exception internalNotFound) {
+      /* Catch silently */
+    }
+    return false;
+  }
+
+  private static boolean TryServeExternalApp(Context ctx, String potentialFile) {
+    String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
+
+    try (InputStream in = new FileInputStream(potentialFile)) {
+      if (mimeType == null) {
+        mimeType = Files.probeContentType(Path.of(potentialFile));
+      }
+      send(ctx, in, mimeType);
+      return true;
+
+    } catch (Exception internalNotFound) {
+      /* catch silently */
+    }
+    return false;
+  }
+
   /* Serve internal file */
   public static void serve(Context ctx, String path) {
 
@@ -62,38 +98,74 @@ public class ServeStaticFile {
     }
   }
 
-  /* When only ctx is given, serve external file */
   public static void serve(Context ctx) {
-    /* Do some sanitization, just in case someone can slip a path traversal into the mix
-     * normalize means: resolve all the ./ .. etc to its full path */
-    Path staticRoot =
+    String path = ctx.path();
+    /* Dissect the path, so we can check for the folder to serve from */
+    String[] segments = path.split("/");
+
+    List<String> parts = new ArrayList<>();
+    for (String segment : segments) {
+      if (!segment.isEmpty()) {
+        parts.add(segment);
+      }
+    }
+
+    /* check if the path starts with apps, if not, remove the first bit <schema> */
+    if (!Objects.equals(parts.getFirst(), "apps")) {
+      parts.set(0, "apps");
+    }
+
+    /* Remove leading /, so that it will resolve correctly */
+    path = String.join("/", parts);
+    boolean isFile = parts.getLast().contains(("."));
+    String fallbackFileBase = path + "/index.html";
+
+    Path internalAppsDirectory = Paths.get(INTERNAL_APP_FOLDER);
+    String requestedInternalFilePath =
+        internalAppsDirectory.resolve(path).toAbsolutePath().normalize().toString();
+    String internalFallbackFile =
+        internalAppsDirectory.resolve(fallbackFileBase).toAbsolutePath().normalize().toString();
+
+    if (isFile) {
+      boolean internalRequestFound = TryServeJarApp(ctx, requestedInternalFilePath);
+      if (internalRequestFound) return;
+    }
+
+    boolean internalFallbackFound = TryServeJarApp(ctx, internalFallbackFile);
+    if (internalFallbackFound) return;
+
+    /* External can not use apps */
+    path = path.replace("apps/", "");
+
+    /* Nothing found, so now check external app */
+    Path externalAppsDirectory =
         Paths.get(
                 Objects.requireNonNullElseGet(
                     CUSTOM_APP_PATH, () -> getJarDirectory() + "/" + CUSTOM_APP_FOLDER))
             .toAbsolutePath()
             .normalize();
-    Path requestedPath = staticRoot.resolve(ctx.path().replace("/ext/", "")).normalize();
 
-    if (!requestedPath.startsWith(staticRoot)) {
+    Path requestedExternalFilePath =
+        externalAppsDirectory.resolve(path).toAbsolutePath().normalize();
+    String externalFallbackFile =
+        externalAppsDirectory.resolve(path + "/index.html").toAbsolutePath().normalize().toString();
+
+    if (!requestedExternalFilePath.startsWith(externalAppsDirectory)) {
       /* Suspected path traversal: reject the request */
       ctx.status(403).result("Forbidden");
       return;
     }
 
-    String path = requestedPath.toString();
-
-    File file = new File(path);
-    /* Check if it's a file, and has an extension, if it is neither, then we fall back to index.html for SPA */
-    if ((!file.exists() || !file.isFile()) || !path.matches(".*\\.[A-Za-z0-9]{1,4}$")) {
-      path += "/index.html"; /* So we can determine mimetype automatically */
-      file = new File(path);
+    if (isFile) {
+      boolean externalRequestFound = TryServeExternalApp(ctx, requestedExternalFilePath.toString());
+      if (externalRequestFound) return;
     }
 
-    try (InputStream in = new FileInputStream(file)) {
-      send(ctx, in, URLConnection.guessContentTypeFromName(path));
-    } catch (Exception e) {
-      ctx.status(404).result("File not found: " + ctx.path());
-    }
+    boolean externalFallbackFound = TryServeExternalApp(ctx, externalFallbackFile);
+    if (externalFallbackFound) return;
+
+    /* Tried out best to serve something, sadly nothing was found! */
+    ctx.status(404).result("File not found: " + ctx.path());
   }
 
   private static void send(Context ctx, InputStream in, String mimeType) {

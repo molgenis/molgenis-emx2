@@ -20,46 +20,11 @@ public class StaticFileMapper {
 
     app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
     app.get("*/docs/<asset>", StaticFileMapper::redirectDocs);
-    app.get("/apps/ui/{schema}/", StaticFileMapper::returnUiAppIndex);
-    app.get(
-        "/apps/ui/{schema}/<path>",
-        ctx -> {
-          if (ctx.pathParam("path").contains(".")) {
-            redirectResources(ctx);
-          } else {
-            returnUiAppIndex(ctx);
-          }
-        });
-    /* Serve a custom app in a folder next to the jar */
-    app.get("/ext/{app}/<asset>", ServeStaticFile::serve);
-    app.get("/ext/{app}", ServeStaticFile::serve);
-    app.get("*/{app}/<asset>", StaticFileMapper::redirectInternal);
-    app.get("*/{app}", StaticFileMapper::returnIndexFile);
-  }
-
-  private static void redirectInternal(Context ctx) {
-    String ctxPath = ctx.path();
-    /* just to be sure */
-    if (!ctxPath.contains(("apps/"))) {
-      ctxPath = "/apps" + ctxPath;
-    }
-    ServeStaticFile.serve(ctx, "/public_html" + ctxPath);
-  }
-
-  private static void redirectResources(Context ctx) {
-    ServeStaticFile.serve(ctx, "/public_html" + ctx.path());
+    app.get("*/{app}/<asset>", ServeStaticFile::serve);
+    app.get("*/{app}", ServeStaticFile::serve);
   }
 
   private static void redirectDocs(Context ctx) {
     ServeStaticFile.serve(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"));
-  }
-
-  private static void returnIndexFile(Context ctx) {
-    String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
-    ServeStaticFile.serve(ctx, path);
-  }
-
-  private static void returnUiAppIndex(Context ctx) {
-    ServeStaticFile.serve(ctx, "/public_html/apps/ui/index.html");
   }
 }
