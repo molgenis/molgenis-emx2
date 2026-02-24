@@ -24,7 +24,8 @@ class ResolvedProfile:
     memory: str
     time: str
     extra_args: list[str]
-    artifact_residence: str
+    output_residence: str
+    log_residence: str
     claim_timeout_seconds: int = 300
     execution_timeout_seconds: int = 0
 
@@ -61,7 +62,8 @@ def resolve_profile(
         memory=entry.memory,
         time=entry.time,
         extra_args=entry.extra_args or [],
-        artifact_residence=entry.artifact_residence,
+        output_residence=entry.output_residence,
+        log_residence=entry.log_residence,
         claim_timeout_seconds=entry.claim_timeout_seconds,
         execution_timeout_seconds=entry.execution_timeout_seconds,
     )

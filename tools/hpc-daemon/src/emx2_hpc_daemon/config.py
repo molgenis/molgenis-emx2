@@ -78,7 +78,8 @@ class ProfileEntry:
     memory: str = "16G"
     time: str = "01:00:00"
     extra_args: list[str] = field(default_factory=list)
-    artifact_residence: str = "managed"
+    output_residence: str = "managed"
+    log_residence: str = "managed"
     claim_timeout_seconds: int = 300
     execution_timeout_seconds: int = 0  # 0 = use Slurm wall time only
 

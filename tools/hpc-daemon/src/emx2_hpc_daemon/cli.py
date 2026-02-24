@@ -161,7 +161,7 @@ def check(ctx, verbose, json_logs):
         p = config.profiles[key]
         click.echo(
             f"    {key}: {p.sif_image} ({p.partition}, {p.cpus}cpu, {p.memory},"
-            f" artifacts={p.artifact_residence})"
+            f" output={p.output_residence}, log={p.log_residence})"
         )
 
     # Check Slurm commands

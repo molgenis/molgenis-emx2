@@ -305,28 +305,32 @@ profiles:
     cpus: 1
     memory: "256M"
     time: "00:05:00"
-    artifact_residence: "managed"
+    output_residence: "managed"
+    log_residence: "managed"
   "e2e-test:fail":
     entrypoint: "/opt/e2e/scripts/e2e_job_fail.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
     time: "00:05:00"
-    artifact_residence: "managed"
+    output_residence: "managed"
+    log_residence: "managed"
   "e2e-test:slow":
     entrypoint: "/opt/e2e/scripts/e2e_job_slow.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
     time: "00:05:00"
-    artifact_residence: "managed"
+    output_residence: "managed"
+    log_residence: "managed"
   "e2e-test:posix":
     entrypoint: "/opt/e2e/scripts/e2e_job_posix.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
     time: "00:05:00"
-    artifact_residence: "posix"
+    output_residence: "posix"
+    log_residence: "posix"
 
 apptainer:
   tmp_dir: "/data/jobs/tmp"

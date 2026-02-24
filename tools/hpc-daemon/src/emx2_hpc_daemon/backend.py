@@ -159,7 +159,7 @@ class SlurmBackend(ExecutionBackend):
 
         logger.debug(
             "Resolved profile for %s:%s → partition=%s, cpus=%d, mem=%s, "
-            "time=%s, sif=%s, entrypoint=%s, artifact_residence=%s",
+            "time=%s, sif=%s, entrypoint=%s, output_residence=%s, log_residence=%s",
             processor,
             profile,
             resolved.partition,
@@ -168,7 +168,8 @@ class SlurmBackend(ExecutionBackend):
             resolved.time,
             resolved.sif_image,
             resolved.entrypoint,
-            resolved.artifact_residence,
+            resolved.output_residence,
+            resolved.log_residence,
         )
 
         # Create working directories

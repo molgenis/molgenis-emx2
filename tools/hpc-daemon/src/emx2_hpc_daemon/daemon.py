@@ -372,14 +372,21 @@ class HpcDaemon:
         return output_files, log_files
 
     def _resolve_residence(
-        self, processor: str | None, profile: str | None
+        self, processor: str | None, profile: str | None, kind: str = "output"
     ) -> str:
-        """Resolve artifact residence from profile config, defaulting to 'managed'."""
+        """Resolve artifact residence from profile config, defaulting to 'managed'.
+
+        Args:
+            kind: ``"output"`` or ``"log"`` — selects which residence field to use.
+        """
         residence = "managed"
         if processor:
             resolved = resolve_profile(self.config, processor, profile or "")
             if resolved:
-                residence = resolved.artifact_residence
+                residence = (
+                    resolved.log_residence if kind == "log"
+                    else resolved.output_residence
+                )
         return residence
 
     def _upload_output_artifacts(
@@ -391,7 +398,7 @@ class HpcDaemon:
     ) -> str | None:
         """Register output files as a new artifact. Returns artifact ID or None.
 
-        Supports two modes based on the profile's artifact_residence setting:
+        Supports two modes based on the profile's output_residence setting:
         - posix: registers path only (no binary upload), content_url = file:// URI
         - managed: uploads binary content to EMX2 server
         """
@@ -445,7 +452,7 @@ class HpcDaemon:
             [f"{f.name} ({f.stat().st_size}b)" for f in log_files],
         )
 
-        residence = self._resolve_residence(processor, profile)
+        residence = self._resolve_residence(processor, profile, kind="log")
 
         try:
             if residence == "posix":

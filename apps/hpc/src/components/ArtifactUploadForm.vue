@@ -17,16 +17,7 @@
           <label class="form-label">Type</label>
           <input v-model="form.type" class="form-control form-control-sm" placeholder="e.g. csv, parquet, model, dataset" />
         </div>
-        <div class="mb-2">
-          <label class="form-label">Residence</label>
-          <select v-model="form.residence" class="form-select form-select-sm">
-            <option value="managed">Managed (upload files)</option>
-            <option value="posix">POSIX (filesystem path)</option>
-          </select>
-        </div>
-
-        <!-- Managed: file upload -->
-        <div v-if="form.residence === 'managed'" class="mb-3">
+        <div class="mb-3">
           <label class="form-label">Files *</label>
           <input type="file" class="form-control form-control-sm" multiple @change="onFilesSelected" />
           <small v-if="selectedFiles.length" class="text-muted">
@@ -34,20 +25,12 @@
           </small>
         </div>
 
-        <!-- Posix: path input -->
-        <div v-else class="mb-3">
-          <label class="form-label">Filesystem Path *</label>
-          <input v-model="form.posixPath" class="form-control form-control-sm"
-                 placeholder="/data/shared/my-dataset" />
-          <small class="text-muted">Absolute path on the shared filesystem</small>
-        </div>
-
         <button
           class="btn btn-primary btn-sm"
           :disabled="!canSubmit"
           @click="startUpload"
         >
-          {{ form.residence === 'posix' ? 'Register' : 'Upload' }}
+          Upload
         </button>
       </div>
 
@@ -69,7 +52,7 @@
       <div v-else-if="step === 'done'">
         <div class="alert alert-success mb-2">
           Artifact <code>{{ artifactId?.substring(0, 8) }}</code>
-          {{ form.residence === 'posix' ? 'registered' : 'committed' }} successfully.
+          committed successfully.
         </div>
         <button class="btn btn-outline-primary btn-sm" @click="$emit('created')">
           Close
@@ -88,8 +71,6 @@ const emit = defineEmits(["created", "close"]);
 const form = reactive({
   name: "",
   type: "",
-  residence: "managed",
-  posixPath: "",
 });
 const selectedFiles = ref([]);
 const step = ref("metadata"); // metadata | uploading | done
@@ -104,9 +85,7 @@ const progressPercent = computed(() => {
 });
 
 const canSubmit = computed(() => {
-  if (!form.name.trim()) return false;
-  if (form.residence === "posix") return !!form.posixPath.trim();
-  return selectedFiles.value.length > 0;
+  return form.name.trim() && selectedFiles.value.length > 0;
 });
 
 function onFilesSelected(e) {
@@ -117,43 +96,30 @@ async function startUpload() {
   error.value = null;
 
   try {
-    if (form.residence === "posix") {
-      // Posix: create artifact with content_url, no file upload needed
-      const result = await createArtifact({
-        name: form.name.trim(),
-        type: form.type.trim() || undefined,
-        residence: "posix",
-        content_url: "file://" + form.posixPath.trim(),
-      });
-      artifactId.value = result.id;
-      step.value = "done";
-    } else {
-      // Managed: upload files then commit
-      step.value = "uploading";
-      uploadedCount.value = 0;
+    step.value = "uploading";
+    uploadedCount.value = 0;
 
-      const result = await createArtifact({
-        name: form.name.trim(),
-        type: form.type.trim() || undefined,
-      });
-      artifactId.value = result.id;
+    const result = await createArtifact({
+      name: form.name.trim(),
+      type: form.type.trim() || undefined,
+    });
+    artifactId.value = result.id;
 
-      let totalSize = 0;
-      for (const file of selectedFiles.value) {
-        currentFile.value = file.name;
-        await uploadArtifactFile(artifactId.value, file);
-        totalSize += file.size;
-        uploadedCount.value++;
-      }
-
-      const hashBuffer = await computeOverallSha256(selectedFiles.value);
-      await commitArtifact(artifactId.value, {
-        sha256: hashBuffer,
-        size_bytes: totalSize,
-      });
-
-      step.value = "done";
+    let totalSize = 0;
+    for (const file of selectedFiles.value) {
+      currentFile.value = file.name;
+      await uploadArtifactFile(artifactId.value, file);
+      totalSize += file.size;
+      uploadedCount.value++;
     }
+
+    const hashBuffer = await computeOverallSha256(selectedFiles.value);
+    await commitArtifact(artifactId.value, {
+      sha256: hashBuffer,
+      size_bytes: totalSize,
+    });
+
+    step.value = "done";
   } catch (e) {
     error.value = e.message;
     step.value = "metadata";

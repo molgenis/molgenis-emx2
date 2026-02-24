@@ -45,7 +45,8 @@ profiles:
     cpus: 8
     memory: 64G
     time: "04:00:00"
-    artifact_residence: posix  # or "managed"
+    output_residence: posix   # or "managed" (default)
+    log_residence: managed    # or "posix"
 
 apptainer:
   bind_paths:

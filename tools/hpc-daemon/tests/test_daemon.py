@@ -401,7 +401,8 @@ class TestPosixResidenceArtifactUpload:
         """With posix residence, both output and log artifacts should be
         created with residence='posix'."""
         # Configure the profile to use posix residence
-        sample_config.profiles["text-embedding:gpu-medium"].artifact_residence = "posix"
+        sample_config.profiles["text-embedding:gpu-medium"].output_residence = "posix"
+        sample_config.profiles["text-embedding:gpu-medium"].log_residence = "posix"
 
         daemon, mock_client = _make_daemon(sample_config)
 
@@ -448,7 +449,8 @@ class TestPosixResidenceArtifactUpload:
         self, sample_config, tmp_path: Path
     ):
         """Posix artifact flow registers metadata for each file with correct hashes."""
-        sample_config.profiles["text-embedding:gpu-medium"].artifact_residence = "posix"
+        sample_config.profiles["text-embedding:gpu-medium"].output_residence = "posix"
+        sample_config.profiles["text-embedding:gpu-medium"].log_residence = "posix"
         daemon, mock_client = _make_daemon(sample_config)
 
         output_dir = tmp_path / "output"
@@ -489,6 +491,44 @@ class TestPosixResidenceArtifactUpload:
 
         # commit_artifact called with correct tree hash
         assert mock_client.commit_artifact.call_count >= 1
+
+    def test_mixed_residence_output_posix_log_managed(
+        self, sample_config, tmp_path: Path
+    ):
+        """Output artifacts use posix, log artifacts use managed upload."""
+        sample_config.profiles["text-embedding:gpu-medium"].output_residence = "posix"
+        sample_config.profiles["text-embedding:gpu-medium"].log_residence = "managed"
+
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        (output_dir / "result.csv").write_text("data")
+        (output_dir / "slurm-1.out").write_text("log output")
+
+        daemon.tracker.track(
+            emx2_job_id="job-mixed-001",
+            slurm_job_id="sim-mixed-001",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+        )
+
+        daemon._monitor_running_jobs()
+
+        # Two artifacts created: one posix (output), one managed (log)
+        create_calls = mock_client.create_artifact.call_args_list
+        assert len(create_calls) == 2
+        residences = [c.kwargs["residence"] for c in create_calls]
+        assert "posix" in residences
+        assert "managed" in residences
+
+        # Output file registered (posix), log file uploaded (managed)
+        assert mock_client.register_artifact_file.call_count == 1  # output
+        assert mock_client.upload_artifact_file.call_count == 1  # log
+
+        assert mock_client.commit_artifact.call_count == 2
 
 
 # ---------------------------------------------------------------------------
@@ -659,7 +699,8 @@ class TestTreeHashComputation:
         }
         expected = _java_tree_hash(files)
 
-        sample_config.profiles["text-embedding:gpu-medium"].artifact_residence = "posix"
+        sample_config.profiles["text-embedding:gpu-medium"].output_residence = "posix"
+        sample_config.profiles["text-embedding:gpu-medium"].log_residence = "posix"
         daemon, mock_client = _make_daemon(sample_config)
 
         output_dir = tmp_path / "output"
