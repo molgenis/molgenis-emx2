@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
+import static org.molgenis.emx2.rdf.CustomAssertions.ttlAdheresToShacl;
 import static org.molgenis.emx2.rdf.jsonld.JsonLdUtils.convertToTurtle;
 
 import java.util.List;
@@ -107,5 +108,18 @@ public class CatalogueTest extends TestLoaders {
     String ttl = convertToTurtle(context, allData);
     assertTrue(
         ttl.contains("resource=testCohort1"), "TTL should contain composite key identifiers");
+  }
+
+  @Test
+  public void test11CatalogueJsonLdAdheresToShacl() throws Exception {
+    GraphqlExecutor graphqlExecutor = new GraphqlExecutor(dataCatalogue);
+    Map<String, Object> context =
+        JsonLdSchemaGenerator.generateJsonLdSchemaAsMap(
+            dataCatalogue.getMetadata(), "http://localhost/catalogue");
+    String query = graphqlExecutor.getSelectAllQuery();
+    Map data = graphqlExecutor.queryAsMap(query, Map.of());
+    String ttl = convertToTurtle(context, data);
+    ttlAdheresToShacl(ttl, "ejp-rd-vp");
+    ttlAdheresToShacl(ttl, "hri-v2.0.2");
   }
 }
