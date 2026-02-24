@@ -26,7 +26,7 @@ MOLGENIS has a feature where you can add a folder next to the ```
 molgenis-emx2-<version>-all.jar``` named ```custom-app``` where you can serve your own app.
 
 Within this folder, you can then place your own ```html``` files, optionally in subfolders and then they will be 
-available on ```https://<molgenis-url>/ext/```.
+available on ```https://<molgenis-url>/apps/``` and ```https://<molgenis-url>/<schema>/```
 
 **Example**: 
 ```cli
@@ -38,10 +38,26 @@ custom-app
                 |_ my-theme.css
 ```
 
-This is now accessible on ```https://<molgenis-url>/ext/my-app```. It automatically searches for an html file when no 
+This is now accessible on ```https://<molgenis-url>/apps/example-app```. It automatically searches for an html file when no 
 extension is given. This also makes it work with SPA.
 
-**N.B.** It is important that all your links in the html are relative, e.g. ```<link rel="stylesheet" href="assets/my-theme.css">``` and that the relative base is the name of the folder of the app e.g. ```<base href="my-app/">```
+### Serving your own Single Page Application (SPA)
+
+To correctly serve a SPA using a framework like Vue with a router, it is recommended that you use hash routing. Else you have to know on exacty which schema you want it to be served and set the base accordingly in the app.
+
+**Vue3 example**
+```javascript
+const router = createRouter({
+  history: createWebHashHistory(import.meta.env.BASE_URL),
+  routes
+})
+```
+
+**Example custom app using Vue3**
+
+On schema: ```https://<your-molgenis-url>/pet%20store/example-app```
+
+On app: ```https://<your-molgenis-url>/apps/example-app```
 
 ### Customizing the folder
 

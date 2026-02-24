@@ -121,7 +121,7 @@ public class ServeStaticFile {
     boolean isFile = parts.getLast().contains(("."));
     String fallbackFileBase = path + "/index.html";
 
-    if (Objects.equals(parts.get(1), "ui") && !isFile) {
+    if (parts.size() > 1 && Objects.equals(parts.get(1), "ui") && !isFile) {
       fallbackFileBase = "apps/ui/index.html";
     }
 
