@@ -36,7 +36,7 @@ test("add new row", async ({ page }) => {
   await page.getByRole("textbox", { name: "name Required" }).click();
   await page.getByRole("textbox", { name: "name Required" }).fill("e2e");
   await page
-    .locator("#category-form-field-input-radio-group")
+    .locator('[id="pet store-Pet-category-form-field-input-radio-group"]')
     .getByText("cat", { exact: true })
     .click();
 
