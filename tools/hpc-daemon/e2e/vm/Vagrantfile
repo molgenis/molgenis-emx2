@@ -8,7 +8,7 @@ EMX2_BASE_URL = ENV["EMX2_BASE_URL"] || "http://10.0.2.2:8080"
 HPC_SHARED_SECRET = ENV["HPC_SHARED_SECRET"] || "e2e-test-secret-do-not-use-in-production"
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.box = "cloud-image/ubuntu-24.04"
   config.vm.hostname = "slurm-e2e"
 
   config.vm.provider :qemu do |qe|
