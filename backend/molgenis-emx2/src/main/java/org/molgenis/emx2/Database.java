@@ -102,6 +102,8 @@ public interface Database extends HasSettingsInterface<Database> {
 
   Map<String, Supplier<Object>> getJavaScriptBindings();
 
+  AutoIdGenerator getAutoIdGenerator();
+
   List<LastUpdate> getLastUpdated();
 
   List<Member> loadUserRoles();

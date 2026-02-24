@@ -25,15 +25,26 @@ class TestSqlTypeUtils {
     }
   }
 
+  /** Create a TableMetadata wired with a Database that provides a SqlAutoIdGenerator. */
+  private static TableMetadata tableWithAutoIdGenerator(String name, Column... columns) {
+    TableMetadata tableMetadata = table(name, columns);
+    Database db = mock(Database.class);
+    when(db.getAutoIdGenerator()).thenReturn(new SqlAutoIdGenerator());
+    SchemaMetadata schema = new SchemaMetadata(db, new SchemaMetadata("testSchema"));
+    tableMetadata.setSchema(schema);
+    return tableMetadata;
+  }
+
   @Test
   void autoIdGetsGenerated() {
-    TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
+    TableMetadata tableMetadata =
+        tableWithAutoIdGenerator("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
 
     final Row row = new Row("myCol", null);
     applyValidationAndComputed(tableMetadata.getColumns(), row);
     assertNotNull(row.getString("myCol"));
 
-    // and now it should change on update
+    // and now it should not change on update (value already set)
     final Row copy = new Row(row);
     applyValidationAndComputed(tableMetadata.getColumns(), copy);
     assertEquals(row.getString("myCol"), copy.getString("myCol"));
@@ -42,7 +53,7 @@ class TestSqlTypeUtils {
   @Test
   void autoIdGetsGeneratedWithPreFix() {
     TableMetadata tableMetadata =
-        table(
+        tableWithAutoIdGenerator(
             "Test",
             new Column("myCol")
                 .setType(ColumnType.AUTO_ID)
@@ -52,11 +63,10 @@ class TestSqlTypeUtils {
     assertTrue(row.getString("myCol").startsWith("foo"));
     assertTrue(row.getString("myCol").endsWith("bar"));
 
-    // and now it should change on update
+    // and now it should not change on update (value already set)
     final Row copy = new Row(row);
-
     applyValidationAndComputed(tableMetadata.getColumns(), copy);
-    assertEquals(row.getString("myCol"), row.getString("myCol"));
+    assertEquals(row.getString("myCol"), copy.getString("myCol"));
   }
 
   @Test

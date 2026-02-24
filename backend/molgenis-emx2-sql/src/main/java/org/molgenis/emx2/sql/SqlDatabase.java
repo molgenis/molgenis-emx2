@@ -49,6 +49,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
+  private final AutoIdGenerator autoIdGenerator = new SqlAutoIdGenerator();
   private Map<String, Supplier<Object>> javaScriptBindings = new HashMap<>();
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
@@ -843,6 +844,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public Map<String, Supplier<Object>> getJavaScriptBindings() {
     return javaScriptBindings;
+  }
+
+  @Override
+  public AutoIdGenerator getAutoIdGenerator() {
+    return autoIdGenerator;
   }
 
   public void addTableListener(TableListener tableListener) {
