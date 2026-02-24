@@ -68,13 +68,22 @@ class HpcDaemon:
             shared_secret=config.emx2.shared_secret,
             auth_mode=config.emx2.auth_mode,
         )
-        self.tracker = JobTracker()
+        state_db_path = self._resolve_state_db(config)
+        self.tracker = JobTracker(state_db_path=state_db_path)
         self._running = True
         self._hostname = socket.gethostname()
         self._heartbeat_interval = 120  # seconds
         self._last_heartbeat = 0.0
         if simulate:
             logger.info("Running in SIMULATE mode — no real Slurm commands will be executed")
+
+    @staticmethod
+    def _resolve_state_db(config: DaemonConfig) -> Path:
+        """Resolve the state DB path from config or default."""
+        if config.worker.state_db:
+            return Path(config.worker.state_db)
+        default_dir = Path.home() / ".local" / "share" / "hpc-daemon"
+        return default_dir / "state.json"
 
     def run(self) -> None:
         """Main entry point — run the daemon loop until interrupted."""
@@ -106,6 +115,7 @@ class HpcDaemon:
                 if self._running:
                     time.sleep(self.config.worker.poll_interval_seconds)
         finally:
+            self.tracker.close()
             self.client.close()
         logger.info("Daemon stopped")
 
@@ -125,6 +135,7 @@ class HpcDaemon:
                 "Single cycle complete, %d active jobs", self.tracker.active_count()
             )
         finally:
+            self.tracker.close()
             self.client.close()
 
     def register(self) -> None:
@@ -142,16 +153,96 @@ class HpcDaemon:
             logger.exception("Failed to register worker")
 
     def _recover_jobs(self) -> None:
-        """On startup, recover tracking state for non-terminal jobs assigned to this worker."""
+        """On startup, recover tracking state for non-terminal jobs.
+
+        Strategy:
+        1. Load local state DB (has output_dir, claimed_at, etc.)
+        2. Query server for CLAIMED/SUBMITTED/STARTED jobs for this worker
+        3. For each server job:
+           a. If in local DB: update status from server (server is authority)
+           b. If NOT in local DB: derive output_dir from config, add to tracker
+        4. For each local DB job NOT on server: remove (stale)
+        """
+        # Step 1: load persisted state from previous invocations
+        self.tracker.load_from_db()
+        local_before = set(j.emx2_job_id for j in self.tracker.active_jobs())
+
+        # Step 2: fetch server-known in-flight jobs for this worker
+        in_flight_statuses = ("CLAIMED", "SUBMITTED", "STARTED")
         try:
-            # Query EMX2 for jobs assigned to this worker that are not terminal
-            jobs = self.client.poll_pending_jobs()
-            # Filter out PENDING jobs — they haven't been claimed by us yet,
-            # so they should go through the normal _poll_and_claim() → _submit_job() path.
-            # Only recover jobs that are already in-flight (CLAIMED/SUBMITTED/STARTED).
-            self.tracker.reconcile_from_server(
-                [j for j in jobs if j.get("status") != "PENDING"]
-            )
+            server_jobs: dict[str, dict] = {}
+            for status in in_flight_statuses:
+                jobs = self.client.list_jobs(status=status)
+                for j in jobs:
+                    if j.get("worker_id") == self.config.emx2.worker_id:
+                        server_jobs[j["id"]] = j
+
+            # Step 3: reconcile — server is authority for status
+            for emx2_id, job_data in server_jobs.items():
+                local = self.tracker.get(emx2_id)
+                if local is not None:
+                    # Update status from server (it's authoritative)
+                    server_status = job_data.get("status", local.status)
+                    if local.status != server_status:
+                        self.tracker.update(emx2_id, status=server_status)
+                        logger.debug(
+                            "Updated job %s status from DB=%s to server=%s",
+                            emx2_id, local.status, server_status,
+                        )
+                else:
+                    # Not in local DB — derive dirs from config
+                    output_dir = str(
+                        Path(self.config.apptainer.tmp_dir) / emx2_id / "output"
+                    )
+                    self.tracker.track(
+                        emx2_job_id=emx2_id,
+                        slurm_job_id=job_data.get("slurm_job_id"),
+                        status=job_data.get("status", "CLAIMED"),
+                        processor=job_data.get("processor"),
+                        profile=job_data.get("profile"),
+                        output_dir=output_dir,
+                        work_dir=str(
+                            Path(self.config.apptainer.tmp_dir) / emx2_id
+                        ),
+                    )
+                    logger.info(
+                        "Recovered job %s from server (no local state, derived dirs)",
+                        emx2_id,
+                    )
+
+            # Step 4: handle local-only entries not found in in-flight query.
+            # These may have reached a terminal state between daemon cycles.
+            for emx2_id in local_before - set(server_jobs.keys()):
+                local = self.tracker.get(emx2_id)
+                try:
+                    server_job = self.client.get_job(emx2_id)
+                    server_status = server_job.get("status", "")
+                    if server_status == "CANCELLED" and local and local.slurm_job_id:
+                        logger.info(
+                            "Job %s cancelled on server, cancelling Slurm job %s",
+                            emx2_id,
+                            local.slurm_job_id,
+                        )
+                        try:
+                            self._backend.cancel(local.slurm_job_id)
+                        except Exception:
+                            logger.exception(
+                                "Failed to scancel job %s for cancelled job %s",
+                                local.slurm_job_id,
+                                emx2_id,
+                            )
+                    logger.info(
+                        "Removed local job %s (server status: %s)",
+                        emx2_id,
+                        server_status,
+                    )
+                except Exception:
+                    logger.info(
+                        "Removed stale local job %s (not found on server)",
+                        emx2_id,
+                    )
+                self.tracker.remove(emx2_id)
+
             if self.tracker.active_count() > 0:
                 logger.info(
                     "Recovered %d in-flight jobs from previous run",
@@ -732,6 +823,25 @@ class HpcDaemon:
             )
 
             try:
+                # If the job skipped STARTED (fast jobs go PENDING→COMPLETED
+                # in Slurm before the daemon sees RUNNING), insert the
+                # intermediate transition that the EMX2 state machine requires.
+                if (
+                    tracked.status == "SUBMITTED"
+                    and new_status in ("COMPLETED", "FAILED")
+                ):
+                    logger.info(
+                        "Job %s skipped STARTED (fast job), inserting intermediate transition",
+                        tracked.emx2_job_id,
+                    )
+                    self.client.transition_job(
+                        tracked.emx2_job_id,
+                        "STARTED",
+                        detail=f"slurm_state={info.state} (fast job, retroactive STARTED)",
+                    )
+                    tracked.status = "STARTED"
+                    self.tracker.update(tracked.emx2_job_id, status="STARTED")
+
                 detail = _build_slurm_detail(info)
                 output_artifact_id = None
                 log_artifact_id = None

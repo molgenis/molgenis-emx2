@@ -1,0 +1,40 @@
+# Single-VM Slurm cluster for HPC bridge e2e tests.
+# Runs slurmctld + slurmd + hpc-daemon, connects to EMX2 on the host.
+#
+# Uses QEMU via vagrant-qemu plugin (works on macOS + Linux).
+# Install: vagrant plugin install vagrant-qemu
+
+EMX2_BASE_URL = ENV["EMX2_BASE_URL"] || "http://10.0.2.2:8080"
+HPC_SHARED_SECRET = ENV["HPC_SHARED_SECRET"] || "e2e-test-secret-do-not-use-in-production"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.hostname = "slurm-e2e"
+
+  config.vm.provider :qemu do |qe|
+    qe.memory = "2G"
+    qe.smp = "2"
+    qe.ssh_port = 50222
+
+    # vagrant-qemu defaults to macOS aarch64 + hvf — override for Linux x86_64
+    host_arch = RbConfig::CONFIG["host_cpu"]
+    if host_arch =~ /x86_64|amd64/
+      qe.arch = "x86_64"
+      qe.machine = "q35,accel=kvm"
+      qe.cpu = "host"
+      qe.net_device = "virtio-net-pci"
+      qe.qemu_dir = "/usr/share/qemu"
+    end
+    # macOS ARM: plugin defaults (aarch64 + hvf + /opt/homebrew/share/qemu) work
+  end
+
+  # Sync the daemon source into the VM
+  config.vm.synced_folder File.expand_path("../../", __dir__), "/opt/hpc-daemon",
+    type: "rsync",
+    rsync__exclude: [".venv", "__pycache__", "*.pyc", ".pytest_cache"]
+
+  config.vm.provision "shell", path: "provision.sh", env: {
+    "EMX2_BASE_URL" => EMX2_BASE_URL,
+    "HPC_SHARED_SECRET" => HPC_SHARED_SECRET,
+  }
+end

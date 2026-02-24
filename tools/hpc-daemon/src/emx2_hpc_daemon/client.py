@@ -230,17 +230,29 @@ class HpcClient:
             },
         )
 
+    def list_jobs(
+        self,
+        status: str | None = None,
+        processor: str | None = None,
+        profile: str | None = None,
+    ) -> list[dict]:
+        """List jobs, optionally filtered by status/processor/profile."""
+        parts: list[str] = []
+        if status:
+            parts.append(f"status={status}")
+        if processor:
+            parts.append(f"processor={processor}")
+        if profile:
+            parts.append(f"profile={profile}")
+        qs = "?" + "&".join(parts) if parts else ""
+        result = self._request("GET", f"/api/hpc/jobs{qs}")
+        return result.get("items", [])
+
     def poll_pending_jobs(
         self, processor: str | None = None, profile: str | None = None
     ) -> list[dict]:
         """Poll for pending jobs matching capabilities."""
-        params = "?status=PENDING"
-        if processor:
-            params += f"&processor={processor}"
-        if profile:
-            params += f"&profile={profile}"
-        result = self._request("GET", f"/api/hpc/jobs{params}")
-        return result.get("items", [])
+        return self.list_jobs(status="PENDING", processor=processor, profile=profile)
 
     def claim_job(self, job_id: str) -> dict:
         """Claim a pending job. Raises ClaimConflict if already claimed."""
@@ -280,7 +292,7 @@ class HpcClient:
 
     def cancel_job(self, job_id: str) -> dict:
         """Cancel a job."""
-        return self._request("POST", f"/api/hpc/jobs/{job_id}/cancel")
+        return self._request("POST", f"/api/hpc/jobs/{job_id}/cancel", json={})
 
     def follow_link(self, response: dict, rel: str) -> dict:
         """Follow a HATEOAS link from a response."""

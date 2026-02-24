@@ -283,11 +283,12 @@ public class JobsApi {
           ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
       return;
     }
-    String workerId = ctx.header(HpcHeaders.WORKER_ID);
 
+    // Cancel does not update worker_id — cancellation can come from any
+    // authenticated caller (UI user, API client), not just the assigned worker.
     Row result =
         jobService.transitionJob(
-            jobId, HpcJobStatus.CANCELLED, workerId, "Cancelled via API", null, null, null);
+            jobId, HpcJobStatus.CANCELLED, null, "Cancelled via API", null, null, null);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
