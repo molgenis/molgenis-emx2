@@ -497,6 +497,8 @@ class HpcClient:
             # For binary uploads, sign over empty string (HMAC fix)
             headers = self._headers("PUT", url_path, "")
             headers["Content-Type"] = content_type
+            if size_bytes is not None:
+                headers["Content-Length"] = str(size_bytes)
 
             if file_path is not None:
                 content = self._file_chunk_iter(file_path)

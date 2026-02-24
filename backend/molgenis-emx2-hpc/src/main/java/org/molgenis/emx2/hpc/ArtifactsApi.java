@@ -8,6 +8,8 @@ import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
@@ -447,8 +449,9 @@ public class ArtifactsApi {
         contentType = "application/octet-stream";
       }
 
+      String downloadFileName = sanitizeDownloadFileName(filePath);
       ctx.header("Content-Type", contentType);
-      ctx.header("Content-Disposition", "attachment; filename=\"" + filePath + "\"");
+      ctx.header("Content-Disposition", buildContentDispositionHeader(downloadFileName));
       if (file.getString("sha256") != null) {
         ctx.header("X-Content-SHA256", file.getString("sha256"));
       }
@@ -591,5 +594,40 @@ public class ArtifactsApi {
     response.put("_links", LinkBuilder.forArtifact(artifact.getString("id"), status));
 
     return response;
+  }
+
+  private static String buildContentDispositionHeader(String fileName) {
+    String encoded = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
+    return "attachment; filename=\""
+        + escapeQuotedHeaderValue(fileName)
+        + "\"; filename*=UTF-8''"
+        + encoded;
+  }
+
+  private static String sanitizeDownloadFileName(String filePath) {
+    String normalized = filePath == null ? "" : filePath.replace('\\', '/');
+    String baseName = normalized.substring(normalized.lastIndexOf('/') + 1);
+    StringBuilder safe = new StringBuilder(baseName.length());
+    for (int i = 0; i < baseName.length(); i++) {
+      char ch = baseName.charAt(i);
+      if (ch < 0x20 || ch == 0x7f) {
+        continue;
+      }
+      safe.append(ch);
+    }
+    String result = safe.toString().trim();
+    return result.isEmpty() ? "download" : result;
+  }
+
+  private static String escapeQuotedHeaderValue(String value) {
+    StringBuilder escaped = new StringBuilder(value.length());
+    for (int i = 0; i < value.length(); i++) {
+      char ch = value.charAt(i);
+      if (ch == '"' || ch == '\\') {
+        escaped.append('\\');
+      }
+      escaped.append(ch);
+    }
+    return escaped.toString();
   }
 }

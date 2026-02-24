@@ -3,6 +3,11 @@ import { request } from "graphql-request";
 const GRAPHQL_URL = "/_SYSTEM_/graphql";
 const REST_BASE = "/api/hpc";
 
+/** Safely encode a JS string as a GraphQL string literal. */
+function gqlString(value) {
+  return JSON.stringify(String(value));
+}
+
 /** Common REST headers for HPC API calls. */
 function hpcHeaders() {
   return {
@@ -19,10 +24,10 @@ function hpcHeaders() {
 export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = {}) {
   const filters = [];
   if (status) {
-    filters.push(`status: { name: { equals: "${status}" } }`);
+    filters.push(`status: { name: { equals: ${gqlString(status)} } }`);
   }
   if (processor) {
-    filters.push(`processor: { equals: "${processor}" }`);
+    filters.push(`processor: { equals: ${gqlString(processor)} }`);
   }
   const filterClause = filters.length
     ? `filter: { ${filters.join(", ")} }`
@@ -63,7 +68,7 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
  */
 export async function fetchJobDetail(jobId) {
   const query = `{
-    HpcJobs(filter: { id: { equals: "${jobId}" } }) {
+    HpcJobs(filter: { id: { equals: ${gqlString(jobId)} } }) {
       id processor profile
       status { name }
       worker_id { worker_id }
@@ -74,7 +79,7 @@ export async function fetchJobDetail(jobId) {
       parameters inputs
     }
     HpcJobTransitions(
-      filter: { job_id: { id: { equals: "${jobId}" } } }
+      filter: { job_id: { id: { equals: ${gqlString(jobId)} } } }
       orderby: { timestamp: ASC }
     ) {
       id from_status to_status timestamp worker_id detail
@@ -200,7 +205,7 @@ export async function deleteWorker(workerId) {
 export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
   const filters = [];
   if (status) {
-    filters.push(`status: { name: { equals: "${status}" } }`);
+    filters.push(`status: { name: { equals: ${gqlString(status)} } }`);
   }
   const filterClause = filters.length
     ? `filter: { ${filters.join(", ")} }`
@@ -238,7 +243,7 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
  */
 export async function fetchArtifactDetail(artifactId) {
   const query = `{
-    HpcArtifacts(filter: { id: { equals: "${artifactId}" } }) {
+    HpcArtifacts(filter: { id: { equals: ${gqlString(artifactId)} } }) {
       id name type { name }
       residence { name }
       status { name }
@@ -246,7 +251,7 @@ export async function fetchArtifactDetail(artifactId) {
       created_at committed_at
     }
     HpcArtifactFiles(
-      filter: { artifact_id: { id: { equals: "${artifactId}" } } }
+      filter: { artifact_id: { id: { equals: ${gqlString(artifactId)} } } }
     ) {
       id path role sha256 size_bytes content_type
     }
