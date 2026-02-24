@@ -134,13 +134,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watch, nextTick, watchEffect } from "vue";
+import { computed, nextTick, ref, toRaw, watch } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
+import useForm, { type UseForm } from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
@@ -149,13 +150,12 @@ import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
-import Form from "./Form.vue";
-import FormRequiredInfoSection from "./RequiredInfoSection.vue";
-import FormError from "./Error.vue";
-import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
+import FormError from "./Error.vue";
+import Form from "./Form.vue";
 import FormLegend from "./Legend.vue";
-import useForm, { type UseForm } from "../../composables/useForm";
+import FormMessage from "./Message.vue";
+import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
 const props = withDefaults(
   defineProps<{
