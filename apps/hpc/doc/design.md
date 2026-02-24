@@ -19,7 +19,7 @@ numbersections: true
 
 header-includes: |
   \usepackage{float}
-  \floatplacement{figure}{htbp}
+  \floatplacement{figure}{!ht}
   \renewcommand{\topfraction}{0.9}
   \renewcommand{\bottomfraction}{0.9}
   \renewcommand{\textfraction}{0.1}
@@ -314,7 +314,7 @@ For analytical tools (DuckDB, pandas), committed artifacts could be accessed via
 
 Some artifacts consist of multiple files: a model with a tokenizer sidecar, a VCF with a tabix index. Multi-file artifacts MUST include a file manifest listing each file's path, size, and individual SHA-256 hash.
 
-For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash computed over sorted file paths and their individual hashes (see Appendix C.4). Any modification to any constituent file would be detectable.
+For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash: `SHA256(concat(for each file in sorted(paths): path + ":" + sha256_hex(file_bytes)))`. Any modification to any constituent file would be detectable.
 
 Input artifacts MUST be COMMITTED before a job can reference them. The daemon verifies hashes before execution — for managed artifacts it downloads and hashes locally; for NFS artifacts it reads from the mount. A mismatch MUST result in a FAILED transition with reason `input_hash_mismatch`. Output artifacts MUST be immutable after commit.
 
@@ -495,7 +495,7 @@ Every daemon-to-EMX2 request MUST be authenticated by at least one of the follow
 
 | Mechanism | How it works | Notes |
 |-----------|-------------|-------|
-| **HMAC-SHA256** *(preferred)* | Worker and EMX2 share a secret key. The worker computes a keyed hash over a canonical request string (`METHOD\nPATH\nSHA256(body)\nTIMESTAMP\nNONCE`); EMX2 recomputes it and compares. Transmitted as `Authorization: HMAC-SHA256 <hex>`. | Provides per-request integrity, origin verification, and replay protection. The shared secret SHOULD be stored in a file with restricted permissions (mode `0600`) and referenced via `shared_secret_file` in the daemon configuration. |
+| **HMAC-SHA256** *(preferred)* | Worker and EMX2 share a secret key. The worker computes a keyed hash over a canonical request string; EMX2 recomputes it and compares. Transmitted as `Authorization: HMAC-SHA256 <hex>`. | Provides per-request integrity, origin verification, and replay protection. The shared secret SHOULD be stored in a file with restricted permissions (mode `0600`) and referenced via `shared_secret_file` in the daemon configuration. |
 | **JWT / API token** | Worker authenticates with an EMX2 API token via the `x-molgenis-token` header. EMX2 validates the token through its standard token verification. | Simpler to set up; useful for development or when the infrastructure already has token management. Does not provide per-request integrity or replay protection. |
 
 The shared secret for HMAC SHOULD be stored as a database setting (`MOLGENIS_HPC_SHARED_SECRET`, minimum 32 characters). When no secret is configured, HMAC verification is disabled (suitable for development only).
@@ -541,7 +541,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 **S3-minimal file surface.** The proposed artifact file API exposes path-based GET/PUT/HEAD/DELETE operations that map to S3 semantics (`GetObject`, `PutObject`, `HeadObject`, `DeleteObject`). This is sufficient for the initial use case and makes a future S3-compatible gateway straightforward to implement. Until then, analytical tools would access managed artifacts via HTTP GET with range request support.
 
-**Authentication mechanism.** Two mechanisms are supported: HMAC-SHA256 (recommended for production, provides per-request integrity and replay protection) and JWT/API tokens (simpler, suitable for development). Browser-based access is handled via session cookies. See §8 for details.
+**Authentication mechanism.** Two mechanisms are supported: HMAC-SHA256 (recommended for production, provides per-request integrity and replay protection) and JWT/API tokens. Browser-based access is handled via session cookies. See §8 for details.
 
 ## Open Design Decisions
 
@@ -935,46 +935,4 @@ For posix artifacts, the daemon registers file metadata without binary content. 
 
 # Appendix B: Sequence Diagram {.unnumbered}
 
-![HPC Sequence](./seq.pdf)
-
-# Appendix C: State Machine Reference {.unnumbered}
-
-## C.1 Hypermedia Link Mapping (Jobs) {.unnumbered}
-
-All states include `self` and `transitions` (read) links.
-
-| Current state | Mutation links |
-|---------------|---------------|
-| PENDING | `claim`, `cancel` |
-| CLAIMED | `submit`, `cancel` |
-| SUBMITTED | `start`, `cancel` |
-| STARTED | `complete`, `fail`, `cancel` |
-| COMPLETED | *(terminal)* |
-| FAILED | *(terminal)* |
-| CANCELLED | *(terminal)* |
-
-## C.2 Hypermedia Link Mapping (Artifacts) {.unnumbered}
-
-All states include `self` and `files` (list) links.
-
-| Current state | Mutation links |
-|---------------|---------------|
-| CREATED | `upload` (PUT), `upload_legacy` (POST) |
-| UPLOADING | `upload` (PUT), `upload_legacy` (POST), `commit` |
-| REGISTERED | `commit` |
-| COMMITTED | `download` (GET template) |
-| FAILED | *(terminal)* |
-
-## C.3 Artifact Lifecycle Transitions {.unnumbered}
-
-**Managed:** CREATED → UPLOADING (first `PUT /files/{path}`) → COMMITTED (`POST /commit`). CREATED or UPLOADING → FAILED (timeout).
-
-**External (POSIX, S3, HTTP, reference):** REGISTERED → COMMITTED (verified) or REGISTERED → FAILED (unreachable / hash mismatch).
-
-## C.4 Tree Hash {.unnumbered}
-
-```
-sha256_tree = SHA256(concat(for each file in sorted(paths): path + ":" + sha256_hex(file_bytes)))
-```
-
-Single-file artifacts: `sha256(file_bytes)`.
+![](./seq.pdf)
