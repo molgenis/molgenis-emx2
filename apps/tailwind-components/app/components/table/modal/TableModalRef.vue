@@ -102,15 +102,22 @@ const sourceColumn = computed(() => {
 });
 
 const refColumnLabel = computed(() => {
+  if (props.metadata.columnType === "ONTOLOGY") {
+    return props.metadata.label;
+  }
   const labelTemplate = (
     sourceColumn.value?.refLabel
       ? sourceColumn.value?.refLabel
       : sourceColumn.value?.refLabelDefault
   ) as string;
+
   return rowToString(refRow.value, labelTemplate);
 });
 
 const refSubTitle = computed(() => {
+  if (props.metadata.columnType === "ONTOLOGY") {
+    return "";
+  }
   const column = refRowMetadata.value?.columns.find(
     (column) => column.id === refColumnId.value
   );
@@ -181,8 +188,12 @@ const sections = computed(() => {
 await fetchData(
   props.row,
   props.metadata.refTableId,
-  props.schema,
-  props.sourceTableId
+  props.metadata.columnType === "ONTOLOGY"
+    ? props.metadata.refSchemaId
+    : props.schema,
+  props.metadata.columnType === "ONTOLOGY"
+    ? props.metadata.refTableId
+    : props.sourceTableId
 );
 
 function handleValueClicked(event: RefPayload) {
