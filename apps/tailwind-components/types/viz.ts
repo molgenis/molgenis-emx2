@@ -26,6 +26,7 @@ export interface ChartOptions {
   animationsAreEnabled?: boolean;
 }
 
+export type DatasetRow = Record<string, any>;
 export type PieChartData = Record<string, number>;
 export type ColorPalette = Record<string, string>;
 
@@ -41,7 +42,7 @@ export interface PieCharts extends Charts, ChartOptions, ChartLegendOptions {
 }
 
 export interface ColumnCharts extends Charts, ChartOptions {
-  data: any;
+  data: DatasetRow[];
   xvar: string;
   yvar: string;
   ymax?: number;
@@ -70,4 +71,17 @@ export interface NumericAxisTickData {
 export interface CategoricalAxisTickData {
   count: number;
   domains: string[];
+}
+
+export interface INewNumericAxisGenerator {
+  domainMin?: number;
+  domainLimit: number;
+  rangeStart: number;
+  rangeEnd?: number;
+}
+
+export interface INewCategoricalAxisGenerator {
+  domains: string[];
+  rangeStart?: number;
+  rangeEnd: number;
 }

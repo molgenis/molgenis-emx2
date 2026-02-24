@@ -26,14 +26,18 @@ const d3 = {
 import ChartContext from "../ChartContext.vue";
 
 import type {
+  DatasetRow,
   ColumnCharts,
   ColorPalette,
   NumericAxisTickData,
   CategoricalAxisTickData,
 } from "../../../../types/viz";
-import { breakXAxisLabels, generateAxisTickData } from "../../../utils/viz";
-
-type DatasetRow = Record<string, any>;
+import {
+  breakXAxisLabels,
+  generateAxisTickData,
+  newNumericAxisGenerator,
+  newCategoricalAxisGenerator,
+} from "../../../utils/viz";
 
 const props = withDefaults(defineProps<ColumnCharts>(), {
   width: 300,
@@ -67,11 +71,6 @@ const internalBottomMargin = ref<number>(0);
 const xScale = ref();
 const yScale = ref();
 
-// define values that might become props later
-const columnPaddingInner: number = 0.2;
-const columnPaddingOuter: number = 0.2;
-const columnAlign: number = 0.5;
-
 const yAxisData = computed<NumericAxisTickData>(() => {
   const autoTickData = generateAxisTickData(props.data, props.yvar);
   const ticks: NumericAxisTickData = { ...autoTickData };
@@ -88,7 +87,7 @@ const yAxisData = computed<NumericAxisTickData>(() => {
 });
 
 const xAxisData = computed<CategoricalAxisTickData>(() => {
-  const data = { count: 0, domains: [] };
+  const data = { count: 0, domains: [] as string[] };
   if (props.data) {
     const values = props.data.map((row: DatasetRow) => row[props.xvar]);
     data.count = values.length;
@@ -98,8 +97,7 @@ const xAxisData = computed<CategoricalAxisTickData>(() => {
 });
 
 const colorPalette = computed<ColorPalette>(() => {
-  const domain = props.data.map((row: DatasetRow) => row[props.xvar]);
-  const mappings = domain.map((value: string) => {
+  const mappings = xAxisData.value.domains.map((value: string) => {
     const color = props.colorPalette
       ? props.colorPalette[value]
       : props.columnColor;
@@ -109,74 +107,29 @@ const colorPalette = computed<ColorPalette>(() => {
 });
 
 function setChartDimensions() {
+  parentElem.value = container.value?.parentNode as HTMLElement;
   internalLeftMargin.value = props.yAxisLabel ? props.marginLeft : 25;
   internalBottomMargin.value = props.xAxisLabel ? props.marginBottom : 25;
 
-  parentElem.value = container.value?.parentNode as HTMLElement;
+  height.value = props.height - props.marginTop - internalBottomMargin.value;
   width.value =
     (parentElem.value?.offsetWidth || props.width) -
     internalLeftMargin.value -
     props.marginRight;
-  height.value = props.height - props.marginTop - internalBottomMargin.value;
-}
-
-function createYAxisGenerator() {
-  return d3
-    .scaleLinear()
-    .domain([0, yAxisData.value.limit])
-    .range([height.value, 0])
-    .nice();
-}
-
-function createXAxisGenerator() {
-  return d3
-    .scaleBand()
-    .range([0, width.value])
-    .domain(props.data.map((row: DatasetRow) => row[props.xvar]))
-    .paddingInner(columnPaddingInner)
-    .paddingOuter(columnPaddingOuter)
-    .align(columnAlign)
-    .round(true);
 }
 
 function renderChartAxes() {
   const chartAxisGroup = chartArea.value.select("g.axes");
   chartAxisGroup.selectAll("*").remove();
 
-  xScale.value = createXAxisGenerator();
-  yScale.value = createYAxisGenerator();
-
-  if (props.enableGridlines) {
-    const gridlines = chartAxisGroup.append("g").attr("class", "gridlines");
-    const xGridlines = gridlines.append("g").attr("class", "x");
-    const yGridlines = gridlines.append("g").attr("class", "y");
-
-    xGridlines
-      .selectAll("line")
-      .data(yAxisData.value.ticks)
-      .join("line")
-      .attr("x1", 0)
-      .attr("x2", width.value)
-      .attr("y1", (tick: number) => yScale.value(tick))
-      .attr("y2", (tick: number) => yScale.value(tick))
-      .attr("class", "stroke-chart-gridlines");
-
-    yGridlines
-      .selectAll("line")
-      .data(xAxisData.value.domains)
-      .join("line")
-      .attr(
-        "x1",
-        (domain: string) => xScale.value(domain) + xScale.value.bandwidth() / 2
-      )
-      .attr(
-        "x2",
-        (domain: string) => xScale.value(domain) + xScale.value.bandwidth() / 2
-      )
-      .attr("y1", 0)
-      .attr("y2", height.value)
-      .attr("class", "stroke-chart-gridlines");
-  }
+  xScale.value = newCategoricalAxisGenerator({
+    domains: xAxisData.value.domains,
+    rangeEnd: width.value,
+  });
+  yScale.value = newNumericAxisGenerator({
+    domainLimit: yAxisData.value.limit,
+    rangeStart: height.value,
+  });
 
   const xAxis = d3.axisBottom(xScale.value);
   const yAxis = d3.axisLeft(yScale.value).tickValues(yAxisData.value.ticks);
@@ -337,7 +290,7 @@ onMounted(() => {
 });
 
 watch(
-  () => props,
+  () => [props.data, props.xvar, props.yvar],
   () => {
     renderChart();
   },
@@ -358,7 +311,7 @@ watch(
         width="100%"
         :height="props.height"
         preserve-aspect-ratio="xMinYMin"
-        :view-box="`0 0 ${props.width} ${props.height}`"
+        :viewBox="`0 0 ${width + internalLeftMargin} ${props.height}`"
       >
         <g
           class="chart-area"

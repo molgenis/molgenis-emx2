@@ -1,7 +1,12 @@
-import type { NumericAxisTickData } from "../../types/viz";
+import type {
+  NumericAxisTickData,
+  INewNumericAxisGenerator,
+  INewCategoricalAxisGenerator,
+  LegendPosition,
+} from "../../types/viz";
 
-import { select } from "d3";
-const d3 = { select };
+import { select, scaleBand, scaleLinear } from "d3";
+const d3 = { select, scaleLinear, scaleBand };
 
 /**
  * @name setChartLegendLayoutCss
@@ -13,7 +18,7 @@ const d3 = { select };
  */
 export function setChartLegendLayoutCss(
   legendIsEnabled: boolean,
-  legendPosition: string
+  legendPosition?: LegendPosition
 ): string {
   if (legendIsEnabled && legendPosition) {
     return `chart_layout_with_legend_${legendPosition}`;
@@ -31,7 +36,7 @@ export function setChartLegendLayoutCss(
 // splits x-axis labels at a specific character by creating two span elements
 export function breakXAxisLabels(svg: any, breakXAxisLabelsAt: string) {
   const separator: string = breakXAxisLabelsAt;
-  const axisText = svg.value.selectAll("g.chart-axis-x .tick text");
+  const axisText = svg.selectAll("g.chart-axis-x .tick text");
   axisText.call((labels: Record<string, any>) => {
     labels.each(function () {
       // @ts-expect-error
@@ -117,7 +122,7 @@ export function seqAlongBy(
 export function calculateInterval(value: number): number {
   if (value > 5000) {
     return 1000;
-  } else if (value > 1500 && value < 5000) {
+  } else if (value > 1500 && value <= 5000) {
     return 500;
   } else if (value > 500 && value <= 1500) {
     return 250;
@@ -132,4 +137,56 @@ export function calculateInterval(value: number): number {
   } else {
     return 1;
   }
+}
+
+/**
+ * @name newNumericAxisGenerator
+ * @description Creates a d3 linear scale which can be used to convert bind data point to svg coordinates
+ *
+ * @param domainMin the minimum value in the numeric axis (typically 0)
+ * @param domainLimit the maximum value in the numeric axis (max of yvar)
+ * @param rangeStart the first number used to sequence (usually chart height)
+ * @param rangeEnd the last number in the sequence (usually 0)
+ *
+ * @link https://d3js.org/d3-scale/linear#linear_domain
+ * @link https://d3js.org/d3-array/ticks#range
+ *
+ * @returns d3.scaleLinear
+ */
+export function newNumericAxisGenerator({
+  domainMin = 0,
+  domainLimit,
+  rangeStart,
+  rangeEnd = 0,
+}: INewNumericAxisGenerator) {
+  return d3
+    .scaleLinear()
+    .domain([domainMin, domainLimit])
+    .range([rangeStart, rangeEnd])
+    .nice();
+}
+
+/**
+ * @name newCategoricalAxisGenerator
+ * @description Creates an axis generator for string/categorical axes
+ *
+ * @param domains: an array of values to bin data
+ * @param rangeStart the first number in the range (usually 0)
+ * @param rangeEnd the final number in the range (usually width of the chart)
+ *
+ * @returns d3.scaleBand
+ */
+export function newCategoricalAxisGenerator({
+  domains,
+  rangeStart = 0,
+  rangeEnd,
+}: INewCategoricalAxisGenerator) {
+  return d3
+    .scaleBand()
+    .range([rangeStart, rangeEnd])
+    .domain(domains)
+    .paddingInner(0.25)
+    .paddingOuter(0.25)
+    .align(0.5)
+    .round(true);
 }

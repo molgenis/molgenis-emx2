@@ -6,7 +6,6 @@ import InputBoolean from "../../components/input/Boolean.vue";
 
 const enableClicks = ref<boolean>(true);
 const enableHover = ref<boolean>(true);
-const enableGrid = ref<boolean>(false);
 
 const data = [
   { name: "Group A", value: 42 },
@@ -30,7 +29,6 @@ const clickedElem = ref<Record<string, number>>();
         yvar="value"
         x-axis-label="Experimental group"
         y-axis-label="Number of participants"
-        :enable-gridlines="enableGrid"
         :click-events-are-enabled="enableClicks"
         :hover-events-are-enabled="enableHover"
         @column-clicked="clickedElem = $event"
@@ -60,17 +58,6 @@ const clickedElem = ref<Record<string, number>>();
           <InputBoolean
             id="column-chart-enable-hover"
             v-model="enableHover"
-            :show-clear-button="false"
-            align="horizontal"
-          />
-        </div>
-        <div>
-          <label for="column-chart-enable-gridlines" class="text-title">
-            Enable Gridlines?
-          </label>
-          <InputBoolean
-            id="column-chart-enable-gridlines"
-            v-model="enableGrid"
             :show-clear-button="false"
             align="horizontal"
           />
