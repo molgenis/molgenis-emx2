@@ -9,9 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 class ServeStaticFileTest {
+  static final String NOT_FOUND = "File not found: ";
 
   @Test
-  public void testServe_FileExists() {
+  void testServe_FileExists() {
     Context ctx = mock(Context.class);
     String path = "/test.txt";
 
@@ -22,7 +23,7 @@ class ServeStaticFileTest {
   }
 
   @Test
-  public void testServe_FileNotFound() {
+  void testServe_FileNotFound() {
     Context ctx = mock(Context.class);
     String path = "/non-existent-file.css";
     when(ctx.status(404)).thenReturn(ctx);
@@ -30,11 +31,11 @@ class ServeStaticFileTest {
     ServeStaticFile.serve(ctx, path);
 
     verify(ctx).status(404);
-    verify(ctx).result("File not found: " + ctx.path());
+    verify(ctx).result(NOT_FOUND + ctx.path());
   }
 
   @Test
-  public void testServeAppAsset_OnSchemaPath() {
+  void testServeAppAsset_OnSchemaPath() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.path()).thenReturn("/schema/test-app/test-assets/styling.css");
@@ -45,7 +46,26 @@ class ServeStaticFileTest {
   }
 
   @Test
-  public void testServeExternal_AutoServeIndexHtml() {
+  void testServeUI_AutoServeIndexHtml() {
+    Context ctx = mock(Context.class);
+    when(ctx.status(anyInt())).thenReturn(ctx);
+    when(ctx.path()).thenReturn("apps/ui/pet%20store/Order");
+
+    ServeStaticFile.serve(ctx);
+
+    /* Grab what was outputted */
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(ctx).result(captor.capture());
+
+    byte[] bytes = captor.getValue();
+    String htmlOutput = new String(bytes, StandardCharsets.UTF_8);
+    System.out.println(htmlOutput);
+
+    assertTrue(htmlOutput.contains("<p>UI file mapping works.</p>"));
+  }
+
+  @Test
+  void testServeExternal_AutoServeIndexHtml() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.path()).thenReturn("/schema/example-app");
@@ -64,7 +84,7 @@ class ServeStaticFileTest {
   }
 
   @Test
-  public void testServeOnlyContext_NotFoundOnPathTraversalAttempt() {
+  void testServeOnlyContext_NotFoundOnPathTraversalAttempt() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.path()).thenReturn("/apps/../../example-app");
@@ -74,7 +94,7 @@ class ServeStaticFileTest {
   }
 
   @Test
-  public void testServeOnlyContext_FileNotFound() {
+  void testServeOnlyContext_FileNotFound() {
     Context ctx = mock(Context.class);
     when(ctx.status(anyInt())).thenReturn(ctx);
     when(ctx.path()).thenReturn("/non-existent-app");
@@ -82,6 +102,6 @@ class ServeStaticFileTest {
     ServeStaticFile.serve(ctx);
 
     verify(ctx).status(404);
-    verify(ctx, times(2)).result("File not found: " + ctx.path());
+    verify(ctx, times(2)).result(NOT_FOUND + ctx.path());
   }
 }

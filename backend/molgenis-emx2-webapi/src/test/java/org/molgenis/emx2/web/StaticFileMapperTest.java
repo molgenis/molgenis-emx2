@@ -6,7 +6,7 @@ import io.restassured.response.Response;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
-public class StaticFileMapperTest extends ApiTestBase {
+class StaticFileMapperTest extends ApiTestBase {
 
   @Test
   void testCanFetchFileFromPublicHtmlFolder() {

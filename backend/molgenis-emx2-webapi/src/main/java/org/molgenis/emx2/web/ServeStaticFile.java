@@ -21,6 +21,7 @@ public class ServeStaticFile {
 
   private static final String CUSTOM_APP_FOLDER = "custom-app/";
   private static final String INTERNAL_APP_FOLDER = "/public_html/";
+  private static final String NOT_FOUND = "File not found: ";
 
   public static final String CUSTOM_APP_PATH =
       (String) EnvironmentProperty.getParameter(Constants.CUSTOM_APP_PATH, "", STRING);
@@ -94,7 +95,7 @@ public class ServeStaticFile {
       }
       send(ctx, in, mimeType);
     } catch (Exception e) {
-      ctx.status(404).result("File not found: " + ctx.path());
+      ctx.status(404).result(NOT_FOUND + ctx.path());
     }
   }
 
@@ -119,6 +120,10 @@ public class ServeStaticFile {
     path = String.join("/", parts);
     boolean isFile = parts.getLast().contains(("."));
     String fallbackFileBase = path + "/index.html";
+
+    if (Objects.equals(parts.get(1), "ui") && !isFile) {
+      fallbackFileBase = "apps/ui/index.html";
+    }
 
     Path internalAppsDirectory = Paths.get(INTERNAL_APP_FOLDER);
     String requestedInternalFilePath =
@@ -165,12 +170,12 @@ public class ServeStaticFile {
     if (externalFallbackFound) return;
 
     /* Tried out best to serve something, sadly nothing was found! */
-    ctx.status(404).result("File not found: " + ctx.path());
+    ctx.status(404).result(NOT_FOUND + ctx.path());
   }
 
   private static void send(Context ctx, InputStream in, String mimeType) {
     if (in == null) {
-      ctx.status(404).result("File not found: " + ctx.path());
+      ctx.status(404).result(NOT_FOUND + ctx.path());
       return;
     }
 
@@ -182,7 +187,7 @@ public class ServeStaticFile {
       ctx.contentType(mimeType);
       ctx.result(ByteStreams.toByteArray(in));
     } catch (Exception e) {
-      ctx.status(404).result("File not found: " + ctx.path());
+      ctx.status(404).result(NOT_FOUND + ctx.path());
     }
   }
 }
