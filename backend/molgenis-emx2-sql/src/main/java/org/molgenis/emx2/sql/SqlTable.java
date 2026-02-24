@@ -19,6 +19,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -314,6 +315,24 @@ public class SqlTable implements Table {
     return !columnsProvided.isEmpty() && !columnsProvided.equals(row.getColumnNames());
   }
 
+  static void applyAutoIds(List<Column> columns, List<Row> rows) {
+    List<Column> autoIdColumns =
+        columns.stream().filter(c -> AUTO_ID.equals(c.getColumnType())).toList();
+    if (autoIdColumns.isEmpty()) return;
+    for (Row row : rows) {
+      for (Column c : autoIdColumns) {
+        if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+          String id = SnowflakeIdGenerator.getInstance().generateId();
+          if (c.getComputed() != null) {
+            row.set(c.getName(), c.getComputed().replace(COMPUTED_AUTOID_TOKEN, id));
+          } else {
+            row.set(c.getName(), id);
+          }
+        }
+      }
+    }
+  }
+
   private static void executeBatch(
       SqlSchema schema,
       MutationType transactionType,
@@ -324,15 +343,16 @@ public class SqlTable implements Table {
 
     // execute
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
+    List<Row> batchRows = subclassRows.get(subclassName);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows =
-          applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName));
+      applyAutoIds(table.getMetadata().getColumns(), batchRows);
+      List<Row> rows = applyValidationAndComputed(table.getMetadata().getColumns(), batchRows);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
+      applyAutoIds(insertColumns, batchRows);
+      List<Row> rows = applyValidationAndComputed(insertColumns, batchRows);
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));

@@ -30,12 +30,12 @@ class TestSqlTypeUtils {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
 
     final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    SqlTable.applyAutoIds(tableMetadata.getColumns(), List.of(row));
     assertNotNull(row.getString("myCol"));
 
-    // and now it should change on update
+    // and now it should not change on update (value already set)
     final Row copy = new Row(row);
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
+    SqlTable.applyAutoIds(tableMetadata.getColumns(), List.of(copy));
     assertEquals(row.getString("myCol"), copy.getString("myCol"));
   }
 
@@ -48,15 +48,24 @@ class TestSqlTypeUtils {
                 .setType(ColumnType.AUTO_ID)
                 .setComputed("foo-" + Constants.COMPUTED_AUTOID_TOKEN + "-bar"));
     final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    SqlTable.applyAutoIds(tableMetadata.getColumns(), List.of(row));
     assertTrue(row.getString("myCol").startsWith("foo"));
     assertTrue(row.getString("myCol").endsWith("bar"));
 
-    // and now it should change on update
+    // and now it should not change on update (value already set)
     final Row copy = new Row(row);
+    SqlTable.applyAutoIds(tableMetadata.getColumns(), List.of(copy));
+    assertEquals(row.getString("myCol"), copy.getString("myCol"));
+  }
 
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
-    assertEquals(row.getString("myCol"), row.getString("myCol"));
+  @Test
+  void autoIdSkipsValidation() {
+    // Verify that applyValidationAndComputed skips AUTO_ID columns
+    TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
+    final Row row = new Row("myCol", null);
+    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    // AUTO_ID is no longer handled in applyValidationAndComputed, so value stays null
+    assertNull(row.getString("myCol"));
   }
 
   @Test
