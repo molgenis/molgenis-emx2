@@ -49,12 +49,7 @@ const addModalConstantValues = computed(() => {
   return result;
 });
 
-watch(
-  () => props.refTableId,
-  () => {
-    reloadItems();
-  }
-);
+watch(() => props.refTableId, reloadItems);
 
 async function reloadItems() {
   const resp = await fetchTableData(props.refSchemaId, props.refTableId, {
