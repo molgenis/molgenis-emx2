@@ -604,11 +604,13 @@ class HpcDaemon:
                 file_size,
                 artifact_id,
             )
+            content_type = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
             self.client.upload_artifact_file(
                 artifact_id,
                 path=f.name,
                 file_path=str(f),
                 size_bytes=file_size,
+                content_type=content_type,
             )
 
         # Tree hash: single file = file sha256; multi-file = SHA-256 of
