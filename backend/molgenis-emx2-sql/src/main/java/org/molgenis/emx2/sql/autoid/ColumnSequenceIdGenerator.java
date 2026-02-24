@@ -4,7 +4,6 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.AUTOID_RANDOMIZER_KEY_SETTING;
 import static org.molgenis.emx2.Constants.MOLGENIS_ID_RANDOMIZER_KEY;
 
-import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Scanner;
@@ -12,12 +11,11 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.generator.AutoIdFormat;
 import org.molgenis.emx2.utils.generator.FeistelIdRandomizer;
 import org.molgenis.emx2.utils.generator.IdGenerator;
-import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class ColumnSequenceIdGenerator implements IdGenerator {
 
@@ -29,11 +27,8 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
                       MOLGENIS_ID_RANDOMIZER_KEY, "2B7E151628AED2A6ABF7158809CF4F3C", STRING));
 
   private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?<func>\\$\\{mg_autoid[^}]*})");
-  private static final String SNOWFLAKE_PLACEHOLDER = "%sf%";
-  private static final SnowflakeIdGenerator SNOWFLAKE_ID_GENERATOR =
-      SnowflakeIdGenerator.getInstance();
 
-  private final List<AutoIdFormat> formats;
+  private final AutoIdFormat autoIdFormat;
   private final String format;
   private final SqlSequence sequence;
   private final byte[] key;
@@ -50,28 +45,31 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
             .map(String::getBytes)
             .orElse(DEFAULT_KEY);
 
-    String computedFormat =
-        column.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, SNOWFLAKE_PLACEHOLDER);
-
+    String computedFormat = column.getComputed();
     try (Scanner scanner = new Scanner(computedFormat)) {
-      formats =
+      List<AutoIdFormat> results =
           scanner
               .findAll(FUNCTION_PATTERN)
               .map(MatchResult::group)
               .map(AutoIdFormat::fromComputedString)
               .toList();
 
-      if (formats.isEmpty()) {
-        sequence = null;
+      if (results.isEmpty()) {
+        throw new MolgenisException(
+            "Invalid computed value provided, requires at least one autoid instance");
+      } else if (results.size() > 1) {
+        throw new MolgenisException(
+            "Invalid computed value provided, only one autoid instance is allowed");
+      }
+
+      autoIdFormat = results.getFirst();
+      computedFormat = computedFormat.replaceAll(FUNCTION_PATTERN.pattern(), "%s");
+      String name = getSequenceNameForColumn(column);
+      if (!SqlSequence.exists(jooq, column.getSchemaName(), name)) {
+        long limit = autoIdFormat.getMaxValue() + 1;
+        sequence = SqlSequence.create(jooq, column.getSchemaName(), name, limit);
       } else {
-        computedFormat = computedFormat.replaceAll(FUNCTION_PATTERN.pattern(), "%s");
-        String name = getSequenceNameForColumn(column);
-        if (!SqlSequence.exists(jooq, column.getSchemaName(), name)) {
-          long limit = getCollectiveSequenceLimit(formats);
-          sequence = SqlSequence.create(jooq, column.getSchemaName(), name, limit);
-        } else {
-          sequence = new SqlSequence(jooq, column.getSchemaName(), name);
-        }
+        sequence = new SqlSequence(jooq, column.getSchemaName(), name);
       }
     }
 
@@ -87,35 +85,14 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
         HexFormat.of().toHexDigits(column.getComputed().hashCode()));
   }
 
-  private static long getCollectiveSequenceLimit(List<AutoIdFormat> formats) {
-    // Sequences start counting at 1, not at 0
-    return LongPack.maxPackValue(formats.stream().map(AutoIdFormat::getMaxValue).toList()) + 1;
-  }
-
   @Override
   public String generateId() {
-    String result = format.replace(SNOWFLAKE_PLACEHOLDER, SNOWFLAKE_ID_GENERATOR.generateId());
-
-    if (!formats.isEmpty()) {
-      long nextValue = sequence.getNextValue() - 1; // Sequences start counting at 1, not at 0
-      long randomized = new FeistelIdRandomizer(sequence.getLimit(), key).randomize(nextValue);
-
-      List<Long> maxValues = formats.stream().map(AutoIdFormat::getMaxValue).toList();
-      List<Long> numbers = LongPack.fromValue(randomized, maxValues).numbers();
-
-      List<String> idValues = new ArrayList<>();
-      for (int i = 0; i < numbers.size(); i++) {
-        AutoIdFormat currentFormat = formats.get(i);
-        idValues.add(currentFormat.mapToFormat(numbers.get(i)));
-      }
-      return result.formatted(idValues.toArray());
-    }
-
-    return result;
+    long nextValue = sequence.getNextValue() - 1; // Sequences start counting at 1, not at 0
+    long randomized = new FeistelIdRandomizer(sequence.getLimit(), key).randomize(nextValue);
+    return format.formatted(autoIdFormat.mapToFormat(randomized));
   }
 
   public void updateSequenceForValue(String value) {
     // TODO: Remove support for multiple formats before we can validate the sequence value
-    return;
   }
 }
