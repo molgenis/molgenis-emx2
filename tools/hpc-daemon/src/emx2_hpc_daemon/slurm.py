@@ -11,12 +11,15 @@ import logging
 import re
 import subprocess
 import textwrap
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 COMMAND_TIMEOUT = 30  # seconds
+STATUS_QUERY_RETRIES = 3
+STATUS_QUERY_BACKOFF_SECONDS = 1.0
 
 
 @dataclass
@@ -32,6 +35,44 @@ class SlurmJobInfo:
 
 class SlurmError(Exception):
     """Raised when a Slurm command fails."""
+
+
+def _run_status_query(
+    cmd: list[str], label: str
+) -> subprocess.CompletedProcess[str] | None:
+    """Run a status query command with retries on timeout."""
+    for attempt in range(STATUS_QUERY_RETRIES):
+        try:
+            return subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=COMMAND_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            if attempt < STATUS_QUERY_RETRIES - 1:
+                wait = STATUS_QUERY_BACKOFF_SECONDS * (2**attempt)
+                logger.warning(
+                    "%s timed out for %s (attempt %d/%d), retrying in %.1fs",
+                    label,
+                    cmd[2] if len(cmd) > 2 else "?",
+                    attempt + 1,
+                    STATUS_QUERY_RETRIES,
+                    wait,
+                )
+                time.sleep(wait)
+                continue
+            logger.error(
+                "%s timed out for %s after %d attempts",
+                label,
+                cmd[2] if len(cmd) > 2 else "?",
+                STATUS_QUERY_RETRIES,
+            )
+            return None
+        except FileNotFoundError:
+            logger.error("%s executable not found", label)
+            return None
+    return None
 
 
 def submit_job(script_path: str | Path) -> str:
@@ -69,56 +110,46 @@ def query_status(slurm_job_id: str) -> SlurmJobInfo:
     """
     # Try squeue first (for running/pending jobs)
     # Format: State|Reason|NodeList
-    try:
-        result = subprocess.run(
-            ["squeue", "-j", slurm_job_id, "-h", "-o", "%T|%R|%N"],
-            capture_output=True,
-            text=True,
-            timeout=COMMAND_TIMEOUT,
+    result = _run_status_query(
+        ["squeue", "-j", slurm_job_id, "-h", "-o", "%T|%R|%N"],
+        "squeue",
+    )
+    if result is not None and result.returncode == 0 and result.stdout.strip():
+        parts = result.stdout.strip().split("|", 2)
+        return SlurmJobInfo(
+            state=parts[0],
+            reason=parts[1] if len(parts) > 1 else "",
+            node_list=parts[2] if len(parts) > 2 else "",
         )
-        if result.returncode == 0 and result.stdout.strip():
-            parts = result.stdout.strip().split("|", 2)
-            return SlurmJobInfo(
-                state=parts[0],
-                reason=parts[1] if len(parts) > 1 else "",
-                node_list=parts[2] if len(parts) > 2 else "",
-            )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
 
     # Fall back to sacct (for completed jobs)
     # Format: State|ExitCode|Reason|NodeList|Elapsed
-    try:
-        result = subprocess.run(
-            [
-                "sacct",
-                "-j",
-                slurm_job_id,
-                "-n",
-                "-X",
-                "-o",
-                "State,ExitCode,Reason,NodeList,Elapsed",
-                "--parsable2",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=COMMAND_TIMEOUT,
+    result = _run_status_query(
+        [
+            "sacct",
+            "-j",
+            slurm_job_id,
+            "-n",
+            "-X",
+            "-o",
+            "State,ExitCode,Reason,NodeList,Elapsed",
+            "--parsable2",
+        ],
+        "sacct",
+    )
+    if result is not None and result.returncode == 0 and result.stdout.strip():
+        line = result.stdout.strip().split("\n")[0]
+        parts = line.split("|")
+        state = parts[0] if len(parts) > 0 else "UNKNOWN"
+        # Normalize "CANCELLED by 1000" → "CANCELLED"
+        state = re.split(r"\s+by\s+", state)[0]
+        return SlurmJobInfo(
+            state=state,
+            exit_code=parts[1] if len(parts) > 1 else "",
+            reason=parts[2] if len(parts) > 2 else "",
+            node_list=parts[3] if len(parts) > 3 else "",
+            elapsed=parts[4] if len(parts) > 4 else "",
         )
-        if result.returncode == 0 and result.stdout.strip():
-            line = result.stdout.strip().split("\n")[0]
-            parts = line.split("|")
-            state = parts[0] if len(parts) > 0 else "UNKNOWN"
-            # Normalize "CANCELLED by 1000" → "CANCELLED"
-            state = re.split(r"\s+by\s+", state)[0]
-            return SlurmJobInfo(
-                state=state,
-                exit_code=parts[1] if len(parts) > 1 else "",
-                reason=parts[2] if len(parts) > 2 else "",
-                node_list=parts[3] if len(parts) > 3 else "",
-                elapsed=parts[4] if len(parts) > 4 else "",
-            )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
 
     return SlurmJobInfo(state="UNKNOWN")
 
@@ -284,8 +315,14 @@ def generate_batch_script(
       env vars and ``exec``s the wrapper script directly on the host.
     """
     sbatch = _format_sbatch_directives(
-        job_id, partition, cpus, memory, time_limit, output_dir,
-        account=account, extra_args=extra_args,
+        job_id,
+        partition,
+        cpus,
+        memory,
+        time_limit,
+        output_dir,
+        account=account,
+        extra_args=extra_args,
     )
 
     preamble = textwrap.dedent(f"""\
@@ -299,13 +336,23 @@ def generate_batch_script(
 
     if entrypoint:
         body = _format_entrypoint_body(
-            job_id, work_dir, input_dir, output_dir, entrypoint,
-            environment=environment, parameters=parameters,
+            job_id,
+            work_dir,
+            input_dir,
+            output_dir,
+            entrypoint,
+            environment=environment,
+            parameters=parameters,
         )
     else:
         body = _format_apptainer_body(
-            job_id, sif_image, work_dir, input_dir, output_dir,
-            bind_paths=bind_paths, container_command=container_command,
+            job_id,
+            sif_image,
+            work_dir,
+            input_dir,
+            output_dir,
+            bind_paths=bind_paths,
+            container_command=container_command,
             environment=environment,
         )
 

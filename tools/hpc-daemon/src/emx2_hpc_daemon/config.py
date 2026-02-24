@@ -51,7 +51,9 @@ class WorkerConfig:
     poll_interval_seconds: int = 30
     max_concurrent_jobs: int = 10
     queue_report_interval_seconds: int = 300  # report Slurm PENDING status every 5 min
-    state_db: str = ""  # path to TinyDB state file; empty = ~/.local/share/hpc-daemon/state.json
+    state_db: str = (
+        ""  # path to TinyDB state file; empty = ~/.local/share/hpc-daemon/state.json
+    )
 
 
 @dataclass
@@ -121,9 +123,7 @@ def load_config(path: str | Path) -> DaemonConfig:
         if not secret_path.is_absolute():
             secret_path = Path(path).parent / secret_path
         if not secret_path.is_file():
-            raise FileNotFoundError(
-                f"shared_secret_file not found: {secret_path}"
-            )
+            raise FileNotFoundError(f"shared_secret_file not found: {secret_path}")
         config.emx2.shared_secret = secret_path.read_text().strip()
 
     if "worker" in raw:

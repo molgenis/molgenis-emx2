@@ -91,11 +91,16 @@ def test_persist_and_reload(tmp_path):
     db_path = tmp_path / "state.json"
 
     t1 = JobTracker(state_db_path=db_path)
-    t1.track("job-1", slurm_job_id="111", status="SUBMITTED",
-             output_dir="/tmp/j1/output", work_dir="/tmp/j1",
-             processor="proc", profile="prof")
-    t1.track("job-2", slurm_job_id="222", status="STARTED",
-             output_dir="/tmp/j2/output")
+    t1.track(
+        "job-1",
+        slurm_job_id="111",
+        status="SUBMITTED",
+        output_dir="/tmp/j1/output",
+        work_dir="/tmp/j1",
+        processor="proc",
+        profile="prof",
+    )
+    t1.track("job-2", slurm_job_id="222", status="STARTED", output_dir="/tmp/j2/output")
     t1.close()
 
     t2 = JobTracker(state_db_path=db_path)

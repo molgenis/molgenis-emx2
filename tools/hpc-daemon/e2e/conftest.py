@@ -116,13 +116,16 @@ def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
     logger.info("Signed in as admin, got token")
 
     # Set the HPC shared secret via GraphQL settings mutation
-    settings_query = """
+    settings_query = (
+        """
     mutation {
       change(settings: [{key: "MOLGENIS_HPC_SHARED_SECRET", value: "%s"}]) {
         message
       }
     }
-    """ % shared_secret
+    """
+        % shared_secret
+    )
     r = httpx.post(
         f"{emx2_base_url}/api/graphql",
         json={"query": settings_query},
@@ -155,7 +158,9 @@ def wait_for_daemon(bootstrap_hpc):
     deadline = time.monotonic() + 120
     while time.monotonic() < deadline:
         # Check if cron-driven daemon has run at least once
-        result = _vagrant_ssh("grep -c 'Single cycle complete' /var/log/hpc-daemon.log 2>/dev/null || echo 0")
+        result = _vagrant_ssh(
+            "grep -c 'Single cycle complete' /var/log/hpc-daemon.log 2>/dev/null || echo 0"
+        )
         count = int(result.stdout.strip().split()[-1]) if result.returncode == 0 else 0
         if count > 0:
             logger.info("Daemon has completed %d cycle(s) via cron", count)

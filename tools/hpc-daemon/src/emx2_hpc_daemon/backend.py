@@ -6,15 +6,16 @@ keeping a single code path regardless of execution mode.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
+import shutil
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 
 from .client import HpcClient, format_links
 from .config import DaemonConfig
-from .hashing import compute_tree_hash
 from .profiles import resolve_profile
 from .slurm import (
     SlurmJobInfo,
@@ -25,6 +26,31 @@ from .slurm import (
 )
 
 logger = logging.getLogger(__name__)
+_HASH_CHUNK_SIZE = 1024 * 1024
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while True:
+            chunk = handle.read(_HASH_CHUNK_SIZE)
+            if not chunk:
+                break
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _compute_tree_hash_from_paths(files: list[tuple[str, Path]]) -> str:
+    if not files:
+        raise ValueError("Cannot compute tree hash of empty file list")
+
+    sorted_files = sorted(files, key=lambda item: item[0])
+    if len(sorted_files) == 1:
+        return _sha256_file(sorted_files[0][1])
+
+    canonical = "".join(f"{rel}:{_sha256_file(path)}" for rel, path in sorted_files)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
 
 # Map Slurm states to EMX2 HPC job statuses
 SLURM_TO_HPC_STATUS = {
@@ -39,9 +65,7 @@ SLURM_TO_HPC_STATUS = {
 }
 
 
-def _verify_artifact_hash(
-    artifact: dict, artifact_dir: Path, artifact_id: str
-) -> None:
+def _verify_artifact_hash(artifact: dict, artifact_dir: Path, artifact_id: str) -> None:
     """Verify SHA-256 of staged input artifact files against expected hash.
 
     Raises ValueError("input_hash_mismatch") on mismatch.
@@ -58,8 +82,8 @@ def _verify_artifact_hash(
     if not artifact_dir.is_dir():
         # Single file — check if it's a file directly
         if artifact_dir.is_file():
-            actual_hash = compute_tree_hash(
-                [(artifact_dir.name, artifact_dir.read_bytes())]
+            actual_hash = _compute_tree_hash_from_paths(
+                [(artifact_dir.name, artifact_dir)]
             )
         else:
             logger.warning(
@@ -69,9 +93,7 @@ def _verify_artifact_hash(
             )
             return
     else:
-        file_list = sorted(
-            f for f in artifact_dir.rglob("*") if f.is_file()
-        )
+        file_list = sorted(f for f in artifact_dir.rglob("*") if f.is_file())
         if not file_list:
             logger.warning(
                 "No files found in artifact %s at %s — skipping hash verification",
@@ -80,21 +102,19 @@ def _verify_artifact_hash(
             )
             return
 
-        # Build (relative_path, content) pairs
-        pairs: list[tuple[str, bytes]] = []
+        # Build (relative_path, file_path) pairs
+        pairs: list[tuple[str, Path]] = []
         for f in file_list:
             rel_path = str(f.relative_to(artifact_dir))
-            pairs.append((rel_path, f.read_bytes()))
-        actual_hash = compute_tree_hash(pairs)
+            pairs.append((rel_path, f))
+        actual_hash = _compute_tree_hash_from_paths(pairs)
 
     if actual_hash != expected_hash:
         raise ValueError(
             f"input_hash_mismatch: artifact {artifact_id} "
             f"expected={expected_hash} actual={actual_hash}"
         )
-    logger.debug(
-        "Hash verified for artifact %s: %s", artifact_id, actual_hash
-    )
+    logger.debug("Hash verified for artifact %s: %s", artifact_id, actual_hash)
 
 
 @dataclass
@@ -126,7 +146,9 @@ class ExecutionBackend(ABC):
         """
 
     @abstractmethod
-    def query_status(self, slurm_job_id: str, current_status: str) -> StatusResult | None:
+    def query_status(
+        self, slurm_job_id: str, current_status: str
+    ) -> StatusResult | None:
         """Query the current status of a submitted job.
 
         Returns a StatusResult with the new HPC status and Slurm metadata,
@@ -217,7 +239,9 @@ class SlurmBackend(ExecutionBackend):
             input_dir=str(input_dir),
             output_dir=str(output_dir),
             extra_args=resolved.extra_args,
-            bind_paths=self._config.apptainer.bind_paths if not resolved.entrypoint else None,
+            bind_paths=self._config.apptainer.bind_paths
+            if not resolved.entrypoint
+            else None,
             account=self._config.slurm.default_account or None,
             container_command=container_command,
             environment=environment,
@@ -239,7 +263,9 @@ class SlurmBackend(ExecutionBackend):
             output_dir=str(output_dir),
         )
 
-    def query_status(self, slurm_job_id: str, current_status: str) -> StatusResult | None:
+    def query_status(
+        self, slurm_job_id: str, current_status: str
+    ) -> StatusResult | None:
         info = query_status(slurm_job_id)
         hpc_status = SLURM_TO_HPC_STATUS.get(info.state)
         if hpc_status is None or hpc_status == current_status:
@@ -330,6 +356,16 @@ class SlurmBackend(ExecutionBackend):
                             )
                         else:
                             # Download managed artifact files
+                            artifact_dir = Path(input_dir) / artifact_id
+                            if artifact_dir.exists():
+                                if (
+                                    artifact_dir.is_dir()
+                                    and not artifact_dir.is_symlink()
+                                ):
+                                    shutil.rmtree(artifact_dir)
+                                else:
+                                    artifact_dir.unlink()
+                            artifact_dir.mkdir(parents=True, exist_ok=True)
                             files = client.list_artifact_files(artifact_id)
                             logger.debug(
                                 "Artifact %s has %d file(s): %s",
@@ -341,7 +377,7 @@ class SlurmBackend(ExecutionBackend):
                                 ],
                             )
                             downloaded = client.download_artifact_files(
-                                artifact_id, input_dir
+                                artifact_id, str(artifact_dir)
                             )
                             logger.info(
                                 "Staged %d files from artifact %s",
@@ -349,14 +385,9 @@ class SlurmBackend(ExecutionBackend):
                                 artifact_id,
                             )
                             # Verify hash for managed artifacts
-                            artifact_dir = Path(input_dir) / artifact_id
-                            _verify_artifact_hash(
-                                artifact, artifact_dir, artifact_id
-                            )
+                            _verify_artifact_hash(artifact, artifact_dir, artifact_id)
                     except Exception:
-                        logger.exception(
-                            "Failed to stage artifact %s", artifact_id
-                        )
+                        logger.exception("Failed to stage artifact %s", artifact_id)
                         raise
 
 
@@ -405,8 +436,12 @@ class SimulatedBackend(ExecutionBackend):
             output_dir=str(output_dir),
         )
 
-    def query_status(self, slurm_job_id: str, current_status: str) -> StatusResult | None:
-        hpc_status = {"SUBMITTED": "STARTED", "STARTED": "COMPLETED"}.get(current_status)
+    def query_status(
+        self, slurm_job_id: str, current_status: str
+    ) -> StatusResult | None:
+        hpc_status = {"SUBMITTED": "STARTED", "STARTED": "COMPLETED"}.get(
+            current_status
+        )
         if hpc_status is None:
             return None
         simulated_state = {"STARTED": "RUNNING", "COMPLETED": "COMPLETED"}.get(

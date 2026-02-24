@@ -185,7 +185,8 @@ class TestMonitorUploadsArtifacts:
 
         # upload_artifact_file should have been called for the managed files
         uploaded_paths = [
-            c.kwargs.get("path") for c in mock_client.upload_artifact_file.call_args_list
+            c.kwargs.get("path")
+            for c in mock_client.upload_artifact_file.call_args_list
         ]
         assert "result.csv" in uploaded_paths
         assert "slurm-12345.out" in uploaded_paths
@@ -194,9 +195,7 @@ class TestMonitorUploadsArtifacts:
         # Job should be removed from tracker (terminal)
         assert daemon.tracker.active_count() == 0
 
-    def test_failed_job_uploads_log_artifact_only(
-        self, sample_config, tmp_path: Path
-    ):
+    def test_failed_job_uploads_log_artifact_only(self, sample_config, tmp_path: Path):
         """On FAILED, log artifacts should be uploaded but not output artifacts."""
         daemon, mock_client = _make_daemon(sample_config)
 
@@ -218,7 +217,9 @@ class TestMonitorUploadsArtifacts:
         # Make the simulated backend return FAILED instead of COMPLETED
         failed_result = StatusResult(
             hpc_status="FAILED",
-            slurm_info=SlurmJobInfo(state="FAILED", exit_code="1:0", reason="NonZeroExitCode"),
+            slurm_info=SlurmJobInfo(
+                state="FAILED", exit_code="1:0", reason="NonZeroExitCode"
+            ),
         )
         daemon._backend.query_status = MagicMock(return_value=failed_result)
 
@@ -346,7 +347,9 @@ class TestMonitorUploadsArtifacts:
 
         failed_result = StatusResult(
             hpc_status="FAILED",
-            slurm_info=SlurmJobInfo(state="FAILED", exit_code="1:0", reason="NonZeroExitCode"),
+            slurm_info=SlurmJobInfo(
+                state="FAILED", exit_code="1:0", reason="NonZeroExitCode"
+            ),
         )
         daemon._backend.query_status = MagicMock(return_value=failed_result)
 
@@ -445,9 +448,7 @@ class TestPosixResidenceArtifactUpload:
         # commit_artifact should be called for each artifact
         assert mock_client.commit_artifact.call_count == 2
 
-    def test_posix_registers_file_metadata(
-        self, sample_config, tmp_path: Path
-    ):
+    def test_posix_registers_file_metadata(self, sample_config, tmp_path: Path):
         """Posix artifact flow registers metadata for each file with correct hashes."""
         sample_config.profiles["text-embedding:gpu-medium"].output_residence = "posix"
         sample_config.profiles["text-embedding:gpu-medium"].log_residence = "posix"
@@ -543,8 +544,7 @@ def _java_tree_hash(files: dict[str, bytes]) -> str:
     Multi-file: SHA-256 of concatenated "path:sha256hex" sorted by path.
     """
     per_file = sorted(
-        (name, hashlib.sha256(content).hexdigest())
-        for name, content in files.items()
+        (name, hashlib.sha256(content).hexdigest()) for name, content in files.items()
     )
     if len(per_file) == 1:
         return per_file[0][1]
@@ -557,9 +557,7 @@ class TestTreeHashComputation:
     algorithm: single-file = file sha256, multi-file = SHA-256 of sorted
     'path:sha256hex' concatenation."""
 
-    def test_single_file_commit_uses_file_sha256(
-        self, sample_config, tmp_path: Path
-    ):
+    def test_single_file_commit_uses_file_sha256(self, sample_config, tmp_path: Path):
         """Single-file artifact: commit sha256 = the file's own sha256."""
         daemon, mock_client = _make_daemon(sample_config)
 
@@ -585,9 +583,7 @@ class TestTreeHashComputation:
         expected = hashlib.sha256(content).hexdigest()
         assert call_kwargs["sha256"] == expected
 
-    def test_multi_file_commit_uses_tree_hash(
-        self, sample_config, tmp_path: Path
-    ):
+    def test_multi_file_commit_uses_tree_hash(self, sample_config, tmp_path: Path):
         """Multi-file artifact: commit sha256 = tree hash of sorted path:hash pairs."""
         daemon, mock_client = _make_daemon(sample_config)
 
@@ -657,9 +653,7 @@ class TestTreeHashComputation:
         # Should match the tree hash
         assert actual_hash == _java_tree_hash(files)
 
-    def test_tree_hash_sorting_matters(
-        self, sample_config, tmp_path: Path
-    ):
+    def test_tree_hash_sorting_matters(self, sample_config, tmp_path: Path):
         """Tree hash must sort by path, so file creation order doesn't matter."""
         files = {
             "zebra.log": b"z-content",
@@ -689,9 +683,7 @@ class TestTreeHashComputation:
             call_kwargs = mock_client.commit_artifact.call_args.kwargs
             assert call_kwargs["sha256"] == expected
 
-    def test_posix_tree_hash_matches_managed(
-        self, sample_config, tmp_path: Path
-    ):
+    def test_posix_tree_hash_matches_managed(self, sample_config, tmp_path: Path):
         """Posix residence should compute the same tree hash as managed."""
         files = {
             "slurm-1.out": b"slurm log",
@@ -740,8 +732,11 @@ class TestBuildSlurmDetail:
 
     def test_failed_with_exit_code(self):
         info = SlurmJobInfo(
-            state="FAILED", exit_code="137:0", reason="NonZeroExitCode",
-            node_list="gpu-01", elapsed="00:45:12",
+            state="FAILED",
+            exit_code="137:0",
+            reason="NonZeroExitCode",
+            node_list="gpu-01",
+            elapsed="00:45:12",
         )
         detail = _build_slurm_detail(info)
         assert "slurm_state=FAILED" in detail
@@ -753,7 +748,9 @@ class TestBuildSlurmDetail:
     def test_oom_preserves_slurm_state(self):
         """OUT_OF_MEMORY should appear as slurm_state, not just 'FAILED'."""
         info = SlurmJobInfo(
-            state="OUT_OF_MEMORY", exit_code="137:0", reason="OutOfMemory",
+            state="OUT_OF_MEMORY",
+            exit_code="137:0",
+            reason="OutOfMemory",
             node_list="compute-02",
         )
         detail = _build_slurm_detail(info)
@@ -766,7 +763,9 @@ class TestBuildSlurmDetail:
         assert "slurm_state=PENDING" in detail
         assert "reason=Priority" in detail
 
-    def test_transition_detail_includes_slurm_metadata(self, sample_config, tmp_path: Path):
+    def test_transition_detail_includes_slurm_metadata(
+        self, sample_config, tmp_path: Path
+    ):
         """End-to-end: completed job transition should have structured detail."""
         daemon, mock_client = _make_daemon(sample_config)
 

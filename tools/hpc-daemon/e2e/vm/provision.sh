@@ -140,8 +140,8 @@ done
 # Create default account and vagrant user association
 sleep 2
 echo "=== Setting up Slurm accounting ==="
-sacctmgr -i add account default Description="Default account" Organization="e2e"
-sacctmgr -i add user vagrant DefaultAccount=default
+sacctmgr -i add account default Description="Default account" Organization="e2e" || true
+sacctmgr -i add user vagrant DefaultAccount=default || true
 sacctmgr list assoc format=Cluster,Account,User,Partition
 echo "Accounting setup complete."
 

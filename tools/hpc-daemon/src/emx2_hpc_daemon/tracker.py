@@ -12,8 +12,12 @@ converted back to monotonic offsets.
 
 from __future__ import annotations
 
+import json
 import logging
+import os
+import threading
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass, fields
 from pathlib import Path
 
@@ -72,6 +76,9 @@ class JobTracker:
         self._jobs: dict[str, TrackedJob] = {}
         self._db = None
         self._table = None
+        self._db_path: Path | None = None
+        self._lock_handle = None
+        self._lock = threading.RLock()
 
         if state_db_path is not None:
             self._init_db(Path(state_db_path))
@@ -81,9 +88,89 @@ class JobTracker:
         from tinydb import TinyDB
 
         path.parent.mkdir(parents=True, exist_ok=True)
-        self._db = TinyDB(str(path))
-        self._table = self._db.table("tracked_jobs")
+        self._db_path = path
+        try:
+            self._lock_handle = open(path.parent / f"{path.name}.lock", "a+b")
+        except OSError:
+            self._lock_handle = None
+            logger.warning(
+                "State DB lock file is not writable at %s; continuing without inter-process lock",
+                path.parent / f"{path.name}.lock",
+            )
+        try:
+            self._db = TinyDB(str(path))
+            self._table = self._db.table("tracked_jobs")
+        except (json.JSONDecodeError, ValueError):
+            self._recover_corrupt_db()
+        except OSError:
+            self._db = None
+            self._table = None
+            logger.warning(
+                "State DB is not writable at %s; running without persistence",
+                path,
+            )
         logger.debug("State DB opened at %s", path)
+
+    @contextmanager
+    def _db_guard(self):
+        if self._table is None:
+            yield
+            return
+
+        with self._lock:
+            locked = False
+            if self._lock_handle is not None:
+                try:
+                    import fcntl
+
+                    fcntl.flock(self._lock_handle.fileno(), fcntl.LOCK_EX)
+                    locked = True
+                except (ImportError, OSError):
+                    logger.debug(
+                        "State DB lock unavailable; continuing without file lock"
+                    )
+            try:
+                yield
+            finally:
+                if locked and self._lock_handle is not None:
+                    try:
+                        import fcntl
+
+                        fcntl.flock(self._lock_handle.fileno(), fcntl.LOCK_UN)
+                    except (ImportError, OSError):
+                        pass
+
+    def _recover_corrupt_db(self) -> None:
+        """Rotate a corrupt TinyDB file out of the way and reopen a fresh one."""
+        if self._db_path is None:
+            raise RuntimeError("Cannot recover TinyDB without a state path")
+
+        if self._db is not None:
+            try:
+                self._db.close()
+            except Exception:
+                logger.debug("Failed closing corrupt TinyDB handle", exc_info=True)
+        self._db = None
+        self._table = None
+
+        backup_path = self._db_path.with_name(
+            f"{self._db_path.name}.corrupt-{int(time.time())}"
+        )
+        if self._db_path.exists():
+            try:
+                os.replace(self._db_path, backup_path)
+                logger.error(
+                    "Corrupt TinyDB state file moved to %s; starting fresh state DB",
+                    backup_path,
+                )
+            except OSError:
+                logger.exception(
+                    "Failed to rotate corrupt TinyDB state file %s", self._db_path
+                )
+        from tinydb import TinyDB
+
+        self._db = TinyDB(str(self._db_path))
+        self._table = self._db.table("tracked_jobs")
 
     # -- persistence helpers --------------------------------------------------
 
@@ -99,7 +186,16 @@ class JobTracker:
             doc[tf] = _mono_to_wall(doc[tf])
 
         Q = Query()
-        self._table.upsert(doc, Q.emx2_job_id == job.emx2_job_id)
+        try:
+            with self._db_guard():
+                self._table.upsert(doc, Q.emx2_job_id == job.emx2_job_id)
+        except (json.JSONDecodeError, ValueError):
+            logger.exception(
+                "TinyDB state corruption detected during persist; recovering"
+            )
+            self._recover_corrupt_db()
+            with self._db_guard():
+                self._table.upsert(doc, Q.emx2_job_id == job.emx2_job_id)
 
     def _remove_from_db(self, emx2_job_id: str) -> None:
         """Remove a job row from the DB."""
@@ -108,7 +204,14 @@ class JobTracker:
         from tinydb import Query
 
         Q = Query()
-        self._table.remove(Q.emx2_job_id == emx2_job_id)
+        try:
+            with self._db_guard():
+                self._table.remove(Q.emx2_job_id == emx2_job_id)
+        except (json.JSONDecodeError, ValueError):
+            logger.exception(
+                "TinyDB state corruption detected during delete; recovering"
+            )
+            self._recover_corrupt_db()
 
     def load_from_db(self) -> dict[str, TrackedJob]:
         """Load all persisted jobs into memory.
@@ -119,7 +222,16 @@ class JobTracker:
         if self._table is None:
             return self._jobs
 
-        for doc in self._table.all():
+        try:
+            with self._db_guard():
+                docs = list(self._table.all())
+        except (json.JSONDecodeError, ValueError):
+            logger.exception("TinyDB state corruption detected during load; recovering")
+            self._recover_corrupt_db()
+            with self._db_guard():
+                docs = list(self._table.all())
+
+        for doc in docs:
             emx2_id = doc.get("emx2_job_id")
             if not emx2_id or emx2_id in self._jobs:
                 continue
@@ -215,3 +327,6 @@ class JobTracker:
         """Close the underlying TinyDB (flushes any buffered writes)."""
         if self._db is not None:
             self._db.close()
+        if self._lock_handle is not None:
+            self._lock_handle.close()
+            self._lock_handle = None

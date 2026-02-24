@@ -36,7 +36,9 @@ class MockSlurmCluster:
         """Get the state of a job."""
         return self._jobs.get(job_id, "UNKNOWN")
 
-    def mock_subprocess_run(self, cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
+    def mock_subprocess_run(
+        self, cmd: list[str], **kwargs
+    ) -> subprocess.CompletedProcess:
         """Mock subprocess.run for Slurm commands."""
         program = cmd[0]
 
@@ -61,13 +63,13 @@ class MockSlurmCluster:
                     reason = "Priority" if state == "PENDING" else "None"
                     node = "" if state == "PENDING" else "mock-node-01"
                     return subprocess.CompletedProcess(
-                        cmd, returncode=0,
-                        stdout=f"{state}|{reason}|{node}\n", stderr=""
+                        cmd,
+                        returncode=0,
+                        stdout=f"{state}|{reason}|{node}\n",
+                        stderr="",
                     )
             # Job not in squeue (finished or not found)
-            return subprocess.CompletedProcess(
-                cmd, returncode=0, stdout="", stderr=""
-            )
+            return subprocess.CompletedProcess(cmd, returncode=0, stdout="", stderr="")
 
         elif program == "sacct":
             # Extract job ID from args
@@ -83,13 +85,13 @@ class MockSlurmCluster:
                 exit_code = "0:0" if state == "COMPLETED" else "1:0"
                 reason = "None" if state == "COMPLETED" else state
                 return subprocess.CompletedProcess(
-                    cmd, returncode=0,
+                    cmd,
+                    returncode=0,
                     stdout=f"{state}|{exit_code}|{reason}|mock-node-01|00:01:00\n",
-                    stderr=""
+                    stderr="",
                 )
             return subprocess.CompletedProcess(
-                cmd, returncode=0,
-                stdout="UNKNOWN||||00:00:00\n", stderr=""
+                cmd, returncode=0, stdout="UNKNOWN||||00:00:00\n", stderr=""
             )
 
         elif program == "scancel":

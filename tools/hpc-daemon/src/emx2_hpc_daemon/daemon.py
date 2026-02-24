@@ -36,6 +36,18 @@ from .tracker import JobTracker
 logger = logging.getLogger(__name__)
 
 TERMINAL_STATUSES = frozenset({"COMPLETED", "FAILED", "CANCELLED"})
+_FILE_IO_CHUNK_SIZE = 1024 * 1024
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while True:
+            chunk = handle.read(_FILE_IO_CHUNK_SIZE)
+            if not chunk:
+                break
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _build_slurm_detail(info: SlurmJobInfo) -> str:
@@ -76,7 +88,9 @@ class HpcDaemon:
         self._heartbeat_interval = 120  # seconds
         self._last_heartbeat = 0.0
         if simulate:
-            logger.info("Running in SIMULATE mode — no real Slurm commands will be executed")
+            logger.info(
+                "Running in SIMULATE mode — no real Slurm commands will be executed"
+            )
 
     @staticmethod
     def _resolve_state_db(config: DaemonConfig) -> Path:
@@ -188,7 +202,9 @@ class HpcDaemon:
                         self.tracker.update(emx2_id, status=server_status)
                         logger.debug(
                             "Updated job %s status from DB=%s to server=%s",
-                            emx2_id, local.status, server_status,
+                            emx2_id,
+                            local.status,
+                            server_status,
                         )
                 else:
                     # Not in local DB — derive dirs from config
@@ -202,9 +218,7 @@ class HpcDaemon:
                         processor=job_data.get("processor"),
                         profile=job_data.get("profile"),
                         output_dir=output_dir,
-                        work_dir=str(
-                            Path(self.config.apptainer.tmp_dir) / emx2_id
-                        ),
+                        work_dir=str(Path(self.config.apptainer.tmp_dir) / emx2_id),
                     )
                     logger.info(
                         "Recovered job %s from server (no local state, derived dirs)",
@@ -292,7 +306,10 @@ class HpcDaemon:
                 continue
 
             for job in jobs:
-                if self.tracker.active_count() >= self.config.worker.max_concurrent_jobs:
+                if (
+                    self.tracker.active_count()
+                    >= self.config.worker.max_concurrent_jobs
+                ):
                     return
 
                 job_id = job["id"]
@@ -361,10 +378,7 @@ class HpcDaemon:
                 continue
             if f.name == ".hpc_progress.json":
                 continue
-            if (
-                f.name.startswith("slurm-")
-                or f.name.endswith(".log")
-            ):
+            if f.name.startswith("slurm-") or f.name.endswith(".log"):
                 log_files.append(f)
             else:
                 output_files.append(f)
@@ -384,7 +398,8 @@ class HpcDaemon:
             resolved = resolve_profile(self.config, processor, profile or "")
             if resolved:
                 residence = (
-                    resolved.log_residence if kind == "log"
+                    resolved.log_residence
+                    if kind == "log"
                     else resolved.output_residence
                 )
         return residence
@@ -457,12 +472,18 @@ class HpcDaemon:
         try:
             if residence == "posix":
                 return self._register_posix_artifact(
-                    job_id, output_dir, log_files, artifact_type="log",
+                    job_id,
+                    output_dir,
+                    log_files,
+                    artifact_type="log",
                     name_prefix="log",
                 )
             else:
                 return self._upload_managed_artifact(
-                    job_id, log_files, artifact_type="log", name_prefix="log",
+                    job_id,
+                    log_files,
+                    artifact_type="log",
+                    name_prefix="log",
                 )
         except Exception:
             logger.exception("Failed to upload log artifacts for job %s", job_id)
@@ -504,9 +525,8 @@ class HpcDaemon:
         file_hashes = []
         total_size = 0
         for f in sorted(output_files, key=lambda p: p.name):
-            content = f.read_bytes()
-            fhash = hashlib.sha256(content).hexdigest()
-            fsize = len(content)
+            fhash = _sha256_file(f)
+            fsize = f.stat().st_size
             file_hashes.append((f.name, fhash))
             total_size += fsize
             content_type = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
@@ -574,20 +594,21 @@ class HpcDaemon:
         total_size = 0
         file_hashes: list[tuple[str, str]] = []  # (path, sha256hex)
         for f in sorted(output_files, key=lambda p: p.name):
-            content = f.read_bytes()
-            file_hash = hashlib.sha256(content).hexdigest()
+            file_hash = _sha256_file(f)
+            file_size = f.stat().st_size
             file_hashes.append((f.name, file_hash))
-            total_size += len(content)
+            total_size += file_size
             logger.debug(
                 "Uploading file %s (%d bytes) to artifact %s",
                 f.name,
-                len(content),
+                file_size,
                 artifact_id,
             )
             self.client.upload_artifact_file(
                 artifact_id,
                 path=f.name,
-                file_content=content,
+                file_path=str(f),
+                size_bytes=file_size,
             )
 
         # Tree hash: single file = file sha256; multi-file = SHA-256 of
@@ -795,9 +816,7 @@ class HpcDaemon:
                     tracked.emx2_job_id, "SUBMITTED", detail=detail
                 )
                 tracked.last_queue_report = now
-                logger.info(
-                    "Queue status for job %s: %s", tracked.emx2_job_id, detail
-                )
+                logger.info("Queue status for job %s: %s", tracked.emx2_job_id, detail)
             except Exception:
                 logger.exception(
                     "Failed to report queue status for job %s",
@@ -817,9 +836,7 @@ class HpcDaemon:
             # Relay in-flight progress before checking for state changes
             self._check_progress_file(tracked)
 
-            result = self._backend.query_status(
-                tracked.slurm_job_id, tracked.status
-            )
+            result = self._backend.query_status(tracked.slurm_job_id, tracked.status)
             if result is None:
                 logger.debug(
                     "Job %s (slurm %s): no status change from %s",
@@ -844,9 +861,9 @@ class HpcDaemon:
                 # If the job skipped STARTED (fast jobs go PENDING→COMPLETED
                 # in Slurm before the daemon sees RUNNING), insert the
                 # intermediate transition that the EMX2 state machine requires.
-                if (
-                    tracked.status == "SUBMITTED"
-                    and new_status in ("COMPLETED", "FAILED")
+                if tracked.status == "SUBMITTED" and new_status in (
+                    "COMPLETED",
+                    "FAILED",
                 ):
                     logger.info(
                         "Job %s skipped STARTED (fast job), inserting intermediate transition",

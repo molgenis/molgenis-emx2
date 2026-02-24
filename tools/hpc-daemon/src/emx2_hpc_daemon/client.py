@@ -12,7 +12,9 @@ from __future__ import annotations
 import logging
 import time
 import uuid
+from pathlib import Path
 from dataclasses import dataclass
+from collections.abc import Iterable
 
 import httpx
 
@@ -21,6 +23,9 @@ from .auth import build_authorization_header
 logger = logging.getLogger(__name__)
 
 API_VERSION = "2025-01"
+DEFAULT_TIMEOUT = httpx.Timeout(connect=10.0, read=30.0, write=30.0, pool=30.0)
+BINARY_TIMEOUT = httpx.Timeout(connect=10.0, read=300.0, write=300.0, pool=30.0)
+TRANSFER_CHUNK_SIZE = 1024 * 1024
 
 
 def format_links(links: dict) -> dict[str, str]:
@@ -29,6 +34,7 @@ def format_links(links: dict) -> dict[str, str]:
         rel: f"{lnk.get('method', 'GET')} {lnk.get('href', '?')}"
         for rel, lnk in links.items()
     }
+
 
 # Exceptions for specific error conditions
 
@@ -57,10 +63,13 @@ class HpcClient:
     backoff_base: float = 1.0
 
     def __post_init__(self):
-        self._http = httpx.Client(base_url=self.base_url, timeout=30.0)
+        self._http = httpx.Client(base_url=self.base_url, timeout=DEFAULT_TIMEOUT)
 
     def close(self):
         self._http.close()
+
+    def _retry_wait(self, attempt: int) -> float:
+        return self.backoff_base * (2**attempt)
 
     def _headers(self, method: str, path: str, body: str = "") -> dict[str, str]:
         """Build all required protocol headers including auth."""
@@ -97,9 +106,7 @@ class HpcClient:
                 headers = self._headers(method, path, body)
 
                 if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(
-                        ">>> %s %s%s", method, self.base_url, path
-                    )
+                    logger.debug(">>> %s %s%s", method, self.base_url, path)
                     if body:
                         logger.debug(">>> body: %s", body)
 
@@ -129,7 +136,7 @@ class HpcClient:
                 if response.status_code >= 500:
                     # Transient server error — retry
                     if attempt < self.max_retries - 1:
-                        wait = self.backoff_base * (2**attempt)
+                        wait = self._retry_wait(attempt)
                         logger.warning(
                             "Server error %d on %s %s, retrying in %.1fs",
                             response.status_code,
@@ -160,7 +167,7 @@ class HpcClient:
 
             except (httpx.ConnectError, httpx.TimeoutException) as e:
                 if attempt < self.max_retries - 1:
-                    wait = self.backoff_base * (2**attempt)
+                    wait = self._retry_wait(attempt)
                     logger.warning(
                         "Connection error on %s %s: %s, retrying in %.1fs",
                         method,
@@ -188,10 +195,22 @@ class HpcClient:
 
         # Log key fields (skip _links which is already logged above)
         summary_keys = [
-            "id", "status", "processor", "profile", "worker_id",
-            "type", "format", "residence", "sha256", "size_bytes",
-            "content_url", "slurm_job_id", "output_artifact_id", "log_artifact_id",
-            "parameters", "inputs",
+            "id",
+            "status",
+            "processor",
+            "profile",
+            "worker_id",
+            "type",
+            "format",
+            "residence",
+            "sha256",
+            "size_bytes",
+            "content_url",
+            "slurm_job_id",
+            "output_artifact_id",
+            "log_artifact_id",
+            "parameters",
+            "inputs",
             "total_count",
         ]
         summary = {
@@ -212,9 +231,7 @@ class HpcClient:
                     m = link.get("method", "GET")
                     href = link.get("href", "?")
                     parts.append(f"{rel}={m} {href}")
-                logger.debug(
-                    "<<< items[0]._links: %s", " | ".join(parts)
-                )
+                logger.debug("<<< items[0]._links: %s", " | ".join(parts))
 
     # --- High-level API methods ---
 
@@ -300,9 +317,7 @@ class HpcClient:
         link = links.get(rel)
         if not link:
             available = list(links.keys())
-            logger.debug(
-                "No '%s' link in response (available: %s)", rel, available
-            )
+            logger.debug("No '%s' link in response (available: %s)", rel, available)
             raise KeyError(f"No '{rel}' link in response")
         method = link.get("method", "GET")
         href = link["href"]
@@ -326,33 +341,88 @@ class HpcClient:
         For managed artifacts, downloads the file content from the server.
         For external artifacts, the content_url should be used directly.
         """
-        from pathlib import Path
-
         url_path = f"/api/hpc/artifacts/{artifact_id}/files/{file_path}"
-        headers = self._headers("GET", url_path, "")
-
-        logger.debug(">>> GET %s%s (binary download)", self.base_url, url_path)
-        response = self._http.request("GET", url_path, headers=headers)
-        logger.debug(
-            "<<< %d %s (%d bytes, Content-Type: %s)",
-            response.status_code,
-            response.reason_phrase,
-            len(response.content),
-            response.headers.get("content-type", "?"),
-        )
-        if response.status_code == 404:
-            raise NotFoundError(f"Artifact file {file_path} not found")
-        response.raise_for_status()
-
         dest = Path(dest_path)
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_bytes(response.content)
-        logger.info(
-            "Downloaded artifact file %s to %s (%d bytes)",
-            file_path,
-            dest_path,
-            len(response.content),
-        )
+        tmp_dest = dest.with_name(f"{dest.name}.part")
+
+        for attempt in range(self.max_retries):
+            headers = self._headers("GET", url_path, "")
+            bytes_written = 0
+            try:
+                logger.debug(">>> GET %s%s (binary download)", self.base_url, url_path)
+                with self._http.stream(
+                    "GET",
+                    url_path,
+                    headers=headers,
+                    timeout=BINARY_TIMEOUT,
+                ) as response:
+                    if response.status_code == 404:
+                        raise NotFoundError(f"Artifact file {file_path} not found")
+                    if response.status_code >= 500 and attempt < self.max_retries - 1:
+                        wait = self._retry_wait(attempt)
+                        logger.warning(
+                            "Server error %d on GET %s, retrying in %.1fs",
+                            response.status_code,
+                            url_path,
+                            wait,
+                        )
+                        time.sleep(wait)
+                        continue
+                    response.raise_for_status()
+
+                    with tmp_dest.open("wb") as handle:
+                        for chunk in response.iter_bytes(
+                            chunk_size=TRANSFER_CHUNK_SIZE
+                        ):
+                            if not chunk:
+                                continue
+                            handle.write(chunk)
+                            bytes_written += len(chunk)
+
+                    content_type = response.headers.get("content-type", "?")
+
+                tmp_dest.replace(dest)
+                logger.info(
+                    "Downloaded artifact file %s to %s (%d bytes)",
+                    file_path,
+                    dest_path,
+                    bytes_written,
+                )
+                logger.debug(
+                    "<<< 200 OK (%d bytes, Content-Type: %s)",
+                    bytes_written,
+                    content_type,
+                )
+                return
+            except NotFoundError:
+                raise
+            except (httpx.ConnectError, httpx.TimeoutException) as e:
+                if attempt < self.max_retries - 1:
+                    wait = self._retry_wait(attempt)
+                    logger.warning(
+                        "Connection error on GET %s: %s, retrying in %.1fs",
+                        url_path,
+                        e,
+                        wait,
+                    )
+                    time.sleep(wait)
+                    continue
+                raise
+            finally:
+                try:
+                    tmp_dest.unlink(missing_ok=True)
+                except OSError:
+                    logger.debug("Failed to remove partial download %s", tmp_dest)
+
+    @staticmethod
+    def _file_chunk_iter(file_path: str) -> Iterable[bytes]:
+        with open(file_path, "rb") as handle:
+            while True:
+                chunk = handle.read(TRANSFER_CHUNK_SIZE)
+                if not chunk:
+                    break
+                yield chunk
 
     def download_artifact_files(self, artifact_id: str, dest_dir: str) -> list[str]:
         """Download all files from an artifact to a directory.
@@ -399,38 +469,93 @@ class HpcClient:
         self,
         artifact_id: str,
         path: str,
-        file_content: bytes,
+        file_content: bytes | Iterable[bytes] | None = None,
         content_type: str = "application/octet-stream",
+        *,
+        file_path: str | None = None,
+        size_bytes: int | None = None,
     ) -> dict:
         """Upload a file to an artifact via PUT with raw binary body."""
         url_path = f"/api/hpc/artifacts/{artifact_id}/files/{path}"
-        # For binary uploads, sign over empty string (HMAC fix)
-        headers = self._headers("PUT", url_path, "")
-        headers["Content-Type"] = content_type
+        if file_path is None and file_content is None:
+            raise ValueError("Either file_content or file_path is required")
 
-        logger.debug(
-            ">>> PUT %s%s (binary upload, %d bytes, %s)",
-            self.base_url,
-            url_path,
-            len(file_content),
-            content_type,
-        )
-        response = self._http.request(
-            "PUT", url_path, content=file_content, headers=headers
-        )
-        logger.debug(
-            "<<< %d %s (%d bytes)",
-            response.status_code,
-            response.reason_phrase,
-            len(response.content),
-        )
-        if response.status_code == 404:
-            raise NotFoundError(f"Artifact {artifact_id} not found")
-        response.raise_for_status()
+        if file_path is not None and size_bytes is None:
+            size_bytes = Path(file_path).stat().st_size
+        elif (
+            isinstance(file_content, (bytes, bytearray, memoryview))
+            and size_bytes is None
+        ):
+            size_bytes = len(file_content)
 
-        if response.status_code == 204 or not response.content:
-            return {}
-        return response.json()
+        replayable = file_path is not None or isinstance(
+            file_content, (bytes, bytearray, memoryview)
+        )
+        attempts = self.max_retries if replayable else 1
+
+        for attempt in range(attempts):
+            # For binary uploads, sign over empty string (HMAC fix)
+            headers = self._headers("PUT", url_path, "")
+            headers["Content-Type"] = content_type
+
+            if file_path is not None:
+                content = self._file_chunk_iter(file_path)
+            else:
+                content = file_content
+
+            logger.debug(
+                ">>> PUT %s%s (binary upload, %s bytes, %s)",
+                self.base_url,
+                url_path,
+                size_bytes if size_bytes is not None else "?",
+                content_type,
+            )
+            try:
+                response = self._http.request(
+                    "PUT",
+                    url_path,
+                    content=content,
+                    headers=headers,
+                    timeout=BINARY_TIMEOUT,
+                )
+            except (httpx.ConnectError, httpx.TimeoutException) as e:
+                if attempt < attempts - 1:
+                    wait = self._retry_wait(attempt)
+                    logger.warning(
+                        "Connection error on PUT %s: %s, retrying in %.1fs",
+                        url_path,
+                        e,
+                        wait,
+                    )
+                    time.sleep(wait)
+                    continue
+                raise
+
+            logger.debug(
+                "<<< %d %s (%d bytes)",
+                response.status_code,
+                response.reason_phrase,
+                len(response.content),
+            )
+            if response.status_code == 404:
+                raise NotFoundError(f"Artifact {artifact_id} not found")
+            if response.status_code >= 500 and attempt < attempts - 1:
+                wait = self._retry_wait(attempt)
+                logger.warning(
+                    "Server error %d on PUT %s, retrying in %.1fs",
+                    response.status_code,
+                    url_path,
+                    wait,
+                )
+                time.sleep(wait)
+                continue
+            response.raise_for_status()
+
+            if response.status_code == 204 or not response.content:
+                return {}
+            return response.json()
+
+        return {}
 
     def register_artifact_file(
         self,

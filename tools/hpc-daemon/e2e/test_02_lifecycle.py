@@ -36,7 +36,9 @@ def test_job_completes_with_artifacts(hpc_client):
     assert "result.txt" in file_paths, f"Expected result.txt in {file_paths}"
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        hpc_client.download_artifact_file(output_id, "result.txt", f"{tmpdir}/result.txt")
+        hpc_client.download_artifact_file(
+            output_id, "result.txt", f"{tmpdir}/result.txt"
+        )
         with open(f"{tmpdir}/result.txt") as f:
             content = f.read()
         assert job_id in content, f"Expected job_id in result.txt, got: {content}"

@@ -90,6 +90,17 @@ class HmacVerifierTest {
   }
 
   @Test
+  void missingNonceThrows() {
+    HmacVerifier verifier = new HmacVerifier(SECRET);
+    String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+    String sig = verifier.computeSignature("GET", "/api/hpc/jobs", "", timestamp, "");
+
+    assertThrows(
+        SecurityException.class,
+        () -> verifier.verify("GET", "/api/hpc/jobs", "", "HMAC-SHA256 " + sig, timestamp, null));
+  }
+
+  @Test
   void differentMethodProducesDifferentSignature() {
     HmacVerifier verifier = new HmacVerifier(SECRET);
     String timestamp = "1234567890";

@@ -94,42 +94,9 @@ public class ArtifactService {
       Long sizeBytes,
       String contentType,
       BinaryFileWrapper content) {
-    String fileId = UUID.randomUUID().toString();
-    tx.tx(
-        db -> {
-          Schema schema = db.getSchema(systemSchemaName);
-
-          // Transition artifact to UPLOADING if currently CREATED
-          Table artifactsTable = schema.getTable("HpcArtifacts");
-          List<Row> artifacts = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
-          if (artifacts.isEmpty()) {
-            throw new MolgenisException("Artifact " + artifactId + " not found");
-          }
-          Row artifact = artifacts.getFirst();
-          String currentStatus = artifact.getString("status");
-          if (ArtifactStatus.CREATED.name().equals(currentStatus)) {
-            artifact.set("status", ArtifactStatus.UPLOADING.name());
-            artifactsTable.update(artifact);
-          } else if (!ArtifactStatus.REGISTERED.name().equals(currentStatus)
-              && !ArtifactStatus.UPLOADING.name().equals(currentStatus)) {
-            throw new MolgenisException("Cannot add files to artifact in status " + currentStatus);
-          }
-
-          // Insert file record
-          Row fileRow =
-              row(
-                  "id", fileId,
-                  "artifact_id", artifactId,
-                  "path", path,
-                  "sha256", sha256,
-                  "size_bytes", sizeBytes,
-                  "content_type", contentType);
-          if (content != null) {
-            fileRow.set("content", content);
-          }
-          schema.getTable("HpcArtifactFiles").insert(fileRow);
-        });
-    return fileId;
+    // Keep POST /files behavior aligned with PUT /files/{path}: re-uploading the same path
+    // replaces metadata/content instead of creating duplicate rows.
+    return uploadFileByPath(artifactId, path, sha256, sizeBytes, contentType, content);
   }
 
   /**

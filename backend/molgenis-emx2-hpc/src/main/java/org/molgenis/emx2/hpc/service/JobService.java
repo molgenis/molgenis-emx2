@@ -160,6 +160,17 @@ public class JobService {
           Row job = rows.getFirst();
           HpcJobStatus currentStatus = HpcJobStatus.valueOf(job.getString("status"));
 
+          if (!isAuthorizedTransition(job, targetStatus, workerId)) {
+            logger.warn(
+                "Rejected transition for job={} {} -> {}: worker {} does not own job (owner={})",
+                jobId,
+                currentStatus,
+                targetStatus,
+                workerId,
+                job.getString("worker_id"));
+            return null;
+          }
+
           // Same-state transition: record detail if provided (e.g. queue status updates)
           if (currentStatus == targetStatus) {
             if (detail != null && !detail.isBlank()) {
@@ -210,6 +221,21 @@ public class JobService {
 
           return job;
         });
+  }
+
+  private static boolean isAuthorizedTransition(
+      Row job, HpcJobStatus targetStatus, String workerId) {
+    String assignedWorkerId = job.getString("worker_id");
+    if (assignedWorkerId == null || assignedWorkerId.isBlank()) {
+      return true;
+    }
+
+    // API/UI cancellations are intentionally allowed without worker ownership context.
+    if (targetStatus == HpcJobStatus.CANCELLED && (workerId == null || workerId.isBlank())) {
+      return true;
+    }
+
+    return assignedWorkerId.equals(workerId);
   }
 
   /**

@@ -84,14 +84,15 @@ public final class HmacVerifier {
     }
 
     // 3. Nonce replay check
-    if (nonce != null && !nonce.isBlank()) {
-      synchronized (seenNonces) {
-        if (seenNonces.containsKey(nonce)) {
-          throw new SecurityException("Duplicate nonce (possible replay attack)");
-        }
-        seenNonces.put(nonce, requestTime);
-        evictExpiredNonces();
+    if (nonce == null || nonce.isBlank()) {
+      throw new SecurityException("Missing X-Nonce header");
+    }
+    synchronized (seenNonces) {
+      if (seenNonces.containsKey(nonce)) {
+        throw new SecurityException("Duplicate nonce (possible replay attack)");
       }
+      seenNonces.put(nonce, requestTime);
+      evictExpiredNonces();
     }
 
     // 4. Compute and verify signature
