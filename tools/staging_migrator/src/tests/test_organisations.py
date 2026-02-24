@@ -5,15 +5,13 @@ import io
 import logging
 import os
 
+import numpy as np
 import pandas as pd
 import pytest
-import sys
-
 from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_statement
-from staging_migrator.src.tests.utils import RESOURCES_PATH, zip_folder
 
 CATALOGUE = 'catalogue'
 STAGING_AREA = 'testCohort'
@@ -63,27 +61,28 @@ async def test_delete_resource():
 
 def test_process_organisations():
     """Unit tests for the `process_organisations` method."""
-    orgs_csv = """resource,id,type,name,organisation,other organisation,department,website,email,logo,role,is lead organisation
-    R1,O1,Organisation,Org1,Leiden University Medical Center,,,O1@O1.com,,,,true
-    R2,O2,Organisation,Org2,University Medical Center Groningen,,,O2@O2.com,,,,
-    R3,O3,Organisation,Org3,Hanze,,,O3@O3.com,,,,false
-    """
+    orgs_csv = ("""resource,id,type,name,organisation,other organisation,department,website,email,logo,role,is lead organisation\n"""
+                """R1,O1,Organisation,Org1,Leiden University Medical Center,,,O1@O1.com,,,,true\n"""
+                """R2,O2,Organisation,Org2,University Medical Center Groningen,,,O2@O2.com,,,,\n"""
+                """R3,O3,Organisation,Org3,Hanze,,,O3@O3.com,,,,false\n"""
+                """R4,O4,Organisation,Org4,,,,O4@O4.com,,,,true""")
     orgs_df = pd.read_csv(io.StringIO(orgs_csv), sep=",")
 
     server_url = os.environ.get('MG_URL')
     with StagingMigrator(url=server_url) as migrator:
         processed_orgs = migrator.process_organisations(orgs_df)
-    assert processed_orgs["organisation name"].values.tolist() == ['Leiden University Medical Center', 'University Medical Center Groningen', 'Hanze']
-    assert processed_orgs["organisation pid"].values.tolist() == ['ROR:05xvt9f17', 'ROR:03cv38k47', None]
-    assert processed_orgs["organisation website"].values.tolist() == ['https://www.lumc.nl', 'https://www.umcg.nl', None]
+    assert processed_orgs["organisation name"].values.tolist() == ['Leiden University Medical Center', 'University Medical Center Groningen', 'Hanze', np.nan]
+    assert processed_orgs["organisation pid"].values.tolist() == ['ROR:05xvt9f17', 'ROR:03cv38k47', None, None]
+    assert processed_orgs["organisation website"].values.tolist() == ['https://www.lumc.nl', 'https://www.umcg.nl', None, None]
+    assert migrator.warnings == ['No organisation for (resource, id) = (R4, O4)']
 
 def test_process_contacts():
     """Unit test for the `process_contacts` method."""
-    contacts_csv = """resource,role,first name,last name,statement of consent personal data,email
-    R1,Principal Investigator,A1,B1,true,A1B1@R1.com
-    R2,Primary contact,A2,B2,true,A2B2@R2.com
-    R3,Participant,A3,B3,false,
-    R4,Participant,A4,B4,false,A4B4@R4.com"""
+    contacts_csv = ("""resource,role,first name,last name,statement of consent personal data,email"""
+                    """R1,Principal Investigator,A1,B1,true,A1B1@R1.com"""
+                    """R2,Primary contact,A2,B2,true,A2B2@R2.com"""
+                    """R3,Participant,A3,B3,false,"""
+                    """R4,Participant,A4,B4,false,A4B4@R4.com""")
     contacts_df = pd.read_csv(io.StringIO(contacts_csv))
 
     processed_contacts = process_statement(contacts_df)
