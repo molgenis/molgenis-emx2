@@ -281,7 +281,13 @@ su - vagrant -c "cd /opt/hpc-daemon && uv tool install --force --reinstall --fro
 
 echo "=== Writing daemon config ==="
 mkdir -p /etc/hpc-daemon
-cat > /etc/hpc-daemon/secret <<< "${HPC_SHARED_SECRET}"
+SECRET_FILE="/opt/hpc-daemon/.secret"
+if [ ! -f "$SECRET_FILE" ]; then
+    echo "FATAL: .secret file not found at $SECRET_FILE"
+    echo "Create tools/hpc-daemon/.secret with the shared secret before provisioning."
+    exit 1
+fi
+cp "$SECRET_FILE" /etc/hpc-daemon/secret
 chmod 600 /etc/hpc-daemon/secret
 chown vagrant:vagrant /etc/hpc-daemon/secret
 
