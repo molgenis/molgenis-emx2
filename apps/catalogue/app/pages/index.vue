@@ -85,7 +85,7 @@ const mainCatalogue = computed<IResources | null>(() => {
 const pageDescription = computed(
   () =>
     mainCatalogue.value?.description ||
-    "A collaborative effort to integrate the catalogues of diverse EU research projects and (global) networks to accelerate reuse and improve citizens health."
+    "A collaborative effort to integrate the catalogues of diverse EU research projects and (global) networks to accelerate reuse and improve citizens' health."
 );
 
 const pageTitle = computed(
