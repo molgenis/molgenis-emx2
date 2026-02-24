@@ -16,6 +16,7 @@ import {
 } from "d3";
 const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues, sort };
 
+import { setChartLegendLayoutCss } from "../../../utils/viz";
 import type { PieCharts, ColorPalette } from "../../../../types/viz";
 
 type PieDataEntry = [name: string, d: number];
@@ -54,11 +55,7 @@ const labelGenerator = ref();
 const radius = ref<number>(1);
 
 const chartLayoutCss = computed<string>(() => {
-  if (props.legendIsEnabled && props.legendPosition) {
-    return `chart_layout_with_legend_${props.legendPosition}`;
-  } else {
-    return `chart_layout_default`;
-  }
+  return setChartLegendLayoutCss(props.legendIsEnabled, props.legendPosition);
 });
 
 function setChartDimensions() {
