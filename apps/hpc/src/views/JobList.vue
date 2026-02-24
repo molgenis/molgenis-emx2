@@ -13,9 +13,19 @@
           style="width: 200px"
         />
       </div>
-      <button class="btn btn-primary btn-sm" @click="showForm = !showForm">
-        {{ showForm ? "Hide Form" : "+ New Job" }}
-      </button>
+      <div class="d-flex gap-2">
+        <button
+          v-if="hasTerminalJobs"
+          class="btn btn-outline-secondary btn-sm"
+          :disabled="clearing"
+          @click="onClearCompleted"
+        >
+          Clear Completed
+        </button>
+        <button class="btn btn-primary btn-sm" @click="showForm = !showForm">
+          {{ showForm ? "Hide Form" : "+ New Job" }}
+        </button>
+      </div>
     </div>
 
     <JobSubmitForm
@@ -54,12 +64,22 @@
             <td>{{ formatDate(job.created_at) }}</td>
             <td>
               <button
+                v-if="isTerminal(job.status)"
                 class="btn btn-outline-danger btn-sm"
                 title="Delete job"
                 :disabled="deleting"
                 @click.stop="onDelete(job)"
               >
                 &#x1f5d1;
+              </button>
+              <button
+                v-else
+                class="btn btn-outline-warning btn-sm"
+                title="Cancel job"
+                :disabled="cancelling"
+                @click.stop="onCancel(job)"
+              >
+                Cancel
               </button>
             </td>
           </tr>
@@ -96,8 +116,8 @@
 
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from "vue";
-import { fetchJobs, deleteJob } from "../composables/useHpcApi.js";
-import { JOB_STATUSES, formatDate } from "../utils/jobs.js";
+import { fetchJobs, deleteJob, cancelJob } from "../composables/useHpcApi.js";
+import { JOB_STATUSES, formatDate, isTerminal } from "../utils/jobs.js";
 import StatusBadge from "../components/StatusBadge.vue";
 import JobSubmitForm from "../components/JobSubmitForm.vue";
 
@@ -113,6 +133,9 @@ const offset = ref(0);
 const limit = ref(25);
 const showForm = ref(false);
 const deleting = ref(false);
+const cancelling = ref(false);
+const clearing = ref(false);
+const hasTerminalJobs = ref(false);
 
 let refreshInterval = null;
 
@@ -128,6 +151,7 @@ async function loadJobs() {
     });
     items.value = result.items;
     totalCount.value = result.totalCount;
+    hasTerminalJobs.value = result.items.some((j) => isTerminal(j.status));
   } catch (e) {
     error.value = e.message;
   } finally {
@@ -145,6 +169,34 @@ async function onDelete(job) {
     error.value = e.message;
   } finally {
     deleting.value = false;
+  }
+}
+
+async function onCancel(job) {
+  if (!confirm(`Cancel job ${job.id?.substring(0, 8)}...?`)) return;
+  cancelling.value = true;
+  try {
+    await cancelJob(job.id);
+    loadJobs();
+  } catch (e) {
+    error.value = e.message;
+  } finally {
+    cancelling.value = false;
+  }
+}
+
+async function onClearCompleted() {
+  const terminalJobs = items.value.filter((j) => isTerminal(j.status));
+  if (!terminalJobs.length) return;
+  if (!confirm(`Delete ${terminalJobs.length} completed/terminal job(s)?`)) return;
+  clearing.value = true;
+  try {
+    await Promise.all(terminalJobs.map((j) => deleteJob(j.id)));
+    loadJobs();
+  } catch (e) {
+    error.value = e.message;
+  } finally {
+    clearing.value = false;
   }
 }
 

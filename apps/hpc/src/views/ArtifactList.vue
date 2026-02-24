@@ -31,6 +31,7 @@
             <th>Status</th>
             <th>Size</th>
             <th>Created</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -47,9 +48,19 @@
             <td><StatusBadge :status="a.status" /></td>
             <td>{{ formatSize(a.size_bytes) }}</td>
             <td>{{ formatDate(a.created_at) }}</td>
+            <td>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                title="Delete artifact"
+                :disabled="deleting"
+                @click.stop="onDelete(a)"
+              >
+                &#x1f5d1;
+              </button>
+            </td>
           </tr>
           <tr v-if="!items.length">
-            <td colspan="7" class="text-center text-muted">No artifacts found</td>
+            <td colspan="8" class="text-center text-muted">No artifacts found</td>
           </tr>
         </tbody>
       </table>
@@ -81,7 +92,7 @@
 
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from "vue";
-import { fetchArtifacts } from "../composables/useHpcApi.js";
+import { fetchArtifacts, deleteArtifact } from "../composables/useHpcApi.js";
 import { formatDate } from "../utils/jobs.js";
 import StatusBadge from "../components/StatusBadge.vue";
 import ArtifactUploadForm from "../components/ArtifactUploadForm.vue";
@@ -96,6 +107,7 @@ const statusFilter = ref("");
 const offset = ref(0);
 const limit = ref(25);
 const showForm = ref(false);
+const deleting = ref(false);
 
 let refreshInterval = null;
 
@@ -122,6 +134,19 @@ async function loadArtifacts() {
     error.value = e.message;
   } finally {
     loading.value = false;
+  }
+}
+
+async function onDelete(artifact) {
+  if (!confirm(`Delete artifact ${artifact.id?.substring(0, 8)}...?`)) return;
+  deleting.value = true;
+  try {
+    await deleteArtifact(artifact.id);
+    loadArtifacts();
+  } catch (e) {
+    error.value = e.message;
+  } finally {
+    deleting.value = false;
   }
 }
 

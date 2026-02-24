@@ -61,7 +61,6 @@
             <thead>
               <tr>
                 <th>Path</th>
-                <th>Role</th>
                 <th>SHA-256</th>
                 <th>Size</th>
                 <th>Content-Type</th>
@@ -71,7 +70,6 @@
             <tbody>
               <tr v-for="f in files" :key="f.id">
                 <td><code>{{ f.path }}</code></td>
-                <td>{{ f.role || "-" }}</td>
                 <td><code v-if="f.sha256">{{ f.sha256?.substring(0, 12) }}...</code><span v-else>-</span></td>
                 <td>{{ formatSize(f.size_bytes) }}</td>
                 <td>{{ f.content_type || "-" }}</td>
@@ -89,7 +87,7 @@
                 </td>
               </tr>
               <tr v-if="!files.length">
-                <td colspan="6" class="text-center text-muted">No files</td>
+                <td colspan="5" class="text-center text-muted">No files</td>
               </tr>
             </tbody>
           </table>

@@ -110,6 +110,26 @@ export async function submitJob(payload) {
 }
 
 /**
+ * Cancel an active job via the REST API.
+ * @param {string} jobId
+ * @returns {Promise<void>}
+ */
+export async function cancelJob(jobId) {
+  const resp = await fetch(`${REST_BASE}/jobs/${jobId}/cancel`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...hpcHeaders(),
+    },
+    body: JSON.stringify({}),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `HTTP ${resp.status}`);
+  }
+}
+
+/**
  * Delete a terminal job via the REST API.
  * @param {string} jobId
  * @returns {Promise<void>}
