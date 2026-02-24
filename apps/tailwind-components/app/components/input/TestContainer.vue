@@ -16,8 +16,9 @@
       ></slot>
     </div>
     <div class="w-1/3 p-4 sticky top-0">
-      <FieldSet label="input prop settings">
-        <FormField
+      <fieldset>
+        <legend>input prop settings</legend>
+        <Field
           v-if="showLabel"
           type="STRING"
           id="test-label"
@@ -25,7 +26,7 @@
           label="Label"
           description="Change the label of the component"
         />
-        <FormField
+        <Field
           v-if="showPlaceholder"
           type="STRING"
           id="test-placeholder"
@@ -33,7 +34,7 @@
           label="Placeholder"
           description="Placeholder of the input, if applicable"
         />
-        <FormField
+        <Field
           v-if="showState"
           type="CHECKBOX"
           id="test-state"
@@ -46,7 +47,7 @@
             { value: 'disabled', label: 'disabled' },
           ]"
         />
-        <FormField
+        <Field
           v-if="showErrorMessage"
           type="STRING"
           label="errorMessage"
@@ -54,7 +55,7 @@
           id="test-container-error-message"
           description="Type here an error message to see how that looks"
         />
-        <FormField
+        <Field
           v-if="showRequired"
           type="BOOL"
           label="required"
@@ -66,7 +67,7 @@
           align="vertical"
           @required="emits('required', required)"
         />
-        <FormField
+        <Field
           v-if="showMultiple"
           type="BOOL"
           label="multiple"
@@ -81,13 +82,14 @@
         <slot name="settings"></slot>
         <p v-if="showBlurCount">focusCount = {{ focusCount }}</p>
         <p v-if="showBlurCount">blurCount = {{ blurCount }}</p>
-      </FieldSet>
+      </fieldset>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import Field from "../Field.vue";
 
 defineProps<{
   showState?: boolean;

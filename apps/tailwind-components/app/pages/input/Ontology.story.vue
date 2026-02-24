@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import Field from "../../components/Field.vue";
+import InputOntology from "../../components/input/Ontology.vue";
+import InputTestContainer from "../../components/input/TestContainer.vue";
 
 const ontologySchemaId = ref<string>("pet store");
 const ontologyTableId = ref<string>("Tag");
@@ -38,7 +41,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
     v-slot="{ invalid, valid, disabled, onBlur, onFocus }"
   >
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         id="test-ontology-input-id"
         label="Small tree ontology"
@@ -55,7 +58,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       <p class="mt-4 text-input-description">modelValue = {{ modelValue }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY_ARRAY"
         label="Small tree ontology array"
         description="Small tree ontologies are shown inline"
@@ -74,7 +77,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       </p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         id="test-ontology-input-id1"
         label="Small flat ontology"
@@ -91,7 +94,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       <p class="mt-4 text-input-description">modelValue = {{ modelValue1 }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY_ARRAY"
         id="test-ontology-array-input-id1"
         label="Small flat ontology array"
@@ -109,7 +112,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       </p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         id="test-ontology-input-id2"
         label="Large flat ontology"
@@ -126,7 +129,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       <p class="mt-4 text-input-description">modelValue = {{ modelValue2 }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         label="Large flat ontology array"
         description="Large ontologies are shown as select"
         type="ONTOLOGY_ARRAY"
@@ -146,7 +149,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       </p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         label="Large tree ontology"
         description="Large ontologies are shown as select"
@@ -163,7 +166,7 @@ const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
       <p class="mt-4 text-input-description">modelValue = {{ modelValue3 }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY_ARRAY"
         label="Large tree ontology array"
         description="Large ontologies are shown as select"

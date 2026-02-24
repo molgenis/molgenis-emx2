@@ -13,6 +13,7 @@ import type {
   columnId,
   columnValue,
   IColumn,
+  IRow,
   ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
@@ -20,12 +21,12 @@ import { getColumnError } from "../../../molgenis-components/src/components/form
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 import { useSession } from "./useSession";
+import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
-  formValuesRef: MaybeRef<Record<columnId, columnValue>>,
-  scrollContainerId: string = ""
-) {
+  formValuesRef: MaybeRef<Record<columnId, columnValue>>
+): UseForm {
   const metadata = ref(unref(tableMetadata));
   if (isRef(tableMetadata)) {
     watch(tableMetadata, (val) => (metadata.value = val), {
@@ -35,6 +36,16 @@ export default function useForm(
   }
 
   const formValues = ref(unref(formValuesRef));
+
+  const scrollContainerId = ref("");
+
+  function getScrollContainerId() {
+    return scrollContainerId;
+  }
+
+  function setScrollContainerId(id: string) {
+    scrollContainerId.value = id;
+  }
 
   if (isRef(formValuesRef)) {
     watch(formValuesRef, (val) => (formValues.value = val), {
@@ -220,11 +231,15 @@ export default function useForm(
   const gotoSection = (id: string) => {
     sections.value.forEach((section) => {
       if (section.id === id) {
-        scrollTo(id + "-form-field");
+        scrollTo(
+          `${metadata.value.schemaId}-${metadata.value.id}-${id}-form-field`
+        );
       }
       section.headers.forEach((header) => {
         if (header.id === id) {
-          scrollTo(id + "-form-field");
+          scrollTo(
+            `${metadata.value.schemaId}-${metadata.value.id}-${id}-form-field`
+          );
         }
       });
     });
@@ -293,7 +308,9 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
   };
   const gotoPreviousRequiredField = () => {
@@ -317,10 +334,14 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
   };
 
@@ -362,7 +383,9 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === previousErrorColumnId
       );
-      scrollTo(`${previousErrorColumnId}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${previousErrorColumnId}-form-field`
+      );
     }
   };
 
@@ -379,7 +402,9 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === nextErrorColumnId
       );
-      scrollTo(`${nextErrorColumnId}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${nextErrorColumnId}-form-field`
+      );
     }
   };
 
@@ -392,6 +417,8 @@ export default function useForm(
         method: "POST",
         body: formData,
       });
+      // after inserting, we want to set the row key, now we know there is one
+      await resetRowKey();
       return res;
     } catch (error) {
       await handleFetchError(error, "Error on inserting");
@@ -525,11 +552,11 @@ export default function useForm(
 
   function scrollTo(elementId: string) {
     lastScrollTo.value = elementId;
-    const container = document.getElementById(scrollContainerId);
+    const container = document.getElementById(scrollContainerId.value);
 
     //lazy scroll, might need to wait for elements to be mounted first
-    function attemptScroll() {
-      if (container && elementId === "mg_top_of_form-form-field") {
+    function attemptScroll(depth = 0) {
+      if (container && elementId.endsWith("mg_top_of_form-form-field")) {
         container.scrollTo({
           top: 0,
           behavior: "auto",
@@ -543,13 +570,48 @@ export default function useForm(
           container.scrollTo({ top: offset, behavior: "auto" });
         } else {
           // try again on the next frame until the element exists
-          requestAnimationFrame(attemptScroll);
+          if (depth < 100) {
+            requestAnimationFrame(() => attemptScroll(depth + 1));
+          }
         }
       }
     }
 
     attemptScroll();
   }
+
+  function isValid() {
+    validateAllColumns();
+    return Object.keys(visibleColumnErrors.value).length < 1;
+  }
+
+  function isDraftValid() {
+    validateKeyColumns();
+    return Object.keys(visibleColumnErrors.value).length < 1;
+  }
+
+  const values = computed(() => formValues.value);
+
+  const rowKey = ref<Record<string, columnValue>>({});
+
+  async function resetRowKey(): Promise<Record<string, columnValue>> {
+    console.log("Resetting row key, based on", values.value);
+    const resp = await fetchRowPrimaryKey(
+      values.value,
+      metadata.value.id,
+      metadata.value.schemaId
+    );
+    rowKey.value = resp;
+    return resp;
+  }
+
+  const showLegend = computed(() =>
+    Boolean(
+      sections.value.length > 1 ||
+        (sections.value.length === 1 &&
+          (sections.value[0]?.headers.length ?? 0) > 0)
+    )
+  );
 
   return {
     requiredFields,
@@ -579,5 +641,75 @@ export default function useForm(
     lastScrollTo, //for debug
     visibleColumnIds,
     requiredMap,
+    isValid,
+    isDraftValid,
+    values,
+    resetRowKey,
+    rowKey,
+    showLegend,
+    getScrollContainerId,
+    setScrollContainerId,
+    metadata: metadata,
   };
+}
+
+export interface UseForm {
+  values: ComputedRef<IRow>;
+  rowKey: Ref<Record<string, columnValue>>;
+  getScrollContainerId: () => Ref<string>;
+  setScrollContainerId: (id: string) => void;
+  metadata: Ref<ITableMetaData>;
+
+  /* ───────────── triggers (re)fetch on demand ───────────── */
+  resetRowKey: () => Promise<Record<string, columnValue>>;
+
+  /* ───────────── Required field state ───────────── */
+  requiredFields: ComputedRef<IColumn[]>;
+  emptyRequiredFields: ComputedRef<IColumn[]>;
+  requiredMessage: ComputedRef<string>;
+
+  /* ───────────── Error state ───────────── */
+  errorMessage: ComputedRef<string>;
+  visibleColumnErrors: ComputedRef<Record<columnId, string>>;
+
+  /* ───────────── Navigation / scrolling ───────────── */
+  gotoSection: (id: string) => void;
+  gotoNextRequiredField: () => void;
+  gotoPreviousRequiredField: () => void;
+  gotoNextError: () => void;
+  gotoPreviousError: () => void;
+
+  nextSection: ComputedRef<LegendSection | null | undefined>;
+  previousSection: ComputedRef<LegendSection | null | undefined>;
+  currentSection: ComputedRef<string | null>;
+
+  lastScrollTo: Ref<string | undefined>; // debug
+
+  /* ───────────── Visibility ───────────── */
+  visibleColumns: ComputedRef<IColumn[]>;
+  visibleColumnIds: Ref<Set<string>>;
+
+  onViewColumn: (column: IColumn) => void;
+  onLeaveViewColumn: (column: IColumn) => void;
+
+  /* ───────────── Sections / layout ───────────── */
+  sections: Ref<LegendSection[]>;
+  showLegend: ComputedRef<boolean>;
+
+  /* ───────────── Validation ───────────── */
+  validateAllColumns: () => void;
+  validateKeyColumns: () => void;
+  isValid: () => boolean;
+  isDraftValid: () => boolean;
+
+  onUpdateColumn: (column: IColumn) => void;
+  onBlurColumn: (column: IColumn) => void;
+
+  /* ───────────── Persistence ───────────── */
+  insertInto: () => Promise<any>;
+  updateInto: () => Promise<any>;
+  deleteRecord: () => Promise<any>;
+
+  /* ───────────── Metadata-derived ───────────── */
+  requiredMap: Record<columnId, ComputedRef<boolean>>;
 }
