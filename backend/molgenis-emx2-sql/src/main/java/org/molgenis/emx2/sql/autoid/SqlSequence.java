@@ -75,6 +75,17 @@ public class SqlSequence implements Sequence {
   }
 
   @Override
+  public void setCurrentValue(long value) {
+    try {
+      jooq.select(DSL.field("setval('" + DSL.name(schema, name) + "', " + value + ")")).fetchOne();
+    } catch (DataException e) {
+      throw new MolgenisException("Invalid value provided: " + value);
+    } catch (DataAccessException e) {
+      throw new MolgenisException("No sequence with name: " + name + " for schema: " + schema);
+    }
+  }
+
+  @Override
   public String getName() {
     return name;
   }
@@ -99,6 +110,7 @@ public class SqlSequence implements Sequence {
     return limit.getFirst();
   }
 
+  @Override
   public void delete() {
     jooq.dropSequence(DSL.name(schema, name)).execute();
   }

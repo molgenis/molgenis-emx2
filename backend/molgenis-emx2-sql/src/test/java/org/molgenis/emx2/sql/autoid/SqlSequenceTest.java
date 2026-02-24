@@ -95,6 +95,26 @@ class SqlSequenceTest {
     assertFalse(SqlSequence.exists(jooq, SCHEMA_NAME, "delete"));
   }
 
+  @Test
+  void givenSequence_whenSettingValue_thenCurrentValueIsChanged() {
+    SqlSequence sequence = SqlSequence.create(jooq, SCHEMA_NAME, "current_value", 1234);
+    sequence.setCurrentValue(123);
+    assertEquals(123, sequence.getCurrentValue());
+  }
+
+  @Test
+  void givenSequence_whenSettingValueOutsideOfLimit_thenThrow() {
+    SqlSequence sequence =
+        SqlSequence.create(jooq, SCHEMA_NAME, "out_of_range_current_value", 1234);
+    assertThrows(MolgenisException.class, () -> sequence.setCurrentValue(1235));
+  }
+
+  @Test
+  void givenNonExistingSequence_whenSetting_thenThrow() {
+    SqlSequence sequence = new SqlSequence(jooq, SCHEMA_NAME, "non_exisiting_current_value");
+    assertThrows(MolgenisException.class, () -> sequence.setCurrentValue(10));
+  }
+
   private void assertSequenceMatches(Sequence<?> seq, Name name, long maxValue) {
     assertEquals(SCHEMA_NAME, seq.getSchema().getName());
     assertEquals(seq.getQualifiedName(), name);

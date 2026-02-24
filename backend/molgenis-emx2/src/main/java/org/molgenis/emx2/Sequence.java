@@ -9,4 +9,8 @@ public interface Sequence {
   long getCurrentValue();
 
   long getNextValue();
+
+  void setCurrentValue(long value);
+
+  void delete();
 }
