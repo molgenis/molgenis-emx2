@@ -110,8 +110,19 @@ describe("useForm", () => {
     } = useForm(tableMetadata, formValues);
 
     // simulate col2 being blurred and col4 being dirty
-    onBlurColumn("col2");
-    onUpdateColumn("col4");
+    const col2 = tableMetadata.value.columns.find(
+      (column) => column.id === "col2"
+    );
+    const col4 = tableMetadata.value.columns.find(
+      (column) => column.id === "col4"
+    );
+    if (!col2 || !col4) {
+      throw new Error(
+        "Test setup error: required columns not found in tableMetadata"
+      );
+    }
+    onBlurColumn(col2);
+    onUpdateColumn(col4);
 
     // change required fields to only col4
     requiredFields.value = [
