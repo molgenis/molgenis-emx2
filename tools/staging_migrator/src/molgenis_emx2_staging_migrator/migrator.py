@@ -317,7 +317,9 @@ class StagingMigrator(Client):
             upload_description = self.session.get(response_url).json().get('description')
 
             if upload_status == 'ERROR':
-                log.error(f"Migration failed, reason: {upload_description}.")
+                error_msg = f"Migration failed, reason: {upload_description}."
+                log.error(error_msg)
+                self.errors.append(error_msg)
                 log.debug(self.session.get(response_url).json())
             else:
                 log.info("Upload completed successfully.")
