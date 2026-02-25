@@ -76,13 +76,19 @@ onMounted(async () => {
   // genes
   if (geneticDiagnosisGenesChart.value.dataPoints) {
     geneticDiagnosisGenesChart.value.dataPoints =
-      geneticDiagnosisGenesChart.value.dataPoints?.map((row: IChartData) => {
-        return {
-          ...row,
-          Gene: row.dataPointName,
-          "Count your center": row.dataPointValue,
-        };
-      });
+      geneticDiagnosisGenesChart.value.dataPoints
+        ?.map((row: IChartData) => {
+          return {
+            ...row,
+            Gene: row.dataPointName,
+            Total: row.dataPointValue,
+          };
+        })
+        .sort((a, b) => {
+          return (b.dataPointName as string).localeCompare(
+            a.dataPointName as string
+          );
+        });
   }
 
   // age of onset prep
@@ -239,7 +245,7 @@ onMounted(async () => {
           v-else
           :tableId="geneticDiagnosisGenesChart?.chartId"
           :data="geneticDiagnosisGenesChart?.dataPoints"
-          :columnOrder="['Gene', 'Count your center']"
+          :columnOrder="['Gene', 'Total']"
           :caption="geneticDiagnosisGenesChart?.chartTitle"
         />
       </DashboardChart>
