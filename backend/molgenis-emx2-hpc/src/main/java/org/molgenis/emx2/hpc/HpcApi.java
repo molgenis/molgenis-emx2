@@ -1,9 +1,12 @@
 package org.molgenis.emx2.hpc;
 
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
+import com.fasterxml.jackson.core.JacksonException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -13,7 +16,6 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.hpc.protocol.HmacVerifier;
 import org.molgenis.emx2.hpc.protocol.HpcHeaders;
-import org.molgenis.emx2.hpc.protocol.ProblemDetail;
 import org.molgenis.emx2.hpc.service.ArtifactService;
 import org.molgenis.emx2.hpc.service.HpcSchemaInitializer;
 import org.molgenis.emx2.hpc.service.JobService;
@@ -55,6 +57,20 @@ public class HpcApi {
     // Lazy-init holder: initialized on first authenticated request when secret is configured
     AtomicReference<HpcContext> hpcContext = new AtomicReference<>(null);
 
+    // Exception handler: converts HpcException to RFC 9457 problem+json responses
+    app.exception(
+        HpcException.class,
+        (e, ctx) -> {
+          ctx.status(e.getStatus());
+          ctx.contentType("application/problem+json");
+          try {
+            ctx.result(MAPPER.writeValueAsString(e.toProblemDetail()));
+          } catch (com.fasterxml.jackson.core.JsonProcessingException jsonEx) {
+            ctx.contentType("text/plain");
+            ctx.result(e.getTitle() + ": " + e.getMessage());
+          }
+        });
+
     // After-handler: propagate X-Trace-Id on all HPC responses
     app.after(
         "/api/hpc/*",
@@ -83,17 +99,13 @@ public class HpcApi {
               logger.info(
                   "HPC API: not configured — set {} database setting to enable",
                   HPC_SECRET_SETTING);
-              ProblemDetail.send(
-                  ctx,
-                  503,
-                  "Service Unavailable",
+              throw HpcException.serviceUnavailable(
                   "HPC not configured — set "
                       + HPC_SECRET_SETTING
                       + " database setting on "
                       + SYSTEM_SCHEMA
                       + " to enable",
                   ctx.header(HpcHeaders.REQUEST_ID));
-              throw new MolgenisException("HPC not configured");
             }
             hpcContext.set(hpc);
             logger.info("HPC API: initialized — schema tables created in {}", SYSTEM_SCHEMA);
@@ -104,8 +116,7 @@ public class HpcApi {
           try {
             HpcHeaders.validateAll(ctx);
           } catch (IllegalArgumentException e) {
-            ProblemDetail.send(ctx, 400, "Bad Request", e.getMessage(), null);
-            throw new io.javalin.http.BadRequestResponse(e.getMessage());
+            throw HpcException.badRequest(e.getMessage(), null);
           }
 
           // Authentication: try HMAC first, then JWT token, then session cookie, then reject
@@ -130,14 +141,10 @@ public class HpcApi {
               sessionUser = (String) session.getAttribute("username");
             }
             if (sessionUser == null || sessionUser.isBlank()) {
-              ProblemDetail.send(
-                  ctx,
-                  401,
-                  "Unauthorized",
+              throw HpcException.unauthorized(
                   "Missing authentication: provide Authorization (HMAC), x-molgenis-token, or"
                       + " sign in",
                   ctx.header(HpcHeaders.REQUEST_ID));
-              throw new io.javalin.http.UnauthorizedResponse("Missing authentication credentials");
             }
             ctx.attribute("hpcAuthMethod", "USER");
             ctx.attribute("hpcAuthUser", sessionUser);
@@ -158,154 +165,202 @@ public class HpcApi {
     // Worker endpoints (MANAGER — daemon operations)
     app.post(
         "/api/hpc/workers/register",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.workersApi().register(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.workersApi().register(ctx);
+            }));
     app.delete(
         "/api/hpc/workers/{id}",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.workersApi().deleteWorker(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.workersApi().deleteWorker(ctx);
+            }));
     app.post(
         "/api/hpc/workers/{id}/heartbeat",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          String wid = ctx.pathParam("id");
-          hpc.workerService().heartbeat(wid);
-          ctx.json(Map.of("worker_id", wid, "status", "ok"));
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              String wid = ctx.pathParam("id");
+              hpc.workerService().heartbeat(wid);
+              ctx.json(Map.of("worker_id", wid, "status", "ok"));
+            }));
 
     // Job endpoints
     app.post(
         "/api/hpc/jobs",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().createJob(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.EDITOR);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().createJob(ctx);
+            }));
     app.get(
         "/api/hpc/jobs",
-        ctx -> {
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().listJobs(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().listJobs(ctx);
+            }));
     app.get(
         "/api/hpc/jobs/{id}",
-        ctx -> {
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().getJob(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().getJob(ctx);
+            }));
     app.delete(
         "/api/hpc/jobs/{id}",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().deleteJob(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().deleteJob(ctx);
+            }));
     app.post(
         "/api/hpc/jobs/{id}/claim",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().claimJob(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().claimJob(ctx);
+            }));
     app.post(
         "/api/hpc/jobs/{id}/transition",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().transitionJob(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().transitionJob(ctx);
+            }));
     app.post(
         "/api/hpc/jobs/{id}/cancel",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().cancelJob(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().cancelJob(ctx);
+            }));
     app.get(
         "/api/hpc/jobs/{id}/transitions",
-        ctx -> {
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.jobsApi().getTransitions(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().getTransitions(ctx);
+            }));
 
     // Artifact endpoints
     app.post(
         "/api/hpc/artifacts",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().createArtifact(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.EDITOR);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().createArtifact(ctx);
+            }));
     app.get(
         "/api/hpc/artifacts/{id}",
-        ctx -> {
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().getArtifact(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().getArtifact(ctx);
+            }));
     app.delete(
         "/api/hpc/artifacts/{id}",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().deleteArtifact(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().deleteArtifact(ctx);
+            }));
     app.post(
         "/api/hpc/artifacts/{id}/files",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().uploadFile(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.EDITOR);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().uploadFile(ctx);
+            }));
     app.get(
         "/api/hpc/artifacts/{id}/files",
-        ctx -> {
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().listFiles(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().listFiles(ctx);
+            }));
     app.put(
         "/api/hpc/artifacts/{id}/files/{path}",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().uploadFileByPath(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.EDITOR);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().uploadFileByPath(ctx);
+            }));
     app.get(
         "/api/hpc/artifacts/{id}/files/{path}",
-        ctx -> {
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().downloadFile(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().downloadFile(ctx);
+            }));
     app.head(
         "/api/hpc/artifacts/{id}/files/{path}",
-        ctx -> {
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().headFile(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().headFile(ctx);
+            }));
     app.delete(
         "/api/hpc/artifacts/{id}/files/{path}",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().deleteFile(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().deleteFile(ctx);
+            }));
     app.post(
         "/api/hpc/artifacts/{id}/commit",
-        ctx -> {
-          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
-          HpcContext hpc = ctx.attribute("hpcContext");
-          hpc.artifactsApi().commitArtifact(ctx);
-        });
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.EDITOR);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.artifactsApi().commitArtifact(ctx);
+            }));
 
     logger.info(
         "HPC API: routes registered (lazy init — tables created on first use when {} is set)",
         HPC_SECRET_SETTING);
+  }
+
+  /**
+   * Wraps a route handler to convert uncaught exceptions to {@link HpcException}. HpcExceptions are
+   * re-thrown for the registered exception handler. Other exceptions are mapped to appropriate HTTP
+   * status codes.
+   */
+  private static Handler hpcHandler(Handler inner) {
+    return ctx -> {
+      try {
+        inner.handle(ctx);
+      } catch (HpcException e) {
+        throw e;
+      } catch (IllegalArgumentException e) {
+        throw HpcException.badRequest(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      } catch (JacksonException e) {
+        throw HpcException.badRequest(
+            "Invalid request body: " + e.getOriginalMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      } catch (MolgenisException e) {
+        if (e.getMessage() != null && e.getMessage().toLowerCase().contains("not found")) {
+          throw HpcException.notFound(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+        }
+        throw HpcException.internal(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      } catch (Exception e) {
+        throw HpcException.internal(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      }
+    };
   }
 
   /**
@@ -365,9 +420,7 @@ public class HpcApi {
       return user;
     } catch (MolgenisException e) {
       logger.warn("HPC JWT auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip());
-      ProblemDetail.send(
-          ctx, 401, "Unauthorized", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      throw new io.javalin.http.UnauthorizedResponse(e.getMessage());
+      throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
     }
   }
 
@@ -390,33 +443,26 @@ public class HpcApi {
           ctx.header(HpcHeaders.NONCE));
     } catch (SecurityException e) {
       logger.warn("HPC auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip());
-      ProblemDetail.send(
-          ctx, 401, "Unauthorized", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      throw new io.javalin.http.UnauthorizedResponse(e.getMessage());
+      throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
     }
   }
 
   /**
    * Checks that the current request has at least the required privilege level. HMAC-authenticated
    * requests (daemon) always pass. For user-authenticated requests, compares the resolved privilege
-   * (stored by the before-handler) against the required level. Returns false and sends a 403
-   * ProblemDetail if the check fails.
+   * (stored by the before-handler) against the required level. Throws {@link HpcException} with 403
+   * if the check fails.
    */
-  static boolean requireHpcPrivilege(Context ctx, Privileges required) {
+  static void requireHpcPrivilege(Context ctx, Privileges required) {
     if ("HMAC".equals(ctx.attribute("hpcAuthMethod"))) {
-      return true;
+      return;
     }
     Privileges effective = ctx.attribute("hpcPrivilege");
     if (effective != null && effective.ordinal() >= required.ordinal()) {
-      return true;
+      return;
     }
-    ProblemDetail.send(
-        ctx,
-        403,
-        "Forbidden",
-        "Requires " + required + " privilege on HPC resources",
-        ctx.header(HpcHeaders.REQUEST_ID));
-    return false;
+    throw HpcException.forbidden(
+        "Requires " + required + " privilege on HPC resources", ctx.header(HpcHeaders.REQUEST_ID));
   }
 
   /**

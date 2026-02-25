@@ -12,7 +12,6 @@ import org.molgenis.emx2.hpc.model.HpcJobStatus;
 import org.molgenis.emx2.hpc.protocol.HpcHeaders;
 import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
-import org.molgenis.emx2.hpc.protocol.ProblemDetail;
 import org.molgenis.emx2.hpc.service.ArtifactService;
 import org.molgenis.emx2.hpc.service.JobService;
 import org.molgenis.emx2.hpc.service.WorkerService;
@@ -45,61 +44,42 @@ public class JobsApi {
 
   /** POST /api/hpc/jobs — create a new job in PENDING status. */
   @SuppressWarnings("unchecked")
-  public void createJob(Context ctx) {
-    try {
-      Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-      String processor = (String) body.get("processor");
-      String profile = (String) body.get("profile");
-      String parameters =
-          body.get("parameters") != null ? MAPPER.writeValueAsString(body.get("parameters")) : null;
-      String inputs =
-          body.get("inputs") != null ? MAPPER.writeValueAsString(body.get("inputs")) : null;
-      String submitUser = (String) body.get("submit_user");
-      Integer timeoutSeconds =
-          body.get("timeout_seconds") != null
-              ? ((Number) body.get("timeout_seconds")).intValue()
-              : null;
+  public void createJob(Context ctx) throws Exception {
+    Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
+    String processor = (String) body.get("processor");
+    String profile = (String) body.get("profile");
+    String parameters =
+        body.get("parameters") != null ? MAPPER.writeValueAsString(body.get("parameters")) : null;
+    String inputs =
+        body.get("inputs") != null ? MAPPER.writeValueAsString(body.get("inputs")) : null;
+    String submitUser = (String) body.get("submit_user");
+    Integer timeoutSeconds =
+        body.get("timeout_seconds") != null
+            ? ((Number) body.get("timeout_seconds")).intValue()
+            : null;
 
-      try {
-        InputValidator.requireString(processor, "processor");
-        InputValidator.optionalString(profile, "profile");
-        InputValidator.optionalString(submitUser, "submit_user");
-      } catch (IllegalArgumentException e) {
-        ProblemDetail.send(
-            ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-        return;
-      }
+    InputValidator.requireString(processor, "processor");
+    InputValidator.optionalString(profile, "profile");
+    InputValidator.optionalString(submitUser, "submit_user");
 
-      String jobId =
-          jobService.createJob(processor, profile, parameters, inputs, submitUser, timeoutSeconds);
-      Map<String, Object> response = new LinkedHashMap<>();
-      response.put("id", jobId);
-      response.put("status", HpcJobStatus.PENDING.name());
-      response.put("_links", LinkBuilder.forJob(jobId, HpcJobStatus.PENDING));
+    String jobId =
+        jobService.createJob(processor, profile, parameters, inputs, submitUser, timeoutSeconds);
+    Map<String, Object> response = new LinkedHashMap<>();
+    response.put("id", jobId);
+    response.put("status", HpcJobStatus.PENDING.name());
+    response.put("_links", LinkBuilder.forJob(jobId, HpcJobStatus.PENDING));
 
-      ctx.status(201);
-      ctx.json(response);
-    } catch (Exception e) {
-      ProblemDetail.send(
-          ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-    }
+    ctx.status(201);
+    ctx.json(response);
   }
 
   /** GET /api/hpc/jobs/{id} — get job details with HATEOAS links. */
   public void getJob(Context ctx) {
     String jobId = ctx.pathParam("id");
-    try {
-      InputValidator.requireUuid(jobId, "id");
-    } catch (IllegalArgumentException e) {
-      ProblemDetail.send(
-          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      return;
-    }
+    InputValidator.requireUuid(jobId, "id");
     Row job = jobService.getJob(jobId);
     if (job == null) {
-      ProblemDetail.send(
-          ctx, 404, "Not Found", "Job " + jobId + " not found", ctx.header(HpcHeaders.REQUEST_ID));
-      return;
+      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
     }
     ctx.json(jobToResponse(job));
   }
@@ -138,59 +118,32 @@ public class JobsApi {
    * 404 if not found.
    */
   @SuppressWarnings("unchecked")
-  public void claimJob(Context ctx) {
+  public void claimJob(Context ctx) throws Exception {
     String jobId = ctx.pathParam("id");
-    try {
-      InputValidator.requireUuid(jobId, "id");
-    } catch (IllegalArgumentException e) {
-      ProblemDetail.send(
-          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      return;
-    }
-    try {
-      Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-      String workerId = (String) body.get("worker_id");
+    InputValidator.requireUuid(jobId, "id");
 
-      try {
-        InputValidator.requireString(workerId, "worker_id");
-      } catch (IllegalArgumentException e) {
-        ProblemDetail.send(
-            ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-        return;
+    Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
+    String workerId = (String) body.get("worker_id");
+    InputValidator.requireString(workerId, "worker_id");
+
+    Row claimed = jobService.claimJob(jobId, workerId);
+    if (claimed == null) {
+      // Either not found or already claimed
+      Row existing = jobService.getJob(jobId);
+      if (existing == null) {
+        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
       }
-
-      Row claimed = jobService.claimJob(jobId, workerId);
-      if (claimed == null) {
-        // Either not found or already claimed
-        Row existing = jobService.getJob(jobId);
-        if (existing == null) {
-          ProblemDetail.send(
-              ctx,
-              404,
-              "Not Found",
-              "Job " + jobId + " not found",
-              ctx.header(HpcHeaders.REQUEST_ID));
-        } else {
-          ProblemDetail.send(
-              ctx,
-              409,
-              "Conflict",
-              "Job "
-                  + jobId
-                  + " is not in PENDING status (current: "
-                  + existing.getString("status")
-                  + ")",
-              ctx.header(HpcHeaders.REQUEST_ID));
-        }
-        return;
-      }
-
-      ctx.status(200);
-      ctx.json(jobToResponse(claimed));
-    } catch (Exception e) {
-      ProblemDetail.send(
-          ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      throw HpcException.conflict(
+          "Job "
+              + jobId
+              + " is not in PENDING status (current: "
+              + existing.getString("status")
+              + ")",
+          requestId(ctx));
     }
+
+    ctx.status(200);
+    ctx.json(jobToResponse(claimed));
   }
 
   /**
@@ -200,89 +153,55 @@ public class JobsApi {
    * "slurm_job_id": "12345"}
    */
   @SuppressWarnings("unchecked")
-  public void transitionJob(Context ctx) {
+  public void transitionJob(Context ctx) throws Exception {
     String jobId = ctx.pathParam("id");
+    InputValidator.requireUuid(jobId, "id");
+
+    Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
+    String targetStatusStr = (String) body.get("status");
+    String workerId = (String) body.get("worker_id");
+    String detail = (String) body.get("detail");
+
+    if (targetStatusStr == null) {
+      throw HpcException.badRequest("status is required", requestId(ctx));
+    }
+
+    HpcJobStatus targetStatus;
     try {
-      InputValidator.requireUuid(jobId, "id");
+      targetStatus = HpcJobStatus.valueOf(targetStatusStr);
     } catch (IllegalArgumentException e) {
-      ProblemDetail.send(
-          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      return;
+      throw HpcException.badRequest("Invalid status: " + targetStatusStr, requestId(ctx));
     }
-    try {
-      Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-      String targetStatusStr = (String) body.get("status");
-      String workerId = (String) body.get("worker_id");
-      String detail = (String) body.get("detail");
 
-      if (targetStatusStr == null) {
-        ProblemDetail.send(
-            ctx, 400, "Bad Request", "status is required", ctx.header(HpcHeaders.REQUEST_ID));
-        return;
+    String slurmJobId = (String) body.get("slurm_job_id");
+    String outputArtifactId = (String) body.get("output_artifact_id");
+    String logArtifactId = (String) body.get("log_artifact_id");
+    Row result =
+        jobService.transitionJob(
+            jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId, logArtifactId);
+    if (result == null) {
+      Row existing = jobService.getJob(jobId);
+      if (existing == null) {
+        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
       }
-
-      HpcJobStatus targetStatus;
-      try {
-        targetStatus = HpcJobStatus.valueOf(targetStatusStr);
-      } catch (IllegalArgumentException e) {
-        ProblemDetail.send(
-            ctx,
-            400,
-            "Bad Request",
-            "Invalid status: " + targetStatusStr,
-            ctx.header(HpcHeaders.REQUEST_ID));
-        return;
-      }
-
-      String slurmJobId = (String) body.get("slurm_job_id");
-      String outputArtifactId = (String) body.get("output_artifact_id");
-      String logArtifactId = (String) body.get("log_artifact_id");
-      Row result =
-          jobService.transitionJob(
-              jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId, logArtifactId);
-      if (result == null) {
-        Row existing = jobService.getJob(jobId);
-        if (existing == null) {
-          ProblemDetail.send(
-              ctx,
-              404,
-              "Not Found",
-              "Job " + jobId + " not found",
-              ctx.header(HpcHeaders.REQUEST_ID));
-        } else {
-          ProblemDetail.send(
-              ctx,
-              409,
-              "Conflict",
-              "Cannot transition job "
-                  + jobId
-                  + " from "
-                  + existing.getString("status")
-                  + " to "
-                  + targetStatusStr,
-              ctx.header(HpcHeaders.REQUEST_ID));
-        }
-        return;
-      }
-
-      ctx.status(200);
-      ctx.json(jobToResponse(result));
-    } catch (Exception e) {
-      ProblemDetail.send(
-          ctx, 500, "Internal Server Error", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      throw HpcException.conflict(
+          "Cannot transition job "
+              + jobId
+              + " from "
+              + existing.getString("status")
+              + " to "
+              + targetStatusStr,
+          requestId(ctx));
     }
+
+    ctx.status(200);
+    ctx.json(jobToResponse(result));
   }
 
   /** POST /api/hpc/jobs/{id}/cancel — convenience endpoint for cancellation. */
   public void cancelJob(Context ctx) {
     String jobId = ctx.pathParam("id");
-    try {
-      InputValidator.requireUuid(jobId, "id");
-    } catch (IllegalArgumentException e) {
-      ProblemDetail.send(
-          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      return;
-    }
+    InputValidator.requireUuid(jobId, "id");
 
     // Cancel does not update worker_id — cancellation can come from any
     // authenticated caller (UI user, API client), not just the assigned worker.
@@ -292,21 +211,11 @@ public class JobsApi {
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
-        ProblemDetail.send(
-            ctx,
-            404,
-            "Not Found",
-            "Job " + jobId + " not found",
-            ctx.header(HpcHeaders.REQUEST_ID));
-      } else {
-        ProblemDetail.send(
-            ctx,
-            409,
-            "Conflict",
-            "Cannot cancel job " + jobId + " in status " + existing.getString("status"),
-            ctx.header(HpcHeaders.REQUEST_ID));
+        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
       }
-      return;
+      throw HpcException.conflict(
+          "Cannot cancel job " + jobId + " in status " + existing.getString("status"),
+          requestId(ctx));
     }
 
     ctx.status(200);
@@ -319,19 +228,11 @@ public class JobsApi {
    */
   public void deleteJob(Context ctx) {
     String jobId = ctx.pathParam("id");
-    try {
-      InputValidator.requireUuid(jobId, "id");
-    } catch (IllegalArgumentException e) {
-      ProblemDetail.send(
-          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      return;
-    }
+    InputValidator.requireUuid(jobId, "id");
 
     Row deleted = jobService.deleteJob(jobId);
     if (deleted == null) {
-      ProblemDetail.send(
-          ctx, 404, "Not Found", "Job " + jobId + " not found", ctx.header(HpcHeaders.REQUEST_ID));
-      return;
+      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
     }
 
     ctx.status(204);
@@ -340,13 +241,8 @@ public class JobsApi {
   /** GET /api/hpc/jobs/{id}/transitions — audit trail. */
   public void getTransitions(Context ctx) {
     String jobId = ctx.pathParam("id");
-    try {
-      InputValidator.requireUuid(jobId, "id");
-    } catch (IllegalArgumentException e) {
-      ProblemDetail.send(
-          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
-      return;
-    }
+    InputValidator.requireUuid(jobId, "id");
+
     List<Row> transitions = jobService.getTransitions(jobId);
 
     List<Map<String, Object>> items =
@@ -369,6 +265,10 @@ public class JobsApi {
     response.put("items", items);
     response.put("count", items.size());
     ctx.json(response);
+  }
+
+  private static String requestId(Context ctx) {
+    return ctx.header(HpcHeaders.REQUEST_ID);
   }
 
   private Map<String, Object> enrichArtifactRef(String artifactId) {
