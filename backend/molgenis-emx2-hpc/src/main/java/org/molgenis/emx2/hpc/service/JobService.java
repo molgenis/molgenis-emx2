@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -171,8 +172,13 @@ public class JobService {
             return null;
           }
 
-          // Same-state transition: record detail if provided (e.g. queue status updates)
+          // Same-state transition: idempotent retry detection or progress update
           if (currentStatus == targetStatus) {
+            if (isIdenticalTransitionRecorded(schema, jobId, targetStatus, workerId, detail)) {
+              logger.debug(
+                  "Idempotent duplicate transition for job={} status={}", jobId, targetStatus);
+              return job;
+            }
             if (detail != null && !detail.isBlank()) {
               recordTransition(schema, jobId, currentStatus, targetStatus, workerId, detail);
             }
@@ -468,6 +474,26 @@ public class JobService {
                 workerId,
                 "detail",
                 detail));
+  }
+
+  /**
+   * Checks whether an identical transition has already been recorded for this job. A transition is
+   * considered identical when the to_status, worker_id, and detail all match a previously recorded
+   * transition. Used for idempotent retry detection: if the daemon retries a transition after a
+   * network timeout, the duplicate should return 200 OK without recording again.
+   */
+  private static boolean isIdenticalTransitionRecorded(
+      Schema schema, String jobId, HpcJobStatus toStatus, String workerId, String detail) {
+    List<Row> transitions =
+        schema.getTable("HpcJobTransitions").where(f("job_id", EQUALS, jobId)).retrieveRows();
+    for (Row t : transitions) {
+      if (Objects.equals(toStatus.name(), t.getString("to_status"))
+          && Objects.equals(workerId, t.getString("worker_id"))
+          && Objects.equals(detail, t.getString("detail"))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
