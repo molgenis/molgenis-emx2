@@ -70,18 +70,17 @@ export const getColumnIds = async (
   tableId: string,
   //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
-  columns?: IColumn[],
-  //rootLevel
+  columnFilter?: IColumn[],
   rootLevel = true
 ) => {
   const metadata = await fetchMetadata(schemaId);
 
-  const local = columns?.length
-    ? columns
+  const columns = columnFilter?.length
+    ? columnFilter
     : metadata.tables.find((table) => table.id === tableId)?.columns || [];
 
   let gqlFields = "";
-  for (const col of local) {
+  for (const col of columns) {
     //we always expand the subfields of key, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key) {
       if (
