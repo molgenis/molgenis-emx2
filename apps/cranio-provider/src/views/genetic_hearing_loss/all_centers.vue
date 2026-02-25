@@ -154,7 +154,7 @@ onMounted(async () => {
       };
     })
     .sort((a, b) => {
-      return (b.Gene as string).localeCompare(a.Gene as string);
+      return (a.Gene as string).localeCompare(b.Gene as string);
     }) as GenesSummaryData[];
 
   // prep genetic diagnosis type
