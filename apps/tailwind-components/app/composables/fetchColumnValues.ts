@@ -25,7 +25,7 @@ export default async (
     offset: 0,
   });
 
-  if (resp.rows.length === 0) {
+  if (!resp.rows.length) {
     throw new Error(`No data found for rowId ${rowId} in table ${tableId}`);
   }
 
