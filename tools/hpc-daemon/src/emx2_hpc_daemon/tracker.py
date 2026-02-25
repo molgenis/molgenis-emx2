@@ -1,8 +1,8 @@
-"""In-memory tracking of submitted Slurm jobs with optional TinyDB persistence.
+"""In-memory tracking of submitted Slurm jobs with optional SQLite persistence.
 
 Maintains a mapping of EMX2 job IDs to Slurm job state for the daemon's main
 loop. When a ``state_db_path`` is provided, all mutations are written through
-to a TinyDB JSON file so that ``once`` mode (cron-invoked) can reliably
+to a SQLite database so that ``once`` mode (cron-invoked) can reliably
 progress jobs across invocations.
 
 Wall-clock timestamps (``time.time()``) are stored in the DB because
@@ -12,12 +12,11 @@ converted back to monotonic offsets.
 
 from __future__ import annotations
 
-import json
 import logging
 import os
+import sqlite3
 import threading
 import time
-from contextlib import contextmanager
 from dataclasses import dataclass, fields
 from pathlib import Path
 
@@ -62,11 +61,39 @@ def _mono_to_wall(mono: float) -> float:
     return mono + offset
 
 
+_CREATE_TABLE_SQL = """\
+CREATE TABLE IF NOT EXISTS tracked_jobs (
+    emx2_job_id TEXT PRIMARY KEY,
+    slurm_job_id TEXT,
+    status TEXT NOT NULL DEFAULT 'CLAIMED',
+    work_dir TEXT,
+    input_dir TEXT,
+    output_dir TEXT,
+    processor TEXT,
+    profile TEXT,
+    claimed_at REAL NOT NULL DEFAULT 0.0,
+    last_progress_hash TEXT,
+    last_queue_report REAL NOT NULL DEFAULT 0.0
+)"""
+
+_UPSERT_SQL = """\
+INSERT OR REPLACE INTO tracked_jobs
+    (emx2_job_id, slurm_job_id, status, work_dir, input_dir, output_dir,
+     processor, profile, claimed_at, last_progress_hash, last_queue_report)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
+_DELETE_SQL = "DELETE FROM tracked_jobs WHERE emx2_job_id = ?"
+
+_SELECT_ALL_SQL = "SELECT * FROM tracked_jobs"
+
+_COLUMNS = [f.name for f in fields(TrackedJob)]
+
+
 class JobTracker:
     """Tracks active (non-terminal) jobs managed by this daemon.
 
     When ``state_db_path`` is provided, mutations are written through to a
-    TinyDB JSON file for persistence across process restarts.
+    SQLite database for persistence across process restarts.
     """
 
     _VALID_FIELDS = frozenset(f.name for f in fields(TrackedJob))
@@ -74,84 +101,53 @@ class JobTracker:
 
     def __init__(self, state_db_path: Path | str | None = None):
         self._jobs: dict[str, TrackedJob] = {}
-        self._db = None
-        self._table = None
+        self._conn: sqlite3.Connection | None = None
         self._db_path: Path | None = None
-        self._lock_handle = None
         self._lock = threading.RLock()
 
         if state_db_path is not None:
             self._init_db(Path(state_db_path))
 
     def _init_db(self, path: Path) -> None:
-        """Initialise the TinyDB state file."""
-        from tinydb import TinyDB
-
+        """Initialise the SQLite state database."""
         path.parent.mkdir(parents=True, exist_ok=True)
         self._db_path = path
-        try:
-            self._lock_handle = open(path.parent / f"{path.name}.lock", "a+b")
-        except OSError:
-            self._lock_handle = None
+
+        # Warn if a legacy TinyDB state.json is sitting at the default location
+        legacy = path.with_name("state.json")
+        if legacy.exists() and path.name != "state.json":
             logger.warning(
-                "State DB lock file is not writable at %s; continuing without inter-process lock",
-                path.parent / f"{path.name}.lock",
+                "Legacy TinyDB state file found at %s — it will not be migrated. "
+                "The daemon will re-populate state from the server on next recovery.",
+                legacy,
             )
+
         try:
-            self._db = TinyDB(str(path))
-            self._table = self._db.table("tracked_jobs")
-        except (json.JSONDecodeError, ValueError):
+            self._conn = sqlite3.connect(str(path), check_same_thread=False)
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            self._conn.execute(_CREATE_TABLE_SQL)
+            self._conn.commit()
+        except sqlite3.DatabaseError:
             self._recover_corrupt_db()
         except OSError:
-            self._db = None
-            self._table = None
+            self._conn = None
             logger.warning(
                 "State DB is not writable at %s; running without persistence",
                 path,
             )
         logger.debug("State DB opened at %s", path)
 
-    @contextmanager
-    def _db_guard(self):
-        if self._table is None:
-            yield
-            return
-
-        with self._lock:
-            locked = False
-            if self._lock_handle is not None:
-                try:
-                    import fcntl
-
-                    fcntl.flock(self._lock_handle.fileno(), fcntl.LOCK_EX)
-                    locked = True
-                except (ImportError, OSError):
-                    logger.debug(
-                        "State DB lock unavailable; continuing without file lock"
-                    )
-            try:
-                yield
-            finally:
-                if locked and self._lock_handle is not None:
-                    try:
-                        import fcntl
-
-                        fcntl.flock(self._lock_handle.fileno(), fcntl.LOCK_UN)
-                    except (ImportError, OSError):
-                        pass
-
     def _recover_corrupt_db(self) -> None:
-        """Rotate a corrupt TinyDB file out of the way and reopen a fresh one."""
+        """Rotate a corrupt SQLite file out of the way and reopen a fresh one."""
         if self._db_path is None:
-            raise RuntimeError("Cannot recover TinyDB without a state path")
+            raise RuntimeError("Cannot recover DB without a state path")
 
-        if self._db is not None:
+        if self._conn is not None:
             try:
-                self._db.close()
+                self._conn.close()
             except Exception:
-                logger.debug("Failed closing corrupt TinyDB handle", exc_info=True)
-        self._db = None
-        self._table = None
+                logger.debug("Failed closing corrupt SQLite handle", exc_info=True)
+        self._conn = None
 
         backup_path = self._db_path.with_name(
             f"{self._db_path.name}.corrupt-{int(time.time())}"
@@ -160,56 +156,56 @@ class JobTracker:
             try:
                 os.replace(self._db_path, backup_path)
                 logger.error(
-                    "Corrupt TinyDB state file moved to %s; starting fresh state DB",
+                    "Corrupt SQLite state file moved to %s; starting fresh state DB",
                     backup_path,
                 )
             except OSError:
                 logger.exception(
-                    "Failed to rotate corrupt TinyDB state file %s", self._db_path
+                    "Failed to rotate corrupt SQLite state file %s", self._db_path
                 )
-        from tinydb import TinyDB
 
-        self._db = TinyDB(str(self._db_path))
-        self._table = self._db.table("tracked_jobs")
+        self._conn = sqlite3.connect(str(self._db_path), check_same_thread=False)
+        self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute(_CREATE_TABLE_SQL)
+        self._conn.commit()
 
     # -- persistence helpers --------------------------------------------------
 
     def _persist(self, job: TrackedJob) -> None:
         """Write-through: upsert a job into the DB."""
-        if self._table is None:
+        if self._conn is None:
             return
-        from tinydb import Query
 
         doc = {f.name: getattr(job, f.name) for f in fields(TrackedJob)}
         # Store time fields as wall-clock
         for tf in self._TIME_FIELDS:
             doc[tf] = _mono_to_wall(doc[tf])
 
-        Q = Query()
+        values = tuple(doc[c] for c in _COLUMNS)
         try:
-            with self._db_guard():
-                self._table.upsert(doc, Q.emx2_job_id == job.emx2_job_id)
-        except (json.JSONDecodeError, ValueError):
+            with self._lock:
+                self._conn.execute(_UPSERT_SQL, values)
+                self._conn.commit()
+        except sqlite3.DatabaseError:
             logger.exception(
-                "TinyDB state corruption detected during persist; recovering"
+                "SQLite state corruption detected during persist; recovering"
             )
             self._recover_corrupt_db()
-            with self._db_guard():
-                self._table.upsert(doc, Q.emx2_job_id == job.emx2_job_id)
+            with self._lock:
+                self._conn.execute(_UPSERT_SQL, values)
+                self._conn.commit()
 
     def _remove_from_db(self, emx2_job_id: str) -> None:
         """Remove a job row from the DB."""
-        if self._table is None:
+        if self._conn is None:
             return
-        from tinydb import Query
-
-        Q = Query()
         try:
-            with self._db_guard():
-                self._table.remove(Q.emx2_job_id == emx2_job_id)
-        except (json.JSONDecodeError, ValueError):
+            with self._lock:
+                self._conn.execute(_DELETE_SQL, (emx2_job_id,))
+                self._conn.commit()
+        except sqlite3.DatabaseError:
             logger.exception(
-                "TinyDB state corruption detected during delete; recovering"
+                "SQLite state corruption detected during delete; recovering"
             )
             self._recover_corrupt_db()
 
@@ -219,19 +215,24 @@ class JobTracker:
         Returns the dict of loaded jobs (also stored in ``self._jobs``).
         Existing in-memory entries are **not** overwritten.
         """
-        if self._table is None:
+        if self._conn is None:
             return self._jobs
 
         try:
-            with self._db_guard():
-                docs = list(self._table.all())
-        except (json.JSONDecodeError, ValueError):
-            logger.exception("TinyDB state corruption detected during load; recovering")
+            with self._lock:
+                cursor = self._conn.execute(_SELECT_ALL_SQL)
+                columns = [desc[0] for desc in cursor.description]
+                rows = cursor.fetchall()
+        except sqlite3.DatabaseError:
+            logger.exception("SQLite state corruption detected during load; recovering")
             self._recover_corrupt_db()
-            with self._db_guard():
-                docs = list(self._table.all())
+            with self._lock:
+                cursor = self._conn.execute(_SELECT_ALL_SQL)
+                columns = [desc[0] for desc in cursor.description]
+                rows = cursor.fetchall()
 
-        for doc in docs:
+        for row in rows:
+            doc = dict(zip(columns, row))
             emx2_id = doc.get("emx2_job_id")
             if not emx2_id or emx2_id in self._jobs:
                 continue
@@ -324,9 +325,6 @@ class JobTracker:
                 logger.info("Recovered tracking for job %s", emx2_id)
 
     def close(self) -> None:
-        """Close the underlying TinyDB (flushes any buffered writes)."""
-        if self._db is not None:
-            self._db.close()
-        if self._lock_handle is not None:
-            self._lock_handle.close()
-            self._lock_handle = None
+        """Close the underlying SQLite connection."""
+        if self._conn is not None:
+            self._conn.close()

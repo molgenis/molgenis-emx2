@@ -83,12 +83,12 @@ def test_last_progress_hash_update():
     assert tracker.get("job-1").last_progress_hash == "abc123"
 
 
-# --- Persistence tests (TinyDB) ---
+# --- Persistence tests (SQLite) ---
 
 
 def test_persist_and_reload(tmp_path):
     """Track jobs, close tracker, open a new one — jobs should be restored."""
-    db_path = tmp_path / "state.json"
+    db_path = tmp_path / "state.db"
 
     t1 = JobTracker(state_db_path=db_path)
     t1.track(
@@ -125,7 +125,7 @@ def test_persist_and_reload(tmp_path):
 
 def test_persist_update(tmp_path):
     """Updates should be persisted through to the DB."""
-    db_path = tmp_path / "state.json"
+    db_path = tmp_path / "state.db"
 
     t1 = JobTracker(state_db_path=db_path)
     t1.track("job-1", status="CLAIMED")
@@ -142,7 +142,7 @@ def test_persist_update(tmp_path):
 
 def test_persist_remove(tmp_path):
     """Removed jobs should be deleted from the DB."""
-    db_path = tmp_path / "state.json"
+    db_path = tmp_path / "state.db"
 
     t1 = JobTracker(state_db_path=db_path)
     t1.track("job-1", status="SUBMITTED")
@@ -160,7 +160,7 @@ def test_persist_remove(tmp_path):
 
 def test_claimed_at_survives_reload(tmp_path):
     """claimed_at (monotonic→wall→monotonic) should be approximately preserved."""
-    db_path = tmp_path / "state.json"
+    db_path = tmp_path / "state.db"
 
     mono_before = time.monotonic()
     t1 = JobTracker(state_db_path=db_path)
@@ -177,6 +177,30 @@ def test_claimed_at_survives_reload(tmp_path):
     assert abs(restored_claimed - original_claimed) < 2.0
     # And both should be >= mono_before
     assert restored_claimed >= mono_before - 1.0
+    t2.close()
+
+
+def test_corrupt_db_recovery(tmp_path):
+    """A corrupt DB file should be rotated and a fresh one created."""
+    db_path = tmp_path / "state.db"
+
+    # Write garbage to simulate corruption
+    db_path.write_bytes(b"this is not a sqlite database at all!!")
+
+    tracker = JobTracker(state_db_path=db_path)
+    # Should have recovered — track and persist should work
+    tracker.track("job-1", status="SUBMITTED", slurm_job_id="42")
+    tracker.close()
+
+    # Verify the corrupt file was rotated
+    corrupt_files = list(tmp_path.glob("state.db.corrupt-*"))
+    assert len(corrupt_files) == 1
+
+    # Verify the new DB works
+    t2 = JobTracker(state_db_path=db_path)
+    t2.load_from_db()
+    assert t2.get("job-1") is not None
+    assert t2.get("job-1").slurm_job_id == "42"
     t2.close()
 
 

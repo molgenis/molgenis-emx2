@@ -51,8 +51,9 @@ class WorkerConfig:
     poll_interval_seconds: int = 30
     max_concurrent_jobs: int = 10
     queue_report_interval_seconds: int = 300  # report Slurm PENDING status every 5 min
+    heartbeat_interval_seconds: int = 120  # server heartbeat interval
     state_db: str = (
-        ""  # path to TinyDB state file; empty = ~/.local/share/hpc-daemon/state.json
+        ""  # path to SQLite state file; empty = ~/.local/share/hpc-daemon/state.db
     )
 
 

@@ -29,6 +29,7 @@ from pathlib import Path
 from .backend import ExecutionBackend, SimulatedBackend, SlurmBackend
 from .client import ClaimConflict, HpcClient, format_links
 from .config import DaemonConfig
+from .hashing import _sha256_file, compute_tree_hash_from_paths
 from .profiles import derive_capabilities, resolve_profile
 from .slurm import SlurmJobInfo
 from .tracker import JobTracker
@@ -36,18 +37,6 @@ from .tracker import JobTracker
 logger = logging.getLogger(__name__)
 
 TERMINAL_STATUSES = frozenset({"COMPLETED", "FAILED", "CANCELLED"})
-_FILE_IO_CHUNK_SIZE = 1024 * 1024
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        while True:
-            chunk = handle.read(_FILE_IO_CHUNK_SIZE)
-            if not chunk:
-                break
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _build_slurm_detail(info: SlurmJobInfo) -> str:
@@ -85,7 +74,7 @@ class HpcDaemon:
         self.tracker = JobTracker(state_db_path=state_db_path)
         self._running = True
         self._hostname = socket.gethostname()
-        self._heartbeat_interval = 120  # seconds
+        self._heartbeat_interval = config.worker.heartbeat_interval_seconds
         self._last_heartbeat = 0.0
         if simulate:
             logger.info(
@@ -98,7 +87,7 @@ class HpcDaemon:
         if config.worker.state_db:
             return Path(config.worker.state_db)
         default_dir = Path.home() / ".local" / "share" / "hpc-daemon"
-        return default_dir / "state.json"
+        return default_dir / "state.db"
 
     def run(self) -> None:
         """Main entry point — run the daemon loop until interrupted."""
@@ -252,9 +241,10 @@ class HpcDaemon:
                         server_status,
                     )
                 except Exception:
-                    logger.info(
+                    logger.warning(
                         "Removed stale local job %s (not found on server)",
                         emx2_id,
+                        exc_info=True,
                     )
                 self.tracker.remove(emx2_id)
 
@@ -264,7 +254,10 @@ class HpcDaemon:
                     self.tracker.active_count(),
                 )
         except Exception:
-            logger.exception("Failed to recover jobs from server")
+            logger.exception(
+                "Failed to recover jobs from server (%d locally loaded jobs)",
+                len(local_before),
+            )
 
     def _maybe_heartbeat(self) -> None:
         """Send periodic heartbeat to keep worker registration alive."""
@@ -404,6 +397,42 @@ class HpcDaemon:
                 )
         return residence
 
+    def _upload_artifact(
+        self,
+        job_id: str,
+        files: list[Path],
+        output_dir: str,
+        residence: str,
+        artifact_type: str = "blob",
+        name_prefix: str = "output",
+    ) -> str | None:
+        """Upload files as an artifact. Returns artifact ID or None."""
+        if not files:
+            logger.debug("No %s files to upload for job %s", name_prefix, job_id)
+            return None
+
+        logger.debug(
+            "Artifact files for job %s (%s): %s",
+            job_id,
+            name_prefix,
+            [f"{f.name} ({f.stat().st_size}b)" for f in files],
+        )
+
+        try:
+            if residence == "posix":
+                return self._register_posix_artifact(
+                    job_id, output_dir, files, artifact_type, name_prefix
+                )
+            else:
+                return self._upload_managed_artifact(
+                    job_id, files, artifact_type, name_prefix
+                )
+        except Exception:
+            logger.exception(
+                "Failed to upload %s artifacts for job %s", name_prefix, job_id
+            )
+            return None
+
     def _upload_output_artifacts(
         self,
         job_id: str,
@@ -411,41 +440,12 @@ class HpcDaemon:
         processor: str | None = None,
         profile: str | None = None,
     ) -> str | None:
-        """Register output files as a new artifact. Returns artifact ID or None.
-
-        Supports two modes based on the profile's output_residence setting:
-        - posix: registers path only (no binary upload), content_url = file:// URI
-        - managed: uploads binary content to EMX2 server
-        """
+        """Register output files as a new artifact. Returns artifact ID or None."""
         output_files, _ = self._classify_output_files(output_dir)
-
-        if not output_files:
-            logger.debug("No output files to upload for job %s", job_id)
-            return None
-
-        logger.debug(
-            "Output files for job %s: %s",
-            job_id,
-            [f"{f.name} ({f.stat().st_size}b)" for f in output_files],
+        residence = self._resolve_residence(processor, profile, kind="output")
+        return self._upload_artifact(
+            job_id, output_files, output_dir, residence, "blob", "output"
         )
-
-        residence = self._resolve_residence(processor, profile)
-        logger.debug(
-            "Artifact residence for job %s (processor=%s, profile=%s): %s",
-            job_id,
-            processor,
-            profile,
-            residence,
-        )
-
-        try:
-            if residence == "posix":
-                return self._register_posix_artifact(job_id, output_dir, output_files)
-            else:
-                return self._upload_managed_artifact(job_id, output_files)
-        except Exception:
-            logger.exception("Failed to upload output artifacts for job %s", job_id)
-            return None
 
     def _upload_log_artifact(
         self,
@@ -456,38 +456,10 @@ class HpcDaemon:
     ) -> str | None:
         """Upload log files as a separate log artifact. Returns artifact ID or None."""
         _, log_files = self._classify_output_files(output_dir)
-
-        if not log_files:
-            logger.debug("No log files to upload for job %s", job_id)
-            return None
-
-        logger.debug(
-            "Log files for job %s: %s",
-            job_id,
-            [f"{f.name} ({f.stat().st_size}b)" for f in log_files],
-        )
-
         residence = self._resolve_residence(processor, profile, kind="log")
-
-        try:
-            if residence == "posix":
-                return self._register_posix_artifact(
-                    job_id,
-                    output_dir,
-                    log_files,
-                    artifact_type="log",
-                    name_prefix="log",
-                )
-            else:
-                return self._upload_managed_artifact(
-                    job_id,
-                    log_files,
-                    artifact_type="log",
-                    name_prefix="log",
-                )
-        except Exception:
-            logger.exception("Failed to upload log artifacts for job %s", job_id)
-            return None
+        return self._upload_artifact(
+            job_id, log_files, output_dir, residence, "log", "log"
+        )
 
     def _register_posix_artifact(
         self,
@@ -519,16 +491,12 @@ class HpcDaemon:
             format_links(artifact.get("_links", {})),
         )
 
-        # Compute hashes and register file metadata before committing
-        # Tree hash: single file = file sha256; multi-file = SHA-256 of
-        # concatenated "path:sha256" strings sorted by path (matches Java)
-        file_hashes = []
-        total_size = 0
+        # Register individual file metadata
+        file_pairs: list[tuple[str, Path]] = []
         for f in sorted(output_files, key=lambda p: p.name):
             fhash = _sha256_file(f)
             fsize = f.stat().st_size
-            file_hashes.append((f.name, fhash))
-            total_size += fsize
+            file_pairs.append((f.name, f))
             content_type = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
             self.client.register_artifact_file(
                 artifact_id,
@@ -538,12 +506,7 @@ class HpcDaemon:
                 content_type=content_type,
             )
 
-        if len(file_hashes) == 1:
-            tree_hash = file_hashes[0][1]
-        else:
-            tree_str = "".join(f"{p}:{h}" for p, h in file_hashes)
-            tree_hash = hashlib.sha256(tree_str.encode()).hexdigest()
-
+        tree_hash, total_size = compute_tree_hash_from_paths(file_pairs)
         commit_result = self.client.commit_artifact(
             artifact_id,
             sha256=tree_hash,
@@ -591,13 +554,8 @@ class HpcDaemon:
             format_links(artifact.get("_links", {})),
         )
 
-        total_size = 0
-        file_hashes: list[tuple[str, str]] = []  # (path, sha256hex)
         for f in sorted(output_files, key=lambda p: p.name):
-            file_hash = _sha256_file(f)
             file_size = f.stat().st_size
-            file_hashes.append((f.name, file_hash))
-            total_size += file_size
             logger.debug(
                 "Uploading file %s (%d bytes) to artifact %s",
                 f.name,
@@ -611,14 +569,9 @@ class HpcDaemon:
                 size_bytes=file_size,
             )
 
-        # Tree hash: single file = file sha256; multi-file = SHA-256 of
-        # concatenated "path:sha256" strings sorted by path (matches Java)
-        if len(file_hashes) == 1:
-            tree_hash = file_hashes[0][1]
-        else:
-            tree_str = "".join(f"{p}:{h}" for p, h in file_hashes)
-            tree_hash = hashlib.sha256(tree_str.encode()).hexdigest()
-
+        tree_hash, total_size = compute_tree_hash_from_paths(
+            [(f.name, f) for f in sorted(output_files, key=lambda p: p.name)]
+        )
         commit_result = self.client.commit_artifact(
             artifact_id,
             sha256=tree_hash,
@@ -832,100 +785,101 @@ class HpcDaemon:
         for tracked in self.tracker.active_jobs():
             if not tracked.slurm_job_id:
                 continue
-
-            # Relay in-flight progress before checking for state changes
             self._check_progress_file(tracked)
+            self._process_job_status_change(tracked)
 
-            result = self._backend.query_status(tracked.slurm_job_id, tracked.status)
-            if result is None:
-                logger.debug(
-                    "Job %s (slurm %s): no status change from %s",
-                    tracked.emx2_job_id,
-                    tracked.slurm_job_id,
-                    tracked.status,
-                )
-                continue
-
-            new_status = result.hpc_status
-            info = result.slurm_info
-
+    def _process_job_status_change(self, tracked) -> None:
+        """Query Slurm for a single job and report any status change to EMX2."""
+        result = self._backend.query_status(tracked.slurm_job_id, tracked.status)
+        if result is None:
             logger.debug(
-                "Job %s (slurm %s): %s → %s",
+                "Job %s (slurm %s): no status change from %s",
                 tracked.emx2_job_id,
                 tracked.slurm_job_id,
                 tracked.status,
-                new_status,
             )
+            return
 
-            try:
-                # If the job skipped STARTED (fast jobs go PENDING→COMPLETED
-                # in Slurm before the daemon sees RUNNING), insert the
-                # intermediate transition that the EMX2 state machine requires.
-                if tracked.status == "SUBMITTED" and new_status in (
-                    "COMPLETED",
-                    "FAILED",
-                ):
-                    logger.info(
-                        "Job %s skipped STARTED (fast job), inserting intermediate transition",
-                        tracked.emx2_job_id,
-                    )
-                    self.client.transition_job(
-                        tracked.emx2_job_id,
-                        "STARTED",
-                        detail=f"slurm_state={info.state} (fast job, retroactive STARTED)",
-                    )
-                    tracked.status = "STARTED"
-                    self.tracker.update(tracked.emx2_job_id, status="STARTED")
+        new_status = result.hpc_status
+        info = result.slurm_info
 
-                detail = _build_slurm_detail(info)
-                output_artifact_id = None
-                log_artifact_id = None
+        logger.debug(
+            "Job %s (slurm %s): %s → %s",
+            tracked.emx2_job_id,
+            tracked.slurm_job_id,
+            tracked.status,
+            new_status,
+        )
 
-                # On completion or failure, upload artifacts
-                if new_status in ("COMPLETED", "FAILED") and tracked.output_dir:
-                    # Upload log artifact (useful on both success and failure)
-                    log_artifact_id = self._upload_log_artifact(
+        try:
+            # If the job skipped STARTED (fast jobs go PENDING→COMPLETED
+            # in Slurm before the daemon sees RUNNING), insert the
+            # intermediate transition that the EMX2 state machine requires.
+            if tracked.status == "SUBMITTED" and new_status in (
+                "COMPLETED",
+                "FAILED",
+            ):
+                logger.info(
+                    "Job %s skipped STARTED (fast job), inserting intermediate transition",
+                    tracked.emx2_job_id,
+                )
+                self.client.transition_job(
+                    tracked.emx2_job_id,
+                    "STARTED",
+                    detail=f"slurm_state={info.state} (fast job, retroactive STARTED)",
+                )
+                tracked.status = "STARTED"
+                self.tracker.update(tracked.emx2_job_id, status="STARTED")
+
+            detail = _build_slurm_detail(info)
+            output_artifact_id = None
+            log_artifact_id = None
+
+            # On completion or failure, upload artifacts
+            if new_status in ("COMPLETED", "FAILED") and tracked.output_dir:
+                # Upload log artifact (useful on both success and failure)
+                log_artifact_id = self._upload_log_artifact(
+                    tracked.emx2_job_id,
+                    tracked.output_dir,
+                    processor=tracked.processor,
+                    profile=tracked.profile,
+                )
+                if log_artifact_id:
+                    detail += f"; log_artifact={log_artifact_id}"
+
+                # Upload output artifacts (primarily on success)
+                if new_status == "COMPLETED":
+                    output_artifact_id = self._upload_output_artifacts(
                         tracked.emx2_job_id,
                         tracked.output_dir,
                         processor=tracked.processor,
                         profile=tracked.profile,
                     )
-                    if log_artifact_id:
-                        detail += f"; log_artifact={log_artifact_id}"
+                    if output_artifact_id:
+                        detail += f"; output_artifact={output_artifact_id}"
 
-                    # Upload output artifacts (primarily on success)
-                    if new_status == "COMPLETED":
-                        output_artifact_id = self._upload_output_artifacts(
-                            tracked.emx2_job_id,
-                            tracked.output_dir,
-                            processor=tracked.processor,
-                            profile=tracked.profile,
-                        )
-                        if output_artifact_id:
-                            detail += f"; output_artifact={output_artifact_id}"
+            self.client.transition_job(
+                tracked.emx2_job_id,
+                new_status,
+                detail=detail,
+                output_artifact_id=output_artifact_id,
+                log_artifact_id=log_artifact_id,
+            )
+            tracked.status = new_status
+            logger.info(
+                "Job %s transitioned to %s",
+                tracked.emx2_job_id,
+                new_status,
+            )
 
-                self.client.transition_job(
-                    tracked.emx2_job_id,
-                    new_status,
-                    detail=detail,
-                    output_artifact_id=output_artifact_id,
-                    log_artifact_id=log_artifact_id,
-                )
-                tracked.status = new_status
-                logger.info(
-                    "Job %s transitioned to %s",
-                    tracked.emx2_job_id,
-                    new_status,
-                )
+            # Remove from tracker if terminal
+            if new_status in TERMINAL_STATUSES:
+                self.tracker.remove(tracked.emx2_job_id)
 
-                # Remove from tracker if terminal
-                if new_status in TERMINAL_STATUSES:
-                    self.tracker.remove(tracked.emx2_job_id)
-
-            except Exception:
-                logger.exception(
-                    "Failed to report transition for job %s", tracked.emx2_job_id
-                )
+        except Exception:
+            logger.exception(
+                "Failed to report transition for job %s", tracked.emx2_job_id
+            )
 
     def _handle_shutdown(self, signum, frame) -> None:
         """Handle SIGTERM/SIGINT: stop accepting new jobs and exit gracefully.

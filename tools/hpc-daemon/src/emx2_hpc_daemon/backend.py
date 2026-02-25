@@ -6,7 +6,6 @@ keeping a single code path regardless of execution mode.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import shutil
@@ -16,6 +15,7 @@ from pathlib import Path
 
 from .client import HpcClient, format_links
 from .config import DaemonConfig
+from .hashing import compute_tree_hash_from_paths
 from .profiles import resolve_profile
 from .slurm import (
     SlurmJobInfo,
@@ -26,30 +26,6 @@ from .slurm import (
 )
 
 logger = logging.getLogger(__name__)
-_HASH_CHUNK_SIZE = 1024 * 1024
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        while True:
-            chunk = handle.read(_HASH_CHUNK_SIZE)
-            if not chunk:
-                break
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def _compute_tree_hash_from_paths(files: list[tuple[str, Path]]) -> str:
-    if not files:
-        raise ValueError("Cannot compute tree hash of empty file list")
-
-    sorted_files = sorted(files, key=lambda item: item[0])
-    if len(sorted_files) == 1:
-        return _sha256_file(sorted_files[0][1])
-
-    canonical = "".join(f"{rel}:{_sha256_file(path)}" for rel, path in sorted_files)
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 # Map Slurm states to EMX2 HPC job statuses
@@ -82,7 +58,7 @@ def _verify_artifact_hash(artifact: dict, artifact_dir: Path, artifact_id: str) 
     if not artifact_dir.is_dir():
         # Single file — check if it's a file directly
         if artifact_dir.is_file():
-            actual_hash = _compute_tree_hash_from_paths(
+            actual_hash, _ = compute_tree_hash_from_paths(
                 [(artifact_dir.name, artifact_dir)]
             )
         else:
@@ -107,7 +83,7 @@ def _verify_artifact_hash(artifact: dict, artifact_dir: Path, artifact_id: str) 
         for f in file_list:
             rel_path = str(f.relative_to(artifact_dir))
             pairs.append((rel_path, f))
-        actual_hash = _compute_tree_hash_from_paths(pairs)
+        actual_hash, _ = compute_tree_hash_from_paths(pairs)
 
     if actual_hash != expected_hash:
         raise ValueError(
