@@ -54,6 +54,17 @@ The `provision.sh` script installs these inside the VM (no host action needed):
 - [Chrony](https://chrony-project.org/) for time synchronisation (prevents MUNGE credential expiry in VMs)
 - The `emx2-hpc-daemon` package (installed via uv from the synced source)
 
+### Shared secret
+
+The tests authenticate to EMX2 using HMAC-SHA256. A shared secret must be
+configured in **both** places:
+
+1. **EMX2**: set the `MOLGENIS_HPC_SHARED_SECRET` database setting
+2. **File**: create `tools/hpc-daemon/.secret` containing the same secret
+
+The `.secret` file is read by both the host-side pytest fixtures and the
+VM-side daemon config (copied to `/etc/hpc-daemon/secret` during provisioning).
+
 ### Running EMX2
 
 A running EMX2 instance is required. Start it from the repo root:
@@ -77,20 +88,21 @@ make e2e
 
 This will:
 
-1. Start a QEMU VM via Vagrant and run `provision.sh`
+1. Start a QEMU VM via Vagrant and run `provision.sh` (including Slurm
+   smoke tests that verify the cluster works before installing the daemon)
 2. Sync the daemon source into the VM and install it
 3. Run the pytest suite against the EMX2 API on the host
 
 ## How it works
 
-1. **Bootstrap** (`conftest.py`): signs in to EMX2 as admin, sets the
-   `MOLGENIS_HPC_SHARED_SECRET` setting, and makes an HMAC-authenticated
-   request to trigger lazy initialisation of HPC tables.
+1. **Bootstrap** (`conftest.py`): reads the HMAC shared secret from
+   `tools/hpc-daemon/.secret`, verifies that HPC is enabled in EMX2, and
+   makes an authenticated request to trigger lazy initialisation of HPC tables.
 
 2. **Daemon** runs inside the VM as a cron job (every ~20s via the
    sleep-staggered cron trick). Each invocation runs a single
    `emx2-hpc-daemon once` cycle: register worker, recover in-flight jobs
-   from persistent state (TinyDB), poll for pending jobs, claim, submit to
+   from persistent state (SQLite), poll for pending jobs, claim, submit to
    Slurm, monitor running jobs, upload artifacts, report transitions.
 
 3. **Tests** submit jobs via the HPC API from the host, then poll the job
@@ -98,20 +110,25 @@ This will:
    cron) processes the jobs independently.
 
 4. **Job scripts** in `scripts/` are simple bash scripts that run inside
-   Slurm (no containers):
-   - `e2e_job.sh` -- writes `result.txt` with the job ID (happy path)
-   - `e2e_job_fail.sh` -- exits with code 1 (failure path)
-   - `e2e_job_slow.sh` -- sleeps, writes progress updates (cancellation path)
+   Slurm via the entrypoint execution mode (no containers):
+   - `e2e_job.sh` -- writes `result.txt` and `result.json` (happy path)
+   - `e2e_job_fail.sh` -- writes to stderr, exits with code 1 (failure path)
+   - `e2e_job_slow.sh` -- writes a marker then sleeps 90s (cancellation path)
+   - `e2e_job_posix.sh` -- writes `result.txt` + a 1MB `sample.bin` (posix artifact path)
 
 ## Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `EMX2_BASE_URL` | `http://localhost:8080` | URL of the running EMX2 instance (host-side) |
-| `HPC_SHARED_SECRET` | `e2e-test-secret-do-not-use-in-production` | HMAC shared secret (set in EMX2 by test bootstrap) |
 
 The VM's Vagrantfile translates `EMX2_BASE_URL` to `http://10.0.2.2:8080`
 (QEMU user-mode networking gateway) by default.
+
+The daemon config inside the VM (`/etc/hpc-daemon/daemon-config.yaml`) defines
+four profiles: `e2e-test:bash`, `e2e-test:fail`, `e2e-test:slow`, and
+`e2e-test:posix`. The first three use managed artifact residence; `posix` uses
+posix residence for both output and log artifacts.
 
 ## Makefile targets
 
@@ -130,10 +147,11 @@ The VM's Vagrantfile translates `EMX2_BASE_URL` to `http://10.0.2.2:8080`
 
 | File | What it tests |
 |------|---------------|
-| `test_01_worker.py` | Worker registration, capabilities, heartbeat |
-| `test_02_lifecycle.py` | Happy path: submit -> COMPLETED -> download artifacts |
+| `test_01_worker.py` | Worker registration, health endpoint, HMAC auth, heartbeat |
+| `test_02_lifecycle.py` | Happy path: submit -> COMPLETED -> download output + log artifacts |
 | `test_03_failure.py` | Job exits non-zero -> FAILED + log artifact uploaded |
-| `test_04_cancellation.py` | Cancel via API -> scancel propagation |
+| `test_04_cancellation.py` | Cancel via API -> Slurm scancel propagation |
+| `test_05_posix_artifacts.py` | Posix residence: file metadata registered, content_url set, no binary upload |
 
 ## Troubleshooting
 
@@ -167,20 +185,7 @@ cd vm && vagrant provision
 cd vm && vagrant destroy -f && vagrant up
 ```
 
-### Common issues
-
-**Node shows `idle*`**: slurmd lost contact with slurmctld. Check time
-sync (`chronyc tracking`) and MUNGE (`munge -n | unmunge`). Restart slurmd.
-
-**Jobs stuck in PENDING with `(InvalidAccount)`**: Slurm accounting is not
-set up. Verify `sacctmgr list assoc` shows the `vagrant` user with the
-`default` account. Re-provision if needed.
-
-**Jobs stuck in COMPLETING (CG)**: Usually caused by a UID mismatch
-(`SlurmUser` in `slurm.conf` must match the user running slurmctld).
-Clear spool state and restart:
-```bash
-sudo systemctl stop slurmctld slurmd
-sudo rm -f /var/spool/slurmctld/job_state* /var/spool/slurmctld/node_state*
-sudo systemctl start slurmctld slurmd
-```
+**Time sync issues**: QEMU VMs can boot with a wrong hardware clock.
+The provision script runs `chronyc makestep` but if MUNGE still rejects
+credentials, SSH in and run `sudo chronyc makestep` manually.
+`make test` also runs a clock step before each test run.
