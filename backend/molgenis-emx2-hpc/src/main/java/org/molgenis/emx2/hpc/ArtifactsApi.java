@@ -462,6 +462,15 @@ public class ArtifactsApi {
     response.put("created_at", artifact.getString("created_at"));
     response.put("committed_at", artifact.getString("committed_at"));
 
+    String metadataJson = artifact.getString("metadata");
+    if (metadataJson != null) {
+      try {
+        response.put("metadata", MAPPER.readValue(metadataJson, Map.class));
+      } catch (Exception e) {
+        response.put("metadata", metadataJson);
+      }
+    }
+
     ArtifactStatus status;
     try {
       status = ArtifactStatus.valueOf(artifact.getString("status"));

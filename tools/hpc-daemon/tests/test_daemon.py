@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -801,3 +802,146 @@ class TestBuildSlurmDetail:
         # SimulatedBackend returns exit_code="0:0" and reason="None",
         # so detail should be minimal but include slurm_state
         assert "slurm_state=COMPLETED" in kwargs["detail"]
+
+
+# ---------------------------------------------------------------------------
+# Provenance metadata tests
+# ---------------------------------------------------------------------------
+
+
+class TestProvenanceMetadata:
+    """Verify that artifact creation includes provenance metadata."""
+
+    def test_artifact_metadata_includes_provenance(self, sample_config, tmp_path: Path):
+        """create_artifact should receive metadata with job_id, processor,
+        profile, worker_id, and artifact_role."""
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        (output_dir / "result.csv").write_text("data")
+        (output_dir / "slurm-1.out").write_text("log")
+
+        daemon.tracker.track(
+            emx2_job_id="job-prov-001",
+            slurm_job_id="sim-prov-001",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+        )
+
+        daemon._monitor_running_jobs()
+
+        # Both output and log artifacts should include provenance
+        for call in mock_client.create_artifact.call_args_list:
+            meta = call.kwargs["metadata"]
+            assert meta["job_id"] == "job-prov-001"
+            assert meta["processor"] == "text-embedding"
+            assert meta["profile"] == "gpu-medium"
+            assert meta["worker_id"] == sample_config.emx2.worker_id
+            assert meta["artifact_role"] in ("output", "log")
+
+    def test_artifact_metadata_includes_submit_user(
+        self, sample_config, tmp_path: Path
+    ):
+        """When submit_user is tracked, it appears as created_by in metadata."""
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        (output_dir / "result.csv").write_text("data")
+
+        daemon.tracker.track(
+            emx2_job_id="job-prov-002",
+            slurm_job_id="sim-prov-002",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+            submit_user="alice",
+        )
+
+        daemon._monitor_running_jobs()
+
+        meta = mock_client.create_artifact.call_args_list[0].kwargs["metadata"]
+        assert meta["created_by"] == "alice"
+
+    def test_artifact_metadata_includes_input_artifacts(
+        self, sample_config, tmp_path: Path
+    ):
+        """When input_artifact_ids is tracked, it appears in metadata."""
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        (output_dir / "result.csv").write_text("data")
+
+        input_ids = json.dumps(["art-input-001", "art-input-002"])
+        daemon.tracker.track(
+            emx2_job_id="job-prov-003",
+            slurm_job_id="sim-prov-003",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+            input_artifact_ids=input_ids,
+        )
+
+        daemon._monitor_running_jobs()
+
+        meta = mock_client.create_artifact.call_args_list[0].kwargs["metadata"]
+        assert meta["input_artifact_ids"] == ["art-input-001", "art-input-002"]
+
+    def test_artifact_metadata_includes_parameters_hash(
+        self, sample_config, tmp_path: Path
+    ):
+        """When parameters_hash is tracked, it appears in metadata."""
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        (output_dir / "result.csv").write_text("data")
+
+        params_hash = hashlib.sha256(b'{"key":"value"}').hexdigest()
+        daemon.tracker.track(
+            emx2_job_id="job-prov-004",
+            slurm_job_id="sim-prov-004",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+            parameters_hash=params_hash,
+        )
+
+        daemon._monitor_running_jobs()
+
+        meta = mock_client.create_artifact.call_args_list[0].kwargs["metadata"]
+        assert meta["parameters_hash"] == params_hash
+
+    def test_compute_parameters_hash_deterministic(self):
+        """_compute_parameters_hash should produce consistent hashes."""
+        params = {"b": 2, "a": 1}
+        h1 = HpcDaemon._compute_parameters_hash(params)
+        h2 = HpcDaemon._compute_parameters_hash({"a": 1, "b": 2})
+        assert h1 == h2
+        assert h1 is not None
+
+    def test_compute_parameters_hash_none_for_empty(self):
+        assert HpcDaemon._compute_parameters_hash(None) is None
+        assert HpcDaemon._compute_parameters_hash({}) is None
+
+    def test_extract_input_artifact_ids(self):
+        # Dict inputs with id field
+        result = HpcDaemon._extract_input_artifact_ids(
+            [{"id": "a1"}, {"id": "a2"}]
+        )
+        assert json.loads(result) == ["a1", "a2"]
+
+        # String inputs
+        result = HpcDaemon._extract_input_artifact_ids(["a1", "a2"])
+        assert json.loads(result) == ["a1", "a2"]
+
+        # None / empty
+        assert HpcDaemon._extract_input_artifact_ids(None) is None
+        assert HpcDaemon._extract_input_artifact_ids([]) is None

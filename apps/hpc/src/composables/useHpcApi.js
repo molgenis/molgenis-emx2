@@ -316,6 +316,8 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
 
 /**
  * Fetch a single artifact with its files via GraphQL.
+ * Provenance (producing job, processor, worker) is read from the artifact's
+ * metadata field — no reverse FK lookups needed.
  * @param {string} artifactId
  */
 export async function fetchArtifactDetail(artifactId) {
@@ -333,44 +335,18 @@ export async function fetchArtifactDetail(artifactId) {
     ) {
       id path sha256 size_bytes content_type
     }
-    outputJobs: HpcJobs(
-      filter: { output_artifact_id: { id: { equals: ${idFilter} } } }
-      limit: 1
-    ) {
-      id processor profile
-      worker_id { worker_id hostname }
-    }
-    logJobs: HpcJobs(
-      filter: { log_artifact_id: { id: { equals: ${idFilter} } } }
-      limit: 1
-    ) {
-      id processor profile
-      worker_id { worker_id hostname }
-    }
   }`;
 
   try {
     const data = await request(GRAPHQL_URL, query);
     const artifact = data.HpcArtifacts?.[0];
-    const rawJob = data.outputJobs?.[0] || data.logJobs?.[0] || null;
-    const producingJob = rawJob
-      ? {
-          id: rawJob.id,
-          processor: rawJob.processor,
-          profile: rawJob.profile,
-          worker_id: rawJob.worker_id?.worker_id ?? rawJob.worker_id,
-          hostname: rawJob.worker_id?.hostname ?? null,
-          role: data.outputJobs?.[0] ? "output" : "log",
-        }
-      : null;
     return {
       artifact: artifact ? normalizeArtifact(artifact) : null,
       files: data.HpcArtifactFiles || [],
-      producingJob,
     };
   } catch (err) {
     if (isSchemaNotReady(err)) {
-      return { artifact: null, files: [], producingJob: null, schemaNotReady: true };
+      return { artifact: null, files: [], schemaNotReady: true };
     }
     throw err;
   }
@@ -515,12 +491,21 @@ function normalizeJob(job) {
   };
 }
 
-/** Flatten REF/ONTOLOGY objects for artifacts. */
+/** Flatten REF/ONTOLOGY objects for artifacts and parse metadata JSON. */
 function normalizeArtifact(artifact) {
+  let metadata = artifact.metadata;
+  if (typeof metadata === "string") {
+    try {
+      metadata = JSON.parse(metadata);
+    } catch {
+      // leave as string
+    }
+  }
   return {
     ...artifact,
     type: artifact.type,
     residence: artifact.residence?.name ?? artifact.residence,
     status: artifact.status?.name ?? artifact.status,
+    metadata,
   };
 }

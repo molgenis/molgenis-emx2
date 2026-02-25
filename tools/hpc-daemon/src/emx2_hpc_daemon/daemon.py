@@ -314,6 +314,27 @@ class HpcDaemon:
                 except Exception:
                     logger.exception("Failed to claim/submit job %s", job_id)
 
+    @staticmethod
+    def _compute_parameters_hash(parameters) -> str | None:
+        """Compute a SHA-256 hash of the job parameters for provenance tracking."""
+        if not parameters:
+            return None
+        raw = json.dumps(parameters, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(raw.encode()).hexdigest()
+
+    @staticmethod
+    def _extract_input_artifact_ids(inputs) -> str | None:
+        """Extract input artifact IDs as a JSON array string."""
+        if not inputs or not isinstance(inputs, list):
+            return None
+        ids = []
+        for item in inputs:
+            if isinstance(item, dict):
+                ids.append(item.get("id", str(item)))
+            else:
+                ids.append(str(item))
+        return json.dumps(ids)
+
     def _submit_job(self, job: dict) -> None:
         """Submit a job via the execution backend."""
         job_id = job["id"]
@@ -335,6 +356,13 @@ class HpcDaemon:
                 output_dir=result.output_dir,
                 processor=job.get("processor"),
                 profile=job.get("profile"),
+                submit_user=job.get("submit_user"),
+                input_artifact_ids=self._extract_input_artifact_ids(
+                    job.get("inputs")
+                ),
+                parameters_hash=self._compute_parameters_hash(
+                    job.get("parameters")
+                ),
             )
             self.client.transition_job(
                 job_id,
@@ -396,9 +424,26 @@ class HpcDaemon:
                 )
         return residence
 
+    def _build_provenance_metadata(self, tracked, artifact_type: str) -> dict:
+        """Build provenance metadata dict from tracked job state."""
+        meta: dict = {
+            "job_id": tracked.emx2_job_id,
+            "processor": tracked.processor,
+            "profile": tracked.profile,
+            "worker_id": self.config.emx2.worker_id,
+            "artifact_role": artifact_type,
+        }
+        if tracked.submit_user:
+            meta["created_by"] = tracked.submit_user
+        if tracked.input_artifact_ids:
+            meta["input_artifact_ids"] = json.loads(tracked.input_artifact_ids)
+        if tracked.parameters_hash:
+            meta["parameters_hash"] = tracked.parameters_hash
+        return meta
+
     def _upload_artifact(
         self,
-        job_id: str,
+        tracked,
         files: list[Path],
         output_dir: str,
         residence: str,
@@ -407,34 +452,38 @@ class HpcDaemon:
     ) -> str | None:
         """Upload files as an artifact. Returns artifact ID or None."""
         if not files:
-            logger.debug("No %s files to upload for job %s", name_prefix, job_id)
+            logger.debug("No %s files to upload for job %s", name_prefix, tracked.emx2_job_id)
             return None
 
         logger.debug(
             "Artifact files for job %s (%s): %s",
-            job_id,
+            tracked.emx2_job_id,
             name_prefix,
             [f"{f.name} ({f.stat().st_size}b)" for f in files],
         )
 
+        metadata = self._build_provenance_metadata(tracked, name_prefix)
+
         try:
             if residence == "posix":
                 return self._register_posix_artifact(
-                    job_id, output_dir, files, artifact_type, name_prefix
+                    tracked.emx2_job_id, output_dir, files, artifact_type, name_prefix,
+                    metadata=metadata,
                 )
             else:
                 return self._upload_managed_artifact(
-                    job_id, files, artifact_type, name_prefix
+                    tracked.emx2_job_id, files, artifact_type, name_prefix,
+                    metadata=metadata,
                 )
         except Exception:
             logger.exception(
-                "Failed to upload %s artifacts for job %s", name_prefix, job_id
+                "Failed to upload %s artifacts for job %s", name_prefix, tracked.emx2_job_id
             )
             return None
 
     def _upload_output_artifacts(
         self,
-        job_id: str,
+        tracked,
         output_dir: str,
         processor: str | None = None,
         profile: str | None = None,
@@ -443,12 +492,12 @@ class HpcDaemon:
         output_files, _ = self._classify_output_files(output_dir)
         residence = self._resolve_residence(processor, profile, kind="output")
         return self._upload_artifact(
-            job_id, output_files, output_dir, residence, "blob", "output"
+            tracked, output_files, output_dir, residence, "blob", "output"
         )
 
     def _upload_log_artifact(
         self,
-        job_id: str,
+        tracked,
         output_dir: str,
         processor: str | None = None,
         profile: str | None = None,
@@ -457,7 +506,7 @@ class HpcDaemon:
         _, log_files = self._classify_output_files(output_dir)
         residence = self._resolve_residence(processor, profile, kind="log")
         return self._upload_artifact(
-            job_id, log_files, output_dir, residence, "log", "log"
+            tracked, log_files, output_dir, residence, "log", "log"
         )
 
     def _register_posix_artifact(
@@ -467,6 +516,7 @@ class HpcDaemon:
         output_files: list[Path],
         artifact_type: str = "blob",
         name_prefix: str = "output",
+        metadata: dict | None = None,
     ) -> str:
         """Register a posix artifact with file metadata only (no binary upload)."""
         content_url = f"file://{output_dir}"
@@ -479,7 +529,7 @@ class HpcDaemon:
         artifact = self.client.create_artifact(
             artifact_type=artifact_type,
             residence="posix",
-            metadata={"job_id": job_id},
+            metadata=metadata or {"job_id": job_id},
             content_url=content_url,
             name=f"{name_prefix}-{job_id[:8]}",
         )
@@ -535,6 +585,7 @@ class HpcDaemon:
         output_files: list[Path],
         artifact_type: str = "blob",
         name_prefix: str = "output",
+        metadata: dict | None = None,
     ) -> str:
         """Upload output files as a managed artifact with binary content."""
         logger.debug(
@@ -545,7 +596,7 @@ class HpcDaemon:
         artifact = self.client.create_artifact(
             artifact_type=artifact_type,
             residence="managed",
-            metadata={"job_id": job_id},
+            metadata=metadata or {"job_id": job_id},
             name=f"{name_prefix}-{job_id[:8]}",
         )
         artifact_id = artifact["id"]
@@ -877,7 +928,7 @@ class HpcDaemon:
         # Phase 1: Upload log artifact (skip if already recorded)
         if tracked.log_artifact_id is None and tracked.output_dir:
             log_artifact_id = self._upload_log_artifact(
-                tracked.emx2_job_id,
+                tracked,
                 tracked.output_dir,
                 processor=tracked.processor,
                 profile=tracked.profile,
@@ -897,7 +948,7 @@ class HpcDaemon:
         output_artifact_id = tracked.output_artifact_id
         if output_artifact_id is None and new_status == "COMPLETED" and tracked.output_dir:
             output_artifact_id = self._upload_output_artifacts(
-                tracked.emx2_job_id,
+                tracked,
                 tracked.output_dir,
                 processor=tracked.processor,
                 profile=tracked.profile,
