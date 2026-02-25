@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Privileges;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.hpc.protocol.HmacVerifier;
 import org.molgenis.emx2.hpc.protocol.HpcHeaders;
 import org.molgenis.emx2.hpc.protocol.ProblemDetail;
@@ -110,13 +112,16 @@ public class HpcApi {
           String authHeader = ctx.header("Authorization");
           String tokenHeader = ctx.header("x-molgenis-token");
           if (authHeader != null && !authHeader.isBlank()) {
-            // HMAC authentication (daemon)
+            // HMAC authentication (daemon — full access, no privilege check needed)
             if (hpc.hmacVerifier() != null) {
               verifyHmac(ctx, hpc.hmacVerifier());
             }
+            ctx.attribute("hpcAuthMethod", "HMAC");
           } else if (tokenHeader != null && !tokenHeader.isBlank()) {
             // JWT token authentication
-            verifyToken(ctx, database, tokenHeader);
+            String user = verifyToken(ctx, database, tokenHeader);
+            ctx.attribute("hpcAuthMethod", "USER");
+            ctx.attribute("hpcAuthUser", user);
           } else {
             // Session-based authentication (browser UI)
             String sessionUser = null;
@@ -134,29 +139,41 @@ public class HpcApi {
                   ctx.header(HpcHeaders.REQUEST_ID));
               throw new io.javalin.http.UnauthorizedResponse("Missing authentication credentials");
             }
+            ctx.attribute("hpcAuthMethod", "USER");
+            ctx.attribute("hpcAuthUser", sessionUser);
             logger.debug("HPC session auth: user '{}'", sessionUser);
+          }
+
+          // Resolve effective privilege for user-authenticated requests
+          if ("USER".equals(ctx.attribute("hpcAuthMethod"))) {
+            String username = ctx.attribute("hpcAuthUser");
+            Privileges privilege = resolveEffectivePrivilege(database, username);
+            ctx.attribute("hpcPrivilege", privilege);
           }
         });
 
     // Health endpoint (exempt from auth, always available)
     app.get("/api/hpc/health", ctx -> healthCheck(ctx, database, hpcContext.get() != null));
 
-    // Worker endpoints
+    // Worker endpoints (MANAGER — daemon operations)
     app.post(
         "/api/hpc/workers/register",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.workersApi().register(ctx);
         });
     app.delete(
         "/api/hpc/workers/{id}",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.workersApi().deleteWorker(ctx);
         });
     app.post(
         "/api/hpc/workers/{id}/heartbeat",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           String wid = ctx.pathParam("id");
           hpc.workerService().heartbeat(wid);
@@ -167,6 +184,7 @@ public class HpcApi {
     app.post(
         "/api/hpc/jobs",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.jobsApi().createJob(ctx);
         });
@@ -185,24 +203,28 @@ public class HpcApi {
     app.delete(
         "/api/hpc/jobs/{id}",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.jobsApi().deleteJob(ctx);
         });
     app.post(
         "/api/hpc/jobs/{id}/claim",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.jobsApi().claimJob(ctx);
         });
     app.post(
         "/api/hpc/jobs/{id}/transition",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.jobsApi().transitionJob(ctx);
         });
     app.post(
         "/api/hpc/jobs/{id}/cancel",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.jobsApi().cancelJob(ctx);
         });
@@ -217,6 +239,7 @@ public class HpcApi {
     app.post(
         "/api/hpc/artifacts",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.artifactsApi().createArtifact(ctx);
         });
@@ -229,12 +252,14 @@ public class HpcApi {
     app.delete(
         "/api/hpc/artifacts/{id}",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.artifactsApi().deleteArtifact(ctx);
         });
     app.post(
         "/api/hpc/artifacts/{id}/files",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.artifactsApi().uploadFile(ctx);
         });
@@ -247,6 +272,7 @@ public class HpcApi {
     app.put(
         "/api/hpc/artifacts/{id}/files/{path}",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.artifactsApi().uploadFileByPath(ctx);
         });
@@ -265,12 +291,14 @@ public class HpcApi {
     app.delete(
         "/api/hpc/artifacts/{id}/files/{path}",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.MANAGER)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.artifactsApi().deleteFile(ctx);
         });
     app.post(
         "/api/hpc/artifacts/{id}/commit",
         ctx -> {
+          if (!requireHpcPrivilege(ctx, Privileges.EDITOR)) return;
           HpcContext hpc = ctx.attribute("hpcContext");
           hpc.artifactsApi().commitArtifact(ctx);
         });
@@ -330,10 +358,11 @@ public class HpcApi {
         artifactsApi);
   }
 
-  private static void verifyToken(Context ctx, SqlDatabase database, String token) {
+  private static String verifyToken(Context ctx, SqlDatabase database, String token) {
     try {
       String user = JWTgenerator.getUserFromToken(database, token);
       logger.debug("HPC JWT auth: authenticated as user '{}'", user);
+      return user;
     } catch (MolgenisException e) {
       logger.warn("HPC JWT auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip());
       ProblemDetail.send(
@@ -365,6 +394,67 @@ public class HpcApi {
           ctx, 401, "Unauthorized", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
       throw new io.javalin.http.UnauthorizedResponse(e.getMessage());
     }
+  }
+
+  /**
+   * Checks that the current request has at least the required privilege level. HMAC-authenticated
+   * requests (daemon) always pass. For user-authenticated requests, compares the resolved privilege
+   * (stored by the before-handler) against the required level. Returns false and sends a 403
+   * ProblemDetail if the check fails.
+   */
+  static boolean requireHpcPrivilege(Context ctx, Privileges required) {
+    if ("HMAC".equals(ctx.attribute("hpcAuthMethod"))) {
+      return true;
+    }
+    Privileges effective = ctx.attribute("hpcPrivilege");
+    if (effective != null && effective.ordinal() >= required.ordinal()) {
+      return true;
+    }
+    ProblemDetail.send(
+        ctx,
+        403,
+        "Forbidden",
+        "Requires " + required + " privilege on HPC resources",
+        ctx.header(HpcHeaders.REQUEST_ID));
+    return false;
+  }
+
+  /**
+   * Resolves the effective privilege for a user on the system schema. Admin users get OWNER (full
+   * access). Users with an explicit role on _SYSTEM_ get that role. Authenticated users without an
+   * explicit role default to VIEWER (read-only).
+   */
+  private static Privileges resolveEffectivePrivilege(SqlDatabase database, String username) {
+    if (username == null) {
+      return Privileges.VIEWER;
+    }
+    Privileges[] result = {Privileges.VIEWER};
+    database.tx(
+        db -> {
+          db.setActiveUser(username);
+          if (db.isAdmin()) {
+            result[0] = Privileges.OWNER;
+            return;
+          }
+          try {
+            Schema schema = db.getSchema(SYSTEM_SCHEMA);
+            if (schema != null) {
+              String role = schema.getRoleForActiveUser();
+              if (role != null) {
+                for (Privileges p : Privileges.values()) {
+                  if (p.toString().equalsIgnoreCase(role)) {
+                    result[0] = p;
+                    return;
+                  }
+                }
+              }
+            }
+          } catch (Exception e) {
+            // User has no access to system schema — default VIEWER
+            logger.debug("Could not resolve role for user '{}': {}", username, e.getMessage());
+          }
+        });
+    return result[0];
   }
 
   private static void healthCheck(Context ctx, SqlDatabase database, boolean hpcEnabled) {

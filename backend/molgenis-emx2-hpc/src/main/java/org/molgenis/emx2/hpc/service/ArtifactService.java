@@ -373,6 +373,8 @@ public class ArtifactService {
       Long sizeBytes,
       String contentType,
       BinaryFileWrapper content) {
+    // Defense-in-depth: validate path even if API layer already did
+    InputValidator.validateFilePath(path, "path");
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);

@@ -225,9 +225,11 @@ public class ArtifactsApi {
         contentType = (String) body.get("content_type");
       }
 
-      if (path == null || path.isBlank()) {
+      try {
+        InputValidator.validateFilePath(path, "path");
+      } catch (IllegalArgumentException e) {
         ProblemDetail.send(
-            ctx, 400, "Bad Request", "path is required", ctx.header(HpcHeaders.REQUEST_ID));
+            ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
         return;
       }
 
@@ -314,9 +316,11 @@ public class ArtifactsApi {
           ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
       return;
     }
-    if (filePath == null || filePath.isBlank()) {
+    try {
+      InputValidator.validateFilePath(filePath, "path");
+    } catch (IllegalArgumentException e) {
       ProblemDetail.send(
-          ctx, 400, "Bad Request", "file path is required", ctx.header(HpcHeaders.REQUEST_ID));
+          ctx, 400, "Bad Request", e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
       return;
     }
     File tempFile = null;

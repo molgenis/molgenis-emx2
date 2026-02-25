@@ -136,4 +136,70 @@ class InputValidatorTest {
     assertDoesNotThrow(() -> InputValidator.validateContentUrl(null, null));
     assertDoesNotThrow(() -> InputValidator.validateContentUrl("anything", "managed"));
   }
+
+  // --- validateFilePath ---
+
+  @Test
+  void filePathAcceptsSimpleName() {
+    assertDoesNotThrow(() -> InputValidator.validateFilePath("result.txt", "path"));
+  }
+
+  @Test
+  void filePathAcceptsNestedPath() {
+    assertDoesNotThrow(() -> InputValidator.validateFilePath("output/data/result.json", "path"));
+  }
+
+  @Test
+  void filePathRejectsNull() {
+    assertThrows(
+        IllegalArgumentException.class, () -> InputValidator.validateFilePath(null, "path"));
+  }
+
+  @Test
+  void filePathRejectsBlank() {
+    assertThrows(
+        IllegalArgumentException.class, () -> InputValidator.validateFilePath("  ", "path"));
+  }
+
+  @Test
+  void filePathRejectsAbsolute() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateFilePath("/etc/shadow", "path"));
+  }
+
+  @Test
+  void filePathRejectsBackslashAbsolute() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateFilePath("\\windows\\system32", "path"));
+  }
+
+  @Test
+  void filePathRejectsTraversal() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateFilePath("../../etc/shadow", "path"));
+  }
+
+  @Test
+  void filePathRejectsMiddleTraversal() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateFilePath("output/../../../etc/passwd", "path"));
+  }
+
+  @Test
+  void filePathRejectsNullBytes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> InputValidator.validateFilePath("result\0.txt", "path"));
+  }
+
+  @Test
+  void filePathRejectsTooLong() {
+    String longPath = "x".repeat(1025);
+    assertThrows(
+        IllegalArgumentException.class, () -> InputValidator.validateFilePath(longPath, "path"));
+  }
 }

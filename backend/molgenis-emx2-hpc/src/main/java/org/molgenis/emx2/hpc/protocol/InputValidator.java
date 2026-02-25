@@ -53,6 +53,33 @@ public final class InputValidator {
   }
 
   /**
+   * Validates an artifact file path. Rejects paths that are absolute, contain traversal segments
+   * ({@code ..}), null bytes, or exceed the maximum length. Mirrors the defense in {@link
+   * #validateContentUrl} for the file upload path.
+   */
+  public static void validateFilePath(String path, String fieldName) {
+    if (path == null || path.isBlank()) {
+      throw new IllegalArgumentException(fieldName + " is required");
+    }
+    if (path.length() > MAX_STRING_LENGTH) {
+      throw new IllegalArgumentException(
+          fieldName + " must be at most " + MAX_STRING_LENGTH + " characters");
+    }
+    if (path.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException(fieldName + " must not contain null bytes");
+    }
+    if (path.startsWith("/") || path.startsWith("\\")) {
+      throw new IllegalArgumentException(fieldName + " must be a relative path");
+    }
+    for (String segment : path.replace('\\', '/').split("/")) {
+      if ("..".equals(segment)) {
+        throw new IllegalArgumentException(
+            fieldName + " must not contain path traversal (..) segments");
+      }
+    }
+  }
+
+  /**
    * Validates content_url for posix artifacts. For posix residence, requires a {@code file://}
    * scheme pointing to an absolute path with no traversal ({@code ..}) segments or null bytes.
    */
