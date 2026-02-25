@@ -36,8 +36,10 @@ export default function useForm(
   }
 
   const formValues = ref(unref(formValuesRef));
-
   const scrollContainerId = ref("");
+
+  const dirtyFields = ref<Set<columnId>>(new Set());
+  const blurredFields = ref<Set<columnId>>(new Set());
 
   function getScrollContainerId() {
     return scrollContainerId;
@@ -369,6 +371,17 @@ export default function useForm(
     }
   };
 
+  watch(requiredFields, (_, oldRequiredFields) => {
+    oldRequiredFields.forEach((column) => {
+      if (
+        dirtyFields.value.has(column.id) ||
+        blurredFields.value.has(column.id)
+      ) {
+        validateColumn(column);
+      }
+    });
+  });
+
   const gotoPreviousError = () => {
     const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
@@ -461,10 +474,12 @@ export default function useForm(
   };
 
   const onBlurColumn = (column: IColumn) => {
+    blurredFields.value.add(column.id);
     validateColumn(column);
   };
 
   const onUpdateColumn = (column: IColumn) => {
+    dirtyFields.value.add(column.id);
     //only update error map if error already shown so it is removed
     if (errorMap.value[column.id]) {
       validateColumn(column);
@@ -502,6 +517,7 @@ export default function useForm(
     const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
       visibleColIds.includes(key)
     );
+    requiredFields.value.forEach((column) => {});
     return Object.fromEntries(visibleErrors);
   });
 
