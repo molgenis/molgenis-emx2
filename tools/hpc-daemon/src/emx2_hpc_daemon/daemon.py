@@ -29,7 +29,7 @@ from pathlib import Path
 from .backend import ExecutionBackend, SimulatedBackend, SlurmBackend
 from .client import ClaimConflict, HpcClient, format_links
 from .config import DaemonConfig
-from .hashing import _sha256_file, compute_tree_hash_from_paths
+from .hashing import _sha256_file, compute_tree_hash_from_hashes
 from .profiles import derive_capabilities, resolve_profile
 from .slurm import SlurmJobInfo
 from .tracker import JobTracker
@@ -491,12 +491,14 @@ class HpcDaemon:
             format_links(artifact.get("_links", {})),
         )
 
-        # Register individual file metadata
-        file_pairs: list[tuple[str, Path]] = []
+        # Register individual file metadata and collect hashes
+        file_hashes: list[tuple[str, str]] = []
+        total_size = 0
         for f in sorted(output_files, key=lambda p: p.name):
             fhash = _sha256_file(f)
             fsize = f.stat().st_size
-            file_pairs.append((f.name, f))
+            file_hashes.append((f.name, fhash))
+            total_size += fsize
             content_type = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
             self.client.register_artifact_file(
                 artifact_id,
@@ -506,7 +508,7 @@ class HpcDaemon:
                 content_type=content_type,
             )
 
-        tree_hash, total_size = compute_tree_hash_from_paths(file_pairs)
+        tree_hash = compute_tree_hash_from_hashes(file_hashes)
         commit_result = self.client.commit_artifact(
             artifact_id,
             sha256=tree_hash,
@@ -554,8 +556,13 @@ class HpcDaemon:
             format_links(artifact.get("_links", {})),
         )
 
+        file_hashes: list[tuple[str, str]] = []
+        total_size = 0
         for f in sorted(output_files, key=lambda p: p.name):
+            file_hash = _sha256_file(f)
             file_size = f.stat().st_size
+            file_hashes.append((f.name, file_hash))
+            total_size += file_size
             logger.debug(
                 "Uploading file %s (%d bytes) to artifact %s",
                 f.name,
@@ -569,9 +576,7 @@ class HpcDaemon:
                 size_bytes=file_size,
             )
 
-        tree_hash, total_size = compute_tree_hash_from_paths(
-            [(f.name, f) for f in sorted(output_files, key=lambda p: p.name)]
-        )
+        tree_hash = compute_tree_hash_from_hashes(file_hashes)
         commit_result = self.client.commit_artifact(
             artifact_id,
             sha256=tree_hash,

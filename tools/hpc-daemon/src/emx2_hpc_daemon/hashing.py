@@ -50,6 +50,27 @@ def compute_tree_hash(files: list[tuple[str, bytes]]) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def compute_tree_hash_from_hashes(file_hashes: list[tuple[str, str]]) -> str:
+    """Compute the tree hash from pre-computed per-file SHA-256 hex digests.
+
+    Args:
+        file_hashes: list of (relative_path, sha256_hex) pairs.
+
+    Returns:
+        Hex-encoded SHA-256 tree hash.
+    """
+    if not file_hashes:
+        raise ValueError("Cannot compute tree hash of empty file list")
+
+    sorted_hashes = sorted(file_hashes, key=lambda item: item[0])
+
+    if len(sorted_hashes) == 1:
+        return sorted_hashes[0][1]
+
+    canonical = "".join(f"{p}:{h}" for p, h in sorted_hashes)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def compute_tree_hash_from_paths(files: list[tuple[str, Path]]) -> tuple[str, int]:
     """Compute the tree hash for files on disk.
 
@@ -71,10 +92,4 @@ def compute_tree_hash_from_paths(files: list[tuple[str, Path]]) -> tuple[str, in
         total_size += file_path.stat().st_size
         file_hashes.append((rel_path, fhash))
 
-    if len(file_hashes) == 1:
-        tree_hash = file_hashes[0][1]
-    else:
-        canonical = "".join(f"{p}:{h}" for p, h in file_hashes)
-        tree_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
-    return tree_hash, total_size
+    return compute_tree_hash_from_hashes(file_hashes), total_size
