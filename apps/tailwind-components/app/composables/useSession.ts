@@ -1,5 +1,5 @@
 import { useAsyncData } from "#app/composables/asyncData";
-import { computed, onUnmounted, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 import { useRoute, useRouter } from "#app/composables/router";
 import type { ISession } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
@@ -9,7 +9,8 @@ export const useSession = async () => {
   const route = useRoute();
   const router = useRouter();
   const schemaId = route.params.schema as string | null;
-  const session = useState("session", () => null as ISession | null);
+  const sessionKey = schemaId ? `session_${schemaId}` : "session";
+  const session = useState(sessionKey, () => null as ISession | null);
 
   let messageHandler: ((event: MessageEvent) => void) | null = null;
 
