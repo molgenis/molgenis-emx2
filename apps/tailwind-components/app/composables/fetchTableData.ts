@@ -1,6 +1,6 @@
 import { createError } from "#app";
 import { fetchMetadata } from "#imports";
-import type { columnValue } from "../../../metadata-utils/src/types";
+import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 
 export interface ITableDataResponse {
@@ -23,7 +23,12 @@ export default async (
     ? ',search:"' + properties?.searchTerms.trim() + '"'
     : "";
 
-  const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
+  const columnIds: string = await getColumnIds(
+    schemaId,
+    tableId,
+    expandLevel,
+    properties?.columns
+  );
   const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -65,16 +70,18 @@ export const getColumnIds = async (
   tableId: string,
   //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
+  columns?: IColumn[],
   //rootLevel
   rootLevel = true
 ) => {
   const metadata = await fetchMetadata(schemaId);
 
-  const columns =
-    metadata.tables.find((table) => table.id === tableId)?.columns || [];
+  const local = columns?.length
+    ? columns
+    : metadata.tables.find((table) => table.id === tableId)?.columns || [];
 
   let gqlFields = "";
-  for (const col of columns) {
+  for (const col of local) {
     //we always expand the subfields of key, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key) {
       if (
@@ -109,6 +116,7 @@ export const getColumnIds = async (
             col.refTableId || tableId,
             //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
             expandLevel - 1,
+            undefined,
             false
           )) +
           " }";

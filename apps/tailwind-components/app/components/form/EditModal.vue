@@ -158,6 +158,7 @@ import Form from "./Form.vue";
 import FormLegend from "./Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
+import fetchColumnValues from "~/composables/fetchColumnValues";
 
 const props = withDefaults(
   defineProps<{
@@ -323,17 +324,22 @@ function reAuthenticate() {
 }
 
 async function updateAutoIds() {
-  const autoIds = props.metadata.columns
-    .filter((col) => col.columnType === "AUTO_ID")
-    .map((col) => col.id);
+  const autoIds = props.metadata.columns.filter(
+    (col) => col.columnType === "AUTO_ID"
+  );
   if (autoIds.length) {
     const rowId = await fetchRowPrimaryKey(
       formValues.value,
       tableId.value,
       props.schemaId
     );
-    const row = await fetchRowData(props.schemaId, tableId.value, rowId);
-    autoIds.forEach((id) => (formValues.value[id] = row[id]));
+    const values = await fetchColumnValues(
+      props.schemaId,
+      tableId.value,
+      rowId,
+      autoIds
+    );
+    autoIds.forEach((col) => (formValues.value[col.id] = values[col.id]));
   }
 }
 </script>
