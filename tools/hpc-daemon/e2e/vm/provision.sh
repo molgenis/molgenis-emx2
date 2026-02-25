@@ -11,6 +11,10 @@ apt-get install -y -qq slurm-wlm slurmdbd munge curl chrony mariadb-server
 echo "=== Configuring time sync ==="
 systemctl enable chrony
 systemctl restart chrony
+# QEMU VMs can boot with a wildly wrong hardware clock (unlike KVM which
+# passes through the host clock). Force an immediate step correction.
+sleep 2
+chronyc makestep
 for i in $(seq 1 10); do
     if chronyc waitsync 1 0.1 0 0 &>/dev/null; then
         echo "Time synchronized."
@@ -18,6 +22,7 @@ for i in $(seq 1 10); do
     fi
     sleep 1
 done
+echo "VM time: $(date -u)"
 
 echo "=== Installing uv (system-wide) ==="
 if ! command -v uv &>/dev/null; then
