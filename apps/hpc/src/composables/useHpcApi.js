@@ -318,8 +318,9 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
  * @param {string} artifactId
  */
 export async function fetchArtifactDetail(artifactId) {
+  const idFilter = gqlString(artifactId);
   const query = `{
-    HpcArtifacts(filter: { id: { equals: ${gqlString(artifactId)} } }) {
+    HpcArtifacts(filter: { id: { equals: ${idFilter} } }) {
       id name type
       residence { name }
       status { name }
@@ -327,22 +328,48 @@ export async function fetchArtifactDetail(artifactId) {
       created_at committed_at
     }
     HpcArtifactFiles(
-      filter: { artifact_id: { id: { equals: ${gqlString(artifactId)} } } }
+      filter: { artifact_id: { id: { equals: ${idFilter} } } }
     ) {
       id path sha256 size_bytes content_type
+    }
+    outputJobs: HpcJobs(
+      filter: { output_artifact_id: { id: { equals: ${idFilter} } } }
+      limit: 1
+    ) {
+      id processor profile
+      worker_id { worker_id hostname }
+    }
+    logJobs: HpcJobs(
+      filter: { log_artifact_id: { id: { equals: ${idFilter} } } }
+      limit: 1
+    ) {
+      id processor profile
+      worker_id { worker_id hostname }
     }
   }`;
 
   try {
     const data = await request(GRAPHQL_URL, query);
     const artifact = data.HpcArtifacts?.[0];
+    const rawJob = data.outputJobs?.[0] || data.logJobs?.[0] || null;
+    const producingJob = rawJob
+      ? {
+          id: rawJob.id,
+          processor: rawJob.processor,
+          profile: rawJob.profile,
+          worker_id: rawJob.worker_id?.worker_id ?? rawJob.worker_id,
+          hostname: rawJob.worker_id?.hostname ?? null,
+          role: data.outputJobs?.[0] ? "output" : "log",
+        }
+      : null;
     return {
       artifact: artifact ? normalizeArtifact(artifact) : null,
       files: data.HpcArtifactFiles || [],
+      producingJob,
     };
   } catch (err) {
     if (isSchemaNotReady(err)) {
-      return { artifact: null, files: [], schemaNotReady: true };
+      return { artifact: null, files: [], producingJob: null, schemaNotReady: true };
     }
     throw err;
   }

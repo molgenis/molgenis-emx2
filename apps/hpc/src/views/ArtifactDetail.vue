@@ -48,6 +48,22 @@
               </dl>
             </div>
           </div>
+          <div v-if="producingJob" class="mb-3">
+            <strong>Producing Job</strong>
+            <dl class="mt-1 mb-0">
+              <dt>Job</dt>
+              <dd>
+                <router-link :to="`/jobs/${producingJob.id}`">
+                  <code>{{ producingJob.id?.substring(0, 8) }}</code>
+                </router-link>
+                ({{ producingJob.role }} artifact)
+              </dd>
+              <dt>Processor / Profile</dt>
+              <dd>{{ producingJob.processor }}{{ producingJob.profile ? ` / ${producingJob.profile}` : "" }}</dd>
+              <dt>Worker</dt>
+              <dd>{{ producingJob.worker_id || "-" }}{{ producingJob.hostname ? ` (${producingJob.hostname})` : "" }}</dd>
+            </dl>
+          </div>
           <div v-if="artifact.metadata" class="mb-3">
             <strong>Metadata</strong>
             <pre class="bg-light p-2 rounded mt-1"><code>{{ formatJson(artifact.metadata) }}</code></pre>
@@ -83,7 +99,7 @@
                     Download
                   </button>
                   <span v-else-if="artifact.residence === 'posix'" class="text-muted small">
-                    {{ artifact.content_url }}/{{ f.path }}
+                    <span v-if="producingJob?.hostname" :title="`Worker: ${producingJob.worker_id}`">{{ producingJob.hostname }}:</span>{{ artifact.content_url }}/{{ f.path }}
                   </span>
                 </td>
               </tr>
@@ -114,6 +130,7 @@ const props = defineProps({
 const router = useRouter();
 const artifact = ref(null);
 const files = ref([]);
+const producingJob = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const deleting = ref(false);
@@ -164,6 +181,7 @@ onMounted(async () => {
     const result = await fetchArtifactDetail(props.id);
     artifact.value = result.artifact;
     files.value = result.files;
+    producingJob.value = result.producingJob;
   } catch (e) {
     error.value = e.message;
   } finally {
