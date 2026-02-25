@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
+
+import { groups } from "d3";
+const d3 = { groups };
+
 import {
   DashboardRow,
   DashboardChart,
   GroupedColumnChart,
+  DataTable,
   LoadingScreen,
   // @ts-expect-error
 } from "molgenis-viz";
@@ -26,6 +31,13 @@ const geneticDiagnosisTypeChart = ref<ICharts>();
 const geneticDiagnosisGenesChart = ref<ICharts>();
 const etiologyChart = ref<ICharts>();
 const syndromicClassifcationChart = ref<ICharts>();
+
+interface GenesSummaryData {
+  Gene: string;
+  "Count your center": number;
+  "Count ERN": number;
+}
+const genesTableData = ref<GenesSummaryData[]>();
 
 const colorPalette = {
   ERN: "#B98DAF", // "#9f6491",
@@ -125,19 +137,22 @@ onMounted(async () => {
   }
 
   // prep genetic diagnosis gene
-  const geneAxis = generateAxisTickData(
-    geneticDiagnosisGenesChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
-  );
-  if (geneticDiagnosisGenesChart.value) {
-    geneticDiagnosisGenesChart.value.yAxisMaxValue = geneAxis.limit;
-    geneticDiagnosisGenesChart.value.yAxisTicks = geneAxis.ticks;
-
-    geneticDiagnosisGenesChart.value.dataPoints =
-      geneticDiagnosisGenesChart.value.dataPoints?.sort((a, b) =>
-        (a.dataPointName as string).localeCompare(b.dataPointName as string)
-      );
-  }
+  genesTableData.value = d3
+    .groups(
+      geneticDiagnosisGenesChart.value.dataPoints,
+      (row) => row.dataPointName,
+      (row) => row.dataPointSecondaryCategory
+    )
+    .map(([group, subgroup]) => {
+      return {
+        Gene: group,
+        ...Object.fromEntries(
+          subgroup.map(([entry, value]) => {
+            return [`Count ${entry}`, value[0].dataPointValue];
+          })
+        ),
+      };
+    }) as GenesSummaryData[];
 
   // prep genetic diagnosis type
   const dxTypeAxis = generateAxisTickData(
@@ -291,29 +306,11 @@ onMounted(async () => {
     <DashboardRow :columns="1">
       <DashboardChart>
         <LoadingScreen v-if="loading" style="height: 250px" />
-        <GroupedColumnChart
-          v-else
-          :chartId="geneticDiagnosisGenesChart?.chartId"
-          :title="geneticDiagnosisGenesChart?.chartTitle"
-          :description="geneticDiagnosisGenesChart?.chartSubtitle"
-          :chartData="geneticDiagnosisGenesChart?.dataPoints"
-          xvar="dataPointSecondaryCategory"
-          yvar="dataPointValue"
-          group="dataPointName"
-          :xAxisLabel="geneticDiagnosisGenesChart?.xAxisLabel"
-          :yAxisLabel="geneticDiagnosisGenesChart?.yAxisLabel"
-          :yMin="0"
-          :yMax="geneticDiagnosisGenesChart?.yAxisMaxValue"
-          :yTickValues="geneticDiagnosisGenesChart?.yAxisTicks"
-          :columnColorPalette="colorPalette"
-          columnHoverFill="#EE7032"
-          :chartHeight="250"
-          :chartMargins="{
-            top: geneticDiagnosisGenesChart?.topMargin,
-            right: geneticDiagnosisGenesChart?.rightMargin,
-            bottom: geneticDiagnosisGenesChart?.bottomMargin,
-            left: geneticDiagnosisGenesChart?.leftMargin,
-          }"
+        <DataTable
+          :tableId="geneticDiagnosisGenesChart?.chartId"
+          :caption="geneticDiagnosisGenesChart?.chartTitle"
+          :data="genesTableData"
+          :columnOrder="['Gene', 'Count Your center', 'Count ERN']"
         />
       </DashboardChart>
     </DashboardRow>
