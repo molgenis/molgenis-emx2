@@ -327,11 +327,12 @@ async function updateAutoIds() {
     .filter((col) => col.columnType === "AUTO_ID")
     .map((col) => col.id);
   if (autoIds.length) {
-    const row = await fetchRowData(
-      props.schemaId,
+    const rowId = await fetchRowPrimaryKey(
+      formValues.value,
       tableId.value,
-      await fetchRowPrimaryKey(formValues.value, tableId.value, props.schemaId)
+      props.schemaId
     );
+    const row = await fetchRowData(props.schemaId, tableId.value, rowId);
     autoIds.forEach((id) => (formValues.value[id] = row[id]));
   }
 }
