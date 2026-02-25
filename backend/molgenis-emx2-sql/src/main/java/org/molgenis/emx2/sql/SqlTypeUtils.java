@@ -101,9 +101,8 @@ public class SqlTypeUtils extends TypeUtils {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
       String id = generator.generateIdForColumn(c);
       row.set(c.getName(), id);
-    } else {
-      String autoid = row.get(c.getName(), c.getPrimitiveColumnType());
-      generator.updateGeneratorForValue(c, autoid);
+    } else if (row.get(c.getName(), c.getPrimitiveColumnType()) instanceof String autoId) {
+      generator.updateGeneratorForValue(c, autoId);
     }
   }
 
