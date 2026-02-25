@@ -134,8 +134,9 @@
 </template>
 
 <script setup lang="ts">
-import { fetchRowData, fetchRowPrimaryKey, fetchTableData } from "#imports";
 import { computed, nextTick, ref, toRaw, watch } from "vue";
+import fetchRowData from "~/composables/fetchRowData";
+import fetchRowPrimaryKey from "~/composables/fetchRowPrimaryKey";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
