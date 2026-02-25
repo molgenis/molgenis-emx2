@@ -182,7 +182,7 @@
           <div>
             <p class="hpc-table-section-header-title">Transition History</p>
             <p class="hpc-table-section-header-subtitle">
-              Lifecycle events recorded for this job (newest/oldest ordering depends on backend query).
+              Lifecycle events recorded for this job.
             </p>
           </div>
           <small class="hpc-muted-note">{{ transitions.length }} entries</small>

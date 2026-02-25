@@ -21,7 +21,16 @@
         <div class="hpc-form-grid hpc-form-grid-2">
           <div class="hpc-form-field">
             <label class="form-label">Processor *</label>
+            <select
+              v-if="processors.length"
+              v-model="form.processor"
+              class="form-select form-select-sm"
+            >
+              <option value="">Select a processor...</option>
+              <option v-for="p in processors" :key="p" :value="p">{{ p }}</option>
+            </select>
             <input
+              v-else
               v-model="form.processor"
               class="form-control form-control-sm"
               placeholder="e.g. e2e-test"
@@ -29,7 +38,16 @@
           </div>
           <div class="hpc-form-field">
             <label class="form-label">Profile</label>
+            <select
+              v-if="profiles.length"
+              v-model="form.profile"
+              class="form-select form-select-sm"
+            >
+              <option value="">Select a profile...</option>
+              <option v-for="p in profiles" :key="p" :value="p">{{ p }}</option>
+            </select>
             <input
+              v-else
               v-model="form.profile"
               class="form-control form-control-sm"
               placeholder="e.g. bash, gpu-medium"
@@ -117,8 +135,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
-import { submitJob, fetchArtifacts } from "../composables/useHpcApi.js";
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import { submitJob, fetchArtifacts, fetchCapabilities } from "../composables/useHpcApi.js";
 
 const emit = defineEmits(["submitted", "close"]);
 
@@ -132,6 +150,26 @@ const error = ref(null);
 const submitting = ref(false);
 const selectedArtifact = ref("");
 const availableArtifacts = ref([]);
+const capabilities = ref([]);
+
+const processors = computed(() => [...new Set(capabilities.value.map((c) => c.processor))]);
+const profiles = computed(() => {
+  if (!form.processor) return [];
+  return [
+    ...new Set(
+      capabilities.value.filter((c) => c.processor === form.processor).map((c) => c.profile),
+    ),
+  ];
+});
+
+watch(
+  () => form.processor,
+  () => {
+    if (profiles.value.length && !profiles.value.includes(form.profile)) {
+      form.profile = "";
+    }
+  },
+);
 
 function addArtifact() {
   if (selectedArtifact.value && !form.inputs.includes(selectedArtifact.value)) {
@@ -152,6 +190,14 @@ async function loadArtifacts() {
     availableArtifacts.value = result.items;
   } catch {
     // silently ignore — artifact selection is optional
+  }
+}
+
+async function loadCapabilities() {
+  try {
+    capabilities.value = await fetchCapabilities();
+  } catch {
+    // silently ignore — falls back to free-text inputs
   }
 }
 
@@ -193,5 +239,8 @@ async function handleSubmit() {
   }
 }
 
-onMounted(loadArtifacts);
+onMounted(() => {
+  loadArtifacts();
+  loadCapabilities();
+});
 </script>

@@ -69,8 +69,8 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type status { name } }
-      log_artifact_id { id name type status { name } }
+      output_artifact_id { id name type residence { name } status { name } }
+      log_artifact_id { id name type residence { name } status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -102,8 +102,8 @@ export async function fetchJobDetail(jobId) {
       id processor profile
       status { name }
       worker_id { worker_id }
-      output_artifact_id { id name type status { name } }
-      log_artifact_id { id name type status { name } }
+      output_artifact_id { id name type residence { name } status { name } }
+      log_artifact_id { id name type residence { name } status { name } }
       slurm_job_id submit_user
       created_at claimed_at submitted_at started_at completed_at
       parameters inputs
@@ -216,6 +216,33 @@ export async function fetchWorkers() {
           max_concurrent_jobs,
         })),
     }));
+  } catch (err) {
+    if (isSchemaNotReady(err)) return [];
+    throw err;
+  }
+}
+
+/**
+ * Fetch distinct processor/profile pairs from worker capabilities.
+ * Returns an array of { processor, profile } objects.
+ */
+export async function fetchCapabilities() {
+  const query = `{
+    HpcWorkerCapabilities {
+      processor profile
+    }
+  }`;
+
+  try {
+    const data = await request(GRAPHQL_URL, query);
+    const caps = data.HpcWorkerCapabilities || [];
+    const seen = new Set();
+    return caps.filter((c) => {
+      const key = `${c.processor}\0${c.profile}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   } catch (err) {
     if (isSchemaNotReady(err)) return [];
     throw err;
@@ -444,6 +471,7 @@ function normalizeJob(job) {
           id: output.id,
           name: output.name,
           type: output.type,
+          residence: output.residence?.name ?? output.residence,
           status: output.status?.name ?? output.status,
         }
       : null,
@@ -452,6 +480,7 @@ function normalizeJob(job) {
           id: log.id,
           name: log.name,
           type: log.type,
+          residence: log.residence?.name ?? log.residence,
           status: log.status?.name ?? log.status,
         }
       : null,
