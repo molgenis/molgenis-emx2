@@ -10,8 +10,9 @@ sync:
 	cd vm && vagrant ssh -c 'cd /opt/hpc-daemon && uv tool install --force --reinstall --from . emx2-hpc-daemon'
 
 # Run e2e tests (assumes EMX2 is running and VM is up)
-# Syncs latest daemon code to the VM before running
+# Syncs latest daemon code and clock to the VM before running
 test: sync
+	cd vm && vagrant ssh -c 'sudo chronyc makestep' >/dev/null 2>&1 || true
 	cd .. && uv run --extra e2e pytest e2e/ -v --tb=short -x
 
 # Show daemon + slurm status inside the VM
