@@ -103,7 +103,6 @@ describe("useForm", () => {
     });
     const {
       requiredFields,
-      validateColumn,
       onBlurColumn,
       onUpdateColumn,
       emptyRequiredFields,
