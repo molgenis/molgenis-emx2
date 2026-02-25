@@ -1,6 +1,6 @@
 import fetchTableData from "./fetchTableData";
 import fetchTableMetadata from "./fetchTableMetadata";
-
+import { getRowFilter } from "~/utils/getRowFilter";
 import type {
   columnValue,
   IColumn,
@@ -15,12 +15,7 @@ export default async (
   expandLevel: number = 2
 ): Promise<Record<string, columnValue>> => {
   const metadata = await fetchTableMetadata(schemaId, tableId);
-  const rowFilter = metadata.columns
-    ?.filter((column: IColumn) => column.key === 1)
-    .reduce((accum: any, column: IColumn) => {
-      accum[column.id] = { equals: rowId[column.id] };
-      return accum;
-    }, {});
+  const rowFilter = getRowFilter(metadata.columns, rowId);
 
   const resp = await fetchTableData(schemaId, tableId, {
     filter: rowFilter,
