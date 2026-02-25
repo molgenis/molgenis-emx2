@@ -85,8 +85,8 @@ onMounted(async () => {
           };
         })
         .sort((a, b) => {
-          return (b.dataPointName as string).localeCompare(
-            a.dataPointName as string
+          return (a.dataPointName as string).localeCompare(
+            b.dataPointName as string
           );
         });
   }
