@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://molgenis.org/emx2/hpc-protocol.json",
+  "title": "EMX2 HPC Bridge Protocol",
+  "description": "Single source of truth for protocol constants shared by Java backend, Python daemon, and JS frontend.",
+  "definitions": {
+    "apiVersion": {
+      "const": "2025-01",
+      "description": "Protocol version. All components must agree on this value."
+    },
+    "HpcJobStatus": {
+      "enum": ["PENDING", "CLAIMED", "SUBMITTED", "STARTED", "COMPLETED", "FAILED", "CANCELLED"],
+      "description": "Job lifecycle statuses."
+    },
+    "ArtifactStatus": {
+      "enum": ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"],
+      "description": "Artifact lifecycle statuses."
+    },
+    "ArtifactResidence": {
+      "enum": ["managed", "posix", "s3", "http", "reference"],
+      "description": "Where artifact content is stored."
+    },
+    "transitions": {
+      "description": "Allowed state transitions: status -> list of reachable statuses.",
+      "type": "object",
+      "properties": {
+        "PENDING":    { "type": "array", "items": { "type": "string" }, "const": ["CLAIMED", "CANCELLED"] },
+        "CLAIMED":    { "type": "array", "items": { "type": "string" }, "const": ["SUBMITTED", "FAILED", "CANCELLED"] },
+        "SUBMITTED":  { "type": "array", "items": { "type": "string" }, "const": ["STARTED", "FAILED", "CANCELLED"] },
+        "STARTED":    { "type": "array", "items": { "type": "string" }, "const": ["COMPLETED", "FAILED", "CANCELLED"] },
+        "COMPLETED":  { "type": "array", "items": { "type": "string" }, "const": [] },
+        "FAILED":     { "type": "array", "items": { "type": "string" }, "const": [] },
+        "CANCELLED":  { "type": "array", "items": { "type": "string" }, "const": [] }
+      },
+      "additionalProperties": false
+    },
+    "terminalStatuses": {
+      "const": ["COMPLETED", "FAILED", "CANCELLED"],
+      "description": "Statuses with no outgoing transitions."
+    },
+    "headers": {
+      "description": "Protocol headers. Keys are header names sent over HTTP.",
+      "type": "object",
+      "properties": {
+        "X-EMX2-API-Version": { "required": true,  "format": "version-string" },
+        "X-Request-Id":       { "required": true,  "format": "uuid" },
+        "X-Trace-Id":         { "required": false, "format": "uuid" },
+        "X-Timestamp":        { "required": true,  "format": "unix-epoch-integer" },
+        "X-Nonce":            { "required": false, "format": "uuid" },
+        "X-Worker-Id":        { "required": false, "format": "string" }
+      },
+      "additionalProperties": false
+    },
+    "ProblemDetail": {
+      "description": "RFC 9457 error response shape.",
+      "type": "object",
+      "properties": {
+        "type":       { "type": "string" },
+        "title":      { "type": "string" },
+        "status":     { "type": "integer" },
+        "detail":     { "type": "string" },
+        "instance":   { "type": "string" },
+        "request_id": { "type": "string" }
+      },
+      "required": ["type", "title", "status", "detail"]
+    }
+  }
+}

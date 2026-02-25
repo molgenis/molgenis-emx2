@@ -1,4 +1,5 @@
 import { request } from "graphql-request";
+import { API_VERSION } from "../generated/protocol.js";
 
 const GRAPHQL_URL = "/_SYSTEM_/graphql";
 const REST_BASE = "/api/hpc";
@@ -34,9 +35,9 @@ export async function fetchHpcHealth() {
 /** Common REST headers for HPC API calls. */
 function hpcHeaders() {
   return {
-    "X-EMX2-API-Version": "2025-01",
+    "X-EMX2-API-Version": API_VERSION,
     "X-Request-Id": crypto.randomUUID(),
-    "X-Timestamp": new Date().toISOString(),
+    "X-Timestamp": String(Math.floor(Date.now() / 1000)),
   };
 }
 

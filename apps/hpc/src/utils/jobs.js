@@ -1,18 +1,8 @@
-export const JOB_STATUSES = [
-  "PENDING",
-  "CLAIMED",
-  "SUBMITTED",
-  "STARTED",
-  "COMPLETED",
-  "FAILED",
-  "CANCELLED",
-];
-
-export const TERMINAL_STATUSES = new Set(["COMPLETED", "FAILED", "CANCELLED"]);
-
-export function isTerminal(status) {
-  return TERMINAL_STATUSES.has(status);
-}
+export {
+  JOB_STATUSES,
+  TERMINAL_STATUSES,
+  isTerminal,
+} from "../generated/protocol.js";
 
 export function formatDate(val) {
   if (!val) return "-";

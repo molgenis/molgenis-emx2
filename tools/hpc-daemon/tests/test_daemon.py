@@ -22,6 +22,17 @@ def _get_transition_call(mock_client, index=0):
     return args[0], args[1], kwargs
 
 
+def _get_complete_call(mock_client, index=0):
+    """Extract (job_id, status, kwargs) from a complete_job mock call.
+
+    complete_job is called as complete_job(job_id, status, detail=..., ...)
+    so the first two are positional args, the rest are keyword args.
+    """
+    call_obj = mock_client.complete_job.call_args_list[index]
+    args, kwargs = call_obj
+    return args[0], args[1], kwargs
+
+
 # ---------------------------------------------------------------------------
 # Unit tests: _classify_output_files
 # ---------------------------------------------------------------------------
@@ -114,6 +125,7 @@ def _make_daemon(sample_config) -> tuple[HpcDaemon, MagicMock]:
     mock_client.register_artifact_file.return_value = {}
     mock_client.commit_artifact.return_value = {}
     mock_client.transition_job.return_value = {}
+    mock_client.complete_job.return_value = {}
     mock_client.get_job.return_value = {"status": "STARTED"}
     mock_client.heartbeat.return_value = {}
 
@@ -168,9 +180,9 @@ class TestMonitorUploadsArtifacts:
         # SimulatedBackend: STARTED → COMPLETED
         daemon._monitor_running_jobs()
 
-        # transition_job must have been called with both artifact IDs
-        assert mock_client.transition_job.call_count == 1
-        job_id, status, kwargs = _get_transition_call(mock_client)
+        # complete_job must have been called with both artifact IDs
+        assert mock_client.complete_job.call_count == 1
+        job_id, status, kwargs = _get_complete_call(mock_client)
         assert job_id == "job-aaa-111"
         assert status == "COMPLETED"
         assert kwargs["log_artifact_id"] is not None
@@ -225,8 +237,8 @@ class TestMonitorUploadsArtifacts:
 
         daemon._monitor_running_jobs()
 
-        assert mock_client.transition_job.call_count == 1
-        job_id, status, kwargs = _get_transition_call(mock_client)
+        assert mock_client.complete_job.call_count == 1
+        job_id, status, kwargs = _get_complete_call(mock_client)
         assert status == "FAILED"
         assert kwargs["log_artifact_id"] is not None
         # No output files → no output artifact
@@ -256,7 +268,7 @@ class TestMonitorUploadsArtifacts:
 
         daemon._monitor_running_jobs()
 
-        job_id, status, kwargs = _get_transition_call(mock_client)
+        job_id, status, kwargs = _get_complete_call(mock_client)
         assert status == "COMPLETED"
         assert kwargs["output_artifact_id"] is not None
         assert kwargs["log_artifact_id"] is None
@@ -279,7 +291,7 @@ class TestMonitorUploadsArtifacts:
 
         daemon._monitor_running_jobs()
 
-        _, _, kwargs = _get_transition_call(mock_client)
+        _, _, kwargs = _get_complete_call(mock_client)
         assert kwargs["output_artifact_id"] is None
         assert kwargs["log_artifact_id"] is None
 
@@ -355,16 +367,16 @@ class TestMonitorUploadsArtifacts:
 
         daemon._monitor_running_jobs()
 
-        _, status, kwargs = _get_transition_call(mock_client)
+        _, status, kwargs = _get_complete_call(mock_client)
         assert status == "FAILED"
         assert kwargs["log_artifact_id"] is not None
         # Output artifact should NOT be uploaded on failure
         assert kwargs["output_artifact_id"] is None
 
-    def test_transition_receives_log_artifact_id_kwarg(
+    def test_complete_receives_log_artifact_id_kwarg(
         self, sample_config, tmp_path: Path
     ):
-        """Verify the client's transition_job is called with log_artifact_id
+        """Verify the client's complete_job is called with log_artifact_id
         as a keyword argument (not just positional)."""
         daemon, mock_client = _make_daemon(sample_config)
 
@@ -385,7 +397,7 @@ class TestMonitorUploadsArtifacts:
         daemon._monitor_running_jobs()
 
         # The call must pass log_artifact_id and output_artifact_id as kwargs
-        _, _, kwargs = _get_transition_call(mock_client)
+        _, _, kwargs = _get_complete_call(mock_client)
         assert "log_artifact_id" in kwargs
         assert "output_artifact_id" in kwargs
 
@@ -784,7 +796,7 @@ class TestBuildSlurmDetail:
 
         daemon._monitor_running_jobs()
 
-        _, status, kwargs = _get_transition_call(mock_client)
+        _, status, kwargs = _get_complete_call(mock_client)
         assert status == "COMPLETED"
         # SimulatedBackend returns exit_code="0:0" and reason="None",
         # so detail should be minimal but include slurm_state

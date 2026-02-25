@@ -38,6 +38,10 @@ class TrackedJob:
     claimed_at: float = 0.0  # time.monotonic() at tracking time
     last_progress_hash: str | None = None
     last_queue_report: float = 0.0  # time.monotonic() of last queue status report
+    # Completion intent fields for crash-recovery (Part 2 reconciliation)
+    log_artifact_id: str | None = None
+    output_artifact_id: str | None = None
+    completion_phase: str | None = None  # null | 'log_uploaded' | 'output_uploaded' | 'transitioning'
 
     @property
     def profile_key(self) -> str:
@@ -73,14 +77,24 @@ CREATE TABLE IF NOT EXISTS tracked_jobs (
     profile TEXT,
     claimed_at REAL NOT NULL DEFAULT 0.0,
     last_progress_hash TEXT,
-    last_queue_report REAL NOT NULL DEFAULT 0.0
+    last_queue_report REAL NOT NULL DEFAULT 0.0,
+    log_artifact_id TEXT,
+    output_artifact_id TEXT,
+    completion_phase TEXT
 )"""
+
+_MIGRATE_SQLS = [
+    "ALTER TABLE tracked_jobs ADD COLUMN log_artifact_id TEXT",
+    "ALTER TABLE tracked_jobs ADD COLUMN output_artifact_id TEXT",
+    "ALTER TABLE tracked_jobs ADD COLUMN completion_phase TEXT",
+]
 
 _UPSERT_SQL = """\
 INSERT OR REPLACE INTO tracked_jobs
     (emx2_job_id, slurm_job_id, status, work_dir, input_dir, output_dir,
-     processor, profile, claimed_at, last_progress_hash, last_queue_report)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+     processor, profile, claimed_at, last_progress_hash, last_queue_report,
+     log_artifact_id, output_artifact_id, completion_phase)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 _DELETE_SQL = "DELETE FROM tracked_jobs WHERE emx2_job_id = ?"
 
@@ -126,6 +140,12 @@ class JobTracker:
             self._conn = sqlite3.connect(str(path), check_same_thread=False)
             self._conn.execute("PRAGMA journal_mode=WAL")
             self._conn.execute(_CREATE_TABLE_SQL)
+            # Migrate existing DBs: add new columns if missing
+            for sql in _MIGRATE_SQLS:
+                try:
+                    self._conn.execute(sql)
+                except sqlite3.OperationalError:
+                    pass  # column already exists
             self._conn.commit()
         except sqlite3.DatabaseError:
             self._recover_corrupt_db()

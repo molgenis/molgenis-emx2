@@ -18,11 +18,10 @@ from collections.abc import Iterable
 
 import httpx
 
+from ._generated import API_VERSION
 from .auth import build_authorization_header
 
 logger = logging.getLogger(__name__)
-
-API_VERSION = "2025-01"
 DEFAULT_TIMEOUT = httpx.Timeout(connect=10.0, read=30.0, write=30.0, pool=30.0)
 BINARY_TIMEOUT = httpx.Timeout(connect=10.0, read=300.0, write=300.0, pool=30.0)
 TRANSFER_CHUNK_SIZE = 1024 * 1024
@@ -302,6 +301,35 @@ class HpcClient:
         if log_artifact_id:
             body["log_artifact_id"] = log_artifact_id
         return self._request("POST", f"/api/hpc/jobs/{job_id}/transition", json=body)
+
+    def complete_job(
+        self,
+        job_id: str,
+        status: str,
+        detail: str | None = None,
+        slurm_job_id: str | None = None,
+        output_artifact_id: str | None = None,
+        log_artifact_id: str | None = None,
+    ) -> dict:
+        """Atomically complete a job (terminal transition).
+
+        Calls the dedicated /complete endpoint which only accepts terminal
+        statuses and is idempotent. Preferred over transition_job() for
+        terminal transitions during the daemon's completion flow.
+        """
+        body: dict = {
+            "status": status,
+            "worker_id": self.worker_id,
+        }
+        if detail:
+            body["detail"] = detail
+        if slurm_job_id:
+            body["slurm_job_id"] = slurm_job_id
+        if output_artifact_id:
+            body["output_artifact_id"] = output_artifact_id
+        if log_artifact_id:
+            body["log_artifact_id"] = log_artifact_id
+        return self._request("POST", f"/api/hpc/jobs/{job_id}/complete", json=body)
 
     def get_job(self, job_id: str) -> dict:
         """Get a job by ID."""

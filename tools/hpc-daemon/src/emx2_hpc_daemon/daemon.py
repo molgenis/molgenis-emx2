@@ -26,6 +26,7 @@ import socket
 import time
 from pathlib import Path
 
+from ._generated import TERMINAL_STATUSES
 from .backend import ExecutionBackend, SimulatedBackend, SlurmBackend
 from .client import ClaimConflict, HpcClient, format_links
 from .config import DaemonConfig
@@ -35,8 +36,6 @@ from .slurm import SlurmJobInfo
 from .tracker import JobTracker
 
 logger = logging.getLogger(__name__)
-
-TERMINAL_STATUSES = frozenset({"COMPLETED", "FAILED", "CANCELLED"})
 
 
 def _build_slurm_detail(info: SlurmJobInfo) -> str:
@@ -836,55 +835,102 @@ class HpcDaemon:
                 tracked.status = "STARTED"
                 self.tracker.update(tracked.emx2_job_id, status="STARTED")
 
-            detail = _build_slurm_detail(info)
-            output_artifact_id = None
-            log_artifact_id = None
-
-            # On completion or failure, upload artifacts
-            if new_status in ("COMPLETED", "FAILED") and tracked.output_dir:
-                # Upload log artifact (useful on both success and failure)
-                log_artifact_id = self._upload_log_artifact(
-                    tracked.emx2_job_id,
-                    tracked.output_dir,
-                    processor=tracked.processor,
-                    profile=tracked.profile,
-                )
-                if log_artifact_id:
-                    detail += f"; log_artifact={log_artifact_id}"
-
-                # Upload output artifacts (primarily on success)
-                if new_status == "COMPLETED":
-                    output_artifact_id = self._upload_output_artifacts(
-                        tracked.emx2_job_id,
-                        tracked.output_dir,
-                        processor=tracked.processor,
-                        profile=tracked.profile,
-                    )
-                    if output_artifact_id:
-                        detail += f"; output_artifact={output_artifact_id}"
-
-            self.client.transition_job(
-                tracked.emx2_job_id,
-                new_status,
-                detail=detail,
-                output_artifact_id=output_artifact_id,
-                log_artifact_id=log_artifact_id,
-            )
-            tracked.status = new_status
-            logger.info(
-                "Job %s transitioned to %s",
-                tracked.emx2_job_id,
-                new_status,
-            )
-
-            # Remove from tracker if terminal
+            # Terminal transitions use phased completion with tracker
+            # checkpointing to avoid duplicate artifacts on crash recovery.
             if new_status in TERMINAL_STATUSES:
-                self.tracker.remove(tracked.emx2_job_id)
+                self._complete_job(tracked, new_status, info)
+            else:
+                # Non-terminal transition (e.g. SUBMITTED → STARTED)
+                detail = _build_slurm_detail(info)
+                self.client.transition_job(
+                    tracked.emx2_job_id,
+                    new_status,
+                    detail=detail,
+                )
+                tracked.status = new_status
+                self.tracker.update(tracked.emx2_job_id, status=new_status)
+                logger.info(
+                    "Job %s transitioned to %s",
+                    tracked.emx2_job_id,
+                    new_status,
+                )
 
         except Exception:
             logger.exception(
                 "Failed to report transition for job %s", tracked.emx2_job_id
             )
+
+    def _complete_job(self, tracked, new_status: str, info: SlurmJobInfo) -> None:
+        """Phased completion with tracker checkpointing for crash recovery.
+
+        Phases:
+        1. Upload log artifact (skip if already done on a previous attempt)
+        2. Upload output artifact (skip if already done)
+        3. Call /complete endpoint (idempotent)
+        4. Remove from tracker
+
+        Each phase is checkpointed in the tracker's SQLite DB so that a
+        crash mid-sequence can resume without creating duplicate artifacts.
+        """
+        detail = _build_slurm_detail(info)
+
+        # Phase 1: Upload log artifact (skip if already recorded)
+        if tracked.log_artifact_id is None and tracked.output_dir:
+            log_artifact_id = self._upload_log_artifact(
+                tracked.emx2_job_id,
+                tracked.output_dir,
+                processor=tracked.processor,
+                profile=tracked.profile,
+            )
+            if log_artifact_id:
+                self.tracker.update(
+                    tracked.emx2_job_id,
+                    log_artifact_id=log_artifact_id,
+                    completion_phase="log_uploaded",
+                )
+                tracked.log_artifact_id = log_artifact_id
+        log_artifact_id = tracked.log_artifact_id
+        if log_artifact_id:
+            detail += f"; log_artifact={log_artifact_id}"
+
+        # Phase 2: Upload output artifact (skip if already recorded)
+        output_artifact_id = tracked.output_artifact_id
+        if output_artifact_id is None and new_status == "COMPLETED" and tracked.output_dir:
+            output_artifact_id = self._upload_output_artifacts(
+                tracked.emx2_job_id,
+                tracked.output_dir,
+                processor=tracked.processor,
+                profile=tracked.profile,
+            )
+            if output_artifact_id:
+                self.tracker.update(
+                    tracked.emx2_job_id,
+                    output_artifact_id=output_artifact_id,
+                    completion_phase="output_uploaded",
+                )
+                tracked.output_artifact_id = output_artifact_id
+        if output_artifact_id:
+            detail += f"; output_artifact={output_artifact_id}"
+
+        # Phase 3: Atomic completion via /complete endpoint
+        self.tracker.update(tracked.emx2_job_id, completion_phase="transitioning")
+        self.client.complete_job(
+            tracked.emx2_job_id,
+            new_status,
+            detail=detail,
+            slurm_job_id=tracked.slurm_job_id,
+            output_artifact_id=output_artifact_id,
+            log_artifact_id=log_artifact_id,
+        )
+        tracked.status = new_status
+        logger.info(
+            "Job %s completed with status %s",
+            tracked.emx2_job_id,
+            new_status,
+        )
+
+        # Phase 4: Remove from tracker
+        self.tracker.remove(tracked.emx2_job_id)
 
     def _handle_shutdown(self, signum, frame) -> None:
         """Handle SIGTERM/SIGINT: stop accepting new jobs and exit gracefully.

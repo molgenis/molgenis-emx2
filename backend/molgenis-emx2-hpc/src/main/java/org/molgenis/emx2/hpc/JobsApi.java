@@ -198,6 +198,67 @@ public class JobsApi {
     ctx.json(jobToResponse(result));
   }
 
+  /**
+   * POST /api/hpc/jobs/{id}/complete — atomically complete a job (terminal transition).
+   *
+   * <p>Restricts target status to terminal states (COMPLETED, FAILED, CANCELLED). Idempotent: if
+   * the job is already in the target terminal status, returns 200. This endpoint exists for the
+   * daemon's crash-recovery flow: artifacts are uploaded in phases, and this single call finalizes
+   * the job with all artifact references.
+   */
+  @SuppressWarnings("unchecked")
+  public void completeJob(Context ctx) throws Exception {
+    String jobId = ctx.pathParam("id");
+    InputValidator.requireUuid(jobId, "id");
+
+    Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
+    String targetStatusStr = (String) body.get("status");
+    String workerId = (String) body.get("worker_id");
+    String detail = (String) body.get("detail");
+    String slurmJobId = (String) body.get("slurm_job_id");
+    String outputArtifactId = (String) body.get("output_artifact_id");
+    String logArtifactId = (String) body.get("log_artifact_id");
+
+    if (targetStatusStr == null) {
+      throw HpcException.badRequest("status is required", requestId(ctx));
+    }
+
+    HpcJobStatus targetStatus;
+    try {
+      targetStatus = HpcJobStatus.valueOf(targetStatusStr);
+    } catch (IllegalArgumentException e) {
+      throw HpcException.badRequest("Invalid status: " + targetStatusStr, requestId(ctx));
+    }
+
+    if (!targetStatus.isTerminal()) {
+      throw HpcException.badRequest(
+          "Complete endpoint only accepts terminal statuses (COMPLETED, FAILED, CANCELLED), got: "
+              + targetStatusStr,
+          requestId(ctx));
+    }
+
+    Row result =
+        jobService.transitionJob(
+            jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId, logArtifactId);
+    if (result == null) {
+      Row existing = jobService.getJob(jobId);
+      if (existing == null) {
+        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+      }
+      throw HpcException.conflict(
+          "Cannot complete job "
+              + jobId
+              + " from "
+              + existing.getString("status")
+              + " to "
+              + targetStatusStr,
+          requestId(ctx));
+    }
+
+    ctx.status(200);
+    ctx.json(jobToResponse(result));
+  }
+
   /** POST /api/hpc/jobs/{id}/cancel — convenience endpoint for cancellation. */
   public void cancelJob(Context ctx) {
     String jobId = ctx.pathParam("id");

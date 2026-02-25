@@ -238,6 +238,14 @@ public class HpcApi {
               hpc.jobsApi().transitionJob(ctx);
             }));
     app.post(
+        "/api/hpc/jobs/{id}/complete",
+        hpcHandler(
+            ctx -> {
+              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.jobsApi().completeJob(ctx);
+            }));
+    app.post(
         "/api/hpc/jobs/{id}/cancel",
         hpcHandler(
             ctx -> {
