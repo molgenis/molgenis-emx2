@@ -2,6 +2,7 @@
 
 Assumes:
 - EMX2 is running externally (default: http://localhost:8080)
+- The shared secret is configured in both EMX2 and the .secret file
 - Slurm VM is running via Vagrant (make up) with daemon cron job installed
 """
 
@@ -11,6 +12,7 @@ import logging
 import os
 import subprocess
 import time
+from pathlib import Path
 
 import httpx
 import pytest
@@ -20,12 +22,10 @@ from emx2_hpc_daemon.client import HpcClient
 logger = logging.getLogger(__name__)
 
 EMX2_BASE_URL = os.environ.get("EMX2_BASE_URL", "http://localhost:8080")
-SHARED_SECRET = os.environ.get(
-    "HPC_SHARED_SECRET", "e2e-test-secret-do-not-use-in-production"
-)
 WORKER_ID = "e2e-test-worker"
 STARTUP_TIMEOUT = 180  # seconds
 VM_DIR = os.path.join(os.path.dirname(__file__), "vm")
+SECRET_FILE = Path(__file__).resolve().parent.parent / ".secret"
 
 
 def _wait_for_emx2(base_url: str, timeout: int) -> None:
@@ -80,8 +80,17 @@ def emx2_base_url():
 
 @pytest.fixture(scope="session")
 def shared_secret():
-    """The shared HMAC secret."""
-    return SHARED_SECRET
+    """Read the shared HMAC secret from the .secret file."""
+    if not SECRET_FILE.exists():
+        raise FileNotFoundError(
+            f"Shared secret file not found: {SECRET_FILE}\n"
+            "Create it with the same secret configured in EMX2 "
+            "(MOLGENIS_HPC_SHARED_SECRET setting)."
+        )
+    secret = SECRET_FILE.read_text().strip()
+    if not secret:
+        raise ValueError(f"Shared secret file is empty: {SECRET_FILE}")
+    return secret
 
 
 @pytest.fixture(scope="session")
@@ -92,59 +101,23 @@ def wait_for_services(emx2_base_url):
 
 @pytest.fixture(scope="session")
 def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
-    """Bootstrap HPC: set the shared secret in EMX2 and trigger lazy init.
+    """Verify HPC is enabled and the shared secret works.
 
-    Uses the EMX2 GraphQL API to set MOLGENIS_HPC_SHARED_SECRET, then makes
-    an HMAC-authenticated request to trigger table creation.
+    The secret must be pre-configured in EMX2 (MOLGENIS_HPC_SHARED_SECRET)
+    and match the .secret file. This fixture verifies that and triggers
+    lazy init of HPC tables.
     """
-    # Check if HPC is already enabled (e.g. secret set via UI before test run)
     health_r = httpx.get(f"{emx2_base_url}/api/hpc/health", timeout=5)
     health = health_r.json()
-    logger.info("HPC health before bootstrap: %s", health)
+    logger.info("HPC health: %s", health)
 
     if not health.get("hpc_enabled"):
-        # Sign in as admin
-        signin_query = """
-        mutation {
-          signin(email: "admin", password: "admin") {
-                token
-          }
-        }
-        """
-        r = httpx.post(
-            f"{emx2_base_url}/api/graphql",
-            json={"query": signin_query},
-            timeout=10,
+        raise RuntimeError(
+            "HPC is not enabled in EMX2. Set MOLGENIS_HPC_SHARED_SECRET "
+            "in EMX2 settings to the same value as the .secret file."
         )
-        r.raise_for_status()
-        data = r.json()
-        token = data["data"]["signin"]["token"]
-        logger.info("Signed in as admin, got token")
 
-        # Set the HPC shared secret via GraphQL settings mutation
-        settings_query = (
-            """
-        mutation {
-          change(settings: [{key: "MOLGENIS_HPC_SHARED_SECRET", value: "%s"}]) {
-            message
-          }
-        }
-        """
-            % shared_secret
-        )
-        r = httpx.post(
-            f"{emx2_base_url}/api/graphql",
-            json={"query": settings_query},
-            headers={"x-molgenis-token": token},
-            timeout=10,
-        )
-        r.raise_for_status()
-        settings_data = r.json()
-        if "errors" in settings_data:
-            raise RuntimeError(f"Failed to set HPC secret: {settings_data['errors']}")
-        logger.info("Set HPC shared secret in EMX2: %s", settings_data)
-
-    # Make an authenticated request to trigger lazy init of HPC tables
+    # Verify the secret works by making an authenticated request
     client = HpcClient(
         base_url=emx2_base_url,
         worker_id=WORKER_ID,
@@ -152,7 +125,15 @@ def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
     )
     try:
         client.poll_pending_jobs()
-        logger.info("HPC tables initialized")
+        logger.info("HPC tables initialized, auth verified")
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 401:
+            raise RuntimeError(
+                "HMAC authentication failed — the .secret file does not match "
+                "MOLGENIS_HPC_SHARED_SECRET in EMX2. Update the EMX2 setting "
+                "to match the contents of tools/hpc-daemon/.secret."
+            ) from e
+        raise
     finally:
         client.close()
 
