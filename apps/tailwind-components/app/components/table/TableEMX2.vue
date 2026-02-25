@@ -87,7 +87,7 @@
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column, row)"
+              @cellClicked="handleCellClick($event, column)"
             >
               <template #row-actions v-if="colIndex === 0 && props.isEditable">
                 <div
@@ -354,11 +354,7 @@ function handlePagingRequest(page: number) {
   refresh();
 }
 
-function handleCellClick(
-  event: RefPayload,
-  column: IColumn,
-  row: Record<string, any>
-) {
+function handleCellClick(event: RefPayload, column: IColumn) {
   refTableRow.value = event.data;
   refTableColumn.value =
     column.columnType === "REF"
@@ -389,21 +385,12 @@ function onAddRowClicked() {
   showAddModal.value = true;
 }
 
-async function afterRowAdded() {
-  // todo reset filters and search, goto page with added item, flash row with add item
-  await refresh();
-}
-
-async function afterRowUpdated() {
-  await refresh();
-}
-
 async function afterClose() {
   await refresh();
 }
 
 async function afterRowDeleted() {
-  // maybe notify user, and do more stuff
+  // TODO: maybe notify user, and do more stuff
   await refresh();
 }
 </script>

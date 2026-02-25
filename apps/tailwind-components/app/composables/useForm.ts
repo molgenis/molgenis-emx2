@@ -595,7 +595,6 @@ export default function useForm(
   const rowKey = ref<Record<string, columnValue>>({});
 
   async function resetRowKey(): Promise<Record<string, columnValue>> {
-    console.log("Resetting row key, based on", values.value);
     const resp = await fetchRowPrimaryKey(
       values.value,
       metadata.value.id,

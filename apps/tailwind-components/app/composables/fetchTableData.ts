@@ -57,8 +57,6 @@ export default async (
     });
   });
 
-  console.log(`Fetching data for table ${tableId} schema ${schemaId}`);
-
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
 
