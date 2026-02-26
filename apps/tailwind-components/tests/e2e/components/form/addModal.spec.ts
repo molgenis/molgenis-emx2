@@ -66,7 +66,4 @@ test("should show auto id after saving", async ({ page }) => {
   await expect(page.getByRole("textbox", { name: "orderId" })).toHaveValue(
     /ORDER:.+/
   );
-  await page.goto(
-    "http://localhost:3000/form/AddModal.story?schema=pet+store&table=Order"
-  );
 });
