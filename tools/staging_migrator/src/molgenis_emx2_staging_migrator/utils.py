@@ -5,6 +5,7 @@ import logging
 import zipfile
 from io import BytesIO
 
+import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient.constants import DATE, DATETIME
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
@@ -81,6 +82,7 @@ def load_table(schema_type: SchemaType, table: Table) -> pd.DataFrame:
                          parse_dates=date_columns)
 
     df[bool_columns] = df[bool_columns].replace({'true': True, 'false': False})
+    df = df.replace({np.nan: None})
     df = df.astype(dtypes)
 
     return df
@@ -93,3 +95,9 @@ def set_all_delete(table: Table) -> pd.DataFrame:
     source_df = load_table('source', table)
     source_df["mg_delete"] = True
     return source_df
+
+def check_hri_core(resources: pd.DataFrame):
+    """Verifies that the `hricore` column is set to `true` for the Resources listed."""
+    missing_hri = resources.loc[resources['hricore'].isna(), 'id']
+    if len(missing_hri.index) != 0:
+        raise ValueError(f"Value 'hricore' not set to 'true' for resource {', '.join(missing_hri.values)}")

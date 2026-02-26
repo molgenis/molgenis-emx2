@@ -13,7 +13,7 @@ from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
 from .utils import prepare_primary_keys, process_statement, resource_ref_cols, load_table, \
-    set_all_delete
+    set_all_delete, check_hri_core
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -139,6 +139,12 @@ class StagingMigrator(Client):
                         updated_table = process_statement(updated_table)
                     if table.id in ["CollectionEvents", "Subpopulations"]:
                         updated_table = self._copy_resource_columns(updated_table)
+                    if table.id == "Resources":
+                        try:
+                            check_hri_core(updated_table)
+                        except ValueError as ve:
+                            self.errors.append(ve)
+                            raise ValueError(ve)
 
                 if len(updated_table.index) != 0:
                     upload_archive.writestr(file_name, updated_table.to_csv(index=False))
