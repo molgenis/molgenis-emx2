@@ -4,4 +4,5 @@ module.exports = {
   bracketSpacing: true,
   arrowParens: "always",
   semi: true,
+  plugins: ["prettier-plugin-packagejson"],
 };

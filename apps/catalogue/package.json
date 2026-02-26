@@ -33,6 +33,7 @@
     "postcss": "8.4.39",
     "postcss-custom-properties": "13.3.11",
     "prettier": "2.8.8",
+    "prettier-plugin-packagejson": "3.0.0",
     "shelljs": "0.8.5",
     "std-env": "3.7.0",
     "tailwind-components": "workspace:*",
