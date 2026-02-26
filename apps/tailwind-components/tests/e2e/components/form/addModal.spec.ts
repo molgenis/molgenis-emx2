@@ -57,3 +57,16 @@ test("should re-evaluate required refs after clearing them", async ({
   await page.getByRole("button", { name: "Clear" }).click();
   await expect(page.getByText("errorcategory is required")).toBeVisible();
 });
+
+test("should show auto id after saving", async ({ page }) => {
+  await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Order`);
+  await expect(page.getByText("Demo data controls")).toBeVisible();
+  await page.getByRole("button", { name: "Add Order" }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "orderId" })).toHaveValue(
+    /ORDER:.+/
+  );
+  await page.goto(
+    "http://localhost:3000/form/AddModal.story?schema=pet+store&table=Order"
+  );
+});
