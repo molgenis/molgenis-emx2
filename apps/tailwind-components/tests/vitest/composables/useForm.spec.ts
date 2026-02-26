@@ -96,6 +96,60 @@ describe("useForm", () => {
     ]);
   });
 
+  test("should revalidate blurred or dirty fields when required fields change", () => {
+    const formValues = ref<Record<string, columnValue>>({
+      // non empty required bool field
+      col6: false,
+    });
+    const {
+      requiredFields,
+      onBlurColumn,
+      onUpdateColumn,
+      emptyRequiredFields,
+    } = useForm(tableMetadata, formValues);
+
+    // simulate col2 being blurred and col4 being dirty
+    const col2 = tableMetadata.value.columns.find(
+      (column) => column.id === "col2"
+    );
+    const col4 = tableMetadata.value.columns.find(
+      (column) => column.id === "col4"
+    );
+    if (!col2 || !col4) {
+      throw new Error(
+        "Test setup error: required columns not found in tableMetadata"
+      );
+    }
+    onBlurColumn(col2);
+    onUpdateColumn(col4);
+
+    // change required fields to only col4
+    requiredFields.value = [
+      {
+        columnType: "STRING",
+        id: "col4",
+        label: "columns 4",
+        required: true,
+      },
+    ];
+
+    // col2 should be revalidated and show as empty, col4 should not be revalidated and stay in the empty list
+    expect(emptyRequiredFields.value).toEqual([
+      {
+        columnType: "STRING",
+        id: "col2",
+        label: "columns 2",
+        required: true,
+      },
+      {
+        columnType: "STRING",
+        id: "col4",
+        label: "columns 4",
+        required: true,
+      },
+    ]);
+  });
+
   test("should go to the next required field", () => {
     const formValues = ref<Record<string, columnValue>>({
       // non empty required bool field
