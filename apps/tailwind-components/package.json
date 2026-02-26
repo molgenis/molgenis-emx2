@@ -3,21 +3,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "nuxi typecheck",
-    "generate-source-map": "node ./app/utils/generateSourceMap.js",
     "build": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
-    "dev": "pnpm run generate-source-map && nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
-    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
-    "test": "vitest",
     "coverage": "vitest run --coverage",
-    "test-ci": "vitest run",
+    "dev": "pnpm run generate-source-map && nuxt dev",
     "e2e": "playwright test",
+    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
+    "generate": "nuxt generate",
+    "generate-source-map": "node ./app/utils/generateSourceMap.js",
+    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
+    "lint": "nuxi typecheck",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
+    "preview": "nuxt preview",
+    "test": "vitest",
+    "test-ci": "vitest run",
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
@@ -52,6 +52,7 @@
     "nuxt-monaco-editor": "1.4.0",
     "playwright-core": "1.58.0",
     "prettier": "2.8.8",
+    "prettier-plugin-packagejson": "3.0.0",
     "svgo": "2.8.0",
     "tailwindcss": "3.4.17",
     "typescript": "5.6.2",
@@ -59,3 +60,4 @@
     "vue-tsc": "3.2.1"
   }
 }
+

@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "turbo": "2.6.1"
+  },
+  "devDependencies": {
+    "prettier-plugin-packagejson": "3.0.0"
   }
 }
