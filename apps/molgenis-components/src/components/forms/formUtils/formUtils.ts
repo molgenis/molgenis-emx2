@@ -24,6 +24,10 @@ const {
 } = constants;
 const BIG_INT_ERROR = `Invalid long: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 const INT_ERROR = `Invalid integer: must be value from ${MIN_INT} to ${MAX_INT}`;
+const PERIOD_EXPLANATION =
+  'must start with a P and should contain at least a Y(year), M(month) or D(day): e.g. "P1Y3M14D"';
+const UUID_EXPLANATION =
+  'must use a valid UUID format (rfc9562): e.g. "123e4567-e89b-12d3-a456-426614174000"';
 export const NON_NEGATIVE_INT_ERROR = `Invalid non negative integer: must be value from ${MIN_NON_NEGATIVE_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
@@ -92,26 +96,43 @@ export function getColumnError(
   if (type === "EMAIL" && isInvalidEmail(value)) {
     return "Invalid email address";
   }
-  if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
-    return "Invalid email address";
+  if (type === "EMAIL_ARRAY") {
+    return readableStringArray(
+      getInvalidEmails(value),
+      " is an invalid email address",
+      " are invalid email addresses"
+    );
   }
   if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
-  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
-    return "Invalid hyperlink";
+  if (type === "HYPERLINK_ARRAY") {
+    return readableStringArray(
+      getInvalidHyperlinks(value),
+      " is an invalid hyperlink",
+      " are invalid hyperlinks"
+    );
   }
+
   if (type === "PERIOD" && isInvalidPeriod(value)) {
-    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+    return "Invalid Period: " + PERIOD_EXPLANATION;
   }
-  if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
-    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  if (type === "PERIOD_ARRAY") {
+    return readableStringArray(
+      getInvalidPeriods(value),
+      " is an invalid Period: " + PERIOD_EXPLANATION,
+      " are invalid Periods: " + PERIOD_EXPLANATION
+    );
   }
   if (type === "UUID" && isInvalidUUID(value)) {
-    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
+    return "Invalid UUID: " + UUID_EXPLANATION;
   }
-  if (type === "UUID_ARRAY" && containsInvalidUUID(value)) {
-    return "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'";
+  if (type === "UUID_ARRAY") {
+    return readableStringArray(
+      getInvalidUUIDs(value),
+      " is an invalid UUID: " + UUID_EXPLANATION,
+      " are invalid UUIDs: " + UUID_EXPLANATION
+    );
   }
   if (type === "JSON") {
     try {
@@ -160,17 +181,40 @@ export function getColumnError(
   if (type === "NON_NEGATIVE_INT" && isInvalidNonNegativeInt(value as number)) {
     return NON_NEGATIVE_INT_ERROR;
   }
-  if (
-    type === "NON_NEGATIVE_INT_ARRAY" &&
-    (value as number[])?.some(isInvalidNonNegativeInt)
-  ) {
-    return "Invalid non negative integer(s)";
+
+  if (type === "NON_NEGATIVE_INT_ARRAY") {
+    return readableStringArray(
+      getInvalidNonNegativeIntegers(value),
+      " is an invalid non negative integer",
+      " are invalid non negative integers"
+    );
   }
+
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
-
   return undefined;
+}
+
+export function readableStringArray(
+  strings: any[],
+  postErrorSingular?: string,
+  postErrorPlural?: string
+): string {
+  const escapedStrings = strings.map((str) =>
+    str.toString().replaceAll("'", "\\'")
+  );
+  if (escapedStrings.length === 0) {
+    return "";
+  } else if (escapedStrings.length === 1) {
+    return `'${escapedStrings[0]}' ${postErrorSingular}`;
+  } else {
+    return `'${escapedStrings
+      .slice(0, escapedStrings.length - 1)
+      .join("', '")}' and '${
+      escapedStrings[escapedStrings.length - 1]
+    }' ${postErrorPlural}`;
+  }
 }
 
 export function isInvalidBigInt(value?: string): boolean {
@@ -317,16 +361,22 @@ function isInvalidHyperlink(value: any) {
   return value && !HYPERLINK_REGEX.test(value);
 }
 
-function containsInvalidHyperlink(hyperlinks: any) {
-  return hyperlinks?.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
+function getInvalidHyperlinks(hyperlinks: any): string[] {
+  return hyperlinks?.filter((hyperlink: string) =>
+    isInvalidHyperlink(hyperlink)
+  );
+}
+
+function getInvalidNonNegativeIntegers(numbers: any): number[] {
+  return numbers?.filter((number: number) => isInvalidNonNegativeInt(number));
 }
 
 function isInvalidEmail(value: any) {
   return value && !EMAIL_REGEX.test(value);
 }
 
-function containsInvalidEmail(emails: any) {
-  return emails?.some((email: any) => isInvalidEmail(email));
+function getInvalidEmails(emails: any): string[] {
+  return emails.filter((email: any) => isInvalidEmail(email));
 }
 
 function isInvalidPeriod(value: any) {
@@ -336,8 +386,8 @@ function isInvalidPeriod(value: any) {
   return !PERIOD_REGEX.test(value);
 }
 
-function containsInvalidPeriod(periods: any) {
-  return periods?.some((period: any) => isInvalidPeriod(period));
+function getInvalidPeriods(periods: any): string[] {
+  return periods?.filter((period: any) => isInvalidPeriod(period));
 }
 
 function isInvalidUUID(value: any) {
@@ -347,8 +397,8 @@ function isInvalidUUID(value: any) {
   return !UUID_REGEX.test(value);
 }
 
-function containsInvalidUUID(uuids: any) {
-  return uuids?.some((uuid: any) => isInvalidUUID(uuid));
+function getInvalidUUIDs(uuids: any) {
+  return uuids?.filter((uuid: any) => isInvalidUUID(uuid));
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {

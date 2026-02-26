@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { type IInputProps, type IValueLabel } from "../../../types/types";
+import { type IInputProps, type IValueLabel } from "../../types/types";
 import type {
   CellValueType,
   columnValue,
-} from "../../../../metadata-utils/src/types";
-import Input from "../Input.vue";
-import Message from "../Message.vue";
+} from "../../../metadata-utils/src/types";
+import Input from "./Input.vue";
+import Message from "./Message.vue";
 
 const modelValue = defineModel<columnValue>({ required: true });
 
@@ -56,6 +56,7 @@ const emit = defineEmits(["focus", "blur"]);
       :placeholder="placeholder"
       :rowKey="rowKey"
       :options="options"
+      :errorMessage="errorMessage"
       :refSchemaId="(refSchemaId as string)"
       :refTableId="(refTableId as string)"
       :refLabel="(refLabel as string)"
@@ -66,9 +67,9 @@ const emit = defineEmits(["focus", "blur"]);
       @focus="emit('focus')"
       :align="align"
     />
-    <div :id="`${id}-input-error`">
+    <div>
       <Message v-if="errorMessage" invalid :id="`${id}-input-error`">
-        {{ errorMessage }}
+        {{ errorMessage.replaceAll("\\'", "'") }}
       </Message>
     </div>
   </div>

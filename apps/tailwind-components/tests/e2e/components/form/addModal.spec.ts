@@ -55,5 +55,5 @@ test("should re-evaluate required refs after clearing them", async ({
   await page.getByRole("button", { name: "Add Pet" }).click();
   await page.getByText("cat", { exact: true }).click();
   await page.getByRole("button", { name: "Clear" }).click();
-  await expect(page.getByLabel("error")).toContainText("category is required");
+  await expect(page.getByText("errorcategory is required")).toBeVisible();
 });
