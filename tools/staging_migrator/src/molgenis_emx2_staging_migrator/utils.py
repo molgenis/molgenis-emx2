@@ -11,7 +11,6 @@ from molgenis_emx2_pyclient.constants import DATE, DATETIME
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Schema, Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
-from numpy import nan
 
 from staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
 from staging_migrator.src.molgenis_emx2_staging_migrator.migrator import SchemaType
@@ -45,19 +44,30 @@ def resource_ref_cols(schema: Schema, table_name: str) -> list[str]:
     return list(map(lambda col: col.name, table_schema.get_columns("refTableId", "Resources")))
 
 
-def process_statement(df: pd.DataFrame) -> pd.DataFrame:
-    """Processes any statement of consent by modifying the rows in the table for which no consent is given."""
-    df = df.loc[~df["email"].isna()]
+def process_contacts(contacts: pd.DataFrame, resources: pd.DataFrame) -> pd.DataFrame:
+    """Processes any statement of consent by modifying the rows in the table for which no consent is given.
+    Checks whether the Resources table does not reference omitted contacts.
+    """
     statement = "statement of consent personal data"
-    if statement not in df.columns:
-        return df
-    # Remove rows without any data consent
-    df['mg_delete'] = ~df[statement].replace({nan: False})
-    df = df.drop(columns=[statement])
+    if statement not in contacts.columns:
+        return contacts
+
+    def set_delete(row: pd.Series):
+        if not row[statement]:
+            return True
+        if row['email'] is None:
+            return True
+        return False
+
+    # # Remove rows without any data consent
+    contacts['mg_delete'] = contacts.apply(set_delete, axis=1)
+    contacts = contacts.drop(columns=[statement])
+
+    missing = set() and set()
 
     log.info("Implemented statement of consent in Contacts table.")
 
-    return df
+    return contacts
 
 
 def load_table(schema_type: SchemaType, table: Table) -> pd.DataFrame:

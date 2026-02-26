@@ -11,7 +11,7 @@ import pytest
 from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
-from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_statement, check_hricore
+from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_contacts, check_hricore
 
 CATALOGUE = 'catalogue'
 STAGING_AREA = 'testCohort'
@@ -56,9 +56,6 @@ async def test_delete_resource():
         resources = migrator.get("Resources", schema=CATALOGUE, query_filter=f"id == {STAGING_AREA!r}")
         assert len(resources) == 0
 
-
-
-
 def test_process_organisations():
     """Unit tests for the `process_organisations` method."""
     orgs_csv = ("""resource,id,type,name,organisation,other organisation,department,website,email,logo,role,is lead organisation\n"""
@@ -78,16 +75,18 @@ def test_process_organisations():
 
 def test_process_contacts():
     """Unit test for the `process_contacts` method."""
-    contacts_csv = ("""resource,role,first name,last name,statement of consent personal data,email"""
-                    """R1,Principal Investigator,A1,B1,true,A1B1@R1.com"""
-                    """R2,Primary contact,A2,B2,true,A2B2@R2.com"""
-                    """R3,Participant,A3,B3,false,"""
+    contacts_csv = ("""resource,role,first name,last name,statement of consent personal data,email\n"""
+                    """R1,Principal Investigator,A1,B1,true,A1B1@R1.com\n"""
+                    """R2,Primary contact,A2,B2,true,A2B2@R2.com\n"""
+                    """R3,Participant,A3,B3,false,\n"""
                     """R4,Participant,A4,B4,false,A4B4@R4.com""")
     contacts_df = pd.read_csv(io.StringIO(contacts_csv))
 
-    processed_contacts = process_statement(contacts_df)
-    assert "A3" not in processed_contacts["first name"].values
-    assert processed_contacts["mg_delete"].values.tolist() == [False, False, True]
+    processed_contacts = process_contacts(contacts_df)
+
+    assert processed_contacts["mg_delete"].values.tolist() == [False, False, True, True]
+
+
 
 def test_check_hricore():
     """Tests the `check_hricore` utility function."""
