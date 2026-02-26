@@ -77,8 +77,10 @@ describe("useSession for schema path", () => {
         pending: ref(false),
       });
 
-    const session = await useSession();
+    const session = await useSession("abc");
 
-    expect(session.session.value?.roles).toEqual(["Editor"]);
+    expect(session.session.value?.roles).toEqual({
+      abc: ["Editor"],
+    });
   });
 });

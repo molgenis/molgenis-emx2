@@ -33,7 +33,7 @@
                   <section class="flex flex-col p-4">
                     <div class="mb-1 text-title">Hi {{ session?.email }}</div>
 
-                    <Button size="small" type="primary" @click="signout"
+                    <Button size="small" type="primary" @click="signOut()"
                       >Sign out</Button
                     >
                   </section>
@@ -82,7 +82,7 @@ import Button from "../../../tailwind-components/app/components/Button.vue";
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = computed(() => route.params.schema as string);
-const { session, reload: reloadSession } = await useSession();
+const { session, signOut } = await useSession(schema.value);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -128,23 +128,6 @@ const navigation = computed(() => {
   }
   return items;
 });
-
-async function signout() {
-  const { data, error } = await $fetch("/api/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: { query: `mutation { signout { status } }` },
-  });
-
-  if (error || data.signout.status !== "SUCCESS") {
-    console.error("Error signing out:", error);
-    return;
-  }
-
-  reloadSession();
-}
 </script>
 
 <style>
