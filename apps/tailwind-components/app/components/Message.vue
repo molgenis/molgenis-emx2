@@ -12,10 +12,10 @@
       {{ invalid ? "error" : valid ? "success" : "information" }}
     </span>
     <template v-if="invalid">
-      <BaseIcon name="exclamation" />
+      <BaseIcon name="exclamation" class="min-h-6 min-w-6" />
     </template>
     <template v-else-if="valid">
-      <BaseIcon name="check" />
+      <BaseIcon name="check" class="min-h-6 min-w-6" />
     </template>
     <slot></slot>
   </div>
