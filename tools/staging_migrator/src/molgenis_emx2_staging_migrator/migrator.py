@@ -13,7 +13,7 @@ from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
 from .utils import prepare_primary_keys, process_statement, resource_ref_cols, load_table, \
-    set_all_delete, check_hri_core
+    set_all_delete, check_hricore
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -141,7 +141,7 @@ class StagingMigrator(Client):
                         updated_table = self._copy_resource_columns(updated_table)
                     if table.id == "Resources":
                         try:
-                            check_hri_core(updated_table)
+                            check_hricore(updated_table)
                         except ValueError as ve:
                             self.errors.append(ve)
                             raise ValueError(ve)

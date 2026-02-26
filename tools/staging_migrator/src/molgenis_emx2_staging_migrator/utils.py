@@ -96,8 +96,8 @@ def set_all_delete(table: Table) -> pd.DataFrame:
     source_df["mg_delete"] = True
     return source_df
 
-def check_hri_core(resources: pd.DataFrame):
+def check_hricore(resources: pd.DataFrame):
     """Verifies that the `hricore` column is set to `true` for the Resources listed."""
-    missing_hri = resources.loc[resources['hricore'].isna(), 'id']
+    missing_hri = resources.loc[resources['hricore'] != True, 'id']
     if len(missing_hri.index) != 0:
         raise ValueError(f"Value 'hricore' not set to 'true' for resource {', '.join(missing_hri.values)}")

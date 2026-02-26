@@ -11,7 +11,7 @@ import pytest
 from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
-from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_statement
+from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_statement, check_hricore
 
 CATALOGUE = 'catalogue'
 STAGING_AREA = 'testCohort'
@@ -89,3 +89,16 @@ def test_process_contacts():
     assert "A3" not in processed_contacts["first name"].values
     assert processed_contacts["mg_delete"].values.tolist() == [False, False, True]
 
+def test_check_hricore():
+    """Tests the `check_hricore` utility function."""
+    resources_csv = (
+        """hricore,id,name\n"""
+        """true,A,A\n"""
+        """false,B,B\n"""
+        """,C,C"""
+    )
+    resources_df = pd.read_csv(io.StringIO(resources_csv))
+
+    with pytest.raises(ValueError) as e:
+        check_hricore(resources_df)
+    assert str(e.value) == "Value 'hricore' not set to 'true' for resource B, C"
