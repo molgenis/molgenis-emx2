@@ -8,6 +8,7 @@
     <InputArray
       id="input-array-string"
       type="STRING_ARRAY"
+      errorMessage=""
       v-model="stringValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -18,6 +19,7 @@
     <InputArray
       id="input-array-bool"
       type="BOOL_ARRAY"
+      errorMessage=""
       v-model="boolValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -28,6 +30,7 @@
     <InputArray
       id="input-array-date"
       type="DATE_ARRAY"
+      errorMessage=""
       v-model="dateValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -38,6 +41,7 @@
     <InputArray
       id="input-array-datetime"
       type="DATETIME_ARRAY"
+      errorMessage=""
       v-model="datetimeValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -48,6 +52,7 @@
     <InputArray
       id="input-array-decimal"
       type="DECIMAL_ARRAY"
+      errorMessage=""
       v-model="numberValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -58,6 +63,7 @@
     <InputArray
       id="input-array-period"
       type="PERIOD_ARRAY"
+      errorMessage=""
       v-model="stringValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -68,6 +74,7 @@
     <InputArray
       id="input-array-emai"
       type="EMAIL_ARRAY"
+      errorMessage=""
       v-model="stringValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -78,6 +85,7 @@
     <InputArray
       id="input-array-link"
       type="HYPERLINK_ARRAY"
+      errorMessage=""
       v-model="stringValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -88,6 +96,7 @@
     <InputArray
       id="input-array-int"
       type="INT_ARRAY"
+      errorMessage=""
       v-model="numberValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -98,6 +107,7 @@
     <InputArray
       id="input-array-non-negative-int"
       type="NON_NEGATIVE_INT_ARRAY"
+      errorMessage=""
       v-model="numberValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -108,6 +118,7 @@
     <InputArray
       id="input-array-long"
       type="LONG_ARRAY"
+      errorMessage=""
       v-model="numberValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -118,6 +129,7 @@
     <InputArray
       id="input-array-text"
       type="TEXT_ARRAY"
+      errorMessage=""
       v-model="stringValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -128,6 +140,7 @@
     <InputArray
       id="input-array-uuid"
       type="UUID_ARRAY"
+      errorMessage=""
       v-model="stringValue"
       :placeholder="placeholder"
       :valid="valid"
