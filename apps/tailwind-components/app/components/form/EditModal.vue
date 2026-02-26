@@ -135,14 +135,14 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, toRaw, watch } from "vue";
-import fetchRowData from "~/composables/fetchRowData";
-import fetchRowPrimaryKey from "~/composables/fetchRowPrimaryKey";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
+import fetchColumnValues from "../../composables/fetchColumnValues";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import useForm, { type UseForm } from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
@@ -158,7 +158,6 @@ import Form from "./Form.vue";
 import FormLegend from "./Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
-import fetchColumnValues from "~/composables/fetchColumnValues";
 
 const props = withDefaults(
   defineProps<{

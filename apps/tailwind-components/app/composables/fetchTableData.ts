@@ -70,7 +70,7 @@ export const getColumnIds = async (
   tableId: string,
   //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
-  columnFilter?: IColumn[],
+  columnFilter: IColumn[] = [],
   rootLevel = true
 ) => {
   const metadata = await fetchMetadata(schemaId);
@@ -115,7 +115,7 @@ export const getColumnIds = async (
             col.refTableId || tableId,
             //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
             expandLevel - 1,
-            undefined,
+            [],
             false
           )) +
           " }";
