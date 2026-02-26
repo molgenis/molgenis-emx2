@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.Operator.*;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Constants {
@@ -150,6 +151,8 @@ public class Constants {
   public static final String PRIVACY_POLICY_TEXT_DEFAULT = "Privacy data + medical";
   public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
   public static final String COMPUTED_AUTOID_TOKEN = "${mg_autoid}";
+  public static final Pattern MG_AUTOID_FUNCTION_PATTERN =
+      Pattern.compile("\\$\\{mg_autoid\\(([^)]+)\\)}");
   public static final String SYSTEM_SCHEMA = "_SYSTEM_";
 
   public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";

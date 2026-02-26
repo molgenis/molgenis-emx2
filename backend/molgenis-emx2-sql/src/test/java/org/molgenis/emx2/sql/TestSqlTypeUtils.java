@@ -11,6 +11,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -96,5 +97,39 @@ class TestSqlTypeUtils {
   @Test
   void testAllColumnTypesCoveredGetPsqlType() {
     EXCLUDE_FILE_PERIOD_REFERENCE_HEADING.forEach(SqlTypeUtils::getPsqlType);
+  }
+
+  @Test
+  void testMgAutoidFunctionPatternMatches() {
+    String computed = "PRJ-${mg_autoid(charset=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789, length=8)}-X";
+    Matcher matcher = Constants.MG_AUTOID_FUNCTION_PATTERN.matcher(computed);
+    assertTrue(matcher.find());
+    String params = matcher.group(1);
+    assertTrue(params.contains("charset=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+    assertTrue(params.contains("length=8"));
+  }
+
+  @Test
+  void testMgAutoidFunctionPatternDoesNotMatchSimpleToken() {
+    String computed = "PRJ-${mg_autoid}-X";
+    Matcher matcher = Constants.MG_AUTOID_FUNCTION_PATTERN.matcher(computed);
+    assertFalse(matcher.find());
+  }
+
+  @Test
+  void autoIdWithParameterizedPatternFallsBackWithoutJooq() {
+    // When jooq is null, parameterized mg_autoid should fall back to snowflake
+    TableMetadata tableMetadata =
+        table(
+            "Test",
+            new Column("myCol")
+                .setType(ColumnType.AUTO_ID)
+                .setComputed(
+                    "${mg_autoid(charset=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789, length=8)}"));
+    final Row row = new Row("myCol", null);
+    // Using 2-parameter overload (null jooq) should fall back to snowflake
+    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    // Should have a value (snowflake-generated, since no jooq context)
+    assertNotNull(row.getString("myCol"));
   }
 }

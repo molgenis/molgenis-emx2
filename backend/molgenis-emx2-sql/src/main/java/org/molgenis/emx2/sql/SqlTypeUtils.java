@@ -6,7 +6,9 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
@@ -18,13 +20,22 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
+    return applyValidationAndComputed(columns, rows, null);
+  }
+
+  public static List<Row> applyValidationAndComputed(
+      List<Column> columns, List<Row> rows, DSLContext jooq) {
     for (Row row : rows) {
-      applyValidationAndComputed(columns, row);
+      applyValidationAndComputed(columns, row, jooq);
     }
     return rows;
   }
 
   public static void applyValidationAndComputed(List<Column> columns, Row row) {
+    applyValidationAndComputed(columns, row, null);
+  }
+
+  public static void applyValidationAndComputed(List<Column> columns, Row row, DSLContext jooq) {
     Map<String, Object> graph = convertRowToMap(columns, row);
     addJavaScriptBindings(columns, graph);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
@@ -32,7 +43,7 @@ public class SqlTypeUtils extends TypeUtils {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
-        applyAutoId(c, row);
+        applyAutoId(c, row, jooq);
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
           try {
@@ -94,16 +105,67 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void applyAutoId(Column c, Row row) {
+  private static void applyAutoId(Column c, Row row, DSLContext jooq) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+      // Check if computed expression uses the parameterized mg_autoid function
+      if (c.getComputed() != null && jooq != null) {
+        Matcher matcher = Constants.MG_AUTOID_FUNCTION_PATTERN.matcher(c.getComputed());
+        if (matcher.find()) {
+          String generatedId = generateAutoIdFromDatabase(c, jooq, matcher.group(1));
+          String result = matcher.replaceFirst(generatedId);
+          row.set(c.getName(), result);
+          return;
+        }
+      }
+      // Fall back to SnowflakeIdGenerator for simple ${mg_autoid} or no computed expression
       String id = SnowflakeIdGenerator.getInstance().generateId();
-      // do we use a template containing ${mg_autoid} for pre/postfixing ?
       if (c.getComputed() != null) {
         row.set(c.getName(), c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, id));
+      } else {
+        row.set(c.getName(), id);
       }
-      // otherwise simply put the id
-      else row.set(c.getName(), id);
     }
+  }
+
+  private static String generateAutoIdFromDatabase(Column c, DSLContext jooq, String paramsString) {
+    String charset = null;
+    int length = 0;
+
+    // Parse parameters like "charset=ABC123, length=8"
+    for (String param : paramsString.split(",")) {
+      String[] kv = param.trim().split("=", 2);
+      if (kv.length == 2) {
+        String key = kv[0].trim();
+        String value = kv[1].trim();
+        if ("charset".equals(key)) {
+          charset = value;
+        } else if ("length".equals(key)) {
+          length = Integer.parseInt(value);
+        }
+      }
+    }
+
+    if (charset == null || charset.isEmpty()) {
+      throw new MolgenisException("mg_autoid: charset parameter is required and must not be empty");
+    }
+    if (length <= 0) {
+      throw new MolgenisException("mg_autoid: length parameter is required and must be positive");
+    }
+
+    String schemaName = c.getTable().getSchema().getName();
+    String tableName = c.getTable().getTableName();
+    String columnName = c.getName();
+
+    String sql =
+        String.format(
+            "SELECT \"MOLGENIS\".mg_generate_autoid('%s', '%s', '%s', '%s', %d)",
+            schemaName.replace("'", "''"),
+            tableName.replace("'", "''"),
+            columnName.replace("'", "''"),
+            charset.replace("'", "''"),
+            length);
+
+    return jooq.fetchOne(sql).get(0, String.class);
   }
 
   private static void checkRequired(Column c, Row row, Map<String, Object> values) {
