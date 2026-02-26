@@ -1,17 +1,18 @@
 {
   "name": "ui",
   "private": true,
+  "license": "LGPL-3.0",
   "type": "module",
   "scripts": {
-    "lint": "nuxi typecheck",
     "build": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
-    "dev": "nuxt dev",
-    "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
-    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
-    "e2e": "playwright test"
+    "dev": "nuxt dev",
+    "e2e": "playwright test",
+    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
+    "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
+    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
+    "lint": "nuxi typecheck",
+    "preview": "nuxt preview"
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "11.0.3",
@@ -30,7 +31,6 @@
     "vue-router": "4.4.3",
     "yaml": "2.8.1"
   },
-  "license": "LGPL-3.0",
   "devDependencies": {
     "@nuxt/test-utils": "3.20.1",
     "@nuxtjs/tailwindcss": "6.14.0",
@@ -53,3 +53,4 @@
     "vue-tsc": "3.2.1"
   }
 }
+
