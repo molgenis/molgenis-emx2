@@ -112,7 +112,7 @@ public class ValidatePkeyProcessor implements RowProcessor {
 
   private void validateAutoIdValue(String value, Column column) {
     String computed = column.getComputed();
-    if (computed == null) {
+    if (value == null || computed == null) {
       return;
     }
 
