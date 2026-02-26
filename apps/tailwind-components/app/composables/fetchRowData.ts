@@ -1,4 +1,4 @@
-import { getRowFilter } from "~/utils/getRowFilter";
+import { getRowFilter } from "../utils/getRowFilter";
 import type { columnValue, IRow } from "../../../metadata-utils/src/types";
 import fetchTableData from "./fetchTableData";
 import fetchTableMetadata from "./fetchTableMetadata";

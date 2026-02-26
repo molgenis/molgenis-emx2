@@ -1,6 +1,6 @@
 import fetchTableData from "./fetchTableData";
 import fetchTableMetadata from "./fetchTableMetadata";
-import { getRowFilter } from "~/utils/getRowFilter";
+import { getRowFilter } from "../utils/getRowFilter";
 import type {
   columnValue,
   IColumn,
