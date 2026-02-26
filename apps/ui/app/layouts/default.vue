@@ -45,7 +45,7 @@
             v-else
             label="Signin"
             icon="user"
-            @click="navigateTo({ path: '/login/' })"
+            @click="navigateTo({ path: '/login' })"
           />
         </template>
         <template #logo-mobile>
