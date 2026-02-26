@@ -16,7 +16,7 @@ class AutoIdFormatTest {
 
     @Test
     void givenAutoIdToken_thenUseDefaultValues() {
-      assertComputedTransformsToConfig("${mg_autoid}", AutoIdFormat.Format.MIXED, 12);
+      assertTrue(AutoIdFormat.fromComputedString("${mg_autoid}").isEmpty());
     }
 
     @Test
@@ -85,7 +85,9 @@ class AutoIdFormatTest {
     }
 
     void assertComputedTransformsToConfig(String computed, AutoIdFormat.Format format, int length) {
-      AutoIdFormat actual = AutoIdFormat.fromComputedString(computed);
+      AutoIdFormat actual =
+          AutoIdFormat.fromComputedString(computed)
+              .orElseThrow(() -> new AssertionError("Expected AutoIdFormat"));
       AutoIdFormat expected = new AutoIdFormat(format, length);
       assertEquals(expected, actual);
     }

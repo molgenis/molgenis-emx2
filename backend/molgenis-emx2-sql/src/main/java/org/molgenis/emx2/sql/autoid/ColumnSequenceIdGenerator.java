@@ -7,6 +7,7 @@ import static org.molgenis.emx2.Constants.MOLGENIS_ID_RANDOMIZER_KEY;
 import java.util.HexFormat;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.generator.AutoIdFormat;
 import org.molgenis.emx2.utils.generator.FeistelIdRandomizer;
@@ -36,7 +37,11 @@ public class ColumnSequenceIdGenerator implements IdGenerator {
             .map(String::getBytes)
             .orElse(DEFAULT_KEY);
 
-    autoIdFormat = AutoIdFormat.fromComputedString(column.getComputed());
+    autoIdFormat =
+        AutoIdFormat.fromComputedString(column.getComputed())
+            .orElseThrow(
+                () ->
+                    new MolgenisException("Invalid computed value for column " + column.getName()));
     String name = getSequenceNameForColumn(column);
     if (!SqlSequence.exists(jooq, column.getSchemaName(), name)) {
       long limit = autoIdFormat.getMaxValue() + 1;

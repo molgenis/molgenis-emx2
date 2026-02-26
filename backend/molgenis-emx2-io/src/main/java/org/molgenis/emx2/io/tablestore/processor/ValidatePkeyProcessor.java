@@ -116,8 +116,12 @@ public class ValidatePkeyProcessor implements RowProcessor {
       return;
     }
 
-    AutoIdFormat format = AutoIdFormat.fromComputedString(computed);
-    if (!format.valueCompliesToFormat(value)) {
+    boolean formatComplies =
+        AutoIdFormat.fromComputedString(computed)
+            .map(format -> format.valueCompliesToFormat(value))
+            .orElse(true);
+
+    if (!formatComplies) {
       task.addSubTask("Found invalid auto-id value: " + value + ", for column: " + column.getName())
           .setError();
       invalidValues.add(value);

@@ -24,6 +24,7 @@ class TestSqlTypeUtils {
 
   private static SqlDatabase database;
   private static DSLContext jooq;
+  private Schema schema;
 
   @BeforeAll
   static void setup() {
@@ -32,7 +33,7 @@ class TestSqlTypeUtils {
 
   @BeforeEach
   void setupSchema() {
-    database.dropCreateSchema(SCHEMA_NAME);
+    schema = database.dropCreateSchema(SCHEMA_NAME);
     jooq = database.getJooq();
   }
 
@@ -45,7 +46,8 @@ class TestSqlTypeUtils {
 
   @Test
   void autoIdGetsGenerated() {
-    TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
+    TableMetadata tableMetadata =
+        schema.create(table("Test", new Column("myCol").setType(ColumnType.AUTO_ID))).getMetadata();
 
     final Row row = new Row("myCol", null);
     applyValidationAndComputed(tableMetadata.getColumns(), row, jooq);

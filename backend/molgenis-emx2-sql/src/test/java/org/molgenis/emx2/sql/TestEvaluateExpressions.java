@@ -142,13 +142,13 @@ class TestEvaluateExpressions {
 
   @Test
   void givenInvalidArgumentForAutoIdComputed_thenThrowException() {
-    TableMetadata table =
-        table(
-            "test_autoid",
-            new Column("id").setType(ColumnType.AUTO_ID).setComputed("${mg_autoid(invalid)}"));
+    Table table =
+        schema.create(
+            table(
+                "test_invalid_autoid",
+                new Column("id").setType(ColumnType.AUTO_ID).setComputed("${mg_autoid(invalid)}")));
 
-    List<Column> columns = table.getColumns();
-
+    List<Column> columns = table.getMetadata().getColumns();
     assertThrows(
         MolgenisException.class,
         () -> applyValidationAndComputed(columns, new Row(), db.getJooq()));

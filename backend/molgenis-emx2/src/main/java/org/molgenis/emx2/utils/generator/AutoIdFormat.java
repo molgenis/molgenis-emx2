@@ -1,9 +1,6 @@
 package org.molgenis.emx2.utils.generator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +13,7 @@ public record AutoIdFormat(Format format, int length, String prefix, String suff
   }
 
   private static final Pattern JS_TOKEN_PATTERN =
-      Pattern.compile("\\$\\{mg_autoid(\\((?<args>[^)]*)\\))?}");
+      Pattern.compile("\\$\\{mg_autoid\\((?<args>[^)]*)\\)}");
 
   public enum Format {
     LETTERS("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"),
@@ -34,7 +31,7 @@ public record AutoIdFormat(Format format, int length, String prefix, String suff
     }
   }
 
-  public static AutoIdFormat fromComputedString(String computedString) {
+  public static Optional<AutoIdFormat> fromComputedString(String computedString) {
     Format format = Format.MIXED;
     int length = 12;
 
@@ -42,23 +39,18 @@ public record AutoIdFormat(Format format, int length, String prefix, String suff
     String prefix = (split.length >= 1) ? split[0] : "";
     String suffix = (split.length == 2) ? split[1] : "";
 
-    MatchResult matchResult;
-    try (Scanner scanner = new Scanner(computedString)) {
-      List<MatchResult> results = scanner.findAll(JS_TOKEN_PATTERN).toList();
+    List<MatchResult> results = JS_TOKEN_PATTERN.matcher(computedString).results().toList();
 
-      if (results.isEmpty()) {
-        return new AutoIdFormat(format, length, prefix, suffix);
-      } else if (results.size() > 1) {
-        throw new MolgenisException(
-            "Invalid computed value provided, only one autoid instance is allowed");
-      }
-
-      matchResult = results.getFirst();
+    if (results.isEmpty()) {
+      return Optional.empty();
+    } else if (results.size() > 1) {
+      throw new MolgenisException(
+          "Invalid computed value provided, only one autoid instance is allowed");
     }
 
-    String args = matchResult.group("args");
+    String args = results.getFirst().group("args");
     if (args == null || args.isBlank()) {
-      return new AutoIdFormat(format, length, prefix, suffix);
+      return Optional.of(new AutoIdFormat(format, length, prefix, suffix));
     }
 
     Map<String, Object> argMap = parseArgs(args);
@@ -79,7 +71,7 @@ public record AutoIdFormat(Format format, int length, String prefix, String suff
       }
     }
 
-    return new AutoIdFormat(format, length, prefix, suffix);
+    return Optional.of(new AutoIdFormat(format, length, prefix, suffix));
   }
 
   private static Map<String, Object> parseArgs(String args) {

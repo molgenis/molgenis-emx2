@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql.autoid;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.jooq.DSLContext;
@@ -18,7 +17,7 @@ public class IdGeneratorService {
   private static final Cache<String, IdGenerator> STRATEGY_CACHE =
       Caffeine.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
 
-  private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?<func>\\$\\{mg_autoid[^}]*})");
+  private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\$\\{mg_autoid(\\([^)]*\\))?}");
 
   private final DSLContext jooq;
 
@@ -40,6 +39,13 @@ public class IdGeneratorService {
 
   private IdGenerator getGenerator(Column column) {
     String computed = column.getComputed();
+
+    if (computed == null) {
+      return () ->
+          computed.replace(
+              Constants.COMPUTED_AUTOID_TOKEN, SnowflakeIdGenerator.getInstance().generateId());
+    }
+
     IdGenerator generator = STRATEGY_CACHE.getIfPresent(computed);
 
     if (generator == null) {
@@ -67,14 +73,11 @@ public class IdGeneratorService {
   }
 
   private static void validateComputed(String computed) {
-    FUNCTION_PATTERN.matcher(computed).find();
-    try (Scanner scanner = new Scanner(computed)) {
-      if (scanner.findAll(FUNCTION_PATTERN).count() > 1) {
-        throw new MolgenisException(
-            "Cannot generate autoid for column "
-                + computed
-                + " because mg_autoid can only be used once");
-      }
+    if (FUNCTION_PATTERN.matcher(computed).results().count() > 1) {
+      throw new MolgenisException(
+          "Cannot generate autoid for column "
+              + computed
+              + " because mg_autoid can only be used once");
     }
   }
 
