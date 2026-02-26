@@ -17,7 +17,7 @@ test.describe("period input type", () => {
     await page.getByRole("textbox", { name: "period type" }).fill("test");
     await page.getByRole("textbox", { name: "period type" }).press("Tab");
 
-    await expect(page.getByText("errorInvalid Period: should")).toBeVisible();
+    await expect(page.getByText("errorInvalid Period: must")).toBeVisible();
 
     await page.getByRole("textbox", { name: "period type" }).dblclick();
     await page.getByRole("textbox", { name: "period type" }).fill("P1Y3M14D");
