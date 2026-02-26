@@ -8,6 +8,7 @@ import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 import java.util.*;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.autoid.SqlSequence;
 
 public class SqlSchema implements Schema {
   private SqlDatabase db;
@@ -428,6 +429,23 @@ public class SqlSchema implements Schema {
                     .toLowerCase()
                     .replace(" ", "")
                     .equals(tableName.replace(" ", "").toLowerCase()));
+  }
+
+  @Override
+  public List<Sequence> getSequences() {
+    List<org.jooq.Schema> jooqSchemas = getJooq().meta().getSchemas(getName());
+    if (jooqSchemas.size() > 1) {
+      throw new MolgenisException("Multiple schemas with name: " + getName() + " found");
+    }
+
+    if (jooqSchemas.isEmpty()) {
+      throw new MolgenisException("No schemas found with name: " + getName());
+    }
+
+    return jooqSchemas.getFirst().getSequences().stream()
+        .map(seq -> new SqlSequence(getJooq(), getName(), seq.getName()))
+        .map(Sequence.class::cast)
+        .toList();
   }
 
   public DSLContext getJooq() {
