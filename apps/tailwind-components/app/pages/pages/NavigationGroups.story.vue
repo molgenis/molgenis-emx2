@@ -20,9 +20,20 @@ const links = [
     urlLabel: "Go to github",
     urlIsExternal: true,
   },
+  {
+    id: "UKX8WqOxwP9a",
+    title: "Contact us",
+    description:
+      "Send us an email with any questions about the MOLGENIS software",
+    url: "mailto:some.email@test.com",
+    urlLabel: "Contact",
+    urlIsExternal: true,
+  },
 ];
 </script>
 
 <template>
-  <NavigationGroups id="navigation-group" :links="links" />
+  <div class="my-5">
+    <NavigationGroups id="navigation-group" :links="links" />
+  </div>
 </template>
