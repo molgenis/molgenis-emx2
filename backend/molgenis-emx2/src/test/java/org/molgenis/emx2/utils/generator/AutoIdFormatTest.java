@@ -38,7 +38,7 @@ class AutoIdFormatTest {
     @Test
     void givenNegativeLength_thenThrowException() {
       assertThrows(
-          IllegalArgumentException.class,
+          MolgenisException.class,
           () -> AutoIdFormat.fromComputedString("${mg_autoid(length=-1)}"));
     }
 
@@ -60,15 +60,22 @@ class AutoIdFormatTest {
     @Test
     void givenUnknownArgument_thenThrowException() {
       assertThrows(
-          IllegalArgumentException.class,
+          MolgenisException.class,
           () -> AutoIdFormat.fromComputedString("${mg_autoid(unknown=bar)}"));
     }
 
     @Test
     void givenKeyTwice_thenThrowException() {
       assertThrows(
-          IllegalArgumentException.class,
+          MolgenisException.class,
           () -> AutoIdFormat.fromComputedString("${mg_autoid(length=42, length=42)}"));
+    }
+
+    @Test
+    void givenAutoIdTwice_thenThrowException() {
+      String input =
+          "FOO-${mg_autoid(length=4, format=numbers)}-${mg_autoid(length=6, format=numbers)}";
+      assertThrows(MolgenisException.class, () -> AutoIdFormat.fromComputedString(input));
     }
 
     @Test
@@ -103,9 +110,10 @@ class AutoIdFormatTest {
             .boxed()
             .map(Object::toString)
             .map(str -> StringUtils.leftPad(str, 4, '0'))
+            .map(str -> "FOO-" + str + "-BAR")
             .toList();
 
-    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 4);
+    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 4, "FOO-", "-BAR");
     List<String> actual = IntStream.range(0, 10000).boxed().map(format::mapToFormat).toList();
 
     assertEquals(expected, actual);
@@ -113,11 +121,11 @@ class AutoIdFormatTest {
 
   @Test
   void givenValue_thenReverse() {
-    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.MIXED, 4);
-    assertEquals(1337, format.getValue("AAVj"));
-    assertEquals(14_776_335, format.getValue("9999"));
-    assertEquals(1, format.getValue("AAAB"));
-    assertEquals(0, format.getValue("AAAA"));
+    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.MIXED, 4, "FOO-", "-BAR");
+    assertEquals(1337, format.getValue("FOO-AAVj-BAR"));
+    assertEquals(14_776_335, format.getValue("FOO-9999-BAR"));
+    assertEquals(1, format.getValue("FOO-AAAB-BAR"));
+    assertEquals(0, format.getValue("FOO-AAAA-BAR"));
   }
 
   @Test
@@ -130,5 +138,14 @@ class AutoIdFormatTest {
   void givenValue_whenDifferentCharacters_thenThrow() {
     AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 4);
     assertThrows(MolgenisException.class, () -> format.getValue("A"));
+  }
+
+  @Test
+  void givenFormat_thenValueComplies() {
+    AutoIdFormat format = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 4, "FOO-", "-BAR");
+    assertFalse(format.valueCompliesToFormat("FOO-123-BAR"));
+    assertFalse(format.valueCompliesToFormat("FOO-1234"));
+    assertFalse(format.valueCompliesToFormat("1234-BAR"));
+    assertTrue(format.valueCompliesToFormat("FOO-1234-BAR"));
   }
 }
