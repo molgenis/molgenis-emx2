@@ -16,7 +16,7 @@
     "molgenis-viz": "workspace:*",
     "vue": "3.5.22",
     "vue-router": "4.4.3",
-    "axios": "1.12.0",
+    "axios": "1.13.5",
     "graphql-tag": "2.12.6"
   },
   "devDependencies": {
