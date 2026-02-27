@@ -8,7 +8,7 @@ export interface Charts {
 
 export type LegendPosition = "top" | "bottom";
 
-export interface ChartContext {
+export interface ChartTitle {
   title: string;
   description?: string;
 }
