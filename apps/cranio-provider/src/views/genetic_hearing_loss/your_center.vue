@@ -5,7 +5,7 @@ import {
   DashboardChart,
   ColumnChart,
   GroupedColumnChart,
-  BarChart,
+  DataTable,
   LoadingScreen,
   // @ts-expect-error
 } from "molgenis-viz";
@@ -73,6 +73,24 @@ onMounted(async () => {
       });
   }
 
+  // genes
+  if (geneticDiagnosisGenesChart.value.dataPoints) {
+    geneticDiagnosisGenesChart.value.dataPoints =
+      geneticDiagnosisGenesChart.value.dataPoints
+        ?.map((row: IChartData) => {
+          return {
+            ...row,
+            Gene: row.dataPointName,
+            Total: row.dataPointValue,
+          };
+        })
+        .sort((a, b) => {
+          return (a.dataPointName as string).localeCompare(
+            b.dataPointName as string
+          );
+        });
+  }
+
   // age of onset prep
   const onsetAxis = generateAxisTickData(
     hearingLossOnsetChart.value?.dataPoints as IChartData[],
@@ -89,21 +107,6 @@ onMounted(async () => {
           (a.dataPointName as string).localeCompare(b.dataPointName as string)
         );
       });
-  }
-
-  // prep genetic diagnosis gene
-  const geneAxis = generateAxisTickData(
-    geneticDiagnosisGenesChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
-  );
-  if (geneticDiagnosisGenesChart.value) {
-    geneticDiagnosisGenesChart.value.xAxisMaxValue = geneAxis.limit;
-    geneticDiagnosisGenesChart.value.xAxisTicks = geneAxis.ticks;
-
-    geneticDiagnosisGenesChart.value.dataPoints =
-      geneticDiagnosisGenesChart.value.dataPoints?.sort((a, b) =>
-        (a.dataPointName as string).localeCompare(b.dataPointName as string)
-      );
   }
 
   // prep genetic diagnosis type
@@ -235,38 +238,21 @@ onMounted(async () => {
       </DashboardChart>
     </DashboardRow>
     <h3 class="dashboard-h3">Genetic diagnosis</h3>
-    <DashboardRow :columns="2">
+    <DashboardRow :columns="1">
       <DashboardChart>
         <LoadingScreen v-if="loading" style="height: 250px" />
-        <BarChart
+        <DataTable
           v-else
-          :chartId="geneticDiagnosisGenesChart?.chartId"
-          :title="geneticDiagnosisGenesChart?.chartTitle"
-          :description="geneticDiagnosisGenesChart?.chartSubtitle"
-          :chartData="geneticDiagnosisGenesChart?.dataPoints"
-          xvar="dataPointValue"
-          yvar="dataPointName"
-          :xAxisLabel="geneticDiagnosisGenesChart?.xAxisLabel"
-          :yAxisLabel="geneticDiagnosisGenesChart?.yAxisLabel"
-          :xMin="0"
-          :xMax="geneticDiagnosisGenesChart?.xAxisMaxValue"
-          :xTickValues="geneticDiagnosisGenesChart?.xAxisTicks"
-          barFill="#A7DCCB"
-          barHoverFill="#EE7032"
-          :chartHeight="250"
-          :chartMargins="{
-            top: geneticDiagnosisGenesChart?.topMargin,
-            right: geneticDiagnosisGenesChart?.rightMargin,
-            bottom: geneticDiagnosisGenesChart?.bottomMargin,
-            left: geneticDiagnosisGenesChart?.leftMargin,
-          }"
+          :tableId="geneticDiagnosisGenesChart?.chartId"
+          :data="geneticDiagnosisGenesChart?.dataPoints"
+          :columnOrder="['Gene', 'Total']"
+          :caption="geneticDiagnosisGenesChart?.chartTitle"
         />
       </DashboardChart>
       <DashboardChart>
         <LoadingScreen v-if="loading" style="height: 250px" />
         <ColumnChart
           v-else
-          class="chart-axis-x-angled-text"
           :chartId="geneticDiagnosisTypeChart?.chartId"
           :title="geneticDiagnosisTypeChart?.chartTitle"
           :description="geneticDiagnosisTypeChart?.chartSubtitle"
