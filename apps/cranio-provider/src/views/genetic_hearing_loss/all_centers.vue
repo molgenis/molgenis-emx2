@@ -137,25 +137,27 @@ onMounted(async () => {
   }
 
   // prep genetic diagnosis gene
-  genesTableData.value = d3
-    .groups(
-      geneticDiagnosisGenesChart.value.dataPoints,
-      (row) => row.dataPointName,
-      (row) => row.dataPointSecondaryCategory
-    )
-    .map(([group, subgroup]) => {
-      return {
-        Gene: group,
-        ...Object.fromEntries(
-          subgroup.map(([entry, value]) => {
-            return [`Count ${entry}`, value[0].dataPointValue];
-          })
-        ),
-      };
-    })
-    .sort((a, b) => {
-      return (a.Gene as string).localeCompare(b.Gene as string);
-    }) as GenesSummaryData[];
+  if (geneticDiagnosisGenesChart.value.dataPoints) {
+    genesTableData.value = d3
+      .groups(
+        geneticDiagnosisGenesChart.value.dataPoints,
+        (row: IChartData) => row.dataPointName,
+        (row: IChartData) => row.dataPointSecondaryCategory
+      )
+      .map(([group, subgroup]) => {
+        return {
+          Gene: group,
+          ...Object.fromEntries(
+            subgroup.map(([entry, value]) => {
+              return [`Count ${entry}`, value[0].dataPointValue];
+            })
+          ),
+        } as GenesSummaryData;
+      })
+      .sort((a: GenesSummaryData, b: GenesSummaryData) => {
+        return a.Gene.localeCompare(b.Gene);
+      });
+  }
 
   // prep genetic diagnosis type
   const dxTypeAxis = generateAxisTickData(
