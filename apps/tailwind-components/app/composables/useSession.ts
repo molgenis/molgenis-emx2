@@ -1,14 +1,12 @@
 import { useAsyncData } from "#app/composables/asyncData";
-import { computed, onUnmounted, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 import { useRoute, useRouter } from "#app/composables/router";
 import type { ISession } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 import { useState } from "#app";
 
-export const useSession = async () => {
-  const route = useRoute();
+export const useSession = async (schemaId?: string) => {
   const router = useRouter();
-  const schemaId = route.params.schema as string | null;
   const session = useState("session", () => null as ISession | null);
 
   let messageHandler: ((event: MessageEvent) => void) | null = null;
@@ -53,7 +51,11 @@ export const useSession = async () => {
     session.value = sessionResult.data.value?.data._session;
 
     if (session.value && schemaId) {
-      session.value.roles = schemaRolesResult?.data.value?.data._session.roles;
+      if (!session.value.roles) {
+        session.value.roles = {};
+      }
+      session.value.roles[schemaId] =
+        schemaRolesResult?.data.value?.data._session.roles;
     }
   }
 
@@ -73,7 +75,10 @@ export const useSession = async () => {
     session.value = sessionResult.data._session;
 
     if (session.value && schemaId && schemaRolesResult) {
-      session.value.roles = schemaRolesResult.data._session.roles;
+      if (!session.value.roles) {
+        session.value.roles = {};
+      }
+      session.value.roles[schemaId] = schemaRolesResult.data._session.roles;
     }
   }
 
@@ -126,11 +131,38 @@ export const useSession = async () => {
     return messageHandler;
   }
 
+  async function signOut() {
+    const { data, error } = await $fetch("/api/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { query: `mutation { signout { status } }` },
+    });
+
+    if (error || data.signout.status !== "SUCCESS") {
+      console.error("Error signing out:", error);
+      return;
+    }
+
+    reload();
+  }
+
   const isAdmin = computed(() => session.value?.admin || false);
 
-  if (!session.value) {
+  if (
+    !session.value ||
+    (schemaId && session.value.roles?.[schemaId] === undefined)
+  ) {
     await loadSession();
   }
 
-  return { isAdmin, session, reload, hasSessionTimeout, reAuthenticate };
+  return {
+    isAdmin,
+    session,
+    reload,
+    hasSessionTimeout,
+    reAuthenticate,
+    signOut,
+  };
 };

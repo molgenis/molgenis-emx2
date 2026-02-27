@@ -11,8 +11,8 @@ const chartPosition = ref<LegendPosition>("top");
 const asDonutChart = ref<boolean>(true);
 const showValues = ref<boolean>(true);
 const showLabels = ref<boolean>(true);
-const enableClicks = ref<boolean>(false);
-const enableHover = ref<boolean>(false);
+const enableClicks = ref<boolean>(true);
+const enableHover = ref<boolean>(true);
 
 const data = {
   "Group A": 48,

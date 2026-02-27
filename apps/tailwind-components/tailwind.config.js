@@ -392,6 +392,7 @@ module.exports = {
         "check-border": "var(--border-color-button-primary)",
         "chart-text": "var(--chart-text)",
         "chart-paths": "var(--chart-paths)",
+        "chart-gridlines": "var(--chart-gridlines)",
       }),
       fill: () => ({
         input: "var(--background-color-input)",

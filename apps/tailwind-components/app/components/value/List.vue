@@ -3,6 +3,7 @@ import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import ValueString from "./String.vue";
 import ValueDecimal from "./Decimal.vue";
+import ValueInt from "./Int.vue";
 import ValueLong from "./Long.vue";
 import ValueBool from "./Bool.vue";
 import ValueEmail from "./Email.vue";
