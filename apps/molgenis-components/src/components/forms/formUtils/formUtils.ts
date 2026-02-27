@@ -390,12 +390,7 @@ function getInvalidNonNegativeIntegers(numbers: columnValue): columnValue[] {
 }
 
 function isInvalidEmail(value: columnValue): boolean {
-  return (
-    value !== null &&
-    value !== undefined &&
-    typeof value === "string" &&
-    !EMAIL_REGEX.test(value)
-  );
+  return typeof value !== "string" || !EMAIL_REGEX.test(value);
 }
 
 function getInvalidEmails(emails?: columnValue): columnValue[] {
