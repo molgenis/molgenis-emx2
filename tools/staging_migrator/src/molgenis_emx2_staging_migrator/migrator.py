@@ -4,22 +4,19 @@ import zipfile
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
-from typing import TypeAlias, Literal
 
 import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient import Client
-from molgenis_emx2_pyclient.constants import DATE, DATETIME
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
-from molgenis_emx2_pyclient.utils import convert_dtypes
 
-from .constants import BASE_DIR, changelog_query
-from .utils import prepare_primary_keys, has_statement_of_consent, process_statement, resource_ref_cols
+from .constants import BASE_DIR, changelog_query, SchemaType
+from .utils import prepare_primary_keys, process_statement, resource_ref_cols, load_table, \
+    set_all_delete, check_hricore
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
-SchemaType: TypeAlias = Literal['source', 'target']
 CATALOGUE = "catalogue"
 
 
@@ -51,6 +48,8 @@ class StagingMigrator(Client):
         elif source is not None:
             self.set_source(source)
         self._verify_schemas()
+        self.warnings = []
+        self.errors = []
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -105,7 +104,6 @@ class StagingMigrator(Client):
             # Remove any downloaded files from disk
             self.cleanup()
 
-
     def create_zip(self):
         """
         Creates a ZIP file containing tables to be uploaded to the target schema.
@@ -113,6 +111,7 @@ class StagingMigrator(Client):
         source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
                                                     include_system_columns=True)
 
+        source_profile = self._get_source_profile()
         source_metadata = self.get_schema_metadata(self.source)
         upload_stream = BytesIO()
         updated_tables = list()
@@ -132,9 +131,23 @@ class StagingMigrator(Client):
                     continue
                 log.debug(f"Processing table {table.name!r}.")
                 updated_table: pd.DataFrame = self._get_filtered(table)
-                modified_table: pd.DataFrame = self._modify_table(updated_table, table)
-                if len(modified_table.index) != 0:
-                    upload_archive.writestr(file_name, modified_table.to_csv())
+
+                if source_profile in ["CohortStaging", "UMCGCohortsStaging"]:
+                    if table.id == "Organisations":
+                        updated_table = self.process_organisations(updated_table)
+                    if table.id == "Contacts":
+                        updated_table = process_statement(updated_table)
+                    if table.id in ["CollectionEvents", "Subpopulations"]:
+                        updated_table = self._copy_resource_columns(updated_table)
+                    if table.id == "Resources":
+                        try:
+                            check_hricore(updated_table)
+                        except ValueError as ve:
+                            self.errors.append(ve)
+                            raise ValueError(ve)
+
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
                     updated_tables.append(Path(file_name).stem)
 
         # Return zip
@@ -143,6 +156,11 @@ class StagingMigrator(Client):
             upload_stream.flush()
             return upload_stream
         log.info(f"Migrating tables {', '.join(updated_tables)}.")
+
+        filepath = BASE_DIR.joinpath(f"update.zip")
+        if Path(filepath).exists():
+            Path(filepath).unlink()
+        Path(filepath).write_bytes(upload_stream.getbuffer())
         return upload_stream
 
     def delete_resource(self):
@@ -167,9 +185,9 @@ class StagingMigrator(Client):
                     log.debug(f"Skipping file {file_name!r}.")
                     continue
                 log.debug(f"Preparing table {table.name!r} for deletion.")
-                updated_table: pd.DataFrame = self._set_all_delete(table)
+                updated_table: pd.DataFrame = set_all_delete(table)
                 if len(updated_table.index) != 0:
-                    upload_archive.writestr(file_name, updated_table.to_csv())
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
                     updated_tables.append(Path(file_name).stem)
 
         if len(updated_tables) == 0:
@@ -191,8 +209,8 @@ class StagingMigrator(Client):
         ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
 
         # Load the data for the table from the ZIP files
-        source_df = self._load_table('source', table)
-        target_df = self._load_table('target', table)
+        source_df = load_table('source', table)
+        target_df = load_table('target', table)
 
         # Filter the rows in the target table that reference the Resource identifiers
         target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
@@ -221,26 +239,31 @@ class StagingMigrator(Client):
 
         # Combine the new, updated and missing rows
         filtered_df = pd.concat([new_df, updated_df, missing_df])
+        filtered_df = filtered_df[[col for col in filtered_df.columns if (not col.startswith('mg_') or col == 'mg_delete')]]
 
         return filtered_df
 
-    def _set_all_delete(self, table: Table) -> pd.DataFrame:
-        """
-        Adds an `mg_delete` column to the table and sets its values to `true`.
-        """
-        source_df = self._load_table('source', table)
-        source_df["mg_delete"] = True
-        return source_df
+    def process_organisations(self, source_orgs: pd.DataFrame) -> pd.DataFrame:
+        """Processes the organisations table by combining information from CatalogueOntologies."""
+        ontology_organisations = self.get("Organisations", schema="CatalogueOntologies", as_df=True)
 
+        def pid_func(org: str):
+            return ontology_organisations.set_index('name')["code"].to_dict().get(org, None)
+        def website_func(org: str):
+            return ontology_organisations.set_index('name')["website"].to_dict().get(org, None)
 
-    @staticmethod
-    def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
-        """
-        Applies transformation on a table's data given its contents.
-        """
-        if (consent_val := has_statement_of_consent(table)) != 0:
-            return process_statement(df, consent_val=consent_val)
-        return df
+        missing_orgs = source_orgs.loc[source_orgs["organisation"].isna(), ["resource", "id"]]
+        for row in missing_orgs.itertuples():
+            msg = f"No organisation for (resource, id) = ({row.resource}, {row.id})"
+            log.warning(msg)
+            self.warnings.append(msg)
+
+        target_orgs = source_orgs.copy()
+        target_orgs["organisation name"] = target_orgs["organisation"].copy()
+        target_orgs["organisation pid"] = target_orgs["organisation"].apply(pid_func)
+        target_orgs["organisation website"] = target_orgs["organisation"].apply(website_func)
+
+        return target_orgs
 
 
     def download_schema_zip(self, schema: str, schema_type: SchemaType,
@@ -261,33 +284,6 @@ class StagingMigrator(Client):
         else:
             log.error("Error: download failed.")
         return filepath
-
-    @staticmethod
-    def _load_table(schema_type: SchemaType, table: Table) -> pd.DataFrame:
-        """Loads the table from a zip file into a DataFrame.
-        Then parses the data by converting the columns' dtypes.
-        """
-        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
-            raw_df = pd.read_csv(BytesIO(archive.read(f"{table.name}.csv")), nrows=1)
-
-        columns = raw_df.columns
-        dtypes = {c: convert_dtypes(table).get(c, "string") for c in columns}
-
-        bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
-        date_columns = [c.name for c in table.columns
-                        if c.get('columnType') in (DATE, DATETIME) and c.name in columns]
-
-        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
-            df = pd.read_csv(filepath_or_buffer=BytesIO(archive.read(f"{table.name}.csv")),
-                             dtype=dtypes,
-                             na_values=[""],
-                             keep_default_na=False,
-                             parse_dates=date_columns)
-
-        df[bool_columns] = df[bool_columns].replace({'true': True, 'false': False})
-        df = df.astype(dtypes)
-
-        return df
 
 
     def _verify_schemas(self):
@@ -327,7 +323,9 @@ class StagingMigrator(Client):
             upload_description = self.session.get(response_url).json().get('description')
 
             if upload_status == 'ERROR':
-                log.error(f"Migration failed, reason: {upload_description}.")
+                error_msg = f"Migration failed, reason: {upload_description}."
+                log.error(error_msg)
+                self.errors.append(error_msg)
                 log.debug(self.session.get(response_url).json())
             else:
                 log.info("Upload completed successfully.")
@@ -358,3 +356,23 @@ class StagingMigrator(Client):
             if Path(filename).exists():
                 log.debug(f"Deleting file {zp!r}.")
                 Path(filename).unlink()
+
+    def _copy_resource_columns(self, table_df: pd.DataFrame) -> pd.DataFrame:
+        """Inserts values for columns 'publisher', 'creator', 'contact point' from Resources into this table."""
+        resources = load_table('source', self.get_schema_metadata(self.source).get_table('name', 'Resources'))
+        cols = ["publisher", "creator", "contact point"]
+        for rc in resources.columns:
+            if any(map(lambda c: rc.startswith(c), cols)):
+                table_df[rc] = table_df["resource"].apply(lambda r: resources.loc[resources['id'] == r, rc])
+
+        return table_df
+
+    def _get_source_profile(self) -> str | None:
+        """Returns the profile(s) of the source, defaults to None."""
+        source_meta = self.get_schema_metadata(self.source)
+        if "Profiles" not in map(lambda t: t.id, source_meta.tables):
+            return None
+        try:
+            return source_meta.get_table('id', "Profiles").descriptions[0].get('value')
+        except AttributeError:
+            return None
