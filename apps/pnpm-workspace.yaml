@@ -22,7 +22,6 @@ packages:
   - nestor-public
   - reports
   - tasks
-  - gportal
   - projectmanager
   - aggregates
   - directory
