@@ -63,7 +63,7 @@ test("should show auto id after saving", async ({ page }) => {
   await expect(page.getByText("Demo data controls")).toBeVisible();
   await page.getByRole("button", { name: "Add Order" }).click();
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByRole("textbox", { name: "orderId" }))
-    .toHaveValue(/ORDER:.+/)
-    .timeout(5000);
+  await expect(page.getByRole("textbox", { name: "orderId" })).toHaveValue(
+    /ORDER:.+/
+  );
 });
