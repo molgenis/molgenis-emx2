@@ -2,7 +2,7 @@
 import NavigationCards from "./NavigationCards.vue";
 import type { INavigationGroups } from "../../../../types/cms";
 
-const props = defineProps<INavigationGroups>();
+defineProps<INavigationGroups>();
 </script>
 
 <template>

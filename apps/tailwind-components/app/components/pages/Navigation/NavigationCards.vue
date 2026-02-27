@@ -2,7 +2,7 @@
 import type { INavigationCards } from "../../../../types/cms";
 import ExternalLink from "../../global/icons/ExternalLink.vue";
 
-const props = withDefaults(defineProps<INavigationCards>(), {
+withDefaults(defineProps<INavigationCards>(), {
   urlIsExternal: false,
 });
 </script>
@@ -19,6 +19,8 @@ const props = withDefaults(defineProps<INavigationCards>(), {
     <a
       :href="url"
       class="flex justify-center items-center gap-1.5 p-2 border rounded-input bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover duration-default ease-in-out"
+      :rel="urlIsExternal ? 'noopener noreferrer' : undefined"
+      :target="urlIsExternal ? '_blank' : undefined"
     >
       <span v-if="urlLabel">{{ urlLabel }}</span>
       <span v-else>{{ url }}</span>
