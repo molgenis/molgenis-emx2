@@ -32,8 +32,15 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-const query = `query CataloguePage($catalogueFilter:CataloguesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:CollectionsFilter,$subpopulationsCollectionFilter:ResourcesFilter,$networkFilter:NetworksFilter){
+const query = `query CataloguePage($catalogueFilter:CataloguesFilter,$collectionIdFilter:CollectionsFilter,$variablesFilter:VariablesFilter,$collectionsFilter:CollectionsFilter,$subpopulationsCollectionFilter:ResourcesFilter,$networkFilter:NetworksFilter){
         Catalogues(filter:$catalogueFilter) {
+              id,
+              acronym,
+              name,
+              description,
+              logo {url}
+       }
+        ScopedCollection: Collections(filter:$collectionIdFilter) {
               id,
               acronym,
               name,
@@ -124,6 +131,7 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
     query,
     variables: {
       catalogueFilter,
+      collectionIdFilter: scoped ? { id: { equals: catalogueRouteParam } } : undefined,
       collectionsFilter,
       subpopulationsCollectionFilter: scoped
         ? {
@@ -207,7 +215,9 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
-  const resources = data.value.data?.Catalogues;
+  const catalogues = data.value.data?.Catalogues;
+  const collections = data.value.data?.ScopedCollection;
+  const resources = catalogues?.length ? catalogues : collections;
   if (scoped && (!resources || resources.length === 0)) {
     throw createError({
       statusCode: 404,
