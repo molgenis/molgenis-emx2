@@ -1,15 +1,26 @@
-import { defineNuxtPlugin } from "#imports";
+import { defineNuxtPlugin, useCookie } from "#imports";
 import { setupAnalytics } from "../../../emx2-analytics/src/lib/analytics";
-import type { Provider } from "../../../emx2-analytics/src/types/Provider";
+import type {
+  Provider,
+  providerId,
+} from "../../../emx2-analytics/src/types/Provider";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook("page:loading:end", () => {
     const schema = nuxtApp.$config.public.schema as string;
     const analyticsKey = nuxtApp.$config.public.analyticsKey;
-    if (schema && analyticsKey) {
+    const analyticsProvider = nuxtApp.$config.public
+      .analyticsProvider as providerId;
+    const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics");
+    if (
+      schema &&
+      analyticsKey &&
+      analyticsProvider &&
+      isAnalyticsAllowedCookie.value === "true"
+    ) {
       console.log("Setup Analytics for: " + schema);
       const providers: Provider[] = [
-        { id: "site-improve", options: { analyticsKey } },
+        { id: analyticsProvider, options: { analyticsKey } },
       ];
       setupAnalytics(schema, providers);
     }
