@@ -100,7 +100,7 @@ export interface IComponents
     IUnorderedLists {
   mg_tableclass?: string;
   id: string;
-  inBlock?: any;
+  inBlock?: IBlocks;
 }
 
 // block defintions
@@ -108,7 +108,7 @@ export interface IHeaders {
   id: string;
   title?: string;
   subtitle?: string;
-  backgroundImage?: any;
+  backgroundImage?: IFile;
   titleIsCentered?: boolean;
   enableFullScreenWidth?: boolean;
 }
@@ -122,7 +122,7 @@ export interface ISections {
 export interface IHeadings {
   mg_tableclass?: string;
   id: string;
-  inBlock?: any;
+  inBlock?: IBlocks;
   text?: string;
   level?: number;
   headingIsCentered?: boolean;
@@ -131,7 +131,7 @@ export interface IHeadings {
 export interface IImages {
   mg_tableclass?: string;
   id: string;
-  inBlock?: any;
+  inBlock?: IBlocks;
   displayName?: string;
   image?: IFile;
   alt?: string;
@@ -142,14 +142,14 @@ export interface IImages {
 
 export interface IOrderedLists {
   id: string;
-  inBlock?: any;
+  inBlock?: IBlocks;
   items?: string[];
 }
 
 export interface IParagraphs {
   mg_tableclass?: string;
   id: string;
-  inBlock?: any;
+  inBlock?: IBlocks;
   text?: string;
   paragraphIsCentered?: boolean;
 }
@@ -157,14 +157,14 @@ export interface IParagraphs {
 export interface ITextElements {
   mg_tableclass?: string;
   id: string;
-  inBlock?: any;
+  inBlock?: IBlocks;
   text?: string;
 }
 
 export interface IUnorderedLists {
   mg_tableclass?: string;
   id: string;
-  inBlock?: any;
+  inBlock?: IBlocks;
   items?: string[];
 }
 

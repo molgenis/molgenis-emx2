@@ -16,7 +16,7 @@ function removeOptions(
 
   if (!optionsToRemove || !optionsToRemove.length) return filterOptions;
 
-  optionsToRemove.map((option: any) => option.toLowerCase());
+  optionsToRemove.map((option: string) => option.toLowerCase());
   return filterOptions.filter(
     (filterOption: IFilterOption) =>
       !optionsToRemove.includes(filterOption.text.toLowerCase())
@@ -128,7 +128,7 @@ export const genericFilterOptions = (filterFacet: IFilterFacet) => {
                   result[parent] = parent;
                 }
                 const children = row.children?.map(
-                  (child: any) => child[filterValueAttribute]
+                  (child: Record<string, string>) => child[filterValueAttribute]
                 );
                 if (children) {
                   result[children] = children;
@@ -195,7 +195,7 @@ export const ontologyFilterOptions = (filterFacet: IFilterFacet) => {
             .select(selection)
             .orderBy(sourceTable, sortColumn, sortDirection)
             .execute()
-            .then((response: any) => {
+            .then((response: Record<string, IOntologyItem[]>) => {
               const itemsSplitByOntology = getItemsSplitByOntology(
                 response[sourceTable],
                 ontologyIdentifiers || []
@@ -226,7 +226,7 @@ function getItemsSplitByOntology(
   );
 
   const rootNodes = itemsWithChildren.filter(
-    (item: any) => !item.parent?.length
+    (item: IOntologyItem) => !item.parent?.length
   );
 
   const itemsSplitByOntology = splitItemsByOntology(

@@ -22,7 +22,10 @@ export function seqAlongBy(start: Number, stop: Number, by: Number): Array {
  *
  * @returns array of unique values in alphabetical order
  */
-export function uniqueValues(data: any, key: string): string[] {
-  const values = data.map((row: Record<string, any>) => row[key]);
+export function uniqueValues(
+  data: Record<string, unknown>[],
+  key: string
+): string[] {
+  const values = data.map((row: Record<string, unknown>) => row[key]);
   return Array.from(new Set(values)).sort() as string[];
 }

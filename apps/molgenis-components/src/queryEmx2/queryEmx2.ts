@@ -5,18 +5,21 @@
 import { request } from "graphql-request";
 import { IColumn, ITableMetaData } from "../../../metadata-utils/dist";
 
+type FilterValue = string | string[] | number | boolean;
+type FilterBranch = { _and: string[]; _or: string[] };
+
 class QueryEMX2 {
   tableId = "";
-  filters: Record<string, any> = {};
+  filters: Record<string, FilterBranch> = {};
   column = "";
-  _schemaTablesInformation: Record<string, any> = {};
+  _schemaTablesInformation: ITableMetaData[] = [];
   selection = ["id", "name"];
   graphqlUrl = "";
   branch = "root";
   limits: Record<string, number> = {};
   orderings: Record<string, { column: string; direction: "asc" | "dsc" }> = {};
   findInAllColumns = "";
-  page: Record<string, any> = {};
+  page: Record<string, number> = {};
   aggregateQuery = false;
   type = "";
   orCount = 0;
@@ -40,7 +43,7 @@ class QueryEMX2 {
    * @param {string | string[]} columns
    * When you supply an object the Key is the table or REF property and the value is a string or string array
    */
-  select(columns: any[] | string) {
+  select(columns: (string | Record<string, string[]>)[] | string) {
     let requestedColumns = [];
 
     if (!Array.isArray(columns)) {
@@ -104,10 +107,10 @@ class QueryEMX2 {
    * Gets the table information for the current schema
    */
   async getSchemaTablesInformation() {
-    if (Object.keys(this._schemaTablesInformation).length)
+    if (this._schemaTablesInformation.length)
       return this._schemaTablesInformation;
 
-    const result: any = await request(
+    const result = await request<{ _schema: { tables: ITableMetaData[] } }>(
       this.graphqlUrl,
       `
         {
@@ -128,11 +131,11 @@ class QueryEMX2 {
     return this._schemaTablesInformation;
   }
 
-  async saveSetting(key: string, value: any) {
+  async saveSetting(key: string, value: string | number | boolean) {
     const valueToUpload =
       typeof value === "string" ? value : JSON.stringify(value);
 
-    const result: any = await request(
+    const result = await request<{ change: { message: string } }>(
       this.graphqlUrl,
       `
       mutation{
@@ -156,7 +159,7 @@ class QueryEMX2 {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
-      .find((table: ITableMetaData) => table.id === tableId)
+      .find((table: ITableMetaData) => table.id === tableId)!
       .columns.filter(
         (column: IColumn) =>
           !column.columnType.includes("REF") &&
@@ -169,7 +172,7 @@ class QueryEMX2 {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
-      .find((table: ITableMetaData) => table.id === tableId)
+      .find((table: ITableMetaData) => table.id === tableId)!
       .columns.map((column: IColumn) => ({
         id: column.id,
         columnType: column.columnType,
@@ -280,7 +283,7 @@ class QueryEMX2 {
    * Additional function, which does the same as search but might be more semantic
    * @param {any} value searches this value across all columns, can only be applied to the top level table
    */
-  find(value: any) {
+  find(value: string) {
     this.findInAllColumns = value;
     return this;
   }
@@ -288,13 +291,13 @@ class QueryEMX2 {
   /**
    * @param {any} value searches this value across all columns, can only be applied to the top level table
    */
-  search(value: any) {
+  search(value: string) {
     this.findInAllColumns = value;
     return this;
   }
 
   /** Text, String, Url, Int, Bool, DateTime Filter */
-  equals(value: any) {
+  equals(value: FilterValue) {
     const operator = "equals";
 
     this._createFilter(operator, value);
@@ -302,7 +305,7 @@ class QueryEMX2 {
   }
 
   /** Text, String, Url, Int, Bool, DateTime Filter */
-  in(value: any) {
+  in(value: FilterValue) {
     /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
     const operator = "in";
     this._createFilter(operator, value);
@@ -310,41 +313,41 @@ class QueryEMX2 {
   }
 
   /** Text, String, Url, Int, Bool, DateTime Filter */
-  notEquals(value: any) {
+  notEquals(value: FilterValue) {
     const operator = "not_equals";
     this._createFilter(operator, value);
     return this;
   }
 
   /** Text, String, Url, Filter */
-  orLike(value: any) {
+  orLike(value: FilterValue) {
     /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
     const operator = "orLike";
     return this._createFilter(operator, value);
   }
 
   /** Text, String, Url, Filter */
-  like(value: any) {
+  like(value: FilterValue) {
     const operator = "like";
 
     return this._createFilter(operator, value);
   }
   /** Text, String, Url, Filter */
-  notLike(value: any) {
+  notLike(value: FilterValue) {
     const operator = "not_like";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Filter */
-  triagramSearch(value: any) {
+  triagramSearch(value: FilterValue) {
     const operator = "triagram_search";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Filter */
-  textSearch(value: any) {
+  textSearch(value: FilterValue) {
     const operator = "text_search";
 
     this._createFilter(operator, value);
@@ -352,14 +355,14 @@ class QueryEMX2 {
   }
 
   /** Int, DateTime Filter */
-  between(value: any) {
+  between(value: FilterValue) {
     const operator = "between";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Int, DateTime Filter */
-  notBetween(value: any) {
+  notBetween(value: FilterValue) {
     const operator = "not_between";
     this._createFilter(operator, value);
     return this;
@@ -389,7 +392,7 @@ class QueryEMX2 {
   // the best query would be for example"
   // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
   // but this requires another rewrite ;)
-  _createFilterString(filters: Record<string, any>, property: string) {
+  _createFilterString(filters: FilterBranch, property: string) {
     let filterString = "";
 
     const andCount = filters && filters["_and"] ? filters["_and"].length : 0;
@@ -455,10 +458,10 @@ class QueryEMX2 {
 
   /** Create a nested object to represent the branches and their properties */
   _createBranches(properties: string[]) {
-    let branches = {};
+    let branches: Record<string, Record<string, unknown>> = {};
     for (let property of properties) {
       let parts = property.split(".");
-      let currentBranch: Record<string, any> = branches;
+      let currentBranch: Record<string, unknown> = branches;
 
       /** Create nested objects for each part of the property path */
       for (let i = 0; i < parts.length - 1; i++) {
@@ -466,7 +469,7 @@ class QueryEMX2 {
         if (!currentBranch[part]) {
           currentBranch[part] = {};
         }
-        currentBranch = currentBranch[part];
+        currentBranch = currentBranch[part] as Record<string, unknown>;
       }
 
       /** Add the property to the innermost branch */
@@ -480,7 +483,8 @@ class QueryEMX2 {
         if (!currentBranch.properties) {
           currentBranch.properties = {};
         }
-        currentBranch.properties[propertyName] = true;
+        (currentBranch.properties as Record<string, boolean>)[propertyName] =
+          true;
       }
     }
     return branches;
@@ -525,7 +529,7 @@ class QueryEMX2 {
   _createFilterFromPath(
     path: string,
     originalOperator: string,
-    value: any | any[]
+    value: FilterValue
   ) {
     const valueArray = Array.isArray(value) ? value : [value];
     const operator = this._getGqlOperator(originalOperator);
@@ -569,7 +573,7 @@ class QueryEMX2 {
   }
 
   /** Private function to create the correct filter syntax. */
-  _createFilter(operator: string, value: any) {
+  _createFilter(operator: string, value: FilterValue) {
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
         _and: [],
@@ -585,16 +589,16 @@ class QueryEMX2 {
 
   /** Recursively generate the output string for the branches and their properties */
   _generateOutput(
-    branches: Record<string, any>,
+    branches: Record<string, unknown>,
     indentationLevel: number,
-    filters: Record<string, any>,
+    filters: Record<string, FilterBranch>,
     result: string
   ) {
     let indentation = "    ".repeat(indentationLevel);
 
     /** Add properties first */
     if (branches.properties) {
-      let properties = branches.properties;
+      let properties = branches.properties as Record<string, boolean>;
       for (let propertyName in properties) {
         if (properties[propertyName] === true) {
           result += `${indentation}${propertyName},\n`;
@@ -607,7 +611,7 @@ class QueryEMX2 {
     /** Add the branches and their properties */
     for (let branchName in branches) {
       /** continue with the query by adding a comma to the end of the property */
-      let branch = branches[branchName];
+      let branch = branches[branchName] as Record<string, unknown>;
       if (branchName !== "properties") {
         result = `${result.substring(0, result.length - 1)},\n`;
         const branchModifiers = this._generateModifiers(branchName);
@@ -629,8 +633,11 @@ class QueryEMX2 {
 
   _createPathFromObject(
     path: string,
-    properties: any[],
-    requestedColumns: any[] = []
+    properties: (
+      | string
+      | Record<string, (string | Record<string, unknown>)[]>
+    )[],
+    requestedColumns: string[] = []
   ) {
     for (const property of properties) {
       if (typeof property === "object") {
@@ -638,7 +645,10 @@ class QueryEMX2 {
         const nextPath = path ? `${path}.${refProperty}` : refProperty;
         this._createPathFromObject(
           nextPath,
-          property[refProperty],
+          property[refProperty] as (
+            | string
+            | Record<string, (string | Record<string, unknown>)[]>
+          )[],
           requestedColumns
         );
       } else {

@@ -17,15 +17,16 @@ export function rowToString(
     if (label) {
       return label;
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     console.log(
-      `${err.message} we got keys: ${JSON.stringify(
-        ids
-      )} vals: ${JSON.stringify(vals)} and template: ${labelTemplate}`
+      `${message} we got keys: ${JSON.stringify(ids)} vals: ${JSON.stringify(
+        vals
+      )} and template: ${labelTemplate}`
     );
   }
   if (row.hasOwnProperty("primaryKey")) {
-    return flattenObject(row.primaryKey as any);
+    return flattenObject(row.primaryKey as Record<string, unknown>);
   }
 
   if (row.hasOwnProperty("name")) {

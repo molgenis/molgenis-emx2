@@ -12,7 +12,7 @@ const query = moduleToString(metadataGql);
 
 type Resp<T> = {
   data?: Record<string, T>;
-  error?: any;
+  error?: unknown;
 };
 
 export const useMetaStore = defineStore("metadata", {

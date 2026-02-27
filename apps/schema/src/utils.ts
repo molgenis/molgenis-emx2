@@ -57,7 +57,7 @@ export const schemaQuery = gql`
   }
 `;
 
-export function addOldNamesAndRemoveMeta(rawSchema: any) {
+export function addOldNamesAndRemoveMeta(rawSchema: Record<string, unknown>) {
   //deep copy to not change the input
   const schema = deepClone(rawSchema);
   if (schema) {
@@ -92,7 +92,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
   return schema;
 }
 
-export function convertToSubclassTables(rawSchema: any) {
+export function convertToSubclassTables(rawSchema: Record<string, unknown>) {
   //deep copy to not change the input
   const schema = deepClone(rawSchema);
   //columns of subclasses should be put in root tables, sorted by position
@@ -121,7 +121,10 @@ export function convertToSubclassTables(rawSchema: any) {
   return schema;
 }
 
-export function getSubclassTables(schema, tableName) {
+export function getSubclassTables(
+  schema: Record<string, unknown>,
+  tableName: string
+) {
   let subclasses = schema.tables.filter(
     (table) => table.inheritName === tableName
   );

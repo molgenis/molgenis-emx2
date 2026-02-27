@@ -1,5 +1,6 @@
 import fetchMetadata from "./fetchMetadata";
 import type {
+  columnValue,
   IColumn,
   IRow,
   ITableMetaData,
@@ -40,7 +41,7 @@ export default async function fetchRowPrimaryKey(
   }
 
   async function getKeyValue(
-    cellValue: any,
+    cellValue: columnValue,
     column: IColumn,
     schemaId: string
   ) {
@@ -48,7 +49,11 @@ export default async function fetchRowPrimaryKey(
       return cellValue;
     } else {
       if (column.refTableId) {
-        return await fetchRowPrimaryKey(cellValue, column.refTableId, schemaId);
+        return await fetchRowPrimaryKey(
+          cellValue as IRow,
+          column.refTableId,
+          schemaId
+        );
       }
     }
   }

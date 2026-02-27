@@ -1,3 +1,3 @@
-import type { ITableMetaData } from "../../../metadata-utils/src";
+import type { columnValue } from "../../../metadata-utils/src/types";
 
-export type IRow = Record<string, string | ITableMetaData | any>;
+export type IRow = Record<string, columnValue>;

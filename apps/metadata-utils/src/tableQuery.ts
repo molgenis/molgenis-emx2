@@ -5,6 +5,7 @@ import {
   isFileType,
 } from "./fieldHelpers";
 import type {
+  IRow,
   ISchemaMetaData,
   ITableMetaData,
   IColumn,
@@ -131,7 +132,7 @@ export const buildRecordListQueryFields = (
   const typeFields = tableMetaData.columns.map((c) => c.id);
 
   // suggested list fields that are part of this tableType
-  const additionalFields: any = [
+  const additionalFields: (string | string[])[] = [
     "id",
     "label",
     "name",
@@ -153,8 +154,8 @@ export const buildRecordListQueryFields = (
   return fieldsString;
 };
 
-const fieldsToQueryString = (fields: string[][]): string => {
-  return fields.reduce((acc: string, field: any) => {
+const fieldsToQueryString = (fields: (string | string[])[]): string => {
+  return fields.reduce((acc: string, field: string | string[]) => {
     if (Array.isArray(field)) {
       return (acc += " { " + fieldsToQueryString(field) + " } ");
     } else {
@@ -178,7 +179,7 @@ const buildKeyFields = (
   const tableMetaData = getTableMetaData(schemaMetaData, tableId);
 
   const keyFields = tableMetaData.columns.reduce(
-    (acc: any, column: IColumn) => {
+    (acc: (string | (string | string[])[])[], column: IColumn) => {
       if (column.key === 1) {
         if (isValueType(column)) {
           acc.push(column.id);
@@ -238,7 +239,7 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
 };
 
 export const extractKeyFromRecord = (
-  record: any,
+  record: IRow,
   tableId: string,
   schemaId: string,
   schemas: Record<string, ISchemaMetaData>
@@ -252,43 +253,46 @@ export const extractKeyFromRecord = (
   }
   const tableMetaData = getTableMetaData(schemaMetaData, tableId);
 
-  const key = tableMetaData.columns.reduce((acc: any, column: IColumn) => {
-    if (column.key === 1 && record[column.id]) {
-      if (isValueType(column)) {
-        acc[column.id] = record[column.id];
-      } else if (isRefType(column)) {
-        if (!column.refTableId) {
-          throw new Error(
-            "refTable is undefined for refColumn with id " +
-              column.id +
-              " in table " +
-              tableId +
-              ""
+  const key = tableMetaData.columns.reduce(
+    (acc: Record<string, unknown>, column: IColumn) => {
+      if (column.key === 1 && record[column.id]) {
+        if (isValueType(column)) {
+          acc[column.id] = record[column.id];
+        } else if (isRefType(column)) {
+          if (!column.refTableId) {
+            throw new Error(
+              "refTable is undefined for refColumn with id " +
+                column.id +
+                " in table " +
+                tableId +
+                ""
+            );
+          } else {
+            acc[column.id] = extractKeyFromRecord(
+              record[column.id] as IRow,
+              column.refTableId,
+              column.refSchemaId || schemaId,
+              schemas
+            );
+          }
+        } else if (isArrayType(column)) {
+          console.log(
+            "TODO: extractKeyFromRecord, key column isArrayType, skip for now"
+          );
+        } else if (isFileType(column)) {
+          console.log(
+            "TODO: extractKeyFromRecord, key column isFileType, skip for now"
           );
         } else {
-          acc[column.id] = extractKeyFromRecord(
-            record[column.id],
-            column.refTableId,
-            column.refSchemaId || schemaId,
-            schemas
+          console.log(
+            "TODO: extractKeyFromRecord, key column is unknown type, skip for now"
           );
         }
-      } else if (isArrayType(column)) {
-        console.log(
-          "TODO: extractKeyFromRecord, key column isArrayType, skip for now"
-        );
-      } else if (isFileType(column)) {
-        console.log(
-          "TODO: extractKeyFromRecord, key column isFileType, skip for now"
-        );
-      } else {
-        console.log(
-          "TODO: extractKeyFromRecord, key column is unknown type, skip for now"
-        );
       }
-    }
-    return acc;
-  }, {});
+      return acc;
+    },
+    {}
+  );
   return key || {};
 };
 

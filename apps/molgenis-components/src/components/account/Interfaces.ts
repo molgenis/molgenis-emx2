@@ -4,7 +4,7 @@ export interface ISession {
   email?: string;
   locale?: string;
   roles?: string[];
-  schemas?: any;
+  schemas?: Record<string, string[]>;
   settings?: Record<string, string | number | boolean>;
   manifest?: IManifest;
   token?: string;
@@ -12,7 +12,7 @@ export interface ISession {
 
 export interface IResponse {
   status: string;
-  value: any;
+  value: unknown;
   reason: IErrorMessage;
   _settings: ISetting[];
   _manifest: IManifest;

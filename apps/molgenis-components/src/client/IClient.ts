@@ -17,43 +17,46 @@ export interface INewClient {
     rowData: IRow,
     tableId: string,
     schemaId: string
-  ) => Promise<any>;
+  ) => Promise<unknown>;
   updateDataRow: (
     rowData: IRow,
     tableId: string,
     schemaId: string
-  ) => Promise<any>;
-  deleteRow: (rowKey: IRow, tableId: string) => Promise<any>;
-  deleteAllTableData: (tableId: string) => Promise<any>;
-  fetchSchemaMetaData: () => Promise<any>;
+  ) => Promise<unknown>;
+  deleteRow: (rowKey: IRow, tableId: string) => Promise<unknown>;
+  deleteAllTableData: (tableId: string) => Promise<unknown>;
+  fetchSchemaMetaData: () => Promise<unknown>;
   fetchTableMetaData: (tableId: string) => Promise<ITableMetaData>;
-  fetchTableData: (tableId: string, properties: IQueryMetaData) => Promise<any>;
+  fetchTableData: (
+    tableId: string,
+    properties: IQueryMetaData
+  ) => Promise<unknown>;
   fetchTableDataValues: (
     tableId: string,
     properties: IQueryMetaData
-  ) => Promise<any>;
+  ) => Promise<unknown>;
   fetchRowData: (
     tableId: string,
     rowId: IRow,
     expandLevel?: number
-  ) => Promise<any>;
+  ) => Promise<unknown>;
   fetchAggregateData: (
     tableId: string,
     selectedColumn: { id: string; column: string },
     selectedRow: { id: string; column: string },
-    filter: Object,
+    filter: Record<string, unknown>,
     aggFunction?: AggFunction,
     aggField?: string
-  ) => Promise<any>;
-  fetchSettings: () => Promise<any>;
-  fetchSettingValue: (name: string) => Promise<any>;
-  saveSetting: (key: string, value: any) => Promise<any>;
-  saveTableSettings: (settings: ISetting[]) => Promise<any>;
+  ) => Promise<unknown>;
+  fetchSettings: () => Promise<unknown>;
+  fetchSettingValue: (name: string) => Promise<unknown>;
+  saveSetting: (key: string, value: unknown) => Promise<unknown>;
+  saveTableSettings: (settings: ISetting[]) => Promise<unknown>;
   clearCache: () => void;
   convertRowToPrimaryKey: (
     row: IRow,
     tableId: string
-  ) => Promise<Record<string, any>>;
-  fetchOntologyOptions: (tableName: string) => Promise<any>;
+  ) => Promise<Record<string, unknown>>;
+  fetchOntologyOptions: (tableName: string) => Promise<unknown>;
   getPrimaryKeyFields: (schemaId: string, tableId: string) => Promise<string[]>;
 }

@@ -1,10 +1,13 @@
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
-import type { columnValueObject } from "../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  columnValueObject,
+} from "../../../metadata-utils/src/types";
 import { executeExpression } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 
 export function getInitialFormValues(metadata: ITableMetaData) {
   return metadata.columns.reduce(
-    (accum: Record<string, any>, column: IColumn) => {
+    (accum: Record<string, columnValue>, column: IColumn) => {
       if (column.defaultValue !== undefined) {
         if (column.defaultValue.startsWith("=")) {
           try {
@@ -30,7 +33,9 @@ export function getInitialFormValues(metadata: ITableMetaData) {
   );
 }
 
-function getBooleanValue(value: any): boolean | undefined {
+function getBooleanValue(
+  value: string | boolean | undefined
+): boolean | undefined {
   if (value === "TRUE" || value === "true" || value === true) {
     return true;
   } else if (value === "FALSE" || value === "false" || value === false) {
@@ -40,7 +45,7 @@ function getBooleanValue(value: any): boolean | undefined {
   }
 }
 
-export function getOntologyArrayValues(val: any): string[] {
+export function getOntologyArrayValues(val: columnValue): string[] {
   return Array.isArray(val)
     ? val
         .filter((value: columnValueObject) => value)

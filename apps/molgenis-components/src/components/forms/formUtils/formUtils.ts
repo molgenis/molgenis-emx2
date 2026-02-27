@@ -32,7 +32,7 @@ export const NON_NEGATIVE_INT_ERROR = `Invalid non negative integer: must be val
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
-  rowData: Record<string, any>
+  rowData: IRow
 ): Record<string, string> {
   return tableMetaData.columns.reduce(
     (accum: Record<string, string>, column: IColumn) => {
@@ -197,7 +197,7 @@ export function getColumnError(
 }
 
 export function readableStringArray(
-  strings: any[],
+  strings: string[],
   postErrorSingular?: string,
   postErrorPlural?: string
 ): string {
@@ -245,7 +245,7 @@ export function isInvalidNonNegativeInt(value: number): boolean {
   return isInvalidInteger(value, MIN_NON_NEGATIVE_INT, MAX_INT);
 }
 
-export function isMissingValue(value: any): boolean {
+export function isMissingValue(value: columnValue): boolean {
   if (Array.isArray(value)) {
     return value.some((element) => isMissingValue(element));
   } else {
@@ -275,7 +275,7 @@ function isInValidNumericValue(columnType: string, value?: columnValue) {
 
 function getRequiredExpressionError(
   expression: string,
-  values: Record<string, any> | undefined,
+  values: recordValue | undefined,
   tableMetaData: ITableMetaData
 ): string | undefined {
   try {
@@ -316,7 +316,7 @@ export function executeExpression(
   tableMetaData: ITableMetaData
 ) {
   //make sure all columns have keys to prevent reference errors
-  const copy: Record<string, any> = deepClone(values);
+  const copy: Record<string, columnValue | string> = deepClone(values);
   tableMetaData.columns.forEach((column: IColumn) => {
     if (!copy.hasOwnProperty(column.id)) {
       copy[column.id] = null;
@@ -357,51 +357,53 @@ export function executeExpression(
   return func(simplePostClient, ...Object.values(copy));
 }
 
-function isInvalidHyperlink(value: any) {
+function isInvalidHyperlink(value: columnValue) {
   return value && !HYPERLINK_REGEX.test(value);
 }
 
-function getInvalidHyperlinks(hyperlinks: any): string[] {
+function getInvalidHyperlinks(hyperlinks: columnValue): string[] {
   return hyperlinks?.filter((hyperlink: string) =>
     isInvalidHyperlink(hyperlink)
   );
 }
 
-function getInvalidNonNegativeIntegers(numbers: any): number[] {
+function getInvalidNonNegativeIntegers(numbers: columnValue): number[] {
   return numbers?.filter((number: number) => isInvalidNonNegativeInt(number));
 }
 
-function isInvalidEmail(value: any) {
+function isInvalidEmail(value: columnValue) {
   return value && !EMAIL_REGEX.test(value);
 }
 
-function getInvalidEmails(emails: any): string[] {
-  return emails.filter((email: any) => isInvalidEmail(email));
+function getInvalidEmails(emails: columnValue): string[] {
+  return (emails as string[]).filter((email: string) => isInvalidEmail(email));
 }
 
-function isInvalidPeriod(value: any) {
+function isInvalidPeriod(value: columnValue) {
   if (value === null || value === undefined || value === "") {
     return false;
   }
   return !PERIOD_REGEX.test(value);
 }
 
-function getInvalidPeriods(periods: any): string[] {
-  return periods?.filter((period: any) => isInvalidPeriod(period));
+function getInvalidPeriods(periods: columnValue): string[] {
+  return (periods as string[])?.filter((period: string) =>
+    isInvalidPeriod(period)
+  );
 }
 
-function isInvalidUUID(value: any) {
+function isInvalidUUID(value: columnValue) {
   if (value === null || value === undefined || value === "") {
     return false;
   }
   return !UUID_REGEX.test(value);
 }
 
-function getInvalidUUIDs(uuids: any) {
-  return uuids?.filter((uuid: any) => isInvalidUUID(uuid));
+function getInvalidUUIDs(uuids: columnValue): string[] {
+  return (uuids as string[])?.filter((uuid: string) => isInvalidUUID(uuid));
 }
 
-export function isJsonObjectOrArray(parsedJson: any) {
+export function isJsonObjectOrArray(parsedJson: unknown) {
   return typeof parsedJson === "object" && parsedJson !== null;
 }
 
@@ -476,7 +478,7 @@ export function getSaveDisabledMessage(
     : "";
 }
 export function buildGraphqlFilter(
-  defaultFilter: any,
+  defaultFilter: Record<string, object>,
   columns: IColumn[],
   errorCallback: (error: string) => void
 ) {

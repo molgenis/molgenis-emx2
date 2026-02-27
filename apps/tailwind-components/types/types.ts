@@ -20,7 +20,7 @@ export interface INode {
 }
 
 export interface IValueLabel {
-  value: any;
+  value: columnValue;
   label?: string;
 }
 
@@ -100,7 +100,7 @@ export interface ITableSettings {
 
 export interface ISectionField {
   meta: IColumn;
-  value: any;
+  value: columnValue;
 }
 
 export interface ISection {

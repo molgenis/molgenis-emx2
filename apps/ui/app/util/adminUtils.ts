@@ -131,7 +131,7 @@ function getTokens(user: IUser) {
   return [];
 }
 
-function handleError(message: string, error: any) {
+function handleError(message: string, error: unknown) {
   console.log(message, error);
   //see nuxt catalogue on how to handle errors
 }

@@ -18,7 +18,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 // @ts-ignore
 self.MonacoEnvironment = {
-  getWorker(_: any, _label: string) {
+  getWorker(_: string, _label: string) {
     return new jsonWorker();
   },
 };
@@ -33,6 +33,6 @@ app.mount("#app");
 // Used by Matomo for tracking events
 declare global {
   interface Window {
-    _paq: any[];
+    _paq: unknown[];
   }
 }

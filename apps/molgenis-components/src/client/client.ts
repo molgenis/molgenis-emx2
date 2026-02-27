@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { AxiosError, AxiosResponse } from "axios";
 import type {
+  columnValue,
   IColumn,
   ISchemaMetaData,
   ISetting,
@@ -68,10 +69,16 @@ const client: IClient = {
         );
         const filter = tableMetaData?.columns
           ?.filter((column: IColumn) => column.key === 1)
-          .reduce((accum: any, column: IColumn) => {
-            accum[column.id] = { equals: rowId[column.id] };
-            return accum;
-          }, {});
+          .reduce(
+            (
+              accum: Record<string, { equals: columnValue }>,
+              column: IColumn
+            ) => {
+              accum[column.id] = { equals: rowId[column.id] };
+              return accum;
+            },
+            {}
+          );
         const resultArray = (
           await fetchTableData(
             tableId,
@@ -130,7 +137,7 @@ const client: IClient = {
           return JSON.parse(setting.value);
         }
       },
-      saveSetting: async (key: string, value: any) => {
+      saveSetting: async (key: string, value: unknown) => {
         const createMutation = `mutation change($settings: [MolgenisSettingsInput]) {
             change(settings: $settings) {
               message
@@ -352,8 +359,14 @@ const fetchSettings = async (schemaId?: string) => {
     ._settings;
 };
 
-const request = async (url: string, graphql: string, variables?: any) => {
-  const data: { query: string; variables?: any } = { query: graphql };
+const request = async (
+  url: string,
+  graphql: string,
+  variables?: Record<string, unknown>
+) => {
+  const data: { query: string; variables?: Record<string, unknown> } = {
+    query: graphql,
+  };
   if (variables) {
     data.variables = variables;
   }
@@ -362,7 +375,7 @@ const request = async (url: string, graphql: string, variables?: any) => {
     .then((result: AxiosResponse) => {
       return result?.data?.data;
     })
-    .catch((error: AxiosError<any>): string => {
+    .catch((error: AxiosError<{ errors?: { message: string }[] }>): string => {
       const detailedErrorMessage = error.response?.data?.errors
         ?.map((error: { message: string }) => {
           return error.message;
@@ -376,7 +389,7 @@ async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
   schemaId?: string
-): Promise<Record<string, any>> {
+): Promise<IRow> {
   const schema = await fetchSchemaMetaData(schemaId);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) => table.id === tableId

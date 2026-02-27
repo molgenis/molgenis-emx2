@@ -551,8 +551,9 @@ export default function useForm(
     return null;
   });
 
-  async function handleFetchError(error: any, message: string) {
-    if (error.statusCode && error.statusCode >= 400) {
+  async function handleFetchError(error: unknown, message: string) {
+    const statusCode = (error as { statusCode?: number })?.statusCode;
+    if (statusCode && statusCode >= 400) {
       const { hasSessionTimeout } = await useSession();
       if (await hasSessionTimeout()) {
         console.log("Session has timed out, ask for re-authentication");

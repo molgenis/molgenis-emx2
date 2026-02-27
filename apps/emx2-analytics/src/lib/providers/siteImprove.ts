@@ -1,7 +1,7 @@
 import { type siteImproveOptions } from "../../types/Provider";
 import { type Trigger } from "../../types/Trigger";
 
-declare const _sz: any;
+declare const _sz: { push: (args: string[]) => void } | undefined;
 
 function initialize(options: siteImproveOptions) {
   const scriptSrc = `https://siteimproveanalytics.com/js/siteanalyze_${options.analyticsKey}.js`;

@@ -42,7 +42,7 @@ export interface IOrganisation extends IPartner {
   type: {
     name: string;
   };
-  institution: any;
+  institution: INameObject;
   institutionAcronym: string;
   typeOther: string;
   address: string;
@@ -188,7 +188,7 @@ export interface IDefinitionListItem {
   label: string;
   tooltip?: string;
   type?: DefinitionListItemType;
-  content: any;
+  content: string | IOntologyNode[] | INameObject | INameObject[] | undefined;
 }
 export interface IOntologyItem {
   order?: number;
@@ -352,7 +352,7 @@ export interface IOrganization {
   type?: {
     name: string;
   };
-  institution?: any;
+  institution?: INameObject;
   institutionAcronym?: string;
   typeOther?: string;
   address?: string;

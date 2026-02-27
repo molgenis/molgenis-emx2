@@ -176,7 +176,10 @@ export function createBookmark(
   }
 }
 
-function createBookmarkForArray(value: any[], filterName: string) {
+function createBookmarkForArray(
+  value: Record<string, string>[],
+  filterName: string
+) {
   const extractedValues = value.map(
     /** ontology / checkbox / other */
     (val) => val["code"] || val["value"] || val["name"]
@@ -197,7 +200,7 @@ function createBookmarkForObject(
     : encodeURI(bookmarkValue);
 }
 
-function createBookmarkForOther(value: any, filterName: string) {
+function createBookmarkForOther(value: string, filterName: string) {
   return filterName === "Diagnosisavailable"
     ? encodeURI(btoa(value))
     : encodeURI(value);

@@ -1,5 +1,6 @@
 import { fetchMetadata } from "#imports";
 import type {
+  columnValue,
   IColumn,
   IRow,
   ITableMetaData,
@@ -9,7 +10,7 @@ export async function getPrimaryKey(
   row: IRow,
   tableId: string,
   schemaId: string
-): Promise<Record<string, any>> {
+): Promise<IRow> {
   const schema = await fetchMetadata(schemaId);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) => table.id === tableId
@@ -35,7 +36,7 @@ export async function getPrimaryKey(
   }
 
   async function getKeyValue(
-    cellValue: any,
+    cellValue: columnValue,
     column: IColumn,
     schemaId: string
   ) {
@@ -43,7 +44,11 @@ export async function getPrimaryKey(
       return cellValue;
     } else {
       if (column.refTableId) {
-        return await getPrimaryKey(cellValue, column.refTableId, schemaId);
+        return await getPrimaryKey(
+          cellValue as IRow,
+          column.refTableId,
+          schemaId
+        );
       }
     }
   }

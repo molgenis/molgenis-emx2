@@ -23,7 +23,7 @@ export interface IFilterFacet {
   showFacet?: boolean;
   adaptive?: boolean;
   builtIn?: boolean;
-  customOptions?: any;
+  customOptions?: Record<string, unknown>;
   extraAttributes?: string[];
   facetIdentifier?: string;
   filterLabelAttribute?: string;
@@ -49,7 +49,7 @@ export interface IFilterDetails {
   filterValueAttribute: string;
   matchTypeForFilter: string;
   negotiatorRequestString: string;
-  ontologyIdentifiers: any[];
+  ontologyIdentifiers: string[];
   options: Function;
   sortColumn: string;
   sortDirection: SortDirection;

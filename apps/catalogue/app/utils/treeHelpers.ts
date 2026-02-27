@@ -1,7 +1,11 @@
-export const removeChildIfParentSelected = (nodes: any[]) => {
-  const selectedCodes = nodes.map((node: { code: any }) => node.code);
+interface TreeNodeWithParent {
+  code?: string;
+  parent?: { code: string };
+}
+
+export const removeChildIfParentSelected = (nodes: TreeNodeWithParent[]) => {
+  const selectedCodes = nodes.map((node) => node.code);
   return nodes.filter(
-    (node: { parent: { code: string } }) =>
-      !(node.parent && selectedCodes.includes(node.parent.code))
+    (node) => !(node.parent && selectedCodes.includes(node.parent.code))
   );
 };

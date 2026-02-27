@@ -389,9 +389,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     const { negotiatorUsername, negotiatorPassword, negotiatorUrl } =
       settingsStore.config;
     const humanReadable = getHumanReadableString() + createHistoryJournal();
-    const collections: any[] = getV1CollectionsToSend();
+    const collections: Record<string, string>[] = getV1CollectionsToSend();
     const URL = window.location.href.replace(/&nToken=\w{32}/, "");
-    const body: Record<string, any> = {
+    const body: Record<string, unknown> = {
       podiumUrl: negotiatorUrl,
       podiumUsername: negotiatorUsername,
       podiumPassword: negotiatorPassword,

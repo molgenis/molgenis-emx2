@@ -16,10 +16,13 @@ export default async (
   const metadata = await fetchTableMetadata(schemaId, tableId);
   const filter = metadata.columns
     ?.filter((column: IColumn) => column.key === 1)
-    .reduce((accum: any, column: IColumn) => {
-      accum[column.id] = { equals: rowId[column.id] };
-      return accum;
-    }, {});
+    .reduce(
+      (accum: Record<string, { equals: columnValue }>, column: IColumn) => {
+        accum[column.id] = { equals: rowId[column.id] };
+        return accum;
+      },
+      {}
+    );
 
   const resp = await fetchTableData(schemaId, tableId, {
     filter,

@@ -3,8 +3,8 @@ import { createError } from "#imports";
 export default async (
   schemaId: string,
   query: string,
-  variables: any
-): Promise<any> => {
+  variables: Record<string, unknown>
+): Promise<unknown> => {
   const { data } = await $fetch(`/${schemaId}/graphql`, {
     method: "POST",
     body: {

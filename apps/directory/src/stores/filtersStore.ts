@@ -148,7 +148,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterName: string,
     value: IOntologyItem,
     add: boolean,
-    fromBookmark: any = false
+    fromBookmark: boolean = false
   ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
@@ -209,7 +209,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   async function getOntologyOptionsForCodes(
     filterDetails: IFilterDetails,
-    codes: any[]
+    codes: string[]
   ) {
     const { sourceTable, sortColumn, sortDirection } = filterDetails;
     const attributes = getOntologyAttributes(filterDetails);
@@ -321,7 +321,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function updateFilterType(
     filterName: string,
-    value: any,
+    value: string,
     fromBookmark: boolean
   ) {
     if (

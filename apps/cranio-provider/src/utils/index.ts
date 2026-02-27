@@ -12,11 +12,11 @@ import type { IChartData } from "../types/schema";
  * @returns object of key-value pairs
  */
 export function asKeyValuePairs(
-  data: any,
+  data: Record<string, unknown>[],
   key: string,
   value: string
 ): IKeyValuePair {
-  const values = data.map((row: Record<string, any>) => {
+  const values = data.map((row: Record<string, unknown>) => {
     return [row[key], row[value]];
   });
   return Object.fromEntries(values);
@@ -30,9 +30,9 @@ export function asKeyValuePairs(
  * @param key name of the column containing the values to sum
  * @returns number
  */
-export function sum(data: any, key: string): number {
+export function sum(data: Record<string, unknown>[], key: string): number {
   return data.reduce(
-    (sum: number, row: Record<string, any>) =>
+    (sum: number, row: Record<string, unknown>) =>
       row[key] !== null || row[key] !== "" ? sum + row[key] : null,
     0
   );
@@ -71,12 +71,18 @@ export function sumObjectValues(data: IKeyValuePair): number {
  *
  * @returns array of unique values in alphabetical order
  */
-export function uniqueValues(data: any, key: string): string[] {
-  const values = data.map((row: Record<string, any>) => row[key]);
+export function uniqueValues(
+  data: Record<string, unknown>[],
+  key: string
+): string[] {
+  const values = data.map((row: Record<string, unknown>) => row[key]);
   return Array.from(new Set(values)).sort() as string[];
 }
 
-export function uniqueAgeGroups(data: any, key: string): string[] {
+export function uniqueAgeGroups(
+  data: Record<string, unknown>[],
+  key: string
+): string[] {
   const values = uniqueValues(data, key);
   return values.sort((a: string, b: string) => {
     return b.charCodeAt(0) - a.charCodeAt(0);

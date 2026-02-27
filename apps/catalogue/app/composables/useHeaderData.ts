@@ -4,7 +4,7 @@ import type { UIResource } from "../../interfaces/types";
 
 interface Resp<T> {
   data: T;
-  error?: any;
+  error?: unknown;
 }
 
 interface IHeaderQuery {

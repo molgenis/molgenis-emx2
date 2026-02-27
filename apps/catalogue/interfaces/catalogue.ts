@@ -879,7 +879,7 @@ export interface ICatalogueOntologies_Organisations {
   name: string;
   label?: string;
   acronym?: string;
-  parent?: any;
+  parent?: { name: string };
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;

@@ -10,7 +10,7 @@ export interface Settings {
 const settings = ref<Settings | null>();
 
 async function fetchServerSettings() {
-  return await $fetch<Resp<{ _settings: { key: string; value: any }[] }>>(
+  return await $fetch<Resp<{ _settings: { key: string; value: string }[] }>>(
     "/api/graphql",
     {
       method: "POST",
@@ -24,7 +24,7 @@ async function fetchServerSettings() {
 export const useSettings = async () => {
   if (!settings.value) {
     await fetchServerSettings().then((response) => {
-      const settingsArray: { key: string; value: any }[] = Array.isArray(
+      const settingsArray: { key: string; value: string }[] = Array.isArray(
         response.data
       )
         ? response.data[0]._settings

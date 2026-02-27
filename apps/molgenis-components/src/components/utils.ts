@@ -1,4 +1,5 @@
 import type {
+  columnValue,
   IColumn,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
@@ -28,7 +29,7 @@ export function isNumericKey(event: KeyboardEvent): boolean {
   return (keyCode >= CODE_0 && keyCode <= CODE_9) || keyCode === CODE_PERIOD;
 }
 
-export function flattenObject(object: Record<string, any>): string {
+export function flattenObject(object: Record<string, unknown>): string {
   if (typeof object === "object") {
     let result = "";
     Object.keys(object).forEach((key) => {
@@ -36,14 +37,14 @@ export function flattenObject(object: Record<string, any>): string {
         return;
       }
       if (typeof object[key] === "object") {
-        result += flattenObject(object[key]);
+        result += flattenObject(object[key] as Record<string, unknown>);
       } else {
         result += " " + object[key];
       }
     });
     return result;
   } else {
-    return object;
+    return String(object);
   }
 }
 
@@ -51,7 +52,7 @@ export async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
   schemaId?: string
-): Promise<Record<string, any>> {
+): Promise<IRow> {
   const client = Client.newClient(schemaId);
   const tableMetadata = await client.fetchTableMetaData(tableId);
   if (!tableMetadata?.columns) {
@@ -76,7 +77,7 @@ export async function convertRowToPrimaryKey(
 }
 
 export async function getKeyValue(
-  cellValue: any,
+  cellValue: columnValue,
   column: IColumn,
   schemaId?: string
 ) {
@@ -85,7 +86,7 @@ export async function getKeyValue(
   } else {
     if (column.refTableId) {
       return await convertRowToPrimaryKey(
-        cellValue,
+        cellValue as IRow,
         column.refTableId,
         schemaId
       );
@@ -95,16 +96,16 @@ export async function getKeyValue(
   }
 }
 
-export function deepClone(original: any): any {
+export function deepClone<T>(original: T): T {
   return JSON.parse(JSON.stringify(original));
 }
 
 export function filterObject(
-  object: Record<string, any>,
+  object: Record<string, unknown>,
   filter: (key: string) => boolean
-): Record<string, any> {
+): Record<string, unknown> {
   return Object.keys(object).reduce(
-    (accum: Record<string, any>, key: string) => {
+    (accum: Record<string, unknown>, key: string) => {
       if (filter(key)) {
         accum[key] = object[key];
       }
@@ -130,7 +131,7 @@ export function flipSign(value: string | null): string {
 }
 
 export function applyJsTemplate(
-  object: Record<string, any>,
+  object: Record<string, unknown>,
   labelTemplate: string
 ): string {
   if (object === undefined || object === null) {
@@ -145,10 +146,11 @@ export function applyJsTemplate(
     if (label) {
       return label;
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     // The template is not working, lets try and fail gracefully
+    const message = err instanceof Error ? err.message : String(err);
     console.log(
-      err.message +
+      message +
         " we got keys:" +
         JSON.stringify(ids) +
         " vals:" +
@@ -158,23 +160,23 @@ export function applyJsTemplate(
     );
   }
   if (object.hasOwnProperty("primaryKey")) {
-    return flattenObject(object.primaryKey);
+    return flattenObject(object.primaryKey as Record<string, unknown>);
   }
 
   if (object.hasOwnProperty("name")) {
-    return object.name;
+    return String(object.name);
   }
 
   if (object.hasOwnProperty("id")) {
-    return object.id;
+    return String(object.id);
   }
   return flattenObject(object);
 }
 
 /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
 export function deepEqual(
-  object1: Record<string, any>,
-  object2: Record<string, any>
+  object1: Record<string, unknown>,
+  object2: Record<string, unknown>
 ): boolean {
   const keys1 = Object.keys(object1);
   const keys2 = Object.keys(object2);
@@ -186,7 +188,11 @@ export function deepEqual(
     const val2 = object2[key];
     const areObjects = isObject(val1) && isObject(val2);
     if (
-      (areObjects && !deepEqual(val1, val2)) ||
+      (areObjects &&
+        !deepEqual(
+          val1 as Record<string, unknown>,
+          val2 as Record<string, unknown>
+        )) ||
       (!areObjects && val1 !== val2)
     ) {
       return false;
@@ -195,7 +201,7 @@ export function deepEqual(
   return true;
 }
 
-function isObject(object: Record<string, any> | null): object is Object {
+function isObject(object: unknown): object is Record<string, unknown> {
   return object !== null && typeof object === "object";
 }
 
