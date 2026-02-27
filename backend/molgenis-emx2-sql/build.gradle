@@ -1,11 +1,11 @@
 dependencies {
-    implementation 'org.postgresql:postgresql:42.6.0'
+    implementation 'org.postgresql:postgresql:42.7.10'
     implementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-tasks')
-    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.7';
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8';
 }
 
 //tool should be here otherwise requires build of unnecessary modules
