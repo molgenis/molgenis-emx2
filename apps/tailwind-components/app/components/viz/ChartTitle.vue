@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import type { ChartContext } from "../../../types/viz";
+import type { ChartTitle } from "../../../types/viz";
 
-defineProps<ChartContext>();
+defineProps<ChartTitle>();
 </script>
 
 <template>
