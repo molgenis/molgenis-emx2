@@ -494,46 +494,6 @@ importers:
         specifier: 5.4.21
         version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
 
-  gportal:
-    dependencies:
-      '@heroicons/vue':
-        specifier: ^2.0.18
-        version: 2.0.18(vue@3.5.22(typescript@5.8.2))
-      axios:
-        specifier: 1.12.0
-        version: 1.12.0
-      graphql-request:
-        specifier: 5.2.0
-        version: 5.2.0(graphql@16.12.0)
-      graphql-tag:
-        specifier: 2.12.6
-        version: 2.12.6(graphql@16.12.0)
-      molgenis-components:
-        specifier: workspace:*
-        version: link:../molgenis-components
-      molgenis-viz:
-        specifier: workspace:*
-        version: link:../molgenis-viz
-      vue:
-        specifier: 3.5.22
-        version: 3.5.22(typescript@5.8.2)
-      vue-router:
-        specifier: 4.4.3
-        version: 4.4.3(vue@3.5.22(typescript@5.8.2))
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
-      prettier:
-        specifier: 2.8.8
-        version: 2.8.8
-      sass:
-        specifier: ^1.63.5
-        version: 1.70.0
-      vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
-
   graphql-playground:
     dependencies:
       '@graphiql/toolkit':
