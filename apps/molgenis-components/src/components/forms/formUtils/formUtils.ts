@@ -32,7 +32,7 @@ export const NON_NEGATIVE_INT_ERROR = `Invalid non negative integer: must be val
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
-  rowData: Record<string, any>
+  rowData: Record<string, columnValue>
 ): Record<string, string> {
   return tableMetaData.columns.reduce(
     (accum: Record<string, string>, column: IColumn) => {
@@ -255,7 +255,7 @@ export function isInvalidNonNegativeInt(value: columnValue): boolean {
   return isInvalidInteger(value, MIN_NON_NEGATIVE_INT, MAX_INT);
 }
 
-export function isMissingValue(value: any): boolean {
+export function isMissingValue(value: columnValue): boolean {
   if (Array.isArray(value)) {
     return value.some((element) => isMissingValue(element));
   } else {
@@ -285,7 +285,7 @@ function isInValidNumericValue(columnType: string, value?: columnValue) {
 
 function getRequiredExpressionError(
   expression: string,
-  values: Record<string, any> | undefined,
+  values: Record<string, columnValue> | undefined,
   tableMetaData: ITableMetaData
 ): string | undefined {
   try {
@@ -326,7 +326,7 @@ export function executeExpression(
   tableMetaData: ITableMetaData
 ) {
   //make sure all columns have keys to prevent reference errors
-  const copy: Record<string, any> = deepClone(values);
+  const copy: Record<string, columnValue> = deepClone(values);
   tableMetaData.columns.forEach((column: IColumn) => {
     if (!copy.hasOwnProperty(column.id)) {
       copy[column.id] = null;
@@ -367,22 +367,21 @@ export function executeExpression(
   return func(simplePostClient, ...Object.values(copy));
 }
 
-function isInvalidHyperlink(value: any) {
-  return value && !HYPERLINK_REGEX.test(value);
+function isInvalidHyperlink(value: columnValue) {
+  return value && (typeof value !== "string" || !HYPERLINK_REGEX.test(value));
 }
 
-function getInvalidHyperlinks(hyperlinks: any): string[] {
+function getInvalidHyperlinks(hyperlinks: columnValue): columnValue[] {
   return Array.isArray(hyperlinks)
-    ? hyperlinks.filter((hyperlink: string) => isInvalidHyperlink(hyperlink))
+    ? hyperlinks.filter((hyperlink: columnValue) =>
+        isInvalidHyperlink(hyperlink)
+      )
     : [];
 }
 
-function getInvalidNonNegativeIntegers(numbers: columnValue): number[] {
+function getInvalidNonNegativeIntegers(numbers: columnValue): columnValue[] {
   return Array.isArray(numbers)
-    ? (numbers.filter(
-        (number: columnValue) =>
-          isInvalidNonNegativeInt(number) && typeof number === "number"
-      ) as number[])
+    ? numbers.filter((number: columnValue) => isInvalidNonNegativeInt(number))
     : [];
 }
 
@@ -395,46 +394,39 @@ function isInvalidEmail(value: columnValue): boolean {
   );
 }
 
-function getInvalidEmails(emails?: columnValue): string[] {
+function getInvalidEmails(emails?: columnValue): columnValue[] {
   return Array.isArray(emails)
-    ? (emails.filter(
-        (email: columnValue) =>
-          isInvalidEmail(email) &&
-          typeof email === "string" &&
-          email !== "" &&
-          email !== null &&
-          email !== undefined
-      ) as string[])
+    ? emails.filter((email: columnValue) => isInvalidEmail(email))
     : [];
 }
 
-function isInvalidPeriod(value: any) {
+function isInvalidPeriod(value: columnValue) {
   if (value === null || value === undefined || value === "") {
     return false;
   }
-  return !PERIOD_REGEX.test(value);
+  return typeof value !== "string" || !PERIOD_REGEX.test(value);
 }
 
-function getInvalidPeriods(periods: any): string[] {
+function getInvalidPeriods(periods: columnValue): columnValue[] {
   return Array.isArray(periods)
-    ? periods.filter((period: any) => isInvalidPeriod(period))
+    ? periods.filter((period: columnValue) => isInvalidPeriod(period))
     : [];
 }
 
-function isInvalidUUID(value: any) {
+function isInvalidUUID(value: columnValue) {
   if (value === null || value === undefined || value === "") {
     return false;
   }
-  return !UUID_REGEX.test(value);
+  return typeof value !== "string" || !UUID_REGEX.test(value);
 }
 
-function getInvalidUUIDs(uuids: any) {
+function getInvalidUUIDs(uuids: columnValue): columnValue[] {
   return Array.isArray(uuids)
-    ? uuids.filter((uuid: any) => isInvalidUUID(uuid))
+    ? uuids.filter((uuid: columnValue) => isInvalidUUID(uuid))
     : [];
 }
 
-export function isJsonObjectOrArray(parsedJson: any) {
+export function isJsonObjectOrArray(parsedJson: columnValue) {
   return typeof parsedJson === "object" && parsedJson !== null;
 }
 
@@ -509,7 +501,7 @@ export function getSaveDisabledMessage(
     : "";
 }
 export function buildGraphqlFilter(
-  defaultFilter: any,
+  defaultFilter: Record<string, unknown>,
   columns: IColumn[],
   errorCallback: (error: string) => void
 ) {
