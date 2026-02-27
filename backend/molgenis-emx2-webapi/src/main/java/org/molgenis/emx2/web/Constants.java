@@ -34,4 +34,7 @@ public class Constants {
   public static final String INCLUDE_SYSTEM_COLUMNS = "includeSystemColumns";
 
   public static final String EMX_2_METRICS_SESSION_TOTAL = "emx2_active_sessions";
+
+  public static final String ACCEPT_JSONLD = "application/ld+json";
+  public static final String ACCEPT_TTL = "text/turtle";
 }

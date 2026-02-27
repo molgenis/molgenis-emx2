@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
 
@@ -73,6 +74,10 @@ public class GraphqlTableFragmentGenerator {
             selections.add(Field.newField(column.getIdentifier()).build());
           }
         });
+
+    if (!table.getPrimaryKeyColumns().isEmpty()) {
+      selections.add(Field.newField(Constants.MG_ID).build());
+    }
 
     SelectionSet selectionSet = SelectionSet.newSelectionSet().selections(selections).build();
 
