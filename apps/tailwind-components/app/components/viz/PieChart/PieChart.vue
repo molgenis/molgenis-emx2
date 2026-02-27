@@ -2,7 +2,7 @@
 import { useEventListener } from "@vueuse/core";
 import { computed, useTemplateRef, ref, onMounted, watch } from "vue";
 
-import ChartContext from "../ChartContext.vue";
+import ChartTitle from "../ChartTitle.vue";
 import ChartLegend from "../ChartLegend/ChartLegend.vue";
 
 import {
@@ -290,7 +290,7 @@ watch(
 
 <template>
   <div ref="container" class="grid gap-2.5 w-full" :class="[chartLayoutCss]">
-    <ChartContext
+    <ChartTitle
       :title="title"
       :description="description"
       style="grid-area: context"

@@ -23,7 +23,7 @@ const d3 = {
   axisLeft,
 };
 
-import ChartContext from "../ChartContext.vue";
+import ChartTitle from "../ChartTitle.vue";
 
 import type {
   DatasetRow,
@@ -69,8 +69,9 @@ const xScale = ref();
 const yScale = ref();
 
 const yAxisData = computed<NumericAxisTickData>(() => {
-  const autoTickData = generateAxisTickData(props.data, props.yvar);
-  const ticks: NumericAxisTickData = { ...autoTickData };
+  const ticks: NumericAxisTickData = {
+    ...generateAxisTickData(props.data, props.yvar),
+  };
 
   if (props.ymax) {
     ticks.limit = props.ymax;
@@ -298,7 +299,7 @@ watch(
 
 <template>
   <div ref="container" class="grid gap-2.5 w-full chart_layout_default">
-    <ChartContext
+    <ChartTitle
       :title="title"
       :description="description"
       style="grid-area: context"
