@@ -170,8 +170,7 @@ jobs:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
           GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
-          #DP 10 voor het te forceren
-          MAX_RETRIES=10
+          MAX_RETRIES=40
           RETRY=0
           
           while true; do
