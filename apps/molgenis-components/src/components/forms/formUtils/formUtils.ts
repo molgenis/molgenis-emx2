@@ -97,8 +97,9 @@ export function getColumnError(
     return "Invalid email address";
   }
   if (type === "EMAIL_ARRAY") {
+    const invalidEmails = getInvalidEmails(value);
     return readableStringArray(
-      getInvalidEmails(value),
+      invalidEmails,
       " is an invalid email address",
       " are invalid email addresses"
     );
@@ -107,8 +108,9 @@ export function getColumnError(
     return "Invalid hyperlink";
   }
   if (type === "HYPERLINK_ARRAY") {
+    const invalidHyperlinks = getInvalidHyperlinks(value);
     return readableStringArray(
-      getInvalidHyperlinks(value),
+      invalidHyperlinks,
       " is an invalid hyperlink",
       " are invalid hyperlinks"
     );
@@ -118,8 +120,9 @@ export function getColumnError(
     return "Invalid Period: " + PERIOD_EXPLANATION;
   }
   if (type === "PERIOD_ARRAY") {
+    const invalidPeriods = getInvalidPeriods(value);
     return readableStringArray(
-      getInvalidPeriods(value),
+      invalidPeriods,
       " is an invalid Period: " + PERIOD_EXPLANATION,
       " are invalid Periods: " + PERIOD_EXPLANATION
     );
@@ -128,8 +131,9 @@ export function getColumnError(
     return "Invalid UUID: " + UUID_EXPLANATION;
   }
   if (type === "UUID_ARRAY") {
+    const invalidUUIDs = getInvalidUUIDs(value);
     return readableStringArray(
-      getInvalidUUIDs(value),
+      invalidUUIDs,
       " is an invalid UUID: " + UUID_EXPLANATION,
       " are invalid UUIDs: " + UUID_EXPLANATION
     );
@@ -183,8 +187,9 @@ export function getColumnError(
   }
 
   if (type === "NON_NEGATIVE_INT_ARRAY") {
+    const invalidNonNegativeIntegers = getInvalidNonNegativeIntegers(value);
     return readableStringArray(
-      getInvalidNonNegativeIntegers(value),
+      invalidNonNegativeIntegers.map((num) => num.toString()),
       " is an invalid non negative integer",
       " are invalid non negative integers"
     );
@@ -197,7 +202,7 @@ export function getColumnError(
 }
 
 export function readableStringArray(
-  strings: any[],
+  strings: string[],
   postErrorSingular?: string,
   postErrorPlural?: string
 ): string {
@@ -230,18 +235,23 @@ export function isInvalidBigInt(value?: string): boolean {
 }
 
 function isInvalidInteger(
-  value: number,
+  value: columnValue,
   minInt: number,
   maxInt: number
 ): boolean {
-  return isNaN(value) || value < minInt || value > maxInt;
+  return (
+    typeof value !== "number" ||
+    isNaN(value) ||
+    value < minInt ||
+    value > maxInt
+  );
 }
 
 function isInvalidInt(value: number): boolean {
   return isInvalidInteger(value, MIN_INT, MAX_INT);
 }
 
-export function isInvalidNonNegativeInt(value: number): boolean {
+export function isInvalidNonNegativeInt(value: columnValue): boolean {
   return isInvalidInteger(value, MIN_NON_NEGATIVE_INT, MAX_INT);
 }
 
@@ -362,21 +372,40 @@ function isInvalidHyperlink(value: any) {
 }
 
 function getInvalidHyperlinks(hyperlinks: any): string[] {
-  return hyperlinks?.filter((hyperlink: string) =>
-    isInvalidHyperlink(hyperlink)
+  return Array.isArray(hyperlinks)
+    ? hyperlinks.filter((hyperlink: string) => isInvalidHyperlink(hyperlink))
+    : [];
+}
+
+function getInvalidNonNegativeIntegers(numbers: columnValue): number[] {
+  return Array.isArray(numbers)
+    ? (numbers.filter(
+        (number: columnValue) =>
+          isInvalidNonNegativeInt(number) && typeof number === "number"
+      ) as number[])
+    : [];
+}
+
+function isInvalidEmail(value: columnValue): boolean {
+  return (
+    value !== null &&
+    value !== undefined &&
+    typeof value === "string" &&
+    !EMAIL_REGEX.test(value)
   );
 }
 
-function getInvalidNonNegativeIntegers(numbers: any): number[] {
-  return numbers?.filter((number: number) => isInvalidNonNegativeInt(number));
-}
-
-function isInvalidEmail(value: any) {
-  return value && !EMAIL_REGEX.test(value);
-}
-
-function getInvalidEmails(emails: any): string[] {
-  return emails.filter((email: any) => isInvalidEmail(email));
+function getInvalidEmails(emails?: columnValue): string[] {
+  return Array.isArray(emails)
+    ? (emails.filter(
+        (email: columnValue) =>
+          isInvalidEmail(email) &&
+          typeof email === "string" &&
+          email !== "" &&
+          email !== null &&
+          email !== undefined
+      ) as string[])
+    : [];
 }
 
 function isInvalidPeriod(value: any) {
@@ -387,7 +416,9 @@ function isInvalidPeriod(value: any) {
 }
 
 function getInvalidPeriods(periods: any): string[] {
-  return periods?.filter((period: any) => isInvalidPeriod(period));
+  return Array.isArray(periods)
+    ? periods.filter((period: any) => isInvalidPeriod(period))
+    : [];
 }
 
 function isInvalidUUID(value: any) {
@@ -398,7 +429,9 @@ function isInvalidUUID(value: any) {
 }
 
 function getInvalidUUIDs(uuids: any) {
-  return uuids?.filter((uuid: any) => isInvalidUUID(uuid));
+  return Array.isArray(uuids)
+    ? uuids.filter((uuid: any) => isInvalidUUID(uuid))
+    : [];
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {
