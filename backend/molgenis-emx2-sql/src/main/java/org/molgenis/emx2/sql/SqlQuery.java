@@ -75,6 +75,8 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> retrieveRows(Option... options) {
+    ((SqlDatabase) schema.getDatabase()).setRlsContextForSchema(schema.getName());
+
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -184,10 +186,13 @@ public class SqlQuery extends QueryBean {
   }
 
   private void checkHasViewPermission(SqlTableMetadata table) {
-    if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
-      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
-    }
+    if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
+    List<String> roles = schema.getInheritedRolesForActiveUser();
+    if (roles.contains(VIEWER.toString())) return;
+    boolean hasCustomRole =
+        roles.stream().anyMatch(r -> !SqlRoleManager.SYSTEM_ROLE_NAMES.contains(r));
+    if (hasCustomRole) return;
+    throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
   }
 
   private List<Field<?>> rowSelectFields(

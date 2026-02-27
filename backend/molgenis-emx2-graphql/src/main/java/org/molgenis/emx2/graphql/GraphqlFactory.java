@@ -35,6 +35,7 @@ public class GraphqlFactory {
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
     if (database.isAdmin()) {
+      queryBuilder.field(db.rolesQuery(database));
       queryBuilder.field(db.lastUpdateQuery(database));
     }
 

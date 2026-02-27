@@ -217,14 +217,14 @@ class SqlSchemaMetadataExecutor {
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
       Schema schema = db.getSchema(schemaName);
-      // reload because we must have latest state
+
       ((SqlSchemaMetadata) schema.getMetadata()).reload();
 
-      // remove changelog triggers + table
+      db.getRoleManager().cleanupSchemaPermissions(schemaName);
+
       ChangeLogExecutor.disableChangeLog(db, schema.getMetadata());
       ChangeLogExecutor.executeDropChangeLogTableForSchema(db, schema);
 
-      // remove foreign keys first to prevent foreign key errors in the schema
       db.getSchema(schemaName)
           .getTablesSorted()
           .forEach(
@@ -240,12 +240,10 @@ class SqlSchemaMetadataExecutor {
                         });
               });
 
-      // remove tables individually to trigger foreign key error if appropriate
       List<Table> tables = db.getSchema(schemaName).getTablesSorted();
       Collections.reverse(tables);
       tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
 
-      // drop schema
       db.getJooq().dropSchema(name(schemaName)).execute();
 
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {

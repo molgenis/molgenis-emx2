@@ -445,6 +445,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     throw new UnsupportedOperationException();
   }
 
+  public void disableRowLevelSecurity() {
+    throw new UnsupportedOperationException();
+  }
+
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();

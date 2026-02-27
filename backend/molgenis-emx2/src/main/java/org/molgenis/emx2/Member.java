@@ -5,6 +5,7 @@ import java.util.Objects;
 public class Member {
   private String user;
   private String role;
+  private Boolean enabled;
 
   public Member() {
     // used for automatic (de)serialization, in e.g. json
@@ -31,6 +32,14 @@ public class Member {
     this.role = role;
   }
 
+  public Boolean getEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(Boolean enabled) {
+    this.enabled = enabled;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
@@ -45,6 +54,15 @@ public class Member {
 
   @Override
   public String toString() {
-    return "Member{" + "user='" + user + '\'' + ", role='" + role + '\'' + '}';
+    return "Member{"
+        + "user='"
+        + user
+        + '\''
+        + ", role='"
+        + role
+        + '\''
+        + ", enabled="
+        + enabled
+        + '}';
   }
 }

@@ -42,6 +42,160 @@ Details:
 * A user with admin status has full access to manage schemas, users, and permissions across the system.
 * Users with admin status cannot change the root admin's password or remove the root admin account.
 
+## Custom roles
+
+In addition to the standard roles, users with Manager or Owner access can create custom roles with fine-grained, per-table permission control.
+
+Custom roles allow you to:
+- Set different permission levels per table
+- Use a wildcard (`*`) entry to define schema-wide defaults
+- Override the wildcard with per-table entries to escalate or restrict access for specific tables
+
+For example, a custom "Analyst" role might have TABLE-level SELECT on most tables (via the wildcard) but only COUNT-level SELECT on a sensitive table.
+
+### Permission levels
+
+**SELECT levels** control what data users can read, from most restrictive to least:
+
+| Level | Description |
+|-------|-------------|
+| EXISTS | Can only check if data matching a filter exists (yes/no) |
+| RANGE | Can count rows in ranges with step-size of 10 (e.g. 10, 20, 130) |
+| AGGREGATOR | Can count rows (shows "<10" when count is below 10) |
+| COUNT | Can count rows exactly |
+| TABLE | Can read all rows and columns |
+| ROW | Can read only rows tagged with the user's role (row-level security) |
+
+**INSERT, UPDATE, DELETE levels** control what data users can modify:
+
+| Level | Description |
+|-------|-------------|
+| TABLE | Can modify all rows in the table |
+| ROW | Can only modify rows tagged with the user's role (row-level security) |
+
+**GRANT** is a boolean flag. When enabled, the role can grant its own permissions to other users.
+
+### Row-level security
+
+When any permission is set to the **ROW** level, row-level security is activated for that table. This adds a `mg_roles` column to the table:
+
+- On INSERT, `mg_roles` is automatically populated with the inserting user's role
+- Users can only see/modify rows where `mg_roles` contains their active role
+- Rows with `mg_roles` set to NULL are visible to all users with access to the table
+- Multiple roles can be assigned to a single row (the column stores an array of role names)
+
+Row-level security is enforced at the PostgreSQL level using Row-Level Security (RLS) policies, so it applies to all access methods (GraphQL, API, direct queries).
+
+### Permission matrix UI
+
+The permission matrix is available at `/{schema}/roles` for users with Manager or Owner access.
+
+Using the permission matrix:
+1. Select an existing role from the dropdown, or create a new role
+2. The matrix shows one row per table, with columns for SELECT, INSERT, UPDATE, DELETE, and GRANT
+3. The first row labeled `*` (wildcard) sets schema-wide defaults for all tables
+4. Per-table rows override the wildcard — you can both escalate and restrict permissions
+5. Inherited values (from the wildcard) are shown as placeholder text
+6. Changes are saved when you click the save button
+7. Use the URL query parameter `?role=RoleName` to bookmark a specific role view
+
+### GraphQL API for roles
+
+Roles and permissions can be managed programmatically via GraphQL.
+
+**Query roles and permissions:**
+
+```graphql
+{
+  _schema {
+    roles {
+      name
+      description
+      system
+      permissions {
+        table
+        select
+        insert
+        update
+        delete
+        grant
+      }
+    }
+  }
+}
+```
+
+**Create or update a role with permissions:**
+
+```graphql
+mutation {
+  change(roles: [{
+    name: "Analyst"
+    description: "Read-only with restricted access to sensitive tables"
+    permissions: [
+      { table: "*", select: "TABLE" }
+      { table: "SensitiveData", select: "COUNT" }
+    ]
+  }]) {
+    message
+  }
+}
+```
+
+**Delete a role:**
+
+```graphql
+mutation {
+  drop(roles: ["Analyst"]) {
+    message
+  }
+}
+```
+
+**Remove a specific table permission from a role:**
+
+```graphql
+mutation {
+  drop(permissions: [{
+    role: "Analyst"
+    table: "SensitiveData"
+  }]) {
+    message
+  }
+}
+```
+
+### Examples
+
+**Analyst role** — read all data, but only counts on a sensitive table:
+
+| Table | SELECT | INSERT | UPDATE | DELETE |
+|-------|--------|--------|--------|--------|
+| `*` | TABLE | — | — | — |
+| SensitiveData | COUNT | — | — | — |
+
+**DataEntry role** — can insert and update but never delete:
+
+| Table | SELECT | INSERT | UPDATE | DELETE |
+|-------|--------|--------|--------|--------|
+| `*` | TABLE | TABLE | TABLE | — |
+
+**PetCurator role** — full access with grant on Pets table, read-only elsewhere:
+
+| Table | SELECT | INSERT | UPDATE | DELETE | GRANT |
+|-------|--------|--------|--------|--------|-------|
+| `*` | TABLE | — | — | — | — |
+| Pets | TABLE | TABLE | TABLE | TABLE | yes |
+
+**ClinicNurse role** — row-level security on patient data:
+
+| Table | SELECT | INSERT | UPDATE | DELETE |
+|-------|--------|--------|--------|--------|
+| `*` | TABLE | — | — | — |
+| Patients | ROW | ROW | ROW | — |
+
+With this setup, each nurse only sees and edits patient rows tagged with their role. New patients they add are automatically tagged.
+
 # Sign-in using Open ID Connect (OIDC)
 
 Users can be authenticated using an existing account via Open ID Connect (OIDC). To enable users to sign-in using OIDC,
