@@ -150,7 +150,7 @@ import Button from "../../../../tailwind-components/app/components/Button.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
 import EditUserModal from "../../components/EditUserModal.vue";
 import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
-import TokenManagement from "~/components/TokenManagement.vue";
+import TokenManagement from "../../components/TokenManagement.vue";
 
 /**
  * Todo:
