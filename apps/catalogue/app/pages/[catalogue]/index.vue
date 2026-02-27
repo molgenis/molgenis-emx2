@@ -214,8 +214,8 @@ const network = computed(() => {
 });
 
 const title = computed(() => {
-  if (catalogue) {
-    return catalogue as string;
+  if (scoped) {
+    return (network.value?.name || catalogue) as string;
   } else if (getSettingValue("CATALOGUE_LANDING_TITLE", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_TITLE", settings.value) as string;
   } else {
@@ -234,7 +234,7 @@ const description = computed(() => {
 });
 
 useHead({
-  title: scoped ? `${catalogue} Catalogue` : "Catalogue",
+  title: scoped ? `${network.value?.name || catalogue} Catalogue` : "Catalogue",
   meta: [
     {
       name: "description",
