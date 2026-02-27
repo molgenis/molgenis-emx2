@@ -1,44 +1,43 @@
 package org.molgenis.emx2.web;
 
-import static org.mockito.Mockito.*;
-
-import io.javalin.http.Context;
+import graphql.Assert;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
-class StaticFileMapperTest {
+class StaticFileMapperTest extends ApiTestBase {
 
   @Test
-  public void testAddFileToContext_FileExists_WithMimeType() {
-    Context ctx = mock(Context.class);
-    String path = "/index.html";
-    String mimeType = "text/html";
+  void testCanFetchFileFromPublicHtmlFolder() {
+    Response restResponse = RestAssured.get("apps/test-app/test-assets/styling.css");
 
-    StaticFileMapper.addFileToContext(ctx, path, mimeType);
+    String mimeType = restResponse.getHeader("Content-type");
+    Assert.assertTrue(Objects.equals(mimeType, "text/css"));
 
-    verify(ctx).contentType(mimeType);
-    verify(ctx).result("<html></html>".getBytes());
+    int status = restResponse.statusCode();
+    Assert.assertTrue(status == 200);
   }
 
   @Test
-  public void testAddFileToContext_FileExists_WithoutMimeType() {
-    Context ctx = mock(Context.class);
-    String path = "/test.txt";
+  void testCanFetchIndexByDefaultFromPublicHtmlFolder() {
+    Response restResponse = RestAssured.get("/schema/test-app/");
 
-    StaticFileMapper.addFileToContext(ctx, path, null);
+    String mimeType = restResponse.getHeader("Content-type");
+    Assert.assertTrue(Objects.equals(mimeType, "text/html"));
 
-    verify(ctx).contentType("text/plain");
-    verify(ctx).result("test".getBytes());
+    int status = restResponse.statusCode();
+    Assert.assertTrue(status == 200);
   }
 
   @Test
-  public void testAddFileToContext_FileNotFound() {
-    Context ctx = mock(Context.class);
-    String path = "/non-existent-file.css";
-    when(ctx.status(404)).thenReturn(ctx);
+  void testDefaultRedirectToCentralApps() {
+    Response restResponse = RestAssured.given().redirects().follow(false).when().get("/");
 
-    StaticFileMapper.addFileToContext(ctx, path, "text/plain");
+    int status = restResponse.getStatusCode();
+    Assert.assertTrue(status == 302);
 
-    verify(ctx).status(404);
-    verify(ctx).result("File not found: " + ctx.path());
+    String locationHeader = restResponse.getHeader("Location");
+    Assert.assertTrue(Objects.equals(locationHeader, "/apps/central/"));
   }
 }
