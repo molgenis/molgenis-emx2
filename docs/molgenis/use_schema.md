@@ -325,15 +325,33 @@ For example:
 
 #### in combination with type=AUTO_ID
 
-In combination with data type AUTO_ID this will generate an value for a column by using the special ${mg_autoid} token in the computed expression. For example:
-
-For example:
+In combination with data type AUTO_ID this will generate a value for a column by using the special `${mg_autoid}` token in the computed expression. For example:
 
 | tableName | columnName | key | type    | computed             |
 | --------- | ---------- | --- | ------- | -------------------- |
 | parts     | id         | 1   | AUTO_ID | foo-${mg_autoid}-bar |
 
-Auto id with pre and post fix `foo-${mg_autoid}-bar'` would result in something like `foo-ae6e3b15-c9e2-4d16-8ab3-5984ba64ce09-bar`
+Auto id with prefix and postfix `foo-${mg_autoid}-bar` would result in something like `foo-QJdAS6LqfA-bar`
+
+**Customization Options**
+
+By default, the `${mg_autoid}` token is parsed to an encoded snowflake value. But it also accepts optional parameters to customize the generated ID. When parameters are provided, the generated value is no longer an encoded snowflake but a randomized value based on the token parameters:
+
+- **format**: Character set to use (`letters`, `numbers`, or `mixed`)
+    - `letters`: A-Z, a-z only
+    - `numbers`: 0-9 only
+    - `mixed`: Letters and numbers (default)
+- **length**: Number of characters to generate (default: 12)
+
+| computed expression                         | example output          |
+|---------------------------------------------|-------------------------|
+| `${mg_autoid}`                              | `QJdAS6LqfA`          |
+| `${mg_autoid(length=8)}`                    | `xK1pQw9m`              |
+| `${mg_autoid(format=letters)}`              | `aBxZmKpQwRtY`          |
+| `${mg_autoid(format=numbers)}`              | `394857261039`          |
+| `${mg_autoid(format=letters, length=6)}`    | `aBxZmK`                |
+| `user-${mg_autoid(format=numbers, length=8)}` | `user-39485726`         |
+| `${mg_autoid(format=mixed, length=16)}-prod` | `aB3xZ9mK1pQw5tYu-prod` |
 
 ### validation expression, visible expression
 
