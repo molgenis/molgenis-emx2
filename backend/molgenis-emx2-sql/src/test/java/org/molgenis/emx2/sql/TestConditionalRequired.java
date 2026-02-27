@@ -21,14 +21,14 @@ public class TestConditionalRequired {
 
     Row validRow = new Row("age", 4, "status", null);
 
-    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success
+    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow, null); // success
 
     Row invalidRow = validRow.set("age", 6);
 
     assertThrows(
         MolgenisException.class,
         () -> {
-          SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow);
+          SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow, null);
         });
   }
 
@@ -46,7 +46,7 @@ public class TestConditionalRequired {
             "field_one", "provided",
             "field_two", "provided");
 
-    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success
+    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow, null); // success
 
     Row invalidRow = new Row("field_one", "provided", "field_two", null);
 
@@ -54,7 +54,7 @@ public class TestConditionalRequired {
         assertThrows(
             MolgenisException.class,
             () -> {
-              SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow);
+              SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow, null);
             });
 
     assertEquals(
@@ -91,7 +91,7 @@ public class TestConditionalRequired {
         assertThrows(
             MolgenisException.class,
             () -> {
-              SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow);
+              SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow, null);
             });
 
     assertEquals(
@@ -101,6 +101,6 @@ public class TestConditionalRequired {
             + "in ROW(age='12' weight='4' species='cat' onMedication='true')");
 
     Row validRow = invalidRow.set("medicalStatus", "old and fat");
-    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success
+    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow, null); // success
   }
 }

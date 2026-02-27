@@ -1,42 +1,56 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.Tag;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Sequence;
+import org.molgenis.emx2.sql.autoid.SqlSequence;
 
-@Tag("slow")
-// todo move to sql
 class SqlSchemaTest {
-  @Mock SqlDatabase db;
-  @Mock SqlSchemaMetadata metadata;
+
+  private static final String SCHEMA_NAME = SqlSchemaTest.class.getSimpleName();
+
+  private SqlDatabase db;
+  private SchemaMetadata metadata;
+  private Schema schema;
+
+  @BeforeEach
+  void setupDatabase() {
+    db = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    schema = db.dropCreateSchema(SCHEMA_NAME);
+    metadata = schema.getMetadata();
+  }
 
   @Test
   void getSettingValue() {
-    metadata = mock(SqlSchemaMetadata.class);
-    db = mock(SqlDatabase.class);
     String testSetting = "TEST_SETTING";
     String testValue = "TEST_VALUE";
-    when(metadata.getSetting(testSetting)).thenReturn(testValue);
-    SqlSchema schema = new SqlSchema(db, metadata);
+    metadata.setSetting(testSetting, testValue);
 
     String result = schema.getSettingValue(testSetting);
-
-    String expectedResult = "TEST_VALUE";
-    assertEquals(expectedResult, result);
+    assertEquals(testValue, result);
   }
 
   @Test
   void getSettingValueGetNonExistingValue() {
-    metadata = mock(SqlSchemaMetadata.class);
-    db = mock(SqlDatabase.class);
     String testSetting = "NON_EXISTING_SETTING";
-    when(metadata.getSetting(testSetting)).thenReturn(null);
-    SqlSchema schema = new SqlSchema(db, metadata);
     assertThrows(MolgenisException.class, () -> schema.getSettingValue(testSetting));
+  }
+
+  @Test
+  void givenSchema_thenGetSequences() {
+    assertTrue(schema.getSequences().isEmpty());
+    SqlSequence.create(db.getJooq(), schema.getName(), "test-sequence", 42);
+
+    List<Sequence> sequences = schema.getSequences();
+    assertFalse(sequences.isEmpty());
+
+    Sequence sequence = sequences.getFirst();
+    assertEquals(42, sequence.getLimit());
   }
 }

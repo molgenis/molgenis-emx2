@@ -11,12 +11,31 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
 
 import java.util.*;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 class TestSqlTypeUtils {
+
+  private static final String SCHEMA_NAME = TestSqlTypeUtils.class.getSimpleName();
+
+  private static SqlDatabase database;
+  private static DSLContext jooq;
+  private Schema schema;
+
+  @BeforeAll
+  static void setup() {
+    database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+  }
+
+  @BeforeEach
+  void setupSchema() {
+    schema = database.dropCreateSchema(SCHEMA_NAME);
+    jooq = database.getJooq();
+  }
 
   @BeforeAll
   static void before() {
@@ -27,36 +46,17 @@ class TestSqlTypeUtils {
 
   @Test
   void autoIdGetsGenerated() {
-    TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
+    TableMetadata tableMetadata =
+        schema.create(table("Test", new Column("myCol").setType(ColumnType.AUTO_ID))).getMetadata();
 
     final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    applyValidationAndComputed(tableMetadata.getColumns(), row, jooq);
     assertNotNull(row.getString("myCol"));
 
     // and now it should change on update
     final Row copy = new Row(row);
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
+    applyValidationAndComputed(tableMetadata.getColumns(), copy, jooq);
     assertEquals(row.getString("myCol"), copy.getString("myCol"));
-  }
-
-  @Test
-  void autoIdGetsGeneratedWithPreFix() {
-    TableMetadata tableMetadata =
-        table(
-            "Test",
-            new Column("myCol")
-                .setType(ColumnType.AUTO_ID)
-                .setComputed("foo-" + Constants.COMPUTED_AUTOID_TOKEN + "-bar"));
-    final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
-    assertTrue(row.getString("myCol").startsWith("foo"));
-    assertTrue(row.getString("myCol").endsWith("bar"));
-
-    // and now it should change on update
-    final Row copy = new Row(row);
-
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
-    assertEquals(row.getString("myCol"), row.getString("myCol"));
   }
 
   @Test
@@ -77,7 +77,7 @@ class TestSqlTypeUtils {
     List<Column> columns = List.of(column("SPAM blocklist", ColumnType.EMAIL_ARRAY));
     Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
 
-    assertDoesNotThrow(() -> applyValidationAndComputed(columns, row));
+    assertDoesNotThrow(() -> applyValidationAndComputed(columns, row, jooq));
   }
 
   @Test

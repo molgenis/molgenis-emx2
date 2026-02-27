@@ -9,16 +9,21 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskStatus;
+import org.molgenis.emx2.utils.generator.AutoIdFormat;
 
 public class ValidatePkeyProcessor implements RowProcessor {
 
-  Set<String> duplicates = new HashSet<>();
-  Set<String> keys = new HashSet<>();
-  TableMetadata metadata;
-  Task task;
-  Set<String> warningColumns = new HashSet<>();
-  boolean hasEmptyKeys = false;
-  List<Column> primaryKeyColumns = new ArrayList<>();
+  private final TableMetadata metadata;
+  private final Task task;
+
+  private final Set<String> duplicates = new HashSet<>();
+  private final Set<String> keys = new HashSet<>();
+  private final Set<String> invalidValues = new HashSet<>();
+
+  private final List<Column> primaryKeyColumns = new ArrayList<>();
+  private Set<String> warningColumns = new HashSet<>();
+
+  private boolean hasEmptyKeys = false;
 
   public ValidatePkeyProcessor(TableMetadata metadata, Task task) {
     this.metadata = metadata;
@@ -71,6 +76,10 @@ public class ValidatePkeyProcessor implements RowProcessor {
         if (row.containsName(column.getName())) {
           String keyValue = row.getString(column.getName());
           compoundKey.add(keyValue);
+
+          if (column.getColumnType() == ColumnType.AUTO_ID) {
+            validateAutoIdValue(keyValue, column);
+          }
         } else if (column.getColumnType() != ColumnType.AUTO_ID) {
           task.addSubTask(
                   "No value provided for key " + column.getName() + " at line " + (index + 1))
@@ -91,9 +100,32 @@ public class ValidatePkeyProcessor implements RowProcessor {
           "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
     }
 
+    if (!invalidValues.isEmpty()) {
+      task.completeWithError(
+          "Invalid values found in table " + metadata.getTableName() + ": " + invalidValues);
+    }
+
     if (hasEmptyKeys)
       task.completeWithError(
           "Missing keys found in table '" + metadata.getTableName() + "': " + errorMessage);
+  }
+
+  private void validateAutoIdValue(String value, Column column) {
+    String computed = column.getComputed();
+    if (value == null || computed == null) {
+      return;
+    }
+
+    boolean formatComplies =
+        AutoIdFormat.fromComputedString(computed)
+            .map(format -> format.valueCompliesToFormat(value))
+            .orElse(true);
+
+    if (!formatComplies) {
+      task.addSubTask("Found invalid auto-id value: " + value + ", for column: " + column.getName())
+          .setError();
+      invalidValues.add(value);
+    }
   }
 
   private void checkWarningColumns() {

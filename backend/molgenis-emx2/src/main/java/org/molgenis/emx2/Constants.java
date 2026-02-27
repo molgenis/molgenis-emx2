@@ -100,6 +100,9 @@ public class Constants {
   public static final String MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE =
       "MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE";
 
+  public static final String MOLGENIS_ID_RANDOMIZER_KEY = "MOLGENIS_ID_RANDOMIZER_KEY";
+  public static final String AUTOID_RANDOMIZER_KEY_SETTING = "autoIdRandomizerKey";
+
   protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 
   protected static final Operator[] ORDINAL_OPERATORS = {
