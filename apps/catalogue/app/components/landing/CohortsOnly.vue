@@ -16,29 +16,29 @@ const { data, pending, error, refresh } = await useFetch(`/${schema}/graphql`, {
         Variables_agg {
           count
         }
-        Resources_agg {
+        Collections_agg {
           count
           _sum {
             numberOfParticipants
-            numberOfParticipantsWithSamples 
+            numberOfParticipantsWithSamples
           }
         }
         Subpopulations_agg {
           count
         }
-        Networks_agg { 
+        Networks_agg {
           count
         }
-        Resources_groupBy {
-          count 
+        Collections_groupBy {
+          count
           design {
             name
           }
         }
         _settings (keys: [
           "NOTICE_SETTING_KEY"
-          "CATALOGUE_LANDING_TITLE" 
-          "CATALOGUE_LANDING_DESCRIPTION" 
+          "CATALOGUE_LANDING_TITLE"
+          "CATALOGUE_LANDING_DESCRIPTION"
           "CATALOGUE_LANDING_COHORTS_CTA"
           "CATALOGUE_LANDING_COHORTS_TEXT"
           "CATALOGUE_LANDING_NETWORKS_CTA"
@@ -53,9 +53,9 @@ const { data, pending, error, refresh } = await useFetch(`/${schema}/graphql`, {
           "CATALOGUE_LANDING_DESIGN_TEXT"
           "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
           "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
-        ]){ 
+        ]){
           key
-          value 
+          value
         }
       }`,
   },

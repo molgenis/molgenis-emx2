@@ -32,10 +32,15 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-//networksfilter retrieves the catalogues
-//resources are within the current catalogue
-const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
-        Resources(filter:$networksFilter) {
+const query = `query CataloguePage($catalogueFilter:CataloguesFilter,$collectionIdFilter:CollectionsFilter,$variablesFilter:VariablesFilter,$collectionsFilter:CollectionsFilter,$subpopulationsCollectionFilter:ResourcesFilter,$networkFilter:NetworksFilter){
+        Catalogues(filter:$catalogueFilter) {
+              id,
+              acronym,
+              name,
+              description,
+              logo {url}
+       }
+        ScopedCollection: Collections(filter:$collectionIdFilter) {
               id,
               acronym,
               name,
@@ -45,21 +50,21 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
         Variables_agg(filter:$variablesFilter) {
           count
         }
-        Collections_agg: Resources_agg(filter:$collectionsFilter) {
+        Collections_agg(filter:$collectionsFilter) {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        Networks_agg: Resources_agg(filter:$networkFilter) {
+        Networks_agg(filter:$networkFilter) {
           count
         }
-        Design_groupBy: Resources_groupBy(filter:$collectionsFilter) {
+        Design_groupBy: Collections_groupBy(filter:$collectionsFilter) {
           design{name}
           count
         }
-        Subpopulations_agg(filter:{resource: $collectionsFilter}) {
+        Subpopulations_agg(filter:{resource: $subpopulationsCollectionFilter}) {
           count
         }
         _settings (keys: [
@@ -89,45 +94,35 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
         }
       }`;
 
-const networksFilter = scoped
+const catalogueFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
 const collectionsFilter = scoped
   ? {
-      _and: [
-        { type: { tags: { equals: "collection" } } },
+      _or: [
+        { partOfNetworks: { id: { equals: catalogueRouteParam } } },
         {
-          _or: [
-            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
-            {
-              partOfNetworks: {
-                parentNetworks: { id: { equals: catalogueRouteParam } },
-              },
-            },
-          ],
+          partOfNetworks: {
+            parentNetworks: { id: { equals: catalogueRouteParam } },
+          },
         },
       ],
     }
-  : { type: { tags: { equals: "collection" } } };
+  : undefined;
 
 const networkFilter = scoped
   ? {
-      _and: [
-        { type: { tags: { equals: "network" } } },
+      _or: [
+        { parentNetworks: { id: { equals: catalogueRouteParam } } },
         {
-          _or: [
-            { parentNetworks: { id: { equals: catalogueRouteParam } } },
-            {
-              parentNetworks: {
-                parentNetworks: { id: { equals: catalogueRouteParam } },
-              },
-            },
-          ],
+          parentNetworks: {
+            parentNetworks: { id: { equals: catalogueRouteParam } },
+          },
         },
       ],
     }
-  : { type: { tags: { equals: "network" } } };
+  : undefined;
 
 const { data, error } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
@@ -135,18 +130,29 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
   body: {
     query,
     variables: {
-      networksFilter,
+      catalogueFilter,
+      collectionIdFilter: scoped ? { id: { equals: catalogueRouteParam } } : undefined,
       collectionsFilter,
+      subpopulationsCollectionFilter: scoped
+        ? {
+            _or: [
+              { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+              {
+                partOfNetworks: {
+                  parentNetworks: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            ],
+          }
+        : undefined,
       networkFilter,
       variablesFilter: scoped
         ? {
             _or: [
               { resource: { id: { equals: catalogueRouteParam } } },
-              //also include network of networks
               {
                 resource: {
-                  type: { name: { equals: "Network" } },
-                  parentNetworks: { id: { equals: catalogueRouteParam } },
+                  partOfNetworks: { id: { equals: catalogueRouteParam } },
                 },
               },
               {
@@ -155,7 +161,7 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
                     { resource: { id: { equals: catalogueRouteParam } } },
                     {
                       resource: {
-                        parentNetworks: {
+                        partOfNetworks: {
                           id: { equals: catalogueRouteParam },
                         },
                       },
@@ -165,8 +171,14 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
               },
             ],
           }
-        : //should only include harmonised variables
-          { resource: { type: { name: { equals: "Network" } } } },
+        : {
+            resource: {
+              _or: [
+                { mg_tableclass: { equals: `${schema}.Networks` } },
+                { mg_tableclass: { equals: `${schema}.Catalogues` } },
+              ],
+            },
+          },
     },
   },
 });
@@ -203,7 +215,9 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
-  const resources = data.value.data?.Resources;
+  const catalogues = data.value.data?.Catalogues;
+  const collections = data.value.data?.ScopedCollection;
+  const resources = catalogues?.length ? catalogues : collections;
   if (scoped && (!resources || resources.length === 0)) {
     throw createError({
       statusCode: 404,

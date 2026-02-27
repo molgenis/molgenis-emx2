@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
-  query Resources($id: String) {
-    Resources(filter: { id: { equals: [$id] } }) {
+  query Collections($id: String) {
+    Collections(filter: { id: { equals: [$id] } }) {
       acronym
       name
       description
