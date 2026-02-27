@@ -189,7 +189,9 @@ export function getColumnError(
   if (type === "NON_NEGATIVE_INT_ARRAY") {
     const invalidNonNegativeIntegers = getInvalidNonNegativeIntegers(value);
     return readableStringArray(
-      invalidNonNegativeIntegers.map((num) => num.toString()),
+      invalidNonNegativeIntegers.map(
+        (num) => num?.toString() ?? "[non-parsable value]"
+      ),
       " is an invalid non negative integer",
       " are invalid non negative integers"
     );
@@ -202,12 +204,14 @@ export function getColumnError(
 }
 
 export function readableStringArray(
-  strings: string[],
+  strings: columnValue[],
   postErrorSingular?: string,
   postErrorPlural?: string
 ): string {
   const escapedStrings = strings.map((str) =>
-    str.toString().replaceAll("'", "\\'")
+    typeof str === "string"
+      ? str.toString().replaceAll("'", "\\'")
+      : str?.toString() ?? "[non-parsable value]"
   );
   if (escapedStrings.length === 0) {
     return "";
