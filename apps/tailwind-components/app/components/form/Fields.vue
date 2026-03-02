@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { vIntersectionObserver } from "@vueuse/components";
-import type { IRow } from "../../../../metadata-utils/src/types";
-import FormField from "./FormField.vue";
-import type { UseForm } from "../../composables/useForm";
 import { computed } from "vue";
+import type {
+  columnId,
+  columnValue,
+} from "../../../../metadata-utils/src/types";
+import type { UseForm } from "../../composables/useForm";
+import FormField from "./FormField.vue";
 
 const props = defineProps<{
   form: UseForm;
-  constantValues?: IRow;
+  constantValues?: Record<columnId, columnValue>;
 }>();
 
 const observerOptions = {
@@ -67,7 +70,6 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
       class="pb-8 last:pb-64"
       v-intersection-observer="[onIntersectionObserver, observerOptions]"
       :form="form"
-      :constantValues="constantValues"
       :column="column"
     />
   </template>

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
-import Field from "../Field.vue";
-import { type UseForm } from "../../composables/useForm";
 import { computed } from "vue";
+import type { IColumn } from "../../../../metadata-utils/src/types";
+import { type UseForm } from "../../composables/useForm";
+import Field from "../Field.vue";
 
 const props = defineProps<{
   form: UseForm;
-  constantValues?: IRow;
   column: IColumn;
 }>();
 
@@ -17,12 +16,14 @@ const isRequiredColumn = computed(
 );
 
 const isFieldDisabled = computed(() => {
-  return Boolean(
+  const hasPkey =
+    props.form.rowKey.value &&
+    props.form.rowKey.value[props.column.id] &&
+    props.column.key === 1;
+  return (
     props.column.readonly === "true" ||
-      (props.form.rowKey.value &&
-        Object.keys(props.form.rowKey.value).length &&
-        props.column.key === 1) ||
-      props.column.columnType === "AUTO_ID"
+    hasPkey ||
+    props.column.columnType === "AUTO_ID"
   );
 });
 
