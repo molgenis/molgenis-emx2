@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, useId } from "vue";
 import type {
   Crumb,
   ITableSettings,
@@ -13,6 +13,10 @@ import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import type { IRow } from "../../../../../metadata-utils/src/types";
+import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
+import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
+import Button from "../../../../../tailwind-components/app/components/Button.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -64,6 +68,16 @@ function handleSettingsUpdate() {
   router.push({ query });
 }
 
+async function handleViewRowRequest(row: IRow) {
+  const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
+
+  router.push(
+    `/${schemaId}/${tableId}/${
+      keySlug(primaryKeys) + "?keys=" + JSON.stringify(primaryKeys)
+    }`
+  );
+}
+
 const crumbs: Crumb[] = [
   { label: schemaId, url: `/${schemaId}` },
   { label: tableMetadata.label || tableMetadata.id, url: "" },
@@ -95,6 +109,18 @@ const { isAdmin, session } = await useSession(schemaId);
       :tableId="tableId"
       v-model:settings="tableSettings"
       :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
-    />
+    >
+      <template #additional-row-actions="{ row }">
+        <Button
+          :id="useId()"
+          :icon-only="true"
+          type="inline"
+          icon="info"
+          size="small"
+          label="view row details"
+          @click="handleViewRowRequest(row)"
+        />
+      </template>
+    </TableEMX2>
   </section>
 </template>
