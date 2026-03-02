@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useRuntimeConfig, useCookie, useHead } from "#app";
 import { useGtag, useDatasetStore, useTheme } from "#imports";
-import { computed, ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import BottomModal from "../app/components/BottomModal.vue";
 import Button from "../../tailwind-components/app/components/Button.vue";
 import BackgroundGradient from "../../tailwind-components/app/components/BackgroundGradient.vue";
+import type { analyticsService } from "../interfaces/types";
 
 const config = useRuntimeConfig();
 const theme = await useTheme();
@@ -13,15 +14,22 @@ const { initialize } = useGtag();
 const datasetStore = useDatasetStore();
 await datasetStore.isDatastoreEnabled();
 
-const analyticsService = computed(() => {
-  if (typeof config.public.analyticsProvider === "string") {
-    if (config.public.analyticsProvider.includes("siteimprove")) {
-      return "siteimprove";
-    } else if (config.public.analyticsProvider === "google-analytics") {
-      return "google-analytics";
-    } else {
-      return "";
-    }
+const GOOGLE_ANALYTICS: analyticsService = "google-analytics";
+const SITE_IMPROVE: analyticsService = "site-improve";
+const PIWIK_PRO: analyticsService = "piwik-pro";
+
+const scriptMap: Record<analyticsService, string> = {
+  [GOOGLE_ANALYTICS]: `https://www.googletagmanager.com/gtag/js?id=${config.public.analyticsKey}`,
+  [SITE_IMPROVE]: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+  [PIWIK_PRO]: `https://${config.public.analyticsDomain}/${config.public.analyticsKey}.js`,
+};
+
+const analyticsService: Ref<analyticsService | undefined> = computed(() => {
+  const profiderFromConfig = config.public.analyticsProvider;
+  if (Object.keys(scriptMap).includes(profiderFromConfig)) {
+    return profiderFromConfig as analyticsService;
+  } else {
+    return undefined;
   }
 });
 
@@ -45,7 +53,7 @@ if (
   import.meta.client &&
   config.public.analyticsKey &&
   isAnalyticsAllowedCookie.value &&
-  analyticsService.value === "google-analytics"
+  analyticsService.value === GOOGLE_ANALYTICS
 ) {
   initialize(config.public.analyticsKey);
 }
@@ -70,10 +78,11 @@ useHead({
   script:
     config.public.analyticsKey &&
     isAnalyticsAllowedCookie.value &&
-    analyticsService.value === "siteimprove"
+    analyticsService.value &&
+    scriptMap[analyticsService.value]
       ? [
           {
-            src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+            src: scriptMap[analyticsService.value],
             async: true,
             tagPosition: "bodyClose",
           },
