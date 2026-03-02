@@ -83,8 +83,8 @@ if (!cohortOnly.value) {
     link: `/`,
   });
   menu.push({
-    label: "Upload data",
-    link: "/apps/central/#/",
+    label: "Add data",
+    link: "/" + config.public.schema + "/pages/#/data-manager-portal",
   });
   menu.push({
     label: "Manuals",

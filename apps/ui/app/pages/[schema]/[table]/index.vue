@@ -75,7 +75,7 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin, session } = await useSession();
+const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
@@ -94,7 +94,7 @@ const { isAdmin, session } = await useSession();
       :schemaId="schemaId"
       :tableId="tableId"
       v-model:settings="tableSettings"
-      :isEditable="session?.roles?.includes('Editor') || isAdmin"
+      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
     />
   </section>
 </template>

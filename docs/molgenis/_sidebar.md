@@ -43,3 +43,4 @@
     - [Migrations](dev_migrations.md)
 - **Visualisation library**
     - [Pie charts](viz_piechart.md)
+    - [Column charts](viz_columnchart.md)

@@ -8,6 +8,14 @@
       <Input
         :id="id + '_' + index"
         :modelValue="values[index]"
+        :invalid="
+          stringArrayValidationCheck(
+            props.invalid,
+            props.type,
+            props.errorMessage,
+            values[index]
+          )
+        "
         v-bind="getPartialProps($props)"
         :type="getNonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
@@ -36,6 +44,7 @@
 
 <script setup lang="ts">
 import type { IInputProps } from "../../../types/types";
+import CONSTANTS from "../../../../molgenis-components/src/components/constants";
 import type {
   CellValueType,
   columnValue,
@@ -47,12 +56,42 @@ import Button from "../Button.vue";
 const props = defineProps<
   IInputProps & {
     modelValue: columnValue[] | undefined | null;
+    errorMessage: string | undefined | null;
     type: string;
   }
 >();
 
 const values = ref<columnValue[]>(handleUndefined(props.modelValue));
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+function stringArrayValidationCheck(
+  invalid: boolean,
+  type: string,
+  errorMessage: string | undefined | null,
+  value: any
+): boolean {
+  const isTypeWithPartialError = [
+    "EMAIL_ARRAY",
+    "HYPERLINK_ARRAY",
+    "UUID_ARRAY",
+    "PERIOD_ARRAY",
+    "NON_NEGATIVE_INT_ARRAY",
+  ].includes(type);
+  const incorrectFields = errorMessage?.match(CONSTANTS.SELECT_QUOTED_REGEX);
+  if (
+    isTypeWithPartialError &&
+    incorrectFields &&
+    incorrectFields?.length > 0
+  ) {
+    const test = incorrectFields?.includes(
+      `'${value?.toString()?.replaceAll("'", "\\'")}'`
+    )
+      ? true
+      : false;
+    return test;
+  }
+  return invalid;
+}
 
 function handleUndefined(
   inputValues: columnValue[] | undefined | null
@@ -82,6 +121,7 @@ function clearInput(values: columnValue[], index: number) {
     values.splice(index, 1);
   }
   emit("update:modelValue", values);
+  emit("blur"); // to trigger validation after removing an item
 }
 
 function getPartialProps(props: any): { [key: string]: string } {
@@ -89,6 +129,7 @@ function getPartialProps(props: any): { [key: string]: string } {
   delete clone.id;
   delete clone.type;
   delete clone.modelValue;
+  delete clone.invalid;
   return clone;
 }
 
