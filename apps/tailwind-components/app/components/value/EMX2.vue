@@ -76,14 +76,14 @@ defineEmits<{
   />
 
   <ValueRef
-    v-else-if="metadata.columnType === 'REF'"
+    v-else-if="['Ref', 'RADIO'].includes(metadata.columnType)"
     :metadata="metadata as IRefColumn"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueObject
-    v-else-if="['ONTOLOGY', 'RADIO'].includes(metadata.columnType)"
+    v-else-if="['ONTOLOGY'].includes(metadata.columnType)"
     :metadata="metadata"
     :data="data"
   />
