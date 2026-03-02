@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import { type UseForm } from "../../composables/useForm";
+import { isKeyDisabled } from "../../utils/isKeyDisabled";
 import Field from "../Field.vue";
 
 const props = defineProps<{
@@ -16,15 +17,7 @@ const isRequiredColumn = computed(
 );
 
 const isFieldDisabled = computed(() => {
-  const hasPkey =
-    props.form.rowKey.value &&
-    props.form.rowKey.value[props.column.id] &&
-    props.column.key === 1;
-  return (
-    props.column.readonly === "true" ||
-    hasPkey ||
-    props.column.columnType === "AUTO_ID"
-  );
+  isKeyDisabled();
 });
 
 const fieldId = computed(
