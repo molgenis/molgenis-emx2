@@ -41,12 +41,12 @@ public class ServeStaticFile {
       if (Files.isRegularFile(jarPath) && !jarPath.toString().contains("webapi")) {
         return jarPath.getParent();
       } else {
-        /* Running from IDE/CLI (classes folder) */
+        // Running from IDE/CLI (classes folder)
         Path emx2Home = jarPath.getParent();
         do {
           emx2Home = emx2Home.getParent();
         } while (!emx2Home.toString().endsWith("backend"));
-        /* One more above backend is root */
+        // One more above backend is root
         return emx2Home.getParent();
       }
     } catch (Exception e) {
@@ -61,13 +61,13 @@ public class ServeStaticFile {
       if (mimeType == null) {
         mimeType = Files.probeContentType(Path.of(potentialFile));
       }
-      /* App found inside the jar! */
+      // App found inside the jar!
       if (in != null) {
         send(ctx, in, mimeType);
         return true;
       }
     } catch (Exception internalNotFound) {
-      /* Catch silently */
+      // Catch silently
     }
     return false;
   }
@@ -83,12 +83,12 @@ public class ServeStaticFile {
       return true;
 
     } catch (Exception internalNotFound) {
-      /* catch silently */
+      // catch silently
     }
     return false;
   }
 
-  /* Serve internal file */
+  // Serve internal file
   public static void serve(Context ctx, String path) {
 
     try (InputStream in = ServeStaticFile.class.getResourceAsStream(path)) {
@@ -105,7 +105,7 @@ public class ServeStaticFile {
 
   public static void serve(Context ctx) {
     String path = ctx.path();
-    /* Dissect the path, so we can check for the folder to serve from */
+    // Dissect the path, so we can check for the folder to serve from
     String[] segments = path.split("/");
 
     List<String> parts = new ArrayList<>();
@@ -115,12 +115,12 @@ public class ServeStaticFile {
       }
     }
 
-    /* check if the path starts with apps, if not, remove the first bit <schema> */
+    // check if the path starts with apps, if not, remove the first bit <schema>
     if (!Objects.equals(parts.getFirst(), "apps")) {
       parts.set(0, "apps");
     }
 
-    /* Remove leading /, so that it will resolve correctly */
+    // Remove leading /, so that it will resolve correctly
     path = String.join("/", parts);
     boolean isFile = parts.getLast().contains(("."));
     String fallbackFileBase = path + "/index.html";
@@ -143,10 +143,10 @@ public class ServeStaticFile {
     boolean internalFallbackFound = tryServeJarApp(ctx, internalFallbackFile);
     if (internalFallbackFound) return;
 
-    /* External can not use apps */
+    // External can not use apps
     path = path.replace("apps/", "");
 
-    /* Nothing found, so now check external app */
+    // Nothing found, so now check external app
     Path externalAppsDirectory =
         Paths.get(
                 Objects.requireNonNullElseGet(
@@ -160,7 +160,7 @@ public class ServeStaticFile {
         externalAppsDirectory.resolve(path + "/index.html").toAbsolutePath().normalize().toString();
 
     if (!requestedExternalFilePath.startsWith(externalAppsDirectory)) {
-      /* Suspected path traversal: reject the request */
+      // Suspected path traversal: reject the request
       ctx.status(403).result("Forbidden");
       return;
     }
@@ -173,7 +173,7 @@ public class ServeStaticFile {
     boolean externalFallbackFound = tryServeExternalApp(ctx, externalFallbackFile);
     if (externalFallbackFound) return;
 
-    /* Tried out best to serve something, sadly nothing was found! */
+    // Tried out best to serve something, sadly nothing was found!
     ctx.status(404).result(NOT_FOUND + ctx.path());
   }
 

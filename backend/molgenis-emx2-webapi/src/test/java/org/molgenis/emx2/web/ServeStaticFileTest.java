@@ -53,7 +53,7 @@ class ServeStaticFileTest {
 
     ServeStaticFile.serve(ctx);
 
-    /* Grab what was outputted */
+    // Grab what was outputted
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     verify(ctx).result(captor.capture());
 
@@ -72,7 +72,7 @@ class ServeStaticFileTest {
 
     ServeStaticFile.serve(ctx);
 
-    /* Grab what was outputted */
+    // Grab what was outputted
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     verify(ctx).result(captor.capture());
 
