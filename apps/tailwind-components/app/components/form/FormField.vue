@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import { type UseForm } from "../../composables/useForm";
-import { isKeyDisabled } from "../../utils/isKeyDisabled";
+import { isFieldDisabled } from "../../utils/isFieldDisabled";
 import Field from "../Field.vue";
 
 const props = defineProps<{
@@ -16,8 +16,8 @@ const isRequiredColumn = computed(
     undefined
 );
 
-const isFieldDisabled = computed(() => {
-  isKeyDisabled();
+const isDisabledField = computed(() => {
+  return isFieldDisabled(props.form.rowKey.value, props.column);
 });
 
 const fieldId = computed(
@@ -34,7 +34,7 @@ const fieldId = computed(
     :type="column.columnType"
     :label="column.formLabel ?? column.label"
     :description="column.description"
-    :disabled="isFieldDisabled"
+    :disabled="isDisabledField"
     :rowKey="form.rowKey"
     :required="isRequiredColumn"
     :error-message="form.visibleColumnErrors.value[column.id]"
