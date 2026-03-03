@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import org.molgenis.emx2.MolgenisException;
 
 public class FormattedIdGenerator implements IdGenerator {
 
@@ -38,7 +39,9 @@ public class FormattedIdGenerator implements IdGenerator {
     if (COMPUTED_AUTOID_TOKEN.equals(format)) {
       return SnowflakeIdGenerator.getInstance();
     } else {
-      AutoIdFormat config = AutoIdFormat.fromComputedString(format);
+      AutoIdFormat config =
+          AutoIdFormat.fromComputedString(format)
+              .orElseThrow(() -> new MolgenisException("Invalid format provided: " + format));
       return ConfiguringIdGenerator.fromAutoIdConfig(config);
     }
   }
