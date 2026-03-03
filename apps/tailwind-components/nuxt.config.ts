@@ -19,6 +19,9 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "nuxt-monaco-editor",
   ],
+  plugins: [
+    { src: '~/plugins/focus-trap-vue.client.ts', ssr: false }
+  ],
   ignore: [
     ".gradle/**",
     ".git/**",
