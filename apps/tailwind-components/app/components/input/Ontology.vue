@@ -144,7 +144,7 @@ async function reload() {
   ) {
     // Load entire small ontology in one go
     const query = `query {
-      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC}) {
+      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{name:ASC}) {
         name,parent{name},label,definition,code,codesystem,ontologyTermURI,order
       }
     }`;
@@ -165,7 +165,7 @@ function assembleTree(
 ): ITreeNodeState[] {
   return (
     data
-      // .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
       .filter((row) => row.parent?.name === parentNode?.name)
       .map((row: any) => {
         const node: ITreeNodeState = {
