@@ -147,15 +147,16 @@ class TestEvaluateExpressions {
 
   @Test
   void givenArgumentForAutoIdComputed_thenGenerateAccordingly() {
-    TableMetadata table =
-        table(
-            "test_autoid",
-            new Column("id")
-                .setType(ColumnType.AUTO_ID)
-                .setComputed("${mg_autoid(length=1, format=NUMBERS)}"));
-
-    List<Column> columns = table.getColumns();
-
+    TableMetadata tableMetadata =
+        schema
+            .getMetadata()
+            .create(
+                table(
+                    "test_autoid",
+                    new Column("id")
+                        .setType(ColumnType.AUTO_ID)
+                        .setComputed("${mg_autoid(length=1, format=NUMBERS)}")));
+    List<Column> columns = tableMetadata.getColumns();
     Row row = new Row();
     applyValidationAndComputed(columns, row);
     String generatedId = row.get("id", String.class);

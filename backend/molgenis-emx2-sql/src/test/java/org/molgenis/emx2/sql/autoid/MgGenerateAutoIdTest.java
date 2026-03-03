@@ -87,22 +87,23 @@ class MgGenerateAutoIdTest {
   }
 
   /**
-   * Tests the behavior of concurrent transactions attempting to acquire an advisory lock
-   * on the same column, ensuring that the lock is properly held and respected.
+   * Tests the behavior of concurrent transactions attempting to acquire an advisory lock on the
+   * same column, ensuring that the lock is properly held and respected.
    *
    * <p>This test uses two threads:
+   *
    * <ul>
-   *   <li><b>Thread 1:</b> Acquires an advisory lock by generating an auto ID for a column.
-   *       It signals the second thread to start checking the lock status and retains the lock
-   *       until the check is complete.</li>
-   *   <li><b>Thread 2:</b> Attempts to acquire the same advisory lock after being signaled by Thread 1.
-   *       It verifies that the lock is already held (i.e., the attempt fails), ensuring proper
-   *       lock contention behavior.</li>
+   *   <li><b>Thread 1:</b> Acquires an advisory lock by generating an auto ID for a column. It
+   *       signals the second thread to start checking the lock status and retains the lock until
+   *       the check is complete.
+   *   <li><b>Thread 2:</b> Attempts to acquire the same advisory lock after being signaled by
+   *       Thread 1. It verifies that the lock is already held (i.e., the attempt fails), ensuring
+   *       proper lock contention behavior.
    * </ul>
    *
-   * <p>The test uses {@link CountDownLatch} for thread coordination and {@link ExecutorService}
-   * for concurrent execution. The advisory lock is implemented using PostgreSQL's
-   * {@code pg_try_advisory_xact_lock} function, which is called via jOOQ.
+   * <p>The test uses {@link CountDownLatch} for thread coordination and {@link ExecutorService} for
+   * concurrent execution. The advisory lock is implemented using PostgreSQL's {@code
+   * pg_try_advisory_xact_lock} function, which is called via jOOQ.
    */
   @Test
   void givenConcurrentTransactions_whenRequestingSameColumn_thenLock()
