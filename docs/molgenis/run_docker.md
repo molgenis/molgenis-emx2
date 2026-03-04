@@ -31,8 +31,10 @@ Stop by typing ctrl+c.
 These instructions were written with Apple Silicon in mind.
 While [Colima](https://colima.run/) is used to run Docker Engine, other approaches should be viable as well.
 
-1. Install [Colima](https://colima.run/) as defined in [these instructions](https://colima.run/docs/installation/#macos).
-2. Install Docker CLI [as described here](https://docs.docker.com/engine/install/binaries/#install-client-binaries-on-macos). In short:
+1. Install [Colima](https://colima.run/) as defined
+   in [these instructions](https://colima.run/docs/installation/#macos).
+2. Install Docker
+   CLI [as described here](https://docs.docker.com/engine/install/binaries/#install-client-binaries-on-macos). In short:
     ```bash
     curl -OL https://download.docker.com/mac/static/stable/aarch64/docker-<version>.tgz
     tar xzvf docker-<version>.tgz
@@ -41,7 +43,8 @@ While [Colima](https://colima.run/) is used to run Docker Engine, other approach
     ```
 3. Validate if Docker is installed correctly by running `docker` (should return usage)
 4. Run `mkdir -p ~/.docker/cli-plugins`
-5. Install Docker compose (using [https://github.com/docker/compose/releases/](https://github.com/docker/compose/releases/)):
+5. Install Docker compose (
+   using [https://github.com/docker/compose/releases/](https://github.com/docker/compose/releases/)):
     ```bash
     curl -OL https://github.com/docker/compose/releases/latest/download/docker-compose-darwin-aarch64
     sudo xattr -rc docker-compose-darwin-aarch64
@@ -58,14 +61,16 @@ While [Colima](https://colima.run/) is used to run Docker Engine, other approach
 
 ## Postgres
 
-When running docker-compose up, a folder is created in the directory where the docker-compose.yml is located. This folder is called ```psql_data``` 
+When running docker-compose up, a folder is created in the directory where the docker-compose.yml is located. This
+folder is called ```psql_data```
 
-
-You can delete docker images and/or containers without losing the database data. So you can just upgrade anytime, the data will be intact.
+You can delete docker images and/or containers without losing the database data. So you can just upgrade anytime, the
+data will be intact.
 
 > If you really need to keep the data, always make sure that you have a backup.
 
-If you want to have a clean database, for example when you are testing things locally, you can remove this folder manually in the file explorer or finder. 
+If you want to have a clean database, for example when you are testing things locally, you can remove this folder
+manually in the file explorer or finder.
 
 You can also run:
 
@@ -75,11 +80,11 @@ rm -Rf psql_data
 
 **NB:** This action is not recoverable.
 
-## Notes:
+## Notes
 
-* because postgres starts slow, emx2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is
+* Additional JVM options can be added via the `JAVA_OPTS` environment variable (for example: `-Dlog4j2.level=DEBUG`).
+* Because postgres starts slow, emx2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is
   normal.
-* the data of postgresql will be stored in 'psql_data' folder. Remove this folder you want a clean start.
-* if you want
-  particular [molgenis-emx2 version](https://hub.docker.com/r/molgenis/molgenis-emx2/tags)
-  then add version in docker-compose.yml file 'molgenis/molgenis-emx2:version'
+* The data of postgresql will be stored in `psql_data` folder. Remove this folder you want a clean start.
+* If you want particular [molgenis-emx2 version](https://hub.docker.com/r/molgenis/molgenis-emx2/tags) then add version
+  in docker-compose.yml file 'molgenis/molgenis-emx2:version'
