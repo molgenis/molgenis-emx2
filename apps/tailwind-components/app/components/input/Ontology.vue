@@ -144,7 +144,7 @@ async function reload() {
   ) {
     // Load entire small ontology in one go
     const query = `query {
-      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){
+      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:[{order:ASC},{name:ASC}]){
         name,parent{name},label,definition,code,codesystem,ontologyTermURI
       }
     }`;
@@ -230,7 +230,7 @@ async function loadPage(
     .replace(/false/g, "false");
 
   const query = `query myquery(${variableDeclaration}) {
-    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:[{order:ASC},{name:ASC}], limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
     count: ${props.ontologyTableId}_agg(filter:${countFilterInline}){count}
     totalCount: ${props.ontologyTableId}_agg(filter:${totalCountFilterInline}){count}
   }`;

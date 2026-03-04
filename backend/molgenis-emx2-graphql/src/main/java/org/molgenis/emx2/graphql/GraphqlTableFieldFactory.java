@@ -111,7 +111,7 @@ public class GraphqlTableFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ORDERBY)
-                .type(createTableOrderByInputType(table))
+                .type(GraphQLList.list(createTableOrderByInputType(table)))
                 .build())
         .build();
   }
@@ -275,7 +275,7 @@ public class GraphqlTableFieldFactory {
                   .argument(
                       GraphQLArgument.newArgument()
                           .name(GraphqlConstants.ORDERBY)
-                          .type(createTableOrderByInputType(col.getRefTable()))
+                          .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
         }
         tableBuilder.field(
@@ -902,14 +902,23 @@ public class GraphqlTableFieldFactory {
 
   private Map<String, Order> convertOrderByIdsToNames(
       TableMetadata aTable, Map<String, Object> args) {
-    Map<String, Order> orderBy = (Map<String, Order>) args.get(ORDERBY);
+    Object orderByArg = args.get(ORDERBY);
+    List<Map<String, Order>> orderByList;
+    if (orderByArg instanceof List) {
+      orderByList = (List<Map<String, Order>>) orderByArg;
+    } else {
+      // backward compatibility: single object instead of list
+      orderByList = List.of((Map<String, Order>) orderByArg);
+    }
     Map<String, Order> unescapedMap = new LinkedHashMap<>();
-    for (Map.Entry<String, Order> entry : orderBy.entrySet()) {
-      Optional<Column> column = findColumnById(aTable, entry.getKey());
-      if (column.isPresent()) {
-        unescapedMap.put(column.get().getName(), entry.getValue());
-      } else {
-        throw new MolgenisException("Unknown order by column id: " + entry.getKey());
+    for (Map<String, Order> orderByEntry : orderByList) {
+      for (Map.Entry<String, Order> entry : orderByEntry.entrySet()) {
+        Optional<Column> column = findColumnById(aTable, entry.getKey());
+        if (column.isPresent()) {
+          unescapedMap.put(column.get().getName(), entry.getValue());
+        } else {
+          throw new MolgenisException("Unknown order by column id: " + entry.getKey());
+        }
       }
     }
     return unescapedMap;
