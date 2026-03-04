@@ -902,19 +902,17 @@ public class GraphqlTableFieldFactory {
 
   private Map<String, Order> convertOrderByIdsToNames(
       TableMetadata aTable, Map<String, Object> args) {
-    List<Map<String, Order>> orderByList = toOrderByList(args.get(ORDERBY));
+    Object orderByArg = args.get(ORDERBY);
+    // GraphQL auto-coerces single objects to lists, but handle both for safety
+    List<Map<String, Order>> orderByList =
+        orderByArg instanceof List
+            ? (List<Map<String, Order>>) orderByArg
+            : List.of((Map<String, Order>) orderByArg);
     Map<String, Order> result = new LinkedHashMap<>();
     for (Map<String, Order> orderByEntry : orderByList) {
       orderByEntry.forEach((id, order) -> result.put(resolveColumnName(aTable, id), order));
     }
     return result;
-  }
-
-  private List<Map<String, Order>> toOrderByList(Object orderByArg) {
-    if (orderByArg instanceof List) {
-      return (List<Map<String, Order>>) orderByArg;
-    }
-    return List.of((Map<String, Order>) orderByArg);
   }
 
   private String resolveColumnName(TableMetadata table, String id) {
