@@ -170,25 +170,6 @@ async function getPageData() {
   cleftqCompletionChart.value = cleftqResponse[0];
 }
 
-function updatePhenotypesChart() {
-  if (patientsByPhenotypeChart.value?.dataPoints) {
-    patientsByPhenotypeChartData.value =
-      patientsByPhenotypeChart.value.dataPoints;
-
-    const chartTicks = generateAxisTickData(
-      patientsByPhenotypeChartData.value,
-      "dataPointValue"
-    );
-    patientsByPhenotypeChart.value.yAxisMaxValue = chartTicks.limit;
-    patientsByPhenotypeChart.value.yAxisTicks = chartTicks.ticks;
-  }
-
-  totalNumberOfPatients.value = sum(
-    patientsByPhenotypeChartData.value,
-    "dataPointValue"
-  );
-}
-
 function updateGenderChart() {
   const filteredData = patientsByGenderChart.value?.dataPoints
     ?.filter((row: IChartData) => {
@@ -219,7 +200,6 @@ function updateProgressMeter() {
 }
 
 function updateCharts() {
-  updatePhenotypesChart();
   updateGenderChart();
   updateProgressMeter();
 }
@@ -228,6 +208,21 @@ onMounted(() => {
   getPageData()
     .then(() => {
       if (patientsByPhenotypeChart.value?.dataPoints) {
+        patientsByPhenotypeChartData.value =
+          patientsByPhenotypeChart.value.dataPoints;
+
+        const chartTicks = generateAxisTickData(
+          patientsByPhenotypeChartData.value,
+          "dataPointValue"
+        );
+        patientsByPhenotypeChart.value.yAxisMaxValue = chartTicks.limit;
+        patientsByPhenotypeChart.value.yAxisTicks = chartTicks.ticks;
+
+        totalNumberOfPatients.value = sum(
+          patientsByPhenotypeChartData.value,
+          "dataPointValue"
+        );
+
         filterOptions.value = patientsByPhenotypeChart.value?.dataPoints.map(
           (row: IChartData) => row.dataPointName
         ) as string[];
@@ -247,9 +242,7 @@ onMounted(() => {
       );
       patientsByGenderPalette.value = generateColorPalette(genderCategories);
     })
-    .then(() => {
-      updateCharts();
-    })
+    .then(() => updateCharts())
     .catch((err) => {
       throw new Error(err);
     })
