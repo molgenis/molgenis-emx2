@@ -4,6 +4,7 @@ import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
 import { registerModal } from "../utils/modalManager";
 import { FocusTrap } from "focus-trap-vue";
+import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component'
 
 withDefaults(
   defineProps<{
@@ -61,9 +62,8 @@ function hide() {
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <FocusTrap
-        :active="visible"
-        :initial-focus="() => $refs.ModalTitle"
+      <UseFocusTrap
+        v-if="visible"
       >
         <div>
           <div
@@ -122,7 +122,7 @@ function hide() {
             </div>
           </div>
         </div>
-      </FocusTrap>
+      </UseFocusTrap>
     </Teleport>
   </ClientOnly>
 </template>
