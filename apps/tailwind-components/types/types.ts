@@ -138,10 +138,12 @@ export interface IInputProps {
   disabled?: boolean | undefined;
 }
 
+export type schemaId = string;
+
 export interface ISession {
   email: string;
   admin: boolean;
-  roles?: string[];
+  roles: Record<schemaId, string[]>;
   schemas?: string[];
   token?: string;
 }

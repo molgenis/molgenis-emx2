@@ -124,4 +124,5 @@
   /* visualisations: need css and svg defintions */
   --chart-text: var(--color-white);
   --chart-paths: var(--color-gray-100);
+  --chart-gridlines: var(--color-gray-600);
 }

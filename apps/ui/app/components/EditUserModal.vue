@@ -111,8 +111,8 @@
 </template>
 
 <script setup lang="ts">
-import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
-import { isValidPassword, updateUser } from "~/util/adminUtils";
+import type { IRole, ISchemaInfo, IUser } from "../util/adminUtils";
+import { isValidPassword, updateUser } from "../util/adminUtils";
 import { computed, ref, watch } from "vue";
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
