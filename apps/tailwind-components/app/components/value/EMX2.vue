@@ -41,7 +41,9 @@ defineEmits<{
   />
 
   <ValueString
-    v-else-if="metadata.columnType === 'STRING'"
+    v-else-if="
+      ['STRING', 'AUTO_ID', 'UUID', 'PERIOD'].includes(metadata.columnType)
+    "
     :metadata="metadata"
     :data="data"
   />
@@ -74,14 +76,14 @@ defineEmits<{
   />
 
   <ValueRef
-    v-else-if="metadata.columnType === 'REF'"
+    v-else-if="['Ref', 'RADIO'].includes(metadata.columnType)"
     :metadata="metadata as IRefColumn"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueObject
-    v-else-if="metadata.columnType === 'ONTOLOGY'"
+    v-else-if="['ONTOLOGY'].includes(metadata.columnType)"
     :metadata="metadata"
     :data="data"
   />
@@ -112,24 +114,6 @@ defineEmits<{
 
   <ValueFile
     v-else-if="metadata.columnType === 'FILE'"
-    :metadata="metadata"
-    :data="data"
-  />
-
-  <ValueString
-    v-else-if="metadata.columnType === 'AUTO_ID'"
-    :metadata="metadata"
-    :data="data"
-  />
-
-  <ValueString
-    v-else-if="metadata.columnType === 'PERIOD'"
-    :metadata="metadata"
-    :data="data"
-  />
-
-  <ValueString
-    v-else-if="metadata.columnType === 'UUID'"
     :metadata="metadata"
     :data="data"
   />
