@@ -145,6 +145,9 @@
 144,Natural environment,Natural_environment,Physical environment,,"Proximity and access to green, blue, or grey spaces surrounding the residence"
 145,Air pollution (indoor),Air_pollution_indoor,Physical environment,,"Household exposure to pollutants from cooking, heating, or tobacco smoke."
 146,Chemicals,Chemicals,Chemical exposure,,
-147,Water DBPs,Water_DBPs,Chemicals,,"Water desinfection by products (Trihalomethanes (THMs), haloacetic acids, chlorate, bromate)"
-148,Non-targeted / suspect screening of chemicals,Nontargeted_suspect_screening_of_chemicals,Chemicals,,"High-resolution mass spectrometry (HRMS), untargeted exposomics"
-149,Light,Light,Other physical environment characteristics,,
+147,Persistent organic pollutants,,Chemicals,,"Exposure to persistent organic pollutant, such as PCBs, DDT, DDE, PFASs, PBDEs, etc."
+148,Metals & elements,,Chemicals,,Exposure to metals and elements
+149,Other chemicals,,Chemicals,,"Exposure to other chemicals, such as PAHs, VOCs, THMs, etc."
+150,Water DBPs,Water_DBPs,Chemicals,,"Water desinfection by products (Trihalomethanes (THMs), haloacetic acids, chlorate, bromate)"
+151,Non-targeted / suspect screening of chemicals,Nontargeted_suspect_screening_of_chemicals,Chemicals,,"High-resolution mass spectrometry (HRMS), untargeted exposomics"
+152,Light,Light,Other physical environment characteristics,,
