@@ -60,7 +60,10 @@ function hide() {
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <focus-trap v-model:active="visible">
+      <focus-trap
+        v-model:active="visible"
+        :initial-focus="() => $refs.ModalTitle"
+      >
         <div>
           <div
             v-if="visible"
@@ -90,6 +93,7 @@ function hide() {
                   </div>
                   <h2
                     v-if="title"
+                    ref="ModalTitle"
                     class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
                   >
                     {{ title }}
@@ -115,7 +119,7 @@ function hide() {
                 <slot name="footer" :hide="hide" />
               </footer>
             </div>
-        </div>
+          </div>
         </div>
       </focus-trap>
     </Teleport>
