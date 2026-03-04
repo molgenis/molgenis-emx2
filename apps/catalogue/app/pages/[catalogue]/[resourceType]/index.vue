@@ -194,7 +194,7 @@ const filters = computed(() => {
 
 const query = computed(() => {
   return `
-  query Resources($filter:ResourcesFilter, $orderby:Resourcesorderby){
+  query Resources($filter:ResourcesFilter, $orderby:[Resourcesorderby]){
     Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
