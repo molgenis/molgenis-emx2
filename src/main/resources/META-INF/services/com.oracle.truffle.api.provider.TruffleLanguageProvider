@@ -1,0 +1,2 @@
+com.oracle.truffle.js.lang.JavaScriptLanguageProvider
+com.oracle.truffle.regex.RegexLanguageProvider

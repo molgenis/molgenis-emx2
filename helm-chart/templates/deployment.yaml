@@ -25,9 +25,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "2Gi"
+              memory: {{ .Values.image.resourceLimitMemory | quote }}
             requests:
-              memory: "256Mi"
+              memory: {{ .Values.image.resourceRequestMemory | quote }}
           ports:
             - containerPort: 8080
           env:
@@ -53,6 +53,8 @@ spec:
               value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
             - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
               value: {{ .Values.directory.includeDirectoryDemo | quote }}
+            - name: MOLGENIS_METRICS_ENABLED
+              value: {{ .Values.metrics.enabled | quote }}
 {{- if .Values.oidc.enabled  }}
             - name: MOLGENIS_OIDC_CLIENT_ID
               value: {{ .Values.oidc.client_id }}
@@ -78,9 +80,9 @@ spec:
             - max_locks_per_transaction=1024
           resources:
             limits:
-              memory: "512Mi"
+              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
             requests:
-              memory: "128Mi"
+              memory: {{ .Values.image.pgResourceRequestMemory | quote }}
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -122,6 +124,8 @@ spec:
               value: {{ .Values.ssrCatalogue.environment.siteTitle | quote }}
             - name: NUXT_PUBLIC_ANALYTICS_KEY
               value: {{ .Values.ssrCatalogue.environment.analyticsKey | quote }}
+            - name: NUXT_PUBLIC_SCHEMA
+              value: {{ .Values.ssrCatalogue.environment.schema | quote }}
       volumes:
         - name: postgres-initdb
           configMap:

@@ -112,6 +112,7 @@ system.
 {
   _session {
     email
+    admin
     roles
     schemas
   }
@@ -264,6 +265,11 @@ mutation {
 }
 ```
 
+> **Note:**  
+> The `members` field is only accessible to users with sufficient permissions (e.g. admin users or users with an 
+> **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
+> schema.
+
 ## change schema elements
 
 You can change objects from schema query above and then pass them into the change function.
@@ -355,7 +361,9 @@ Query including search
 }
 ```
 
-Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators.
+Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators. 
+
+Field-level filters apply comparison operators directly to individual fields.
 
 ```graphql
 {
@@ -375,6 +383,48 @@ Query using filters, limit, offset. Note that filter enables quite complex queri
   }
 }
 ```
+
+Object-level filters apply logical or comparison operators to the object as a whole, rather than to individual fields. 
+In this case, `not_equals` compares primary keys, `name` for Pet.
+
+```graphql
+{
+  Pet (filter: { not_equals: { name: "pooky" } }) {
+    name
+  }
+}
+```
+
+### Fragments
+
+To simplify common queries, the API provides GraphQL fragments for each table. These fragments automatically expand to include all fields of the table.
+
+For columns of type `ref`, `ref_array`, `ontology`, or `ontology_array`, the fragment also includes the primary key (i.e., key=1) of the referenced table. This allows you to seamlessly query related tables without manually specifying nested fields.
+
+Note: these fragments are a server-side extension. GraphQL editors like GraphiQL may show validation warnings for unknown fragments, but the queries will execute correctly.
+
+#### Example 1: Basic usage
+```graphql
+{
+  Pet (filter: { not_equals: { name: "pooky" } }) {
+    ...PetAllFields
+  }
+}
+```
+
+#### Example 2: Querying nested references
+```graphql
+{
+  Order(filter: { equals: { orderId: "ORDER:..." } }) {
+    ...OrderAllFields2
+  }
+}
+```
+
+Depth variants are available for each table:
+- `...{Table}AllFields` - all fields, references include primary key only (depth 1)
+- `...{Table}AllFields2` - references expanded to depth 2
+- `...{Table}AllFields3` - references expanded to depth 3
 
 ### mutation example
 
@@ -579,9 +629,9 @@ add the following to the dependancies section
   }
 ```
 
-Then open a terminal and type in `yarn`.
+Then open a terminal and type in `pnpm install`.
 
-> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `yarn build`
+> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `pnpm build`
 
 Now you can import the library as follows:
 
@@ -638,6 +688,13 @@ the following function are available:
 - textSearch(value)
 - between(value)
 - notBetween(value)
+- _is_null - use this filter to find null (true) or not null (false) values
+- _match_any(value)
+- _match_all(value)
+- _match_none(value)
+- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
+- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 

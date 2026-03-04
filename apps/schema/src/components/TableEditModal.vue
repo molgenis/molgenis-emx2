@@ -34,11 +34,11 @@
         :errorMessage="subclassInvalid"
         label="Extends table (can not be edited after creation)"
       />
-      <InputString
+      <ArrayInput
         id="table_semantics"
-        :list="true"
+        columnType="STRING_ARRAY"
         v-model="table.semantics"
-        label="Semantics (comma separated list of IRI defining type, and/or keyword 'id')"
+        label="Semantics"
       />
     </template>
     <template v-slot:footer>
@@ -65,6 +65,7 @@ import {
   ButtonAction,
   MessageWarning,
   InputSelect,
+  ArrayInput,
   ButtonAlt,
   deepClone,
   InputTextLocalized,
@@ -72,6 +73,7 @@ import {
 
 export default {
   components: {
+    ArrayInput,
     LayoutModal,
     InputString,
     IconAction,

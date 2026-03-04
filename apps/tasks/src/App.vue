@@ -1,6 +1,6 @@
 <template>
   <Molgenis v-model="session" @error="error = $event">
-    <div v-if="session && session.email == 'admin'" class="card">
+    <div v-if="session && session.admin" class="card">
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
           <li

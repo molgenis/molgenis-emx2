@@ -222,13 +222,13 @@ const chapterStyleAndErrors = computed(() => {
 });
 
 const saveDraftDisabledMessage = computed(() => {
-  const hasPrimaryKeyValue = tableMetadata.value?.columns.some(
+  const hasInvalidPrimaryKeyValue = tableMetadata.value?.columns.some(
     (column) =>
       column.key === 1 &&
       column.columnType !== "AUTO_ID" &&
-      !rowData.value[column.id]
+      !isValidKeyValue(rowData.value[column.id])
   );
-  if (hasPrimaryKeyValue) {
+  if (hasInvalidPrimaryKeyValue) {
     return "Cannot save draft: primary key is required";
   } else {
     return "";
@@ -270,6 +270,10 @@ onMounted(async () => {
   checkForErrors();
   loaded.value = true;
 });
+
+function isValidKeyValue(value: any) {
+  return value !== null && value !== undefined && value !== "";
+}
 
 function setCurrentPage(newPage: number) {
   currentPage.value = newPage;

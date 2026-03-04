@@ -1,0 +1,7 @@
+part of clinical observation,code,variable,value,unit,mg_draft
+Case5C,Oncology,Cancer antigen,100,Unit per Milliliter,FALSE
+Case5C,Oncology,Size of tumor,12,Centimeter,FALSE
+Case1C,Rare diseases,Creatine kinase,500,Unit per Liter,FALSE
+Case1C,Rare diseases,Cross-sectional area of muscle,20,Square Centimeter,FALSE
+Case5C,Oncology,HE4,150,pmol/L,FALSE
+Case6C,Rare diseases,Creatine kinase,1000,Unit per Liter,FALSE

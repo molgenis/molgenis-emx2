@@ -1,4 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Agent,,,,,,,,,,,"http://xmlns.com/foaf/0.1/Agent","An agent (eg. person, group, software or physical artifact).","DCAT,Beacon v2"
-Agent,,name,string,1,TRUE,,,,,,"http://xmlns.com/foaf/0.1/name",A name for some thing.,"DCAT,Beacon v2"
-Agent,,logo,hyperlink,,,,,,,,"http://xmlns.com/foaf/0.1/logo",A logo representing some thing.,"DCAT,Beacon v2"

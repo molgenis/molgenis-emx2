@@ -1,0 +1,58 @@
+<template>
+  <InputTestContainer show-label v-slot="{ label }">
+    <div class="grid grid-rows-1 gap-4">
+      <Accordion :label="label || 'Accordion component'" class="max-w-[600px]">
+        <p class="text-title-contrast">
+          This is an accordion component that can be used to hide and show
+          content. The label can be changed and the content can be hidden by
+          default.
+        </p>
+      </Accordion>
+      <Accordion :label="label || 'Accordion component'" class="max-w-[600px]">
+        <template #toolbar>
+          <Button
+            class="hover:bg-button-secondary-hover"
+            :icon-only="true"
+            icon="edit"
+            type="inline"
+            label="Edit"
+          />
+          <Button
+            class="hover:bg-button-secondary-hover"
+            :icon-only="true"
+            icon="trash"
+            type="inline"
+            label="Delete"
+          />
+        </template>
+        <p class="text-title-contrast">
+          Using the slot <code>toolbar</code>, you can insert additional actions
+          in the accordion heading. This is useful for components such as
+          <code>InputRefBack</code>. Use <code>toggle-icon-size</code> to align
+          the appearance of the accordion toggle.
+        </p>
+      </Accordion>
+
+      <div>
+        <ul class="border divide-y max-w-[600px] divide-input">
+          <li>
+            <Accordion label="First item in a list" :in-list="true">
+              <p class="text-title-contrast">
+                This accordion is part of a list. Therefore, it has no border
+                around it. This list supplies the divider between the items.
+              </p>
+            </Accordion>
+          </li>
+          <li>
+            <Accordion label="Second item in a list" :in-list="true">
+              <p class="text-title-contrast">
+                This accordion is part of a list. Therefore, it has no border
+                around it. This list supplies the divider between the items.
+              </p>
+            </Accordion>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </InputTestContainer>
+</template>

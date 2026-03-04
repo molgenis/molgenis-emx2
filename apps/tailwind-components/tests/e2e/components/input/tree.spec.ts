@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "~/playwright.config";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -7,10 +7,6 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}input/Tree.story`);
-  await page
-    .getByText("InputTree", { exact: true })
-    .first()
-    .click({ delay: 300 });
 });
 
 test("should render the collapsed tree", async ({ page }) => {
@@ -27,7 +23,7 @@ test("should expand the fist node when clicking in the icon", async ({
     .locator("label")
     .filter({ hasText: "Node 0" })
     .first()
-    .locator("rect")
+    .locator("svg")
     .click();
   await expect(page.getByText("Node 0.0", { exact: true })).toBeVisible();
   await expect(page.getByText("Node 0.1", { exact: true })).toBeVisible();

@@ -391,18 +391,9 @@ class SqlTableMetadataExecutor {
     // negative positions so they don't interfere with the positions of user provided columns
     table.add(column(MG_DRAFT).setType(BOOL).setPosition(-5));
     table.add(column(MG_INSERTEDBY).setPosition(-4));
-    table.add(
-        column(MG_INSERTEDON)
-            .setType(DATETIME)
-            .setPosition(-3)
-            .setSemantics(
-                "https://w3id.org/fdp/fdp-o#metadataIssued", "http://purl.org/dc/terms/issued"));
+    table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(-3));
     table.add(column(MG_UPDATEDBY).setPosition(-2));
-    table.add(
-        column(MG_UPDATEDON)
-            .setType(DATETIME)
-            .setPosition(-1)
-            .setSemantics("https://w3id.org/fdp/fdp-o#metadataModified"));
+    table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(-1));
   }
 
   private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {

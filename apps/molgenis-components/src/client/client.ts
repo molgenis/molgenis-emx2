@@ -7,14 +7,15 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
-import { deepClone } from "../components/utils";
-import type { aggFunction } from "./IClient";
+import { deepClone, getKeyValue } from "../components/utils";
+import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
-import type { IQueryMetaData } from "./IQueryMetaData";
+import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
+import { toFormData } from "../../../metadata-utils/src/toFormData";
 
 // application wide cache for schema meta data
-const schemaCache = new Map<string, ISchemaMetaData>();
+const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
 
 export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
@@ -93,7 +94,7 @@ const client: IClient = {
         selectedColumn: { id: string; column: string }, //should these be id?
         selectedRow: { id: string; column: string }, //should these be id?
         filter: Object,
-        aggFunction?: aggFunction,
+        aggFunction?: AggFunction,
         aggField?: string
       ) => {
         const aggregateQuery = `
@@ -158,10 +159,27 @@ const client: IClient = {
       fetchOntologyOptions: async (tableName: string) => {
         return fetchOntologyOptions(tableName, schemaId);
       },
+      getPrimaryKeyFields,
     };
   },
 };
 export default client;
+
+async function getPrimaryKeyFields(
+  schemaId: string,
+  tableId: string
+): Promise<string[]> {
+  return fetchSchemaMetaData(schemaId).then((schema) => {
+    const table = schema.tables.find((table) => table.id === tableId);
+    if (!table) {
+      throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
+    }
+    const keyFields = table.columns
+      .filter((column) => column.key === 1)
+      .map((column) => column.id);
+    return keyFields;
+  });
+}
 
 const metadataQuery = `{
   _schema {
@@ -177,6 +195,7 @@ const metadataQuery = `{
         id,
         name,
         label,
+        formLabel,
         description,
         columnType,
         key,
@@ -229,7 +248,7 @@ const deleteRow = async (row: IRow, tableId: string, schemaId?: string) => {
 };
 
 const deleteAllTableData = (tableId: string, schemaId?: string) => {
-  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  const query = `mutation {truncate(tables:"${tableId}" async:true){taskId message}}`;
   return axios.post(graphqlURL(schemaId), { query });
 };
 
@@ -238,22 +257,23 @@ const fetchSchemaMetaData = async (
 ): Promise<ISchemaMetaData> => {
   const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
   if (schemaCache.has(currentschemaId)) {
-    return schemaCache.get(currentschemaId) as ISchemaMetaData;
+    return schemaCache.get(currentschemaId) as Promise<ISchemaMetaData>;
   }
-  return await axios
+
+  const promise = axios
     .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
-      if (schemaId == null) {
-        schemaCache.set(currentschemaId, schema);
-      }
-      schemaCache.set(schema.id, schema);
       return deepClone(schema);
     })
     .catch((error: AxiosError) => {
       console.log(error);
+      schemaCache.delete(currentschemaId);
       throw error;
     });
+
+  schemaCache.set(currentschemaId, promise);
+  return promise;
 };
 
 const fetchTableData = async (
@@ -352,41 +372,6 @@ const request = async (url: string, graphql: string, variables?: any) => {
     });
 };
 
-const isFileValue = (value: File) => {
-  if (window && "File" in window) {
-    return value instanceof File;
-  } else {
-    throw "Files can only be uploaded via a browser client";
-  }
-};
-
-const toFormData = (rowData: IRow) => {
-  if (!FormData) {
-    throw "Files can only be uploaded via a browser client";
-  }
-  const formData = new FormData();
-  let nonFileValue: { [key: string]: string } = {};
-  let fileValues: { [key: string]: string } = {};
-
-  // split into file and non-file entries
-  for (const [key, value] of Object.entries(rowData)) {
-    isFileValue(value)
-      ? (fileValues[key] = value)
-      : (nonFileValue[key] = value);
-  }
-
-  // add the file objects to the formData and place a link to the object in the variables
-  for (const [key, value] of Object.entries(fileValues)) {
-    const id = Math.random().toString(36);
-    formData.append(id, value);
-    nonFileValue[key] = id;
-  }
-
-  formData.append("variables", JSON.stringify({ value: [nonFileValue] }));
-
-  return formData;
-};
-
 async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
@@ -403,7 +388,7 @@ async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -414,23 +399,5 @@ async function convertRowToPrimaryKey(
       },
       Promise.resolve({})
     );
-  }
-
-  async function getKeyValue(
-    cellValue: any,
-    column: IColumn,
-    schemaId: string
-  ) {
-    if (typeof cellValue === "string") {
-      return cellValue;
-    } else {
-      if (column.refTableId) {
-        return await convertRowToPrimaryKey(
-          cellValue,
-          column.refTableId,
-          schemaId
-        );
-      }
-    }
   }
 }

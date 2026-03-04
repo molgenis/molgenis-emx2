@@ -18,23 +18,23 @@ import "range.jslt" as range
                 "resultsCount": .count,
                 "results":
                 [for (.results) {
-                    "variantInternalId": .variantInternalId,
+                    "variantInternalId": .id,
                     "variation": {
                         "variantType": .variantType,
-                        "referenceBases": uppercase(.referenceBases),
-                        "alternateBases": uppercase(.alternateBases),
+                        "referenceBases": uppercase(.referenceAllele),
+                        "alternateBases": uppercase(.alternateAllele),
                         "location": {
-                            "sequence_id": .position_refseqId,
+                            "sequence_id": .refseqAssembyId,
                             "type": "SequenceLocation",
                             "interval": {
                                 "type": "SequenceInterval",
                                 "start": {
                                     "type": "Number",
-                                    "value": number(.position_start)
+                                    "value": number(.startPosition)
                                 },
                                 "end": {
                                     "type": "Number",
-                                    "value": number(.position_end)
+                                    "value": number(.stopPosition)
                                 }
                             }
                         }
@@ -50,7 +50,7 @@ import "range.jslt" as range
                         "geneIds": if (.geneId) [.geneId ],
                         "aminoacidChanges": [ ]
                     },
-                    "variantLevelData": if (.clinicalInterpretations) {
+                    "variantLevelData": if (.clinicalInterpretations) { // todo where to get this from
                         "clinicalInterpretations":
                         [for (.clinicalInterpretations) {
                                 "category": ontology(.category),

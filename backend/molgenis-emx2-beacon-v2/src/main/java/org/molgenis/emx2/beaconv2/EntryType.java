@@ -13,21 +13,24 @@ import org.molgenis.emx2.beaconv2.filter.FilterConceptVP;
 public enum EntryType {
   INDIVIDUALS(
       "Individuals",
+      "Individuals",
       "individuals",
       "Individual",
       "NCIT:C25190",
       "Person",
       List.of(BEACON_V2, BEACON_VP),
       List.of(SEX, DISEASE, PHENOTYPE, CAUSAL_GENE, AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG)),
-  BIOSAMPLES(
-      "Biosamples",
-      "biosamples",
-      "Biosample",
-      "NCIT:C70699",
-      "Biospecimen",
-      List.of(BEACON_V2, BEACON_VP),
-      List.of(SEX, DISEASE, AGE_THIS_YEAR, AGE_AT_DIAG, BIOSAMPLE_TYPE)),
+  //  BIOSAMPLES(
+  //      "Samples",
+  //      "Biosamples",
+  //      "biosamples",
+  //      "Biosample",
+  //      "NCIT:C70699",
+  //      "Biospecimen",
+  //      List.of(BEACON_V2, BEACON_VP),
+  //      List.of(SEX, DISEASE, AGE_THIS_YEAR, AGE_AT_DIAG, BIOSAMPLE_TYPE)),
   CATALOGS(
+      "Dataset",
       "Dataset",
       "catalogs",
       "Catalog",
@@ -36,20 +39,30 @@ public enum EntryType {
       List.of(BEACON_VP),
       List.of(DISEASE, PHENOTYPE, RESOURCE_TYPE)),
   GENOMIC_VARIANT(
-      "GenomicVariations",
+      "GenomicVariants",
+      "GenomicVariants",
       "g_variants",
       "GenomicVariant",
       "ENSGLOSSARY:0000092",
       "Variant",
       List.of(BEACON_V2)),
-  DATASETS("Dataset", "datasets", "Dataset", "NCIT:C47824", "Data set", List.of(BEACON_V2)),
+  DATASETS(
+      "Datasets", "Datasets", "datasets", "Dataset", "NCIT:C47824", "Data set", List.of(BEACON_V2)),
   ANALYSES(
-      "Analyses", "analyses", "Analysis", "edam:operation_2945", "Analysis", List.of(BEACON_V2)),
-  COHORTS("Cohorts", "cohorts", "Cohort", "NCIT:C61512", "Cohort", List.of(BEACON_V2)),
-  RUNS("Runs", "runs", "Run", "NCIT:C148088", "Sequencing run", List.of(BEACON_V2));
+      "VariantInterpretationAnalyses",
+      "Analyses",
+      "analyses",
+      "Analysis",
+      "edam:operation_2945",
+      "Analysis",
+      List.of(BEACON_V2)),
+  COHORTS("Cohorts", "Cohorts", "cohorts", "Cohort", "NCIT:C61512", "Cohort", List.of(BEACON_V2)),
+  RUNS(
+      "NGSSequencing", "Runs", "runs", "Run", "NCIT:C148088", "Sequencing run", List.of(BEACON_V2));
 
   EntryType(
       String id,
+      String externalId,
       String name,
       String singular,
       String ontologyTerm,
@@ -57,6 +70,7 @@ public enum EntryType {
       List<BeaconSpec> spec,
       List<FilterConceptVP> filters) {
     this.id = id;
+    this.externalId = externalId;
     this.name = name;
     this.singular = singular;
     this.ontologyTerm = ontologyTerm;
@@ -66,18 +80,25 @@ public enum EntryType {
   }
 
   EntryType(
-      String id, String name, String singular, String term, String label, List<BeaconSpec> spec) {
-    this(id, name, singular, term, label, spec, null);
+      String id,
+      String externalId,
+      String name,
+      String singular,
+      String term,
+      String label,
+      List<BeaconSpec> spec) {
+    this(id, externalId, name, singular, term, label, spec, null);
   }
 
   public static EntryType findByName(String nameOther) {
     return Arrays.stream(values())
         .filter(entryType -> entryType.getName().equalsIgnoreCase(nameOther))
         .findFirst()
-        .orElseThrow(() -> new MolgenisException("Invalid entry type: " + nameOther));
+        .orElseThrow(() -> new MolgenisException("Unsupported entry type: " + nameOther));
   }
 
   private final String id;
+  private final String externalId;
   private final String name;
   private final String singular;
   private final String ontologyTerm;
@@ -109,6 +130,10 @@ public enum EntryType {
 
   public boolean validateSpecification(BeaconSpec otherSpec) {
     return this.partOfSpecification.contains(otherSpec);
+  }
+
+  public String getExternalId() {
+    return externalId;
   }
 
   public String getOntologyTerm() {

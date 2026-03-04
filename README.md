@@ -40,10 +40,21 @@ the data, and use VueJS to create your own 'apps'.
 
 Detailed changes for each release are documented in the [release notes](https://github.com/molgenis/molgenis-emx2/releases).
 
-## Licence
+Breaking changes:
+
+| Version | Description of issues one might encounter |
+|---------|-------------------------------------------|
+| 12.x    | Changes to the way pages are stored in settings. Migration for existing pages will be automatic. Frontend support is also available for legacy versions to allow pages to display in the browser, but parsing of JavaScript or style tags are not automatic. Users are recommended to manually move the content into the appropriate editors. |
+| 13.x    | Upgrade to Java 21. Please update your java version | 
+
+## Licence and Acknowledgements
 
 ![lgplv3logo](https://www.gnu.org/graphics/lgplv3-with-text-154x68.png)
 
 MOLGENIS is licensed as [LGPLv3](LICENSE). This means it is free to use, and can be integrated both open source and proprietary software as long as MOLGENIS is
 acknowledged and changes to its source code are given back to the community. Please cite Van der [Velde et al (2018)](https://pubmed.ncbi.nlm.nih.gov/30165396)
 or [Swertz et al (2010)](https://pubmed.ncbi.nlm.nih.gov/21210979) if you use MOLGENIS for a scientific publication.
+
+MOLGENIS is thankfull to many open source software projects as well as scientific ontology projects. Find the full list in [NOTICE.md](NOTICE.md)
+
+

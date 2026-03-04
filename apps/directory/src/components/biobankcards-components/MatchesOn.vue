@@ -69,7 +69,7 @@ const matches = computed(() => {
           potentialMatch,
           filterName,
           activeFilterValues,
-          filtersStore.filterOptionsCache,
+          filtersStore.filterOptions,
           filterId
         );
 

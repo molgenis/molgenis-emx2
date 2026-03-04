@@ -1,4 +1,4 @@
-// Generated (on: 2024-10-23T21:40:27.204002) from Generator.java for schema: catalogue
+// Generated (on: 2026-01-14T00:37:29.969663) from Generator.java for schema: catalogue-demo
 
 export interface IFile {
   id?: string;
@@ -22,136 +22,221 @@ export interface IOntologyNode extends ITreeNode {
   order?: number;
 }
 
-export interface IAgeGroups {
+export interface ICatalogueOntologies_AccessRights {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IAgeGroups;
+  parent?: ICatalogueOntologies_AccessRights;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IAgeGroups[];
+  children?: ICatalogueOntologies_AccessRights[];
 }
 
-export interface IAreasOfInformationCohorts {
+export interface ICatalogueOntologies_AccessRights_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_AgeGroups {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IAreasOfInformationCohorts;
+  parent?: ICatalogueOntologies_AgeGroups;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IAreasOfInformationCohorts[];
+  children?: ICatalogueOntologies_AgeGroups[];
 }
 
-export interface IAreasOfInformationDs {
+export interface ICatalogueOntologies_AgeGroups_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_AgentTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IAreasOfInformationDs;
+  parent?: ICatalogueOntologies_AgentTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IAreasOfInformationDs[];
+  children?: ICatalogueOntologies_AgentTypes[];
 }
 
-export interface IBiospecimens {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IBiospecimens;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IBiospecimens[];
+export interface ICatalogueOntologies_AgentTypes_agg {
+  count: number;
 }
 
-export interface ICatalogueTypes {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueTypes[];
-}
-
-export interface ICatalogues {
-  name: string;
-  network: IResources;
+export interface IAgents {
+  resource: IResources;
+  id: string;
   type: IOntologyNode;
-  description: string;
-  publisher?: string;
+  name?: string;
+  organisation?: ICatalogueOntologies_Organisations;
+  otherOrganisation?: string;
+  department?: string;
+  website?: string;
+  email?: string;
+  logo?: IFile;
+  role?: IOntologyNode[];
+  organisationName?: string;
+  organisationPid?: string;
+  organisationWebsite?: string;
 }
 
-export interface IClinicalStudyTypes {
+export interface IAgents_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_AreasOfInformationCohorts {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IClinicalStudyTypes;
+  parent?: ICatalogueOntologies_AreasOfInformationCohorts;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IClinicalStudyTypes[];
+  children?: ICatalogueOntologies_AreasOfInformationCohorts[];
 }
 
-export interface ICohortCollectionTypes {
+export interface ICatalogueOntologies_AreasOfInformationCohorts_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_AreasOfInformationDs {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ICohortCollectionTypes;
+  parent?: ICatalogueOntologies_AreasOfInformationDs;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ICohortCollectionTypes[];
+  children?: ICatalogueOntologies_AreasOfInformationDs[];
 }
 
-export interface ICohortDesigns {
+export interface ICatalogueOntologies_AreasOfInformationDs_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Biospecimens {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ICohortDesigns;
+  parent?: ICatalogueOntologies_Biospecimens;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ICohortDesigns[];
+  children?: ICatalogueOntologies_Biospecimens[];
 }
 
-export interface ICohortStudyTypes {
+export interface ICatalogueOntologies_Biospecimens_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_CatalogueTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ICohortStudyTypes;
+  parent?: ICatalogueOntologies_CatalogueTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ICohortStudyTypes[];
+  children?: ICatalogueOntologies_CatalogueTypes[];
+}
+
+export interface ICatalogueOntologies_CatalogueTypes_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_ClinicalStudyTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_ClinicalStudyTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_ClinicalStudyTypes[];
+}
+
+export interface ICatalogueOntologies_ClinicalStudyTypes_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_CohortCollectionTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_CohortCollectionTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_CohortCollectionTypes[];
+}
+
+export interface ICatalogueOntologies_CohortCollectionTypes_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_CohortDesigns {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_CohortDesigns;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_CohortDesigns[];
+}
+
+export interface ICatalogueOntologies_CohortDesigns_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_CohortStudyTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_CohortStudyTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_CohortStudyTypes[];
+}
+
+export interface ICatalogueOntologies_CohortStudyTypes_agg {
+  count: number;
 }
 
 export interface ICollectionEvents {
   resource: IResources;
   name: string;
+  pid?: string;
   description?: string;
   subpopulations?: ISubpopulations[];
+  keywords?: string[];
   startDate?: string;
   endDate?: string;
   ageGroups?: IOntologyNode[];
@@ -162,6 +247,19 @@ export interface ICollectionEvents {
   standardizedTools?: IOntologyNode[];
   standardizedToolsOther?: string;
   coreVariables?: string[];
+  contactPoint?: IContacts;
+  publisher?: IOrganisations;
+  creator?: IOrganisations[];
+  issued?: string;
+  modified?: string;
+  theme?: IOntologyNode[];
+  accessRights?: IOntologyNode;
+  applicableLegislation?: IOntologyNode[];
+  provenanceStatement?: string;
+}
+
+export interface ICollectionEvents_agg {
+  count: number;
 }
 
 export interface IContacts {
@@ -182,69 +280,93 @@ export interface IContacts {
   expertise?: string;
 }
 
-export interface IContributionTypes {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IContributionTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IContributionTypes[];
+export interface IContacts_agg {
+  count: number;
 }
 
-export interface ICountries {
+export interface ICatalogueOntologies_ContributionTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ICountries;
+  parent?: ICatalogueOntologies_ContributionTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ICountries[];
+  children?: ICatalogueOntologies_ContributionTypes[];
 }
 
-export interface IDataAccessConditions {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IDataAccessConditions;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IDataAccessConditions[];
+export interface ICatalogueOntologies_ContributionTypes_agg {
+  count: number;
 }
 
-export interface IDataCategories {
+export interface ICatalogueOntologies_Countries {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IDataCategories;
+  parent?: ICatalogueOntologies_Countries;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IDataCategories[];
+  children?: ICatalogueOntologies_Countries[];
 }
 
-export interface IDataUseConditions {
+export interface ICatalogueOntologies_Countries_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_DataAccessConditions {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IDataUseConditions;
+  parent?: ICatalogueOntologies_DataAccessConditions;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IDataUseConditions[];
+  children?: ICatalogueOntologies_DataAccessConditions[];
+}
+
+export interface ICatalogueOntologies_DataAccessConditions_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_DataCategories {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_DataCategories;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_DataCategories[];
+}
+
+export interface ICatalogueOntologies_DataCategories_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_DataUseConditions {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_DataUseConditions;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_DataUseConditions[];
+}
+
+export interface ICatalogueOntologies_DataUseConditions_agg {
+  count: number;
 }
 
 export interface IDatasetMappings {
@@ -257,17 +379,25 @@ export interface IDatasetMappings {
   syntax?: string;
 }
 
-export interface IDatasetTypes {
+export interface IDatasetMappings_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_DatasetTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IDatasetTypes;
+  parent?: ICatalogueOntologies_DatasetTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IDatasetTypes[];
+  children?: ICatalogueOntologies_DatasetTypes[];
+}
+
+export interface ICatalogueOntologies_DatasetTypes_agg {
+  count: number;
 }
 
 export interface IDatasets {
@@ -285,43 +415,59 @@ export interface IDatasets {
   untilVersion?: string;
 }
 
-export interface IDatasourceTypes {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IDatasourceTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IDatasourceTypes[];
+export interface IDatasets_agg {
+  count: number;
 }
 
-export interface IDiseases {
+export interface ICatalogueOntologies_DatasourceTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IDiseases;
+  parent?: ICatalogueOntologies_DatasourceTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IDiseases[];
+  children?: ICatalogueOntologies_DatasourceTypes[];
 }
 
-export interface IDocumentTypes {
+export interface ICatalogueOntologies_DatasourceTypes_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Diseases {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IDocumentTypes;
+  parent?: ICatalogueOntologies_Diseases;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IDocumentTypes[];
+  children?: ICatalogueOntologies_Diseases[];
+}
+
+export interface ICatalogueOntologies_Diseases_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_DocumentTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_DocumentTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_DocumentTypes[];
+}
+
+export interface ICatalogueOntologies_DocumentTypes_agg {
+  count: number;
 }
 
 export interface IDocumentation {
@@ -333,17 +479,53 @@ export interface IDocumentation {
   file?: IFile;
 }
 
-export interface IExternalIdentifierTypes {
+export interface IDocumentation_agg {
+  count: number;
+}
+
+export interface IEndpoint {
+  id: string;
+  type: string[];
+  name: string[];
+  version?: string;
+  description?: string;
+  publisher: IAgents[];
+  language?: string[];
+  license: string;
+  conformsTo: string;
+  rights?: string[];
+  accessRights?: string[];
+  contact?: IContacts;
+  keyword?: string[];
+  theme?: string[];
+  endPointDescription?: string[];
+  metadataCatalog: IResources[];
+  conformsToFdpSpec: string;
+  eJP_RD_personalData?: string;
+  eJP_RD_vpConnection?: string;
+  issued?: string;
+  modified?: string;
+}
+
+export interface IEndpoint_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_ExternalIdentifierTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IExternalIdentifierTypes;
+  parent?: ICatalogueOntologies_ExternalIdentifierTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IExternalIdentifierTypes[];
+  children?: ICatalogueOntologies_ExternalIdentifierTypes[];
+}
+
+export interface ICatalogueOntologies_ExternalIdentifierTypes_agg {
+  count: number;
 }
 
 export interface IExternalIdentifiers {
@@ -353,108 +535,144 @@ export interface IExternalIdentifiers {
   externalIdentifierTypeOther?: string;
 }
 
-export interface IFormats {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IFormats;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IFormats[];
+export interface IExternalIdentifiers_agg {
+  count: number;
 }
 
-export interface IFundingTypes {
+export interface ICatalogueOntologies_Formats {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IFundingTypes;
+  parent?: ICatalogueOntologies_Formats;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IFundingTypes[];
+  children?: ICatalogueOntologies_Formats[];
 }
 
-export interface IICDOMorphologies {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IICDOMorphologies;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IICDOMorphologies[];
+export interface ICatalogueOntologies_Formats_agg {
+  count: number;
 }
 
-export interface IICDOTopologies {
+export interface ICatalogueOntologies_FundingTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IICDOTopologies;
+  parent?: ICatalogueOntologies_FundingTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IICDOTopologies[];
+  children?: ICatalogueOntologies_FundingTypes[];
 }
 
-export interface IInclusionExclusionCriteria {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IInclusionExclusionCriteria;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IInclusionExclusionCriteria[];
+export interface ICatalogueOntologies_FundingTypes_agg {
+  count: number;
 }
 
-export interface IInformedConsentRequired {
+export interface ICatalogueOntologies_ICDOMorphologies {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IInformedConsentRequired;
+  parent?: ICatalogueOntologies_ICDOMorphologies;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IInformedConsentRequired[];
+  children?: ICatalogueOntologies_ICDOMorphologies[];
 }
 
-export interface IInformedConsentTypes {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IInformedConsentTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IInformedConsentTypes[];
+export interface ICatalogueOntologies_ICDOMorphologies_agg {
+  count: number;
 }
 
-export interface IInternalIdentifierTypes {
+export interface ICatalogueOntologies_ICDOTopologies {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IInternalIdentifierTypes;
+  parent?: ICatalogueOntologies_ICDOTopologies;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IInternalIdentifierTypes[];
+  children?: ICatalogueOntologies_ICDOTopologies[];
+}
+
+export interface ICatalogueOntologies_ICDOTopologies_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_InclusionExclusionCriteria {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_InclusionExclusionCriteria;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_InclusionExclusionCriteria[];
+}
+
+export interface ICatalogueOntologies_InclusionExclusionCriteria_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_InformedConsentRequired {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_InformedConsentRequired;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_InformedConsentRequired[];
+}
+
+export interface ICatalogueOntologies_InformedConsentRequired_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_InformedConsentTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_InformedConsentTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_InformedConsentTypes[];
+}
+
+export interface ICatalogueOntologies_InformedConsentTypes_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_InternalIdentifierTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_InternalIdentifierTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_InternalIdentifierTypes[];
+}
+
+export interface ICatalogueOntologies_InternalIdentifierTypes_agg {
+  count: number;
 }
 
 export interface IInternalIdentifiers {
@@ -464,43 +682,76 @@ export interface IInternalIdentifiers {
   internalIdentifierTypeOther?: string;
 }
 
-export interface IKeywords {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IKeywords;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IKeywords[];
+export interface IInternalIdentifiers_agg {
+  count: number;
 }
 
-export interface ILanguages {
+export interface ICatalogueOntologies_Keywords {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ILanguages;
+  parent?: ICatalogueOntologies_Keywords;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ILanguages[];
+  children?: ICatalogueOntologies_Keywords[];
 }
 
-export interface ILinkageStrategies {
+export interface ICatalogueOntologies_Keywords_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Languages {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ILinkageStrategies;
+  parent?: ICatalogueOntologies_Languages;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ILinkageStrategies[];
+  children?: ICatalogueOntologies_Languages[];
+}
+
+export interface ICatalogueOntologies_Languages_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Legislations {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_Legislations;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_Legislations[];
+}
+
+export interface ICatalogueOntologies_Legislations_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_LinkageStrategies {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_LinkageStrategies;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_LinkageStrategies[];
+}
+
+export interface ICatalogueOntologies_LinkageStrategies_agg {
+  count: number;
 }
 
 export interface ILinkages {
@@ -513,121 +764,198 @@ export interface ILinkages {
   preLinked?: boolean;
 }
 
-export interface IMappingStatus {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IMappingStatus;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IMappingStatus[];
+export interface ILinkages_agg {
+  count: number;
 }
 
-export interface IMedDRA {
+export interface ICatalogueOntologies_MappingStatus {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IMedDRA;
+  parent?: ICatalogueOntologies_MappingStatus;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IMedDRA[];
+  children?: ICatalogueOntologies_MappingStatus[];
 }
 
-export interface INetworkTypes {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: INetworkTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: INetworkTypes[];
+export interface ICatalogueOntologies_MappingStatus_agg {
+  count: number;
 }
 
-export interface IObservationTargets {
+export interface ICatalogueOntologies_MedDRA {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IObservationTargets;
+  parent?: ICatalogueOntologies_MedDRA;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IObservationTargets[];
+  children?: ICatalogueOntologies_MedDRA[];
 }
 
-export interface IOrganisationRoles {
+export interface ICatalogueOntologies_MedDRA_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_NetworkTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IOrganisationRoles;
+  parent?: ICatalogueOntologies_NetworkTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IOrganisationRoles[];
+  children?: ICatalogueOntologies_NetworkTypes[];
+}
+
+export interface ICatalogueOntologies_NetworkTypes_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_ObservationTargets {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_ObservationTargets;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_ObservationTargets[];
+}
+
+export interface ICatalogueOntologies_ObservationTargets_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_OrganisationRoles {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_OrganisationRoles;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_OrganisationRoles[];
+}
+
+export interface ICatalogueOntologies_OrganisationRoles_agg {
+  count: number;
 }
 
 export interface IOrganisations {
   resource: IResources;
   id: string;
-  pid?: string;
-  name: string;
-  acronym?: string;
-  logo?: IFile;
-  country?: IOntologyNode[];
+  type: IOntologyNode;
+  name?: string;
+  organisation?: ICatalogueOntologies_Organisations;
+  otherOrganisation?: string;
+  department?: string;
   website?: string;
+  email?: string;
+  logo?: IFile;
   role?: IOntologyNode[];
+  organisationName?: string;
+  organisationPid?: string;
+  organisationWebsite?: string;
   isLeadOrganisation?: boolean;
 }
 
-export interface IPopulationEntry {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IPopulationEntry;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IPopulationEntry[];
+export interface IOrganisations_agg {
+  count: number;
 }
 
-export interface IPopulationExit {
-  order?: number;
+export interface ICatalogueOntologies_Organisations {
   name: string;
   label?: string;
-  tags?: string[];
-  parent?: IPopulationExit;
+  acronym?: string;
+  parent?: any;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
+  semantics?: string;
+  type?: string[];
   definition?: string;
-  children?: IPopulationExit[];
+  aliases?: string[];
+  website?: string;
+  country?: IOntologyNode;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  children?: ICatalogueOntologies_Organisations[];
 }
 
-export interface IPopulationOfInterest {
+export interface ICatalogueOntologies_Organisations_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_PopulationEntry {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IPopulationOfInterest;
+  parent?: ICatalogueOntologies_PopulationEntry;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IPopulationOfInterest[];
+  children?: ICatalogueOntologies_PopulationEntry[];
+}
+
+export interface ICatalogueOntologies_PopulationEntry_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_PopulationExit {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_PopulationExit;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_PopulationExit[];
+}
+
+export interface ICatalogueOntologies_PopulationExit_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_PopulationOfInterest {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_PopulationOfInterest;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_PopulationOfInterest[];
+}
+
+export interface ICatalogueOntologies_PopulationOfInterest_agg {
+  count: number;
+}
+
+export interface IProfiles {
+  dataCatalogueFlat?: string;
+}
+
+export interface IProfiles_agg {
+  count: number;
 }
 
 export interface IPublications {
@@ -638,43 +966,59 @@ export interface IPublications {
   reference?: string;
 }
 
-export interface IRefreshPeriods {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IRefreshPeriods;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IRefreshPeriods[];
+export interface IPublications_agg {
+  count: number;
 }
 
-export interface IRegions {
+export interface ICatalogueOntologies_RefreshPeriods {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IRegions;
+  parent?: ICatalogueOntologies_RefreshPeriods;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IRegions[];
+  children?: ICatalogueOntologies_RefreshPeriods[];
 }
 
-export interface IReleaseTypes {
+export interface ICatalogueOntologies_RefreshPeriods_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Regions {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IReleaseTypes;
+  parent?: ICatalogueOntologies_Regions;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IReleaseTypes[];
+  children?: ICatalogueOntologies_Regions[];
+}
+
+export interface ICatalogueOntologies_Regions_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_ReleaseTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_ReleaseTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_ReleaseTypes[];
+}
+
+export interface ICatalogueOntologies_ReleaseTypes_agg {
+  count: number;
 }
 
 export interface IResourceCounts {
@@ -689,6 +1033,10 @@ export interface IResourceCounts {
   proportionFemale?: number;
 }
 
+export interface IResourceCounts_agg {
+  count: number;
+}
+
 export interface IResourceMappings {
   source: IResources;
   sourceVersion?: string;
@@ -701,20 +1049,32 @@ export interface IResourceMappings {
   eTLSpecificationDocument?: IFile;
 }
 
-export interface IResourceTypes {
+export interface IResourceMappings_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_ResourceTypes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IResourceTypes;
+  parent?: ICatalogueOntologies_ResourceTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IResourceTypes[];
+  children?: ICatalogueOntologies_ResourceTypes[];
+}
+
+export interface ICatalogueOntologies_ResourceTypes_agg {
+  count: number;
 }
 
 export interface IResources {
+  rdfType?: string;
+  fdpEndpoint?: IEndpoint;
+  ldpMembershipRelation?: string;
+  hricore?: boolean;
   id: string;
   pid?: string;
   name: string;
@@ -722,9 +1082,11 @@ export interface IResources {
   acronym?: string;
   type: IOntologyNode[];
   typeOther?: string;
+  catalogueType?: IOntologyNode;
+  mainCatalogue?: boolean;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
-  rWDType?: IOntologyNode[];
+  registryOrHealthRecordType?: IOntologyNode[];
   networkType?: IOntologyNode[];
   website?: string;
   description?: string;
@@ -737,7 +1099,10 @@ export interface IResources {
   contactEmail?: string;
   logo?: IFile;
   status?: IOntologyNode;
-  license?: string;
+  conformsTo?: string;
+  hasMemberRelation?: string;
+  issued?: string;
+  modified?: string;
   design?: IOntologyNode;
   designDescription?: string;
   designSchematic?: IFile;
@@ -748,16 +1113,19 @@ export interface IResources {
   unitOfObservation?: string;
   subpopulations?: ISubpopulations[];
   collectionEvents?: ICollectionEvents[];
-  resources?: IResources[];
-  partOfResources?: IResources[];
+  dataResources?: IResources[];
+  partOfNetworks?: IResources[];
   numberOfParticipants?: number;
   numberOfParticipantsWithSamples?: number;
   underlyingPopulation?: string;
   populationOfInterest?: IOntologyNode[];
   populationOfInterestOther?: string;
+  continents?: IOntologyNode[];
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
   populationAgeGroups?: IOntologyNode[];
+  ageMin?: number;
+  ageMax?: number;
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   exclusionCriteria?: IOntologyNode[];
@@ -772,9 +1140,13 @@ export interface IResources {
   populationCoverage?: string;
   populationNotCovered?: string;
   counts?: IResourceCounts[];
-  peopleInvolved?: IContacts[];
   organisationsInvolved?: IOrganisations[];
-  networksInvolved?: IResources[];
+  publisher?: IOrganisations;
+  creator?: IOrganisations[];
+  peopleInvolved?: IContacts[];
+  contactPoint?: IContacts;
+  childNetworks?: IResources[];
+  parentNetworks?: IResources[];
   datasets?: IDatasets[];
   samplesets?: ISamplesets[];
   areasOfInformation?: IOntologyNode[];
@@ -804,6 +1176,7 @@ export interface IResources {
   informedConsentType?: IOntologyNode;
   informedConsentRequired?: IOntologyNode;
   informedConsentOther?: string;
+  accessRights?: IOntologyNode;
   dataAccessConditions?: IOntologyNode[];
   dataUseConditions?: IOntologyNode[];
   dataAccessConditionsDescription?: string;
@@ -854,8 +1227,11 @@ export interface IResources {
   fundingStatement?: string;
   citationRequirements?: string;
   acknowledgements?: string;
+  provenanceStatement?: string;
   documentation?: IDocumentation[];
   supplementaryInformation?: string;
+  theme?: IOntologyNode[];
+  applicableLegislation?: IOntologyNode[];
   collectionStartPlanned?: string;
   collectionStartActual?: string;
   analysisStartPlanned?: string;
@@ -868,35 +1244,51 @@ export interface IResources {
   results?: string;
 }
 
+export interface IResources_agg {
+  count: number;
+}
+
 export interface IReusedVariables {
   resource: IResources;
   variable: IVariables;
 }
 
-export interface ISampleCategories {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ISampleCategories;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ISampleCategories[];
+export interface IReusedVariables_agg {
+  count: number;
 }
 
-export interface ISampleTypes {
+export interface ICatalogueOntologies_SampleCategories {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ISampleTypes;
+  parent?: ICatalogueOntologies_SampleCategories;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ISampleTypes[];
+  children?: ICatalogueOntologies_SampleCategories[];
+}
+
+export interface ICatalogueOntologies_SampleCategories_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_SampleTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_SampleTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_SampleTypes[];
+}
+
+export interface ICatalogueOntologies_SampleTypes_agg {
+  count: number;
 }
 
 export interface ISamplesets {
@@ -905,96 +1297,76 @@ export interface ISamplesets {
   sampleTypes?: IOntologyNode[];
 }
 
-export interface IStandardizedTools {
+export interface ISamplesets_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_StandardizedTools {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IStandardizedTools;
+  parent?: ICatalogueOntologies_StandardizedTools;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IStandardizedTools[];
+  children?: ICatalogueOntologies_StandardizedTools[];
 }
 
-export interface IStatusDetails {
+export interface ICatalogueOntologies_StandardizedTools_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_StatusDetails {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IStatusDetails;
+  parent?: ICatalogueOntologies_StatusDetails;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IStatusDetails[];
+  children?: ICatalogueOntologies_StatusDetails[];
 }
 
-export interface IStudyFunding {
+export interface ICatalogueOntologies_StatusDetails_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_StudyFunding {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IStudyFunding;
+  parent?: ICatalogueOntologies_StudyFunding;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IStudyFunding[];
+  children?: ICatalogueOntologies_StudyFunding[];
 }
 
-export interface IStudyStatus {
+export interface ICatalogueOntologies_StudyFunding_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_StudyStatus {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IStudyStatus;
+  parent?: ICatalogueOntologies_StudyStatus;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IStudyStatus[];
+  children?: ICatalogueOntologies_StudyStatus[];
 }
 
-export interface ISubmissionTypes {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ISubmissionTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ISubmissionTypes[];
-}
-
-export interface ISubmissions {
-  submissionDate: string;
-  submitterName: string;
-  resources: IResources[];
-  submitterEmail: string;
-  submitterOrganisation?: string;
-  submitterRole?: IOntologyNode;
-  submitterRoleOther?: string;
-  submissionType?: IOntologyNode;
-  submissionDescription?: string;
-  responsiblePersons?: string;
-  acceptanceDate?: string;
-}
-
-export interface ISubmitterRoles {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ISubmitterRoles;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ISubmitterRoles[];
+export interface ICatalogueOntologies_StudyStatus_agg {
+  count: number;
 }
 
 export interface ISubpopulationCounts {
@@ -1006,15 +1378,23 @@ export interface ISubpopulationCounts {
   nMale?: number;
 }
 
+export interface ISubpopulationCounts_agg {
+  count: number;
+}
+
 export interface ISubpopulations {
   resource: IResources;
   name: string;
+  pid?: string;
   description?: string;
+  keywords?: string[];
   numberOfParticipants?: number;
   counts?: ISubpopulationCounts[];
   inclusionStart?: number;
   inclusionEnd?: number;
   ageGroups?: IOntologyNode[];
+  ageMin?: number;
+  ageMax?: number;
   mainMedicalCondition?: IOntologyNode[];
   comorbidity?: IOntologyNode[];
   countries?: IOntologyNode[];
@@ -1023,32 +1403,70 @@ export interface ISubpopulations {
   otherInclusionCriteria?: string;
   exclusionCriteria?: IOntologyNode[];
   otherExclusionCriteria?: string;
+  contactPoint?: IContacts;
+  publisher?: IOrganisations;
+  creator?: IOrganisations[];
+  issued?: string;
+  modified?: string;
+  theme?: IOntologyNode[];
+  accessRights?: IOntologyNode;
+  applicableLegislation?: IOntologyNode[];
+  provenanceStatement?: string;
 }
 
-export interface ITitles {
+export interface ISubpopulations_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Themes {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ITitles;
+  parent?: ICatalogueOntologies_Themes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ITitles[];
+  children?: ICatalogueOntologies_Themes[];
 }
 
-export interface IUnits {
+export interface ICatalogueOntologies_Themes_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Titles {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IUnits;
+  parent?: ICatalogueOntologies_Titles;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IUnits[];
+  children?: ICatalogueOntologies_Titles[];
+}
+
+export interface ICatalogueOntologies_Titles_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Units {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_Units;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_Units[];
+}
+
+export interface ICatalogueOntologies_Units_agg {
+  count: number;
 }
 
 export interface IVariableMappings {
@@ -1066,17 +1484,25 @@ export interface IVariableMappings {
   comments?: string;
 }
 
-export interface IVariableRepeatUnits {
+export interface IVariableMappings_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_VariableRepeatUnits {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IVariableRepeatUnits;
+  parent?: ICatalogueOntologies_VariableRepeatUnits;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IVariableRepeatUnits[];
+  children?: ICatalogueOntologies_VariableRepeatUnits[];
+}
+
+export interface ICatalogueOntologies_VariableRepeatUnits_agg {
+  count: number;
 }
 
 export interface IVariableValues {
@@ -1090,6 +1516,10 @@ export interface IVariableValues {
   ontologyTermURI?: string;
   sinceVersion?: string;
   untilVersion?: string;
+}
+
+export interface IVariableValues_agg {
+  count: number;
 }
 
 export interface IVariables {
@@ -1116,17 +1546,29 @@ export interface IVariables {
   mappings?: IVariableMappings[];
 }
 
+export interface IVariables_agg {
+  count: number;
+}
+
 export interface IVersion {}
 
-export interface IVocabularies {
+export interface IVersion_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Vocabularies {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: IVocabularies;
+  parent?: ICatalogueOntologies_Vocabularies;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IVocabularies[];
+  children?: ICatalogueOntologies_Vocabularies[];
+}
+
+export interface ICatalogueOntologies_Vocabularies_agg {
+  count: number;
 }

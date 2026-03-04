@@ -26,6 +26,7 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static void applyValidationAndComputed(List<Column> columns, Row row) {
     Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         row.setString(
@@ -72,6 +73,23 @@ public class SqlTypeUtils extends TypeUtils {
         } else {
           row.clear(c.getName());
         }
+      }
+    }
+  }
+
+  public static void applyComputed(List<Column> columns, List<Row> rows) {
+    for (Row row : rows) {
+      applyComputed(columns, row);
+    }
+  }
+
+  public static void applyComputed(List<Column> columns, Row row) {
+    Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
+    for (Column column : columns) {
+      if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
+        Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(column, computedValue, row);
       }
     }
   }
@@ -161,8 +179,8 @@ public class SqlTypeUtils extends TypeUtils {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);
       case UUID_ARRAY -> row.getUuidArray(name);
-      case STRING, EMAIL, HYPERLINK -> row.getString(name);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> row.getStringArray(name);
+      case STRING -> row.getString(name);
+      case STRING_ARRAY -> row.getStringArray(name);
       case BOOL -> row.getBoolean(name);
       case BOOL_ARRAY -> row.getBooleanArray(name);
       case INT -> row.getInteger(name);
@@ -191,9 +209,9 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static String getPsqlType(ColumnType type) {
-    return switch (type) {
-      case STRING, EMAIL, HYPERLINK, TEXT -> "character varying";
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY, TEXT_ARRAY -> "character varying[]";
+    return switch (type.getBaseType()) {
+      case STRING, TEXT -> "character varying";
+      case STRING_ARRAY, TEXT_ARRAY -> "character varying[]";
       case UUID -> "uuid";
       case UUID_ARRAY -> "uuid[]";
       case BOOL -> "bool";
@@ -216,25 +234,29 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static void checkValidation(Column column, Map<String, Object> values) {
-    if (values.get(column.getName()) != null) {
+    if (values.get(column.getIdentifier()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions
-        if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
-          Map<String, Supplier<Object>> bindings =
-              column.getSchema().getDatabase().getJavaScriptBindings();
-          for (String key : bindings.keySet()) {
-            if (column.getValidation().contains(key)) {
-              values.put(key, bindings.get(key).get());
-            }
-          }
-        }
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
       }
+    }
+  }
+
+  private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
+    if (columns.isEmpty()) return;
+    Column column = columns.get(0);
+    if (column.getTable() == null) return;
+    if (column.getSchema() == null) return;
+    if (column.getSchema().getDatabase() == null) return;
+    Map<String, Supplier<Object>> bindings =
+        column.getSchema().getDatabase().getJavaScriptBindings();
+    for (String key : bindings.keySet()) {
+      values.put(key, bindings.get(key).get());
     }
   }
 

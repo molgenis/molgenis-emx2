@@ -1,0 +1,383 @@
+/* override header buttons */
+.dp__main .dp--header-wrap .dp__month_year_wrap .dp__btn.dp__month_year_select {
+  @apply text-input font-display tracking-widest uppercase;
+}
+
+.dp__main
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__btn.dp__month_year_select:hover {
+  @apply text-input bg-transparent;
+}
+
+/* override input styles */
+
+.dp__main .dp__input_wrap .dp__input {
+  @apply h-input bg-input text-input border rounded-input;
+}
+
+.dp__main .dp__input_wrap .dp__input_icon {
+  @apply text-input;
+}
+
+/* Override calendar background color */
+.dp__main .dp__outer_menu_wrap .dp__menu {
+  @apply bg-input;
+}
+
+/* override days of the week header */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_header_item {
+  @apply text-input;
+}
+
+/* override dates (non-past/future text elements ) */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner {
+  @apply text-input;
+}
+
+/* override offset dates (i.e., overflow of dates from the previous month) */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_offset {
+  @apply text-gray-400;
+}
+
+/* overrides for "today" button */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__today {
+  @apply text-button-outline border-button-outline duration-default ease-in-out transition-colors;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__today:hover {
+  @apply text-button-outline-hover border-button-outline-hover bg-button-outline-hover;
+}
+
+/* override for date hover */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__date_hover:hover {
+  @apply text-button-primary-hover border-button-primary-hover bg-button-primary-hover duration-default ease-in-out transition-colors;
+}
+
+/* override for active date (i.e., selected) */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__active_date {
+  @apply text-button-primary border-button-primary bg-button-primary;
+}
+
+/* Overrides for "Cancel" and "select" buttons => Button size=tiny */
+.dp__main .dp__outer_menu_wrap .dp__menu .dp__action_row .dp__action_button {
+  @apply h-8 p-2 text-heading-sm duration-default ease-in-out transition-colors font-display tracking-widest uppercase;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_select {
+  @apply bg-button-primary text-button-primary border-button-primary;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_select:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_select:focus {
+  @apply bg-button-primary-hover text-button-primary-hover border-button-primary-hover;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel {
+  @apply bg-button-outline text-button-outline border-button-outline;
+}
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel:focus {
+  @apply bg-button-outline-hover text-button-outline-hover border-button-outline-hover;
+}
+
+/* overrides for time input if action row button is hidden */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp--tp-wrap
+  .dp__time_picker_inline_container {
+  @apply pb-4;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp--tp-wrap
+  .dp__time_picker_inline_container
+  .dp__time_input
+  button.dp__time_display {
+  @apply text-input;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp--tp-wrap
+  .dp__time_picker_inline_container
+  .dp__time_input
+  .dp__inc_dec_button_inline
+  span {
+  @apply bg-button-primary;
+}
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp--tp-wrap
+  .dp__time_picker_inline_container
+  .dp__time_input
+  .dp__inc_dec_button_inline:hover
+  span {
+  @apply bg-button-primary-hover;
+}
+
+/* apply styling for valid state */
+.dp__main[data-valid="true"] .dp__input_wrap .dp__input {
+  @apply border-valid text-valid;
+}
+
+.dp__main[data-valid="true"] .dp__input_wrap .dp__input_icon {
+  @apply text-valid;
+}
+
+/* apply styling for invalid state */
+.dp__main[data-invalid="true"] .dp__input_wrap .dp__input {
+  @apply border-invalid text-invalid;
+}
+
+.dp__main[data-invalid="true"] .dp__input_wrap .dp__input_icon {
+  @apply text-invalid;
+}
+
+/* apply stying for disabled state */
+.dp__main .dp__input_wrap .dp__input[aria-disabled="true"] {
+  @apply border-disabled text-disabled bg-disabled cursor-not-allowed;
+}
+
+.dp__main
+  .dp__input_wrap
+  .dp__input[aria-disabled="true"]
+  + div
+  > .dp__input_icon {
+  @apply text-disabled;
+}
+
+/* override submenus for month and year */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay {
+  @apply bg-input text-input;
+}
+
+/* submenu: general month/year hover styles */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__overlay_row
+  .dp__overlay_col
+  div {
+  @apply text-heading-sm;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__overlay_row
+  .dp__overlay_col
+  div:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__overlay_row
+  .dp__overlay_col
+  div:focus {
+  @apply bg-button-primary-hover text-button-primary-hover border-button-primary-hover;
+}
+
+/* submenu selected month/year as primary button */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__overlay_row
+  .dp__overlay_col[aria-selected="true"]
+  div {
+  @apply bg-button-primary text-button-primary border-button-primary;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__overlay_row
+  .dp__overlay_col[aria-selected="true"]
+  div:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__overlay_row
+  .dp__overlay_col[aria-selected="true"]
+  div:focus {
+  @apply bg-button-primary-hover text-button-primary-hover border-button-primary-hover;
+}
+
+/* override submenu back button: year/month => calendar */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__btn.dp__button_bottom {
+  @apply bg-button-secondary text-button-secondary;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__btn.dp__button_bottom:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__btn.dp__button_bottom:focus {
+  @apply bg-button-secondary-hover text-button-secondary-hover;
+}

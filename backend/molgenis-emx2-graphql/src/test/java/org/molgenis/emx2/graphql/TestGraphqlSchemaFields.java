@@ -7,15 +7,12 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +30,7 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 public class TestGraphqlSchemaFields {
 
   private static final String schemaName = TestGraphqlSchemaFields.class.getSimpleName();
-  private static GraphQL grapql;
+  private static GraphqlExecutor graphqlExecutor;
   private static Database database;
   private static TaskService taskService;
   private static Schema schema;
@@ -44,44 +41,118 @@ public class TestGraphqlSchemaFields {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";
-    final String costumer = "costumer";
+    final String customer = "customer";
 
     // initialize users
     database.setUserPassword(shopmanager, shopmanager);
     database.setUserPassword(shopviewer, shopviewer);
     database.setUserPassword(shopowner, shopowner);
-    database.setUserPassword(costumer, costumer);
+    database.setUserPassword(customer, customer);
 
-    schema = database.dropCreateSchema(schemaName);
+    database.dropSchemaIfExists(schemaName);
+    DataModels.getImportTask(database, schemaName, "", PET_STORE.name(), true).run();
+    schema = database.getSchema(schemaName);
     schema.addMember(shopmanager, "Manager");
     schema.addMember(shopviewer, "Viewer");
     schema.addMember(shopowner, "Owner");
-    schema.addMember(costumer, "Range");
-    DataModels.getImportTask(schema, PET_STORE.name(), true).run();
-    schema = database.getSchema(schemaName);
+    schema.addMember(customer, "Range");
 
     taskService = new TaskServiceInMemory();
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+    graphqlExecutor = new GraphqlExecutor(schema, taskService);
+  }
+
+  @Test
+  void testMatchInParentsAndChildren() throws IOException {
+    String result =
+        execute("{Tag(filter:{_match_any_including_children:[\"colors\"]}){name}}").toString();
+    assertTrue(result.contains("red"));
+    assertFalse(result.contains("mammals"));
+
+    result = execute("{Tag(filter:{_match_any_including_parents:[\"red\"]}){name}}").toString();
+    assertTrue(result.contains("colors"));
+    assertFalse(result.contains("mammals"));
+
+    result = execute("{Tag(filter:{_search_including_parents:[\"re\"]}){name}}").toString();
+    assertTrue(result.contains("colors"));
+    assertTrue(result.contains("green"));
+    assertTrue(result.contains("red"));
+    assertFalse(result.contains("mammals"));
+
+    // just to check syntax works, the real tests live in sql
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_children:\"colors\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_parents:\"red\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result = execute("{Pet(filter:{tags:{_search_including_parents:\"re\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_children:[\"green\",\"blue\"]}}){name}}")
+            .toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_parents:[\"green\",\"blue\"]}}){name}}")
+            .toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+
+    result = execute("{Pet(filter:{tags:{_match_path:[\"green\",\"blue\"]}}){name}}").toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+  }
+
+  @Test
+  void testNullAndNotNull() throws IOException {
+    // ref
+    String result = execute("{Pet(filter:{tags:{_is_null:true}}){name}}").toString();
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("tom"));
+
+    result = execute("{Pet(filter:{tags:{_is_null:false}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky"));
+
+    // refback+ref
+    result = execute("{Pet(filter:{orders:{_is_null:true}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertTrue(result.contains("sylvester"));
+    assertFalse(result.contains("pooky"));
+
+    result = execute("{Pet(filter:{orders:{_is_null:false}}){name}}").toString();
+    assertTrue(result.contains("spike"));
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("tom"));
+
+    // ref_array
+    result = execute("{User(filter:{pets:{_is_null:true}}){username}}").toString();
+    assertFalse(result.contains("bofke"));
+
+    result = execute("{User(filter:{pets:{_is_null:false}}){username}}").toString();
+    assertTrue(result.contains("bofke"));
   }
 
   @Test
   public void testSession() throws IOException {
     try {
-      database.setActiveUser(ANONYMOUS);
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
-      assertEquals(5, execute("{_session{email,roles}}").at("/_session/roles").size());
-      execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
+      database.setActiveUser("shopmanager");
+      graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
+      graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
       assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.becomeAdmin();
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
+      graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
     }
   }
 
@@ -175,6 +246,18 @@ public class TestGraphqlSchemaFields {
     // simple
     assertEquals("pooky", execute("{Pet{name}}").at("/Pet/0/name").textValue());
 
+    // fragments
+    assertEquals("pooky", execute("{Pet{...PetAllFields}}").at("/Pet/0/name").textValue());
+
+    JsonNode depth1 = execute("{Pet{...PetAllFields1}}");
+    assertEquals("pooky", depth1.at("/Pet/0/name").textValue());
+    assertEquals("cat", depth1.at("/Pet/0/category/name").textValue());
+
+    JsonNode depth2 = execute("{Pet(filter:{name:{equals:\"spike\"}}){...PetAllFields2}}");
+    assertEquals("spike", depth2.at("/Pet/0/name").textValue());
+    assertEquals("dog", depth2.at("/Pet/0/category/name").textValue());
+    assertNotNull(depth2.at("/Pet/0/tags/0/name").textValue());
+
     assertEquals("pooky", execute("{Pet{name}Pet_agg{count}}").at("/Pet/0/name").textValue());
 
     // simple ref
@@ -242,7 +325,7 @@ public class TestGraphqlSchemaFields {
 
     // between int one sided
     assertEquals(
-        "pooky",
+        "spike",
         execute("{Order(filter:{quantity:{not_between:[null,3]}}){quantity,pet{name}}}")
             .at("/Order/0/pet/name")
             .textValue());
@@ -288,7 +371,7 @@ public class TestGraphqlSchemaFields {
 
     // order by desc
     assertEquals(
-        "tweety", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
+        "yakul", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
     // order by on non-root column
     assertEquals(
@@ -380,14 +463,14 @@ public class TestGraphqlSchemaFields {
     assertEquals("green", result.at("/Pet_groupBy/1/tags/name").asText());
     assertEquals(3, result.at("/Pet_groupBy/1/count").intValue());
 
-    assertEquals("purple", result.at("/Pet_groupBy/2/tags/name").textValue());
-    assertEquals(2, result.at("/Pet_groupBy/2/count").intValue());
+    assertEquals("herbivorous mammals", result.at("/Pet_groupBy/2/tags/name").textValue());
+    assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
 
-    assertEquals("red", result.at("/Pet_groupBy/3/tags/name").textValue());
-    assertEquals(4, result.at("/Pet_groupBy/3/count").intValue());
+    assertEquals("purple", result.at("/Pet_groupBy/3/tags/name").textValue());
+    assertEquals(2, result.at("/Pet_groupBy/3/count").intValue());
 
-    assertEquals(null, result.at("/Pet_groupBy/4/tags/name").textValue());
-    assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
+    assertEquals("red", result.at("/Pet_groupBy/4/tags/name").textValue());
+    assertEquals(4, result.at("/Pet_groupBy/4/count").intValue());
 
     result = execute("{Pet_groupBy{count,category{name}}}");
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
@@ -411,7 +494,7 @@ public class TestGraphqlSchemaFields {
     // also works on refback
     result = execute("{Pet_groupBy {count,orders{orderId}}}");
     // 6 pets without order
-    assertEquals(6, result.at("/Pet_groupBy/2/count").intValue());
+    assertEquals(7, result.at("/Pet_groupBy/2/count").intValue());
     assertNull(null, result.at("/Pet_groupBy/2/orders").textValue());
 
     // orderId=1 has one pet
@@ -443,15 +526,14 @@ public class TestGraphqlSchemaFields {
     schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
 
     // refresh graphql
-    grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+    graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
 
     // refs
     JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
 
-    assertEquals(null, result.at("/Pet_groupBy/4/tagsTest/nameTest").textValue());
-    assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
-    assertEquals(9.4d, result.at("/Pet_groupBy/4/_sum/weight").doubleValue());
+    assertEquals("red", result.at("/Pet_groupBy/4/tagsTest/nameTest").textValue());
+    assertEquals(4, result.at("/Pet_groupBy/4/count").intValue());
+    assertEquals(18.950000000000003d, result.at("/Pet_groupBy/4/_sum/weight").doubleValue());
 
     assertEquals("blue", result.at("/Pet_groupBy/0/tagsTest/nameTest").asText());
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
@@ -495,8 +577,7 @@ public class TestGraphqlSchemaFields {
     schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
     schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
     // refresh graphql
-    grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+    graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
   }
 
   @Test
@@ -522,7 +603,8 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
-    assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
+    int tables = execute("{_schema{tables{name}}}").at("/_schema/tables").size();
+    assertEquals(5, tables);
 
     // add table
     execute(
@@ -530,8 +612,8 @@ public class TestGraphqlSchemaFields {
     JsonNode node =
         execute(
             "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,defaultValue,labels{locale,value},descriptions{locale,value}}}}}");
-    assertEquals(1, node.at("/_schema/tables/5/columns/0/key").intValue());
-    assertEquals("bla", node.at("/_schema/tables/5/columns/0/defaultValue").asText());
+    assertEquals(1, node.at("/_schema/tables/5/columns/1/key").intValue());
+    assertEquals("bla", node.at("/_schema/tables/5/columns/1/defaultValue").asText());
 
     assertEquals("en", node.at("/_schema/tables/5/labels/0/locale").asText());
     assertEquals("table1", node.at("/_schema/tables/5/labels/0/value").asText());
@@ -539,11 +621,11 @@ public class TestGraphqlSchemaFields {
     assertEquals("en", node.at("/_schema/tables/5/descriptions/0/locale").asText());
     assertEquals("desc1", node.at("/_schema/tables/5/descriptions/0/value").asText());
 
-    assertEquals("en", node.at("/_schema/tables/5/columns/0/labels/0/locale").asText());
-    assertEquals("column1", node.at("/_schema/tables/5/columns/0/labels/0/value").asText());
+    assertEquals("en", node.at("/_schema/tables/5/columns/1/labels/0/locale").asText());
+    assertEquals("column1", node.at("/_schema/tables/5/columns/1/labels/0/value").asText());
 
-    assertEquals("en", node.at("/_schema/tables/5/columns/0/descriptions/0/locale").asText());
-    assertEquals("desc11", node.at("/_schema/tables/5/columns/0/descriptions/0/value").asText());
+    assertEquals("en", node.at("/_schema/tables/5/columns/1/descriptions/0/locale").asText());
+    assertEquals("desc11", node.at("/_schema/tables/5/columns/1/descriptions/0/value").asText());
 
     assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
@@ -553,7 +635,7 @@ public class TestGraphqlSchemaFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result = convertExecutionResultToJson(graphqlExecutor.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());
@@ -660,7 +742,7 @@ public class TestGraphqlSchemaFields {
               column("id").setPkey(),
               column("Child details").setType(REF).setRefTable("Child details")));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
+      graphqlExecutor = new GraphqlExecutor(myschema, taskService);
       execute(
           "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
 
@@ -746,7 +828,7 @@ public class TestGraphqlSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+      graphqlExecutor = new GraphqlExecutor(schema, taskService);
     }
   }
 
@@ -764,7 +846,7 @@ public class TestGraphqlSchemaFields {
       myschema.create(
           table("TestJson", column("name").setPkey(), column("json").setType(ColumnType.JSON)));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
+      graphqlExecutor = new GraphqlExecutor(myschema, taskService);
 
       Table table = myschema.getTable("TestJson");
       String value = "{\"name\":\"bofke\"}";
@@ -776,11 +858,9 @@ public class TestGraphqlSchemaFields {
       Map data = new LinkedHashMap();
       data.put("name", "test");
       data.put("json", value2);
-      grapql.execute(
-          new ExecutionInput.Builder()
-              .query("mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}")
-              .variables(Map.of("value", data))
-              .build());
+      graphqlExecutor.executeWithoutSession(
+          "mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}",
+          Map.of("value", data));
 
       assertEquals(value2, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
       assertEquals(
@@ -789,13 +869,15 @@ public class TestGraphqlSchemaFields {
                   "{TestJson(filter:{json:{equals:\"{\\\"name\\\": \\\"bofke2\\\"}\"}}){json}}") // notice the extra space!
               .at("/TestJson/0/json")
               .asText());
-      assertEquals(
-          value2,
-          execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful
-              .at("/TestJson/0/json")
-              .asText());
+      // disabled because like doesn't make sense like this. we should revisit json queries.
+      //      assertEquals(
+      //          value2,
+      //          execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful but
+      // inconsistent
+      //              .at("/TestJson/0/json")
+      //              .asText());
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+      graphqlExecutor = new GraphqlExecutor(schema, taskService);
     }
   }
 
@@ -806,7 +888,7 @@ public class TestGraphqlSchemaFields {
       myschema.create(
           table("TestFile", column("name").setPkey(), column("image").setType(ColumnType.FILE)));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
+      graphqlExecutor = new GraphqlExecutor(myschema, taskService);
 
       // insert file (note: ideally here also use mutation but I don't know how to add file part to
       // request)
@@ -824,20 +906,16 @@ public class TestGraphqlSchemaFields {
       Map data = new LinkedHashMap();
       data.put("name", "test");
       data.put("image", Map.of("name", "dummy"));
-      grapql.execute(
-          new ExecutionInput.Builder()
-              .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
-              .variables(Map.of("value", data))
-              .build());
+      graphqlExecutor.executeWithoutSession(
+          "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}",
+          Map.of("value", data));
       assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
 
       // update with null should delete
       data.put("image", null);
-      grapql.execute(
-          new ExecutionInput.Builder()
-              .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
-              .variables(Map.of("value", data))
-              .build());
+      graphqlExecutor.executeWithoutSession(
+          "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}",
+          Map.of("value", data));
       assertEquals(
           0,
           execute("{TestFile{image{size,filename,extension,url}}}")
@@ -846,7 +924,7 @@ public class TestGraphqlSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+      graphqlExecutor = new GraphqlExecutor(schema, taskService);
     }
   }
 
@@ -884,18 +962,52 @@ public class TestGraphqlSchemaFields {
     assertTrue(result.size() > 0 && result2.size() == 0);
 
     // restore
-    schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+  }
+
+  @Test
+  public void testTruncateAsync() throws IOException, InterruptedException {
+    List<Row> preTruncatedResult = schema.getTable("Order").retrieveRows();
+    String taskId =
+        execute("mutation {truncate(tables: \"Order\" async:true){ taskId message}}")
+            .at("/truncate/taskId")
+            .asText();
+
+    String status = "";
+    int pollCount = 0;
+    while (!"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      status =
+          execute("{ _tasks( id: \"" + taskId + "\"){ status }}")
+              .get("_tasks")
+              .get(0)
+              .get("status")
+              .asText();
+      if (pollCount++ > 5) {
+        throw new MolgenisException("failed: polling took too long, result is: " + status);
+      }
+      Thread.sleep(1000);
+    }
+
+    List<Row> truncatedResult = schema.getTable("Order").retrieveRows();
+    assertTrue(!preTruncatedResult.isEmpty() && truncatedResult.isEmpty());
+
+    // restore
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    schema = database.getSchema(schemaName);
+    graphqlExecutor = new GraphqlExecutor(schema, taskService);
   }
 
   @Test
   public void testReport() throws IOException {
-    schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    schema = database.getSchema(schemaName);
+    graphqlExecutor = new GraphqlExecutor(schema, taskService);
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
-    assertEquals(8, result.at("/_reports/count").intValue());
+    assertEquals(9, result.at("/_reports/count").intValue());
 
     // report 2 has parameters
     result =

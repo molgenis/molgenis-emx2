@@ -9,18 +9,22 @@
       <tbody>
         <tr>
           <td class="text-nowrap">
-            Organisation(s): {{ biobanksStore.biobankCardsBiobankCount }}
-          </td>
-          <td class="text-nowrap">
-            Collection(s): {{ biobanksStore.biobankCardsCollectionCount }}
+            Organisations:
+            {{ biobanksStore.biobankCardsBiobankCount }}
           </td>
         </tr>
         <tr>
           <td class="text-nowrap">
-            Service(s): {{ biobanksStore.biobankCardsServicesCount }}
+            Collections:
+            {{
+              biobanksStore.biobankCardsCollectionCount +
+              biobanksStore.biobankCardsSubcollectionCount
+            }}
           </td>
+        </tr>
+        <tr>
           <td class="text-nowrap">
-            Subcollection(s): {{ biobanksStore.biobankCardsSubcollectionCount }}
+            Services: {{ biobanksStore.biobankCardsServicesCount }}
           </td>
         </tr>
       </tbody>
@@ -28,13 +32,8 @@
   </small>
 </template>
 
-<script>
+<script setup lang="ts">
 import { useBiobanksStore } from "../../stores/biobanksStore";
 
-export default {
-  setup() {
-    const biobanksStore = useBiobanksStore();
-    return { biobanksStore };
-  },
-};
+const biobanksStore = useBiobanksStore();
 </script>

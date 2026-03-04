@@ -16,6 +16,8 @@ export default [
   "HYPERLINK_ARRAY",
   "INT",
   "INT_ARRAY",
+  "NON_NEGATIVE_INT",
+  "NON_NEGATIVE_INT_ARRAY",
   "JSON",
   "LONG",
   "LONG_ARRAY",
@@ -23,8 +25,12 @@ export default [
   "ONTOLOGY_ARRAY",
   "PERIOD",
   "PERIOD_ARRAY",
-  "REF",
-  "REF_ARRAY",
+  "REF", //deprecated
+  "SELECT",
+  "RADIO",
+  "REF_ARRAY", //deprecated
+  "MULTISELECT",
+  "CHECKBOX",
   "REFBACK",
   "STRING",
   "STRING_ARRAY",

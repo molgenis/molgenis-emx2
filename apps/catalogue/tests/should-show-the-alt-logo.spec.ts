@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("should show the alt logo", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/?logo=UMCGkort.woordbeeld", {
+  await goto("/?logo=UMCGkort.woordbeeld", {
     waitUntil: "hydration",
   });
   await expect(page).toHaveScreenshot({

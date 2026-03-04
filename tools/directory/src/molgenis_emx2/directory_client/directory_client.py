@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import os
 import tempfile
 from collections import defaultdict
@@ -10,14 +11,19 @@ from zipfile import ZipFile
 
 import pandas as pd
 from molgenis_emx2_pyclient import Client as Session
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
-from molgenis_emx2_pyclient.metadata import NoSuchTableException, Schema
+from molgenis_emx2_pyclient.exceptions import (
+    NoSuchSchemaException,
+    NoSuchTableException,
+)
+from molgenis_emx2_pyclient.metadata import Schema
 from molgenis_emx2_pyclient.metadata import Table as MetaTable
+from molgenis_emx2_pyclient.utils import prepare_filter
 
 from .errors import MolgenisRequestError
 from .model import (
     DirectoryData,
     ExternalServerNode,
+    FileIngestNode,
     MixedData,
     Node,
     NodeData,
@@ -29,6 +35,10 @@ from .model import (
     TableType,
 )
 from .utils import create_csv
+
+# Increase max. field size to accommodate e.g. long lists of refbacks
+# Value is 1/4th of max. CSV line size in Molgenis
+csv.field_size_limit(2097152)
 
 
 @dataclass
@@ -99,8 +109,11 @@ class DirectorySession(Session):
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by="name", value=table).id
-
-        filter_part = self._prepare_filter(query_filter, table, schema)
+        filter_part = prepare_filter(query_filter, table, schema_metadata)
+        if filter_part:
+            filter_part = "?filter=" + json.dumps(filter_part)
+        else:
+            filter_part = ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
 
@@ -130,11 +143,11 @@ class DirectorySession(Session):
         self,
         table_name: str,
         schema: str = None,
-    ):
+    ) -> TableMeta:
         schema_meta = self.get_schema_metadata(schema)
         for table in schema_meta.tables:
             if table.name == table_name:
-                return table.columns
+                return TableMeta(meta=table.columns, table_name=table_name)
         raise MolgenisRequestError(f"Unknown table: {table_name}")
 
     def get_ontology(
@@ -158,10 +171,8 @@ class DirectorySession(Session):
             table=entity_type_id,
         )
 
-        meta = TableMeta(
-            meta=self.get_table_meta(
-                schema=self.ONTOLOGY_SCHEMA, table_name=entity_type_id
-            )
+        meta = self.get_table_meta(
+            schema=self.ONTOLOGY_SCHEMA, table_name=entity_type_id
         )
         return OntologyTable.of(meta, rows, parent_attr, matching_attrs)
 
@@ -246,7 +257,9 @@ class DirectorySession(Session):
         self._validate_codes([code], nodes)
         return self._to_nodes(nodes)[0]
 
-    def get_external_nodes(self, codes: List[str] = None) -> List[ExternalServerNode]:
+    def get_external_nodes(
+        self, codes: List[str] = None
+    ) -> List[ExternalServerNode | FileIngestNode]:
         """
         Retrieves a list of ExternalServerNode objects from the national nodes table.
         Will return all nodes or some nodes if 'codes' is specified.
@@ -258,13 +271,18 @@ class DirectorySession(Session):
                 table=self.NODES_TABLE, query_filter=f"id == {codes}", as_df=True
             )
         else:
-            df_nodes = self.get(table=self.NODES_TABLE, as_df=True)
+            df_nodes = self.get(
+                table=self.NODES_TABLE,
+                query_filter="data_refresh.name == ['file_ingest', 'external_server']",
+                as_df=True,
+            )
 
-        df_nodes = df_nodes.loc[df_nodes["dns"] != ""]
         nodes = df_nodes.to_dict("records")
 
         if codes:
             self._validate_codes(codes, nodes)
+        else:
+            self._check_dns(nodes)
         return self._to_nodes(nodes)
 
     @staticmethod
@@ -276,19 +294,18 @@ class DirectorySession(Session):
                 raise KeyError(f"Unknown code: {code}")
 
     @staticmethod
+    def _check_dns(nodes: List[dict]):
+        """Raises a ValueError if the external node has no dns specified"""
+        for node in nodes:
+            if not node['dns']:
+                raise ValueError(f"Missing dns value for node {node['id']}")
+
+    @staticmethod
     def _to_nodes(nodes: List[dict]):
         """Maps rows to Node or ExternalServerNode objects."""
-        result = list()
+        result = []
         for node in nodes:
-            if "dns" not in node:
-                result.append(
-                    Node(
-                        code=node["id"],
-                        description=node["description"],
-                        date_end=node.get("date_end"),
-                    )
-                )
-            else:
+            if node['data_refresh'] == 'external_server':
                 result.append(
                     ExternalServerNode(
                         code=node["id"],
@@ -296,6 +313,23 @@ class DirectorySession(Session):
                         date_end=node.get("date_end"),
                         url=node["dns"],
                         token=os.getenv(f"{node['id']}_user"),
+                    )
+                )
+            elif node['data_refresh'] == 'file_ingest':
+                result.append(
+                    FileIngestNode(
+                        code=node["id"],
+                        description=node["description"],
+                        date_end=node.get("date_end"),
+                        url=node["dns"],
+                    )
+                )
+            else:
+                result.append(
+                    Node(
+                        code=node["id"],
+                        description=node["description"],
+                        date_end=node.get("date_end"),
                     )
                 )
 
@@ -338,9 +372,7 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = node.get_staging_id(table_type)
-            meta = TableMeta(
-                meta=self.get_table_meta(schema=node.get_schema_id(), table_name=id_)
-            )
+            meta = self.get_table_meta(schema=node.get_schema_id(), table_name=id_)
 
             tables[table_type.value] = Table.of(
                 table_type=table_type,
@@ -361,9 +393,7 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
-            meta = TableMeta(
-                self.get_table_meta(schema=self.directory_schema, table_name=id_)
-            )
+            meta = self.get_table_meta(schema=self.directory_schema, table_name=id_)
 
             tables[table_type.value] = Table.of(
                 table_type=table_type,
@@ -395,9 +425,7 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
-            meta = TableMeta(
-                self.get_table_meta(schema=self.directory_schema, table_name=id_)
-            )
+            meta = self.get_table_meta(schema=self.directory_schema, table_name=id_)
             attrs = attributes[table_type.value]
             data = []
             for code in codes:
@@ -443,7 +471,7 @@ class ExternalServerSession(DirectorySession):
 
     def get_node_data(self) -> NodeData:
         """
-        Gets the six tables of this node's external server.
+        Gets the tables of this node's external server.
 
         :return: a NodeData object
         """
@@ -454,10 +482,8 @@ class ExternalServerSession(DirectorySession):
             schema_meta = self.get_schema_metadata(self.node.get_schema_id())
             try:
                 schema_meta.get_table(by="name", value=id_)
-                meta = TableMeta(
-                    self.get_table_meta(
-                        schema=self.node.get_schema_id(), table_name=id_
-                    )
+                meta = self.get_table_meta(
+                    schema=self.node.get_schema_id(), table_name=id_
                 )
                 tables[table_type.value] = Table.of(
                     table_type=table_type,

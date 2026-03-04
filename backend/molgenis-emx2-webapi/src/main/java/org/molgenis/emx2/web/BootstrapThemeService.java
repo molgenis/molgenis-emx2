@@ -98,7 +98,9 @@ public class BootstrapThemeService {
     String input =
         String.format(
             "$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n", primaryColor, secondaryColor);
+    String useMath = "@use \"sass:math\";\n@use \"sass:list\";\n\n";
     StringBuilder CssPlusScss = new StringBuilder();
+    CssPlusScss.append(useMath);
     CssPlusScss.append(input);
     try {
       CssPlusScss.append(getScssFileContents("theme/theme.scss"));
@@ -144,7 +146,9 @@ public class BootstrapThemeService {
         String completeFileImportLocation = fileParent + "/" + importFileLocation;
         stringBuilder.append(getScssFileContents(completeFileImportLocation));
       } else {
-        stringBuilder.append(line).append(System.lineSeparator());
+        if (!line.startsWith("@use ")) {
+          stringBuilder.append(line).append(System.lineSeparator());
+        }
       }
     }
     return stringBuilder.toString();

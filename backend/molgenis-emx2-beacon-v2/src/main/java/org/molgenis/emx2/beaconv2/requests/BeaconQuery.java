@@ -4,10 +4,7 @@ import static org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses.
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.javalin.http.Context;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
@@ -36,7 +33,7 @@ public class BeaconQuery {
   }
 
   public void setRequestParameters(Map<String, String> requestParameters) {
-    for (var entry : requestParameters.entrySet()) {
+    for (Map.Entry<String, String> entry : requestParameters.entrySet()) {
       this.requestParameters.put(
           entry.getKey(), new BeaconRequestParameters(entry.getKey(), entry.getValue()));
     }
@@ -75,11 +72,11 @@ public class BeaconQuery {
     if (params.containsKey("entry_type")) {
       entryType = EntryType.findByName(params.get("entry_type"));
     }
-    for (var urlParam : params.entrySet()) {
+    for (Map.Entry<String, String> urlParam : params.entrySet()) {
       String ref = urlParam.getKey().replaceAll(":", "");
       requestParameters.put(ref, new BeaconRequestParameters(ref, urlParam.getValue()));
     }
-    for (var queryParam : ctx.queryParamMap().entrySet()) {
+    for (Map.Entry<String, List<String>> queryParam : ctx.queryParamMap().entrySet()) {
       if (queryParam.getKey().equalsIgnoreCase("limit")) {
         pagination.setLimit(Integer.parseInt(queryParam.getValue().get(0)));
       } else if (queryParam.getKey().equalsIgnoreCase("skip")) {

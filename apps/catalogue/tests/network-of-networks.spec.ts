@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("show network of networks", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/testNetworkofNetworks", {
+  await goto("/testNetworkofNetworks", {
     waitUntil: "hydration",
   });
   await expect(page.getByText("8", { exact: true })).toBeVisible();
@@ -20,17 +20,12 @@ test("show network of networks", async ({ page, goto }) => {
   await expect(page.getByText("2", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Collections" }).click();
   await expect(page.getByText("8 collections")).toBeVisible();
-  await goto("/catalogue-demo/catalogue/testNetworkofNetworks", {
+  await goto("/testNetworkofNetworks", {
     waitUntil: "hydration",
   });
   await page.getByRole("button", { name: "Variables" }).click();
   await expect(page.getByText("7 variables")).toBeVisible();
-  //todo check if not should be 9
-  await page.getByRole("heading", { name: "Sources" }).click();
-  await page.getByRole("heading", { name: "Sources" }).click();
-  await expect(page.getByText("testCohort4")).toBeVisible();
+  await page.getByRole("checkbox", { name: "testCohort4" }).check();
   await page.getByRole("button", { name: "Harmonisations" }).click();
-  await expect(
-    page.getByRole("cell", { name: "testCohort4" }).locator("span")
-  ).toBeVisible();
+  await expect(page.getByRole("table").getByText("testCohort4")).toBeVisible();
 });

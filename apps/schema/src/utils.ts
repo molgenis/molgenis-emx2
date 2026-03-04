@@ -5,6 +5,7 @@ export const schemaQuery = gql`
   {
     _session {
       schemas
+      admin
       roles
     }
     _schema {
@@ -49,6 +50,7 @@ export const schemaQuery = gql`
           validation
           visible
           computed
+          formLabel
         }
       }
     }

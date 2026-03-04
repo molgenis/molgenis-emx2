@@ -3,7 +3,7 @@
 ###
 
 ## Base image to have a node runtime
-FROM node:20.11.0-alpine
+FROM node:22.17.0-alpine
 
 # Used to build theme
 # ENV EMX2_THEME=$EMX2_THEME
@@ -24,6 +24,9 @@ ENV NUXT_HOST=0.0.0.0
 # Set app port
 ENV NUXT_PORT=$PORT
 
+# Set the catalogue schema
+ENV NUXT_PUBLIC_SCHEMA=$NUXT_PUBLIC_SCHEMA
+
 # Set the base url
 ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 
@@ -39,11 +42,14 @@ ENV NUXT_PUBLIC_SITE_TITLE=$NUXT_PUBLIC_SITE_TITLE
 # Set feature flag for cohort only app
 ENV NUXT_PUBLIC_COHORT_ONLY=$NUXT_PUBLIC_COHORT_ONLY
 
-# pass optional analytics key 
+# Optional analytics key
 ENV NUXT_PUBLIC_ANALYTICS_KEY=$NUXT_PUBLIC_ANALYTICS_KEY
 
-# pass optional name of analytics provider (for example: "google-analytics" defaults to "siteimprove") 
+# Optional name of analytics provider (for example: "google-analytics" or "site-improve")
 ENV NUXT_PUBLIC_ANALYTICS_PROVIDER=$NUXT_PUBLIC_ANALYTICS_PROVIDER
+
+# Optional domain for analytics provider
+ENV NUXT_PUBLIC_ANALYTICS_DOMAIN=$NUXT_PUBLIC_ANALYTICS_DOMAIN
 
 ## Start the server
 CMD node .output/server/index.mjs

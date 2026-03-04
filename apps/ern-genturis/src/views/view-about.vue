@@ -30,12 +30,7 @@
       <p>
         The GENTURIS registry consists of a collection of common data elements
         for all genturis patients, combined with disease-specific data elements
-        for all thematic disease groups covered by ERN GENTURIS. The FAIR Data
-        Point (FDP), a machine-readable description of the metadata, can be
-        found at:
-        <a href="https://genturis-registry.eu/api/fdp"
-          >https://genturis-registry.eu/api/fdp</a
-        >.
+        for all thematic disease groups covered by ERN GENTURIS.
       </p>
       <h3>Thematic disease groups</h3>
       <p>

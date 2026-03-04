@@ -59,7 +59,7 @@
       <ButtonAction @click="run">run</ButtonAction>
     </div>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div v-if="rows && rows.length > 0">
+    <div v-if="rows">
       <Pagination v-if="count" v-model="page" :limit="limit" :count="count" />
       download as <a :href="downloadZip">zip</a>,
       <a :href="downloadExcel">excel</a> or
@@ -196,7 +196,8 @@ export default {
       ).catch((error) => {
         this.error = error.response.errors[0].message;
       });
-      this.rows = JSON.parse(result._reports.data);
+      let parsedData = JSON.parse(result._reports.data);
+      this.rows = Array.isArray(parsedData) ? parsedData : [parsedData];
       this.count = result._reports.count;
     },
     async save() {

@@ -81,10 +81,6 @@ def test_validate_id(node_data):
             "bbmri-eric:ID:NL_invalid_person_classifier"
         ),
         DirectoryWarning(
-            message="bbmri-eric:networkID:BE_invalid_node_code references invalid id: "
-            "bbmri-eric:ID:NL_invalid_network_classifier"
-        ),
-        DirectoryWarning(
             message="bbmri-eric:ID:NL_valid-biobankID-1 references invalid id: "
             "bbmri-eric:akiID:BE_invalid_node_code"
         ),

@@ -1,7 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnTypeGroups.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
@@ -75,5 +78,23 @@ class TestSqlTypeUtils {
     Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
 
     assertDoesNotThrow(() -> applyValidationAndComputed(columns, row));
+  }
+
+  @Test
+  void testAllColumnTypesCoveredGetTypedValue() {
+    Column column = mock(Column.class);
+    Row row = mock(Row.class);
+
+    EXCLUDE_REFERENCE_HEADING.forEach(
+        columnType -> {
+          when(column.getColumnType()).thenReturn(columnType);
+          when(column.getPrimitiveColumnType()).thenReturn(columnType.getBaseType());
+          SqlTypeUtils.getTypedValue(column, row);
+        });
+  }
+
+  @Test
+  void testAllColumnTypesCoveredGetPsqlType() {
+    EXCLUDE_FILE_PERIOD_REFERENCE_HEADING.forEach(SqlTypeUtils::getPsqlType);
   }
 }

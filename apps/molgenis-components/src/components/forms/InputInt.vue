@@ -14,9 +14,7 @@
         :readonly="readonly"
         :required="required"
         :class="{ 'is-invalid': errorMessage }"
-        @update:modelValue="
-          $emit('update:modelValue', $event === NaN ? null : parseInt($event))
-        "
+        @update:modelValue="$emit('update:modelValue', $event)"
       />
       <template v-slot:append>
         <slot name="append" />

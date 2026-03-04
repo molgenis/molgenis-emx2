@@ -17,6 +17,10 @@ class SigninError(PyclientException):
     """Thrown when a signing in to a server failed."""
 
 
+class SignoutError(PyclientException):
+    """Thrown when a signing out of a server failed."""
+
+
 class NoSuchSchemaException(PyclientException):
     """Thrown when a schema is requested that is not found on the server."""
 

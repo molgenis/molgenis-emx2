@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import HomePage from "../views/view-home.vue";
 import AboutPage from "../views/view-about.vue";
 import DocumentsPages from "../views/view-documents.vue";
+import StudiesPages from "../views/view-studies.vue";
 import PublicDashboard from "../views/view-public-dashboard.vue";
 
 const project = "ERN SKIN";
@@ -37,6 +38,14 @@ const router = createRouter({
       component: DocumentsPages,
       meta: {
         title: "Documents",
+      },
+    },
+    {
+      name: "studies",
+      path: "/studies",
+      component: StudiesPages,
+      meta: {
+        title: "Studies",
       },
     },
   ],

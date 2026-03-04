@@ -1,18 +1,26 @@
-import type { IRow } from "../Interfaces/IRow";
-import constants from "./constants";
-import Client from "../client/client";
-import { executeExpression } from "./forms/formUtils/formUtils";
 import type {
   IColumn,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
+import Client from "../client/client";
+import type { IRow } from "../Interfaces/IRow";
+import constants from "./constants";
+import { executeExpression } from "./forms/formUtils/formUtils";
 
-const { CODE_0, CODE_9, CODE_PERIOD, MIN_LONG, MAX_LONG, AUTO_ID } = constants;
+const { CODE_0, CODE_9, CODE_PERIOD, AUTO_ID } = constants;
 
 export function isRefType(columnType: string): boolean {
-  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-    columnType
-  );
+  return [
+    "REF",
+    "REF_ARRAY",
+    "REFBACK",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+    "RADIO",
+    "SELECT",
+    "CHECKBOX",
+    "MULTISELECT",
+  ].includes(columnType);
 }
 
 export function isNumericKey(event: KeyboardEvent): boolean {
@@ -42,7 +50,7 @@ export function flattenObject(object: Record<string, any>): string {
 export async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
-  schemaId: string
+  schemaId?: string
 ): Promise<Record<string, any>> {
   const client = Client.newClient(schemaId);
   const tableMetadata = await client.fetchTableMetaData(tableId);
@@ -53,7 +61,7 @@ export async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -67,8 +75,12 @@ export async function convertRowToPrimaryKey(
   }
 }
 
-async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
-  if (typeof cellValue === "string") {
+export async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaId?: string
+) {
+  if (typeof cellValue === "string" || typeof cellValue === "number") {
     return cellValue;
   } else {
     if (column.refTableId) {
@@ -77,6 +89,8 @@ async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
         column.refTableId,
         schemaId
       );
+    } else {
+      throw new Error("Unexpected key type");
     }
   }
 }
@@ -100,7 +114,7 @@ export function filterObject(
   );
 }
 
-export function flipSign(value: string | null): string | null {
+export function flipSign(value: string | null): string {
   switch (value) {
     case "-":
       return "";
@@ -115,29 +129,10 @@ export function flipSign(value: string | null): string | null {
   }
 }
 
-const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
-
-export function getBigIntError(value: string): string | undefined {
-  if (isInvalidBigInt(value)) {
-    return BIG_INT_ERROR;
-  } else {
-    return undefined;
-  }
-}
-
-export function isInvalidBigInt(value: string): boolean {
-  const isValidRegex = /^-?\d+$/;
-  if (Boolean(value) && isValidRegex.test(value)) {
-    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
-  } else {
-    return true;
-  }
-}
-
 export function applyJsTemplate(
   object: Record<string, any>,
   labelTemplate: string
-): string | undefined {
+): string {
   if (object === undefined || object === null) {
     return "";
   }

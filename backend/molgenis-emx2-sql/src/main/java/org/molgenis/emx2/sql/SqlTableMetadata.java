@@ -335,6 +335,7 @@ class SqlTableMetadata extends TableMetadata {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     SqlColumnExecutor.executeRemoveColumn(jooq, tm.getColumn(columnName));
     tm.columns.remove(columnName);
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, tm, tableName);
     return tm;
   }
 

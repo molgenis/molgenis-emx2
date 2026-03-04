@@ -6,7 +6,12 @@
         v-if="showHeaderIfNeeded"
         class="form-inline justify-content-between mb-2 bg-white"
       >
-        <InputSearch id="input-search" v-if="tableId" v-model="searchTerms" />
+        <InputSearch
+          id="input-search"
+          v-if="tableId"
+          v-model="searchTerms"
+          ref="inputSearch"
+        />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
       <Spinner v-if="loading" />
@@ -160,12 +165,15 @@ export default {
   methods: {
     select(value: IRow) {
       this.$emit("select", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
     selectNew(value: IRow) {
       this.$emit("update:newRow", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
     deselect(value: IRow) {
       this.$emit("deselect", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
     async loadData() {
       this.loading = true;

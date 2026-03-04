@@ -35,7 +35,7 @@
     ></ServiceSection>
 
     <OrganizationSection
-      v-else-if="tabs['Organization'].active"
+      v-else-if="tabs['Organisation'].active"
       class="px-3 py-1"
       :biobank="biobank"
     />
@@ -71,7 +71,7 @@ const props = withDefaults(
   }
 );
 
-type IBiobankCardTab = "Collections" | "Services" | "Organization";
+type IBiobankCardTab = "Collections" | "Services" | "Organisation";
 const showCollections = ref(false);
 const activeTab = ref<IBiobankCardTab>("Collections");
 const tabs = computed(() => {
@@ -88,10 +88,10 @@ const tabs = computed(() => {
       active: activeTab.value === "Services",
       disabled: props.biobank?.services?.length === 0,
     },
-    Organization: {
-      id: "Organization",
-      label: "Organization",
-      active: activeTab.value === "Organization",
+    Organisation: {
+      id: "Organisation",
+      label: "Organisation",
+      active: activeTab.value === "Organisation",
       disabled: false,
     },
   };

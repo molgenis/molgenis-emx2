@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.tablestore;
 import java.util.Collection;
 import java.util.List;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 public interface TableStore {
 

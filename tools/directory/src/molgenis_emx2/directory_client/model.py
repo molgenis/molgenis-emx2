@@ -1,3 +1,5 @@
+"""Classes for modelling Directory information, e.g. tables, nodes."""
+
 import os
 import typing
 from abc import ABC
@@ -6,6 +8,8 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Set
+
+from molgenis_emx2_pyclient.metadata import Column
 
 from .utils import to_ordered_dict
 
@@ -24,10 +28,12 @@ class TableType(Enum):
 
     @classmethod
     def get_import_order(cls) -> List["TableType"]:
+        """Get import order of tables"""
         return [type_ for type_ in cls]
 
     @property
     def base_id(self) -> str:
+        """Get base ID of a table"""
         if self.value == "facts":
             table = "collectionFacts"
         elif self.value == "also_known_in":
@@ -42,7 +48,8 @@ class TableType(Enum):
 class TableMeta:
     """Convenient wrapper for the output of the metadata API."""
 
-    meta: dict
+    meta: dict | list[Column]
+    table_name: str
     id_attribute: str = field(init=False)
 
     def __post_init__(self):
@@ -51,15 +58,13 @@ class TableMeta:
                 object.__setattr__(self, "id_attribute", attribute.name)
 
     @property
-    def id(self):
-        return self.meta[0].get("table")
-
-    @property
     def attributes(self):
+        """Get list of table attributes"""
         return [attr.name for attr in self.meta]
 
     @property
     def one_to_manys(self) -> List[str]:
+        """Return a list of one-to-many attributes"""
         one_to_manys = []
         for attribute in self.meta["attributes"]["items"]:
             if attribute["data"]["type"] == "onetomany":
@@ -68,6 +73,7 @@ class TableMeta:
 
     @property
     def hyperlinks(self) -> List[str]:
+        """Get all attributes of type hyperlink"""
         hyperlinks = []
         for attribute in self.meta:
             if attribute.get("columnType") == "hyperlink":
@@ -87,11 +93,13 @@ class BaseTable(ABC):
 
     @property
     def rows(self) -> List[dict]:
+        """Return a list of rows in dict format"""
         return list(self.rows_by_id.values())
 
     @property
     def full_name(self) -> str:
-        return self.meta.id
+        """Return full name of table"""
+        return self.meta.table_name
 
 
 @dataclass(frozen=True)
@@ -114,17 +122,19 @@ class Table(BaseTable):
 
     @staticmethod
     def of_empty(table_type: TableType, meta: TableMeta):
+        """Return an empty Table"""
         return Table(rows_by_id=OrderedDict(), meta=meta, type=table_type)
 
     @staticmethod
     def of_placeholder(table_type: TableType):
+        """Return a dummy/placeholder Table"""
         meta = {
             "id": table_type.base_id,
             "attributes": {"items": [{"data": {"name": "id", "idAttribute": True}}]},
         }
         return Table.of_empty(
             table_type=table_type,
-            meta=TableMeta(meta=meta),
+            meta=TableMeta(meta=meta, table_name=table_type.base_id),
         )
 
 
@@ -216,6 +226,7 @@ class Node:
     }
 
     def get_schema_id(self) -> str:
+        """Get the name of the National Node schema"""
         return f"{os.getenv('NN_SCHEMA_PREFIX')}-{self.code}"
 
     @staticmethod
@@ -261,6 +272,7 @@ class Node:
 
     @staticmethod
     def of(code: str):
+        """Return an empty Node object"""
         return Node(code, None, None)
 
     def __eq__(self, other: object) -> bool:
@@ -280,7 +292,16 @@ class ExternalServerNode(Node):
     token: str | None = None
 
 
+@dataclass(frozen=True)
+class FileIngestNode(Node):
+    """Represents a node that provides its data as files on an external server."""
+
+    url: str | None = None
+
+
 class Source(Enum):
+    """Enum representing the source of the Node object"""
+
     EXTERNAL_SERVER = "external_server"
     STAGING = "staging"
     PUBLISHED = "published"
@@ -318,6 +339,7 @@ class DirectoryData(ABC):
 
     @property
     def import_order(self) -> List[Table]:
+        """Return tables in import order"""
         return [
             self.persons,
             self.networks,
@@ -338,6 +360,7 @@ class NodeData(DirectoryData):
 
     @staticmethod
     def from_dict(node: Node, source: Source, tables: Dict[str, Table]) -> "NodeData":
+        """Create a NodeData object from a dictionary of Tables"""
         return NodeData(node=node, source=source, **tables)
 
     def convert_to_staging(self) -> "NodeData":
@@ -352,9 +375,11 @@ class NodeData(DirectoryData):
         tables = dict()
         for table in self.import_order:
             metadata = deepcopy(table.meta.meta)
-            # metadata["id"] = self.node.get_staging_id(table.type)
+            table_name = self.node.get_staging_id(table.type)
             tables[table.type.value] = Table(
-                table.rows_by_id, TableMeta(metadata), table.type
+                table.rows_by_id,
+                TableMeta(metadata, table_name=table_name),
+                table.type,
             )
 
         return NodeData(node=self.node, source=Source.STAGING, **tables)
@@ -366,9 +391,11 @@ class MixedData(DirectoryData):
 
     @staticmethod
     def from_mixed_dict(source: Source, tables: Dict[str, Table]) -> "MixedData":
+        """Create a MixedData object from a dictionary of Tables"""
         return MixedData(source=source, **tables)
 
     def merge(self, other_data: DirectoryData):
+        """Merge data from other_data into existing tables"""
         self.persons.rows_by_id.update(other_data.persons.rows_by_id)
         self.networks.rows_by_id.update(other_data.networks.rows_by_id)
         self.also_known_in.rows_by_id.update(other_data.also_known_in.rows_by_id)
@@ -379,6 +406,7 @@ class MixedData(DirectoryData):
         self.facts.rows_by_id.update(other_data.facts.rows_by_id)
 
     def remove_node_rows(self, node: Node):
+        """Remove all data from a specific national node."""
         for table in self.import_order:
             ids_to_remove = [
                 row["id"] for row in table.rows if row["national_node"] == node.code
@@ -386,6 +414,7 @@ class MixedData(DirectoryData):
             all(table.rows_by_id.pop(id_) for id_ in ids_to_remove)
 
     def copy_empty(self) -> "MixedData":
+        """Create an empty MixedData object"""
         return MixedData(
             source=self.source,
             persons=Table.of_empty(TableType.PERSONS, self.persons.meta),
@@ -421,6 +450,7 @@ class QualityInfo:
     """Dictionary of service ids and their quality ids"""
 
     def get_qualities(self, table_type: TableType) -> Dict[str, List[str]]:
+        """Get quality information for given table"""
         if table_type == TableType.BIOBANKS:
             return self.biobanks
         elif table_type == TableType.COLLECTIONS:
@@ -431,6 +461,7 @@ class QualityInfo:
             return dict()
 
     def get_levels(self, table_type: TableType) -> Dict[str, List[str]]:
+        """Get assessment levels for given table"""
         if table_type == TableType.BIOBANKS:
             return self.biobank_levels
         elif table_type == TableType.COLLECTIONS:

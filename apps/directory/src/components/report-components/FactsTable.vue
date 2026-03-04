@@ -5,88 +5,62 @@
       :count="filteredFacts.length"
       :limit="100"
     />
+
     <div>
       <label class="font-weight-bold mr-3">Split by:</label>
-      <div class="d-inline-flex justify-content-around w-50">
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'sample_type')"
-            :checked="columnChecked('sample_type')"
-          />
-          Material type
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'sex')"
-            :checked="columnChecked('sex')"
-          />
-          Sex
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'age_range')"
-            :checked="columnChecked('age_range')"
-          />
-          Age range
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'disease')"
-            :checked="columnChecked('disease')"
-          />
-          Disease codes
-        </label>
+      <div class="d-inline-flex justify-content-around">
+        <div>
+          <select v-model="splitByColumn" @change="toggleColumn">
+            <option value="all">All</option>
+            <option value="sample_type">Material type</option>
+            <option value="sex">Sex</option>
+            <option value="age_range">Age range</option>
+            <option value="disease">Disease codes</option>
+          </select>
+        </div>
       </div>
     </div>
-    <div v-if="splitByColumn.length < 4" class="alert alert-dark" role="alert">
-      Because of the adopted method of data creation and collection the number
-      of donors presented in the table below should not be added as it may give
-      the wrong sums.
-    </div>
+
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
-          <th @click="sort('sample_type')">
+          <th v-if="showColumn(SAMPLE_TYPE)" @click="sort(SAMPLE_TYPE)">
             Material type
             <span
-              v-if="sortColumn === 'sample_type'"
+              v-if="sortColumn === SAMPLE_TYPE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('sex')">
+          <th v-if="showColumn(SEX)" @click="sort(SEX)">
             Sex
             <span
-              v-if="sortColumn === 'sex'"
+              v-if="sortColumn === SEX"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('age_range')">
+          <th v-if="showColumn(AGE_RANGE)" @click="sort(AGE_RANGE)">
             Age range
             <span
-              v-if="sortColumn === 'age_range'"
+              v-if="sortColumn === AGE_RANGE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('disease')">
+          <th v-if="showColumn(DISEASE)" @click="sort(DISEASE)">
             Disease codes
             <span
-              v-if="sortColumn === 'disease'"
+              v-if="sortColumn === DISEASE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('number_of_donors')">
+          <th @click="sort(NUMBER_OF_DONORS)">
             #Donors
             <span
               v-if="sortColumn === 'number_of_donors'"
@@ -95,22 +69,23 @@
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('number_of_samples')">
+          <th @click="sort(NUMBER_OF_SAMPLES)">
             #Samples
             <span
-              v-if="sortColumn === 'number_of_samples'"
+              v-if="sortColumn === NUMBER_OF_SAMPLES"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
         </tr>
+
         <tr class="filter-bar">
-          <th>
-            <select v-model="filters['sample_type']" class="w-100">
+          <th v-if="showColumn(SAMPLE_TYPE)">
+            <select v-model="filters[SAMPLE_TYPE]" class="w-100">
               <option :value="ALL">All</option>
               <option
-                v-for="material of factProperties.materialtypeOptions"
+                v-for="material of factProperties.materialTypeOptions"
                 :key="material"
                 :value="material"
               >
@@ -118,8 +93,8 @@
               </option>
             </select>
           </th>
-          <th>
-            <select v-model="filters['sex']">
+          <th v-if="showColumn(SEX)">
+            <select v-model="filters[SEX]">
               <option :value="ALL">All</option>
               <option
                 v-for="sex of factProperties.sexOptions"
@@ -130,9 +105,8 @@
               </option>
             </select>
           </th>
-
-          <th>
-            <select v-model="filters['age_range']">
+          <th v-if="showColumn(AGE_RANGE)">
+            <select v-model="filters[AGE_RANGE]">
               <option :value="ALL">All</option>
               <option
                 v-for="ageRange of factProperties.ageRangeOptions"
@@ -143,8 +117,8 @@
               </option>
             </select>
           </th>
-          <th>
-            <select v-model="filters['disease']">
+          <th v-if="showColumn(DISEASE)">
+            <select v-model="filters[DISEASE]">
               <option :value="ALL">All</option>
               <option
                 v-for="disease of factProperties.diseaseOptions"
@@ -159,19 +133,31 @@
           <th />
         </tr>
       </thead>
-      <tbody>
+
+      <tbody v-if="factsTable.length">
         <template v-for="fact of factsTable" :key="fact.id">
           <tr>
-            <th scope="row" class="pr-1 align-top">
+            <th
+              v-if="showColumn(SAMPLE_TYPE)"
+              scope="row"
+              class="pr-1 align-top"
+            >
               {{ fact.sample_type }}
             </th>
-            <td>{{ fact.sex }}</td>
-            <td>{{ fact.age_range }}</td>
-            <td>{{ fact.disease }}</td>
+            <td v-if="showColumn(SEX)">{{ fact.sex }}</td>
+            <td v-if="showColumn(AGE_RANGE)">{{ fact.age_range }}</td>
+            <td v-if="showColumn(DISEASE)">{{ fact.disease }}</td>
             <td>{{ fact.number_of_donors }}</td>
             <td>{{ fact.number_of_samples }}</td>
           </tr>
         </template>
+      </tbody>
+      <tbody v-else>
+        <tr>
+          <td colspan="6" class="text-center">
+            <strong>No data available for this selection</strong>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -186,50 +172,47 @@ import { computed, onMounted, ref, watch } from "vue";
 const { attribute } = defineProps<{ attribute: any[] }>();
 
 const ALL = "all";
+const ANY = "Any";
 const UNKNOWN = "Unknown";
-const NOFILTERS = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
-const FACTSPROPERTIES = [
+const SAMPLE_TYPE = "sample_type";
+const SEX = "sex";
+const AGE_RANGE = "age_range";
+const DISEASE = "disease";
+const NUMBER_OF_DONORS = "number_of_donors";
+const NUMBER_OF_SAMPLES = "number_of_samples";
+
+const FACT_PROPERTIES = [
   "sample_type.label",
   "sex.label",
   "age_range.label",
   "disease.label",
   "disease.name",
-  "number_of_samples",
-  "number_of_donors",
+  NUMBER_OF_SAMPLES,
+  NUMBER_OF_DONORS,
 ];
-const SPLITTABLE_COLUMNS = [
-  "sample_type",
-  "sex",
-  "age_range",
-  "disease",
-  "number_of_samples",
-];
+const COLUMN_IDS = [SAMPLE_TYPE, SEX, AGE_RANGE, DISEASE];
+const NO_FILTERS = Object.freeze({
+  sample_type: ALL,
+  sex: ALL,
+  age_range: ALL,
+  disease: ALL,
+});
 
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
 const sortColumn = ref("");
 const sortAsc = ref(false);
 const tableVersion = ref(0);
-const filters = ref<Record<string, any>>(NOFILTERS);
-const splitByColumn = ref<string[]>([
-  "sample_type",
-  "sex",
-  "age_range",
-  "disease",
-]);
-
+const filters = ref<Record<string, any>>(hardCopy(NO_FILTERS));
+const splitByColumn = ref<string>("all");
 const factProperties = ref<Record<string, any>>({});
 
 let baseFacts: Record<string, any>[] = [];
 
 onMounted(() => {
   baseFacts = getBaseFacts(attribute);
-  facts.value = baseFacts;
+  collapseRows();
   factProperties.value = getFactProperties();
-});
-
-const columnChecked = computed(() => {
-  return (column: string) => splitByColumn.value.includes(column);
 });
 
 const filteredFacts = computed(() => {
@@ -270,7 +253,7 @@ function getFilteredFacts(
         });
       }
     },
-    hardcopy(facts)
+    hardCopy(facts)
   );
 }
 
@@ -295,7 +278,7 @@ function getValue(object: Record<string, any>, propertyString: string) {
 function getFactProperties() {
   const splitFacts: Record<string, string[]> = facts.value.reduce(
     (accum, fact) => {
-      if (fact.sample_type) accum.materialtypeOptions.push(fact.sample_type);
+      if (fact.sample_type) accum.materialTypeOptions.push(fact.sample_type);
       if (fact.sex) accum.sexOptions.push(fact.sex);
       if (fact.age_range) accum.ageRangeOptions.push(fact.age_range);
       if (fact.disease) {
@@ -308,7 +291,7 @@ function getFactProperties() {
       return accum;
     },
     {
-      materialtypeOptions: [] as string[],
+      materialTypeOptions: [] as string[],
       sexOptions: [] as string[],
       ageRangeOptions: [] as string[],
       diseaseOptions: [] as string[],
@@ -316,29 +299,18 @@ function getFactProperties() {
   );
 
   const uniqSplitFacts = {
-    materialtypeOptions: _.uniq(splitFacts.materialtypeOptions),
+    materialTypeOptions: _.uniq(splitFacts.materialTypeOptions),
     sexOptions: _.uniq(splitFacts.sexOptions),
     ageRangeOptions: _.uniq(splitFacts.ageRangeOptions),
     diseaseOptions: _.uniq(splitFacts.diseaseOptions),
   };
 
   return {
-    materialtypeOptions: _.sortBy(uniqSplitFacts.materialtypeOptions),
+    materialTypeOptions: _.sortBy(uniqSplitFacts.materialTypeOptions),
     sexOptions: _.sortBy(uniqSplitFacts.sexOptions),
     ageRangeOptions: _.sortBy(uniqSplitFacts.ageRangeOptions),
     diseaseOptions: _.sortBy(uniqSplitFacts.diseaseOptions),
   };
-}
-
-function toggleColumn(event: Record<string, any>, columnName: string) {
-  if (event.target.checked) {
-    splitByColumn.value.push(columnName);
-  } else {
-    const newArray = splitByColumn.value.filter((sbc) => sbc !== columnName);
-    splitByColumn.value = newArray;
-  }
-  filters.value = NOFILTERS;
-  collapseRows();
 }
 
 function sort(column: string) {
@@ -357,10 +329,10 @@ function sort(column: string) {
 }
 
 function getBaseFacts(attribute: Record<string, any>) {
-  const rawFacts = hardcopy(attribute);
+  const rawFacts = hardCopy(attribute);
   const facts = rawFacts.map((rawFact: Record<string, any>) => {
     const fact: Record<string, any> = {};
-    for (const property of FACTSPROPERTIES) {
+    for (const property of FACT_PROPERTIES) {
       const key = property.split(".")[0];
 
       if (!fact[key]) {
@@ -373,7 +345,7 @@ function getBaseFacts(attribute: Record<string, any>) {
   return facts.filter(hasAFactToShow);
 }
 
-function hardcopy(value: any) {
+function hardCopy(value: any) {
   return JSON.parse(JSON.stringify(value));
 }
 
@@ -386,109 +358,31 @@ function hasAFactToShow(fact: Record<string, any>) {
   return hasSamples || hasDonors || !!fact.sex;
 }
 
+function toggleColumn() {
+  filters.value = hardCopy(NO_FILTERS);
+  collapseRows();
+}
+
 function collapseRows() {
-  if (splitByColumn.value.length === 4) {
-    /** no group together selected, so reset the state */
-    facts.value = baseFacts;
-    return;
-  }
-
-  /** make a copy that we can keep mutating utill we have dealt with all the collapses.
-   * order matters!
-   */
-  const baseFactsCopy = hardcopy(baseFacts);
-
-  const groupedFacts = [];
-
-  const criteriaMet: string[] = [];
-
-  for (const baseFact of baseFactsCopy) {
-    if (Object.values(baseFact).includes("Any")) {
-      continue;
-    }
-    const criteria: Record<string, any> = {};
-
-    let newCriteria = "";
-
-    for (const criteriaColumn of SPLITTABLE_COLUMNS) {
-      if (splitByColumn.value.includes(criteriaColumn)) {
-        const critValue = getValue(baseFact, criteriaColumn);
-        /** for use to group */
-        criteria[criteriaColumn] = critValue;
-        /** track which combination of values has been grouped already  */
-        newCriteria += critValue;
-      }
-    }
-
-    if (!criteriaMet.includes(newCriteria)) {
-      let critGroup = baseFactsCopy;
-      const criteriaKeys = Object.keys(criteria);
-      for (const critKey of criteriaKeys) {
-        critGroup = critGroup.filter(
-          (obj: Record<string, any>) => obj[critKey] === criteria[critKey]
-        );
-      }
-      criteriaMet.push(newCriteria);
-      groupedFacts.push(critGroup);
-    }
-  }
-
-  const collapsedFacts = [];
-
-  for (const factGroup of groupedFacts) {
-    let collapsedFact: Record<string, any> = {};
-    for (const fact of factGroup) {
-      if (Object.values(fact).includes("Any")) {
-        continue;
-      }
-      if (!Object.keys(collapsedFact).length) {
-        collapsedFact = fact;
-        continue;
-      }
-
-      for (const column of SPLITTABLE_COLUMNS) {
-        if (!splitByColumn.value.includes(column)) {
-          const mergedValue = collapsedFact[column];
-
-          if (Array.isArray(mergedValue)) {
-            const valueToMerge = fact[column];
-            if (Array.isArray(valueToMerge)) {
-              collapsedFact[column] = _.uniq(
-                collapsedFact[column].concat(fact[column])
-              );
-            } else {
-              if (!collapsedFact[column].includes(fact[column])) {
-                collapsedFact[column].push(fact[column]);
-              }
-            }
-          } else {
-            if (collapsedFact[column] !== fact[column]) {
-              if (isFinite(collapsedFact[column]) && isFinite(fact[column])) {
-                collapsedFact[column] = collapsedFact[column] + fact[column];
-              } else if (fact[column] !== UNKNOWN) {
-                collapsedFact[column] = [collapsedFact[column], fact[column]];
-              }
-            } else if (column === "number_of_samples") {
-              collapsedFact[column] = 2 * collapsedFact[column];
-            }
-          }
+  facts.value = COLUMN_IDS.reduce((accum, columnId) => {
+    if (splitByColumn.value === ALL) {
+      return accum.filter(
+        (fact: Record<string, any>) => fact[columnId] !== ANY
+      );
+    } else {
+      return accum.filter((fact: Record<string, any>) => {
+        if (splitByColumn.value === columnId) {
+          return fact[columnId] !== ANY;
+        } else {
+          return fact[columnId] === ANY;
         }
-      }
+      });
     }
+  }, hardCopy(baseFacts));
+}
 
-    collapsedFact.number_of_donors = "Available";
-    collapsedFacts.push(collapsedFact);
-  }
-
-  collapsedFacts.forEach((fact) => {
-    for (const prop in fact) {
-      if (Array.isArray(fact[prop])) {
-        fact[prop] = fact[prop].join(", ");
-      }
-    }
-  });
-
-  facts.value = collapsedFacts;
+function showColumn(columnId: string) {
+  return splitByColumn.value === columnId || splitByColumn.value === ALL;
 }
 </script>
 
