@@ -144,8 +144,8 @@ async function reload() {
   ) {
     // Load entire small ontology in one go
     const query = `query {
-      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC, name:ASC}) {
-        name,parent{name},label,definition,code,codesystem,ontologyTermURI,order
+      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){
+        name,parent{name},label,definition,code,codesystem,ontologyTermURI
       }
     }`;
 
