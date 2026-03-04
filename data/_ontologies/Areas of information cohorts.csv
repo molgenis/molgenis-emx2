@@ -140,14 +140,17 @@
 139,Radiation exposure,Radiation_exp,Physical environment,,
 140,Chemical exposure,Chemical_exp,Physical environment,,
 141,Biological exposure,Biological_exp,Physical environment,,
-142,Other physical environment characteristics,Other_environment,Physical environment,,
-143,Food environment,Food_environment,Physical environment,,Availability of healthy or unhealthy food outlets near home or school
-144,Natural environment,Natural_environment,Physical environment,,"Proximity and access to green, blue, or grey spaces surrounding the residence"
-145,Air pollution (indoor),Air_pollution_indoor,Physical environment,,"Household exposure to pollutants from cooking, heating, or tobacco smoke."
-146,Chemicals,Chemicals,Chemical exposure,,
-147,Persistent organic pollutants,,Chemicals,,"Exposure to persistent organic pollutant, such as PCBs, DDT, DDE, PFASs, PBDEs, etc."
-148,Metals & elements,,Chemicals,,Exposure to metals and elements
-149,Other chemicals,,Chemicals,,"Exposure to other chemicals, such as PAHs, VOCs, THMs, etc."
-150,Water DBPs,Water_DBPs,Chemicals,,"Water desinfection by products (Trihalomethanes (THMs), haloacetic acids, chlorate, bromate)"
-151,Non-targeted / suspect screening of chemicals,Nontargeted_suspect_screening_of_chemicals,Chemicals,,"High-resolution mass spectrometry (HRMS), untargeted exposomics"
-152,Light,Light,Other physical environment characteristics,,
+142,Food environment,Food_environment,Physical environment,,Availability of healthy or unhealthy food outlets near home or school
+143,Natural environment,Natural_environment,Physical environment,,"Proximity and access to green, blue, or grey spaces surrounding the residence"
+144,Air pollution (outdoor),,Physical environment,,Ambient air pollution measures
+145,Air pollution (indoor),Air_pollution_indoor,Physical environment,,"Household exposure to pollutants from cooking, heating, or tobacco smoke"
+146,"Noise, traffic, or light",,Physical environment,,
+147,Meteorology,,Physical environment,,"Exposure to temperature, humidity, UV radiation"
+148,Other physical environment characteristics,Other_environment,Physical environment,,
+149,Chemicals,Chemicals,Chemical exposure,,
+150,Persistent organic pollutants,,Chemicals,,"Exposure to persistent organic pollutant, such as PCBs, DDT, DDE, PFASs, PBDEs, etc."
+151,Metals & elements,,Chemicals,,Exposure to metals and elements
+152,Other chemicals,,Chemicals,,"Exposure to other chemicals, such as PAHs, VOCs, THMs, etc."
+153,Water DBPs,Water_DBPs,Chemicals,,"Water desinfection by products (Trihalomethanes (THMs), haloacetic acids, chlorate, bromate)"
+154,Non-targeted / suspect screening of chemicals,Nontargeted_suspect_screening_of_chemicals,Chemicals,,"High-resolution mass spectrometry (HRMS), untargeted exposomics"
+155,Light,Light,Other physical environment characteristics,,
