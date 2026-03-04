@@ -36,7 +36,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({});
   });
 
-  test("it should an error if a required field misses a value", () => {
+  test("it should return an error if a required field misses a value", () => {
     const rowData = { required: undefined };
     const metadata = {
       columns: [
@@ -52,7 +52,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ required: "required is required" });
   });
 
-  test("it should an error if a numerical required field has an invalid value", () => {
+  test("it should return an error if a numerical required field has an invalid value", () => {
     const rowData = { required: NaN };
     const metadata = {
       columns: [

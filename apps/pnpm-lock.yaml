@@ -219,6 +219,9 @@ importers:
         specifier: 4.4.3
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
+      '@types/d3':
+        specifier: 7.4.3
+        version: 7.4.3
       '@vitejs/plugin-vue':
         specifier: 4.6.2
         version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
@@ -667,6 +670,9 @@ importers:
       vue-scrollto:
         specifier: 2.20.0
         version: 2.20.0
+      vue-tsc:
+        specifier: 3.2.1
+        version: 3.2.1(typescript@5.8.2)
 
   molgenis-viz:
     dependencies:
@@ -7910,6 +7916,7 @@ packages:
 
   unplugin-vue-router@0.15.0:
     resolution: {integrity: sha512-PyGehCjd9Ny9h+Uer4McbBjjib3lHihcyUEILa7pHKl6+rh8N7sFyw4ZkV+N30Oq2zmIUG7iKs3qpL0r+gXAaQ==}
+    deprecated: 'Merged into vuejs/router. Migrate: https://router.vuejs.org/guide/migration/v4-to-v5.html'
     peerDependencies:
       '@vue/compiler-sfc': ^3.5.17
       vue-router: ^4.5.1
@@ -11574,7 +11581,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.25':
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.29.0
       '@vue/shared': 3.5.25
       entities: 4.5.0
       estree-walker: 2.0.2
