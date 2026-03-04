@@ -141,8 +141,8 @@ class TestEvaluateExpressions {
             new Column("id").setType(ColumnType.AUTO_ID).setComputed("${mg_autoid(invalid)}"));
 
     List<Column> columns = table.getColumns();
-
-    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, new Row()));
+    Row emptyRow = new Row();
+    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, emptyRow));
   }
 
   @Test
