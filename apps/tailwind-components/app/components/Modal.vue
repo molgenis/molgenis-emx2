@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
 import { registerModal } from "../utils/modalManager";
+import { FocusTrap } from "focus-trap-vue";
 
 withDefaults(
   defineProps<{
@@ -60,8 +61,8 @@ function hide() {
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <focus-trap
-        v-model:active="visible"
+      <FocusTrap
+        :active="visible"
         :initial-focus="() => $refs.ModalTitle"
       >
         <div>
@@ -121,7 +122,7 @@ function hide() {
             </div>
           </div>
         </div>
-      </focus-trap>
+      </FocusTrap>
     </Teleport>
   </ClientOnly>
 </template>
