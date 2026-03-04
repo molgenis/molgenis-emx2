@@ -10,10 +10,28 @@ spec:
   maxReplicaCount: 1 # maximum one preview server
   pollingInterval: 10  # check every 10 secs if we need to scale up the preview
   cooldownPeriod: 5  # very short now so we can check
+
+
   triggers:
-  - type: http
+  - type: prometheus
     metadata:
-      endpoint: /  # we use the root to trigger awakening the preview
-      method: GET
-      threshold: "1"  # Scale up when at least one request is detected
-      targetValue: "1"  # Target value for scaling up
+      serverAddress: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+
+      # Rate over 1 minute window with very low threshold
+      query: |
+        sum(rate(nginx_ingress_controller_requests{
+          exported_namespace="preview-test",
+          ingress={{ include "emx2.fullname" .}}
+        }[1m])) OR on() vector(0)
+
+      # 0.001 req/sec = 1 request per ~16 minutes will trigger
+      # So even 1 request in 1 minute (0.0167 req/sec) scales up
+      threshold: "0.001"
+      activationThreshold: "0.001"    
+    #  triggers:
+    #  - type: http
+    #    metadata:
+    #      endpoint: /  # we use the root to trigger awakening the preview
+    #      method: GET
+    #      threshold: "1"  # Scale up when at least one request is detected
+    #      targetValue: "1"  # Target value for scaling up
