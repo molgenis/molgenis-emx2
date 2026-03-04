@@ -3,13 +3,11 @@ package org.molgenis.emx2.sql.autoid;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -20,6 +18,7 @@ class RetryingIdGeneratorTest {
   private static SqlDatabase database;
   private Column column;
   private DSLContext jooq;
+  private Schema schema;
 
   @BeforeAll
   static void setup() {
@@ -28,7 +27,7 @@ class RetryingIdGeneratorTest {
 
   @BeforeEach
   void setupSchema() {
-    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
+    schema = database.dropCreateSchema(SCHEMA_NAME);
     jooq = database.getJooq();
     TableMetadata table =
         schema
@@ -40,15 +39,50 @@ class RetryingIdGeneratorTest {
                     .setComputed("${mg_autoid(format=mixed, length=25)}")
                     .setPkey());
     column = table.getColumn("id");
+    setSeed();
+  }
+
+  private void setSeed() {
+    jooq.execute("SELECT setseed(0.5);");
   }
 
   @Test
   void givenColumnWithAutoIdFormat_thenCallGenerateFunction() {
-    jooq.execute("SELECT setseed(0.5);");
-    String generated = new RetryingIdGenerator(column).generateId().toString();
-    String id = jooq.resultQuery(generated).fetchOneInto(String.class);
+    Field<String> generated = new RetryingIdGenerator(column).generateId();
+    String id = jooq.select(generated).fetchOneInto(String.class);
 
     // Expected is based on the provided seed
     assertEquals("9zIKo2IJfve8chubuk30CWP60", id);
+  }
+
+  @Test
+  void givenSqlInjection_thenEscape() {
+    Table table = schema.getTable("Person");
+    table.insert(Row.row("id", "9zIKo2IJfve8chubuk30CWP60"));
+
+    assertFalse(table.retrieveRows().isEmpty());
+    column.setComputed("; DROP table Person; ${mg_autoid(format=mixed, length=25)}");
+    new RetryingIdGenerator(column).generateId();
+    assertFalse(table.retrieveRows().isEmpty());
+  }
+
+  @Test
+  void givenComputed_whenFormatHasPrefix_thenAddToGeneratedId() {
+    column.setComputed("PREFIX-${mg_autoid(format=numbers, length=4)}");
+    Field<String> generated = new RetryingIdGenerator(column).generateId();
+    String id = jooq.select(generated).fetchOneInto(String.class);
+
+    // Expected is based on the provided seed
+    assertEquals("PREFIX-9811", id);
+  }
+
+  @Test
+  void givenComputed_whenFormatHasSuffix_thenAddToGeneratedId() {
+    column.setComputed("${mg_autoid(format=numbers, length=4)}-SUFFIX");
+    Field<String> generated = new RetryingIdGenerator(column).generateId();
+    String id = jooq.select(generated).fetchOneInto(String.class);
+
+    // Expected is based on the provided seed
+    assertEquals("9811-SUFFIX", id);
   }
 }

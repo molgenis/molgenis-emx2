@@ -27,30 +27,24 @@ public class RetryingIdGenerator implements DSLIdGenerator {
   }
 
   public Field<String> generateId() {
-    // TODO: Prevent sql injection
     return generateAutoIdSubquery(
-        column.getSchemaName(),
-        column.getTableName(),
-        column.getName(),
-        autoIdFormat.format().getCharacters(),
-        autoIdFormat.length());
+        column.getSchemaName(), column.getTableName(), column.getName(), autoIdFormat);
   }
 
   public Field<String> generateAutoIdSubquery(
-      String schemaName,
-      String tableName,
-      String columnName,
-      String autoIdFormatChars,
-      int autoIdLength) {
-    return DSL.select(
-            DSL.field(
-                "\"MOLGENIS\".mg_generate_autoid({0}, {1}, {2}, {3}, {4})",
-                String.class,
-                DSL.val(schemaName),
-                DSL.val(tableName),
-                DSL.val(columnName),
-                DSL.val(autoIdFormatChars),
-                DSL.val(autoIdLength)))
-        .asField();
+      String schemaName, String tableName, String columnName, AutoIdFormat format) {
+    Field<Object> generated =
+        DSL.select(
+                DSL.field(
+                    "\"MOLGENIS\".mg_generate_autoid({0}, {1}, {2}, {3}, {4})",
+                    String.class,
+                    DSL.val(schemaName),
+                    DSL.val(tableName),
+                    DSL.val(columnName),
+                    DSL.val(format.format().getCharacters()),
+                    DSL.val(format.length())))
+            .asField();
+
+    return DSL.concat(DSL.val(format.prefix()), generated, DSL.val(format.suffix()));
   }
 }

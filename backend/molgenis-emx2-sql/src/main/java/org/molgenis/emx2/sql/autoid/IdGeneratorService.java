@@ -36,11 +36,7 @@ public class IdGeneratorService {
     String computed = column.getComputed();
 
     if (computed == null) {
-      return () ->
-          DSL.val(
-              computed.replace(
-                  Constants.COMPUTED_AUTOID_TOKEN,
-                  SnowflakeIdGenerator.getInstance().generateId()));
+      return () -> DSL.val(SnowflakeIdGenerator.getInstance().generateId());
     }
 
     DSLIdGenerator generator = STRATEGY_CACHE.getIfPresent(computed);
