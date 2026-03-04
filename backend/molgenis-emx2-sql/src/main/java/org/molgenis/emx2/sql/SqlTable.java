@@ -484,7 +484,7 @@ public class SqlTable implements Table {
   private static Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
     Map<String, Object> selectedValues = new LinkedHashMap<>();
     for (Column column : selection) {
-      if (row.getValueMap().get(column.getName()) instanceof Field value) {
+      if (row.getValueMap().get(column.getName()) instanceof Field<?> value) {
         selectedValues.put(column.getName(), value);
       } else {
         selectedValues.put(column.getName(), getTypedValue(column, row));
