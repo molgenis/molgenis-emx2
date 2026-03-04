@@ -902,26 +902,25 @@ public class GraphqlTableFieldFactory {
 
   private Map<String, Order> convertOrderByIdsToNames(
       TableMetadata aTable, Map<String, Object> args) {
-    Object orderByArg = args.get(ORDERBY);
-    List<Map<String, Order>> orderByList;
-    if (orderByArg instanceof List) {
-      orderByList = (List<Map<String, Order>>) orderByArg;
-    } else {
-      // backward compatibility: single object instead of list
-      orderByList = List.of((Map<String, Order>) orderByArg);
-    }
-    Map<String, Order> unescapedMap = new LinkedHashMap<>();
+    List<Map<String, Order>> orderByList = toOrderByList(args.get(ORDERBY));
+    Map<String, Order> result = new LinkedHashMap<>();
     for (Map<String, Order> orderByEntry : orderByList) {
-      for (Map.Entry<String, Order> entry : orderByEntry.entrySet()) {
-        Optional<Column> column = findColumnById(aTable, entry.getKey());
-        if (column.isPresent()) {
-          unescapedMap.put(column.get().getName(), entry.getValue());
-        } else {
-          throw new MolgenisException("Unknown order by column id: " + entry.getKey());
-        }
-      }
+      orderByEntry.forEach((id, order) -> result.put(resolveColumnName(aTable, id), order));
     }
-    return unescapedMap;
+    return result;
+  }
+
+  private List<Map<String, Order>> toOrderByList(Object orderByArg) {
+    if (orderByArg instanceof List) {
+      return (List<Map<String, Order>>) orderByArg;
+    }
+    return List.of((Map<String, Order>) orderByArg);
+  }
+
+  private String resolveColumnName(TableMetadata table, String id) {
+    return findColumnById(table, id)
+        .map(Column::getName)
+        .orElseThrow(() -> new MolgenisException("Unknown order by column id: " + id));
   }
 
   private GraphQLFieldDefinition getMutationDefinition(Schema schema, MutationType type) {
