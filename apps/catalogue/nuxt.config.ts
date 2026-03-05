@@ -20,7 +20,8 @@ export default defineNuxtConfig({
       emx2Logo: "",
       siteTitle: "MOLGENIS",
       analyticsKey: "",
-      analyticsProvider: "siteimprove",
+      analyticsProvider: "",
+      analyticsDomain: "",
       cohortOnly: false,
       schema: "catalogue-demo",
       apiBase:
