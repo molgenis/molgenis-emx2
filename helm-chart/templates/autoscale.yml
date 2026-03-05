@@ -20,8 +20,9 @@ spec:
       # Rate over 1 minute window with very low threshold
       query: |
         sum(rate(nginx_ingress_controller_requests{
-          ingress={{ include "emx2.fullname" .}}
-        }[1m])) OR on() vector(0)
+          exported_namespace="{{ .Release.Namespace }}",
+          ingress="{{ include "emx2.fullname" . }}"
+        }["1m"])) OR on() vector(0)
 
       # 0.001 req/sec = 1 request per ~16 minutes will trigger
       # So even 1 request in 1 minute (0.0167 req/sec) scales up
