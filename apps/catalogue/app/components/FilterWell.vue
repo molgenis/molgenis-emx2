@@ -94,7 +94,7 @@ function isAFilterSet(filters: IFilter[]) {
             v-if="filter.config.type !== 'SEARCH' && isFilterSet(filter)"
             @click="
               () => {
-                if((filter as IOntologyFilter).conditions) {
+                if ((filter as IOntologyFilter).conditions) {
                   (filter as IOntologyFilter).conditions = [];
                 }
                 handleFilerUpdate(filter);

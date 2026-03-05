@@ -957,17 +957,27 @@ const showPopulation = computed(
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
               :url="`/${route.params.catalogue}/networks/${network.id}`"
-              :links="[
-                  network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
-               {title: 'Network details',
-                url: `/${route.params.catalogue}/networks/${network.id}`,
-                },
-               network.type?.some( (type) => type.name === 'Catalogue')
-               ? {
-                title: 'Catalogue',
-                url: `/${network.id}`,
-              }: null
-                ].filter((link) => link !== null)"
+              :links="
+                [
+                  network.website
+                    ? {
+                        title: 'Website',
+                        url: network.website,
+                        target: '_blank' as linkTarget,
+                      }
+                    : null,
+                  {
+                    title: 'Network details',
+                    url: `/${route.params.catalogue}/networks/${network.id}`,
+                  },
+                  network.type?.some((type) => type.name === 'Catalogue')
+                    ? {
+                        title: 'Catalogue',
+                        url: `/${network.id}`,
+                      }
+                    : null,
+                ].filter((link) => link !== null)
+              "
               target="_self"
             />
           </ReferenceCardList>

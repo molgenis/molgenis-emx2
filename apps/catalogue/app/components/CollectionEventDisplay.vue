@@ -44,9 +44,8 @@ const pageCrumbs: any = {
   Resource: `/${schema}/catalogue`,
 };
 
-pageCrumbs[
-  route.params.resource as string
-] = `/resources/${route.params.resource}`;
+pageCrumbs[route.params.resource as string] =
+  `/resources/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);

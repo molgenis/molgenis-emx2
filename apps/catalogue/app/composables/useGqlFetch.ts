@@ -17,8 +17,8 @@ export function useGqlFetch<T, E>(
   const queryString = isRef(query)
     ? query.value
     : typeof query !== "string"
-    ? moduleToString(query)
-    : query;
+      ? moduleToString(query)
+      : query;
 
   let body: { query: string; variables?: object } = {
     query: queryString,

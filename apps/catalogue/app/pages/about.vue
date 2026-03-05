@@ -55,7 +55,14 @@
               src="https://www.youtube.com/embed/PyRElhVzzb4"
               title="Introductory Video"
               frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="
+                accelerometer;
+                autoplay;
+                clipboard-write;
+                encrypted-media;
+                gyroscope;
+                picture-in-picture;
+              "
               allowfullscreen
               class="w-full h-full rounded-lg"
             ></iframe>

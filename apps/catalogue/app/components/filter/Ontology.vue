@@ -78,7 +78,7 @@ const id = useId();
   <InputTree
     :id="id"
     :nodes="rootNodes"
-    v-model="(selectedNodesNames as string[])"
+    v-model="selectedNodesNames as string[]"
     :isMultiSelect="true"
     :inverted="mobileDisplay"
     :expandSelected="true"

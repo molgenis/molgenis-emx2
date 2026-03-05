@@ -65,14 +65,15 @@ const repeats = computed(() => {
         <template #cell="cell">
           <HarmonisationTableCellStatusIcon
             :status="
-              variable.mappings?.find(
+              (variable.mappings?.find(
                 (m) =>
                   m.source.id === cell.value.column &&
                   m.repeats
                     .split(',')
                     .map((repeatIndex) => repeatIndex?.trim())
                     .includes('' + cell.value.row)
-              )?.match.name as HarmonisationStatus || 'unmapped' as HarmonisationStatus
+              )?.match.name as HarmonisationStatus) ||
+              ('unmapped' as HarmonisationStatus)
             "
           />
         </template>

@@ -202,8 +202,10 @@ export interface IOntologyItem {
   children?: IOntologyItem[];
 }
 
-export interface IOntologyParentTreeItem
-  extends Omit<IOntologyItem, "children"> {}
+export interface IOntologyParentTreeItem extends Omit<
+  IOntologyItem,
+  "children"
+> {}
 
 // generic emx2 graphql api response type, pass in query structure as T
 export interface GqlResp<T> {
@@ -289,13 +291,11 @@ export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
   buildFilterFunction?: Function;
 }
 
-export interface IRefArrayFilterDefaultConfig
-  extends IRefArrayFilterAbstractConfig {
+export interface IRefArrayFilterDefaultConfig extends IRefArrayFilterAbstractConfig {
   columnId: string;
 }
 
-export interface IRefArrayFilterCustomConfig
-  extends IRefArrayFilterAbstractConfig {
+export interface IRefArrayFilterCustomConfig extends IRefArrayFilterAbstractConfig {
   // optional function to build the filter bases on the selected options
   // if empty the defualt builder will be used
   buildFilterFunction?: Function;
