@@ -189,7 +189,16 @@ jobs:
             RETRY=$((RETRY + 1))
             if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
             echo "❌ Gave up after $MAX_RETRIES attempts"
-            exit 1
+
+            echo "📌 Pods in namespace $NS:"
+            kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o wide
+
+            echo "📌 Events:"
+            kubectl get events -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" --sort-by=.metadata.creationTimestamp | tail -n 40
+
+            echo "📌 Logs from backend:"
+            POD=$(kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o jsonpath='{.items[0].metadata.name}')
+            kubectl logs -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" $POD -c emx2 --tail=200
             fi
             
             sleep 10
