@@ -51,7 +51,7 @@
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
               :style="{ width: columnWidths[column.id] + 'px' }"
-              class="relative group:"
+              class="relative group"
             >
               <div
                 class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
