@@ -42,7 +42,7 @@ const { isAdmin, session } = await useSession(schemaId);
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 const { data: rowData, refresh } = await useAsyncData(
-  entityKeysObject.toString(),
+  keys || JSON.stringify(entityKeysObject),
   () => fetchRowData(schemaId, tableId, entityKeysObject)
 );
 
