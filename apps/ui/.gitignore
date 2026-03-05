@@ -25,3 +25,4 @@ logs
 
 # Playwright test auth files
 playwright/.auth
+.nuxtrc
