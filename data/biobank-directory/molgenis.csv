@@ -109,6 +109,7 @@ Collections,,combined_quality,Combined Qualities,ontology_array,,false,,"The dir
 Collections,,donor_data,Donor Data,heading,,false,,Donor Data Characteristics,,,,,,,,,
 Collections,,number_of_donors,Number of Donors,int,,false,,Number of donors from who sample(s) were taken.,,,,,,,,,
 Collections,,order_of_magnitude_donors,Order of Magnitude Donors,ontology,,false,,Size of the collection donors measured as 10n samples.,DirectoryOntologies,SampleSizes,,${label},,,,,
+Collections,,species,Species,ontology_array,,if(type?.some(item => item.name == 'NON_HUMAN')) 'This field is mandatory for collections with type Non-human',,"Donor species, in case of non-human donors",DirectoryOntologies,Species,,${label},,,,,
 Collections,,sex,Sex Types,ontology_array,,false,,The sex type(s) of the individuals in the sample collection. - MIABIS-2.0-09.,DirectoryOntologies,SexTypes,,${label},,,,,
 Collections,,diagnosis_available,Available Diagnoses,ref_array,,false,,"Available diagnosi(e)s in the collection, with the ontology prefix, possibly using * and ? wildcards, and prefix notation to denote diagnosis nomenclature - so far urn:miriam:icd: prefix for ICD-10, and urn:miriam:snomedct: prefix for SNOMED CT (examples being urn:miriam:icd:C*, urn:miriam:snomedct:25*) - MIABIS-2.0-17, adapted.",DirectoryOntologies,DiseaseTypes,,${label},,,,,
 Collections,,age_low,Age Low,decimal,,false,,Age of youngest sample donor at time of sample donation - MIABIS-2.0-10.,,,,,,,,,
