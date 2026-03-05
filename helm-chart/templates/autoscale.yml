@@ -20,7 +20,6 @@ spec:
       # Rate over 1 minute window with very low threshold
       query: |
         sum(rate(nginx_ingress_controller_requests{
-          exported_namespace="preview-test",
           ingress={{ include "emx2.fullname" .}}
         }[1m])) OR on() vector(0)
 
