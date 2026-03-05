@@ -138,7 +138,7 @@ useHead({
           </ul>
         </ContentBlock>
 
-        <ContentBlock id="process" title="Request Handling Process">
+        <ContentBlock id="process" title="Request handling process">
           <p class="mb-4">
             Requests for samples and/or data or initiation of a collaboration
             are handled by the researchers managing the particular collection.
