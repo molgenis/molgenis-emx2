@@ -71,11 +71,12 @@ function handleSettingsUpdate() {
 async function handleViewRowRequest(row: IRow) {
   const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
 
-  router.push(
-    `/${schemaId}/${tableId}/${
-      keySlug(primaryKeys) + "?keys=" + JSON.stringify(primaryKeys)
-    }`
-  );
+  router.push({
+    path: `/${schemaId}/${tableId}/${keySlug(primaryKeys)}`,
+    query: {
+      keys: JSON.stringify(primaryKeys),
+    },
+  });
 }
 
 const crumbs: Crumb[] = [
