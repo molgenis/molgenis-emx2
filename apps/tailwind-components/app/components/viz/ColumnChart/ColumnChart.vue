@@ -55,18 +55,27 @@ const props = withDefaults(defineProps<ColumnCharts>(), {
 
 const emits = defineEmits(["column-clicked"]);
 
-const parentElem = ref<HTMLElement>();
 const container = useTemplateRef("container");
+const parentElem = computed<HTMLElement>(() => {
+  return container.value?.parentNode as HTMLElement;
+});
 
-const svg = ref(); // receives d3.select("svg");
-const chartArea = ref(); // receives d3.select("svg g.chart-area");
-const width = ref<number>(props.width);
-const height = ref<number>(props.height);
-const internalLeftMargin = ref<number>(0);
-const internalBottomMargin = ref<number>(0);
+const svg = ref(); // receives d3.select
+const chartArea = ref(); // receives d3.select
 
-const xScale = ref();
-const yScale = ref();
+const width = ref<number>(0);
+
+const height = computed<number>(() => {
+  return props.height - props.marginTop - internalBottomMargin.value;
+});
+
+const internalLeftMargin = computed<number>(() => {
+  return props.yAxisLabel ? props.marginLeft : 25;
+});
+
+const internalBottomMargin = computed<number>(() => {
+  return props.xAxisLabel || props.breakXAxisLabelsAt ? props.marginBottom : 25;
+});
 
 const yAxisData = computed<NumericAxisTickData>(() => {
   const ticks: NumericAxisTickData = {
@@ -94,6 +103,20 @@ const xAxisData = computed<CategoricalAxisTickData>(() => {
   return data;
 });
 
+const xScale = computed(() => {
+  return newCategoricalAxisGenerator({
+    domains: xAxisData.value.domains,
+    rangeEnd: width.value,
+  });
+});
+
+const yScale = computed(() => {
+  return newNumericAxisGenerator({
+    domainLimit: yAxisData.value.limit,
+    rangeStart: height.value,
+  });
+});
+
 const colorPalette = computed<ColorPalette>(() => {
   const mappings = xAxisData.value.domains.map((value: string) => {
     const color = props.colorPalette
@@ -104,47 +127,14 @@ const colorPalette = computed<ColorPalette>(() => {
   return Object.fromEntries(mappings);
 });
 
-function setChartDimensions() {
-  parentElem.value = container.value?.parentNode as HTMLElement;
-  internalLeftMargin.value = props.yAxisLabel ? props.marginLeft : 25;
-  internalBottomMargin.value =
-    props.xAxisLabel || props.breakXAxisLabelsAt ? props.marginBottom : 25;
-
-  height.value = props.height - props.marginTop - internalBottomMargin.value;
-  width.value =
-    (parentElem.value?.offsetWidth || props.width) -
-    internalLeftMargin.value -
-    props.marginRight;
-}
-
 function renderChartAxes() {
-  const chartAxisGroup = chartArea.value?.select("g.axes");
-  chartAxisGroup?.selectAll("*").remove();
-
-  xScale.value = newCategoricalAxisGenerator({
-    domains: xAxisData.value.domains,
-    rangeEnd: width.value,
-  });
-  yScale.value = newNumericAxisGenerator({
-    domainLimit: yAxisData.value.limit,
-    rangeStart: height.value,
-  });
-
-  const xAxis = d3.axisBottom(xScale.value);
-  const yAxis = d3.axisLeft(yScale.value).tickValues(yAxisData.value.ticks);
-
-  chartAxisGroup.append("g").attr("class", "y-axis").call(yAxis);
-  chartAxisGroup
-    .append("g")
-    .attr("class", "x-axis")
-    .attr("transform", `translate(0,${height.value})`)
-    .call(xAxis);
-
-  chartAxisGroup.selectAll(".tick line").attr("class", "stroke-chart-paths");
-  chartAxisGroup.selectAll("path").attr("class", "stroke-chart-paths");
-  chartAxisGroup
-    .selectAll(".tick text")
-    .attr("class", "fill-chart-text text-body-sm");
+  if (chartArea.value) {
+    const xAxis = d3.axisBottom(xScale.value);
+    const yAxis = d3.axisLeft(yScale.value).tickValues(yAxisData.value.ticks);
+    const chartAxisGroup = chartArea.value.select("g.axes");
+    chartAxisGroup.select(".x-axis").call(xAxis);
+    chartAxisGroup.select(".y-axis").call(yAxis);
+  }
 
   if (props.breakXAxisLabelsAt) {
     breakXAxisLabels(svg.value, props.breakXAxisLabelsAt);
@@ -167,24 +157,7 @@ function onMouseOut(event: Event, row: DatasetRow) {
 
 function renderColumns() {
   const chartColumnArea = chartArea.value.select("g.columns");
-  chartColumnArea.selectAll("*").remove();
-
-  const groups = chartColumnArea
-    .selectAll("g")
-    .data(props.data)
-    .join("g")
-    .attr("data-x", (row: DatasetRow) => row[props.xvar])
-    .attr("data-y", (row: DatasetRow) => row[props.yvar]);
-
-  const columns = groups
-    .append("rect")
-    .attr("fill", (row: DatasetRow) => colorPalette.value[row[props.xvar]])
-    .attr("width", xScale.value.bandwidth())
-    .attr("x", (row: DatasetRow) => xScale.value(row[props.xvar]));
-
-  if (props.columnBorderColor) {
-    columns.attr("stroke", props.columnBorderColor).attr("stroke-width", "1");
-  }
+  const columns = chartColumnArea.selectAll("rect").data(props.data);
 
   if (props.animationsAreEnabled) {
     columns
@@ -225,66 +198,23 @@ function renderColumns() {
         emits("column-clicked", row);
       });
   }
-
-  groups
-    .append("text")
-    .attr("class", "fill-chart-text text-body-base")
-    .attr("text-anchor", "middle")
-    .style("opacity", 0)
-    .attr("x", (row: DatasetRow) => xScale.value(row[props.xvar]))
-    .attr("y", (row: DatasetRow) => yScale.value(row[props.yvar]))
-    .attr("dx", xScale.value.bandwidth() / 2)
-    .attr("dy", "-0.35em")
-    .text((row: DatasetRow) => row[props.yvar]);
-}
-
-function renderChartAxisTitles() {
-  const axisTitles = svg.value.select("g.titles");
-  axisTitles.selectAll("*").remove();
-  if (props.xAxisLabel) {
-    axisTitles
-      .append("text")
-      .attr("class", "fill-chart-text text-body-base")
-      .attr("x", width.value / 2)
-      .attr("y", () => {
-        if (yAxisData.value.min < 0) {
-          return yScale.value(yAxisData.value.min) + internalBottomMargin.value;
-        } else {
-          return yScale.value(0) + internalBottomMargin.value * 0.9;
-        }
-      })
-      .attr("dy", "0.5em")
-      .text(props.xAxisLabel);
-  }
-
-  if (props.yAxisLabel) {
-    axisTitles
-      .append("text")
-      .attr("class", "fill-chart-text -rotate-90 text-body-base")
-      .attr("text-anchor", "middle")
-      .attr("x", -height.value * 0.55)
-      .attr("y", internalLeftMargin.value / 2)
-      .attr("dy", "-0.8em")
-      .text(props.yAxisLabel);
-  }
 }
 
 function renderChart() {
   svg.value = d3.select(`#${props.id}`);
   chartArea.value = svg.value.select("g.chart-area");
 
-  setChartDimensions();
+  width.value =
+    (parentElem.value?.offsetWidth || props.width) -
+    internalLeftMargin.value -
+    props.marginRight;
+
   renderChartAxes();
   renderColumns();
-
-  if (props.xAxisLabel || props.yAxisLabel) {
-    renderChartAxisTitles();
-  }
 }
 
 onMounted(() => {
   renderChart();
-
   useEventListener("resize", renderChart);
 });
 
@@ -307,7 +237,7 @@ watch(
     <div style="grid-area: chart">
       <svg
         :id="id"
-        width="100%"
+        :width="width"
         :height="props.height"
         preserve-aspect-ratio="xMinYMin"
         :viewBox="`0 0 ${width + internalLeftMargin} ${props.height}`"
@@ -316,10 +246,67 @@ watch(
           class="chart-area"
           :transform="`translate(${internalLeftMargin}, ${marginTop})`"
         >
-          <g class="axes"></g>
-          <g class="columns"></g>
+          <g class="columns">
+            <g
+              v-for="row in data"
+              class="rect-group"
+              :key="row[xvar]"
+              :data-x="row[xvar]"
+              :data-y="row[yvar]"
+            >
+              <rect
+                class="column"
+                :fill="colorPalette[row[xvar]]"
+                :width="xScale.bandwidth()"
+                :x="xScale(row[xvar])"
+                :stroke="columnBorderColor ? columnBorderColor : undefined"
+                :stroke-width="columnBorderColor ? '1' : undefined"
+              />
+              <text
+                class="fill-chart-text text-body-base"
+                text-anchor="middle"
+                :opacity="0"
+                :x="xScale(row[xvar])"
+                :y="yScale(row[yvar])"
+                :dx="xScale.bandwidth() / 2"
+                dy="-0.35em"
+              >
+                {{ row[yvar] }}
+              </text>
+            </g>
+          </g>
+          <g
+            class="axes [&_text]:fill-chart-text [&_text]:text-body-sm [&_line]:stroke-chart-paths [&_path]:stroke-chart-paths"
+          >
+            <g class="x-axis" :transform="`translate(0,${height})`"></g>
+            <g class="y-axis"></g>
+          </g>
         </g>
-        <g class="titles"></g>
+        <g class="titles">
+          <text
+            v-if="xAxisLabel"
+            class="fill-chart-text text-body-base"
+            :x="width / 2"
+            :y="
+              yAxisData.min < 0
+                ? yScale(yAxisData.min) + internalBottomMargin
+                : yScale(0) + internalBottomMargin * 0.9
+            "
+            dy="0.5em"
+          >
+            {{ xAxisLabel }}
+          </text>
+          <text
+            v-if="yAxisLabel"
+            class="fill-chart-text -rotate-90 text-body-base"
+            text-anchor="middle"
+            :x="-height * 0.55"
+            :y="internalLeftMargin / 2"
+            dy="-0.8em"
+          >
+            {{ yAxisLabel }}
+          </text>
+        </g>
       </svg>
     </div>
   </div>
