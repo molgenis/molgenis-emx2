@@ -12,8 +12,7 @@ useHead({
   meta: [
     {
       name: "description",
-      content:
-        "Introduction to the UMCG Research Data Catalogue.",
+      content: "Introduction to the UMCG Research Data Catalogue.",
     },
   ],
 });
