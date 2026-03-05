@@ -2,23 +2,29 @@
   "name": "hpc",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "dev": "nuxt dev",
+    "build": "cross-env NUXT_APP_BASE_URL='/apps/hpc/' nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
+    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
+    "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore"
   },
   "dependencies": {
-    "graphql-request": "5.2.0",
-    "molgenis-components": "workspace:*",
-    "vue": "3.5.22",
-    "vue-router": "4.4.3"
+    "floating-vue": "5.2.2",
+    "ofetch": "1.4.1",
+    "vue": "3.5.22"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.6.2",
+    "@nuxtjs/tailwindcss": "6.14.0",
+    "cross-env": "7.0.3",
+    "if-env": "1.0.4",
+    "nuxt": "4.1.2",
     "prettier": "2.8.8",
-    "vite": "5.4.21"
+    "tailwind-components": "*",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.6.2"
   },
   "browserslist": [
     "> 1%",

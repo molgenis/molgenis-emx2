@@ -1,11 +1,10 @@
-import { request } from "graphql-request";
-import { API_VERSION } from "../generated/protocol.js";
+import { API_VERSION } from "../utils/protocol";
 
 const GRAPHQL_URL = "/_SYSTEM_/graphql";
 const REST_BASE = "/api/hpc";
 
 /** Safely encode a JS string as a GraphQL string literal. */
-function gqlString(value) {
+function gqlString(value: string): string {
   return JSON.stringify(String(value));
 }
 
@@ -13,27 +12,41 @@ function gqlString(value) {
  * Returns true if the error indicates HPC tables don't exist yet
  * (e.g. FieldUndefined for HpcJobs, HpcWorkers, etc.).
  */
-function isSchemaNotReady(err) {
+function isSchemaNotReady(err: any): boolean {
   const msg = err?.response?.errors?.[0]?.message ?? err?.message ?? "";
   return msg.includes("FieldUndefined") || msg.includes("is undefined");
 }
 
+/** Execute a GraphQL query against the _SYSTEM_ schema. */
+async function gqlQuery(query: string): Promise<any> {
+  const resp = await $fetch<any>(GRAPHQL_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: { query },
+  });
+  if (resp.errors?.length) {
+    throw new Error(resp.errors[0].message);
+  }
+  return resp.data ?? resp;
+}
+
 /**
  * Check whether HPC is enabled via the health endpoint.
- * Returns { ok, hpc_enabled, database } or null on error.
  */
-export async function fetchHpcHealth() {
+export async function fetchHpcHealth(): Promise<{
+  ok: boolean;
+  hpc_enabled: boolean;
+  database: string;
+} | null> {
   try {
-    const resp = await fetch(`${REST_BASE}/health`);
-    if (!resp.ok) return null;
-    return await resp.json();
+    return await $fetch(`${REST_BASE}/health`);
   } catch {
     return null;
   }
 }
 
 /** Common REST headers for HPC API calls. */
-function hpcHeaders() {
+function hpcHeaders(): Record<string, string> {
   return {
     "X-EMX2-API-Version": API_VERSION,
     "X-Request-Id": crypto.randomUUID(),
@@ -41,12 +54,43 @@ function hpcHeaders() {
   };
 }
 
+interface FetchJobsOpts {
+  status?: string;
+  processor?: string;
+  limit?: number;
+  offset?: number;
+}
+
+interface NormalizedJob {
+  id: string;
+  processor: string;
+  profile: string;
+  status: string;
+  worker_id: string | null;
+  output_artifact_id: any;
+  log_artifact_id: any;
+  slurm_job_id: string | null;
+  submit_user: string | null;
+  created_at: string;
+  parameters: any;
+  inputs: any[];
+  [key: string]: any;
+}
+
 /**
  * Fetch jobs from the SYSTEM schema via GraphQL.
- * @param {Object} opts - { status, processor, limit, offset }
  */
-export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = {}) {
-  const filters = [];
+export async function fetchJobs({
+  status,
+  processor,
+  limit = 50,
+  offset = 0,
+}: FetchJobsOpts = {}): Promise<{
+  items: NormalizedJob[];
+  totalCount: number;
+  schemaNotReady?: boolean;
+}> {
+  const filters: string[] = [];
   if (status) {
     filters.push(`status: { name: { equals: ${gqlString(status)} } }`);
   }
@@ -80,12 +124,12 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
   }`;
 
   try {
-    const data = await request(GRAPHQL_URL, query);
+    const data = await gqlQuery(query);
     return {
       items: (data.HpcJobs || []).map(normalizeJob),
       totalCount: data.HpcJobs_agg?.count ?? 0,
     };
-  } catch (err) {
+  } catch (err: any) {
     if (isSchemaNotReady(err)) {
       return { items: [], totalCount: 0, schemaNotReady: true };
     }
@@ -95,9 +139,12 @@ export async function fetchJobs({ status, processor, limit = 50, offset = 0 } = 
 
 /**
  * Fetch a single job with its transitions.
- * @param {string} jobId
  */
-export async function fetchJobDetail(jobId) {
+export async function fetchJobDetail(jobId: string): Promise<{
+  job: NormalizedJob | null;
+  transitions: any[];
+  schemaNotReady?: boolean;
+}> {
   const query = `{
     HpcJobs(filter: { id: { equals: ${gqlString(jobId)} } }) {
       id processor profile
@@ -118,13 +165,13 @@ export async function fetchJobDetail(jobId) {
   }`;
 
   try {
-    const data = await request(GRAPHQL_URL, query);
+    const data = await gqlQuery(query);
     const job = data.HpcJobs?.[0];
     return {
       job: job ? normalizeJob(job) : null,
       transitions: data.HpcJobTransitions || [],
     };
-  } catch (err) {
+  } catch (err: any) {
     if (isSchemaNotReady(err)) {
       return { job: null, transitions: [], schemaNotReady: true };
     }
@@ -134,64 +181,51 @@ export async function fetchJobDetail(jobId) {
 
 /**
  * Submit a new job via the REST API.
- * @param {Object} payload - { processor, profile, parameters, submit_user, inputs }
  */
-export async function submitJob(payload) {
-  const resp = await fetch(`${REST_BASE}/jobs`, {
+export async function submitJob(payload: {
+  processor: string;
+  profile?: string;
+  parameters?: any;
+  inputs?: string[];
+}): Promise<any> {
+  return await $fetch(`${REST_BASE}/jobs`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...hpcHeaders(),
     },
-    body: JSON.stringify(payload),
+    body: payload,
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
-  return resp.json();
 }
 
 /**
  * Cancel an active job via the REST API.
- * @param {string} jobId
- * @returns {Promise<void>}
  */
-export async function cancelJob(jobId) {
-  const resp = await fetch(`${REST_BASE}/jobs/${jobId}/cancel`, {
+export async function cancelJob(jobId: string): Promise<void> {
+  await $fetch(`${REST_BASE}/jobs/${jobId}/cancel`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...hpcHeaders(),
     },
-    body: JSON.stringify({}),
+    body: {},
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
 }
 
 /**
  * Delete a terminal job via the REST API.
- * @param {string} jobId
- * @returns {Promise<void>}
  */
-export async function deleteJob(jobId) {
-  const resp = await fetch(`${REST_BASE}/jobs/${jobId}`, {
+export async function deleteJob(jobId: string): Promise<void> {
+  await $fetch(`${REST_BASE}/jobs/${jobId}`, {
     method: "DELETE",
     headers: hpcHeaders(),
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
 }
 
 /**
  * Fetch registered workers with their capabilities via GraphQL.
  */
-export async function fetchWorkers() {
+export async function fetchWorkers(): Promise<any[]> {
   const query = `{
     HpcWorkers(orderby: { last_heartbeat_at: DESC }) {
       worker_id hostname registered_at last_heartbeat_at
@@ -203,21 +237,33 @@ export async function fetchWorkers() {
   }`;
 
   try {
-    const data = await request(GRAPHQL_URL, query);
+    const data = await gqlQuery(query);
     const workers = data.HpcWorkers || [];
     const caps = data.HpcWorkerCapabilities || [];
 
-    return workers.map((w) => ({
+    return workers.map((w: any) => ({
       ...w,
       capabilities: caps
-        .filter((c) => (c.worker_id?.worker_id ?? c.worker_id) === w.worker_id)
-        .map(({ processor, profile, max_concurrent_jobs }) => ({
-          processor,
-          profile,
-          max_concurrent_jobs,
-        })),
+        .filter(
+          (c: any) => (c.worker_id?.worker_id ?? c.worker_id) === w.worker_id
+        )
+        .map(
+          ({
+            processor,
+            profile,
+            max_concurrent_jobs,
+          }: {
+            processor: string;
+            profile: string;
+            max_concurrent_jobs: number;
+          }) => ({
+            processor,
+            profile,
+            max_concurrent_jobs,
+          })
+        ),
     }));
-  } catch (err) {
+  } catch (err: any) {
     if (isSchemaNotReady(err)) return [];
     throw err;
   }
@@ -225,9 +271,10 @@ export async function fetchWorkers() {
 
 /**
  * Fetch distinct processor/profile pairs from worker capabilities.
- * Returns an array of { processor, profile } objects.
  */
-export async function fetchCapabilities() {
+export async function fetchCapabilities(): Promise<
+  { processor: string; profile: string }[]
+> {
   const query = `{
     HpcWorkerCapabilities {
       processor profile
@@ -235,16 +282,16 @@ export async function fetchCapabilities() {
   }`;
 
   try {
-    const data = await request(GRAPHQL_URL, query);
+    const data = await gqlQuery(query);
     const caps = data.HpcWorkerCapabilities || [];
-    const seen = new Set();
-    return caps.filter((c) => {
+    const seen = new Set<string>();
+    return caps.filter((c: any) => {
       const key = `${c.processor}\0${c.profile}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
-  } catch (err) {
+  } catch (err: any) {
     if (isSchemaNotReady(err)) return [];
     throw err;
   }
@@ -252,28 +299,35 @@ export async function fetchCapabilities() {
 
 /**
  * Delete a worker via the REST API.
- * @param {string} workerId
- * @returns {Promise<void>}
  */
-export async function deleteWorker(workerId) {
-  const resp = await fetch(`${REST_BASE}/workers/${workerId}`, {
+export async function deleteWorker(workerId: string): Promise<void> {
+  await $fetch(`${REST_BASE}/workers/${workerId}`, {
     method: "DELETE",
     headers: hpcHeaders(),
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
 }
 
 // --- Artifact API ---
 
+interface FetchArtifactsOpts {
+  status?: string;
+  limit?: number;
+  offset?: number;
+}
+
 /**
  * Fetch artifacts via GraphQL.
- * @param {Object} opts - { status, limit, offset }
  */
-export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
-  const filters = [];
+export async function fetchArtifacts({
+  status,
+  limit = 50,
+  offset = 0,
+}: FetchArtifactsOpts = {}): Promise<{
+  items: any[];
+  totalCount: number;
+  schemaNotReady?: boolean;
+}> {
+  const filters: string[] = [];
   if (status) {
     filters.push(`status: { name: { equals: ${gqlString(status)} } }`);
   }
@@ -301,12 +355,12 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
   }`;
 
   try {
-    const data = await request(GRAPHQL_URL, query);
+    const data = await gqlQuery(query);
     return {
       items: (data.HpcArtifacts || []).map(normalizeArtifact),
       totalCount: data.HpcArtifacts_agg?.count ?? 0,
     };
-  } catch (err) {
+  } catch (err: any) {
     if (isSchemaNotReady(err)) {
       return { items: [], totalCount: 0, schemaNotReady: true };
     }
@@ -316,11 +370,12 @@ export async function fetchArtifacts({ status, limit = 50, offset = 0 } = {}) {
 
 /**
  * Fetch a single artifact with its files via GraphQL.
- * Provenance (producing job, processor, worker) is read from the artifact's
- * metadata field — no reverse FK lookups needed.
- * @param {string} artifactId
  */
-export async function fetchArtifactDetail(artifactId) {
+export async function fetchArtifactDetail(artifactId: string): Promise<{
+  artifact: any;
+  files: any[];
+  schemaNotReady?: boolean;
+}> {
   const idFilter = gqlString(artifactId);
   const query = `{
     HpcArtifacts(filter: { id: { equals: ${idFilter} } }) {
@@ -338,13 +393,13 @@ export async function fetchArtifactDetail(artifactId) {
   }`;
 
   try {
-    const data = await request(GRAPHQL_URL, query);
+    const data = await gqlQuery(query);
     const artifact = data.HpcArtifacts?.[0];
     return {
       artifact: artifact ? normalizeArtifact(artifact) : null,
       files: data.HpcArtifactFiles || [],
     };
-  } catch (err) {
+  } catch (err: any) {
     if (isSchemaNotReady(err)) {
       return { artifact: null, files: [], schemaNotReady: true };
     }
@@ -354,92 +409,90 @@ export async function fetchArtifactDetail(artifactId) {
 
 /**
  * Create a new artifact via the REST API.
- * @param {Object} opts - { name, type, residence }
  */
-export async function createArtifact({ name, type = "blob", residence = "managed", content_url } = {}) {
-  const body = { type, residence };
+export async function createArtifact({
+  name,
+  type = "blob",
+  residence = "managed",
+  content_url,
+}: {
+  name?: string;
+  type?: string;
+  residence?: string;
+  content_url?: string;
+} = {}): Promise<any> {
+  const body: any = { type, residence };
   if (name) body.name = name;
   if (content_url) body.content_url = content_url;
-  const resp = await fetch(`${REST_BASE}/artifacts`, {
+  return await $fetch(`${REST_BASE}/artifacts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...hpcHeaders(),
     },
-    body: JSON.stringify(body),
+    body,
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
-  return resp.json();
 }
 
 /**
  * Upload a file to an artifact via PUT.
- * @param {string} artifactId
- * @param {File} file - browser File object
- * @param {string} [path] - path in artifact (defaults to file.name)
  */
-export async function uploadArtifactFile(artifactId, file, path) {
+export async function uploadArtifactFile(
+  artifactId: string,
+  file: File,
+  path?: string
+): Promise<any> {
   const filePath = path || file.name;
-  const resp = await fetch(`${REST_BASE}/artifacts/${artifactId}/files/${filePath}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": file.type || "application/octet-stream",
-      ...hpcHeaders(),
-    },
-    body: file,
-  });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
-  return resp.json();
+  return await $fetch(
+    `${REST_BASE}/artifacts/${artifactId}/files/${filePath}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": file.type || "application/octet-stream",
+        ...hpcHeaders(),
+      },
+      body: file,
+    }
+  );
 }
 
 /**
  * Commit an artifact with final hash and size.
- * @param {string} artifactId
- * @param {Object} opts - { sha256, size_bytes }
  */
-export async function commitArtifact(artifactId, { sha256, size_bytes } = {}) {
-  const body = {};
+export async function commitArtifact(
+  artifactId: string,
+  { sha256, size_bytes }: { sha256?: string; size_bytes?: number } = {}
+): Promise<any> {
+  const body: any = {};
   if (sha256) body.sha256 = sha256;
   if (size_bytes != null) body.size_bytes = size_bytes;
-  const resp = await fetch(`${REST_BASE}/artifacts/${artifactId}/commit`, {
+  return await $fetch(`${REST_BASE}/artifacts/${artifactId}/commit`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...hpcHeaders(),
     },
-    body: JSON.stringify(body),
+    body,
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
-  return resp.json();
+}
+
+/**
+ * Delete an artifact via the REST API.
+ */
+export async function deleteArtifact(artifactId: string): Promise<void> {
+  await $fetch(`${REST_BASE}/artifacts/${artifactId}`, {
+    method: "DELETE",
+    headers: hpcHeaders(),
+  });
 }
 
 /**
  * Build a download URL for an artifact file.
- * @param {string} artifactId
- * @param {string} filePath
- * @returns {string}
  */
-export async function deleteArtifact(artifactId) {
-  const resp = await fetch(`${REST_BASE}/artifacts/${artifactId}`, {
-    method: "DELETE",
-    headers: hpcHeaders(),
-  });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${resp.status}`);
-  }
-}
-
-export function artifactFileDownloadUrl(artifactId, filePath) {
+export function artifactFileDownloadUrl(
+  artifactId: string,
+  filePath: string
+): string {
   return `${REST_BASE}/artifacts/${artifactId}/files/${filePath}`;
 }
 
@@ -447,7 +500,10 @@ export function artifactFileDownloadUrl(artifactId, filePath) {
  * Download an artifact file using fetch (includes required protocol headers).
  * Triggers a browser file-save dialog.
  */
-export async function downloadArtifactFile(artifactId, filePath) {
+export async function downloadArtifactFile(
+  artifactId: string,
+  filePath: string
+): Promise<void> {
   const url = artifactFileDownloadUrl(artifactId, filePath);
   const resp = await fetch(url, { headers: hpcHeaders() });
   if (!resp.ok) {
@@ -463,7 +519,7 @@ export async function downloadArtifactFile(artifactId, filePath) {
 }
 
 /** Flatten REF/ONTOLOGY objects to plain strings. */
-function normalizeJob(job) {
+function normalizeJob(job: any): NormalizedJob {
   const output = job.output_artifact_id;
   const log = job.log_artifact_id;
   return {
@@ -492,7 +548,7 @@ function normalizeJob(job) {
 }
 
 /** Flatten REF/ONTOLOGY objects for artifacts and parse metadata JSON. */
-function normalizeArtifact(artifact) {
+function normalizeArtifact(artifact: any): any {
   let metadata = artifact.metadata;
   if (typeof metadata === "string") {
     try {
