@@ -13,7 +13,7 @@ useHead({
     {
       name: "description",
       content:
-        "Introduction and introduction of the UMCG Research Data Catalogue.",
+        "Introduction to the UMCG Research Data Catalogue.",
     },
   ],
 });
