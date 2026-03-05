@@ -3,7 +3,6 @@ package org.molgenis.emx2.utils.generator;
 import java.util.*;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 import org.molgenis.emx2.MolgenisException;
 
 public record AutoIdFormat(Format format, int length, String prefix, String suffix) {
@@ -92,64 +91,5 @@ public record AutoIdFormat(Format format, int length, String prefix, String suff
     }
 
     return argMap;
-  }
-
-  public long getMaxValue() {
-    long result = 1;
-    int characterLength = format.characters.length();
-    long limit = Long.MAX_VALUE / (characterLength);
-
-    for (int i = 0; i < length; i++) {
-      if (result > limit) {
-        return Long.MAX_VALUE;
-      }
-
-      result *= characterLength;
-    }
-
-    return result - 1;
-  }
-
-  public String mapToFormat(long value) {
-    StringBuilder builder = new StringBuilder();
-
-    long n = value;
-    int base = format.characters.length();
-
-    while (n > 0) {
-      long remainder = n % base;
-      builder.insert(0, format.getCharacters().charAt((int) remainder));
-      n = n / base;
-    }
-
-    String generated = StringUtils.leftPad(builder.toString(), length, format.characters.charAt(0));
-    return prefix + generated + suffix;
-  }
-
-  public long getValue(String input) {
-    if (!valueCompliesToFormat(input)) {
-      throw new MolgenisException("Given value does not comply with expected format");
-    }
-
-    String cleaned = input.replaceFirst(prefix, "").replaceFirst(suffix, "");
-    long result = 0;
-    int base = format.characters.length();
-
-    for (int i = 0; i < cleaned.length(); i++) {
-      char c = cleaned.charAt(i);
-      int index = format.characters.indexOf(c);
-      if (index == -1) {
-        throw new MolgenisException("Invalid character in formatted value: " + c);
-      }
-      result = result * base + index;
-    }
-
-    return result;
-  }
-
-  public boolean valueCompliesToFormat(String value) {
-    return Pattern.compile(prefix + "[" + format().getCharacters() + "]{" + length() + "}" + suffix)
-        .matcher(value)
-        .matches();
   }
 }
