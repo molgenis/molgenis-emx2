@@ -33,18 +33,17 @@ public class RetryingIdGenerator implements DSLIdGenerator {
 
   public Field<String> generateAutoIdSubquery(
       String schemaName, String tableName, String columnName, AutoIdFormat format) {
-    Field<Object> generated =
-        DSL.select(
-                DSL.field(
-                    "\"MOLGENIS\".mg_generate_autoid({0}, {1}, {2}, {3}, {4})",
-                    String.class,
-                    DSL.val(schemaName),
-                    DSL.val(tableName),
-                    DSL.val(columnName),
-                    DSL.val(format.format().getCharacters()),
-                    DSL.val(format.length())))
-            .asField();
-
-    return DSL.concat(DSL.val(format.prefix()), generated, DSL.val(format.suffix()));
+    return DSL.select(
+            DSL.field(
+                "\"MOLGENIS\".mg_generate_autoid({0}, {1}, {2}, {3}, {4}, {5}, {6})",
+                String.class,
+                DSL.val(schemaName),
+                DSL.val(tableName),
+                DSL.val(columnName),
+                DSL.val(format.format().getCharacters()),
+                DSL.val(format.length()),
+                DSL.val(format.prefix()),
+                DSL.val(format.suffix())))
+        .asField();
   }
 }

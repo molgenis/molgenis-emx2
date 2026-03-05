@@ -22,7 +22,8 @@ import org.molgenis.emx2.utils.generator.AutoIdFormat;
 class MgGenerateAutoIdTest {
 
   private static final String SCHEMA_NAME = MgGenerateAutoIdTest.class.getSimpleName();
-  private static final AutoIdFormat FORMAT = new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 10);
+  private static final AutoIdFormat FORMAT =
+      new AutoIdFormat(AutoIdFormat.Format.NUMBERS, 10, "foo-", "-bar");
 
   private DSLContext jooq;
   private Column column;
@@ -42,7 +43,7 @@ class MgGenerateAutoIdTest {
   void givenEmptyCharset_thenThrowException() {
     assertThrows(
         DataAccessException.class,
-        () -> generateAutoId(jooq, column, "", 10),
+        () -> generateAutoId(jooq, column, "", 10, "foo-", "-bar"),
         "charset must not be empty");
   }
 
@@ -50,7 +51,7 @@ class MgGenerateAutoIdTest {
   void givenZeroLength_thenThrowException() {
     assertThrows(
         DataAccessException.class,
-        () -> generateAutoId(jooq, column, "abcd", 0),
+        () -> generateAutoId(jooq, column, "abcd", 0, "foo-", "-bar"),
         "id_length must be positive");
   }
 
@@ -58,15 +59,15 @@ class MgGenerateAutoIdTest {
   void givenNegativeLength_thenThrowException() {
     assertThrows(
         DataAccessException.class,
-        () -> generateAutoId(jooq, column, "abcd", -1),
+        () -> generateAutoId(jooq, column, "abcd", -1, "foo-", "-bar"),
         "id_length must be positive");
   }
 
   @Test
   void givenValidFormat_thenGenerateId() {
     resetSeed();
-    String id = generateAutoId(jooq, column, FORMAT);
-    assertEquals("9811681157", id);
+    String id = generateAutoId(jooq, column);
+    assertEquals("foo-9811681157-bar", id);
   }
 
   @Test
@@ -74,8 +75,8 @@ class MgGenerateAutoIdTest {
     resetSeed();
     table.insert(givenFirstNResultsForSeed(4).stream().map(id -> row("id", id)).toList());
     resetSeed();
-    String id = generateAutoId(jooq, column, FORMAT);
-    assertEquals("2187035124", id);
+    String id = generateAutoId(jooq, column);
+    assertEquals("foo-2187035124-bar", id);
   }
 
   @Test
@@ -83,7 +84,7 @@ class MgGenerateAutoIdTest {
     resetSeed();
     table.insert(givenFirstNResultsForSeed(100).stream().map(id -> row("id", id)).toList());
     resetSeed();
-    assertThrows(DataAccessException.class, () -> generateAutoId(jooq, column, FORMAT));
+    assertThrows(DataAccessException.class, () -> generateAutoId(jooq, column));
   }
 
   /**
@@ -120,7 +121,7 @@ class MgGenerateAutoIdTest {
                 ctx.transaction(
                     configuration -> {
                       // Generating this auto id retains a lock on transaction level
-                      generateAutoId(ctx, column, FORMAT);
+                      generateAutoId(ctx, column);
                       // Give the signal to the lock check transaction to start
                       checkedLatch.countDown();
                       // Retain the lock until the lock check in the other transaction is finished
@@ -160,31 +161,37 @@ class MgGenerateAutoIdTest {
 
   private List<String> givenFirstNResultsForSeed(int n) {
     resetSeed();
-    return IntStream.range(0, n)
-        .boxed()
-        .map(ignored -> generateAutoId(jooq, column, FORMAT))
-        .toList();
+    return IntStream.range(0, n).boxed().map(ignored -> generateAutoId(jooq, column)).toList();
   }
 
   private void resetSeed() {
     jooq.execute("SELECT setseed(0.5);");
   }
 
-  private String generateAutoId(DSLContext jooq, Column column, AutoIdFormat format) {
-    return generateAutoId(jooq, column, format.format().getCharacters(), format.length());
+  private String generateAutoId(DSLContext jooq, Column column) {
+    return generateAutoId(
+        jooq,
+        column,
+        FORMAT.format().getCharacters(),
+        FORMAT.length(),
+        FORMAT.prefix(),
+        FORMAT.suffix());
   }
 
-  private String generateAutoId(DSLContext jooq, Column column, String charset, int length) {
+  private String generateAutoId(
+      DSLContext jooq, Column column, String charset, int length, String prefix, String suffix) {
     Record1<String> result =
         jooq.select(
                 DSL.field(
-                    "\"MOLGENIS\".mg_generate_autoid({0}, {1}, {2}, {3}, {4})",
+                    "\"MOLGENIS\".mg_generate_autoid({0}, {1}, {2}, {3}, {4}, {5}, {6})",
                     String.class,
                     DSL.val(column.getSchemaName()),
                     DSL.val(column.getTableName()),
                     DSL.val(column.getName()),
                     DSL.val(charset),
-                    DSL.val(length)))
+                    DSL.val(length),
+                    DSL.val(prefix),
+                    DSL.val(suffix)))
             .fetchOne();
 
     assertNotNull(result);

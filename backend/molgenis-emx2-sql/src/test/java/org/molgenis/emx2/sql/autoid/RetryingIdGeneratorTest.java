@@ -11,6 +11,15 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+/**
+ * When fixing a broken test or updating a PostgreSQL function, ensure the function is properly
+ * loaded.
+ *
+ * If your database is already on the version that introduces the function, the old version may
+ * persist in the database.
+ *
+ * You can manually lower the database version in the MOLGENIS.database_metadata table.
+ */
 class RetryingIdGeneratorTest {
 
   private static final String SCHEMA_NAME = RetryingIdGeneratorTest.class.getSimpleName();
