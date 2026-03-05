@@ -3,7 +3,9 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_generate_autoid(
     table_name TEXT,
     column_name TEXT,
     charset TEXT,
-    id_length INT
+    id_length INT,
+    prefix TEXT DEFAULT '',
+    suffix TEXT DEFAULT ''
 ) RETURNS TEXT AS $$
 DECLARE
     generated_id TEXT;
@@ -32,6 +34,8 @@ BEGIN
         FOR i IN 1..id_length LOOP
             generated_id := generated_id || substr(charset, floor(random() * charset_len + 1)::int, 1);
         END LOOP;
+
+        generated_id:= prefix || generated_id || suffix;
 
         -- Check uniqueness
         EXECUTE format(
