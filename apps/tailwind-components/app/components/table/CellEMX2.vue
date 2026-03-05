@@ -101,6 +101,9 @@
           :data="data"
         />
       </template>
+      <template v-else>
+        <span></span>
+      </template>
     </slot>
   </td>
 </template>
