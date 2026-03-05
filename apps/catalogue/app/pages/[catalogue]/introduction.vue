@@ -30,7 +30,7 @@ useHead({
         title="Introduction"
         :items="[
           { id: 'introduction', label: 'Introduction' },
-          { id: 'request', label: 'Prepare your request ' },
+          { id: 'request', label: 'Prepare your request' },
           { id: 'process', label: 'Request handling process' },
           { id: 'commercial', label: 'Commercial parties' },
         ]"
