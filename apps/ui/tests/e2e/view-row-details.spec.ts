@@ -5,8 +5,6 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/ui/";
 
-test.beforeEach(async ({ page }) => {});
-
 test.describe("entity details page", () => {
   test("it should be possible to view row details", async ({ page }) => {
     await page.goto(`${route}pet%20store/Pet`);
