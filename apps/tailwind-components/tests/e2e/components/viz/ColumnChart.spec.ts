@@ -45,9 +45,6 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     expect(yAxisTicks.length).toEqual(5);
     expect(yAxisTickLines.length).toEqual(5);
     expect(yAxisTickLabels.length).toEqual(5);
-    expect(await yAxisTickLabels[0].getAttribute("class")).toContain(
-      "fill-chart-text"
-    );
 
     const xAxisTicks = await page.locator("g.axes g.x-axis g.tick").all();
     const xAxisTickLines = await page
@@ -59,8 +56,10 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     expect(xAxisTicks.length).toEqual(4);
     expect(xAxisTickLines.length).toEqual(4);
     expect(xAxisTickLabels.length).toEqual(4);
-    expect(await xAxisTickLabels[0].getAttribute("class")).toContain(
-      "fill-chart-text"
+
+    const axes = await page.locator("g.axes");
+    expect(await axes.getAttribute("class")).toBe(
+      "axes [&_text]:fill-chart-text [&_text]:text-body-sm [&_line]:stroke-chart-paths [&_path]:stroke-chart-paths"
     );
   });
 
