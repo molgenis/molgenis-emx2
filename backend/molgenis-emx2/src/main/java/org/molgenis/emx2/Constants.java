@@ -78,6 +78,7 @@ public class Constants {
   public static final String MOLGENIS_INCLUDE_TYPE_TEST_DEMO = "MOLGENIS_INCLUDE_TYPE_TEST_DEMO";
   public static final String MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO =
       "MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO";
+  public static final String CUSTOM_APP_PATH = "CUSTOM_APP_PATH";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
