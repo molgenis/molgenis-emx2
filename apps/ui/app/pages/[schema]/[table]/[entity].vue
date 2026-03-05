@@ -27,7 +27,16 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 const entityId = route.params.entity as string;
 const keys = route.query.keys as string | undefined;
-const entityKeysObject = JSON.parse(keys || "{}");
+let entityKeysObject: Record<string, unknown> = {};
+
+try {
+  if (keys) {
+    entityKeysObject = JSON.parse(keys);
+  }
+} catch {
+  // If the query parameter is malformed JSON, fall back to an empty object
+  entityKeysObject = {};
+}
 const { isAdmin } = await useSession();
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
