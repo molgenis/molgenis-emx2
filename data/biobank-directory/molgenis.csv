@@ -118,6 +118,7 @@ Collections,,age_unit,Age Unit,ontology,,false,,"Unit defining Age Low and Age H
 Collections,,facts,Facts,refback,,false,,Collection facts.,,CollectionFacts,collection,,,,,,
 Collections,,sample_data,Sample Data,heading,,false,,Sample Data Characteristics,,,,,,,,,
 Collections,,materials,Materials,ontology_array,,false,,Collection contains material(s) of this/these type(s) (MIABIS-2.0-14).,DirectoryOntologies,MaterialTypes,,${label},,,,,
+Collections,,anatomical_site,Anatomical Site,ontology_array,,false,,The anatomical source(s) of the sample material,DirectoryOntologies,AnatomicalSites,,${label},,,,,
 Collections,,storage_temperatures,Storage Temperatures,ontology_array,,false,,Sample storage temperature(s) - SPREC 2.0 (MIABIS-2.0-15).,DirectoryOntologies,StorageTemperatureTypes,,${label},,,,,
 Collections,,imaging_data,Imaging Data,heading,,false,,Imaging Data Characteristics,,,,,,,,,
 Collections,,body_part_examined,Body Parts Examined,ontology_array,,false,,The examined body part(s).,DirectoryOntologies,BodyParts,,${label},,,,,
