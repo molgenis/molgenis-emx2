@@ -4,6 +4,7 @@ import { useSession } from "../../../../../tailwind-components/app/composables/u
 import type {
   columnValue,
   IColumn,
+  IRow,
 } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
@@ -27,11 +28,11 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 const entityId = route.params.entity as string;
 const keys = route.query.keys as string | undefined;
-let entityKeysObject: Record<string, unknown> = {};
+let entityKeysObject: IRow = {};
 
 try {
   if (keys) {
-    entityKeysObject = JSON.parse(keys);
+    entityKeysObject = JSON.parse(keys) as IRow;
   }
 } catch {
   // If the query parameter is malformed JSON, fall back to an empty object
@@ -113,6 +114,14 @@ function afterEditClosed() {
   showEditModal.value = false;
   refresh();
 }
+
+const enableEditing = computed(() => {
+  return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
+});
+
+const enableDeleting = computed(() => {
+  return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
+});
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
@@ -128,7 +137,7 @@ function afterEditClosed() {
       </template>
     </PageHeader>
 
-    <div class="flex pb-[30px] gap-[10px] justify-between" v-if="isAdmin">
+    <div class="flex pb-[30px] gap-[10px] justify-between">
       <InputSearch
         class="w-3/5 xl:w-2/5 2xl:w-1/5"
         v-model="filterValue"
@@ -137,10 +146,18 @@ function afterEditClosed() {
       />
 
       <div class="flex gap-[10px]">
-        <Button type="outline" icon="edit" @click="showEditModal = true"
+        <Button
+          type="outline"
+          icon="edit"
+          @click="showEditModal = true"
+          v-if="enableEditing"
           >Edit
         </Button>
-        <Button type="outline" icon="trash" @click="showDeleteModal = true"
+        <Button
+          type="outline"
+          icon="trash"
+          @click="showDeleteModal = true"
+          v-if="enableDeleting"
           >Delete
         </Button>
       </div>
@@ -184,6 +201,7 @@ function afterEditClosed() {
     :formValues="rowData"
     v-model:visible="showDeleteModal"
     @update:deleted="afterRowDeleted"
+    @update:cancelled="showDeleteModal = false"
   />
 
   <EditModal
@@ -196,5 +214,7 @@ function afterEditClosed() {
     :isInsert="false"
     v-model:visible="showEditModal"
     @update:cancelled="afterEditClosed"
+    @update:added="afterEditClosed"
+    @update:edited="afterEditClosed"
   />
 </template>
