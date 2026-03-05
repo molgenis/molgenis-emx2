@@ -3,8 +3,7 @@ import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
 import { registerModal } from "../utils/modalManager";
-import { FocusTrap } from "focus-trap-vue";
-import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component'
+import { UseFocusTrap } from "@vueuse/integrations/useFocusTrap/component";
 
 withDefaults(
   defineProps<{
@@ -62,14 +61,12 @@ function hide() {
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <UseFocusTrap
-        v-if="visible"
-      >
+      <UseFocusTrap v-if="visible" target="modal-title">
         <div>
           <div
             v-if="visible"
             role="dialog"
-            :aria-labelledby="title"
+            aria-labelledby="modal-title"
             :aria-modal="true"
             ref="dialog"
             class="fixed min-h-lvh w-full top-0 left-0 flex z-30 overscroll-contain"
@@ -94,7 +91,8 @@ function hide() {
                   </div>
                   <h2
                     v-if="title"
-                    ref="ModalTitle"
+                    id="modal-title"
+                    ref="modal-title"
                     class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
                   >
                     {{ title }}
@@ -110,7 +108,7 @@ function hide() {
                 </header>
               </slot>
 
-              <div class="flex-1 flex flex-col min-h-0">
+              <div class="flex-1 flex flex-col min-h-0" id="modal-title">
                 <slot />
               </div>
 
