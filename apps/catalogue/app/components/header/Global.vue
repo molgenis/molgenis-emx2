@@ -45,6 +45,9 @@ const menu = [
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
   config.public.cohortOnly
+    ? { label: "Introduction", link: `/all/introduction` }
+    : undefined,
+  config.public.cohortOnly
     ? { label: "About", link: `/all/about` }
     : {
         label: "About",
