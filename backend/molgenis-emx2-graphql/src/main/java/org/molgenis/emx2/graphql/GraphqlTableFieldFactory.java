@@ -111,7 +111,7 @@ public class GraphqlTableFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ORDERBY)
-                .type(GraphQLList.list(createTableOrderByInputType(table)))
+                .type(createTableOrderByInputType(table))
                 .build())
         .build();
   }
@@ -275,7 +275,7 @@ public class GraphqlTableFieldFactory {
                   .argument(
                       GraphQLArgument.newArgument()
                           .name(GraphqlConstants.ORDERBY)
-                          .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
+                          .type(createTableOrderByInputType(col.getRefTable()))
                           .build()));
         }
         tableBuilder.field(
@@ -533,7 +533,7 @@ public class GraphqlTableFieldFactory {
       }
       tableOrderByInputTypes.put(tableOrderByInputType, orderByBuilder.build());
     }
-    return tableOrderByInputTypes.get(tableOrderByInputType);
+    return GraphQLList.list(tableOrderByInputTypes.get(tableOrderByInputType));
   }
 
   private GraphQLInputObjectType getColumnFilterInputType(Column column) {
