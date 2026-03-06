@@ -13,13 +13,29 @@ import {
   arc,
   schemeBlues,
   sort,
+  interpolate,
 } from "d3";
-const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues, sort };
+const d3 = {
+  select,
+  selectAll,
+  scaleOrdinal,
+  pie,
+  arc,
+  schemeBlues,
+  sort,
+  interpolate,
+};
 
 import { setChartLegendLayoutCss } from "../../../utils/viz";
 import type { PieCharts, ColorPalette } from "../../../../types/viz";
 
 type PieDataEntry = [name: string, d: number];
+interface ArcItemData {
+  startAngle: number;
+  endAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+}
 
 const props = withDefaults(defineProps<PieCharts>(), {
   width: 250,
@@ -39,37 +55,36 @@ const props = withDefaults(defineProps<PieCharts>(), {
 
 const emits = defineEmits(["slice-clicked"]);
 
-const parentElem = ref<HTMLElement>();
 const container = useTemplateRef("container");
-
-const svg = ref();
-const chartArea = ref();
-const width = ref<number>(props.width);
-const height = ref<number>(props.height);
-const viewBox = ref<string>("");
-const chartAreaTransform = ref<string>("");
-
-const chartData = ref();
-const arcGenerator = ref();
-const labelGenerator = ref();
-const radius = ref<number>(1);
-
-const chartLayoutCss = computed<string>(() => {
-  return setChartLegendLayoutCss(props.legendIsEnabled, props.legendPosition);
+const parentElem = computed<HTMLElement>(() => {
+  return container.value?.parentNode as HTMLElement;
 });
 
-function setChartDimensions() {
-  parentElem.value = container.value?.parentNode as HTMLElement;
-  width.value = (parentElem.value?.offsetWidth || props.width) - props.margins;
-  height.value = props.height - props.margins;
+const svg = ref(); // defined by d3.select
+const chartArea = ref(); // defined by d3.select
 
-  viewBox.value = `0 0 ${width.value} ${height.value}`;
-  chartAreaTransform.value = `translate(${width.value / 2},${
-    height.value / 2
-  })`;
+const width = ref<number>(0);
+const height = computed<number>(() => {
+  return props.height - props.margins;
+});
 
-  radius.value = Math.min(width.value, props.height) / 2 - props.margins;
-}
+const chartData = ref();
+
+const arcGenerator = computed(() => {
+  const arc = d3.arc().outerRadius(radius.value * 0.7);
+  return props.asDonutChart
+    ? arc.innerRadius(radius.value * 0.375)
+    : arc.innerRadius(0);
+});
+
+const labelGenerator = computed(() => {
+  const r = props.asDonutChart ? radius.value - 1 : radius.value * 0.8;
+  return d3.arc().innerRadius(r).outerRadius(r);
+});
+
+const radius = computed<number>(() => {
+  return Math.min(width.value, props.height) / 2 - props.margins;
+});
 
 function createChartGenerator() {
   const p = d3
@@ -81,19 +96,7 @@ function createChartGenerator() {
   return props.asDonutChart ? p.padAngle(1 / radius.value) : p;
 }
 
-function createArcGenerator() {
-  const arc = d3.arc().outerRadius(radius.value * 0.7);
-  return props.asDonutChart
-    ? arc.innerRadius(radius.value * 0.4)
-    : arc.innerRadius(0);
-}
-
-function createLabelGenerator() {
-  const r = props.asDonutChart ? radius.value - 1 : radius.value * 0.8;
-  return d3.arc().innerRadius(r).outerRadius(r);
-}
-
-function setLabelPosition(value: Record<string, any>) {
+function setLabelPosition(value: ArcItemData) {
   const position = labelGenerator.value.centroid(value);
   const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
   position[0] = radius.value * 0.99 * (angle < Math.PI ? 1 : -1);
@@ -115,16 +118,12 @@ function setLabelText(value: string): string {
 }
 
 function onMouseOver(value: string) {
-  const elem = chartArea.value.select(
-    `path[data-elem="slice"][data-group="${value}"]`
-  );
+  const elem = chartArea.value.select(`g[data-group="${value}"] path`);
   elem.node().classList.add("scale-125");
 }
 
 function onMouseOut(value: string) {
-  const elem = chartArea.value.select(
-    `path[data-elem="slice"][data-group="${value}"]`
-  );
+  const elem = chartArea.value.select(`g[data-group="${value}"] path`);
   elem.node().classList.remove("scale-125");
 }
 
@@ -151,34 +150,10 @@ const colorPalette = computed<ColorPalette>(() => {
   return props.colorPalette;
 });
 
-function drawSlices() {
-  const pieSlices = svg.value.select(".pie-slices");
-  pieSlices.selectAll("*").remove();
-
-  const slices = pieSlices
-    .selectAll("slices")
-    .data(chartData.value)
-    .join("path")
-    .attr("d", arcGenerator.value)
-    .attr("data-elem", "slice")
-    .attr("data-group", (value: Record<string, any>) => value.data[0])
-    .attr(
-      "fill",
-      (value: Record<string, any>) => colorPalette.value[value.data[0]]
-    );
-
-  const sliceCss: string[] = ["duration-300", "ease-in-out"];
-  if (props.strokeColor) {
-    slices.attr("stroke", props.strokeColor);
-  } else {
-    sliceCss.push("stroke-chart-paths");
-  }
-
-  if (props.clickEventsAreEnabled || props.hoverEventsAreEnabled) {
-    sliceCss.push("cursor-pointer");
-  }
-
-  slices.attr("class", sliceCss.join(" "));
+function addSliceEvents() {
+  const slices = chartArea.value
+    .selectAll("path.pie-segments")
+    .data(chartData.value);
 
   if (props.clickEventsAreEnabled) {
     slices.on("click", (_: Event, value: Record<string, any>) =>
@@ -197,83 +172,24 @@ function drawSlices() {
   }
 }
 
-function drawLabels() {
-  const sliceLabels = svg.value.select("g.pie-slice-labels");
-  sliceLabels.selectAll("*").remove();
-
-  sliceLabels
-    .selectAll("polylines")
-    .data(chartData.value)
-    .join("polyline")
-    .attr("fill", "none")
-    .attr("stroke", props.strokeColor)
-    .attr("class", "stroke-chart-paths")
-    .attr("data-group", (value: Record<string, any>) => value.data[0])
-    .attr("points", (value: Record<string, any>) => {
-      const centroid = arcGenerator.value.centroid(value);
-      const outerCircleCentroid = labelGenerator.value.centroid(value);
-      const labelPosition = labelGenerator.value.centroid(value);
-      const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
-      labelPosition[0] = radius.value * 0.95 * (angle < Math.PI ? 1 : -1);
-      return [centroid, outerCircleCentroid, labelPosition];
-    });
-
-  const labels = sliceLabels
-    .selectAll("slice-label-text")
-    .data(chartData.value)
-    .join("text")
-    .attr("class", "fill-chart-text")
-    .style("font-size", "16px")
-    .attr("data-group", (value: Record<string, any>) => value.data[0])
-    .attr("y", (value: Record<string, any>) => setLabelPosition(value)[1])
-    .style("text-anchor", setTextAnchor);
-
-  if (props.showValues && props.showLabels) {
-    labels
-      .append("tspan")
-      .attr("x", (value: Record<string, any>) => setLabelPosition(value)[0])
-      .attr("dy", "0")
-      .attr("dx", (value: Record<string, any>) => setOffsetX(value))
-      .text((value: Record<string, any>) => value.data[0]);
-
-    labels
-      .append("tspan")
-      .attr("dy", "1.1em")
-      .attr("x", (value: Record<string, any>) => setLabelPosition(value)[0])
-      .attr("dx", (value: Record<string, any>) => setOffsetX(value))
-      .text((value: Record<string, any>) => setLabelText(value.data[1]));
-  } else {
-    const text = labels
-      .attr("x", (value: Record<string, any>) => setLabelPosition(value)[0])
-      .attr("dx", (value: Record<string, any>) => setOffsetX(value))
-      .attr("dy", "0.25em");
-    if (props.showLabels && !props.showValues) {
-      text.text((value: Record<string, any>) => value.data[0]);
-    } else {
-      text.text((value: Record<string, any>) => setLabelText(value.data[1]));
-    }
-  }
+function calculatePolylinePoints(value: ArcItemData): string {
+  const centroid = arcGenerator.value.centroid(value);
+  const outerCircleCentroid = labelGenerator.value.centroid(value);
+  const labelPosition = labelGenerator.value.centroid(value);
+  const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
+  labelPosition[0] = radius.value * 0.95 * (angle < Math.PI ? 1 : -1);
+  return `${centroid},${outerCircleCentroid},${labelPosition}`;
 }
 
 function renderChart() {
   svg.value = d3.select(`#${props.id}`);
   chartArea.value = svg.value.select("g.chart-area");
-  setChartDimensions();
+  width.value = (parentElem.value?.offsetWidth || props.width) - props.margins;
 
   const pieChart = createChartGenerator();
-  arcGenerator.value = createArcGenerator();
-  labelGenerator.value = createLabelGenerator();
-
   chartData.value = pieChart(Object.entries(props.data));
 
-  drawSlices();
-
-  if (props.showValues || props.showLabels) {
-    drawLabels();
-  } else {
-    const sliceLabels = svg.value.select("g.pie-slice-labels");
-    sliceLabels.selectAll("*").remove();
-  }
+  addSliceEvents();
 }
 
 onMounted(() => {
@@ -289,7 +205,13 @@ watch(
 </script>
 
 <template>
-  <div ref="container" class="grid gap-2.5 w-full" :class="[chartLayoutCss]">
+  <div
+    ref="container"
+    class="grid gap-2.5 w-full"
+    :class="
+      setChartLegendLayoutCss(props.legendIsEnabled, props.legendPosition)
+    "
+  >
     <ChartTitle
       :title="title"
       :description="description"
@@ -312,14 +234,76 @@ watch(
     <div style="grid-area: chart">
       <svg
         :id="id"
-        width="100%"
+        :width="width"
         :height="height"
         preserve-aspect-ratio="xMinYMin"
-        :viewBox="viewBox"
+        :viewBox="`0 0 ${width} ${height}`"
       >
-        <g class="chart-area" :transform="chartAreaTransform">
-          <g class="pie-slices"></g>
-          <g class="pie-slice-labels"></g>
+        <g
+          class="chart-area"
+          :transform="`translate(${width / 2}, ${height / 2})`"
+        >
+          <g
+            v-for="row in chartData"
+            class="pie-group"
+            :data-group="row.data[0]"
+            :data-value="row.data[1]"
+          >
+            <path
+              :d="(arcGenerator(row) as string)"
+              :fill="colorPalette[row.data[0]]"
+              class="pie-segments"
+              :class="{
+                'stroke-chart-paths': !strokeColor,
+                'cursor-pointer duration-300 ease-in-out':
+                  clickEventsAreEnabled || hoverEventsAreEnabled,
+              }"
+              :stroke="strokeColor ? strokeColor : undefined"
+            />
+            <polyline
+              v-if="showLabels || showValues"
+              fill="none"
+              :class="{
+                'stroke-chart-paths': !strokeColor,
+                'cursor-pointer':
+                  clickEventsAreEnabled || hoverEventsAreEnabled,
+              }"
+              :stroke="strokeColor ? strokeColor : undefined"
+              :points="calculatePolylinePoints(row)"
+            />
+            <text
+              v-if="showLabels && showValues"
+              class="fill-chart-text"
+              :y="setLabelPosition(row)[1]"
+              :text-anchor="setTextAnchor(row)"
+            >
+              <tspan :x="setLabelPosition(row)[0]" :dx="setOffsetX(row)" dy="0">
+                {{ row.data[0] }}
+              </tspan>
+              <tspan
+                :x="setLabelPosition(row)[0]"
+                :dx="setOffsetX(row)"
+                dy="1.1em"
+              >
+                {{ setLabelText(row.data[1]) }}
+              </tspan>
+            </text>
+            <text
+              v-else-if="showLabels || showValues"
+              class="fill-chart-text"
+              :x="setLabelPosition(row)[0]"
+              :y="setLabelPosition(row)[1]"
+              :dx="setOffsetX(row)"
+              dy="0.25em"
+              :text-anchor="setTextAnchor(row)"
+            >
+              {{
+                showLabels && !showValues
+                  ? row.data[0]
+                  : setLabelText(row.data[1])
+              }}
+            </text>
+          </g>
         </g>
       </svg>
     </div>
