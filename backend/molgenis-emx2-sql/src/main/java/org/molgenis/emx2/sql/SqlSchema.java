@@ -433,4 +433,57 @@ public class SqlSchema implements Schema {
   public DSLContext getJooq() {
     return ((SqlDatabase) getDatabase()).getJooq();
   }
+
+  private SqlRoleManager roleManager() {
+    return db.getRoleManager();
+  }
+
+  private void requireManager() {
+    if (!db.isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
+      throw new MolgenisException(
+          "Permission denied: role management requires Manager or Owner privileges");
+    }
+  }
+
+  @Override
+  public void createRole(String roleName, String description) {
+    requireManager();
+    roleManager().createRole(getName(), roleName);
+    if (description != null) {
+      roleManager().setDescription(getName(), roleName, description);
+    }
+  }
+
+  @Override
+  public void deleteRole(String roleName) {
+    requireManager();
+    roleManager().deleteRole(getName(), roleName);
+  }
+
+  @Override
+  public void grant(String roleName, TablePermission permission) {
+    requireManager();
+    roleManager().grant(getName(), roleName, permission);
+  }
+
+  @Override
+  public void revoke(String roleName, String tableName) {
+    requireManager();
+    roleManager().revoke(getName(), roleName, tableName);
+  }
+
+  @Override
+  public Role getRoleInfo(String roleName) {
+    return roleManager().getRoleInfo(getName(), roleName);
+  }
+
+  @Override
+  public List<Role> getRoleInfos() {
+    return roleManager().getRoleInfos(getName());
+  }
+
+  @Override
+  public List<TablePermission> getPermissionsForActiveUser() {
+    return roleManager().getPermissionsForActiveUser(getName());
+  }
 }
