@@ -58,7 +58,7 @@
                 @mousedown.stop="startResize($event, column.id)"
               >
                 <div
-                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent group-hover:bg-button-primary"
+                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
                 />
               </div>
               <TableHeaderAction
