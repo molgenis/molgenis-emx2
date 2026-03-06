@@ -31,3 +31,4 @@ showCase
 .reports/
 #VsCode
 *.code-workspace
+.nuxtrc

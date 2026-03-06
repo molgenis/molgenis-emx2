@@ -8,3 +8,4 @@ node_modules
 dist
 public/_nuxt-styles/css/styles*
 test-results
+.nuxtrc
