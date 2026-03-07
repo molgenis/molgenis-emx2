@@ -32,7 +32,7 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-const query = `query CataloguePage($catalogueFilter:CataloguesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:CollectionsFilter,$subpopulationsCollectionFilter:ResourcesFilter,$networkFilter:NetworksFilter){
+const query = `query CataloguePage($catalogueFilter:CataloguesFilter,$collectionIdFilter:CollectionsFilter,$variablesFilter:VariablesFilter,$collectionsFilter:CollectionsFilter,$subpopulationsCollectionFilter:ResourcesFilter,$networkFilter:NetworksFilter){
         Catalogues(filter:$catalogueFilter) {
               id,
               acronym,
@@ -40,6 +40,13 @@ const query = `query CataloguePage($catalogueFilter:CataloguesFilter,$variablesF
               description,
               logo {url}
        }
+        ScopedCollection: Collections(filter:$collectionIdFilter) {
+              id,
+              acronym,
+              name,
+              description,
+              logo {url}
+        }
         Variables_agg(filter:$variablesFilter) {
           count
         }
@@ -137,6 +144,9 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
             ],
           }
         : undefined,
+      collectionIdFilter: scoped
+        ? { id: { equals: catalogueRouteParam } }
+        : undefined,
       networkFilter,
       variablesFilter: scoped
         ? {
@@ -208,13 +218,15 @@ const settings = computed(() => {
 
 const network = computed(() => {
   const catalogues = data.value.data?.Catalogues;
-  if (scoped && (!catalogues || catalogues.length === 0)) {
+  const collections = data.value.data?.ScopedCollection;
+  const resources = catalogues?.length ? catalogues : collections;
+  if (scoped && (!resources || resources.length === 0)) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
     });
   }
-  return catalogues?.[0];
+  return resources?.[0];
 });
 
 const title = computed(() => {
