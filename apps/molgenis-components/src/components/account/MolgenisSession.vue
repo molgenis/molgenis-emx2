@@ -67,7 +67,7 @@ import { ISetting } from "metadata-utils";
 
 const { cookies } = useCookies();
 const query = `{
-  _session { email, roles, schemas, token, settings{key,value} },
+  _session { email, admin, roles, schemas, token, settings{key,value} },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales", "additionalCss", "additionalFooterHtml", "additionalJs"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
@@ -116,7 +116,7 @@ export default defineComponent({
     },
     oidcLoginUrl() {
       const redirectParam = window?.location?.href
-        ? `?redirect=${window.location.href}`
+        ? `?redirect=${encodeURIComponent(window.location.href)}`
         : "";
       return "/_login" + redirectParam;
     },

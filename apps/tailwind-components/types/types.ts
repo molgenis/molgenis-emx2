@@ -1,4 +1,9 @@
-import type { columnValue, IColumn } from "../../metadata-utils/src/types";
+import type {
+  columnValue,
+  IColumn,
+  IRefColumn,
+  IRow,
+} from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
@@ -20,6 +25,7 @@ export interface IValueLabel {
 }
 
 export interface ITreeNode extends INode {
+  parent?: string;
   children: ITreeNode[];
 }
 
@@ -46,6 +52,15 @@ export interface ITreeNodeState extends ITreeNode {
   children: ITreeNodeState[];
   /* if a node is selectable */
   selectable: boolean;
+  /* pagination: current offset for loading more children */
+  loadMoreOffset?: number;
+  /* pagination: total count of children available */
+  loadMoreTotal?: number;
+  /* pagination: whether there are more children to load */
+  loadMoreHasMore?: boolean;
+  /* whether this node is showing all children (bypassing search filter) */
+  showingAll?: boolean;
+  unfilteredTotal?: number;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -54,9 +69,11 @@ export type ButtonType =
   | "primary"
   | "secondary"
   | "tertiary"
+  | "text"
   | "outline"
   | "disabled"
-  | "filterWell";
+  | "filterWell"
+  | "inline";
 
 export type ButtonSize = "tiny" | "small" | "medium" | "large";
 
@@ -101,9 +118,9 @@ export interface IFile {
 
 export interface IDocumentation {
   name: string;
-  description: string;
-  url: string;
-  file: IFile;
+  description?: string;
+  url?: string;
+  file?: IFile;
 }
 
 export interface IRadioOptionsData {
@@ -119,4 +136,33 @@ export interface IInputProps {
   invalid?: boolean;
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
+}
+
+export type schemaId = string;
+
+export interface ISession {
+  email: string;
+  admin: boolean;
+  roles: Record<schemaId, string[]>;
+  schemas?: string[];
+  token?: string;
+}
+
+export interface RefPayload {
+  metadata: IRefColumn;
+  data: IRow;
+}
+
+export interface Section {
+  heading: string;
+  fields: {
+    key: string;
+    value: columnValue;
+    metadata: IColumn;
+  }[];
+}
+
+export interface Crumb {
+  url: string;
+  label: string;
 }

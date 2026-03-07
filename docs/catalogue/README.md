@@ -1,7 +1,7 @@
 # MOLGENIS Catalogue Guide
 
 Welcome to the MOLGENIS Catalogue Guide!
-This guide explains what [the MOLGENIS Catalogue](https://data-catalogue.molgeniscloud.org/)
+This guide explains what [the MOLGENIS Catalogue](https://molgeniscatalogue.org/)
 is and how you can best use it.
 To help you get to the right information, we have distinguished three roles for users of the catalogue:
 a researcher, looking to find relevant data for their research question,

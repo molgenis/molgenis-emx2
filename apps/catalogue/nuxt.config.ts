@@ -1,12 +1,17 @@
-// https://v3.nuxtjs.org/api/configuration/nuxt.config
 import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
-  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt"],
+  modules: [
+    "@nuxt/test-utils/module",
+    "nuxt-gtag",
+    "@pinia/nuxt",
+    "floating-vue/nuxt",
+    "@nuxtjs/tailwindcss",
+  ],
   tailwindcss: {
-    cssPath: "../tailwind-components/assets/css/main.css",
+    cssPath: "../tailwind-components/app/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",
   },
   runtimeConfig: {
@@ -15,11 +20,12 @@ export default defineNuxtConfig({
       emx2Logo: "",
       siteTitle: "MOLGENIS",
       analyticsKey: "",
-      analyticsProvider: "siteimprove",
+      analyticsProvider: "",
+      analyticsDomain: "",
       cohortOnly: false,
+      schema: "catalogue-demo",
       apiBase:
-        process.env.NUXT_PUBLIC_API_BASE ||
-        "https://emx2.dev.molgenis.org/",
+        process.env.NUXT_PUBLIC_API_BASE || "https://emx2.dev.molgenis.org/",
     },
   },
   imports: {
@@ -34,7 +40,7 @@ export default defineNuxtConfig({
     },
   },
   pinia: {
-    storesDirs: ['./stores/**'],
+    storesDirs: ["./app/stores/**"],
   },
   app: {
     head: {
@@ -43,18 +49,8 @@ export default defineNuxtConfig({
       },
     },
   },
-  components: [
-
-    {
-      path: "../tailwind-components/components",
-    },
-    {
-      path: "../tailwind-components/components/global/icons",
-      global: true,
-    },
-  ],
   // @ts-ignore // gtag is not in the types
   gtag: {
-    initMode: 'manual',
-  }
+    initMode: "manual",
+  },
 });

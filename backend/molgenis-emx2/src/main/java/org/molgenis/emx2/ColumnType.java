@@ -48,6 +48,7 @@ public enum ColumnType {
 
   // LAYOUT and other constants
   HEADING(String.class), // use for layout elements or constant values
+  SECTION(HEADING), // more coarse grained than heading to show large forms split in pages
 
   // format flavors that extend a baseType
   AUTO_ID(STRING),
@@ -66,7 +67,13 @@ public enum ColumnType {
   EMAIL(STRING, EMAIL_REGEX),
   EMAIL_ARRAY(STRING_ARRAY, EMAIL_REGEX),
   HYPERLINK(STRING, HYPERLINK_REGEX),
-  HYPERLINK_ARRAY(STRING_ARRAY, HYPERLINK_REGEX);
+  HYPERLINK_ARRAY(STRING_ARRAY, HYPERLINK_REGEX),
+  NON_NEGATIVE_INT(INT, NON_NEGATIVE_INT_REGEX),
+  NON_NEGATIVE_INT_ARRAY(INT_ARRAY, NON_NEGATIVE_INT_REGEX),
+  SELECT(REF),
+  RADIO(REF),
+  MULTISELECT(REF_ARRAY),
+  CHECKBOX(REF_ARRAY);
 
   private Class javaType;
   private ColumnType baseType;
@@ -178,5 +185,9 @@ public enum ColumnType {
         || STRING_ARRAY.equals(getBaseType())
         || TEXT.equals(getBaseType())
         || TEXT_ARRAY.equals(getBaseType());
+  }
+
+  public boolean isNumericType() {
+    return INT.equals(getBaseType()) || DECIMAL.equals(getBaseType()) || LONG.equals(getBaseType());
   }
 }

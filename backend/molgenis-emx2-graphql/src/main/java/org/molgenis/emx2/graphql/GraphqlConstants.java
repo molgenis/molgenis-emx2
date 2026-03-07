@@ -10,12 +10,14 @@ public class GraphqlConstants {
   public static final String DEFAULT_VALUE = "defaultValue";
   public static final String COLUMN_POSITION = "position";
   public static final String COLUMN_TYPE = "columnType";
+  public static final String COLUMN_FORM_LABEL = "formLabel";
   public static final String TABLE_TYPE = "tableType";
   public static final String VALIDATION_EXPRESSION = "validation";
   public static final String FILTER_ARGUMENT = "filter";
   public static final String KEY = "key";
   public static final String PASSWORD = "password";
   public static final String ENABLED = "enabled";
+  public static final String ADMIN = "admin";
   public static final String EMAIL = "email";
   public static final String NAME = "name";
   public static final String LOCALE = "locale";
@@ -35,6 +37,7 @@ public class GraphqlConstants {
   public static final String TYPE = "type";
   public static final String VALUE = "value";
   public static final String FILTER_EQUALS = "equals";
+  public static final String FILTER_NOT_EQUALS = "not_equals";
   public static final String FILTER_MATCH_ANY = "_match_any";
   public static final String FILTER_MATCH_ALL = "_match_all";
   public static final String FILTER_SEARCH = "_search";
@@ -82,6 +85,9 @@ public class GraphqlConstants {
   public static final String REF_LINK_ID = "refLinkId";
   public static final String REF_BACK_ID = "refBackId";
   public static final String TABLE_ID = "tableId";
+  public static final String ASYNC = "async";
+  public static final String SECTION = "section";
+  public static final String HEADING = "heading";
 
   private GraphqlConstants() {
     // hide constructor

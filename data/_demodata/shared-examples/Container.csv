@@ -1,3 +1,3 @@
 id,title,membershipResource,hasMemberRelation,containsCatalogs,containsDatasets,containsDistributions
 Example_FDP_catalog_container,Example FAIR Data Point catalog container,https://www.MyMOLGENISServer.org/myFDPschema/api/rdf,https://w3id.org/fdp/fdp-o#metadataCatalog,"catalogId01,catalogId02,minCatId03,minFileCatId04,mixedCatId05,catWithoutDatasetsId06",,
-Example_FDP_dataset_container,Example FAIR Data Point dataset container,https://www.MyMOLGENISServer.org/myFDPschema/api/rdf/Catalog?id=catalogId01,http://purl.org/dc/terms/hasPart,,"datasetId01,datasetId02,datasetId03,minDatId04,oneFileId05,filesetId06,dataAndFilesId07,allOtherDistrId08",
+Example_FDP_dataset_container,Example FAIR Data Point dataset container,https://www.MyMOLGENISServer.org/myFDPschema/api/rdf/Catalog/id=catalogId01,http://purl.org/dc/terms/hasPart,,"datasetId01,datasetId02,datasetId03,minDatId04,oneFileId05,filesetId06,dataAndFilesId07,allOtherDistrId08",

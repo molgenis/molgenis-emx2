@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 
@@ -41,7 +42,7 @@ class EmailValidatorTest {
     contactValue.put("email", "test@molgenis.org");
     contacts.add(contactValue);
 
-    var expected = Collections.singletonList("test@molgenis.org");
+    List<String> expected = Collections.singletonList("test@molgenis.org");
     assertEquals(expected, EmailValidator.validationResponseToReceivers(validationResponse));
   }
 }

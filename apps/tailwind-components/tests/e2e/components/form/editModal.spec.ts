@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-
-import playwrightConfig from "~/playwright.config";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -8,23 +7,27 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(
-    `${route}form/EditModal.story?schema=pet+store&table=Pet&rowIndex=1`
+    `${route}form/EditModal.story?schema=pet+store&table=Pet&rowIndex=3`,
+    { waitUntil: "networkidle" }
   );
-  await expect(page.getByText("Demo data controls")).toBeVisible();
+  await expect(page.getByText("Edit Pet")).toBeVisible();
 });
 
 test("should show the edit modal", async ({ page }) => {
-  await page.getByRole("button", { name: "Update Pet" }).click();
+  await expect(page.getByText("Edit Pet")).toBeVisible();
+  await page.getByRole("button", { name: "Edit Pet" }).click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
   await expect(
-    page.getByRole("listitem").filter({ hasText: "details" })
+    page.getByRole("link").filter({ hasText: "details" })
   ).toBeVisible();
   await expect(
-    page.getByRole("listitem").filter({ hasText: "Heading2" })
+    page.getByRole("link").filter({ hasText: "Heading2" })
   ).toBeVisible();
   await expect(page.getByText("All required fields are filled")).toBeVisible();
   await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Save draft" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Save as draft" })
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Save", exact: true })
   ).toBeVisible();

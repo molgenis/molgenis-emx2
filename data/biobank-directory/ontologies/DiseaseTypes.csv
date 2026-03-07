@@ -1,5 +1,5 @@
 order,name,label,parent,codesystem,code,ontologyTermURI,definition,exact_mapping,btnt_mapping,ntbt_mapping
-,*,Any,,,*,,Any disease,,,
+,*,Any,,Not applicable,*,,Any disease,,,
 ,ORPHA:50918,Kikuchi-Fujimoto disease,ORPHA:182222,orphanet,ORPHA:50918,https://identifiers.org/orphanet:50918,,,,urn:miriam:icd:I88.1
 ,ORPHA:599507,Acquired factor XI deficiency,ORPHA:166775,orphanet,ORPHA:599507,https://identifiers.org/orphanet:599507,,,,urn:miriam:icd:D68.4
 ,ORPHA:599501,Acquired factor X deficiency,ORPHA:166775,orphanet,ORPHA:599501,https://identifiers.org/orphanet:599501,,,,urn:miriam:icd:D68.4

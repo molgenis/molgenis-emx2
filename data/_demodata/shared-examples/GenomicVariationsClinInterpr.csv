@@ -1,6 +1,0 @@
-id,category,clinicalRelevance,conditionId,effect
-Var001_CI001,Disease causing,Uncertain Significance,famchol1,"Homozygous familial hypercholesterolemia"
-Var001_CI002,Modulator,Benign,surfcmtd4,"SURF1-related Charcot-Marie-Tooth disease type 4"
-Var002_CI001,,Pathogenic,pathdis1,
-MinVar_CI,,,,
-Ind001_VarCaseClinInt,Protective factor,Benign,,

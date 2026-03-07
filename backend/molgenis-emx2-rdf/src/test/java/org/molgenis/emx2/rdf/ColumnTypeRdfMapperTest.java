@@ -1,9 +1,6 @@
 package org.molgenis.emx2.rdf;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -18,6 +15,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /**
@@ -31,7 +29,8 @@ class ColumnTypeRdfMapperTest {
   static final String REFBACK_TABLE = "TestRefBackTable";
   static final String COMPOSITE_REF_TABLE = "TestCompositeRefTable";
   static final String COMPOSITE_REFBACK_TABLE = "TestCompositeRefbackTable";
-  static final String ONT_TABLE = "TestOntology";
+  static final String ONT_TABLE = "Test Ontology";
+  static final String ONT_TABLE_URL = "TestOntology";
 
   static final String BASE_URL = "http://localhost:8080/";
   static final String RDF_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/rdf/";
@@ -67,7 +66,7 @@ class ColumnTypeRdfMapperTest {
     for (Column column : columnList) {
       switch (column.getColumnType()) {
         case STRING -> column.setPkey();
-        case REF, REF_ARRAY -> column.setRefTable(REF_TABLE);
+        case REF, REF_ARRAY, SELECT, CHECKBOX, RADIO, MULTISELECT -> column.setRefTable(REF_TABLE);
         case REFBACK -> column.setRefTable(REFBACK_TABLE).setRefBack("ref");
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
       }
@@ -113,7 +112,7 @@ class ColumnTypeRdfMapperTest {
         .insert(
             row("name", "aa", "ontologyTermURI", "http://example.com/aa"),
             row("name", "bb", "ontologyTermURI", "http://example.com/bb"),
-            row("name", "c c"));
+            row("name", "c+c")); // actual +, not escaped character
 
     allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
 
@@ -187,7 +186,7 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.ONTOLOGY.name(),
                 "aa",
                 ColumnType.ONTOLOGY_ARRAY.name(),
-                "bb,c c",
+                "bb,c+c",
                 ColumnType.EMAIL.name(),
                 "aap@example.com",
                 ColumnType.EMAIL_ARRAY.name(),
@@ -196,6 +195,10 @@ class ColumnTypeRdfMapperTest {
                 "https://molgenis.org",
                 ColumnType.HYPERLINK_ARRAY.name(),
                 "https://molgenis.org, https://github.com/molgenis",
+                ColumnType.NON_NEGATIVE_INT.name(),
+                "6",
+                ColumnType.NON_NEGATIVE_INT_ARRAY.name(),
+                "4,8",
                 // Extra columns for composite key testing
                 // -- no manual entry: COLUMN_COMPOSITE_REFBACK
                 COLUMN_COMPOSITE_REF + ".ids",
@@ -372,6 +375,10 @@ class ColumnTypeRdfMapperTest {
             assertTrue(
                 retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI(),
                 ColumnType.HYPERLINK.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.NON_NEGATIVE_INT.name()).isLiteral(),
+                ColumnType.NON_NEGATIVE_INT.name() + " failed"),
 
         // Composite keys
         () ->
@@ -498,17 +505,17 @@ class ColumnTypeRdfMapperTest {
         // RELATIONSHIP
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=1")),
                 retrieveValues(ColumnType.REF.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=2"),
-                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=3")),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=2"),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=3")),
                 retrieveValues(ColumnType.REF_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "/id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
         // LAYOUT and other constants -> should return empty sets as they should be excluded
         () -> assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
@@ -528,7 +535,7 @@ class ColumnTypeRdfMapperTest {
             assertEquals(
                 Set.of(
                     Values.iri("http://example.com/bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=c+c")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=c%2Bc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             assertEquals(
@@ -548,35 +555,45 @@ class ColumnTypeRdfMapperTest {
                 Set.of(
                     Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
                 retrieveValues(ColumnType.HYPERLINK_ARRAY.name())),
+        () ->
+            assertEquals(
+                Set.of(Values.literal("6", CoreDatatype.XSD.NON_NEGATIVE_INTEGER)),
+                retrieveValues(ColumnType.NON_NEGATIVE_INT.name())),
+        () ->
+            assertEquals(
+                Set.of(
+                    Values.literal("4", CoreDatatype.XSD.NON_NEGATIVE_INTEGER),
+                    Values.literal("8", CoreDatatype.XSD.NON_NEGATIVE_INTEGER)),
+                retrieveValues(ColumnType.NON_NEGATIVE_INT_ARRAY.name())),
         // Composite reference / refback
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=1&ids=a")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=1&ids=a")),
                 retrieveValues(COLUMN_COMPOSITE_REF)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=2&ids=b"),
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=3&ids=c")),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=2&ids=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=3&ids=c")),
                 retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "/id1=a&id2=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "/id1=c&id2=d")),
                 actualRefback),
         // Overriding default behaviour
         // ontology as reference (key=1 instead of ontologyTermURI)
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=aa")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=c+c")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=bb"),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=c%2Bc")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         // email as regular string

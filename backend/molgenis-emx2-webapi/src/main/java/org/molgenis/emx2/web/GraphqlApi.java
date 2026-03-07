@@ -6,10 +6,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
-import graphql.GraphQLError;
+import graphql.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
@@ -22,8 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.GraphqlExecutor;
+import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,17 +29,19 @@ import org.slf4j.LoggerFactory;
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
  */
 public class GraphqlApi {
+
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
+
+  private static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
-  private static MolgenisSessionManager sessionManager;
 
   private GraphqlApi() {
     // hide constructor
   }
 
-  public static void createGraphQLservice(Javalin app, MolgenisSessionManager sm) {
-    sessionManager = sm;
+  public static void createGraphqlService(Javalin app) {
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
@@ -70,14 +70,12 @@ public class GraphqlApi {
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(session.getGraphqlForDatabase(), ctx);
+    String result = executeQuery(APPLICATION_CACHE.getDatabaseGraphqlForUser(ctx), ctx);
     ctx.json(result);
   }
 
   public static void handleSchemaRequests(Context ctx) throws IOException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
     // apps and api is not a schema but a resource
@@ -91,48 +89,23 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
+    GraphqlExecutor graphqlForSchema = APPLICATION_CACHE.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
 
-  private static String executeQuery(GraphQL g, Context ctx) throws IOException {
+  private static String executeQuery(GraphqlExecutor graphqlApi, Context ctx) throws IOException {
+
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
-
+    GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
     long start = System.currentTimeMillis();
 
-    // we don't log password calls
-    if (logger.isInfoEnabled()) {
-      if (query.contains("password")) {
-        logger.info("query: obfuscated because contains parameter with name 'password'");
-      } else {
-        logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
-      }
-    }
-
-    // tests show overhead of this step is about 20ms (jooq takes the rest)
-    ExecutionResult executionResult = null;
-    if (variables != null) {
-      executionResult = g.execute(ExecutionInput.newExecutionInput(query).variables(variables));
-    } else {
-      executionResult = g.execute(query);
-    }
-
-    String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
-
-    for (GraphQLError err : executionResult.getErrors()) {
-      if (logger.isErrorEnabled()) {
-        logger.error(err.getMessage());
-      }
-    }
-    if (executionResult.getErrors().size() > 0) {
-      throw new MolgenisException(executionResult.getErrors().get(0).getMessage());
-    }
+    ExecutionResult executionResult = graphqlApi.execute(query, variables, sessionManager);
+    String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
 
     if (logger.isInfoEnabled())
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
-
     return result;
   }
 

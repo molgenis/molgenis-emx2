@@ -18,6 +18,20 @@ Boolean defining whether to load the demo catalogue on server startup
 
 ## Schema settings
 
+### App logo
+
+#### key
+
+`CATALOGUE_LOGO_SRC`
+
+#### description
+
+String containing [URL](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#src) of the logo image
+
+#### default
+
+None, if set the env logo is shown else the molgenis logo is shown
+
 ### Notification
 
 #### key
@@ -32,7 +46,7 @@ String containing html to be rendered in page banner
 
 None, no notification message is shown
 
-### Landing page title
+### Catalogue landing page title
 
 #### key
 
@@ -44,8 +58,7 @@ Main title shown on landing page
 
 #### default
 
-"European Networks Health Data
-& Cohort Catalogue."
+"Browse all catalogue contents"
 
 ### Landing page description
 
@@ -59,8 +72,7 @@ Description text or subtitle shown on landing page
 
 #### default
 
-"Browse and manage metadata for data resources, such as cohorts, registries, biobanks,
-and multi-center collaborations thereof such as networks, common data models and studies."
+"Select one of the content categories listed below."
 
 ### Landing page call-to-action (CTA) labels
 
@@ -135,6 +147,32 @@ Labels and descriptive texts for the information cards on the landing page
 - `CATALOGUE_LANDING_SUBCOHORTS_LABEL`: "Subcohorts"
 - `CATALOGUE_LANDING_SUBCOHORTS_TEXT`: "The total number of subcohorts included"
 
+### All data page additional html content
+
+#### key
+`CATALOGUE_ALL_ADDITIONAL_HTML`
+
+#### description
+String containing html to be rendered on the all ( default subcatalogue) page
+
+(note: its up to the user to ensure the html is well formatted, styled and responsive)
+
+#### default
+None, no additional content is shown    
+
+## Theme Configuration
+
+You can configure the application theme either **at deploy time** or **at runtime**.
+
+- 🏗️ Deploy Time: Set the NUXT_PUBLIC_EMX2_THEME environment variable to the theme value.
+- ⚙️ Run Time: Create or update the CATALOGUE_THEME settings to the theme value.
+
+If neither value is provided, the default theme **molgenis** will be used.
+
+#### debug theme 
+
+For debugging or development purposes, you can override the active theme by adding a query parameter to the URL:, ```?theme=my-theme```
+
 ## Favicon
 
 A themed favicon is set by placing a [theme].ico file in the public/img folder.
@@ -147,9 +185,10 @@ Analytics can be enabled by setting the following environment variables:
 
 `NUXT_PUBLIC_ANALYTICS_KEY`: The analytics measurement id.
 
-`NUXT_PUBLIC_ANALYTICS_PROVIDER`: The analytics provider. Either `siteimprove` for [Siteimprove](https://www.siteimprove.com/)
+`NUXT_PUBLIC_ANALYTICS_PROVIDER`: The analytics provider. Either `site-improve` for [Siteimprove](https://www.siteimprove.com/)
 or `google-analytics` for [Google Analytics](https://marketingplatform.google.com/about/analytics/).
-Defaults to `siteimprove`.
+
+`NUXT_PUBLIC_ANALYTICS_DOMAIN`: optional analytics domain as used by some providers.
 
 ## Data model changelog
 
@@ -167,3 +206,19 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 5.4.x   | Added tables for Fair Data Point: Container, Endpoint, Agent.                                   | 
 | 5.5     | Fixed reflinks, typos and added demo data to fit DCAT HRICore 1.0.                              |
 | 5.6     | Removed computed value for Catalogues.description. Added missing demo data descriptions.        |
+| 6.0     | Breaking change. We merged 'Catalogues' into 'Resources'. To solve download from old, import in new and then in Resourcs.types set 'catalogue' to those records previously linked in Catalogues'	    |
+| 6.0.1   | Add Resources.publications and Resources.information to INTEGRATE profile. To update reload updated molgenis.csv to INTEGRATE cohorts staging areas or add columns in schema editor.    |
+| 6.0.2   | Add Resources.catalogue types to NetworksStaging profile. To update reload updated molgenis.csv to Network staging areas or add column in schema editor   |
+| 6.0.3   | Delete visible expression=FALSE from Contacts.display name. To update reload updated molgenis.csv to catalogue schema or update in schema editor   |
+| 6.0.4   | Removed staging area profiles from rdf properties in Resources table. To update reload updated molgenis.csv and data to staging schemas or update in schema editor   |
+| 7.0.0  | Breaking change. Changes to strcuture of tables and addition and deletion of attributes to make data model compatible with HRICore2.x. See [diff](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/datamodel_6_to_7_diff.xlsx) for the exact changes. To update run migrations, see [README](https://github.com/molgenis/molgenis-emx2/raw/master/data/scripts/catalogue/README.md) 
+| 7.0.1  | Delete items that are not in healthdcat or hricore for dcat:catalogue from network staging profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   |
+| 7.0.2  | Add Organisations.department to UMCUCohorts profile. To update reload updated molgenis.csv to staging schemas or update in schema editor   | 
+| 7.1.0  | Add Resources.continents columnType ontology_array. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor and load Continents.csv to CatalogueOntologies  |
+| 7.1.1  | Delete profiles for catalogue and catalogue staging templates from attributes that refer to MedDRA ontology. To update reload updated molgenis.csv and data to catalogue and staging schemas |
+| 7.1.2  | Change columnType for some attributes from int to non_negative_int to produce correct rdf export. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor |
+| 7.2.0  | Add Variables.generated_keywords for DataCatalogueFlat profile only. To update reload updated molgenis.csv to catalogue schema or update in schema editor  |
+| 7.3.0  | Adapt resource types in CatalogueOntologies and delete 'Resources.other type'. This affects the catalogue app as well. To update run migrations run_7.3.py, see [README](https://github.com/molgenis/molgenis-emx2/raw/master/data/scripts/catalogue/README.md)  |
+| 7.3.1  | Remove dcat:Dataset annotation and hricore conditional required items in Subpopulations and Collection events tables. To update reload updated molgenis.csv to catalogue schema |
+| 7.4.0  | Add 'Resources.main catalogue' boolean. When 'True' this setting will take the logo, description and title from the Resource stable to display on the global landing page. To update reload updated molgenis.csv to catalogue and network staging schemas  or update in schema editor.  |
+

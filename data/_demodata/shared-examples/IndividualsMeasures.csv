@@ -1,5 +1,0 @@
-id,assayCode,date,measurementVariable,measurementValue_value,measurementValue_units,observationMoment_age_iso8601duration
-Ind001_Meas001,Metabolomics,2017-05-03,Blood platelet count,55345,Per Millimeter,P55Y8M12D
-Ind002_Meas001,Transcriptomics,2018-06-05,TTN read count,23567,DNA Copies Per Microgram,P70Y5M10D
-Ind002_Meas002,Proteomics,2019-07-06,TTN peptipe,6853,Nanomole per Milligram of Protein,P75Y9M11D
-MinInd004_Meas001,Genomics,,,,,

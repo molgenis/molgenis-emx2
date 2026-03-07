@@ -260,6 +260,13 @@ public class SqlQuery extends QueryBean {
     return functionCallField.as(name(column.getIdentifier()));
   }
 
+  private Field<String[]> intervalFieldArray(String tableAlias, Column column) {
+    Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
+    Field<String[]> functionCallField =
+        function("\"MOLGENIS\".interval_array_to_iso8601", String[].class, intervalField);
+    return functionCallField.as(name(column.getIdentifier()));
+  }
+
   @Override
   public String retrieveJSON() {
     SelectColumn select = getSelect();
@@ -627,6 +634,8 @@ public class SqlQuery extends QueryBean {
          */
       } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
         fields.add(intervalField(tableAlias, column));
+      } else if (column.getColumnType().getBaseType() == ColumnType.PERIOD_ARRAY) {
+        fields.add(intervalFieldArray(tableAlias, column));
       } else {
         // primitive fields
         fields.add(
@@ -892,6 +901,16 @@ public class SqlQuery extends QueryBean {
         mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
       }
     }
+    // join subclass tables also
+    for (TableMetadata subclassTable : table.getSubclassTables()) {
+      List<Field<?>> using = subclassTable.getPrimaryKeyFields();
+      mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
+      if (mg_tableclass != null) {
+        using.add(mg_tableclass.getJooqField());
+      }
+      result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
+    }
+
     return result;
   }
 
@@ -1595,7 +1614,7 @@ public class SqlQuery extends QueryBean {
         return row(pkey)
             .in(
                 DSL.select(backRef)
-                    .from(c.getRefTable().getJooqTable())
+                    .from(c.getRefTable().getRootTable().getJooqTable())
                     .where(row(backRefKey).in(subQuery)));
       } else {
         // ref_array
@@ -1715,10 +1734,10 @@ public class SqlQuery extends QueryBean {
       return new Column(table, searchColumnName(table.getTableName()));
     }
     // is scalar column
-    Column column = table.getColumn(columnName);
+    Column column = table.getColumnByNameIncludingSubclasses(columnName);
     if (column == null || (isRowQuery && column.isReference())) {
       // is reference?
-      for (Column c : table.getColumns()) {
+      for (Column c : table.getColumnsIncludingSubclasses()) {
         if (c.isReference()) {
           for (Reference ref : c.getReferences()) {
             // can also request composite reference columns, can only be used on row level queries
@@ -1729,7 +1748,7 @@ public class SqlQuery extends QueryBean {
         }
       }
       // is file?
-      for (Column c : table.getColumns()) {
+      for (Column c : table.getColumnsIncludingSubclasses()) {
         if (c.isFile()
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())

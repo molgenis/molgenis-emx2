@@ -1,3 +1,4 @@
+import type { ComputedRef } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -7,7 +8,7 @@ export interface ISetting {
   value: string;
 }
 
-type HeadingType = "HEADING";
+export type HeadingType = "HEADING" | "SECTION";
 
 export type CellValueType =
   | "BOOL"
@@ -35,9 +36,10 @@ export type CellValueType =
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
-  | "CHECKBOX" //planned future extensions are CHECKBOX and RADIO
   | "RADIO"
+  | "SELECT"
   | "HEADING"
+  | "SECTION"
   | "AUTO_ID"
   | "ONTOLOGY"
   | "ONTOLOGY_ARRAY"
@@ -45,16 +47,22 @@ export type CellValueType =
   | "EMAIL_ARRAY"
   | "HYPERLINK"
   | "HYPERLINK_ARRAY"
-  | "CHECKBOX";
+  | "NON_NEGATIVE_INT"
+  | "NON_NEGATIVE_INT_ARRAY"
+  | "CHECKBOX"
+  | "MULTISELECT";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
   columnType: ColumnType;
   id: columnId;
   label: string;
+  section?: string;
+  heading?: string;
   computed?: string;
   conditions?: string[];
   description?: string;
+  formLabel?: string;
   key?: number;
   position?: number;
   readonly?: string;
@@ -62,7 +70,7 @@ export interface IColumn {
   refLabel?: string;
   refLabelDefault?: string;
   refLinkId?: string;
-  refSchemaId?: string;
+  refSchemaId?: string; //should always be provided when refTableId is set even if in same schema
   refTableId?: string;
   required?: string | boolean;
   semantics?: string[];
@@ -74,9 +82,18 @@ export interface IColumn {
   defaultValue?: string;
 }
 
+export interface IRefColumn extends IColumn {
+  refTableId: string;
+  refSchemaId: string;
+  refLabel: string;
+  refLabelDefault: string;
+  refLinkId: string;
+}
+
 export interface ITableMetaData {
   id: string;
-  name?: string;
+  schemaId: string;
+  name: string;
   label: string;
   description?: string;
   tableType: string;
@@ -96,27 +113,78 @@ export interface IFieldError {
   message: string;
 }
 
-export interface IFormLegendSection {
-  label: string;
+interface LegendItem {
   id: string;
-  isActive?: boolean;
-  errorCount: number;
+  label: string;
+  type: HeadingType;
+  errorCount: ComputedRef<number>;
+  isVisible: ComputedRef<boolean>;
+  isActive: ComputedRef<boolean> | boolean;
+}
+export interface LegendSection extends LegendItem {
+  type: "SECTION";
+  headers: LegendHeading[];
+}
+export interface LegendHeading extends LegendItem {
+  type: "HEADING";
 }
 
 export type columnId = string;
 export type columnValue =
   | string
+  | string[]
   | number
+  | number[]
   | boolean
   | null
   | undefined
   | columnValueObject
-  | columnValue[];
+  | columnValueObject[]
+  | fileValue;
 
 export type recordValue = Record<string, columnValue>;
 
 export interface columnValueObject {
   [x: string]: columnValue;
+}
+
+export function isColumnValueObject(
+  value: columnValue
+): value is columnValueObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function isColumnValueObjectArray(
+  value: columnValue
+): value is columnValueObject[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === "object" && item !== null && !Array.isArray(item)
+    )
+  );
+}
+
+export type fileValue = {
+  id: string;
+  size: number;
+  filename: string;
+  extension: string;
+  url: string;
+};
+
+export function isFileValue(value: columnValue): value is fileValue {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "id" in value &&
+    "size" in value &&
+    "filename" in value &&
+    "extension" in value &&
+    "url" in value
+  );
 }
 
 export type IInputValue = string | number | boolean;
@@ -125,3 +193,7 @@ export type IInputValueLabel = {
   value: IInputValue | IInputValue[] | null;
   label?: string;
 };
+
+export type IRow = Record<columnId, columnValue>;
+
+export type DateValue = Date | string | undefined | null;

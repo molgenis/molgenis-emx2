@@ -36,21 +36,27 @@ import InputEmail from "./InputEmail.vue";
 import InputHyperlink from "./InputHyperlink.vue";
 import InputJson from "./InputJson.vue";
 import InputRefList from "./InputRefList.vue";
+import InputNonNegativeInt from "./InputNonNegativeInt.vue";
 
 const typeToInputMap = {
   AUTO_ID: InputString,
   HEADING: InputHeading,
+  SECTION: InputHeading,
   EMAIL: InputEmail,
   HYPERLINK: InputHyperlink,
   STRING: InputString,
   TEXT: InputText,
   JSON: InputJson,
   INT: InputInt,
+  NON_NEGATIVE_INT: InputNonNegativeInt,
   LONG: InputLong,
   DECIMAL: InputDecimal,
   BOOL: InputBoolean,
   DATE: InputDate,
   REF: InputRefSelect,
+  //bootstrap will be deprecated so here we don't differentiate
+  SELECT: InputRefSelect,
+  RADIO: InputRefSelect,
   REFBACK: InputRefBack,
   FILE: InputFile,
   DATETIME: InputDateTime,
@@ -64,9 +70,13 @@ const typeToInputMap = {
   DECIMAL_ARRAY: ArrayInput,
   HYPERLINK_ARRAY: ArrayInput,
   INT_ARRAY: ArrayInput,
+  NON_NEGATIVE_INT_ARRAY: ArrayInput,
   LONG_ARRAY: ArrayInput,
   ONTOLOGY_ARRAY: InputOntology,
   REF_ARRAY: InputRefList,
+  //bootstrap will be deprecated so here we don't differentiate
+  CHECKBOX: InputRefList,
+  MULTISELECT: InputRefList,
   STRING_ARRAY: ArrayInput,
   TEXT_ARRAY: ArrayInput,
 };
@@ -136,6 +146,7 @@ export default {
     ArrayInput,
     InputString,
     InputInt,
+    InputNonNegativeInt,
     InputLong,
     InputDecimal,
     InputBoolean,
@@ -351,6 +362,28 @@ export default {
     <DemoItem>
       <div>
         <FormInput
+            id="non-negative-int-example"
+            columnType="NON_NEGATIVE_INT"
+            label="Example non negative integer input"
+            v-model="nonNegativeIntValue"
+        />
+      </div>
+      <div>You typed: {{ nonNegativeIntValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+            id="non-negative-int-array-example"
+            columnType="NON_NEGATIVE_INT_ARRAY"
+            label="Example non negative integer array input"
+            v-model="nonNegativeIntArrayValue"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(nonNegativeIntArrayValue, null, 2) }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
             id="text-example"
             columnType="TEXT"
             label="Example text input"
@@ -551,6 +584,8 @@ export default {
         dateTimeValueArray: [null, null],
         intValue: 42,
         intValueArray: [5, 37],
+        nonNegativeIntValue: 67,
+        nonNegativeIntArrayValue: [9,0,8],
         textValue: "example text",
         textValueArray: ["text", "more text"],
         jsonValue: '{"name":"bofke"}',
@@ -561,7 +596,7 @@ export default {
         booleanValue: true,
         booleanValueArray: [true, false],
         refValue: null,
-        refValueArray: [null, null],
+        refValueArray: [{name: "spike"}, {name: "pooky"}],
         fileValue: null,
       };
     },

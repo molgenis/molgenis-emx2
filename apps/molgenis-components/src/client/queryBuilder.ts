@@ -22,10 +22,26 @@ export const getColumnIds = async (
     if (expandLevel > 0 || col.key) {
       if (
         !rootLevel &&
-        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
+        [
+          "REF_ARRAY",
+          "REFBACK",
+          "ONTOLOGY_ARRAY",
+          "CHECKBOX",
+          "MULTISELECT",
+        ].includes(col.columnType)
       ) {
         continue;
-      } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
+      } else if (
+        [
+          "REF",
+          "REF_ARRAY",
+          "REFBACK",
+          "CHECKBOX",
+          "MULTISELECT",
+          "SELECT",
+          "RADIO",
+        ].includes(col.columnType)
+      ) {
         result =
           result +
           " " +
@@ -43,7 +59,7 @@ export const getColumnIds = async (
         result = result + " " + col.id + " {name, label}";
       } else if (col.columnType === "FILE") {
         result += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (col.columnType !== "HEADING") {
+      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
         result += ` ${col.id}`;
       }
     }

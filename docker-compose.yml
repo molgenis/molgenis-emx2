@@ -14,7 +14,10 @@ services:
       - -c
       - |
         docker-entrypoint.sh postgres &
-        sleep 5
+        until pg_isready -U postgres; do
+          echo 'Waiting for PostgreSQL to be ready...';
+          sleep 2;
+        done;
         psql -U postgres -d postgres -c "CREATE DATABASE molgenis;"
         psql -U postgres -d postgres -c "CREATE USER molgenis WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis';"
         psql -U postgres -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE molgenis TO molgenis;"

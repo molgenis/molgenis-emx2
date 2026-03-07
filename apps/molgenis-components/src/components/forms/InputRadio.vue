@@ -8,9 +8,10 @@
     :errorMessage="errorMessage"
   >
     <div
-      class="input-group"
       @mouseenter="isMouseOver = true"
       @mouseleave="isMouseOver = false"
+      class="input-group"
+      :class="direction === 'vertical' ? 'flex-column' : 'flex-row'"
     >
       <div
         v-for="(item, idx) in options"
@@ -59,6 +60,11 @@ export default {
       required: false,
       default: true,
     },
+    direction: {
+      type: String,
+      required: false,
+      default: "horizontal",
+    },
   },
   data() {
     return {
@@ -70,7 +76,7 @@ export default {
     radioValue() {
       this.$emit("update:modelValue", this.radioValue);
     },
-    value(newValue) {
+    modelValue(newValue) {
       this.radioValue = newValue;
     },
   },

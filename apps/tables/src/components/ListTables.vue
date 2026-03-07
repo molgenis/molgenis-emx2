@@ -3,13 +3,16 @@
     <h1>Tables in '{{ schema.label }}'</h1>
     <MessageWarning v-if="!schema.tables">
       No tables found. You might want to go to design
-      <a href="../schema/">design</a> or
-      <a href="../updownload/">upload</a> your schema to create them.
+      <a :href="`/${schema.id}/schema/`">design</a> or
+      <a :href="`/${schema.id}/updownload/`">upload</a> your schema to create
+      them.
     </MessageWarning>
     <div v-else>
       Download all tables:
-      <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
-      <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
+      <a :href="`/${schema.id}/api/zip`">zip</a> |
+      <a :href="`/${schema.id}/api/excel`">excel</a> |
+      <a :href="`/${schema.id}/api/jsonld`">jsonld</a> |
+      <a :href="`/${schema.id}/api/ttl`">ttl</a><br />
       <InputSearch
         id="tables-list-search-input"
         placeholder="search in tables"

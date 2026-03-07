@@ -1,2 +1,0 @@
-id,title,membershipResource,hasMemberRelation,contains.name,contains.network
-Example_FDP_catalog_container,Example FAIR Data Point catalog container,http://localhost:8080/catalogue/api/rdf/Endpoint?id=Example_FAIR_Data_Point,https://w3id.org/fdp/fdp-o#metadataCatalog,"LifeCycle,ATHLETE","LifeCycle,ATHLETE"

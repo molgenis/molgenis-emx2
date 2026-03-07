@@ -18,6 +18,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   // basics
   private TableMetadata table; // table this column is part of
   private String columnName; // short name, should adhere to: Constants.COLUMN_NAME_REGEX
+  private String formLabel; // option label to be used in forms (else default to columnName)
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -43,7 +44,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
-  // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
   private boolean indexed = false;
@@ -116,6 +116,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private void copy(Column column) {
     columnName = column.columnName;
     labels = column.labels;
+    formLabel = column.formLabel;
     oldName = column.oldName;
     drop = column.drop;
     columnType = column.columnType;
@@ -161,6 +162,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
+  public String getFormLabel() {
+    return formLabel;
+  }
+
+  public Column setFormLabel(String formLabel) {
+    this.formLabel = formLabel;
+    return this;
+  }
+
   public String getQualifiedName() {
     return getTableName() + "." + getName();
   }
@@ -186,7 +196,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     if (this.refSchemaName != null) {
       try {
         schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
-      } catch (MolgenisException e) {
+      } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
                 + this.refSchemaName

@@ -12,3 +12,4 @@ settings: _settings/datacatalogue
 setViewPermission: anonymous
 ontologiesToFixedSchema: CatalogueOntologies
 setFixedSchemaViewPermission: anonymous
+additionalFixedSchemaModel: _models/specific/CatalogueOntologies

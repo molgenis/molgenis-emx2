@@ -4,7 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage || bigIntError"
+    :errorMessage="errorMessage"
   >
     <InputGroup>
       <BaseInputLong

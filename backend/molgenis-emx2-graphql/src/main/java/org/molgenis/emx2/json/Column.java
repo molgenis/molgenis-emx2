@@ -12,8 +12,11 @@ public class Column {
   private String id;
   private String name;
   private String label;
+  private String section;
+  private String heading;
   private String description;
   private List<LanguageValue> labels = new ArrayList<>();
+  private String formLabel;
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
@@ -63,6 +66,7 @@ public class Column {
             .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
+    this.formLabel = column.getFormLabel();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
     this.key = column.getKey();
@@ -71,10 +75,8 @@ public class Column {
     }
     if (column.isReference()) {
       if (column.getSchema().getDatabase() != null) {
-        if (!column.getRefSchemaName().equals(column.getSchemaName())) {
-          this.refSchemaId = column.getRefSchemaName();
-          this.refSchemaName = column.getRefSchemaName();
-        }
+        this.refSchemaId = column.getRefSchemaName();
+        this.refSchemaName = column.getRefSchemaName();
         this.refTableId = column.getRefTable().getIdentifier();
         this.refLabelDefault = column.getRefLabelDefault();
       }
@@ -146,6 +148,7 @@ public class Column {
     c.setComputed(computed);
     c.setReadonly(readonly);
     c.setProfiles(profiles);
+    c.setFormLabel(formLabel);
 
     // ignore inherited
     return c;
@@ -413,5 +416,29 @@ public class Column {
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public String getSection() {
+    return section;
+  }
+
+  public void setSection(String section) {
+    this.section = section;
+  }
+
+  public String getHeading() {
+    return heading;
+  }
+
+  public void setHeading(String heading) {
+    this.heading = heading;
+  }
+
+  public String getFormLabel() {
+    return formLabel;
+  }
+
+  public void setFormLabel(String formLabel) {
+    this.formLabel = formLabel;
   }
 }

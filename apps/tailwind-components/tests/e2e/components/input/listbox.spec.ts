@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "~/playwright.config";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -16,7 +16,7 @@ test.describe(
       await page
         .getByText("Listbox component", { exact: true })
         .first()
-        .click({ delay: 300 });
+        .click({ delay: 3000 });
     });
 
     test(

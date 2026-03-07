@@ -2,7 +2,7 @@
 
 Steps:
 
-* Install [Postgresql](https://www.postgresql.org/download/) (we use 15)
+* Install [Postgresql 15](https://www.postgresql.org/download/)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     psql postgres
@@ -13,7 +13,7 @@ Steps:
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;
     ```
-* Install java (we use adopt [OpenJDK 17](https://adoptium.net/))
+* Java 21 required (e.g., [OpenJDK 21](https://adoptium.net/))
 * Optionally, if you want to use [scripts](use_scripts_jobs.md) then also install python3
 * Download molgenis-emx2-version-all.jar from [releases](https://github.com/molgenis/molgenis-emx2/releases).
 * Start molgenis-emx2 using command below (will run on 8080)
@@ -24,11 +24,11 @@ Steps:
 
 Optionally, you can change defaults using either java properties or using env variables:
 
-* MOLGENIS_POSTGRES_URI
-* MOLGENIS_POSTGRES_USER
-* MOLGENIS_POSTGRES_PASS
-* MOLGENIS_HTTP_PORT
-* MOLGENIS_ADMIN_PW
+* `MOLGENIS_POSTGRES_URI`
+* `MOLGENIS_POSTGRES_USER`
+* `MOLGENIS_POSTGRES_PASS`
+* `MOLGENIS_HTTP_PORT`
+* `MOLGENIS_ADMIN_PW`
 
 For example:
 
@@ -36,7 +36,26 @@ For example:
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
 ```
 
+# Metrics
+
+MOLGENIS enables metrics api for example to use with prometheus. By default this is disabled. Please on use configure carefully to avoid abuse.
+
+* `MOLGENIS_METRICS_ENABLED=true` enables the metrics on path /api/metrics
+* `MOLGENIS_METRICS_PATH=/api/metric` enables the metrics path to be customized
+
+For example:
+java -DMOLGENIS_METRICS_ENABLED=true -jar molgenis-emx2-<version>-all.jar
+
 # Tips
+
+## Logging
+
+To enable more detailed logging, you can configure the log4j2.level JVM option. For example:
+```shell
+java -jar app.jar -Dlog4j2.level=DEBUG
+```
+This option sets the logging level according to the standard [Log4j2 logging levels](https://logging.apache.org/log4j/2.x/manual/customloglevels.html).
+
 
 ## On mac you can install postgres using [homebrew](https://formulae.brew.sh/formula/postgresql)
 

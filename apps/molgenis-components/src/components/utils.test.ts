@@ -8,8 +8,10 @@ import {
   flattenObject,
   isNumericKey,
   isRefType,
+  getKeyValue,
 } from "./utils";
 import { contactsMetadata, resourcesMetadata } from "./mockDatasets";
+import { CellValueType } from "metadata-utils/src/types";
 
 vi.mock("../client/client", () => {
   // For use with convertRowToPrimaryKey
@@ -35,6 +37,23 @@ describe("isRefType", () => {
     assert.isTrue(isRefType("REFBACK"));
     assert.isTrue(isRefType("ONTOLOGY"));
     assert.isTrue(isRefType("ONTOLOGY_ARRAY"));
+  });
+
+  test("it should return false for other types", () => {
+    assert.isFalse(isRefType("SOME_OTHER_TYPE"));
+  });
+});
+
+describe("getKeyValue", () => {
+  test("it should return the value if the cellValue is of type number", async () => {
+    const column = {
+      columnType: "INT" as CellValueType,
+      id: "someId",
+      label: "someId",
+    };
+    const actualValue = await getKeyValue(1, column);
+
+    assert.deepEqual(actualValue, 1);
   });
 
   test("it should return false for other types", () => {

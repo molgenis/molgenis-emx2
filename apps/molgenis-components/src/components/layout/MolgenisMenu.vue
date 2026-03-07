@@ -147,7 +147,7 @@ export default {
       return false; // This makes the a tag not use its navigation
     },
     permitted(item) {
-      if (!item.role || this.session?.email === "admin") {
+      if (!item.role || this.session?.admin) {
         return true;
       } else if (
         item.role === "Signed in" &&

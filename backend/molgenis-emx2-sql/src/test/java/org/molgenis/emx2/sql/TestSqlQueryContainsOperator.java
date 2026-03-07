@@ -21,8 +21,10 @@ public class TestSqlQueryContainsOperator {
   @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema(TestSqlQueryContainsOperator.class.getSimpleName());
-    DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
+    String schemaName = TestSqlQueryContainsOperator.class.getSimpleName();
+    db.dropSchemaIfExists(schemaName);
+    DataModels.Profile.PET_STORE.getImportTask(db, schemaName, "", true).run();
+    schema = db.getSchema(schemaName);
     schema
         .getTable("Pet")
         .insert(row("name", "mickey", "photoUrls", "foo", "category", "dog", "weight", 1));

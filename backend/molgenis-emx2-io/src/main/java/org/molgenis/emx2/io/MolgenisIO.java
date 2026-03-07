@@ -27,6 +27,7 @@ public class MolgenisIO {
     outputMetadata(store, schema);
     outputRoles(store, schema);
     outputSettings(store, schema);
+
     boolean hasViewPermission = schema.getInheritedRolesForActiveUser().contains(VIEWER.toString());
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);

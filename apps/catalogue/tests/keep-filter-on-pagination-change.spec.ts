@@ -15,7 +15,7 @@ test("filter should remain active after page (pagination) change ", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/catalogue/all/collections", {
+  await goto("/all/collections", {
     waitUntil: "hydration",
   });
   await expect(page.getByRole("main")).toContainText("96 collections");

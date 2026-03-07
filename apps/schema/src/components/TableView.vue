@@ -81,9 +81,11 @@
               v-if="table.subclasses"
             >
               <thead>
-                <th style="width: 25ch" scope="col">subclass</th>
-                <th style="width: 25ch" scope="col">extends</th>
-                <th scope="col">description</th>
+                <tr>
+                  <th style="width: 25ch" scope="col">subclass</th>
+                  <th style="width: 25ch" scope="col">extends</th>
+                  <th scope="col">description</th>
+                </tr>
               </thead>
               <tbody>
                 <tr

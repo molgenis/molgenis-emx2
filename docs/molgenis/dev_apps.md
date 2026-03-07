@@ -13,7 +13,6 @@ All frontend apps in EMX2 are developed using the following tools.
 - [vuejs](https://vuejs.org/): javascript framework for building web apps
 - [Bootstrap 4.x](https://getbootstrap.com/)\*: frontend library for layout and styling (we use last release of v4).
 - [vite](https://vitejs.dev): for application bundling
-- [yarn workspaces](https://yarnpkg.com/features/workspaces): to autowire local dependencies.
 
 In addition, some of the projects use [Sass](https://sass-lang.com) to compile css. SASS and SCSS can be activated in the vue component files by adding the `lang="scss"` to `<style>` tag.
 
@@ -26,24 +25,24 @@ All frontend applications are located in the `apps` folder. In this folder are t
 - 'molgenis-components': general layout and styling
 - 'molgenis-viz': a number of D3 components for creating visualizations and dashboards
 
-These libraries need to be built as it creates a library that can be used in other applications. From time to time, you may need to rebuild the libraries if a library is changed. To build the component libraries, run the following yarn workspace script.
+These libraries need to be built as it creates a library that can be used in other applications. From time to time, you may need to rebuild the libraries if a library is changed. To build the component libraries, run the following pnpm workspace script.
 
 ```bash
 # if not already in apps/
 cd apps
 
-# build both component libraries
-yarn build:libs
+# build all apps including the component libraries
+pnpm build
 ```
 
 The component libraries are also apps. They create a 'showCase' app that is served as the app code. To view this run:
 
 ```bash
-cd apps
-yarn molgenis-components
+cd apps/molgenis-components
+pnpm dev
 ```
 
-**Note**: The `molgenis-viz` library requires a database as the charts require a dataset to generate. You can use `yarn dev` in the molgenis-viz folder, but you may get an error that the data is missing.
+**Note**: The `molgenis-viz` library requires a database as the charts require a dataset to generate. You can use `pnpm dev` in the molgenis-viz folder, but you may get an error that the data is missing.
 
 ## Getting started
 
@@ -68,25 +67,14 @@ If you would like to create a new vue app. There are few ways to get started. Yo
 
 1. Copy the `hello-world` demo: a demo application that can be used as a starting for new applications.
 2. Copy an existing app and delete any unecessary files
-3. Create a new vue app using `yarn create vue@latest`
+3. Create a new vue app using `pnpm init vue@latest`
 4. Manually create folder and required files. `mkdir my-app`
 
 The first three options allow you to create apps fairly quickly, but it also requires you to delete files and adjust the configurations. If you would like to create an app manually, follow the [manually creating a frontend application](#manually-creating-a-frontend-application) guide at the end of this page. Before you get started, have a look at the other applications to see how they are structured and configured.
 
-#### Register your application in the yarn workspace
+#### Register your application in the pnpm workspace
 
-In the apps folder, you will find a `package.json` file. This is where the workspace configurations are defined and all the apps are added to the workspace. Add your application to the list of workspaces so that you have access to all local dependencies.
-
-```json
-{
-  "private": true,
-  "workspaces": [
-    // ...
-    "my-app"
-  ]
-  // ...
-}
-```
+In the apps folder, you will find a `pnpm-workspace.yaml` file. This is where the workspace configurations are defined and all the apps are added to the workspace. Add your application to the list of workspaces so that you have access to all local dependencies.
 
 ### Contributing to an existing app
 
@@ -100,11 +88,11 @@ In the apps folder, there are several core frontend applications (e.g., settings
 docker-compose up
 ```
 
-The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `yarn dev`. For example, to preview the app `apps/schema`, run the following command.
+The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `pnpm dev`. For example, to preview the app `apps/schema`, run the following command.
 
 ```bash
 cd apps/schema
-yarn dev
+pnpm dev
 ```
 
 ## Deploying your application
@@ -124,7 +112,7 @@ First, start the development server.
 cd apps/<your-app>
 
 # start the dev server
-yarn dev
+pnpm dev
 ```
 
 Once started, the app is served at [http://localhost:5173](http://localhost:5173). If the server is running and the app cannot be found, check the `vite.config.js` file to see if the port has changed.
@@ -140,7 +128,7 @@ If you continue to have issues, make sure your app has been merged with the main
 It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
 
 ```bash
-yarn build:libs
+pnpm build
 ```
 
 If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
@@ -152,10 +140,10 @@ cd apps/
 rm -rf node_modules
 
 # reinstall dependencies
-yarn
+pnpm install
 
 # rebuild component libraries
-yarn build:libs
+pnpm build
 ```
 
 ### I would like to use the molgenis-viz library, but the styles aren't loading
@@ -223,17 +211,17 @@ cd *my-app*
 
 #### Create the package.json file
 
-First, create a `package.json` file in your new app. It is easier to create this using yarn. Follow the prompts and provide as much details as possible.
+First, create a `package.json` file in your new app. It is easier to create this using pnpm. Follow the prompts and provide as much details as possible.
 
 ```bash
-yarn init
+pnpm init
 ```
 
-Once the file is created, add the yarn scripts, browserlists, and minimum dependencies. Copy the following code and paste it into the `package.json` file. In the dependencies list, you will need to add the `molgenis-components` library. Rather than specifying a specific version, use `*` to target any local build. If you would like to use the visualization library, add `"molgenis-viz": "*"` to the list of dependencies.
+Once the file is created, add the pnpm scripts, browserlists, and minimum dependencies. Copy the following code and paste it into the `package.json` file. In the dependencies list, you will need to add the `molgenis-components` library. Rather than specifying a specific version, use `*` to target any local build. If you would like to use the visualization library, add `"molgenis-viz": "*"` to the list of dependencies.
 
 ```json
 {
-  // .... content created by yarn init
+  // .... content created by pnpm init
   "dependencies": {
     "molgenis-components": "*"
   },
@@ -255,14 +243,14 @@ Our frontend applications do not use that many dependencies. We try to keep the 
 At the very least, you will need the following dependencies to your project.
 
 ```bash
-yarn add vue vue-router
-yarn add -D @vitejs/plugin-vue prettier vite
+pnpm add vue vue-router
+pnpm add -D @vitejs/plugin-vue prettier vite
 ```
 
 If you would like to interact with the MOLGENIS GraphQL API, install the following dependency:
 
 ```bash
-yarn add graphql-request
+pnpm install graphql-request
 ```
 
 #### Add vite.config.js file
@@ -402,7 +390,7 @@ cp ../aggregates/index.html .
 
 Open the index.html file, add update the message with the name of your app. In addition, make sure the script tag points to the `main.ts` file.
 
-By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
+By this point, you should have enough to view your app. Run the `pnpm dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
 
 ### Generate typescript types for an app
 
