@@ -1,32 +1,32 @@
 {
-  "Dcat_roundtrip_source:resource" : {
+  "DcatRoundTripTest:resource" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:type" : {
+  "DcatRoundTripTest:type" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:organisation" : {
+  "DcatRoundTripTest:organisation" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:role" : {
+  "DcatRoundTripTest:role" : {
     "@embed" : "@always"
   },
   "dcterms:source" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:ageGroups" : {
+  "DcatRoundTripTest:ageGroups" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:areasOfInformation" : {
+  "DcatRoundTripTest:areasOfInformation" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:dataCategories" : {
+  "DcatRoundTripTest:dataCategories" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:sampleCategories" : {
+  "DcatRoundTripTest:sampleCategories" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:standardizedTools" : {
+  "DcatRoundTripTest:standardizedTools" : {
     "@embed" : "@always"
   },
   "dcat:contactPoint" : {
@@ -50,253 +50,253 @@
   "foaf:title" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:source" : {
+  "DcatRoundTripTest:source" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:sourceDataset" : {
+  "DcatRoundTripTest:sourceDataset" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:target" : {
+  "DcatRoundTripTest:target" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:targetDataset" : {
+  "DcatRoundTripTest:targetDataset" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:datasetType" : {
+  "DcatRoundTripTest:datasetType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:unitOfObservation" : {
+  "DcatRoundTripTest:unitOfObservation" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:mappedTo" : {
+  "DcatRoundTripTest:mappedTo" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:mappedFrom" : {
+  "DcatRoundTripTest:mappedFrom" : {
     "@embed" : "@always"
   },
   "fdp-o:metadataCatalog" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:externalIdentifierType" : {
+  "DcatRoundTripTest:externalIdentifierType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:internalIdentifierType" : {
+  "DcatRoundTripTest:internalIdentifierType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:linkedResource" : {
+  "DcatRoundTripTest:linkedResource" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:linkageStrategy" : {
+  "DcatRoundTripTest:linkageStrategy" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:ageGroup" : {
+  "DcatRoundTripTest:ageGroup" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:mappingStatus" : {
+  "DcatRoundTripTest:mappingStatus" : {
     "@embed" : "@always"
   },
   "ldp:membershipResource" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:catalogueType" : {
+  "DcatRoundTripTest:catalogueType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:cohortType" : {
+  "DcatRoundTripTest:cohortType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:clinicalStudyType" : {
+  "DcatRoundTripTest:clinicalStudyType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:registryOrHealthRecordType" : {
+  "DcatRoundTripTest:registryOrHealthRecordType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:networkType" : {
+  "DcatRoundTripTest:networkType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:internalIdentifiers" : {
+  "DcatRoundTripTest:internalIdentifiers" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:externalIdentifiers" : {
+  "DcatRoundTripTest:externalIdentifiers" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:status" : {
+  "DcatRoundTripTest:status" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:design" : {
+  "DcatRoundTripTest:design" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:dataCollectionType" : {
+  "DcatRoundTripTest:dataCollectionType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:collectionEvents" : {
+  "DcatRoundTripTest:collectionEvents" : {
     "@embed" : "@always"
   },
   "dcat:dataset" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:partOfNetworks" : {
+  "DcatRoundTripTest:partOfNetworks" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:populationOfInterest" : {
+  "DcatRoundTripTest:populationOfInterest" : {
     "@embed" : "@always"
   },
   "dcterms:spatial" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:populationAgeGroups" : {
+  "DcatRoundTripTest:populationAgeGroups" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:inclusionCriteria" : {
+  "DcatRoundTripTest:inclusionCriteria" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:exclusionCriteria" : {
+  "DcatRoundTripTest:exclusionCriteria" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:populationEntry" : {
+  "DcatRoundTripTest:populationEntry" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:populationExit" : {
+  "DcatRoundTripTest:populationExit" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:populationDisease" : {
+  "DcatRoundTripTest:populationDisease" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:populationOncologyTopology" : {
+  "DcatRoundTripTest:populationOncologyTopology" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:populationOncologyMorphology" : {
+  "DcatRoundTripTest:populationOncologyMorphology" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:counts" : {
+  "DcatRoundTripTest:counts" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:organisationsInvolved" : {
+  "DcatRoundTripTest:organisationsInvolved" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:peopleInvolved" : {
+  "DcatRoundTripTest:peopleInvolved" : {
     "@embed" : "@always"
   },
   "dcat:catalog" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:parentNetworks" : {
+  "DcatRoundTripTest:parentNetworks" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:datasets" : {
+  "DcatRoundTripTest:datasets" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:samplesets" : {
+  "DcatRoundTripTest:samplesets" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:areasOfInformationRwd" : {
+  "DcatRoundTripTest:areasOfInformationRwd" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:biospecimenCollected" : {
+  "DcatRoundTripTest:biospecimenCollected" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:languages" : {
+  "DcatRoundTripTest:languages" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:linkedResources" : {
+  "DcatRoundTripTest:linkedResources" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:informedConsentType" : {
+  "DcatRoundTripTest:informedConsentType" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:informedConsentRequired" : {
+  "DcatRoundTripTest:informedConsentRequired" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:dataAccessConditions" : {
+  "DcatRoundTripTest:dataAccessConditions" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:dataUseConditions" : {
+  "DcatRoundTripTest:dataUseConditions" : {
     "@embed" : "@always"
   },
   "dcterms:accrualPeriodicity" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:refreshPeriod" : {
+  "DcatRoundTripTest:refreshPeriod" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:mappingsToCommonDataModels" : {
+  "DcatRoundTripTest:mappingsToCommonDataModels" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:eTLStandardVocabularies" : {
+  "DcatRoundTripTest:eTLStandardVocabularies" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:publications" : {
+  "DcatRoundTripTest:publications" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:fundingSources" : {
+  "DcatRoundTripTest:fundingSources" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:fundingScheme" : {
+  "DcatRoundTripTest:fundingScheme" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:documentation" : {
+  "DcatRoundTripTest:documentation" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:dataSources" : {
+  "DcatRoundTripTest:dataSources" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:variable" : {
+  "DcatRoundTripTest:variable" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:sampleTypes" : {
+  "DcatRoundTripTest:sampleTypes" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:subpopulation" : {
+  "DcatRoundTripTest:subpopulation" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:mainMedicalCondition" : {
+  "DcatRoundTripTest:mainMedicalCondition" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:comorbidity" : {
+  "DcatRoundTripTest:comorbidity" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:sourceVariables" : {
+  "DcatRoundTripTest:sourceVariables" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:sourceVariablesOtherDatasets" : {
+  "DcatRoundTripTest:sourceVariablesOtherDatasets" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:targetVariable" : {
+  "DcatRoundTripTest:targetVariable" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:match" : {
+  "DcatRoundTripTest:match" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:dataset" : {
+  "DcatRoundTripTest:dataset" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:useExternalDefinition" : {
+  "DcatRoundTripTest:useExternalDefinition" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:collectionEvent" : {
+  "DcatRoundTripTest:collectionEvent" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:format" : {
+  "DcatRoundTripTest:format" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:unit" : {
+  "DcatRoundTripTest:unit" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:reusedInResources" : {
+  "DcatRoundTripTest:reusedInResources" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:repeatUnit" : {
+  "DcatRoundTripTest:repeatUnit" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:permittedValues" : {
+  "DcatRoundTripTest:permittedValues" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:generated_keywords" : {
+  "DcatRoundTripTest:generated_keywords" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:vocabularies" : {
+  "DcatRoundTripTest:vocabularies" : {
     "@embed" : "@always"
   },
-  "Dcat_roundtrip_source:mappings" : {
+  "DcatRoundTripTest:mappings" : {
     "@embed" : "@always"
   },
   "@context" : {
@@ -334,37 +334,37 @@
     "snomedct" : "http://purl.bioontology.org/ontology/SNOMEDCT/",
     "vcard" : "http://www.w3.org/2006/vcard/ns#",
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "Dcat_roundtrip_source" : "urn:molgenis:schema:Dcat_roundtrip_source#",
+    "DcatRoundTripTest" : "urn:molgenis:schema:DcatRoundTripTest#",
     "Agents" : {
-      "@id" : "Dcat_roundtrip_source:Agents",
+      "@id" : "DcatRoundTripTest:Agents",
       "@type" : "foaf:Agent"
     },
     "Contacts" : {
-      "@id" : "Dcat_roundtrip_source:Contacts",
+      "@id" : "DcatRoundTripTest:Contacts",
       "@type" : "vcard:Kind"
     },
     "Endpoint" : {
-      "@id" : "Dcat_roundtrip_source:Endpoint",
+      "@id" : "DcatRoundTripTest:Endpoint",
       "@type" : "schema:Service"
     },
     "Organisations" : {
-      "@id" : "Dcat_roundtrip_source:Organisations",
+      "@id" : "DcatRoundTripTest:Organisations",
       "@type" : "foaf:Agent"
     },
     "Resources" : {
-      "@id" : "Dcat_roundtrip_source:Resources",
+      "@id" : "DcatRoundTripTest:Resources",
       "@type" : "ldp:DirectContainer"
     },
     "resource" : {
-      "@id" : "Dcat_roundtrip_source:resource",
+      "@id" : "DcatRoundTripTest:resource",
       "@type" : "@id"
     },
     "type" : {
-      "@id" : "Dcat_roundtrip_source:type",
+      "@id" : "DcatRoundTripTest:type",
       "@type" : "@id"
     },
     "organisation" : {
-      "@id" : "Dcat_roundtrip_source:organisation",
+      "@id" : "DcatRoundTripTest:organisation",
       "@type" : "@id"
     },
     "website" : {
@@ -377,7 +377,7 @@
       "@id" : "foaf:logo"
     },
     "role" : {
-      "@id" : "Dcat_roundtrip_source:role",
+      "@id" : "DcatRoundTripTest:role",
       "@type" : "@id"
     },
     "organisationName" : {
@@ -412,23 +412,23 @@
       "@id" : "dcat:endDate"
     },
     "ageGroups" : {
-      "@id" : "Dcat_roundtrip_source:ageGroups",
+      "@id" : "DcatRoundTripTest:ageGroups",
       "@type" : "@id"
     },
     "areasOfInformation" : {
-      "@id" : "Dcat_roundtrip_source:areasOfInformation",
+      "@id" : "DcatRoundTripTest:areasOfInformation",
       "@type" : "@id"
     },
     "dataCategories" : {
-      "@id" : "Dcat_roundtrip_source:dataCategories",
+      "@id" : "DcatRoundTripTest:dataCategories",
       "@type" : "@id"
     },
     "sampleCategories" : {
-      "@id" : "Dcat_roundtrip_source:sampleCategories",
+      "@id" : "DcatRoundTripTest:sampleCategories",
       "@type" : "@id"
     },
     "standardizedTools" : {
-      "@id" : "Dcat_roundtrip_source:standardizedTools",
+      "@id" : "DcatRoundTripTest:standardizedTools",
       "@type" : "@id"
     },
     "contactPoint" : {
@@ -487,35 +487,35 @@
       "@id" : "foaf:img"
     },
     "source" : {
-      "@id" : "Dcat_roundtrip_source:source",
+      "@id" : "DcatRoundTripTest:source",
       "@type" : "@id"
     },
     "sourceDataset" : {
-      "@id" : "Dcat_roundtrip_source:sourceDataset",
+      "@id" : "DcatRoundTripTest:sourceDataset",
       "@type" : "@id"
     },
     "target" : {
-      "@id" : "Dcat_roundtrip_source:target",
+      "@id" : "DcatRoundTripTest:target",
       "@type" : "@id"
     },
     "targetDataset" : {
-      "@id" : "Dcat_roundtrip_source:targetDataset",
+      "@id" : "DcatRoundTripTest:targetDataset",
       "@type" : "@id"
     },
     "datasetType" : {
-      "@id" : "Dcat_roundtrip_source:datasetType",
+      "@id" : "DcatRoundTripTest:datasetType",
       "@type" : "@id"
     },
     "unitOfObservation" : {
-      "@id" : "Dcat_roundtrip_source:unitOfObservation",
+      "@id" : "DcatRoundTripTest:unitOfObservation",
       "@type" : "@id"
     },
     "mappedTo" : {
-      "@id" : "Dcat_roundtrip_source:mappedTo",
+      "@id" : "DcatRoundTripTest:mappedTo",
       "@type" : "@id"
     },
     "mappedFrom" : {
-      "@id" : "Dcat_roundtrip_source:mappedFrom",
+      "@id" : "DcatRoundTripTest:mappedFrom",
       "@type" : "@id"
     },
     "id" : {
@@ -560,27 +560,27 @@
       "@id" : "ejp:vpConnection"
     },
     "externalIdentifierType" : {
-      "@id" : "Dcat_roundtrip_source:externalIdentifierType",
+      "@id" : "DcatRoundTripTest:externalIdentifierType",
       "@type" : "@id"
     },
     "internalIdentifierType" : {
-      "@id" : "Dcat_roundtrip_source:internalIdentifierType",
+      "@id" : "DcatRoundTripTest:internalIdentifierType",
       "@type" : "@id"
     },
     "linkedResource" : {
-      "@id" : "Dcat_roundtrip_source:linkedResource",
+      "@id" : "DcatRoundTripTest:linkedResource",
       "@type" : "@id"
     },
     "linkageStrategy" : {
-      "@id" : "Dcat_roundtrip_source:linkageStrategy",
+      "@id" : "DcatRoundTripTest:linkageStrategy",
       "@type" : "@id"
     },
     "ageGroup" : {
-      "@id" : "Dcat_roundtrip_source:ageGroup",
+      "@id" : "DcatRoundTripTest:ageGroup",
       "@type" : "@id"
     },
     "mappingStatus" : {
-      "@id" : "Dcat_roundtrip_source:mappingStatus",
+      "@id" : "DcatRoundTripTest:mappingStatus",
       "@type" : "@id"
     },
     "rdfType" : {
@@ -600,31 +600,31 @@
       "@id" : "dcterms:alternative"
     },
     "catalogueType" : {
-      "@id" : "Dcat_roundtrip_source:catalogueType",
+      "@id" : "DcatRoundTripTest:catalogueType",
       "@type" : "@id"
     },
     "cohortType" : {
-      "@id" : "Dcat_roundtrip_source:cohortType",
+      "@id" : "DcatRoundTripTest:cohortType",
       "@type" : "@id"
     },
     "clinicalStudyType" : {
-      "@id" : "Dcat_roundtrip_source:clinicalStudyType",
+      "@id" : "DcatRoundTripTest:clinicalStudyType",
       "@type" : "@id"
     },
     "registryOrHealthRecordType" : {
-      "@id" : "Dcat_roundtrip_source:registryOrHealthRecordType",
+      "@id" : "DcatRoundTripTest:registryOrHealthRecordType",
       "@type" : "@id"
     },
     "networkType" : {
-      "@id" : "Dcat_roundtrip_source:networkType",
+      "@id" : "DcatRoundTripTest:networkType",
       "@type" : "@id"
     },
     "internalIdentifiers" : {
-      "@id" : "Dcat_roundtrip_source:internalIdentifiers",
+      "@id" : "DcatRoundTripTest:internalIdentifiers",
       "@type" : "@id"
     },
     "externalIdentifiers" : {
-      "@id" : "Dcat_roundtrip_source:externalIdentifiers",
+      "@id" : "DcatRoundTripTest:externalIdentifiers",
       "@type" : "@id"
     },
     "startYear" : {
@@ -634,21 +634,21 @@
       "@id" : "dcat:endDate"
     },
     "status" : {
-      "@id" : "Dcat_roundtrip_source:status",
+      "@id" : "DcatRoundTripTest:status",
       "@type" : "@id"
     },
     "hasMemberRelation" : {
       "@id" : "ldp:hasMemberRelation"
     },
     "design" : {
-      "@id" : "Dcat_roundtrip_source:design",
+      "@id" : "DcatRoundTripTest:design",
       "@type" : "@id"
     },
     "designDescription" : {
       "@id" : "dcterms:provenance"
     },
     "dataCollectionType" : {
-      "@id" : "Dcat_roundtrip_source:dataCollectionType",
+      "@id" : "DcatRoundTripTest:dataCollectionType",
       "@type" : "@id"
     },
     "dataCollectionDescription" : {
@@ -658,7 +658,7 @@
       "@id" : "dcterms:provenance"
     },
     "collectionEvents" : {
-      "@id" : "Dcat_roundtrip_source:collectionEvents",
+      "@id" : "DcatRoundTripTest:collectionEvents",
       "@type" : "@id"
     },
     "dataResources" : {
@@ -666,7 +666,7 @@
       "@type" : "@id"
     },
     "partOfNetworks" : {
-      "@id" : "Dcat_roundtrip_source:partOfNetworks",
+      "@id" : "DcatRoundTripTest:partOfNetworks",
       "@type" : "@id"
     },
     "numberOfParticipants" : {
@@ -676,7 +676,7 @@
       "@id" : "healthdcatap:populationCoverage"
     },
     "populationOfInterest" : {
-      "@id" : "Dcat_roundtrip_source:populationOfInterest",
+      "@id" : "DcatRoundTripTest:populationOfInterest",
       "@type" : "@id"
     },
     "countries" : {
@@ -692,7 +692,7 @@
       "@type" : "@id"
     },
     "populationAgeGroups" : {
-      "@id" : "Dcat_roundtrip_source:populationAgeGroups",
+      "@id" : "DcatRoundTripTest:populationAgeGroups",
       "@type" : "@id"
     },
     "ageMin" : {
@@ -702,43 +702,43 @@
       "@id" : "healthdcatap:maximumTypicalAge"
     },
     "inclusionCriteria" : {
-      "@id" : "Dcat_roundtrip_source:inclusionCriteria",
+      "@id" : "DcatRoundTripTest:inclusionCriteria",
       "@type" : "@id"
     },
     "exclusionCriteria" : {
-      "@id" : "Dcat_roundtrip_source:exclusionCriteria",
+      "@id" : "DcatRoundTripTest:exclusionCriteria",
       "@type" : "@id"
     },
     "populationEntry" : {
-      "@id" : "Dcat_roundtrip_source:populationEntry",
+      "@id" : "DcatRoundTripTest:populationEntry",
       "@type" : "@id"
     },
     "populationExit" : {
-      "@id" : "Dcat_roundtrip_source:populationExit",
+      "@id" : "DcatRoundTripTest:populationExit",
       "@type" : "@id"
     },
     "populationDisease" : {
-      "@id" : "Dcat_roundtrip_source:populationDisease",
+      "@id" : "DcatRoundTripTest:populationDisease",
       "@type" : "@id"
     },
     "populationOncologyTopology" : {
-      "@id" : "Dcat_roundtrip_source:populationOncologyTopology",
+      "@id" : "DcatRoundTripTest:populationOncologyTopology",
       "@type" : "@id"
     },
     "populationOncologyMorphology" : {
-      "@id" : "Dcat_roundtrip_source:populationOncologyMorphology",
+      "@id" : "DcatRoundTripTest:populationOncologyMorphology",
       "@type" : "@id"
     },
     "counts" : {
-      "@id" : "Dcat_roundtrip_source:counts",
+      "@id" : "DcatRoundTripTest:counts",
       "@type" : "@id"
     },
     "organisationsInvolved" : {
-      "@id" : "Dcat_roundtrip_source:organisationsInvolved",
+      "@id" : "DcatRoundTripTest:organisationsInvolved",
       "@type" : "@id"
     },
     "peopleInvolved" : {
-      "@id" : "Dcat_roundtrip_source:peopleInvolved",
+      "@id" : "DcatRoundTripTest:peopleInvolved",
       "@type" : "@id"
     },
     "childNetworks" : {
@@ -746,47 +746,47 @@
       "@type" : "@id"
     },
     "parentNetworks" : {
-      "@id" : "Dcat_roundtrip_source:parentNetworks",
+      "@id" : "DcatRoundTripTest:parentNetworks",
       "@type" : "@id"
     },
     "datasets" : {
-      "@id" : "Dcat_roundtrip_source:datasets",
+      "@id" : "DcatRoundTripTest:datasets",
       "@type" : "@id"
     },
     "samplesets" : {
-      "@id" : "Dcat_roundtrip_source:samplesets",
+      "@id" : "DcatRoundTripTest:samplesets",
       "@type" : "@id"
     },
     "areasOfInformationRwd" : {
-      "@id" : "Dcat_roundtrip_source:areasOfInformationRwd",
+      "@id" : "DcatRoundTripTest:areasOfInformationRwd",
       "@type" : "@id"
     },
     "biospecimenCollected" : {
-      "@id" : "Dcat_roundtrip_source:biospecimenCollected",
+      "@id" : "DcatRoundTripTest:biospecimenCollected",
       "@type" : "@id"
     },
     "languages" : {
-      "@id" : "Dcat_roundtrip_source:languages",
+      "@id" : "DcatRoundTripTest:languages",
       "@type" : "@id"
     },
     "linkedResources" : {
-      "@id" : "Dcat_roundtrip_source:linkedResources",
+      "@id" : "DcatRoundTripTest:linkedResources",
       "@type" : "@id"
     },
     "informedConsentType" : {
-      "@id" : "Dcat_roundtrip_source:informedConsentType",
+      "@id" : "DcatRoundTripTest:informedConsentType",
       "@type" : "@id"
     },
     "informedConsentRequired" : {
-      "@id" : "Dcat_roundtrip_source:informedConsentRequired",
+      "@id" : "DcatRoundTripTest:informedConsentRequired",
       "@type" : "@id"
     },
     "dataAccessConditions" : {
-      "@id" : "Dcat_roundtrip_source:dataAccessConditions",
+      "@id" : "DcatRoundTripTest:dataAccessConditions",
       "@type" : "@id"
     },
     "dataUseConditions" : {
-      "@id" : "Dcat_roundtrip_source:dataUseConditions",
+      "@id" : "DcatRoundTripTest:dataUseConditions",
       "@type" : "@id"
     },
     "releaseType" : {
@@ -794,47 +794,47 @@
       "@type" : "@id"
     },
     "refreshPeriod" : {
-      "@id" : "Dcat_roundtrip_source:refreshPeriod",
+      "@id" : "DcatRoundTripTest:refreshPeriod",
       "@type" : "@id"
     },
     "mappingsToCommonDataModels" : {
-      "@id" : "Dcat_roundtrip_source:mappingsToCommonDataModels",
+      "@id" : "DcatRoundTripTest:mappingsToCommonDataModels",
       "@type" : "@id"
     },
     "eTLStandardVocabularies" : {
-      "@id" : "Dcat_roundtrip_source:eTLStandardVocabularies",
+      "@id" : "DcatRoundTripTest:eTLStandardVocabularies",
       "@type" : "@id"
     },
     "publications" : {
-      "@id" : "Dcat_roundtrip_source:publications",
+      "@id" : "DcatRoundTripTest:publications",
       "@type" : "@id"
     },
     "fundingSources" : {
-      "@id" : "Dcat_roundtrip_source:fundingSources",
+      "@id" : "DcatRoundTripTest:fundingSources",
       "@type" : "@id"
     },
     "fundingScheme" : {
-      "@id" : "Dcat_roundtrip_source:fundingScheme",
+      "@id" : "DcatRoundTripTest:fundingScheme",
       "@type" : "@id"
     },
     "documentation" : {
-      "@id" : "Dcat_roundtrip_source:documentation",
+      "@id" : "DcatRoundTripTest:documentation",
       "@type" : "@id"
     },
     "dataSources" : {
-      "@id" : "Dcat_roundtrip_source:dataSources",
+      "@id" : "DcatRoundTripTest:dataSources",
       "@type" : "@id"
     },
     "variable" : {
-      "@id" : "Dcat_roundtrip_source:variable",
+      "@id" : "DcatRoundTripTest:variable",
       "@type" : "@id"
     },
     "sampleTypes" : {
-      "@id" : "Dcat_roundtrip_source:sampleTypes",
+      "@id" : "DcatRoundTripTest:sampleTypes",
       "@type" : "@id"
     },
     "subpopulation" : {
-      "@id" : "Dcat_roundtrip_source:subpopulation",
+      "@id" : "DcatRoundTripTest:subpopulation",
       "@type" : "@id"
     },
     "inclusionStart" : {
@@ -844,71 +844,71 @@
       "@id" : "dcat:endDate"
     },
     "mainMedicalCondition" : {
-      "@id" : "Dcat_roundtrip_source:mainMedicalCondition",
+      "@id" : "DcatRoundTripTest:mainMedicalCondition",
       "@type" : "@id"
     },
     "comorbidity" : {
-      "@id" : "Dcat_roundtrip_source:comorbidity",
+      "@id" : "DcatRoundTripTest:comorbidity",
       "@type" : "@id"
     },
     "sourceVariables" : {
-      "@id" : "Dcat_roundtrip_source:sourceVariables",
+      "@id" : "DcatRoundTripTest:sourceVariables",
       "@type" : "@id"
     },
     "sourceVariablesOtherDatasets" : {
-      "@id" : "Dcat_roundtrip_source:sourceVariablesOtherDatasets",
+      "@id" : "DcatRoundTripTest:sourceVariablesOtherDatasets",
       "@type" : "@id"
     },
     "targetVariable" : {
-      "@id" : "Dcat_roundtrip_source:targetVariable",
+      "@id" : "DcatRoundTripTest:targetVariable",
       "@type" : "@id"
     },
     "match" : {
-      "@id" : "Dcat_roundtrip_source:match",
+      "@id" : "DcatRoundTripTest:match",
       "@type" : "@id"
     },
     "dataset" : {
-      "@id" : "Dcat_roundtrip_source:dataset",
+      "@id" : "DcatRoundTripTest:dataset",
       "@type" : "@id"
     },
     "useExternalDefinition" : {
-      "@id" : "Dcat_roundtrip_source:useExternalDefinition",
+      "@id" : "DcatRoundTripTest:useExternalDefinition",
       "@type" : "@id"
     },
     "collectionEvent" : {
-      "@id" : "Dcat_roundtrip_source:collectionEvent",
+      "@id" : "DcatRoundTripTest:collectionEvent",
       "@type" : "@id"
     },
     "format" : {
-      "@id" : "Dcat_roundtrip_source:format",
+      "@id" : "DcatRoundTripTest:format",
       "@type" : "@id"
     },
     "unit" : {
-      "@id" : "Dcat_roundtrip_source:unit",
+      "@id" : "DcatRoundTripTest:unit",
       "@type" : "@id"
     },
     "reusedInResources" : {
-      "@id" : "Dcat_roundtrip_source:reusedInResources",
+      "@id" : "DcatRoundTripTest:reusedInResources",
       "@type" : "@id"
     },
     "repeatUnit" : {
-      "@id" : "Dcat_roundtrip_source:repeatUnit",
+      "@id" : "DcatRoundTripTest:repeatUnit",
       "@type" : "@id"
     },
     "permittedValues" : {
-      "@id" : "Dcat_roundtrip_source:permittedValues",
+      "@id" : "DcatRoundTripTest:permittedValues",
       "@type" : "@id"
     },
     "generated_keywords" : {
-      "@id" : "Dcat_roundtrip_source:generated_keywords",
+      "@id" : "DcatRoundTripTest:generated_keywords",
       "@type" : "@id"
     },
     "vocabularies" : {
-      "@id" : "Dcat_roundtrip_source:vocabularies",
+      "@id" : "DcatRoundTripTest:vocabularies",
       "@type" : "@id"
     },
     "mappings" : {
-      "@id" : "Dcat_roundtrip_source:mappings",
+      "@id" : "DcatRoundTripTest:mappings",
       "@type" : "@id"
     }
   },
