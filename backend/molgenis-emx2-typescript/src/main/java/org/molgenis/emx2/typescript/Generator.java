@@ -86,17 +86,8 @@ public class Generator {
 
       Set<String> seenColumns = new LinkedHashSet<>();
       for (Column column : table.getColumnsIncludingSubclasses()) {
-        if (column.getColumnType().isHeading()) {
-          continue;
-        }
-        if (column.isSystemColumn()) {
-          continue;
-        }
-
         String columnName = convertToCamelCase(column.getName());
-        if (!seenColumns.add(columnName)) {
-          continue;
-        }
+        if (shouldSkipColumn(column, seenColumns, columnName)) continue;
         String fieldValue = toTypeScriptInterfaceFieldValue(schema, column);
         String optional = column.isRequired() ? "" : "?";
         writer.println(String.format("    %s%s: %s;", columnName, optional, fieldValue));
@@ -114,6 +105,12 @@ public class Generator {
     writer.println("");
     writer.flush();
     writer.close();
+  }
+
+  private boolean shouldSkipColumn(Column column, Set<String> seenColumns, String columnName) {
+    return column.getColumnType().isHeading()
+        || column.isSystemColumn()
+        || !seenColumns.add(columnName);
   }
 
   private String toTypeScriptInterfaceFieldValue(Schema schema, Column column) {
