@@ -84,3 +84,4 @@ apps/tailwind-components/playwright/.auth/user.json
 
 .turbo
 .claude
+.playwright-cli
