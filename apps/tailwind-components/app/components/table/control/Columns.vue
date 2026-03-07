@@ -57,7 +57,7 @@
         </div>
         <ul>
           <li
-            v-for="element in dataColumns"
+            v-for="element in ownColumns"
             :key="element.id"
             class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab"
           >
@@ -81,6 +81,37 @@
             </div>
           </li>
         </ul>
+        <template v-for="[sourceTableId, cols] in subclassGroups" :key="sourceTableId">
+          <div class="mt-4 mb-1 text-xs font-semibold uppercase tracking-wide text-body-muted">
+            {{ sourceTableId }}
+          </div>
+          <ul>
+            <li
+              v-for="element in cols"
+              :key="element.id"
+              class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab"
+            >
+              <div class="flex justify-between">
+                <div class="flex items-start">
+                  <div class="flex items-center">
+                    <InputCheckbox
+                      v-model="element[checkAttribute]"
+                      :id="element.id"
+                      class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox accent-primary"
+                    />
+                  </div>
+                  <label
+                    class="text-body-base hover:cursor-pointer group"
+                    :for="element.id"
+                  >
+                    {{ element.label }}
+                  </label>
+                </div>
+                <BaseIcon name="equal" class="hover:cursor-grab" />
+              </div>
+            </li>
+          </ul>
+        </template>
       </div>
 
       <div v-if="metadataColumns.length">
@@ -185,6 +216,21 @@ const dataColumns = computed(() =>
   columnsInColumnsSelectModal.value.filter((col) => !col.id.startsWith("mg_"))
 );
 
+const ownColumns = computed(() =>
+  dataColumns.value.filter((col) => !col.sourceTableId)
+);
+
+const subclassGroups = computed(() => {
+  const map = new Map<string, IColumnConfig[]>();
+  for (const col of dataColumns.value) {
+    if (col.sourceTableId) {
+      if (!map.has(col.sourceTableId)) map.set(col.sourceTableId, []);
+      map.get(col.sourceTableId)!.push(col);
+    }
+  }
+  return map;
+});
+
 const metadataColumns = computed(() =>
   columnsInColumnsSelectModal.value.filter((col) => col.id.startsWith("mg_"))
 );
@@ -255,6 +301,7 @@ function columnToColumnConfig(column: IColumn): IColumnConfig {
     id: column.id,
     label: column.label || column.id,
     position: column.position ?? 0,
+    sourceTableId: column.sourceTableId,
     [attr]: attrValue,
   } as IColumnConfig;
 }
@@ -296,6 +343,7 @@ interface IColumnConfig {
   position: number;
   visible?: boolean;
   showFilter?: boolean;
+  sourceTableId?: string;
 }
 
 function showAll(isData: boolean) {

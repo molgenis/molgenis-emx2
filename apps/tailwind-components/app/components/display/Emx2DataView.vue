@@ -120,6 +120,7 @@ const {
   page,
   searchTerms,
   filter: combinedFilter,
+  includeSubclassColumns: true,
 });
 
 // update metadataRef when metadata loads

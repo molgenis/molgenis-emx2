@@ -103,6 +103,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  sourceTableId?: string;
 }
 
 export interface IRefColumn extends IColumn {
@@ -121,6 +122,7 @@ export interface ITableMetaData {
   label: string;
   description?: string;
   tableType: string;
+  inheritId?: string;
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];

@@ -3,6 +3,7 @@ import { fetchMetadata } from "#imports";
 import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import { errorToMessage } from "../utils/errorToMessage";
+import { getSubclassColumns } from "./getSubclassColumns";
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
@@ -16,20 +17,11 @@ export default async (
 ): Promise<ITableDataResponse> => {
   const limit = properties?.limit ? properties?.limit : 20;
   const offset = properties?.offset ? properties?.offset : 0;
-  const expandLevel =
-    properties?.expandLevel || properties?.expandLevel == 0
-      ? properties?.expandLevel
-      : 2;
   const search = properties?.searchTerms
     ? ',search:"' + properties?.searchTerms.trim() + '"'
     : "";
 
-  const columnIds: string = await getColumnIds(
-    schemaId,
-    tableId,
-    expandLevel,
-    properties?.columns
-  );
+  const columnIds: string = await getColumnIds(schemaId, tableId, properties);
   const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -70,16 +62,30 @@ export default async (
 export const getColumnIds = async (
   schemaId: string,
   tableId: string,
-  //allows expansion of ref fields to add their next layer of details.
-  expandLevel: number,
-  columnFilter: IColumn[] = [],
+  properties?: IQueryMetaData,
   rootLevel = true
 ) => {
+  const expandLevel =
+    properties?.expandLevel || properties?.expandLevel === 0
+      ? properties.expandLevel
+      : 2;
+  const columnFilter: IColumn[] = properties?.columns ?? [];
+  const includeSubclassColumns = properties?.includeSubclassColumns ?? false;
+
   const metadata = await fetchMetadata(schemaId);
 
-  const columns = columnFilter?.length
-    ? columnFilter
-    : metadata.tables.find((table) => table.id === tableId)?.columns || [];
+  const tableColumns =
+    metadata.tables.find((table) => table.id === tableId)?.columns || [];
+  const allColumns = includeSubclassColumns
+    ? [
+        ...tableColumns,
+        ...getSubclassColumns(tableId, metadata.tables).filter(
+          (col) => !tableColumns.some((tc) => tc.id === col.id)
+        ),
+      ]
+    : tableColumns;
+
+  const columns = columnFilter?.length ? columnFilter : allColumns;
 
   let gqlFields = "";
   for (const col of columns) {
@@ -115,9 +121,7 @@ export const getColumnIds = async (
           (await getColumnIds(
             col.refSchemaId || schemaId,
             col.refTableId || tableId,
-            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
-            expandLevel - 1,
-            [],
+            { expandLevel: expandLevel - 1 },
             false
           )) +
           " }";

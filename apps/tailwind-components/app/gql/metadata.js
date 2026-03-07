@@ -9,6 +9,7 @@ export default gql`
         schemaId
         label
         tableType
+        inheritId
         description
         semantics
         columns {
