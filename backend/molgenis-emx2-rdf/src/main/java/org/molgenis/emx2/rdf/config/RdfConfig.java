@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
 import org.molgenis.emx2.rdf.writers.WriterFactory;
@@ -10,18 +11,27 @@ import org.molgenis.emx2.rdf.writers.WriterFactory;
  * singleton containing the default values.
  */
 public class RdfConfig {
-  private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig();
+  private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig(RdfApiGeneratorFactory.EMX2);
+  private static final RdfConfig SEMANTIC_INSTANCE = new RdfConfig(RdfApiGeneratorFactory.SEMANTIC);
 
   @JsonProperty("writer")
   private final WriterFactory writerFactory = WriterFactory.STREAM;
 
   @JsonProperty("generator")
-  private final RdfApiGeneratorFactory rdfApiGeneratorFactory = RdfApiGeneratorFactory.EMX2;
+  private final RdfApiGeneratorFactory rdfApiGeneratorFactory;
 
-  private RdfConfig() {}
+  @JsonCreator
+  private RdfConfig(@JsonProperty("generator") RdfApiGeneratorFactory rdfApiGeneratorFactory) {
+    this.rdfApiGeneratorFactory =
+        rdfApiGeneratorFactory != null ? rdfApiGeneratorFactory : RdfApiGeneratorFactory.EMX2;
+  }
 
   public static RdfConfig getDefaults() {
     return DEFAULT_INSTANCE;
+  }
+
+  public static RdfConfig semantic() {
+    return SEMANTIC_INSTANCE;
   }
 
   public WriterFactory getWriterFactory() {

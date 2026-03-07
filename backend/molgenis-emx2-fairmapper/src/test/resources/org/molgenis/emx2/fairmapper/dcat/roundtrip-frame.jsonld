@@ -1,0 +1,916 @@
+{
+  "Dcat_roundtrip_source:resource" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:type" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:organisation" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:role" : {
+    "@embed" : "@always"
+  },
+  "dcterms:source" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:ageGroups" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:areasOfInformation" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:dataCategories" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:sampleCategories" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:standardizedTools" : {
+    "@embed" : "@always"
+  },
+  "dcat:contactPoint" : {
+    "@embed" : "@always"
+  },
+  "dcterms:publisher" : {
+    "@embed" : "@always"
+  },
+  "dcterms:creator" : {
+    "@embed" : "@always"
+  },
+  "dcat:theme" : {
+    "@embed" : "@always"
+  },
+  "dcterms:accessRights" : {
+    "@embed" : "@always"
+  },
+  "dcatap:applicableLegislation" : {
+    "@embed" : "@always"
+  },
+  "foaf:title" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:source" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:sourceDataset" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:target" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:targetDataset" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:datasetType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:unitOfObservation" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:mappedTo" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:mappedFrom" : {
+    "@embed" : "@always"
+  },
+  "fdp-o:metadataCatalog" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:externalIdentifierType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:internalIdentifierType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:linkedResource" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:linkageStrategy" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:ageGroup" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:mappingStatus" : {
+    "@embed" : "@always"
+  },
+  "ldp:membershipResource" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:catalogueType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:cohortType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:clinicalStudyType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:registryOrHealthRecordType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:networkType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:internalIdentifiers" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:externalIdentifiers" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:status" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:design" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:dataCollectionType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:collectionEvents" : {
+    "@embed" : "@always"
+  },
+  "dcat:dataset" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:partOfNetworks" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:populationOfInterest" : {
+    "@embed" : "@always"
+  },
+  "dcterms:spatial" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:populationAgeGroups" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:inclusionCriteria" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:exclusionCriteria" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:populationEntry" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:populationExit" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:populationDisease" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:populationOncologyTopology" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:populationOncologyMorphology" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:counts" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:organisationsInvolved" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:peopleInvolved" : {
+    "@embed" : "@always"
+  },
+  "dcat:catalog" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:parentNetworks" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:datasets" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:samplesets" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:areasOfInformationRwd" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:biospecimenCollected" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:languages" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:linkedResources" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:informedConsentType" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:informedConsentRequired" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:dataAccessConditions" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:dataUseConditions" : {
+    "@embed" : "@always"
+  },
+  "dcterms:accrualPeriodicity" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:refreshPeriod" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:mappingsToCommonDataModels" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:eTLStandardVocabularies" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:publications" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:fundingSources" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:fundingScheme" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:documentation" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:dataSources" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:variable" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:sampleTypes" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:subpopulation" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:mainMedicalCondition" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:comorbidity" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:sourceVariables" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:sourceVariablesOtherDatasets" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:targetVariable" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:match" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:dataset" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:useExternalDefinition" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:collectionEvent" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:format" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:unit" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:reusedInResources" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:repeatUnit" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:permittedValues" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:generated_keywords" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:vocabularies" : {
+    "@embed" : "@always"
+  },
+  "Dcat_roundtrip_source:mappings" : {
+    "@embed" : "@always"
+  },
+  "@context" : {
+    "afr" : "http://purl.allotrope.org/ontologies/result#",
+    "afrl" : "http://purl.allotrope.org/ontologies/role#",
+    "dc" : "http://purl.org/dc/elements/1.1/",
+    "dcat" : "http://www.w3.org/ns/dcat#",
+    "dcatap" : "http://data.europa.eu/r5r/",
+    "dcterms" : "http://purl.org/dc/terms/",
+    "edam" : "http://edamontology.org/",
+    "efo" : "http://www.ebi.ac.uk/efo/",
+    "ejp" : "https://w3id.org/ejp-rd/vocabulary#",
+    "ensembl" : "http://ensembl.org/glossary/",
+    "fdp-o" : "https://w3id.org/fdp/fdp-o#",
+    "fg" : "https://w3id.org/fair-genomes/resource/",
+    "foaf" : "http://xmlns.com/foaf/0.1/",
+    "healthdcatap" : "http://healthdataportal.eu/ns/health#",
+    "hl7" : "http://purl.bioontology.org/ontology/HL7/",
+    "ldp" : "http://www.w3.org/ns/ldp#",
+    "lnc" : "http://purl.bioontology.org/ontology/LNC/",
+    "mesh" : "http://purl.bioontology.org/ontology/MESH/",
+    "obo" : "http://purl.obolibrary.org/obo/",
+    "oboInOwl" : "http://www.geneontology.org/formats/oboInOwl#",
+    "odrl" : "http://www.w3.org/ns/odrl/2/",
+    "ordo" : "http://www.orpha.net/ORDO/",
+    "org" : "http://www.w3.org/ns/org#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "prov" : "http://www.w3.org/ns/prov#",
+    "qb" : "http://purl.org/linked-data/cube#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "schema" : "http://schema.org/",
+    "sio" : "http://semanticscience.org/resource/",
+    "skos" : "http://www.w3.org/2004/02/skos/core#",
+    "snomedct" : "http://purl.bioontology.org/ontology/SNOMEDCT/",
+    "vcard" : "http://www.w3.org/2006/vcard/ns#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "Dcat_roundtrip_source" : "urn:molgenis:schema:Dcat_roundtrip_source#",
+    "Agents" : {
+      "@id" : "Dcat_roundtrip_source:Agents",
+      "@type" : "foaf:Agent"
+    },
+    "Contacts" : {
+      "@id" : "Dcat_roundtrip_source:Contacts",
+      "@type" : "vcard:Kind"
+    },
+    "Endpoint" : {
+      "@id" : "Dcat_roundtrip_source:Endpoint",
+      "@type" : "schema:Service"
+    },
+    "Organisations" : {
+      "@id" : "Dcat_roundtrip_source:Organisations",
+      "@type" : "foaf:Agent"
+    },
+    "Resources" : {
+      "@id" : "Dcat_roundtrip_source:Resources",
+      "@type" : "ldp:DirectContainer"
+    },
+    "resource" : {
+      "@id" : "Dcat_roundtrip_source:resource",
+      "@type" : "@id"
+    },
+    "type" : {
+      "@id" : "Dcat_roundtrip_source:type",
+      "@type" : "@id"
+    },
+    "organisation" : {
+      "@id" : "Dcat_roundtrip_source:organisation",
+      "@type" : "@id"
+    },
+    "website" : {
+      "@id" : "foaf:homepage"
+    },
+    "email" : {
+      "@id" : "foaf:mbox"
+    },
+    "logo" : {
+      "@id" : "foaf:logo"
+    },
+    "role" : {
+      "@id" : "Dcat_roundtrip_source:role",
+      "@type" : "@id"
+    },
+    "organisationName" : {
+      "@id" : "foaf:name"
+    },
+    "organisationPid" : {
+      "@id" : "dcterms:identifier"
+    },
+    "organisationWebsite" : {
+      "@id" : "foaf:homepage"
+    },
+    "name" : {
+      "@id" : "dcterms:title"
+    },
+    "pid" : {
+      "@id" : "dcterms:identifier"
+    },
+    "description" : {
+      "@id" : "dcterms:description"
+    },
+    "subpopulations" : {
+      "@id" : "dcterms:source",
+      "@type" : "@id"
+    },
+    "keywords" : {
+      "@id" : "dcat:keyword"
+    },
+    "startDate" : {
+      "@id" : "dcat:startDate"
+    },
+    "endDate" : {
+      "@id" : "dcat:endDate"
+    },
+    "ageGroups" : {
+      "@id" : "Dcat_roundtrip_source:ageGroups",
+      "@type" : "@id"
+    },
+    "areasOfInformation" : {
+      "@id" : "Dcat_roundtrip_source:areasOfInformation",
+      "@type" : "@id"
+    },
+    "dataCategories" : {
+      "@id" : "Dcat_roundtrip_source:dataCategories",
+      "@type" : "@id"
+    },
+    "sampleCategories" : {
+      "@id" : "Dcat_roundtrip_source:sampleCategories",
+      "@type" : "@id"
+    },
+    "standardizedTools" : {
+      "@id" : "Dcat_roundtrip_source:standardizedTools",
+      "@type" : "@id"
+    },
+    "contactPoint" : {
+      "@id" : "dcat:contactPoint",
+      "@type" : "@id"
+    },
+    "publisher" : {
+      "@id" : "dcterms:publisher",
+      "@type" : "@id"
+    },
+    "creator" : {
+      "@id" : "dcterms:creator",
+      "@type" : "@id"
+    },
+    "issued" : {
+      "@id" : "dcterms:issued"
+    },
+    "modified" : {
+      "@id" : "dcterms:modified"
+    },
+    "theme" : {
+      "@id" : "dcat:theme",
+      "@type" : "@id"
+    },
+    "accessRights" : {
+      "@id" : "dcterms:accessRights",
+      "@type" : "@id"
+    },
+    "applicableLegislation" : {
+      "@id" : "dcatap:applicableLegislation",
+      "@type" : "@id"
+    },
+    "provenanceStatement" : {
+      "@id" : "dct:provenance"
+    },
+    "firstName" : {
+      "@id" : "foaf:firstName"
+    },
+    "lastName" : {
+      "@id" : "foaf:familyName"
+    },
+    "displayName" : {
+      "@id" : "foaf:name"
+    },
+    "title" : {
+      "@id" : "foaf:title",
+      "@type" : "@id"
+    },
+    "orcid" : {
+      "@id" : "dcterms:identifier"
+    },
+    "homepage" : {
+      "@id" : "vcard:url"
+    },
+    "photo" : {
+      "@id" : "foaf:img"
+    },
+    "source" : {
+      "@id" : "Dcat_roundtrip_source:source",
+      "@type" : "@id"
+    },
+    "sourceDataset" : {
+      "@id" : "Dcat_roundtrip_source:sourceDataset",
+      "@type" : "@id"
+    },
+    "target" : {
+      "@id" : "Dcat_roundtrip_source:target",
+      "@type" : "@id"
+    },
+    "targetDataset" : {
+      "@id" : "Dcat_roundtrip_source:targetDataset",
+      "@type" : "@id"
+    },
+    "datasetType" : {
+      "@id" : "Dcat_roundtrip_source:datasetType",
+      "@type" : "@id"
+    },
+    "unitOfObservation" : {
+      "@id" : "Dcat_roundtrip_source:unitOfObservation",
+      "@type" : "@id"
+    },
+    "mappedTo" : {
+      "@id" : "Dcat_roundtrip_source:mappedTo",
+      "@type" : "@id"
+    },
+    "mappedFrom" : {
+      "@id" : "Dcat_roundtrip_source:mappedFrom",
+      "@type" : "@id"
+    },
+    "id" : {
+      "@id" : "schema:identifier"
+    },
+    "version" : {
+      "@id" : "dcterms:hasVersion"
+    },
+    "language" : {
+      "@id" : "dcterms:language"
+    },
+    "license" : {
+      "@id" : "dcterms:license"
+    },
+    "conformsTo" : {
+      "@id" : "dcterms:conformsTo"
+    },
+    "rights" : {
+      "@id" : "dcterms:rights"
+    },
+    "contact" : {
+      "@id" : "dcat:contactPoint",
+      "@type" : "@id"
+    },
+    "keyword" : {
+      "@id" : "dcat:keyword"
+    },
+    "endPointDescription" : {
+      "@id" : "dcat:endpointDescription"
+    },
+    "metadataCatalog" : {
+      "@id" : "fdp-o:metadataCatalog",
+      "@type" : "@id"
+    },
+    "conformsToFdpSpec" : {
+      "@id" : "fdp-o:conformsToFdpSpec"
+    },
+    "eJP_RD_personalData" : {
+      "@id" : "ejp:personalData"
+    },
+    "eJP_RD_vpConnection" : {
+      "@id" : "ejp:vpConnection"
+    },
+    "externalIdentifierType" : {
+      "@id" : "Dcat_roundtrip_source:externalIdentifierType",
+      "@type" : "@id"
+    },
+    "internalIdentifierType" : {
+      "@id" : "Dcat_roundtrip_source:internalIdentifierType",
+      "@type" : "@id"
+    },
+    "linkedResource" : {
+      "@id" : "Dcat_roundtrip_source:linkedResource",
+      "@type" : "@id"
+    },
+    "linkageStrategy" : {
+      "@id" : "Dcat_roundtrip_source:linkageStrategy",
+      "@type" : "@id"
+    },
+    "ageGroup" : {
+      "@id" : "Dcat_roundtrip_source:ageGroup",
+      "@type" : "@id"
+    },
+    "mappingStatus" : {
+      "@id" : "Dcat_roundtrip_source:mappingStatus",
+      "@type" : "@id"
+    },
+    "rdfType" : {
+      "@id" : "rdf:type"
+    },
+    "fdpEndpoint" : {
+      "@id" : "ldp:membershipResource",
+      "@type" : "@id"
+    },
+    "ldpMembershipRelation" : {
+      "@id" : "ldp:hasMemberRelation"
+    },
+    "localName" : {
+      "@id" : "rdfs:label"
+    },
+    "acronym" : {
+      "@id" : "dcterms:alternative"
+    },
+    "catalogueType" : {
+      "@id" : "Dcat_roundtrip_source:catalogueType",
+      "@type" : "@id"
+    },
+    "cohortType" : {
+      "@id" : "Dcat_roundtrip_source:cohortType",
+      "@type" : "@id"
+    },
+    "clinicalStudyType" : {
+      "@id" : "Dcat_roundtrip_source:clinicalStudyType",
+      "@type" : "@id"
+    },
+    "registryOrHealthRecordType" : {
+      "@id" : "Dcat_roundtrip_source:registryOrHealthRecordType",
+      "@type" : "@id"
+    },
+    "networkType" : {
+      "@id" : "Dcat_roundtrip_source:networkType",
+      "@type" : "@id"
+    },
+    "internalIdentifiers" : {
+      "@id" : "Dcat_roundtrip_source:internalIdentifiers",
+      "@type" : "@id"
+    },
+    "externalIdentifiers" : {
+      "@id" : "Dcat_roundtrip_source:externalIdentifiers",
+      "@type" : "@id"
+    },
+    "startYear" : {
+      "@id" : "dcat:startDate"
+    },
+    "endYear" : {
+      "@id" : "dcat:endDate"
+    },
+    "status" : {
+      "@id" : "Dcat_roundtrip_source:status",
+      "@type" : "@id"
+    },
+    "hasMemberRelation" : {
+      "@id" : "ldp:hasMemberRelation"
+    },
+    "design" : {
+      "@id" : "Dcat_roundtrip_source:design",
+      "@type" : "@id"
+    },
+    "designDescription" : {
+      "@id" : "dcterms:provenance"
+    },
+    "dataCollectionType" : {
+      "@id" : "Dcat_roundtrip_source:dataCollectionType",
+      "@type" : "@id"
+    },
+    "dataCollectionDescription" : {
+      "@id" : "dcterms:provenance"
+    },
+    "reasonSustained" : {
+      "@id" : "dcterms:provenance"
+    },
+    "collectionEvents" : {
+      "@id" : "Dcat_roundtrip_source:collectionEvents",
+      "@type" : "@id"
+    },
+    "dataResources" : {
+      "@id" : "dcat:dataset",
+      "@type" : "@id"
+    },
+    "partOfNetworks" : {
+      "@id" : "Dcat_roundtrip_source:partOfNetworks",
+      "@type" : "@id"
+    },
+    "numberOfParticipants" : {
+      "@id" : "healthdcatap:numberOfUniqueIndividuals"
+    },
+    "underlyingPopulation" : {
+      "@id" : "healthdcatap:populationCoverage"
+    },
+    "populationOfInterest" : {
+      "@id" : "Dcat_roundtrip_source:populationOfInterest",
+      "@type" : "@id"
+    },
+    "countries" : {
+      "@id" : "dcterms:spatial",
+      "@type" : "@id"
+    },
+    "continents" : {
+      "@id" : "dcterms:spatial",
+      "@type" : "@id"
+    },
+    "regions" : {
+      "@id" : "dcterms:spatial",
+      "@type" : "@id"
+    },
+    "populationAgeGroups" : {
+      "@id" : "Dcat_roundtrip_source:populationAgeGroups",
+      "@type" : "@id"
+    },
+    "ageMin" : {
+      "@id" : "healthdcatap:minimumTypicalAge"
+    },
+    "ageMax" : {
+      "@id" : "healthdcatap:maximumTypicalAge"
+    },
+    "inclusionCriteria" : {
+      "@id" : "Dcat_roundtrip_source:inclusionCriteria",
+      "@type" : "@id"
+    },
+    "exclusionCriteria" : {
+      "@id" : "Dcat_roundtrip_source:exclusionCriteria",
+      "@type" : "@id"
+    },
+    "populationEntry" : {
+      "@id" : "Dcat_roundtrip_source:populationEntry",
+      "@type" : "@id"
+    },
+    "populationExit" : {
+      "@id" : "Dcat_roundtrip_source:populationExit",
+      "@type" : "@id"
+    },
+    "populationDisease" : {
+      "@id" : "Dcat_roundtrip_source:populationDisease",
+      "@type" : "@id"
+    },
+    "populationOncologyTopology" : {
+      "@id" : "Dcat_roundtrip_source:populationOncologyTopology",
+      "@type" : "@id"
+    },
+    "populationOncologyMorphology" : {
+      "@id" : "Dcat_roundtrip_source:populationOncologyMorphology",
+      "@type" : "@id"
+    },
+    "counts" : {
+      "@id" : "Dcat_roundtrip_source:counts",
+      "@type" : "@id"
+    },
+    "organisationsInvolved" : {
+      "@id" : "Dcat_roundtrip_source:organisationsInvolved",
+      "@type" : "@id"
+    },
+    "peopleInvolved" : {
+      "@id" : "Dcat_roundtrip_source:peopleInvolved",
+      "@type" : "@id"
+    },
+    "childNetworks" : {
+      "@id" : "dcat:catalog",
+      "@type" : "@id"
+    },
+    "parentNetworks" : {
+      "@id" : "Dcat_roundtrip_source:parentNetworks",
+      "@type" : "@id"
+    },
+    "datasets" : {
+      "@id" : "Dcat_roundtrip_source:datasets",
+      "@type" : "@id"
+    },
+    "samplesets" : {
+      "@id" : "Dcat_roundtrip_source:samplesets",
+      "@type" : "@id"
+    },
+    "areasOfInformationRwd" : {
+      "@id" : "Dcat_roundtrip_source:areasOfInformationRwd",
+      "@type" : "@id"
+    },
+    "biospecimenCollected" : {
+      "@id" : "Dcat_roundtrip_source:biospecimenCollected",
+      "@type" : "@id"
+    },
+    "languages" : {
+      "@id" : "Dcat_roundtrip_source:languages",
+      "@type" : "@id"
+    },
+    "linkedResources" : {
+      "@id" : "Dcat_roundtrip_source:linkedResources",
+      "@type" : "@id"
+    },
+    "informedConsentType" : {
+      "@id" : "Dcat_roundtrip_source:informedConsentType",
+      "@type" : "@id"
+    },
+    "informedConsentRequired" : {
+      "@id" : "Dcat_roundtrip_source:informedConsentRequired",
+      "@type" : "@id"
+    },
+    "dataAccessConditions" : {
+      "@id" : "Dcat_roundtrip_source:dataAccessConditions",
+      "@type" : "@id"
+    },
+    "dataUseConditions" : {
+      "@id" : "Dcat_roundtrip_source:dataUseConditions",
+      "@type" : "@id"
+    },
+    "releaseType" : {
+      "@id" : "dcterms:accrualPeriodicity",
+      "@type" : "@id"
+    },
+    "refreshPeriod" : {
+      "@id" : "Dcat_roundtrip_source:refreshPeriod",
+      "@type" : "@id"
+    },
+    "mappingsToCommonDataModels" : {
+      "@id" : "Dcat_roundtrip_source:mappingsToCommonDataModels",
+      "@type" : "@id"
+    },
+    "eTLStandardVocabularies" : {
+      "@id" : "Dcat_roundtrip_source:eTLStandardVocabularies",
+      "@type" : "@id"
+    },
+    "publications" : {
+      "@id" : "Dcat_roundtrip_source:publications",
+      "@type" : "@id"
+    },
+    "fundingSources" : {
+      "@id" : "Dcat_roundtrip_source:fundingSources",
+      "@type" : "@id"
+    },
+    "fundingScheme" : {
+      "@id" : "Dcat_roundtrip_source:fundingScheme",
+      "@type" : "@id"
+    },
+    "documentation" : {
+      "@id" : "Dcat_roundtrip_source:documentation",
+      "@type" : "@id"
+    },
+    "dataSources" : {
+      "@id" : "Dcat_roundtrip_source:dataSources",
+      "@type" : "@id"
+    },
+    "variable" : {
+      "@id" : "Dcat_roundtrip_source:variable",
+      "@type" : "@id"
+    },
+    "sampleTypes" : {
+      "@id" : "Dcat_roundtrip_source:sampleTypes",
+      "@type" : "@id"
+    },
+    "subpopulation" : {
+      "@id" : "Dcat_roundtrip_source:subpopulation",
+      "@type" : "@id"
+    },
+    "inclusionStart" : {
+      "@id" : "dcat:startDate"
+    },
+    "inclusionEnd" : {
+      "@id" : "dcat:endDate"
+    },
+    "mainMedicalCondition" : {
+      "@id" : "Dcat_roundtrip_source:mainMedicalCondition",
+      "@type" : "@id"
+    },
+    "comorbidity" : {
+      "@id" : "Dcat_roundtrip_source:comorbidity",
+      "@type" : "@id"
+    },
+    "sourceVariables" : {
+      "@id" : "Dcat_roundtrip_source:sourceVariables",
+      "@type" : "@id"
+    },
+    "sourceVariablesOtherDatasets" : {
+      "@id" : "Dcat_roundtrip_source:sourceVariablesOtherDatasets",
+      "@type" : "@id"
+    },
+    "targetVariable" : {
+      "@id" : "Dcat_roundtrip_source:targetVariable",
+      "@type" : "@id"
+    },
+    "match" : {
+      "@id" : "Dcat_roundtrip_source:match",
+      "@type" : "@id"
+    },
+    "dataset" : {
+      "@id" : "Dcat_roundtrip_source:dataset",
+      "@type" : "@id"
+    },
+    "useExternalDefinition" : {
+      "@id" : "Dcat_roundtrip_source:useExternalDefinition",
+      "@type" : "@id"
+    },
+    "collectionEvent" : {
+      "@id" : "Dcat_roundtrip_source:collectionEvent",
+      "@type" : "@id"
+    },
+    "format" : {
+      "@id" : "Dcat_roundtrip_source:format",
+      "@type" : "@id"
+    },
+    "unit" : {
+      "@id" : "Dcat_roundtrip_source:unit",
+      "@type" : "@id"
+    },
+    "reusedInResources" : {
+      "@id" : "Dcat_roundtrip_source:reusedInResources",
+      "@type" : "@id"
+    },
+    "repeatUnit" : {
+      "@id" : "Dcat_roundtrip_source:repeatUnit",
+      "@type" : "@id"
+    },
+    "permittedValues" : {
+      "@id" : "Dcat_roundtrip_source:permittedValues",
+      "@type" : "@id"
+    },
+    "generated_keywords" : {
+      "@id" : "Dcat_roundtrip_source:generated_keywords",
+      "@type" : "@id"
+    },
+    "vocabularies" : {
+      "@id" : "Dcat_roundtrip_source:vocabularies",
+      "@type" : "@id"
+    },
+    "mappings" : {
+      "@id" : "Dcat_roundtrip_source:mappings",
+      "@type" : "@id"
+    }
+  },
+  "@embed" : "@always"
+}

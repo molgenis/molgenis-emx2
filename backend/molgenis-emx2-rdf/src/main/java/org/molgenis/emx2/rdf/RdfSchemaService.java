@@ -14,7 +14,12 @@ public class RdfSchemaService implements RdfService<RdfApiGenerator> {
   private final RdfApiGenerator generator;
 
   public RdfSchemaService(String baseUrl, Schema schema, RDFFormat format, OutputStream out) {
-    this.config = RdfConfigReader.read(schema);
+    this(baseUrl, schema, format, out, RdfConfigReader.read(schema));
+  }
+
+  public RdfSchemaService(
+      String baseUrl, Schema schema, RDFFormat format, OutputStream out, RdfConfig config) {
+    this.config = config;
     this.writer = config.getWriterFactory().create(out, format);
     this.generator = config.getRdfApiGeneratorFactory().create(writer, baseUrl);
   }

@@ -10,7 +10,7 @@ public class MolgenisException extends RuntimeException {
   private final Class<?> type;
   private final List<MolgenisExceptionDetail> details = new ArrayList<>();
 
-  public MolgenisException(String message, Exception cause) {
+  public MolgenisException(String message, Throwable cause) {
     super(cause);
     this.type = getClass();
     this.message = message + ": " + cause.getMessage();
