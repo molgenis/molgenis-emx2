@@ -93,19 +93,8 @@ const hiddenSelectedCount = computed(
 const nodes = computed(() => props.parentNode.children || []);
 
 const visibleNodes = computed(() => {
-  const filtered = nodes.value.filter((node) => node.visible === true);
-  if (!props.facetCounts) return filtered;
-  return filtered.filter((node) => nodeHasMatches(node));
+  return nodes.value.filter((node) => node.visible === true);
 });
-
-function nodeHasMatches(node: ITreeNodeState): boolean {
-  const count = props.facetCounts?.get(node.name);
-  if (count !== undefined && count > 0) return true;
-  if (node.children?.length) {
-    return node.children.some((child) => nodeHasMatches(child));
-  }
-  return false;
-}
 
 const hasMoreTerms = computed(() => props.parentNode.loadMoreHasMore || false);
 
