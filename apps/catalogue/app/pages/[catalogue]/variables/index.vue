@@ -187,7 +187,14 @@ async function fetchResourceOptions(): Promise<INode[]> {
               ],
             },
           }
-        : {},
+        : {
+            resource: {
+              _or: [
+                { mg_tableclass: { equals: `${schema}.Networks` } },
+                { mg_tableclass: { equals: `${schema}.Catalogues` } },
+              ],
+            },
+          },
     },
   });
 

@@ -8,7 +8,9 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.molgenis.emx2.*;
 
 public class Generator {
@@ -82,7 +84,7 @@ public class Generator {
                   : table.getSchemaName() + '_' + table.getTableName());
       writer.println(String.format("export interface I%s {", tableName));
 
-      java.util.Set<String> seenColumns = new java.util.LinkedHashSet<>();
+      Set<String> seenColumns = new LinkedHashSet<>();
       for (Column column : table.getColumnsIncludingSubclasses()) {
         if (column.getColumnType().isHeading()) {
           continue;

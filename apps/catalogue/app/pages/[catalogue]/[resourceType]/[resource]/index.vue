@@ -52,10 +52,8 @@ const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema as string;
 
-const tableName = "Resources";
-
 const query = `
-  query ResourcesDetail($id: String) {
+  query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
       id
       pid
@@ -242,7 +240,8 @@ interface IResourceQueryResponseValue extends IResources {
   collectionEvents_agg?: { count: number };
 }
 interface IResponse {
-  data: Record<string, IResourceQueryResponseValue[] | { count: number }> & {
+  data: {
+    Resources: IResourceQueryResponseValue[];
     Variables_agg: { count: number };
   };
 }
@@ -258,12 +257,7 @@ if (error.value) {
   logError(error.value, "Error fetching resource metadata");
 }
 
-const resource = computed(() => {
-  const tableData = data.value?.data?.[tableName];
-  return (
-    Array.isArray(tableData) ? tableData[0] : null
-  ) as IResourceQueryResponseValue;
-});
+const resource = computed(() => data.value?.data?.Resources?.[0]);
 const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subpopulations.value || !subpopulations.value.length) {
@@ -720,7 +714,7 @@ const showPopulation = computed(
         :title="
           route.params.resourceType === 'about'
             ? 'About '
-            : resource?.acronym || resource?.name
+            : resource?.acronym || resource?.name || ''
         "
         :description="
           (route.params.resourceType === 'about' ? 'About ' : '') +

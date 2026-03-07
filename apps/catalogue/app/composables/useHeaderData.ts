@@ -81,6 +81,7 @@ export async function useHeaderData() {
             ? {
                 _or: [
                   { resource: { id: { equals: catalogueRouteParam } } },
+                  //also include network of networks
                   {
                     resource: {
                       parentNetworks: { id: { equals: catalogueRouteParam } },

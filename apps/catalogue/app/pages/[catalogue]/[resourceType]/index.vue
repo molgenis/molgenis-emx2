@@ -192,43 +192,33 @@ const filters = computed(() => {
   return filters;
 });
 
-const tableNameMap: Record<string, string> = {
-  collections: "Collections",
-  networks: "Networks",
-};
-const tableName =
-  tableNameMap[route.params.resourceType as string] || "Collections";
-
 const query = computed(() => {
   return `
-  query ${tableName}($filter:${tableName}Filter, $orderby:${tableName}orderby){
-    ${tableName}(limit: ${pageSize} offset: ${
-    offset.value
-  } filter:$filter  orderby:$orderby) {
+  query Resources($filter:ResourcesFilter, $orderby:Resourcesorderby){
+    Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
       description
       keywords
+      numberOfParticipants
       startYear
       endYear
+      type {
+          name
+      }
+      design {
+          name
+      }
+      networkType {
+          name
+      }
       datasets {
         name
         label
       }
-      ${
-        tableName === "Collections"
-          ? `
-      numberOfParticipants
-      type { name }
-      design { name }
-      `
-          : `
-      networkType { name }
-      `
-      }
     }
-    ${tableName}_agg (filter:$filter){
+    Resources_agg (filter:$filter){
         count
     }
   }
@@ -242,13 +232,29 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  const filters_and: any[] = [result];
-
-  if ("all" !== route.params.catalogue) {
-    filters_and.push({ _or: getParentOrPartOfFilter() });
+  if (route.params.resourceType === "collections") {
+    result.mg_tableclass = { equals: `${schema}.Collections` };
+  }
+  if (route.params.resourceType === "networks") {
+    result._or = [
+      { mg_tableclass: { equals: `${schema}.Networks` } },
+      { mg_tableclass: { equals: `${schema}.Catalogues` } },
+    ];
   }
 
-  return filters_and.length === 1 ? result : { _and: filters_and };
+  // add hard coded page specific filters
+  if ("all" === route.params.catalogue) {
+    return result;
+  } else {
+    return {
+      _and: [
+        result,
+        {
+          _or: getParentOrPartOfFilter(),
+        },
+      ],
+    };
+  }
 });
 
 function getParentOrPartOfFilter() {
@@ -289,9 +295,9 @@ const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   },
 });
 
-const resources = computed(() => data.value?.data[tableName] || []);
+const resources = computed(() => data.value?.data.Resources || []);
 const numberOfResources = computed(
-  () => data.value?.data[`${tableName}_agg`]?.count || 0
+  () => data.value?.data.Resources_agg.count || 0
 );
 
 async function setCurrentPage(pageNumber: number) {
