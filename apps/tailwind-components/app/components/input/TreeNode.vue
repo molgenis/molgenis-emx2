@@ -365,7 +365,7 @@ onUnmounted(() => {
       >
         <InputLabel
           :for="id + '-' + node.name + '-input'"
-          class="group flex justify-center items-start min-w-0 overflow-hidden"
+          class="group flex flex-1 justify-center items-start min-w-0 overflow-hidden"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
             'text-title cursor-pointer ': !disabled,
@@ -406,10 +406,10 @@ onUnmounted(() => {
             :disabled="disabled"
           />
           <span
-            class="flex items-baseline text-body-sm leading-normal pl-1 min-w-0"
+            class="flex flex-1 items-baseline text-body-sm leading-normal pl-1 min-w-0"
             :class="inverted ? 'text-title-contrast' : 'text-title'"
           >
-            <span class="truncate" v-tooltip.top="node.label || node.name">
+            <span class="truncate min-w-0" v-tooltip.top="node.label || node.name">
               {{ node.label || node.name }}
             </span>
             <span v-if="facetCounts" class="shrink-0 ml-0.5">

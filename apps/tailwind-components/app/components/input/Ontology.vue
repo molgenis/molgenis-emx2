@@ -801,7 +801,7 @@ onMounted(() => {
         }"
         v-show="showSelect || !displayAsSelect"
       >
-        <fieldset ref="treeContainer" class="pl-4">
+        <fieldset ref="treeContainer" class="pl-4 min-w-0 overflow-hidden">
           <legend class="sr-only">select ontology terms</legend>
           <TreeNode
             :id="id"
