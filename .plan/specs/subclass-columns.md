@@ -16,6 +16,7 @@ Rules that must always hold. Do not break these.
 | 4 | `getSubclassColumns()` must recursively find all descendant subclass columns not already in parent |
 | 5 | Each subclass column must be tagged with `sourceTableId` set to the subclass table id it came from |
 | 6 | Columns that appear in multiple sibling subclasses must be deduplicated (first-wins) |
+| 7 | Subclass columns added to parent metadata must default to `visible: "false"` (user opts in) |
 
 ## Architecture
 
@@ -31,12 +32,14 @@ getSubclassColumns(tableId, allTables)
   → tags each with sourceTableId
   → returns IColumn[] (subclass-only, deduplicated)
 
-fetchTableMetadata(schema, tableId, { includeSubclassColumns: true })
-  → calls getSubclassColumns() with full allTables from fetchMetadata()
-  → merges subclass columns into returned metadata
+fetchTableMetadata(schemaId, tableId, { includeSubclassColumns: true })
+  → calls fetchMetadata(schemaId) to get full schema
+  → calls getSubclassColumns() with full allTables
+  → merges subclass columns (with visible: "false") into returned metadata
 
-useTableData({ includeSubclassColumns: true })
-  → passes option through to fetchTableMetadata and fetchTableData/getColumnIds
+useTableData(IQueryMetaData)
+  → IQueryMetaData.includeSubclassColumns threads option to fetchTableMetadata and getColumnIds
+  → IQueryMetaData.columns carries visible column list for GQL query construction
   → GraphQL query then includes subclass fields automatically
 
 Emx2DataView.vue
@@ -53,7 +56,7 @@ Columns.vue (filter/column picker)
 | Layer | File |
 |-------|------|
 | Unit: `getSubclassColumns` | `apps/tailwind-components/tests/vitest/getSubclassColumns.spec.ts` |
-| Unit: `fetchTableMetadata` with subclass option | `apps/tailwind-components/tests/vitest/fetchTableMetadata.spec.ts` (planned) |
+| Unit: `fetchTableMetadata` with subclass option | `apps/tailwind-components/tests/vitest/fetchTableMetadata.spec.ts` |
 
 ### Test cases covered (getSubclassColumns)
 
@@ -66,19 +69,30 @@ Columns.vue (filter/column picker)
 - Collects columns from multiple sibling subclasses
 - Deduplicates columns when same id appears in multiple siblings
 
+### Test cases covered (fetchTableMetadata)
+
+- Returns table metadata for valid tableId
+- Rejects when tableId not found
+- Without `includeSubclassColumns`, returns only the table's own columns
+- With `includeSubclassColumns: true`, returns parent columns + subclass columns
+- Subclass columns have `visible: "false"` set
+- Subclass columns have `sourceTableId` set
+
 ## Files Involved
 
 | Status | File | Role |
 |--------|------|------|
 | done | `apps/tailwind-components/app/gql/metadata.js` | Adds `inheritId` to GQL `_schema` tables query |
 | done | `apps/metadata-utils/src/types.ts` | `ITableMetaData.inheritId?: string`, `IColumn.sourceTableId?: string` |
+| done | `apps/metadata-utils/src/IQueryMetaData.ts` | `IQueryMetaData` interface — `includeSubclassColumns`, `columns`, threading options |
 | done | `apps/tailwind-components/app/composables/getSubclassColumns.ts` | Core utility — recursive subclass column lookup |
 | done | `apps/tailwind-components/tests/vitest/getSubclassColumns.spec.ts` | 8 unit tests |
-| planned | `apps/tailwind-components/app/composables/fetchTableMetadata.ts` | `includeSubclassColumns` option, merges + sets `visible: "false"` |
-| planned | `apps/tailwind-components/app/composables/fetchTableData.ts` | Pass subclass column ids into GQL query |
-| planned | `apps/tailwind-components/app/composables/useTableData.ts` | Thread option to fetchers |
-| planned | `apps/tailwind-components/app/components/display/Emx2DataView.vue` | Enable `includeSubclassColumns: true` |
-| planned | `apps/tailwind-components/app/components/table/control/Columns.vue` | Group columns by `sourceTableId` in picker |
+| done | `apps/tailwind-components/app/composables/fetchTableMetadata.ts` | `includeSubclassColumns` option, merges + sets `visible: "false"` |
+| done | `apps/tailwind-components/tests/vitest/fetchTableMetadata.spec.ts` | 6 unit tests |
+| done | `apps/tailwind-components/app/composables/fetchTableData.ts` | Pass subclass column ids into GQL query |
+| done | `apps/tailwind-components/app/composables/useTableData.ts` | Thread option to fetchers |
+| done | `apps/tailwind-components/app/components/display/Emx2DataView.vue` | Enable `includeSubclassColumns: true` |
+| done | `apps/tailwind-components/app/components/table/control/Columns.vue` | Group columns by `sourceTableId` in picker |
 
 ## Edge Cases
 

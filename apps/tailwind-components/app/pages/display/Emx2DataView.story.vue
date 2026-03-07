@@ -255,6 +255,35 @@ Unified data view with three usage modes and slot customization demo.
 - Delete button opens DeleteModal
 - Mobile: actions in RecordCard
 
+## Table Inheritance (Subclass Columns)
+
+When a schema has tables that extend a parent table via \`inheritId\`, the component automatically discovers and surfaces subclass-only columns via the Columns selector.
+
+### How It Works
+
+1. \`useTableData\` is called with \`includeSubclassColumns: true\`
+2. \`fetchTableMetadata\` calls \`getSubclassColumns(tableId, allTables)\`
+3. Subclass tables are those where \`inheritId === tableId\`
+4. Columns present only in subclasses (not in parent) are appended with \`visible: "false"\` and \`sourceTableId\` set to the originating subclass
+5. These hidden columns appear in the Columns dropdown — users opt in to show them
+
+### Example Schema
+
+| Table | Extends | Columns |
+|-------|---------|---------|
+| Person | — | name (STRING, key) |
+| Employee | Person | name (inherited), salary (INT) |
+| Manager | Employee | name, salary (inherited), department (STRING) |
+
+When viewing the **Person** table:
+- Default visible columns: \`name\`
+- Available in Columns selector: \`salary\` (from Employee), \`department\` (from Manager)
+- Selecting \`salary\` shows values only for rows that are Employees
+
+### Testing With a Live Schema
+
+Use a schema that has table inheritance (e.g. a DataCatalogue schema where \`Cohorts\` and \`Databanks\` extend \`Resources\`). Set the schema/table controls above to point to the parent table and open the Columns selector to verify subclass columns appear unchecked.
+
 ## Test Checklist
 - [ ] Full Page mode shows header + sidebar filters
 - [ ] Compact mode shows sidebar filters, no header
@@ -266,5 +295,8 @@ Unified data view with three usage modes and slot customization demo.
 - [ ] isEditable: Edit/delete buttons appear per row
 - [ ] Edit button opens modal, saves, refreshes
 - [ ] Delete button opens modal, deletes, refreshes
+- [ ] On a schema with inheritance: Columns selector lists subclass columns as unchecked
+- [ ] Enabling a subclass column shows values only for rows of that subtype
+- [ ] Subclass columns are hidden by default (visible: false) but togglable
 `;
 </script>

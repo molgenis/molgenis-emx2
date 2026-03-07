@@ -7,6 +7,7 @@ import type {
   IDisplayConfig,
 } from "../../../../metadata-utils/src/types";
 import { useTableData } from "../../composables/useTableData";
+import fetchMetadata from "../../composables/fetchMetadata";
 import { useFilters } from "../../composables/useFilters";
 import { rowToString } from "../../utils/rowToString";
 import InputSearch from "../input/Search.vue";
@@ -92,6 +93,13 @@ const route = useRoute();
 const router = useRouter();
 
 const metadataRef = ref<IColumn[]>([]);
+const subclassTableLabels = ref<Record<string, string>>({});
+
+fetchMetadata(props.schemaId).then((schema) => {
+  subclassTableLabels.value = Object.fromEntries(
+    schema.tables.map((t) => [t.id, t.label])
+  );
+});
 
 const { filterStates, gqlFilter } = useFilters(metadataRef, {
   debounceMs: 300,
@@ -289,6 +297,7 @@ async function afterRowDeleted() {
           v-if="metadataRef.length"
           :columns="metadataRef"
           size="small"
+          :subclass-table-labels="subclassTableLabels"
           @update:columns="handleColumnsUpdate"
         />
       </div>
@@ -326,6 +335,7 @@ async function afterRowDeleted() {
             />
             <Columns
               :columns="metadataRef"
+              :subclass-table-labels="subclassTableLabels"
               @update:columns="handleColumnsUpdate"
             />
             <Button

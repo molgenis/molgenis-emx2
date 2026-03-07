@@ -83,7 +83,7 @@
         </ul>
         <template v-for="[sourceTableId, cols] in subclassGroups" :key="sourceTableId">
           <div class="mt-4 mb-1 text-xs font-semibold uppercase tracking-wide text-body-muted">
-            {{ sourceTableId }}
+            {{ subclassTableLabels[sourceTableId] || sourceTableId }}
           </div>
           <ul>
             <li
@@ -185,11 +185,13 @@ const props = withDefaults(
     label?: string;
     icon?: string;
     buttonType?: "outline" | "text" | "primary" | "secondary";
+    subclassTableLabels?: Record<string, string>;
   }>(),
   {
     mode: "columns",
     size: "medium",
     buttonType: "outline",
+    subclassTableLabels: () => ({}),
   }
 );
 
