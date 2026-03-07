@@ -26,6 +26,8 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
  * <p>The web service is started once before all tests in the test class and stopped after all tests
  * complete, improving test performance by avoiding repeated service startups.
  *
+ * <p>Also see StaticFileMapperTest for implementationdetails.
+ *
  * <p><b>Usage:</b>
  *
  * <pre>{@code

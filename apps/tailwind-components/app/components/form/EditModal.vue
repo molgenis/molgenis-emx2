@@ -8,7 +8,7 @@
         icon="plus"
         @click="visible = true"
       >
-        {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
+        {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
       </Button>
     </slot>
   </template>
@@ -22,7 +22,7 @@
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
-            {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
+            {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
           </h2>
 
           <DraftLabel v-if="isDraft" />
@@ -134,13 +134,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watch, nextTick, watchEffect } from "vue";
+import { computed, nextTick, ref, toRaw, watch } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
+import fetchColumnValues from "../../composables/fetchColumnValues";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import useForm, { type UseForm } from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
@@ -149,13 +152,12 @@ import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
-import Form from "./Form.vue";
-import FormRequiredInfoSection from "./RequiredInfoSection.vue";
-import FormError from "./Error.vue";
-import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
+import FormError from "./Error.vue";
+import Form from "./Form.vue";
 import FormLegend from "./Legend.vue";
-import useForm, { type UseForm } from "../../composables/useForm";
+import FormMessage from "./Message.vue";
+import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -174,6 +176,7 @@ const props = withDefaults(
 const saving = ref(false);
 const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
+const showFormMessage = ref(false);
 
 const emit = defineEmits([
   "update:added",
@@ -208,12 +211,16 @@ watch(formValues.value, () => {
   formMessage.value = "";
 });
 
+watch(formValues.value, () => {
+  formMessage.value = "";
+});
+
 const session = await useSession();
 const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
-const rowType = computed(() => props.metadata.id);
+const tableId = computed(() => props.metadata.id);
 const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 
 function initFormValues() {
@@ -268,25 +275,11 @@ async function onSave(draft: boolean) {
   if (isReadyForSubmit) {
     try {
       formValues.value["mg_draft"] = draft;
-
-      let resp: IRow | null = null;
       if (isInsert.value) {
-        resp = await form?.insertInto();
+        await insert(draft);
       } else {
-        resp = await form?.updateInto();
+        await update(draft);
       }
-
-      if (!resp) {
-        throw new Error(
-          `No response from server on ${isInsert.value ? "insert" : "update"}`
-        );
-      }
-      formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
-        rowType.value
-      } ${draft ? "as draft" : ""}`;
-      showFormMessage.value = true;
-      emit(isInsert.value ? "update:added" : "update:updated", resp);
-      isInsert.value = false;
     } catch (err) {
       handleError(err, "Error saving data");
     } finally {
@@ -297,9 +290,29 @@ async function onSave(draft: boolean) {
   }
 }
 
-watch(formValues.value, () => {
-  formMessage.value = "";
-});
+async function insert(draft: boolean) {
+  const resp = await form?.insertInto();
+  if (!resp) {
+    throw new Error(`No response from server on insert`);
+  }
+
+  isInsert.value = false;
+  await updateAutoIds();
+  emit("update:added", resp);
+  formMessage.value = `inserted  ${tableId.value}${draft ? " as draft" : ""}`;
+  showFormMessage.value = true;
+}
+
+async function update(draft: boolean) {
+  const resp = await form?.updateInto();
+  if (!resp) {
+    throw new Error(`No response from server on update`);
+  }
+
+  emit("update:updated", resp);
+  formMessage.value = `saved ${tableId.value}${draft ? " as draft" : ""}`;
+  showFormMessage.value = true;
+}
 
 function reAuthenticate() {
   session.reAuthenticate(
@@ -309,5 +322,23 @@ function reAuthenticate() {
   );
 }
 
-const showFormMessage = ref(false);
+async function updateAutoIds() {
+  const autoIds = props.metadata.columns.filter(
+    (col) => col.columnType === "AUTO_ID"
+  );
+  if (autoIds.length) {
+    const rowId = await fetchRowPrimaryKey(
+      formValues.value,
+      tableId.value,
+      props.schemaId
+    );
+    const values = await fetchColumnValues(
+      props.schemaId,
+      tableId.value,
+      rowId,
+      autoIds
+    );
+    autoIds.forEach((col) => (formValues.value[col.id] = values[col.id]));
+  }
+}
 </script>

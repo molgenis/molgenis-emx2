@@ -56,6 +56,7 @@ const emit = defineEmits(["focus", "blur"]);
       :placeholder="placeholder"
       :rowKey="rowKey"
       :options="options"
+      :errorMessage="errorMessage"
       :refSchemaId="(refSchemaId as string)"
       :refTableId="(refTableId as string)"
       :refLabel="(refLabel as string)"
@@ -68,7 +69,7 @@ const emit = defineEmits(["focus", "blur"]);
     />
     <div>
       <Message v-if="errorMessage" invalid :id="`${id}-input-error`">
-        {{ errorMessage }}
+        {{ errorMessage.replaceAll("\\'", "'") }}
       </Message>
     </div>
   </div>
