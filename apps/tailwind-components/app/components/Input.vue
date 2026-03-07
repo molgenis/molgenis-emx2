@@ -34,6 +34,7 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :show-clear="showClear"
+    :errorMessage="errorMessage"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -71,6 +72,7 @@
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
+    :errorMessage="errorMessage"
     :describedBy="describedBy"
     :placeholder="placeholder"
     @focus="emit('focus')"
@@ -364,6 +366,7 @@ const props = withDefaults(
         columnId: string,
         parentNames: string[]
       ) => Promise<Map<string, number>>;
+      errorMessage?: string | null;
     }
   >(),
   {

@@ -74,6 +74,10 @@ if (props.datasetCount > 0 && !cohortOnly.value)
 
 if (cohortOnly.value) {
   menu.push({
+    label: "Introduction",
+    link: `/${catalogueRouteParam}/introduction`,
+  });
+  menu.push({
     label: "About",
     link: `/${catalogueRouteParam}/about`,
   });

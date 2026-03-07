@@ -46,20 +46,7 @@ function scrollTo(elementId: string) {
   }
 }
 
-const {
-  requiredMessage,
-  errorMessage,
-  gotoPreviousRequiredField,
-  gotoNextRequiredField,
-  gotoNextError,
-  gotoPreviousError,
-  visibleColumnErrors,
-  sections,
-  onViewColumn,
-  onBlurColumn,
-  onUpdateColumn,
-  visibleColumns,
-} = useForm(metadata, formValues, "row-edit-field-container");
+const form = useForm(metadata, formValues);
 
 function onSave() {
   alert("Do Save");
@@ -86,9 +73,9 @@ function onCancel() {
     <section class="grid grid-cols-4 gap-3">
       <div class="col-span-1 bg-form-legend">
         <FormLegend
-          v-if="sections"
+          v-if="form.sections.value"
           class="pr-20 mr-5 sticky top-0"
-          :sections="sections"
+          :sections="form.sections.value"
           @goToSection="scrollTo($event)"
         />
       </div>
@@ -99,9 +86,9 @@ function onCancel() {
             class="flex items-center justify-between pt-[20px] pb-[20px] px-[30px]"
           >
             <FormRequiredInfoSection
-              :message="requiredMessage"
-              @required-prev="gotoPreviousRequiredField"
-              @required-next="gotoNextRequiredField"
+              :message="form.requiredMessage.value"
+              @required-prev="form.gotoPreviousRequiredField"
+              @required-next="form.gotoNextRequiredField"
             />
             <div class="flex gap-4">
               <Button type="secondary" @click="onCancel">Cancel</Button>
@@ -110,25 +97,15 @@ function onCancel() {
             </div>
           </menu>
           <FormError
-            v-show="errorMessage"
-            :message="errorMessage"
+            v-show="form.errorMessage.value"
+            :message="form.errorMessage.value"
             class="sticky h-[62px] bottom-0 transition-all transition-discrete"
-            @error-prev="gotoPreviousError"
-            @error-next="gotoNextError"
+            @error-prev="form.gotoPreviousError"
+            @error-next="form.gotoNextError"
           />
         </div>
 
-        <FormFields
-          class="px-32 bg-form"
-          schemaId="catalogue-demo"
-          :columns="visibleColumns"
-          :visibleColumnErrors="visibleColumnErrors"
-          :requiredFields="{}"
-          v-model="formValues"
-          @update="onUpdateColumn"
-          @blur="onBlurColumn"
-          @view="onViewColumn"
-        />
+        <FormFields class="px-32 bg-form" :form="form" />
       </div>
     </section>
   </Container>

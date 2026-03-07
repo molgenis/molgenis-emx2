@@ -217,7 +217,9 @@ function handleRefClick() {
 
   <!-- Primitives -->
   <ValueString
-    v-else-if="metadata.columnType === 'STRING'"
+    v-else-if="
+      ['STRING', 'AUTO_ID', 'UUID', 'PERIOD'].includes(metadata.columnType)
+    "
     :metadata="metadata"
     :data="data"
   />
@@ -248,6 +250,8 @@ function handleRefClick() {
     :metadata="metadata"
     :data="typeof data === 'number' ? data : Number(data)"
   />
+
+
 
   <ValueBool
     v-else-if="metadata.columnType === 'BOOL'"

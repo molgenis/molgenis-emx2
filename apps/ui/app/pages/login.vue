@@ -74,7 +74,7 @@ async function signin() {
     loading.value = false;
 
     if (signinResp?.data.signin.status === "SUCCESS") {
-      await (await useSession()).reload();
+      await (await useSession(route.query.schema as string)).reload();
 
       // Send a message to the opener
       if (window && window.opener) {
@@ -85,9 +85,12 @@ async function signin() {
 
         window.close();
       } else {
-        route.redirectedFrom || router.getRoutes().length
-          ? router.back()
-          : navigateTo({ path: "/" });
+        route.query.redirectTo
+          ? navigateTo({
+              path: route.query.redirectTo as string,
+              replace: true,
+            })
+          : navigateTo({ path: "/", replace: true });
       }
     } else {
       console.log(signinResp?.data.signin.message);

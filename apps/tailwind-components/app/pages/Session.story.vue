@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useSession } from "../composables/useSession";
 const { isAdmin, session, reload, hasSessionTimeout } = await useSession();
+import Field from "../components/Field.vue";
 
 const timeoutCheckResponse = ref("unknown");
 const username = ref("admin");
@@ -128,13 +129,8 @@ async function signout() {
 
     <hr />
 
-    <FormField
-      label="user name"
-      v-model="username"
-      id="user-name"
-      type="STRING"
-    />
-    <FormField label="password" v-model="password" id="user-pw" type="STRING" />
+    <Field label="user name" v-model="username" id="user-name" type="STRING" />
+    <Field label="password" v-model="password" id="user-pw" type="STRING" />
     <Button type="outline" size="medium" @click="signin"> Sign in </Button>
     <Button type="outline" size="medium" @click="signout"> Sign out </Button>
     <span class="text-invalid">{{ error }}</span>
