@@ -120,14 +120,6 @@ const columnsWithEmpty: ISectionField[] = [
   },
 ];
 
-function getRefClickAction(col: IColumn, row: any) {
-  return () => {
-    const message = `Clicked: ${col.id} -> ${JSON.stringify(row)}`;
-    clickLog.value.unshift(message);
-    if (clickLog.value.length > 5) clickLog.value.pop();
-  };
-}
-
 function clearLog() {
   clickLog.value = [];
 }
@@ -181,7 +173,6 @@ function clearLog() {
           :is-section="true"
           :columns="sampleColumns"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>
@@ -195,7 +186,6 @@ function clearLog() {
           :is-section="false"
           :columns="sampleColumns"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>
@@ -208,7 +198,6 @@ function clearLog() {
           :heading="null"
           :columns="sampleColumns"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>
@@ -228,7 +217,6 @@ function clearLog() {
           :is-section="true"
           :columns="columnsWithLists"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>
@@ -245,7 +233,6 @@ function clearLog() {
           :is-section="true"
           :columns="columnsWithEmpty"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>
@@ -264,7 +251,6 @@ function clearLog() {
           :is-section="true"
           :columns="sampleColumns"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>

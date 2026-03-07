@@ -153,9 +153,7 @@ const mockRows: IRow[] = [
           :key="`${schemaId}-${tableId}-${pagingLimit}`"
           :schema-id="schemaId"
           :table-id="tableId"
-          :show-search="showSearch"
-          :paging-limit="pagingLimit"
-          :click-action="handleRefClick"
+          :config="{ showSearch, pageSize: pagingLimit, clickAction: handleRefClick }"
         />
       </div>
     </div>
@@ -184,9 +182,7 @@ const mockRows: IRow[] = [
           :key="`${schemaId}-${tableId}-filtered-${pagingLimit}`"
           :schema-id="schemaId"
           :table-id="tableId"
-          :show-search="false"
-          :paging-limit="3"
-          :click-action="handleRefClick"
+          :config="{ showSearch: false, pageSize: 3, clickAction: handleRefClick }"
         />
       </div>
     </div>
@@ -216,9 +212,7 @@ const mockRows: IRow[] = [
           :key="`${schemaId}-${tableId}-custom-${pagingLimit}`"
           :schema-id="schemaId"
           :table-id="tableId"
-          :show-search="false"
-          :paging-limit="5"
-          :click-action="handleRefClick"
+          :config="{ showSearch: false, pageSize: 5, clickAction: handleRefClick }"
         >
           <template #default="{ row, label }">
             <div class="flex items-center gap-2 p-2 bg-green-50 rounded">

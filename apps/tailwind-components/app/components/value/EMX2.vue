@@ -251,8 +251,6 @@ function handleRefClick() {
     :data="typeof data === 'number' ? data : Number(data)"
   />
 
-
-
   <ValueBool
     v-else-if="metadata.columnType === 'BOOL'"
     :metadata="metadata"

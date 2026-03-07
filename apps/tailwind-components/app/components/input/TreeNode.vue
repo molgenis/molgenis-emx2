@@ -421,9 +421,9 @@ onUnmounted(() => {
             :class="inverted ? 'text-title-contrast' : 'text-title'"
           >
             {{ node.label || node.name }}
-          </span>
-          <span v-if="facetCounts" class="text-body-xs text-body-light ml-1">
-            ({{ facetCounts.get(node.name) ?? 0 }})
+            <template v-if="facetCounts">
+              ({{ facetCounts.get(node.name) ?? 0 }})
+            </template>
           </span>
         </InputLabel>
         <div

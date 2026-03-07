@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type {
-  IColumn,
   ITableMetaData,
   IRefColumn,
 } from "../../../../metadata-utils/src/types";
@@ -146,14 +145,6 @@ const mockRowWithEmpty = {
   tags: [],
 };
 
-function getRefClickAction(col: IColumn, row: any) {
-  return () => {
-    const message = `Clicked: ${col.id} -> ${JSON.stringify(row)}`;
-    clickLog.value.unshift(message);
-    if (clickLog.value.length > 5) clickLog.value.pop();
-  };
-}
-
 function clearLog() {
   clickLog.value = [];
 }
@@ -207,7 +198,6 @@ function clearLog() {
           :metadata="mockMetadata"
           :row="mockRow"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         >
           <template #header>
             <div class="mb-6 pb-4 border-b dark:border-gray-600">
@@ -237,7 +227,6 @@ function clearLog() {
           :metadata="mockMetadata"
           :row="mockRowWithEmpty"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>
@@ -255,7 +244,6 @@ function clearLog() {
           :metadata="mockMetadata"
           :row="mockRow"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         />
       </div>
     </div>

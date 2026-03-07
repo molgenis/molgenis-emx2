@@ -1,83 +1,28 @@
 <script setup lang="ts">
-import { computed, ref, useId } from "vue";
+import { computed } from "vue";
+import type { Crumb } from "../../../../../tailwind-components/types/types";
 import type {
-  Crumb,
-  ITableSettings,
-  sortDirection,
-} from "../../../../../tailwind-components/types/types";
+  IColumn,
+  IRow,
+  IDisplayConfig,
+} from "../../../../../metadata-utils/src/types";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
-import { useRoute, useRouter } from "#app/composables/router";
+import { useRoute } from "#app/composables/router";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
-import { watch } from "vue";
 import { useHead } from "#app";
-import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
+import Emx2DataView from "../../../../../tailwind-components/app/components/display/Emx2DataView.vue";
+import DetailPageLayout from "../../../../../tailwind-components/app/components/layout/DetailPageLayout.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import type { IRow } from "../../../../../metadata-utils/src/types";
-import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
-import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
-import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import { encodeRecordId } from "../../../../../tailwind-components/app/utils/recordIdEncoder";
 
 const route = useRoute();
-const router = useRouter();
 const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
 
-const currentPage = computed(() => {
-  const queryPageNumber = Number(route.query?.page);
-  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
-    ? Math.round(queryPageNumber)
-    : 1;
-});
-
-const orderbyColumn = computed(() => route.query.orderby as string);
-const orderbyDirection = computed(() =>
-  route.query.order ? (route.query.order as sortDirection) : "ASC"
-);
-
-const search = computed(() => route.query.search as string);
-
-const tableSettings = ref<ITableSettings>({
-  page: currentPage.value,
-  pageSize: 10,
-  orderby: {
-    column: orderbyColumn.value,
-    direction: orderbyDirection.value,
-  },
-  search: search.value || "",
-});
-
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
-
-function handleSettingsUpdate() {
-  const query = {
-    ...route.query,
-    orderby: tableSettings.value.orderby.column,
-    order: !tableSettings.value.orderby.column
-      ? undefined
-      : tableSettings.value.orderby.direction,
-    search:
-      tableSettings.value.search === ""
-        ? undefined
-        : tableSettings.value.search,
-    page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
-  };
-
-  router.push({ query });
-}
-
-async function handleViewRowRequest(row: IRow) {
-  const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
-
-  router.push({
-    path: `/${schemaId}/${tableId}/${keySlug(primaryKeys)}`,
-    query: {
-      keys: JSON.stringify(primaryKeys),
-    },
-  });
-}
 
 const crumbs: Crumb[] = [
   { label: schemaId, url: `/${schemaId}` },
@@ -88,40 +33,52 @@ const currentBreadCrumb = computed(
   () => tableMetadata.label ?? tableMetadata.id
 );
 
-watch(tableSettings, handleSettingsUpdate, { deep: true });
+const keyColumns =
+  tableMetadata.columns?.filter((c: IColumn) => c.key === 1) || [];
+const firstKeyColumn = keyColumns[0];
+
+const displayConfig: IDisplayConfig = {
+  layout: "table",
+  showLayoutToggle: true,
+  showFilters: true,
+  pageSize: 10,
+  ...(firstKeyColumn && {
+    columnConfig: {
+      [firstKeyColumn.id]: {
+        getHref: (_col: IColumn, row: IRow) => {
+          const pk: Record<string, any> = {};
+          for (const kc of keyColumns) {
+            pk[kc.id] = row[kc.id];
+          }
+          return `/${schemaId}/view/${tableId}?${encodeRecordId(pk)}`;
+        },
+      },
+    },
+  }),
+};
 
 const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
-  <section class="mx-auto lg:px-[30px] px-0">
-    <PageHeader :title="tableMetadata?.label ?? ''" align="left">
-      {{ tableMetadata }}
-      <template #prefix>
-        <BreadCrumbs
-          :align="'left'"
-          :crumbs="crumbs"
-          :current="currentBreadCrumb"
-        />
-      </template>
-    </PageHeader>
-
-    <TableEMX2
-      :schemaId="schemaId"
-      :tableId="tableId"
-      v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
-    >
-      <template #additional-row-actions="{ row }">
-        <Button
-          :id="useId()"
-          :icon-only="true"
-          type="inline"
-          icon="info"
-          size="small"
-          label="view row details"
-          @click="handleViewRowRequest(row)"
-        />
-      </template>
-    </TableEMX2>
-  </section>
+  <DetailPageLayout>
+    <template #header>
+      <PageHeader :title="tableMetadata?.label ?? ''" align="left">
+        <template #prefix>
+          <BreadCrumbs
+            :crumbs="crumbs"
+            :current="currentBreadCrumb"
+            align="left"
+          />
+        </template>
+      </PageHeader>
+    </template>
+    <template #main>
+      <Emx2DataView
+        :schema-id="schemaId"
+        :table-id="tableId"
+        :config="displayConfig"
+        :is-editable="session?.roles?.includes('Editor') || isAdmin"
+      />
+    </template>
+  </DetailPageLayout>
 </template>

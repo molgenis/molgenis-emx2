@@ -44,10 +44,6 @@ const isRangeType = computed(() =>
   )
 );
 
-const refTypes = ["REF", "REF_ARRAY", "ONTOLOGY", "ONTOLOGY_ARRAY"];
-
-const isRefType = computed(() => refTypes.includes(props.column.columnType));
-
 const REF_FILTER_TYPES = [
   "REF",
   "REF_ARRAY",
@@ -114,18 +110,6 @@ const singleValue = computed({
 function getDefaultOperator(): FilterOperator {
   const type = props.column.columnType;
   if (["STRING", "TEXT", "EMAIL", "FILE"].includes(type)) return "like";
-  if (["BOOL", "UUID", "UUID_ARRAY"].includes(type)) return "equals";
-  const refTypes = [
-    "REF",
-    "REF_ARRAY",
-    "SELECT",
-    "MULTISELECT",
-    "RADIO",
-    "CHECKBOX",
-    "ONTOLOGY",
-    "ONTOLOGY_ARRAY",
-  ];
-  if (refTypes.includes(type) || props.column.refTableId) return "equals";
   return "equals";
 }
 

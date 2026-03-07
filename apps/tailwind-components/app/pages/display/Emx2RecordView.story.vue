@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type {
-  IColumn,
-  IRow,
-  ITableMetaData,
-} from "../../../../metadata-utils/src/types";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import Emx2RecordView from "../../components/display/Emx2RecordView.vue";
 import RecordView from "../../components/display/RecordView.vue";
@@ -19,7 +15,6 @@ const metadata = ref<ITableMetaData>();
 const formValues = ref<Record<string, any>>({});
 
 const showEmpty = ref(false);
-const clickLog = ref<string[]>([]);
 const useMockData = ref(false);
 const viewColumnsInput = ref("");
 
@@ -56,18 +51,6 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
     },
   });
 });
-
-function getRefClickAction(col: IColumn, row: IRow) {
-  return () => {
-    const message = `Clicked: ${col.id} -> ${JSON.stringify(row)}`;
-    clickLog.value.unshift(message);
-    if (clickLog.value.length > 5) clickLog.value.pop();
-  };
-}
-
-function clearLog() {
-  clickLog.value = [];
-}
 
 // Mock data for when backend is unavailable
 const mockMetadata: ITableMetaData = {
@@ -173,30 +156,6 @@ const mockRow = {
       </div>
     </div>
 
-    <!-- Click log -->
-    <div
-      class="p-4 bg-gray-50 dark:bg-gray-800 rounded border dark:border-gray-600"
-    >
-      <div class="flex justify-between items-center mb-2">
-        <span class="font-medium">Click Event Log:</span>
-        <button class="text-sm text-blue-600 hover:underline" @click="clearLog">
-          Clear
-        </button>
-      </div>
-      <div v-if="clickLog.length === 0" class="text-gray-400 italic">
-        No clicks yet - click any REF link to see events
-      </div>
-      <ul v-else class="space-y-1 text-sm font-mono">
-        <li
-          v-for="(log, index) in clickLog"
-          :key="index"
-          class="text-gray-700 dark:text-gray-300"
-        >
-          {{ log }}
-        </li>
-      </ul>
-    </div>
-
     <!-- Live Backend Data -->
     <div v-if="!useMockData" class="space-y-4">
       <h2 class="text-xl font-semibold">Live Backend Data</h2>
@@ -213,9 +172,7 @@ const mockRow = {
           :schema-id="schemaId"
           :table-id="tableId"
           :row-id="rowId"
-          :view-columns="viewColumns"
-          :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
+          :config="{ visibleColumns: viewColumns, showEmpty }"
         >
           <template #header>
             <div class="mb-6 pb-4 border-b dark:border-gray-600">
@@ -246,7 +203,6 @@ const mockRow = {
           :metadata="mockMetadata"
           :row="mockRow"
           :show-empty="showEmpty"
-          :get-ref-click-action="getRefClickAction"
         >
           <template #header>
             <div class="mb-6 pb-4 border-b dark:border-gray-600">

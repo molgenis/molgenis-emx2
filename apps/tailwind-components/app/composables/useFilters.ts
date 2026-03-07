@@ -18,39 +18,6 @@ export interface UseFiltersOptions {
   router?: { replace: (opts: { query: Record<string, unknown> }) => void };
 }
 
-/**
- * URL Filter Format:
- *
- * Simple values:
- *   ?name=John              → like filter (strings)
- *   ?age=25                 → equals filter (numbers)
- *   ?birth=2024-01-01       → equals filter (dates)
- *
- * Multi-value (pipe separator - avoids comma conflicts in data):
- *   ?name=John|Jane         → in filter
- *   ?category=Cat1|Cat2     → in filter for refs (primary key values)
- *
- * Ranges (double-dot separator):
- *   ?age=18..65             → between filter
- *   ?age=18..               → >= 18
- *   ?age=..65               → <= 65
- *   ?birth=2024-01-01..2024-12-31  → date range
- *
- * Null checks:
- *   ?name=null              → is null
- *   ?name=!null             → is not null
- *
- * Reserved:
- *   mg_search               → global search
- *   mg_*                    → reserved for system params (pagination, etc.)
- *
- * Future (not yet implemented):
- *   ?name=eq:John           → explicit equals operator
- *   ?name=like:John         → explicit like operator
- *   ?age=gte:18             → greater than or equal
- *   ?parent.name=John       → path query for related tables
- */
-
 const REF_TYPES = [
   "REF",
   "REF_ARRAY",

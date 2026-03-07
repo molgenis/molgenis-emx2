@@ -7,6 +7,8 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 
+const COLUMN_WIDTH = 240;
+
 const props = defineProps<{
   columns: IColumn[];
   rows: IRow[];
@@ -33,11 +35,13 @@ const firstColumnConfig = computed(() => {
   const firstCol = props.columns[0];
   return firstCol ? getColumnConfig(firstCol.id) : undefined;
 });
+
+const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
 </script>
 
 <template>
-  <div class="overflow-x-auto">
-    <table class="min-w-full text-left border-collapse">
+  <div class="overflow-x-auto overscroll-x-contain">
+    <table class="text-left table-fixed" :style="{ minWidth: tableWidth }">
       <thead>
         <tr class="border-b border-black/10">
           <th
@@ -64,7 +68,7 @@ const firstColumnConfig = computed(() => {
             v-for="(col, colIndex) in columns"
             :key="col.id"
             :class="[
-              'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap group-hover:bg-black/5',
+              'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap overflow-hidden text-ellipsis group-hover:bg-black/5',
               colIndex === 0
                 ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
                 : '',
@@ -75,13 +79,13 @@ const firstColumnConfig = computed(() => {
               <NuxtLink
                 v-if="firstColumnConfig?.getHref"
                 :to="firstColumnConfig.getHref(col, row)"
-                class="text-link hover:underline"
+                class="text-link hover:underline truncate"
               >
                 <ValueEMX2 :metadata="col" :data="row[col.id]" />
               </NuxtLink>
               <span
                 v-else-if="firstColumnConfig?.clickAction"
-                class="text-link hover:underline cursor-pointer"
+                class="text-link hover:underline cursor-pointer truncate"
                 @click="firstColumnConfig.clickAction(col, row)"
               >
                 <ValueEMX2 :metadata="col" :data="row[col.id]" />
