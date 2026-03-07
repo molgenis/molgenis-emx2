@@ -112,19 +112,27 @@
             <h3 class="font-semibold text-body-sm mb-2">
               filterStates ({{ filterStates.size }} active)
             </h3>
-            <pre class="text-body-xs font-mono whitespace-pre-wrap overflow-auto max-h-48">{{ filterStatesJson }}</pre>
+            <pre
+              class="text-body-xs font-mono whitespace-pre-wrap overflow-auto max-h-48"
+              >{{ filterStatesJson }}</pre
+            >
           </div>
 
           <div class="p-4 bg-gray-50 rounded border">
             <h3 class="font-semibold text-body-sm mb-2">searchValue</h3>
-            <pre class="text-body-xs font-mono">{{ searchValue || '(empty)' }}</pre>
+            <pre class="text-body-xs font-mono">{{
+              searchValue || "(empty)"
+            }}</pre>
           </div>
 
           <div class="p-4 bg-blue-50 rounded border border-blue-200">
             <h3 class="font-semibold text-body-sm mb-2">
               gqlFilter (debounced 300ms)
             </h3>
-            <pre class="text-body-xs font-mono whitespace-pre-wrap overflow-auto max-h-48">{{ gqlFilterJson }}</pre>
+            <pre
+              class="text-body-xs font-mono whitespace-pre-wrap overflow-auto max-h-48"
+              >{{ gqlFilterJson }}</pre
+            >
           </div>
         </div>
       </div>
@@ -157,8 +165,15 @@ const mockColumns = ref<IColumn[]>([
   { id: "category", label: "Category", columnType: "REF", position: 3 },
 ] as IColumn[]);
 
-const { filterStates, searchValue, gqlFilter, setFilter, setSearch, clearFilters, removeFilter } =
-  useFilters(mockColumns);
+const {
+  filterStates,
+  searchValue,
+  gqlFilter,
+  setFilter,
+  setSearch,
+  clearFilters,
+  removeFilter,
+} = useFilters(mockColumns);
 
 const nameInput = ref("");
 const ageMin = ref<number | null>(null);
@@ -175,9 +190,7 @@ const filterStatesJson = computed(() => {
   return JSON.stringify(obj, null, 2);
 });
 
-const gqlFilterJson = computed(() =>
-  JSON.stringify(gqlFilter.value, null, 2)
-);
+const gqlFilterJson = computed(() => JSON.stringify(gqlFilter.value, null, 2));
 
 function setNameFilterAction() {
   if (!nameInput.value.trim()) return;
