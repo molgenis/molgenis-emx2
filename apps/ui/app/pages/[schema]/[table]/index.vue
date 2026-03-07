@@ -77,7 +77,7 @@ const { isAdmin, session } = await useSession(schemaId);
         :schema-id="schemaId"
         :table-id="tableId"
         :config="displayConfig"
-        :is-editable="session?.roles?.includes('Editor') || isAdmin"
+        :is-editable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
       />
     </template>
   </DetailPageLayout>
