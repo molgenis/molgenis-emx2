@@ -1,7 +1,0 @@
-Total messages: 6 (Errors: 0, Warnings: 0)
-Returning 4 messages for level "info"
-
-[LOG] Session storage cleared on app start. Removed caches of getSchema @ http://localhost:3000/_nuxt/@fs/Users/m.a.swertz/git/molgenis-emx2/feat/catalogues_and_collections_table/apps/tailwind-components/app/plugins/clearSession.client.ts:4
-[INFO] <Suspense> is an experimental feature and its API will likely change. @ http://localhost:3000/_nuxt/@fs/Users/m.a.swertz/git/molgenis-emx2/feat/catalogues_and_collections_table/apps/node_modules/.pnpm/@vue+runtime-core@3.5.22/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js?v=ae2d8d24:7118
-[LOG] 🍍 "datasets" store installed 🆕 @ http://localhost:3000/_nuxt/@fs/Users/m.a.swertz/git/molgenis-emx2/feat/catalogues_and_collections_table/apps/node_modules/.pnpm/pinia@3.0.3_typescript@5.6.2_vue@3.5.22_typescript@5.6.2_/node_modules/pinia/dist/pinia.mjs?v=ae2d8d24:178
-[LOG] ✨ %cNuxt DevTools %c Press Shift + Option + D to open DevTools color: black; border-radius: 3px 0 0 3px; padding: 2px 2px 1px 10px; background: #00DC82 border-radius: 0 3px 3px 0; padding: 2px 10px 1px 2px; background: #00DC8220  @ http://localhost:3000/_nuxt/@fs/Users/m.a.swertz/git/molgenis-emx2/feat/catalogues_and_collections_table/apps/node_modules/.pnpm/@nuxt+devtools@2.7.0_vite@5.4.21_@types+node@25.2.2_sass@1.70.0_terser@5.44.1__vue@3.5.22_typescript@5.6.2_/node_modules/@nuxt/devtools/dist/runtime/plugins/devtools.client.js?v=ae2d8d24:51
