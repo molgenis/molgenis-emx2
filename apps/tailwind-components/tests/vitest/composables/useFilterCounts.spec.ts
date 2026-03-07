@@ -37,6 +37,12 @@ function createMockColumns(): IColumn[] {
       refTableId: "Breed",
     } as IColumn,
     { id: "name", columnType: "STRING" } as IColumn,
+    { id: "category", columnType: "REF", refTableId: "Category" } as IColumn,
+    {
+      id: "orders",
+      columnType: "REF_ARRAY",
+      refTableId: "Orders",
+    } as IColumn,
   ];
 }
 
@@ -154,6 +160,52 @@ describe("useFilterCounts", () => {
 
     expect(mockFetchGraphql).not.toHaveBeenCalled();
     expect(facetCounts.value.size).toBe(0);
+  });
+
+  it("fetches leaf counts for visible REF columns", async () => {
+    const schemaId = ref("test");
+    const tableId = ref("Dog");
+    const filterStates = ref(new Map<string, IFilterValue>());
+    const columns = ref(createMockColumns());
+    const visibleFilterIds = ref(["category", "orders"]);
+    const searchValue = ref("");
+
+    mockFetchGraphql.mockResolvedValueOnce({
+      Dog_groupBy: [
+        { count: 4, category: { name: "Mammal" } },
+        { count: 2, category: { name: "Bird" } },
+      ],
+    });
+
+    mockFetchGraphql.mockResolvedValueOnce({
+      Dog_groupBy: [
+        { count: 3, orders: { name: "Carnivora" } },
+        { count: 1, orders: { name: "Rodentia" } },
+      ],
+    });
+
+    const { facetCounts, isLoading } = useFilterCounts({
+      schemaId,
+      tableId,
+      filterStates,
+      columns,
+      visibleFilterIds,
+      searchValue,
+    });
+
+    await nextTick();
+    await flushPromises();
+
+    expect(isLoading.value).toBe(false);
+    expect(facetCounts.value.size).toBe(2);
+
+    const categoryCounts = facetCounts.value.get("category");
+    expect(categoryCounts?.get("Mammal")).toBe(4);
+    expect(categoryCounts?.get("Bird")).toBe(2);
+
+    const ordersCounts = facetCounts.value.get("orders");
+    expect(ordersCounts?.get("Carnivora")).toBe(3);
+    expect(ordersCounts?.get("Rodentia")).toBe(1);
   });
 
   it("handles empty groupBy results", async () => {

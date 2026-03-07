@@ -31,6 +31,7 @@ const props = withDefaults(
       isArray?: boolean;
       limit?: number;
       showClear?: boolean;
+      facetCounts?: Map<string, number>;
     }
   >(),
   {
@@ -410,7 +411,7 @@ const onBlur = useDebounceFn(() => {
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
       >
-        <fieldset>
+        <fieldset class="min-w-0 overflow-hidden">
           <legend class="sr-only">select {{ columnName }} options</legend>
           <InputCheckboxGroup
             v-if="isArray"
@@ -422,6 +423,7 @@ const onBlur = useDebounceFn(() => {
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
+            :facet-counts="facetCounts"
           />
           <InputRadioGroup
             v-else

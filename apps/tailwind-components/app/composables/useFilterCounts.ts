@@ -5,7 +5,22 @@ import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
 import fetchGraphql from "./fetchGraphql";
 
-const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
+const COUNTABLE_TYPES = [
+  "ONTOLOGY",
+  "ONTOLOGY_ARRAY",
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "SELECT",
+  "MULTISELECT",
+  "RADIO",
+  "CHECKBOX",
+];
+
+function getRefKeyField(column: IColumn): string {
+  const match = (column.refLabelDefault || "").match(/\$\{(\w+)\}/);
+  return match?.[1] || "name";
+}
 
 interface UseFilterCountsOptions {
   schemaId: Ref<string>;
@@ -51,7 +66,7 @@ export function useFilterCounts(options: UseFilterCountsOptions) {
       .map((id) => options.columns.value.find((c) => c.id === id))
       .filter(
         (col): col is IColumn =>
-          col !== undefined && ONTOLOGY_TYPES.includes(col.columnType)
+          col !== undefined && COUNTABLE_TYPES.includes(col.columnType)
       );
 
     if (visibleOntologyColumns.length === 0) {
@@ -70,12 +85,13 @@ export function useFilterCounts(options: UseFilterCountsOptions) {
         options.searchValue.value
       );
 
+      const keyField = getRefKeyField(column);
       const query = `
         query($filter: ${options.tableId.value}Filter) {
           ${options.tableId.value}_groupBy(filter: $filter) {
             count
             ${column.id} {
-              name
+              ${keyField}
             }
           }
         }
@@ -92,8 +108,8 @@ export function useFilterCounts(options: UseFilterCountsOptions) {
         if (Array.isArray(groupByResults)) {
           for (const item of groupByResults) {
             const termObj = item[column.id];
-            if (termObj?.name) {
-              columnCounts.set(termObj.name, item.count || 0);
+            if (termObj?.[keyField]) {
+              columnCounts.set(termObj[keyField], item.count || 0);
             }
           }
         }

@@ -164,6 +164,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
+    :facet-counts="facetCounts"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
@@ -182,6 +183,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+    :facet-counts="facetCounts"
   />
   <InputRef
     v-else-if="'SELECT' === typeUpperCase"

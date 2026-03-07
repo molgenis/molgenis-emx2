@@ -11,6 +11,7 @@ withDefaults(
     IInputProps & {
       options: IValueLabel[];
       showClearButton?: boolean;
+      facetCounts?: Map<string, number>;
     }
   >(),
   {
@@ -52,7 +53,7 @@ function resetModelValue() {
     <div class="flex flex-row min-w-0" v-for="option in options">
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
-        class="group flex justify-start items-center relative min-w-0 overflow-hidden"
+        class="group flex flex-1 justify-start items-center relative min-w-0 overflow-hidden"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
           'text-title-contrast cursor-pointer ': !disabled,
@@ -75,11 +76,16 @@ function resetModelValue() {
           :valid="valid"
           :disabled="disabled"
         />
-        <span class="truncate" v-tooltip.top="option.label" v-if="option.label">
-          {{ option.label }}
-        </span>
-        <span class="truncate" v-tooltip.top="option.value" v-else>
-          {{ option.value }}
+        <span class="flex flex-1 items-baseline min-w-0">
+          <span class="truncate min-w-0" v-tooltip.top="option.label" v-if="option.label">
+            {{ option.label }}
+          </span>
+          <span class="truncate min-w-0" v-tooltip.top="option.value" v-else>
+            {{ option.value }}
+          </span>
+          <span v-if="facetCounts" class="shrink-0 ml-0.5">
+            ({{ facetCounts.get(option.value as string) ?? 0 }})
+          </span>
         </span>
       </InputLabel>
     </div>
