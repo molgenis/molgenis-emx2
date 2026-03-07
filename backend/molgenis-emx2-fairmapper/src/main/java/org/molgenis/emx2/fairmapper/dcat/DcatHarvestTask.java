@@ -103,7 +103,7 @@ public class DcatHarvestTask extends Task {
     return report;
   }
 
-  HarvestReport harvestRdf(String rdfTurtle) {
+  public HarvestReport harvestRdf(String rdfTurtle) {
     HarvestReport report = new HarvestReport();
     Task currentStep = null;
     try {

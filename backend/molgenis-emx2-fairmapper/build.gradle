@@ -11,6 +11,4 @@ dependencies {
     implementation 'org.eclipse.rdf4j:rdf4j-sail-memory:5.0.1'
     implementation 'com.apicatalog:titanium-json-ld:1.7.0'
     implementation 'org.glassfish:jakarta.json:2.0.1'
-    testImplementation project(':backend:molgenis-emx2-sql')
-    testImplementation project(':backend:molgenis-emx2-datamodels')
 }
