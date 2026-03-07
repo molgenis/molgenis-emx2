@@ -5,11 +5,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     useradd -m molgenis
 
-ARG JAR_FILE
-COPY --link build/libs/${JAR_FILE} /app/app.jar
+COPY --link build/docker/deps/ /app/lib/
+COPY --link build/docker/app/ /app/lib/
 COPY --link custom-app /custom-app
 
 USER molgenis
 EXPOSE 8080
 ENTRYPOINT ["java"]
-CMD ["-jar", "/app/app.jar"]
+CMD ["-cp", "/app/lib/*", "org.molgenis.emx2.RunMolgenisEmx2"]
