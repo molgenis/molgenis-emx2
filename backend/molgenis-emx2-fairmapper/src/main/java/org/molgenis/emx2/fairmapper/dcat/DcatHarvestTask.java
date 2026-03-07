@@ -23,7 +23,6 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.fairmapper.rdf.JsonLdFrameGenerator;
 import org.molgenis.emx2.fairmapper.rdf.JsonLdFramer;
 import org.molgenis.emx2.fairmapper.rdf.RdfFetcher;
-import org.molgenis.emx2.fairmapper.rdf.RecursiveFetcher;
 import org.molgenis.emx2.tasks.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,8 +83,8 @@ public class DcatHarvestTask extends Task {
 
       currentStep = this.addSubTask("Fetching RDF from " + url);
       currentStep.start();
-      RecursiveFetcher fetcher = new RecursiveFetcher(new RdfFetcher());
-      Model rdfModel = fetcher.fetch(url, MAX_DEPTH, MAX_CALLS);
+      RdfFetcher fetcher = new RdfFetcher();
+      Model rdfModel = fetcher.fetchRecursively(url, MAX_DEPTH, MAX_CALLS);
       log.info("Fetched {} RDF statements", rdfModel.size());
       currentStep.complete("Fetched " + rdfModel.size() + " RDF statements");
 

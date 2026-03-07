@@ -7,8 +7,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.TreeModel;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
@@ -16,7 +20,7 @@ import org.molgenis.emx2.fairmapper.dcat.DcatHarvestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RdfFetcher implements RdfSource {
+public class RdfFetcher {
   private static final Logger log = LoggerFactory.getLogger(RdfFetcher.class);
   private static final long DEFAULT_MAX_BYTES = 10 * 1024 * 1024;
   private static final int MAX_RETRIES = 3;
@@ -55,7 +59,6 @@ public class RdfFetcher implements RdfSource {
     }
   }
 
-  @Override
   public Model fetch(String url) throws IOException {
     validateUrl(url);
     for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -76,6 +79,47 @@ public class RdfFetcher implements RdfSource {
       }
     }
     throw new IOException("Unreachable");
+  }
+
+  public Model fetchRecursively(String url, int maxDepth, int maxCalls) throws IOException {
+    Model model = new TreeModel();
+    Set<String> fetched = new HashSet<>();
+    int callCount = 0;
+    model.addAll(fetch(url));
+    fetched.add(url);
+    callCount++;
+    for (int depth = 0; depth < maxDepth && callCount < maxCalls; depth++) {
+      Set<String> urisToFetch = extractObjectUris(model, fetched);
+      if (urisToFetch.isEmpty()) {
+        break;
+      }
+      for (String uri : urisToFetch) {
+        if (callCount >= maxCalls) {
+          log.warn("maxCalls limit ({}) reached, skipping remaining URIs", maxCalls);
+          break;
+        }
+        try {
+          model.addAll(fetch(uri));
+          fetched.add(uri);
+          callCount++;
+        } catch (IOException e) {
+          log.warn("Failed to fetch {}: {}", uri, e.getMessage());
+          fetched.add(uri);
+        }
+      }
+    }
+    return model;
+  }
+
+  private Set<String> extractObjectUris(Model model, Set<String> alreadyFetched) {
+    Set<String> uris = new HashSet<>();
+    for (Statement stmt : model) {
+      Value obj = stmt.getObject();
+      if (obj.isIRI() && !alreadyFetched.contains(obj.stringValue())) {
+        uris.add(obj.stringValue());
+      }
+    }
+    return uris;
   }
 
   private Model doFetch(String url) throws IOException {
