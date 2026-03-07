@@ -141,7 +141,7 @@ function handleClear() {
     </div>
   </div>
   <div
-    class="mb-5 ml-5 mr-5"
+    class="mb-5 ml-5 mr-5 overflow-hidden"
     :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
   >
     <FilterRange v-if="isRangeType" v-model="rangeValue" :id="column.id">

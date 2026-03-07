@@ -360,12 +360,12 @@ onUnmounted(() => {
         </template>
       </div>
       <div
-        class="flex justify-start items-center"
+        class="flex justify-start items-center min-w-0"
         :class="{ 'ml-4': !isRoot || hasChildren }"
       >
         <InputLabel
           :for="id + '-' + node.name + '-input'"
-          class="group flex justify-center items-start"
+          class="group flex justify-center items-start min-w-0 overflow-hidden"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
             'text-title cursor-pointer ': !disabled,
@@ -406,13 +406,15 @@ onUnmounted(() => {
             :disabled="disabled"
           />
           <span
-            class="block text-body-sm leading-normal pl-1"
+            class="flex items-baseline text-body-sm leading-normal pl-1 min-w-0"
             :class="inverted ? 'text-title-contrast' : 'text-title'"
           >
-            {{ node.label || node.name }}
-            <template v-if="facetCounts">
+            <span class="truncate" v-tooltip.top="node.label || node.name">
+              {{ node.label || node.name }}
+            </span>
+            <span v-if="facetCounts" class="shrink-0 ml-0.5">
               ({{ facetCounts.get(node.name) ?? 0 }})
-            </template>
+            </span>
           </span>
         </InputLabel>
         <div
