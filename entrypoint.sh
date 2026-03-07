@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ -z "$JAVA_OPTS" ]; then
-    exec java -jar app.jar
+    exec java -cp "/app" org.molgenis.emx2.RunMolgenisEmx2
 else
-    exec java $JAVA_OPTS -jar app.jar
+    exec java $JAVA_OPTS -cp "/app" org.molgenis.emx2.RunMolgenisEmx2
 fi
