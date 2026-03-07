@@ -2,7 +2,11 @@
 import { useHead, useRuntimeConfig, navigateTo, useFetch } from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
-import type { ICatalogues, ICatalogues_agg } from "../../interfaces/catalogue";
+import type {
+  ICatalogues,
+  ICatalogues_agg,
+  IResources,
+} from "../../interfaces/catalogue";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
@@ -129,19 +133,19 @@ useHead(() => ({
       v-if="groupedCatalogues?.theme?.length"
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
-      :catalogues="groupedCatalogues?.theme ?? []"
+      :catalogues="(groupedCatalogues?.theme ?? []) as IResources[]"
     />
     <ContentBlockCatalogues
       v-if="groupedCatalogues?.project?.length"
       title="Project catalogues"
       description="Catalogues maintained by individual research projects or consortia:"
-      :catalogues="groupedCatalogues?.project"
+      :catalogues="groupedCatalogues?.project as IResources[]"
     />
     <ContentBlockCatalogues
       v-if="groupedCatalogues?.organisation?.length"
       title="Organisation catalogues"
       description="Catalogues maintained by organisations:"
-      :catalogues="groupedCatalogues?.organisation"
+      :catalogues="groupedCatalogues?.organisation as IResources[]"
     />
     <ContentBlock
       v-if="!catalogues?.length"

@@ -16,10 +16,8 @@ import type {
 } from "../../../../../interfaces/types";
 import dateUtils from "../../../../utils/dateUtils";
 import type {
-  ICollections,
-  INetworks,
+  IResources,
   IVariables,
-  IOntologyNode,
 } from "../../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { logError, removeChildIfParentSelected } from "#imports";
@@ -54,18 +52,11 @@ const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema as string;
 
-const tableNameMap: Record<string, string> = {
-  collections: "Collections",
-  networks: "Networks",
-  about: "Networks",
-};
-const tableName =
-  tableNameMap[route.params.resourceType as string] || "Collections";
-const isCollection = tableName === "Collections";
+const tableName = "Resources";
 
 const query = `
-  query ${tableName}Detail($id: String) {
-    ${tableName}(filter: { id: { equals: [$id] } }) {
+  query ResourcesDetail($id: String) {
+    Resources(filter: { id: { equals: [$id] } }) {
       id
       pid
       acronym
@@ -76,9 +67,7 @@ const query = `
         url
       }
       contactEmail
-      ${
-        isCollection
-          ? `type {
+      type {
         name
       }
       cohortType {
@@ -86,36 +75,22 @@ const query = `
       }
       registryOrHealthRecordType {
         name
-      }`
-          : ``
       }
-      ${
-        isCollection
-          ? ``
-          : `networkType {
+      networkType {
         name
-      }`
       }
-      ${
-        isCollection
-          ? `clinicalStudyType {
+      clinicalStudyType {
         name
-      }`
-          : ``
       }
       keywords
       externalIdentifiers {
         identifier
         externalIdentifierType{name}
       }
-      ${
-        isCollection
-          ? `populationAgeGroups {
+      populationAgeGroups {
         name order code parent { code }
       }
-      dateLastRefresh`
-          : ``
-      }
+      dateLastRefresh
       startYear
       endYear
       continents {
@@ -129,9 +104,7 @@ const query = `
         name
         order
       }
-      ${
-        isCollection
-          ? `numberOfParticipants
+      numberOfParticipants
       numberOfParticipantsWithSamples
       designDescription
       designSchematic ${moduleToString(fileFragment)}
@@ -152,17 +125,13 @@ const query = `
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
       exclusionCriteria ${moduleToString(ontologyFragment)}
-      otherExclusionCriteria`
-          : ``
-      }
+      otherExclusionCriteria
       publications(orderby: {title:ASC}) {
         doi
         title
         isDesignPublication
       }
-      ${
-        isCollection
-          ? `collectionEvents {
+      collectionEvents {
         name
         description
         startDate
@@ -176,8 +145,6 @@ const query = `
           name
         }
         coreVariables
-      }`
-          : ``
       }
       peopleInvolved {
         roleDescription
@@ -218,9 +185,7 @@ const query = `
           }
         }
       }
-      ${
-        isCollection
-          ? `subpopulations {
+      subpopulations {
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
       }
@@ -229,17 +194,11 @@ const query = `
       dataUseConditions ${moduleToString(ontologyFragment)}
       dataAccessFee
       releaseType ${moduleToString(ontologyFragment)}
-      releaseDescription`
-          : ``
-      }
+      releaseDescription
       fundingStatement
       acknowledgements
-      ${
-        isCollection
-          ? `linkageOptions
-      prelinked`
-          : ``
-      }
+      linkageOptions
+      prelinked
       documentation {
         name
         description
@@ -264,15 +223,11 @@ const query = `
       publications_agg {
         count
       }
-      ${
-        isCollection
-          ? `subpopulations_agg {
+      subpopulations_agg {
         count
       }
       collectionEvents_agg{
         count
-      }`
-          : ``
       }
     }
     Variables_agg(filter: { resource: { id: { equals: [$id] } } }) {
@@ -281,10 +236,7 @@ const query = `
   }
 `;
 const variables = { id: route.params.resource };
-interface IResourceQueryResponseValue
-  extends Omit<ICollections, "type">,
-    Pick<INetworks, "networkType"> {
-  type?: IOntologyNode[];
+interface IResourceQueryResponseValue extends IResources {
   publications_agg?: { count: number };
   subpopulations_agg?: { count: number };
   collectionEvents_agg?: { count: number };
@@ -436,10 +388,7 @@ async function fetchDatasetOptions() {
 fetchDatasetOptions();
 
 const networks = computed(
-  () =>
-    (resource.value?.partOfNetworks ?? []) as (INetworks & {
-      catalogueType?: IOntologyNode;
-    })[]
+  () => (resource.value?.partOfNetworks ?? []) as IResources[]
 );
 
 const tocItems = computed(() => {
@@ -814,7 +763,7 @@ const showPopulation = computed(
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :resource="resource as ICollections"
+          :resource="resource as IResources"
         />
 
         <ContentBlock v-if="showPopulation" id="population" title="Population">

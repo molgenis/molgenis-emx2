@@ -17,14 +17,14 @@ const { data } = await useFetch(`/${schema}/graphql`, {
         Variables_agg {
           count
         }
-        Collections_agg {
+        Resources_agg {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        Collections_groupBy {
+        Resources_groupBy {
           count
           type {
             name

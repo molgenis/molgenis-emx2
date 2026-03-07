@@ -82,7 +82,8 @@ public class Generator {
                   : table.getSchemaName() + '_' + table.getTableName());
       writer.println(String.format("export interface I%s {", tableName));
 
-      for (Column column : table.getColumns()) {
+      java.util.Set<String> seenColumns = new java.util.LinkedHashSet<>();
+      for (Column column : table.getColumnsIncludingSubclasses()) {
         if (column.getColumnType().isHeading()) {
           continue;
         }
@@ -91,6 +92,9 @@ public class Generator {
         }
 
         String columnName = convertToCamelCase(column.getName());
+        if (!seenColumns.add(columnName)) {
+          continue;
+        }
         String fieldValue = toTypeScriptInterfaceFieldValue(schema, column);
         String optional = column.isRequired() ? "" : "?";
         writer.println(String.format("    %s%s: %s;", columnName, optional, fieldValue));

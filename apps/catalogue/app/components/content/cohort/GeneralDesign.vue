@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ICollections, INetworks } from "../../../../interfaces/catalogue";
+import type { IResources } from "../../../../interfaces/catalogue";
 import type {
   INameObject,
   IDefinitionListItem,
@@ -13,7 +13,7 @@ import ContentBlock from "../../../../../tailwind-components/app/components/cont
 const props = defineProps<{
   title: string;
   description?: string;
-  resource: ICollections & Pick<INetworks, "networkType">;
+  resource: IResources;
 }>();
 
 const designPublications = computed(() =>

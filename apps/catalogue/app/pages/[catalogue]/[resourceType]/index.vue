@@ -43,13 +43,6 @@ const route = useRoute();
 const router = useRouter();
 const pageSize = 10;
 
-const tableNameMap: Record<string, string> = {
-  collections: "Collections",
-  networks: "Networks",
-};
-const tableName =
-  tableNameMap[route.params.resourceType as string] || "Collections";
-
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 
@@ -199,6 +192,13 @@ const filters = computed(() => {
   return filters;
 });
 
+const tableNameMap: Record<string, string> = {
+  collections: "Collections",
+  networks: "Networks",
+};
+const tableName =
+  tableNameMap[route.params.resourceType as string] || "Collections";
+
 const query = computed(() => {
   return `
   query ${tableName}($filter:${tableName}Filter, $orderby:${tableName}orderby){
@@ -242,18 +242,13 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if ("all" === route.params.catalogue) {
-    return result;
-  } else {
-    return {
-      _and: [
-        result,
-        {
-          _or: getParentOrPartOfFilter(),
-        },
-      ],
-    };
+  const filters_and: any[] = [result];
+
+  if ("all" !== route.params.catalogue) {
+    filters_and.push({ _or: getParentOrPartOfFilter() });
   }
+
+  return filters_and.length === 1 ? result : { _and: filters_and };
 });
 
 function getParentOrPartOfFilter() {

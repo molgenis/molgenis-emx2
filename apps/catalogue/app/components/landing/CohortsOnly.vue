@@ -16,7 +16,7 @@ const { data, pending, error, refresh } = await useFetch(`/${schema}/graphql`, {
         Variables_agg {
           count
         }
-        Collections_agg {
+        Resources_agg {
           count
           _sum {
             numberOfParticipants
@@ -29,7 +29,7 @@ const { data, pending, error, refresh } = await useFetch(`/${schema}/graphql`, {
         Networks_agg {
           count
         }
-        Collections_groupBy {
+        Resources_groupBy {
           count
           design {
             name

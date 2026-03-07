@@ -155,28 +155,58 @@ Row order preserved from master. Only `tableName` column changed for moved rows.
 
 ---
 
-## Phase 5: Verification and Testing [IN PROGRESS]
+## Phase 5: Verification and Testing [DONE]
 
-### Completed:
-- Data model loads correctly with inheritance hierarchy
-- Demo data loads without errors
-- Frontend compiles and renders correctly
-- Counts verified against production environment
-- `mg_tableclass` filtering works correctly through GraphQL
-- Profile tags fixed on table-level rows (staging profiles were missing → import crash)
-- Patient registry demo data split (Catalogues.csv, Collections.csv, Endpoint.csv)
-- CatalogueTest passes (test06 PASSED, test07 PASSED, test08 SKIPPED/disabled)
-- renderForm e2e test fixed: `table=Resources` → `table=Collections` (Collections has design/population headings)
-- Landing page `[catalogue]/index.vue` fixed: added `ScopedCollection: Collections(filter:$collectionIdFilter)` query with fallback — scoped pages now work for Collections (e.g., "FORCE-NEN collections") not just Catalogues
-- Merge conflict in `useHeaderData.ts` resolved: took master's `variablesFilter` with `reusedInResources` and `type` filter
-- CI aggregates-url.spec.ts failures (3 tests) should be fixed by landing page Collections fallback — awaiting CI verification
+- All CI tests passing (green)
+- renderForm e2e test fixed: `table=Resources` → `table=Collections`
+- Landing page fixed: added ScopedCollection query for Collections (e.g., "FORCE-NEN collections")
+- Merge conflict in useHeaderData.ts resolved
+- Frontend tests: catalogue (29/29), tailwind-components (125/125) all passed
 
-### Remaining TODOs:
-1. `pnpm test` — frontend unit tests [IN PROGRESS]
-2. Full `./gradlew :backend:molgenis-emx2-datamodels:test` — only CatalogueTest run so far
-3. DCAT/RDF verification: confirm `dcat:Catalog` for Catalogues, `dcat:Dataset` for Collections
-4. Enable and fix `test08DataCatalogueNetworkStagingLoader` (currently @Disabled)
-5. Code review pass before PR
+---
+
+## Phase 6: Simplify frontend types [PLANNED]
+
+### Context
+GraphQL flattens inheritance — querying `Resources` returns ALL fields from all subtables. But the TypeScript generator uses `table.getColumns()` (own+parent only), so `IResources` only has 49 fields. Fix the generator to match GraphQL behavior, then revert most frontend type changes back to master.
+
+### Step 1: Fix TypeScript generator
+**File:** `backend/molgenis-emx2-typescript/src/main/java/org/molgenis/emx2/typescript/Generator.java`
+- Line 85: `table.getColumns()` → `table.getColumnsIncludingSubclasses()`
+- Makes `IResources` include all 154+ fields (matching GraphQL and master)
+
+### Step 2: Regenerate catalogue.ts
+- Run generator → updated `apps/catalogue/interfaces/catalogue.ts`
+- Verify `IResources` has all fields
+
+### Step 3: Revert component types to IResources
+- `apps/catalogue/app/components/ResourceCard.vue` — prop type back to `IResources`
+- `apps/catalogue/app/components/content/ContentBlockCatalogues.vue` — prop type back to `IResources`
+- `apps/catalogue/app/components/content/cohort/GeneralDesign.vue` — prop type back to `IResources`
+
+### Step 4: Revert list page to query Resources
+**File:** `apps/catalogue/app/pages/[catalogue]/[resourceType]/index.vue`
+- Query `Resources` table (like master) instead of separate Collections/Networks
+- Use `mg_tableclass` filter instead of `type.tags`
+
+### Step 5: Revert detail page to query Resources
+**File:** `apps/catalogue/app/pages/[catalogue]/[resourceType]/[resource]/index.vue`
+- Query `Resources` with all fields (like master)
+- Use `mg_tableclass` filter where needed
+
+### Keep as-is (necessary structural changes):
+- `apps/catalogue/app/pages/[catalogue]/index.vue` — landing page queries Catalogues + ScopedCollection
+- `apps/catalogue/app/pages/index.vue` — root redirect page
+- `apps/catalogue/app/composables/useHeaderData.ts` — merged from master
+- `apps/catalogue/app/components/landing/Central.vue` — Collections_agg/Networks_agg
+- `apps/catalogue/app/components/landing/CohortsOnly.vue` — Collections_agg
+- Variable pages — keep current filters
+
+### Verification
+1. `pnpm --filter catalogue test` — vitest passes
+2. `pnpm --filter catalogue lint` — typecheck passes
+3. `pnpm --filter tailwind-components test` — vitest passes
+4. Push and verify CI passes
 
 ---
 

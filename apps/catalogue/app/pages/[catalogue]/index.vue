@@ -154,7 +154,7 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
               { resource: { id: { equals: catalogueRouteParam } } },
               {
                 resource: {
-                  partOfNetworks: { id: { equals: catalogueRouteParam } },
+                  parentNetworks: { id: { equals: catalogueRouteParam } },
                 },
               },
               {
@@ -163,7 +163,7 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
                     { resource: { id: { equals: catalogueRouteParam } } },
                     {
                       resource: {
-                        partOfNetworks: {
+                        parentNetworks: {
                           id: { equals: catalogueRouteParam },
                         },
                       },
