@@ -38,85 +38,20 @@ const refLoadingKeys = ref<Set<string>>(new Set());
 
 const EXCLUDED_TYPES = ["HEADING", "SECTION"];
 
-const TYPE_LABELS: Record<string, string> = {
-  ONTOLOGY: "ontology",
-  ONTOLOGY_ARRAY: "ontology",
-  REF: "ref",
-  REF_ARRAY: "ref",
-  REFBACK: "ref",
-  SELECT: "ref",
-  MULTISELECT: "ref",
-  RADIO: "ref",
-  CHECKBOX: "ref",
-  INT: "number",
-  DECIMAL: "number",
-  LONG: "number",
-  NON_NEGATIVE_INT: "number",
-  DATE: "date",
-  DATETIME: "date",
-  STRING: "text",
-  TEXT: "text",
-  EMAIL: "text",
-  HYPERLINK: "text",
-  AUTO_ID: "text",
-  UUID: "text",
-  JSON: "text",
-  STRING_ARRAY: "text",
-  TEXT_ARRAY: "text",
-  EMAIL_ARRAY: "text",
-  HYPERLINK_ARRAY: "text",
-  UUID_ARRAY: "text",
-  BOOL: "bool",
-  BOOL_ARRAY: "bool",
-  FILE: "text",
-};
-
-const TYPE_ORDER = ["ontology", "ref", "text", "number", "date", "bool"];
-
-function typeLabel(col: IColumn): string {
-  return TYPE_LABELS[col.columnType] || col.columnType.toLowerCase();
-}
-
-const groupedByType = computed(() => {
+const sortedColumns = computed(() => {
   let cols = props.columns.filter(
     (col) =>
       !EXCLUDED_TYPES.includes(col.columnType) && !col.id.startsWith("mg_")
   );
   if (searchQuery.value) {
     const searchLower = searchQuery.value.toLowerCase();
-    cols = cols.filter(
-      (col) =>
-        col.label.toLowerCase().includes(searchLower) ||
-        typeLabel(col).includes(searchLower)
+    cols = cols.filter((col) =>
+      col.label.toLowerCase().includes(searchLower)
     );
   }
-
-  const groups = new Map<string, IColumn[]>();
-  for (const col of cols) {
-    const group = typeLabel(col);
-    if (!groups.has(group)) groups.set(group, []);
-    groups.get(group)!.push(col);
-  }
-
-  return TYPE_ORDER.filter((type) => groups.has(type))
-    .map((type) => ({
-      type,
-      columns: groups
-        .get(type)!
-        .sort((a, b) =>
-          a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
-        ),
-    }))
-    .concat(
-      Array.from(groups.entries())
-        .filter(([type]) => !TYPE_ORDER.includes(type))
-        .map(([type, columns]) => ({
-          type,
-          columns: columns.sort((a, b) =>
-            a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
-          ),
-        }))
-    );
+  return cols.sort((a, b) =>
+    a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
+  );
 });
 
 function isVisible(columnId: string): boolean {
@@ -230,45 +165,38 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
         </div>
 
         <div class="max-h-80 overflow-y-auto">
-          <div v-for="group in groupedByType" :key="group.type">
-            <div
-              class="px-4 py-1.5 text-body-xs uppercase tracking-wide opacity-40 bg-modal-footer"
+          <div v-for="row in flattenColumns(sortedColumns)" :key="row.path">
+            <button
+              @click="handleToggle(row.path)"
+              v-tooltip.right="columnTooltip(row.column)"
+              class="w-full py-1.5 flex items-center gap-2 hover:bg-tab-hover text-left transition-colors"
+              :style="{
+                paddingLeft: `${16 + row.depth * 24}px`,
+                paddingRight: '16px',
+              }"
             >
-              {{ group.type }}
-            </div>
-            <div v-for="row in flattenColumns(group.columns)" :key="row.path">
-              <button
-                @click="handleToggle(row.path)"
-                v-tooltip.right="columnTooltip(row.column)"
-                class="w-full py-1.5 flex items-center gap-2 hover:bg-tab-hover text-left transition-colors"
-                :style="{
-                  paddingLeft: `${16 + row.depth * 24}px`,
-                  paddingRight: '16px',
-                }"
+              <InputCheckboxIcon
+                :checked="isVisible(row.path)"
+                class="min-w-[20px] shrink-0"
+              />
+              <span
+                class="text-body-sm leading-normal flex-1 truncate text-title"
               >
-                <InputCheckboxIcon
-                  :checked="isVisible(row.path)"
-                  class="min-w-[20px] shrink-0"
+                {{ row.column.label }}
+              </span>
+              <span
+                v-if="row.isRefExpandable"
+                @click.stop="toggleRefExpand(row.path, row.column)"
+                class="rounded-full h-5 w-5 flex items-center justify-center shrink-0 text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover"
+              >
+                <BaseIcon
+                  :name="
+                    expandedPaths.has(row.path) ? 'caret-up' : 'caret-down'
+                  "
+                  :width="16"
                 />
-                <span
-                  class="text-body-sm leading-normal flex-1 truncate text-title"
-                >
-                  {{ row.column.label }}
-                </span>
-                <span
-                  v-if="row.isRefExpandable"
-                  @click.stop="toggleRefExpand(row.path, row.column)"
-                  class="rounded-full h-5 w-5 flex items-center justify-center shrink-0 text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover"
-                >
-                  <BaseIcon
-                    :name="
-                      expandedPaths.has(row.path) ? 'caret-up' : 'caret-down'
-                    "
-                    :width="16"
-                  />
-                </span>
-              </button>
-            </div>
+              </span>
+            </button>
           </div>
         </div>
 
