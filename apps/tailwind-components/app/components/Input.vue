@@ -33,6 +33,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
+    :errorMessage="errorMessage"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -70,6 +71,7 @@
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
+    :errorMessage="errorMessage"
     :describedBy="describedBy"
     :placeholder="placeholder"
     @focus="emit('focus')"
@@ -344,6 +346,7 @@ const props = withDefaults(
       falseLabel?: string;
       align?: "horizontal" | "vertical";
       limit?: number;
+      errorMessage?: string | null;
     }
   >(),
   {

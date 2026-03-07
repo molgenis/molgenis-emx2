@@ -25,7 +25,6 @@ import {
 } from "../../../../../../tailwind-components/app/utils/Pages";
 
 import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
-const { isAdmin } = await useSession();
 
 interface ModelStatus {
   type: INotificationType;
@@ -37,6 +36,7 @@ const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema ?? "";
 const page = route.params.page as string;
+const { isAdmin } = await useSession(schema);
 
 useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 

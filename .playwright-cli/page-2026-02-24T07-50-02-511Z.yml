@@ -1,0 +1,153 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic:
+      - img
+  - main [ref=e6]:
+    - generic [ref=e9]:
+      - link "Go to home" [ref=e10] [cursor=pointer]:
+        - /url: /EUChildNetwork
+        - generic [ref=e11]: Go to home
+        - img [ref=e12]
+      - navigation [ref=e18]:
+        - link "Collections" [ref=e19] [cursor=pointer]:
+          - /url: /EUChildNetwork/collections
+        - link "Networks" [ref=e20] [cursor=pointer]:
+          - /url: /EUChildNetwork/networks
+        - link "Variables" [ref=e21] [cursor=pointer]:
+          - /url: /EUChildNetwork/variables
+        - link "About" [ref=e22] [cursor=pointer]:
+          - /url: /EUChildNetwork/about/EUChildNetwork
+        - button "More" [ref=e24] [cursor=pointer]:
+          - text: More
+          - img [ref=e25]
+    - generic [ref=e27]:
+      - generic [ref=e29]:
+        - heading "EUChildNetwork" [level=1] [ref=e31]
+        - generic [ref=e33]:
+          - paragraph [ref=e34]:
+            - text: Welcome to the catalogue of
+            - link "EUChildNetwork" [ref=e35] [cursor=pointer]:
+              - /url: /EUChildNetwork/networks/EUChildNetwork
+            - text: ": The EU Child Cohort Network. The EU Child Cohort Network: A Europe-wide network of cohort studies started in early life Cohort studies started from pregnancy or childhood give the unique opportunity to relate early-life stressors with variation in development, health and disease throughout the life course. Moreover, advanced analytical approaches used in observational studies can help identify causality and potential for early-life interventions on factors that cannot be easily studied in experimental settings. These factors include socioeconomic circumstances, migration, urban environment as well as lifestyle-related determinants and will be given particular focus in our project. We will set up a European pregnancy and childhood cohort, the EU Child Cohort Network, which brings together extensive existing data from more than 250,000 European children and their parents. These cohorts enable studies in multiple generations because of their detailed phenotyping of both parents and children. The network will bring together existing successful multidisciplinary cohort studies, which all started before or during pregnancy or in childhood. Together, they span the full life course and contain detailed phenotypical information as well as biological samples. The EU Child Cohort Network will optimize exploitation of more than 40 available cohort resources in Europe and will enable innovative research on identification of novel markers of early-life stressors related to health trajectories throughout the full life cycle. Although LifeCycle partners and their cohorts have taken the initiative for this unique collaboration, the network is open to other partners with population-based cohorts started in early life, specifically those from Eastern and Southern Europe. To ensure that this will be a Europe-wide, open and sustainable network, which exceeds the LifeCycle Project duration, we will introduce a data sharing platform taking account of ethical, legal and societal implications, we will organize yearly meetings open to all European pregnancy and child cohort researchers and we will start a fellowship programme for exchange between these European cohorts.."
+          - button "show more" [ref=e37] [cursor=pointer]:
+            - generic [ref=e38]: show more
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - img [ref=e43]
+            - link "Collections" [ref=e52] [cursor=pointer]:
+              - /url: /EUChildNetwork/collections
+              - heading "Collections" [level=1] [ref=e53]
+            - generic [ref=e54]: "22"
+          - paragraph [ref=e55]: Data & sample collections
+          - link "Collections" [ref=e56] [cursor=pointer]:
+            - /url: /EUChildNetwork/collections
+            - button "Collections" [ref=e57]:
+              - generic [ref=e58]: Collections
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - img [ref=e62]
+            - link "Networks" [ref=e65] [cursor=pointer]:
+              - /url: /EUChildNetwork/networks
+              - heading "Networks" [level=1] [ref=e66]
+            - generic [ref=e67]: "3"
+          - paragraph [ref=e68]: Networks & Consortia
+          - link "Networks" [ref=e69] [cursor=pointer]:
+            - /url: /EUChildNetwork/networks
+            - button "Networks" [ref=e70]:
+              - generic [ref=e71]: Networks
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - img [ref=e75]
+            - link "Variables" [ref=e86] [cursor=pointer]:
+              - /url: /EUChildNetwork/variables
+              - heading "Variables" [level=1] [ref=e87]
+            - generic [ref=e88]: "681"
+          - paragraph [ref=e89]: Harmonised variables
+          - link "Variables" [ref=e90] [cursor=pointer]:
+            - /url: /EUChildNetwork/variables
+            - button "Variables" [ref=e91]:
+              - generic [ref=e92]: Variables
+      - generic [ref=e93]:
+        - generic [ref=e94]:
+          - img [ref=e96]
+          - paragraph [ref=e99]:
+            - text: 328,922 Participants
+            - text: The cumulative number of participants
+        - generic [ref=e100]:
+          - img [ref=e102]
+          - paragraph [ref=e105]:
+            - text: 123,231 Samples
+            - text: The cumulative number of participants with samples
+        - generic [ref=e106]:
+          - img [ref=e108]
+          - paragraph [ref=e111]:
+            - text: Longitudinal 86%
+            - text: Percentage of longitudinal datasets
+        - generic [ref=e112]:
+          - img [ref=e114]
+          - paragraph [ref=e116]:
+            - text: 43 Subpopulations
+            - text: The total number of subpopulations included
+    - generic [ref=e118]:
+      - generic [ref=e119]:
+        - heading "Created with MOLGENIS" [level=3] [ref=e120]
+        - list [ref=e121]:
+          - listitem [ref=e122]:
+            - link "About Molgenis" [ref=e123] [cursor=pointer]:
+              - /url: http://molgenis.org
+              - img [ref=e124]
+              - generic [ref=e126]: About Molgenis
+          - listitem [ref=e127]:
+            - link "MOLGENIS.org" [ref=e128] [cursor=pointer]:
+              - /url: http://molgenis.org
+              - img [ref=e129]
+              - generic [ref=e131]: MOLGENIS.org
+              - img [ref=e132]
+          - listitem [ref=e134]:
+            - img [ref=e135]
+            - generic [ref=e137]: Need help?
+            - link "Contact us" [ref=e138] [cursor=pointer]:
+              - /url: mailto:support@molgenis.org
+      - generic [ref=e139]:
+        - heading "Running a custom MOLGENIS version" [level=3] [ref=e140]
+        - list [ref=e141]:
+          - listitem [ref=e142]:
+            - link "MOLGENIS on GitHub" [ref=e143] [cursor=pointer]:
+              - /url: https://github.com/molgenis/molgenis-emx2
+              - img [ref=e144]
+              - generic [ref=e146]: MOLGENIS on GitHub
+              - img [ref=e147]
+          - listitem [ref=e149]:
+            - link "Open Source LGPLv3 License" [ref=e150] [cursor=pointer]:
+              - /url: https://molgenis.org/LICENSE-LGPLv3.html
+              - img [ref=e151]
+              - generic [ref=e153]: Open Source LGPLv3 License
+              - img [ref=e154]
+          - listitem [ref=e156]:
+            - link "Privacy Policy" [ref=e157] [cursor=pointer]:
+              - /url: https://molgenis.org/MOLGENIS_Privacy_Policy.pdf
+              - img [ref=e158]
+              - generic [ref=e160]: Privacy Policy
+              - img [ref=e161]
+      - generic [ref=e163]:
+        - heading "Please cite on use" [level=3] [ref=e164]
+        - list [ref=e165]:
+          - listitem [ref=e166]:
+            - link "Swertz & Gini (2022)" [ref=e167] [cursor=pointer]:
+              - /url: https://www.ncbi.nlm.nih.gov/pubmed/36463884
+              - img [ref=e168]
+              - generic [ref=e170]: Swertz & Gini (2022)
+              - img [ref=e171]
+          - listitem [ref=e173]:
+            - link "Van der Velde et al (2018)" [ref=e174] [cursor=pointer]:
+              - /url: https://www.ncbi.nlm.nih.gov/pubmed/30165396
+              - img [ref=e175]
+              - generic [ref=e177]: Van der Velde et al (2018)
+              - img [ref=e178]
+          - listitem [ref=e180]:
+            - link "Swertz et al (2010)" [ref=e181] [cursor=pointer]:
+              - /url: https://www.ncbi.nlm.nih.gov/pubmed/21210979
+              - img [ref=e182]
+              - generic [ref=e184]: Swertz et al (2010)
+              - img [ref=e185]

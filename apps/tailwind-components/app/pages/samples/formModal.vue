@@ -34,9 +34,9 @@
       <section class="grid grid-cols-4 gap-1">
         <div class="col-span-1 bg-form-legend">
           <FormLegend
-            v-if="sections"
+            v-if="form.sections.value"
             class="sticky top-0"
-            :sections="sections"
+            :sections="form.sections.value"
             @goToSection="scrollToElementInside('fields-container', $event)"
           />
         </div>
@@ -45,34 +45,25 @@
           id="fields-container"
           class="col-span-3 px-4 py-50px overflow-y-auto"
         >
-          <FormFields
-            schemaId="catalogue-demo"
-            :columns="visibleColumns"
-            :visibleColumnErrors="visibleColumnErrors"
-            :requiredFields="{}"
-            v-model="formValues"
-            @update="onUpdateColumn"
-            @blur="onBlurColumn"
-            @view="onViewColumn"
-          />
+          <FormFields :form="form" />
         </div>
       </section>
       <Transition name="slide-up">
         <FormError
-          v-show="errorMessage"
-          :message="errorMessage"
+          v-show="form.errorMessage.value"
+          :message="form.errorMessage.value"
           class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-          @error-prev="gotoPreviousError"
-          @error-next="gotoNextError"
+          @error-prev="form.gotoPreviousError"
+          @error-next="form.gotoNextError"
         />
       </Transition>
 
       <template #footer>
         <div class="flex justify-between items-center">
           <FormRequiredInfoSection
-            :message="requiredMessage"
-            @required-next="gotoNextRequiredField"
-            @required-prev="gotoPreviousRequiredField"
+            :message="form.requiredMessage.value"
+            @required-next="form.gotoNextRequiredField"
+            @required-prev="form.gotoPreviousRequiredField"
           />
           <menu class="flex items-center justify-end h-[116px]">
             <div class="flex gap-4">
@@ -147,18 +138,5 @@ function scrollToElementInside(containerId: string, elementId: string) {
   }
 }
 
-const {
-  requiredMessage,
-  errorMessage,
-  gotoPreviousRequiredField,
-  gotoNextRequiredField,
-  gotoNextError,
-  gotoPreviousError,
-  visibleColumnErrors,
-  sections,
-  onUpdateColumn,
-  onBlurColumn,
-  onViewColumn,
-  visibleColumns,
-} = useForm(metadata, formValues, "fields-container");
+const form = useForm(metadata, formValues);
 </script>

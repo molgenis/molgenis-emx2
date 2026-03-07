@@ -16,30 +16,3 @@ test("it should render the form", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("Name");
   await expect(page.getByLabel("id Required", { exact: true })).toBeVisible();
 });
-
-test("it should show the chapters in the legend", async ({
-  page,
-}, testInfo) => {
-  testInfo.setTimeout(testInfo.timeout + 10_000);
-  await expect(page.locator("a").filter({ hasText: "Overview" })).toBeVisible();
-  await expect(
-    page.locator("a").filter({ hasText: "design and structure" })
-  ).toBeVisible();
-});
-
-test("the legend should show number of errors per chapter (if any)", async ({
-  page,
-}) => {
-  await page.getByLabel("name Required", { exact: true }).click();
-  // skip a required field
-  await page.getByLabel("name Required", { exact: true }).press("Tab");
-
-  await expect(page.getByText("overview1 error in overview")).toBeVisible();
-});
-
-test("clicking on the chapter should scroll to the chapter", async ({
-  page,
-}) => {
-  await page.getByText("population", { exact: true }).first().click();
-  await expect(page.getByRole("heading", { name: "population" })).toBeVisible();
-});

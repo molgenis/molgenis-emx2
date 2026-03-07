@@ -6,6 +6,7 @@ import PageSection from "../pages/Section.vue";
 import TextHeading from "../text/Heading.vue";
 import TextParagraph from "../text/Paragraph.vue";
 import Image from "../pages/Image.vue";
+import NavigationGroups from "./Navigation/NavigationGroups.vue";
 
 import { parsePageText } from "../../utils/Pages";
 
@@ -61,6 +62,13 @@ const props = defineProps<{ content: IConfigurablePages }>();
           :height="orderedComponent.component.height"
           :alt="orderedComponent.component.alt"
           :image-is-centered="orderedComponent.component.imageIsCentered"
+        />
+        <NavigationGroups
+          v-else-if="
+            orderedComponent.component.mg_tableclass === 'cms.Navigation groups'
+          "
+          :id="orderedComponent.component.id"
+          :links="orderedComponent.component.links"
         />
         <div v-else>
           <TextParagraph id="component-does-not-exist-message">
