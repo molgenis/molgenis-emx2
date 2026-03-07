@@ -131,7 +131,9 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
     query,
     variables: {
       catalogueFilter,
-      collectionIdFilter: scoped ? { id: { equals: catalogueRouteParam } } : undefined,
+      collectionIdFilter: scoped
+        ? { id: { equals: catalogueRouteParam } }
+        : undefined,
       collectionsFilter,
       subpopulationsCollectionFilter: scoped
         ? {
