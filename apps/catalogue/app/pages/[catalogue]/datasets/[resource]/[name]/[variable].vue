@@ -38,7 +38,10 @@ const crumbs: Crumb[] = [
   { label: catalogue, url: `/${catalogue}` },
   { label: "datasets", url: `/${catalogue}/datasets` },
   { label: resourceId, url: `/${catalogue}/datasets/${resourceId}` },
-  { label: datasetName, url: `/${catalogue}/datasets/${resourceId}/${datasetName}` },
+  {
+    label: datasetName,
+    url: `/${catalogue}/datasets/${resourceId}/${datasetName}`,
+  },
   { label: variableName, url: "" },
 ];
 </script>
@@ -51,10 +54,6 @@ const crumbs: Crumb[] = [
       </template>
     </PageHeader>
 
-    <Emx2RecordView
-      :schema-id="schema"
-      table-id="Variables"
-      :row-id="rowId"
-    />
+    <Emx2RecordView :schema-id="schema" table-id="Variables" :row-id="rowId" />
   </LayoutsLandingPage>
 </template>

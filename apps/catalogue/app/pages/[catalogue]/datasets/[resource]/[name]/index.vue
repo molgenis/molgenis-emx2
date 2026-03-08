@@ -98,8 +98,12 @@ const crumbs: Crumb[] = [
       :config="recordDisplayConfig"
     />
 
-    <section class="bg-content py-18 lg:px-12.5 px-5 xl:rounded-3px shadow-primary overflow-hidden mb-6">
-      <h2 class="mb-5 uppercase text-heading-4xl font-display text-record-heading">
+    <section
+      class="bg-content py-18 lg:px-12.5 px-5 xl:rounded-3px shadow-primary overflow-hidden mb-6"
+    >
+      <h2
+        class="mb-5 uppercase text-heading-4xl font-display text-record-heading"
+      >
         Variables
       </h2>
       <Emx2DataView
