@@ -82,6 +82,7 @@ public class RdfFetcher {
   }
 
   public Model fetchRecursively(String url, int maxDepth, int maxCalls) throws IOException {
+    String baseHost = URI.create(url).getHost();
     Model model = new TreeModel();
     Set<String> fetched = new HashSet<>();
     int callCount = 0;
@@ -89,7 +90,7 @@ public class RdfFetcher {
     fetched.add(url);
     callCount++;
     for (int depth = 0; depth < maxDepth && callCount < maxCalls; depth++) {
-      Set<String> urisToFetch = extractObjectUris(model, fetched);
+      Set<String> urisToFetch = extractObjectUris(model, fetched, baseHost);
       if (urisToFetch.isEmpty()) {
         break;
       }
@@ -102,7 +103,7 @@ public class RdfFetcher {
           model.addAll(fetch(uri));
           fetched.add(uri);
           callCount++;
-        } catch (IOException e) {
+        } catch (Exception e) {
           log.warn("Failed to fetch {}: {}", uri, e.getMessage());
           fetched.add(uri);
         }
@@ -111,12 +112,19 @@ public class RdfFetcher {
     return model;
   }
 
-  private Set<String> extractObjectUris(Model model, Set<String> alreadyFetched) {
+  private Set<String> extractObjectUris(Model model, Set<String> alreadyFetched, String baseHost) {
     Set<String> uris = new HashSet<>();
     for (Statement stmt : model) {
       Value obj = stmt.getObject();
-      if (obj.isIRI() && !alreadyFetched.contains(obj.stringValue())) {
-        uris.add(obj.stringValue());
+      if (!obj.isIRI() || alreadyFetched.contains(obj.stringValue())) {
+        continue;
+      }
+      try {
+        String host = URI.create(obj.stringValue()).getHost();
+        if (baseHost.equals(host)) {
+          uris.add(obj.stringValue());
+        }
+      } catch (IllegalArgumentException ignored) {
       }
     }
     return uris;
