@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IColumn, CellValueType } from "../../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  CellValueType,
+} from "../../../../metadata-utils/src/types";
 import type { IFilterValue, FilterOperator } from "../../../types/filters";
 import Input from "../Input.vue";
 import FilterRange from "./Range.vue";
