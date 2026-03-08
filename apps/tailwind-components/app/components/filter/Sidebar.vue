@@ -62,6 +62,7 @@ const route = useRoute();
 const router = useRouter();
 
 const MG_FILTERS_PARAM = "mg_filters";
+const MAX_VISIBLE_FILTERS = 25;
 
 function getInitialVisibleFilters(): string[] {
   const urlParam = route.query[MG_FILTERS_PARAM];
@@ -69,7 +70,8 @@ function getInitialVisibleFilters(): string[] {
     return urlParam
       .split(",")
       .map((id) => id.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, MAX_VISIBLE_FILTERS);
   }
   return [...defaultFilterIds.value];
 }
@@ -114,7 +116,7 @@ function handleFilterToggle(columnId: string) {
     const newMap = new Map(filterStates.value);
     newMap.delete(columnId);
     filterStates.value = newMap;
-  } else {
+  } else if (visibleFilterIds.value.length < MAX_VISIBLE_FILTERS) {
     visibleFilterIds.value = [...visibleFilterIds.value, columnId];
   }
 }

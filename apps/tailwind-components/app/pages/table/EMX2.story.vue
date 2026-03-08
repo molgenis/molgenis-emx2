@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import type { ITableSettings } from "../../../types/types";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import { useRoute, useRouter } from "vue-router";
@@ -22,8 +22,17 @@ const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>((route.query.schema as string) || "");
 const tableId = ref<string>((route.query.table as string) || "");
 
+const filterColumns = computed(
+  () =>
+    metadata.value?.columns?.filter(
+      (c) =>
+        !c.id.startsWith("mg") &&
+        !["HEADING", "SECTION", "FILE"].includes(c.columnType)
+    ) ?? []
+);
+
 const { filterStates, searchValue, gqlFilter, removeFilter, clearFilters } =
-  useFilters(ref([]), { urlSync: showFilters.value });
+  useFilters(filterColumns, { urlSync: showFilters.value });
 
 watch(searchValue, (val) => {
   if (showFilters.value) {
@@ -64,27 +73,30 @@ watch(
     />
     <div class="py-10" />
 
-    <div :class="{ 'flex gap-6': showFilters }">
-      <FilterSidebar
-        v-if="showFilters"
-        v-model:filterStates="filterStates"
-        v-model:searchTerms="searchValue"
-        :schemaId="schemaId"
-        :tableId="tableId"
-        :showSearch="true"
-        class="w-64 shrink-0"
-      />
-      <div class="flex-1 min-w-0">
-        <TableEMX2
-          v-model:settings="tableSettings"
-          :key="`${schemaId}-${tableId}`"
-          :schema-id="schemaId"
-          :table-id="tableId ?? ''"
-          :is-editable="isEditable"
-          :filter="showFilters ? gqlFilter : undefined"
-          :hide-search="showFilters"
+    <template v-if="schemaId && tableId">
+      <div :class="{ 'flex gap-6': showFilters }">
+        <FilterSidebar
+          v-if="showFilters"
+          v-model:filterStates="filterStates"
+          v-model:searchTerms="searchValue"
+          :schemaId="schemaId"
+          :tableId="tableId"
+          :showSearch="true"
+          class="w-64 shrink-0"
         />
+        <div class="flex-1 min-w-0">
+          <TableEMX2
+            v-model:settings="tableSettings"
+            :key="`${schemaId}-${tableId}`"
+            :schema-id="schemaId"
+            :table-id="tableId ?? ''"
+            :is-editable="isEditable"
+            :filter="showFilters ? gqlFilter : undefined"
+            :hide-search="showFilters"
+          />
+        </div>
       </div>
-    </div>
+    </template>
+    <p v-else>Please select a schema and table using the controls above.</p>
   </div>
 </template>

@@ -51,7 +51,16 @@ const tableSettings = ref<ITableSettings>({
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 
-const { filterStates, searchValue, gqlFilter } = useFilters(ref([]), {
+const filterColumns = computed(
+  () =>
+    tableMetadata?.columns?.filter(
+      (c) =>
+        !c.id.startsWith("mg") &&
+        !["HEADING", "SECTION", "FILE"].includes(c.columnType)
+    ) ?? []
+);
+
+const { filterStates, searchValue, gqlFilter } = useFilters(filterColumns, {
   urlSync: true,
 });
 
