@@ -363,7 +363,7 @@ onUnmounted(() => {
           class="group flex justify-center items-start"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
-            'text-title cursor-pointer ': !disabled,
+            'text-title-contrast cursor-pointer': !disabled,
           }"
         >
           <input
@@ -402,7 +402,7 @@ onUnmounted(() => {
           />
           <span
             class="block text-body-sm leading-normal pl-1"
-            :class="inverted ? 'text-title-contrast' : 'text-title'"
+            :class="'text-title-contrast'"
           >
             {{ node.label || node.name }}
           </span>
