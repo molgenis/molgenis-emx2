@@ -134,7 +134,9 @@ const { isAdmin, session } = await useSession(schemaId);
           :schemaId="schemaId"
           :tableId="tableId"
           v-model:settings="tableSettings"
-          :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+          :isEditable="
+            session?.roles?.[schemaId]?.includes('Editor') || isAdmin
+          "
           :filter="gqlFilter"
           :hide-search="true"
         >
