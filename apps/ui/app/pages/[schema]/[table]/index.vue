@@ -19,6 +19,7 @@ import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import ActiveFilters from "../../../../../tailwind-components/app/components/filter/ActiveFilters.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -60,9 +61,10 @@ const filterColumns = computed(
     ) ?? []
 );
 
-const { filterStates, searchValue, gqlFilter } = useFilters(filterColumns, {
-  urlSync: true,
-});
+const { filterStates, searchValue, gqlFilter, removeFilter, clearFilters } =
+  useFilters(filterColumns, {
+    urlSync: true,
+  });
 
 watch(searchValue, (val) => {
   tableSettings.value.search = val;
@@ -128,6 +130,12 @@ const { isAdmin, session } = await useSession(schemaId);
         class="w-64 shrink-0"
       />
       <div class="flex-1 min-w-0">
+        <ActiveFilters
+          :filters="filterStates"
+          :columns="filterColumns"
+          @remove="removeFilter"
+          @clear-all="clearFilters"
+        />
         <TableEMX2
           :schemaId="schemaId"
           :tableId="tableId"
