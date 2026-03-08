@@ -283,6 +283,28 @@ describe("ActiveFilters", () => {
     expect(wrapper.text()).toContain("3");
   });
 
+  it("displays range with min=0 correctly", () => {
+    const filters = new Map<string, IFilterValue>([
+      ["age", { operator: "between", value: [0, 65] }],
+    ]);
+    const wrapper = mount(ActiveFilters, {
+      props: { filters, columns: mockColumns },
+    });
+
+    expect(wrapper.text()).toContain("0 - 65");
+  });
+
+  it("displays range with min=0, max=null", () => {
+    const filters = new Map<string, IFilterValue>([
+      ["age", { operator: "between", value: [0, null] }],
+    ]);
+    const wrapper = mount(ActiveFilters, {
+      props: { filters, columns: mockColumns },
+    });
+
+    expect(wrapper.text()).toContain("≥ 0");
+  });
+
   it("renders tooltip values for multi-value filters", () => {
     const filters = new Map<string, IFilterValue>([
       [

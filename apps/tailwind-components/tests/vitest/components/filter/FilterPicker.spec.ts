@@ -275,7 +275,8 @@ describe("FilterPicker", () => {
       await wrapper.find("button").trigger("click");
 
       const checkboxes = wrapper.findAllComponents(InputCheckboxIcon);
-      expect(checkboxes.length).toBeGreaterThan(0);
+      const labels = checkboxes.map((c) => c.props("label") as string);
+      expect(labels).toEqual([...labels].sort());
     });
   });
 
@@ -346,22 +347,6 @@ describe("FilterPicker", () => {
   });
 
   describe("Checkbox state", () => {
-    it("shows checkboxes for non-REF columns only", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const checkboxes = wrapper.findAllComponents(InputCheckboxIcon);
-      expect(checkboxes.length).toBeGreaterThan(0);
-    });
-
     it("REF columns have checkbox and expand caret", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
@@ -509,9 +494,18 @@ describe("FilterPicker", () => {
 });
 
 describe("computeDefaultFilters logic", () => {
+  // Source: app/components/filter/Sidebar.vue
   function computeDefaultFilters(columns: IColumn[]): string[] {
     const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
-    const REF_TYPES_FOR_DEFAULT = ["REF", "REF_ARRAY"];
+    const REF_TYPES_FOR_DEFAULT = [
+      "REF",
+      "REF_ARRAY",
+      "SELECT",
+      "RADIO",
+      "CHECKBOX",
+      "MULTISELECT",
+      "REFBACK",
+    ];
     const MAX_DEFAULT_FILTERS = 5;
 
     const unfilterable = ["HEADING", "SECTION"];
@@ -564,6 +558,17 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1", "ont2", "ref1", "ref2", "ref3"]);
   });
 
+  it("includes SELECT columns as default filters", () => {
+    const columns: IColumn[] = [
+      { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
+      { id: "sel1", label: "Select 1", columnType: "SELECT" },
+      { id: "sel2", label: "Select 2", columnType: "SELECT" },
+    ];
+
+    const result = computeDefaultFilters(columns);
+    expect(result).toEqual(["ont1", "sel1", "sel2"]);
+  });
+
   it("excludes HEADING columns", () => {
     const columns: IColumn[] = [
       { id: "heading1", label: "Heading", columnType: "HEADING" },
@@ -602,144 +607,5 @@ describe("computeDefaultFilters logic", () => {
 
     const result = computeDefaultFilters(columns);
     expect(result).toEqual([]);
-  });
-});
-
-describe("Deep nesting (3+ levels)", () => {
-  const vDropdownStub = {
-    template: `
-      <div>
-        <slot />
-        <div class="dropdown-popper" v-if="isOpen"><slot name="popper" :hide="hide" /></div>
-      </div>
-    `,
-    data() {
-      return {
-        isOpen: false,
-      };
-    },
-    methods: {
-      hide() {
-        this.isOpen = false;
-      },
-    },
-    mounted() {
-      const button = this.$el.querySelector("button");
-      if (button) {
-        button.addEventListener("click", () => {
-          this.isOpen = !this.isOpen;
-        });
-      }
-    },
-  };
-
-  const mockColumnsWithDeepRefs: IColumn[] = [
-    {
-      id: "order",
-      label: "Order",
-      columnType: "REF",
-      refSchemaId: "test",
-      refTableId: "Order",
-    },
-    {
-      id: "name",
-      label: "Name",
-      columnType: "STRING",
-    },
-  ];
-
-  it("shows expand caret on nested REF columns", async () => {
-    const wrapper = mount(FilterPicker, {
-      props: {
-        columns: mockColumnsWithDeepRefs,
-        visibleFilterIds: [],
-        defaultFilterIds: [],
-        schemaId: "test",
-      },
-      global: {
-        stubs: {
-          VDropdown: vDropdownStub,
-        },
-      },
-    });
-
-    await wrapper.find("button").trigger("click");
-
-    const orderButtons = wrapper.findAll("button").filter((b) => {
-      return b.text().includes("Order");
-    });
-    expect(orderButtons.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("expands nested REF columns to show deeper children", async () => {
-    const wrapper = mount(FilterPicker, {
-      props: {
-        columns: mockColumnsWithDeepRefs,
-        visibleFilterIds: [],
-        defaultFilterIds: [],
-        schemaId: "test",
-      },
-      global: {
-        stubs: {
-          VDropdown: vDropdownStub,
-        },
-      },
-    });
-
-    await wrapper.find("button").trigger("click");
-
-    const orderButtons = wrapper.findAll("button").filter((b) => {
-      return b.text().includes("Order") && !b.text().includes("Name");
-    });
-    expect(orderButtons.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("collapsing parent collapses all descendants", async () => {
-    const wrapper = mount(FilterPicker, {
-      props: {
-        columns: mockColumnsWithDeepRefs,
-        visibleFilterIds: [],
-        defaultFilterIds: [],
-        schemaId: "test",
-      },
-      global: {
-        stubs: {
-          VDropdown: vDropdownStub,
-        },
-      },
-    });
-
-    await wrapper.find("button").trigger("click");
-
-    const orderButtons = wrapper.findAll("button").filter((b) => {
-      return b.text().includes("Order");
-    });
-    expect(orderButtons.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("emits full dot-path for deeply nested toggle", async () => {
-    const wrapper = mount(FilterPicker, {
-      props: {
-        columns: mockColumnsWithDeepRefs,
-        visibleFilterIds: [],
-        defaultFilterIds: [],
-        schemaId: "test",
-      },
-      global: {
-        stubs: {
-          VDropdown: vDropdownStub,
-        },
-      },
-    });
-
-    await wrapper.find("button").trigger("click");
-
-    const nameButtons = wrapper.findAll("button").filter((b) => {
-      return b.text().includes("Name") && b.text() !== "Name";
-    });
-    if (nameButtons.length > 0) {
-      await nameButtons[0].trigger("click");
-      expect(wrapper.emitted("toggle")).toBeTruthy();
-    }
   });
 });

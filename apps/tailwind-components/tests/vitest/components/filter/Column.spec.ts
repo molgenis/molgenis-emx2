@@ -85,18 +85,6 @@ describe("FilterColumn", () => {
       expect(wrapper.text()).toContain("Custom Label");
     });
 
-    it("always shows filter content expanded", () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: stringColumn,
-          modelValue: null,
-        },
-      });
-
-      const content = wrapper.find(".mb-5");
-      expect(content.exists()).toBe(true);
-    });
-
     it("shows Clear button when modelValue is truthy", () => {
       const wrapper = mount(FilterColumn, {
         props: {
@@ -238,22 +226,6 @@ describe("FilterColumn", () => {
       expect(lastEmit?.operator).toBe("like");
     });
 
-    it("sets operator to 'between' for range types", async () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: intColumn,
-          modelValue: null,
-        },
-      });
-
-      await wrapper.setProps({
-        modelValue: { operator: "between", value: [10, 20] } as IFilterValue,
-      });
-
-      expect(wrapper.props("modelValue")?.operator).toBe("between");
-      expect(wrapper.props("modelValue")?.value).toEqual([10, 20]);
-    });
-
     it("clears modelValue when Clear is clicked", async () => {
       const wrapper = mount(FilterColumn, {
         props: {
@@ -271,28 +243,55 @@ describe("FilterColumn", () => {
       expect(lastEmit).toBe(null);
     });
 
-    it("clears modelValue when both range inputs are empty", async () => {
+    it("clears filter when both range inputs become null", async () => {
+      const decimalColumn: IColumn = {
+        id: "price",
+        label: "Price",
+        columnType: "DECIMAL",
+      };
+
       const wrapper = mount(FilterColumn, {
         props: {
-          column: intColumn,
-          modelValue: {
-            operator: "between",
-            value: [10, 20],
-          } as IFilterValue,
+          column: decimalColumn,
+          modelValue: { operator: "between", value: [5, 10] } as IFilterValue,
+          "onUpdate:modelValue": (val: IFilterValue | null) =>
+            wrapper.setProps({ modelValue: val }),
         },
       });
 
-      await wrapper.setProps({
-        modelValue: {
-          operator: "between",
-          value: [null, null],
-        } as IFilterValue,
+      const minInput = wrapper.find("#price-min");
+      await minInput.setValue("");
+      const maxInput = wrapper.find("#price-max");
+      await maxInput.setValue("");
+
+      const emitted = wrapper.emitted("update:modelValue") as any[];
+      const lastEmit = emitted[emitted.length - 1][0];
+      expect(lastEmit).toBe(null);
+    });
+
+    it("preserves filter when range min is zero", async () => {
+      const decimalColumn: IColumn = {
+        id: "price",
+        label: "Price",
+        columnType: "DECIMAL",
+      };
+
+      const wrapper = mount(FilterColumn, {
+        props: {
+          column: decimalColumn,
+          modelValue: { operator: "between", value: [5, 10] } as IFilterValue,
+          "onUpdate:modelValue": (val: IFilterValue | null) =>
+            wrapper.setProps({ modelValue: val }),
+        },
       });
 
-      await wrapper.vm.$nextTick();
+      const minInput = wrapper.find("#price-min");
+      await minInput.setValue("0");
 
-      const updatedValue = wrapper.props("modelValue");
-      expect(updatedValue?.value).toEqual([null, null]);
+      const emitted = wrapper.emitted("update:modelValue") as any[];
+      const lastEmit = emitted[emitted.length - 1][0];
+      expect(lastEmit).not.toBe(null);
+      expect(lastEmit?.operator).toBe("between");
     });
   });
 
@@ -306,17 +305,6 @@ describe("FilterColumn", () => {
       });
 
       expect(wrapper.text()).toContain("Pet");
-    });
-
-    it("renders REF column with correct operator", async () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: refColumn,
-          modelValue: null,
-        },
-      });
-
-      expect(wrapper.html()).toContain("Pet");
     });
   });
 

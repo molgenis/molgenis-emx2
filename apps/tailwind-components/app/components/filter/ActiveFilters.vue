@@ -119,15 +119,15 @@ function formatFilterValue(filterValue: IFilterValue): {
     case "between":
       if (Array.isArray(value) && value.length === 2) {
         const [min, max] = value;
-        if (min && max)
+        if (min != null && max != null)
           return {
             displayValue: `${min} - ${max}`,
             isMultiValue: false,
             values: [],
           };
-        if (min)
+        if (min != null)
           return { displayValue: `≥ ${min}`, isMultiValue: false, values: [] };
-        if (max)
+        if (max != null)
           return { displayValue: `≤ ${max}`, isMultiValue: false, values: [] };
       }
       return { displayValue: "", isMultiValue: false, values: [] };

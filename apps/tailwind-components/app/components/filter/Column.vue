@@ -114,7 +114,7 @@ const label = computed(
 const rangeValue = computed({
   get: () => (modelValue.value?.value as [any, any]) ?? [null, null],
   set: (val) => {
-    if (!val[0] && !val[1]) {
+    if (val[0] == null && val[1] == null) {
       modelValue.value = null;
     } else {
       modelValue.value = { operator: "between", value: val };
@@ -138,7 +138,7 @@ const singleValue = computed({
 
 function getDefaultOperator(): FilterOperator {
   const type = props.column.columnType;
-  if (["STRING", "TEXT", "EMAIL", "FILE"].includes(type)) return "like";
+  if (["STRING", "TEXT", "EMAIL", "HYPERLINK"].includes(type)) return "like";
   return "equals";
 }
 
