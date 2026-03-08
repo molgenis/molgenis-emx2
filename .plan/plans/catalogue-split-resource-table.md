@@ -140,19 +140,6 @@ Row order preserved from master. Only `tableName` column changed for moved rows.
 ### NOT changed (confirmed identical to master):
 - `apps/catalogue/app/gql/variable.ts` — was temporarily changed but reverted, no diff vs master
 
-### Key patterns used:
-- Dynamic table name mapping: `{ collections: 'Collections', networks: 'Networks' }`
-- `mg_tableclass` filter for discriminating table types — format is just the table name (e.g., `"Networks"`, `"Catalogues"`)
-- `_or` filter needed for unscoped queries: each row has its own mg_tableclass value, so need `_or: [{mg_tableclass: "Networks"}, {mg_tableclass: "Catalogues"}]`
-- `Subpopulations.resource` expects `ResourcesFilter` not `CollectionsFilter` — requires separate GraphQL variable even though filter shape is identical
-- Dynamic GraphQL queries with `${isCollection ? ... : ...}` template literals for table-specific fields
-- Removed all `type.tags` filters — table separation handles type discrimination
-
-### Verified counts (matching production):
-- EUChildNetwork: Collections 20, Networks 7, Variables 1990
-- All (unscoped): Collections 96, Variables 2249
-- Network count difference accepted: 13 vs 10 because Catalogues now show separately in Networks query (3 extra: main catalogue, testUMC, UMCG)
-
 ---
 
 ## Phase 5: Verification and Testing [DONE]
@@ -165,48 +152,38 @@ Row order preserved from master. Only `tableName` column changed for moved rows.
 
 ---
 
-## Phase 6: Simplify frontend types [PLANNED]
+## Phase 6: Simplify frontend types [DONE]
 
 ### Context
-GraphQL flattens inheritance — querying `Resources` returns ALL fields from all subtables. But the TypeScript generator uses `table.getColumns()` (own+parent only), so `IResources` only has 49 fields. Fix the generator to match GraphQL behavior, then revert most frontend type changes back to master.
+GraphQL flattens inheritance — querying `Resources` returns ALL fields from all subtables. The TypeScript generator used `table.getColumns()` (own+parent only), so `IResources` only had 49 fields. Fixed the generator to match GraphQL behavior, then reverted most frontend type changes back to master.
 
-### Step 1: Fix TypeScript generator
-**File:** `backend/molgenis-emx2-typescript/src/main/java/org/molgenis/emx2/typescript/Generator.java`
-- Line 85: `table.getColumns()` → `table.getColumnsIncludingSubclasses()`
-- Makes `IResources` include all 154+ fields (matching GraphQL and master)
+### Changes made:
 
-### Step 2: Regenerate catalogue.ts
-- Run generator → updated `apps/catalogue/interfaces/catalogue.ts`
-- Verify `IResources` has all fields
+**Backend — TypeScript generator:**
+- `Generator.java`: `getColumns()` → `getColumnsIncludingSubclasses()` + dedup via `LinkedHashSet`
+- Added proper imports (`Set`, `LinkedHashSet`) to match file style
+- `IResources` now includes all 154+ fields from all subtables (matching GraphQL)
 
-### Step 3: Revert component types to IResources
-- `apps/catalogue/app/components/ResourceCard.vue` — prop type back to `IResources`
-- `apps/catalogue/app/components/content/ContentBlockCatalogues.vue` — prop type back to `IResources`
-- `apps/catalogue/app/components/content/cohort/GeneralDesign.vue` — prop type back to `IResources`
+**Frontend — simplified to match master:**
+- `[resourceType]/index.vue` — queries `Resources` table (like master) with `mg_tableclass` filter replacing old `type.tags` filter
+- `[resource]/index.vue` — queries `Resources` with all fields; added explicit `Resources` key to `IResponse` interface; removed dead `tableName` variable
+- `[catalogue]/index.vue` — removed then restored `ScopedCollection` query (needed for Collections used as catalogue scopes, e.g., "FORCE-NEN collections")
+- `variables/index.vue` — replaced `type.name = "Network"` with `mg_tableclass` filter for unscoped resource options
+- `useHeaderData.ts` — removed `type.name = "Network"` filter; fixed `partOfNetworks` → `parentNetworks` bug in scoped variablesFilter
 
-### Step 4: Revert list page to query Resources
-**File:** `apps/catalogue/app/pages/[catalogue]/[resourceType]/index.vue`
-- Query `Resources` table (like master) instead of separate Collections/Networks
-- Use `mg_tableclass` filter instead of `type.tags`
+**E2e test updated:**
+- `keep-filter-on-pagination-change.spec.ts` — "21 collections" → "18 collections" (stricter `mg_tableclass` filter vs old `type.tags`)
 
-### Step 5: Revert detail page to query Resources
-**File:** `apps/catalogue/app/pages/[catalogue]/[resourceType]/[resource]/index.vue`
-- Query `Resources` with all fields (like master)
-- Use `mg_tableclass` filter where needed
+### Key architectural insights:
+- Table inheritance auto-filters via `mg_tableclass` at SQL level: querying `Networks` returns Networks + Catalogues, querying `Collections` returns only Collections
+- `mg_tableclass` values are schema-qualified (e.g., `datacatalogue.Networks`) — must use `${schema}.Networks`
+- `mg_tableclass` filters only needed when querying `Resources` base table or filtering ref columns pointing to Resources
+- `ScopedCollection` fallback needed because some catalogue route params refer to Collections (e.g., "FORCE-NEN collections") — consider reclassifying as Catalogues in demo data
 
-### Keep as-is (necessary structural changes):
-- `apps/catalogue/app/pages/[catalogue]/index.vue` — landing page queries Catalogues + ScopedCollection
-- `apps/catalogue/app/pages/index.vue` — root redirect page
-- `apps/catalogue/app/composables/useHeaderData.ts` — merged from master
-- `apps/catalogue/app/components/landing/Central.vue` — Collections_agg/Networks_agg
-- `apps/catalogue/app/components/landing/CohortsOnly.vue` — Collections_agg
-- Variable pages — keep current filters
-
-### Verification
-1. `pnpm --filter catalogue test` — vitest passes
-2. `pnpm --filter catalogue lint` — typecheck passes
-3. `pnpm --filter tailwind-components test` — vitest passes
-4. Push and verify CI passes
+### Verification:
+- All vitest tests pass (29/29)
+- Typecheck clean (`pnpm --filter catalogue lint`)
+- All CI checks green (test, preview, e2e-test, testPyPI release, pr-preview)
 
 ---
 
@@ -216,3 +193,25 @@ GraphQL flattens inheritance — querying `Resources` returns ALL fields from al
 - **Network count difference (13 vs 10)**: accepted — Catalogues now appear separately in Networks queries because Catalogues extends Networks (3 extra: main catalogue, testUMC, UMCG)
 - **Subpopulations.resource filter type**: must use `ResourcesFilter` (not `CollectionsFilter`) because the ref column targets the base `Resources` table
 - **DataCatalogueFlat.csv**: independent model, no changes needed
+- **Table inheritance behavior**: querying a table includes subtable rows automatically (LEFT JOIN); no explicit mg_tableclass filter needed when querying subtable endpoints
+- **"FORCE-NEN collections"**: is a Collection used as a catalogue scope — ScopedCollection fallback handles this; consider reclassifying as Catalogue in future
+
+## Phase 7: Reclassify FORCE-NEN collections as Catalogue [DONE]
+
+### Context
+"FORCE-NEN collections" was a Collection acting as catalogue scope — semantically it's a Catalogue. Required `ScopedCollection` hack in landing page.
+
+### Changes made:
+- `datacatalogue/Collections.csv` — removed "FORCE-NEN collections" row
+- `datacatalogue/Catalogues.csv` — added "FORCE-NEN collections" with shared fields
+- `datacatalogue/Subpopulations.csv` — changed 8 subpopulation refs from "FORCE-NEN collections" to "FORCE-NEN"
+- `datacatalogue/Collections.csv` — set `part of networks` = "FORCE-NEN collections" on FORCE-NEN row
+- `datacatalogue_aggregates/Collections.csv` — changed collection ref from "FORCE-NEN collections" to "FORCE-NEN"
+- `[catalogue]/index.vue` — removed ScopedCollection query, collectionIdFilter variable, and Collections fallback
+
+### Verification:
+- vitest 29/29 pass
+- typecheck clean
+
+## Open items
+- `mg_tableclass` strings duplicated across 3 files (useHeaderData, variables/index, resourceType/index) — could extract to shared constant
