@@ -4,60 +4,14 @@
 
 ## Phase 8: Simplification (review round 2)
 
-### Ordering: 8.1 + 8.5 + 8.6 + 8.8 parallel → 8.2 → 8.3 → 8.4 → 8.7
-
-### 8.1 Remove mobileDisplay (dead feature)
-- [ ] Remove `mobileDisplay` prop from Column.vue, Sidebar.vue
-- [ ] KEEP `-mobile` CSS variables in main.css (catalogue app still uses them)
-- [ ] Remove mobileDisplay tests from Column.spec.ts, Sidebar.spec.ts
-- [ ] Remove from Column.story.vue
-
-### 8.2 Make Sidebar self-contained (after 8.1)
-- [ ] Sidebar calls `fetchTableMetadata(schemaId, tableId)` internally
-- [ ] Remove `allColumns` prop — Sidebar filters columns itself (exclude mg_*, HEADING, SECTION, FILE)
-- [ ] Keep `schemaId` + `tableId` props (needed for fetch)
-- [ ] No need to expose columns — no caller reads them back
-- [ ] Remove dead `emit("update:columns")` that's never fired
-- [ ] Update callers: Sidebar.spec.ts, Sidebar.story.vue, EMX2.story.vue, apps/ui index.vue
-- [ ] Avoid double fetch: reuse metadata if TableEMX2 already fetched it (or accept separate fetch since it's cached)
-
-### 8.3 Remove schemaId prop from ActiveFilters/Column (after 8.2)
-- [ ] In Sidebar: enrich all columns with `refSchemaId = column.refSchemaId || props.schemaId` before passing down
-- [ ] Remove `schemaId` prop from ActiveFilters.vue — use column.refSchemaId in watch
-- [ ] Remove `schemaId` prop from Column.vue — use column.refSchemaId
-- [ ] Rethink ActiveFilters watch: it walks props.columns, needs refSchemaId on each column not a single schemaId
-- [ ] Update tests
-
-### 8.4 Extract ActiveFilters watch to testable function (after 8.3)
-- [ ] Extract nested label resolution to `resolveNestedFilterLabels(filters, columns)` async utility
-- [ ] Import in ActiveFilters.vue, replace inline watch logic
-- [ ] Add unit tests — will need to mock `fetchTableMetadata` for async metadata traversal
-
-### 8.5 Remove fetchParentCounts (confirmed: not in production, safe)
-- [ ] Remove `fetchParentCounts` prop from Ontology.vue (~40 lines of call sites)
-- [ ] Remove `fetchParentCounts` prop from Input.vue pass-through
-- [ ] Remove `fetchParentCounts` from Column.vue
-- [ ] Remove `fetchParentCounts` function + cache from useFilterCounts.ts (~90 lines)
-- [ ] Update useFilterCounts.spec.ts — remove parent count tests
-- [ ] Verify Ontology still works for non-filter usage (form context)
-
-### 8.6 Fix getRefKeyField
-- [ ] Check `refLabel` first (user override), then `refLabelDefault`: `column.refLabel || column.refLabelDefault || ""`
-- [ ] Keep `"name"` fallback (refLabelDefault is always set, so fallback is defensive only)
-- [ ] Add test for refLabel override case
-- [ ] Update existing tests
-
-### 8.7 Fix getSubclassColumns cross-schema (after 8.2)
-- [ ] Make function async, use `fetchTableMetadata` instead of `allTables` param
-- [ ] Add caching to avoid N+1 fetches in deep hierarchies
-- [ ] Full rewrite of getSubclassColumns.spec.ts (new async signature)
-- [ ] Update callers in fetchTableMetadata.ts
-
-### 8.8 Clean up story files
-- [ ] useFilters.story.vue — replace static URL format spec with live calculated examples (show serialized output for current filter state)
-- [ ] ActiveFilters.story.vue — remove `const spec` section
-- [ ] Range.story.vue — remove HTML comment block at top
-- [ ] Sidebar.story.vue — remove specification `<section>` body
+### 8.1 Remove mobileDisplay [x]
+### 8.2 Make Sidebar self-contained [x]
+### 8.3 Remove schemaId prop [x]
+### 8.4 Extract ActiveFilters watch [x] — new `resolveFilterLabels.ts` utility + 6 tests
+### 8.5 Remove fetchParentCounts [x]
+### 8.6 Fix getRefKeyField [x] — checks refLabel first, then refLabelDefault
+### 8.7 Fix getSubclassColumns [x] — async, uses fetchMetadata, added inheritName to GQL
+### 8.8 Clean up story files [x]
 
 ### Resolved questions
 1. Sidebar expose columns? → NO. No caller reads them back.
