@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.TreeModel;
 import org.eclipse.rdf4j.model.util.Values;
@@ -62,8 +63,8 @@ class RdfFetcherTest {
   void extractObjectUrisFiltersToSameHost() {
     RdfFetcher fetcher = new RdfFetcher();
     Model model = new TreeModel();
-    var subject = Values.iri("http://example.org/catalog");
-    var predicate = Values.iri("http://www.w3.org/ns/dcat#dataset");
+    IRI subject = Values.iri("http://example.org/catalog");
+    IRI predicate = Values.iri("http://www.w3.org/ns/dcat#dataset");
     model.add(subject, predicate, Values.iri("http://example.org/dataset/1"));
     model.add(subject, predicate, Values.iri("http://other.org/dataset/2"));
     model.add(subject, predicate, Values.literal("a literal object"));
@@ -77,8 +78,8 @@ class RdfFetcherTest {
   void extractObjectUrisExcludesAlreadyFetched() {
     RdfFetcher fetcher = new RdfFetcher();
     Model model = new TreeModel();
-    var subject = Values.iri("http://example.org/catalog");
-    var predicate = Values.iri("http://www.w3.org/ns/dcat#dataset");
+    IRI subject = Values.iri("http://example.org/catalog");
+    IRI predicate = Values.iri("http://www.w3.org/ns/dcat#dataset");
     model.add(subject, predicate, Values.iri("http://example.org/dataset/1"));
     model.add(subject, predicate, Values.iri("http://example.org/dataset/2"));
 
