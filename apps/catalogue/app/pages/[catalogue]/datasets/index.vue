@@ -56,7 +56,7 @@ const displayConfig: IDisplayConfig = {
   columnConfig: {
     name: {
       clickAction: (_col: IColumn, row: IRow) => {
-        const resourceId = row.resource?.id;
+        const resourceId = (row.resource as any)?.id;
         const name = row.name;
         const url = `/${catalogueRouteParam}/datasets/${resourceId}/${name}`;
         navigateTo(url);
