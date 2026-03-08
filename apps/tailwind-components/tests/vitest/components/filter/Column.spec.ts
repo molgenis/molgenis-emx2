@@ -295,6 +295,62 @@ describe("FilterColumn", () => {
     });
   });
 
+  describe("Removable prop and remove emit", () => {
+    it("shows Remove link when removable is true", () => {
+      const wrapper = mount(FilterColumn, {
+        props: {
+          column: stringColumn,
+          modelValue: null,
+          removable: true,
+        },
+      });
+
+      expect(wrapper.text()).toContain("Remove");
+    });
+
+    it("hides Remove link when removable is false", () => {
+      const wrapper = mount(FilterColumn, {
+        props: {
+          column: stringColumn,
+          modelValue: null,
+          removable: false,
+        },
+      });
+
+      expect(wrapper.text()).not.toContain("Remove");
+    });
+
+    it("hides Remove link when removable is absent", () => {
+      const wrapper = mount(FilterColumn, {
+        props: {
+          column: stringColumn,
+          modelValue: null,
+        },
+      });
+
+      expect(wrapper.text()).not.toContain("Remove");
+    });
+
+    it("emits remove event when Remove link is clicked", async () => {
+      const wrapper = mount(FilterColumn, {
+        props: {
+          column: stringColumn,
+          modelValue: null,
+          removable: true,
+        },
+      });
+
+      const removeLink = wrapper
+        .findAll("span")
+        .find((s) => s.text() === "Remove");
+      expect(removeLink).toBeDefined();
+      await removeLink!.trigger("click");
+
+      expect(wrapper.emitted("remove")).toBeTruthy();
+      expect(wrapper.emitted("remove")?.length).toBe(1);
+    });
+  });
+
   describe("REF type filters", () => {
     it("renders REF column label", () => {
       const wrapper = mount(FilterColumn, {

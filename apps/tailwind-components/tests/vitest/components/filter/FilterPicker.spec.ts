@@ -3,6 +3,7 @@ import { mount } from "@vue/test-utils";
 import FilterPicker from "../../../../app/components/filter/FilterPicker.vue";
 import InputCheckboxIcon from "../../../../app/components/input/CheckboxIcon.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
+import { computeDefaultFilters } from "../../../../app/utils/computeDefaultFilters";
 
 describe("FilterPicker", () => {
   const mockColumns: IColumn[] = [
@@ -106,7 +107,7 @@ describe("FilterPicker", () => {
 
   const vDropdownStub = {
     template: `
-      <div>
+      <div @click="isOpen = !isOpen">
         <slot />
         <div class="dropdown-popper" v-if="isOpen"><slot name="popper" :hide="hide" /></div>
       </div>
@@ -120,14 +121,6 @@ describe("FilterPicker", () => {
       hide() {
         this.isOpen = false;
       },
-    },
-    mounted() {
-      const button = this.$el.querySelector("button");
-      if (button) {
-        button.addEventListener("click", () => {
-          this.isOpen = !this.isOpen;
-        });
-      }
     },
   };
 
@@ -259,10 +252,34 @@ describe("FilterPicker", () => {
 
       expect(wrapper.text()).not.toContain("Internal Field");
     });
+
+    it("excludes FILE columns", async () => {
+      const columnsWithFile: IColumn[] = [
+        ...mockColumns,
+        {
+          id: "attachment",
+          label: "Attachment",
+          columnType: "FILE",
+        },
+      ];
+
+      const wrapper = mount(FilterPicker, {
+        props: { ...defaultProps, columns: columnsWithFile },
+        global: {
+          stubs: {
+            VDropdown: vDropdownStub,
+          },
+        },
+      });
+
+      await wrapper.find("button").trigger("click");
+
+      expect(wrapper.text()).not.toContain("Attachment");
+    });
   });
 
   describe("Sorting and grouping", () => {
-    it("sorts columns alphabetically within each type group", async () => {
+    it("sorts columns alphabetically", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
         global: {
@@ -274,9 +291,23 @@ describe("FilterPicker", () => {
 
       await wrapper.find("button").trigger("click");
 
-      const checkboxes = wrapper.findAllComponents(InputCheckboxIcon);
-      const labels = checkboxes.map((c) => c.props("label") as string);
-      expect(labels).toEqual([...labels].sort());
+      const columnButtons = wrapper
+        .find(".dropdown-popper")
+        .findAll("button")
+        .filter((b) => b.findComponent(InputCheckboxIcon).exists());
+      const labels = columnButtons.map((b) => b.find("span").text().trim());
+      expect(labels).toEqual([
+        "Active",
+        "Admission Date",
+        "Age",
+        "Country",
+        "Diagnosis",
+        "Hospital",
+        "Medications",
+        "Name",
+        "Notes",
+        "Weight",
+      ]);
     });
   });
 
@@ -380,9 +411,14 @@ describe("FilterPicker", () => {
 
       await wrapper.find("button").trigger("click");
 
-      const checkboxes = wrapper.findAllComponents(InputCheckboxIcon);
-      const checkedCheckboxes = checkboxes.filter((c) => c.props("checked"));
-      expect(checkedCheckboxes.length).toBeGreaterThan(0);
+      const columnButtons = wrapper
+        .find(".dropdown-popper")
+        .findAll("button")
+        .filter((b) => b.findComponent(InputCheckboxIcon).exists());
+      const checkedLabels = columnButtons
+        .filter((b) => b.findComponent(InputCheckboxIcon).props("checked"))
+        .map((b) => b.find("span").text().trim());
+      expect(checkedLabels).toEqual(["Country", "Diagnosis"]);
     });
 
     it("shows unchecked checkboxes for hidden filters", async () => {
@@ -397,9 +433,23 @@ describe("FilterPicker", () => {
 
       await wrapper.find("button").trigger("click");
 
-      const checkboxes = wrapper.findAllComponents(InputCheckboxIcon);
-      const uncheckedCheckboxes = checkboxes.filter((c) => !c.props("checked"));
-      expect(uncheckedCheckboxes.length).toBeGreaterThan(0);
+      const columnButtons = wrapper
+        .find(".dropdown-popper")
+        .findAll("button")
+        .filter((b) => b.findComponent(InputCheckboxIcon).exists());
+      const uncheckedLabels = columnButtons
+        .filter((b) => !b.findComponent(InputCheckboxIcon).props("checked"))
+        .map((b) => b.find("span").text().trim());
+      expect(uncheckedLabels).toEqual([
+        "Active",
+        "Admission Date",
+        "Age",
+        "Hospital",
+        "Medications",
+        "Name",
+        "Notes",
+        "Weight",
+      ]);
     });
   });
 
@@ -494,43 +544,6 @@ describe("FilterPicker", () => {
 });
 
 describe("computeDefaultFilters logic", () => {
-  // Source: app/components/filter/Sidebar.vue
-  function computeDefaultFilters(columns: IColumn[]): string[] {
-    const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
-    const REF_TYPES_FOR_DEFAULT = [
-      "REF",
-      "REF_ARRAY",
-      "SELECT",
-      "RADIO",
-      "CHECKBOX",
-      "MULTISELECT",
-      "REFBACK",
-    ];
-    const MAX_DEFAULT_FILTERS = 5;
-
-    const unfilterable = ["HEADING", "SECTION"];
-    const filterable = columns.filter(
-      (col) =>
-        !unfilterable.includes(col.columnType) && !col.id.startsWith("mg_")
-    );
-
-    const ontologyCols = filterable.filter((c) =>
-      ONTOLOGY_TYPES.includes(c.columnType)
-    );
-    const refCols = filterable.filter((c) =>
-      REF_TYPES_FOR_DEFAULT.includes(c.columnType)
-    );
-
-    const defaults = ontologyCols
-      .slice(0, MAX_DEFAULT_FILTERS)
-      .map((c) => c.id);
-    if (defaults.length < MAX_DEFAULT_FILTERS) {
-      const remaining = MAX_DEFAULT_FILTERS - defaults.length;
-      defaults.push(...refCols.slice(0, remaining).map((c) => c.id));
-    }
-    return defaults;
-  }
-
   it("returns first 5 ontology columns", () => {
     const columns: IColumn[] = [
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },

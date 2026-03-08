@@ -12,15 +12,6 @@ vi.mock("@vueuse/core", () => ({
   useDebounceFn: (fn: Function) => fn,
 }));
 
-vi.mock("#imports", () => ({
-  createError: (err: any) => err,
-}));
-
-vi.mock("#app/composables/router", () => ({
-  useRoute: () => ({ query: {} }),
-  useRouter: () => ({ replace: vi.fn() }),
-}));
-
 import fetchGraphql from "../../../app/composables/fetchGraphql";
 
 const mockFetchGraphql = fetchGraphql as ReturnType<typeof vi.fn>;
@@ -43,6 +34,8 @@ function createMockColumns(): IColumn[] {
       columnType: "REF_ARRAY",
       refTableId: "Orders",
     } as IColumn,
+    { id: "status", columnType: "SELECT", refTableId: "Status" } as IColumn,
+    { id: "gender", columnType: "RADIO", refTableId: "Gender" } as IColumn,
   ];
 }
 
@@ -206,6 +199,52 @@ describe("useFilterCounts", () => {
     const ordersCounts = facetCounts.value.get("orders");
     expect(ordersCounts?.get("Carnivora")).toBe(3);
     expect(ordersCounts?.get("Rodentia")).toBe(1);
+  });
+
+  it("fetches leaf counts for visible SELECT and RADIO columns", async () => {
+    const schemaId = ref("test");
+    const tableId = ref("Dog");
+    const filterStates = ref(new Map<string, IFilterValue>());
+    const columns = ref(createMockColumns());
+    const visibleFilterIds = ref(["status", "gender"]);
+    const searchValue = ref("");
+
+    mockFetchGraphql.mockResolvedValueOnce({
+      Dog_groupBy: [
+        { count: 3, status: { name: "Active" } },
+        { count: 1, status: { name: "Inactive" } },
+      ],
+    });
+
+    mockFetchGraphql.mockResolvedValueOnce({
+      Dog_groupBy: [
+        { count: 6, gender: { name: "Male" } },
+        { count: 4, gender: { name: "Female" } },
+      ],
+    });
+
+    const { facetCounts, isLoading } = useFilterCounts({
+      schemaId,
+      tableId,
+      filterStates,
+      columns,
+      visibleFilterIds,
+      searchValue,
+    });
+
+    await nextTick();
+    await flushPromises();
+
+    expect(isLoading.value).toBe(false);
+    expect(facetCounts.value.size).toBe(2);
+
+    const statusCounts = facetCounts.value.get("status");
+    expect(statusCounts?.get("Active")).toBe(3);
+    expect(statusCounts?.get("Inactive")).toBe(1);
+
+    const genderCounts = facetCounts.value.get("gender");
+    expect(genderCounts?.get("Male")).toBe(6);
+    expect(genderCounts?.get("Female")).toBe(4);
   });
 
   it("handles empty groupBy results", async () => {

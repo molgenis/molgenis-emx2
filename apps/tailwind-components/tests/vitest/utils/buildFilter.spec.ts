@@ -258,6 +258,39 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
+  it("builds notNull filter", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "notNull", value: null }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ name: { notNull: true } });
+  });
+
+  it("builds isNull filter", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "isNull", value: null }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ name: { isNull: true } });
+  });
+
+  it("builds notNull filter for nested path", () => {
+    const columns: IColumn[] = [
+      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["order.status", { operator: "notNull", value: null }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ order: { status: { notNull: true } } });
+  });
+
   it("passes UUID equals filter through", () => {
     const columns: IColumn[] = [{ id: "id", columnType: "UUID", label: "ID" }];
     const filters = new Map<string, IFilterValue>([

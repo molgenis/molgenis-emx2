@@ -31,13 +31,15 @@ const REF_TYPES = [
 ];
 
 function extractStringKey(v: unknown, depth = 0): string {
+  if (v === undefined) return "";
   if (depth > 10) return String(v);
   if (typeof v === "string") return v;
   if (typeof v !== "object" || v === null) return String(v);
   const obj = v as Record<string, unknown>;
   if (typeof obj.name === "string") return obj.name;
-  const firstValue = Object.values(obj)[0];
-  return extractStringKey(firstValue, depth + 1);
+  const values = Object.values(obj);
+  if (values.length === 0) return "";
+  return extractStringKey(values[0], depth + 1);
 }
 const RANGE_TYPES = [
   "INT",

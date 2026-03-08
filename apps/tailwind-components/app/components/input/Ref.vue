@@ -28,6 +28,7 @@ const props = withDefaults(
       refSchemaId: string;
       refTableId: string;
       refLabel: string;
+      //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
       isArray?: boolean;
       limit?: number;
       showClear?: boolean;

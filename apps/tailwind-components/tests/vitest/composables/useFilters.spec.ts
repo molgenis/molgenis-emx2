@@ -941,7 +941,7 @@ describe("extractStringKey (via serializeFilterValue)", () => {
       operator: "in",
       value: {},
     });
-    expect(result).toBe("undefined");
+    expect(result).toBe("");
   });
 
   it("should handle deeply nested objects with recursion limit", () => {
@@ -960,7 +960,7 @@ describe("extractStringKey (via serializeFilterValue)", () => {
       operator: "in",
       value: deepObj,
     });
-    expect(result).not.toBe("");
+    expect(result).toBe("[object Object]");
   });
 });
 

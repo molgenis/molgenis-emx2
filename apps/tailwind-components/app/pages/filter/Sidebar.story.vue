@@ -79,11 +79,8 @@
           <li>
             Search input (size=tiny) filters columns by label, case-insensitive
           </li>
-          <li>Columns grouped by heading, collapsible with caret</li>
-          <li>
-            Type priority within groups: ONTOLOGY > REF > numeric/date > string
-            > bool
-          </li>
+          <li>Columns sorted alphabetically</li>
+          <li>Type priority: ONTOLOGY > REF > numeric/date > string > bool</li>
           <li>Excludes HEADING, SECTION types and mg_* columns</li>
           <li>All non-REF columns have checkboxes to toggle visibility</li>
           <li>
@@ -128,7 +125,7 @@
 
         <h3 class="font-semibold">Test Checklist</h3>
         <ul class="list-disc pl-5">
-          <li>Click "Add filter" - dropdown opens with grouped columns</li>
+          <li>Click "Add filter" - dropdown opens with sorted columns</li>
           <li>Check non-REF column - filter appears in sidebar</li>
           <li>Check REF column - simple ref filter appears in sidebar</li>
           <li>
@@ -139,7 +136,6 @@
           </li>
           <li>"Reset to defaults" - restores smart defaults</li>
           <li>Search filters by label, case-insensitive</li>
-          <li>Collapse/expand heading groups</li>
           <li>Escape closes dropdown</li>
           <li>Switch schema/table - sidebar resets</li>
           <li>Toggle Mobile - check 375px width styling</li>

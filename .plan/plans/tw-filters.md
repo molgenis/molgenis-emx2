@@ -1,6 +1,46 @@
 # Plan: feat/tw-filters — Port Filter System to tailwind-components + TableEMX2
 
-## Status: COMPLETE
+## Status: REVIEW — fixes needed
+
+## Phase 7: Review Fixes
+
+### 7.1 Remove fake/tautological tests
+- [ ] `FilterPicker.spec.ts:265-281` — "sorts columns alphabetically": replace tautological self-sort assertion with explicit expected order
+- [ ] `useFilters.spec.ts:939-944` — "handle empty objects": fix `serializeFilterValue` to return `""` not `"undefined"`, update test (NEEDS CONFIRMATION — is `"undefined"` intentional?)
+- [ ] `useFilters.spec.ts:947-963` — "deeply nested objects": replace vacuous `!== ""` assertion with actual expected value
+- [ ] `FilterPicker.spec.ts:371-403` — "checked/unchecked checkboxes": assert specific column IDs, not just `length > 0`
+
+### 7.2 Remove unnecessary mocks
+- [ ] `useFilterCounts.spec.ts:15-22` — remove dead mocks for `#imports` and `#app/composables/router` (not imported by source)
+- [ ] `FilterPicker.spec.ts:107-132` — simplify `vDropdownStub` to always-render stub
+
+### 7.3 Fix copy-pasted test function
+- [ ] `FilterPicker.spec.ts:496-611` — `computeDefaultFilters` is tested against a local copy, not the real Sidebar.vue export. Either import from source or delete (and add to Sidebar.spec.ts instead)
+
+### 7.4 Add missing tests
+- [ ] Create `Sidebar.spec.ts` — URL sync, filter toggle/reset, smart defaults, `extractRefPkey`, nested paths
+- [ ] Create `getSubclassColumns.spec.ts` — empty subclasses, multi-level, dedup, circular refs
+- [ ] `FilterPicker.spec.ts` — add test for FILE column exclusion
+- [ ] `Column.spec.ts` — add tests for `removable`/`remove` emit, `facetCounts` pass-through, `labelPrefix`
+- [ ] `buildFilter.spec.ts` — add tests for `notNull`/`isNull` operators
+- [ ] `useFilterCounts.spec.ts` — add test for SELECT/MULTISELECT/RADIO/CHECKBOX countable types
+
+### 7.5 Fix stale story documentation
+- [ ] `Column.story.vue` — remove `collapsed` prop docs and collapse/caret checklist items (source has no collapse)
+- [ ] `FilterPicker` story — remove "columns grouped by heading" if not planned
+- [ ] `Range.story.vue` — remove "Mobile: stacks vertically" claim or implement stacking
+
+### 7.6 Code fixes
+- [ ] `FilterPicker.vue` — add `FILE` to test's excluded types (or verify it's in `EXCLUDED_TYPES` consistently)
+- [ ] `serializeFilterValue` — handle empty object gracefully (return `""` instead of `"undefined"`)
+
+### Open questions (need product owner input)
+1. Column.vue: Is collapse/expand planned? Story documents it but source doesn't have it => NO. we have flat selection of nested elemnts.
+2. FilterPicker: Should columns be grouped by heading? Story documents it but not implemented => NO. Remove from story.
+3. Range: Should it stack vertically on mobile? Story documents it but uses flex. NO => leave as is.
+4. `like_or`/`like_and` operators: Are they used anywhere? Test or remove? YES: the string inputs should use this (except UUID)
+5. `computeDefaultFilters`: Should it be exported from Sidebar.vue for testability? => YES, good idea.
+6. `serializeFilterValue({operator:"in", value:{}})` returning `"undefined"` — bug or intentional? => BUG, can you interrogate?
 
 ## Phase 1: Create worktree [x]
 - [x] Create worktree from master

@@ -121,8 +121,8 @@
       <h2 class="text-heading-lg font-semibold mb-4">Specification</h2>
       <div class="text-body-sm space-y-4">
         <p>
-          Collapsible filter component for sidebar use. Automatically renders
-          appropriate input based on column type.
+          Filter component for sidebar use. Automatically renders appropriate
+          input based on column type.
         </p>
 
         <h3 class="font-semibold">Props</h3>
@@ -130,10 +130,6 @@
           <li><code>column: IColumn</code> - Column metadata (required)</li>
           <li>
             <code>modelValue: IFilterValue | null</code> - v-model filter value
-          </li>
-          <li>
-            <code>collapsed: boolean</code> - Initial collapse state (default:
-            true)
           </li>
           <li>
             <code>mobileDisplay: boolean</code> - Mobile styling variant
@@ -152,7 +148,6 @@
 
         <h3 class="font-semibold">Test Checklist</h3>
         <ul class="list-disc pl-5">
-          <li>Click title to collapse/expand - caret should rotate</li>
           <li>Enter value - Clear button should appear</li>
           <li>Click Clear - value should reset to null</li>
           <li>Toggle Background button - verify readability on both</li>

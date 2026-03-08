@@ -4,7 +4,6 @@
     - [x] Renders min/max labels (defaults to 'Min'/'Max')
     - [x] Emits tuple on change
     - [x] Works with Input.vue in slots
-    - [x] Mobile: stacks vertically on small screens (test at 375px)
     - [x] Supports INT, DATE, DECIMAL, DATETIME types
 
     ARIA accessibility:
@@ -200,7 +199,7 @@
     <section class="space-y-4">
       <h2 class="text-heading-lg font-semibold">Mobile Test (375px)</h2>
       <p class="text-body-sm text-gray-600">
-        Component should stack vertically on small screens
+        Component at 375px width (flex layout, does not stack)
       </p>
 
       <div class="max-w-[375px] p-4 border rounded">
