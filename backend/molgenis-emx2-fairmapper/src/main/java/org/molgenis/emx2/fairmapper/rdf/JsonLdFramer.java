@@ -30,8 +30,10 @@ public class JsonLdFramer {
       JsonDocument expandedDoc = JsonDocument.of(new StringReader(expandedJsonLd));
       JsonNode framingFrame = buildFramingFrame(frame);
       String frameStr = objectMapper.writeValueAsString(framingFrame);
-      JsonReader frameReader = Json.createReader(new StringReader(frameStr));
-      JsonStructure frameStructure = frameReader.read();
+      JsonStructure frameStructure;
+      try (JsonReader frameReader = Json.createReader(new StringReader(frameStr))) {
+        frameStructure = frameReader.read();
+      }
       JsonDocument frameDoc = JsonDocument.of(frameStructure);
       JsonLdOptions options = new JsonLdOptions();
       options.setOmitGraph(true);
