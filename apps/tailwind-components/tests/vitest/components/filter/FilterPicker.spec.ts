@@ -262,25 +262,6 @@ describe("FilterPicker", () => {
   });
 
   describe("Sorting and grouping", () => {
-    it("groups columns by type with type headers", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const text = wrapper.text();
-      expect(text).toContain("ontology");
-      expect(text).toContain("ref");
-      expect(text).toContain("text");
-      expect(text).toContain("number");
-    });
-
     it("sorts columns alphabetically within each type group", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,

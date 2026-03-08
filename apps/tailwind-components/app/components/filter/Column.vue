@@ -143,7 +143,7 @@ function handleClear() {
 </script>
 
 <template>
-  <hr class="mx-5 border-black opacity-10" />
+  <hr class="mx-5 opacity-20" style="border-color: var(--text-color-search-filter-group-title)" />
   <div class="flex items-center gap-1 px-5 pt-5 pb-2">
     <h3
       class="font-sans text-body-base font-bold"
@@ -167,6 +167,11 @@ function handleClear() {
   <div
     class="mb-5 ml-5 mr-5 overflow-hidden"
     :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
+    :style="{
+      '--text-color-title-contrast': 'var(--text-color-search-filter-group-title)',
+      '--text-color-input-description': 'var(--text-color-search-filter-group-title)',
+      '--text-color-input': 'var(--text-color-search-filter-group-title)',
+    }"
   >
     <FilterRange v-if="isRangeType" v-model="rangeValue" :id="column.id">
       <template #min="{ value, update, id }">

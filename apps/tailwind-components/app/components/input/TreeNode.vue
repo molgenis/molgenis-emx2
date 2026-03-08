@@ -368,7 +368,7 @@ onUnmounted(() => {
           class="group flex flex-1 justify-center items-start min-w-0 overflow-hidden"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
-            'text-title cursor-pointer ': !disabled,
+            'text-title-contrast cursor-pointer': !disabled,
           }"
         >
           <input
@@ -407,7 +407,7 @@ onUnmounted(() => {
           />
           <span
             class="flex flex-1 items-baseline text-body-sm leading-normal pl-1 min-w-0"
-            :class="inverted ? 'text-title-contrast' : 'text-title'"
+            :class="'text-title-contrast'"
           >
             <span class="truncate min-w-0" v-tooltip.top="node.label || node.name">
               {{ node.label || node.name }}

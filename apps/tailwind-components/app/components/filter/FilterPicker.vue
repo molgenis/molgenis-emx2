@@ -149,7 +149,12 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
 
 <template>
   <VDropdown placement="bottom-start" :distance="4">
-    <Button type="text" size="tiny" icon="plus">Add filter</Button>
+    <button
+      class="flex items-center gap-2 h-8 p-2 text-heading-sm text-search-filter-expand hover:underline cursor-pointer"
+    >
+      <BaseIcon name="plus" :width="12" />
+      <span>Add filter</span>
+    </button>
     <template #popper="{ hide }">
       <div
         class="bg-modal border border-black/10 rounded-lg shadow-lg w-96"

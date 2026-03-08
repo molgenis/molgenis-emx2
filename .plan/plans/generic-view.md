@@ -133,6 +133,66 @@ When viewing a parent table, show columns from subclass tables and allow filteri
 - Null values: rows that aren't of the subclass type will have null for those columns — normal
 - `fetchTableData` query builder already handles arbitrary column IDs → should just work
 
+## v6.5.0: Filter Review Findings (2026-03-08)
+
+Four-perspective review: UX expert, ARIA/accessibility, data manager, research scientist.
+
+### Critical (bugs/blockers)
+
+| # | Issue | Files | Reviewer |
+|---|-------|-------|----------|
+| 1 | "Remove" and "Clear" are `<span>` not `<button>` — keyboard users blocked | Column.vue:136,185 | ARIA |
+| 2 | Nested expand toggle is `<span>` inside `<button>` — invalid HTML, no keyboard | FilterPicker.vue:188 | ARIA |
+| 3 | No `isNull`/`notNull` UI — operators exist but no way to set them | Column.vue | DataMgr, Scientist |
+| 4 | String filter has no debounce — GraphQL fires every keystroke | Column.vue:101-107 | UX |
+| 5 | Nested filter silently disappears on URL restore if ref cache not populated | Sidebar.vue:218-219,306 | Scientist |
+| 6 | Ref.vue re-initializes on every selection change — slow multi-select | Ref.vue:143 | Scientist |
+
+### High priority (UX/a11y gaps)
+
+| # | Issue | Files | Reviewer |
+|---|-------|-------|----------|
+| 7 | No `role="listbox"` on picker dropdown, no `aria-pressed` on toggles | FilterPicker.vue:167,169 | ARIA |
+| 8 | Range filter has no "Clear" button | Column.vue:147-191 | UX |
+| 9 | "Reset to defaults" hidden inside picker dropdown — move to sidebar header | FilterPicker.vue:203-212 | UX |
+| 10 | Ontology tree missing ARIA tree roles + keyboard arrow navigation | TreeNode.vue:315, Ontology.vue | ARIA |
+| 11 | Search inputs missing `<label>` associations | FilterPicker.vue:159, Sidebar.vue:373 | ARIA |
+| 12 | Filter picker search doesn't match column ID (data managers search by field name) | FilterPicker.vue:47-50 | DataMgr |
+| 13 | Facet counts fetched serially (5 sequential requests) — should use Promise.all | useFilterCounts.ts:80-127 | DataMgr |
+| 14 | No total record count shown while filtering | — | Scientist |
+
+### Nice-to-have
+
+| # | Issue | Reviewer |
+|---|-------|----------|
+| 15 | No NOT/exclude operator for REF/ONTOLOGY | DataMgr, Scientist |
+| 16 | No exact-match toggle for string filters | DataMgr |
+| 17 | Date range presets (last 30 days, this year) | DataMgr |
+| 18 | "AND" keyword in string filter undiscoverable | Scientist |
+| 19 | Multi-value pill shows "3" not "3 selected" | UX |
+| 20 | No sidebar empty state when all filters removed | UX |
+| 21 | Ontology "Show search" toggle unnecessary in filter context — show search always | UX |
+| 22 | `showFilter` column metadata flag not used in default filter selection | DataMgr |
+| 23 | Ontology empty state leaks internal IDs (schema/table names) | UX |
+| 24 | Ref expand caret in picker has tiny touch target (<44px) | UX |
+| 25 | `like_or`/`like_and` operators appear dead code | DataMgr |
+| 26 | No saved filter sets (beyond URL) | Scientist |
+| 27 | Ontology select mode missing ARIA combobox pattern | ARIA |
+| 28 | CheckboxGroup missing fieldset/legend | ARIA |
+| 29 | Silent error swallowing on ref load failures (empty catch blocks) | UX |
+| 30 | ActiveFilters tooltip lacks `role="tooltip"` / `aria-describedby` | ARIA |
+
+### Review notes
+
+**Strengths highlighted by all reviewers:**
+- Ontology filter is research-grade (hierarchy, facet counts, cross-filtering, search)
+- URL persistence is solid, human-readable, bookmarkable/shareable
+- Nested REF filtering covers complex data models
+- Array column handling is correct
+- Active filter pills with clear-all
+
+**Detailed review transcripts:** `.plan/reviews/filter-review-2026-03-08/`
+
 ## Future
 
 ### Nested Sidebar Filters

@@ -56,7 +56,7 @@ function resetModelValue() {
         class="group flex flex-1 justify-start items-center relative min-w-0 overflow-hidden"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
-          'text-title-contrast cursor-pointer ': !disabled,
+          'text-title-contrast cursor-pointer': !disabled,
         }"
       >
         <input
