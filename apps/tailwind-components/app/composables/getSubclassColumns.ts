@@ -21,7 +21,9 @@ export function getSubclassColumns(
         !parentColumnIds.has(col.id) &&
         !result.some((r) => r.id === col.id)
       ) {
-        result.push(Object.assign({ ...col }, { sourceTableId: subclass.id }) as IColumn);
+        result.push(
+          Object.assign({ ...col }, { sourceTableId: subclass.id }) as IColumn
+        );
       }
     }
 
