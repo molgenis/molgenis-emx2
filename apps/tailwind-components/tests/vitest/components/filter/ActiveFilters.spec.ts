@@ -180,7 +180,7 @@ describe("ActiveFilters", () => {
     expect(wrapper.emitted("remove")?.[0]).toEqual(["name"]);
   });
 
-  it("shows clear all button with 2+ filters", () => {
+  it("shows remove all button with 2+ filters", () => {
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "John" }],
       ["age", { operator: "equals", value: 25 }],
@@ -189,12 +189,12 @@ describe("ActiveFilters", () => {
       props: { filters, columns: mockColumns },
     });
 
-    const clearAllButton = wrapper.find("button:not([aria-label])");
-    expect(clearAllButton.exists()).toBe(true);
-    expect(clearAllButton.text()).toBe("Clear all");
+    const removeAllButton = wrapper.find("button:not([aria-label])");
+    expect(removeAllButton.exists()).toBe(true);
+    expect(removeAllButton.text()).toBe("Remove all");
   });
 
-  it("does not show clear all button with 1 filter", () => {
+  it("shows remove all button with 1 filter", () => {
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "John" }],
     ]);
@@ -202,8 +202,9 @@ describe("ActiveFilters", () => {
       props: { filters, columns: mockColumns },
     });
 
-    const buttons = wrapper.findAll("button");
-    expect(buttons).toHaveLength(1);
+    const removeAllButton = wrapper.find("button:not([aria-label])");
+    expect(removeAllButton.exists()).toBe(true);
+    expect(removeAllButton.text()).toBe("Remove all");
   });
 
   it("emits clearAll event when clear all clicked", async () => {

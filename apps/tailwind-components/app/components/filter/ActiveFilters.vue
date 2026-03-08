@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch, useId } from "vue";
+import { computed, ref, watch } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import Button from "../Button.vue";
 import { resolveFilterLabels } from "../../utils/resolveFilterLabels";
-
-const ariaId = useId();
 
 const props = defineProps<{
   filters: Map<string, IFilterValue>;
@@ -46,7 +44,9 @@ const activeFilters = computed<ActiveFilter[]>(() => {
     const label = getColumnLabel(columnId);
     const { displayValue, isMultiValue, values } =
       formatFilterValue(filterValue);
-    result.push({ columnId, label, displayValue, isMultiValue, values });
+    if (displayValue) {
+      result.push({ columnId, label, displayValue, isMultiValue, values });
+    }
   }
 
   return result;
@@ -179,15 +179,21 @@ function handleClearAll() {
 </script>
 
 <template>
-  <div v-if="activeFilters.length > 0" class="flex flex-wrap gap-2 items-start">
+  <div
+    v-if="activeFilters.length > 0"
+    class="flex flex-wrap items-center gap-3 bg-button-primary rounded-input px-3 py-2 mb-2"
+  >
+    <span class="text-white text-xs whitespace-nowrap mr-1"
+      >Active filters</span
+    >
+
     <VDropdown
-      v-for="(filter, index) in activeFilters"
+      v-for="filter in activeFilters"
       :key="filter.columnId"
-      :aria-id="ariaId + '_' + index"
       :triggers="['hover', 'focus']"
       :distance="12"
       theme="tooltip"
-      class="shrink-0"
+      class="!max-w-none shrink-0"
     >
       <Button
         @click="handleRemove(filter.columnId)"
@@ -202,13 +208,13 @@ function handleClearAll() {
         }}</span>
         <span
           v-if="!filter.isMultiValue"
-          class="inline-block max-w-32 truncate align-bottom"
-          >- {{ filter.displayValue }}</span
+          class="inline-block max-w-32 truncate align-bottom ml-1.5"
+          >{{ filter.displayValue }}</span
         >
         <span
           v-else
-          class="inline-block text-gray-600 max-w-32 truncate align-bottom"
-          >- {{ filter.displayValue }}</span
+          class="inline-block opacity-70 max-w-32 truncate align-bottom ml-1.5"
+          >{{ filter.displayValue }}</span
         >
       </Button>
       <template #popper>
@@ -228,13 +234,11 @@ function handleClearAll() {
       </template>
     </VDropdown>
 
-    <Button
-      v-if="activeFilters.length > 1"
+    <button
       @click="handleClearAll"
-      type="text"
-      size="tiny"
+      class="whitespace-nowrap text-white text-xs underline hover:no-underline cursor-pointer"
     >
-      Clear all
-    </Button>
+      Remove all
+    </button>
   </div>
 </template>

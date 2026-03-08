@@ -64,6 +64,8 @@ const filterColumns = computed(
 const { filterStates, searchValue, gqlFilter, removeFilter, clearFilters } =
   useFilters(filterColumns, {
     urlSync: true,
+    route,
+    router,
   });
 
 watch(searchValue, (val) => {
