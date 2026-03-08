@@ -39,7 +39,20 @@ function extractStringKey(v: unknown, depth = 0): string {
   const firstValue = Object.values(obj)[0];
   return extractStringKey(firstValue, depth + 1);
 }
-const RANGE_TYPES = ["INT", "LONG", "DECIMAL", "DATE", "DATETIME"];
+const RANGE_TYPES = [
+  "INT",
+  "LONG",
+  "DECIMAL",
+  "DATE",
+  "DATETIME",
+  "NON_NEGATIVE_INT",
+  "INT_ARRAY",
+  "LONG_ARRAY",
+  "DECIMAL_ARRAY",
+  "DATE_ARRAY",
+  "NON_NEGATIVE_INT_ARRAY",
+  "DATETIME_ARRAY",
+];
 const MULTI_VALUE_SEPARATOR = "|";
 const AND_VALUE_SEPARATOR = ",";
 const RESERVED_PREFIX = "mg_";

@@ -39,9 +39,20 @@ const emit = defineEmits<{
 const modelValue = defineModel<IFilterValue | null>();
 
 const isRangeType = computed(() =>
-  ["INT", "DECIMAL", "LONG", "NON_NEGATIVE_INT", "DATE", "DATETIME"].includes(
-    props.column.columnType
-  )
+  [
+    "INT",
+    "DECIMAL",
+    "LONG",
+    "NON_NEGATIVE_INT",
+    "DATE",
+    "DATETIME",
+    "INT_ARRAY",
+    "DECIMAL_ARRAY",
+    "LONG_ARRAY",
+    "DATE_ARRAY",
+    "NON_NEGATIVE_INT_ARRAY",
+    "DATETIME_ARRAY",
+  ].includes(props.column.columnType)
 );
 
 const REF_FILTER_TYPES = [
@@ -71,8 +82,22 @@ const filterType = computed(() => {
     "TEXT_ARRAY",
     "EMAIL_ARRAY",
     "HYPERLINK_ARRAY",
+    "UUID_ARRAY",
+    "FILE",
+    "PERIOD",
+    "PERIOD_ARRAY",
   ];
   if (STRING_FILTER_TYPES.includes(type)) return "STRING";
+  if (type === "BOOL_ARRAY") return "BOOL";
+  const RANGE_ARRAY_MAP: Record<string, string> = {
+    INT_ARRAY: "INT",
+    DECIMAL_ARRAY: "DECIMAL",
+    LONG_ARRAY: "LONG",
+    DATE_ARRAY: "DATE",
+    NON_NEGATIVE_INT_ARRAY: "NON_NEGATIVE_INT",
+    DATETIME_ARRAY: "DATETIME",
+  };
+  if (RANGE_ARRAY_MAP[type]) return RANGE_ARRAY_MAP[type];
   return type;
 });
 
@@ -180,6 +205,7 @@ function handleClear() {
       :show-clear="false"
       :facet-counts="facetCounts"
       :fetch-parent-counts="fetchParentCounts"
+      :force-list="true"
     />
     <span
       v-if="modelValue"

@@ -24,7 +24,7 @@
     </div>
 
     <div
-      v-if="columns.length"
+      v-if="sidebarReady"
       :key="`${schemaId}-${tableId}`"
       :class="[
         'rounded-t-3px rounded-b-50px',
@@ -164,8 +164,8 @@ import FilterSidebar from "../../components/filter/Sidebar.vue";
 const route = useRoute();
 const router = useRouter();
 
-const schemaId = ref<string>((route.query.schema as string) || "pet store");
-const tableId = ref<string>((route.query.table as string) || "Pet");
+const schemaId = ref<string>((route.query.schema as string) || "type test");
+const tableId = ref<string>((route.query.table as string) || "Types");
 const metadata = ref<ITableMetaData>();
 const isMobile = ref(false);
 const filterStates = ref<Map<string, IFilterValue>>(new Map());
@@ -173,9 +173,33 @@ const searchTerms = ref("");
 
 const columns = computed<IColumn[]>(() => metadata.value?.columns ?? []);
 
+const sidebarReady = ref(false);
+
+const EXCLUDED_TYPES = ["HEADING", "SECTION"];
+
+watch(columns, (cols) => {
+  if (!cols.length) {
+    sidebarReady.value = false;
+    return;
+  }
+  const filterableIds = cols
+    .filter((c) => !EXCLUDED_TYPES.includes(c.columnType) && !c.id.startsWith("mg_"))
+    .map((c) => c.id);
+  router.replace({
+    query: {
+      schema: schemaId.value,
+      table: tableId.value,
+      mg_filters: filterableIds.join(","),
+    },
+  }).then(() => {
+    sidebarReady.value = true;
+  });
+}, { immediate: true });
+
 watch([schemaId, tableId], ([newSchema, newTable]) => {
   filterStates.value = new Map();
   searchTerms.value = "";
-  router.push({ query: { schema: newSchema, table: newTable } });
+  sidebarReady.value = false;
+  router.replace({ query: { schema: newSchema, table: newTable } });
 });
 </script>

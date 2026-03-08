@@ -254,6 +254,7 @@
     :limit="10"
     :facet-counts="facetCounts"
     :fetch-parent-counts="fetchParentCounts"
+    :force-list="forceList"
   />
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
@@ -280,6 +281,7 @@
     :limit="10"
     :facet-counts="facetCounts"
     :fetch-parent-counts="fetchParentCounts"
+    :force-list="forceList"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
@@ -369,11 +371,13 @@ const props = withDefaults(
         parentNames: string[]
       ) => Promise<Map<string, number>>;
       errorMessage?: string | null;
+      forceList?: boolean;
     }
   >(),
   {
     limit: 25,
     showClear: true,
+    forceList: false,
   }
 );
 const emit = defineEmits(["focus", "blur"]);
