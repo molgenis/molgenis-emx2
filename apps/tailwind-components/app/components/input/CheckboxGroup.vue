@@ -77,7 +77,11 @@ function resetModelValue() {
           :disabled="disabled"
         />
         <span class="flex flex-1 items-baseline min-w-0">
-          <span class="truncate min-w-0" v-tooltip.top="option.label" v-if="option.label">
+          <span
+            class="truncate min-w-0"
+            v-tooltip.top="option.label"
+            v-if="option.label"
+          >
             {{ option.label }}
           </span>
           <span class="truncate min-w-0" v-tooltip.top="option.value" v-else>

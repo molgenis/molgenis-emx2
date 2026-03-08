@@ -81,8 +81,13 @@
             </div>
           </li>
         </ul>
-        <template v-for="[sourceTableId, cols] in subclassGroups" :key="sourceTableId">
-          <div class="mt-4 mb-1 text-xs font-semibold uppercase tracking-wide text-body-muted">
+        <template
+          v-for="[sourceTableId, cols] in subclassGroups"
+          :key="sourceTableId"
+        >
+          <div
+            class="mt-4 mb-1 text-xs font-semibold uppercase tracking-wide text-body-muted"
+          >
             {{ subclassTableLabels[sourceTableId] || sourceTableId }}
           </div>
           <ul>

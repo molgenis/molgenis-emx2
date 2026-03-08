@@ -409,7 +409,10 @@ onUnmounted(() => {
             class="flex flex-1 items-baseline text-body-sm leading-normal pl-1 min-w-0"
             :class="'text-title-contrast'"
           >
-            <span class="truncate min-w-0" v-tooltip.top="node.label || node.name">
+            <span
+              class="truncate min-w-0"
+              v-tooltip.top="node.label || node.name"
+            >
               {{ node.label || node.name }}
             </span>
             <span v-if="facetCounts" class="shrink-0 ml-0.5">

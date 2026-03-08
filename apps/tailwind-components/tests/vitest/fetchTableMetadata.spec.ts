@@ -41,28 +41,36 @@ describe("fetchTableMetadata", () => {
   });
 
   it("returns table metadata for valid tableId", async () => {
-    const fetchTableMetadata = (await import("../../app/composables/fetchTableMetadata")).default;
+    const fetchTableMetadata = (
+      await import("../../app/composables/fetchTableMetadata")
+    ).default;
     const result = await fetchTableMetadata("test", "Person");
     expect(result.id).toBe("Person");
     expect(result.label).toBe("Person");
   });
 
   it("rejects when tableId not found", async () => {
-    const fetchTableMetadata = (await import("../../app/composables/fetchTableMetadata")).default;
+    const fetchTableMetadata = (
+      await import("../../app/composables/fetchTableMetadata")
+    ).default;
     await expect(fetchTableMetadata("test", "Unknown")).rejects.toMatch(
       "Unknown"
     );
   });
 
   it("without includeSubclassColumns, returns only the table's own columns", async () => {
-    const fetchTableMetadata = (await import("../../app/composables/fetchTableMetadata")).default;
+    const fetchTableMetadata = (
+      await import("../../app/composables/fetchTableMetadata")
+    ).default;
     const result = await fetchTableMetadata("test", "Person");
     const ids = result.columns.map((c) => c.id);
     expect(ids).toEqual(["name"]);
   });
 
   it("with includeSubclassColumns: true, returns parent columns plus subclass columns", async () => {
-    const fetchTableMetadata = (await import("../../app/composables/fetchTableMetadata")).default;
+    const fetchTableMetadata = (
+      await import("../../app/composables/fetchTableMetadata")
+    ).default;
     const result = await fetchTableMetadata("test", "Person", {
       includeSubclassColumns: true,
     });
@@ -72,7 +80,9 @@ describe("fetchTableMetadata", () => {
   });
 
   it("subclass columns have visible: 'false' set", async () => {
-    const fetchTableMetadata = (await import("../../app/composables/fetchTableMetadata")).default;
+    const fetchTableMetadata = (
+      await import("../../app/composables/fetchTableMetadata")
+    ).default;
     const result = await fetchTableMetadata("test", "Person", {
       includeSubclassColumns: true,
     });
@@ -81,7 +91,9 @@ describe("fetchTableMetadata", () => {
   });
 
   it("subclass columns have sourceTableId set", async () => {
-    const fetchTableMetadata = (await import("../../app/composables/fetchTableMetadata")).default;
+    const fetchTableMetadata = (
+      await import("../../app/composables/fetchTableMetadata")
+    ).default;
     const result = await fetchTableMetadata("test", "Person", {
       includeSubclassColumns: true,
     });

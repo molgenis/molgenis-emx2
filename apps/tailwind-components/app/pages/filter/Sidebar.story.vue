@@ -177,24 +177,32 @@ const sidebarReady = ref(false);
 
 const EXCLUDED_TYPES = ["HEADING", "SECTION"];
 
-watch(columns, (cols) => {
-  if (!cols.length) {
-    sidebarReady.value = false;
-    return;
-  }
-  const filterableIds = cols
-    .filter((c) => !EXCLUDED_TYPES.includes(c.columnType) && !c.id.startsWith("mg_"))
-    .map((c) => c.id);
-  router.replace({
-    query: {
-      schema: schemaId.value,
-      table: tableId.value,
-      mg_filters: filterableIds.join(","),
-    },
-  }).then(() => {
-    sidebarReady.value = true;
-  });
-}, { immediate: true });
+watch(
+  columns,
+  (cols) => {
+    if (!cols.length) {
+      sidebarReady.value = false;
+      return;
+    }
+    const filterableIds = cols
+      .filter(
+        (c) => !EXCLUDED_TYPES.includes(c.columnType) && !c.id.startsWith("mg_")
+      )
+      .map((c) => c.id);
+    router
+      .replace({
+        query: {
+          schema: schemaId.value,
+          table: tableId.value,
+          mg_filters: filterableIds.join(","),
+        },
+      })
+      .then(() => {
+        sidebarReady.value = true;
+      });
+  },
+  { immediate: true }
+);
 
 watch([schemaId, tableId], ([newSchema, newTable]) => {
   filterStates.value = new Map();
