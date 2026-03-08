@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { encodeRecordId } from "../../../../../../tailwind-components/app/utils/recordIdEncoder";
-import { extractPrimaryKey } from "../../../../../../tailwind-components/app/utils/extractPrimaryKey";
 import fetchTableMetadata from "../../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import Emx2ListView from "../../../../../../tailwind-components/app/components/display/Emx2ListView.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
@@ -35,7 +34,12 @@ function getHref(col: IColumn, row: IRow): string {
   const refCol = col as IRefColumn;
   const targetSchema = refCol.refSchemaId || schemaId;
   const targetTable = refCol.refTableId || tableId;
-  const pk = extractPrimaryKey(row, tableMetadata);
+  const pk: Record<string, any> = {};
+  for (const c of tableMetadata.columns) {
+    if (c.key === 1 && row[c.id] !== undefined) {
+      pk[c.id] = row[c.id];
+    }
+  }
   return `/${targetSchema}/view/${targetTable}?${encodeRecordId(pk)}`;
 }
 </script>
