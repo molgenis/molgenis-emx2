@@ -344,7 +344,7 @@ public class DcatHarvestTask extends Task {
         .collect(Collectors.toSet());
   }
 
-  private String findTableNameForType(JsonNode frame, String dcatType) {
+  String findTableNameForType(JsonNode frame, String dcatType) {
     JsonNode context = frame.get("@context");
     if (context == null || !context.isObject()) {
       return null;
@@ -359,7 +359,7 @@ public class DcatHarvestTask extends Task {
     return null;
   }
 
-  private String extractType(JsonNode item) {
+  String extractType(JsonNode item) {
     JsonNode typeNode = item.get(JSON_LD_TYPE);
     if (typeNode == null) {
       return null;
@@ -373,7 +373,7 @@ public class DcatHarvestTask extends Task {
     return null;
   }
 
-  private boolean isDcatResource(String itemType) {
+  boolean isDcatResource(String itemType) {
     return DCAT_CATALOG.equals(itemType)
         || DCAT_DATASET.equals(itemType)
         || "dcat:DataService".equals(itemType);
@@ -412,7 +412,7 @@ public class DcatHarvestTask extends Task {
     return row;
   }
 
-  private void setRowField(Row row, String columnName, JsonNode value) {
+  void setRowField(Row row, String columnName, JsonNode value) {
     if (value.isTextual()) {
       row.set(columnName, value.asText());
     } else if (value.isObject()) {
@@ -448,7 +448,7 @@ public class DcatHarvestTask extends Task {
     return null;
   }
 
-  private String extractIdFromIri(String iri, String itemType) {
+  String extractIdFromIri(String iri, String itemType) {
     if (iri == null || iri.isBlank()) {
       return null;
     }
