@@ -78,7 +78,7 @@ function handleSettingsUpdate() {
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
   };
 
-  router.push({ query });
+  router.replace({ query });
 }
 
 async function handleViewRowRequest(row: IRow) {

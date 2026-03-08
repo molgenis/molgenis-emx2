@@ -55,48 +55,54 @@ watch(
 </script>
 
 <template>
-  <div class="py-5 space-y-2">
-    <DemoDataControls
-      v-model:metadata="metadata"
-      v-model:schemaId="schemaId"
-      v-model:tableId="tableId"
-    />
-    <label class="text-title font-bold" for="is-editable">Is Editable: </label>
-    <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
-    <label class="text-title font-bold" for="show-filters"
-      >Show Filters:
-    </label>
-    <InputCheckbox
-      id="show-filters"
-      v-model="showFilters"
-      name="show-filters"
-    />
-    <div class="py-10" />
+  <Story title="TableEMX2">
+    <div class="py-5 space-y-2">
+      <DemoDataControls
+        v-model:metadata="metadata"
+        v-model:schemaId="schemaId"
+        v-model:tableId="tableId"
+      />
+      <label class="text-title font-bold" for="is-editable"
+        >Is Editable:
+      </label>
+      <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
+      <label class="text-title font-bold" for="show-filters"
+        >Show Filters:
+      </label>
+      <InputCheckbox
+        id="show-filters"
+        v-model="showFilters"
+        name="show-filters"
+      />
+      <div class="py-10" />
 
-    <template v-if="schemaId && tableId">
-      <div :class="{ 'flex gap-6': showFilters }">
-        <FilterSidebar
-          v-if="showFilters"
-          v-model:filterStates="filterStates"
-          v-model:searchTerms="searchValue"
-          :schemaId="schemaId"
-          :tableId="tableId"
-          :showSearch="true"
-          class="w-64 shrink-0"
-        />
-        <div class="flex-1 min-w-0">
-          <TableEMX2
-            v-model:settings="tableSettings"
-            :key="`${schemaId}-${tableId}`"
-            :schema-id="schemaId"
-            :table-id="tableId ?? ''"
-            :is-editable="isEditable"
-            :filter="showFilters ? gqlFilter : undefined"
-            :hide-search="showFilters"
+      <template v-if="schemaId && tableId">
+        <div :class="{ 'flex gap-6': showFilters }">
+          <FilterSidebar
+            v-if="showFilters"
+            v-model:filterStates="filterStates"
+            v-model:searchTerms="searchValue"
+            :schemaId="schemaId"
+            :tableId="tableId"
+            :showSearch="true"
+            class="w-64 shrink-0"
           />
+          <div class="flex-1 min-w-0">
+            <TableEMX2
+              v-model:settings="tableSettings"
+              :key="`${schemaId}-${tableId}`"
+              :schema-id="schemaId"
+              :table-id="tableId ?? ''"
+              :is-editable="isEditable"
+              :filter="showFilters ? gqlFilter : undefined"
+              :hide-search="showFilters"
+            />
+          </div>
         </div>
-      </div>
-    </template>
-    <p v-else>Please select a schema and table using the controls above.</p>
-  </div>
+      </template>
+      <p v-else class="text-title-contrast">
+        Please select a schema and table using the controls above.
+      </p>
+    </div>
+  </Story>
 </template>
