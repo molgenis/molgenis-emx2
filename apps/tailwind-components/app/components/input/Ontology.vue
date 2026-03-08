@@ -26,13 +26,20 @@ const props = withDefaults(
       ontologyTableId: string;
       limit?: number;
       selectCutOff?: number;
-      forceList?: boolean; // Force list display (no select dropdown) with manual load more only
+      forceList?: boolean;
+      showClear?: boolean;
+      facetCounts?: Map<string, number>;
+      fetchParentCounts?: (
+        columnId: string,
+        parentNames: string[]
+      ) => Promise<Map<string, number>>;
     }
   >(),
   {
     limit: 20,
     selectCutOff: 25,
     forceList: false,
+    showClear: true,
   }
 );
 
@@ -52,7 +59,17 @@ const rootCount = ref<number>(0);
 
 const loadingNodes = ref<Set<string>>(new Set());
 
-// Virtual root node to hold the ontology tree and its pagination state
+const localParentCounts = ref<Map<string, number>>(new Map());
+
+const mergedFacetCounts = computed(() => {
+  if (!props.facetCounts) return null;
+  const merged = new Map(props.facetCounts);
+  localParentCounts.value.forEach((count, name) => {
+    merged.set(name, count);
+  });
+  return merged;
+});
+
 const rootNode = ref<ITreeNodeState>({
   name: "__root__",
   label: "Root",
@@ -95,6 +112,13 @@ watch(
   () => modelValue.value,
   () => {
     applyModelValue();
+  }
+);
+watch(
+  () => props.facetCounts,
+  () => {
+    localParentCounts.value = new Map();
+    fetchParentCountsForRootNodes();
   }
 );
 
@@ -156,6 +180,7 @@ async function reload() {
   }
 
   initLoading.value = false;
+  await fetchParentCountsForRootNodes();
 }
 
 function assembleTree(
@@ -411,16 +436,45 @@ async function toggleTermSelect(node: ITreeNodeState) {
   emit("focus");
 }
 
+async function fetchParentCountsForRootNodes() {
+  if (!props.fetchParentCounts) return;
+  const parentNames = (rootNode.value.children || [])
+    .filter((node) => node.children?.length)
+    .map((node) => node.name);
+  if (parentNames.length === 0) return;
+  try {
+    const counts = await props.fetchParentCounts(props.id, parentNames);
+    const newLocal = new Map(localParentCounts.value);
+    counts.forEach((count, name) => newLocal.set(name, count));
+    localParentCounts.value = newLocal;
+  } catch {
+    // silent failure
+  }
+}
+
 async function toggleTermExpand(
   node: ITreeNodeState,
   showAll: boolean = false
 ) {
   if (!node.expanded) {
     node.showingAll = showAll;
-
     await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
-
     node.expanded = true;
+
+    if (props.fetchParentCounts && node.children) {
+      const parentChildNames = node.children
+        .filter((child) => child.children?.length)
+        .map((child) => child.name);
+      if (parentChildNames.length > 0) {
+        const counts = await props.fetchParentCounts(
+          props.id,
+          parentChildNames
+        );
+        const newLocal = new Map(localParentCounts.value);
+        counts.forEach((count, name) => newLocal.set(name, count));
+        localParentCounts.value = newLocal;
+      }
+    }
   } else {
     node.expanded = false;
   }
@@ -619,7 +673,10 @@ onMounted(() => {
     }"
   >
     <template v-if="forceList">
-      <div class="w-full flex items-center gap-2 px-2 py-2">
+      <div
+        v-if="totalCount >= selectCutOff"
+        class="w-full flex items-center gap-2 px-2 py-2"
+      >
         <Button
           icon="Search"
           type="text"
@@ -747,7 +804,7 @@ onMounted(() => {
         }"
         v-show="showSelect || !displayAsSelect"
       >
-        <fieldset ref="treeContainer" class="pl-4">
+        <fieldset ref="treeContainer" class="pl-4 min-w-0 overflow-hidden">
           <legend class="sr-only">select ontology terms</legend>
           <TreeNode
             :id="id"
@@ -761,6 +818,7 @@ onMounted(() => {
             :isSearching="!!searchTerms"
             :scrollContainer="scrollContainerRef"
             :enableAutoLoad="enableAutoLoad"
+            :facet-counts="mergedFacetCounts"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"
             @loadMore="loadMoreTerms"
@@ -784,7 +842,7 @@ onMounted(() => {
     />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    v-if="showClear && (isArray ? (modelValue || []).length > 0 : modelValue)"
     @click="clearSelection"
     type="text"
     size="tiny"

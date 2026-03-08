@@ -58,6 +58,7 @@ const props = defineProps<
     modelValue: columnValue[] | undefined | null;
     errorMessage: string | undefined | null;
     type: string;
+    showClear?: boolean;
   }
 >();
 

@@ -20,6 +20,7 @@ const props = defineProps<{
   variableCount: number;
   collectionCount: number;
   networkCount: number;
+  datasetCount: number;
   logoSrc?: string;
 }>();
 
@@ -63,6 +64,12 @@ if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
     link: `/${catalogueRouteParam}/variables`,
+  });
+
+if (props.datasetCount > 0 && !cohortOnly.value)
+  menu.push({
+    label: "Datasets",
+    link: `/${catalogueRouteParam}/datasets`,
   });
 
 if (cohortOnly.value) {

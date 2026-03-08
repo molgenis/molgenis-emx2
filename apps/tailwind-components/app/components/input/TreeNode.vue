@@ -27,7 +27,8 @@ const props = withDefaults(
     disabled?: boolean;
     isSearching?: boolean;
     scrollContainer?: HTMLElement | null;
-    enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
+    enableAutoLoad?: boolean;
+    facetCounts?: Map<string, number> | null;
   }>(),
   {
     inverted: false,
@@ -35,7 +36,7 @@ const props = withDefaults(
     multiselect: true,
     isSearching: false,
     scrollContainer: null,
-    enableAutoLoad: true, // Default to enabled for backward compatibility
+    enableAutoLoad: true,
   }
 );
 const emit = defineEmits([
@@ -90,6 +91,10 @@ const hiddenSelectedCount = computed(
 );
 
 const nodes = computed(() => props.parentNode.children || []);
+
+const visibleNodes = computed(() => {
+  return nodes.value.filter((node) => node.visible === true);
+});
 
 const hasMoreTerms = computed(() => props.parentNode.loadMoreHasMore || false);
 
@@ -315,7 +320,7 @@ onUnmounted(() => {
     ]"
   >
     <li
-      v-for="node in nodes.filter((node2) => node2.visible === true)"
+      v-for="node in visibleNodes"
       :key="id + node.name"
       class="mt-2.5 relative"
     >
@@ -355,15 +360,15 @@ onUnmounted(() => {
         </template>
       </div>
       <div
-        class="flex justify-start items-center"
+        class="flex justify-start items-center min-w-0"
         :class="{ 'ml-4': !isRoot || hasChildren }"
       >
         <InputLabel
           :for="id + '-' + node.name + '-input'"
-          class="group flex justify-center items-start"
+          class="group flex flex-1 justify-center items-start min-w-0 overflow-hidden"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
-            'text-title cursor-pointer ': !disabled,
+            'text-title-contrast cursor-pointer': !disabled,
           }"
         >
           <input
@@ -401,10 +406,18 @@ onUnmounted(() => {
             :disabled="disabled"
           />
           <span
-            class="block text-body-sm leading-normal pl-1"
-            :class="inverted ? 'text-title-contrast' : 'text-title'"
+            class="flex flex-1 items-baseline text-body-sm leading-normal pl-1 min-w-0"
+            :class="'text-title-contrast'"
           >
-            {{ node.label || node.name }}
+            <span
+              class="truncate min-w-0"
+              v-tooltip.top="node.label || node.name"
+            >
+              {{ node.label || node.name }}
+            </span>
+            <span v-if="facetCounts" class="shrink-0 ml-0.5">
+              ({{ facetCounts.get(node.name) ?? 0 }})
+            </span>
           </span>
         </InputLabel>
         <div
@@ -434,6 +447,7 @@ onUnmounted(() => {
           :isSearching="isSearching"
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
+          :facet-counts="facetCounts"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
           @loadMore="loadMore"
@@ -482,6 +496,16 @@ onUnmounted(() => {
           </ButtonText>
         </div>
       </div>
+    </li>
+    <li
+      v-if="
+        isRoot && facetCounts && visibleNodes.length === 0 && nodes.length > 0
+      "
+      class="mt-2.5"
+    >
+      <span class="text-body-sm italic text-input-description ml-6">
+        No matching options for current filters
+      </span>
     </li>
     <li v-if="hiddenNodesCount > 0" class="mt-2.5 relative">
       <div class="flex items-center">

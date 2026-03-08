@@ -28,18 +28,21 @@ const props = withDefaults(
       refSchemaId: string;
       refTableId: string;
       refLabel: string;
-      //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
       isArray?: boolean;
       limit?: number;
+      showClear?: boolean;
+      facetCounts?: Map<string, number>;
     }
   >(),
   {
     isArray: true,
     limit: 20,
+    showClear: true,
   }
 );
 
 const isInitLoading = ref(true);
+const isInitializing = ref(false);
 const modelValue = defineModel<
   columnValueObject[] | columnValueObject | null
 >();
@@ -76,59 +79,68 @@ const selection = computed(() =>
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
 
-watch(
-  () => props.refSchemaId,
-  () => init
-);
-watch(
-  () => props.refTableId,
-  () => init
-);
-
-// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-watch(
-  () => modelValue.value,
-  () => init
-);
-
 onMounted(() => {
   init();
 });
 
 async function init() {
-  tableMetadata.value = await fetchTableMetadata(
-    props.refSchemaId,
-    props.refTableId
-  );
+  if (isInitializing.value) return;
+  isInitializing.value = true;
 
-  if (
-    modelValue.value &&
-    (Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value)
-  ) {
-    const keys = Array.isArray(modelValue.value)
-      ? await Promise.all(
-          (modelValue.value as []).map((row) => extractPrimaryKey(row))
-        )
-      : await extractPrimaryKey(modelValue.value as columnValueObject);
-    const data: ITableDataResponse = await fetchTableData(
+  try {
+    tableMetadata.value = await fetchTableMetadata(
       props.refSchemaId,
-      props.refTableId,
-      { filter: { equals: keys }, expandLevel: 1 }
+      props.refTableId
     );
-    if (data.rows) {
-      hasNoResults.value = false;
-      data.rows.forEach(
-        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
-      );
-    }
-  }
 
-  await loadOptions({ limit: props.limit });
-  initialCount.value = count.value;
-  isInitLoading.value = false;
+    selectionMap.value = {};
+
+    if (
+      modelValue.value &&
+      (Array.isArray(modelValue.value)
+        ? modelValue.value.length > 0
+        : modelValue.value)
+    ) {
+      const keys = Array.isArray(modelValue.value)
+        ? await Promise.all(
+            (modelValue.value as []).map((row) => extractPrimaryKey(row))
+          )
+        : await extractPrimaryKey(modelValue.value as columnValueObject);
+      const data: ITableDataResponse = await fetchTableData(
+        props.refSchemaId,
+        props.refTableId,
+        { filter: { equals: keys }, expandLevel: 1 }
+      );
+      if (data.rows) {
+        hasNoResults.value = false;
+        data.rows.forEach(
+          (row) =>
+            (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+        );
+      }
+    }
+
+    await loadOptions({ limit: props.limit });
+    initialCount.value = count.value;
+    isInitLoading.value = false;
+  } finally {
+    isInitializing.value = false;
+  }
 }
+
+watch(
+  () => props.refSchemaId,
+  () => init()
+);
+watch(
+  () => props.refTableId,
+  () => init()
+);
+
+watch(
+  () => modelValue.value,
+  () => init()
+);
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -399,7 +411,7 @@ const onBlur = useDebounceFn(() => {
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
       >
-        <fieldset>
+        <fieldset class="min-w-0 overflow-hidden">
           <legend class="sr-only">select {{ columnName }} options</legend>
           <InputCheckboxGroup
             v-if="isArray"
@@ -411,6 +423,7 @@ const onBlur = useDebounceFn(() => {
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
+            :facet-counts="facetCounts"
           />
           <InputRadioGroup
             v-else
@@ -436,7 +449,7 @@ const onBlur = useDebounceFn(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="showClear && (isArray ? selection.length : selection)"
     @click="clearSelection"
     type="text"
     size="tiny"

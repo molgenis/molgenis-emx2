@@ -55,6 +55,7 @@ apps/catalogue/utils/fingerprint.js
 /test-results/
 /playwright-report/
 /playwright/.cache/
+./playwright-cli/
 
 #python build
 **/version.txt

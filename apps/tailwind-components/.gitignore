@@ -7,6 +7,9 @@
 dist
 sourceCodeMap.json
 
+# Build artifacts
+app/assets/minified-icons
+
 # Node dependencies
 node_modules
 

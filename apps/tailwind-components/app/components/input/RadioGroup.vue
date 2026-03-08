@@ -61,7 +61,7 @@ function resetModelValue() {
         class="group flex justify-start items-center gap-1 relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
-          'text-title-contrast cursor-pointer ': !disabled,
+          'text-title-contrast cursor-pointer': !disabled,
         }"
       >
         <InputRadio

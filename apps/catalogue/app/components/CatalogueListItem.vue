@@ -71,7 +71,7 @@ import type { IDefinitionListItem } from "../../interfaces/types";
 import DefinitionListTerm from "../../../tailwind-components/app/components/DefinitionListTerm.vue";
 import DefinitionListDefinition from "../../../tailwind-components/app/components/DefinitionListDefinition.vue";
 import ContentMapped from "./content/Mapped.vue";
-import ContentOntology from "./content/Ontology.vue";
+import ContentOntology from "../../../tailwind-components/app/components/content/Ontology.vue";
 import CustomTooltip from "../../../tailwind-components/app/components/CustomTooltip.vue";
 import { buildTree } from "../utils/ontologyUtils";
 

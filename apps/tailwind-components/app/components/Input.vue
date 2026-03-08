@@ -33,6 +33,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
+    :show-clear="showClear"
     :errorMessage="errorMessage"
     @focus="emit('focus')"
     @blur="emit('blur')"
@@ -101,6 +102,7 @@
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
     :align="align"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -126,6 +128,7 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
@@ -140,6 +143,7 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -156,9 +160,11 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
+    :facet-counts="facetCounts"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
@@ -173,9 +179,11 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+    :facet-counts="facetCounts"
   />
   <InputRef
     v-else-if="'SELECT' === typeUpperCase"
@@ -190,6 +198,7 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -208,6 +217,7 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
@@ -237,10 +247,14 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId!"
     :ontologyTableId="refTableId!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
     :limit="10"
+    :facet-counts="facetCounts"
+    :fetch-parent-counts="fetchParentCounts"
+    :force-list="forceList"
   />
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
@@ -261,9 +275,13 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId!"
     :ontologyTableId="refTableId!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :limit="10"
+    :facet-counts="facetCounts"
+    :fetch-parent-counts="fetchParentCounts"
+    :force-list="forceList"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
@@ -346,11 +364,20 @@ const props = withDefaults(
       falseLabel?: string;
       align?: "horizontal" | "vertical";
       limit?: number;
+      showClear?: boolean;
+      facetCounts?: Map<string, number>;
+      fetchParentCounts?: (
+        columnId: string,
+        parentNames: string[]
+      ) => Promise<Map<string, number>>;
       errorMessage?: string | null;
+      forceList?: boolean;
     }
   >(),
   {
     limit: 25,
+    showClear: true,
+    forceList: false,
   }
 );
 const emit = defineEmits(["focus", "blur"]);
