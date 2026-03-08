@@ -88,7 +88,7 @@ tasks.register('ci', WriteProperties) {
     property 'TAG_NAME', tagName
 }
 
-tasks.register('prepareDocker') {
+tasks.register('dockerPrepare') {
     dependsOn installDist
     doLast {
         def installLib = file("build/install/${project.name}/lib")
@@ -107,7 +107,7 @@ tasks.register('prepareDocker') {
 
 // Docker build and push tasks using Docker CLI (Gradle 9 compatible)
 tasks.register('dockerBuild', Exec) {
-    dependsOn prepareDocker
+    dependsOn dockerPrepare
     description = 'Build Docker image using Docker CLI'
 
     doFirst {
