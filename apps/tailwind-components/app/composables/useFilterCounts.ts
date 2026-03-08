@@ -18,7 +18,8 @@ const COUNTABLE_TYPES = [
 ];
 
 function getRefKeyField(column: IColumn): string {
-  const match = (column.refLabelDefault || "").match(/\$\{(\w+)\}/);
+  const template = column.refLabel || column.refLabelDefault || "";
+  const match = template.match(/\$\{(\w+)\}/);
   return match?.[1] || "name";
 }
 

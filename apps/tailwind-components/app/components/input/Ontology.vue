@@ -29,10 +29,6 @@ const props = withDefaults(
       forceList?: boolean;
       showClear?: boolean;
       facetCounts?: Map<string, number>;
-      fetchParentCounts?: (
-        columnId: string,
-        parentNames: string[]
-      ) => Promise<Map<string, number>>;
     }
   >(),
   {
@@ -58,17 +54,6 @@ const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
 
 const loadingNodes = ref<Set<string>>(new Set());
-
-const localParentCounts = ref<Map<string, number>>(new Map());
-
-const mergedFacetCounts = computed(() => {
-  if (!props.facetCounts) return null;
-  const merged = new Map(props.facetCounts);
-  localParentCounts.value.forEach((count, name) => {
-    merged.set(name, count);
-  });
-  return merged;
-});
 
 const rootNode = ref<ITreeNodeState>({
   name: "__root__",
@@ -112,13 +97,6 @@ watch(
   () => modelValue.value,
   () => {
     applyModelValue();
-  }
-);
-watch(
-  () => props.facetCounts,
-  () => {
-    localParentCounts.value = new Map();
-    fetchParentCountsForRootNodes();
   }
 );
 
@@ -180,7 +158,6 @@ async function reload() {
   }
 
   initLoading.value = false;
-  await fetchParentCountsForRootNodes();
 }
 
 function assembleTree(
@@ -436,22 +413,6 @@ async function toggleTermSelect(node: ITreeNodeState) {
   emit("focus");
 }
 
-async function fetchParentCountsForRootNodes() {
-  if (!props.fetchParentCounts) return;
-  const parentNames = (rootNode.value.children || [])
-    .filter((node) => node.children?.length)
-    .map((node) => node.name);
-  if (parentNames.length === 0) return;
-  try {
-    const counts = await props.fetchParentCounts(props.id, parentNames);
-    const newLocal = new Map(localParentCounts.value);
-    counts.forEach((count, name) => newLocal.set(name, count));
-    localParentCounts.value = newLocal;
-  } catch {
-    // silent failure
-  }
-}
-
 async function toggleTermExpand(
   node: ITreeNodeState,
   showAll: boolean = false
@@ -460,21 +421,6 @@ async function toggleTermExpand(
     node.showingAll = showAll;
     await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
     node.expanded = true;
-
-    if (props.fetchParentCounts && node.children) {
-      const parentChildNames = node.children
-        .filter((child) => child.children?.length)
-        .map((child) => child.name);
-      if (parentChildNames.length > 0) {
-        const counts = await props.fetchParentCounts(
-          props.id,
-          parentChildNames
-        );
-        const newLocal = new Map(localParentCounts.value);
-        counts.forEach((count, name) => newLocal.set(name, count));
-        localParentCounts.value = newLocal;
-      }
-    }
   } else {
     node.expanded = false;
   }
@@ -818,7 +764,7 @@ onMounted(() => {
             :isSearching="!!searchTerms"
             :scrollContainer="scrollContainerRef"
             :enableAutoLoad="enableAutoLoad"
-            :facet-counts="mergedFacetCounts"
+            :facet-counts="facetCounts"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"
             @loadMore="loadMoreTerms"

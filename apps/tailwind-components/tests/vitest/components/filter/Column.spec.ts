@@ -125,27 +125,11 @@ describe("FilterColumn", () => {
 
       expect(wrapper.props("modelValue")).toBeTruthy();
 
-      const clearButton = wrapper.find(
-        ".text-search-filter-expand, .text-search-filter-expand-mobile"
-      );
+      const clearButton = wrapper.find(".text-search-filter-expand");
       await clearButton.trigger("click");
 
       expect(wrapper.emitted("update:modelValue")).toBeTruthy();
       expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([null]);
-    });
-
-    it("applies mobile class suffixes when mobileDisplay is true", () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: stringColumn,
-          modelValue: null,
-          mobileDisplay: true,
-        },
-      });
-
-      expect(
-        wrapper.find(".text-search-filter-group-title-mobile").exists()
-      ).toBe(true);
     });
   });
 

@@ -1,17 +1,4 @@
 <template>
-  <!--
-    Story requirements (from plan v6.3.0):
-    - [x] Renders min/max labels (defaults to 'Min'/'Max')
-    - [x] Emits tuple on change
-    - [x] Works with Input.vue in slots
-    - [x] Supports INT, DATE, DECIMAL, DATETIME types
-
-    ARIA accessibility:
-    - [x] Uses <fieldset> for semantic grouping
-    - [x] Uses <label for=""> for proper input association
-    - [x] Optional sr-only <legend> for screen reader context
-    - [x] Cursor pointer on labels for visual affordance
-  -->
   <div class="space-y-8 p-6">
     <h1 class="text-heading-2xl font-bold">FilterRange Component</h1>
 

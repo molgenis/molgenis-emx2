@@ -128,16 +128,6 @@ describe("Sidebar", () => {
       expect(wrapper.text()).toContain("My Filters");
     });
 
-    it("hides title heading when mobileDisplay is true", () => {
-      const wrapper = mountSidebar({ mobileDisplay: true });
-      expect(wrapper.find("h2").exists()).toBe(false);
-    });
-
-    it("shows title heading when mobileDisplay is false", () => {
-      const wrapper = mountSidebar({ mobileDisplay: false });
-      expect(wrapper.find("h2").exists()).toBe(true);
-    });
-
     it("renders search input when showSearch is true", () => {
       const wrapper = mountSidebar({ showSearch: true });
       const searchStub = wrapper.findComponent({ name: "InputSearch" });
@@ -150,14 +140,9 @@ describe("Sidebar", () => {
       expect(searchStub.exists()).toBe(false);
     });
 
-    it("applies bg-sidebar-gradient class when not mobileDisplay", () => {
-      const wrapper = mountSidebar({ mobileDisplay: false });
+    it("applies bg-sidebar-gradient class", () => {
+      const wrapper = mountSidebar();
       expect(wrapper.find(".bg-sidebar-gradient").exists()).toBe(true);
-    });
-
-    it("omits bg-sidebar-gradient class when mobileDisplay is true", () => {
-      const wrapper = mountSidebar({ mobileDisplay: true });
-      expect(wrapper.find(".bg-sidebar-gradient").exists()).toBe(false);
     });
   });
 
@@ -401,14 +386,6 @@ describe("Sidebar", () => {
         operator: "in",
         value: [{ name: "Flu" }],
       });
-    });
-
-    it("passes mobileDisplay prop to FilterColumn", () => {
-      const wrapper = mountSidebar({ mobileDisplay: true });
-      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
-      for (const filter of filterColumns) {
-        expect(filter.props("mobileDisplay")).toBe(true);
-      }
     });
 
     it("removes a filter when FilterColumn emits remove", async () => {

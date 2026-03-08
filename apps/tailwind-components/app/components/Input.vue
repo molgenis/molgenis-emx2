@@ -253,7 +253,6 @@
     :is-array="false"
     :limit="10"
     :facet-counts="facetCounts"
-    :fetch-parent-counts="fetchParentCounts"
     :force-list="forceList"
   />
   <InputOntology
@@ -280,7 +279,6 @@
     @blur="emit('blur')"
     :limit="10"
     :facet-counts="facetCounts"
-    :fetch-parent-counts="fetchParentCounts"
     :force-list="forceList"
   />
   <InputFile
@@ -366,10 +364,6 @@ const props = withDefaults(
       limit?: number;
       showClear?: boolean;
       facetCounts?: Map<string, number>;
-      fetchParentCounts?: (
-        columnId: string,
-        parentNames: string[]
-      ) => Promise<Map<string, number>>;
       forceList?: boolean;
       errorMessage?: string | null;
     }

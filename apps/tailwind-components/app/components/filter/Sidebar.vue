@@ -19,12 +19,10 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     title?: string;
-    mobileDisplay?: boolean;
     showSearch?: boolean;
   }>(),
   {
     title: "Filters",
-    mobileDisplay: false,
     showSearch: false,
   }
 );
@@ -126,7 +124,7 @@ const searchTerms = defineModel<string>("searchTerms", {
 
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
 
-const { facetCounts, fetchParentCounts } = useFilterCounts({
+const { facetCounts } = useFilterCounts({
   schemaId: toRef(props, "schemaId"),
   tableId: toRef(props, "tableId"),
   filterStates,
@@ -317,11 +315,8 @@ async function loadRefColumnsForPath(fullPath: string) {
 </script>
 
 <template>
-  <div
-    class="rounded-t-3px rounded-b-50px pb-8"
-    :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
-  >
-    <div v-if="!mobileDisplay" class="p-5">
+  <div class="rounded-t-3px rounded-b-50px pb-8 bg-sidebar-gradient">
+    <div class="p-5">
       <h2
         class="uppercase font-display text-heading-3xl text-search-filter-title"
       >
@@ -355,12 +350,10 @@ async function loadRefColumnsForPath(fullPath: string) {
       :label-prefix="filter.labelPrefix"
       :model-value="getFilterValue(filter.fullPath)"
       @update:model-value="setFilterValue(filter.fullPath, $event)"
-      :mobile-display="mobileDisplay"
       :depth="0"
       :removable="true"
       @remove="handleFilterToggle(filter.fullPath)"
       :facet-counts="facetCounts.get(filter.column.id)"
-      :fetch-parent-counts="fetchParentCounts"
     />
   </div>
 </template>

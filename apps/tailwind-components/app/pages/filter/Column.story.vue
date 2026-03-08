@@ -24,73 +24,28 @@
           Form (light)
         </button>
       </div>
-      <div class="flex gap-2 items-center">
-        <label class="font-semibold">Mobile:</label>
-        <button
-          @click="isMobile = !isMobile"
-          :class="[
-            'px-3 py-1 rounded',
-            isMobile ? 'bg-blue-500 text-white' : 'bg-gray-200',
-          ]"
-        >
-          {{ isMobile ? "On" : "Off" }}
-        </button>
-      </div>
     </div>
 
     <div
-      class="p-4 rounded-t-3px rounded-b-50px"
-      :class="[
-        useDarkBg ? 'bg-sidebar-gradient' : 'bg-white border',
-        isMobile ? 'max-w-[375px]' : 'max-w-md',
-      ]"
+      class="p-4 rounded-t-3px rounded-b-50px max-w-md"
+      :class="useDarkBg ? 'bg-sidebar-gradient' : 'bg-white border'"
     >
       <h2
-        v-if="!isMobile"
         class="p-5 uppercase font-display text-heading-3xl text-search-filter-title"
       >
         Filters
       </h2>
 
-      <FilterColumn
-        :column="stringColumn"
-        v-model="stringFilter"
-        :mobile-display="isMobile"
-      />
-      <FilterColumn
-        :column="intColumn"
-        v-model="intFilter"
-        :mobile-display="isMobile"
-      />
-      <FilterColumn
-        :column="decimalColumn"
-        v-model="decimalFilter"
-        :mobile-display="isMobile"
-      />
-      <FilterColumn
-        :column="dateColumn"
-        v-model="dateFilter"
-        :mobile-display="isMobile"
-      />
-      <FilterColumn
-        :column="boolColumn"
-        v-model="boolFilter"
-        :mobile-display="isMobile"
-      />
-      <FilterColumn
-        :column="refColumn"
-        v-model="refFilter"
-        :mobile-display="isMobile"
-      />
-      <FilterColumn
-        :column="ontologyColumn"
-        v-model="ontologyFilter"
-        :mobile-display="isMobile"
-      />
+      <FilterColumn :column="stringColumn" v-model="stringFilter" />
+      <FilterColumn :column="intColumn" v-model="intFilter" />
+      <FilterColumn :column="decimalColumn" v-model="decimalFilter" />
+      <FilterColumn :column="dateColumn" v-model="dateFilter" />
+      <FilterColumn :column="boolColumn" v-model="boolFilter" />
+      <FilterColumn :column="refColumn" v-model="refFilter" />
+      <FilterColumn :column="ontologyColumn" v-model="ontologyFilter" />
       <FilterColumn
         :column="ontologyArrayColumn"
         v-model="ontologyArrayFilter"
-        :mobile-display="isMobile"
       />
 
       <hr class="mx-5 border-black opacity-10" />
@@ -131,10 +86,6 @@
           <li>
             <code>modelValue: IFilterValue | null</code> - v-model filter value
           </li>
-          <li>
-            <code>mobileDisplay: boolean</code> - Mobile styling variant
-            (default: false)
-          </li>
         </ul>
 
         <h3 class="font-semibold">Column Type → Input Mapping</h3>
@@ -151,7 +102,6 @@
           <li>Enter value - Clear button should appear</li>
           <li>Click Clear - value should reset to null</li>
           <li>Toggle Background button - verify readability on both</li>
-          <li>Toggle Mobile button - check 375px width styling</li>
           <li>
             Switch to AUMC theme - check Yes/No and Min/Max labels visible
           </li>
@@ -177,7 +127,6 @@ import type { IFilterValue } from "../../../types/filters";
 import FilterColumn from "../../components/filter/Column.vue";
 
 const useDarkBg = ref(true);
-const isMobile = ref(false);
 
 const stringColumn: IColumn = {
   id: "name",

@@ -12,19 +12,13 @@ const props = withDefaults(
   defineProps<{
     column: IColumn;
     schemaId?: string;
-    mobileDisplay?: boolean;
     depth?: number;
     labelPrefix?: string;
     removable?: boolean;
     facetCounts?: Map<string, number>;
-    fetchParentCounts?: (
-      columnId: string,
-      parentNames: string[]
-    ) => Promise<Map<string, number>>;
   }>(),
   {
     schemaId: "",
-    mobileDisplay: false,
     depth: 0,
     labelPrefix: "",
     removable: false,
@@ -154,8 +148,7 @@ function handleClear() {
   />
   <div class="flex items-center gap-1 px-5 pt-5 pb-2">
     <h3
-      class="font-sans text-body-base font-bold"
-      :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
+      class="font-sans text-body-base font-bold text-search-filter-group-title"
     >
       {{ label }}
     </h3>
@@ -164,8 +157,7 @@ function handleClear() {
       class="text-right grow flex gap-2 items-center justify-end"
     >
       <span
-        class="text-body-sm hover:underline hover:cursor-pointer"
-        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+        class="text-body-sm hover:underline hover:cursor-pointer text-search-filter-expand"
         @click="emit('remove')"
       >
         Remove
@@ -173,8 +165,7 @@ function handleClear() {
     </div>
   </div>
   <div
-    class="mb-5 ml-5 mr-5 overflow-hidden"
-    :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
+    class="mb-5 ml-5 mr-5 overflow-hidden text-search-filter-group-title"
     :style="{
       '--text-color-title-contrast':
         'var(--text-color-search-filter-group-title)',
@@ -218,13 +209,11 @@ function handleClear() {
       :ref-label="column.refLabel || column.refLabelDefault"
       :show-clear="false"
       :facet-counts="facetCounts"
-      :fetch-parent-counts="fetchParentCounts"
       :force-list="true"
     />
     <span
       v-if="modelValue"
-      class="mt-1 inline-block text-body-sm hover:underline hover:cursor-pointer"
-      :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+      class="mt-1 inline-block text-body-sm hover:underline hover:cursor-pointer text-search-filter-expand"
       @click="handleClear"
     >
       Clear

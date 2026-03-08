@@ -5,45 +5,6 @@ import Story from "../../components/Story.vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 
-const spec = `
-## Features
-- Displays active filters as removable chips/tags
-- Shows column label + formatted filter value
-- Click chip to remove individual filter
-- "Clear all" button when multiple filters active
-- Handles different filter types: equals, like, in, between, isNull, notNull
-
-## Props
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| filters | Map<string, IFilterValue> | required | Active filter states |
-| columns | IColumn[] | required | Column metadata for labels |
-
-## Emits
-| Event | Payload | Description |
-|-------|---------|-------------|
-| remove | columnId: string | Emitted when filter chip is clicked |
-| clearAll | - | Emitted when "Clear all" is clicked |
-
-## Test Checklist
-- [ ] Displays nothing when no filters active
-- [ ] Shows single filter as chip
-- [ ] Shows multiple filters as chips
-- [ ] Formats string filter (like operator)
-- [ ] Formats equals filter
-- [ ] Formats in filter (multiple values)
-- [ ] Formats between filter (range)
-- [ ] Formats between filter (min only)
-- [ ] Formats between filter (max only)
-- [ ] Formats isNull filter
-- [ ] Formats notNull filter
-- [ ] Click chip removes filter
-- [ ] "Clear all" appears with 2+ filters
-- [ ] "Clear all" not shown with 1 filter
-- [ ] Click "Clear all" emits clearAll event
-- [ ] ARIA labels present for accessibility
-`;
-
 const columns: IColumn[] = [
   {
     id: "name",
@@ -126,7 +87,7 @@ function handleClearAll() {
 </script>
 
 <template>
-  <Story title="ActiveFilters" :spec="spec">
+  <Story title="ActiveFilters">
     <div class="space-y-8">
       <div>
         <h3 class="text-lg font-bold mb-2">Empty State</h3>
