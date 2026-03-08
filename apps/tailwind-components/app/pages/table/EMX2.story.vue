@@ -7,6 +7,7 @@ import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import { useRoute, useRouter } from "vue-router";
 import { useFilters } from "../../composables/useFilters";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import FilterSidebar from "../../components/filter/Sidebar.vue";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
