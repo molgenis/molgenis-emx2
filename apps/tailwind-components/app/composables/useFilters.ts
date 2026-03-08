@@ -14,8 +14,13 @@ import { buildGraphQLFilter } from "../utils/buildFilter";
 export interface UseFiltersOptions {
   debounceMs?: number;
   urlSync?: boolean;
-  route?: { query: Record<string, string | string[] | undefined> };
-  router?: { replace: (opts: { query: Record<string, unknown> }) => void };
+  route?: {
+    query: Record<
+      string,
+      string | string[] | (string | null)[] | null | undefined
+    >;
+  };
+  router?: { replace: (opts: Record<string, unknown>) => void };
 }
 
 const REF_TYPES = [
@@ -247,7 +252,10 @@ export function serializeFiltersToUrl(
 }
 
 export function parseFiltersFromUrl(
-  query: Record<string, string | string[] | undefined>,
+  query: Record<
+    string,
+    string | string[] | (string | null)[] | null | undefined
+  >,
   columns: IColumn[]
 ): { filters: Map<string, IFilterValue>; search: string } {
   const filters = new Map<string, IFilterValue>();
@@ -296,10 +304,14 @@ export function useFilters(
   options?: UseFiltersOptions
 ) {
   let urlSyncEnabled = !!options?.urlSync;
-  let route: { query: Record<string, string | string[] | undefined> } | null =
-    null;
+  let route: {
+    query: Record<
+      string,
+      string | string[] | (string | null)[] | null | undefined
+    >;
+  } | null = null;
   let router: {
-    replace: (opts: { query: Record<string, unknown> }) => void;
+    replace: (opts: Record<string, unknown>) => void;
   } | null = null;
 
   if (urlSyncEnabled) {
