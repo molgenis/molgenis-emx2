@@ -94,7 +94,6 @@ function handleClearAll() {
         <ActiveFilters
           :filters="emptyFilters"
           :columns="columns"
-          :schema-id="'pet store'"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />
@@ -108,7 +107,6 @@ function handleClearAll() {
         <ActiveFilters
           :filters="singleFilter"
           :columns="columns"
-          :schema-id="'pet store'"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />
@@ -122,7 +120,6 @@ function handleClearAll() {
         <ActiveFilters
           :filters="multipleFilters"
           :columns="columns"
-          :schema-id="'pet store'"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />
@@ -139,7 +136,6 @@ function handleClearAll() {
             <ActiveFilters
               :filters="rangeMinOnly"
               :columns="columns"
-              :schema-id="'pet store'"
               @remove="handleRemove"
               @clear-all="handleClearAll"
             />
@@ -149,7 +145,6 @@ function handleClearAll() {
             <ActiveFilters
               :filters="rangeMaxOnly"
               :columns="columns"
-              :schema-id="'pet store'"
               @remove="handleRemove"
               @clear-all="handleClearAll"
             />
@@ -162,7 +157,6 @@ function handleClearAll() {
         <ActiveFilters
           :filters="nullFilters"
           :columns="columns"
-          :schema-id="'pet store'"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />

@@ -15,7 +15,6 @@ import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
 
 const props = withDefaults(
   defineProps<{
-    allColumns: IColumn[];
     schemaId: string;
     tableId: string;
     title?: string;
@@ -27,14 +26,36 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (event: "update:columns", columns: IColumn[]): void;
-}>();
-
 const searchInputId = useId();
 
+const filterableColumns = ref<IColumn[]>([]);
+
+const unfilterableTypes = ["HEADING", "SECTION", "FILE", "REFBACK"];
+
+watch(
+  () => [props.schemaId, props.tableId] as const,
+  async ([newSchemaId, newTableId]) => {
+    if (!newSchemaId || !newTableId) {
+      filterableColumns.value = [];
+      return;
+    }
+    try {
+      const tableMetadata = await fetchTableMetadata(newSchemaId, newTableId);
+      filterableColumns.value = tableMetadata.columns
+        .filter(
+          (c) =>
+            !c.id.startsWith("mg_") && !unfilterableTypes.includes(c.columnType)
+        )
+        .map((c) => ({ ...c, refSchemaId: c.refSchemaId || newSchemaId }));
+    } catch {
+      filterableColumns.value = [];
+    }
+  },
+  { immediate: true }
+);
+
 const defaultFilterIds = computed(() =>
-  computeDefaultFilters(props.allColumns)
+  computeDefaultFilters(filterableColumns.value)
 );
 
 const route = useRoute();
@@ -128,7 +149,7 @@ const { facetCounts } = useFilterCounts({
   schemaId: toRef(props, "schemaId"),
   tableId: toRef(props, "tableId"),
   filterStates,
-  columns: toRef(props, "allColumns"),
+  columns: filterableColumns,
   visibleFilterIds,
   searchValue: searchTerms,
 });
@@ -154,29 +175,21 @@ watch(
 interface ResolvedFilter {
   fullPath: string;
   column: IColumn;
-  schemaId: string;
   labelPrefix: string;
 }
 
 const resolvedFilters = computed<ResolvedFilter[]>(() => {
-  const unfilterableTypes = ["HEADING", "SECTION"];
   const result: ResolvedFilter[] = [];
 
   for (const filterId of visibleFilterIds.value) {
     const segments = filterId.split(".");
 
     if (segments.length === 1) {
-      const column = props.allColumns.find(
-        (c) =>
-          c.id === filterId &&
-          !unfilterableTypes.includes(c.columnType) &&
-          !c.id.startsWith("mg_")
-      );
+      const column = filterableColumns.value.find((c) => c.id === filterId);
       if (column) {
         result.push({
           fullPath: filterId,
           column,
-          schemaId: props.schemaId,
           labelPrefix: "",
         });
       }
@@ -185,15 +198,13 @@ const resolvedFilters = computed<ResolvedFilter[]>(() => {
       if (!column) continue;
 
       const labels: string[] = [];
-      let currentColumns: IColumn[] = props.allColumns;
-      let currentSchemaId = props.schemaId;
+      let currentColumns: IColumn[] = filterableColumns.value;
 
       for (let depth = 0; depth < segments.length - 1; depth++) {
         const seg = segments[depth]!;
         const parentCol = currentColumns.find((c) => c.id === seg);
         if (!parentCol) break;
         labels.push(parentCol.label || parentCol.id);
-        currentSchemaId = parentCol.refSchemaId || currentSchemaId;
         const pathSoFar = segments.slice(0, depth + 1).join(".");
         currentColumns = refColumnsCache.value.get(pathSoFar) || [];
       }
@@ -201,7 +212,6 @@ const resolvedFilters = computed<ResolvedFilter[]>(() => {
       result.push({
         fullPath: filterId,
         column,
-        schemaId: currentSchemaId,
         labelPrefix: labels.length > 0 ? labels.join(".") + "." : "",
       });
     }
@@ -217,10 +227,10 @@ function getFilterValue(columnId: string): IFilterValue | null {
 function findColumnForPath(fullPath: string): IColumn | undefined {
   const segments = fullPath.split(".");
   if (segments.length === 1) {
-    return props.allColumns.find((c) => c.id === segments[0]);
+    return filterableColumns.value.find((c) => c.id === segments[0]);
   }
 
-  let currentColumns: IColumn[] = props.allColumns;
+  let currentColumns: IColumn[] = filterableColumns.value;
   for (let depth = 0; depth < segments.length - 1; depth++) {
     const pathSoFar = segments.slice(0, depth + 1).join(".");
     const cached = refColumnsCache.value.get(pathSoFar);
@@ -272,7 +282,7 @@ async function setFilterValue(
 
 async function loadRefColumnsForPath(fullPath: string) {
   const segments = fullPath.split(".");
-  let currentColumns: IColumn[] = props.allColumns;
+  let currentColumns: IColumn[] = filterableColumns.value;
   let currentSchemaId = props.schemaId;
 
   for (
@@ -325,7 +335,7 @@ async function loadRefColumnsForPath(fullPath: string) {
     </div>
     <div class="px-5 pb-3 flex justify-end">
       <FilterPicker
-        :columns="allColumns"
+        :columns="filterableColumns"
         :visible-filter-ids="visibleFilterIds"
         :default-filter-ids="defaultFilterIds"
         :schema-id="schemaId"
@@ -346,7 +356,6 @@ async function loadRefColumnsForPath(fullPath: string) {
       v-for="filter in resolvedFilters"
       :key="filter.fullPath"
       :column="filter.column"
-      :schema-id="filter.schemaId"
       :label-prefix="filter.labelPrefix"
       :model-value="getFilterValue(filter.fullPath)"
       @update:model-value="setFilterValue(filter.fullPath, $event)"

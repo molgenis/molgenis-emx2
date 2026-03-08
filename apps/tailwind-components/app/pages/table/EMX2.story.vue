@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { ITableSettings } from "../../../types/types";
-import type { IColumn } from "../../../../metadata-utils/src/types";
-import DemoDataControls from "../../DemoDataControls.vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import { useRoute, useRouter } from "vue-router";
 import { useFilters } from "../../composables/useFilters";
-import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import FilterSidebar from "../../components/filter/Sidebar.vue";
 
 const tableSettings = ref<ITableSettings>({
@@ -24,10 +21,9 @@ const showFilters = ref(false);
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>((route.query.schema as string) || "");
 const tableId = ref<string>((route.query.table as string) || "");
-const filterColumns = ref<IColumn[]>([]);
 
 const { filterStates, searchValue, gqlFilter, removeFilter, clearFilters } =
-  useFilters(filterColumns, { urlSync: showFilters.value });
+  useFilters(ref([]), { urlSync: showFilters.value });
 
 watch(searchValue, (val) => {
   if (showFilters.value) {
@@ -37,25 +33,13 @@ watch(searchValue, (val) => {
 
 watch(
   [schemaId, tableId],
-  async ([newSchemaId, newTableId]) => {
+  ([newSchemaId, newTableId]) => {
     router.push({
       query: {
         schema: newSchemaId,
         table: newTableId,
       },
     });
-    if (newSchemaId && newTableId) {
-      try {
-        const meta = await fetchTableMetadata(newSchemaId, newTableId);
-        filterColumns.value = meta.columns.filter(
-          (c) =>
-            !c.id.startsWith("mg") &&
-            !["HEADING", "SECTION", "FILE"].includes(c.columnType)
-        );
-      } catch {
-        filterColumns.value = [];
-      }
-    }
   },
   { immediate: true }
 );
@@ -82,10 +66,9 @@ watch(
 
     <div :class="{ 'flex gap-6': showFilters }">
       <FilterSidebar
-        v-if="showFilters && filterColumns.length"
+        v-if="showFilters"
         v-model:filterStates="filterStates"
         v-model:searchTerms="searchValue"
-        :allColumns="filterColumns"
         :schemaId="schemaId"
         :tableId="tableId"
         :showSearch="true"

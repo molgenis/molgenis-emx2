@@ -88,8 +88,56 @@ const allColumns: IColumn[] = [
   ...stringColumns,
 ];
 
+const unfilterableColumns: IColumn[] = [
+  { id: "heading1", label: "Demographics", columnType: "HEADING" },
+  { id: "section1", label: "Section", columnType: "SECTION" },
+  { id: "file1", label: "File", columnType: "FILE" },
+  { id: "mg_insertedOn", label: "Inserted On", columnType: "DATETIME" },
+];
+
+const mockFetchTableMetadata = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({
+    id: "Patient",
+    columns: [
+      {
+        id: "disease",
+        label: "Disease",
+        columnType: "ONTOLOGY",
+        refTableId: "Diseases",
+        refSchemaId: "Ontologies",
+      },
+      {
+        id: "phenotype",
+        label: "Phenotype",
+        columnType: "ONTOLOGY_ARRAY",
+        refTableId: "Phenotypes",
+        refSchemaId: "Ontologies",
+      },
+      {
+        id: "hospital",
+        label: "Hospital",
+        columnType: "REF",
+        refTableId: "Hospital",
+        refSchemaId: "test",
+      },
+      {
+        id: "medications",
+        label: "Medications",
+        columnType: "REF_ARRAY",
+        refTableId: "Medication",
+        refSchemaId: "test",
+      },
+      { id: "name", label: "Name", columnType: "STRING" },
+      { id: "notes", label: "Notes", columnType: "TEXT" },
+    ],
+  })
+);
+
+vi.mock("../../../../app/composables/fetchTableMetadata", () => ({
+  default: mockFetchTableMetadata,
+}));
+
 const defaultProps = {
-  allColumns,
   schemaId: "test",
   tableId: "Patient",
 };
@@ -146,42 +194,76 @@ describe("Sidebar", () => {
     });
   });
 
-  describe("smart defaults", () => {
-    it("shows ontology columns as default visible filters", () => {
+  describe("internal metadata fetch", () => {
+    it("filters out HEADING, SECTION, FILE, and mg_* columns internally", async () => {
+      mockFetchTableMetadata.mockResolvedValueOnce({
+        id: "Patient",
+        columns: [...allColumns, ...unfilterableColumns],
+      });
+
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
+
+      const picker = wrapper.findComponent({ name: "FilterPicker" });
+      const columns = picker.props("columns") as IColumn[];
+      const columnIds = columns.map((c) => c.id);
+
+      expect(columnIds).not.toContain("heading1");
+      expect(columnIds).not.toContain("section1");
+      expect(columnIds).not.toContain("file1");
+      expect(columnIds).not.toContain("mg_insertedOn");
+    });
+  });
+
+  describe("smart defaults", () => {
+    it("shows ontology columns as default visible filters", async () => {
+      const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const columnIds = filterColumns.map((f) => f.props("column")?.id);
       expect(columnIds).toContain("disease");
       expect(columnIds).toContain("phenotype");
     });
 
-    it("fills remaining slots with ref columns when fewer than 5 ontology columns", () => {
+    it("fills remaining slots with ref columns when fewer than 5 ontology columns", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const columnIds = filterColumns.map((f) => f.props("column")?.id);
       expect(columnIds).toContain("hospital");
       expect(columnIds).toContain("medications");
     });
 
-    it("does not show string columns by default", () => {
+    it("does not show string columns by default", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const columnIds = filterColumns.map((f) => f.props("column")?.id);
       expect(columnIds).not.toContain("name");
       expect(columnIds).not.toContain("notes");
     });
 
-    it("shows no filters when all columns are unfilterable types", () => {
-      const headingOnlyColumns: IColumn[] = [
-        { id: "heading1", label: "Demographics", columnType: "HEADING" },
-        { id: "section1", label: "Section", columnType: "SECTION" },
-      ];
-      const wrapper = mountSidebar({ allColumns: headingOnlyColumns });
+    it("shows no filters when all columns are unfilterable types", async () => {
+      mockFetchTableMetadata.mockResolvedValueOnce({
+        id: "Patient",
+        columns: [
+          { id: "heading1", label: "Demographics", columnType: "HEADING" },
+          { id: "section1", label: "Section", columnType: "SECTION" },
+        ],
+      });
+
+      const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       expect(filterColumns.length).toBe(0);
     });
 
-    it("limits defaults to 5 columns maximum", () => {
+    it("limits defaults to 5 columns maximum", async () => {
       const manyOntologyCols: IColumn[] = Array.from({ length: 8 }, (_, i) => ({
         id: `ont${i}`,
         label: `Ont ${i}`,
@@ -189,7 +271,15 @@ describe("Sidebar", () => {
         refTableId: "OntTable",
         refSchemaId: "Ont",
       }));
-      const wrapper = mountSidebar({ allColumns: manyOntologyCols });
+
+      mockFetchTableMetadata.mockResolvedValueOnce({
+        id: "Patient",
+        columns: manyOntologyCols,
+      });
+
+      const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       expect(filterColumns.length).toBeLessThanOrEqual(5);
     });
@@ -198,6 +288,8 @@ describe("Sidebar", () => {
   describe("filter toggle", () => {
     it("adds a filter when FilterPicker emits toggle for a hidden column", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       const initialCount = wrapper.findAllComponents({
@@ -215,6 +307,8 @@ describe("Sidebar", () => {
 
     it("removes a filter when FilterPicker emits toggle for a visible column", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       const initialCount = wrapper.findAllComponents({
@@ -235,6 +329,8 @@ describe("Sidebar", () => {
         ["disease", { operator: "in", value: [{ name: "Flu" }] }],
       ]);
       const wrapper = mountSidebar({}, initialFilterStates);
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       await picker.vm.$emit("toggle", "disease");
@@ -253,6 +349,8 @@ describe("Sidebar", () => {
   describe("filter reset", () => {
     it("resets to default filters when FilterPicker emits reset", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       await picker.vm.$emit("toggle", "name");
@@ -276,6 +374,8 @@ describe("Sidebar", () => {
         ["name", { operator: "like", value: "test" }],
       ]);
       const wrapper = mountSidebar({}, initialFilterStates);
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       await picker.vm.$emit("toggle", "name");
@@ -295,9 +395,11 @@ describe("Sidebar", () => {
   });
 
   describe("URL sync", () => {
-    it("reads visible filter IDs from mg_filters URL param on mount", () => {
+    it("reads visible filter IDs from mg_filters URL param on mount", async () => {
       mockRoute.query = { mg_filters: "name,notes" };
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const columnIds = filterColumns.map((f) => f.props("column")?.id);
       expect(columnIds).toContain("name");
@@ -306,6 +408,8 @@ describe("Sidebar", () => {
 
     it("writes mg_filters to URL when visible filters change from defaults", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       await picker.vm.$emit("toggle", "name");
@@ -321,6 +425,8 @@ describe("Sidebar", () => {
 
     it("removes mg_filters from URL when visible filters match defaults", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       await picker.vm.$emit("toggle", "name");
@@ -342,8 +448,10 @@ describe("Sidebar", () => {
   });
 
   describe("nested filters", () => {
-    it("passes empty labelPrefix for top-level columns", () => {
+    it("passes empty labelPrefix for top-level columns", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const topLevelFilters = filterColumns.filter(
         (f) => !f.props("column")?.id?.includes(".")
@@ -353,17 +461,21 @@ describe("Sidebar", () => {
       }
     });
 
-    it("passes schemaId to rendered FilterColumn components", () => {
+    it("passes column with refSchemaId to rendered FilterColumn components", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       expect(filterColumns.length).toBeGreaterThan(0);
       for (const filter of filterColumns) {
-        expect(filter.props("schemaId")).toBeDefined();
+        expect(filter.props("column")?.refSchemaId).toBeDefined();
       }
     });
 
-    it("renders FilterColumn with removable=true", () => {
+    it("renders FilterColumn with removable=true", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       for (const filter of filterColumns) {
         expect(filter.props("removable")).toBe(true);
@@ -372,11 +484,13 @@ describe("Sidebar", () => {
   });
 
   describe("FilterColumn interaction", () => {
-    it("passes filter value to FilterColumn", () => {
+    it("passes filter value to FilterColumn", async () => {
       const initialFilterStates = new Map<string, IFilterValue>([
         ["disease", { operator: "in", value: [{ name: "Flu" }] }],
       ]);
       const wrapper = mountSidebar({}, initialFilterStates);
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const diseaseFilter = filterColumns.find(
         (f) => f.props("column")?.id === "disease"
@@ -390,6 +504,8 @@ describe("Sidebar", () => {
 
     it("removes a filter when FilterColumn emits remove", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const initialCount = filterColumns.length;
 
@@ -404,28 +520,41 @@ describe("Sidebar", () => {
   });
 
   describe("FilterPicker props", () => {
-    it("passes allColumns to FilterPicker", () => {
+    it("passes filterable columns to FilterPicker", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
-      expect(picker.props("columns")).toEqual(allColumns);
+      const columns = picker.props("columns") as IColumn[];
+      expect(columns.length).toBeGreaterThan(0);
+      const columnIds = columns.map((c) => c.id);
+      expect(columnIds).toContain("disease");
+      expect(columnIds).toContain("hospital");
+      expect(columnIds).toContain("name");
     });
 
-    it("passes schemaId to FilterPicker", () => {
+    it("passes schemaId to FilterPicker", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
       expect(picker.props("schemaId")).toBe("test");
     });
 
-    it("passes visibleFilterIds to FilterPicker", () => {
+    it("passes visibleFilterIds to FilterPicker", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
       const visibleIds = picker.props("visibleFilterIds") as string[];
       expect(Array.isArray(visibleIds)).toBe(true);
       expect(visibleIds.length).toBeGreaterThan(0);
     });
 
-    it("passes defaultFilterIds to FilterPicker", () => {
+    it("passes defaultFilterIds to FilterPicker", async () => {
       const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
       const defaultIds = picker.props("defaultFilterIds") as string[];
       expect(Array.isArray(defaultIds)).toBe(true);

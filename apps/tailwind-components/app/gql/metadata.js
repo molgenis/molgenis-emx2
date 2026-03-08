@@ -11,6 +11,7 @@ export default gql`
         tableType
         description
         semantics
+        inheritName
         columns {
           id
           label

@@ -5,7 +5,6 @@ import type {
   ITableSettings,
   sortDirection,
 } from "../../../../../tailwind-components/types/types";
-import type { IColumn } from "../../../../../metadata-utils/src/types";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
@@ -52,15 +51,7 @@ const tableSettings = ref<ITableSettings>({
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 
-const filterColumns = ref<IColumn[]>(
-  tableMetadata.columns.filter(
-    (c) =>
-      !c.id.startsWith("mg") &&
-      !["HEADING", "SECTION", "FILE"].includes(c.columnType)
-  )
-);
-
-const { filterStates, searchValue, gqlFilter } = useFilters(filterColumns, {
+const { filterStates, searchValue, gqlFilter } = useFilters(ref([]), {
   urlSync: true,
 });
 
@@ -120,10 +111,8 @@ const { isAdmin, session } = await useSession(schemaId);
 
     <div class="flex gap-6">
       <FilterSidebar
-        v-if="filterColumns.length"
         v-model:filterStates="filterStates"
         v-model:searchTerms="searchValue"
-        :allColumns="filterColumns"
         :schemaId="schemaId"
         :tableId="tableId"
         :showSearch="true"

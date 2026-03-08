@@ -2,18 +2,30 @@ import type {
   IColumn,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
+import fetchMetadata from "./fetchMetadata";
 
-export function getSubclassColumns(
-  tableId: string,
-  allTables: ITableMetaData[]
-): IColumn[] {
-  const parentTable = allTables.find((t) => t.id === tableId);
+export async function getSubclassColumns(
+  schemaId: string,
+  tableId: string
+): Promise<IColumn[]> {
+  const schemaMetadata = await fetchMetadata(schemaId);
+  const parentTable = schemaMetadata.tables.find((t) => t.id === tableId);
   if (!parentTable) return [];
 
-  const parentColumnIds = new Set(parentTable.columns.map((c) => c.id));
-  const result: IColumn[] = [];
+  return collectSubclassColumns(
+    tableId,
+    schemaMetadata.tables,
+    new Set(parentTable.columns.map((c) => c.id))
+  );
+}
 
-  const subclasses = allTables.filter((t) => (t as any).inheritId === tableId);
+function collectSubclassColumns(
+  parentId: string,
+  allTables: ITableMetaData[],
+  parentColumnIds: Set<string>,
+  result: IColumn[] = []
+): IColumn[] {
+  const subclasses = allTables.filter((t) => t.inheritName === parentId);
 
   for (const subclass of subclasses) {
     for (const col of subclass.columns) {
@@ -21,21 +33,11 @@ export function getSubclassColumns(
         !parentColumnIds.has(col.id) &&
         !result.some((r) => r.id === col.id)
       ) {
-        result.push(
-          Object.assign({ ...col }, { sourceTableId: subclass.id }) as IColumn
-        );
+        result.push({ ...col, sourceTableId: subclass.id } as IColumn);
       }
     }
 
-    const deepCols = getSubclassColumns(subclass.id, allTables);
-    for (const col of deepCols) {
-      if (
-        !parentColumnIds.has(col.id) &&
-        !result.some((r) => r.id === col.id)
-      ) {
-        result.push(col);
-      }
-    }
+    collectSubclassColumns(subclass.id, allTables, parentColumnIds, result);
   }
 
   return result;

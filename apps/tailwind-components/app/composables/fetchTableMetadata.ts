@@ -15,10 +15,9 @@ export default async (
     return Promise.reject(`Table ${tableId} not found in schema ${schemaId}`);
   }
   if (options?.includeSubclassColumns) {
-    const subclassColumns = getSubclassColumns(
-      tableId,
-      schemaMetadata.tables
-    ).map((col) => ({ ...col, visible: "false" }));
+    const subclassColumns = (await getSubclassColumns(schemaId, tableId)).map(
+      (col) => ({ ...col, visible: "false" })
+    );
     return {
       ...tableMetadata,
       columns: [...tableMetadata.columns, ...subclassColumns],

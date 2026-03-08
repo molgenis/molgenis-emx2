@@ -11,23 +11,19 @@ import FilterRange from "./Range.vue";
 const props = withDefaults(
   defineProps<{
     column: IColumn;
-    schemaId?: string;
     depth?: number;
     labelPrefix?: string;
     removable?: boolean;
     facetCounts?: Map<string, number>;
   }>(),
   {
-    schemaId: "",
     depth: 0,
     labelPrefix: "",
     removable: false,
   }
 );
 
-const effectiveRefSchemaId = computed(
-  () => props.column.refSchemaId || props.schemaId
-);
+const effectiveRefSchemaId = computed(() => props.column.refSchemaId ?? "");
 
 const emit = defineEmits<{
   (event: "remove"): void;

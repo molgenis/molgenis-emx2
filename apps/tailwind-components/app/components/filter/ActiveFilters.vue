@@ -3,14 +3,13 @@ import { computed, ref, watch, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import Button from "../Button.vue";
-import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { resolveFilterLabels } from "../../utils/resolveFilterLabels";
 
 const ariaId = useId();
 
 const props = defineProps<{
   filters: Map<string, IFilterValue>;
   columns: IColumn[];
-  schemaId: string;
 }>();
 
 const emit = defineEmits<{
@@ -31,46 +30,11 @@ const nestedColumnLabels = ref<Map<string, string>>(new Map());
 watch(
   () => props.filters,
   async (filters) => {
-    for (const columnId of filters.keys()) {
-      if (!columnId.includes(".")) continue;
-      if (nestedColumnLabels.value.has(columnId)) continue;
-
-      const segments = columnId.split(".");
-      let currentColumns: IColumn[] = props.columns;
-      let currentSchemaId = props.schemaId;
-      const labels: string[] = [];
-
-      for (let depth = 0; depth < segments.length; depth++) {
-        const segment = segments[depth]!;
-        const column = currentColumns.find((c) => c.id === segment);
-        if (!column) break;
-
-        labels.push(
-          (column as any).displayConfig?.label || column.label || segment
-        );
-
-        if (depth < segments.length - 1 && column.refTableId) {
-          const refSchemaId = column.refSchemaId || currentSchemaId;
-          try {
-            const metadata = await fetchTableMetadata(
-              refSchemaId,
-              column.refTableId
-            );
-            currentColumns = metadata.columns;
-            currentSchemaId = refSchemaId;
-          } catch {
-            break;
-          }
-        }
-      }
-
-      if (labels.length === segments.length) {
-        nestedColumnLabels.value = new Map(nestedColumnLabels.value).set(
-          columnId,
-          labels.join(" → ")
-        );
-      }
-    }
+    const resolved = await resolveFilterLabels(filters, props.columns);
+    nestedColumnLabels.value = new Map([
+      ...nestedColumnLabels.value,
+      ...resolved,
+    ]);
   },
   { immediate: true, deep: true }
 );

@@ -100,6 +100,7 @@ export interface ITableMetaData {
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
+  inheritName?: string;
 }
 
 export interface ISchemaMetaData {
