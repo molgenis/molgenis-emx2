@@ -161,7 +161,6 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologySchema: "CatalogueOntologies",
       columnId: "ageGroups",
       filterTable: "collectionEvents",
-      filterTable: "collectionEvents",
     },
     conditions: [],
   },

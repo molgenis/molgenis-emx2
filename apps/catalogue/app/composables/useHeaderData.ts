@@ -12,6 +12,7 @@ interface IHeaderQuery {
   Variables_agg: { count: number };
   Collections_agg: { count: number };
   Networks_agg: { count: number };
+  Datasets_agg: { count: number };
   _settings: { key: "CATALOGUE_LOGO_SRC"; value: string }[];
 }
 
@@ -28,7 +29,7 @@ export async function useHeaderData() {
       method: "POST",
       body: {
         query: `
-            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter) {
+            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter,$datasetsFilter:DatasetsFilter) {
               Resources(filter:$networksFilter) {
                 id,
                 logo { url }
@@ -40,6 +41,9 @@ export async function useHeaderData() {
                   count
               }
               Networks_agg: Resources_agg(filter:$networkFilter) {
+                  count
+              }
+              Datasets_agg(filter:$datasetsFilter) {
                   count
               }
               _settings (keys: [
@@ -108,6 +112,9 @@ export async function useHeaderData() {
               }
             : //should only include harmonised variables
               { resource: { type: { name: { equals: "Network" } } } },
+          datasetsFilter: scoped
+            ? { resource: { id: { equals: catalogueRouteParam } } }
+            : undefined,
         },
       },
     }
@@ -123,6 +130,7 @@ export async function useHeaderData() {
   const variableCount = data.Variables_agg.count || 0;
   const collectionCount = data.Collections_agg.count || 0;
   const networkCount = data.Networks_agg.count || 0;
+  const datasetCount = data.Datasets_agg?.count || 0;
   const logoSrc =
     catalogue?.logo?.url ??
     (
@@ -133,5 +141,12 @@ export async function useHeaderData() {
       }
     ).value;
 
-  return { catalogue, variableCount, collectionCount, networkCount, logoSrc };
+  return {
+    catalogue,
+    variableCount,
+    collectionCount,
+    networkCount,
+    datasetCount,
+    logoSrc,
+  };
 }
