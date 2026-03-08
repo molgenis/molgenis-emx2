@@ -112,7 +112,7 @@ public class RdfFetcher {
     return model;
   }
 
-  private Set<String> extractObjectUris(Model model, Set<String> alreadyFetched, String baseHost) {
+  Set<String> extractObjectUris(Model model, Set<String> alreadyFetched, String baseHost) {
     Set<String> uris = new HashSet<>();
     for (Statement stmt : model) {
       Value obj = stmt.getObject();
@@ -154,13 +154,13 @@ public class RdfFetcher {
     }
   }
 
-  private boolean isTransientError(IOException e) {
+  boolean isTransientError(IOException e) {
     String msg = e.getMessage();
-    if (msg == null) return false;
-    return msg.contains("status 5")
-        || msg.contains("timed out")
-        || msg.contains("Connection reset")
-        || msg.contains("Connection refused");
+    return msg != null
+        && (msg.contains("status 5")
+            || msg.contains("timed out")
+            || msg.contains("Connection reset")
+            || msg.contains("Connection refused"));
   }
 
   private void sleep(int ms) {
