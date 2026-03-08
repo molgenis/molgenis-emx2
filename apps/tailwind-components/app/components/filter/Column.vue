@@ -83,7 +83,6 @@ const filterType = computed(() => {
     "EMAIL_ARRAY",
     "HYPERLINK_ARRAY",
     "UUID_ARRAY",
-    "FILE",
     "PERIOD",
     "PERIOD_ARRAY",
   ];

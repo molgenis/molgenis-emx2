@@ -144,11 +144,7 @@ export function buildGraphQLFilter(
     }
 
     if (filterValueObj) {
-      if (column.columnType === "FILE") {
-        setNestedValue(filter, [...pathSegments, "name"], filterValueObj);
-      } else {
-        setNestedValue(filter, pathSegments, filterValueObj);
-      }
+      setNestedValue(filter, pathSegments, filterValueObj);
     }
   });
 

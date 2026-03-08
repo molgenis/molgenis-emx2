@@ -36,7 +36,7 @@ const expandedPaths = ref<Set<string>>(new Set());
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
 const refLoadingKeys = ref<Set<string>>(new Set());
 
-const EXCLUDED_TYPES = ["HEADING", "SECTION"];
+const EXCLUDED_TYPES = ["HEADING", "SECTION", "FILE"];
 
 const sortedColumns = computed(() => {
   let cols = props.columns.filter(
