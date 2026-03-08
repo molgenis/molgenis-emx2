@@ -41,18 +41,14 @@ watch(searchValue, (val) => {
   }
 });
 
-watch(
-  [schemaId, tableId],
-  ([newSchemaId, newTableId]) => {
-    router.push({
-      query: {
-        schema: newSchemaId,
-        table: newTableId,
-      },
-    });
-  },
-  { immediate: true }
-);
+watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
+  router.push({
+    query: {
+      schema: newSchemaId,
+      table: newTableId,
+    },
+  });
+});
 </script>
 
 <template>
