@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.TreeModel;
@@ -239,6 +241,7 @@ public class DcatHarvestTask extends Task {
         report.addError("Table '" + resourcesTableName + "' not found in schema");
         return;
       }
+      ensureDefaultRefRecordsExist(resourcesTable);
       for (Row row : resourceRows) {
         try {
           resourcesTable.save(List.of(row));
@@ -252,6 +255,49 @@ public class DcatHarvestTask extends Task {
       }
     } else {
       report.addWarning("No DCAT resources found in framed data");
+    }
+  }
+
+  private static final Pattern JS_OBJ_ID_PATTERN =
+      Pattern.compile("[{,]\\s*id\\s*:\\s*['\"]([^'\"]+)['\"]");
+
+  private void ensureDefaultRefRecordsExist(Table table) {
+    for (Column col : table.getMetadata().getColumns()) {
+      if (!col.isRef()) {
+        continue;
+      }
+      String defaultValue = col.getDefaultValue();
+      if (defaultValue == null || !defaultValue.startsWith("=")) {
+        continue;
+      }
+      Table refTable = schema.getTable(col.getRefTableName());
+      if (refTable == null) {
+        continue;
+      }
+      List<Column> pkCols = refTable.getMetadata().getPrimaryKeyColumns();
+      if (pkCols.size() != 1) {
+        continue;
+      }
+      String pkName = pkCols.get(0).getName();
+      Matcher matcher = JS_OBJ_ID_PATTERN.matcher(defaultValue);
+      if (!matcher.find()) {
+        continue;
+      }
+      String defaultPkValue = matcher.group(1);
+      boolean exists =
+          refTable.retrieveRows().stream()
+              .anyMatch(r -> defaultPkValue.equals(r.getString(pkName)));
+      if (!exists) {
+        Row placeholder = new Row();
+        placeholder.set(pkName, defaultPkValue);
+        placeholder.setDraft(true);
+        refTable.save(List.of(placeholder));
+        log.info(
+            "Created draft placeholder in '{}' with {}='{}'",
+            col.getRefTableName(),
+            pkName,
+            defaultPkValue);
+      }
     }
   }
 
