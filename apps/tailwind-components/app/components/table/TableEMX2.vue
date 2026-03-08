@@ -26,6 +26,8 @@
     </div>
   </div>
 
+  <slot name="below-toolbar" />
+
   <div
     class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
   >

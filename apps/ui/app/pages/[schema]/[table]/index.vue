@@ -130,12 +130,6 @@ const { isAdmin, session } = await useSession(schemaId);
         class="w-64 shrink-0"
       />
       <div class="flex-1 min-w-0">
-        <ActiveFilters
-          :filters="filterStates"
-          :columns="filterColumns"
-          @remove="removeFilter"
-          @clear-all="clearFilters"
-        />
         <TableEMX2
           :schemaId="schemaId"
           :tableId="tableId"
@@ -146,6 +140,14 @@ const { isAdmin, session } = await useSession(schemaId);
           :filter="gqlFilter"
           :hide-search="true"
         >
+          <template #below-toolbar>
+            <ActiveFilters
+              :filters="filterStates"
+              :columns="filterColumns"
+              @remove="removeFilter"
+              @clear-all="clearFilters"
+            />
+          </template>
           <template #additional-row-actions="{ row }">
             <Button
               :id="useId()"

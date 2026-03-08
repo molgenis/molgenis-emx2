@@ -5,6 +5,7 @@ import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import { useRoute, useRouter } from "vue-router";
 import { useFilters } from "../../composables/useFilters";
 import FilterSidebar from "../../components/filter/Sidebar.vue";
+import ActiveFilters from "../../components/filter/ActiveFilters.vue";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -96,7 +97,16 @@ watch(
               :is-editable="isEditable"
               :filter="showFilters ? gqlFilter : undefined"
               :hide-search="showFilters"
-            />
+            >
+              <template v-if="showFilters" #below-toolbar>
+                <ActiveFilters
+                  :filters="filterStates"
+                  :columns="filterColumns"
+                  @remove="removeFilter"
+                  @clear-all="clearFilters"
+                />
+              </template>
+            </TableEMX2>
           </div>
         </div>
       </template>
