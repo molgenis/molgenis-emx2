@@ -119,7 +119,7 @@ class JsonLdFrameGeneratorTest {
 
   @Test
   void mapsOntologyColumnToIdTypeAndEmbed() {
-    TableMetadata themes = schema.create(new TableMetadata("Themes"));
+    schema.create(new TableMetadata("Themes"));
     TableMetadata resources = schema.create(new TableMetadata("Resources"));
     resources.add(
         new Column("theme")

@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.rdf4j.model.Model;
 
 public class JsonLdFramer {
+  private static final String JSON_LD_CONTEXT = "@context";
   private final RdfToJsonLd converter;
   private final ObjectMapper objectMapper;
 
@@ -40,9 +41,9 @@ public class JsonLdFramer {
       JsonStructure framedJson = JsonLd.frame(expandedDoc, frameDoc).options(options).get();
       String framedStr = framedJson.toString();
       JsonNode framedResult = objectMapper.readTree(framedStr);
-      if (framedResult.isObject() && frame.has("@context")) {
+      if (framedResult.isObject() && frame.has(JSON_LD_CONTEXT)) {
         ObjectNode result = objectMapper.createObjectNode();
-        result.set("@context", frame.get("@context"));
+        result.set(JSON_LD_CONTEXT, frame.get(JSON_LD_CONTEXT));
         framedResult
             .fields()
             .forEachRemaining(entry -> result.set(entry.getKey(), entry.getValue()));
@@ -56,7 +57,7 @@ public class JsonLdFramer {
 
   private JsonNode buildFramingFrame(JsonNode frame) {
     ObjectNode framingFrame = objectMapper.createObjectNode();
-    JsonNode originalContext = frame.get("@context");
+    JsonNode originalContext = frame.get(JSON_LD_CONTEXT);
     if (originalContext != null && originalContext.isObject()) {
       ObjectNode strippedContext = objectMapper.createObjectNode();
       Iterator<Map.Entry<String, JsonNode>> fields = originalContext.fields();
@@ -66,7 +67,7 @@ public class JsonLdFramer {
           strippedContext.set(entry.getKey(), entry.getValue());
         }
       }
-      framingFrame.set("@context", strippedContext);
+      framingFrame.set(JSON_LD_CONTEXT, strippedContext);
     }
     JsonNode embedValue = frame.get("@embed");
     if (embedValue != null) {

@@ -31,46 +31,45 @@ public class JsonLdFrameGenerator {
     Set<String> processedColumns = new HashSet<>();
     for (TableMetadata table : schema.getTables()) {
       for (Column column : table.getLocalColumns()) {
-        String columnId = column.getIdentifier();
-        if (processedColumns.contains(columnId)) {
-          continue;
-        }
-        if (column.getKey() == 1) {
-          continue;
-        }
-
-        String[] semantics = column.getSemantics();
-        boolean hasSemantics = semantics != null && semantics.length > 0;
-        boolean isReference = column.isReference() || column.isOntology();
-
-        if (isReference) {
-          processedColumns.add(columnId);
-          ObjectNode columnNode = MAPPER.createObjectNode();
-          String predicateIri;
-          if (hasSemantics) {
-            predicateIri = semantics[0];
-          } else {
-            predicateIri = schemaPrefix + ":" + columnId;
-          }
-          columnNode.put("@id", predicateIri);
-          columnNode.put("@type", "@id");
-          context.set(columnId, columnNode);
-
-          ObjectNode embedNode = MAPPER.createObjectNode();
-          embedNode.put("@embed", "@always");
-          root.set(predicateIri, embedNode);
-        } else if (hasSemantics) {
-          processedColumns.add(columnId);
-          ObjectNode columnNode = MAPPER.createObjectNode();
-          columnNode.put("@id", semantics[0]);
-          context.set(columnId, columnNode);
-        }
+        processColumn(column, schemaPrefix, context, root, processedColumns);
       }
     }
 
     root.set("@context", context);
     root.put("@embed", "@always");
     return root;
+  }
+
+  private void processColumn(
+      Column column,
+      String schemaPrefix,
+      ObjectNode context,
+      ObjectNode root,
+      Set<String> processedColumns) {
+    String columnId = column.getIdentifier();
+    if (processedColumns.contains(columnId) || column.getKey() == 1) {
+      return;
+    }
+    String[] semantics = column.getSemantics();
+    boolean hasSemantics = semantics != null && semantics.length > 0;
+    boolean isReference = column.isReference() || column.isOntology();
+
+    if (isReference) {
+      processedColumns.add(columnId);
+      String predicateIri = hasSemantics ? semantics[0] : schemaPrefix + ":" + columnId;
+      ObjectNode columnNode = MAPPER.createObjectNode();
+      columnNode.put("@id", predicateIri);
+      columnNode.put("@type", "@id");
+      context.set(columnId, columnNode);
+      ObjectNode embedNode = MAPPER.createObjectNode();
+      embedNode.put("@embed", "@always");
+      root.set(predicateIri, embedNode);
+    } else if (hasSemantics) {
+      processedColumns.add(columnId);
+      ObjectNode columnNode = MAPPER.createObjectNode();
+      columnNode.put("@id", semantics[0]);
+      context.set(columnId, columnNode);
+    }
   }
 
   public String generateAsString(SchemaMetadata schema) {

@@ -33,6 +33,13 @@ public class DcatHarvestTask extends Task {
   private static final Logger log = LoggerFactory.getLogger(DcatHarvestTask.class);
   private static final int MAX_DEPTH = 2;
   private static final int MAX_CALLS = 100;
+  private static final String DCAT_CATALOG = "dcat:Catalog";
+  private static final String DCAT_DATASET = "dcat:Dataset";
+  private static final String JSON_LD_VALUE = "@value";
+  private static final String JSON_LD_TYPE = "@type";
+  private static final String JSON_LD_GRAPH = "@graph";
+  private static final String JSON_LD_ID = "@id";
+  private static final String HARVEST_FAILED = "Harvest failed: ";
 
   private final Schema schema;
   private final String catalogUrl;
@@ -71,19 +78,18 @@ public class DcatHarvestTask extends Task {
         this.complete("Imported " + report.getResourcesImported() + " resources");
       }
     } catch (Exception e) {
-      this.setError("Harvest failed: " + e.getMessage());
+      this.setError(HARVEST_FAILED + e.getMessage());
     }
   }
 
   private HarvestReport harvestUrl(String url) {
     HarvestReport report = new HarvestReport();
-    Task currentStep = null;
+    Task currentStep = this.addSubTask("Fetching RDF from " + url);
     try {
       log.info("Starting DCAT harvest from: {}", url);
 
       JsonNode frame = generateFrame();
 
-      currentStep = this.addSubTask("Fetching RDF from " + url);
       currentStep.start();
       RdfFetcher fetcher = new RdfFetcher();
       Model rdfModel = fetcher.fetchRecursively(url, MAX_DEPTH, MAX_CALLS);
@@ -92,14 +98,14 @@ public class DcatHarvestTask extends Task {
 
       frameTransformImport(frame, rdfModel, report);
     } catch (IOException e) {
-      String msg = "Harvest failed: " + e.getMessage();
+      String msg = HARVEST_FAILED + e.getMessage();
       log.error(msg, e);
-      if (currentStep != null) currentStep.setError(msg);
+      currentStep.setError(msg);
       report.addError(msg);
     } catch (DcatHarvestException e) {
       String msg = "Harvest error: " + e.getMessage();
       log.error(msg, e);
-      if (currentStep != null) currentStep.setError(msg);
+      currentStep.setError(msg);
       report.addError(msg);
     }
     return report;
@@ -107,13 +113,12 @@ public class DcatHarvestTask extends Task {
 
   public HarvestReport harvestRdf(String rdfTurtle) {
     HarvestReport report = new HarvestReport();
-    Task currentStep = null;
+    Task currentStep = this.addSubTask("Parsing RDF");
     try {
       log.info("Starting DCAT harvest from pasted RDF ({} chars)", rdfTurtle.length());
 
       JsonNode frame = generateFrame();
 
-      currentStep = this.addSubTask("Parsing RDF");
       currentStep.start();
       Model rdfModel = parseTurtle(rdfTurtle);
       log.info("Parsed {} RDF statements", rdfModel.size());
@@ -121,14 +126,14 @@ public class DcatHarvestTask extends Task {
 
       frameTransformImport(frame, rdfModel, report);
     } catch (IOException e) {
-      String msg = "Harvest failed: " + e.getMessage();
+      String msg = HARVEST_FAILED + e.getMessage();
       log.error(msg, e);
-      if (currentStep != null) currentStep.setError(msg);
+      currentStep.setError(msg);
       report.addError(msg);
     } catch (DcatHarvestException e) {
       String msg = "Harvest error: " + e.getMessage();
       log.error(msg, e);
-      if (currentStep != null) currentStep.setError(msg);
+      currentStep.setError(msg);
       report.addError(msg);
     }
     return report;
@@ -181,11 +186,11 @@ public class DcatHarvestTask extends Task {
       Map.Entry<String, JsonNode> entry = it.next();
       String columnName = entry.getKey();
       JsonNode value = entry.getValue();
-      if (value.isObject() && value.has("@id") && !isReferenceEntry(value)) {
+      if (value.isObject() && value.has(JSON_LD_ID) && !isReferenceEntry(value)) {
         if (allowedColumns != null && !allowedColumns.contains(columnName)) {
           continue;
         }
-        String predicateIri = value.get("@id").asText();
+        String predicateIri = value.get(JSON_LD_ID).asText();
         reverseMap.putIfAbsent(predicateIri, columnName);
       }
     }
@@ -193,17 +198,17 @@ public class DcatHarvestTask extends Task {
   }
 
   boolean isReferenceEntry(JsonNode contextEntry) {
-    JsonNode typeNode = contextEntry.get("@type");
-    return typeNode != null && "@id".equals(typeNode.asText());
+    JsonNode typeNode = contextEntry.get(JSON_LD_TYPE);
+    return typeNode != null && JSON_LD_ID.equals(typeNode.asText());
   }
 
   List<JsonNode> extractGraphItems(JsonNode framedJson) {
     List<JsonNode> items = new ArrayList<>();
-    if (framedJson.has("@graph") && framedJson.get("@graph").isArray()) {
-      for (JsonNode item : framedJson.get("@graph")) {
+    if (framedJson.has(JSON_LD_GRAPH) && framedJson.get(JSON_LD_GRAPH).isArray()) {
+      for (JsonNode item : framedJson.get(JSON_LD_GRAPH)) {
         items.add(item);
       }
-    } else if (framedJson.has("@type")) {
+    } else if (framedJson.has(JSON_LD_TYPE)) {
       items.add(framedJson);
     }
     return items;
@@ -214,13 +219,26 @@ public class DcatHarvestTask extends Task {
       JsonNode frame,
       Map<String, String> reverseContext,
       HarvestReport report) {
-    String tableNameForCatalog = findTableNameForType(frame, "dcat:Catalog");
-    String tableNameForDataset = findTableNameForType(frame, "dcat:Dataset");
-    String resourcesTableName =
-        tableNameForCatalog != null
-            ? tableNameForCatalog
-            : (tableNameForDataset != null ? tableNameForDataset : "Resources");
+    String tableNameForCatalog = findTableNameForType(frame, DCAT_CATALOG);
+    String tableNameForDataset = findTableNameForType(frame, DCAT_DATASET);
+    String resourcesTableName = resolveResourcesTableName(tableNameForCatalog, tableNameForDataset);
 
+    List<Row> resourceRows = collectResourceRows(items, reverseContext, report);
+    saveResourceRows(resourceRows, resourcesTableName, report);
+  }
+
+  private String resolveResourcesTableName(String tableNameForCatalog, String tableNameForDataset) {
+    if (tableNameForCatalog != null) {
+      return tableNameForCatalog;
+    }
+    if (tableNameForDataset != null) {
+      return tableNameForDataset;
+    }
+    return "Resources";
+  }
+
+  private List<Row> collectResourceRows(
+      List<JsonNode> items, Map<String, String> reverseContext, HarvestReport report) {
     List<Row> resourceRows = new ArrayList<>();
     for (JsonNode item : items) {
       String itemType = extractType(item);
@@ -229,12 +247,16 @@ public class DcatHarvestTask extends Task {
           Row row = nodeToRow(item, itemType, reverseContext);
           resourceRows.add(row);
         } catch (Exception e) {
-          String id = item.has("@id") ? item.get("@id").asText() : "unknown";
+          String id = item.has(JSON_LD_ID) ? item.get(JSON_LD_ID).asText() : "unknown";
           report.addWarning("Skipped resource " + id + ": " + e.getMessage());
         }
       }
     }
+    return resourceRows;
+  }
 
+  private void saveResourceRows(
+      List<Row> resourceRows, String resourcesTableName, HarvestReport report) {
     if (!resourceRows.isEmpty()) {
       Table resourcesTable = schema.getTable(resourcesTableName);
       if (resourcesTable == null) {
@@ -302,19 +324,19 @@ public class DcatHarvestTask extends Task {
   }
 
   private Set<String> resolveTargetColumns(JsonNode frame) {
-    String tableName = findTableNameForType(frame, "dcat:Catalog");
+    String tableName = findTableNameForType(frame, DCAT_CATALOG);
     if (tableName == null) {
-      tableName = findTableNameForType(frame, "dcat:Dataset");
+      tableName = findTableNameForType(frame, DCAT_DATASET);
     }
     if (tableName == null) {
       tableName = "Resources";
     }
     if (schema == null) {
-      return null;
+      return Set.of();
     }
     Table table = schema.getTable(tableName);
     if (table == null) {
-      return null;
+      return Set.of();
     }
     return table.getMetadata().getColumns().stream()
         .filter(col -> col.getKey() != 1)
@@ -330,7 +352,7 @@ public class DcatHarvestTask extends Task {
     for (Iterator<Map.Entry<String, JsonNode>> it = context.fields(); it.hasNext(); ) {
       Map.Entry<String, JsonNode> entry = it.next();
       JsonNode value = entry.getValue();
-      if (value.isObject() && dcatType.equals(value.path("@type").asText(null))) {
+      if (value.isObject() && dcatType.equals(value.path(JSON_LD_TYPE).asText(null))) {
         return entry.getKey();
       }
     }
@@ -338,7 +360,7 @@ public class DcatHarvestTask extends Task {
   }
 
   private String extractType(JsonNode item) {
-    JsonNode typeNode = item.get("@type");
+    JsonNode typeNode = item.get(JSON_LD_TYPE);
     if (typeNode == null) {
       return null;
     }
@@ -352,8 +374,8 @@ public class DcatHarvestTask extends Task {
   }
 
   private boolean isDcatResource(String itemType) {
-    return "dcat:Catalog".equals(itemType)
-        || "dcat:Dataset".equals(itemType)
+    return DCAT_CATALOG.equals(itemType)
+        || DCAT_DATASET.equals(itemType)
         || "dcat:DataService".equals(itemType);
   }
 
@@ -368,31 +390,8 @@ public class DcatHarvestTask extends Task {
                 return;
               }
               String columnName = reverseContext.get(rawKey);
-              if (columnName == null) {
-                return;
-              }
-              if (value.isTextual()) {
-                row.set(columnName, value.asText());
-              } else if (value.isObject()) {
-                if (value.has("@value")) {
-                  row.set(columnName, value.get("@value").asText());
-                } else if (value.has("@id")) {
-                  row.set(columnName, value.get("@id").asText());
-                }
-              } else if (value.isArray()) {
-                List<String> elements = new ArrayList<>();
-                for (JsonNode element : value) {
-                  if (element.isTextual()) {
-                    elements.add(element.asText());
-                  } else if (element.has("@value")) {
-                    elements.add(element.get("@value").asText());
-                  } else if (element.has("@id")) {
-                    elements.add(element.get("@id").asText());
-                  }
-                }
-                if (!elements.isEmpty()) {
-                  row.set(columnName, elements.toArray(new String[0]));
-                }
+              if (columnName != null) {
+                setRowField(row, columnName, value);
               }
             });
 
@@ -403,8 +402,8 @@ public class DcatHarvestTask extends Task {
       }
     }
 
-    if (!row.getColumnNames().contains("id") && item.has("@id")) {
-      String extractedId = extractIdFromIri(item.get("@id").asText(), itemType);
+    if (!row.getColumnNames().contains("id") && item.has(JSON_LD_ID)) {
+      String extractedId = extractIdFromIri(item.get(JSON_LD_ID).asText(), itemType);
       if (extractedId != null) {
         row.set("id", extractedId);
       }
@@ -413,11 +412,37 @@ public class DcatHarvestTask extends Task {
     return row;
   }
 
+  private void setRowField(Row row, String columnName, JsonNode value) {
+    if (value.isTextual()) {
+      row.set(columnName, value.asText());
+    } else if (value.isObject()) {
+      if (value.has(JSON_LD_VALUE)) {
+        row.set(columnName, value.get(JSON_LD_VALUE).asText());
+      } else if (value.has(JSON_LD_ID)) {
+        row.set(columnName, value.get(JSON_LD_ID).asText());
+      }
+    } else if (value.isArray()) {
+      List<String> elements = new ArrayList<>();
+      for (JsonNode element : value) {
+        if (element.isTextual()) {
+          elements.add(element.asText());
+        } else if (element.has(JSON_LD_VALUE)) {
+          elements.add(element.get(JSON_LD_VALUE).asText());
+        } else if (element.has(JSON_LD_ID)) {
+          elements.add(element.get(JSON_LD_ID).asText());
+        }
+      }
+      if (!elements.isEmpty()) {
+        row.set(columnName, elements.toArray(new String[0]));
+      }
+    }
+  }
+
   String inferTypeFromDcatType(String dcatType) {
-    if ("dcat:Catalog".equals(dcatType)) {
+    if (DCAT_CATALOG.equals(dcatType)) {
       return "Catalogue";
     }
-    if ("dcat:Dataset".equals(dcatType)) {
+    if (DCAT_DATASET.equals(dcatType)) {
       return "Cohort study";
     }
     return null;
@@ -435,10 +460,14 @@ public class DcatHarvestTask extends Task {
         return keyValue[1];
       }
     }
-    String prefix =
-        "dcat:Catalog".equals(itemType)
-            ? "catalog-"
-            : ("dcat:Dataset".equals(itemType) ? "dataset-" : "");
+    String prefix;
+    if (DCAT_CATALOG.equals(itemType)) {
+      prefix = "catalog-";
+    } else if (DCAT_DATASET.equals(itemType)) {
+      prefix = "dataset-";
+    } else {
+      prefix = "";
+    }
     return prefix + lastSegment;
   }
 

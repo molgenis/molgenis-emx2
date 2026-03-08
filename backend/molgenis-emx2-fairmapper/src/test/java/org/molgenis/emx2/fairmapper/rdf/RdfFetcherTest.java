@@ -11,6 +11,8 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.TreeModel;
 import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.molgenis.emx2.fairmapper.dcat.DcatHarvestException;
 
 class RdfFetcherTest {
@@ -42,20 +44,29 @@ class RdfFetcherTest {
     assertThrows(DcatHarvestException.class, () -> fetcher.fetch("ftp://example.org/rdf"));
   }
 
-  @Test
-  void isTransientErrorReturnsTrueForServerError() {
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "RDF fetch failed with status 503",
+        "connection timed out",
+        "Connection reset by peer",
+        "Connection refused"
+      })
+  void isTransientErrorReturnsTrueForTransientMessages(String message) {
     RdfFetcher fetcher = new RdfFetcher();
-    assertTrue(fetcher.isTransientError(new IOException("RDF fetch failed with status 503")));
-    assertTrue(fetcher.isTransientError(new IOException("connection timed out")));
-    assertTrue(fetcher.isTransientError(new IOException("Connection reset by peer")));
-    assertTrue(fetcher.isTransientError(new IOException("Connection refused")));
+    assertTrue(fetcher.isTransientError(new IOException(message)));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"RDF fetch failed with status 404", "some other error"})
+  void isTransientErrorReturnsFalseForNonTransientMessages(String message) {
+    RdfFetcher fetcher = new RdfFetcher();
+    assertFalse(fetcher.isTransientError(new IOException(message)));
   }
 
   @Test
-  void isTransientErrorReturnsFalseForClientError() {
+  void isTransientErrorReturnsFalseForNullMessage() {
     RdfFetcher fetcher = new RdfFetcher();
-    assertFalse(fetcher.isTransientError(new IOException("RDF fetch failed with status 404")));
-    assertFalse(fetcher.isTransientError(new IOException("some other error")));
     assertFalse(fetcher.isTransientError(new IOException((String) null)));
   }
 

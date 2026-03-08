@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -97,7 +96,7 @@ public class CatalogueTest extends TestLoaders {
     return rows.stream()
         .filter(row -> hasDcatType(row, dcatType))
         .sorted(Comparator.comparing(row -> row.getString("id")))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private boolean hasDcatType(Row row, String type) {

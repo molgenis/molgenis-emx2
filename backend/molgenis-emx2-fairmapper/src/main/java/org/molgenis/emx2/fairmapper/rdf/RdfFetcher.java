@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class RdfFetcher {
   private static final Logger log = LoggerFactory.getLogger(RdfFetcher.class);
-  private static final long DEFAULT_MAX_BYTES = 10 * 1024 * 1024;
+  private static final long DEFAULT_MAX_BYTES = 10L * 1024 * 1024;
   private static final int MAX_RETRIES = 3;
   private static final int BASE_DELAY_MS = 1000;
   private static final Set<String> ALLOWED_SCHEMES = Set.of("http", "https");
@@ -124,7 +124,8 @@ public class RdfFetcher {
         if (baseHost.equals(host)) {
           uris.add(obj.stringValue());
         }
-      } catch (IllegalArgumentException ignored) {
+      } catch (IllegalArgumentException e) {
+        log.trace("Skipping non-IRI object value: {}", obj.stringValue());
       }
     }
     return uris;
