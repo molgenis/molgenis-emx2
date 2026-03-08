@@ -673,7 +673,10 @@ onMounted(() => {
     }"
   >
     <template v-if="forceList">
-      <div v-if="totalCount >= selectCutOff" class="w-full flex items-center gap-2 px-2 py-2">
+      <div
+        v-if="totalCount >= selectCutOff"
+        class="w-full flex items-center gap-2 px-2 py-2"
+      >
         <Button
           icon="Search"
           type="text"

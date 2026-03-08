@@ -325,10 +325,14 @@ watch(
   { immediate: true }
 );
 
-watch(() => props.filter, () => {
-  settings.value.page = 1;
-  refresh();
-}, { deep: true });
+watch(
+  () => props.filter,
+  () => {
+    settings.value.page = 1;
+    refresh();
+  },
+  { deep: true }
+);
 
 const sortedVisibleColumns = computed(() => {
   const visibleColumns = columns.value.filter(

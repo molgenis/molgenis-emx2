@@ -45,7 +45,7 @@ watch(
         const column = currentColumns.find((c) => c.id === segment);
         if (!column) break;
 
-        labels.push(column.displayConfig?.label || column.label || segment);
+        labels.push((column as any).displayConfig?.label || column.label || segment);
 
         if (depth < segments.length - 1 && column.refTableId) {
           const refSchemaId = column.refSchemaId || currentSchemaId;
@@ -94,14 +94,14 @@ function getColumnLabel(columnId: string): string {
     const segments = columnId.split(".");
     const rootColumn = props.columns.find((c) => c.id === segments[0]);
     const rootLabel = rootColumn
-      ? rootColumn.displayConfig?.label || rootColumn.label || segments[0]!
+      ? (rootColumn as any).displayConfig?.label || rootColumn.label || segments[0]!
       : segments[0]!;
     return [rootLabel, ...segments.slice(1)].join(" → ");
   }
 
   const column = props.columns.find((c) => c.id === columnId);
   if (!column) return columnId;
-  return column.displayConfig?.label || column.label || column.id;
+  return (column as any).displayConfig?.label || column.label || column.id;
 }
 
 function formatFilterValue(filterValue: IFilterValue): {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn, CellValueType } from "../../../../metadata-utils/src/types";
 import type { IFilterValue, FilterOperator } from "../../../types/filters";
 import Input from "../Input.vue";
 import FilterRange from "./Range.vue";
@@ -67,7 +67,7 @@ const REF_FILTER_TYPES = [
 
 const ONTOLOGY_FILTER_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
 
-const filterType = computed(() => {
+const filterType = computed((): CellValueType => {
   const type = props.column.columnType;
   if (REF_FILTER_TYPES.includes(type)) return "REF_ARRAY";
   if (ONTOLOGY_FILTER_TYPES.includes(type)) return "ONTOLOGY_ARRAY";
@@ -88,7 +88,7 @@ const filterType = computed(() => {
   ];
   if (STRING_FILTER_TYPES.includes(type)) return "STRING";
   if (type === "BOOL_ARRAY") return "BOOL";
-  const RANGE_ARRAY_MAP: Record<string, string> = {
+  const RANGE_ARRAY_MAP: Record<string, CellValueType> = {
     INT_ARRAY: "INT",
     DECIMAL_ARRAY: "DECIMAL",
     LONG_ARRAY: "LONG",
@@ -97,13 +97,13 @@ const filterType = computed(() => {
     DATETIME_ARRAY: "DATETIME",
   };
   if (RANGE_ARRAY_MAP[type]) return RANGE_ARRAY_MAP[type];
-  return type;
+  return type as CellValueType;
 });
 
 const label = computed(
   () =>
     props.labelPrefix +
-    (props.column.displayConfig?.label || props.column.label || props.column.id)
+    ((props.column as any).displayConfig?.label || props.column.label || props.column.id)
 );
 
 const rangeValue = computed({
@@ -143,7 +143,10 @@ function handleClear() {
 </script>
 
 <template>
-  <hr class="mx-5 opacity-20" style="border-color: var(--text-color-search-filter-group-title)" />
+  <hr
+    class="mx-5 opacity-20"
+    style="border-color: var(--text-color-search-filter-group-title)"
+  />
   <div class="flex items-center gap-1 px-5 pt-5 pb-2">
     <h3
       class="font-sans text-body-base font-bold"
@@ -168,8 +171,10 @@ function handleClear() {
     class="mb-5 ml-5 mr-5 overflow-hidden"
     :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
     :style="{
-      '--text-color-title-contrast': 'var(--text-color-search-filter-group-title)',
-      '--text-color-input-description': 'var(--text-color-search-filter-group-title)',
+      '--text-color-title-contrast':
+        'var(--text-color-search-filter-group-title)',
+      '--text-color-input-description':
+        'var(--text-color-search-filter-group-title)',
       '--text-color-input': 'var(--text-color-search-filter-group-title)',
     }"
   >

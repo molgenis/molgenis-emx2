@@ -45,9 +45,7 @@ const sortedColumns = computed(() => {
   );
   if (searchQuery.value) {
     const searchLower = searchQuery.value.toLowerCase();
-    cols = cols.filter((col) =>
-      col.label.toLowerCase().includes(searchLower)
-    );
+    cols = cols.filter((col) => col.label.toLowerCase().includes(searchLower));
   }
   return cols.sort((a, b) =>
     a.label.localeCompare(b.label, undefined, { sensitivity: "base" })

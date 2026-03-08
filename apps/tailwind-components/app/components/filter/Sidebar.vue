@@ -8,7 +8,7 @@ import InputSearch from "../input/Search.vue";
 import FilterPicker from "./FilterPicker.vue";
 
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import { extractPrimaryKey } from "../../utils/extractPrimaryKey";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { MAX_NESTING_DEPTH } from "../../utils/filterConstants";
 import { useFilterCounts } from "../../composables/useFilterCounts";
 
@@ -270,15 +270,16 @@ async function extractRefPkey(column: IColumn, val: any): Promise<any> {
   if (!column.refTableId) return val;
   const schemaId = column.refSchemaId || props.schemaId;
   try {
-    const metadata = await fetchTableMetadata(schemaId, column.refTableId);
     if (Array.isArray(val)) {
-      return val.map((item) =>
-        typeof item === "object" && item !== null
-          ? extractPrimaryKey(item, metadata)
-          : item
+      return await Promise.all(
+        val.map((item) =>
+          typeof item === "object" && item !== null
+            ? getPrimaryKey(item, column.refTableId!, schemaId)
+            : item
+        )
       );
     }
-    return extractPrimaryKey(val, metadata);
+    return await getPrimaryKey(val, column.refTableId, schemaId);
   } catch {
     return val;
   }
@@ -333,7 +334,7 @@ async function loadRefColumnsForPath(fullPath: string) {
             (col) =>
               !col.id.startsWith("mg_") &&
               !unfilterable.includes(col.columnType) &&
-              col.showFilter !== false
+              (col as any).showFilter !== false
           )
         );
       } catch {
