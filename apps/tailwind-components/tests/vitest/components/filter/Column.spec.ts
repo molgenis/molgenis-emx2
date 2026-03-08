@@ -1,5 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
+
+vi.stubGlobal(
+  "$fetch",
+  vi.fn().mockImplementation((_url: string, options?: { body?: { query?: string } }) => {
+    if (options?.body?.query?.includes("_schema")) {
+      return Promise.resolve({
+        data: { _schema: { tables: [{ id: "Pet", label: "Pet", columns: [] }] } },
+      });
+    }
+    return Promise.resolve({ data: { Pet: [], Pet_agg: { count: 0 } } });
+  })
+);
 import FilterColumn from "../../../../app/components/filter/Column.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../../types/filters";
