@@ -59,6 +59,7 @@ public class TestLoaders {
       database.dropSchemaIfExists(PATIENT_REGISTRY_DEMO);
       database.dropSchemaIfExists(PATIENT_REGISTRY);
       database.dropSchemaIfExists(PAGES_SCHEMA);
+      database.dropSchemaIfExists("DcatRoundTrip");
 
       // delete ontologies last
       database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);

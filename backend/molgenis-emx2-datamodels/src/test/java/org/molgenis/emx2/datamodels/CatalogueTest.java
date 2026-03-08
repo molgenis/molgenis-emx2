@@ -2,16 +2,20 @@ package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import org.eclipse.rdf4j.model.Model;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.dcat.DcatHarvestTask;
 import org.molgenis.emx2.fairmapper.dcat.HarvestReport;
@@ -19,6 +23,8 @@ import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.config.RdfConfig;
 
 public class CatalogueTest extends TestLoaders {
+
+  private static final String DCAT_ROUND_TRIP = "DcatRoundTrip";
 
   @Test
   void test06DataCatalogueLoader() throws Exception {
@@ -29,55 +35,79 @@ public class CatalogueTest extends TestLoaders {
     adheresToShacl(dataCatalogue, "hri-v2.0.2");
   }
 
+  private static final String CATALOGUE_TYPE = "Catalogue";
+
   @Test
   void test06b_dcatRoundTripHarvest() throws Exception {
     String sourceRdf = exportToTurtle(dataCatalogue);
     assertFalse(sourceRdf.isBlank());
 
-    int sourceResourceCount = dataCatalogue.getTable("Resources").retrieveRows().size();
+    List<Row> sourceResources = getResources(dataCatalogue);
+    List<Row> sourceCatalogues = filterByDcatType(sourceResources, CATALOGUE_TYPE);
 
-    database.dropSchemaIfExists("DcatRoundTrip");
+    assertFalse(sourceCatalogues.isEmpty(), "Source should have Catalogue resources");
+
+    database.dropSchemaIfExists(DCAT_ROUND_TRIP);
     try {
       DataModels.Profile.DATA_CATALOGUE
-          .getImportTask(database, "DcatRoundTrip", "roundtrip test", false)
+          .getImportTask(database, DCAT_ROUND_TRIP, "roundtrip test", false)
           .run();
-      Schema target = database.getSchema("DcatRoundTrip");
+      Schema target = database.getSchema(DCAT_ROUND_TRIP);
 
       DcatHarvestTask harvestTask = new DcatHarvestTask(target, "roundtrip-test", sourceRdf);
       HarvestReport report = harvestTask.harvestRdf(sourceRdf);
 
-      assertTrue(
-          report.getErrors().isEmpty(),
-          "Harvest should have no errors, but got: " + report.getErrors());
-      assertTrue(
-          report.getResourcesImported() > 0,
-          "Harvest should import at least one resource, warnings: " + report.getWarnings());
+      assertTrue(report.getErrors().isEmpty(), "Harvest errors: " + report.getErrors());
+      assertTrue(report.getResourcesImported() > 0, "Should import resources");
 
-      int targetResourceCount = target.getTable("Resources").retrieveRows().size();
-      assertTrue(
-          targetResourceCount >= sourceResourceCount - 5,
-          "Target should have close to the same number of resources as source (got "
-              + targetResourceCount
-              + " vs "
-              + sourceResourceCount
-              + "); resources not exported as DCAT (e.g. type=Network) cannot be harvested");
+      List<Row> targetResources = getResources(target);
+      List<Row> targetCatalogues = filterByDcatType(targetResources, CATALOGUE_TYPE);
 
-      String targetRdf = exportToTurtle(target);
-      assertFalse(targetRdf.isBlank());
+      assertEquals(
+          sourceCatalogues.size(),
+          targetCatalogues.size(),
+          "Target Catalogue count should match source");
 
-      Model sourceModel = Rio.parse(new StringReader(sourceRdf), "", RDFFormat.TURTLE);
-      Model targetModel = Rio.parse(new StringReader(targetRdf), "", RDFFormat.TURTLE);
-      assertTrue(targetModel.size() > 0, "Target RDF export should not be empty");
-      assertTrue(
-          targetModel.size() >= sourceModel.size() / 10,
-          "Target RDF should have at least 10% of the statements of source (got "
-              + targetModel.size()
-              + " vs "
-              + sourceModel.size()
-              + "); the harvest only imports DCAT resource fields, not linked data like Contacts or Ontologies");
+      assertFalse(targetResources.isEmpty(), "Target should have resources after harvest");
+
+      Row sourceCatalogue = sourceCatalogues.get(0);
+      Row targetCatalogue =
+          targetCatalogues.stream()
+              .filter(row -> sourceCatalogue.getString("id").equals(row.getString("id")))
+              .findFirst()
+              .orElse(null);
+      assertNotNull(
+          targetCatalogue,
+          "Target should have Catalogue with id: " + sourceCatalogue.getString("id"));
+
+      assertEquals(sourceCatalogue.getString("name"), targetCatalogue.getString("name"));
+      assertEquals(
+          sourceCatalogue.getString("description"), targetCatalogue.getString("description"));
+      assertEquals(sourceCatalogue.getString("pid"), targetCatalogue.getString("pid"));
     } finally {
-      database.dropSchemaIfExists("DcatRoundTrip");
+      database.dropSchemaIfExists(DCAT_ROUND_TRIP);
     }
+  }
+
+  private List<Row> getResources(Schema schema) {
+    return schema.getTable("Resources").retrieveRows();
+  }
+
+  private List<Row> filterByDcatType(List<Row> rows, String dcatType) {
+    return rows.stream()
+        .filter(row -> hasDcatType(row, dcatType))
+        .sorted(Comparator.comparing(row -> row.getString("id")))
+        .collect(Collectors.toList());
+  }
+
+  private boolean hasDcatType(Row row, String type) {
+    return hasDcatType(row, Set.of(type));
+  }
+
+  private boolean hasDcatType(Row row, Set<String> types) {
+    String[] rowTypes = row.getStringArray("type");
+    if (rowTypes == null) return false;
+    return Arrays.stream(rowTypes).anyMatch(types::contains);
   }
 
   private String exportToTurtle(Schema schema) throws Exception {

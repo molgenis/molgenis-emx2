@@ -306,14 +306,18 @@ public class DcatHarvestTask extends Task {
     if (tableName == null) {
       tableName = findTableNameForType(frame, "dcat:Dataset");
     }
-    if (tableName == null || schema == null) {
+    if (tableName == null) {
+      tableName = "Resources";
+    }
+    if (schema == null) {
       return null;
     }
     Table table = schema.getTable(tableName);
     if (table == null) {
       return null;
     }
-    return table.getMetadata().getLocalColumns().stream()
+    return table.getMetadata().getColumns().stream()
+        .filter(col -> col.getKey() != 1)
         .map(Column::getIdentifier)
         .collect(Collectors.toSet());
   }
@@ -372,6 +376,8 @@ public class DcatHarvestTask extends Task {
               } else if (value.isObject()) {
                 if (value.has("@value")) {
                   row.set(columnName, value.get("@value").asText());
+                } else if (value.has("@id")) {
+                  row.set(columnName, value.get("@id").asText());
                 }
               } else if (value.isArray()) {
                 List<String> elements = new ArrayList<>();
@@ -380,6 +386,8 @@ public class DcatHarvestTask extends Task {
                     elements.add(element.asText());
                   } else if (element.has("@value")) {
                     elements.add(element.get("@value").asText());
+                  } else if (element.has("@id")) {
+                    elements.add(element.get("@id").asText());
                   }
                 }
                 if (!elements.isEmpty()) {

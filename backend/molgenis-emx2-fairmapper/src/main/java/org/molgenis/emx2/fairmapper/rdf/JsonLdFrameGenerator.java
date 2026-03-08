@@ -35,6 +35,9 @@ public class JsonLdFrameGenerator {
         if (processedColumns.contains(columnId)) {
           continue;
         }
+        if (column.getKey() == 1) {
+          continue;
+        }
 
         String[] semantics = column.getSemantics();
         boolean hasSemantics = semantics != null && semantics.length > 0;
