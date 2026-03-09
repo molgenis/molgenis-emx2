@@ -12,8 +12,9 @@ import {
   isJsonObjectOrArray,
   buildGraphqlFilter,
   isInvalidBigInt,
+  readableStringArray,
 } from "./formUtils";
-import type { ITableMetaData, IColumn } from "metadata-utils";
+import { ITableMetaData, IColumn } from "metadata-utils/src/types.js";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
@@ -35,7 +36,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({});
   });
 
-  test("it should an error if a required field misses a value", () => {
+  test("it should return an error if a required field misses a value", () => {
     const rowData = { required: undefined };
     const metadata = {
       columns: [
@@ -51,7 +52,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ required: "required is required" });
   });
 
-  test("it should an error if a numerical required field has an invalid value", () => {
+  test("it should return an error if a numerical required field has an invalid value", () => {
     const rowData = { required: NaN };
     const metadata = {
       columns: [
@@ -195,7 +196,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ email: "Invalid email address" });
+    expect(result.email).to.contain("invalid email address");
   });
 
   test("it should return no error for a valid UUID ARRAY", () => {
@@ -218,9 +219,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      uuid: "Invalid UUID: should be a valid UUID format (rfc9562): e.g. '123e4567-e89b-12d3-a456-426614174000'",
-    });
+    expect(result.uuid).to.contain("must use a valid UUID format");
   });
 
   test("it should return no error for a valid hyperlink array", () => {
@@ -240,7 +239,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "hyperlink", columnType: "HYPERLINK_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
+    expect(result.hyperlink).to.contain("invalid hyperlink");
   });
 
   test("it should return no error for a valid long", () => {
@@ -456,9 +455,9 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer(s)",
-    });
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
   });
 
   test("it should return an error for an invalid non negative integer array", () => {
@@ -469,9 +468,9 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({
-      nonNegativeInteger: "Invalid non negative integer(s)",
-    });
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
   });
 
   test("it should return no error for a successful validation", () => {
@@ -502,7 +501,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      validation: "Applying validation rule returned error: validation > 1",
+      validation: "validation > 1",
     });
   });
 
@@ -620,6 +619,32 @@ describe("getSaveDisabledMessage", () => {
     const rowErrors = { id1: "some error", id2: "another error" };
     const result = getSaveDisabledMessage(rowErrors);
     expect(result).to.equal("There are 2 error(s) preventing saving");
+  });
+});
+
+describe("readableStringArray", () => {
+  test("it should return a readable string from an array of strings", () => {
+    const array = ["apple", "banana", "cherry"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple', 'banana' and 'cherry' are healthy");
+  });
+
+  test("it should handle arrays with one item", () => {
+    const array = ["apple"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' is healthy");
+  });
+
+  test("it should handle arrays with two items", () => {
+    const array = ["apple", "banana"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' and 'banana' are healthy");
+  });
+
+  test("it should handle empty arrays", () => {
+    const array: string[] = [];
+    const result = readableStringArray(array);
+    expect(result).toEqual("");
   });
 });
 
@@ -841,12 +866,57 @@ describe("buildGraphqlFilter", () => {
         columnType: "AUTO_ID",
         id: "autoIdColumn",
         conditions: ["123e4567-e89b-12d3-a456-426614174000"],
-      },
+      } as IColumn,
     ];
 
     const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
     expect(result).toEqual({
       autoIdColumn: { like: ["123e4567-e89b-12d3-a456-426614174000"] },
+    });
+  });
+
+  test("it should set an equals filter for a multi select column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "MULTISELECT",
+        id: "multiSelectColumn",
+        conditions: ["option1", "option2"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      multiSelectColumn: { equals: ["option1", "option2"] },
+    });
+  });
+
+  test("it should set an equals filter for a select column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "SELECT",
+        id: "selectColumn",
+        conditions: ["option1"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      selectColumn: { equals: ["option1"] },
+    });
+  });
+
+  test("it should set an equals filter for a checkbox column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "CHECKBOX",
+        id: "checkboxColumn",
+        conditions: ["option1"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      checkboxColumn: { equals: ["option1"] },
     });
   });
 
@@ -856,7 +926,7 @@ describe("buildGraphqlFilter", () => {
         columnType: "INVALID_TYPE",
         id: "invalidColumn",
         conditions: ["value"],
-      } as IColumn,
+      } as unknown as IColumn,
     ];
 
     const errorCallbackMock = vi.fn();

@@ -40,8 +40,6 @@ public class ShaclResultWriter extends RdfWriter {
   private final SailRepository repository;
   private final SailRepositoryConnection connection;
 
-  private int tripleCounter = 0;
-
   public ShaclResultWriter(OutputStream outputStream, RDFFormat format, ShaclSet shaclSet)
       throws IOException {
     super(outputStream, format);
@@ -73,10 +71,6 @@ public class ShaclResultWriter extends RdfWriter {
   @Override
   public void processTriple(Statement statement) {
     connection.add(statement);
-    tripleCounter++;
-    // MemoryStore is designed for < 100.000 triples.
-    if (tripleCounter == 100000)
-      logger.warn("Exceeding supported number of triples for validation");
   }
 
   @Override

@@ -24,16 +24,11 @@ Configurable pages,Containers,,,,,,,,,,,,Pages built with the drag-and-drop inte
 Configurable pages,,blocks,refback,,,Blocks,in container,,,,,,,pages
 Configurable pages,,block order,refback,,,Block orders,configurable page,,,,,,,pages
 Blocks,,,,,,,,,,,,,Subcontainers with in a page used to group components,pages
-Blocks,,id,auto_id,1,TRUE,,,,,,,,A name or label used to identify the block,pages
-Blocks,,in container,multiselect,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
-Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
-Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
-Blocks,,enable full screen width,bool,,,,,,,,false,,"If true, content will be expanded to the fit the full width of the screen",pages
 Sections,Blocks,,,,,,,,,,,,Subcontainers for providing context to components,pages
-Components,,,,,,,,,,,,,Content and configuration for frontend components,pages
-Components,,id,auto_id,1,TRUE,,,,,,,,,pages
-Components,,in block,multiselect,,,Blocks,,,,,,,A link to the block where the component is used,pages
+Components,,,,,,,,,,,,,Content to display in the frontend,pages
+Components,,Content,section,,,,,,,,,,,pages
 Headers,Blocks,,,,,,,,,,,,<header> elements,pages
+Headers,,Content,section,,,,,,,,,,,pages
 Headers,,title,string,,,,,,,,,,A title for the page,pages
 Headers,,subtitle,string,,,,,,,,,,An optional secondary title that describes the page,pages
 Headers,,background image,select,,,Images,,,,,,,An image to display in the background of the header,pages
@@ -41,8 +36,9 @@ Headers,,title is centered,bool,,,,,,,,false,,"If true, the title and subtitle w
 Text elements,Components,,,,,,,,,,,,All text elements,pages
 Text elements,,text,text,,,,,,,,,,The content to display,pages
 Headings,Text elements,,,,,,,,,,,,<h*> elements,pages
-Headings,,level,int,,,,,,,level ? level >=1 && level <= 6 : false,,,Heading level 1-6,pages
+Headings,,level,int,,,,,,,"if (level && (level < 1 || level > 6)) ""Level must corresponding to an HTML heading element. Use a level from 1 to 6.""",,,Enter an HTML Heading element level (1-6). Please note that heading levels corresponds to page hierarchy and it should not be used to style headings; this should be done elsewhere. ,pages
 Headings,,heading is centered,bool,,,,,,,,false,,"If true, the heading will be center aligned",pages
+Headings,,heading is hidden,bool,,,,,,,,false,,"If true, the heading will be visually hidden",pages
 Paragraphs,Text elements,,,,,,,,,,,,<p> elements,pages
 Paragraphs,,paragraph is centered,bool,,,,,,,,false,,"If true, the paragraph will be centered aligned ",pages
 Images,Components,,,,,,,,,,,,<img> elements,pages
@@ -56,6 +52,29 @@ Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
 Ordered lists,,items,text_array,,,,,,,,,,,pages
 Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
 Unordered lists,,items,text_array,,,,,,,,,,,pages
+Navigation groups,Components,,,,,,,,,,,,<nav> elements,pages
+Navigation groups,,links,refback,,,Navigation cards,displayed in navigation group,,,,,,A reference to one or more card that contains a link to another page,pages
+Navigation cards,Components,,,,,,,,,,,,,pages
+Navigation cards,,title,string,,,,,,,,,,An optional title for the card,pages
+Navigation cards,,description,string,,,,,,,,,,An optional description that provides context for the link,pages
+Navigation cards,,url,hyperlink,,,,,,,,,,A link to an internal or external page,pages
+Navigation cards,,url label,string,,,,,,,,,,A label to display instead of the URL,pages
+Navigation cards,,url is external,bool,,,,,,,,false,,"If true, the link will be rendered as an external link",pages
+Navigation cards,,displayed in navigation group,multiselect,,,Navigation groups,,,,,,,A reference to the navigation list,pages
+Blocks,,Configuration,section,,,,,,,,,,,pages
+Blocks,,UI settings,heading,,,,,,,,,,,pages
+Blocks,,enable full screen width,bool,,,,,,,,false,,"If true, content will be expanded to the fit the full width of the screen",pages
+Blocks,,Component connections,heading,,,,,,,,,,Link components and set the order in which they display on page. ,pages
+Blocks,,in container,multiselect,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
+Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
+Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
+Blocks,,Metadata,heading,,,,,,,,,,,pages
+Blocks,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
+Components,,Configuration,section,,,,,,,,,,,pages
+Components,,Component connections,heading,,,,,,,,,,Create links between components and blocks,pages
+Components,,in block,multiselect,,,Blocks,,,,,,,A link to the block where the component is used,pages
+Components,,Metadata,heading,,,,,,,,,,,pages
+Components,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
 Block orders,,,,,,,,,,,,,"The order blocks (headers, sections, etc.) appear on a page",pages
 Block orders,,id,auto_id,1,,,,,,,,,,pages
 Block orders,,configurable page,select,,,Configurable pages,,,,,,,A configurable page where a block is used,pages

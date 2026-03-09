@@ -370,6 +370,9 @@ export interface UIResource {
   logo: { url: string };
 }
 
-export type analyticsSericves = "siteimprove" | "google-analytics";
+export type analyticsService =
+  | "site-improve"
+  | "google-analytics"
+  | "piwik-pro";
 
 export type IShoppingCart = Record<string, IResources>;

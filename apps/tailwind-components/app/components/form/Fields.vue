@@ -1,27 +1,14 @@
 <script setup lang="ts">
 import { vIntersectionObserver } from "@vueuse/components";
-import { type ComputedRef } from "vue";
-import type {
-  columnId,
-  columnValue,
-  IColumn,
-  IRow,
-} from "../../../../metadata-utils/src/types";
-import FormField from "./Field.vue";
+import type { IRow } from "../../../../metadata-utils/src/types";
+import FormField from "./FormField.vue";
+import type { UseForm } from "../../composables/useForm";
+import { computed } from "vue";
 
 const props = defineProps<{
-  columns: IColumn[];
-  rowKey?: columnValue;
+  form: UseForm;
   constantValues?: IRow;
-  visibleColumnErrors: Record<columnId, string>;
-  requiredFields: Record<columnId, ComputedRef<boolean>>;
 }>();
-
-const modelValue = defineModel<IRow>("modelValue", {
-  required: true,
-});
-
-const emit = defineEmits(["update", "view", "leaving-view", "blur"]);
 
 const observerOptions = {
   root: null,
@@ -29,22 +16,30 @@ const observerOptions = {
   threshold: 0,
 };
 
+const columns = computed(() => props.form.visibleColumns.value);
+
+const prefix = `${props.form.metadata.value.schemaId}-${props.form.metadata.value.id}`;
+
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);
 
   if (highest) {
-    const col = props.columns.find(
-      (c) => highest.target.id === `${c.id}-form-field`
+    const col = columns.value.find(
+      (c) => highest.target.id === `${prefix}-${c.id}-form-field`
     );
-    if (col) emit("view", col);
+    if (col) {
+      props.form.onViewColumn(col);
+    }
   }
 
   const leaving = entries.find((entry) => entry.isIntersecting === false);
   if (leaving) {
-    const col = props.columns.find(
-      (c) => leaving.target.id === `${c.id}-form-field`
+    const col = columns.value.find(
+      (c) => leaving.target.id === `${prefix}-${c.id}-form-field`
     );
-    if (col) emit("leaving-view", col);
+    if (col) {
+      props.form.onLeaveViewColumn(col);
+    }
   }
 }
 </script>
@@ -53,7 +48,7 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   <template v-for="column in columns" :key="column.id">
     <div
       v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
-      :id="`${column.id}-form-field`"
+      :id="`${prefix}-${column.id}-form-field`"
     >
       <h2
         class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
@@ -68,31 +63,12 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
       </h2>
     </div>
     <FormField
-      class="pb-8 last:pb-64"
       v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
+      class="pb-8 last:pb-64"
       v-intersection-observer="[onIntersectionObserver, observerOptions]"
-      v-model="modelValue[column.id]"
-      :id="`${column.id}-form-field`"
-      :type="column.columnType"
-      :label="column.formLabel ?? column.label"
-      :description="column.description"
-      :disabled="
-        Boolean(
-          column.readonly === 'true' ||
-            (rowKey && Object.keys(rowKey).length && column.key === 1) ||
-            column.columnType === 'AUTO_ID'
-        )
-      "
-      :rowKey="rowKey"
-      :required="requiredFields[column.id]?.value"
-      :error-message="visibleColumnErrors[column.id]"
-      :ref-schema-id="column.refSchemaId"
-      :ref-table-id="column.refTableId"
-      :ref-label="column.refLabel || column.refLabelDefault"
-      :ref-back-id="column.refBackId"
-      :invalid="(visibleColumnErrors[column.id] || '').length > 0"
-      @update:modelValue="emit('update', column)"
-      @blur="emit('blur', column)"
+      :form="form"
+      :constantValues="constantValues"
+      :column="column"
     />
   </template>
 </template>

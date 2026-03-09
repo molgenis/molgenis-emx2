@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.5.0
+    - image: molgenis/ci-build:1.5.1
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.5.0
+    - image: molgenis/ci-build:1.5.1
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.5.0
+      - image: molgenis/ci-build:1.5.1
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -189,7 +189,16 @@ jobs:
             RETRY=$((RETRY + 1))
             if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
             echo "❌ Gave up after $MAX_RETRIES attempts"
-            exit 1
+
+            echo "📌 Pods in namespace $NS:"
+            kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o wide
+
+            echo "📌 Events:"
+            kubectl get events -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" --sort-by=.metadata.creationTimestamp | tail -n 40
+
+            echo "📌 Logs from backend:"
+            POD=$(kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o jsonpath='{.items[0].metadata.name}')
+            kubectl logs -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" $POD -c emx2 --tail=200
             fi
             
             sleep 10

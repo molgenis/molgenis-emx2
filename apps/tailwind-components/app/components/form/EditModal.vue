@@ -8,7 +8,7 @@
         icon="plus"
         @click="visible = true"
       >
-        {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
+        {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
       </Button>
     </slot>
   </template>
@@ -22,7 +22,7 @@
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
-            {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
+            {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
           </h2>
 
           <DraftLabel v-if="isDraft" />
@@ -38,22 +38,40 @@
       </header>
     </template>
 
-    <Form
+    <div
       v-if="visible"
-      ref="edit-modal-form"
-      :metadata="metadata"
-      :formValues="formValues"
-      :constantValues="constantValues"
-      :initializeAsInsert="isInsert"
-    />
+      class="min-h-0 flex-1"
+      :class="{
+        'grid grid-cols-4 gap-1': form?.showLegend.value,
+        'overflow-y-auto': !form?.showLegend.value,
+      }"
+    >
+      <div
+        v-if="form?.showLegend.value"
+        class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
+      >
+        <FormLegend
+          class="sticky top-0"
+          :sections="form.sections.value"
+          @goToSection="gotoSection"
+        />
+      </div>
+
+      <Form
+        class="col-span-3"
+        v-if="form !== undefined"
+        :form="form"
+        :constantValues="constantValues"
+      />
+    </div>
 
     <TransitionSlideUp>
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-        @error-prev="gotoPreviousError"
-        @error-next="gotoNextError"
+        @error-prev="form?.gotoPreviousError"
+        @error-next="form?.gotoNextError"
       />
     </TransitionSlideUp>
     <TransitionSlideUp>
@@ -84,8 +102,8 @@
       <div class="flex justify-between items-center flex-none">
         <FormRequiredInfoSection
           :message="requiredMessage"
-          @required-next="gotoNextRequiredField"
-          @required-prev="gotoPreviousRequiredField"
+          @required-next="form?.gotoNextRequiredField"
+          @required-prev="form?.gotoPreviousRequiredField"
         />
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
@@ -116,13 +134,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, useTemplateRef, watch, nextTick } from "vue";
+import { computed, nextTick, ref, toRaw, watch } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
   IRow,
 } from "../../../../metadata-utils/src/types";
+import fetchColumnValues from "../../composables/fetchColumnValues";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import useForm, { type UseForm } from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
@@ -131,13 +152,12 @@ import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
-import type { ComponentPublicInstance } from "vue";
-import Form from "./Form.vue";
-import FormRequiredInfoSection from "./RequiredInfoSection.vue";
-import FormError from "./Error.vue";
-import FormMessage from "./Message.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
-import { on } from "events";
+import FormError from "./Error.vue";
+import Form from "./Form.vue";
+import FormLegend from "./Legend.vue";
+import FormMessage from "./Message.vue";
+import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -153,12 +173,10 @@ const props = withDefaults(
   }
 );
 
-type FormType = ComponentPublicInstance<InstanceType<typeof Form>>;
-const form = useTemplateRef<FormType>("edit-modal-form");
-
 const saving = ref(false);
 const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
+const showFormMessage = ref(false);
 
 const emit = defineEmits([
   "update:added",
@@ -168,9 +186,30 @@ const emit = defineEmits([
 
 const visible = defineModel<boolean>("visible");
 
+// lazy init formContext (form) when modal is opened
+let form: UseForm | undefined;
+
+watch(
+  visible,
+  (newValue, oldValue) => {
+    if (newValue && !oldValue) {
+      form = useForm(props.metadata, formValues);
+    }
+
+    if (!newValue && oldValue) {
+      form = undefined;
+    }
+  },
+  { immediate: true }
+);
+
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
+
+watch(formValues.value, () => {
+  formMessage.value = "";
+});
 
 watch(formValues.value, () => {
   formMessage.value = "";
@@ -181,7 +220,7 @@ const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
-const rowType = computed(() => props.metadata.id);
+const tableId = computed(() => props.metadata.id);
 const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 
 function initFormValues() {
@@ -191,35 +230,23 @@ function initFormValues() {
   return Object.assign(values, props.constantValues || {});
 }
 
-function gotoPreviousError() {
-  form.value?.gotoPreviousError();
-}
-
-function gotoNextError() {
-  form.value?.gotoNextError();
-}
-
-function gotoPreviousRequiredField() {
-  form.value?.gotoPreviousRequiredField();
-}
-
-function gotoNextRequiredField() {
-  form.value?.gotoNextRequiredField();
-}
-
 const requiredMessage = computed(() => {
   if (!visible.value) {
     return "";
   }
-  return form.value?.requiredMessage || "";
+  return form?.requiredMessage.value || "";
 });
 
 const errorMessage = computed(() => {
   if (!visible.value) {
     return "";
   }
-  return form.value?.errorMessage || "";
+  return form?.errorMessage.value || "";
 });
+
+function gotoSection(sectionId: string) {
+  form?.gotoSection(sectionId);
+}
 
 function onCancel() {
   visible.value = false;
@@ -243,36 +270,16 @@ async function onSave(draft: boolean) {
   saving.value = true;
   await nextTick();
 
-  const isReadyForSubmit = draft
-    ? form.value?.isDraftValid()
-    : form.value?.isValid();
+  const isReadyForSubmit = draft ? form?.isDraftValid() : form?.isValid();
 
   if (isReadyForSubmit) {
     try {
       formValues.value["mg_draft"] = draft;
-
-      if (!form.value) {
-        throw new Error("Form reference is not available");
-      }
-
-      let resp: IRow | null = null;
       if (isInsert.value) {
-        resp = await form.value.insertInto();
+        await insert(draft);
       } else {
-        resp = await form.value.updateInto();
+        await update(draft);
       }
-
-      if (!resp) {
-        throw new Error(
-          `No response from server on ${isInsert.value ? "insert" : "update"}`
-        );
-      }
-      formMessage.value = `${isInsert.value ? "inserted" : "saved"} ${
-        rowType.value
-      } ${draft ? "as draft" : ""}`;
-      showFormMessage.value = true;
-      emit(isInsert.value ? "update:added" : "update:updated", resp);
-      isInsert.value = false;
     } catch (err) {
       handleError(err, "Error saving data");
     } finally {
@@ -283,9 +290,29 @@ async function onSave(draft: boolean) {
   }
 }
 
-watch(formValues.value, () => {
-  formMessage.value = "";
-});
+async function insert(draft: boolean) {
+  const resp = await form?.insertInto();
+  if (!resp) {
+    throw new Error(`No response from server on insert`);
+  }
+
+  isInsert.value = false;
+  await updateAutoIds();
+  emit("update:added", resp);
+  formMessage.value = `inserted  ${tableId.value}${draft ? " as draft" : ""}`;
+  showFormMessage.value = true;
+}
+
+async function update(draft: boolean) {
+  const resp = await form?.updateInto();
+  if (!resp) {
+    throw new Error(`No response from server on update`);
+  }
+
+  emit("update:updated", resp);
+  formMessage.value = `saved ${tableId.value}${draft ? " as draft" : ""}`;
+  showFormMessage.value = true;
+}
 
 function reAuthenticate() {
   session.reAuthenticate(
@@ -295,5 +322,23 @@ function reAuthenticate() {
   );
 }
 
-const showFormMessage = ref(false);
+async function updateAutoIds() {
+  const autoIds = props.metadata.columns.filter(
+    (col) => col.columnType === "AUTO_ID"
+  );
+  if (autoIds.length) {
+    const rowId = await fetchRowPrimaryKey(
+      formValues.value,
+      tableId.value,
+      props.schemaId
+    );
+    const values = await fetchColumnValues(
+      props.schemaId,
+      tableId.value,
+      rowId,
+      autoIds
+    );
+    autoIds.forEach((col) => (formValues.value[col.id] = values[col.id]));
+  }
+}
 </script>

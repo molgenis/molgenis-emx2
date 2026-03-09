@@ -39,8 +39,8 @@
 </template>
 
 <script>
-import TableExplorer from "./TableExplorer.vue";
 import { deepClone } from "../utils";
+import TableExplorer from "./TableExplorer.vue";
 
 export default {
   name: "RoutedTableExplorer",
@@ -215,6 +215,9 @@ export default {
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
             case "RADIO":
+            case "SELECT":
+            case "MULTISELECT":
+            case "CHECKBOX":
               query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":
@@ -289,7 +292,7 @@ export default {
     data() {
       return {
         canEdit: false,
-        canView: false,
+        canView: true,
         schema: "pet store",
         table: "Pet"
       }
