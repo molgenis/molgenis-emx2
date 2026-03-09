@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
 import org.molgenis.emx2.hpc.protocol.HpcHeaders;
@@ -300,16 +301,20 @@ public class JobsApi {
   }
 
   /**
-   * DELETE /api/hpc/jobs/{id} — delete a job and its transitions. Non-terminal jobs are cancelled
-   * first.
+   * DELETE /api/hpc/jobs/{id} — delete a job and its transitions. The job MUST be in a terminal
+   * state; returns 409 if not.
    */
   public void deleteJob(Context ctx) {
     String jobId = ctx.pathParam("id");
     InputValidator.requireUuid(jobId, "id");
 
-    Row deleted = jobService.deleteJob(jobId);
-    if (deleted == null) {
-      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+    try {
+      Row deleted = jobService.deleteJob(jobId);
+      if (deleted == null) {
+        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+      }
+    } catch (MolgenisException e) {
+      throw HpcException.conflict(e.getMessage(), requestId(ctx));
     }
 
     ctx.status(204);

@@ -61,7 +61,8 @@ public class WorkersApi {
         "_links",
         Map.of(
             "self", Map.of("href", "/api/hpc/workers/" + workerId, "method", "GET"),
-            "heartbeat", Map.of("href", "/api/hpc/workers/register", "method", "POST"),
+            "heartbeat",
+                Map.of("href", "/api/hpc/workers/" + workerId + "/heartbeat", "method", "POST"),
             "jobs", Map.of("href", "/api/hpc/jobs?status=PENDING", "method", "GET")));
 
     ctx.status(200);

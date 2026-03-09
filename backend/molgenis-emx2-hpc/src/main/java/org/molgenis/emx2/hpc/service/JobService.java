@@ -292,8 +292,8 @@ public class JobService {
   }
 
   /**
-   * Deletes a job and its transitions. Non-terminal jobs are first cancelled, then deleted. Returns
-   * the job row if deleted, null if not found.
+   * Deletes a job and its transitions. The job MUST be in a terminal state; non-terminal jobs are
+   * rejected with a MolgenisException. Returns the job row if deleted, null if not found.
    */
   public Row deleteJob(String jobId) {
     return tx.txResult(
@@ -308,14 +308,14 @@ public class JobService {
           Row job = rows.getFirst();
           HpcJobStatus status = HpcJobStatus.valueOf(job.getString("status"));
 
-          // If not terminal, cancel first
+          // Reject deletion of non-terminal jobs — caller must cancel first
           if (!status.isTerminal()) {
-            job.set("status", HpcJobStatus.CANCELLED.name());
-            job.set("completed_at", LocalDateTime.now());
-            jobsTable.update(job);
-            recordTransition(
-                schema, jobId, status, HpcJobStatus.CANCELLED, null, "Cancelled for deletion");
-            logger.info("Job cancelled for deletion: id={} was={}", jobId, status);
+            throw new MolgenisException(
+                "Cannot delete job "
+                    + jobId
+                    + " in non-terminal status "
+                    + status
+                    + ". Cancel it first.");
           }
 
           // Delete transitions first (FK dependency)
