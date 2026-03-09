@@ -13,6 +13,7 @@ from molgenis_emx2_pyclient.metadata import Schema, Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
 
 from staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
+from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException
 from staging_migrator.src.molgenis_emx2_staging_migrator.migrator import SchemaType
 
 log = logging.getLogger(__name__)
@@ -49,24 +50,34 @@ def process_contacts(contacts: pd.DataFrame, resources: pd.DataFrame) -> pd.Data
     Checks whether the Resources table does not reference omitted contacts.
     """
     statement = "statement of consent personal data"
-    if statement not in contacts.columns:
-        return contacts
 
     def set_delete(row: pd.Series):
-        if not row[statement]:
+        if statement in row.index and not row[statement]:
             return True
         if row['email'] is None:
             return True
         return False
 
-    # # Remove rows without any data consent
+    # Remove rows without any data consent
     contacts['mg_delete'] = contacts.apply(set_delete, axis=1)
     contacts = contacts.drop(columns=[statement])
+    c_cols = ["resource", "first name", "last name"]
 
-    missing = set() and set()
+    r_cols = [c for c in resources.columns if c.startswith("contact point")]
+    r_contacts = resources[r_cols]
+    r_contacts = r_contacts.loc[~r_contacts["contact point.resource"].isna()]
 
-    log.info("Implemented statement of consent in Contacts table.")
+    r_contacts["key"] = r_contacts[r_cols].apply(lambda row: '(' + ', '.join(row.values.astype(str)) + ')', axis=1)
+    contacts["key"] = contacts[c_cols].apply(lambda row: '(' + ', '.join(row.values.astype(str)) + ')', axis=1)
 
+    r_contacts["mg_delete"] = r_contacts["key"].map(contacts.set_index("key")["mg_delete"].to_dict())
+    if any(r_contacts["mg_delete"]):
+        missing = r_contacts.loc[r_contacts["mg_delete"]]
+        values = ', '.join(missing["key"].values)
+        raise MissingContactException(f"Cannot migrate resource due to missing email or consent "
+                                      f"for contact (Resource, first name, last name) = {values}.")
+
+    contacts = contacts.drop(columns=["key"])
     return contacts
 
 

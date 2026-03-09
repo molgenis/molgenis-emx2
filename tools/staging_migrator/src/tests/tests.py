@@ -11,7 +11,8 @@ import pytest
 from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
-from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_contacts, check_hricore
+from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException
+from staging_migrator.src.molgenis_emx2_staging_migrator.utils import check_hricore, process_contacts
 
 CATALOGUE = 'catalogue'
 STAGING_AREA = 'testCohort'
@@ -81,9 +82,22 @@ def test_process_contacts():
                     """R3,Participant,A3,B3,false,\n"""
                     """R4,Participant,A4,B4,false,A4B4@R4.com""")
     contacts_df = pd.read_csv(io.StringIO(contacts_csv))
+    resources_csv = ("""id,contact point.resource,contact point.first name,contact point.last name\n"""
+                     """R1,R1,A1,B1\n"""
+                     """R2,R2,A2,B2\n"""
+                     """R3,R3,A3,B3\n"""
+                     """R4,R4,A4,B4\n""")
+    resources_df = pd.read_csv(io.StringIO(resources_csv))
 
-    processed_contacts = process_contacts(contacts_df)
+    with pytest.raises(MissingContactException) as e_info:
+        process_contacts(contacts_df, resources_df)
+    assert e_info.value.msg == "Cannot migrate resource due to missing email or consent for contact (Resource, first name, last name) = (R3, A3, B3), (R4, A4, B4)."
 
+    resources_csv = ("""id,contact point.resource,contact point.first name,contact point.last name\n"""
+                     """R1,R1,A1,B1\n"""
+                     """R2,R2,A2,B2\n""")
+    resources_df = pd.read_csv(io.StringIO(resources_csv))
+    processed_contacts = process_contacts(contacts_df, resources_df)
     assert processed_contacts["mg_delete"].values.tolist() == [False, False, True, True]
 
 

@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-CATALOGUE = 'catalogue'
+CATALOGUE = 'UMCG'
 
 log = logging.getLogger('publisher')
 
@@ -27,6 +27,9 @@ def main(args):
     load_dotenv()
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
+
+    if not server_url:
+        raise ValueError("Did not get value for server url.")
 
     staging_areas = args[-1].split(',')
 

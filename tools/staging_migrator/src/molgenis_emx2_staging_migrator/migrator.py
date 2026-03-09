@@ -12,8 +12,8 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTable
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
-from .utils import prepare_primary_keys, process_contacts, resource_ref_cols, load_table, \
-    set_all_delete, check_hricore
+from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
+    set_all_delete, check_hricore, process_contacts
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -136,7 +136,8 @@ class StagingMigrator(Client):
                     if table.id == "Organisations":
                         updated_table = self.process_organisations(updated_table)
                     if table.id == "Contacts":
-                        updated_table = process_contacts(updated_table, load_table('source', source_metadata.get_table('id', "Resources")))
+                        resources = self._get_filtered(self.get_schema_metadata(self.source).get_table('id', 'Resources'))
+                        updated_table = process_contacts(updated_table, resources)
                     if table.id in ["CollectionEvents", "Subpopulations"]:
                         updated_table = self._copy_resource_columns(updated_table)
                     if table.id == "Resources":
