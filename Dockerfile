@@ -7,7 +7,7 @@ RUN apt-get update && \
 
 COPY --link build/docker/deps/ /app/lib/
 COPY --link build/docker/app/ /app/lib/
-COPY --link custom-app /custom-app
+COPY --link custom-app /app/lib/custom-app
 
 USER molgenis
 EXPOSE 8080
