@@ -13,6 +13,7 @@ import org.molgenis.emx2.hpc.protocol.HpcHeaders;
 import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.service.ArtifactService;
+import org.molgenis.emx2.hpc.service.ClaimResult;
 import org.molgenis.emx2.hpc.service.JobService;
 import org.molgenis.emx2.hpc.service.WorkerService;
 
@@ -114,8 +115,8 @@ public class JobsApi {
   }
 
   /**
-   * POST /api/hpc/jobs/{id}/claim — atomic claim. Returns 200 on success, 409 if already claimed,
-   * 404 if not found.
+   * POST /api/hpc/jobs/{id}/claim — atomic claim with capability verification. Returns 200 on
+   * success, 409 if already claimed or capability mismatch, 404 if not found.
    */
   @SuppressWarnings("unchecked")
   public void claimJob(Context ctx) throws Exception {
@@ -126,24 +127,39 @@ public class JobsApi {
     String workerId = (String) body.get("worker_id");
     InputValidator.requireString(workerId, "worker_id");
 
-    Row claimed = jobService.claimJob(jobId, workerId);
-    if (claimed == null) {
-      // Either not found or already claimed
+    ClaimResult result = jobService.claimJob(jobId, workerId);
+    if (result.isSuccess()) {
+      ctx.status(200);
+      ctx.json(jobToResponse(result.job()));
+      return;
+    }
+
+    if (result.outcome() == ClaimResult.ClaimOutcome.CAPABILITY_MISMATCH) {
       Row existing = jobService.getJob(jobId);
-      if (existing == null) {
-        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
-      }
+      String processor = existing != null ? existing.getString("processor") : "?";
+      String profile = existing != null ? existing.getString("profile") : "?";
       throw HpcException.conflict(
-          "Job "
-              + jobId
-              + " is not in PENDING status (current: "
-              + existing.getString("status")
-              + ")",
+          "Worker "
+              + workerId
+              + " does not have a registered capability for processor="
+              + processor
+              + " profile="
+              + profile,
           requestId(ctx));
     }
 
-    ctx.status(200);
-    ctx.json(jobToResponse(claimed));
+    // NOT_PENDING: either not found or already claimed
+    Row existing = jobService.getJob(jobId);
+    if (existing == null) {
+      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+    }
+    throw HpcException.conflict(
+        "Job "
+            + jobId
+            + " is not in PENDING status (current: "
+            + existing.getString("status")
+            + ")",
+        requestId(ctx));
   }
 
   /**

@@ -139,7 +139,7 @@ The proposed architecture is deliberately minimal:
 - **EMX2 is the system of record** for jobs, lifecycle state, and artifact metadata.
 - **HPC is responsible for execution** via Slurm and Apptainer. EMX2 MUST NOT tell the cluster how to schedule.
 - **Inputs and outputs are tracked as artifacts.** Jobs reference artifacts by ID. Content is accessed via the artifact file API (managed) or directly via `file://`, `s3://`, or `https://` URIs (external). Managed artifacts store binary content in EMX2; external artifacts store only metadata.
-- **Workers declare capabilities; EMX2 assigns only compatible jobs.** There is no negotiation.
+- **Workers declare capabilities; EMX2 enforces compatibility.** Workers advertise `(processor, profile)` capabilities at registration. When a worker claims a job, EMX2 verifies the worker has a matching capability; if not, the claim is rolled back. There is no negotiation.
 - **The API is resource-oriented.** State transitions are sub-resources of jobs. Responses include hypermedia links advertising legal next actions.
 - **Everything is recoverable.** Transitions MUST be idempotent, timeouts detect stuck jobs, and the system converges to a consistent state after any single failure.
 
@@ -384,6 +384,7 @@ Every request from a worker or runtime MUST include a standard set of headers:
 | `X-Trace-Id` | No | Identifier spanning a logical operation, e.g. an entire job lifecycle. |
 | `X-Worker-Id` | No | Worker identifier; used by some endpoints (e.g. cancel). |
 | `Authorization` | When HMAC enabled | `HMAC-SHA256 <hex-signature>` (see Authentication and Trust). |
+| `Content-SHA256` | Non-JSON bodies | Hex-encoded SHA-256 of the request body. Required for binary uploads when HMAC is enabled; used as the body hash in the HMAC canonical string. |
 
 EMX2 MUST echo `X-Request-Id` in error responses for traceability.
 
@@ -476,10 +477,15 @@ X-Nonce:            <random value, used exactly once>
 Authorization:      HMAC-SHA256 <hex-encoded signature>
 ```
 
-The `Authorization` header contains an HMAC-SHA256 signature computed over a canonical request string: `METHOD\nPATH\nSHA256(body)\nTIMESTAMP\nNONCE`. This ensures:
+The `Authorization` header contains an HMAC-SHA256 signature computed over a canonical request string: `METHOD\nPATH\nBODY_HASH\nTIMESTAMP\nNONCE`. The `BODY_HASH` component is computed as follows:
+
+- **JSON requests:** `SHA256(request body)` — the standard SHA-256 hex digest of the UTF-8 encoded body.
+- **Binary uploads (non-JSON):** the value of the `Content-SHA256` request header. The client MUST compute `SHA256(file bytes)`, send it as the `Content-SHA256` header, and use that same hex value as `BODY_HASH` in the canonical string. The server includes the header value in its signature computation and, after receiving the full body, verifies that the actual SHA-256 of the received bytes matches the claimed hash. This provides end-to-end integrity for binary uploads without requiring the server to buffer the entire body before verifying the HMAC signature.
+
+This ensures:
 
 - **Origin** — EMX2 can verify which worker sent the request, because only that worker has the secret needed to produce a valid signature.
-- **Integrity** — if any part of the request (body, path, headers) is altered in transit, the signature will not match and EMX2 MUST reject it.
+- **Integrity** — if any part of the request (body, path, headers) is altered in transit, the signature will not match and EMX2 MUST reject it. For binary uploads, the `Content-SHA256` header is covered by the HMAC signature, and the server additionally verifies that the received bytes match the claimed hash.
 - **Freshness** — the `X-Timestamp` tells EMX2 when the request was created, and the `X-Nonce` is a random value that MUST NOT be reused. EMX2 MUST reject requests whose timestamp is too far in the past (e.g. more than 5 minutes) and MUST reject any nonce it has seen before. Together these prevent an attacker from capturing a valid request and re-submitting it later.
 
 ## Provisioning
@@ -503,7 +509,9 @@ Every daemon-to-EMX2 request MUST be authenticated by at least one of the follow
 
 The shared secret MUST be stored as a database setting (`MOLGENIS_HPC_SHARED_SECRET`, minimum 32 characters) on the `_SYSTEM_` schema. This setting is required — when it is not configured, the entire HPC API is unavailable (all endpoints except `/api/hpc/health` return `503 Service Unavailable`). For development, use a simple test secret; the daemon's `--simulate` flag can exercise the full lifecycle without Slurm.
 
-When HMAC is enabled, replay protection SHOULD enforce a 5-minute timestamp drift window and an LRU nonce cache.
+When HMAC is enabled, replay protection MUST enforce a 5-minute timestamp drift window and a time-based nonce cache. The nonce cache has no size limit — entries are evicted only when their associated timestamp falls outside the drift window. This guarantees unconditional replay protection: any nonce within the 5-minute window is always remembered, regardless of request volume.
+
+**Future: Per-worker authentication.** The current design uses a single shared secret for simplicity. For deployments with multiple independent head nodes across trust boundaries, per-worker secrets can be added by storing worker-specific secrets in the `HpcWorkers` table. The HMAC verification would then look up the claiming worker's secret by `X-Worker-Id` header. This is backwards-compatible: the global secret serves as a fallback when no per-worker secret is configured.
 
 ## Server-Side Authentication Cascade
 
@@ -656,7 +664,7 @@ Lists jobs with optional filtering and pagination. Query parameters: `status`, `
 
 ### POST /api/hpc/jobs/{id}/claim {.unnumbered}
 
-Atomically claims a job. Returns `409 Conflict` if already claimed, `404` if not found.
+Atomically claims a job. After the atomic claim succeeds, EMX2 verifies that the claiming worker has a registered capability matching the job's `(processor, profile)`. If the worker lacks a matching capability, the claim is rolled back (job returns to PENDING) and the server returns `409 Conflict` with a capability mismatch message. This prevents misconfigured workers from claiming jobs they cannot execute. Returns `409 Conflict` if already claimed or capability mismatch, `404` if not found.
 
 **Request:** `{ "worker_id": "hpc-headnode-01" }`
 
@@ -837,7 +845,7 @@ X-EMX2-API-Version: 2025-01
 }
 ```
 
-**HMAC note:** For non-JSON request bodies (raw binary uploads), the HMAC signature MUST be computed over an empty string rather than the file bytes. This avoids encoding issues with large binary payloads and matches the token auth path.
+**HMAC note:** For non-JSON request bodies (raw binary uploads), the client MUST include a `Content-SHA256` header containing the hex-encoded SHA-256 digest of the upload body. This value is used as the body hash component in the HMAC canonical string (see §8). The server verifies both the HMAC signature (proving the client intended this hash) and the actual body hash (proving the bytes were not altered in transit). This provides end-to-end integrity protection for binary uploads.
 
 ### GET /api/hpc/artifacts/{id}/files/{path} {.unnumbered}
 

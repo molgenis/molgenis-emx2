@@ -9,6 +9,7 @@ Wraps httpx with:
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import time
 import uuid
@@ -25,6 +26,32 @@ logger = logging.getLogger(__name__)
 DEFAULT_TIMEOUT = httpx.Timeout(connect=10.0, read=30.0, write=30.0, pool=30.0)
 BINARY_TIMEOUT = httpx.Timeout(connect=10.0, read=300.0, write=300.0, pool=30.0)
 TRANSFER_CHUNK_SIZE = 1024 * 1024
+
+
+def _compute_content_sha256(
+    file_path: str | None,
+    file_content: bytes | Iterable[bytes] | None,
+) -> str:
+    """Compute SHA-256 hex digest of upload content for the Content-SHA256 header.
+
+    Reads the file (or bytes) to produce the hash. For streaming iterables
+    that cannot be replayed, consumes the iterator (caller must provide a
+    replayable source for the actual upload).
+    """
+    h = hashlib.sha256()
+    if file_path is not None:
+        with open(file_path, "rb") as f:
+            while True:
+                chunk = f.read(1024 * 1024)
+                if not chunk:
+                    break
+                h.update(chunk)
+    elif isinstance(file_content, (bytes, bytearray, memoryview)):
+        h.update(file_content)
+    elif file_content is not None:
+        for chunk in file_content:
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def format_links(links: dict) -> dict[str, str]:
@@ -70,8 +97,21 @@ class HpcClient:
     def _retry_wait(self, attempt: int) -> float:
         return self.backoff_base * (2**attempt)
 
-    def _headers(self, method: str, path: str, body: str = "") -> dict[str, str]:
-        """Build all required protocol headers including auth."""
+    def _headers(
+        self,
+        method: str,
+        path: str,
+        body: str = "",
+        *,
+        body_hash: str | None = None,
+    ) -> dict[str, str]:
+        """Build all required protocol headers including auth.
+
+        Args:
+            body_hash: Pre-computed SHA-256 hex digest of the request body.
+                       When provided, used directly in the HMAC canonical string
+                       (for binary uploads with Content-SHA256 header).
+        """
         request_id = str(uuid.uuid4())
         headers = {
             "X-EMX2-API-Version": API_VERSION,
@@ -82,7 +122,7 @@ class HpcClient:
 
         if self.shared_secret and self.auth_mode == "hmac":
             auth_headers, _, _ = build_authorization_header(
-                method, path, body, self.shared_secret
+                method, path, body, self.shared_secret, body_hash=body_hash
             )
             headers.update(auth_headers)
         elif self.shared_secret and self.auth_mode == "token":
@@ -516,15 +556,22 @@ class HpcClient:
         ):
             size_bytes = len(file_content)
 
+        # Pre-compute Content-SHA256 for HMAC integrity protection.
+        # The hash is sent as a header and used as the body hash in the
+        # HMAC canonical string, providing end-to-end integrity.
+        content_sha256 = _compute_content_sha256(file_path, file_content)
+
         replayable = file_path is not None or isinstance(
             file_content, (bytes, bytearray, memoryview)
         )
         attempts = self.max_retries if replayable else 1
 
         for attempt in range(attempts):
-            # For binary uploads, sign over empty string (HMAC fix)
-            headers = self._headers("PUT", url_path, "")
+            headers = self._headers(
+                "PUT", url_path, "", body_hash=content_sha256
+            )
             headers["Content-Type"] = content_type
+            headers["Content-SHA256"] = content_sha256
             if size_bytes is not None:
                 headers["Content-Length"] = str(size_bytes)
 

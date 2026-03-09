@@ -214,6 +214,8 @@ public class ArtifactsApi {
         sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
         sizeBytes = fileBytes.length;
         content = new BinaryFileWrapper(contentType, filePath, fileBytes);
+
+        verifyContentSha256(ctx, sha256);
       } else {
         // Raw binary upload
         byte[] fileBytes = ctx.bodyAsBytes();
@@ -230,6 +232,8 @@ public class ArtifactsApi {
         sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
         sizeBytes = fileBytes.length;
         content = new BinaryFileWrapper(contentType, filePath, fileBytes);
+
+        verifyContentSha256(ctx, sha256);
       }
 
       String fileId =
@@ -380,6 +384,25 @@ public class ArtifactsApi {
 
     ctx.status(200);
     ctx.json(artifactToResponse(commitResult.artifact()));
+  }
+
+  /**
+   * Verifies that the Content-SHA256 header (if present) matches the actual SHA-256 of the received
+   * bytes. This closes the MITM window: the HMAC proved the client intended this hash, and this
+   * check verifies the bytes match.
+   */
+  private static void verifyContentSha256(Context ctx, String actualSha256) {
+    String claimedHash = ctx.header(HpcHeaders.CONTENT_SHA256);
+    if (claimedHash != null && !claimedHash.isBlank() && !actualSha256.equals(claimedHash)) {
+      throw HpcException.badRequest(
+          "Content-SHA256 header does not match actual content hash"
+              + " (claimed="
+              + claimedHash
+              + ", actual="
+              + actualSha256
+              + ")",
+          requestId(ctx));
+    }
   }
 
   private static String requestId(Context ctx) {

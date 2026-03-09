@@ -426,11 +426,27 @@ public class HpcApi {
 
   private static void verifyHmac(Context ctx, HmacVerifier verifier) {
     try {
-      // For non-JSON bodies (binary uploads), sign over empty string to avoid
-      // encoding issues with large binary payloads
       String ct = ctx.header("Content-Type");
       boolean isJson = ct != null && ct.startsWith("application/json");
-      String body = isJson ? ctx.body() : "";
+
+      // For non-JSON bodies (binary uploads), the client MUST send a Content-SHA256
+      // header with the hex-encoded SHA-256 of the body. This is used directly as
+      // the body hash in the HMAC canonical string, providing integrity without
+      // requiring the server to buffer the entire body before signature verification.
+      String body;
+      String contentSha256;
+      if (isJson) {
+        body = ctx.body();
+        contentSha256 = null;
+      } else {
+        body = "";
+        contentSha256 = ctx.header(HpcHeaders.CONTENT_SHA256);
+        if (hasBody(ctx) && (contentSha256 == null || contentSha256.isBlank())) {
+          throw new SecurityException(
+              "Content-SHA256 header is required for non-JSON request bodies");
+        }
+      }
+
       // Use path + query string so the signature covers query parameters too
       String signedPath =
           ctx.queryString() != null ? ctx.path() + "?" + ctx.queryString() : ctx.path();
@@ -440,11 +456,22 @@ public class HpcApi {
           body,
           ctx.header("Authorization"),
           ctx.header(HpcHeaders.TIMESTAMP),
-          ctx.header(HpcHeaders.NONCE));
+          ctx.header(HpcHeaders.NONCE),
+          contentSha256);
     } catch (SecurityException e) {
       logger.warn("HPC auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip());
       throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
     }
+  }
+
+  /** Returns true if the request likely has a body (PUT/POST with content). */
+  private static boolean hasBody(Context ctx) {
+    String method = ctx.method().name();
+    if ("GET".equals(method) || "HEAD".equals(method) || "DELETE".equals(method)) {
+      return false;
+    }
+    String contentLength = ctx.header("Content-Length");
+    return contentLength != null && !"0".equals(contentLength);
   }
 
   /**

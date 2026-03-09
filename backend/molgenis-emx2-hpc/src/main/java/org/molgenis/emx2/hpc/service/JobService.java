@@ -94,10 +94,12 @@ public class JobService {
   /**
    * Atomically claims a PENDING job for a worker. Uses a single SQL UPDATE ... WHERE
    * status='PENDING' to guarantee that only one worker can claim a given job under concurrent
-   * access. Returns the updated job row, or null if the job was not in PENDING status (claim
-   * conflict) or not found.
+   * access. After the atomic claim succeeds, verifies that the worker has a registered capability
+   * matching the job's processor/profile; if not, the claim is rolled back.
+   *
+   * @return a {@link ClaimResult} indicating success, not-pending, or capability mismatch
    */
-  public Row claimJob(String jobId, String workerId) {
+  public ClaimResult claimJob(String jobId, String workerId) {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
@@ -118,7 +120,34 @@ public class JobService {
           if (affected == 0) {
             logger.warn(
                 "Claim failed for job={} by worker={} (not PENDING or not found)", jobId, workerId);
-            return null;
+            return ClaimResult.notPending();
+          }
+
+          // Re-fetch the claimed job
+          List<Row> rows = schema.getTable("HpcJobs").where(f("id", EQUALS, jobId)).retrieveRows();
+          if (rows.isEmpty()) {
+            return ClaimResult.notPending();
+          }
+          Row job = rows.getFirst();
+
+          // Verify worker has a matching capability for this job's processor/profile
+          String processor = job.getString("processor");
+          String profile = job.getString("profile");
+          if (!workerHasCapability(schema, workerId, processor, profile)) {
+            // Roll back: set status back to PENDING
+            jooq.update(jobsJooq)
+                .set(field("status"), HpcJobStatus.PENDING.name())
+                .setNull(field("worker_id"))
+                .setNull(field("claimed_at"))
+                .where(field("id").eq(jobId))
+                .execute();
+            logger.warn(
+                "Claim rejected for job={}: worker {} lacks capability {}/{}",
+                jobId,
+                workerId,
+                processor,
+                profile);
+            return ClaimResult.capabilityMismatch();
           }
 
           recordTransition(
@@ -130,11 +159,30 @@ public class JobService {
               "Claimed by worker " + workerId);
 
           logger.info("Job claimed: id={} worker={}", jobId, workerId);
-
-          // Re-fetch the row to return consistent data
-          List<Row> rows = schema.getTable("HpcJobs").where(f("id", EQUALS, jobId)).retrieveRows();
-          return rows.isEmpty() ? null : rows.getFirst();
+          return ClaimResult.success(job);
         });
+  }
+
+  /**
+   * Checks whether a worker has a registered capability matching the given processor and profile. A
+   * job with no profile matches any capability for the processor.
+   */
+  private static boolean workerHasCapability(
+      Schema schema, String workerId, String processor, String profile) {
+    List<Row> caps =
+        schema
+            .getTable("HpcWorkerCapabilities")
+            .where(f("worker_id", EQUALS, workerId))
+            .where(f("processor", EQUALS, processor))
+            .retrieveRows();
+    if (caps.isEmpty()) {
+      return false;
+    }
+    // Job with no profile matches any capability for this processor
+    if (profile == null || profile.isBlank()) {
+      return true;
+    }
+    return caps.stream().anyMatch(c -> profile.equals(c.getString("profile")));
   }
 
   /**

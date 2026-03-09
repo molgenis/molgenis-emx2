@@ -342,6 +342,14 @@ profiles:
     time: "00:05:00"
     output_residence: "posix"
     log_residence: "posix"
+  "e2e-test:transform":
+    entrypoint: "/opt/e2e/scripts/e2e_job_transform.sh"
+    partition: "normal"
+    cpus: 1
+    memory: "256M"
+    time: "00:05:00"
+    output_residence: "managed"
+    log_residence: "managed"
 
 apptainer:
   tmp_dir: "/data/jobs/tmp"

@@ -13,6 +13,7 @@ public final class HpcHeaders {
   public static final String TIMESTAMP = "X-Timestamp";
   public static final String NONCE = "X-Nonce";
   public static final String WORKER_ID = "X-Worker-Id";
+  public static final String CONTENT_SHA256 = "Content-SHA256";
 
   private HpcHeaders() {}
 
