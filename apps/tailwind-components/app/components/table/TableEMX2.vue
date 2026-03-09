@@ -306,20 +306,21 @@ const { data, refresh } = useAsyncData(
   }
 );
 
-watch(
-  () => data.value?.tableMetadata,
-  (newMetadata) => {
-    if (newMetadata) {
-      columns.value = newMetadata.columns.filter(
-        (c) =>
-          !c.id.startsWith("mg") &&
-          !["HEADING", "SECTION"].includes(c.columnType)
-      );
+let widthsInitialized = false;
 
-      setInitialWidths(columns.value);
+watch(
+  () => columns.value,
+  (newColumns) => {
+    if (
+      !widthsInitialized &&
+      Array.isArray(newColumns) &&
+      newColumns.length > 0
+    ) {
+      setInitialWidths(newColumns);
+      widthsInitialized = true;
     }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 );
 
 const rows = computed(() =>
