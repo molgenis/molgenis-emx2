@@ -32,7 +32,7 @@ import org.molgenis.emx2.hpc.service.CommitResult;
  * <ul>
  *   <li>POST /api/hpc/artifacts — create artifact
  *   <li>GET /api/hpc/artifacts/{id} — get artifact details
- *   <li>POST /api/hpc/artifacts/{id}/files — upload a file to an artifact
+ *   <li>PUT /api/hpc/artifacts/{id}/files/{path} — upload file (binary or JSON metadata-only)
  *   <li>GET /api/hpc/artifacts/{id}/files — list files
  *   <li>POST /api/hpc/artifacts/{id}/commit — commit artifact with SHA-256 verification
  * </ul>
@@ -98,107 +98,6 @@ public class ArtifactsApi {
     ctx.json(artifactToResponse(artifact));
   }
 
-  /**
-   * POST /api/hpc/artifacts/{id}/files — upload a file.
-   *
-   * <p>Supports two modes:
-   *
-   * <ul>
-   *   <li>Multipart: Content-Type multipart/form-data with "file" part and optional form params
-   *       (path, role, sha256, content_type)
-   *   <li>JSON metadata-only: Content-Type application/json with {"path", "role", "sha256",
-   *       "size_bytes", "content_type"}
-   * </ul>
-   */
-  @SuppressWarnings("unchecked")
-  public void uploadFile(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    InputValidator.requireUuid(artifactId, "id");
-
-    File tempFile = null;
-    try {
-      String ct = ctx.header("Content-Type");
-      boolean isMultipart = ct != null && ct.startsWith("multipart/form-data");
-
-      String path;
-      String sha256;
-      Long sizeBytes;
-      String contentType;
-      BinaryFileWrapper content = null;
-
-      if (isMultipart) {
-        // Configure multipart handling
-        tempFile = File.createTempFile("hpc_upload_", ".tmp");
-        ctx.attribute(
-            "org.eclipse.jetty.multipartConfig",
-            new MultipartConfigElement(tempFile.getAbsolutePath()));
-
-        Part filePart = ctx.req().getPart("file");
-        if (filePart == null) {
-          throw HpcException.badRequest("Multipart 'file' part is required", requestId(ctx));
-        }
-
-        // Read file content and compute SHA-256
-        byte[] fileBytes;
-        try (InputStream input = filePart.getInputStream()) {
-          fileBytes = input.readAllBytes();
-        }
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        String computedSha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
-
-        // Extract metadata from form params, fall back to part metadata
-        path = ctx.formParam("path");
-        if (path == null || path.isBlank()) {
-          path = filePart.getSubmittedFileName();
-        }
-        sha256 = ctx.formParam("sha256");
-        if (sha256 == null) {
-          sha256 = computedSha256;
-        }
-        sizeBytes = (long) fileBytes.length;
-        contentType = ctx.formParam("content_type");
-        if (contentType == null) {
-          contentType = filePart.getContentType();
-        }
-
-        content =
-            new BinaryFileWrapper(
-                contentType != null ? contentType : "application/octet-stream", path, fileBytes);
-      } else {
-        // JSON metadata-only mode
-        Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-        path = (String) body.get("path");
-        sha256 = (String) body.get("sha256");
-        sizeBytes =
-            body.get("size_bytes") != null ? ((Number) body.get("size_bytes")).longValue() : null;
-        contentType = (String) body.get("content_type");
-      }
-
-      InputValidator.validateFilePath(path, "path");
-
-      String fileId =
-          artifactService.uploadFile(artifactId, path, sha256, sizeBytes, contentType, content);
-
-      Map<String, Object> response = new LinkedHashMap<>();
-      response.put("id", fileId);
-      response.put("artifact_id", artifactId);
-      response.put("path", path);
-      response.put("sha256", sha256);
-      response.put("size_bytes", sizeBytes);
-
-      ctx.status(201);
-      ctx.json(response);
-    } catch (HpcException e) {
-      throw e;
-    } catch (Exception e) {
-      throw HpcException.internal(e.getMessage(), requestId(ctx));
-    } finally {
-      if (tempFile != null) {
-        tempFile.delete();
-      }
-    }
-  }
-
   /** GET /api/hpc/artifacts/{id}/files — list files in an artifact with pagination. */
   public void listFiles(Context ctx) {
     String artifactId = ctx.pathParam("id");
@@ -244,7 +143,20 @@ public class ArtifactsApi {
     ctx.json(response);
   }
 
-  /** PUT /api/hpc/artifacts/{id}/files/{path} — upload file by path. */
+  /**
+   * PUT /api/hpc/artifacts/{id}/files/{path} — upload file by path.
+   *
+   * <p>Supports two modes:
+   *
+   * <ul>
+   *   <li>Binary upload: raw bytes or multipart with "file" part — content is stored and SHA-256 is
+   *       computed from the bytes.
+   *   <li>JSON metadata-only: Content-Type application/json with {"sha256", "size_bytes",
+   *       "content_type"} — registers file metadata without storing binary content (used for posix
+   *       artifacts).
+   * </ul>
+   */
+  @SuppressWarnings("unchecked")
   public void uploadFileByPath(Context ctx) {
     String artifactId = ctx.pathParam("id");
     String filePath = ctx.pathParam("path");
@@ -255,11 +167,25 @@ public class ArtifactsApi {
     try {
       String ct = ctx.header("Content-Type");
       boolean isMultipart = ct != null && ct.startsWith("multipart/form-data");
+      boolean isJson = ct != null && ct.startsWith("application/json");
 
-      byte[] fileBytes;
+      String sha256;
+      long sizeBytes;
       String contentType;
+      BinaryFileWrapper content;
 
-      if (isMultipart) {
+      if (isJson) {
+        // JSON metadata-only mode (no binary upload)
+        Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
+        sha256 = (String) body.get("sha256");
+        sizeBytes =
+            body.get("size_bytes") != null ? ((Number) body.get("size_bytes")).longValue() : 0;
+        contentType = (String) body.get("content_type");
+        if (contentType == null || contentType.isBlank()) {
+          contentType = "application/octet-stream";
+        }
+        content = null;
+      } else if (isMultipart) {
         tempFile = File.createTempFile("hpc_upload_", ".tmp");
         ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
@@ -268,6 +194,7 @@ public class ArtifactsApi {
         if (filePart == null) {
           throw HpcException.badRequest("Multipart 'file' part is required", requestId(ctx));
         }
+        byte[] fileBytes;
         try (InputStream input = filePart.getInputStream()) {
           fileBytes = input.readAllBytes();
         }
@@ -275,25 +202,35 @@ public class ArtifactsApi {
         if (contentType == null) {
           contentType = filePart.getContentType();
         }
+
+        String guessed = URLConnection.guessContentTypeFromName(filePath);
+        if (guessed != null) {
+          contentType = guessed;
+        } else if (contentType == null || contentType.isBlank()) {
+          contentType = "application/octet-stream";
+        }
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
+        sizeBytes = fileBytes.length;
+        content = new BinaryFileWrapper(contentType, filePath, fileBytes);
       } else {
-        fileBytes = ctx.bodyAsBytes();
+        // Raw binary upload
+        byte[] fileBytes = ctx.bodyAsBytes();
         contentType = ct;
+
+        String guessed = URLConnection.guessContentTypeFromName(filePath);
+        if (guessed != null) {
+          contentType = guessed;
+        } else if (contentType == null || contentType.isBlank()) {
+          contentType = "application/octet-stream";
+        }
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
+        sizeBytes = fileBytes.length;
+        content = new BinaryFileWrapper(contentType, filePath, fileBytes);
       }
-
-      // Detect content type from file extension; fall back to HTTP header, then octet-stream
-      String guessed = URLConnection.guessContentTypeFromName(filePath);
-      if (guessed != null) {
-        contentType = guessed;
-      } else if (contentType == null || contentType.isBlank()) {
-        contentType = "application/octet-stream";
-      }
-
-      // Compute SHA-256
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      String sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
-      long sizeBytes = fileBytes.length;
-
-      BinaryFileWrapper content = new BinaryFileWrapper(contentType, filePath, fileBytes);
 
       String fileId =
           artifactService.uploadFileByPath(

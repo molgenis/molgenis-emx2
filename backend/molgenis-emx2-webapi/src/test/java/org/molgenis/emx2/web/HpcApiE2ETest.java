@@ -130,14 +130,14 @@ class HpcApiE2ETest extends ApiTestBase {
             .jsonPath()
             .getString("id");
 
-    // Upload a file via JSON metadata to transition CREATED → UPLOADING
+    // Upload a file via PUT JSON metadata to transition CREATED → UPLOADING
     hpcRequest()
         .body(
             """
-            {"path": "test.txt", "sha256": "abc123", "size_bytes": 12, "content_type": "text/plain"}
+            {"sha256": "abc123", "size_bytes": 12, "content_type": "text/plain"}
             """)
         .when()
-        .post("/api/hpc/artifacts/{id}/files", artifactId)
+        .put("/api/hpc/artifacts/{id}/files/{path}", artifactId, "test.txt")
         .then()
         .statusCode(201);
 
@@ -347,20 +347,18 @@ class HpcApiE2ETest extends ApiTestBase {
 
     String artifactId = createResp.jsonPath().getString("id");
 
-    // Upload file (JSON metadata-only mode)
+    // Upload file via PUT (JSON metadata-only mode)
     hpcRequest()
         .body(
             """
             {
-              "path": "results/output.csv",
-              "role": "primary",
               "sha256": "abc123def456",
               "size_bytes": 1024,
               "content_type": "text/csv"
             }
             """)
         .when()
-        .post("/api/hpc/artifacts/{id}/files", artifactId)
+        .put("/api/hpc/artifacts/{id}/files/{path}", artifactId, "results/output.csv")
         .then()
         .statusCode(201)
         .body("artifact_id", equalTo(artifactId))

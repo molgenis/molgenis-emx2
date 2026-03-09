@@ -595,12 +595,14 @@ class HpcClient:
         size_bytes: int,
         content_type: str = "application/octet-stream",
     ) -> dict:
-        """Register file metadata (no binary upload) for a posix artifact."""
+        """Register file metadata (no binary upload) for a posix artifact.
+
+        Uses PUT with JSON body (metadata-only mode) on the path-based endpoint.
+        """
         return self._request(
-            "POST",
-            f"/api/hpc/artifacts/{artifact_id}/files",
+            "PUT",
+            f"/api/hpc/artifacts/{artifact_id}/files/{path}",
             json={
-                "path": path,
                 "sha256": sha256,
                 "size_bytes": size_bytes,
                 "content_type": content_type,

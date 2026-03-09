@@ -445,7 +445,6 @@ All endpoints are proposed under `/api/hpc`. Detailed specifications are in Appe
 \texttt{DELETE}  & \texttt{/artifacts/\{id\}/files/\{path\}}     & Delete a file (before commit only) \\
 \texttt{GET}    & \texttt{/artifacts/\{id\}/files}              & List files (paginated, prefix-filterable) \\
 \texttt{POST}   & \texttt{/artifacts/\{id\}/commit}             & Commit with top-level SHA-256 \\
-\texttt{POST}   & \texttt{/artifacts/\{id\}/files}              & Upload (legacy multipart; prefer \texttt{PUT}) \\
 \hline
 \end{tabular}
 
@@ -775,7 +774,6 @@ Creates an artifact. Managed artifacts start in CREATED; external artifacts (pos
   "_links": {
     "self": { "href": "/api/hpc/artifacts/art_abc123-...", "method": "GET" },
     "upload": { "href": "/api/hpc/artifacts/art_abc123-.../files/{path}", "method": "PUT" },
-    "upload_legacy": { "href": "/api/hpc/artifacts/art_abc123-.../files", "method": "POST" },
     "files": { "href": "/api/hpc/artifacts/art_abc123-.../files", "method": "GET" }
   }
 }
@@ -810,10 +808,11 @@ Returns full metadata with HATEOAS links. Links vary by status: CREATED/UPLOADIN
 
 Uploads a file to an artifact by path. The `{path}` segment is the logical file name within the artifact (e.g. `data.parquet`, `model/weights.bin`). Upserts: if a file already exists at that path, it is replaced. Transitions the artifact from CREATED to UPLOADING on the first upload.
 
-Accepts two body formats:
+Accepts three body formats:
 
 - **Raw binary** (preferred): `Content-Type` describes the file's media type; body is the raw file bytes. The server computes SHA-256 and stores the file.
 - **Multipart**: `Content-Type: multipart/form-data` with a `file` part and optional `content_type` form param.
+- **JSON metadata-only**: `Content-Type: application/json` with `{ "sha256": "...", "size_bytes": ..., "content_type": "..." }`. Registers file metadata without storing binary content. Used for posix/external artifacts where files reside on the filesystem.
 
 **Request** (raw binary):
 
@@ -898,10 +897,6 @@ Lists files in an artifact with pagination and optional prefix filtering.
   "offset": 0
 }
 ```
-
-### POST /api/hpc/artifacts/{id}/files (legacy) {.unnumbered}
-
-Uploads a file to an artifact. Provided for compatibility with existing clients. Accepts either JSON metadata-only (`{ "path": "...", "sha256": "...", "size_bytes": ... }`) or multipart with a `file` part and optional `content_type` form param. New clients SHOULD prefer `PUT /files/{path}`.
 
 ### POST /api/hpc/artifacts/{id}/commit {.unnumbered}
 

@@ -285,14 +285,6 @@ public class HpcApi {
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.artifactsApi().deleteArtifact(ctx);
             }));
-    app.post(
-        "/api/hpc/artifacts/{id}/files",
-        hpcHandler(
-            ctx -> {
-              requireHpcPrivilege(ctx, Privileges.EDITOR);
-              HpcContext hpc = ctx.attribute("hpcContext");
-              hpc.artifactsApi().uploadFile(ctx);
-            }));
     app.get(
         "/api/hpc/artifacts/{id}/files",
         hpcHandler(
