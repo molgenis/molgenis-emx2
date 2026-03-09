@@ -6,7 +6,6 @@ import org.jooq.DSLContext;
 import org.molgenis.emx2.MolgenisException;
 
 public class AToolToCleanDatabase {
-  private static DSLContext jooq;
 
   public static void main(String[] args) {
     deleteAll();
@@ -14,7 +13,7 @@ public class AToolToCleanDatabase {
 
   public static void deleteAll() {
     SqlDatabase db = new SqlDatabase(true);
-    jooq = db.getJooq();
+    DSLContext jooq = db.getJooq();
     db.becomeAdmin();
     try {
       String sql =
