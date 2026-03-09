@@ -114,7 +114,13 @@ Both `run` and `once` SHOULD accept a `--simulate` flag that walks jobs through 
 
 The daemon SHOULD send periodic heartbeats (default: every 120 seconds) to keep the worker registration alive. On startup, it SHOULD recover tracking state for non-terminal jobs from a previous run. On SIGTERM/SIGINT, it SHOULD stop accepting new work and exit gracefully; Slurm jobs continue running independently and would be recovered on next startup.
 
-During the monitor loop, the daemon SHOULD also check for a `.hpc_progress.json` file in each STARTED job's output directory. When the workload writes this file (with optional `phase`, `message`, and `progress` fields), the daemon reads it and relays the progress as a transition detail update to EMX2. This provides in-flight progress visibility without leaking any credentials into the job environment.
+During the monitor loop, the daemon SHOULD also check for a `.hpc_progress.jsonl` file (NDJSON format — one JSON object per line) in each STARTED job's output directory. The workload appends progress lines; the daemon reads the **last complete line** and relays it as a transition detail update to EMX2. This append-only format is inherently safe against partial reads: incomplete trailing lines (from in-progress writes) are silently skipped. The daemon validates and sanitizes each progress object: `phase` (string, max 100 chars), `message` (string, max 500 chars), `progress` (float, clamped to [0.0, 1.0]). Unknown keys are dropped; invalid types are skipped per-field. This provides in-flight progress visibility without leaking any credentials into the job environment.
+
+Workloads report progress by appending lines (works from any language):
+
+```bash
+echo '{"phase":"processing","message":"step 3 of 10","progress":0.3}' >> "$HPC_OUTPUT_DIR/.hpc_progress.jsonl"
+```
 
 Configuration SHOULD be via a YAML file specifying EMX2 connection details, Slurm parameters, Apptainer settings, and profile-to-resource mappings.
 
@@ -126,7 +132,7 @@ The happy-path sequence proceeds in four phases (see Appendix B for the sequence
 
 **Phase 2 — Input staging and Slurm submission.** The head node stages input artifacts: for posix artifacts it symlinks the `file://` path into the job's input directory (zero-copy); for managed artifacts it downloads files via `GET /api/hpc/artifacts/{id}/files/{path}`. SHA-256 hashes MUST be verified after staging. The head node then maps the job's processor and profile to execution parameters — either an Apptainer SIF image or a wrapper script entrypoint — and a set of Slurm parameters, then submits via `sbatch`. It reports the Slurm job ID back to EMX2 as a SUBMITTED transition.
 
-**Phase 3 — Execution and monitoring.** Slurm dispatches the job to a compute node, where it runs either inside an Apptainer container or as a wrapper script (see §5). The daemon monitors the job via `squeue`/`sacct` and posts a STARTED transition to EMX2 when execution begins. During execution, the daemon checks for a `.hpc_progress.json` file in the job's output directory and relays progress updates to EMX2 as transition detail updates. All EMX2 communication MUST be driven by the daemon — the workload itself has no direct access to EMX2.
+**Phase 3 — Execution and monitoring.** Slurm dispatches the job to a compute node, where it runs either inside an Apptainer container or as a wrapper script (see §5). The daemon monitors the job via `squeue`/`sacct` and posts a STARTED transition to EMX2 when execution begins. During execution, the daemon checks for a `.hpc_progress.jsonl` file (NDJSON) in the job's output directory and relays the last valid progress line to EMX2 as a transition detail update. All EMX2 communication MUST be driven by the daemon — the workload itself has no direct access to EMX2.
 
 **Phase 4 — Output and completion.** When the daemon detects job completion via Slurm, it creates an output artifact, uploads files (for managed residence) or registers the output directory path (for posix residence), and commits. It posts a COMPLETED transition with the `output_artifact_id` field linking the job to its output artifact. The artifact ID is stored as a foreign key on the job record, making outputs discoverable via GraphQL.
 
@@ -189,7 +195,7 @@ The proposed wrapper script contract defines these environment variables:
 - **`HPC_PARAMETERS`** — JSON string with the full job parameters object.
 - Any extra environment variables from the profile or job parameters.
 
-The wrapper's responsibilities: read inputs from `HPC_INPUT_DIR`, write results to `HPC_OUTPUT_DIR`, and exit 0 on success. Optionally, write `.hpc_progress.json` to `HPC_OUTPUT_DIR` for in-flight progress reporting. The wrapper MUST NOT have direct EMX2 access — the daemon handles all API communication.
+The wrapper's responsibilities: read inputs from `HPC_INPUT_DIR`, write results to `HPC_OUTPUT_DIR`, and exit 0 on success. Optionally, append NDJSON lines to `$HPC_OUTPUT_DIR/.hpc_progress.jsonl` for in-flight progress reporting (see §3 for format). The wrapper MUST NOT have direct EMX2 access — the daemon handles all API communication.
 
 Use wrapper scripts when multi-process orchestration, host-level module systems, or setup that doesn't fit inside a single container exec is needed. Use Apptainer containers when reproducible, isolated execution with a single SIF image is preferred.
 

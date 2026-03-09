@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.List;
@@ -209,25 +208,15 @@ public class ArtifactService {
             List<Row> stale =
                 artifactsTable.where(f("status", f("name", EQUALS, statusName))).retrieveRows();
             for (Row artifact : stale) {
-              String createdAtStr = artifact.getString("created_at");
-              if (createdAtStr == null) continue;
-              LocalDateTime createdAt;
-              try {
-                createdAt = LocalDateTime.parse(createdAtStr);
-              } catch (DateTimeParseException e) {
-                logger.warn(
-                    "Unparseable created_at '{}' for artifact {}",
-                    createdAtStr,
-                    artifact.getString("id"));
-                continue;
-              }
+              LocalDateTime createdAt = DateTimeUtil.parse(artifact.getString("created_at"));
+              if (createdAt == null) continue;
               if (createdAt.isBefore(cutoff)) {
                 String artifactId = artifact.getString("id");
                 logger.info(
                     "Expiring stale artifact {} (status={}, created_at={})",
                     artifactId,
                     statusName,
-                    createdAtStr);
+                    createdAt);
                 artifact.set("status", ArtifactStatus.FAILED.name());
                 artifactsTable.update(artifact);
               }

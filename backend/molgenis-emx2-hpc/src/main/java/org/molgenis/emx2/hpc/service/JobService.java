@@ -10,7 +10,6 @@ import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -425,16 +424,8 @@ public class JobService {
           for (Row job : claimedJobs) {
             Integer timeout = job.getInteger("timeout_seconds");
             if (timeout == null) continue;
-            String claimedAtStr = job.getString("claimed_at");
-            if (claimedAtStr == null) continue;
-            LocalDateTime claimedAt;
-            try {
-              claimedAt = LocalDateTime.parse(claimedAtStr);
-            } catch (DateTimeParseException e) {
-              logger.warn(
-                  "Unparseable claimed_at '{}' for job {}", claimedAtStr, job.getString("id"));
-              continue;
-            }
+            LocalDateTime claimedAt = DateTimeUtil.parse(job.getString("claimed_at"));
+            if (claimedAt == null) continue;
             if (claimedAt.plusSeconds(timeout).isBefore(now)) {
               String jobId = job.getString("id");
               logger.info("Expiring CLAIMED job {} (timeout {}s exceeded)", jobId, timeout);
@@ -459,16 +450,8 @@ public class JobService {
           for (Row job : startedJobs) {
             Integer timeout = job.getInteger("timeout_seconds");
             if (timeout == null) continue;
-            String startedAtStr = job.getString("started_at");
-            if (startedAtStr == null) continue;
-            LocalDateTime startedAt;
-            try {
-              startedAt = LocalDateTime.parse(startedAtStr);
-            } catch (DateTimeParseException e) {
-              logger.warn(
-                  "Unparseable started_at '{}' for job {}", startedAtStr, job.getString("id"));
-              continue;
-            }
+            LocalDateTime startedAt = DateTimeUtil.parse(job.getString("started_at"));
+            if (startedAt == null) continue;
             if (startedAt.plusSeconds(timeout).isBefore(now)) {
               String jobId = job.getString("id");
               logger.info("Expiring STARTED job {} (timeout {}s exceeded)", jobId, timeout);

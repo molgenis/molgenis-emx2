@@ -55,7 +55,7 @@ class TestClassifyOutputFiles:
         (tmp_path / "debug.log").write_text("debug info")
 
         # Excluded
-        (tmp_path / ".hpc_progress.json").write_text("{}")
+        (tmp_path / ".hpc_progress.jsonl").write_text("{}")
 
         output_files, log_files = HpcDaemon._classify_output_files(str(tmp_path))
 
@@ -77,10 +77,11 @@ class TestClassifyOutputFiles:
         assert log_files == []
 
     def test_only_progress_file(self, tmp_path: Path):
-        (tmp_path / ".hpc_progress.json").write_text("{}")
+        (tmp_path / ".hpc_progress.jsonl").write_text("{}")
         output_files, log_files = HpcDaemon._classify_output_files(str(tmp_path))
         assert output_files == []
         assert log_files == []
+
 
     def test_only_log_files(self, tmp_path: Path):
         (tmp_path / "slurm-999.out").write_text("log")
@@ -945,3 +946,116 @@ class TestProvenanceMetadata:
         # None / empty
         assert HpcDaemon._extract_input_artifact_ids(None) is None
         assert HpcDaemon._extract_input_artifact_ids([]) is None
+
+
+class TestParseLastProgressLine:
+    """Tests for _parse_last_progress_line (NDJSON progress reading)."""
+
+    def test_single_line(self):
+        raw = '{"phase": "processing", "progress": 0.5}\n'
+        result = HpcDaemon._parse_last_progress_line(raw)
+        assert result == {"phase": "processing", "progress": 0.5}
+
+    def test_multiple_lines_returns_last(self):
+        raw = (
+            '{"phase": "init", "progress": 0.0}\n'
+            '{"phase": "processing", "progress": 0.5}\n'
+            '{"phase": "finalizing", "progress": 0.9}\n'
+        )
+        result = HpcDaemon._parse_last_progress_line(raw)
+        assert result == {"phase": "finalizing", "progress": 0.9}
+
+    def test_trailing_partial_line_skipped(self):
+        """Simulates reading while workload is mid-append."""
+        raw = (
+            '{"phase": "step1", "progress": 0.3}\n'
+            '{"phase": "step2", "pro'  # partial write, no newline
+        )
+        result = HpcDaemon._parse_last_progress_line(raw)
+        assert result == {"phase": "step1", "progress": 0.3}
+
+    def test_all_lines_invalid_returns_none(self):
+        raw = "not json\nalso not json\n"
+        assert HpcDaemon._parse_last_progress_line(raw) is None
+
+    def test_empty_string_returns_none(self):
+        assert HpcDaemon._parse_last_progress_line("") is None
+
+    def test_blank_lines_skipped(self):
+        raw = '{"phase": "done"}\n\n\n'
+        result = HpcDaemon._parse_last_progress_line(raw)
+        assert result == {"phase": "done"}
+
+    def test_non_dict_json_skipped(self):
+        raw = '"just a string"\n[1, 2, 3]\n{"phase": "valid"}\n'
+        result = HpcDaemon._parse_last_progress_line(raw)
+        assert result == {"phase": "valid"}
+
+    def test_no_trailing_newline(self):
+        """A single line without trailing newline is still parsed."""
+        raw = '{"phase": "running", "progress": 0.75}'
+        result = HpcDaemon._parse_last_progress_line(raw)
+        assert result == {"phase": "running", "progress": 0.75}
+
+
+class TestValidateProgress:
+    """Tests for _validate_progress (schema validation + sanitization)."""
+
+    def test_valid_full_object(self):
+        result = HpcDaemon._validate_progress(
+            {"phase": "processing", "message": "step 3 of 10", "progress": 0.3}
+        )
+        assert result == {
+            "phase": "processing",
+            "message": "step 3 of 10",
+            "progress": 0.3,
+        }
+
+    def test_progress_clamped_above_one(self):
+        result = HpcDaemon._validate_progress({"progress": 1.5})
+        assert result == {"progress": 1.0}
+
+    def test_progress_clamped_below_zero(self):
+        result = HpcDaemon._validate_progress({"progress": -0.5})
+        assert result == {"progress": 0.0}
+
+    def test_progress_string_number_coerced(self):
+        result = HpcDaemon._validate_progress({"progress": "0.7"})
+        assert result == {"progress": 0.7}
+
+    def test_progress_non_numeric_dropped(self):
+        result = HpcDaemon._validate_progress({"progress": "fifty percent"})
+        assert result == {}
+
+    def test_phase_truncated(self):
+        long_phase = "x" * 200
+        result = HpcDaemon._validate_progress({"phase": long_phase})
+        assert result == {"phase": "x" * 100}
+
+    def test_message_truncated(self):
+        long_msg = "y" * 600
+        result = HpcDaemon._validate_progress({"message": long_msg})
+        assert result == {"message": "y" * 500}
+
+    def test_non_string_phase_dropped(self):
+        result = HpcDaemon._validate_progress({"phase": 42})
+        assert result == {}
+
+    def test_non_string_message_dropped(self):
+        result = HpcDaemon._validate_progress({"message": ["a", "b"]})
+        assert result == {}
+
+    def test_unknown_keys_dropped(self):
+        result = HpcDaemon._validate_progress(
+            {"phase": "ok", "unknown_field": "ignored", "extra": 99}
+        )
+        assert result == {"phase": "ok"}
+
+    def test_empty_object(self):
+        assert HpcDaemon._validate_progress({}) == {}
+
+    def test_all_fields_invalid(self):
+        result = HpcDaemon._validate_progress(
+            {"phase": 123, "message": None, "progress": "nope"}
+        )
+        assert result == {}

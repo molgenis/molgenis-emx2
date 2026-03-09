@@ -21,16 +21,21 @@ if [ -z "$INPUT_CSV" ]; then
     exit 1
 fi
 echo "Found input: ${INPUT_CSV}"
+echo '{"phase":"loading","message":"reading input CSV","progress":0.0}' >> "${HPC_OUTPUT_DIR}/.hpc_progress.jsonl"
 echo "Input contents (first 5 lines):"
 head -5 "$INPUT_CSV"
 
 LINE_COUNT=$(tail -n +2 "$INPUT_CSV" | wc -l)
 echo "Data rows: ${LINE_COUNT}"
 
+echo '{"phase":"sorting","message":"sorting by temperature","progress":0.3}' >> "${HPC_OUTPUT_DIR}/.hpc_progress.jsonl"
+
 # --- Transform 1: sort by temperature descending ---
 head -1 "$INPUT_CSV" > "${HPC_OUTPUT_DIR}/sorted.csv"
 tail -n +2 "$INPUT_CSV" | sort -t',' -k2 -rn >> "${HPC_OUTPUT_DIR}/sorted.csv"
 echo "Wrote sorted.csv"
+
+echo '{"phase":"statistics","message":"computing per-label stats","progress":0.6}' >> "${HPC_OUTPUT_DIR}/.hpc_progress.jsonl"
 
 # --- Transform 2: compute per-label statistics using awk ---
 # Produces JSON with count, mean temperature, min/max pressure per label.
@@ -73,6 +78,8 @@ END {
 }
 ' "$INPUT_CSV" > "${HPC_OUTPUT_DIR}/summary.json"
 echo "Wrote summary.json"
+
+echo '{"phase":"finalizing","message":"computing checksums","progress":0.9}' >> "${HPC_OUTPUT_DIR}/.hpc_progress.jsonl"
 
 # --- Transform 3: manifest with SHA-256 of each output ---
 cd "${HPC_OUTPUT_DIR}"

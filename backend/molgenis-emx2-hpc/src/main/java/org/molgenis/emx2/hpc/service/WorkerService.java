@@ -5,7 +5,6 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
@@ -160,21 +159,11 @@ public class WorkerService {
 
           List<Row> allWorkers = workersTable.retrieveRows();
           for (Row worker : allWorkers) {
-            String heartbeatStr = worker.getString("last_heartbeat_at");
-            if (heartbeatStr == null) continue;
-            LocalDateTime lastHeartbeat;
-            try {
-              lastHeartbeat = LocalDateTime.parse(heartbeatStr);
-            } catch (DateTimeParseException e) {
-              logger.warn(
-                  "Unparseable last_heartbeat_at '{}' for worker {}",
-                  heartbeatStr,
-                  worker.getString("worker_id"));
-              continue;
-            }
+            LocalDateTime lastHeartbeat = DateTimeUtil.parse(worker.getString("last_heartbeat_at"));
+            if (lastHeartbeat == null) continue;
             if (lastHeartbeat.isBefore(cutoff)) {
               String workerId = worker.getString("worker_id");
-              logger.info("Removing stale worker {} (last heartbeat: {})", workerId, heartbeatStr);
+              logger.info("Removing stale worker {} (last heartbeat: {})", workerId, lastHeartbeat);
 
               // Delete capabilities
               List<Row> caps = capTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
