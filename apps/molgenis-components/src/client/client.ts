@@ -290,7 +290,7 @@ const fetchTableData = async (
 
   const schemaId = metadata.id;
   const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
-  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
+  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
           limit:${limit}, 
