@@ -117,6 +117,17 @@ pageFilterTemplate = pageFilterTemplate.concat([
     conditions: [],
   },
   {
+    id: "continent",
+    config: {
+      label: "Continents",
+      type: "ONTOLOGY",
+      ontologyTableId: "Continents",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "continents",
+    },
+    conditions: [],
+  },
+  {
     id: "dataCategories",
     config: {
       label: "Data categories",
