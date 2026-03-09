@@ -156,6 +156,47 @@ class Transform:
         df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
         df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
+    def publications(self):
+        """Transform Publications table
+        """
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        df_publications = pd.read_csv(self.path + 'Publications.csv', dtype='object')
+
+        if not len(df_publications) == 0:
+            df_design_paper = df_resources[['id', 'design paper']]
+            df_design_paper.loc[:, 'is design publication'] = 'true'
+            df_design_paper = df_design_paper.rename(columns={'id': 'resource',
+                                                              'design paper': 'doi'})
+            df_design_paper = df_design_paper.dropna(axis=0)
+            df_design_paper = df_design_paper.reset_index()
+
+            df_other_pubs = df_resources[['id', 'publications']]
+            if not len(df_other_pubs) == 0:
+                df_other_pubs.loc[:, 'is design publication'] = 'false'
+                df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
+                                                              'publications': 'doi'})
+                df_other_pubs = df_other_pubs.dropna(axis=0)
+                df_other_pubs = df_other_pubs.reset_index()
+
+            if len(df_other_pubs) == 0:
+                df_resource_pubs = get_publications(df_design_paper, df_publications)
+            else:
+                df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
+                df_merged_pubs = df_merged_pubs.reset_index()
+                df_resource_pubs = get_publications(df_merged_pubs, df_publications)
+
+
+
+    def variable_values(self):
+        # restructure variable values
+        df_var_values = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False, dtype='object')
+        if not len(df_var_values) == 0:
+            df_var_values = df_var_values.rename(columns={'variable.dataset': 'dataset',
+                                                          'variable.name': 'variable'})
+
+            df_var_values.to_csv(self.path + 'Variable values.csv', index=False)
+
+
 
 def get_resource_type(r_type):
     resource_type = []
@@ -233,3 +274,24 @@ def get_organisation_role(role):
     else:
         return role + ', Lead'
 
+
+def get_publications(df_merged_pubs, df_publications):
+    """Merge information from publications from Resources and Publications tables, split out
+    multiple references from ref_array into separate rows
+    """
+    # get all doi's with resource reference in one row
+    df_new_rows = pd.DataFrame(columns=['resource', 'doi', 'is design publication'])
+    for i in range(len(df_merged_pubs)):
+        if ',' in df_merged_pubs['doi'][i]:
+            doi_list = df_merged_pubs['doi'][i].split(',')
+            for doi in doi_list:
+                new_row = {'resource': df_merged_pubs['resource'][i], 'doi': doi,
+                           'is design publication': df_merged_pubs['is design publication'][i]}
+                df_new_rows.loc[len(df_new_rows)] = new_row
+            df_merged_pubs = df_merged_pubs.drop(index=i)
+    df_merged_pubs = pd.concat([df_merged_pubs, df_new_rows])
+
+    # merge information from Resources and Publications tables on doi
+    df_resource_pubs = pd.merge(df_merged_pubs, df_publications, on='doi')
+
+    return df_resource_pubs
