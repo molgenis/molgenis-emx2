@@ -108,7 +108,7 @@ const data = ref<FilesData[]>();
 
 async function getFiles() {
   const query = gql`query {
-     ${props.table} ( ${props.filter || ""}, orderby: [{order: ASC}]) {
+     ${props.table} ( ${props.filter || ""}, orderby: {order: ASC}) {
       ${props.labelsColumn || ""}
       ${props.fileColumn} {
         id

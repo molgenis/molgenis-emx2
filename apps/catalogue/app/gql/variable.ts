@@ -32,7 +32,7 @@ export default gql`
       }
       mappings ${moduleToString(mappingsFragment)}
     }
-    Resources(orderby: [{ id: ASC }], filter: $resourcesFilter) {
+    Resources(orderby: { id: ASC }, filter: $resourcesFilter) {
       id
       name
     }
