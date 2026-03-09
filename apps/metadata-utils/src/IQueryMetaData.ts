@@ -5,7 +5,7 @@ export interface IQueryMetaData {
   offset?: number;
   searchTerms?: string;
   filter?: Object;
-  orderby?: Record<string, string>;
+  orderby?: Record<string, string>[];
   expandLevel?: number;
   columns?: IColumn[];
 }

@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
   {
-    Persons(orderby: { name: ASC }) {
+    Persons(orderby: [{ name: ASC }]) {
       name
       fTE
       notes

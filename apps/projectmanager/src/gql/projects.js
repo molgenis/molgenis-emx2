@@ -1,13 +1,13 @@
 import gql from "graphql-tag";
 export default gql`
   {
-    Projects(orderby: { name: ASC }) {
+    Projects(orderby: [{ name: ASC }]) {
       name
       completed
       startDate
       endDate
       notes
-      projectUnits(orderby: { unit: ASC }) {
+      projectUnits(orderby: [{ unit: ASC }]) {
         unit
         planHours
         regHoursKorade

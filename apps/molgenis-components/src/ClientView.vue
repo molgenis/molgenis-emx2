@@ -35,7 +35,7 @@ export default {
       client: null,
       tableId: "Pet",
       filter: '{"name": {"like": ["pooky"]}}',
-      orderby: '{"status": "ASC"}',
+      orderby: '[{"status": "ASC"}]',
       metadata: {},
       tableData: [],
     };
@@ -43,7 +43,7 @@ export default {
   methods: {
     async fetchData() {
       const filter = this.filter ? JSON.parse(this.filter) : {};
-      const orderby = this.orderby ? JSON.parse(this.orderby) : {};
+      const orderby = this.orderby ? JSON.parse(this.orderby) : [];
       this.metadata = await this.client.fetchSchemaMetaData();
       this.tableData = await this.client.fetchTableData("Pet", {
         filter,

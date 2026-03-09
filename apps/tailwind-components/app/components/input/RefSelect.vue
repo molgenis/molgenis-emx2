@@ -125,8 +125,9 @@ async function prepareModel() {
 
 async function loadOptions(filter: IQueryMetaData) {
   if (sortMethod.value) {
-    filter.orderby = {};
-    filter.orderby[sortMethod.value] = "ASC";
+    let ordering: Record<string, string> = {};
+    ordering[sortMethod.value] = "ASC";
+    filter.orderby = [ordering];
   }
 
   const data: ITableDataResponse = await fetchTableData(

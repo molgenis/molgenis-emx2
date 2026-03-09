@@ -306,7 +306,7 @@ const fetchTableData = async (
         }`;
 
   const filter = properties.filter ? properties.filter : {};
-  const orderby = properties.orderby ? properties.orderby : {};
+  const orderby = properties.orderby ? [properties.orderby] : [];
   const resp = await axios
     .post(graphqlURL(schemaId), {
       query: tableDataQuery,
@@ -326,7 +326,7 @@ const fetchOntologyOptions = async (
   const tableDataQuery = `query ${tableId} {
         ${tableId}(
           limit:100000
-          orderby: { order: ASC }
+          orderby: [{ order: ASC }]
           )
           {
           	order 

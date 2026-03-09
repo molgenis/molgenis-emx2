@@ -3,7 +3,7 @@
  */
 
 import { request } from "graphql-request";
-import { IColumn, ITableMetaData } from "../../../metadata-utils/dist";
+import { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 
 class QueryEMX2 {
   tableId = "";
@@ -387,7 +387,7 @@ class QueryEMX2 {
   }
 
   // the best query would be for example"
-  // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
+  // Biobanks(orderby: [{ name: ASC }], filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
   // but this requires another rewrite ;)
   _createFilterString(filters: Record<string, any>, property: string) {
     let filterString = "";
@@ -503,9 +503,9 @@ class QueryEMX2 {
     );
     modifierParts.push(
       this.orderings[property]
-        ? `orderby: { ${this.orderings[property].column}: ${this.orderings[
+        ? `orderby: [{ ${this.orderings[property].column}: ${this.orderings[
             property
-          ].direction.toUpperCase()} }`
+          ].direction.toUpperCase()} }]`
         : ""
     );
 

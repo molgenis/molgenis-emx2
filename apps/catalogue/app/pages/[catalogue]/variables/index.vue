@@ -158,7 +158,7 @@ async function fetchResourceOptions(): Promise<INode[]> {
     body: {
       query: `
             query Resources($resourcesFilter: ResourcesFilter) {
-              Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
+              Resources(filter: $resourcesFilter, orderby: [{ id: ASC }]) {
                 id
                 name
               }
@@ -222,7 +222,7 @@ const query = computed(() => {
   ){
     Variables(limit: ${pageSize} offset: ${
     offset.value
-  } filter:$variablesFilter  orderby: { name: ASC }) {
+  } filter:$variablesFilter  orderby: [{ name: ASC }]) {
       name
       resource {
         id
@@ -242,7 +242,7 @@ const query = computed(() => {
         mappingsFragment
       )}
     }
-    Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
+    Resources(filter: $resourcesFilter, orderby: [{ id: ASC }]) {
       id
     }
     Variables_agg (filter:$variablesFilter){

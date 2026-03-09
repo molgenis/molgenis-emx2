@@ -165,7 +165,7 @@ Biobanks(limit: 100, filter: { _and: [ { name: { like: "UMC" } } ] }) {
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: [ { name: { like: "UMC" } } ] }) {
+Biobanks(limit: 100, orderby: [{ name: ASC }], filter: { _and: [ { name: { like: "UMC" } } ] }) {
     id,
     name
   }

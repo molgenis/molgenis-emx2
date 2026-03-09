@@ -124,7 +124,7 @@ const query = `
       otherInclusionCriteria
       exclusionCriteria ${moduleToString(ontologyFragment)}
       otherExclusionCriteria
-      publications(orderby: {title:ASC}) {
+      publications(orderby: [{title:ASC}]) {
         doi
         title
         isDesignPublication
@@ -166,7 +166,7 @@ const query = `
       }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved(orderby: {name: ASC})  {
+      organisationsInvolved(orderby: [{name: ASC}])  {
         id
         name
         website
