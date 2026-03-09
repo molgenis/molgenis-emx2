@@ -93,7 +93,7 @@ watch(tableSettings, handleSettingsUpdate, { deep: true });
 const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
-  <section class="mx-auto lg:px-[30px] px-0">
+  <div class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       {{ tableMetadata }}
       <template #prefix>
@@ -123,5 +123,5 @@ const { isAdmin, session } = await useSession(schemaId);
         />
       </template>
     </TableEMX2>
-  </section>
+  </div>
 </template>
