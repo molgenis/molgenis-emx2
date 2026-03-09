@@ -31,7 +31,9 @@
     </DashboardRow>
     <LoadingBlock :loading="loading">
       <h2 class="dashboard-h2">
-        Overview of {{ selection }} patients (n={{ totalNumberOfPatients }})
+        Overview of {{ selectedCleftType }} patients (n={{
+          selectedCleftTypePatients
+        }})
       </h2>
     </LoadingBlock>
     <DashboardRow :columns="1">
@@ -44,11 +46,11 @@
         <select
           class="inputs select"
           id="clpYourCentreOverviewFilter"
-          v-model="selection"
+          v-model="selectedCleftType"
           @change="updateCharts"
         >
-          <option v-for="option in filterOptions" :value="option">
-            {{ option }}
+          <option v-for="cleftType in cleftTypeOptions" :value="cleftType">
+            {{ cleftType }}
           </option>
         </select>
       </DashboardChart>
@@ -82,7 +84,7 @@
           </h3>
           <ProgressMeter
             :chartId="icsCompletionChart?.chartId"
-            :title="icsCompletionChart?.chartTitle?.replace('${ageGroup}', (selection as string))"
+            :title="icsCompletionChart?.chartTitle?.replace('${ageGroup}', (selectedCleftType as string))"
             :value="icsCompletionChartData?.dataPointValue"
             :totalValue="100"
             :barHeight="20"
@@ -90,7 +92,7 @@
           />
           <ProgressMeter
             :chartId="cleftqCompletionChart?.chartId"
-            :title="cleftqCompletionChart?.chartTitle?.replace('${ageGroup}', (selection as string))"
+            :title="cleftqCompletionChart?.chartTitle?.replace('${ageGroup}', (selectedCleftType as string))"
             :value="cleftqCompletionChartData?.dataPointValue"
             :totalValue="100"
             :barHeight="20"
@@ -104,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import {
   DashboardRow,
   DashboardChart,
@@ -129,9 +131,21 @@ import type { IKeyValuePair } from "../../types/index";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
-const filterOptions = ref<string[]>();
-const selection = ref<string>();
-const totalNumberOfPatients = ref<number>(0);
+const cleftTypeOptions = ref<string[]>();
+const selectedCleftType = ref<string>();
+const selectedCleftTypePatients = computed<number>(() => {
+  if (selectedCleftType.value) {
+    const newCleftType = patientsByPhenotypeChartData.value?.filter(
+      (row: IChartData) => {
+        return row.dataPointName === selectedCleftType.value;
+      }
+    ) as IChartData[];
+    return newCleftType[0].dataPointValue as number;
+  } else {
+    return 0;
+  }
+});
+
 const patientsByPhenotypeChart = ref<ICharts>();
 const patientsByPhenotypeChartData = ref<IChartData[]>();
 const patientsByPhenotypePalette = ref<IKeyValuePair>();
@@ -173,7 +187,7 @@ async function getPageData() {
 function updateGenderChart() {
   const filteredData = patientsByGenderChart.value?.dataPoints
     ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selection.value;
+      return row.dataPointPrimaryCategory === selectedCleftType.value;
     })
     .sort((a: IChartData, b: IChartData): number => {
       return (b.dataPointValue as number) - (a.dataPointValue as number);
@@ -189,13 +203,13 @@ function updateGenderChart() {
 function updateProgressMeter() {
   icsCompletionChartData.value = icsCompletionChart.value?.dataPoints?.filter(
     (row: IChartData) => {
-      return row.dataPointPrimaryCategory === selection.value;
+      return row.dataPointPrimaryCategory === selectedCleftType.value;
     }
   )[0] as IChartData;
 
   cleftqCompletionChartData.value =
     cleftqCompletionChart.value?.dataPoints?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selection.value;
+      return row.dataPointPrimaryCategory === selectedCleftType.value;
     })[0] as IChartData;
 }
 
@@ -215,24 +229,21 @@ onMounted(() => {
           patientsByPhenotypeChartData.value,
           "dataPointValue"
         );
+
         patientsByPhenotypeChart.value.yAxisMaxValue = chartTicks.limit;
         patientsByPhenotypeChart.value.yAxisTicks = chartTicks.ticks;
 
-        totalNumberOfPatients.value = sum(
-          patientsByPhenotypeChartData.value,
-          "dataPointValue"
-        );
-
-        filterOptions.value = patientsByPhenotypeChart.value?.dataPoints.map(
+        cleftTypeOptions.value = patientsByPhenotypeChart.value?.dataPoints.map(
           (row: IChartData) => row.dataPointName
         ) as string[];
-        selection.value = filterOptions.value[0];
+        selectedCleftType.value = cleftTypeOptions.value[0];
       }
 
       const phenotypeCategories = uniqueValues(
         patientsByPhenotypeChart.value?.dataPoints,
         "dataPointName"
       );
+
       patientsByPhenotypePalette.value =
         generateColorPalette(phenotypeCategories);
 
@@ -240,6 +251,7 @@ onMounted(() => {
         patientsByGenderChart.value?.dataPoints,
         "dataPointName"
       );
+
       patientsByGenderPalette.value = generateColorPalette(genderCategories);
     })
     .then(() => updateCharts())
