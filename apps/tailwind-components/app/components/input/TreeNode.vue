@@ -28,6 +28,7 @@ const props = withDefaults(
     isSearching?: boolean;
     scrollContainer?: HTMLElement | null;
     enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
+    facetCounts?: Map<string, number>;
   }>(),
   {
     inverted: false,
@@ -363,7 +364,7 @@ onUnmounted(() => {
           class="group flex justify-center items-start"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
-            'text-title cursor-pointer ': !disabled,
+            'text-title-contrast cursor-pointer': !disabled,
           }"
         >
           <input
@@ -402,9 +403,12 @@ onUnmounted(() => {
           />
           <span
             class="block text-body-sm leading-normal pl-1"
-            :class="inverted ? 'text-title-contrast' : 'text-title'"
+            :class="'text-title-contrast'"
           >
-            {{ node.label || node.name }}
+            {{ node.label || node.name
+            }}<span v-if="facetCounts" class="shrink-0 ml-0.5">
+              ({{ facetCounts.get(node.name) ?? 0 }})</span
+            >
           </span>
         </InputLabel>
         <div
@@ -434,6 +438,7 @@ onUnmounted(() => {
           :isSearching="isSearching"
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
+          :facetCounts="facetCounts"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
           @loadMore="loadMore"

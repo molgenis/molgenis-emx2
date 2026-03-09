@@ -8,15 +8,18 @@ import type {
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import { useFilters } from "../../../../../tailwind-components/app/composables/useFilters";
 import { watch } from "vue";
 import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
+import FilterSidebar from "../../../../../tailwind-components/app/components/filter/Sidebar.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import ActiveFilters from "../../../../../tailwind-components/app/components/filter/ActiveFilters.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -37,8 +40,6 @@ const orderbyDirection = computed(() =>
   route.query.order ? (route.query.order as sortDirection) : "ASC"
 );
 
-const search = computed(() => route.query.search as string);
-
 const tableSettings = ref<ITableSettings>({
   page: currentPage.value,
   pageSize: 10,
@@ -46,10 +47,30 @@ const tableSettings = ref<ITableSettings>({
     column: orderbyColumn.value,
     direction: orderbyDirection.value,
   },
-  search: search.value || "",
+  search: "",
 });
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
+
+const filterColumns = computed(
+  () =>
+    tableMetadata?.columns?.filter(
+      (c) =>
+        !c.id.startsWith("mg") &&
+        !["HEADING", "SECTION", "FILE"].includes(c.columnType)
+    ) ?? []
+);
+
+const { filterStates, searchValue, gqlFilter, removeFilter, clearFilters } =
+  useFilters(filterColumns, {
+    urlSync: true,
+    route,
+    router,
+  });
+
+watch(searchValue, (val) => {
+  tableSettings.value.search = val;
+});
 
 function handleSettingsUpdate() {
   const query = {
@@ -58,14 +79,10 @@ function handleSettingsUpdate() {
     order: !tableSettings.value.orderby.column
       ? undefined
       : tableSettings.value.orderby.direction,
-    search:
-      tableSettings.value.search === ""
-        ? undefined
-        : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
   };
 
-  router.push({ query });
+  router.replace({ query });
 }
 
 async function handleViewRowRequest(row: IRow) {
@@ -105,23 +122,47 @@ const { isAdmin, session } = await useSession(schemaId);
       </template>
     </PageHeader>
 
-    <TableEMX2
-      :schemaId="schemaId"
-      :tableId="tableId"
-      v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
-    >
-      <template #additional-row-actions="{ row }">
-        <Button
-          :id="useId()"
-          :icon-only="true"
-          type="inline"
-          icon="info"
-          size="small"
-          label="view row details"
-          @click="handleViewRowRequest(row)"
-        />
-      </template>
-    </TableEMX2>
+    <div class="flex gap-6">
+      <FilterSidebar
+        v-model:filterStates="filterStates"
+        v-model:searchTerms="searchValue"
+        :schemaId="schemaId"
+        :tableId="tableId"
+        :showSearch="true"
+        class="w-64 shrink-0"
+      />
+      <div class="flex-1 min-w-0">
+        <TableEMX2
+          :schemaId="schemaId"
+          :tableId="tableId"
+          v-model:settings="tableSettings"
+          :isEditable="
+            session?.roles?.[schemaId]?.includes('Editor') || isAdmin
+          "
+          :filter="gqlFilter"
+          :hide-search="true"
+        >
+          <template #below-toolbar>
+            <ActiveFilters
+              :filters="filterStates"
+              :columns="filterColumns"
+              @remove="removeFilter"
+              @clear-all="clearFilters"
+            />
+          </template>
+          <template #additional-row-actions="{ row }">
+            <Button
+              :id="useId()"
+              :icon-only="true"
+              type="inline"
+              icon="info"
+              size="small"
+              label="view row details"
+              @click="handleViewRowRequest(row)"
+            />
+          </template>
+        </TableEMX2>
+      </div>
+    </div>
   </section>
 </template>

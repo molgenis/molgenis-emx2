@@ -26,13 +26,16 @@ const props = withDefaults(
       ontologyTableId: string;
       limit?: number;
       selectCutOff?: number;
-      forceList?: boolean; // Force list display (no select dropdown) with manual load more only
+      forceList?: boolean;
+      showClear?: boolean;
+      facetCounts?: Map<string, number>;
     }
   >(),
   {
     limit: 20,
     selectCutOff: 25,
     forceList: false,
+    showClear: true,
   }
 );
 
@@ -52,7 +55,6 @@ const rootCount = ref<number>(0);
 
 const loadingNodes = ref<Set<string>>(new Set());
 
-// Virtual root node to hold the ontology tree and its pagination state
 const rootNode = ref<ITreeNodeState>({
   name: "__root__",
   label: "Root",
@@ -417,9 +419,7 @@ async function toggleTermExpand(
 ) {
   if (!node.expanded) {
     node.showingAll = showAll;
-
     await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
-
     node.expanded = true;
   } else {
     node.expanded = false;
@@ -619,7 +619,10 @@ onMounted(() => {
     }"
   >
     <template v-if="forceList">
-      <div class="w-full flex items-center gap-2 px-2 py-2">
+      <div
+        v-if="totalCount >= selectCutOff"
+        class="w-full flex items-center gap-2 px-2 py-2"
+      >
         <Button
           icon="Search"
           type="text"
@@ -747,7 +750,7 @@ onMounted(() => {
         }"
         v-show="showSelect || !displayAsSelect"
       >
-        <fieldset ref="treeContainer" class="pl-4">
+        <fieldset ref="treeContainer" class="pl-4 min-w-0 overflow-hidden">
           <legend class="sr-only">select ontology terms</legend>
           <TreeNode
             :id="id"
@@ -761,6 +764,7 @@ onMounted(() => {
             :isSearching="!!searchTerms"
             :scrollContainer="scrollContainerRef"
             :enableAutoLoad="enableAutoLoad"
+            :facet-counts="facetCounts"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"
             @loadMore="loadMoreTerms"
@@ -784,7 +788,7 @@ onMounted(() => {
     />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    v-if="showClear && (isArray ? (modelValue || []).length > 0 : modelValue)"
     @click="clearSelection"
     type="text"
     size="tiny"
