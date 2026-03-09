@@ -94,7 +94,7 @@
 import { useHead } from "#app";
 import { useState } from "#app";
 import { computed, ref, watch, onMounted } from "vue";
-import { useRoute } from "#app";
+import { useRoute } from "vue-router";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -109,7 +109,10 @@ import { fetchHpcHealth } from "../composables/useHpcApi";
 // await useSession() that crashes when the GraphQL response lacks `.data`.
 const session = useState<any>("session", () => null);
 const route = useRoute();
-const isLoginPage = computed(() => route.path === "/login");
+const isLoginPage = computed(() => {
+  const normalizedPath = route.path.replace(/\/+$/, "") || "/";
+  return normalizedPath === "/login";
+});
 
 useHead({
   titleTemplate: (titleChunk: string | undefined): string | null => {
