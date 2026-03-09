@@ -1,8 +1,138 @@
 # Plan: feat/tw-filters — Port Filter System to tailwind-components + TableEMX2
 
-## Status: Phase 8 — simplification round
+## Status: Phase 9 — Refactor facet counts: per-input, batched with option loading
 
-## Phase 8: Simplification (review round 2)
+## Phase 9: Refactor facet counts
+
+### Problem
+Current `useFilterCounts` fetches counts centrally in Sidebar for ALL visible filter columns on every filter change. This means:
+- Counts are fetched for ALL values of a column, not just the ones visible on screen
+- Ontology trees may have hundreds of terms but only show 10 at a time
+- Ref inputs paginate at 20 but counts are fetched for everything
+- Every filter change triggers N separate `_groupBy` queries (one per visible column)
+
+### Goal
+Move count fetching into the input components (InputRef, InputOntology) so counts are fetched **only for the values currently being displayed**, batched with the option-loading query.
+
+### Key insight
+`_groupBy` accepts a `filter` parameter. We can add a filter constraint for the specific values being loaded (e.g., `{ species: { name: { equals: ["cat","dog",...20 names] } } }`). This gives us counts for exactly the options being displayed — one `_groupBy` call per "load more" action.
+
+### Architecture change
+
+**Before (centralized):**
+```
+Sidebar → useFilterCounts → N × _groupBy queries (all values)
+       → passes Map<valueName, count> down to Column → Input
+```
+
+**After (per-input, batched):**
+```
+Sidebar → passes crossFilter down to Column → Input
+InputRef/InputOntology → on loadOptions/loadPage:
+  1. Fetch options (existing query)
+  2. Fetch counts for THOSE specific options via _groupBy + value filter
+  → display count next to each option
+```
+
+### Design: what gets passed down
+
+Sidebar computes the **cross-filter** per column (all active filters EXCEPT that column). This is a plain object, cheap to compute. Pass it as a prop:
+
+```
+Sidebar → Column → Input → InputRef / InputOntology
+  prop: crossFilter (IGraphQLFilter)
+```
+
+Each input component uses `crossFilter` when fetching counts for its loaded options.
+
+### UX: async counts with graceful loading
+
+Counts load async (separate `_groupBy` after options load). No spinners — too noisy.
+- **Show options immediately** without counts
+- **Fade counts in** when `_groupBy` response arrives (opacity transition)
+- **On filter change**: keep showing old counts (stale) while re-fetching, then swap
+- Use subtle `opacity-50 → opacity-100` transition to signal freshness
+
+### Step-by-step plan
+
+#### 9.1 Add `crossFilter` computed map in Sidebar
+- Compute `Map<columnId, IGraphQLFilter>` from current filterStates (reuse `buildCrossFilter` logic from useFilterCounts)
+- Pass `crossFilter` prop to `FilterColumn` instead of `facetCounts`
+- Remove `useFilterCounts` import from Sidebar
+
+#### 9.2 Update Column.vue and Input.vue prop chain
+- Replace `facetCounts: Map<string, number>` prop with `crossFilter: IGraphQLFilter`
+- Pass through Column → Input → InputRef / InputOntology
+
+#### 9.3 Add count fetching to InputRef
+- After `loadOptions()` returns a batch of options, fire a `_groupBy` query:
+  ```graphql
+  query($filter: {Table}Filter) {
+    {Table}_groupBy(filter: $filter) {
+      count
+      {columnId} { {keyField} }
+    }
+  }
+  ```
+  Where `$filter` combines:
+  - The `crossFilter` from props (excludes this column's own filter)
+  - A constraint on the ref table: `{ {keyField}: { equals: [loaded option values] } }`
+- Store counts in a local `Map<string, number>` ref
+- On "load more": fetch counts for the NEW batch only, merge into existing map
+- On `crossFilter` change: re-fetch counts for ALL currently loaded options (debounced ~300ms)
+  - Keep old counts visible (stale) until new ones arrive
+- Pass local counts to CheckboxGroup as `facetCounts`
+
+#### 9.4 Add count fetching to InputOntology
+- After `loadPage()` returns a batch of tree nodes, fire a `_groupBy` query for those nodes
+- For parent nodes: use `_agg` with `_match_any_including_children` (existing pattern)
+  but only for the parents currently visible, not all
+- On expand/load-more: fetch counts for newly loaded nodes only
+- On `crossFilter` change: re-fetch counts for all currently visible nodes (debounced)
+  - Keep old counts visible until new ones arrive
+- Store in local `Map<string, number>` ref
+- Pass to TreeNode as `facetCounts`
+
+#### 9.5 Add opacity transition to count badges
+- CheckboxGroup.vue and TreeNode.vue: wrap count `<span>` in a transition
+- `opacity-50` while counts are loading/stale, `opacity-100` when fresh
+- Use `transition-opacity duration-200` for smooth fade
+- No spinners, no layout shift
+
+#### 9.6 Remove useFilterCounts composable
+- Delete `app/composables/useFilterCounts.ts`
+- Delete `tests/vitest/composables/useFilterCounts.spec.ts`
+- Remove from Sidebar.vue imports
+
+#### 9.7 Update tests
+- Add vitest tests for InputRef count fetching (mock _groupBy responses)
+- Add vitest tests for InputOntology count fetching
+- Update Sidebar.spec.ts to pass crossFilter instead of facetCounts
+- Update Column.spec.ts prop expectations
+
+#### 9.8 Verify
+- [ ] Counts appear next to filter options (fade in after options load)
+- [ ] Counts update when other filters change (crossFilter reactivity)
+- [ ] Old counts stay visible while new counts load (no flicker)
+- [ ] "Load more" fetches counts only for the new batch
+- [ ] Ontology expand fetches counts only for visible children
+- [ ] No N+1 query explosion — one _groupBy per load action
+- [ ] Small ontologies (< 25 items) still work
+- [ ] All vitest tests pass
+- [ ] E2e test passes
+
+### Decisions
+1. **Cross-filter excludes current column** — standard faceted search. Users see "what would I get if I also select this?" for multi-select filters.
+2. **No spinners** — options show immediately, counts fade in async. Stale counts stay visible during re-fetch.
+3. **Separate _groupBy from option query** — simpler code, optimize to single request later if needed.
+4. **Debounce count re-fetch** on crossFilter change (~300ms).
+5. **String/range filters** don't have option counts. No change needed for them.
+
+---
+
+## Previous phases
+
+## Phase 8: Simplification (review round 2) [x]
 
 ### 8.1 Remove mobileDisplay [x]
 ### 8.2 Make Sidebar self-contained [x]
@@ -46,7 +176,7 @@
 ### 7.5 Fix stale story documentation [x]
 - [x] `Column.story.vue` — removed `collapsed` prop and collapse/caret items
 - [x] `Sidebar.story.vue` — replaced "grouped by heading" with "sorted alphabetically"
-- [x] `Range.story.vue` — removed "stacks vertically" mobile claim
+- [x] `Range.story.vue` — removed "stale vertically" mobile claim
 
 ### 7.6 Code fixes [x]
 - [x] `extractStringKey` — returns `""` for undefined/empty objects instead of `"undefined"`
@@ -60,235 +190,6 @@
 5. `computeDefaultFilters`: Should it be exported from Sidebar.vue for testability? => YES, good idea.
 6. `serializeFilterValue({operator:"in", value:{}})` returning `"undefined"` — bug or intentional? => BUG, can you interrogate?
 
-## Phase 1: Create worktree [x]
-- [x] Create worktree from master
-- [x] Symlink .claude
-- [x] Create .plan directories
+## Phase 1-6 [x]
 
-## Phase 2: Copy new files from feat/generic-view [x]
-Source: `/Users/m.a.swertz/git/molgenis-emx2/feat/generic-view/apps/tailwind-components/`
-
-### New source files (12) — all copied
-- [x] types/filters.ts
-- [x] app/utils/filterConstants.ts
-- [x] app/utils/buildFilter.ts
-- [x] app/utils/extractPrimaryKey.ts
-- [x] app/composables/useFilters.ts
-- [x] app/composables/useFilterCounts.ts
-- [x] app/composables/getSubclassColumns.ts
-- [x] app/components/filter/Range.vue
-- [x] app/components/filter/Column.vue
-- [x] app/components/filter/FilterPicker.vue
-- [x] app/components/filter/ActiveFilters.vue
-- [x] app/components/filter/Sidebar.vue
-
-### Story files (5) — all copied
-- [x] app/pages/filter/Sidebar.story.vue
-- [x] app/pages/filter/ActiveFilters.story.vue
-- [x] app/pages/filter/Column.story.vue
-- [x] app/pages/filter/Range.story.vue
-- [x] app/pages/composables/useFilters.story.vue
-
-### Test files (7) — all copied
-- [x] tests/vitest/utils/buildFilter.spec.ts
-- [x] tests/vitest/composables/useFilters.spec.ts
-- [x] tests/vitest/composables/useFilterCounts.spec.ts
-- [x] tests/vitest/components/filter/Range.spec.ts
-- [x] tests/vitest/components/filter/Column.spec.ts
-- [x] tests/vitest/components/filter/FilterPicker.spec.ts (removed stale grouped-by-type test)
-- [x] tests/vitest/components/filter/ActiveFilters.spec.ts
-
-## Phase 3: Modify existing files [x]
-- [x] types/types.ts — Added IOntologyItem interface
-- [x] app/composables/fetchTableMetadata.ts — Added options param + getSubclassColumns
-- [x] app/components/input/CheckboxGroup.vue — Added facetCounts prop + count badge
-- [x] app/components/input/Ontology.vue — Added showClear, facetCounts, fetchParentCounts, forceList props
-- [x] app/components/input/Ref.vue — Added showClear, facetCounts props, init() guards
-- [x] app/components/Input.vue — Added showClear, facetCounts, fetchParentCounts, forceList props, pass-through
-
-## Phase 4: Integrate into TableEMX2 [x]
-- [x] Add showFilters + urlSync props (default false)
-- [x] Add FilterSidebar two-column layout
-- [x] Wire useFilters composable (filterColumns, gqlFilter, searchTerm)
-- [x] Pass gqlFilter to fetchTableData
-- [x] Watch gqlFilter/searchTerm to reset page + refresh
-- [x] ActiveFilters chips above table
-
-## Phase 5: Update TableEMX2 story [x]
-- [x] Add showFilters toggle checkbox
-
-## Phase 6: Enable filters in apps/ui [x]
-- [x] Add show-filters="true" and url-sync="true" to table page
-- [x] Remove search from handleSettingsUpdate (sidebar handles it)
-
-## Verification [x]
-- [x] All 327 vitest tests pass (tw-filters)
-- [x] All 398 vitest tests pass (generic-view, 1 pre-existing network error unrelated)
-- [x] Lint (nuxi typecheck) passes on both branches
-- [ ] Story pages render correctly (manual verification needed)
-- [ ] Manual test checklist below verified
-
-## Files changed (34 total)
-- 24 new files (12 source, 5 stories, 7 tests)
-- 1 new type file (filters.ts)
-- 1 plan file
-- 8 modified files (Input.vue, CheckboxGroup.vue, Ontology.vue, Ref.vue, TableEMX2.vue, fetchTableMetadata.ts, types.ts, EMX2.story.vue, apps/ui index.vue)
-
----
-
-## Manual Test Checklist
-
-Test using story pages (`pnpm dev` in tailwind-components) and apps/ui with a running backend.
-Check all 5 themes: Light, Dark, Molgenis, UMCG, AUMC.
-
-### 1. Filter Sidebar Visibility
-Story: `/table/EMX2.story` with showFilters toggle
-
-- [ ] Sidebar appears when showFilters is enabled
-- [ ] No sidebar when showFilters is disabled
-- [ ] On mobile screens: a filter button appears instead of the sidebar
-- [ ] On mobile: filter button is hidden when showFilters is disabled
-- [ ] Search bar moves into the sidebar when filters are enabled
-
-### 2. Add Filter Picker
-Story: `/filter/Sidebar.story`
-
-- [ ] "Add filter" button is visible in the sidebar footer
-- [ ] Clicking it opens a dropdown listing available columns
-- [ ] Dropdown is closed by default
-- [ ] Filterable columns shown (STRING, INT, REF, ONTOLOGY, BOOL, DATE, etc.)
-- [ ] HEADING and SECTION columns are excluded from the list
-- [ ] Internal `mg_*` columns are excluded
-- [ ] Columns are sorted alphabetically
-- [ ] Typing in the search box narrows the column list (case-insensitive)
-- [ ] Entering a non-matching search term shows "no results"
-- [ ] Non-REF columns show a checkbox only
-- [ ] REF columns show a checkbox AND an expand caret for nested columns
-- [ ] Already-visible filters show a checked checkbox
-- [ ] Hidden filters show an unchecked checkbox
-- [ ] Clicking a column toggles the filter on/off in the sidebar
-- [ ] "Reset to defaults" button restores the initial default filter set
-- [ ] Pressing Escape closes the dropdown
-- [ ] Default set: up to 5 ontology columns first, then REF columns
-
-### 3. Nested REF Filters (3+ levels deep)
-Story: `/filter/Sidebar.story` with a schema that has multi-level REFs
-
-- [ ] REF columns in the picker show an expand caret
-- [ ] Clicking the caret shows the REF table's own columns as sub-items
-- [ ] Collapsing a parent also hides all its nested descendants
-- [ ] Toggling a deeply nested column adds a filter with the full dot-path (e.g. `orders.product.category`)
-
-### 4. Per-Column Filter Input
-Story: `/filter/Column.story`
-
-- [ ] Each filter shows the column label as a heading
-- [ ] Custom labels from displayConfig are used when available
-- [ ] Filter content is always expanded (no collapse toggle)
-- [ ] A "Clear" link appears below the input when a filter value is set
-- [ ] "Clear" link is hidden when the filter is empty
-- [ ] Clicking "Clear" resets the filter value to empty
-- [ ] "Remove" link appears for user-added (non-default) filters
-- [ ] Clicking "Remove" hides the filter from the sidebar
-- [ ] On mobile, mobile-specific styling classes are applied
-
-### 5. Filter Type Behavior
-Story: `/filter/Column.story` — try each column type
-
-- [ ] STRING/TEXT/EMAIL columns render a text input; typing produces a "like" filter
-- [ ] INT/DECIMAL/LONG columns render two inputs (From / To); filling produces a "between" range filter
-- [ ] DATE/DATETIME columns render two date inputs for range filtering
-- [ ] BOOL columns render a single checkbox/radio; selecting produces an "equals" filter
-- [ ] REF/REF_ARRAY columns render a reference picker with checkboxes
-- [ ] ONTOLOGY columns render a tree picker with checkboxes
-- [ ] Clearing both range inputs (From and To) removes the filter entirely
-
-### 6. Range Filter
-Story: `/filter/Range.story`
-
-- [ ] Shows "From" and "To" labels by default
-- [ ] Changing the min value preserves the existing max value
-- [ ] Changing the max value preserves the existing min value
-- [ ] Input fields have matching `id`/`for` attributes for accessibility
-- [ ] The range is wrapped in a `<fieldset>` for screen readers
-
-### 7. Active Filter Chips
-Story: `/filter/ActiveFilters.story`
-
-- [ ] No chips shown when no filters are active
-- [ ] A single active filter shows one chip with the column name and value
-- [ ] Multiple active filters show multiple chips
-- [ ] Chip label for "like" filter: shows the search text (e.g. `Name: test`)
-- [ ] Chip label for "equals" filter: shows `= value`
-- [ ] Chip label for "in" with 1 item: shows the value directly
-- [ ] Chip label for "in" with multiple items: shows count (e.g. `3 selected`)
-- [ ] Chip label for "between" with min and max: shows `min – max`
-- [ ] Chip label for "between" with min only: shows `>= min`
-- [ ] Chip label for "between" with max only: shows `<= max`
-- [ ] Chip label for "isNull": shows `is empty`
-- [ ] Chip label for "notNull": shows `is not empty`
-- [ ] Clicking a chip's X removes that specific filter
-- [ ] "Clear all" button appears when 2 or more filters are active
-- [ ] "Clear all" is hidden with only 1 active filter
-- [ ] Clicking "Clear all" removes all filters at once
-- [ ] Hovering a multi-value chip shows a tooltip listing all selected values
-- [ ] Chips have ARIA labels for screen reader accessibility
-
-### 8. URL Sync (browser address bar)
-Story: `/table/EMX2.story` with showFilters enabled, or apps/ui table page
-
-- [ ] With no filters active, no filter params appear in the URL
-- [ ] Setting a filter immediately updates the URL
-- [ ] Search text is stored as `mg_search=...` in the URL
-- [ ] Filter values appear as `columnName=value` in the URL
-- [ ] REF filters use dotted key syntax (e.g. `?orders.name=Widget`)
-- [ ] Nested 3-level REF filters serialize correctly (e.g. `?orders.product.name=X`)
-- [ ] Existing `mg_*` reserved params (page, orderby) are preserved when filters change
-- [ ] Using browser Back/Forward updates the filters reactively
-- [ ] Copy-pasting a URL with filter params restores the filters on page load
-- [ ] Rapid filter changes don't corrupt the URL
-
-### 9. Facet Counts
-Story: `/filter/Sidebar.story` with a backend connection
-
-- [ ] Ontology filter options show a count badge (e.g. "Species (42)")
-- [ ] REF filter options show a count badge
-- [ ] Counts update when other filters change (cross-filtering)
-- [ ] The current column's own filter is excluded from its count calculation
-- [ ] Parent ontology nodes show aggregated child counts
-- [ ] Search text is included in count calculation
-- [ ] No crash when the backend returns empty or error responses
-
-### 10. Ontology Tree Search
-Story: `/filter/Sidebar.story` with an ontology column
-
-- [ ] Typing in the ontology search box filters the tree to matching terms
-- [ ] When expanding a node whose children are hidden by search, "(show filtered)" link appears
-- [ ] A message appears when all children of a node are hidden by the search filter
-- [ ] Clicking "(show filtered)" reveals all children regardless of search
-- [ ] Clicking "(apply filter)" re-applies the search filter after showing all
-- [ ] No "(show filtered)" link when all children already match the search
-- [ ] The count of filtered vs total terms is shown correctly
-- [ ] Selecting a parent does NOT auto-select when search filter hides some children
-
-### 11. Theme Compatibility
-Story: `/filter/Sidebar.story` and `/Form.story`
-
-- [ ] **All 5 themes** (Light, Dark, Molgenis, UMCG, AUMC): sidebar text is readable
-- [ ] Filter labels, option labels, and "Clear"/"Remove"/"Add filter" links are visible
-- [ ] "N more terms" and "(load more)" links are visible on dark sidebar backgrounds
-- [ ] Filter separator lines are visible
-- [ ] Ontology tree labels are readable in both the filter sidebar AND the form
-- [ ] Bool/Ref checkbox labels are readable in both the filter sidebar AND the form
-- [ ] Form section headings (e.g. "STRING TYPES") are readable on AUMC theme
-
-### 12. Integration with TableEMX2
-Story: `/table/EMX2.story` with showFilters enabled + backend
-
-- [ ] Table data updates when a filter is applied
-- [ ] Table resets to page 1 when a filter changes
-- [ ] Active filter chips appear above the table
-- [ ] Removing a chip re-fetches data without that filter
-- [ ] "Clear all" re-fetches unfiltered data
-- [ ] Search in the sidebar filters table data
-- [ ] Combined filters + search work correctly together
+See git history for details. All phases completed.
