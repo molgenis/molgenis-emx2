@@ -1,5 +1,5 @@
 ---
-title: "MOLGENIS EMX2 & HPC Job Orchestration — Design Proposal"
+title: "MOLGENIS EMX2 & HPC Job Orchestration — Design Specification"
 lang: en-US
 
 mainfont: "IBM Plex Sans"
@@ -32,7 +32,7 @@ header-includes: |
 
 EMX2 is evolving to support heavy compute workloads (including AI) that cannot run inside the application stack and cannot be triggered via inbound connections into available HPC clusters. At the same time, EMX2 must remain the authoritative system of record for job state and artifact metadata, while HPC governance must retain control over scheduling and resource allocation. This creates a coordination problem across a strict trust boundary.
 
-This document proposes an outbound-only execution bridge: the HPC head node polls EMX2 for work, claims jobs atomically, submits them to Slurm, and reports lifecycle transitions and artifacts back to EMX2. EMX2 owns state and integrity; HPC owns execution and scheduling. The result is deterministic, auditable job orchestration without breaking institutional network constraints or governance boundaries.
+This document specifies an outbound-only execution bridge: the HPC head node polls EMX2 for work, claims jobs atomically, submits them to Slurm, and reports lifecycle transitions and artifacts back to EMX2. EMX2 owns state and integrity; HPC owns execution and scheduling. The result is deterministic, auditable job orchestration without breaking institutional network constraints or governance boundaries.
 
 # Introduction
 
@@ -40,13 +40,13 @@ This document proposes an outbound-only execution bridge: the HPC head node poll
 
 Molgenis EMX2 is a metadata-driven platform for scientific data built around FAIR principles (findability, accessibility, interoperability and reusability). As the platform evolves to incorporate AI-backed enhancements — automated annotation, similarity search, inference pipelines — it needs the ability to offload compute-intensive workloads to GPU-enabled infrastructure that typically lives outside the application's own network.
 
-This document proposes a protocol for bridging EMX2 with one or more HPC clusters managed by Slurm. The design addresses a specific institutional constraint: the HPC environment cannot accept inbound connections. All communication MUST be initiated from the HPC side.
+This document specifies a protocol for bridging EMX2 with one or more HPC clusters managed by Slurm. The design addresses a specific institutional constraint: the HPC environment cannot accept inbound connections. All communication MUST be initiated from the HPC side.
 
-The proposed architecture is an outbound-only job execution bridge. HPC workers poll EMX2 for work, claim jobs, execute them (inside Apptainer containers or via wrapper scripts), and report results — all without EMX2 needing to reach into the cluster.
+The architecture is an outbound-only job execution bridge. HPC workers poll EMX2 for work, claim jobs, execute them (inside Apptainer containers or via wrapper scripts), and report results — all without EMX2 needing to reach into the cluster.
 
 ## Scope
 
-This proposal covers worker registration and capability advertisement, job lifecycle management, artifact management (typed, content-addressed data objects for job inputs and outputs), and authentication across the trust boundary.
+This specification covers worker registration and capability advertisement, job lifecycle management, artifact management (typed, content-addressed data objects for job inputs and outputs), and authentication across the trust boundary.
 
 It does not cover job creation by end users (that is an EMX2 application concern), Slurm cluster administration, or artifact retention policy.
 
@@ -62,21 +62,21 @@ It does not cover job creation by end users (that is an EMX2 application concern
 
 # System Architecture
 
-The system is divided into two trust domains connected by outbound HTTPS from the HPC environment. This section describes the proposed components in each domain and how they would interact.
+The system is divided into two trust domains connected by outbound HTTPS from the HPC environment. This section describes the components in each domain and how they interact.
 
 ![HPC Topology](./flow.pdf)
 
 ## EMX2 Application Domain
 
-This proposal introduces three API surfaces within EMX2:
+The system introduces three API surfaces within EMX2:
 
 - **Workers API** — registration of head nodes and their capabilities.
 - **Jobs API** — job listing, filtering by capability, atomic claiming, state transitions, and output artifact linking.
 - **Artifact API** — lifecycle management (create/upload/commit), path-based file operations (PUT/GET/HEAD/DELETE), paginated file listing, and integrity verification. Exposes an S3-minimal surface for managed artifacts.
 
-These would be backed by tables in the EMX2 `_SYSTEM_` schema (prefixed with `Hpc` to avoid collisions). The system tables would hold job state (including `output_artifact_id` foreign key to artifacts), worker registrations, capability advertisements, transition audit logs, artifact metadata, and artifact file content (stored in EMX2 FILE columns for managed residence). A Vue-based HPC dashboard would provide browser access to jobs, workers, and artifacts including direct file upload.
+These are backed by tables in the EMX2 `_SYSTEM_` schema (prefixed with `Hpc` to avoid collisions). The system tables hold job state (including `output_artifact_id` foreign key to artifacts), worker registrations, capability advertisements, transition audit logs, artifact metadata, and artifact file content (stored in EMX2 FILE columns for managed residence). A Vue-based HPC dashboard provides browser access to jobs, workers, and artifacts including direct file upload.
 
-All endpoints would live under `/api/hpc/*` with a shared before-handler that validates protocol headers and (when configured) HMAC authentication. The health endpoint (`/api/hpc/health`) SHOULD be exempt from authentication.
+All endpoints live under `/api/hpc/*` with a shared before-handler that validates protocol headers and (when configured) HMAC authentication. The health endpoint (`/api/hpc/health`) SHOULD be exempt from authentication.
 
 ## HPC Environment
 
@@ -84,7 +84,7 @@ The HPC side consists of:
 
 - **Head Node Controller** — a daemon that registers capabilities, polls for pending jobs, maps processor + profile to Slurm parameters, submits `sbatch`, and reports the result back to EMX2.
 - **Slurm Controller** — the cluster's workload manager, unchanged from its standard role.
-- **Apptainer Runtime / Wrapper Script** — executes the workload on a compute node, either inside an Apptainer (formerly Singularity) container or via a wrapper script executed directly on the host. The daemon would handle all communication with EMX2: staging input artifacts (symlink for posix, download for managed), monitoring Slurm job state, reading filesystem-based progress updates, uploading or registering output artifacts, and posting status transitions. The workload itself would have no direct EMX2 access — its only output channel is the filesystem (exit code, output files, and an optional `.hpc_progress.json` progress file).
+- **Apptainer Runtime / Wrapper Script** — executes the workload on a compute node, either inside an Apptainer (formerly Singularity) container or via a wrapper script executed directly on the host. The daemon handles all communication with EMX2: staging input artifacts (symlink for posix, download for managed), monitoring Slurm job state, reading filesystem-based progress updates, uploading or registering output artifacts, and posting status transitions. The workload MUST NOT have direct EMX2 access — its only output channel is the filesystem (exit code, output files, and an optional `.hpc_progress.jsonl` progress file).
 - **NFS Shared Storage** — an NFS export mounted on the head node and all compute nodes. Stores Apptainer SIF images, POSIX-resident artifacts, and shared scratch data.
 - **Local Scratch** — per-node temporary storage, discarded after job completion.
 
@@ -101,7 +101,7 @@ The HPC side consists of:
 
 ## Head Node Daemon
 
-This proposal specifies the head node controller as a Python CLI (`emx2-hpc-daemon`), built on Click for argument parsing, httpx for HTTP communication, and subprocess for Slurm command invocation. It exposes four commands:
+The head node controller is a Python CLI (`emx2-hpc-daemon`), built on Click for argument parsing, httpx for HTTP communication, and subprocess for Slurm command invocation. It exposes four commands:
 
 | Command | Purpose |
 |---------|---------|
@@ -110,9 +110,9 @@ This proposal specifies the head node controller as a Python CLI (`emx2-hpc-daem
 | `register` | Register the worker with EMX2 and exit. |
 | `check` | Validate config, connectivity, and Slurm command availability. |
 
-Both `run` and `once` SHOULD accept a `--simulate` flag that walks jobs through all lifecycle states without invoking Slurm or creating working directories. In simulate mode, each poll cycle would advance tracked jobs one step (CLAIMED → SUBMITTED → STARTED → COMPLETED), completing a full lifecycle in approximately three cycles.
+Both `run` and `once` SHOULD accept a `--simulate` flag that walks jobs through all lifecycle states without invoking Slurm or creating working directories. In simulate mode, each poll cycle advances tracked jobs one step (CLAIMED → SUBMITTED → STARTED → COMPLETED), completing a full lifecycle in approximately three cycles.
 
-The daemon SHOULD send periodic heartbeats (default: every 120 seconds) to keep the worker registration alive. On startup, it SHOULD recover tracking state for non-terminal jobs from a previous run. On SIGTERM/SIGINT, it SHOULD stop accepting new work and exit gracefully; Slurm jobs continue running independently and would be recovered on next startup.
+The daemon SHOULD send periodic heartbeats (default: every 120 seconds) to keep the worker registration alive. On startup, it SHOULD recover tracking state for non-terminal jobs from a previous run. On SIGTERM/SIGINT, it SHOULD stop accepting new work and exit gracefully; Slurm jobs continue running independently and are recovered on next startup.
 
 During the monitor loop, the daemon SHOULD also check for a `.hpc_progress.jsonl` file (NDJSON format — one JSON object per line) in each STARTED job's output directory. The workload appends progress lines; the daemon reads the **last complete line** and relays it as a transition detail update to EMX2. This append-only format is inherently safe against partial reads: incomplete trailing lines (from in-progress writes) are silently skipped. The daemon validates and sanitizes each progress object: `phase` (string, max 100 chars), `message` (string, max 500 chars), `progress` (float, clamped to [0.0, 1.0]). Unknown keys are dropped; invalid types are skipped per-field. This provides in-flight progress visibility without leaking any credentials into the job environment.
 
@@ -140,7 +140,7 @@ At every step, the client discovers what it can do next from hypermedia links in
 
 ## Design Principles
 
-The proposed architecture is deliberately minimal:
+The architecture is deliberately minimal:
 
 - **EMX2 is the system of record** for jobs, lifecycle state, and artifact metadata.
 - **HPC is responsible for execution** via Slurm and Apptainer. EMX2 MUST NOT tell the cluster how to schedule.
@@ -151,11 +151,11 @@ The proposed architecture is deliberately minimal:
 
 # Processor and Execution Model
 
-Jobs reference a logical processor identifier (e.g. `text-embedding:v3`) and an optional execution profile (e.g. `gpu-medium`). EMX2 MUST NOT encode cluster-specific scheduling parameters. Instead, the protocol proposes a hybrid model that separates **application intent** from **cluster policy**.
+Jobs reference a logical processor identifier (e.g. `text-embedding:v3`) and an optional execution profile (e.g. `gpu-medium`). EMX2 MUST NOT encode cluster-specific scheduling parameters. Instead, the protocol uses a hybrid model that separates **application intent** from **cluster policy**.
 
 EMX2 specifies *what* to run — a processor identifier and a profile. The head node determines *how* — which SIF image, which Slurm partition, how many GPUs, how much memory, and what wall time.
 
-For example, given a job requesting `text-embedding:v3` with profile `gpu-medium`, the head node would resolve this to:
+For example, given a job requesting `text-embedding:v3` with profile `gpu-medium`, the head node resolves this to:
 
 ```
 text-embedding:v3 + gpu-medium
@@ -186,7 +186,7 @@ profiles:
     time: "08:00:00"
 ```
 
-The proposed wrapper script contract defines these environment variables:
+The wrapper script contract defines these environment variables:
 
 - **`HPC_JOB_ID`** — the EMX2 job identifier.
 - **`HPC_INPUT_DIR`** — directory containing staged input artifacts (read from here).
@@ -205,7 +205,7 @@ Three models were considered:
 
 1. **Full embedding** — Slurm parameters in EMX2 payloads. Rejected: couples EMX2 to cluster configuration and violates institutional scheduling governance.
 2. **Full delegation** — no hint from EMX2 at all. Rejected: EMX2 cannot express workload intent, making it impossible to distinguish a lightweight job from a GPU-heavy one.
-3. **Hybrid profiles** (proposed) — EMX2 expresses intent through a logical profile; the HPC side maps it to concrete resources.
+3. **Hybrid profiles** (adopted) — EMX2 expresses intent through a logical profile; the HPC side maps it to concrete resources.
 
 The hybrid model keeps scheduling policy within HPC governance while letting EMX2 express meaningful workload requirements. Cluster configuration can change without protocol changes.
 
@@ -260,7 +260,7 @@ A job MUST pass through a strict state machine. Every transition is recorded as 
 
 All other transitions MUST be rejected with `409 Conflict`. Jobs in terminal states (COMPLETED, FAILED, CANCELLED) MUST NOT transition further.
 
-Jobs MAY be deleted via `DELETE /api/hpc/jobs/{id}`. Non-terminal jobs MUST be automatically cancelled before deletion. The transition history is deleted with the job.
+Jobs MAY be deleted via `DELETE /api/hpc/jobs/{id}`. If the job is in a non-terminal state, the caller MUST cancel it first via `POST /api/hpc/jobs/{id}/cancel`; attempting to delete a non-terminal job MUST return `409 Conflict`. The transition history is deleted with the job.
 
 ## Failure Recovery
 
@@ -268,27 +268,27 @@ The protocol is designed to converge to a consistent state after any single fail
 
 **Idempotent transitions.** A transition request is considered identical when `job_id`, `status`, `worker_id`, and all payload fields match a previously accepted transition. Duplicates SHOULD return `200 OK`. Non-identical submissions to the same state MUST return `409 Conflict`. This allows safe retries on network failure.
 
-**Timeout-driven state progression.** Two enforcement tiers are proposed to prevent jobs from stalling indefinitely:
+**Timeout-driven state progression.** Two enforcement tiers prevent jobs from stalling indefinitely:
 
 - **Per-job timeout (EMX2-enforced).** Jobs MAY carry an optional `timeout_seconds` field. EMX2 checks CLAIMED and STARTED jobs lazily (on each poll cycle). If `claimed_at + timeout_seconds < now` for a CLAIMED job, or `started_at + timeout_seconds < now` for a STARTED job, EMX2 transitions the job to FAILED with a timeout detail message. This provides fine-grained, per-job control when callers know the expected duration.
 
-- **Per-profile timeout (daemon-enforced).** Each profile in the daemon config would carry `claim_timeout_seconds` (default 300) and `execution_timeout_seconds` (default 0 = rely on Slurm wall time). The daemon checks tracked jobs against these limits on each monitor cycle. On timeout, it transitions the job to FAILED and issues `scancel` if a Slurm job ID is known. This acts as a safety net for jobs that lack a per-job timeout.
+- **Per-profile timeout (daemon-enforced).** Each profile in the daemon config carries `claim_timeout_seconds` (default 300) and `execution_timeout_seconds` (default 0 = rely on Slurm wall time). The daemon checks tracked jobs against these limits on each monitor cycle. On timeout, it transitions the job to FAILED and issues `scancel` if a Slurm job ID is known. This acts as a safety net for jobs that lack a per-job timeout.
 
-**Infrastructure termination.** If Slurm kills a job unexpectedly (node failure, preemption, wall-time exceeded), the daemon detects this via `squeue`/`sacct` on the next monitor cycle and posts a FAILED transition. The workload (whether container or wrapper script) has no direct EMX2 access — its only output channel is the filesystem: exit code, output files in `HPC_OUTPUT_DIR`, and an optional `.hpc_progress.json` progress file. The daemon is responsible for interpreting these signals and posting appropriate transitions.
+**Infrastructure termination.** If Slurm kills a job unexpectedly (node failure, preemption, wall-time exceeded), the daemon detects this via `squeue`/`sacct` on the next monitor cycle and posts a FAILED transition. The workload (whether container or wrapper script) has no direct EMX2 access — its only output channel is the filesystem: exit code, output files in `HPC_OUTPUT_DIR`, and an optional `.hpc_progress.jsonl` progress file. The daemon is responsible for interpreting these signals and posting appropriate transitions.
 
 **Concurrency control.** Workers declare `max_concurrent_jobs` during registration and are responsible for not over-claiming. EMX2 MAY optionally enforce an upper bound.
 
 # Artifact Store
 
-Artifacts are the primary data objects in the proposed system: job inputs, job outputs, model weights, execution logs, container images. This section describes how they would be classified, where they live, how their integrity is ensured, and how their lifecycle is managed.
+Artifacts are the primary data objects in the system: job inputs, job outputs, model weights, execution logs, container images. This section describes how they are classified, where they live, how their integrity is ensured, and how their lifecycle is managed.
 
 ## Classification
 
 Every artifact is described along two dimensions.
 
-**Type** is a free-text label describing what the artifact is. No fixed ontology is proposed — users write whatever is meaningful for their context: `csv`, `parquet`, `onnx-model`, `vcf`, `log`, `report`, `sif`, etc. Per-file `content_type` covers media type details, so a single field suffices for artifact-level classification.
+**Type** is a free-text label describing what the artifact is. No fixed ontology is prescribed — users write whatever is meaningful for their context: `csv`, `parquet`, `onnx-model`, `vcf`, `log`, `report`, `sif`, etc. Per-file `content_type` covers media type details, so a single field suffices for artifact-level classification.
 
-**Name** is a human-readable identifier for the artifact. Names are optional but strongly encouraged — without one, artifacts would be identified only by truncated UUIDs in the UI. The daemon SHOULD auto-generate names like `output-<job-id-prefix>` for job outputs.
+**Name** is a human-readable identifier for the artifact. Names are optional but strongly encouraged — without one, artifacts are identified only by truncated UUIDs in the UI. The daemon SHOULD auto-generate names like `output-<job-id-prefix>` for job outputs.
 
 **Residence** specifies where the content physically lives.
 
@@ -302,41 +302,41 @@ Every artifact is described along two dimensions.
 
 ## Residence: NFS
 
-The cluster's NFS export is mounted on both the head node and all compute nodes. This makes it the natural location for large, frequently-reused artifacts: model weights, pre-built indices, and Apptainer SIF images. Data produced by one job would be immediately available to the next.
+The cluster's NFS export is mounted on both the head node and all compute nodes. This makes it the natural location for large, frequently-reused artifacts: model weights, pre-built indices, and Apptainer SIF images. Data produced by one job is immediately available to the next.
 
 The `posix` residence registers artifacts that live on NFS. The content URI is a `file://` path referencing the absolute mount location. The Apptainer runtime reads directly from NFS with no transfer overhead — the fastest access pattern for data already co-located with compute.
 
-Since all nodes share the same NFS export, mount availability is not a per-node concern. Immutability would be enforced by convention: operators MUST ensure that committed paths are not modified or deleted outside the protocol. Hash verification still applies — the runtime checks SHA-256 hashes before use, just as for any other residence.
+Since all nodes share the same NFS export, mount availability is not a per-node concern. Immutability is enforced by convention: operators MUST ensure that committed paths are not modified or deleted outside the protocol. Hash verification still applies — the runtime checks SHA-256 hashes before use, just as for any other residence.
 
 ## Residence: Managed Repository
 
-Managed artifacts would be stored in EMX2's database using the FILE column type. The proposed artifact file API exposes an S3-minimal surface — path-based `PUT` (upload), `GET` (download), `HEAD` (metadata), and `DELETE` operations on individual files within an artifact, plus paginated listing. This maps cleanly to WebDAV semantics and makes future S3-compatible gateway implementation straightforward.
+Managed artifacts are stored in EMX2's database using the FILE column type. The artifact file API exposes an S3-minimal surface — path-based `PUT` (upload), `GET` (download), `HEAD` (metadata), and `DELETE` operations on individual files within an artifact, plus paginated listing. This maps cleanly to WebDAV semantics and makes future S3-compatible gateway implementation straightforward.
 
 The file API uses path-addressed URLs: `/api/hpc/artifacts/{id}/files/{path}`. Paths are logical names within the artifact (e.g. `data.parquet`, `model/weights.bin`) and support any depth. The server computes SHA-256 on upload and returns it in the response; clients do not need to pre-compute hashes for individual file uploads (though the overall artifact hash is provided at commit time). For browser-based uploads, the client SHOULD send a raw binary PUT body and compute the commit-time SHA-256 via the SubtleCrypto API; no multipart encoding is required.
 
-For analytical tools (DuckDB, pandas), committed artifacts could be accessed via the GET endpoint with standard HTTP range requests. A future S3-compatible gateway could proxy these paths to provide native S3 connector support.
+For analytical tools (DuckDB, pandas), committed artifacts can be accessed via the GET endpoint with standard HTTP range requests. A future S3-compatible gateway can proxy these paths to provide native S3 connector support.
 
 ## Multi-File Artifacts and Integrity
 
 Some artifacts consist of multiple files: a model with a tokenizer sidecar, a VCF with a tabix index. Multi-file artifacts MUST include a file manifest listing each file's path, size, and individual SHA-256 hash.
 
-For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash: `SHA256(concat(for each file in sorted(paths): path + ":" + sha256_hex(file_bytes)))`. Any modification to any constituent file would be detectable.
+For single-file artifacts, the content hash is the SHA-256 of the file bytes. For multi-file artifacts, the top-level hash is a tree hash: `SHA256(concat(for each file in sorted(paths): path + ":" + sha256_hex(file_bytes)))`. Any modification to any constituent file is detectable.
 
 Input artifacts MUST be COMMITTED before a job can reference them. The daemon verifies hashes before execution — for managed artifacts it downloads and hashes locally; for NFS artifacts it reads from the mount. A mismatch MUST result in a FAILED transition with reason `input_hash_mismatch`. Output artifacts MUST be immutable after commit.
 
 ## Schema Metadata
 
-Tabular artifacts (e.g. `type: "parquet"` or `type: "csv"`) SHOULD include a `schema` field describing column names, types, nullability, row count, and (for Parquet) row group count. This would be extracted automatically from the Parquet file footer at commit time, so consumers can discover data shape without downloading the file.
+Tabular artifacts (e.g. `type: "parquet"` or `type: "csv"`) SHOULD include a `schema` field describing column names, types, nullability, row count, and (for Parquet) row group count. This is extracted automatically from the Parquet file footer at commit time, so consumers can discover data shape without downloading the file.
 
-This metadata makes artifacts directly queryable. Tools like DuckDB can read a Parquet file from its NFS path or HTTP URL using range requests — fetching the footer first, then only the needed columns and rows. For NFS-resident artifacts this happens with zero network overhead. In practice, EMX2 application code or analytical scripts could use this to inspect job outputs without pulling entire datasets: a SQL query against the artifact's `content_url` (or NFS path) would return results in place.
+This metadata makes artifacts directly queryable. Tools like DuckDB can read a Parquet file from its NFS path or HTTP URL using range requests — fetching the footer first, then only the needed columns and rows. For NFS-resident artifacts this happens with zero network overhead. In practice, EMX2 application code or analytical scripts can use this to inspect job outputs without pulling entire datasets: a SQL query against the artifact's `content_url` (or NFS path) returns results in place.
 
 ## Execution Logs
 
-The daemon SHOULD upload execution logs as artifacts of type `log`, governed by the same retention policy and integrity model as other artifacts. Log artifacts would be referenced alongside outputs in the COMPLETED (or FAILED) transition. Structured JSONL is recommended over plain text for machine queryability.
+The daemon SHOULD upload execution logs as artifacts of type `log`, governed by the same retention policy and integrity model as other artifacts. Log artifacts are referenced alongside outputs in the COMPLETED (or FAILED) transition. Structured JSONL is recommended over plain text for machine queryability.
 
 ## Artifact Lifecycle
 
-Managed artifacts would pass through a state machine:
+Managed artifacts pass through a state machine:
 
 ```{=latex}
 \begin{center}
@@ -367,11 +367,11 @@ Artifacts MUST be immutable after COMMITTED. If an artifact stalls in CREATED or
 
 Jobs reference output artifacts via the `output_artifact_id` field, which is a foreign key to the `HpcArtifacts` table. When the daemon completes a job and uploads (or registers) output artifacts, it passes the `output_artifact_id` in the COMPLETED transition request. EMX2 stores this link on the job record, making it queryable via GraphQL (`output_artifact_id { id name type status { name } }`).
 
-Input artifacts are referenced in the job's `inputs` field (a JSON array of artifact IDs). The daemon stages input artifacts before execution: for managed artifacts it downloads files via GET; for posix artifacts it symlinks the `file://` path into the job's input directory. The output residence for each profile is configured in the daemon config via an `artifact_residence` field on each profile entry. This two-residence model means that large datasets on NFS incur zero transfer overhead, while smaller browser-uploaded artifacts are served from the managed store.
+Input artifacts are referenced in the job's `inputs` field. The canonical format is an array of objects: `[{"artifact_id": "..."}]`. Plain arrays of artifact ID strings (`["id-1", "id-2"]`) and named-reference objects (`{"dataset": "id-1"}`) are also accepted for convenience. The daemon stages input artifacts before execution: for managed artifacts it downloads files via GET; for posix artifacts it symlinks the `file://` path into the job's input directory. The output residence for each profile is configured in the daemon config via an `artifact_residence` field on each profile entry. This two-residence model means that large datasets on NFS incur zero transfer overhead, while smaller browser-uploaded artifacts are served from the managed store.
 
 # API Design
 
-This section describes the principles governing the proposed API. Full endpoint specifications with request and response payloads are in Appendix A.
+This section describes the principles governing the API. Full endpoint specifications with request and response payloads are in Appendix A.
 
 ## Versioning
 
@@ -404,7 +404,7 @@ Client errors MUST return structured JSON with `type`, `title`, `status`, and `d
 
 ## Endpoint Summary
 
-All endpoints are proposed under `/api/hpc`. Detailed specifications are in Appendix A.
+All endpoints live under `/api/hpc`. Detailed specifications are in Appendix A.
 
 ```{=latex}
 \subsubsection*{Workers API}\addcontentsline{toc}{subsubsection}{Workers API}
@@ -471,7 +471,7 @@ All endpoints are proposed under `/api/hpc`. Detailed specifications are in Appe
 
 The protocol operates across a trust boundary between EMX2 (public internet or institutional network) and the HPC environment (internal cluster network). Every API call crosses this boundary, so the security model must answer three questions: who is making this request, has the request been tampered with, and is this request fresh (not a replay of an earlier one)?
 
-## Proposed Authentication Mechanism
+## Authentication Mechanism
 
 Every request from the HPC side to EMX2 MUST carry a set of standard headers that together form an authentication envelope:
 
@@ -517,7 +517,7 @@ The shared secret MUST be stored as a database setting (`MOLGENIS_HPC_SHARED_SEC
 
 When HMAC is enabled, replay protection MUST enforce a 5-minute timestamp drift window and a time-based nonce cache. The nonce cache has no size limit — entries are evicted only when their associated timestamp falls outside the drift window. This guarantees unconditional replay protection: any nonce within the 5-minute window is always remembered, regardless of request volume.
 
-**Future: Per-worker authentication.** The current design uses a single shared secret for simplicity. For deployments with multiple independent head nodes across trust boundaries, per-worker secrets can be added by storing worker-specific secrets in the `HpcWorkers` table. The HMAC verification would then look up the claiming worker's secret by `X-Worker-Id` header. This is backwards-compatible: the global secret serves as a fallback when no per-worker secret is configured.
+**Future: Per-worker authentication.** The current design uses a single shared secret for simplicity. For deployments with multiple independent head nodes across trust boundaries, per-worker secrets can be added by storing worker-specific secrets in the `HpcWorkers` table. The HMAC verification then looks up the claiming worker's secret by `X-Worker-Id` header. This is backwards-compatible: the global secret serves as a fallback when no per-worker secret is configured.
 
 ## Server-Side Authentication Cascade
 
@@ -556,7 +556,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 **NFS immutability by convention.** The protocol registers NFS paths as artifacts but cannot enforce immutability on them. If an operator modifies a file after it has been committed, the hash check will catch it at runtime — but the job will fail rather than being prevented. In environments with strict data governance this may need filesystem-level write protection (e.g. read-only snapshots or chattr).
 
-**S3-minimal file surface.** The proposed artifact file API exposes path-based GET/PUT/HEAD/DELETE operations that map to S3 semantics (`GetObject`, `PutObject`, `HeadObject`, `DeleteObject`). This is sufficient for the initial use case and makes a future S3-compatible gateway straightforward to implement. Until then, analytical tools would access managed artifacts via HTTP GET with range request support.
+**S3-minimal file surface.** The artifact file API exposes path-based GET/PUT/HEAD/DELETE operations that map to S3 semantics (`GetObject`, `PutObject`, `HeadObject`, `DeleteObject`). This is sufficient for the initial use case and makes a future S3-compatible gateway straightforward to implement. Until then, analytical tools access managed artifacts via HTTP GET with range request support.
 
 **Authentication mechanism.** Two mechanisms are supported: HMAC-SHA256 (recommended for production, provides per-request integrity and replay protection) and JWT/API tokens. Browser-based access is handled via session cookies. See §8 for details.
 
@@ -565,7 +565,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 | Decision | Options | Considerations |
 |----------|---------|----------------|
 | Artifact retention | TTL, reference-counted, or manual | Out of protocol scope, but the store must accommodate the chosen strategy. |
-| S3-compatible gateway | MinIO proxy, custom gateway, or none | The proposed path-based API maps to S3 semantics; a gateway would add DuckDB/pandas native S3 support. |
+| S3-compatible gateway | MinIO proxy, custom gateway, or none | The path-based API maps to S3 semantics; a gateway adds DuckDB/pandas native S3 support. |
 
 \newpage
 
@@ -603,7 +603,7 @@ Registers a worker or updates its registration. Idempotent — subsequent calls 
   "last_heartbeat_at": "2026-02-21T10:00:00",
   "_links": {
     "self": { "href": "/api/hpc/workers/hpc-headnode-01", "method": "GET" },
-    "heartbeat": { "href": "/api/hpc/workers/register", "method": "POST" },
+    "heartbeat": { "href": "/api/hpc/workers/hpc-headnode-01/heartbeat", "method": "POST" },
     "jobs": { "href": "/api/hpc/jobs?status=PENDING", "method": "GET" }
   }
 }
@@ -633,7 +633,7 @@ Creates a new job in PENDING status.
   "profile": "gpu-medium",
   "submit_user": "researcher@example.org",
   "parameters": { "model": "multilingual-e5-large", "batch_size": 256 },
-  "inputs": { "dataset": "corpus-01" }
+  "inputs": [{ "artifact_id": "corpus-01" }]
 }
 ```
 
@@ -733,7 +733,7 @@ Convenience endpoint for cancellation. Transitions the job to CANCELLED from any
 
 ### DELETE /api/hpc/jobs/{id} {.unnumbered}
 
-Deletes a job and its transition history. Non-terminal jobs MUST be automatically cancelled before deletion.
+Deletes a job and its transition history. The job MUST be in a terminal state (COMPLETED, FAILED, or CANCELLED); otherwise the server MUST return `409 Conflict`.
 
 **Response:** `204 No Content`, `404 Not Found`.
 
