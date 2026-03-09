@@ -36,7 +36,7 @@ For example:
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
 ```
 
-# METRICS
+# Metrics
 
 MOLGENIS enables metrics api for example to use with prometheus. By default this is disabled. Please on use configure carefully to avoid abuse.
 
@@ -47,6 +47,15 @@ For example:
 java -DMOLGENIS_METRICS_ENABLED=true -jar molgenis-emx2-<version>-all.jar
 
 # Tips
+
+## Logging
+
+To enable more detailed logging, you can configure the log4j2.level JVM option. For example:
+```shell
+java -jar app.jar -Dlog4j2.level=DEBUG
+```
+This option sets the logging level according to the standard [Log4j2 logging levels](https://logging.apache.org/log4j/2.x/manual/customloglevels.html).
+
 
 ## On mac you can install postgres using [homebrew](https://formulae.brew.sh/formula/postgresql)
 
