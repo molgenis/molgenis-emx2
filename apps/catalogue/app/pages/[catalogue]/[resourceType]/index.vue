@@ -127,6 +127,17 @@ pageFilterTemplate = pageFilterTemplate.concat([
     },
     conditions: [],
   },
+    {
+    id: "county",
+    config: {
+      label: "Countries",
+      type: "ONTOLOGY",
+      ontologyTableId: "Countries",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "countries",
+    },
+    conditions: [],
+  },
   {
     id: "dataCategories",
     config: {
