@@ -61,116 +61,124 @@ public class DcatHarvestTask extends Task {
 
   @Override
   public void run() {
+    this.start();
+    HarvestReport report = new HarvestReport();
     try {
-      this.start();
-      HarvestReport report;
-      if (rdfContent != null) {
-        report = harvestRdf(rdfContent);
-      } else {
-        report = harvestUrl(catalogUrl);
-      }
+      Model rdfModel = stepFetch();
+      FrameResult frameResult = stepFrame(rdfModel);
+      List<Row> rows = stepMap(frameResult, report);
+      stepImport(frameResult.frame, rows, report);
+
       if (report.hasErrors()) {
-        for (String error : report.getErrors()) {
-          this.addSubTask("Import error").setError(error);
-        }
-        this.setError("Harvest completed with errors");
+        this.setError("Completed with " + report.getErrors().size() + " error(s)");
       } else {
-        this.complete("Imported " + report.getResourcesImported() + " resources");
+        this.complete(report.getResourcesImported() + " resources imported");
       }
     } catch (Exception e) {
-      this.setError(HARVEST_FAILED + e.getMessage());
+      this.setError(e.getMessage());
     }
-  }
-
-  private HarvestReport harvestUrl(String url) {
-    HarvestReport report = new HarvestReport();
-    Task currentStep = this.addSubTask("Fetching RDF from " + url);
-    try {
-      log.info("Starting DCAT harvest from: {}", url);
-
-      JsonNode frame = generateFrame();
-
-      currentStep.start();
-      RdfFetcher fetcher = new RdfFetcher();
-      Model rdfModel = fetcher.fetchRecursively(url, MAX_DEPTH, MAX_CALLS);
-      log.info("Fetched {} RDF statements", rdfModel.size());
-      currentStep.complete("Fetched " + rdfModel.size() + " RDF statements");
-
-      frameTransformImport(frame, rdfModel, report);
-    } catch (IOException e) {
-      String msg = HARVEST_FAILED + e.getMessage();
-      log.error(msg, e);
-      currentStep.setError(msg);
-      report.addError(msg);
-    } catch (DcatHarvestException e) {
-      String msg = "Harvest error: " + e.getMessage();
-      log.error(msg, e);
-      currentStep.setError(msg);
-      report.addError(msg);
-    }
-    return report;
   }
 
   public HarvestReport harvestRdf(String rdfTurtle) {
+    this.start();
     HarvestReport report = new HarvestReport();
-    Task currentStep = this.addSubTask("Parsing RDF");
     try {
-      log.info("Starting DCAT harvest from pasted RDF ({} chars)", rdfTurtle.length());
-
-      JsonNode frame = generateFrame();
-
-      currentStep.start();
+      Task fetchStep = this.addSubTask("Fetch");
+      fetchStep.start();
       Model rdfModel = parseTurtle(rdfTurtle);
-      log.info("Parsed {} RDF statements", rdfModel.size());
-      currentStep.complete("Parsed " + rdfModel.size() + " RDF statements");
+      fetchStep.complete(rdfModel.size() + " triples parsed");
 
-      frameTransformImport(frame, rdfModel, report);
-    } catch (IOException e) {
-      String msg = HARVEST_FAILED + e.getMessage();
-      log.error(msg, e);
-      currentStep.setError(msg);
-      report.addError(msg);
-    } catch (DcatHarvestException e) {
-      String msg = "Harvest error: " + e.getMessage();
-      log.error(msg, e);
-      currentStep.setError(msg);
-      report.addError(msg);
+      FrameResult frameResult = stepFrame(rdfModel);
+      List<Row> rows = stepMap(frameResult, report);
+      stepImport(frameResult.frame, rows, report);
+    } catch (Exception e) {
+      this.setError(e.getMessage());
+      report.addError(e.getMessage());
     }
     return report;
   }
 
-  private JsonNode generateFrame() {
-    Task step = this.addSubTask("Generating JSON-LD frame from schema");
+  private Model stepFetch() throws IOException {
+    Task step = this.addSubTask("Fetch");
     step.start();
-    JsonLdFrameGenerator frameGenerator = new JsonLdFrameGenerator();
-    JsonNode frame = frameGenerator.generate(schema.getMetadata());
-    step.complete("Frame generated");
-    return frame;
+    try {
+      RdfFetcher fetcher = new RdfFetcher();
+      Model rdfModel = fetcher.fetchRecursively(catalogUrl, MAX_DEPTH, MAX_CALLS);
+      step.complete(rdfModel.size() + " triples fetched");
+      return rdfModel;
+    } catch (Exception e) {
+      step.setError(e.getMessage());
+      throw e;
+    }
   }
 
-  private void frameTransformImport(JsonNode frame, Model rdfModel, HarvestReport report)
-      throws IOException {
-    Task currentStep = this.addSubTask("Framing JSON-LD");
-    currentStep.start();
-    JsonLdFramer framer = new JsonLdFramer();
-    JsonNode framedJson = framer.frame(rdfModel, frame);
-    currentStep.complete("JSON-LD framed successfully");
+  private FrameResult stepFrame(Model rdfModel) throws IOException {
+    Task step = this.addSubTask("Frame");
+    step.start();
+    try {
+      JsonLdFrameGenerator frameGenerator = new JsonLdFrameGenerator();
+      JsonNode frame = frameGenerator.generate(schema.getMetadata());
+      JsonLdFramer framer = new JsonLdFramer();
+      JsonNode framedJson = framer.frame(rdfModel, frame);
+      List<JsonNode> graphItems = extractGraphItems(framedJson);
+      step.complete(graphItems.size() + " resources framed");
+      return new FrameResult(frame, framedJson);
+    } catch (Exception e) {
+      step.setError(e.getMessage());
+      throw e;
+    }
+  }
 
-    currentStep = this.addSubTask("Importing data");
-    currentStep.start();
-    Set<String> targetColumns = resolveTargetColumns(frame);
-    Map<String, String> reverseContext = buildReverseContext(frame.get("@context"), targetColumns);
-    List<JsonNode> graphItems = extractGraphItems(framedJson);
-    importGraphItems(graphItems, frame, reverseContext, report);
-    int warningCount = report.getWarnings().size();
-    String importMsg =
-        "Imported "
-            + report.getResourcesImported()
-            + " resources"
-            + (warningCount > 0 ? ", " + warningCount + " skipped" : "");
-    currentStep.complete(importMsg);
+  private List<Row> stepMap(FrameResult frameResult, HarvestReport report) {
+    Task step = this.addSubTask("Map");
+    step.start();
+    try {
+      Set<String> targetColumns = resolveTargetColumns(frameResult.frame);
+      Map<String, String> reverseContext =
+          buildReverseContext(frameResult.frame.get("@context"), targetColumns);
+      List<JsonNode> graphItems = extractGraphItems(frameResult.framedJson);
+      List<Row> rows = collectResourceRows(graphItems, reverseContext, report);
+      step.complete(rows.size() + " rows: " + countByType(rows));
+      return rows;
+    } catch (Exception e) {
+      step.setError(e.getMessage());
+      throw e;
+    }
+  }
 
-    log.info("Harvest complete: {} resources", report.getResourcesImported());
+  private void stepImport(JsonNode frame, List<Row> rows, HarvestReport report) {
+    Task step = this.addSubTask("Import");
+    step.start();
+    try {
+      String tableNameForCatalog = findTableNameForType(frame, DCAT_CATALOG);
+      String tableNameForDataset = findTableNameForType(frame, DCAT_DATASET);
+      String tableName = resolveResourcesTableName(tableNameForCatalog, tableNameForDataset);
+      saveResourceRows(step, rows, tableName, report);
+      int warnings = report.getWarnings().size();
+      String msg = report.getResourcesImported() + " saved (" + countByType(rows) + ")";
+      if (warnings > 0) {
+        msg += ", " + warnings + " failed";
+      }
+      step.complete(msg);
+    } catch (Exception e) {
+      step.setError(e.getMessage());
+      throw e;
+    }
+  }
+
+  private record FrameResult(JsonNode frame, JsonNode framedJson) {}
+
+  private String countByType(List<Row> rows) {
+    Map<String, Integer> counts = new HashMap<>();
+    for (Row row : rows) {
+      String[] types = row.getStringArray("type");
+      if (types != null) {
+        for (String type : types) {
+          counts.merge(type, 1, Integer::sum);
+        }
+      }
+    }
+    return counts.toString();
   }
 
   Map<String, String> buildReverseContext(JsonNode context) {
@@ -214,19 +222,6 @@ public class DcatHarvestTask extends Task {
     return items;
   }
 
-  private void importGraphItems(
-      List<JsonNode> items,
-      JsonNode frame,
-      Map<String, String> reverseContext,
-      HarvestReport report) {
-    String tableNameForCatalog = findTableNameForType(frame, DCAT_CATALOG);
-    String tableNameForDataset = findTableNameForType(frame, DCAT_DATASET);
-    String resourcesTableName = resolveResourcesTableName(tableNameForCatalog, tableNameForDataset);
-
-    List<Row> resourceRows = collectResourceRows(items, reverseContext, report);
-    saveResourceRows(resourceRows, resourcesTableName, report);
-  }
-
   private String resolveResourcesTableName(String tableNameForCatalog, String tableNameForDataset) {
     if (tableNameForCatalog != null) {
       return tableNameForCatalog;
@@ -256,7 +251,7 @@ public class DcatHarvestTask extends Task {
   }
 
   private void saveResourceRows(
-      List<Row> resourceRows, String resourcesTableName, HarvestReport report) {
+      Task step, List<Row> resourceRows, String resourcesTableName, HarvestReport report) {
     if (!resourceRows.isEmpty()) {
       Table resourcesTable = schema.getTable(resourcesTableName);
       if (resourcesTable == null) {
@@ -264,17 +259,31 @@ public class DcatHarvestTask extends Task {
         return;
       }
       ensureDefaultRefRecordsExist(resourcesTable);
+      int failed = 0;
       for (Row row : resourceRows) {
         try {
           resourcesTable.save(List.of(row));
           report.incrementResources(1);
         } catch (Exception e) {
+          failed++;
           String rowId = row.getColumnNames().contains("id") ? row.getString("id") : "unknown";
-          String warning = "Skipped resource " + rowId + ": " + e.getMessage();
+          String warning = "Failed resource " + rowId + ": " + e.getMessage();
           log.warn(warning, e);
+          step.addSubTask(warning).setError();
           report.addWarning(warning);
         }
       }
+      String msg =
+          report.getResourcesImported()
+              + " saved to "
+              + resourcesTableName
+              + " ("
+              + countByType(resourceRows)
+              + ")";
+      if (failed > 0) {
+        msg += ", " + failed + " failed";
+      }
+      step.addSubTask(msg).complete();
     } else {
       report.addWarning("No DCAT resources found in framed data");
     }
