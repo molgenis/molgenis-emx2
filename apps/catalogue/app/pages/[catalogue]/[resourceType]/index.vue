@@ -280,7 +280,7 @@ const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   method: "POST",
   body: {
     query: query,
-    variables: { filter: gqlFilter, orderby },
+    variables: { filter: gqlFilter, orderby: [orderby] },
   },
   onResponseError(_ctx) {
     logError({
