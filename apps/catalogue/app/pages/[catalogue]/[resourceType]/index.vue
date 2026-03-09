@@ -127,8 +127,8 @@ pageFilterTemplate = pageFilterTemplate.concat([
     },
     conditions: [],
   },
-    {
-    id: "county",
+  {
+    id: "country",
     config: {
       label: "Countries",
       type: "ONTOLOGY",
