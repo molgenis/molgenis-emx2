@@ -16,25 +16,19 @@ public class AToolToCleanDatabase {
     SqlDatabase db = new SqlDatabase(true);
     jooq = db.getJooq();
     db.becomeAdmin();
-
-    executeSqlStep("clean-db-remove-foreign-keys.sql");
-    executeSqlStep("clean-db-remove-molgenis-schema.sql");
-    executeSqlStep("clean-db-remove-user-schemas.sql");
-    executeSqlStep("clean-db-remove-all-roles.sql");
-    MetadataUtils.resetVersion();
-    new SqlDatabase(true);
-  }
-
-  private static void executeSqlStep(String step) {
     try {
       String sql =
           new String(
               Objects.requireNonNull(
-                      AToolToCleanDatabase.class.getResourceAsStream("utility-sql/" + step))
+                      AToolToCleanDatabase.class.getResourceAsStream(
+                          "utility-sql/clean-molgenis-database.sql"))
                   .readAllBytes());
       jooq.execute(sql);
     } catch (IOException e) {
       throw new MolgenisException("Clean database failed", e);
     }
+
+    MetadataUtils.resetVersion();
+    new SqlDatabase(true);
   }
 }
