@@ -26,6 +26,11 @@ import org.molgenis.emx2.Table;
 @Tag("slow")
 class HpcApiE2ETest extends ApiTestBase {
 
+  private static final String HPC_SECRET_SETTING = "MOLGENIS_HPC_SHARED_SECRET";
+  private static final String TEST_SHARED_SECRET =
+      "hpc-api-e2e-secret-0123456789abcdef0123456789abcdef";
+  private static String previousSharedSecret;
+
   private static final String WORKER_A = "e2e-worker-a";
   private static final String WORKER_B = "e2e-worker-b";
   private static final String DEFAULT_CAPABILITIES =
@@ -184,9 +189,20 @@ class HpcApiE2ETest extends ApiTestBase {
 
   @BeforeAll
   static void registerTestWorkers() {
+    previousSharedSecret = database.getSetting(HPC_SECRET_SETTING);
+    database.setSetting(HPC_SECRET_SETTING, TEST_SHARED_SECRET);
     login(database.getAdminUserName(), "admin");
     registerWorker(WORKER_A);
     registerWorker(WORKER_B);
+  }
+
+  @AfterAll
+  static void restoreHpcSecret() {
+    if (previousSharedSecret == null || previousSharedSecret.isBlank()) {
+      database.removeSetting(HPC_SECRET_SETTING);
+    } else {
+      database.setSetting(HPC_SECRET_SETTING, previousSharedSecret);
+    }
   }
 
   // ── 1. Health endpoint ──────────────────────────────────────────────────

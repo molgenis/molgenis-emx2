@@ -5,8 +5,13 @@ import static io.restassured.RestAssured.given;
 import io.restassured.specification.RequestSpecification;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.HexFormat;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /** Shared helper utilities for deterministic HPC API integration tests. */
 final class HpcTestkit {
@@ -37,5 +42,53 @@ final class HpcTestkit {
       req = req.sessionId(sessionId);
     }
     return req;
+  }
+
+  static Map<String, String> hmacHeaders(
+      String method, String pathWithQuery, String body, String sharedSecret) {
+    String timestamp = String.valueOf(Instant.now().getEpochSecond());
+    String nonce = nextUuid().replace("-", "");
+    String requestId = nextUuid();
+    String signature = signHmac(method, pathWithQuery, body, timestamp, nonce, sharedSecret);
+
+    Map<String, String> headers = new LinkedHashMap<>();
+    headers.put("Authorization", "HMAC-SHA256 " + signature);
+    headers.put("X-EMX2-API-Version", "2025-01");
+    headers.put("X-Request-Id", requestId);
+    headers.put("X-Timestamp", timestamp);
+    headers.put("X-Nonce", nonce);
+    return headers;
+  }
+
+  private static String signHmac(
+      String method,
+      String pathWithQuery,
+      String body,
+      String timestamp,
+      String nonce,
+      String secret) {
+    try {
+      String canonicalBody = body != null ? body : "";
+      byte[] bodyHash =
+          java.security.MessageDigest.getInstance("SHA-256")
+              .digest(canonicalBody.getBytes(StandardCharsets.UTF_8));
+      String bodyHashHex = HexFormat.of().formatHex(bodyHash);
+      String canonical =
+          method.toUpperCase()
+              + "\n"
+              + pathWithQuery
+              + "\n"
+              + bodyHashHex
+              + "\n"
+              + timestamp
+              + "\n"
+              + nonce;
+
+      Mac mac = Mac.getInstance("HmacSHA256");
+      mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+      return HexFormat.of().formatHex(mac.doFinal(canonical.getBytes(StandardCharsets.UTF_8)));
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to sign HMAC test request", e);
+    }
   }
 }
