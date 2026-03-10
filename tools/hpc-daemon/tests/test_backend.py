@@ -12,15 +12,15 @@ from emx2_hpc_daemon.backend import (
     _normalize_input_artifact_ids,
     _stage_input_artifacts,
 )
+from emx2_hpc_daemon.testkit import artifact_record
 
 
 def _managed_artifact(artifact_id: str) -> dict:
-    return {
-        "id": artifact_id,
-        "residence": "managed",
-        "status": "COMMITTED",
-        "_links": {},
-    }
+    return artifact_record(
+        artifact_id,
+        residence="managed",
+        status="COMMITTED",
+    )
 
 
 def _single_file_hash(content: bytes) -> str:

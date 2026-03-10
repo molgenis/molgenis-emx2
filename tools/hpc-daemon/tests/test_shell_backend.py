@@ -14,6 +14,7 @@ import pytest
 
 from emx2_hpc_daemon.backend import ShellBackend
 from emx2_hpc_daemon.config import ProfileEntry
+from emx2_hpc_daemon.testkit import artifact_record
 
 
 @pytest.fixture
@@ -51,12 +52,11 @@ def shell_config(sample_config, tmp_path):
 @pytest.fixture
 def mock_client():
     client = MagicMock()
-    client.get_artifact.return_value = {
-        "id": "art-1",
-        "residence": "managed",
-        "status": "COMMITTED",
-        "_links": {},
-    }
+    client.get_artifact.return_value = artifact_record(
+        "art-1",
+        residence="managed",
+        status="COMMITTED",
+    )
     client.list_artifact_files.return_value = []
     client.download_artifact_files.return_value = []
     return client

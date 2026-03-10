@@ -1,8 +1,9 @@
 """Happy path: submit → complete → artifacts."""
 
-import tempfile
+from pathlib import Path
 
 from conftest import create_job, wait_for_job_status
+from emx2_hpc_daemon.testkit import deterministic_temp_dir
 
 
 def test_job_completes_with_artifacts(hpc_client):
@@ -35,11 +36,10 @@ def test_job_completes_with_artifacts(hpc_client):
     file_paths = [f.get("path", f.get("id")) for f in files]
     assert "result.txt" in file_paths, f"Expected result.txt in {file_paths}"
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with deterministic_temp_dir(f"e2e-lifecycle-{job_id}") as tmpdir:
         hpc_client.download_artifact_file(
-            output_id, "result.txt", f"{tmpdir}/result.txt"
+            output_id, "result.txt", str(Path(tmpdir) / "result.txt")
         )
-        with open(f"{tmpdir}/result.txt") as f:
-            content = f.read()
+        content = (Path(tmpdir) / "result.txt").read_text()
         assert job_id in content, f"Expected job_id in result.txt, got: {content}"
         assert "Hello from e2e job" in content

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -15,6 +14,7 @@ from emx2_hpc_daemon.config import (
     SlurmConfig,
     WorkerConfig,
 )
+from emx2_hpc_daemon.testkit import deterministic_temp_dir
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ def sample_config() -> DaemonConfig:
 
 
 @pytest.fixture
-def tmp_dir():
+def tmp_dir(request):
     """Provide a temporary directory for test artifacts."""
-    with tempfile.TemporaryDirectory() as d:
-        yield Path(d)
+    with deterministic_temp_dir(request.node.name, root=Path("/tmp/emx2-hpc-tests")) as d:
+        yield d

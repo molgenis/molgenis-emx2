@@ -7,9 +7,7 @@ import static org.hamcrest.Matchers.*;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,16 +43,7 @@ class HpcApiE2ETest extends ApiTestBase {
 
   /** Builds a request with the required HPC protocol headers. */
   private static RequestSpecification hpcRequest() {
-    RequestSpecification req =
-        given()
-            .header("X-EMX2-API-Version", "2025-01")
-            .header("X-Request-Id", UUID.randomUUID().toString())
-            .header("X-Timestamp", Instant.now().toString())
-            .contentType("application/json");
-    if (sessionId != null) {
-      req = req.sessionId(sessionId);
-    }
-    return req;
+    return HpcTestkit.hpcRequest(sessionId);
   }
 
   /** Helper: register a worker (idempotent). */
@@ -285,10 +274,10 @@ class HpcApiE2ETest extends ApiTestBase {
   @Test
   @Order(21)
   void claimRejectsWorkerWithoutMatchingCapability() {
-    String processor = "cap-test-" + UUID.randomUUID();
+    String processor = HpcTestkit.nextName("cap-test");
     String profile = "gpu-a";
-    String workerBad = "cap-bad-" + UUID.randomUUID();
-    String workerGood = "cap-good-" + UUID.randomUUID();
+    String workerBad = HpcTestkit.nextName("cap-bad");
+    String workerGood = HpcTestkit.nextName("cap-good");
     registerWorkerWithCapability(workerBad, processor, "gpu-b");
     registerWorkerWithCapability(workerGood, processor, profile);
 
@@ -311,9 +300,9 @@ class HpcApiE2ETest extends ApiTestBase {
   @Test
   @Order(22)
   void claimIsAtomicUnderRace() throws Exception {
-    String processor = "race-test-" + UUID.randomUUID();
-    String worker1 = "race-worker-1-" + UUID.randomUUID();
-    String worker2 = "race-worker-2-" + UUID.randomUUID();
+    String processor = HpcTestkit.nextName("race-test");
+    String worker1 = HpcTestkit.nextName("race-worker-1");
+    String worker2 = HpcTestkit.nextName("race-worker-2");
     registerWorkerWithCapability(worker1, processor, null);
     registerWorkerWithCapability(worker2, processor, null);
     String jobId = createJobHelper(processor);
@@ -451,7 +440,7 @@ class HpcApiE2ETest extends ApiTestBase {
   @Test
   @Order(51)
   void staleWorkersAreExpiredDuringPolling() {
-    String staleWorkerId = "stale-worker-" + UUID.randomUUID();
+    String staleWorkerId = HpcTestkit.nextName("stale-worker");
     registerWorkerWithCapability(staleWorkerId, "stale-test", null);
 
     Table workers = database.getSchema(Constants.SYSTEM_SCHEMA).getTable("HpcWorkers");
@@ -698,11 +687,7 @@ class HpcApiE2ETest extends ApiTestBase {
   @Test
   @Order(92)
   void deleteNonExistentJobReturns404() {
-    hpcRequest()
-        .when()
-        .delete("/api/hpc/jobs/{id}", UUID.randomUUID().toString())
-        .then()
-        .statusCode(404);
+    hpcRequest().when().delete("/api/hpc/jobs/{id}", HpcTestkit.nextUuid()).then().statusCode(404);
   }
 
   // ── 10. Transition audit trail ─────────────────────────────────────────

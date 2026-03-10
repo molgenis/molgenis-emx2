@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 from emx2_hpc_daemon.backend import StatusResult
 from emx2_hpc_daemon.daemon import HpcDaemon, _build_slurm_detail
 from emx2_hpc_daemon.slurm import SlurmJobInfo
+from emx2_hpc_daemon.testkit import make_artifact_factory
 
 
 def _get_transition_call(mock_client, index=0):
@@ -127,7 +128,7 @@ def _make_daemon(sample_config) -> tuple[HpcDaemon, MagicMock]:
     mock_client.register_worker.return_value = {}
 
     # Default: create_artifact returns an id, commit_artifact returns {}
-    mock_client.create_artifact.side_effect = _fake_create_artifact
+    mock_client.create_artifact.side_effect = make_artifact_factory(prefix="art")
     mock_client.upload_artifact_file.return_value = {}
     mock_client.register_artifact_file.return_value = {}
     mock_client.commit_artifact.return_value = {}
@@ -138,18 +139,6 @@ def _make_daemon(sample_config) -> tuple[HpcDaemon, MagicMock]:
 
     daemon.client = mock_client
     return daemon, mock_client
-
-
-_artifact_counter = 0
-
-
-def _fake_create_artifact(**kwargs):
-    """Return a fake artifact response with a unique id."""
-    global _artifact_counter
-    _artifact_counter += 1
-    art_type = kwargs.get("artifact_type", "blob")
-    return {"id": f"art-{art_type}-{_artifact_counter:04d}", "_links": {}}
-
 
 # ---------------------------------------------------------------------------
 # E2E tests: _monitor_running_jobs with artifact upload

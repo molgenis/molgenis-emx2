@@ -1,6 +1,11 @@
 """Tests for the HPC client auth header generation."""
 
-from emx2_hpc_daemon.auth import build_authorization_header, sign_request
+from emx2_hpc_daemon.auth import sign_request
+from emx2_hpc_daemon.testkit import (
+    DeterministicIds,
+    FakeClock,
+    build_signed_test_headers,
+)
 
 
 def test_sign_request_deterministic():
@@ -16,11 +21,21 @@ def test_sign_request_different_with_different_nonce():
 
 
 def test_build_authorization_header():
-    headers, timestamp, nonce = build_authorization_header(
-        "POST", "/api/hpc/jobs", "body", "secret"
+    ids = DeterministicIds("test-client")
+    clock = FakeClock(unix_seconds=1_700_001_234)
+    headers = build_signed_test_headers(
+        "POST",
+        "/api/hpc/jobs",
+        "body",
+        secret="secret",
+        ids=ids,
+        clock=clock,
     )
     assert "Authorization" in headers
     assert headers["Authorization"].startswith("HMAC-SHA256 ")
+    assert headers["X-EMX2-API-Version"] == "2025-01"
+    assert "X-Request-Id" in headers
     assert "X-Timestamp" in headers
     assert "X-Nonce" in headers
-    assert len(nonce) == 32  # uuid4 hex
+    assert headers["X-Timestamp"] == "1700001234"
+    assert len(headers["X-Nonce"]) == 32
