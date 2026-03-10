@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from unittest.mock import MagicMock, call
+
+import pytest
 
 from emx2_hpc_daemon.backend import (
     _normalize_input_artifact_ids,
@@ -18,6 +21,10 @@ def _managed_artifact(artifact_id: str) -> dict:
         "status": "COMMITTED",
         "_links": {},
     }
+
+
+def _single_file_hash(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
 
 
 def test_normalize_input_artifact_ids_supports_named_reference_forms():
@@ -76,3 +83,81 @@ def test_stage_input_artifacts_accepts_json_named_reference_mapping(tmp_path: Pa
         call("art-1", str(input_dir / "art-1")),
         call("art-2", str(input_dir / "art-2")),
     ]
+
+
+def test_stage_input_artifacts_verifies_managed_hash(tmp_path: Path):
+    input_dir = tmp_path / "input"
+    input_dir.mkdir()
+
+    content = b"hello managed hash"
+    expected = _single_file_hash(content)
+
+    client = MagicMock()
+    client.get_artifact.return_value = {
+        "id": "art-1",
+        "residence": "managed",
+        "status": "COMMITTED",
+        "sha256": expected,
+        "_links": {},
+    }
+    client.list_artifact_files.return_value = [{"path": "data.txt"}]
+
+    def _download(_artifact_id: str, dest_dir: str) -> list[str]:
+        path = Path(dest_dir) / "data.txt"
+        path.write_bytes(content)
+        return [str(path)]
+
+    client.download_artifact_files.side_effect = _download
+
+    _stage_input_artifacts({"id": "job-1", "inputs": ["art-1"]}, str(input_dir), client)
+    assert (input_dir / "art-1" / "data.txt").read_bytes() == content
+
+
+def test_stage_input_artifacts_rejects_managed_hash_mismatch(tmp_path: Path):
+    input_dir = tmp_path / "input"
+    input_dir.mkdir()
+
+    client = MagicMock()
+    client.get_artifact.return_value = {
+        "id": "art-1",
+        "residence": "managed",
+        "status": "COMMITTED",
+        "sha256": "0" * 64,
+        "_links": {},
+    }
+    client.list_artifact_files.return_value = [{"path": "data.txt"}]
+
+    def _download(_artifact_id: str, dest_dir: str) -> list[str]:
+        path = Path(dest_dir) / "data.txt"
+        path.write_text("actual content")
+        return [str(path)]
+
+    client.download_artifact_files.side_effect = _download
+
+    with pytest.raises(ValueError, match="input_hash_mismatch"):
+        _stage_input_artifacts({"id": "job-2", "inputs": ["art-1"]}, str(input_dir), client)
+
+
+def test_stage_input_artifacts_rejects_posix_hash_mismatch(tmp_path: Path):
+    input_dir = tmp_path / "input"
+    input_dir.mkdir()
+    source = tmp_path / "posix-src"
+    source.mkdir()
+    (source / "result.txt").write_text("posix content")
+
+    client = MagicMock()
+    client.get_artifact.return_value = {
+        "id": "art-posix",
+        "residence": "posix",
+        "status": "COMMITTED",
+        "content_url": f"file://{source}",
+        "sha256": "f" * 64,
+        "_links": {},
+    }
+
+    with pytest.raises(ValueError, match="input_hash_mismatch"):
+        _stage_input_artifacts(
+            {"id": "job-3", "inputs": [{"artifact_id": "art-posix"}]},
+            str(input_dir),
+            client,
+        )

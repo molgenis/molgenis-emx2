@@ -8,8 +8,17 @@ import static org.hamcrest.Matchers.*;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Table;
 
 /**
  * E2E integration tests for the HPC API. Runs against a real MolgenisWebservice + PostgreSQL via
@@ -21,29 +30,61 @@ class HpcApiE2ETest extends ApiTestBase {
 
   private static final String WORKER_A = "e2e-worker-a";
   private static final String WORKER_B = "e2e-worker-b";
+  private static final String DEFAULT_CAPABILITIES =
+      """
+      [
+        {"processor":"lifecycle-test","profile":"gpu-medium","max_concurrent_jobs":4},
+        {"processor":"conflict-test","profile":"any","max_concurrent_jobs":4},
+        {"processor":"cancel-test","profile":"any","max_concurrent_jobs":4},
+        {"processor":"delete-test","profile":"any","max_concurrent_jobs":4},
+        {"processor":"audit-test","profile":"any","max_concurrent_jobs":4},
+        {"processor":"log-artifact-test","profile":"any","max_concurrent_jobs":4},
+        {"processor":"log-fail-test","profile":"any","max_concurrent_jobs":4}
+      ]
+      """;
 
   /** Builds a request with the required HPC protocol headers. */
   private static RequestSpecification hpcRequest() {
-    return given()
-        .header("X-EMX2-API-Version", "2025-01")
-        .header("X-Request-Id", UUID.randomUUID().toString())
-        .header("X-Timestamp", Instant.now().toString())
-        .contentType("application/json");
+    RequestSpecification req =
+        given()
+            .header("X-EMX2-API-Version", "2025-01")
+            .header("X-Request-Id", UUID.randomUUID().toString())
+            .header("X-Timestamp", Instant.now().toString())
+            .contentType("application/json");
+    if (sessionId != null) {
+      req = req.sessionId(sessionId);
+    }
+    return req;
   }
 
   /** Helper: register a worker (idempotent). */
   private static void registerWorker(String workerId) {
+    registerWorker(workerId, DEFAULT_CAPABILITIES);
+  }
+
+  private static void registerWorker(String workerId, String capabilitiesJson) {
     hpcRequest()
         .body(
             """
             {"worker_id": "%s", "hostname": "test.local",
-             "capabilities": [{"processor": "any", "profile": "any", "max_concurrent_jobs": 4}]}
+             "capabilities": %s}
             """
-                .formatted(workerId))
+                .formatted(workerId, capabilitiesJson))
         .when()
         .post("/api/hpc/workers/register")
         .then()
         .statusCode(200);
+  }
+
+  private static void registerWorkerWithCapability(
+      String workerId, String processor, String profile) {
+    String profileValue = profile == null || profile.isBlank() ? "any" : profile;
+    registerWorker(
+        workerId,
+        """
+        [{"processor":"%s","profile":"%s","max_concurrent_jobs":4}]
+        """
+            .formatted(processor, profileValue));
   }
 
   /** Helper: create a job and return its ID. */
@@ -154,6 +195,7 @@ class HpcApiE2ETest extends ApiTestBase {
 
   @BeforeAll
   static void registerTestWorkers() {
+    login(database.getAdminUserName(), "admin");
     registerWorker(WORKER_A);
     registerWorker(WORKER_B);
   }
@@ -240,6 +282,79 @@ class HpcApiE2ETest extends ApiTestBase {
     claimJobHelper(jobId, WORKER_B).then().statusCode(409).body("title", equalTo("Conflict"));
   }
 
+  @Test
+  @Order(21)
+  void claimRejectsWorkerWithoutMatchingCapability() {
+    String processor = "cap-test-" + UUID.randomUUID();
+    String profile = "gpu-a";
+    String workerBad = "cap-bad-" + UUID.randomUUID();
+    String workerGood = "cap-good-" + UUID.randomUUID();
+    registerWorkerWithCapability(workerBad, processor, "gpu-b");
+    registerWorkerWithCapability(workerGood, processor, profile);
+
+    String jobId = createJobHelper(processor, profile);
+
+    claimJobHelper(jobId, workerBad)
+        .then()
+        .statusCode(409)
+        .body("title", equalTo("Conflict"))
+        .body("detail", containsString("does not have a registered capability"));
+
+    // Job remains claimable by a compatible worker.
+    claimJobHelper(jobId, workerGood)
+        .then()
+        .statusCode(200)
+        .body("status", equalTo("CLAIMED"))
+        .body("worker_id", equalTo(workerGood));
+  }
+
+  @Test
+  @Order(22)
+  void claimIsAtomicUnderRace() throws Exception {
+    String processor = "race-test-" + UUID.randomUUID();
+    String worker1 = "race-worker-1-" + UUID.randomUUID();
+    String worker2 = "race-worker-2-" + UUID.randomUUID();
+    registerWorkerWithCapability(worker1, processor, null);
+    registerWorkerWithCapability(worker2, processor, null);
+    String jobId = createJobHelper(processor);
+
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    try {
+      Future<Integer> first =
+          pool.submit(
+              () -> {
+                startLatch.await();
+                return claimJobHelper(jobId, worker1).statusCode();
+              });
+      Future<Integer> second =
+          pool.submit(
+              () -> {
+                startLatch.await();
+                return claimJobHelper(jobId, worker2).statusCode();
+              });
+
+      startLatch.countDown();
+
+      int s1 = first.get(5, TimeUnit.SECONDS);
+      int s2 = second.get(5, TimeUnit.SECONDS);
+      Assertions.assertTrue(
+          (s1 == 200 && s2 == 409) || (s1 == 409 && s2 == 200),
+          "Exactly one race claimant must succeed. statuses=" + s1 + "," + s2);
+
+      String winningWorker = s1 == 200 ? worker1 : worker2;
+      hpcRequest()
+          .when()
+          .get("/api/hpc/jobs/{id}", jobId)
+          .then()
+          .statusCode(200)
+          .body("status", equalTo("CLAIMED"))
+          .body("worker_id", equalTo(winningWorker));
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
   // ── 4. Invalid transitions ─────────────────────────────────────────────
 
   @Test
@@ -251,7 +366,12 @@ class HpcApiE2ETest extends ApiTestBase {
     transitionHelper(jobId, "COMPLETED", WORKER_A)
         .then()
         .statusCode(409)
-        .body("title", equalTo("Conflict"));
+        .contentType(startsWith("application/problem+json"))
+        .body("type", equalTo("about:blank"))
+        .body("title", equalTo("Conflict"))
+        .body("status", equalTo(409))
+        .body("detail", containsString("Cannot transition job"))
+        .body("instance", startsWith("urn:request:"));
   }
 
   // ── 5. Job listing with filters ────────────────────────────────────────
@@ -326,6 +446,28 @@ class HpcApiE2ETest extends ApiTestBase {
         .statusCode(200)
         .body("worker_id", equalTo("e2e-worker-reg"))
         .body("status", equalTo("ok"));
+  }
+
+  @Test
+  @Order(51)
+  void staleWorkersAreExpiredDuringPolling() {
+    String staleWorkerId = "stale-worker-" + UUID.randomUUID();
+    registerWorkerWithCapability(staleWorkerId, "stale-test", null);
+
+    Table workers = database.getSchema(Constants.SYSTEM_SCHEMA).getTable("HpcWorkers");
+    Row staleWorker =
+        workers.retrieveRows().stream()
+            .filter(r -> staleWorkerId.equals(r.getString("worker_id")))
+            .findFirst()
+            .orElseThrow();
+    staleWorker.set("last_heartbeat_at", LocalDateTime.now().minusMinutes(30));
+    workers.update(staleWorker);
+
+    // listJobs triggers lazy stale-worker expiry
+    hpcRequest().queryParam("status", "PENDING").when().get("/api/hpc/jobs").then().statusCode(200);
+
+    // Worker should already be removed by expiry.
+    hpcRequest().when().delete("/api/hpc/workers/{id}", staleWorkerId).then().statusCode(404);
   }
 
   // ── 7. Artifact lifecycle ──────────────────────────────────────────────
@@ -434,6 +576,52 @@ class HpcApiE2ETest extends ApiTestBase {
         .statusCode(204);
   }
 
+  @Test
+  @Order(62)
+  void committedArtifactRejectsFurtherMutation() {
+    String artifactId = createCommittedArtifact("dataset", "immutable-e2e");
+
+    // Cannot delete files from a committed artifact.
+    hpcRequest()
+        .when()
+        .delete("/api/hpc/artifacts/{id}/files/{path}", artifactId, "test.txt")
+        .then()
+        .statusCode(409)
+        .body("title", equalTo("Conflict"));
+
+    // Cannot overwrite file content/metadata after commit.
+    Response overwrite =
+        hpcRequest()
+            .body(
+                """
+                {"sha256": "new-hash", "size_bytes": 99, "content_type": "text/plain"}
+                """)
+            .when()
+            .put("/api/hpc/artifacts/{id}/files/{path}", artifactId, "test.txt");
+    Assertions.assertTrue(
+        overwrite.statusCode() >= 400, "Committed artifact mutation must be rejected");
+
+    // Cannot add new files after commit either.
+    Response addFile =
+        hpcRequest()
+            .body(
+                """
+                {"sha256": "new-file-hash", "size_bytes": 21, "content_type": "text/plain"}
+                """)
+            .when()
+            .put("/api/hpc/artifacts/{id}/files/{path}", artifactId, "new-file.txt");
+    Assertions.assertTrue(addFile.statusCode() >= 400, "Committed artifact must reject new files");
+
+    // Existing file metadata remains unchanged.
+    hpcRequest()
+        .when()
+        .head("/api/hpc/artifacts/{id}/files/{path}", artifactId, "test.txt")
+        .then()
+        .statusCode(200)
+        .header("X-Content-SHA256", equalTo("abc123"))
+        .header("Content-Length", equalTo("12"));
+  }
+
   // ── 8. Job cancellation ────────────────────────────────────────────────
 
   @Test
@@ -481,14 +669,28 @@ class HpcApiE2ETest extends ApiTestBase {
 
   @Test
   @Order(91)
-  void deleteNonTerminalJobCancelsThenDeletes() {
-    // Create PENDING job → DELETE → 204 (auto-cancels then deletes)
+  void deleteNonTerminalJobReturnsConflict() {
+    // Create PENDING job → DELETE should fail with 409.
     String jobId = createJobHelper("delete-pending-test");
 
-    hpcRequest().when().delete("/api/hpc/jobs/{id}", jobId).then().statusCode(204);
+    hpcRequest()
+        .when()
+        .delete("/api/hpc/jobs/{id}", jobId)
+        .then()
+        .statusCode(409)
+        .body("title", equalTo("Conflict"));
 
-    // GET same job → 404
-    hpcRequest().when().get("/api/hpc/jobs/{id}", jobId).then().statusCode(404);
+    // Job still exists.
+    hpcRequest()
+        .when()
+        .get("/api/hpc/jobs/{id}", jobId)
+        .then()
+        .statusCode(200)
+        .body("status", equalTo("PENDING"));
+
+    // Cleanup
+    hpcRequest().when().post("/api/hpc/jobs/{id}/cancel", jobId).then().statusCode(200);
+    hpcRequest().when().delete("/api/hpc/jobs/{id}", jobId).then().statusCode(204);
   }
 
   // ── 9b. Delete non-existent job ─────────────────────────────────────────
@@ -521,6 +723,9 @@ class HpcApiE2ETest extends ApiTestBase {
         .then()
         .statusCode(200)
         .body("count", greaterThanOrEqualTo(3))
+        .body("items[0].to_status", equalTo("PENDING"))
+        .body("items[1].to_status", equalTo("CLAIMED"))
+        .body("items[2].to_status", equalTo("SUBMITTED"))
         .body("items.find { it.to_status == 'PENDING' }", notNullValue())
         .body("items.find { it.to_status == 'CLAIMED' }", notNullValue())
         .body("items.find { it.to_status == 'SUBMITTED' }", notNullValue());
