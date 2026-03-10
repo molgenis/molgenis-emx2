@@ -16,8 +16,8 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
   test("columns and labels are rendered:", async ({ page }) => {
     const columns = await page.locator("g.columns rect").all();
     const columnLabels = await page.locator("g.columns text").all();
-    expect(columns.length).toEqual(4);
-    expect(columnLabels.length).toEqual(4);
+    expect(columns.length).toEqual(6);
+    expect(columnLabels.length).toEqual(6);
     expect(await columnLabels[0].getAttribute("class")).toContain(
       "fill-chart-text"
     );
@@ -53,9 +53,9 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const xAxisTickLabels = await page
       .locator("g.axes g.x-axis g.tick text")
       .all();
-    expect(xAxisTicks.length).toEqual(4);
-    expect(xAxisTickLines.length).toEqual(4);
-    expect(xAxisTickLabels.length).toEqual(4);
+    expect(xAxisTicks.length).toEqual(6);
+    expect(xAxisTickLines.length).toEqual(6);
+    expect(xAxisTickLabels.length).toEqual(6);
 
     const axes = await page.locator("g.axes");
     expect(await axes.getAttribute("class")).toBe(
