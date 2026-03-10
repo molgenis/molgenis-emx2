@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
-import Field from "../Field.vue";
-import { type UseForm } from "../../composables/useForm";
 import { computed } from "vue";
+import type { IColumn } from "../../../../metadata-utils/src/types";
+import { type UseForm } from "../../composables/useForm";
+import { isFieldDisabled } from "../../utils/isFieldDisabled";
+import Field from "../Field.vue";
 
 const props = defineProps<{
   form: UseForm;
-  constantValues?: IRow;
   column: IColumn;
 }>();
 
@@ -16,14 +16,8 @@ const isRequiredColumn = computed(
     undefined
 );
 
-const isFieldDisabled = computed(() => {
-  return Boolean(
-    props.column.readonly === "true" ||
-      (props.form.rowKey.value &&
-        Object.keys(props.form.rowKey.value).length &&
-        props.column.key === 1) ||
-      props.column.columnType === "AUTO_ID"
-  );
+const isDisabledField = computed(() => {
+  return isFieldDisabled(props.form.rowKey.value, props.column);
 });
 
 const fieldId = computed(
@@ -40,7 +34,7 @@ const fieldId = computed(
     :type="column.columnType"
     :label="column.formLabel ?? column.label"
     :description="column.description"
-    :disabled="isFieldDisabled"
+    :disabled="isDisabledField"
     :rowKey="form.rowKey"
     :required="isRequiredColumn"
     :error-message="form.visibleColumnErrors.value[column.id]"
