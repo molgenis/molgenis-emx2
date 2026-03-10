@@ -130,17 +130,19 @@ public class WorkerService {
         });
   }
 
-  /** Updates the heartbeat timestamp for a worker. */
-  public void heartbeat(String workerId) {
-    tx.tx(
+  /** Updates the heartbeat timestamp for a worker. Returns false if worker is not registered. */
+  public boolean heartbeat(String workerId) {
+    return tx.txResult(
         db -> {
           Table workersTable = db.getSchema(systemSchemaName).getTable("HpcWorkers");
           List<Row> rows = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
-          if (!rows.isEmpty()) {
-            Row worker = rows.getFirst();
-            worker.set("last_heartbeat_at", LocalDateTime.now());
-            workersTable.update(worker);
+          if (rows.isEmpty()) {
+            return false;
           }
+          Row worker = rows.getFirst();
+          worker.set("last_heartbeat_at", LocalDateTime.now());
+          workersTable.update(worker);
+          return true;
         });
   }
 

@@ -28,7 +28,7 @@ from pathlib import Path
 
 from ._generated import TERMINAL_STATUSES
 from .backend import ExecutionBackend, ShellBackend, SimulatedBackend, SlurmBackend
-from .client import ClaimConflict, HpcClient, format_links
+from .client import ClaimConflict, HpcClient, NotFoundError, format_links
 from .config import DaemonConfig
 from .hashing import _sha256_file, compute_tree_hash_from_hashes
 from .profiles import derive_capabilities, resolve_profile
@@ -275,6 +275,11 @@ class HpcDaemon:
                 self.client.heartbeat()
                 self._last_heartbeat = time.monotonic()
                 logger.debug("Heartbeat sent")
+            except NotFoundError:
+                logger.warning(
+                    "Heartbeat rejected because worker is no longer registered; re-registering"
+                )
+                self.register()
             except Exception:
                 logger.warning("Failed to send heartbeat")
 

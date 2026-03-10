@@ -196,7 +196,10 @@ public class HpcApi {
               requireHpcPrivilege(ctx, Privileges.MANAGER);
               HpcContext hpc = ctx.attribute("hpcContext");
               String wid = ctx.pathParam("id");
-              hpc.workerService().heartbeat(wid);
+              if (!hpc.workerService().heartbeat(wid)) {
+                throw HpcException.notFound(
+                    "Worker " + wid + " not found", ctx.header(HpcHeaders.REQUEST_ID));
+              }
               ctx.json(Map.of("worker_id", wid, "status", "ok"));
             }));
 

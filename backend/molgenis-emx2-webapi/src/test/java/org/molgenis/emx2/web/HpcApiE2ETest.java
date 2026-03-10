@@ -475,6 +475,19 @@ class HpcApiE2ETest extends ApiTestBase {
     hpcRequest().when().delete("/api/hpc/workers/{id}", staleWorkerId).then().statusCode(404);
   }
 
+  @Test
+  @Order(52)
+  void heartbeatForUnknownWorkerReturnsNotFound() {
+    String missingWorkerId = HpcTestkit.nextName("missing-worker");
+
+    hpcRequest()
+        .when()
+        .post("/api/hpc/workers/{id}/heartbeat", missingWorkerId)
+        .then()
+        .statusCode(404)
+        .body("detail", containsString("not found"));
+  }
+
   // ── 7. Artifact lifecycle ──────────────────────────────────────────────
 
   @Test

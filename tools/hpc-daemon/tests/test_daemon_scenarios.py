@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from emx2_hpc_daemon.backend import StatusResult
+from emx2_hpc_daemon.client import NotFoundError
 from emx2_hpc_daemon.config import ProfileEntry
 from emx2_hpc_daemon.daemon import HpcDaemon
 from emx2_hpc_daemon.slurm import SlurmJobInfo
@@ -70,6 +71,20 @@ def _write_shell_entrypoint(path: Path) -> str:
     )
     path.chmod(0o755)
     return str(path)
+
+
+def test_heartbeat_not_found_reregisters_worker(daemon_factory):
+    daemon = daemon_factory(backend="simulate")
+    daemon._heartbeat_interval = 1
+    daemon._last_heartbeat = 0.0
+    daemon.client.heartbeat.side_effect = NotFoundError("worker missing")
+    daemon.client.register_worker.return_value = {}
+
+    daemon._maybe_heartbeat()
+
+    daemon.client.heartbeat.assert_called_once()
+    daemon.client.register_worker.assert_called_once()
+    assert daemon._last_heartbeat > 0.0
 
 
 def _install_input_artifact_stubs(client: MagicMock, tmp_path: Path) -> None:

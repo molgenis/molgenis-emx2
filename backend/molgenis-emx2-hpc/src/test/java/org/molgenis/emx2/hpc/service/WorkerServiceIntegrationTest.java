@@ -86,4 +86,16 @@ class WorkerServiceIntegrationTest extends HpcServiceIntegrationTestBase {
     assertEquals(HpcJobStatus.CLAIMED.name(), job.getString("status"));
     assertNull(job.getString("worker_id"));
   }
+
+  @Test
+  void heartbeatIndicatesWhetherWorkerExists() {
+    String workerId = "heartbeat-worker";
+    workerService.registerOrHeartbeat(
+        workerId,
+        "node-heartbeat",
+        List.of(Map.of("processor", "heartbeat-proc", "profile", "any", "max_concurrent_jobs", 1)));
+
+    assertTrue(workerService.heartbeat(workerId));
+    assertFalse(workerService.heartbeat("missing-worker"));
+  }
 }
