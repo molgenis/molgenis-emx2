@@ -218,7 +218,7 @@ class SlurmBackend(ExecutionBackend):
             work_dir=str(work_dir),
             input_dir=str(input_dir),
             output_dir=str(output_dir),
-            extra_args=resolved.extra_args,
+            sbatch_args=resolved.sbatch_args,
             bind_paths=self._config.apptainer.bind_paths
             if not resolved.entrypoint
             else None,

@@ -65,13 +65,21 @@ class SlurmConfig:
 
 @dataclass
 class ProfileEntry:
-    """Maps a processor/profile key to Slurm + execution parameters.
+    """Maps a processor/profile key to execution parameters.
 
     Execution mode is determined by which field is set:
     - ``sif_image``: run inside an Apptainer container
     - ``entrypoint``: exec a wrapper script with well-defined env vars
 
     At least one of ``sif_image`` or ``entrypoint`` must be set.
+
+    Slurm scheduling fields (become ``#SBATCH`` directives)::
+
+        partition   → --partition
+        cpus        → --cpus-per-task
+        memory      → --mem
+        time        → --time
+        sbatch_args → additional raw flags, e.g. ["--gres=gpu:a40:2", "--exclusive"]
     """
 
     sif_image: str = ""
@@ -80,7 +88,7 @@ class ProfileEntry:
     cpus: int = 4
     memory: str = "16G"
     time: str = "01:00:00"
-    extra_args: list[str] = field(default_factory=list)
+    sbatch_args: list[str] = field(default_factory=list)
     output_residence: str = "managed"
     log_residence: str = "managed"
     claim_timeout_seconds: int = 300

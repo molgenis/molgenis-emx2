@@ -180,10 +180,14 @@ When `entrypoint` is set, the batch script exports well-defined environment vari
 profiles:
   vtm-pipeline:gpu-large:
     entrypoint: /nfs/scripts/vtm-pipeline.sh
-    partition: gpu
-    cpus: 16
-    memory: 128G
-    time: "08:00:00"
+    # Slurm scheduling — these map directly to #SBATCH directives:
+    partition: gpu           # --partition
+    cpus: 16                 # --cpus-per-task
+    memory: 128G             # --mem
+    time: "08:00:00"         # --time
+    sbatch_args:             # additional raw sbatch flags
+      - "--gres=gpu:a40:2"
+      - "--exclusive"
 ```
 
 The wrapper script contract defines these environment variables:

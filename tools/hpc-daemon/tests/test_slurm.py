@@ -50,7 +50,7 @@ def test_generate_batch_script_with_account_and_binds():
     assert "/scratch" in script
 
 
-def test_generate_batch_script_with_extra_args():
+def test_generate_batch_script_with_sbatch_args():
     script = generate_batch_script(
         job_id="test-job",
         sif_image="/test.sif",
@@ -61,7 +61,7 @@ def test_generate_batch_script_with_extra_args():
         work_dir="/work",
         input_dir="/input",
         output_dir="/output",
-        extra_args=["--gres=gpu:1", "--constraint=v100"],
+        sbatch_args=["--gres=gpu:1", "--constraint=v100"],
     )
     assert "#SBATCH --gres=gpu:1" in script
     assert "#SBATCH --constraint=v100" in script

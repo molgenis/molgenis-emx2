@@ -179,9 +179,13 @@ def _format_sbatch_directives(
     time_limit: str,
     output_dir: str,
     account: str | None = None,
-    extra_args: list[str] | None = None,
+    sbatch_args: list[str] | None = None,
 ) -> str:
-    """Format the #SBATCH directive block."""
+    """Format the #SBATCH directive block.
+
+    ``sbatch_args`` are appended as raw ``#SBATCH`` flags, e.g.
+    ``["--gres=gpu:a40:2", "--exclusive"]``.
+    """
     lines = textwrap.dedent(f"""\
         #SBATCH --job-name=emx2-{job_id[:8]}
         #SBATCH --partition={partition}
@@ -192,7 +196,7 @@ def _format_sbatch_directives(
         #SBATCH --error={output_dir}/slurm-%j.err""")
     if account:
         lines += f"\n#SBATCH --account={account}"
-    for arg in extra_args or []:
+    for arg in sbatch_args or []:
         lines += f"\n#SBATCH {arg}"
     return lines
 
@@ -296,7 +300,7 @@ def generate_batch_script(
     work_dir: str,
     input_dir: str,
     output_dir: str,
-    extra_args: list[str] | None = None,
+    sbatch_args: list[str] | None = None,
     bind_paths: list[str] | None = None,
     account: str | None = None,
     container_command: str | None = None,
@@ -322,7 +326,7 @@ def generate_batch_script(
         time_limit,
         output_dir,
         account=account,
-        extra_args=extra_args,
+        sbatch_args=sbatch_args,
     )
 
     preamble = textwrap.dedent(f"""\

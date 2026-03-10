@@ -23,7 +23,7 @@ class ResolvedProfile:
     cpus: int
     memory: str
     time: str
-    extra_args: list[str]
+    sbatch_args: list[str]
     output_residence: str
     log_residence: str
     claim_timeout_seconds: int = 300
@@ -61,7 +61,7 @@ def resolve_profile(
         cpus=entry.cpus,
         memory=entry.memory,
         time=entry.time,
-        extra_args=entry.extra_args or [],
+        sbatch_args=entry.sbatch_args or [],
         output_residence=entry.output_residence,
         log_residence=entry.log_residence,
         claim_timeout_seconds=entry.claim_timeout_seconds,
