@@ -705,7 +705,7 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        fields.add(getCountField().as(COUNT_FIELD));
+        fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
         if (schema.hasActiveUserRole(EXISTS.toString())) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
@@ -741,13 +741,16 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field<Integer> getCountField() {
+  private Field<Integer> getCountField(SqlTableMetadata table) {
     if (schema.hasActiveUserRole(COUNT.toString())) {
       return count();
     } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
       return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
     } else if (schema.hasActiveUserRole(RANGE.toString())) {
       return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+    } else if (getTablesWithSelectPermission().contains("*")
+        || getTablesWithSelectPermission().contains(table.getTableName())) {
+      return count();
     }
     throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }
