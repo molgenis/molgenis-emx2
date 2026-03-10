@@ -371,15 +371,15 @@ public class GraphqlTableFieldFactory {
     tableAggTypes.put(tableAggregationType, GraphQLTypeReference.typeRef(tableAggregationType));
     // aggregate type
     GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
-    if (schema.hasActiveUserRole(EXISTS) || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(EXISTS) || hasViewPermission(table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
     }
-    if (schema.hasActiveUserRole(RANGE) || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(RANGE) || hasViewPermission(table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (schema.hasActiveUserRole(VIEWER) || table.getTableType().equals(ONTOLOGIES)) {
+    if (hasViewPermission(table)) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(c -> c.getColumnType().isNumericType())
