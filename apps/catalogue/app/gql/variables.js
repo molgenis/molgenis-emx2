@@ -3,7 +3,7 @@ export default gql`
   query Variables(
     $limit: Int
     $offset: Int
-    $orderby: Variablesorderby
+    $orderby: [Variablesorderby]
     $filter: VariablesFilter
     $search: String
   ) {
