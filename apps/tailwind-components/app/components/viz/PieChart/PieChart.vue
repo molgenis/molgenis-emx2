@@ -198,7 +198,7 @@ onMounted(() => {
 });
 
 watch(
-  () => [props.data, props.asDonutChart, props.showLabels, props.showValues],
+  () => [props.data],
   () => renderChart(),
   { deep: true }
 );
