@@ -27,7 +27,7 @@ import time
 from pathlib import Path
 
 from ._generated import TERMINAL_STATUSES
-from .backend import ExecutionBackend, SimulatedBackend, SlurmBackend
+from .backend import ExecutionBackend, ShellBackend, SimulatedBackend, SlurmBackend
 from .client import ClaimConflict, HpcClient, format_links
 from .config import DaemonConfig
 from .hashing import _sha256_file, compute_tree_hash_from_hashes
@@ -58,11 +58,12 @@ def _build_slurm_detail(info: SlurmJobInfo) -> str:
 class HpcDaemon:
     """The main daemon orchestrating HPC job execution."""
 
-    def __init__(self, config: DaemonConfig, simulate: bool = False):
+    def __init__(self, config: DaemonConfig, backend: str = "slurm", simulate: bool = False):
         self.config = config
-        self._backend: ExecutionBackend = (
-            SimulatedBackend() if simulate else SlurmBackend(config)
-        )
+        # --simulate is a legacy alias for --backend=simulate
+        if simulate:
+            backend = "simulate"
+        self._backend: ExecutionBackend = self._make_backend(backend, config)
         self.client = HpcClient(
             base_url=config.emx2.base_url,
             worker_id=config.emx2.worker_id,
@@ -75,10 +76,19 @@ class HpcDaemon:
         self._hostname = socket.gethostname()
         self._heartbeat_interval = config.worker.heartbeat_interval_seconds
         self._last_heartbeat = 0.0
-        if simulate:
+        if backend != "slurm":
             logger.info(
-                "Running in SIMULATE mode — no real Slurm commands will be executed"
+                "Running with %s backend — no Slurm commands will be executed",
+                backend,
             )
+
+    @staticmethod
+    def _make_backend(backend: str, config: DaemonConfig) -> ExecutionBackend:
+        if backend == "simulate":
+            return SimulatedBackend()
+        if backend == "shell":
+            return ShellBackend(config)
+        return SlurmBackend(config)
 
     @staticmethod
     def _resolve_state_db(config: DaemonConfig) -> Path:

@@ -86,33 +86,47 @@ def main(ctx, config, verbose, json_logs):
     ctx.obj["config"] = load_config(config)
 
 
+_backend_option = click.option(
+    "--backend",
+    type=click.Choice(["slurm", "shell", "simulate"]),
+    default="slurm",
+    help="Execution backend: slurm (default), shell (local subprocess), simulate (fake)",
+)
+
+
 @main.command()
-@click.option("--simulate", is_flag=True, help="Simulate Slurm execution")
+@_backend_option
+@click.option("--simulate", is_flag=True, hidden=True, help="Deprecated: use --backend=simulate")
 @_verbose_option
 @_json_logs_option
 @click.pass_context
-def run(ctx, simulate, verbose, json_logs):
+def run(ctx, backend, simulate, verbose, json_logs):
     """Start the daemon main loop."""
     _setup_logging(verbose, json_logs)
     from .daemon import HpcDaemon
 
     config = ctx.obj["config"]
-    daemon = HpcDaemon(config, simulate=simulate)
+    if simulate:
+        backend = "simulate"
+    daemon = HpcDaemon(config, backend=backend)
     daemon.run()
 
 
 @main.command()
-@click.option("--simulate", is_flag=True, help="Simulate Slurm execution")
+@_backend_option
+@click.option("--simulate", is_flag=True, hidden=True, help="Deprecated: use --backend=simulate")
 @_verbose_option
 @_json_logs_option
 @click.pass_context
-def once(ctx, simulate, verbose, json_logs):
+def once(ctx, backend, simulate, verbose, json_logs):
     """Run a single poll-claim-monitor cycle, then exit."""
     _setup_logging(verbose, json_logs)
     from .daemon import HpcDaemon
 
     config = ctx.obj["config"]
-    daemon = HpcDaemon(config, simulate=simulate)
+    if simulate:
+        backend = "simulate"
+    daemon = HpcDaemon(config, backend=backend)
     daemon.run_once()
 
 
