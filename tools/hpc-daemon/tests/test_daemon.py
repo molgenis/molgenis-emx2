@@ -99,13 +99,18 @@ class TestClassifyOutputFiles:
         assert sorted(f.name for f in output_files) == ["image.png", "result.csv"]
         assert log_files == []
 
-    def test_ignores_directories(self, tmp_path: Path):
-        (tmp_path / "subdir").mkdir()
-        (tmp_path / "result.csv").write_text("data")
+    def test_recurses_into_directories(self, tmp_path: Path):
+        nested = tmp_path / "subdir" / "results"
+        nested.mkdir(parents=True)
+        (nested / "result.csv").write_text("data")
+        (tmp_path / "subdir" / "run.log").write_text("log")
 
         output_files, log_files = HpcDaemon._classify_output_files(str(tmp_path))
-        assert [f.name for f in output_files] == ["result.csv"]
-        assert log_files == []
+        output_paths = sorted(f.relative_to(tmp_path).as_posix() for f in output_files)
+        log_paths = sorted(f.relative_to(tmp_path).as_posix() for f in log_files)
+
+        assert output_paths == ["subdir/results/result.csv"]
+        assert log_paths == ["subdir/run.log"]
 
 
 # ---------------------------------------------------------------------------
@@ -250,6 +255,38 @@ class TestMonitorUploadsArtifacts:
         create_calls = mock_client.create_artifact.call_args_list
         assert len(create_calls) == 1
         assert create_calls[0].kwargs["artifact_type"] == "log"
+
+    def test_completed_job_uploads_nested_relative_paths(
+        self, sample_config, tmp_path: Path
+    ):
+        """Nested files should be included and uploaded with relative paths."""
+        daemon, mock_client = _make_daemon(sample_config)
+
+        output_dir = tmp_path / "output"
+        (output_dir / "results" / "final").mkdir(parents=True)
+        (output_dir / "logs").mkdir(parents=True)
+
+        (output_dir / "results" / "final" / "result.csv").write_text("1,2,3\n")
+        (output_dir / "logs" / "slurm-42.out").write_text("slurm output\n")
+        (output_dir / "logs" / "container-stderr.log").write_text("warning\n")
+
+        daemon.tracker.track(
+            emx2_job_id="job-nested-333",
+            slurm_job_id="sim-job-nested",
+            status="STARTED",
+            output_dir=str(output_dir),
+            processor="text-embedding",
+            profile="gpu-medium",
+        )
+
+        daemon._monitor_running_jobs()
+
+        uploaded_paths = sorted(
+            c.kwargs.get("path") for c in mock_client.upload_artifact_file.call_args_list
+        )
+        assert "results/final/result.csv" in uploaded_paths
+        assert "logs/slurm-42.out" in uploaded_paths
+        assert "logs/container-stderr.log" in uploaded_paths
 
     def test_completed_job_no_log_files(self, sample_config, tmp_path: Path):
         """If there are no log files, log_artifact_id should be None."""
@@ -471,7 +508,8 @@ class TestPosixResidenceArtifactUpload:
         output_dir = tmp_path / "output"
         output_dir.mkdir()
         file_a = output_dir / "alpha.txt"
-        file_b = output_dir / "beta.bin"
+        (output_dir / "nested").mkdir()
+        file_b = output_dir / "nested" / "beta.bin"
         file_a.write_text("aaa")
         file_b.write_bytes(b"\x00\x01\x02")
 
@@ -490,14 +528,16 @@ class TestPosixResidenceArtifactUpload:
         reg_calls = mock_client.register_artifact_file.call_args_list
         reg_paths = sorted(c.kwargs["path"] for c in reg_calls)
         assert "alpha.txt" in reg_paths
-        assert "beta.bin" in reg_paths
+        assert "nested/beta.bin" in reg_paths
 
         # Verify hashes match
         alpha_reg = next(c.kwargs for c in reg_calls if c.kwargs["path"] == "alpha.txt")
         assert alpha_reg["sha256"] == hashlib.sha256(b"aaa").hexdigest()
         assert alpha_reg["size_bytes"] == 3
 
-        beta_reg = next(c.kwargs for c in reg_calls if c.kwargs["path"] == "beta.bin")
+        beta_reg = next(
+            c.kwargs for c in reg_calls if c.kwargs["path"] == "nested/beta.bin"
+        )
         assert beta_reg["sha256"] == hashlib.sha256(b"\x00\x01\x02").hexdigest()
         assert beta_reg["size_bytes"] == 3
 

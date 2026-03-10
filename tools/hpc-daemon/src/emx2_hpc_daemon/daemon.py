@@ -403,7 +403,7 @@ class HpcDaemon:
         output_files: list[Path] = []
         log_files: list[Path] = []
 
-        for f in output_path.iterdir():
+        for f in output_path.rglob("*"):
             if not f.is_file():
                 continue
             if f.name == ".hpc_progress.jsonl":
@@ -469,7 +469,10 @@ class HpcDaemon:
             "Artifact files for job %s (%s): %s",
             tracked.emx2_job_id,
             name_prefix,
-            [f"{f.name} ({f.stat().st_size}b)" for f in files],
+            [
+                f"{f.relative_to(Path(output_dir)).as_posix()} ({f.stat().st_size}b)"
+                for f in files
+            ],
         )
 
         metadata = self._build_provenance_metadata(tracked, name_prefix)
@@ -482,7 +485,11 @@ class HpcDaemon:
                 )
             else:
                 return self._upload_managed_artifact(
-                    tracked.emx2_job_id, files, artifact_type, name_prefix,
+                    tracked.emx2_job_id,
+                    files,
+                    output_dir,
+                    artifact_type,
+                    name_prefix,
                     metadata=metadata,
                 )
         except Exception:
@@ -553,15 +560,21 @@ class HpcDaemon:
         # Register individual file metadata and collect hashes
         file_hashes: list[tuple[str, str]] = []
         total_size = 0
-        for f in sorted(output_files, key=lambda p: p.name):
+        output_root = Path(output_dir)
+        for f in sorted(
+            output_files, key=lambda p: p.relative_to(output_root).as_posix()
+        ):
+            relative_path = f.relative_to(output_root).as_posix()
             fhash = _sha256_file(f)
             fsize = f.stat().st_size
-            file_hashes.append((f.name, fhash))
+            file_hashes.append((relative_path, fhash))
             total_size += fsize
-            content_type = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
+            content_type = (
+                mimetypes.guess_type(relative_path)[0] or "application/octet-stream"
+            )
             self.client.register_artifact_file(
                 artifact_id,
-                path=f.name,
+                path=relative_path,
                 sha256=fhash,
                 size_bytes=fsize,
                 content_type=content_type,
@@ -593,6 +606,7 @@ class HpcDaemon:
         self,
         job_id: str,
         output_files: list[Path],
+        output_dir: str,
         artifact_type: str = "blob",
         name_prefix: str = "output",
         metadata: dict | None = None,
@@ -618,20 +632,24 @@ class HpcDaemon:
 
         file_hashes: list[tuple[str, str]] = []
         total_size = 0
-        for f in sorted(output_files, key=lambda p: p.name):
+        output_root = Path(output_dir)
+        for f in sorted(
+            output_files, key=lambda p: p.relative_to(output_root).as_posix()
+        ):
+            relative_path = f.relative_to(output_root).as_posix()
             file_hash = _sha256_file(f)
             file_size = f.stat().st_size
-            file_hashes.append((f.name, file_hash))
+            file_hashes.append((relative_path, file_hash))
             total_size += file_size
             logger.debug(
                 "Uploading file %s (%d bytes) to artifact %s",
-                f.name,
+                relative_path,
                 file_size,
                 artifact_id,
             )
             self.client.upload_artifact_file(
                 artifact_id,
-                path=f.name,
+                path=relative_path,
                 file_path=str(f),
                 size_bytes=file_size,
             )
