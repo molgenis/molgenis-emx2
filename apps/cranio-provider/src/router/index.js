@@ -10,7 +10,6 @@ import CraniosynostosisCenterSurgical from "../views/craniosynostosis/your_cente
 
 // cleft lip and palate pages (id: `-clp-`)
 import CleftLipPalateYourCenter from "../views/cleft_lip_palate/your_center.vue";
-import CleftLipPalateAllCenters from "../views/cleft_lip_palate/all_centers.vue";
 
 // genetic hearing loss
 import GeneticHearingLossYourCenter from "../views/genetic_hearing_loss/your_center.vue";
@@ -88,14 +87,6 @@ const router = createRouter({
           component: CleftLipPalateYourCenter,
           meta: {
             title: "Your Center | Cleft Lip and Palate",
-          },
-        },
-        {
-          name: "provider-clp-all-centers",
-          path: "all-centers",
-          component: CleftLipPalateAllCenters,
-          meta: {
-            title: "All Centers | Cleft Lip and Palate",
           },
         },
       ],

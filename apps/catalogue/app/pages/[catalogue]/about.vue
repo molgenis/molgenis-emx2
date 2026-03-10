@@ -10,6 +10,10 @@
           { id: 'intro', label: 'Introduction' },
           { id: 'standards', label: 'Standards' },
           { id: 'contact', label: 'Contact' },
+          {
+            id: 'registration',
+            label: 'Registration Process for UMCG Research Data Catalogue',
+          },
           { id: 'privacy', label: 'Privacy' },
           { id: 'terms', label: 'Terms' },
           { id: 'other', label: 'Links' },
@@ -51,9 +55,16 @@
             class="text-link underline hover:bg-link-hover"
             >Cohort and Biobank Coordination Hub (CBCH)</a
           >
-          and the Digital Competence Center (DCC) of the UMCG. This database was
-          created using the MOLGENIS molgenis-emx2 open source software
-          (license: LGPLv3). Please cite
+          and
+          <a
+            href="https://umcgresearch.org/w/dcc"
+            rel="noopener noreferrer"
+            target="_blank"
+            class="text-link underline hover:bg-link-hover"
+            >the Digital Competence Center (DCC)</a
+          >
+          of the UMCG. This database was created using the MOLGENIS
+          molgenis-emx2 open source software (license: LGPLv3). Please cite
           <a
             href="https://doi.org/10.1093/bioinformatics/bty742"
             rel="noopener noreferrer"
@@ -86,7 +97,7 @@
             Related Health Problems)</a
           >,
           <a
-            href="https://www.orphadata.com/orphanet-nomenclature-for-coding/"
+            href="https://www.orphacode.org/"
             rel="noopener noreferrer"
             target="_blank"
             class="text-link underline hover:bg-link-hover"
@@ -113,7 +124,7 @@
             class="text-link underline hover:bg-link-hover"
             >researchdatacatalogue@umcg.nl</a
           >
-          . Questions about the Molgenis software can be sent to
+          . Questions about the MOLGENIS software can be sent to
           <a
             href="mailto:support@molgenis.org"
             rel="noopener noreferrer"
@@ -121,6 +132,50 @@
             class="text-link underline hover:bg-link-hover"
             >support@molgenis.org</a
           >.
+        </ContentBlock>
+        <ContentBlock
+          id="registration"
+          title="Registration Process for UMCG Research Data Catalogue"
+        >
+          If you wish to register your UMCG resource (data and/or sample
+          collections), please follow the instructions below. All human-related
+          datasets can be registered, including cohort studies, biobanks,
+          registers, clinical studies and trials, etc. In the catalogue, only
+          metadata is registered, not actual research data or outcomes.
+          <ol class="list-decimal ml-4 mt-2.5 [&_li]:mb-1.5">
+            <li>
+              Send an email to
+              <a
+                href="mailto:researchdatacatalogue@umcg.nl"
+                rel="noopener noreferrer"
+                target="_blank"
+                class="text-link underline hover:bg-link-hover"
+                >researchdatacatalogue@umcg.nl</a
+              >
+              with information, including the title of your study (and if
+              available the abbreviation) and the people (name and email
+              address) who need access and/or will be filling in the metadata.
+            </li>
+            <li>
+              A staging area (metadata entry portal) for the catalogue will be
+              created and you will be granted access using your UMCG login
+              credentials. You will receive a manual which explains the most
+              important steps for entering the metadata.
+            </li>
+            <li>
+              You may copy and transfer part of the content to individual third
+              parties for their personal use, but only if you acknowledge the
+              website as the source of the material transferred.
+            </li>
+            <li>
+              Contact us after completing the metadata, so that we can put the
+              page online.
+            </li>
+            <li>
+              A persistent URL (DOI) will be created which you can use for your
+              publications and your study will be put online.
+            </li>
+          </ol>
         </ContentBlock>
         <ContentBlock id="privacy" title="Disclaimer &amp; Privacy">
           The metadata has been filled in manually by the steward of each
@@ -169,11 +224,20 @@
           <DisplayList>
             <DisplayListItem>
               <a
+                href="https://molgeniscatalogue.org"
+                rel="noopener noreferrer"
+                target="_blank"
+                class="text-link underline hover:bg-link-hover"
+                >Health Data and Samples Catalogue</a
+              >
+            </DisplayListItem>
+            <DisplayListItem>
+              <a
                 href="https://catalogue.bbmri.nl/"
                 rel="noopener noreferrer"
                 target="_blank"
                 class="text-link underline hover:bg-link-hover"
-                >Bbmri-NL</a
+                >BBMRI-NL</a
               >
             </DisplayListItem>
             <DisplayListItem>
@@ -232,7 +296,7 @@
             </DisplayListItem>
             <DisplayListItem>
               <a
-                href="https://lifecycle-project.eu/for-scientists/variable-catalogue/"
+                href="https://molgeniscatalogue.org/LifeCycle"
                 rel="noopener noreferrer"
                 target="_blank"
                 class="text-link underline hover:bg-link-hover"

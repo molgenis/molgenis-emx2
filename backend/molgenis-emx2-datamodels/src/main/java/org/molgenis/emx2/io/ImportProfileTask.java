@@ -1,15 +1,11 @@
 package org.molgenis.emx2.io;
 
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
-import org.molgenis.emx2.io.emx2.Emx2;
-import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.tasks.Task;
@@ -24,6 +20,8 @@ public class ImportProfileTask extends Task {
   private final Database database;
   private final Function<Database, Schema> importSchemaFunction;
   private Schema schema;
+  private String ontologySchemaName;
+  private Profiles profiles;
 
   public ImportProfileTask(
       Database database,
@@ -48,35 +46,68 @@ public class ImportProfileTask extends Task {
   @Override
   public void run() {
     this.start();
-    Task commitTask = new Task();
     try {
-      this.database.tx(
-          db -> {
-            Schema s = importSchemaFunction.apply(db);
-            this.schema = s;
-            load(s);
-            this.addSubTask(commitTask);
-            commitTask.setDescription("Committing");
-          });
+      runCreateSchemaTransaction();
+      runOntologyTransaction();
+      runDemoDataTransaction();
+      this.complete();
     } catch (Exception e) {
-      try {
-        commitTask.completeWithError("CommitTask failed: " + e.getMessage());
-      } catch (MolgenisException e2) {
-        try {
-          this.completeWithError("ImportProfileTask  failed: " + e2.getMessage());
-        } catch (Exception e3) {
-          throw (e3);
-        }
-      }
+      this.completeWithError("ImportProfileTask failed: " + e.getMessage());
     }
-    commitTask.complete();
-    this.complete();
   }
 
-  void load(Schema schema) {
-    // load config (a.k.a. 'profile') YAML file
+  private void runCreateSchemaTransaction() {
+    Task schemaTask = this.addSubTask("Create schema and metadata");
+    schemaTask.start();
+    Task commitTask = new Task("Committing");
+    this.database.tx(
+        db -> {
+          Schema s = importSchemaFunction.apply(db);
+          this.schema = s;
+          loadSchemaOnly(s, schemaTask);
+          schemaTask.addSubTask(commitTask);
+        });
+    commitTask.complete();
+    schemaTask.complete();
+  }
+
+  private void runDemoDataTransaction() {
+    if (!includeDemoData) {
+      return;
+    }
+    Task demoDataTask = this.addSubTask("Import demo data");
+    demoDataTask.start();
+    Task commitTask = new Task("Committing");
+    this.database.tx(
+        db -> {
+          Schema s = db.getSchema(schema.getName());
+          loadDemoData(s, demoDataTask);
+          demoDataTask.addSubTask(commitTask);
+        });
+    commitTask.complete();
+    demoDataTask.complete();
+  }
+
+  private void runOntologyTransaction() {
+    if (ontologySchemaName == null) {
+      return;
+    }
+    Task ontologyTask = this.addSubTask("Import ontology data");
+    ontologyTask.start();
+    Task commitTask = new Task("Committing");
+    this.database.tx(
+        db -> {
+          Schema ontologySchema = db.getSchema(ontologySchemaName);
+          loadOntologyData(ontologySchema, ontologyTask);
+          ontologyTask.addSubTask(commitTask);
+        });
+    commitTask.complete();
+    ontologyTask.complete();
+  }
+
+  void loadSchemaOnly(Schema schema, Task parentTask) {
     SchemaFromProfile schemaFromProfile = new SchemaFromProfile(this.configLocation);
-    Profiles profiles = getProfiles(schema, schemaFromProfile);
+    this.profiles = getProfiles(schema, schemaFromProfile, parentTask);
 
     // create the schema using the selected profile tags within the big model
     SchemaMetadata schemaMetadata;
@@ -102,30 +133,20 @@ public class ImportProfileTask extends Task {
       ontologySchema = schema;
     }
 
-    // special options: import additional models into ontology schema (schema=refs+ontologies)
     if (profiles.getAdditionalFixedSchemaModel() != null) {
-      // load schema and data
       String fixedModelPath = profiles.getAdditionalFixedSchemaModel();
       TableStore fixedModelStore = new TableStoreForCsvFilesClasspath(fixedModelPath);
       Task importSchemaTask = new ImportSchemaTask(fixedModelStore, ontologySchema, false);
       importSchemaTask.setDescription("Import additional EMX into the ontology schema");
-      this.addSubTask(importSchemaTask);
+      parentTask.addSubTask(importSchemaTask);
       importSchemaTask.run();
     }
 
-    // import the schema
     schema.migrate(schemaMetadata);
-    this.addSubTask("Loaded tables and columns from profile(s)").complete();
+    parentTask.addSubTask("Loaded tables and columns from profile(s)").complete();
 
-    // import ontologies (not schema or data)
-    TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
-    Task ontologyTask =
-        new ImportDataTask(ontologySchema, store, false)
-            .setDescription("Import ontologies from profile");
-    this.addSubTask(ontologyTask);
-    ontologyTask.run();
+    this.ontologySchemaName = ontologySchema.getName();
 
-    // special options: provide specific user/role with View/Edit permissions on imported schema
     if (profiles.getSetViewPermission() != null) {
       schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
     }
@@ -133,44 +154,41 @@ public class ImportProfileTask extends Task {
       schema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
     }
 
-    // optionally, load demo data (i.e. some example records, or specific application data)
-    if (includeDemoData) {
-      // prevent data tables with ontology table names to be imported into ontologies by accident
-      String[] includeTableNames = getTypeOfTablesToInclude(schema);
-      // prevent data tables with ontology table names to be imported into ontologies by accident
-
-      for (String example : profiles.getDemoDataList()) {
-        TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
-        Task demoDataTask =
-            new ImportDataTask(schema, demoDataStore, false, includeTableNames)
-                .setDescription("Import demo data from profile");
-        this.addSubTask(demoDataTask);
-        demoDataTask.run();
-      }
-    }
-
-    // load schema settings from dir containing e.g. molgenis_settings.csv or molgenis_members.csv
     for (String setting : profiles.getSettingsList()) {
       MolgenisIO.fromClasspathDirectory(setting, schema, false);
     }
-
-    // lastly, apply any ontology table semantics from a predefined location
-    // this requires special parsing, because we must only update ontology tables used in the schema
-    // to prevent adding additional unused tables
-    SchemaMetadata ontologySemantics = getOntologySemantics(ontologySchema);
-    ontologySchema.migrate(ontologySemantics);
   }
 
-  private Profiles getProfiles(Schema schema, SchemaFromProfile schemaFromProfile) {
+  void loadDemoData(Schema schema, Task parentTask) {
+    String[] includeTableNames = getTypeOfTablesToInclude(schema);
+    for (String example : profiles.getDemoDataList()) {
+      TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
+      Task demoDataTask =
+          new ImportDataTask(schema, demoDataStore, false, includeTableNames)
+              .setDescription("Import demo data from profile");
+      parentTask.addSubTask(demoDataTask);
+      demoDataTask.run();
+    }
+  }
+
+  private void loadOntologyData(Schema ontologySchema, Task parentTask) {
+    TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
+    Task ontologyTask =
+        new ImportOntologiesTask(
+            ontologySchema, store, ONTOLOGY_LOCATION, ONTOLOGY_SEMANTICS_LOCATION);
+    parentTask.addSubTask(ontologyTask);
+    ontologyTask.run();
+  }
+
+  private Profiles getProfiles(
+      Schema schema, SchemaFromProfile schemaFromProfile, Task parentTask) {
     Profiles profiles = schemaFromProfile.getProfiles();
 
-    // special option: if there are createSchemasIfMissing, import those first
     if (profiles.getFirstCreateSchemasIfMissing() != null) {
       for (CreateSchemas createSchemasIfMissing : profiles.getFirstCreateSchemasIfMissing()) {
         String missingSchemaName = createSchemasIfMissing.getName();
         Database db = schema.getDatabase();
         Schema createNewSchema = db.getSchema(missingSchemaName);
-        // if schema exists by this name, stop and continue with next
         if (createNewSchema != null) {
           continue;
         }
@@ -183,15 +201,13 @@ public class ImportProfileTask extends Task {
                 profileLocation,
                 createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
-        this.addSubTask(profileLoader);
+        parentTask.addSubTask(profileLoader);
         profileLoader.run();
-        profileLoader.load(profileLoader.schema);
       }
     }
     return profiles;
   }
 
-  /** Helper function to get a string array of data table names from a schema */
   private String[] getTypeOfTablesToInclude(Schema schema) {
     List<String> tablesToUpdate = new ArrayList<>();
     for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
@@ -204,36 +220,6 @@ public class ImportProfileTask extends Task {
     return tablesToUpdateArr;
   }
 
-  /**
-   * Get potential updates regarding the semantics of ontology tables used in the imported schema
-   *
-   * @return SchemaMetadata
-   */
-  private SchemaMetadata getOntologySemantics(Schema schema) {
-    Set<String> tablesToUpdate = new HashSet<>();
-    for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
-      if (tableMetadata.getTableType().equals(TableType.ONTOLOGIES)) {
-        tablesToUpdate.add(tableMetadata.getTableName());
-      }
-    }
-    URL dirURL = getClass().getResource(ONTOLOGY_SEMANTICS_LOCATION);
-    if (dirURL == null) {
-      throw new MolgenisException(
-          "Import failed: File " + ONTOLOGY_SEMANTICS_LOCATION + " doesn't exist in classpath");
-    }
-    InputStreamReader ontologySemanticsISR =
-        new InputStreamReader(
-            Objects.requireNonNull(getClass().getResourceAsStream(ONTOLOGY_SEMANTICS_LOCATION)));
-    List<Row> keepRows = new ArrayList<>();
-    for (Row row : CsvTableReader.read(ontologySemanticsISR)) {
-      if (tablesToUpdate.contains(row.getString("tableName"))) {
-        keepRows.add(row);
-      }
-    }
-    return Emx2.fromRowList(keepRows);
-  }
-
-  /** Helper to check if schema exists and if not create it */
   private Schema createSchema(String schema, Database db) {
     Schema createSchema = db.getSchema(schema);
     if (createSchema == null) {

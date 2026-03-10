@@ -31,15 +31,12 @@ public class ImportRowProcessor implements RowProcessor {
     while (iterator.hasNext()) {
       Row row = iterator.next();
 
-      boolean isDrop = row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
-
-      // add file attachments, if applicable
-      for (Column c : columns) {
-        if (cellRefersToAttachment(source, c, row)) {
-          BinaryFileWrapper fileWrapper = getFileWrapper((TableAndFileStore) source, c, row, index);
-          row.setBinary(c.getName(), fileWrapper);
-        }
+      if (row.isEmpty()) {
+        continue;
       }
+
+      boolean isDrop = row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
+      addFileAttachmentsToRow(source, columns, row, index);
 
       if (!isDrop) {
         importBatch.add(row);
@@ -66,6 +63,17 @@ public class ImportRowProcessor implements RowProcessor {
       table.delete(deleteBatch);
       task.setProgress(deleteBatch.size());
       task.setDescription("Deleted " + task.getProgress() + " rows from " + table.getName());
+    }
+  }
+
+  private void addFileAttachmentsToRow(
+      TableStore source, List<Column> columns, Row row, int index) {
+    // add file attachments, if applicable
+    for (Column c : columns) {
+      if (cellRefersToAttachment(source, c, row)) {
+        BinaryFileWrapper fileWrapper = getFileWrapper((TableAndFileStore) source, c, row, index);
+        row.setBinary(c.getName(), fileWrapper);
+      }
     }
   }
 

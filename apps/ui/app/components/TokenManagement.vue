@@ -26,7 +26,7 @@ import TableHead from "../../../tailwind-components/app/components/TableHead.vue
 import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
 import TableHeadRow from "../../../tailwind-components/app/components/TableHeadRow.vue";
-import type { IUser } from "~/util/adminUtils";
+import type { IUser } from "../util/adminUtils";
 
 const emit = defineEmits(["userUpdated"]);
 

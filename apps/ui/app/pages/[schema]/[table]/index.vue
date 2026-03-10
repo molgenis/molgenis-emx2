@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, useId } from "vue";
 import type {
   Crumb,
   ITableSettings,
@@ -13,6 +13,10 @@ import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import type { IRow } from "../../../../../metadata-utils/src/types";
+import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
+import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
+import Button from "../../../../../tailwind-components/app/components/Button.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -64,6 +68,17 @@ function handleSettingsUpdate() {
   router.push({ query });
 }
 
+async function handleViewRowRequest(row: IRow) {
+  const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
+
+  router.push({
+    path: `/${schemaId}/${tableId}/${keySlug(primaryKeys)}`,
+    query: {
+      keys: JSON.stringify(primaryKeys),
+    },
+  });
+}
+
 const crumbs: Crumb[] = [
   { label: schemaId, url: `/${schemaId}` },
   { label: tableMetadata.label || tableMetadata.id, url: "" },
@@ -75,10 +90,10 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin, session } = await useSession();
+const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
-  <section class="mx-auto lg:px-[30px] px-0">
+  <div class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       {{ tableMetadata }}
       <template #prefix>
@@ -94,7 +109,19 @@ const { isAdmin, session } = await useSession();
       :schemaId="schemaId"
       :tableId="tableId"
       v-model:settings="tableSettings"
-      :isEditable="session?.roles?.includes('Editor') || isAdmin"
-    />
-  </section>
+      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+    >
+      <template #additional-row-actions="{ row }">
+        <Button
+          :id="useId()"
+          :icon-only="true"
+          type="inline"
+          icon="info"
+          size="small"
+          label="view row details"
+          @click="handleViewRowRequest(row)"
+        />
+      </template>
+    </TableEMX2>
+  </div>
 </template>

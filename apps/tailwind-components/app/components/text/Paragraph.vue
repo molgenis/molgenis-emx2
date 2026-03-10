@@ -2,10 +2,15 @@
 import type { IParagraphs } from "../../../types/cms";
 
 withDefaults(defineProps<IParagraphs>(), {
-  isCentered: false,
+  paragraphIsCentered: false,
 });
 </script>
 
 <template>
-  <p :class="{ 'text-center': isCentered }"><slot /></p>
+  <p
+    class="text-title-contrast"
+    :class="{ 'text-center': paragraphIsCentered }"
+  >
+    <slot />
+  </p>
 </template>

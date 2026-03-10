@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.5.0
+    - image: molgenis/ci-build:1.5.1
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.5.0
+    - image: molgenis/ci-build:1.5.1
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.5.0
+      - image: molgenis/ci-build:1.5.1
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -164,7 +164,7 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
-          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE true
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true true
 
     - run:
         name: Wait for preview to be up, poll every 10 seconds
@@ -189,7 +189,16 @@ jobs:
             RETRY=$((RETRY + 1))
             if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
             echo "❌ Gave up after $MAX_RETRIES attempts"
-            exit 1
+
+            echo "📌 Pods in namespace $NS:"
+            kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o wide
+
+            echo "📌 Events:"
+            kubectl get events -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" --sort-by=.metadata.creationTimestamp | tail -n 40
+
+            echo "📌 Logs from backend:"
+            POD=$(kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o jsonpath='{.items[0].metadata.name}')
+            kubectl logs -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" $POD -c emx2 --tail=200
             fi
             
             sleep 10
@@ -256,6 +265,10 @@ jobs:
     - pre_steps
     
     - run:
+        name: Switch git remote to HTTPS for Nyx tag push
+        command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
+
+    - run:
         name: prepare sql test database
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
@@ -263,9 +276,8 @@ jobs:
         name: lint the code
         command: |
           ./gradlew lint ci --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
-      # we might be optimistic and skip tests here
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
@@ -498,7 +510,7 @@ jobs:
           command: |
             export $( cat build/ci.properties | xargs )
             bash ci/set_kubectl_config-azure.sh
-            bash ci/create_or_update_k8s-azure.sh "emx2" latest true false
+            bash ci/create_or_update_k8s-azure.sh "emx2" latest false true
           working_directory: repo
 
       - run:

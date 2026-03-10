@@ -17,6 +17,7 @@ import InputSearch from "../input/Search.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
 import fetchGraphql from "../../composables/fetchGraphql";
+import type { IOntologyNode } from "../../../types/cms";
 
 const props = withDefaults(
   defineProps<
@@ -143,7 +144,7 @@ async function reload() {
   ) {
     // Load entire small ontology in one go
     const query = `query {
-      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){
+      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:[{order:ASC},{name:ASC}]){
         name,parent{name},label,definition,code,codesystem,ontologyTermURI
       }
     }`;
@@ -159,12 +160,12 @@ async function reload() {
 }
 
 function assembleTree(
-  data: any[],
+  data: IOntologyNode[],
   parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
   return (
     data
-      .filter((row) => row.parent?.name == parentNode?.name)
+      .filter((row) => row.parent?.name === parentNode?.name)
       .map((row: any) => {
         const node: ITreeNodeState = {
           name: row.name,
@@ -229,12 +230,13 @@ async function loadPage(
     .replace(/false/g, "false");
 
   const query = `query myquery(${variableDeclaration}) {
-    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:[{order:ASC},{name:ASC}], limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
     count: ${props.ontologyTableId}_agg(filter:${countFilterInline}){count}
     totalCount: ${props.ontologyTableId}_agg(filter:${totalCountFilterInline}){count}
   }`;
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+  if (!data) return;
 
   const newTerms =
     data.retrieveTerms?.map((row: any) => ({
@@ -267,7 +269,7 @@ async function loadPage(
     newTerms.length >= props.limit && itemsLoaded < totalAvailable;
 
   if (data.totalCount?.count !== undefined) {
-    (node as any).unfilteredTotal = data.totalCount.count;
+    node.unfilteredTotal = data.totalCount.count;
   }
 
   if (node.name === "__root__") {
@@ -384,7 +386,8 @@ async function toggleTermSelect(node: ITreeNodeState) {
       );
     } else if (
       node.parentNode &&
-      !node.parentNode.loadMoreHasMore && // All children are loaded
+      (!searchTerms.value || node.parentNode.showingAll) &&
+      !node.parentNode.loadMoreHasMore &&
       node.parentNode.children
         .filter((child) => child.name != node.name)
         .every((child) => child.selected === "selected")
@@ -414,8 +417,7 @@ async function toggleTermExpand(
   showAll: boolean = false
 ) {
   if (!node.expanded) {
-    // Store whether this node is showing all (bypassing search filter)
-    (node as any).showingAll = showAll;
+    node.showingAll = showAll;
 
     await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
 
@@ -426,7 +428,7 @@ async function toggleTermExpand(
 }
 
 async function showAllChildrenOfNode(node: ITreeNodeState) {
-  if ((node as any).showingAll) {
+  if (node.showingAll) {
     return;
   }
 
@@ -441,11 +443,11 @@ async function showAllChildrenOfNode(node: ITreeNodeState) {
 }
 
 async function applyFilterToNode(node: ITreeNodeState) {
-  if (!(node as any).showingAll) {
+  if (!node.showingAll) {
     return;
   }
   node.expanded = false;
-  (node as any).showingAll = false;
+  node.showingAll = false;
   await new Promise((resolve) => setTimeout(resolve, 0));
   await toggleTermExpand(node, false);
 }
@@ -461,7 +463,7 @@ async function loadMoreTerms(node: ITreeNodeState) {
   loadingNodes.value.add(nodeKey);
 
   try {
-    const showingAll = (node as any).showingAll || false;
+    const showingAll = node.showingAll || false;
     const searchValue = showingAll ? undefined : searchTerms.value || undefined;
     await loadPage(node, node.loadMoreOffset || 0, searchValue, showingAll);
   } finally {

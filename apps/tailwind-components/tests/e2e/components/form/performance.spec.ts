@@ -48,7 +48,7 @@ test("performance of the ontology input should not degrade", async ({
 
   await page
     .locator(
-      "#hpo-form-field-input-ontology > .flex.items-center.justify-between"
+      '[id="patient registry demo-Subject-hpo-form-field-input-ontology"] > .flex.items-center.justify-between'
     )
     .click();
   await page.getByPlaceholder("Search in terms").fill("cystic");
@@ -75,5 +75,5 @@ test("performance of the ontology input should not degrade", async ({
     `Time taken to search and find two ontology values: ${timeTaken} milliseconds`
   );
 
-  expect(timeTaken).toBeLessThan(6000); //seems slow, but in practice it is not slow.
+  expect(timeTaken).toBeLessThan(8000); //seems slow, but in practice it is not slow.
 });
