@@ -284,91 +284,130 @@ def _stage_input_artifacts(job: dict, input_dir: str, client: HpcClient) -> None
         inputs,
     )
 
-    if isinstance(inputs, list):
-        for item in inputs:
-            artifact_id = item if isinstance(item, str) else item.get("artifact_id")
-            if artifact_id:
-                try:
-                    artifact = client.get_artifact(artifact_id)
-                    residence = artifact.get("residence", "managed")
-                    content_url = artifact.get("content_url")
-                    logger.debug(
-                        "Input artifact %s: type=%s, format=%s, "
-                        "residence=%s, status=%s, sha256=%s, "
-                        "size_bytes=%s, content_url=%s",
-                        artifact_id,
-                        artifact.get("type"),
-                        artifact.get("format"),
-                        residence,
-                        artifact.get("status"),
-                        artifact.get("sha256"),
-                        artifact.get("size_bytes"),
-                        content_url,
-                    )
+    artifact_ids = _normalize_input_artifact_ids(inputs)
+    logger.debug(
+        "Normalized input artifacts for job %s: %s",
+        job.get("id", "?"),
+        artifact_ids,
+    )
+    for artifact_id in artifact_ids:
+        try:
+            artifact = client.get_artifact(artifact_id)
+            residence = artifact.get("residence", "managed")
+            content_url = artifact.get("content_url")
+            logger.debug(
+                "Input artifact %s: type=%s, format=%s, "
+                "residence=%s, status=%s, sha256=%s, "
+                "size_bytes=%s, content_url=%s",
+                artifact_id,
+                artifact.get("type"),
+                artifact.get("format"),
+                residence,
+                artifact.get("status"),
+                artifact.get("sha256"),
+                artifact.get("size_bytes"),
+                content_url,
+            )
 
-                    # Log artifact's HATEOAS links
-                    links = artifact.get("_links", {})
-                    if links:
-                        logger.debug(
-                            "Input artifact %s _links: %s",
-                            artifact_id,
-                            format_links(links),
-                        )
+            # Log artifact's HATEOAS links
+            links = artifact.get("_links", {})
+            if links:
+                logger.debug(
+                    "Input artifact %s _links: %s",
+                    artifact_id,
+                    format_links(links),
+                )
 
-                    if (
-                        residence == "posix"
-                        and content_url
-                        and content_url.startswith("file://")
-                    ):
-                        # Symlink posix artifact directory
-                        posix_path = content_url[len("file://") :]
-                        link_path = Path(input_dir) / artifact_id
-                        link_path.symlink_to(posix_path)
-                        logger.info(
-                            "Symlinked posix artifact %s: %s -> %s",
-                            artifact_id,
-                            link_path,
-                            posix_path,
-                        )
-                        # Verify hash for posix artifacts
-                        _verify_artifact_hash(
-                            artifact, Path(posix_path), artifact_id
-                        )
+            if residence == "posix" and content_url and content_url.startswith("file://"):
+                # Symlink posix artifact directory
+                posix_path = content_url[len("file://") :]
+                link_path = Path(input_dir) / artifact_id
+                link_path.symlink_to(posix_path)
+                logger.info(
+                    "Symlinked posix artifact %s: %s -> %s",
+                    artifact_id,
+                    link_path,
+                    posix_path,
+                )
+                # Verify hash for posix artifacts
+                _verify_artifact_hash(
+                    artifact, Path(posix_path), artifact_id
+                )
+            else:
+                # Download managed artifact files
+                artifact_dir = Path(input_dir) / artifact_id
+                if artifact_dir.exists():
+                    if artifact_dir.is_dir() and not artifact_dir.is_symlink():
+                        shutil.rmtree(artifact_dir)
                     else:
-                        # Download managed artifact files
-                        artifact_dir = Path(input_dir) / artifact_id
-                        if artifact_dir.exists():
-                            if (
-                                artifact_dir.is_dir()
-                                and not artifact_dir.is_symlink()
-                            ):
-                                shutil.rmtree(artifact_dir)
-                            else:
-                                artifact_dir.unlink()
-                        artifact_dir.mkdir(parents=True, exist_ok=True)
-                        files = client.list_artifact_files(artifact_id)
-                        logger.debug(
-                            "Artifact %s has %d file(s): %s",
-                            artifact_id,
-                            len(files),
-                            [
-                                f"{f.get('path')} ({f.get('size_bytes', '?')}b)"
-                                for f in files
-                            ],
-                        )
-                        downloaded = client.download_artifact_files(
-                            artifact_id, str(artifact_dir)
-                        )
-                        logger.info(
-                            "Staged %d files from artifact %s",
-                            len(downloaded),
-                            artifact_id,
-                        )
-                        # Verify hash for managed artifacts
-                        _verify_artifact_hash(artifact, artifact_dir, artifact_id)
-                except Exception:
-                    logger.exception("Failed to stage artifact %s", artifact_id)
-                    raise
+                        artifact_dir.unlink()
+                artifact_dir.mkdir(parents=True, exist_ok=True)
+                files = client.list_artifact_files(artifact_id)
+                logger.debug(
+                    "Artifact %s has %d file(s): %s",
+                    artifact_id,
+                    len(files),
+                    [f"{f.get('path')} ({f.get('size_bytes', '?')}b)" for f in files],
+                )
+                downloaded = client.download_artifact_files(
+                    artifact_id, str(artifact_dir)
+                )
+                logger.info(
+                    "Staged %d files from artifact %s",
+                    len(downloaded),
+                    artifact_id,
+                )
+                # Verify hash for managed artifacts
+                _verify_artifact_hash(artifact, artifact_dir, artifact_id)
+        except Exception:
+            logger.exception("Failed to stage artifact %s", artifact_id)
+            raise
+
+
+def _normalize_input_artifact_ids(inputs: object) -> list[str]:
+    """Normalize supported job input formats into unique artifact IDs.
+
+    Supported forms:
+    - ["id-1", "id-2"]
+    - [{"artifact_id": "id-1"}]
+    - [{"dataset": "id-1"}]
+    - {"dataset": "id-1", "reference": "id-2"}
+    """
+    items: list[object]
+    if isinstance(inputs, list):
+        items = inputs
+    elif isinstance(inputs, dict):
+        items = [inputs]
+    else:
+        return []
+
+    ids: list[str] = []
+    seen: set[str] = set()
+
+    def add_if_new(candidate: object) -> None:
+        if isinstance(candidate, str):
+            artifact_id = candidate.strip()
+            if artifact_id and artifact_id not in seen:
+                seen.add(artifact_id)
+                ids.append(artifact_id)
+
+    for item in items:
+        if isinstance(item, str):
+            add_if_new(item)
+            continue
+        if not isinstance(item, dict):
+            continue
+
+        artifact_id = item.get("artifact_id")
+        if isinstance(artifact_id, str) and artifact_id.strip():
+            add_if_new(artifact_id)
+            continue
+
+        # Convenience named-reference forms, e.g. {"dataset": "id-1"}.
+        for value in item.values():
+            add_if_new(value)
+
+    return ids
 
 
 class SimulatedBackend(ExecutionBackend):
