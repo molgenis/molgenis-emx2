@@ -42,6 +42,7 @@ public class HpcApi {
 
   /** Holder for lazily-initialized HPC services. Created once when HPC is first needed. */
   private record HpcContext(
+      String sharedSecret,
       HmacVerifier hmacVerifier,
       WorkerService workerService,
       JobService jobService,
@@ -54,7 +55,7 @@ public class HpcApi {
   public static void create(Javalin app) {
     SqlDatabase database = new SqlDatabase(false);
 
-    // Lazy-init holder: initialized on first authenticated request when secret is configured
+    // Lazy-init holder: initialized on first request and refreshed when secret rotates
     AtomicReference<HpcContext> hpcContext = new AtomicReference<>(null);
 
     // Exception handler: converts HpcException to RFC 9457 problem+json responses
@@ -91,24 +92,33 @@ public class HpcApi {
             return;
           }
 
-          // Ensure HPC is initialized (cached after first successful init)
-          HpcContext hpc = hpcContext.get();
-          if (hpc == null) {
-            hpc = tryInit(database);
-            if (hpc == null) {
-              logger.info(
-                  "HPC API: not configured — set {} database setting to enable",
-                  HPC_SECRET_SETTING);
-              throw HpcException.serviceUnavailable(
-                  "HPC not configured — set "
-                      + HPC_SECRET_SETTING
-                      + " database setting on "
-                      + SYSTEM_SCHEMA
-                      + " to enable",
-                  ctx.header(HpcHeaders.REQUEST_ID));
+          String configuredSecret = readSharedSecret(database);
+          if (configuredSecret == null || configuredSecret.isBlank()) {
+            if (hpcContext.getAndSet(null) != null) {
+              logger.info("HPC API: disabled — {} was cleared", HPC_SECRET_SETTING);
             }
-            hpcContext.set(hpc);
-            logger.info("HPC API: initialized — schema tables created in {}", SYSTEM_SCHEMA);
+            logger.info(
+                "HPC API: not configured — set {} database setting to enable", HPC_SECRET_SETTING);
+            throw HpcException.serviceUnavailable(
+                "HPC not configured — set "
+                    + HPC_SECRET_SETTING
+                    + " database setting on "
+                    + SYSTEM_SCHEMA
+                    + " to enable",
+                ctx.header(HpcHeaders.REQUEST_ID));
+          }
+
+          // Ensure HPC context matches the latest configured secret.
+          HpcContext hpc = hpcContext.get();
+          if (hpc == null || !configuredSecret.equals(hpc.sharedSecret())) {
+            HpcContext refreshed = initContext(database, configuredSecret);
+            HpcContext previous = hpcContext.getAndSet(refreshed);
+            hpc = refreshed;
+            if (previous == null) {
+              logger.info("HPC API: initialized — schema tables created in {}", SYSTEM_SCHEMA);
+            } else {
+              logger.info("HPC API: shared secret rotated — refreshed cached context");
+            }
           }
           ctx.attribute("hpcContext", hpc);
 
@@ -160,7 +170,7 @@ public class HpcApi {
         });
 
     // Health endpoint (exempt from auth, always available)
-    app.get("/api/hpc/health", ctx -> healthCheck(ctx, database, hpcContext.get() != null));
+    app.get("/api/hpc/health", ctx -> healthCheck(ctx, database, isHpcConfigured(database)));
 
     // Worker endpoints (MANAGER — daemon operations)
     app.post(
@@ -363,12 +373,8 @@ public class HpcApi {
     };
   }
 
-  /**
-   * Attempts to initialize HPC services. Returns null if {@code MOLGENIS_HPC_SHARED_SECRET} is not
-   * set. Reads the setting directly from the database via a transaction to pick up changes made
-   * after this SqlDatabase instance was created (e.g. secret set via GraphQL on a fresh DB).
-   */
-  private static HpcContext tryInit(SqlDatabase database) {
+  /** Reads the latest shared secret directly from the database setting table. */
+  private static String readSharedSecret(SqlDatabase database) {
     // Read setting via tx + becomeAdmin so we get the current DB value,
     // not the potentially stale in-memory cache of this SqlDatabase instance
     String[] secretHolder = new String[1];
@@ -379,11 +385,16 @@ public class HpcApi {
           db.clearCache();
           secretHolder[0] = db.getSetting(HPC_SECRET_SETTING);
         });
-    String secret = secretHolder[0];
-    if (secret == null || secret.isBlank()) {
-      return null;
-    }
+    return secretHolder[0];
+  }
 
+  private static boolean isHpcConfigured(SqlDatabase database) {
+    String secret = readSharedSecret(database);
+    return secret != null && !secret.isBlank();
+  }
+
+  /** Initializes HPC services for a specific configured shared secret. */
+  private static HpcContext initContext(SqlDatabase database, String secret) {
     HpcSchemaInitializer.init(database, SYSTEM_SCHEMA);
 
     HmacVerifier hmacVerifier;
@@ -404,6 +415,7 @@ public class HpcApi {
     ArtifactsApi artifactsApi = new ArtifactsApi(artifactService);
 
     return new HpcContext(
+        secret,
         hmacVerifier,
         workerService,
         jobService,
