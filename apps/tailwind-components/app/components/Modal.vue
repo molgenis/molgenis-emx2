@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
 import { registerModal } from "../utils/modalManager";
+import { UseFocusTrap } from "@vueuse/integrations/useFocusTrap/component";
 
 withDefaults(
   defineProps<{
@@ -60,60 +61,66 @@ function hide() {
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <div
-        v-if="visible"
-        role="dialog"
-        :aria-labelledby="title"
-        :aria-modal="true"
-        ref="dialog"
-        class="fixed min-h-lvh w-full top-0 left-0 flex z-30 overscroll-contain"
-      >
-        <div
-          id="backdrop"
-          @click="visible = false"
-          class="w-full h-full absolute left-0 bg-black/60 overscroll-contain"
-          tabindex="-1"
-        />
-
-        <div
-          class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme h-[95vh] flex flex-col"
-          :class="maxWidth"
-        >
-          <slot name="header">
-            <header
-              class="pt-[36px] px-[30px] flex-none overflow-y-auto border-b border-divider"
-            >
-              <div v-if="subtitle" class="text-title-contrast">
-                {{ subtitle }}
-              </div>
-              <h2
-                v-if="title"
-                class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
-              >
-                {{ title }}
-              </h2>
-
-              <button
-                @click="visible = false"
-                aria-label="Close modal"
-                class="absolute top-7 right-8 p-1"
-              >
-                <BaseIcon class="text-button-input-toggle" name="cross" />
-              </button>
-            </header>
-          </slot>
-
-          <div class="flex-1 flex flex-col min-h-0">
-            <slot />
-          </div>
-
-          <footer
-            class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50"
+      <UseFocusTrap v-if="visible" target="modal-title">
+        <div>
+          <div
+            v-if="visible"
+            role="dialog"
+            aria-labelledby="modal-title"
+            :aria-modal="true"
+            ref="dialog"
+            class="fixed min-h-lvh w-full top-0 left-0 flex z-30 overscroll-contain"
           >
-            <slot name="footer" :hide="hide" />
-          </footer>
+            <div
+              id="backdrop"
+              @click="visible = false"
+              class="w-full h-full absolute left-0 bg-black/60 overscroll-contain"
+              tabindex="-1"
+            />
+
+            <div
+              class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme h-[95vh] flex flex-col"
+              :class="maxWidth"
+            >
+              <slot name="header">
+                <header
+                  class="pt-[36px] px-[30px] flex-none overflow-y-auto border-b border-divider"
+                >
+                  <div v-if="subtitle" class="text-title-contrast">
+                    {{ subtitle }}
+                  </div>
+                  <h2
+                    v-if="title"
+                    id="modal-title"
+                    ref="modal-title"
+                    class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
+                  >
+                    {{ title }}
+                  </h2>
+
+                  <button
+                    @click="visible = false"
+                    aria-label="Close modal"
+                    class="absolute top-7 right-8 p-1"
+                  >
+                    <BaseIcon class="text-button-input-toggle" name="cross" />
+                  </button>
+                </header>
+              </slot>
+
+              <div class="flex-1 flex flex-col min-h-0" id="modal-title">
+                <slot />
+              </div>
+
+              <footer
+                class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50"
+              >
+                <slot name="footer" :hide="hide" />
+              </footer>
+            </div>
+          </div>
         </div>
-      </div>
+      </UseFocusTrap>
     </Teleport>
   </ClientOnly>
 </template>
