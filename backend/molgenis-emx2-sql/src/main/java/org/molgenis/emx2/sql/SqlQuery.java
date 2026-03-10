@@ -49,6 +49,7 @@ public class SqlQuery extends QueryBean {
 
   private final SqlSchemaMetadata schema;
   private final List<String> tableAliasList = new LinkedList<>();
+  private Set<String> tablesWithSelectPermission = null;
 
   public SqlQuery(SqlSchemaMetadata schema, String field) {
     super(field);
@@ -185,9 +186,26 @@ public class SqlQuery extends QueryBean {
 
   private void checkHasViewPermission(SqlTableMetadata table) {
     if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
+        && !getTablesWithSelectPermission().contains("*")
+        && !getTablesWithSelectPermission().contains(table.getTableName())) {
       throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
     }
+  }
+
+  private Set<String> getTablesWithSelectPermission() {
+    if (tablesWithSelectPermission == null) {
+      tablesWithSelectPermission =
+          schema
+              .getDatabase()
+              .getRoleManager()
+              .getPermissionsForActiveUser(schema.getName())
+              .stream()
+              .filter(p -> p.select() != null)
+              .map(TablePermission::table)
+              .collect(Collectors.toUnmodifiableSet());
+    }
+    return tablesWithSelectPermission;
   }
 
   private List<Field<?>> rowSelectFields(
