@@ -10,8 +10,8 @@ import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 
 public class SqlSchema implements Schema {
-  private SqlDatabase db;
-  private SqlSchemaMetadata metadata;
+  private final SqlDatabase db;
+  private final SqlSchemaMetadata metadata;
 
   public SqlSchema(SqlDatabase db, SqlSchemaMetadata metadata) {
     this.db = db;
@@ -92,7 +92,7 @@ public class SqlSchema implements Schema {
   public List<String> getInheritedRolesForUser(String user) {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
-    if (user.equals(ADMIN_USER) || user == null) {
+    if (user == null || user.equals(ADMIN_USER)) {
       return getRoles();
     } else {
       return getMetadata().getInheritedRolesForUser(user);
@@ -190,7 +190,7 @@ public class SqlSchema implements Schema {
         .forEach(
             t -> {
               t.drop();
-              t.getColumns().forEach(c -> c.drop());
+              t.getColumns().forEach(Column::drop);
             });
     migrate(mergeSchema);
   }
@@ -246,9 +246,7 @@ public class SqlSchema implements Schema {
         TableMetadata newTable = targetSchema.create(table);
         // create primary keys immediately to prevent foreign key dependency issues
         if (mergeTable.getInheritName() == null) {
-          mergeTable.getColumns().stream()
-              .filter(c -> c.isPrimaryKey())
-              .forEach(c -> newTable.add(c));
+          mergeTable.getColumns().stream().filter(Column::isPrimaryKey).forEach(newTable::add);
         }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
         targetSchema.getTableMetadata(oldTable.getTableName()).alterName(mergeTable.getTableName());
@@ -474,12 +472,12 @@ public class SqlSchema implements Schema {
 
   @Override
   public Role getRoleInfo(String roleName) {
-    return roleManager().getRoleInfo(getName(), roleName);
+    return roleManager().getRole(getName(), roleName);
   }
 
   @Override
   public List<Role> getRoleInfos() {
-    return roleManager().getRoleInfos(getName());
+    return roleManager().getRoles(getName());
   }
 
   @Override
