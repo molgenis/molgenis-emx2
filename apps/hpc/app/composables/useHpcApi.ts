@@ -54,6 +54,18 @@ function hpcHeaders(): Record<string, string> {
   };
 }
 
+function toHex(bytes: Uint8Array): string {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    ""
+  );
+}
+
+async function sha256Hex(blob: Blob): Promise<string> {
+  const data = await blob.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return toHex(new Uint8Array(digest));
+}
+
 interface FetchJobsOpts {
   status?: string;
   processor?: string;
@@ -443,12 +455,14 @@ export async function uploadArtifactFile(
   path?: string
 ): Promise<any> {
   const filePath = path || file.name;
+  const contentSha256 = await sha256Hex(file);
   return await $fetch(
     `${REST_BASE}/artifacts/${artifactId}/files/${filePath}`,
     {
       method: "PUT",
       headers: {
         "Content-Type": file.type || "application/octet-stream",
+        "Content-SHA256": contentSha256,
         ...hpcHeaders(),
       },
       body: file,
