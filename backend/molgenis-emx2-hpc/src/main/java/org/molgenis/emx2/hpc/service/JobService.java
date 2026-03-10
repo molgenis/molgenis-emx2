@@ -477,6 +477,7 @@ public class JobService {
             db.getSchema(systemSchemaName)
                 .getTable("HpcJobTransitions")
                 .where(f("job_id", EQUALS, jobId))
+                .orderBy("timestamp", Order.ASC)
                 .retrieveRows());
   }
 
