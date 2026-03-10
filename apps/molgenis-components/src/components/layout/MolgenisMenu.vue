@@ -156,15 +156,15 @@ export default {
         return true;
       } else if (item.role === "Viewer") {
         return this.session?.roles?.some((r) =>
-          ["Viewer", "Editor", "Manager", "Owner"].includes(r)
+          ["Viewer", "Editor", "Manager", "Owner"].includes(r.name)
         );
       } else if (item.role === "Editor") {
         return this.session?.roles?.some((r) =>
-          ["Editor", "Manager", "Owner"].includes(r)
+          ["Editor", "Manager", "Owner"].includes(r.name)
         );
       } else if (item.role === "Manager") {
         return this.session?.roles?.some((r) =>
-          ["Manager", "Owner"].includes(r)
+          ["Manager", "Owner"].includes(r.name)
         );
       } else {
         return false;
