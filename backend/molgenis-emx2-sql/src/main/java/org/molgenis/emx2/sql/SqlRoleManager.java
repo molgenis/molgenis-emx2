@@ -5,10 +5,7 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -19,10 +16,8 @@ import org.slf4j.LoggerFactory;
 public class SqlRoleManager {
   private static final Logger logger = LoggerFactory.getLogger(SqlRoleManager.class);
 
-  static final Set<String> SYSTEM_ROLE_NAMES =
-      Arrays.stream(Privileges.values())
-          .map(Privileges::toString)
-          .collect(Collectors.toUnmodifiableSet());
+  public static final String PG_ROLES = "pg_roles";
+  public static final String ROLNAME = "rolname";
 
   private final SqlDatabase database;
 
@@ -58,14 +53,14 @@ public class SqlRoleManager {
           .execute(
               "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
     }
-    // revoke memberships and drop the PG role
     jooq()
         .execute(
-            "DO $$ DECLARE m TEXT; BEGIN"
-                + " FOR m IN SELECT rolname FROM pg_roles"
-                + " WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}"
-                + " LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);"
-                + " END LOOP; END $$;",
+            """
+                DO $$ DECLARE m TEXT; BEGIN
+                 FOR m IN SELECT rolname FROM pg_roles
+                 WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
+                 LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
+                 END LOOP; END $$;""",
             inline(fullRole));
     jooq().execute("DROP ROLE IF EXISTS {0}", name(fullRole));
     database.getListener().schemaChanged(schemaName);
@@ -76,8 +71,8 @@ public class SqlRoleManager {
         .fetchExists(
             jooq()
                 .select()
-                .from("pg_roles")
-                .where(field("rolname").eq(inline(fullRoleName(schemaName, roleName)))));
+                .from(PG_ROLES)
+                .where(field(ROLNAME).eq(inline(fullRoleName(schemaName, roleName)))));
   }
 
   public void grant(String schemaName, String roleName, TablePermission permission) {
@@ -133,14 +128,15 @@ public class SqlRoleManager {
       Result<Record> rows =
           jooq()
               .fetch(
-                  "SELECT table_name,"
-                      + "  bool_or(privilege_type = 'SELECT') AS can_select,"
-                      + "  bool_or(privilege_type = 'INSERT') AS can_insert,"
-                      + "  bool_or(privilege_type = 'UPDATE') AS can_update,"
-                      + "  bool_or(privilege_type = 'DELETE') AS can_delete"
-                      + " FROM information_schema.role_table_grants"
-                      + " WHERE grantee = {0} AND table_schema = {1}"
-                      + " GROUP BY table_name",
+                  """
+                      SELECT table_name,
+                        bool_or(privilege_type = 'SELECT') AS can_select,
+                        bool_or(privilege_type = 'INSERT') AS can_insert,
+                        bool_or(privilege_type = 'UPDATE') AS can_update,
+                        bool_or(privilege_type = 'DELETE') AS can_delete
+                       FROM information_schema.role_table_grants
+                       WHERE grantee = {0} AND table_schema = {1}
+                       GROUP BY table_name""",
                   inline(fullRole), inline(schemaName));
       for (Record row : rows) {
         Privileges select =
@@ -158,23 +154,23 @@ public class SqlRoleManager {
     return result;
   }
 
-  public Role getRoleInfo(String schemaName, String roleName) {
+  public Role getRole(String schemaName, String roleName) {
     boolean system = isSystemRole(roleName);
     String description = system ? null : getDescription(schemaName, roleName);
     return new Role(roleName, description, system, getPermissions(schemaName, roleName));
   }
 
-  public List<Role> getRoleInfos(String schemaName) {
+  public List<Role> getRoles(String schemaName) {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
     List<String> roleNames =
         jooq()
-            .select(field("rolname"))
-            .from("pg_roles")
-            .where(field("rolname").like(inline(rolePrefix + "%")))
-            .fetch(r -> r.get("rolname", String.class).substring(rolePrefix.length()));
+            .select(field(ROLNAME))
+            .from(PG_ROLES)
+            .where(field(ROLNAME).like(inline(rolePrefix + "%")))
+            .fetch(r -> r.get(ROLNAME, String.class).substring(rolePrefix.length()));
     List<Role> result = new ArrayList<>();
     for (String roleName : roleNames) {
-      result.add(getRoleInfo(schemaName, roleName));
+      result.add(getRole(schemaName, roleName));
     }
     return result;
   }
@@ -196,7 +192,7 @@ public class SqlRoleManager {
   }
 
   public boolean isSystemRole(String roleName) {
-    return SYSTEM_ROLE_NAMES.contains(roleName);
+    return Privileges.isSystemRole(roleName);
   }
 
   public static String fullRoleName(String schemaName, String roleName) {
@@ -212,9 +208,9 @@ public class SqlRoleManager {
 
   private String getDescription(String schemaName, String roleName) {
     return jooq()
-        .select(field("shobj_description(oid, 'pg_authid')"))
-        .from("pg_roles")
-        .where(field("rolname").eq(inline(fullRoleName(schemaName, roleName))))
+        .select(field("shobj_description(oid, 'pg_authid')")) // TODO: do we need a description?
+        .from(PG_ROLES)
+        .where(field(ROLNAME).eq(inline(fullRoleName(schemaName, roleName))))
         .fetchOne(0, String.class);
   }
 
