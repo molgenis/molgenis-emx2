@@ -16,4 +16,13 @@ cat > "${HPC_OUTPUT_DIR}/result.json" <<EOF
 }
 EOF
 
+# Also write nested outputs to verify recursive artifact path handling.
+mkdir -p "${HPC_OUTPUT_DIR}/results/nested/deeper"
+mkdir -p "${HPC_OUTPUT_DIR}/reports/2026/03"
+echo "nested hello ${HPC_JOB_ID}" > "${HPC_OUTPUT_DIR}/results/nested/output.txt"
+cat > "${HPC_OUTPUT_DIR}/results/nested/deeper/meta.json" <<EOF
+{"job_id":"${HPC_JOB_ID}","kind":"nested"}
+EOF
+echo "report-${HPC_JOB_ID}" > "${HPC_OUTPUT_DIR}/reports/2026/03/report.txt"
+
 echo "e2e_job.sh completed successfully"

@@ -355,12 +355,16 @@ apptainer:
   tmp_dir: "/data/jobs/tmp"
 DAEMON_CONF
 
+echo "=== Writing e2e preflight helper ==="
+install -m 0755 /opt/hpc-daemon/e2e/vm/hpc-e2e-preflight.sh /usr/local/bin/hpc-e2e-preflight
+
 echo "=== Setting up daemon cron job ==="
 touch /var/log/hpc-daemon.log
 chown vagrant:vagrant /var/log/hpc-daemon.log
 
 cat > /usr/local/bin/hpc-daemon-once <<'WRAPPER'
 #!/bin/bash
+sudo -n /usr/local/bin/hpc-e2e-preflight --quick >/dev/null 2>&1 || true
 exec /home/vagrant/.local/bin/emx2-hpc-daemon -c /etc/hpc-daemon/daemon-config.yaml once -v >> /var/log/hpc-daemon.log 2>&1
 WRAPPER
 chmod +x /usr/local/bin/hpc-daemon-once
@@ -372,6 +376,7 @@ cat > /etc/cron.d/hpc-daemon <<'CRON'
 * * * * * vagrant sleep 40 && /usr/local/bin/hpc-daemon-once
 CRON
 chmod 644 /etc/cron.d/hpc-daemon
+systemctl restart cron
 
 echo "=== Provision complete ==="
 sinfo

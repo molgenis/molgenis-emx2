@@ -1,17 +1,15 @@
-"""Session-scoped fixtures for HPC bridge e2e tests.
-
-Assumes:
-- EMX2 is running externally (default: http://localhost:8080)
-- The shared secret is configured in both EMX2 and the .secret file
-- Slurm VM is running via Vagrant (make up) with daemon cron job installed
-"""
+"""Session fixtures and e2e orchestration helpers for real Slurm tests."""
 
 from __future__ import annotations
 
+import contextvars
+import itertools
 import logging
 import os
 import subprocess
 import time
+import uuid
+from collections import defaultdict
 from pathlib import Path
 
 import httpx
@@ -23,64 +21,281 @@ logger = logging.getLogger(__name__)
 
 EMX2_BASE_URL = os.environ.get("EMX2_BASE_URL", "http://localhost:8080")
 WORKER_ID = "e2e-test-worker"
-STARTUP_TIMEOUT = 180  # seconds
-VM_DIR = os.path.join(os.path.dirname(__file__), "vm")
+STARTUP_TIMEOUT = 180
+DAEMON_READY_TIMEOUT = 180
+VM_COMMAND_TIMEOUT = 120
+JOB_POLL_INTERVAL_SECONDS = 3
+DAEMON_KICK_INTERVAL_SECONDS = 12
+VM_DIR = Path(__file__).resolve().parent / "vm"
 SECRET_FILE = Path(__file__).resolve().parent.parent / ".secret"
+DIAG_DIR = Path(__file__).resolve().parent / ".artifacts"
+CLEANUP_POLICY = os.environ.get("E2E_CLEANUP_POLICY", "none").strip().lower()
+
+_CURRENT_TEST_NODEID: contextvars.ContextVar[str] = contextvars.ContextVar(
+    "hpc_e2e_current_test", default="<session>"
+)
+_TRACE_SEQ = itertools.count(1)
+_CREATED_JOBS: dict[str, list[str]] = defaultdict(list)
+_TERMINAL_STATUSES = {"COMPLETED", "FAILED", "CANCELLED"}
 
 
 def _wait_for_emx2(base_url: str, timeout: int) -> None:
-    """Poll EMX2 health endpoint until it responds."""
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
             r = httpx.get(f"{base_url}/api/hpc/health", timeout=5)
             if r.status_code == 200:
-                logger.info("EMX2 is healthy at %s", base_url)
+                logger.info("EMX2 ready at %s", base_url)
                 return
-        except httpx.ConnectError:
+        except httpx.HTTPError:
             pass
-        time.sleep(3)
+        time.sleep(2)
     raise TimeoutError(f"EMX2 not healthy at {base_url} after {timeout}s")
 
 
-def _vagrant_ssh(cmd: str) -> subprocess.CompletedProcess:
-    """Run a command inside the Vagrant VM, return the CompletedProcess."""
+def _vagrant_ssh(cmd: str, *, timeout: int = VM_COMMAND_TIMEOUT) -> subprocess.CompletedProcess:
     result = subprocess.run(
         ["vagrant", "ssh", "-c", cmd],
         capture_output=True,
         text=True,
-        timeout=60,
+        timeout=timeout,
         cwd=VM_DIR,
     )
     if result.returncode != 0:
         logger.warning(
-            "vagrant ssh (rc=%d): %s",
+            "vagrant ssh failed (rc=%d): %s",
             result.returncode,
-            result.stderr.strip() or result.stdout.strip(),
+            (result.stderr or result.stdout).strip(),
         )
     return result
 
 
-_DAEMON_CMD = (
-    "/home/vagrant/.local/bin/emx2-hpc-daemon"
-    " -c /etc/hpc-daemon/daemon-config.yaml once -v"
-)
+def _vagrant_ssh_checked(cmd: str, *, timeout: int = VM_COMMAND_TIMEOUT) -> str:
+    result = _vagrant_ssh(cmd, timeout=timeout)
+    if result.returncode != 0:
+        out = (result.stdout or "").strip()
+        err = (result.stderr or "").strip()
+        raise RuntimeError(f"VM command failed: {cmd}\nstdout:\n{out}\nstderr:\n{err}")
+    return result.stdout.strip()
 
 
-def _trigger_daemon_once() -> subprocess.CompletedProcess:
-    """Trigger a single daemon cycle inside the VM (don't wait for cron)."""
-    return _vagrant_ssh(_DAEMON_CMD)
+def _wait_for_vm_and_slurm(timeout: int = STARTUP_TIMEOUT) -> None:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        result = _vagrant_ssh("true", timeout=20)
+        if result.returncode == 0:
+            break
+        time.sleep(2)
+    else:
+        raise TimeoutError(f"Vagrant VM not reachable after {timeout}s")
+
+    _vm_preflight()
+    logger.info("VM and Slurm preflight checks passed")
+
+
+def _vm_preflight() -> None:
+    _vagrant_ssh_checked("sudo -n /usr/local/bin/hpc-e2e-preflight", timeout=90)
+
+
+_DAEMON_CMD = "/usr/local/bin/hpc-daemon-once"
+
+
+def _trigger_daemon_once(*, check: bool = True) -> subprocess.CompletedProcess:
+    """Run a deterministic daemon cycle on-demand instead of waiting for cron cadence."""
+    cmd = _DAEMON_CMD
+    result = _vagrant_ssh(cmd, timeout=120)
+    if check and result.returncode != 0:
+        out = (result.stdout or "").strip()
+        err = (result.stderr or "").strip()
+        raise RuntimeError(
+            "Manual daemon cycle failed\n"
+            f"stdout:\n{out}\n"
+            f"stderr:\n{err}"
+        )
+    return result
+
+
+def _next_trace_id() -> str:
+    nodeid = _CURRENT_TEST_NODEID.get()
+    seq = next(_TRACE_SEQ)
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f"hpc-e2e:{nodeid}:{seq}"))
+
+
+def _register_created_job(job_id: str) -> None:
+    _CREATED_JOBS[_CURRENT_TEST_NODEID.get()].append(job_id)
+
+
+def _make_support_client(base_url: str, secret: str) -> HpcClient:
+    return HpcClient(
+        base_url=base_url,
+        worker_id="e2e-test-support",
+        shared_secret=secret,
+    )
+
+
+def _cleanup_jobs_for_test(nodeid: str, base_url: str, secret: str, *, policy: str) -> None:
+    job_ids = list(dict.fromkeys(_CREATED_JOBS.pop(nodeid, [])))
+    if not job_ids or policy == "none":
+        return
+    if policy not in {"none", "non_terminal", "all"}:
+        raise ValueError(f"Invalid E2E_CLEANUP_POLICY={policy!r}")
+    try:
+        _vm_preflight()
+    except Exception:  # noqa: BLE001
+        pass
+    client = _make_support_client(base_url, secret)
+    try:
+        for job_id in reversed(job_ids):
+            try:
+                job = client.get_job(job_id)
+            except Exception:
+                continue
+
+            status = job.get("status")
+            if status not in _TERMINAL_STATUSES:
+                try:
+                    client.cancel_job(job_id)
+                except Exception:
+                    pass
+                for _ in range(15):
+                    try:
+                        refreshed = client.get_job(job_id)
+                    except Exception:
+                        break
+                    if refreshed.get("status") in _TERMINAL_STATUSES:
+                        break
+                    _trigger_daemon_once(check=False)
+                    time.sleep(2)
+
+            if policy == "all":
+                try:
+                    client._request("DELETE", f"/api/hpc/jobs/{job_id}")
+                except Exception:
+                    # Best-effort teardown. Diagnostics hook captures details on failures.
+                    pass
+    finally:
+        client.close()
+
+
+def _collect_diagnostics(nodeid: str, base_url: str, secret: str) -> str:
+    lines: list[str] = []
+    lines.append(f"test={nodeid}")
+    lines.append(f"emx2_base_url={base_url}")
+    lines.append("")
+
+    vm_checks = [
+        ("utc_time", "date -u"),
+        ("timedatectl", "timedatectl --no-pager"),
+        ("chrony_tracking", "chronyc tracking"),
+        ("chrony_sources", "chronyc sources -v"),
+        ("sinfo", "sinfo"),
+        ("squeue", "squeue -o '%.18i %.9P %.30j %.8u %.2t %.10M %.6D %R'"),
+        ("sacct_recent", "sacct -S now-2hours --format=JobID,State,ExitCode,Elapsed,NodeList"),
+        ("daemon_log_tail", "tail -120 /var/log/hpc-daemon.log"),
+        ("slurmctld_log_tail", "sudo tail -120 /var/log/slurm/slurmctld.log"),
+        ("slurmd_log_tail", "sudo tail -120 /var/log/slurm/slurmd.log"),
+        ("slurmdbd_log_tail", "sudo tail -120 /var/log/slurm/slurmdbd.log"),
+    ]
+    for label, cmd in vm_checks:
+        result = _vagrant_ssh(cmd, timeout=90)
+        lines.append(f"## {label}")
+        lines.append(f"$ {cmd}")
+        lines.append(f"rc={result.returncode}")
+        if result.stdout:
+            lines.append(result.stdout.rstrip())
+        if result.stderr:
+            lines.append("[stderr]")
+            lines.append(result.stderr.rstrip())
+        lines.append("")
+
+    job_ids = list(dict.fromkeys(_CREATED_JOBS.get(nodeid, [])))
+    if job_ids:
+        support = _make_support_client(base_url, secret)
+        try:
+            lines.append("## jobs")
+            for job_id in job_ids:
+                lines.append(f"### job={job_id}")
+                try:
+                    job = support.get_job(job_id)
+                    lines.append(f"status={job.get('status')}")
+                    lines.append(f"worker_id={job.get('worker_id')}")
+                    lines.append(f"slurm_job_id={job.get('slurm_job_id')}")
+                except Exception as exc:  # noqa: BLE001
+                    lines.append(f"job_fetch_error={exc}")
+                    continue
+                try:
+                    transitions = support._request("GET", f"/api/hpc/jobs/{job_id}/transitions")
+                    items = transitions.get("items", [])
+                    for item in items:
+                        lines.append(
+                            f"{item.get('timestamp')} "
+                            f"{item.get('from_status')}->{item.get('to_status')} "
+                            f"worker={item.get('worker_id')} detail={item.get('detail')}"
+                        )
+                except Exception as exc:  # noqa: BLE001
+                    lines.append(f"transition_fetch_error={exc}")
+                lines.append("")
+        finally:
+            support.close()
+
+    return "\n".join(lines)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
+    outcome = yield
+    report = outcome.get_result()
+    setattr(item, f"rep_{report.when}", report)
+
+    if report.when != "call" or not report.failed:
+        return
+
+    base_url = item.funcargs.get("emx2_base_url", EMX2_BASE_URL)
+    secret = item.funcargs.get("shared_secret")
+    if not secret:
+        return
+
+    diag_text = _collect_diagnostics(item.nodeid, base_url, secret)
+    DIAG_DIR.mkdir(parents=True, exist_ok=True)
+    safe_name = (
+        item.nodeid.replace("/", "__").replace("::", "__").replace("[", "_").replace("]", "_")
+    )
+    diag_path = DIAG_DIR / f"{safe_name}.log"
+    diag_path.write_text(diag_text)
+    report.sections.append(("hpc-diagnostics", f"saved={diag_path}\n{diag_text}"))
+
+
+@pytest.fixture(autouse=True)
+def _set_test_context(request: pytest.FixtureRequest):
+    token = _CURRENT_TEST_NODEID.set(request.node.nodeid)
+    try:
+        yield
+    finally:
+        _CURRENT_TEST_NODEID.reset(token)
+
+
+@pytest.fixture(autouse=True)
+def _deterministic_teardown(
+    request: pytest.FixtureRequest,
+    emx2_base_url: str,
+    shared_secret: str,
+):
+    yield
+    _cleanup_jobs_for_test(
+        request.node.nodeid,
+        emx2_base_url,
+        shared_secret,
+        policy=CLEANUP_POLICY,
+    )
 
 
 @pytest.fixture(scope="session")
 def emx2_base_url():
-    """The base URL of the external EMX2 instance."""
     return EMX2_BASE_URL
 
 
 @pytest.fixture(scope="session")
 def shared_secret():
-    """Read the shared HMAC secret from the .secret file."""
     if not SECRET_FILE.exists():
         raise FileNotFoundError(
             f"Shared secret file not found: {SECRET_FILE}\n"
@@ -95,29 +310,20 @@ def shared_secret():
 
 @pytest.fixture(scope="session")
 def wait_for_services(emx2_base_url):
-    """Wait for EMX2 to be ready (Slurm VM is managed by Vagrant)."""
     _wait_for_emx2(emx2_base_url, STARTUP_TIMEOUT)
+    _wait_for_vm_and_slurm(STARTUP_TIMEOUT)
 
 
 @pytest.fixture(scope="session")
 def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
-    """Verify HPC is enabled and the shared secret works.
-
-    The secret must be pre-configured in EMX2 (MOLGENIS_HPC_SHARED_SECRET)
-    and match the .secret file. This fixture verifies that and triggers
-    lazy init of HPC tables.
-    """
-    health_r = httpx.get(f"{emx2_base_url}/api/hpc/health", timeout=5)
-    health = health_r.json()
+    health = httpx.get(f"{emx2_base_url}/api/hpc/health", timeout=5).json()
     logger.info("HPC health: %s", health)
-
     if not health.get("hpc_enabled"):
         raise RuntimeError(
             "HPC is not enabled in EMX2. Set MOLGENIS_HPC_SHARED_SECRET "
-            "in EMX2 settings to the same value as the .secret file."
+            "to match tools/hpc-daemon/.secret."
         )
 
-    # Verify the secret works by making an authenticated request
     client = HpcClient(
         base_url=emx2_base_url,
         worker_id=WORKER_ID,
@@ -125,14 +331,13 @@ def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
     )
     try:
         client.poll_pending_jobs()
-        logger.info("HPC tables initialized, auth verified")
-    except httpx.HTTPStatusError as e:
-        if e.response.status_code == 401:
+        logger.info("HPC auth verified and tables initialized")
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 401:
             raise RuntimeError(
-                "HMAC authentication failed — the .secret file does not match "
-                "MOLGENIS_HPC_SHARED_SECRET in EMX2. Update the EMX2 setting "
-                "to match the contents of tools/hpc-daemon/.secret."
-            ) from e
+                "HMAC authentication failed: .secret does not match "
+                "MOLGENIS_HPC_SHARED_SECRET in EMX2."
+            ) from exc
         raise
     finally:
         client.close()
@@ -140,30 +345,26 @@ def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
 
 @pytest.fixture(scope="session")
 def wait_for_daemon(bootstrap_hpc):
-    """Wait for the cron-driven daemon to complete at least one successful cycle.
+    _vm_preflight()
+    _trigger_daemon_once(check=True)
 
-    Checks the daemon log inside the VM for a successful cycle marker.
-    Falls back to triggering a manual cycle if cron hasn't run yet.
-    """
-    deadline = time.monotonic() + 120
+    deadline = time.monotonic() + DAEMON_READY_TIMEOUT
     while time.monotonic() < deadline:
-        # Check if cron-driven daemon has run at least once
         result = _vagrant_ssh(
-            "grep -c 'Single cycle complete' /var/log/hpc-daemon.log 2>/dev/null || echo 0"
+            "grep -c 'Single cycle complete' /var/log/hpc-daemon.log 2>/dev/null || echo 0",
+            timeout=30,
         )
         count = int(result.stdout.strip().split()[-1]) if result.returncode == 0 else 0
         if count > 0:
-            logger.info("Daemon has completed %d cycle(s) via cron", count)
+            logger.info("Daemon cycle marker detected: %d successful cycle(s)", count)
             return
-        # If cron hasn't fired yet, trigger once manually to bootstrap
-        _trigger_daemon_once()
-        time.sleep(10)
-    raise TimeoutError("Daemon did not complete a successful cycle within 120s")
+        _trigger_daemon_once(check=False)
+        time.sleep(5)
+    raise TimeoutError("Daemon did not complete a successful cycle in time")
 
 
 @pytest.fixture(scope="session")
 def hpc_client(wait_for_daemon, emx2_base_url, shared_secret):
-    """HpcClient connected to the external EMX2 instance."""
     client = HpcClient(
         base_url=emx2_base_url,
         worker_id="e2e-test-submitter",
@@ -173,10 +374,35 @@ def hpc_client(wait_for_daemon, emx2_base_url, shared_secret):
     client.close()
 
 
+@pytest.fixture
+def vm_run():
+    """Run a command in the VM from tests."""
+
+    def _run(cmd: str, *, check: bool = True, timeout: int = VM_COMMAND_TIMEOUT):
+        result = _vagrant_ssh(cmd, timeout=timeout)
+        if check and result.returncode != 0:
+            out = (result.stdout or "").strip()
+            err = (result.stderr or "").strip()
+            raise RuntimeError(f"VM command failed: {cmd}\nstdout:\n{out}\nstderr:\n{err}")
+        return result
+
+    return _run
+
+
 def create_job(client: HpcClient, processor: str, profile: str, **kwargs) -> dict:
-    """Submit a job via the HPC API and return the response."""
     body = {"processor": processor, "profile": profile, **kwargs}
-    return client._request("POST", "/api/hpc/jobs", json=body)
+    trace_id = _next_trace_id()
+    response = client._request(
+        "POST",
+        "/api/hpc/jobs",
+        json=body,
+        extra_headers={"X-Trace-Id": trace_id},
+    )
+    job_id = response.get("id")
+    if job_id:
+        _register_created_job(job_id)
+    response["_trace_id"] = trace_id
+    return response
 
 
 def wait_for_job_status(
@@ -184,25 +410,48 @@ def wait_for_job_status(
     job_id: str,
     target: str | set[str],
     timeout: int = 180,
+    *,
+    poll_interval_seconds: int = JOB_POLL_INTERVAL_SECONDS,
+    daemon_kick_interval_seconds: int = DAEMON_KICK_INTERVAL_SECONDS,
+    allow_unexpected_terminal: bool = False,
 ) -> dict:
-    """Poll a job until it reaches the target status (or one of a set).
-
-    The daemon is driven by cron (every minute) inside the VM; this function
-    just polls EMX2 and waits for the status to converge.
-    """
     if isinstance(target, str):
         target = {target}
     deadline = time.monotonic() + timeout
+    next_kick = 0.0
     last_status = None
+    terminal = {"COMPLETED", "FAILED", "CANCELLED"}
+
     while time.monotonic() < deadline:
-        job = client.get_job(job_id)
+        now = time.monotonic()
+        if now >= next_kick:
+            _trigger_daemon_once(check=False)
+            next_kick = now + daemon_kick_interval_seconds
+
+        try:
+            job = client.get_job(job_id)
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 401:
+                logger.warning("401 while polling job %s, running VM preflight", job_id)
+                _vm_preflight()
+                time.sleep(1)
+                continue
+            raise
+
         status = job.get("status")
         if status != last_status:
-            logger.info("Job %s status: %s", job_id, status)
+            logger.info("Job %s status=%s target=%s", job_id, status, sorted(target))
             last_status = status
         if status in target:
             return job
-        time.sleep(5)
+        if status in terminal and status not in target and not allow_unexpected_terminal:
+            transitions = client._request("GET", f"/api/hpc/jobs/{job_id}/transitions")
+            raise AssertionError(
+                f"Job {job_id} reached unexpected terminal status {status}, expected {target}. "
+                f"Transitions: {transitions.get('items', [])}"
+            )
+        time.sleep(poll_interval_seconds)
+
     raise TimeoutError(
-        f"Job {job_id} did not reach {target} within {timeout}s (last: {last_status})"
+        f"Job {job_id} did not reach {target} within {timeout}s (last={last_status})"
     )

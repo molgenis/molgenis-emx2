@@ -134,7 +134,14 @@ class HpcClient:
 
         return headers
 
-    def _request(self, method: str, path: str, json: dict | None = None) -> dict:
+    def _request(
+        self,
+        method: str,
+        path: str,
+        json: dict | None = None,
+        *,
+        extra_headers: dict[str, str] | None = None,
+    ) -> dict:
         """Make an HTTP request with retries and error handling."""
         import json as json_module
 
@@ -143,6 +150,8 @@ class HpcClient:
         for attempt in range(self.max_retries):
             try:
                 headers = self._headers(method, path, body)
+                if extra_headers:
+                    headers.update(extra_headers)
 
                 if logger.isEnabledFor(logging.DEBUG):
                     logger.debug(">>> %s %s%s", method, self.base_url, path)

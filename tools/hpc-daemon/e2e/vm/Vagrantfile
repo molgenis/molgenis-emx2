@@ -2,6 +2,7 @@
 # Runs slurmctld + slurmd + hpc-daemon, connects to EMX2 on the host.
 #
 # Uses QEMU via vagrant-qemu plugin (works on macOS + Linux).
+# This e2e suite treats QEMU as canonical provider; no VirtualBox fallback.
 # Install: vagrant plugin install vagrant-qemu
 
 EMX2_BASE_URL = ENV["EMX2_BASE_URL"] || "http://10.0.2.2:8080"

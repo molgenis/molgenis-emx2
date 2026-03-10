@@ -3,10 +3,10 @@
 Requirement coverage: REQ-JOB-DELETE-001, REQ-JOB-DELETE-002.
 """
 
-import httpx
 import pytest
 
 from conftest import create_job, wait_for_job_status
+from emx2_hpc_daemon.client import NotFoundError, TransitionError
 
 
 def test_delete_non_terminal_job_returns_409(hpc_client):
@@ -16,21 +16,20 @@ def test_delete_non_terminal_job_returns_409(hpc_client):
     assert resp["status"] == "PENDING"
 
     # Attempt DELETE without cancelling
-    with pytest.raises(httpx.HTTPStatusError) as exc_info:
+    with pytest.raises(TransitionError) as exc_info:
         hpc_client._request("DELETE", f"/api/hpc/jobs/{job_id}")
 
-    assert exc_info.value.response.status_code == 409
-    body = exc_info.value.response.json()
-    # RFC 9457 ProblemDetail shape
-    assert "title" in body
-    assert body["status"] == 409
+    message = str(exc_info.value)
+    assert "non-terminal status" in message
+    assert "Cancel it first" in message
 
-    # Job should still exist and be PENDING
+    # Job should still exist and remain non-terminal.
     job = hpc_client.get_job(job_id)
-    assert job["status"] == "PENDING"
+    assert job["status"] in {"PENDING", "CLAIMED", "SUBMITTED", "STARTED"}
 
     # Clean up: cancel then delete
-    hpc_client.transition_job(job_id, "CANCELLED")
+    hpc_client.cancel_job(job_id)
+    wait_for_job_status(hpc_client, job_id, "CANCELLED", timeout=90)
     hpc_client._request("DELETE", f"/api/hpc/jobs/{job_id}")
 
 
@@ -41,17 +40,15 @@ def test_delete_terminal_job_succeeds(hpc_client):
     assert resp["status"] == "PENDING"
 
     # Cancel first
-    hpc_client.transition_job(job_id, "CANCELLED")
-    job = hpc_client.get_job(job_id)
-    assert job["status"] == "CANCELLED"
+    hpc_client.cancel_job(job_id)
+    wait_for_job_status(hpc_client, job_id, "CANCELLED", timeout=90)
 
     # Now DELETE should succeed
     hpc_client._request("DELETE", f"/api/hpc/jobs/{job_id}")
 
     # Job should be gone
-    with pytest.raises(httpx.HTTPStatusError) as exc_info:
+    with pytest.raises(NotFoundError):
         hpc_client.get_job(job_id)
-    assert exc_info.value.response.status_code == 404
 
 
 def test_delete_completed_job_with_artifacts(hpc_client):
@@ -66,6 +63,5 @@ def test_delete_completed_job_with_artifacts(hpc_client):
     hpc_client._request("DELETE", f"/api/hpc/jobs/{job_id}")
 
     # Job should be gone
-    with pytest.raises(httpx.HTTPStatusError) as exc_info:
+    with pytest.raises(NotFoundError):
         hpc_client.get_job(job_id)
-    assert exc_info.value.response.status_code == 404

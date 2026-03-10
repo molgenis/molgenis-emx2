@@ -2,6 +2,7 @@
 
 End-to-end tests for the EMX2 HPC execution bridge, exercising the full flow:
 **EMX2 API -> daemon -> Slurm -> artifacts**.
+This directory is the system-truth layer for real Slurm behavior.
 
 ## Architecture
 
@@ -27,6 +28,7 @@ End-to-end tests for the EMX2 HPC execution bridge, exercising the full flow:
 
 The Vagrant VM runs a single-node Slurm cluster with full accounting
 (slurmdbd + MariaDB) and the HPC daemon invoked every ~20 seconds via cron.
+Tests also trigger explicit daemon cycles to keep orchestration deterministic.
 EMX2 runs on the host. Tests run on the host against the EMX2 API.
 
 ## Prerequisites
@@ -91,7 +93,8 @@ This will:
 1. Start a QEMU VM via Vagrant and run `provision.sh` (including Slurm
    smoke tests that verify the cluster works before installing the daemon)
 2. Sync the daemon source into the VM and install it
-3. Run the pytest suite against the EMX2 API on the host
+3. Run a strict VM preflight (clock sync + Slurm/Munge/cron health)
+4. Run the pytest suite against the EMX2 API on the host
 
 ## How it works
 
@@ -121,25 +124,28 @@ This will:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `EMX2_BASE_URL` | `http://localhost:8080` | URL of the running EMX2 instance (host-side) |
+| `E2E_CLEANUP_POLICY` | `none` | Teardown policy: `non_terminal` (keep history), `all` (delete all created jobs), `none` (no cleanup). |
 
 The VM's Vagrantfile translates `EMX2_BASE_URL` to `http://10.0.2.2:8080`
 (QEMU user-mode networking gateway) by default.
 
 The daemon config inside the VM (`/etc/hpc-daemon/daemon-config.yaml`) defines
-four profiles: `e2e-test:bash`, `e2e-test:fail`, `e2e-test:slow`, and
-`e2e-test:posix`. The first three use managed artifact residence; `posix` uses
-posix residence for both output and log artifacts.
+profiles for happy-path, failure, slow/cancellation, posix, and transform.
+Nested-output behavior is exercised by the happy-path profile script.
+Managed and posix output residence paths are both covered.
 
 ## Makefile targets
 
 | Target | Description |
 |--------|-------------|
 | `make up` | Start the Vagrant VM |
+| `make preflight` | Strict VM preflight (clock sync + service readiness) |
 | `make test` | Sync daemon source + run pytest (EMX2 and VM must be running) |
 | `make e2e` | Full cycle: `up` + `test` (prints logs on failure) |
-| `make sync` | Sync daemon source to VM and reinstall |
+| `make sync` | Sync daemon source, reinstall daemon, refresh scripts/preflight helper |
 | `make status` | Show Slurm + daemon status inside the VM |
 | `make logs` | Show daemon logs from the VM |
+| `make diagnostics` | Collect Slurm + daemon + clock diagnostics from VM |
 | `make down` | Halt the VM (preserves state) |
 | `make clean` | Destroy the VM completely |
 
@@ -149,9 +155,12 @@ posix residence for both output and log artifacts.
 |------|---------------|
 | `test_01_worker.py` | Worker registration, health endpoint, HMAC auth, heartbeat |
 | `test_02_lifecycle.py` | Happy path: submit -> COMPLETED -> download output + log artifacts |
-| `test_03_failure.py` | Job exits non-zero -> FAILED + log artifact uploaded |
-| `test_04_cancellation.py` | Cancel via API -> Slurm scancel propagation |
+| `test_03_failure.py` | Job exits non-zero -> FAILED, plus timeout -> FAILED |
+| `test_04_cancellation.py` | Cancellation at CLAIMED, SUBMITTED, STARTED |
 | `test_05_posix_artifacts.py` | Posix residence: file metadata registered, content_url set, no binary upload |
+| `test_06_artifact_roundtrip.py` | Managed artifact roundtrip with input->transform->output verification |
+| `test_07_delete_requires_cancel.py` | DELETE behavior for non-terminal and terminal jobs |
+| `test_08_nested_output_paths.py` | Nested output path roundtrip for managed artifacts |
 
 ## Troubleshooting
 
@@ -185,7 +194,8 @@ cd vm && vagrant provision
 cd vm && vagrant destroy -f && vagrant up
 ```
 
-**Time sync issues**: QEMU VMs can boot with a wrong hardware clock.
-The provision script runs `chronyc makestep` but if MUNGE still rejects
-credentials, SSH in and run `sudo chronyc makestep` manually.
-`make test` also runs a clock step before each test run.
+**Time sync issues (macOS sleep/wake):**
+QEMU VMs can drift after host sleep and cause HMAC timestamp mismatches.
+Use `make preflight` (or `make test`, which includes preflight) to force
+chrony step sync and verify skew before running tests. The daemon wrapper
+also runs a quick clock preflight before each cron cycle.

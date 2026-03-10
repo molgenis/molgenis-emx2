@@ -45,6 +45,7 @@ tools/hpc-daemon/
     ├── test_05_posix_artifacts.py # POSIX residence roundtrip
     ├── test_06_artifact_roundtrip.py # Managed upload → transform → download
     ├── test_07_delete_requires_cancel.py # DELETE rejects non-terminal
+    ├── test_08_nested_output_paths.py # Nested managed output roundtrip
     └── scripts/               # Entrypoint scripts for test profiles
 ```
 
@@ -62,10 +63,10 @@ Level: M=MUST, S=SHOULD, Y=MAY.
 | REQ-JOB-STATE-003 | Invalid transitions MUST return 409 Conflict | M | JobServiceIntegrationTest, HpcApiE2ETest | — | — |
 | REQ-JOB-CLAIM-001 | Claim MUST be atomic: only one worker succeeds | M | HpcApiE2ETest (claimIsAtomicUnderRace) | — | — |
 | REQ-JOB-CLAIM-002 | Claim MUST verify worker has matching capability | M | HpcApiE2ETest (claimRejectsWorkerWithoutMatchingCapability) | — | — |
-| REQ-JOB-CANCEL-001 | Cancel from any non-terminal state → CANCELLED | M | HpcApiE2ETest | test_daemon_scenarios | test_04 |
+| REQ-JOB-CANCEL-001 | Cancel from any non-terminal state → CANCELLED | M | HpcApiE2ETest | test_daemon_scenarios | test_04 (CLAIMED/SUBMITTED/STARTED) |
 | REQ-JOB-DELETE-001 | DELETE on non-terminal job MUST return 409 | M | HpcApiE2ETest (deleteNonTerminalJobReturnsConflict) | — | test_07 ✓ |
 | REQ-JOB-DELETE-002 | DELETE on terminal job deletes job + transitions | M | — | — | test_07 ✓ |
-| REQ-JOB-TIMEOUT-001 | EMX2 expires stale CLAIMED/STARTED jobs lazily | M | — | — | — |
+| REQ-JOB-TIMEOUT-001 | EMX2 expires stale CLAIMED/STARTED jobs lazily | M | — | — | test_03 |
 | REQ-JOB-IDEMPOTENT-001 | Duplicate transitions SHOULD return 200 OK | S | JobServiceIntegrationTest | — | — |
 | REQ-JOB-IDEMPOTENT-002 | Non-identical submissions to same state MUST return 409 | M | — | — | — |
 | REQ-JOB-TRANSITION-001 | Transition history is ordered and auditable | M | HpcApiE2ETest (transitionAuditTrail) | — | test_02 |
@@ -141,6 +142,7 @@ Level: M=MUST, S=SHOULD, Y=MAY.
 | REQ-DAEMON-OUTPUT-001 | Output files classified: logs vs output | M | — | test_daemon_scenarios | — |
 | REQ-DAEMON-UPLOAD-001 | Managed output uploaded + committed with tree hash | M | — | test_daemon_scenarios | test_06 |
 | REQ-DAEMON-UPLOAD-002 | POSIX output registered + committed with tree hash | M | — | test_daemon_scenarios | test_05 |
+| REQ-DAEMON-UPLOAD-003 | Nested output paths preserved end-to-end | M | — | test_daemon_scenarios | test_08 |
 
 ### Validation
 
