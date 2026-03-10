@@ -25,6 +25,32 @@
           </button>
         </div>
       </div>
+      <div
+        v-if="hasSelection"
+        class="mt-4 flex flex-wrap items-center gap-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 px-3 py-2"
+      >
+        <span class="text-sm text-title">
+          {{ selectedCount }} selected
+          <span class="text-definition-list-term">({{ scopeLabel }})</span>
+        </span>
+        <button
+          class="px-3 py-1.5 text-sm border border-red-500 text-red-700 rounded-md hover:bg-red-500/10 disabled:opacity-50"
+          :disabled="bulkDeleting || deleting"
+          @click="onDeleteSelected"
+        >
+          {{ selectAllMatching ? "Delete All Matching" : "Delete Selected" }}
+        </button>
+        <button
+          class="px-3 py-1.5 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+          :disabled="bulkDeleting || deleting"
+          @click="clearSelection"
+        >
+          Clear Selection
+        </button>
+        <span v-if="bulkDeleting" class="text-xs text-definition-list-term">
+          Deleting {{ bulkDeletedCount }} / {{ bulkTotalCount }}...
+        </span>
+      </div>
     </section>
 
     <ArtifactUploadForm
@@ -45,34 +71,101 @@
     >
       {{ error }}
     </div>
+    <div
+      v-else-if="notice"
+      class="bg-green-500/10 border border-green-500/20 text-green-700 p-4 rounded-lg"
+    >
+      {{ notice }}
+    </div>
     <div v-else>
       <section class="bg-form rounded-lg border border-color-theme">
+        <div
+          v-if="showSelectMoreBanner"
+          class="px-4 py-3 border-b border-color-theme text-sm text-definition-list-term"
+        >
+          All {{ pageIds.length }} artifacts on this page are selected.
+          <button
+            class="ml-1 text-button-outline hover:text-button-outline-hover underline underline-offset-2"
+            :disabled="bulkDeleting || deleting"
+            @click="selectAllMatchingResults"
+          >
+            Select all {{ totalCount }} matching artifacts
+          </button>
+          .
+        </div>
+        <div
+          v-else-if="selectAllMatching"
+          class="px-4 py-3 border-b border-color-theme text-sm text-definition-list-term"
+        >
+          All {{ selectedCount }} matching artifacts are selected.
+          <button
+            class="ml-1 text-button-outline hover:text-button-outline-hover underline underline-offset-2"
+            :disabled="bulkDeleting || deleting"
+            @click="clearSelection"
+          >
+            Clear selection
+          </button>
+          .
+        </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-table-row">
             <thead>
               <tr class="border-b border-color-theme">
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider w-10"
+                >
+                  <input
+                    ref="pageSelectCheckbox"
+                    type="checkbox"
+                    class="h-4 w-4 rounded border-input bg-input text-blue-600 focus:ring-blue-500"
+                    :checked="allPageSelected"
+                    :disabled="!pageIds.length || bulkDeleting || deleting"
+                    @click.stop
+                    @change="
+                      togglePageSelection(
+                        ($event.target as HTMLInputElement).checked
+                      )
+                    "
+                  />
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   ID
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Name
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Type
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Residence
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Status
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Size
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Created
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"></th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                ></th>
               </tr>
             </thead>
             <tbody>
@@ -82,6 +175,20 @@
                 class="border-b border-color-theme hover:bg-hover transition-colors cursor-pointer"
                 @click="navigateTo(`/artifacts/${a.id}`)"
               >
+                <td class="px-4 py-3" @click.stop>
+                  <input
+                    type="checkbox"
+                    class="h-4 w-4 rounded border-input bg-input text-blue-600 focus:ring-blue-500"
+                    :checked="isArtifactSelected(a.id)"
+                    :disabled="bulkDeleting || deleting"
+                    @change="
+                      toggleArtifactSelection(
+                        a.id,
+                        ($event.target as HTMLInputElement).checked
+                      )
+                    "
+                  />
+                </td>
                 <td class="px-4 py-3">
                   <code class="text-xs bg-content px-1.5 py-0.5 rounded">{{
                     a.id?.substring(0, 8)
@@ -101,7 +208,7 @@
                   <button
                     class="p-1.5 text-red-500 hover:bg-red-500/10 rounded w-6 h-6"
                     title="Delete artifact"
-                    :disabled="deleting"
+                    :disabled="deleting || bulkDeleting"
                     @click.stop="onDelete(a)"
                   >
                     <HpcIconTrash />
@@ -109,7 +216,10 @@
                 </td>
               </tr>
               <tr v-if="!items.length">
-                <td colspan="8" class="px-4 py-8 text-center text-definition-list-term">
+                <td
+                  colspan="9"
+                  class="px-4 py-8 text-center text-definition-list-term"
+                >
                   No artifacts found
                 </td>
               </tr>
@@ -146,18 +256,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
 import { navigateTo } from "#app/composables/router";
 import { fetchArtifacts, deleteArtifact } from "../../composables/useHpcApi";
 import { formatDate } from "../../utils/jobs";
 
-const statuses = [
-  "CREATED",
-  "UPLOADING",
-  "REGISTERED",
-  "COMMITTED",
-  "FAILED",
-];
+const statuses = ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"];
 
 const items = ref<any[]>([]);
 const totalCount = ref(0);
@@ -168,8 +272,53 @@ const offset = ref(0);
 const limit = ref(25);
 const showForm = ref(false);
 const deleting = ref(false);
+const bulkDeleting = ref(false);
+const bulkDeletedCount = ref(0);
+const bulkTotalCount = ref(0);
+const notice = ref<string | null>(null);
+const selectedIds = ref<Set<string>>(new Set());
+const excludedIds = ref<Set<string>>(new Set());
+const selectAllMatching = ref(false);
+const pageSelectCheckbox = ref<HTMLInputElement | null>(null);
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+const pageIds = computed(() =>
+  items.value.map((a) => String(a?.id || "")).filter(Boolean)
+);
+
+const selectedCount = computed(() => {
+  if (selectAllMatching.value) {
+    return Math.max(0, totalCount.value - excludedIds.value.size);
+  }
+  return selectedIds.value.size;
+});
+
+const hasSelection = computed(() => selectedCount.value > 0);
+
+const scopeLabel = computed(() =>
+  statusFilter.value ? `status=${statusFilter.value}` : "all statuses"
+);
+
+const allPageSelected = computed(() => {
+  if (!pageIds.value.length) return false;
+  return pageIds.value.every((id) => isArtifactSelected(id));
+});
+
+const somePageSelected = computed(() => {
+  if (!pageIds.value.length) return false;
+  const selectedOnPage = pageIds.value.filter((id) =>
+    isArtifactSelected(id)
+  ).length;
+  return selectedOnPage > 0 && selectedOnPage < pageIds.value.length;
+});
+
+const showSelectMoreBanner = computed(
+  () =>
+    !selectAllMatching.value &&
+    allPageSelected.value &&
+    totalCount.value > pageIds.value.length
+);
 
 function formatSize(bytes: number | null | undefined): string {
   if (bytes == null) return "-";
@@ -179,8 +328,104 @@ function formatSize(bytes: number | null | undefined): string {
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function isArtifactSelected(id: string): boolean {
+  if (selectAllMatching.value) return !excludedIds.value.has(id);
+  return selectedIds.value.has(id);
+}
+
+function toggleArtifactSelection(id: string, checked: boolean) {
+  if (selectAllMatching.value) {
+    const nextExcluded = new Set(excludedIds.value);
+    if (checked) nextExcluded.delete(id);
+    else nextExcluded.add(id);
+    excludedIds.value = nextExcluded;
+    return;
+  }
+  const nextSelected = new Set(selectedIds.value);
+  if (checked) nextSelected.add(id);
+  else nextSelected.delete(id);
+  selectedIds.value = nextSelected;
+}
+
+function togglePageSelection(checked: boolean) {
+  if (selectAllMatching.value) {
+    const nextExcluded = new Set(excludedIds.value);
+    for (const id of pageIds.value) {
+      if (checked) nextExcluded.delete(id);
+      else nextExcluded.add(id);
+    }
+    excludedIds.value = nextExcluded;
+    return;
+  }
+  const nextSelected = new Set(selectedIds.value);
+  for (const id of pageIds.value) {
+    if (checked) nextSelected.add(id);
+    else nextSelected.delete(id);
+  }
+  selectedIds.value = nextSelected;
+}
+
+function selectAllMatchingResults() {
+  selectAllMatching.value = true;
+  selectedIds.value = new Set();
+  excludedIds.value = new Set();
+}
+
+function clearSelection() {
+  selectedIds.value = new Set();
+  excludedIds.value = new Set();
+  selectAllMatching.value = false;
+}
+
+async function collectAllMatchingArtifactIds(): Promise<string[]> {
+  const ids: string[] = [];
+  const pageSize = 200;
+  let cursor = 0;
+  while (true) {
+    const result = await fetchArtifacts({
+      status: statusFilter.value || undefined,
+      limit: pageSize,
+      offset: cursor,
+    });
+    if (!result.items.length) break;
+    for (const artifact of result.items) {
+      const id = String(artifact?.id || "");
+      if (!id) continue;
+      if (excludedIds.value.has(id)) continue;
+      ids.push(id);
+    }
+    cursor += pageSize;
+    if (cursor >= result.totalCount) break;
+  }
+  return ids;
+}
+
+async function deleteInBatches(
+  ids: string[],
+  batchSize = 8
+): Promise<string[]> {
+  const failedIds: string[] = [];
+  bulkTotalCount.value = ids.length;
+  bulkDeletedCount.value = 0;
+
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const batch = ids.slice(i, i + batchSize);
+    const results = await Promise.allSettled(
+      batch.map((id) => deleteArtifact(id))
+    );
+    results.forEach((result, index) => {
+      if (result.status === "fulfilled") {
+        bulkDeletedCount.value += 1;
+      } else {
+        failedIds.push(batch[index]);
+      }
+    });
+  }
+  return failedIds;
+}
+
 async function loadArtifacts() {
-  loading.value = true;
+  if (!items.value.length) loading.value = true;
   error.value = null;
   try {
     const result = await fetchArtifacts({
@@ -197,12 +442,61 @@ async function loadArtifacts() {
   }
 }
 
+async function onDeleteSelected() {
+  if (!selectedCount.value) return;
+
+  const label = selectAllMatching.value
+    ? `${selectedCount.value} matching artifact(s)`
+    : `${selectedCount.value} selected artifact(s)`;
+
+  if (selectAllMatching.value) {
+    const token = `DELETE ${selectedCount.value}`;
+    const typed = prompt(
+      `Dangerous action: delete ${label} in ${scopeLabel.value}.\nType "${token}" to confirm.`
+    );
+    if (typed !== token) return;
+  } else if (!confirm(`Delete ${label}? This cannot be undone.`)) {
+    return;
+  }
+
+  bulkDeleting.value = true;
+  error.value = null;
+  notice.value = null;
+  try {
+    const targetIds = selectAllMatching.value
+      ? await collectAllMatchingArtifactIds()
+      : Array.from(selectedIds.value);
+    const failedIds = await deleteInBatches(targetIds);
+
+    if (failedIds.length) {
+      const preview = failedIds.slice(0, 5).join(", ");
+      error.value =
+        `Deleted ${targetIds.length - failedIds.length}/${
+          targetIds.length
+        } artifacts. ` +
+        `Failed: ${failedIds.length}${preview ? ` (e.g. ${preview})` : ""}`;
+    } else {
+      notice.value = `Deleted ${targetIds.length} artifact(s).`;
+    }
+    clearSelection();
+    await loadArtifacts();
+  } catch (e: any) {
+    error.value = e.message;
+  } finally {
+    bulkDeleting.value = false;
+    bulkDeletedCount.value = 0;
+    bulkTotalCount.value = 0;
+  }
+}
+
 async function onDelete(artifact: any) {
   if (!confirm(`Delete artifact ${artifact.id?.substring(0, 8)}...?`)) return;
   deleting.value = true;
+  notice.value = null;
   try {
     await deleteArtifact(artifact.id);
-    loadArtifacts();
+    clearSelection();
+    await loadArtifacts();
   } catch (e: any) {
     error.value = e.message;
   } finally {
@@ -212,19 +506,32 @@ async function onDelete(artifact: any) {
 
 function onArtifactCreated() {
   showForm.value = false;
+  notice.value = null;
   loadArtifacts();
 }
 
 watch([statusFilter], () => {
+  clearSelection();
+  notice.value = null;
   offset.value = 0;
   loadArtifacts();
 });
 
 watch(offset, loadArtifacts);
 
+watch([allPageSelected, somePageSelected], () => {
+  nextTick(() => {
+    if (!pageSelectCheckbox.value) return;
+    pageSelectCheckbox.value.indeterminate = somePageSelected.value;
+  });
+});
+
 onMounted(() => {
   loadArtifacts();
-  refreshInterval = setInterval(loadArtifacts, 10000);
+  refreshInterval = setInterval(() => {
+    if (bulkDeleting.value) return;
+    loadArtifacts();
+  }, 10000);
 });
 
 onUnmounted(() => {
