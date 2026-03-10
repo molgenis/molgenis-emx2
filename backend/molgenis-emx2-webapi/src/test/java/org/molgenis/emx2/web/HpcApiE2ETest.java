@@ -387,6 +387,53 @@ class HpcApiE2ETest extends ApiTestBase {
         .body("status", equalTo("COMMITTED"));
   }
 
+  @Test
+  @Order(61)
+  void artifactFileEndpointAcceptsLiteralNestedPaths() {
+    String artifactId =
+        hpcRequest()
+            .body(
+                """
+                {"type": "dataset", "residence": "managed"}
+                """)
+            .when()
+            .post("/api/hpc/artifacts")
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath()
+            .getString("id");
+
+    hpcRequest()
+        .body(
+            """
+            {
+              "sha256": "nested123",
+              "size_bytes": 11,
+              "content_type": "text/plain"
+            }
+            """)
+        .when()
+        .put("/api/hpc/artifacts/{id}/files/results/nested/output.txt", artifactId)
+        .then()
+        .statusCode(201)
+        .body("path", equalTo("results/nested/output.txt"));
+
+    hpcRequest()
+        .when()
+        .head("/api/hpc/artifacts/{id}/files/results/nested/output.txt", artifactId)
+        .then()
+        .statusCode(200)
+        .header("X-Content-SHA256", equalTo("nested123"))
+        .header("Content-Length", equalTo("11"));
+
+    hpcRequest()
+        .when()
+        .delete("/api/hpc/artifacts/{id}/files/results/nested/output.txt", artifactId)
+        .then()
+        .statusCode(204);
+  }
+
   // ── 8. Job cancellation ────────────────────────────────────────────────
 
   @Test

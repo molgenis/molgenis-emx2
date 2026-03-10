@@ -293,7 +293,7 @@ public class HpcApi {
               hpc.artifactsApi().listFiles(ctx);
             }));
     app.put(
-        "/api/hpc/artifacts/{id}/files/{path}",
+        "/api/hpc/artifacts/{id}/files/<path>",
         hpcHandler(
             ctx -> {
               requireHpcPrivilege(ctx, Privileges.EDITOR);
@@ -301,21 +301,21 @@ public class HpcApi {
               hpc.artifactsApi().uploadFileByPath(ctx);
             }));
     app.get(
-        "/api/hpc/artifacts/{id}/files/{path}",
+        "/api/hpc/artifacts/{id}/files/<path>",
         hpcHandler(
             ctx -> {
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.artifactsApi().downloadFile(ctx);
             }));
     app.head(
-        "/api/hpc/artifacts/{id}/files/{path}",
+        "/api/hpc/artifacts/{id}/files/<path>",
         hpcHandler(
             ctx -> {
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.artifactsApi().headFile(ctx);
             }));
     app.delete(
-        "/api/hpc/artifacts/{id}/files/{path}",
+        "/api/hpc/artifacts/{id}/files/<path>",
         hpcHandler(
             ctx -> {
               requireHpcPrivilege(ctx, Privileges.MANAGER);
