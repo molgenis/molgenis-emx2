@@ -219,7 +219,7 @@ onMounted(() => {
 });
 
 watch(
-  () => [props.data, props.xvar, props.yvar],
+  () => [props.data],
   () => {
     renderChart();
   },
