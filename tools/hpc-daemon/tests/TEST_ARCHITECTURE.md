@@ -20,7 +20,8 @@ backend/molgenis-emx2-hpc/src/test/java/org/molgenis/emx2/hpc/
 
 backend/molgenis-emx2-webapi/src/test/java/org/molgenis/emx2/web/
 ├── HpcApiE2ETest.java                 # API integration: lifecycle, claims, immutability
-└── HpcApiAuthRotationE2ETest.java     # HMAC secret rotation/disable behavior
+├── HpcApiAuthRotationE2ETest.java     # HMAC secret rotation/disable behavior
+└── HpcApiProtocolContractE2ETest.java # Protocol contract (headers, shapes, links, errors)
 
 tools/hpc-daemon/
 ├── tests/                    # Python unit tests (no network, no Slurm)
@@ -43,7 +44,7 @@ tools/hpc-daemon/
     ├── test_04_cancellation.py # Cancel propagation to Slurm
     ├── test_05_posix_artifacts.py # POSIX residence roundtrip
     ├── test_06_artifact_roundtrip.py # Managed upload → transform → download
-    ├── test_07_delete_requires_cancel.py # NEW: DELETE rejects non-terminal
+    ├── test_07_delete_requires_cancel.py # DELETE rejects non-terminal
     └── scripts/               # Entrypoint scripts for test profiles
 ```
 
@@ -119,9 +120,12 @@ Level: M=MUST, S=SHOULD, Y=MAY.
 | REQ-PROTO-STATUS-001 | Job statuses match spec enum | M | HpcApiContractTest | test_contract | — |
 | REQ-PROTO-STATUS-002 | Artifact statuses match spec enum | M | HpcApiContractTest | test_contract | — |
 | REQ-PROTO-TRANS-001 | Transitions match spec mapping | M | HpcApiContractTest | test_contract | — |
-| REQ-PROTO-ERROR-001 | Errors use RFC 9457 ProblemDetail shape | M | HpcApiE2ETest (invalidTransitionPendingToCompleted) | — | — |
-| REQ-PROTO-HATEOAS-001 | Responses include _links advertising legal actions | M | HpcApiE2ETest | — | — |
-| REQ-PROTO-HATEOAS-002 | Links absent for illegal transitions | M | HpcApiE2ETest | — | — |
+| REQ-PROTO-ERROR-001 | Errors use RFC 9457 ProblemDetail shape | M | HpcApiContractTest | test_contract | HpcApiProtocolContractE2ETest |
+| REQ-PROTO-HEADER-001 | Required headers are enforced | M | HpcApiContractTest | test_contract | HpcApiProtocolContractE2ETest |
+| REQ-PROTO-SHAPE-001 | Core request/response shapes match protocol contract | M | HpcApiContractTest | test_contract | HpcApiProtocolContractE2ETest |
+| REQ-PROTO-HATEOAS-001 | Responses include _links advertising legal actions | M | HpcApiContractTest | — | HpcApiProtocolContractE2ETest |
+| REQ-PROTO-HATEOAS-002 | Link relations per state match protocol matrix | M | HpcApiContractTest | — | HpcApiProtocolContractE2ETest |
+| REQ-PROTO-XLANG-001 | Java and Python HMAC canonical signing stay aligned | M | HpcApiContractTest | test_contract | — |
 
 ### Daemon Behavior
 

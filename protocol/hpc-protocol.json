@@ -51,6 +51,18 @@
       },
       "additionalProperties": false
     },
+    "requiredHeaders": {
+      "description": "Headers required on every authenticated HPC API request.",
+      "const": ["X-EMX2-API-Version", "X-Request-Id", "X-Timestamp"]
+    },
+    "optionalHeaders": {
+      "description": "Headers that may be present depending on request context.",
+      "const": ["X-Trace-Id", "X-Nonce", "X-Worker-Id"]
+    },
+    "binaryBodyHeaders": {
+      "description": "Headers used for raw binary requests.",
+      "const": ["Content-SHA256"]
+    },
     "ProblemDetail": {
       "description": "RFC 9457 error response shape.",
       "type": "object",
@@ -63,6 +75,108 @@
         "request_id": { "type": "string" }
       },
       "required": ["type", "title", "status", "detail"]
+    },
+    "requestRequiredFields": {
+      "description": "Required JSON request fields per endpoint operation.",
+      "type": "object",
+      "properties": {
+        "registerWorker": { "const": ["worker_id"] },
+        "createJob": { "const": ["processor"] },
+        "claimJob": { "const": ["worker_id"] },
+        "transitionJob": { "const": ["status"] }
+      },
+      "additionalProperties": false
+    },
+    "responseRequiredFields": {
+      "description": "Required top-level JSON response fields for core endpoint responses.",
+      "type": "object",
+      "properties": {
+        "health": { "const": ["status", "api_version", "database"] },
+        "workerRegister": {
+          "const": ["worker_id", "hostname", "registered_at", "last_heartbeat_at", "_links"]
+        },
+        "job": { "const": ["id", "processor", "status", "_links"] },
+        "jobList": { "const": ["items", "count", "total_count", "limit", "offset", "_links"] },
+        "jobTransitions": { "const": ["items", "count"] },
+        "artifact": { "const": ["id", "type", "residence", "status", "_links"] },
+        "artifactFileUpload": { "const": ["id", "artifact_id", "path", "sha256", "size_bytes"] },
+        "artifactFileList": { "const": ["items", "count", "total_count", "limit", "offset"] }
+      },
+      "additionalProperties": false
+    },
+    "responseItemRequiredFields": {
+      "description": "Required fields for list item objects returned by core endpoints.",
+      "type": "object",
+      "properties": {
+        "jobTransition": { "const": ["id", "job_id", "from_status", "to_status", "timestamp"] },
+        "artifactFile": {
+          "const": ["id", "path", "sha256", "size_bytes", "content_type", "_links"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "jobLinksByStatus": {
+      "description": "Expected HATEOAS job link relations by current job status.",
+      "type": "object",
+      "properties": {
+        "PENDING": { "const": ["self", "claim", "cancel", "transitions"] },
+        "CLAIMED": { "const": ["self", "submit", "cancel", "transitions"] },
+        "SUBMITTED": { "const": ["self", "start", "cancel", "transitions"] },
+        "STARTED": { "const": ["self", "complete", "fail", "cancel", "transitions"] },
+        "COMPLETED": { "const": ["self", "transitions"] },
+        "FAILED": { "const": ["self", "transitions"] },
+        "CANCELLED": { "const": ["self", "transitions"] }
+      },
+      "additionalProperties": false
+    },
+    "artifactLinksByStatus": {
+      "description": "Expected HATEOAS artifact link relations by current artifact status.",
+      "type": "object",
+      "properties": {
+        "CREATED": { "const": ["self", "upload", "files"] },
+        "UPLOADING": { "const": ["self", "upload", "commit", "files"] },
+        "REGISTERED": { "const": ["self", "commit", "files"] },
+        "COMMITTED": { "const": ["self", "download", "files"] },
+        "FAILED": { "const": ["self", "files"] }
+      },
+      "additionalProperties": false
+    },
+    "hmacFixtureSecret": {
+      "description": "Shared secret used by protocol-level HMAC contract vectors.",
+      "const": "contract-secret-0123456789abcdef0123456789"
+    },
+    "hmacVectors": {
+      "description": "Cross-language canonical HMAC fixtures (Java + Python must both match).",
+      "const": [
+        {
+          "name": "json-post-create-job",
+          "method": "POST",
+          "path": "/api/hpc/jobs",
+          "body": "{\"processor\":\"embed\",\"profile\":\"gpu-medium\"}",
+          "timestamp": "1735689600",
+          "nonce": "0123456789abcdef0123456789abcdef",
+          "expected_signature": "f5e577a37a695d5ac15bc4757bdc10dec7e52b3942e5be24e580ba95d7ad8842"
+        },
+        {
+          "name": "binary-put-upload",
+          "method": "PUT",
+          "path": "/api/hpc/artifacts/550e8400-e29b-41d4-a716-446655440000/files/results/output.bin",
+          "body": "",
+          "content_sha256": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+          "timestamp": "1735689605",
+          "nonce": "fedcba9876543210fedcba9876543210",
+          "expected_signature": "934dac787d56427cf7f6624a52248e90b7c96b81840790c4bcb0402377a7cdde"
+        },
+        {
+          "name": "get-with-query",
+          "method": "GET",
+          "path": "/api/hpc/jobs?status=PENDING&limit=10",
+          "body": "",
+          "timestamp": "1735689610",
+          "nonce": "00112233445566778899aabbccddeeff",
+          "expected_signature": "85462cb5b2c90e7a741aa8afff3d6cdd5ec482c75d4e841c333a2e442873ad23"
+        }
+      ]
     }
   }
 }
