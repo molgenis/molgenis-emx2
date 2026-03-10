@@ -189,7 +189,8 @@ public class SqlQuery extends QueryBean {
         && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
         && !getTablesWithSelectPermission().contains("*")
         && !getTablesWithSelectPermission().contains(table.getTableName())) {
-      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
+      throw new MolgenisException(
+          "Cannot retrieve rows: requires VIEWER permission for table: " + table.getTableName());
     }
   }
 
