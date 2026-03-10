@@ -360,3 +360,82 @@ def test_execution_timeout_cancels_slurm_and_marks_failed(daemon_factory):
     assert args[0] == "job-exec-timeout"
     assert args[1] == "FAILED"
     assert "execution_timeout_seconds" in kwargs["detail"]
+
+
+def test_progress_file_relay_posts_structured_fields(daemon_factory, tmp_path: Path):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    output_dir = tmp_path / "output"
+    output_dir.mkdir(parents=True)
+    (output_dir / ".hpc_progress.jsonl").write_text(
+        '{"phase":"sorting","message":"step 3 of 10","progress":0.3}\n',
+        encoding="utf-8",
+    )
+    daemon.tracker.track(
+        emx2_job_id="job-progress-relay",
+        slurm_job_id="sim-progress-relay",
+        status="STARTED",
+        output_dir=str(output_dir),
+        processor="scenario",
+        profile="default",
+    )
+    tracked = daemon.tracker.get("job-progress-relay")
+    assert tracked is not None
+
+    daemon._check_progress_file(tracked)
+
+    daemon.client.transition_job.assert_called_once()
+    args, kwargs = daemon.client.transition_job.call_args
+    assert args[0] == "job-progress-relay"
+    assert args[1] == "STARTED"
+    assert kwargs["phase"] == "sorting"
+    assert kwargs["message"] == "step 3 of 10"
+    assert kwargs["progress"] == 0.3
+    assert "progress:" in kwargs["detail"]
+
+    # Unchanged file should not emit a second update.
+    daemon._check_progress_file(tracked)
+    assert daemon.client.transition_job.call_count == 1
+
+
+def test_fast_job_path_relays_progress_before_completion(daemon_factory, tmp_path: Path):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    output_dir = tmp_path / "output"
+    output_dir.mkdir(parents=True)
+    (output_dir / ".hpc_progress.jsonl").write_text(
+        '{"phase":"finalizing","message":"wrapping up","progress":0.9}\n',
+        encoding="utf-8",
+    )
+    daemon.tracker.track(
+        emx2_job_id="job-fast-progress",
+        slurm_job_id="sim-fast-progress",
+        status="SUBMITTED",
+        output_dir=str(output_dir),
+        processor="scenario",
+        profile="default",
+    )
+    daemon._backend.query_status = MagicMock(
+        return_value=StatusResult(
+            hpc_status="COMPLETED",
+            slurm_info=SlurmJobInfo(state="COMPLETED", exit_code="0:0", reason="None"),
+        )
+    )
+
+    daemon._monitor_running_jobs()
+
+    started_progress_calls = [
+        call
+        for call in daemon.client.transition_job.call_args_list
+        if call.args[0] == "job-fast-progress"
+        and call.args[1] == "STARTED"
+        and call.kwargs.get("phase") == "finalizing"
+        and call.kwargs.get("message") == "wrapping up"
+        and call.kwargs.get("progress") == 0.9
+    ]
+    assert started_progress_calls, "Expected structured progress relay on fast-job path"
+    daemon.client.complete_job.assert_called_once()

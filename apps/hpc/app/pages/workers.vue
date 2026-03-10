@@ -15,6 +15,9 @@
           <strong>Registered</strong>
           {{ workers.length }}
         </span>
+        <span class="text-xs text-definition-list-term">
+          {{ refreshing ? "Refreshing..." : "Auto-refresh: 15s" }}
+        </span>
       </div>
     </section>
 
@@ -42,22 +45,39 @@
           <table class="w-full text-sm text-table-row">
             <thead>
               <tr class="border-b border-color-theme">
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Worker ID
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Hostname
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Capabilities
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Registered
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Last Heartbeat
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"></th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
+                  Active Jobs
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                ></th>
               </tr>
             </thead>
             <tbody>
@@ -80,7 +100,9 @@
                   >
                     {{ cap.processor }}:{{ cap.profile }}
                   </span>
-                  <span v-if="!w.capabilities.length" class="text-definition-list-term"
+                  <span
+                    v-if="!w.capabilities.length"
+                    class="text-definition-list-term"
                     >-</span
                   >
                 </td>
@@ -91,6 +113,56 @@
                   <span :class="heartbeatClass(w.last_heartbeat_at)">
                     {{ formatDate(w.last_heartbeat_at) }}
                   </span>
+                </td>
+                <td class="px-4 py-3 min-w-[260px]">
+                  <div v-if="w.active_jobs?.length" class="space-y-2">
+                    <div
+                      v-for="activeJob in w.active_jobs"
+                      :key="activeJob.id"
+                      class="rounded border border-color-theme p-2 bg-content"
+                    >
+                      <div class="flex items-center gap-2 mb-1">
+                        <NuxtLink
+                          :to="`/jobs/${activeJob.id}`"
+                          class="text-xs font-mono text-button-outline hover:text-button-outline-hover underline underline-offset-2"
+                        >
+                          {{ shortId(activeJob.id) }}
+                        </NuxtLink>
+                        <StatusBadge :status="activeJob.status" />
+                      </div>
+                      <div v-if="hasJobProgress(activeJob)" class="space-y-1">
+                        <div
+                          class="flex items-center justify-between text-xs text-definition-list-term"
+                        >
+                          <span class="truncate">
+                            {{
+                              activeJob.phase ||
+                              activeJob.message ||
+                              "In progress"
+                            }}
+                          </span>
+                          <span>{{
+                            formatProgressPercent(activeJob.progress)
+                          }}</span>
+                        </div>
+                        <div class="h-1.5 bg-form rounded overflow-hidden">
+                          <div
+                            class="h-full bg-blue-500 transition-all duration-300"
+                            :style="{
+                              width: `${Math.max(
+                                0,
+                                Math.min(
+                                  100,
+                                  Math.round((activeJob.progress ?? 0) * 100)
+                                )
+                              )}%`,
+                            }"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <span v-else class="text-definition-list-term">-</span>
                 </td>
                 <td class="px-4 py-3">
                   <button
@@ -114,18 +186,44 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import { fetchWorkers, deleteWorker } from "../composables/useHpcApi";
-import { formatDate } from "../utils/jobs";
+import { formatDate, formatProgressPercent } from "../utils/jobs";
 
 const workers = ref<any[]>([]);
 const loading = ref(false);
+const refreshing = ref(false);
 const error = ref<string | null>(null);
 const deletingWorker = ref<string | null>(null);
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
+let initialLoadDone = false;
 
 function heartbeatClass(ts: string | null): string {
   if (!ts) return "text-definition-list-term";
   const age = Date.now() - new Date(ts).getTime();
   return age > 5 * 60 * 1000 ? "text-red-700" : "text-green-500";
+}
+
+function shortId(idVal: string): string {
+  return idVal?.substring?.(0, 8) || idVal || "-";
+}
+
+function hasJobProgress(job: any): boolean {
+  return (
+    typeof job?.progress === "number" ||
+    typeof job?.phase === "string" ||
+    typeof job?.message === "string"
+  );
+}
+
+function mergeWorkers(nextWorkers: any[]) {
+  const previousById = new Map(
+    workers.value.map((worker: any) => [worker.worker_id, worker])
+  );
+  workers.value = nextWorkers.map((nextWorker: any) => {
+    const previous = previousById.get(nextWorker.worker_id);
+    if (!previous) return nextWorker;
+    Object.assign(previous, nextWorker);
+    return previous;
+  });
 }
 
 async function onDeleteWorker(workerId: string) {
@@ -146,21 +244,29 @@ async function onDeleteWorker(workerId: string) {
   }
 }
 
-async function loadWorkers() {
-  loading.value = true;
-  error.value = null;
+async function loadWorkers({
+  background = false,
+}: { background?: boolean } = {}) {
+  if (!initialLoadDone && !background) loading.value = true;
+  if (background) refreshing.value = true;
+  if (!background) error.value = null;
   try {
-    workers.value = await fetchWorkers();
+    const fetched = await fetchWorkers();
+    mergeWorkers(fetched);
   } catch (e: any) {
     error.value = e.message;
   } finally {
-    loading.value = false;
+    if (!initialLoadDone) {
+      loading.value = false;
+      initialLoadDone = true;
+    }
+    if (background) refreshing.value = false;
   }
 }
 
 onMounted(() => {
   loadWorkers();
-  refreshInterval = setInterval(loadWorkers, 15000);
+  refreshInterval = setInterval(() => loadWorkers({ background: true }), 15000);
 });
 
 onUnmounted(() => {

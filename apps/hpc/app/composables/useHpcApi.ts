@@ -1,7 +1,9 @@
 import { API_VERSION } from "../utils/protocol";
+import { resolveProgressSnapshot } from "../utils/jobs";
 
 const GRAPHQL_URL = "/_SYSTEM_/graphql";
 const REST_BASE = "/api/hpc";
+const ACTIVE_JOB_STATUSES = new Set(["CLAIMED", "SUBMITTED", "STARTED"]);
 
 /** Safely encode a JS string as a GraphQL string literal. */
 function gqlString(value: string): string {
@@ -79,6 +81,9 @@ interface NormalizedJob {
   profile: string;
   status: string;
   worker_id: string | null;
+  phase: string | null;
+  message: string | null;
+  progress: number | null;
   output_artifact_id: any;
   log_artifact_id: any;
   slurm_job_id: string | null;
@@ -127,6 +132,7 @@ export async function fetchJobs({
       id processor profile
       status { name }
       worker_id { worker_id }
+      phase message progress
       output_artifact_id { id name type residence { name } status { name } }
       log_artifact_id { id name type residence { name } status { name } }
       slurm_job_id submit_user
@@ -163,6 +169,7 @@ export async function fetchJobDetail(jobId: string): Promise<{
       id processor profile
       status { name }
       worker_id { worker_id }
+      phase message progress
       output_artifact_id { id name type residence { name } status { name } }
       log_artifact_id { id name type residence { name } status { name } }
       slurm_job_id submit_user
@@ -173,7 +180,7 @@ export async function fetchJobDetail(jobId: string): Promise<{
       filter: { job_id: { id: { equals: ${gqlString(jobId)} } } }
       orderby: { timestamp: ASC }
     ) {
-      id from_status to_status timestamp worker_id detail
+      id from_status to_status timestamp worker_id detail phase message progress
     }
   }`;
 
@@ -182,7 +189,7 @@ export async function fetchJobDetail(jobId: string): Promise<{
     const job = data.HpcJobs?.[0];
     return {
       job: job ? normalizeJob(job) : null,
-      transitions: data.HpcJobTransitions || [],
+      transitions: (data.HpcJobTransitions || []).map(normalizeTransition),
     };
   } catch (err: any) {
     if (isSchemaNotReady(err)) {
@@ -247,12 +254,28 @@ export async function fetchWorkers(): Promise<any[]> {
       worker_id { worker_id }
       processor profile max_concurrent_jobs
     }
+    HpcJobs(limit: 500, orderby: { created_at: DESC }) {
+      id processor profile
+      status { name }
+      worker_id { worker_id }
+      phase message progress
+      created_at claimed_at submitted_at started_at completed_at
+    }
   }`;
 
   try {
     const data = await gqlQuery(query);
     const workers = data.HpcWorkers || [];
     const caps = data.HpcWorkerCapabilities || [];
+    const normalizedJobs = (data.HpcJobs || []).map(normalizeJob);
+    const activeJobsByWorker = new Map<string, any[]>();
+
+    for (const job of normalizedJobs) {
+      if (!ACTIVE_JOB_STATUSES.has(job.status) || !job.worker_id) continue;
+      const existing = activeJobsByWorker.get(job.worker_id) || [];
+      existing.push(job);
+      activeJobsByWorker.set(job.worker_id, existing);
+    }
 
     return workers.map((w: any) => ({
       ...w,
@@ -275,6 +298,10 @@ export async function fetchWorkers(): Promise<any[]> {
             max_concurrent_jobs,
           })
         ),
+      active_jobs: (activeJobsByWorker.get(w.worker_id) || []).sort(
+        (a: any, b: any) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      ),
     }));
   } catch (err: any) {
     if (isSchemaNotReady(err)) return [];
@@ -537,6 +564,7 @@ export async function downloadArtifactFile(
 function normalizeJob(job: any): NormalizedJob {
   const output = job.output_artifact_id;
   const log = job.log_artifact_id;
+  const progressSnapshot = resolveProgressSnapshot(job);
   const lifecycleTimestamps = [
     job.created_at,
     job.claimed_at,
@@ -555,6 +583,9 @@ function normalizeJob(job: any): NormalizedJob {
     ...job,
     status: job.status?.name ?? job.status,
     worker_id: job.worker_id?.worker_id ?? job.worker_id,
+    phase: progressSnapshot.phase,
+    message: progressSnapshot.message,
+    progress: progressSnapshot.progress,
     updated_at: updatedAt,
     output_artifact_id: output
       ? {
@@ -574,6 +605,19 @@ function normalizeJob(job: any): NormalizedJob {
           status: log.status?.name ?? log.status,
         }
       : null,
+  };
+}
+
+function normalizeTransition(transition: any): any {
+  const progressSnapshot = resolveProgressSnapshot(transition);
+  return {
+    ...transition,
+    from_status: transition.from_status?.name ?? transition.from_status,
+    to_status: transition.to_status?.name ?? transition.to_status,
+    worker_id: transition.worker_id?.worker_id ?? transition.worker_id,
+    phase: progressSnapshot.phase,
+    message: progressSnapshot.message,
+    progress: progressSnapshot.progress,
   };
 }
 

@@ -18,6 +18,16 @@ def test_can_poll_pending_jobs(hpc_client):
 
 
 def test_heartbeat(hpc_client):
-    """The client should be able to send a heartbeat."""
+    """The client should be able to send a heartbeat after registration."""
+    hpc_client.register_worker(
+        hostname="e2e-test-submitter-host",
+        capabilities=[
+            {
+                "processor": "e2e-test",
+                "profile": "bash",
+                "max_concurrent_jobs": 1,
+            }
+        ],
+    )
     result = hpc_client.heartbeat()
     assert result.get("status") == "ok"

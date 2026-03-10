@@ -72,7 +72,7 @@ emx2-hpc-daemon -c config.yaml once
 emx2-hpc-daemon -c config.yaml register
 ```
 
-Add `--simulate` to `run` or `once` to walk jobs through all lifecycle states without invoking Slurm. Add `-v` for debug logging or `--json-logs` for structured output.
+Use `--backend=simulate` with `run` or `once` to walk jobs through all lifecycle states without invoking Slurm. Add `-v` for debug logging or `--json-logs` for structured output.
 
 ## Tests
 

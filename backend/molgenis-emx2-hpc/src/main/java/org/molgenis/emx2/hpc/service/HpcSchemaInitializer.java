@@ -34,8 +34,9 @@ public final class HpcSchemaInitializer {
             schema = db.getSchema(systemSchemaName);
           }
 
-          // Already initialized — nothing to do
+          // Existing deployment: apply additive schema upgrades in place.
           if (schema.getTableNames().contains("HpcJobs")) {
+            applySchemaUpgrades(schema);
             return;
           }
 
@@ -102,6 +103,9 @@ public final class HpcSchemaInitializer {
                   column("submitted_at").setType(ColumnType.DATETIME),
                   column("started_at").setType(ColumnType.DATETIME),
                   column("completed_at").setType(ColumnType.DATETIME),
+                  column("phase"),
+                  column("message").setType(ColumnType.TEXT),
+                  column("progress").setType(ColumnType.DECIMAL),
                   column("timeout_seconds").setType(ColumnType.INT)));
 
           schema.create(
@@ -113,7 +117,10 @@ public final class HpcSchemaInitializer {
                   column("to_status").setRequired(true),
                   column("timestamp").setType(ColumnType.DATETIME).setRequired(true),
                   column("worker_id"),
-                  column("detail").setType(ColumnType.TEXT)));
+                  column("detail").setType(ColumnType.TEXT),
+                  column("phase"),
+                  column("message").setType(ColumnType.TEXT),
+                  column("progress").setType(ColumnType.DECIMAL)));
 
           schema.create(
               table(
@@ -150,16 +157,38 @@ public final class HpcSchemaInitializer {
                   column("content").setType(ColumnType.FILE),
                   column("content_type")));
 
-          // Add output_artifact_id and log_artifact_id REFs after HpcArtifacts table exists
-          schema
-              .getTable("HpcJobs")
-              .getMetadata()
-              .add(
-                  column("output_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
-          schema
-              .getTable("HpcJobs")
-              .getMetadata()
-              .add(column("log_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
+          applySchemaUpgrades(schema);
         });
+  }
+
+  private static void applySchemaUpgrades(Schema schema) {
+    if (!schema.getTableNames().contains("HpcJobs")) {
+      return;
+    }
+    if (schema.getTableNames().contains("HpcArtifacts")) {
+      addColumnIfMissing(
+          schema.getTable("HpcJobs"),
+          column("output_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
+      addColumnIfMissing(
+          schema.getTable("HpcJobs"),
+          column("log_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
+    }
+    addColumnIfMissing(schema.getTable("HpcJobs"), column("phase"));
+    addColumnIfMissing(schema.getTable("HpcJobs"), column("message").setType(ColumnType.TEXT));
+    addColumnIfMissing(schema.getTable("HpcJobs"), column("progress").setType(ColumnType.DECIMAL));
+
+    if (schema.getTableNames().contains("HpcJobTransitions")) {
+      addColumnIfMissing(schema.getTable("HpcJobTransitions"), column("phase"));
+      addColumnIfMissing(
+          schema.getTable("HpcJobTransitions"), column("message").setType(ColumnType.TEXT));
+      addColumnIfMissing(
+          schema.getTable("HpcJobTransitions"), column("progress").setType(ColumnType.DECIMAL));
+    }
+  }
+
+  private static void addColumnIfMissing(Table table, Column column) {
+    if (!table.getMetadata().getColumnNames().contains(column.getName())) {
+      table.getMetadata().add(column);
+    }
   }
 }

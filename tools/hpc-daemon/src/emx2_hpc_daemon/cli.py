@@ -96,36 +96,30 @@ _backend_option = click.option(
 
 @main.command()
 @_backend_option
-@click.option("--simulate", is_flag=True, hidden=True, help="Deprecated: use --backend=simulate")
 @_verbose_option
 @_json_logs_option
 @click.pass_context
-def run(ctx, backend, simulate, verbose, json_logs):
+def run(ctx, backend, verbose, json_logs):
     """Start the daemon main loop."""
     _setup_logging(verbose, json_logs)
     from .daemon import HpcDaemon
 
     config = ctx.obj["config"]
-    if simulate:
-        backend = "simulate"
     daemon = HpcDaemon(config, backend=backend)
     daemon.run()
 
 
 @main.command()
 @_backend_option
-@click.option("--simulate", is_flag=True, hidden=True, help="Deprecated: use --backend=simulate")
 @_verbose_option
 @_json_logs_option
 @click.pass_context
-def once(ctx, backend, simulate, verbose, json_logs):
+def once(ctx, backend, verbose, json_logs):
     """Run a single poll-claim-monitor cycle, then exit."""
     _setup_logging(verbose, json_logs)
     from .daemon import HpcDaemon
 
     config = ctx.obj["config"]
-    if simulate:
-        backend = "simulate"
     daemon = HpcDaemon(config, backend=backend)
     daemon.run_once()
 

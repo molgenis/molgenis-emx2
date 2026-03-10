@@ -135,8 +135,8 @@ Level: M=MUST, S=SHOULD, Y=MAY.
 | REQ-DAEMON-STAGE-001 | Managed artifacts downloaded via GET | M | — | test_backend, test_shell_backend | test_06 |
 | REQ-DAEMON-STAGE-002 | POSIX artifacts symlinked from file:// path | M | — | test_backend | test_05 |
 | REQ-DAEMON-STAGE-003 | Hash verified after staging | M | — | test_backend | — |
-| REQ-DAEMON-PROGRESS-001 | Read last line of .hpc_progress.jsonl (NDJSON) | S | — | — | — |
-| REQ-DAEMON-PROGRESS-002 | Validate/sanitize progress fields | S | — | — | — |
+| REQ-DAEMON-PROGRESS-001 | Read last line of .hpc_progress.jsonl (NDJSON) | S | — | test_daemon_scenarios | — |
+| REQ-DAEMON-PROGRESS-002 | Validate/sanitize progress fields | S | — | test_daemon_scenarios | — |
 | REQ-DAEMON-ENV-001 | Wrapper gets HPC_JOB_ID, HPC_INPUT_DIR, HPC_OUTPUT_DIR, HPC_WORK_DIR, HPC_PARAMETERS | M | — | test_slurm, test_shell_backend ✓ | test_02 |
 | REQ-DAEMON-RECOVER-001 | Daemon recovers tracked jobs on restart | S | — | test_tracker | — |
 | REQ-DAEMON-OUTPUT-001 | Output files classified: logs vs output | M | — | test_daemon_scenarios | — |

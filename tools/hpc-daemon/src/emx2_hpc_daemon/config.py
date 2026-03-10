@@ -143,6 +143,10 @@ def load_config(path: str | Path) -> DaemonConfig:
 
     if "profiles" in raw:
         for key, val in raw["profiles"].items():
+            if ":" not in key or key.startswith(":") or key.endswith(":"):
+                raise ValueError(
+                    f"Invalid profile key '{key}'. Expected 'processor:profile'."
+                )
             config.profiles[key] = ProfileEntry(**val)
 
     if "apptainer" in raw:

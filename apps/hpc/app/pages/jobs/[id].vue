@@ -99,6 +99,49 @@
           </div>
         </div>
 
+        <div v-if="showCurrentProgress" class="mt-6">
+          <p class="text-sm font-semibold text-title mb-1">Current Progress</p>
+          <p class="text-xs text-definition-list-term mb-2">
+            Latest structured progress snapshot reported by the worker.
+          </p>
+          <div
+            v-if="hasJobProgress"
+            class="bg-content rounded-lg border border-color-theme p-4 space-y-2"
+          >
+            <div class="flex items-center justify-between text-sm text-title">
+              <span>{{
+                jobProgress.phase || jobProgress.message || "In progress"
+              }}</span>
+              <span>{{ formatProgressPercent(jobProgress.progress) }}</span>
+            </div>
+            <div class="h-2 bg-form rounded overflow-hidden">
+              <div
+                class="h-full bg-blue-500 transition-all duration-300"
+                :style="{
+                  width: `${Math.max(
+                    0,
+                    Math.min(100, Math.round((jobProgress.progress ?? 0) * 100))
+                  )}%`,
+                }"
+              />
+            </div>
+            <p
+              v-if="
+                jobProgress.message && jobProgress.message !== jobProgress.phase
+              "
+              class="text-xs text-definition-list-term"
+            >
+              {{ jobProgress.message }}
+            </p>
+          </div>
+          <div
+            v-else
+            class="bg-content rounded-lg border border-color-theme p-4 text-sm text-definition-list-term"
+          >
+            No structured progress reported yet.
+          </div>
+        </div>
+
         <div v-if="job.parameters" class="mt-6">
           <p class="text-sm font-semibold text-title mb-1">Parameters</p>
           <p class="text-xs text-definition-list-term mb-2">
@@ -312,6 +355,11 @@
                 <th
                   class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
                 >
+                  Progress
+                </th>
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Detail
                 </th>
               </tr>
@@ -330,6 +378,30 @@
                 <td class="px-4 py-2">
                   <StatusBadge :status="t.to_status" />
                 </td>
+                <td class="px-4 py-2 min-w-[220px]">
+                  <div v-if="hasTransitionProgress(t)" class="space-y-1">
+                    <div
+                      class="flex items-center justify-between gap-2 text-xs text-definition-list-term"
+                    >
+                      <span class="truncate">{{
+                        transitionProgressSummary(t)
+                      }}</span>
+                      <span>{{ formatProgressPercent(t.progress) }}</span>
+                    </div>
+                    <div class="h-1.5 bg-content rounded overflow-hidden">
+                      <div
+                        class="h-full bg-blue-500 transition-all duration-300"
+                        :style="{
+                          width: `${Math.max(
+                            0,
+                            Math.min(100, Math.round((t.progress ?? 0) * 100))
+                          )}%`,
+                        }"
+                      />
+                    </div>
+                  </div>
+                  <span v-else class="text-definition-list-term">-</span>
+                </td>
                 <td class="px-4 py-2 align-top">
                   <p class="whitespace-pre-wrap break-words">
                     {{ displayDetail(t) }}
@@ -345,7 +417,7 @@
               </tr>
               <tr v-if="!transitions.length">
                 <td
-                  colspan="4"
+                  colspan="5"
                   class="px-4 py-8 text-center text-definition-list-term"
                 >
                   No transitions recorded
@@ -366,10 +438,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute } from "#app/composables/router";
 import { fetchJobDetail, deleteJob } from "../../composables/useHpcApi";
-import { formatDate } from "../../utils/jobs";
+import { formatDate, formatProgressPercent } from "../../utils/jobs";
+import { isTerminal } from "../../utils/protocol";
 import { navigateTo } from "#app/composables/router";
 
 const route = useRoute();
@@ -382,6 +455,7 @@ const error = ref<string | null>(null);
 const deleting = ref(false);
 const expandedTransitionDetails = ref<Record<string, boolean>>({});
 const DETAIL_PREVIEW_LIMIT = 180;
+let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
 const normalizedInputs = computed(() => {
   const inputs = job.value?.inputs;
@@ -391,6 +465,22 @@ const normalizedInputs = computed(() => {
     return item;
   });
 });
+
+const jobProgress = computed(() => ({
+  phase: typeof job.value?.phase === "string" ? job.value.phase : null,
+  message: typeof job.value?.message === "string" ? job.value.message : null,
+  progress: typeof job.value?.progress === "number" ? job.value.progress : null,
+}));
+
+const hasJobProgress = computed(
+  () =>
+    jobProgress.value.phase !== null ||
+    jobProgress.value.message !== null ||
+    jobProgress.value.progress !== null
+);
+const showCurrentProgress = computed(
+  () => !!job.value && !isTerminal(job.value.status)
+);
 
 async function onDelete() {
   if (!confirm(`Delete job ${id.value}?`)) return;
@@ -441,15 +531,38 @@ function displayDetail(transition: any): string {
   return `${detail.slice(0, DETAIL_PREVIEW_LIMIT)}...`;
 }
 
-onMounted(async () => {
+function hasTransitionProgress(transition: any): boolean {
+  return (
+    typeof transition?.progress === "number" ||
+    typeof transition?.phase === "string" ||
+    typeof transition?.message === "string"
+  );
+}
+
+function transitionProgressSummary(transition: any): string {
+  return transition.phase || transition.message || "In progress";
+}
+
+async function loadJobDetail() {
   try {
     const result = await fetchJobDetail(id.value);
     job.value = result.job;
     transitions.value = result.transitions;
   } catch (e: any) {
     error.value = e.message;
-  } finally {
-    loading.value = false;
   }
+}
+
+onMounted(async () => {
+  await loadJobDetail();
+  loading.value = false;
+  refreshInterval = setInterval(async () => {
+    if (!job.value || isTerminal(job.value.status)) return;
+    await loadJobDetail();
+  }, 10000);
+});
+
+onUnmounted(() => {
+  if (refreshInterval) clearInterval(refreshInterval);
 });
 </script>

@@ -335,20 +335,29 @@ class HpcClient:
         slurm_job_id: str | None = None,
         output_artifact_id: str | None = None,
         log_artifact_id: str | None = None,
+        phase: str | None = None,
+        message: str | None = None,
+        progress: float | None = None,
     ) -> dict:
         """Report a job status transition."""
         body = {
             "status": status,
             "worker_id": self.worker_id,
         }
-        if detail:
+        if detail is not None:
             body["detail"] = detail
-        if slurm_job_id:
+        if slurm_job_id is not None:
             body["slurm_job_id"] = slurm_job_id
-        if output_artifact_id:
+        if output_artifact_id is not None:
             body["output_artifact_id"] = output_artifact_id
-        if log_artifact_id:
+        if log_artifact_id is not None:
             body["log_artifact_id"] = log_artifact_id
+        if phase is not None:
+            body["phase"] = phase
+        if message is not None:
+            body["message"] = message
+        if progress is not None:
+            body["progress"] = progress
         return self._request("POST", f"/api/hpc/jobs/{job_id}/transition", json=body)
 
     def complete_job(
@@ -359,6 +368,9 @@ class HpcClient:
         slurm_job_id: str | None = None,
         output_artifact_id: str | None = None,
         log_artifact_id: str | None = None,
+        phase: str | None = None,
+        message: str | None = None,
+        progress: float | None = None,
     ) -> dict:
         """Atomically complete a job (terminal transition).
 
@@ -370,14 +382,20 @@ class HpcClient:
             "status": status,
             "worker_id": self.worker_id,
         }
-        if detail:
+        if detail is not None:
             body["detail"] = detail
-        if slurm_job_id:
+        if slurm_job_id is not None:
             body["slurm_job_id"] = slurm_job_id
-        if output_artifact_id:
+        if output_artifact_id is not None:
             body["output_artifact_id"] = output_artifact_id
-        if log_artifact_id:
+        if log_artifact_id is not None:
             body["log_artifact_id"] = log_artifact_id
+        if phase is not None:
+            body["phase"] = phase
+        if message is not None:
+            body["message"] = message
+        if progress is not None:
+            body["progress"] = progress
         return self._request("POST", f"/api/hpc/jobs/{job_id}/complete", json=body)
 
     def get_job(self, job_id: str) -> dict:

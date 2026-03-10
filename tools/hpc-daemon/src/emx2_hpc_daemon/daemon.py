@@ -64,11 +64,8 @@ def _build_slurm_detail(info: SlurmJobInfo) -> str:
 class HpcDaemon:
     """The main daemon orchestrating HPC job execution."""
 
-    def __init__(self, config: DaemonConfig, backend: str = "slurm", simulate: bool = False):
+    def __init__(self, config: DaemonConfig, backend: str = "slurm"):
         self.config = config
-        # --simulate is a legacy alias for --backend=simulate
-        if simulate:
-            backend = "simulate"
         self._backend: ExecutionBackend = self._make_backend(backend, config)
         self.client = HpcClient(
             base_url=config.emx2.base_url,
@@ -875,6 +872,9 @@ class HpcDaemon:
                 tracked.emx2_job_id,
                 "STARTED",
                 detail=f"progress: {detail}",
+                phase=progress.get("phase"),
+                message=progress.get("message"),
+                progress=progress.get("progress"),
             )
             logger.debug(
                 "Relayed progress for job %s: %s",
@@ -976,6 +976,10 @@ class HpcDaemon:
                 )
                 tracked.status = "STARTED"
                 self.tracker.update(tracked.emx2_job_id, status="STARTED")
+                # Fast jobs can finish before we observe RUNNING. After inserting
+                # the required STARTED state, force one progress-file pass so
+                # .hpc_progress.jsonl updates are not lost.
+                self._check_progress_file(tracked)
 
             # Terminal transitions use phased completion with tracker
             # checkpointing to avoid duplicate artifacts on crash recovery.

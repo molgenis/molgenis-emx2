@@ -87,6 +87,17 @@
       },
       "additionalProperties": false
     },
+    "progressFieldLimits": {
+      "description": "Validation bounds for structured progress updates posted by the daemon.",
+      "type": "object",
+      "properties": {
+        "phase_max_length": { "const": 100 },
+        "message_max_length": { "const": 500 },
+        "progress_min": { "const": 0.0 },
+        "progress_max": { "const": 1.0 }
+      },
+      "additionalProperties": false
+    },
     "responseRequiredFields": {
       "description": "Required top-level JSON response fields for core endpoint responses.",
       "type": "object",
@@ -95,7 +106,7 @@
         "workerRegister": {
           "const": ["worker_id", "hostname", "registered_at", "last_heartbeat_at", "_links"]
         },
-        "job": { "const": ["id", "processor", "status", "_links"] },
+        "job": { "const": ["id", "processor", "status", "phase", "message", "progress", "_links"] },
         "jobList": { "const": ["items", "count", "total_count", "limit", "offset", "_links"] },
         "jobTransitions": { "const": ["items", "count"] },
         "artifact": { "const": ["id", "type", "residence", "status", "_links"] },
@@ -108,7 +119,9 @@
       "description": "Required fields for list item objects returned by core endpoints.",
       "type": "object",
       "properties": {
-        "jobTransition": { "const": ["id", "job_id", "from_status", "to_status", "timestamp"] },
+        "jobTransition": {
+          "const": ["id", "job_id", "from_status", "to_status", "timestamp", "phase", "message", "progress"]
+        },
         "artifactFile": {
           "const": ["id", "path", "sha256", "size_bytes", "content_type", "_links"]
         }

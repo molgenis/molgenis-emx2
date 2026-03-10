@@ -33,6 +33,9 @@ import org.molgenis.emx2.hpc.service.WorkerService;
  */
 public class JobsApi {
 
+  private static final int MAX_PROGRESS_PHASE_LENGTH = 100;
+  private static final int MAX_PROGRESS_MESSAGE_LENGTH = 500;
+
   private final JobService jobService;
   private final ArtifactService artifactService;
   private final WorkerService workerService;
@@ -167,7 +170,7 @@ public class JobsApi {
    * POST /api/hpc/jobs/{id}/transition — report a status transition.
    *
    * <p>Request body: {"status": "SUBMITTED", "worker_id": "...", "detail": "sbatch id 12345",
-   * "slurm_job_id": "12345"}
+   * "slurm_job_id": "12345", "phase": "staging", "message": "step 2/5", "progress": 0.4}
    */
   @SuppressWarnings("unchecked")
   public void transitionJob(Context ctx) throws Exception {
@@ -178,6 +181,11 @@ public class JobsApi {
     String targetStatusStr = (String) body.get("status");
     String workerId = (String) body.get("worker_id");
     String detail = (String) body.get("detail");
+    String phase =
+        parseOptionalBoundedString(body.get("phase"), "phase", MAX_PROGRESS_PHASE_LENGTH);
+    String message =
+        parseOptionalBoundedString(body.get("message"), "message", MAX_PROGRESS_MESSAGE_LENGTH);
+    Double progress = parseOptionalProgress(body.get("progress"));
 
     if (targetStatusStr == null) {
       throw HpcException.badRequest("status is required", requestId(ctx));
@@ -195,7 +203,16 @@ public class JobsApi {
     String logArtifactId = (String) body.get("log_artifact_id");
     Row result =
         jobService.transitionJob(
-            jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId, logArtifactId);
+            jobId,
+            targetStatus,
+            workerId,
+            detail,
+            slurmJobId,
+            outputArtifactId,
+            logArtifactId,
+            phase,
+            message,
+            progress);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
@@ -232,6 +249,11 @@ public class JobsApi {
     String targetStatusStr = (String) body.get("status");
     String workerId = (String) body.get("worker_id");
     String detail = (String) body.get("detail");
+    String phase =
+        parseOptionalBoundedString(body.get("phase"), "phase", MAX_PROGRESS_PHASE_LENGTH);
+    String message =
+        parseOptionalBoundedString(body.get("message"), "message", MAX_PROGRESS_MESSAGE_LENGTH);
+    Double progress = parseOptionalProgress(body.get("progress"));
     String slurmJobId = (String) body.get("slurm_job_id");
     String outputArtifactId = (String) body.get("output_artifact_id");
     String logArtifactId = (String) body.get("log_artifact_id");
@@ -256,7 +278,16 @@ public class JobsApi {
 
     Row result =
         jobService.transitionJob(
-            jobId, targetStatus, workerId, detail, slurmJobId, outputArtifactId, logArtifactId);
+            jobId,
+            targetStatus,
+            workerId,
+            detail,
+            slurmJobId,
+            outputArtifactId,
+            logArtifactId,
+            phase,
+            message,
+            progress);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
@@ -285,7 +316,16 @@ public class JobsApi {
     // authenticated caller (UI user, API client), not just the assigned worker.
     Row result =
         jobService.transitionJob(
-            jobId, HpcJobStatus.CANCELLED, null, "Cancelled via API", null, null, null);
+            jobId,
+            HpcJobStatus.CANCELLED,
+            null,
+            "Cancelled via API",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
@@ -339,6 +379,9 @@ public class JobsApi {
                   m.put("timestamp", t.getString("timestamp"));
                   m.put("worker_id", t.getString("worker_id"));
                   m.put("detail", t.getString("detail"));
+                  m.put("phase", t.getString("phase"));
+                  m.put("message", t.getString("message"));
+                  m.put("progress", t.getDecimal("progress"));
                   return m;
                 })
             .toList();
@@ -433,6 +476,9 @@ public class JobsApi {
     response.put("submitted_at", job.getString("submitted_at"));
     response.put("started_at", job.getString("started_at"));
     response.put("completed_at", job.getString("completed_at"));
+    response.put("phase", job.getString("phase"));
+    response.put("message", job.getString("message"));
+    response.put("progress", job.getDecimal("progress"));
 
     HpcJobStatus status;
     try {
@@ -443,5 +489,33 @@ public class JobsApi {
     response.put("_links", LinkBuilder.forJob(job.getString("id"), status));
 
     return response;
+  }
+
+  private static String parseOptionalBoundedString(Object value, String fieldName, int maxLength) {
+    if (value == null) {
+      return null;
+    }
+    if (!(value instanceof String s)) {
+      throw new IllegalArgumentException(fieldName + " must be a string");
+    }
+    if (s.length() > maxLength) {
+      throw new IllegalArgumentException(
+          fieldName + " must be at most " + maxLength + " characters");
+    }
+    return s;
+  }
+
+  private static Double parseOptionalProgress(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (!(value instanceof Number n)) {
+      throw new IllegalArgumentException("progress must be a number between 0.0 and 1.0");
+    }
+    double parsed = n.doubleValue();
+    if (Double.isNaN(parsed) || Double.isInfinite(parsed) || parsed < 0.0 || parsed > 1.0) {
+      throw new IllegalArgumentException("progress must be between 0.0 and 1.0");
+    }
+    return parsed;
   }
 }

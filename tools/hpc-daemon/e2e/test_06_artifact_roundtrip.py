@@ -126,6 +126,30 @@ def test_artifact_roundtrip_transform(hpc_client):
     job = wait_for_job_status(hpc_client, job_id, "COMPLETED", timeout=180)
     assert job.get("slurm_job_id"), "slurm_job_id should be set"
 
+    # Structured progress should be visible on transitions and job snapshot.
+    transitions = hpc_client._request("GET", f"/api/hpc/jobs/{job_id}/transitions").get(
+        "items", []
+    )
+    progress_transitions = [
+        t
+        for t in transitions
+        if t.get("to_status") == "STARTED"
+        and (
+            t.get("phase") is not None
+            or t.get("message") is not None
+            or t.get("progress") is not None
+        )
+    ]
+    assert progress_transitions, "Expected at least one STARTED progress transition"
+
+    latest = hpc_client.get_job(job_id)
+    assert latest.get("phase"), "Expected job.phase to be populated from progress updates"
+    assert latest.get("message"), "Expected job.message to be populated from progress updates"
+    progress_value = latest.get("progress")
+    assert progress_value is not None, "Expected job.progress to be populated"
+    progress_float = float(progress_value)
+    assert 0.0 <= progress_float <= 1.0
+
     # ---- Step 6: Verify output artifact ----
     output_id = job.get("output_artifact_id")
     assert output_id, "output_artifact_id should be set"

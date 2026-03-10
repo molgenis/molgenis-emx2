@@ -80,12 +80,30 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
 
     Row wrongWorker =
         jobService.transitionJob(
-            jobId, HpcJobStatus.SUBMITTED, "worker-other", "should fail", "slurm-1", null, null);
+            jobId,
+            HpcJobStatus.SUBMITTED,
+            "worker-other",
+            "should fail",
+            "slurm-1",
+            null,
+            null,
+            null,
+            null,
+            null);
     assertNull(wrongWorker, "Non-owner worker must not transition claimed job");
 
     Row invalidState =
         jobService.transitionJob(
-            jobId, HpcJobStatus.COMPLETED, "worker-owner", "cannot skip states", null, null, null);
+            jobId,
+            HpcJobStatus.COMPLETED,
+            "worker-owner",
+            "cannot skip states",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     assertNull(invalidState, "CLAIMED -> COMPLETED must be rejected");
 
     Row stillClaimed = jobService.getJob(jobId);
@@ -108,20 +126,56 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
 
     assertNotNull(
         jobService.transitionJob(
-            jobId, HpcJobStatus.SUBMITTED, "worker-order", "submitted", "slurm-123", null, null));
+            jobId,
+            HpcJobStatus.SUBMITTED,
+            "worker-order",
+            "submitted",
+            "slurm-123",
+            null,
+            null,
+            null,
+            null,
+            null));
     Thread.sleep(5);
     assertNotNull(
         jobService.transitionJob(
-            jobId, HpcJobStatus.STARTED, "worker-order", "started", "slurm-123", null, null));
+            jobId,
+            HpcJobStatus.STARTED,
+            "worker-order",
+            "started",
+            "slurm-123",
+            null,
+            null,
+            null,
+            null,
+            null));
     Thread.sleep(5);
     assertNotNull(
         jobService.transitionJob(
-            jobId, HpcJobStatus.COMPLETED, "worker-order", "done", "slurm-123", null, null));
+            jobId,
+            HpcJobStatus.COMPLETED,
+            "worker-order",
+            "done",
+            "slurm-123",
+            null,
+            null,
+            null,
+            null,
+            null));
 
     int beforeDuplicate = jobService.getTransitions(jobId).size();
     assertNotNull(
         jobService.transitionJob(
-            jobId, HpcJobStatus.COMPLETED, "worker-order", "done", "slurm-123", null, null));
+            jobId,
+            HpcJobStatus.COMPLETED,
+            "worker-order",
+            "done",
+            "slurm-123",
+            null,
+            null,
+            null,
+            null,
+            null));
     int afterDuplicate = jobService.getTransitions(jobId).size();
     assertEquals(
         beforeDuplicate, afterDuplicate, "Duplicate transition retry should be idempotent");
@@ -143,6 +197,83 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
       }
       previous = timestamp;
     }
+  }
+
+  @Test
+  void startedProgressUpdatesPersistSnapshotAndAudit() {
+    String processor = "svc-progress";
+    registerWorkerCapability("worker-progress", processor, "any");
+
+    String jobId = jobService.createJob(processor, "any", null, null, "integration-test", null);
+    assertTrue(jobService.claimJob(jobId, "worker-progress").isSuccess());
+    assertNotNull(
+        jobService.transitionJob(
+            jobId,
+            HpcJobStatus.SUBMITTED,
+            "worker-progress",
+            "submitted",
+            "slurm-progress",
+            null,
+            null,
+            null,
+            null,
+            null));
+    assertNotNull(
+        jobService.transitionJob(
+            jobId,
+            HpcJobStatus.STARTED,
+            "worker-progress",
+            "started",
+            "slurm-progress",
+            null,
+            null,
+            null,
+            null,
+            null));
+
+    int beforeProgress = jobService.getTransitions(jobId).size();
+
+    assertNotNull(
+        jobService.transitionJob(
+            jobId,
+            HpcJobStatus.STARTED,
+            "worker-progress",
+            "progress update",
+            "slurm-progress",
+            null,
+            null,
+            "sorting",
+            "step 3 of 10",
+            0.3));
+
+    Row updated = jobService.getJob(jobId);
+    assertEquals("sorting", updated.getString("phase"));
+    assertEquals("step 3 of 10", updated.getString("message"));
+    assertEquals(0.3, updated.getDecimal("progress"));
+
+    List<Row> transitions = jobService.getTransitions(jobId);
+    assertEquals(
+        beforeProgress + 1, transitions.size(), "Progress update should add one transition");
+    Row progressTransition = transitions.get(transitions.size() - 1);
+    assertEquals(HpcJobStatus.STARTED.name(), progressTransition.getString("to_status"));
+    assertEquals("sorting", progressTransition.getString("phase"));
+    assertEquals("step 3 of 10", progressTransition.getString("message"));
+    assertEquals(0.3, progressTransition.getDecimal("progress"));
+
+    // Idempotent retry should not duplicate this exact progress transition.
+    assertNotNull(
+        jobService.transitionJob(
+            jobId,
+            HpcJobStatus.STARTED,
+            "worker-progress",
+            "progress update",
+            "slurm-progress",
+            null,
+            null,
+            "sorting",
+            "step 3 of 10",
+            0.3));
+    assertEquals(beforeProgress + 1, jobService.getTransitions(jobId).size());
   }
 
   private void registerWorkerCapability(String workerId, String processor, String profile) {

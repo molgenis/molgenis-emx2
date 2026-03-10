@@ -36,25 +36,20 @@ def resolve_profile(
     """
     Resolve a (processor, profile) pair to Slurm parameters.
 
-    Looks up "{processor}:{profile}" in config.profiles, falls back to
-    "{processor}" without profile qualifier.
+    Looks up "{processor}:{profile}" in config.profiles.
 
     Returns None if no matching profile is found.
     """
-    # Try exact match first
-    key = f"{processor}:{profile}" if profile else processor
+    profile_key = profile or "default"
+    key = f"{processor}:{profile_key}"
     entry = config.profiles.get(key)
-
-    # Try processor-only fallback
-    if entry is None and profile:
-        entry = config.profiles.get(processor)
 
     if entry is None:
         return None
 
     return ResolvedProfile(
         processor=processor,
-        profile=profile or "default",
+        profile=profile_key,
         sif_image=entry.sif_image,
         entrypoint=entry.entrypoint,
         partition=entry.partition or config.slurm.default_partition,
@@ -78,9 +73,7 @@ def derive_capabilities(config: DaemonConfig) -> list[dict]:
     """
     capabilities = []
     for key in config.profiles:
-        parts = key.split(":", 1)
-        processor = parts[0]
-        profile = parts[1] if len(parts) > 1 else "default"
+        processor, profile = key.split(":", 1)
         capabilities.append(
             {
                 "processor": processor,
