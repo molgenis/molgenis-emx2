@@ -1,0 +1,456 @@
+test=test_01_worker.py::test_heartbeat
+emx2_base_url=http://localhost:8080
+
+## utc_time
+$ date -u
+rc=0
+Tue Mar 10 17:19:00 UTC 2026
+
+## timedatectl
+$ timedatectl --no-pager
+rc=0
+               Local time: Tue 2026-03-10 17:19:01 UTC
+           Universal time: Tue 2026-03-10 17:19:01 UTC
+                 RTC time: Tue 2026-03-10 17:19:01
+                Time zone: Etc/UTC (UTC, +0000)
+System clock synchronized: yes
+              NTP service: active
+          RTC in local TZ: no
+
+## chrony_tracking
+$ chronyc tracking
+rc=0
+Reference ID    : 503C4327 (80-60-67-39.fixed.kpn.net)
+Stratum         : 2
+Ref time (UTC)  : Tue Mar 10 17:18:55 2026
+System time     : 0.000000029 seconds slow of NTP time
+Last offset     : +0.001021630 seconds
+RMS offset      : 0.001021630 seconds
+Frequency       : 18.050 ppm slow
+Residual freq   : -34.637 ppm
+Skew            : 0.186 ppm
+Root delay      : 0.011308874 seconds
+Root dispersion : 0.000678996 seconds
+Update interval : 1.4 seconds
+Leap status     : Normal
+
+## chrony_sources
+$ chronyc sources -v
+rc=0
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prod-ntp-4.ntp1.ps5.cano>     2   6    17     8    -61us[ +961us] +/-   11ms
+^- prod-ntp-5.ntp4.ps5.cano>     2   6    17     8  -2883us[-1861us] +/-   17ms
+^+ prod-ntp-5.ntp1.ps5.cano>     2   6    17     8  -2118us[-1097us] +/-   16ms
+^+ prod-ntp-4.ntp4.ps5.cano>     2   6    17     7  -1064us[  -42us] +/-   11ms
+^+ time.as215296.net             2   6    17     7    -96us[ +926us] +/-   12ms
+^? ntp.as215248.net              1   7     4     7   -693us[ -693us] +/-   12ms
+^- 164.92.156.55                 3   6    35     4   -725us[ -725us] +/- 9353us
+^* 80-60-67-39.fixed.kpn.net     1   6    17     7  +1419us[+2441us] +/- 5677us
+
+## sinfo
+$ sinfo
+rc=0
+PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+normal*      up      10:00      1   idle localhost
+
+## squeue
+$ squeue -o '%.18i %.9P %.30j %.8u %.2t %.10M %.6D %R'
+rc=0
+             JOBID PARTITION                           NAME     USER ST       TIME  NODES NODELIST(REASON)
+
+## sacct_recent
+$ sacct -S now-2hours --format=JobID,State,ExitCode,Elapsed,NodeList
+rc=0
+JobID             State ExitCode    Elapsed        NodeList 
+------------ ---------- -------- ---------- ---------------
+
+## daemon_log_tail
+$ tail -120 /var/log/hpc-daemon.log
+rc=0
+2026-03-10 17:18:42,337 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:42,337 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:42,337 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:42,337 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:42,337 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=posix
+2026-03-10 17:18:42,396 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:42,396 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:42,396 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:42,396 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:42,396 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=slow
+2026-03-10 17:18:42,453 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:42,453 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:42,453 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:42,453 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:42,453 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=transform
+2026-03-10 17:18:42,511 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:42,511 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:42,511 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:42,511 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:42,511 INFO     emx2_hpc_daemon.daemon — Single cycle complete, 0 active jobs
+2026-03-10 17:18:57,172 DEBUG    emx2_hpc_daemon.tracker — State DB opened at /home/vagrant/.local/share/hpc-daemon/state.db
+2026-03-10 17:18:57,172 INFO     emx2_hpc_daemon.daemon — Running single cycle worker_id=e2e-test-worker on slurm-e2e
+2026-03-10 17:18:57,172 DEBUG    emx2_hpc_daemon.client — >>> POST http://10.0.2.2:8080/api/hpc/workers/register
+2026-03-10 17:18:57,173 DEBUG    emx2_hpc_daemon.client — >>> body: {"worker_id": "e2e-test-worker", "hostname": "slurm-e2e", "capabilities": [{"processor": "e2e-test", "profile": "bash", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "fail", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "posix", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "slow", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "transform", "max_concurrent_jobs": 4}]}
+2026-03-10 17:18:57,199 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (372 bytes)
+2026-03-10 17:18:57,200 DEBUG    emx2_hpc_daemon.client — <<< _links: jobs=GET /api/hpc/jobs?status=PENDING | self=GET /api/hpc/workers/e2e-test-worker | heartbeat=POST /api/hpc/workers/e2e-test-worker/heartbeat
+2026-03-10 17:18:57,200 DEBUG    emx2_hpc_daemon.client — <<< {'worker_id': 'e2e-test-worker'}
+2026-03-10 17:18:57,200 INFO     emx2_hpc_daemon.daemon — Registered worker e2e-test-worker with 5 capabilities
+2026-03-10 17:18:57,200 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=CLAIMED
+2026-03-10 17:18:57,259 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,259 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,260 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,260 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,260 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=SUBMITTED
+2026-03-10 17:18:57,319 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,319 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,319 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,319 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,320 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=STARTED
+2026-03-10 17:18:57,379 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,379 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,379 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,379 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,379 DEBUG    emx2_hpc_daemon.daemon — Polling for jobs across 5 capabilities: ['e2e-test:bash', 'e2e-test:fail', 'e2e-test:posix', 'e2e-test:slow', 'e2e-test:transform']
+2026-03-10 17:18:57,380 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=bash
+2026-03-10 17:18:57,440 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,440 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,440 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,440 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,440 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=fail
+2026-03-10 17:18:57,499 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,499 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,499 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,500 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,500 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=posix
+2026-03-10 17:18:57,562 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,562 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,562 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,562 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,562 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=slow
+2026-03-10 17:18:57,621 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,621 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,621 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,621 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,621 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=transform
+2026-03-10 17:18:57,680 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:18:57,680 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:18:57,681 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:18:57,681 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:18:57,681 INFO     emx2_hpc_daemon.daemon — Single cycle complete, 0 active jobs
+2026-03-10 17:19:01,734 DEBUG    emx2_hpc_daemon.tracker — State DB opened at /home/vagrant/.local/share/hpc-daemon/state.db
+2026-03-10 17:19:01,734 INFO     emx2_hpc_daemon.daemon — Running single cycle worker_id=e2e-test-worker on slurm-e2e
+2026-03-10 17:19:01,734 DEBUG    emx2_hpc_daemon.client — >>> POST http://10.0.2.2:8080/api/hpc/workers/register
+2026-03-10 17:19:01,734 DEBUG    emx2_hpc_daemon.client — >>> body: {"worker_id": "e2e-test-worker", "hostname": "slurm-e2e", "capabilities": [{"processor": "e2e-test", "profile": "bash", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "fail", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "posix", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "slow", "max_concurrent_jobs": 4}, {"processor": "e2e-test", "profile": "transform", "max_concurrent_jobs": 4}]}
+2026-03-10 17:19:01,766 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (372 bytes)
+2026-03-10 17:19:01,766 DEBUG    emx2_hpc_daemon.client — <<< _links: jobs=GET /api/hpc/jobs?status=PENDING | self=GET /api/hpc/workers/e2e-test-worker | heartbeat=POST /api/hpc/workers/e2e-test-worker/heartbeat
+2026-03-10 17:19:01,766 DEBUG    emx2_hpc_daemon.client — <<< {'worker_id': 'e2e-test-worker'}
+2026-03-10 17:19:01,766 INFO     emx2_hpc_daemon.daemon — Registered worker e2e-test-worker with 5 capabilities
+2026-03-10 17:19:01,766 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=CLAIMED
+2026-03-10 17:19:01,826 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:01,826 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:01,826 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:01,826 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:01,826 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=SUBMITTED
+2026-03-10 17:19:01,885 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:01,885 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:01,885 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:01,885 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:01,885 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=STARTED
+2026-03-10 17:19:01,945 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:01,946 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:01,946 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:01,946 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:01,946 DEBUG    emx2_hpc_daemon.daemon — Polling for jobs across 5 capabilities: ['e2e-test:bash', 'e2e-test:fail', 'e2e-test:posix', 'e2e-test:slow', 'e2e-test:transform']
+2026-03-10 17:19:01,946 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=bash
+2026-03-10 17:19:02,001 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:02,001 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:02,001 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:02,001 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:02,001 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=fail
+2026-03-10 17:19:02,054 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:02,054 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:02,054 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:02,054 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:02,054 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=posix
+2026-03-10 17:19:02,107 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:02,107 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:02,107 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:02,107 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:02,107 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=slow
+2026-03-10 17:19:02,159 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:02,159 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:02,159 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:02,159 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:02,159 DEBUG    emx2_hpc_daemon.client — >>> GET http://10.0.2.2:8080/api/hpc/jobs?status=PENDING&processor=e2e-test&profile=transform
+2026-03-10 17:19:02,220 DEBUG    emx2_hpc_daemon.client — <<< 200 OK (119 bytes)
+2026-03-10 17:19:02,220 DEBUG    emx2_hpc_daemon.client — <<< _links: self=GET /api/hpc/jobs
+2026-03-10 17:19:02,220 DEBUG    emx2_hpc_daemon.client — <<< {'total_count': 0}
+2026-03-10 17:19:02,220 DEBUG    emx2_hpc_daemon.client — <<< 0 items returned
+2026-03-10 17:19:02,220 INFO     emx2_hpc_daemon.daemon — Single cycle complete, 0 active jobs
+
+## slurmctld_log_tail
+$ sudo tail -120 /var/log/slurm/slurmctld.log
+rc=0
+[2026-03-10T12:29:34.038] _job_complete: JobId=86 done
+[2026-03-10T12:32:15.470] _slurm_rpc_submit_batch_job: JobId=87 InitPrio=1 usec=335
+[2026-03-10T12:32:16.000] sched: Allocate JobId=87 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:32:16.039] _job_complete: JobId=87 WEXITSTATUS 0
+[2026-03-10T12:32:16.039] _job_complete: JobId=87 done
+[2026-03-10T12:32:35.102] _slurm_rpc_submit_batch_job: JobId=88 InitPrio=1 usec=273
+[2026-03-10T12:32:36.000] sched: Allocate JobId=88 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:32:36.030] _job_complete: JobId=88 WEXITSTATUS 1
+[2026-03-10T12:32:36.030] _job_complete: JobId=88 done
+[2026-03-10T12:35:20.251] _slurm_rpc_submit_batch_job: JobId=89 InitPrio=1 usec=315
+[2026-03-10T12:35:21.000] sched: Allocate JobId=89 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:35:21.037] _job_complete: JobId=89 WEXITSTATUS 0
+[2026-03-10T12:35:21.037] _job_complete: JobId=89 done
+[2026-03-10T12:35:33.787] _slurm_rpc_submit_batch_job: JobId=90 InitPrio=1 usec=331
+[2026-03-10T12:35:34.000] sched: Allocate JobId=90 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:35:34.029] _job_complete: JobId=90 WEXITSTATUS 1
+[2026-03-10T12:35:34.029] _job_complete: JobId=90 done
+[2026-03-10T12:35:43.374] _slurm_rpc_submit_batch_job: JobId=91 InitPrio=1 usec=320
+[2026-03-10T12:35:44.000] sched: Allocate JobId=91 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:36:45.810] update_node: node localhost reason set to: e2e-submitted-cancel
+[2026-03-10T12:36:45.810] update_node: node localhost state set to DRAINING
+[2026-03-10T12:36:47.496] _slurm_rpc_submit_batch_job: JobId=92 InitPrio=1 usec=374
+[2026-03-10T12:36:49.091] _slurm_rpc_kill_job: REQUEST_KILL_JOB JobId=92 uid 1000
+[2026-03-10T12:36:50.444] update_node: node localhost state set to ALLOCATED
+[2026-03-10T12:36:51.003] Node localhost now responding
+[2026-03-10T12:37:01.351] _slurm_rpc_submit_batch_job: JobId=93 InitPrio=1 usec=349
+[2026-03-10T12:37:02.000] sched: Allocate JobId=93 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:37:05.990] _slurm_rpc_kill_job: REQUEST_KILL_JOB JobId=93 uid 1000
+[2026-03-10T12:37:14.033] _job_complete: JobId=91 WEXITSTATUS 0
+[2026-03-10T12:37:14.033] _job_complete: JobId=91 done
+[2026-03-10T12:37:16.129] _slurm_rpc_submit_batch_job: JobId=94 InitPrio=1 usec=264
+[2026-03-10T12:37:18.000] sched: Allocate JobId=94 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:37:18.032] _job_complete: JobId=94 WEXITSTATUS 0
+[2026-03-10T12:37:18.032] _job_complete: JobId=94 done
+[2026-03-10T12:37:35.826] _slurm_rpc_submit_batch_job: JobId=95 InitPrio=1 usec=343
+[2026-03-10T12:37:36.000] sched: Allocate JobId=95 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:37:36.044] _job_complete: JobId=95 WEXITSTATUS 0
+[2026-03-10T12:37:36.044] _job_complete: JobId=95 done
+[2026-03-10T12:38:17.174] _slurm_rpc_submit_batch_job: JobId=96 InitPrio=1 usec=268
+[2026-03-10T12:38:18.000] sched: Allocate JobId=96 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:38:18.031] _job_complete: JobId=96 WEXITSTATUS 0
+[2026-03-10T12:38:18.031] _job_complete: JobId=96 done
+[2026-03-10T12:38:33.321] _slurm_rpc_submit_batch_job: JobId=97 InitPrio=1 usec=324
+[2026-03-10T12:38:34.000] sched: Allocate JobId=97 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:38:34.038] _job_complete: JobId=97 WEXITSTATUS 0
+[2026-03-10T12:38:34.038] _job_complete: JobId=97 done
+[2026-03-10T12:44:03.710] _slurm_rpc_submit_batch_job: JobId=98 InitPrio=1 usec=382
+[2026-03-10T12:44:04.000] sched: Allocate JobId=98 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:44:04.043] _job_complete: JobId=98 WEXITSTATUS 0
+[2026-03-10T12:44:04.045] _job_complete: JobId=98 done
+[2026-03-10T12:44:20.012] _slurm_rpc_submit_batch_job: JobId=99 InitPrio=1 usec=378
+[2026-03-10T12:44:21.000] sched: Allocate JobId=99 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:44:21.034] _job_complete: JobId=99 WEXITSTATUS 1
+[2026-03-10T12:44:21.034] _job_complete: JobId=99 done
+[2026-03-10T12:44:24.970] _slurm_rpc_submit_batch_job: JobId=100 InitPrio=1 usec=301
+[2026-03-10T12:44:27.000] sched: Allocate JobId=100 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:45:05.065] update_node: node localhost reason set to: e2e-submitted-cancel
+[2026-03-10T12:45:05.065] update_node: node localhost state set to DRAINING
+[2026-03-10T12:45:06.686] _slurm_rpc_submit_batch_job: JobId=101 InitPrio=1 usec=269
+[2026-03-10T12:45:08.266] _slurm_rpc_kill_job: REQUEST_KILL_JOB JobId=101 uid 1000
+[2026-03-10T12:45:09.640] update_node: node localhost state set to ALLOCATED
+[2026-03-10T12:45:10.002] Node localhost now responding
+[2026-03-10T12:45:11.271] _slurm_rpc_submit_batch_job: JobId=102 InitPrio=1 usec=281
+[2026-03-10T12:45:12.000] sched: Allocate JobId=102 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:45:26.744] _slurm_rpc_kill_job: REQUEST_KILL_JOB JobId=102 uid 1000
+[2026-03-10T12:45:28.671] _slurm_rpc_submit_batch_job: JobId=103 InitPrio=1 usec=313
+[2026-03-10T12:45:29.000] sched: Allocate JobId=103 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:45:29.038] _job_complete: JobId=103 WEXITSTATUS 0
+[2026-03-10T12:45:29.038] _job_complete: JobId=103 done
+[2026-03-10T12:45:45.260] _slurm_rpc_submit_batch_job: JobId=104 InitPrio=1 usec=294
+[2026-03-10T12:45:46.000] sched: Allocate JobId=104 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:45:46.047] _job_complete: JobId=104 WEXITSTATUS 0
+[2026-03-10T12:45:46.047] _job_complete: JobId=104 done
+[2026-03-10T12:45:57.037] _job_complete: JobId=100 WEXITSTATUS 0
+[2026-03-10T12:45:57.037] _job_complete: JobId=100 done
+[2026-03-10T12:46:04.836] _slurm_rpc_submit_batch_job: JobId=105 InitPrio=1 usec=303
+[2026-03-10T12:46:05.000] sched: Allocate JobId=105 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:46:05.036] _job_complete: JobId=105 WEXITSTATUS 0
+[2026-03-10T12:46:05.036] _job_complete: JobId=105 done
+[2026-03-10T12:46:07.080] _slurm_rpc_submit_batch_job: JobId=106 InitPrio=1 usec=297
+[2026-03-10T12:46:10.000] sched: Allocate JobId=106 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T12:46:10.036] _job_complete: JobId=106 WEXITSTATUS 0
+[2026-03-10T12:46:10.036] _job_complete: JobId=106 done
+[2026-03-10T14:22:07.368] _slurm_rpc_submit_batch_job: JobId=107 InitPrio=1 usec=513
+[2026-03-10T14:22:08.000] sched: Allocate JobId=107 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:22:08.038] _job_complete: JobId=107 WEXITSTATUS 0
+[2026-03-10T14:22:08.039] _job_complete: JobId=107 done
+[2026-03-10T14:22:23.677] _slurm_rpc_submit_batch_job: JobId=108 InitPrio=1 usec=360
+[2026-03-10T14:22:24.000] sched: Allocate JobId=108 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:22:24.033] _job_complete: JobId=108 WEXITSTATUS 1
+[2026-03-10T14:22:24.033] _job_complete: JobId=108 done
+[2026-03-10T14:22:40.052] _slurm_rpc_submit_batch_job: JobId=109 InitPrio=1 usec=316
+[2026-03-10T14:22:41.000] sched: Allocate JobId=109 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:23:06.034] update_node: node localhost reason set to: e2e-submitted-cancel
+[2026-03-10T14:23:06.034] update_node: node localhost state set to DRAINING
+[2026-03-10T14:23:07.658] _slurm_rpc_submit_batch_job: JobId=110 InitPrio=1 usec=300
+[2026-03-10T14:23:09.264] _slurm_rpc_kill_job: REQUEST_KILL_JOB JobId=110 uid 1000
+[2026-03-10T14:23:10.631] update_node: node localhost state set to ALLOCATED
+[2026-03-10T14:23:11.004] Node localhost now responding
+[2026-03-10T14:23:12.255] _slurm_rpc_submit_batch_job: JobId=111 InitPrio=1 usec=314
+[2026-03-10T14:23:13.001] sched: Allocate JobId=111 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:23:27.720] _slurm_rpc_kill_job: REQUEST_KILL_JOB JobId=111 uid 1000
+[2026-03-10T14:23:29.640] _slurm_rpc_submit_batch_job: JobId=112 InitPrio=1 usec=269
+[2026-03-10T14:23:30.001] sched: Allocate JobId=112 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:23:30.042] _job_complete: JobId=112 WEXITSTATUS 0
+[2026-03-10T14:23:30.042] _job_complete: JobId=112 done
+[2026-03-10T14:23:45.890] _slurm_rpc_submit_batch_job: JobId=113 InitPrio=1 usec=295
+[2026-03-10T14:23:46.000] sched: Allocate JobId=113 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:23:46.037] _job_complete: JobId=113 WEXITSTATUS 0
+[2026-03-10T14:23:46.037] _job_complete: JobId=113 done
+[2026-03-10T14:24:05.280] _slurm_rpc_submit_batch_job: JobId=114 InitPrio=1 usec=325
+[2026-03-10T14:24:06.000] sched: Allocate JobId=114 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:24:06.038] _job_complete: JobId=114 WEXITSTATUS 0
+[2026-03-10T14:24:06.038] _job_complete: JobId=114 done
+[2026-03-10T14:24:11.030] _job_complete: JobId=109 WEXITSTATUS 0
+[2026-03-10T14:24:11.030] _job_complete: JobId=109 done
+[2026-03-10T14:24:21.474] _slurm_rpc_submit_batch_job: JobId=115 InitPrio=1 usec=322
+[2026-03-10T14:24:22.000] sched: Allocate JobId=115 NodeList=localhost #CPUs=1 Partition=normal
+[2026-03-10T14:24:22.041] _job_complete: JobId=115 WEXITSTATUS 0
+[2026-03-10T14:24:22.041] _job_complete: JobId=115 done
+
+## slurmd_log_tail
+$ sudo tail -120 /var/log/slurm/slurmd.log
+rc=0
+[2026-03-09T12:18:21.751] [54.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-09T12:18:22.001] Launching batch job 55 for UID 1000
+[2026-03-09T12:18:22.037] [55.batch] done with step
+[2026-03-09T12:18:43.002] Launching batch job 56 for UID 1000
+[2026-03-09T12:18:43.053] [56.batch] done with step
+[2026-03-09T12:20:23.001] Launching batch job 57 for UID 1000
+[2026-03-09T12:20:23.029] [57.batch] done with step
+[2026-03-09T12:21:02.002] Launching batch job 58 for UID 1000
+[2026-03-09T12:21:02.030] [58.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-09T12:21:42.001] Launching batch job 59 for UID 1000
+[2026-03-09T12:22:22.239] [59.batch] error: *** JOB 59 ON localhost CANCELLED AT 2026-03-09T12:22:22 ***
+[2026-03-09T12:22:22.244] [59.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-09T12:22:23.001] Launching batch job 60 for UID 1000
+[2026-03-09T12:22:23.038] [60.batch] done with step
+[2026-03-09T12:23:03.001] Launching batch job 61 for UID 1000
+[2026-03-09T12:23:03.038] [61.batch] done with step
+[2026-03-10T09:50:03.002] Launching batch job 62 for UID 1000
+[2026-03-10T09:50:03.035] [62.batch] done with step
+[2026-03-10T09:50:43.001] Launching batch job 63 for UID 1000
+[2026-03-10T09:50:43.031] [63.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T09:51:23.001] Launching batch job 64 for UID 1000
+[2026-03-10T09:52:01.843] [64.batch] error: *** JOB 64 ON localhost CANCELLED AT 2026-03-10T09:52:01 ***
+[2026-03-10T09:52:01.848] [64.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-10T09:52:03.002] Launching batch job 65 for UID 1000
+[2026-03-10T09:52:03.038] [65.batch] done with step
+[2026-03-10T09:52:43.001] Launching batch job 66 for UID 1000
+[2026-03-10T09:52:43.044] [66.batch] done with step
+[2026-03-10T11:33:23.003] Launching batch job 67 for UID 1000
+[2026-03-10T11:33:23.038] [67.batch] done with step
+[2026-03-10T11:34:02.001] Launching batch job 68 for UID 1000
+[2026-03-10T11:34:02.029] [68.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T12:08:24.003] Launching batch job 69 for UID 1000
+[2026-03-10T12:09:54.040] [69.batch] done with step
+[2026-03-10T12:20:18.002] Launching batch job 70 for UID 1000
+[2026-03-10T12:20:18.049] [70.batch] done with step
+[2026-03-10T12:20:29.002] Launching batch job 71 for UID 1000
+[2026-03-10T12:20:29.033] [71.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T12:20:53.001] Launching batch job 72 for UID 1000
+[2026-03-10T12:21:55.001] Launching batch job 74 for UID 1000
+[2026-03-10T12:22:05.332] [74.batch] error: *** JOB 74 ON localhost CANCELLED AT 2026-03-10T12:22:05 ***
+[2026-03-10T12:22:05.337] [74.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-10T12:22:16.001] Launching batch job 75 for UID 1000
+[2026-03-10T12:22:16.038] [75.batch] done with step
+[2026-03-10T12:22:23.030] [72.batch] done with step
+[2026-03-10T12:22:36.002] Launching batch job 76 for UID 1000
+[2026-03-10T12:22:36.050] [76.batch] done with step
+[2026-03-10T12:23:02.001] Launching batch job 77 for UID 1000
+[2026-03-10T12:23:02.031] [77.batch] done with step
+[2026-03-10T12:26:09.001] Launching batch job 78 for UID 1000
+[2026-03-10T12:26:09.038] [78.batch] done with step
+[2026-03-10T12:26:33.002] Launching batch job 79 for UID 1000
+[2026-03-10T12:26:33.033] [79.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T12:26:45.001] Launching batch job 80 for UID 1000
+[2026-03-10T12:27:56.001] Launching batch job 82 for UID 1000
+[2026-03-10T12:28:06.192] [82.batch] error: *** JOB 82 ON localhost CANCELLED AT 2026-03-10T12:28:06 ***
+[2026-03-10T12:28:06.198] [82.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-10T12:28:15.036] [80.batch] done with step
+[2026-03-10T12:28:18.002] Launching batch job 83 for UID 1000
+[2026-03-10T12:28:18.042] [83.batch] done with step
+[2026-03-10T12:28:34.001] Launching batch job 84 for UID 1000
+[2026-03-10T12:28:34.045] [84.batch] done with step
+[2026-03-10T12:29:15.001] Launching batch job 85 for UID 1000
+[2026-03-10T12:29:15.036] [85.batch] done with step
+[2026-03-10T12:29:34.001] Launching batch job 86 for UID 1000
+[2026-03-10T12:29:34.038] [86.batch] done with step
+[2026-03-10T12:32:16.002] Launching batch job 87 for UID 1000
+[2026-03-10T12:32:16.040] [87.batch] done with step
+[2026-03-10T12:32:36.002] Launching batch job 88 for UID 1000
+[2026-03-10T12:32:36.030] [88.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T12:35:21.001] Launching batch job 89 for UID 1000
+[2026-03-10T12:35:21.038] [89.batch] done with step
+[2026-03-10T12:35:34.002] Launching batch job 90 for UID 1000
+[2026-03-10T12:35:34.030] [90.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T12:35:44.002] Launching batch job 91 for UID 1000
+[2026-03-10T12:37:02.001] Launching batch job 93 for UID 1000
+[2026-03-10T12:37:05.994] [93.batch] error: *** JOB 93 ON localhost CANCELLED AT 2026-03-10T12:37:05 ***
+[2026-03-10T12:37:05.998] [93.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-10T12:37:14.033] [91.batch] done with step
+[2026-03-10T12:37:18.001] Launching batch job 94 for UID 1000
+[2026-03-10T12:37:18.033] [94.batch] done with step
+[2026-03-10T12:37:36.001] Launching batch job 95 for UID 1000
+[2026-03-10T12:37:36.045] [95.batch] done with step
+[2026-03-10T12:38:18.001] Launching batch job 96 for UID 1000
+[2026-03-10T12:38:18.031] [96.batch] done with step
+[2026-03-10T12:38:34.002] Launching batch job 97 for UID 1000
+[2026-03-10T12:38:34.039] [97.batch] done with step
+[2026-03-10T12:44:04.002] Launching batch job 98 for UID 1000
+[2026-03-10T12:44:04.049] [98.batch] done with step
+[2026-03-10T12:44:21.001] Launching batch job 99 for UID 1000
+[2026-03-10T12:44:21.035] [99.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T12:44:27.002] Launching batch job 100 for UID 1000
+[2026-03-10T12:45:12.002] Launching batch job 102 for UID 1000
+[2026-03-10T12:45:26.748] [102.batch] error: *** JOB 102 ON localhost CANCELLED AT 2026-03-10T12:45:26 ***
+[2026-03-10T12:45:26.754] [102.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-10T12:45:29.002] Launching batch job 103 for UID 1000
+[2026-03-10T12:45:29.039] [103.batch] done with step
+[2026-03-10T12:45:46.002] Launching batch job 104 for UID 1000
+[2026-03-10T12:45:46.047] [104.batch] done with step
+[2026-03-10T12:45:57.038] [100.batch] done with step
+[2026-03-10T12:46:05.001] Launching batch job 105 for UID 1000
+[2026-03-10T12:46:05.036] [105.batch] done with step
+[2026-03-10T12:46:10.002] Launching batch job 106 for UID 1000
+[2026-03-10T12:46:10.036] [106.batch] done with step
+[2026-03-10T14:22:08.002] Launching batch job 107 for UID 1000
+[2026-03-10T14:22:08.039] [107.batch] done with step
+[2026-03-10T14:22:24.001] Launching batch job 108 for UID 1000
+[2026-03-10T14:22:24.033] [108.batch] stepd_cleanup: done with step (rc[0x100]:Unknown error 256, cleanup_rc[0x0]:No error)
+[2026-03-10T14:22:41.002] Launching batch job 109 for UID 1000
+[2026-03-10T14:23:13.003] Launching batch job 111 for UID 1000
+[2026-03-10T14:23:27.725] [111.batch] error: *** JOB 111 ON localhost CANCELLED AT 2026-03-10T14:23:27 ***
+[2026-03-10T14:23:27.730] [111.batch] stepd_cleanup: done with step (rc[0xf]:Block device required, cleanup_rc[0x0]:No error)
+[2026-03-10T14:23:30.003] Launching batch job 112 for UID 1000
+[2026-03-10T14:23:30.042] [112.batch] done with step
+[2026-03-10T14:23:46.002] Launching batch job 113 for UID 1000
+[2026-03-10T14:23:46.038] [113.batch] done with step
+[2026-03-10T14:24:06.001] Launching batch job 114 for UID 1000
+[2026-03-10T14:24:06.038] [114.batch] done with step
+[2026-03-10T14:24:11.031] [109.batch] done with step
+[2026-03-10T14:24:22.001] Launching batch job 115 for UID 1000
+[2026-03-10T14:24:22.043] [115.batch] done with step
+
+## slurmdbd_log_tail
+$ sudo tail -120 /var/log/slurm/slurmdbd.log
+rc=0
+[2026-02-25T10:28:49.988] error: Unable to open pidfile `/run/slurmdbd.pid': Permission denied
+[2026-02-25T10:28:49.988] Not running as root. Can't drop supplementary groups
+[2026-02-25T10:28:49.991] accounting_storage/as_mysql: _check_mysql_concat_is_sane: MySQL server version is: 5.5.5-10.11.14-MariaDB-0ubuntu0.24.04.1
+[2026-02-25T10:28:49.992] error: Database settings not recommended values: innodb_buffer_pool_size innodb_lock_wait_timeout
+[2026-02-25T10:28:50.431] slurmdbd version 23.11.4 started

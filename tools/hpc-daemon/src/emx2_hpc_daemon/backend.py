@@ -8,26 +8,14 @@ from __future__ import annotations
 
 import json
 import logging
-import os
-import signal
 import shutil
-import subprocess
-import tempfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 
 from .client import HpcClient, format_links
-from .config import DaemonConfig
 from .hashing import compute_tree_hash_from_paths
-from .profiles import resolve_profile
-from .slurm import (
-    SlurmJobInfo,
-    cancel_job,
-    generate_batch_script,
-    query_status,
-    submit_job,
-)
+from .slurm import SlurmJobInfo
 
 logger = logging.getLogger(__name__)
 
@@ -142,121 +130,6 @@ class ExecutionBackend(ABC):
     @abstractmethod
     def cancel(self, slurm_job_id: str) -> None:
         """Cancel a running job."""
-
-
-class SlurmBackend(ExecutionBackend):
-    """Real Slurm execution via sbatch/squeue/scancel."""
-
-    def __init__(self, config: DaemonConfig):
-        self._config = config
-
-    def submit(self, job: dict, client: HpcClient) -> SubmitResult:
-        job_id = job["id"]
-        processor = job.get("processor", "")
-        profile = job.get("profile", "")
-
-        resolved = resolve_profile(self._config, processor, profile)
-        if resolved is None:
-            raise ValueError(f"No profile for {processor}:{profile}")
-
-        logger.debug(
-            "Resolved profile for %s:%s → partition=%s, cpus=%d, mem=%s, "
-            "time=%s, sif=%s, entrypoint=%s, output_residence=%s, log_residence=%s",
-            processor,
-            profile,
-            resolved.partition,
-            resolved.cpus,
-            resolved.memory,
-            resolved.time,
-            resolved.sif_image,
-            resolved.entrypoint,
-            resolved.output_residence,
-            resolved.log_residence,
-        )
-
-        # Create working directories
-        base_dir = Path(self._config.apptainer.tmp_dir) / job_id
-        work_dir = base_dir / "work"
-        input_dir = base_dir / "input"
-        output_dir = base_dir / "output"
-        for d in (work_dir, input_dir, output_dir):
-            d.mkdir(parents=True, exist_ok=True)
-
-        # Stage input artifacts
-        _stage_input_artifacts(job, str(input_dir), client)
-
-        # Determine container command from job parameters
-        container_command = None
-        environment = None
-        parameters = job.get("parameters")
-        if parameters:
-            if isinstance(parameters, str):
-                try:
-                    parameters = json.loads(parameters)
-                except (json.JSONDecodeError, TypeError):
-                    parameters = {}
-            if isinstance(parameters, dict):
-                container_command = parameters.get("command")
-                environment = parameters.get("environment")
-
-        logger.debug(
-            "Job %s parameters: %s (command=%s, env=%s)",
-            job_id,
-            job.get("parameters"),
-            container_command,
-            environment,
-        )
-
-        # Generate batch script
-        script_content = generate_batch_script(
-            job_id=job_id,
-            sif_image=resolved.sif_image,
-            partition=resolved.partition,
-            cpus=resolved.cpus,
-            memory=resolved.memory,
-            time_limit=resolved.time,
-            work_dir=str(work_dir),
-            input_dir=str(input_dir),
-            output_dir=str(output_dir),
-            sbatch_args=resolved.sbatch_args,
-            bind_paths=self._config.apptainer.bind_paths
-            if not resolved.entrypoint
-            else None,
-            account=self._config.slurm.default_account or None,
-            container_command=container_command,
-            environment=environment,
-            entrypoint=resolved.entrypoint or None,
-            parameters=parameters if isinstance(parameters, dict) else None,
-        )
-
-        script_path = base_dir / "job.sbatch"
-        script_path.write_text(script_content)
-
-        # Submit to Slurm
-        slurm_id = submit_job(script_path)
-        logger.info("Submitted job %s as Slurm job %s", job_id, slurm_id)
-
-        return SubmitResult(
-            slurm_job_id=slurm_id,
-            work_dir=str(work_dir),
-            input_dir=str(input_dir),
-            output_dir=str(output_dir),
-        )
-
-    def query_status(
-        self, slurm_job_id: str, current_status: str
-    ) -> StatusResult | None:
-        info = query_status(slurm_job_id)
-        hpc_status = SLURM_TO_HPC_STATUS.get(info.state)
-        if hpc_status is None or hpc_status == current_status:
-            return None
-        return StatusResult(hpc_status=hpc_status, slurm_info=info)
-
-    def query_slurm_info(self, slurm_job_id: str) -> SlurmJobInfo | None:
-        return query_status(slurm_job_id)
-
-    def cancel(self, slurm_job_id: str) -> None:
-        cancel_job(slurm_job_id)
 
 
 def _stage_input_artifacts(job: dict, input_dir: str, client: HpcClient) -> None:
@@ -410,207 +283,21 @@ def _normalize_input_artifact_ids(inputs: object) -> list[str]:
     return ids
 
 
-class SimulatedBackend(ExecutionBackend):
-    """Simulated execution for testing without a real Slurm cluster."""
+# Re-export backend implementations so existing imports still work:
+#   from emx2_hpc_daemon.backend import SlurmBackend, ShellBackend, SimulatedBackend
+from .backend_slurm import SlurmBackend as SlurmBackend  # noqa: E402, F401
+from .backend_shell import ShellBackend as ShellBackend  # noqa: E402, F401
+from .backend_simulated import SimulatedBackend as SimulatedBackend  # noqa: E402, F401
 
-    def submit(self, job: dict, client: HpcClient) -> SubmitResult:
-        import tempfile
-        from datetime import datetime, timezone
-        from pathlib import Path
-
-        slurm_job_id = f"sim-{job['id'][:8]}"
-
-        # Create a temporary output directory with simulated files
-        work_dir = Path(tempfile.mkdtemp(prefix=f"hpc-sim-{slurm_job_id}-"))
-        output_dir = work_dir / "output"
-        output_dir.mkdir()
-
-        now = datetime.now(tz=timezone.utc).isoformat()
-        processor = job.get("processor", "unknown")
-        job_id = job.get("id", "unknown")
-
-        # Simulated log files
-        (output_dir / f"slurm-{slurm_job_id}.out").write_text(
-            f"[{now}] Simulated Slurm stdout for job {job_id}\n"
-            f"[{now}] Processor: {processor}\n"
-            f"[{now}] Job completed successfully.\n"
-        )
-        (output_dir / "container-stdout.log").write_text(
-            f"[{now}] Simulated container stdout for {processor}\n"
-        )
-        (output_dir / "container-stderr.log").write_text(
-            f"[{now}] Simulated container stderr (no errors)\n"
-        )
-
-        # Simulated output file
-        (output_dir / "result.txt").write_text(
-            f"Simulated output for job {job_id}\n"
-            f"Processor: {processor}\n"
-            f"Completed: {now}\n"
-        )
-
-        return SubmitResult(
-            slurm_job_id=slurm_job_id,
-            work_dir=str(work_dir),
-            output_dir=str(output_dir),
-        )
-
-    def query_status(
-        self, slurm_job_id: str, current_status: str
-    ) -> StatusResult | None:
-        hpc_status = {"SUBMITTED": "STARTED", "STARTED": "COMPLETED"}.get(
-            current_status
-        )
-        if hpc_status is None:
-            return None
-        simulated_state = {"STARTED": "RUNNING", "COMPLETED": "COMPLETED"}.get(
-            hpc_status, hpc_status
-        )
-        return StatusResult(
-            hpc_status=hpc_status,
-            slurm_info=SlurmJobInfo(
-                state=simulated_state,
-                exit_code="0:0" if hpc_status == "COMPLETED" else "",
-                reason="None",
-                node_list="simulated",
-                elapsed="00:00:01",
-            ),
-        )
-
-    def cancel(self, slurm_job_id: str) -> None:
-        pass
-
-
-class ShellBackend(ExecutionBackend):
-    """Local shell execution via subprocess — no Slurm required.
-
-    Runs entrypoint scripts directly on the host with the same environment
-    variable contract as SlurmBackend (HPC_JOB_ID, HPC_INPUT_DIR, etc.).
-    Processes are tracked by a synthetic job ID and polled for completion.
-    """
-
-    def __init__(self, config: DaemonConfig):
-        self._config = config
-        # Map synthetic job ID → (Popen, output_dir)
-        self._processes: dict[str, tuple[subprocess.Popen, str]] = {}
-
-    def submit(self, job: dict, client: HpcClient) -> SubmitResult:
-        job_id = job["id"]
-        processor = job.get("processor", "")
-        profile = job.get("profile", "")
-
-        resolved = resolve_profile(self._config, processor, profile)
-        if resolved is None:
-            raise ValueError(f"No profile for {processor}:{profile}")
-
-        if not resolved.entrypoint:
-            raise ValueError(
-                f"Shell backend requires an entrypoint for {processor}:{profile}. "
-                "Set 'entrypoint' in the profile config."
-            )
-
-        # Create working directories
-        tmp_dir = self._config.apptainer.tmp_dir or tempfile.gettempdir()
-        base_dir = Path(tmp_dir) / job_id
-        work_dir = base_dir / "work"
-        input_dir = base_dir / "input"
-        output_dir = base_dir / "output"
-        for d in (work_dir, input_dir, output_dir):
-            d.mkdir(parents=True, exist_ok=True)
-
-        # Stage input artifacts
-        _stage_input_artifacts(job, str(input_dir), client)
-
-        # Build environment
-        parameters = job.get("parameters")
-        if parameters and isinstance(parameters, str):
-            try:
-                parameters = json.loads(parameters)
-            except (json.JSONDecodeError, TypeError):
-                parameters = {}
-
-        env = os.environ.copy()
-        env["HPC_JOB_ID"] = job_id
-        env["HPC_INPUT_DIR"] = str(input_dir)
-        env["HPC_OUTPUT_DIR"] = str(output_dir)
-        env["HPC_WORK_DIR"] = str(work_dir)
-        env["HPC_PARAMETERS"] = json.dumps(parameters) if isinstance(parameters, dict) else "{}"
-
-        if isinstance(parameters, dict):
-            extra_env = parameters.get("environment")
-            if isinstance(extra_env, dict):
-                env.update({k: str(v) for k, v in extra_env.items()})
-
-        # Launch the entrypoint
-        stdout_log = output_dir / "shell-stdout.log"
-        stderr_log = output_dir / "shell-stderr.log"
-        proc = subprocess.Popen(
-            [resolved.entrypoint],
-            env=env,
-            cwd=str(work_dir),
-            stdout=stdout_log.open("w"),
-            stderr=stderr_log.open("w"),
-        )
-
-        synthetic_id = f"shell-{proc.pid}"
-        self._processes[synthetic_id] = (proc, str(output_dir))
-        logger.info(
-            "Shell backend launched job %s as PID %d (id=%s)",
-            job_id, proc.pid, synthetic_id,
-        )
-
-        return SubmitResult(
-            slurm_job_id=synthetic_id,
-            work_dir=str(work_dir),
-            input_dir=str(input_dir),
-            output_dir=str(output_dir),
-        )
-
-    def query_status(
-        self, slurm_job_id: str, current_status: str
-    ) -> StatusResult | None:
-        entry = self._processes.get(slurm_job_id)
-        if entry is None:
-            return None
-
-        proc, _ = entry
-        ret = proc.poll()
-
-        if ret is None:
-            # Still running
-            if current_status != "STARTED":
-                return StatusResult(
-                    hpc_status="STARTED",
-                    slurm_info=SlurmJobInfo(
-                        state="RUNNING",
-                        node_list="localhost",
-                    ),
-                )
-            return None
-
-        # Process finished
-        if ret == 0:
-            hpc_status = "COMPLETED"
-            state = "COMPLETED"
-        else:
-            hpc_status = "FAILED"
-            state = "FAILED"
-
-        return StatusResult(
-            hpc_status=hpc_status,
-            slurm_info=SlurmJobInfo(
-                state=state,
-                exit_code=f"{ret}:0",
-                reason="NonZeroExit" if ret != 0 else "None",
-                node_list="localhost",
-            ),
-        )
-
-    def cancel(self, slurm_job_id: str) -> None:
-        entry = self._processes.get(slurm_job_id)
-        if entry is None:
-            return
-        proc, _ = entry
-        if proc.poll() is None:
-            logger.info("Sending SIGTERM to PID %d (%s)", proc.pid, slurm_job_id)
-            os.kill(proc.pid, signal.SIGTERM)
+__all__ = [
+    "ExecutionBackend",
+    "SubmitResult",
+    "StatusResult",
+    "SlurmBackend",
+    "ShellBackend",
+    "SimulatedBackend",
+    "SLURM_TO_HPC_STATUS",
+    "_stage_input_artifacts",
+    "_normalize_input_artifact_ids",
+    "_verify_artifact_hash",
+]

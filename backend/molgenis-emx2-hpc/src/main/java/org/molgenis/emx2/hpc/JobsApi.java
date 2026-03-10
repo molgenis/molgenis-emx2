@@ -1,5 +1,10 @@
 package org.molgenis.emx2.hpc;
 
+import static org.molgenis.emx2.hpc.HpcApiUtils.requestId;
+import static org.molgenis.emx2.hpc.JobResponseMapper.parseOptionalBoundedString;
+import static org.molgenis.emx2.hpc.JobResponseMapper.parseOptionalProgress;
+import static org.molgenis.emx2.hpc.JobResponseMapper.requireSubmitterOrManager;
+import static org.molgenis.emx2.hpc.JobResponseMapper.resolveWorkerId;
 import static org.molgenis.emx2.hpc.protocol.InputValidator.parseIntParam;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
@@ -8,10 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
-import org.molgenis.emx2.hpc.protocol.HpcHeaders;
 import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.service.ArtifactService;
@@ -34,18 +37,17 @@ import org.molgenis.emx2.hpc.service.WorkerService;
  */
 public class JobsApi {
 
-  private static final int MAX_PROGRESS_PHASE_LENGTH = 100;
-  private static final int MAX_PROGRESS_MESSAGE_LENGTH = 500;
-
   private final JobService jobService;
   private final ArtifactService artifactService;
   private final WorkerService workerService;
+  private final JobResponseMapper mapper;
 
   public JobsApi(
       JobService jobService, ArtifactService artifactService, WorkerService workerService) {
     this.jobService = jobService;
     this.artifactService = artifactService;
     this.workerService = workerService;
+    this.mapper = new JobResponseMapper(artifactService);
   }
 
   /** POST /api/hpc/jobs — create a new job in PENDING status. */
@@ -87,7 +89,7 @@ public class JobsApi {
     if (job == null) {
       throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
     }
-    ctx.json(jobToResponse(job));
+    ctx.json(mapper.jobToResponse(job));
   }
 
   /** GET /api/hpc/jobs — list jobs with optional filtering and pagination. */
@@ -106,7 +108,7 @@ public class JobsApi {
     List<Row> jobs = jobService.listJobs(status, processor, profile, limit, offset);
     int totalCount = jobService.countJobs(status, processor, profile);
 
-    List<Map<String, Object>> items = jobs.stream().map(this::jobToResponse).toList();
+    List<Map<String, Object>> items = jobs.stream().map(mapper::jobToResponse).toList();
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("items", items);
     response.put("count", items.size());
@@ -134,7 +136,7 @@ public class JobsApi {
     ClaimResult result = jobService.claimJob(jobId, workerId);
     if (result.isSuccess()) {
       ctx.status(200);
-      ctx.json(jobToResponse(result.job()));
+      ctx.json(mapper.jobToResponse(result.job()));
       return;
     }
 
@@ -182,9 +184,11 @@ public class JobsApi {
     String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
     String detail = (String) body.get("detail");
     String phase =
-        parseOptionalBoundedString(body.get("phase"), "phase", MAX_PROGRESS_PHASE_LENGTH);
+        parseOptionalBoundedString(
+            body.get("phase"), "phase", JobResponseMapper.maxProgressPhaseLength());
     String message =
-        parseOptionalBoundedString(body.get("message"), "message", MAX_PROGRESS_MESSAGE_LENGTH);
+        parseOptionalBoundedString(
+            body.get("message"), "message", JobResponseMapper.maxProgressMessageLength());
     Double progress = parseOptionalProgress(body.get("progress"));
 
     if (targetStatusStr == null) {
@@ -229,7 +233,7 @@ public class JobsApi {
     }
 
     ctx.status(200);
-    ctx.json(jobToResponse(result));
+    ctx.json(mapper.jobToResponse(result));
   }
 
   /**
@@ -250,9 +254,11 @@ public class JobsApi {
     String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
     String detail = (String) body.get("detail");
     String phase =
-        parseOptionalBoundedString(body.get("phase"), "phase", MAX_PROGRESS_PHASE_LENGTH);
+        parseOptionalBoundedString(
+            body.get("phase"), "phase", JobResponseMapper.maxProgressPhaseLength());
     String message =
-        parseOptionalBoundedString(body.get("message"), "message", MAX_PROGRESS_MESSAGE_LENGTH);
+        parseOptionalBoundedString(
+            body.get("message"), "message", JobResponseMapper.maxProgressMessageLength());
     Double progress = parseOptionalProgress(body.get("progress"));
     String slurmJobId = (String) body.get("slurm_job_id");
     String outputArtifactId = (String) body.get("output_artifact_id");
@@ -304,7 +310,7 @@ public class JobsApi {
     }
 
     ctx.status(200);
-    ctx.json(jobToResponse(result));
+    ctx.json(mapper.jobToResponse(result));
   }
 
   /** POST /api/hpc/jobs/{id}/cancel — convenience endpoint for cancellation. */
@@ -338,7 +344,7 @@ public class JobsApi {
     }
 
     ctx.status(200);
-    ctx.json(jobToResponse(result));
+    ctx.json(mapper.jobToResponse(result));
   }
 
   /**
@@ -396,161 +402,5 @@ public class JobsApi {
     response.put("items", items);
     response.put("count", items.size());
     ctx.json(response);
-  }
-
-  private static String requestId(Context ctx) {
-    return ctx.header(HpcHeaders.REQUEST_ID);
-  }
-
-  private static String resolveWorkerId(Context ctx, String bodyWorkerId) {
-    String headerWorkerId = HpcHeaders.requireWorkerId(ctx);
-    if (bodyWorkerId != null && !bodyWorkerId.isBlank() && !headerWorkerId.equals(bodyWorkerId)) {
-      throw HpcException.badRequest(
-          "worker_id in request body must match X-Worker-Id header", requestId(ctx));
-    }
-    return headerWorkerId;
-  }
-
-  private static void requireSubmitterOrManager(Context ctx, Row job, String action) {
-    if ("HMAC".equals(ctx.attribute("hpcAuthMethod"))) {
-      return;
-    }
-
-    Privileges privilege = ctx.attribute("hpcPrivilege");
-    if (privilege != null && privilege.ordinal() >= Privileges.MANAGER.ordinal()) {
-      return;
-    }
-
-    String authUser = ctx.attribute("hpcAuthUser");
-    String submitUser = job.getString("submit_user");
-    if (authUser != null && authUser.equals(submitUser)) {
-      return;
-    }
-
-    throw HpcException.forbidden(
-        "Only the job submitter or a manager can " + action + " this job", requestId(ctx));
-  }
-
-  private Map<String, Object> enrichArtifactRef(String artifactId) {
-    Map<String, Object> ref = new LinkedHashMap<>();
-    ref.put("id", artifactId);
-    try {
-      Row artifact = artifactService.getArtifact(artifactId);
-      if (artifact != null) {
-        ref.put("name", artifact.getString("name"));
-        ref.put("type", artifact.getString("type"));
-        ref.put("status", artifact.getString("status"));
-      }
-    } catch (Exception e) {
-      // If artifact lookup fails, return minimal ref
-    }
-    return ref;
-  }
-
-  private Map<String, Object> jobToResponse(Row job) {
-    Map<String, Object> response = new LinkedHashMap<>();
-    response.put("id", job.getString("id"));
-    response.put("processor", job.getString("processor"));
-    response.put("profile", job.getString("profile"));
-    response.put("status", job.getString("status"));
-    response.put("worker_id", job.getString("worker_id"));
-    response.put("slurm_job_id", job.getString("slurm_job_id"));
-    response.put("submit_user", job.getString("submit_user"));
-
-    // Include parameters as parsed JSON if present, raw string otherwise
-    String parametersStr = job.getString("parameters");
-    if (parametersStr != null) {
-      try {
-        response.put("parameters", MAPPER.readValue(parametersStr, Object.class));
-      } catch (Exception e) {
-        response.put("parameters", parametersStr);
-      }
-    }
-
-    // Enrich inputs: resolve artifact IDs to objects with name, type, status
-    String inputsStr = job.getString("inputs");
-    if (inputsStr != null) {
-      try {
-        Object parsed = MAPPER.readValue(inputsStr, Object.class);
-        if (parsed instanceof List<?> inputList) {
-          List<Object> enriched =
-              inputList.stream()
-                  .map(
-                      item -> {
-                        if (item instanceof String artifactId) {
-                          return enrichArtifactRef(artifactId);
-                        }
-                        return item;
-                      })
-                  .toList();
-          response.put("inputs", enriched);
-        } else {
-          response.put("inputs", parsed);
-        }
-      } catch (Exception e) {
-        response.put("inputs", inputsStr);
-      }
-    }
-
-    // Enrich output artifact
-    String outputArtifactId = job.getString("output_artifact_id");
-    if (outputArtifactId != null) {
-      response.put("output_artifact", enrichArtifactRef(outputArtifactId));
-    }
-    response.put("output_artifact_id", outputArtifactId);
-
-    // Enrich log artifact
-    String logArtifactId = job.getString("log_artifact_id");
-    if (logArtifactId != null) {
-      response.put("log_artifact", enrichArtifactRef(logArtifactId));
-    }
-    response.put("log_artifact_id", logArtifactId);
-    response.put("timeout_seconds", job.getInteger("timeout_seconds"));
-    response.put("created_at", job.getString("created_at"));
-    response.put("claimed_at", job.getString("claimed_at"));
-    response.put("submitted_at", job.getString("submitted_at"));
-    response.put("started_at", job.getString("started_at"));
-    response.put("completed_at", job.getString("completed_at"));
-    response.put("phase", job.getString("phase"));
-    response.put("message", job.getString("message"));
-    response.put("progress", job.getDecimal("progress"));
-
-    HpcJobStatus status;
-    try {
-      status = HpcJobStatus.valueOf(job.getString("status"));
-    } catch (Exception e) {
-      status = HpcJobStatus.PENDING;
-    }
-    response.put("_links", LinkBuilder.forJob(job.getString("id"), status));
-
-    return response;
-  }
-
-  private static String parseOptionalBoundedString(Object value, String fieldName, int maxLength) {
-    if (value == null) {
-      return null;
-    }
-    if (!(value instanceof String s)) {
-      throw new IllegalArgumentException(fieldName + " must be a string");
-    }
-    if (s.length() > maxLength) {
-      throw new IllegalArgumentException(
-          fieldName + " must be at most " + maxLength + " characters");
-    }
-    return s;
-  }
-
-  private static Double parseOptionalProgress(Object value) {
-    if (value == null) {
-      return null;
-    }
-    if (!(value instanceof Number n)) {
-      throw new IllegalArgumentException("progress must be a number between 0.0 and 1.0");
-    }
-    double parsed = n.doubleValue();
-    if (Double.isNaN(parsed) || Double.isInfinite(parsed) || parsed < 0.0 || parsed > 1.0) {
-      throw new IllegalArgumentException("progress must be between 0.0 and 1.0");
-    }
-    return parsed;
   }
 }

@@ -1,5 +1,8 @@
 package org.molgenis.emx2.hpc;
 
+import static org.molgenis.emx2.hpc.HpcApiUtils.requestId;
+import static org.molgenis.emx2.hpc.HpcApiUtils.sanitizeDownloadFileName;
+import static org.molgenis.emx2.hpc.HpcApiUtils.verifyContentSha256;
 import static org.molgenis.emx2.hpc.protocol.InputValidator.parseIntParam;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
@@ -9,8 +12,6 @@ import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
@@ -20,7 +21,6 @@ import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
-import org.molgenis.emx2.hpc.protocol.HpcHeaders;
 import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.service.ArtifactService;
@@ -40,9 +40,11 @@ import org.molgenis.emx2.hpc.service.CommitResult;
 public class ArtifactsApi {
 
   private final ArtifactService artifactService;
+  private final ArtifactResponseMapper mapper;
 
   public ArtifactsApi(ArtifactService artifactService) {
     this.artifactService = artifactService;
+    this.mapper = new ArtifactResponseMapper();
   }
 
   /** POST /api/hpc/artifacts — create a new artifact. */
@@ -95,7 +97,7 @@ public class ArtifactsApi {
     if (artifact == null) {
       throw HpcException.notFound("Artifact " + artifactId + " not found", requestId(ctx));
     }
-    ctx.json(artifactToResponse(artifact));
+    ctx.json(mapper.artifactToResponse(artifact));
   }
 
   /** GET /api/hpc/artifacts/{id}/files — list files in an artifact with pagination. */
@@ -304,7 +306,7 @@ public class ArtifactsApi {
 
     String downloadFileName = sanitizeDownloadFileName(filePath);
     ctx.header("Content-Type", contentType);
-    ctx.header("Content-Disposition", buildContentDispositionHeader(downloadFileName));
+    ctx.header("Content-Disposition", HpcApiUtils.buildContentDispositionHeader(downloadFileName));
     if (file.getString("sha256") != null) {
       ctx.header("X-Content-SHA256", file.getString("sha256"));
     }
@@ -383,97 +385,6 @@ public class ArtifactsApi {
     }
 
     ctx.status(200);
-    ctx.json(artifactToResponse(commitResult.artifact()));
-  }
-
-  /**
-   * Verifies that the Content-SHA256 header (if present) matches the actual SHA-256 of the received
-   * bytes. This closes the MITM window: the HMAC proved the client intended this hash, and this
-   * check verifies the bytes match.
-   */
-  private static void verifyContentSha256(Context ctx, String actualSha256) {
-    String claimedHash = ctx.header(HpcHeaders.CONTENT_SHA256);
-    if (claimedHash != null && !claimedHash.isBlank() && !actualSha256.equals(claimedHash)) {
-      throw HpcException.badRequest(
-          "Content-SHA256 header does not match actual content hash"
-              + " (claimed="
-              + claimedHash
-              + ", actual="
-              + actualSha256
-              + ")",
-          requestId(ctx));
-    }
-  }
-
-  private static String requestId(Context ctx) {
-    return ctx.header(HpcHeaders.REQUEST_ID);
-  }
-
-  private Map<String, Object> artifactToResponse(Row artifact) {
-    Map<String, Object> response = new LinkedHashMap<>();
-    response.put("id", artifact.getString("id"));
-    response.put("name", artifact.getString("name"));
-    response.put("type", artifact.getString("type"));
-    response.put("residence", artifact.getString("residence"));
-    response.put("status", artifact.getString("status"));
-    response.put("sha256", artifact.getString("sha256"));
-    response.put("size_bytes", artifact.getString("size_bytes"));
-    response.put("content_url", artifact.getString("content_url"));
-    response.put("created_at", artifact.getString("created_at"));
-    response.put("committed_at", artifact.getString("committed_at"));
-
-    String metadataJson = artifact.getString("metadata");
-    if (metadataJson != null) {
-      try {
-        response.put("metadata", MAPPER.readValue(metadataJson, Map.class));
-      } catch (Exception e) {
-        response.put("metadata", metadataJson);
-      }
-    }
-
-    ArtifactStatus status;
-    try {
-      status = ArtifactStatus.valueOf(artifact.getString("status"));
-    } catch (Exception e) {
-      status = ArtifactStatus.CREATED;
-    }
-    response.put("_links", LinkBuilder.forArtifact(artifact.getString("id"), status));
-
-    return response;
-  }
-
-  private static String buildContentDispositionHeader(String fileName) {
-    String encoded = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
-    return "attachment; filename=\""
-        + escapeQuotedHeaderValue(fileName)
-        + "\"; filename*=UTF-8''"
-        + encoded;
-  }
-
-  private static String sanitizeDownloadFileName(String filePath) {
-    String normalized = filePath == null ? "" : filePath.replace('\\', '/');
-    String baseName = normalized.substring(normalized.lastIndexOf('/') + 1);
-    StringBuilder safe = new StringBuilder(baseName.length());
-    for (int i = 0; i < baseName.length(); i++) {
-      char ch = baseName.charAt(i);
-      if (ch < 0x20 || ch == 0x7f) {
-        continue;
-      }
-      safe.append(ch);
-    }
-    String result = safe.toString().trim();
-    return result.isEmpty() ? "download" : result;
-  }
-
-  private static String escapeQuotedHeaderValue(String value) {
-    StringBuilder escaped = new StringBuilder(value.length());
-    for (int i = 0; i < value.length(); i++) {
-      char ch = value.charAt(i);
-      if (ch == '"' || ch == '\\') {
-        escaped.append('\\');
-      }
-      escaped.append(ch);
-    }
-    return escaped.toString();
+    ctx.json(mapper.artifactToResponse(commitResult.artifact()));
   }
 }
