@@ -4,7 +4,7 @@ export default gql`
     $id: String
     $limit: Int
     $offset: Int
-    $orderby: Datasetsorderby
+    $orderby: [Datasetsorderby]
   ) {
     Datasets(
       filter: { resource: { id: { equals: [$id] } } }

@@ -33,7 +33,7 @@ public class TestValidationWithJavaScriptBindings {
         """
         (function () {
           let result = simplePostClient(
-            `query Test1( $filter:Test1Filter, $orderby:Test1orderby ) {
+            `query Test1( $filter:Test1Filter, $orderby:[Test1orderby] ) {
                Test1( filter:$filter, limit:20, offset:0, orderby:$orderby ) {
                  name age
                }

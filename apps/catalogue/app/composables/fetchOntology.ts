@@ -9,7 +9,7 @@ export function fetchOntology(
 ): Promise<GqlResp<IOntologyRespItem>> {
   const query = `
     query
-    ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby )
+    ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] )
     {
       ${tableId}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )
         {

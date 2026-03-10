@@ -4,7 +4,7 @@ export default gql`
     $id: String
     $limit: Int
     $offset: Int
-    $orderby: CollectionEventsorderby
+    $orderby: [CollectionEventsorderby]
   ) {
     CollectionEvents(
       limit: $limit
