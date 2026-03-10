@@ -36,11 +36,11 @@ export async function getDashboardPage(
           leftMargin
           legendPosition
           dataPoints(
-            orderby: {
-              dataPointPrimaryCategory: ASC
-              dataPointSecondaryCategory: ASC
-              dataPointOrder: ASC
-            }
+            orderby: [
+              { dataPointPrimaryCategory: ASC }
+              { dataPointSecondaryCategory: ASC }
+              { dataPointOrder: ASC }
+            ]
           ) {
             dataPointId
             dataPointName
@@ -100,11 +100,11 @@ export async function getDashboardChart(
         leftMargin
         legendPosition
         dataPoints(
-          orderby: {
-            dataPointPrimaryCategory: ASC
-            dataPointSecondaryCategory: ASC
-            dataPointOrder: ASC
-          }
+          orderby: [
+            { dataPointPrimaryCategory: ASC }
+            { dataPointSecondaryCategory: ASC }
+            { dataPointOrder: ASC }
+          ]
         ) {
           dataPointId
           dataPointName
