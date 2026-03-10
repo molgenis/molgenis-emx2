@@ -46,7 +46,7 @@ The architecture is an outbound-only job execution bridge. HPC workers poll EMX2
 
 ## Scope
 
-This specification covers worker registration and capability advertisement, job lifecycle management, artifact management (typed, content-addressed data objects for job inputs and outputs), and authentication across the trust boundary.
+This specification covers worker registration and capability advertisement, job lifecycle management, artifact management (typed, content-addressed data objects for job inputs and outputs), and authentication plus authorization across the trust boundary.
 
 It does not cover job creation by end users (that is an EMX2 application concern), Slurm cluster administration, or artifact retention policy.
 
@@ -78,7 +78,7 @@ These are backed by tables in the EMX2 `_SYSTEM_` schema (prefixed with `Hpc` to
 
 The dashboard renders structured progress fields directly from HPC data: the jobs overview and job detail pages show the latest job-level progress snapshot (`phase`, `message`, `progress`), while job transition history shows per-transition progress values. The workers page shows active jobs per worker with the same structured progress fields. UI polling is periodic (no server push): data is refreshed in place at a fixed interval and rendered with stable row identity to avoid full-table flicker.
 
-All endpoints live under `/api/hpc/*` with a shared before-handler that validates protocol headers and (when configured) HMAC authentication. The health endpoint (`/api/hpc/health`) SHOULD be exempt from authentication.
+All endpoints live under `/api/hpc/*` with a shared before-handler that validates protocol headers and applies authentication and authorization. The health endpoint (`/api/hpc/health`) SHOULD be exempt from authentication.
 
 ## HPC Environment
 
@@ -272,7 +272,7 @@ Jobs MAY be deleted via `DELETE /api/hpc/jobs/{id}`. If the job is in a non-term
 
 The protocol is designed to converge to a consistent state after any single failure.
 
-**Idempotent transitions.** A transition request is considered identical when `job_id`, `status`, `worker_id`, and all payload fields match a previously accepted transition. Duplicates SHOULD return `200 OK`. Non-identical submissions to the same state MUST return `409 Conflict`. This allows safe retries on network failure.
+**Idempotent transitions.** A transition request is considered identical when `job_id`, `status`, the effective authenticated worker identity, and all payload fields match a previously accepted transition. Duplicates SHOULD return `200 OK`. Non-identical submissions to the same state MUST return `409 Conflict`. This allows safe retries on network failure.
 
 **Timeout-driven state progression.** Two enforcement tiers prevent jobs from stalling indefinitely:
 
@@ -394,7 +394,7 @@ Every request from a worker or runtime MUST include a standard set of headers:
 | `X-Timestamp`        | Yes               | Request creation time; used for HMAC verification and replay prevention.                                                                       |
 | `X-Nonce`            | When HMAC enabled | Cryptographically random single-use value; replay prevention.                                                                                  |
 | `X-Trace-Id`         | No                | Identifier spanning a logical operation, e.g. an entire job lifecycle.                                                                         |
-| `X-Worker-Id`        | No                | Worker identifier; used by some endpoints (e.g. cancel).                                                                                       |
+| `X-Worker-Id`        | Worker write endpoints | Worker identifier; REQUIRED for worker-origin lifecycle endpoints (register, heartbeat, claim, transition, complete). Must match path/body where applicable. |
 | `Authorization`      | When HMAC enabled | `HMAC-SHA256 <hex-signature>` (see Authentication and Trust).                                                                                  |
 | `Content-SHA256`     | Non-JSON bodies   | Hex-encoded SHA-256 of the request body. Required for binary uploads when HMAC is enabled; used as the body hash in the HMAC canonical string. |
 
@@ -473,13 +473,13 @@ All endpoints live under `/api/hpc`. Detailed specifications are in Appendix A.
 \end{tabular}
 ```
 
-# Authentication and Trust
+# Authentication, Authorization, and Trust
 
-The protocol operates across a trust boundary between EMX2 (public internet or institutional network) and the HPC environment (internal cluster network). Every API call crosses this boundary, so the security model must answer three questions: who is making this request, has the request been tampered with, and is this request fresh (not a replay of an earlier one)?
+The protocol operates across a trust boundary between EMX2 and the HPC environment. Every request must be validated for identity, integrity, freshness, and permissions.
 
-## Authentication Mechanism
+## Authentication Envelope
 
-Every request from the HPC side to EMX2 MUST carry a set of standard headers that together form an authentication envelope:
+Worker-origin requests use protocol headers plus HMAC:
 
 ```
 X-EMX2-API-Version: 2025-01
@@ -489,57 +489,89 @@ X-Nonce:            <random value, used exactly once>
 Authorization:      HMAC-SHA256 <hex-encoded signature>
 ```
 
-The `Authorization` header contains an HMAC-SHA256 signature computed over a canonical request string: `METHOD\nPATH\nBODY_HASH\nTIMESTAMP\nNONCE`. The `BODY_HASH` component is computed as follows:
+The HMAC canonical form is `METHOD\nPATH\nBODY_HASH\nTIMESTAMP\nNONCE`.
 
-- **JSON requests:** `SHA256(request body)` — the standard SHA-256 hex digest of the UTF-8 encoded body.
-- **Binary uploads (non-JSON):** the value of the `Content-SHA256` request header. The client MUST compute `SHA256(file bytes)`, send it as the `Content-SHA256` header, and use that same hex value as `BODY_HASH` in the canonical string. The server includes the header value in its signature computation and, after receiving the full body, verifies that the actual SHA-256 of the received bytes matches the claimed hash. This provides end-to-end integrity for binary uploads without requiring the server to buffer the entire body before verifying the HMAC signature.
+- **JSON requests:** `BODY_HASH = SHA256(utf8-body)`.
+- **Binary requests:** `BODY_HASH = Content-SHA256` header value.
 
-This ensures:
+This provides:
 
-- **Origin** — EMX2 can verify which worker sent the request, because only that worker has the secret needed to produce a valid signature.
-- **Integrity** — if any part of the request (body, path, headers) is altered in transit, the signature will not match and EMX2 MUST reject it. For binary uploads, the `Content-SHA256` header is covered by the HMAC signature, and the server additionally verifies that the received bytes match the claimed hash.
-- **Freshness** — the `X-Timestamp` tells EMX2 when the request was created, and the `X-Nonce` is a random value that MUST NOT be reused. EMX2 MUST reject requests whose timestamp is too far in the past (e.g. more than 5 minutes) and MUST reject any nonce it has seen before. Together these prevent an attacker from capturing a valid request and re-submitting it later.
+- **Channel authenticity:** request came from a caller that knows the shared secret.
+- **Integrity:** tampered path/body/headers fail signature verification.
+- **Freshness:** timestamp-window and nonce replay checks.
 
-## Provisioning
+In single-shared-secret mode, HMAC proves the daemon trust domain, not a specific worker identity.
 
-HPC functionality is lazily initialized: the HPC schema tables in `_SYSTEM_` are only created on first use, and all endpoints except `/api/hpc/health` return `503 Service Unavailable` until HPC is enabled. This keeps the `_SYSTEM_` schema clean for deployments that do not use HPC.
+## Provisioning and Activation
 
-**To enable HPC**, set the `MOLGENIS_HPC_SHARED_SECRET` database setting on the `_SYSTEM_` schema (minimum 32 characters). This setting acts as the activation signal — without it, no HPC tables are created and the API is unavailable. Once the setting is configured, the first authenticated request triggers schema initialization.
+HPC functionality is lazily initialized. All endpoints except `/api/hpc/health` return `503` until the shared secret is configured.
 
-Each head node MUST be provisioned with a unique **`worker_id`** that identifies the head node across all API calls, and credentials for at least one of the supported authentication mechanisms (see below).
+Set `_SYSTEM_` setting `MOLGENIS_HPC_SHARED_SECRET` (minimum 32 characters). Once set, the first authenticated HPC request initializes HPC tables.
 
-These credentials are configured in EMX2. Revoked or changed credentials take effect immediately.
+Each head node must have a stable `worker_id` and include `X-Worker-Id` on worker write endpoints.
 
-## Supported Authentication Mechanisms
+## Authentication Resolution (Rewritten Cascade)
 
-Every daemon-to-EMX2 request MUST be authenticated by at least one of the following mechanisms. Deployments can use either; HMAC-SHA256 is preferred for production. Note that `MOLGENIS_HPC_SHARED_SECRET` must be set regardless of which mechanism the daemon uses (it activates the HPC API); the daemon may then authenticate via HMAC using that same secret, or via JWT tokens.
+The `/api/hpc/*` before-handler resolves principal type as follows:
 
-| Mechanism                     | How it works                                                                                                                                                                              | Notes                                                                                                                                                                                                                                   |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **HMAC-SHA256** _(preferred)_ | Worker and EMX2 share a secret key. The worker computes a keyed hash over a canonical request string; EMX2 recomputes it and compares. Transmitted as `Authorization: HMAC-SHA256 <hex>`. | Provides per-request integrity, origin verification, and replay protection. The shared secret SHOULD be stored in a file with restricted permissions (mode `0600`) and referenced via `shared_secret_file` in the daemon configuration. |
-| **JWT / API token**           | Worker authenticates with an EMX2 API token via the `x-molgenis-token` header. EMX2 validates the token through its standard token verification.                                          | Simpler to set up; useful for development or when the infrastructure already has token management. Does not provide per-request integrity or replay protection.                                                                         |
+1. **Daemon principal (HMAC):** valid `Authorization: HMAC-SHA256 ...`.
+2. **User principal (token):** valid `x-molgenis-token`.
+3. **User principal (session):** signed-in browser session.
+4. Otherwise: `401 Unauthorized`.
 
-The shared secret MUST be stored as a database setting (`MOLGENIS_HPC_SHARED_SECRET`, minimum 32 characters) on the `_SYSTEM_` schema. This setting is required — when it is not configured, the entire HPC API is unavailable (all endpoints except `/api/hpc/health` return `503 Service Unavailable`). For development, use a simple test secret; the daemon's `--simulate` flag can exercise the full lifecycle without Slurm.
+This cascade determines **who** the caller is. It does not grant permissions by itself.
 
-When HMAC is enabled, replay protection MUST enforce a 5-minute timestamp drift window and a time-based nonce cache. The nonce cache has no size limit — entries are evicted only when their associated timestamp falls outside the drift window. This guarantees unconditional replay protection: any nonce within the 5-minute window is always remembered, regardless of request volume.
+## Authorization Model
 
-**Future: Per-worker authentication.** The current design uses a single shared secret for simplicity. For deployments with multiple independent head nodes across trust boundaries, per-worker secrets can be added by storing worker-specific secrets in the `HpcWorkers` table. The HMAC verification then looks up the claiming worker's secret by `X-Worker-Id` header. This is backwards-compatible: the global secret serves as a fallback when no per-worker secret is configured.
+Authorization is explicit and role-based on `_SYSTEM_`. No role means no HPC access.
 
-## Server-Side Authentication Cascade
+### Role Semantics
 
-The `/api/hpc/*` before-handler accepts three authentication methods, tried in order:
+| Role on `_SYSTEM_` | Capability |
+| ------------------ | ---------- |
+| `Viewer`           | Read-only HPC data (jobs, transitions, workers, artifacts, files metadata/download). |
+| `Editor`           | Submitter role: create jobs, create/upload/commit artifacts, cancel/delete own jobs only. |
+| `Manager`          | Operator role: full lifecycle control, including worker management and cancelling/deleting any job. |
+| `Owner` / admin    | Same or higher than `Manager`. |
 
-1. **HMAC-SHA256** — daemon requests carrying an `Authorization: HMAC-SHA256 <signature>` header. The server recomputes the signature over the canonical request string (including query parameters) using the shared secret and compares.
-2. **JWT token** — requests with an `x-molgenis-token` header. The server validates the token via EMX2's standard JWT verification (`JWTgenerator`).
-3. **Session cookie** — browser requests from signed-in EMX2 users. The server reads the `username` attribute from the servlet session (set by the standard EMX2 sign-in flow).
+### Endpoint Policy Matrix
 
-If none of the three methods yields an authenticated identity, the server returns `401 Unauthorized`. The health endpoint (`/api/hpc/health`) is exempt from authentication.
+| Endpoint class | Viewer | Editor | Manager | HMAC daemon |
+| -------------- | ------ | ------ | ------- | ----------- |
+| GET `/api/hpc/jobs*`, `/artifacts*`, `/workers*` | Yes | Yes | Yes | Yes |
+| POST `/api/hpc/jobs` | No | Yes | Yes | Yes |
+| POST `/api/hpc/jobs/{id}/cancel` | No | Own jobs only | Any job | Yes |
+| DELETE `/api/hpc/jobs/{id}` | No | Own jobs only (terminal only) | Any job (terminal only) | Yes |
+| Worker lifecycle (`/workers/register`, `/workers/{id}/heartbeat`, `/jobs/{id}/claim`, `/jobs/{id}/transition`, `/jobs/{id}/complete`) | No | No | Yes | Yes |
+| Artifact destructive ops (`DELETE /artifacts/{id}`, `DELETE /artifacts/{id}/files/{path}`) | No | No | Yes | Yes |
 
-This cascade allows the HPC daemon to authenticate via HMAC (the primary path), while the browser-based management UI authenticates via the user's existing EMX2 session without needing access to the shared secret.
+### Ownership Rules
+
+- `submit_user` is server-derived from authenticated user/token identity on `POST /jobs`; client-supplied `submit_user` must be ignored.
+- `Editor` can cancel/delete only jobs with `submit_user == authenticated identity`.
+- `Manager` can cancel/delete any job.
+- Non-terminal delete remains forbidden (`409`, must cancel first).
+
+### Worker Identity in Shared-Secret Mode
+
+- `X-Worker-Id` is required for worker write endpoints.
+- Where body/path also carry worker identity, they must match `X-Worker-Id`.
+- Effective worker identity for claim/transition/complete is derived from `X-Worker-Id`, not trusted from body fields.
+- This prevents accidental cross-worker updates; it does not protect against impersonation if the shared secret is leaked.
+
+### GraphQL Boundary for HPC Tables
+
+- Mutations targeting `Hpc*` tables in `/_SYSTEM_/graphql` are forbidden.
+- `Hpc*` GraphQL remains query-only for UI/reporting.
+- All HPC writes must go through `/api/hpc/*` REST handlers.
+
+### Internal Java API
+
+Internal producers (for example, Catalogue-triggered workflows) should call a dedicated Java service facade (job/artifact orchestration service) that reuses the same validation and authorization rules as REST handlers, instead of mutating `Hpc*` tables through GraphQL.
 
 ## What EMX2 Enforces
 
-EMX2 is the sole authority for job state, lifecycle transitions, and artifact metadata. Workers MUST NOT unilaterally change anything — they can only _request_ transitions, which EMX2 validates against the state machine before accepting. This means even a compromised worker can only submit requests that are legal given the current state; it cannot, for example, mark someone else's job as completed or overwrite a committed artifact.
+EMX2 is the sole authority for job state, lifecycle transitions, and artifact metadata. Workers and submitters request actions; EMX2 accepts only legal state transitions and authorized operations.
 
 # Summary, Trade-offs, and Open Questions
 
@@ -564,7 +596,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 **S3-minimal file surface.** The artifact file API exposes path-based GET/PUT/HEAD/DELETE operations that map to S3 semantics (`GetObject`, `PutObject`, `HeadObject`, `DeleteObject`). This is sufficient for the initial use case and makes a future S3-compatible gateway straightforward to implement. Until then, analytical tools access managed artifacts via HTTP GET with range request support.
 
-**Authentication mechanism.** Two mechanisms are supported: HMAC-SHA256 (recommended for production, provides per-request integrity and replay protection) and JWT/API tokens. Browser-based access is handled via session cookies. See §8 for details.
+**Authentication and authorization.** HMAC and user-token/session authentication are both supported, but access is role-gated and HPC write operations are REST-only. See §8 for details.
 
 ## Open Design Decisions
 
@@ -577,13 +609,15 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 # Appendix A: API Reference {.unnumbered}
 
-Full endpoint specifications. All endpoints require authentication as described in §8. URLs shown here are illustrative; in practice, clients MUST follow `_links` from server responses.
+Full endpoint specifications. All endpoints require authentication and authorization as described in §8. URLs shown here are illustrative; in practice, clients MUST follow `_links` from server responses.
 
 ## A.1 Workers API {.unnumbered}
 
 ### POST /api/hpc/workers/register {.unnumbered}
 
 Registers a worker or updates its registration. Idempotent — subsequent calls update the heartbeat timestamp and replace the capability set.
+
+`X-Worker-Id` MUST be present and MUST match `worker_id` in the request body.
 
 ```json
 {
@@ -622,6 +656,8 @@ Registers a worker or updates its registration. Idempotent — subsequent calls 
 
 Lightweight heartbeat. Updates `last_heartbeat_at` without re-submitting capabilities. The daemon SHOULD send this periodically (default: every 120 seconds) between poll cycles.
 
+`X-Worker-Id` MUST be present and MUST match `{id}`.
+
 **Response:** `200 OK` with `{"worker_id": "...", "status": "ok"}`.
 
 ### DELETE /api/hpc/workers/{id} {.unnumbered}
@@ -640,11 +676,12 @@ Creates a new job in PENDING status.
 {
   "processor": "text-embedding:v3",
   "profile": "gpu-medium",
-  "submit_user": "researcher@example.org",
   "parameters": { "model": "multilingual-e5-large", "batch_size": 256 },
   "inputs": [{ "artifact_id": "corpus-01" }]
 }
 ```
+
+`submit_user` is server-derived from the authenticated principal and is not accepted from the client payload.
 
 **Response:** `201 Created`
 
@@ -681,7 +718,7 @@ Lists jobs with optional filtering and pagination. Query parameters: `status`, `
 
 Atomically claims a job. After the atomic claim succeeds, EMX2 verifies that the claiming worker has a registered capability matching the job's `(processor, profile)`. If the worker lacks a matching capability, the claim is rolled back (job returns to PENDING) and the server returns `409 Conflict` with a capability mismatch message. This prevents misconfigured workers from claiming jobs they cannot execute. Returns `409 Conflict` if already claimed or capability mismatch, `404` if not found.
 
-**Request:** `{ "worker_id": "hpc-headnode-01" }`
+No request body fields are required. Worker identity is derived from `X-Worker-Id`.
 
 **Response:** `200 OK` with the job in CLAIMED state, including `_links` for `submit` and `cancel`.
 
@@ -722,7 +759,6 @@ Optional structured progress fields are accepted on transition and completion pa
 ```json
 {
   "status": "SUBMITTED",
-  "worker_id": "hpc-headnode-01",
   "detail": "sbatch id 45678",
   "slurm_job_id": "45678"
 }
@@ -733,7 +769,6 @@ Optional structured progress fields are accepted on transition and completion pa
 ```json
 {
   "status": "STARTED",
-  "worker_id": "hpc-headnode-01",
   "detail": "running on node-05"
 }
 ```
@@ -743,7 +778,6 @@ Optional structured progress fields are accepted on transition and completion pa
 ```json
 {
   "status": "STARTED",
-  "worker_id": "hpc-headnode-01",
   "detail": "progress: sorting; step 3 of 10; 30%",
   "phase": "sorting",
   "message": "step 3 of 10",
@@ -756,7 +790,6 @@ Optional structured progress fields are accepted on transition and completion pa
 ```json
 {
   "status": "COMPLETED",
-  "worker_id": "hpc-headnode-01",
   "detail": "exit code 0",
   "output_artifact_id": "art_abc123-..."
 }
@@ -767,20 +800,19 @@ Optional structured progress fields are accepted on transition and completion pa
 ```json
 {
   "status": "FAILED",
-  "worker_id": "hpc-headnode-01",
   "detail": "input_hash_mismatch"
 }
 ```
 
 ### POST /api/hpc/jobs/{id}/cancel {.unnumbered}
 
-Convenience endpoint for cancellation. Transitions the job to CANCELLED from any non-terminal state. The head node SHOULD issue `scancel` if a Slurm job ID is known.
+Convenience endpoint for cancellation. Transitions the job to CANCELLED from any non-terminal state. `Editor` callers may cancel only their own jobs (`submit_user` match). `Manager` callers may cancel any job. The head node SHOULD issue `scancel` if a Slurm job ID is known.
 
 **Response:** `200 OK` with updated job, `409 Conflict` if already terminal.
 
 ### DELETE /api/hpc/jobs/{id} {.unnumbered}
 
-Deletes a job and its transition history. The job MUST be in a terminal state (COMPLETED, FAILED, or CANCELLED); otherwise the server MUST return `409 Conflict`.
+Deletes a job and its transition history. The job MUST be in a terminal state (COMPLETED, FAILED, or CANCELLED); otherwise the server MUST return `409 Conflict`. `Editor` callers may delete only their own jobs (`submit_user` match). `Manager` callers may delete any terminal job.
 
 **Response:** `204 No Content`, `404 Not Found`.
 

@@ -41,6 +41,7 @@ public class WorkersApi {
    */
   @SuppressWarnings("unchecked")
   public void register(Context ctx) throws Exception {
+    String headerWorkerId = HpcHeaders.requireWorkerId(ctx);
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String workerId = (String) body.get("worker_id");
     String hostname = (String) body.get("hostname");
@@ -48,6 +49,11 @@ public class WorkersApi {
 
     if (workerId == null || workerId.isBlank()) {
       throw HpcException.badRequest("worker_id is required", ctx.header(HpcHeaders.REQUEST_ID));
+    }
+    if (!headerWorkerId.equals(workerId)) {
+      throw HpcException.badRequest(
+          "worker_id in request body must match X-Worker-Id header",
+          ctx.header(HpcHeaders.REQUEST_ID));
     }
 
     Row worker = workerService.registerOrHeartbeat(workerId, hostname, capabilities);

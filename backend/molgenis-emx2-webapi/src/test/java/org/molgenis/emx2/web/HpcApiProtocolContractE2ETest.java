@@ -34,6 +34,10 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
     return HpcTestkit.hpcRequest(sessionId);
   }
 
+  private static RequestSpecification workerRequest(String workerId) {
+    return hpcRequest().header("X-Worker-Id", workerId);
+  }
+
   @BeforeAll
   static void setupContractContext() throws Exception {
     loadSpec();
@@ -88,7 +92,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
   @Order(3)
   void workerRegistrationShapeMatchesContract() {
     Map<String, Object> worker =
-        hpcRequest()
+        workerRequest(workerId)
             .body(
                 """
                 {
@@ -148,7 +152,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
             .as(Map.class);
     assertContainsRequiredKeys(list, requiredFields("jobList"));
 
-    hpcRequest()
+    workerRequest(workerId)
         .body(
             """
             {"worker_id":"%s"}
@@ -158,7 +162,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
         .post("/api/hpc/jobs/{id}/claim", jobId)
         .then()
         .statusCode(200);
-    hpcRequest()
+    workerRequest(workerId)
         .body(
             """
             {"status":"SUBMITTED","worker_id":"%s"}
@@ -269,7 +273,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
             .getString("id");
 
     Response response =
-        hpcRequest()
+        workerRequest(workerId)
             .body(
                 """
                 {"status":"COMPLETED","worker_id":"%s"}

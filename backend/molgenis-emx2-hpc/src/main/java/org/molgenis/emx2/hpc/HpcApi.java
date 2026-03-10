@@ -178,6 +178,7 @@ public class HpcApi {
         hpcHandler(
             ctx -> {
               requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcHeaders.requireWorkerId(ctx);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.workersApi().register(ctx);
             }));
@@ -196,6 +197,12 @@ public class HpcApi {
               requireHpcPrivilege(ctx, Privileges.MANAGER);
               HpcContext hpc = ctx.attribute("hpcContext");
               String wid = ctx.pathParam("id");
+              String headerWorkerId = HpcHeaders.requireWorkerId(ctx);
+              if (!wid.equals(headerWorkerId)) {
+                throw HpcException.badRequest(
+                    "X-Worker-Id header must match worker id in path",
+                    ctx.header(HpcHeaders.REQUEST_ID));
+              }
               if (!hpc.workerService().heartbeat(wid)) {
                 throw HpcException.notFound(
                     "Worker " + wid + " not found", ctx.header(HpcHeaders.REQUEST_ID));
@@ -216,6 +223,7 @@ public class HpcApi {
         "/api/hpc/jobs",
         hpcHandler(
             ctx -> {
+              requireHpcPrivilege(ctx, Privileges.VIEWER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().listJobs(ctx);
             }));
@@ -223,6 +231,7 @@ public class HpcApi {
         "/api/hpc/jobs/{id}",
         hpcHandler(
             ctx -> {
+              requireHpcPrivilege(ctx, Privileges.VIEWER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().getJob(ctx);
             }));
@@ -230,7 +239,7 @@ public class HpcApi {
         "/api/hpc/jobs/{id}",
         hpcHandler(
             ctx -> {
-              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              requireHpcPrivilege(ctx, Privileges.EDITOR);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().deleteJob(ctx);
             }));
@@ -239,6 +248,7 @@ public class HpcApi {
         hpcHandler(
             ctx -> {
               requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcHeaders.requireWorkerId(ctx);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().claimJob(ctx);
             }));
@@ -247,6 +257,7 @@ public class HpcApi {
         hpcHandler(
             ctx -> {
               requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcHeaders.requireWorkerId(ctx);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().transitionJob(ctx);
             }));
@@ -255,6 +266,7 @@ public class HpcApi {
         hpcHandler(
             ctx -> {
               requireHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcHeaders.requireWorkerId(ctx);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().completeJob(ctx);
             }));
@@ -262,7 +274,7 @@ public class HpcApi {
         "/api/hpc/jobs/{id}/cancel",
         hpcHandler(
             ctx -> {
-              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              requireHpcPrivilege(ctx, Privileges.EDITOR);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().cancelJob(ctx);
             }));
@@ -270,6 +282,7 @@ public class HpcApi {
         "/api/hpc/jobs/{id}/transitions",
         hpcHandler(
             ctx -> {
+              requireHpcPrivilege(ctx, Privileges.VIEWER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.jobsApi().getTransitions(ctx);
             }));
@@ -287,6 +300,7 @@ public class HpcApi {
         "/api/hpc/artifacts/{id}",
         hpcHandler(
             ctx -> {
+              requireHpcPrivilege(ctx, Privileges.VIEWER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.artifactsApi().getArtifact(ctx);
             }));
@@ -302,6 +316,7 @@ public class HpcApi {
         "/api/hpc/artifacts/{id}/files",
         hpcHandler(
             ctx -> {
+              requireHpcPrivilege(ctx, Privileges.VIEWER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.artifactsApi().listFiles(ctx);
             }));
@@ -317,6 +332,7 @@ public class HpcApi {
         "/api/hpc/artifacts/{id}/files/<path>",
         hpcHandler(
             ctx -> {
+              requireHpcPrivilege(ctx, Privileges.VIEWER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.artifactsApi().downloadFile(ctx);
             }));
@@ -324,6 +340,7 @@ public class HpcApi {
         "/api/hpc/artifacts/{id}/files/<path>",
         hpcHandler(
             ctx -> {
+              requireHpcPrivilege(ctx, Privileges.VIEWER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.artifactsApi().headFile(ctx);
             }));
@@ -509,14 +526,14 @@ public class HpcApi {
 
   /**
    * Resolves the effective privilege for a user on the system schema. Admin users get OWNER (full
-   * access). Users with an explicit role on _SYSTEM_ get that role. Authenticated users without an
-   * explicit role default to VIEWER (read-only).
+   * access). Users with an explicit role on _SYSTEM_ get that role. Users without an explicit role
+   * get no HPC access.
    */
   private static Privileges resolveEffectivePrivilege(SqlDatabase database, String username) {
     if (username == null) {
-      return Privileges.VIEWER;
+      return null;
     }
-    Privileges[] result = {Privileges.VIEWER};
+    Privileges[] result = {null};
     database.tx(
         db -> {
           db.setActiveUser(username);
@@ -538,7 +555,7 @@ public class HpcApi {
               }
             }
           } catch (Exception e) {
-            // User has no access to system schema — default VIEWER
+            // User has no access to system schema.
             logger.debug("Could not resolve role for user '{}': {}", username, e.getMessage());
           }
         });

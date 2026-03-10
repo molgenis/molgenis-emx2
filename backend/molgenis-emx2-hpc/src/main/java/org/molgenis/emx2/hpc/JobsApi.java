@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
 import org.molgenis.emx2.hpc.protocol.HpcHeaders;
@@ -57,7 +58,8 @@ public class JobsApi {
         body.get("parameters") != null ? MAPPER.writeValueAsString(body.get("parameters")) : null;
     String inputs =
         body.get("inputs") != null ? MAPPER.writeValueAsString(body.get("inputs")) : null;
-    String submitUser = (String) body.get("submit_user");
+    String submitUser =
+        "USER".equals(ctx.attribute("hpcAuthMethod")) ? ctx.attribute("hpcAuthUser") : null;
     Integer timeoutSeconds =
         body.get("timeout_seconds") != null
             ? ((Number) body.get("timeout_seconds")).intValue()
@@ -65,7 +67,6 @@ public class JobsApi {
 
     InputValidator.requireString(processor, "processor");
     InputValidator.optionalString(profile, "profile");
-    InputValidator.optionalString(submitUser, "submit_user");
 
     String jobId =
         jobService.createJob(processor, profile, parameters, inputs, submitUser, timeoutSeconds);
@@ -128,8 +129,7 @@ public class JobsApi {
     InputValidator.requireUuid(jobId, "id");
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String workerId = (String) body.get("worker_id");
-    InputValidator.requireString(workerId, "worker_id");
+    String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
 
     ClaimResult result = jobService.claimJob(jobId, workerId);
     if (result.isSuccess()) {
@@ -179,7 +179,7 @@ public class JobsApi {
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String targetStatusStr = (String) body.get("status");
-    String workerId = (String) body.get("worker_id");
+    String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
     String detail = (String) body.get("detail");
     String phase =
         parseOptionalBoundedString(body.get("phase"), "phase", MAX_PROGRESS_PHASE_LENGTH);
@@ -247,7 +247,7 @@ public class JobsApi {
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String targetStatusStr = (String) body.get("status");
-    String workerId = (String) body.get("worker_id");
+    String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
     String detail = (String) body.get("detail");
     String phase =
         parseOptionalBoundedString(body.get("phase"), "phase", MAX_PROGRESS_PHASE_LENGTH);
@@ -311,6 +311,11 @@ public class JobsApi {
   public void cancelJob(Context ctx) {
     String jobId = ctx.pathParam("id");
     InputValidator.requireUuid(jobId, "id");
+    Row existing = jobService.getJob(jobId);
+    if (existing == null) {
+      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+    }
+    requireSubmitterOrManager(ctx, existing, "cancel");
 
     // Cancel does not update worker_id — cancellation can come from any
     // authenticated caller (UI user, API client), not just the assigned worker.
@@ -327,10 +332,6 @@ public class JobsApi {
             null,
             null);
     if (result == null) {
-      Row existing = jobService.getJob(jobId);
-      if (existing == null) {
-        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
-      }
       throw HpcException.conflict(
           "Cannot cancel job " + jobId + " in status " + existing.getString("status"),
           requestId(ctx));
@@ -347,6 +348,11 @@ public class JobsApi {
   public void deleteJob(Context ctx) {
     String jobId = ctx.pathParam("id");
     InputValidator.requireUuid(jobId, "id");
+    Row existing = jobService.getJob(jobId);
+    if (existing == null) {
+      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+    }
+    requireSubmitterOrManager(ctx, existing, "delete");
 
     try {
       Row deleted = jobService.deleteJob(jobId);
@@ -394,6 +400,35 @@ public class JobsApi {
 
   private static String requestId(Context ctx) {
     return ctx.header(HpcHeaders.REQUEST_ID);
+  }
+
+  private static String resolveWorkerId(Context ctx, String bodyWorkerId) {
+    String headerWorkerId = HpcHeaders.requireWorkerId(ctx);
+    if (bodyWorkerId != null && !bodyWorkerId.isBlank() && !headerWorkerId.equals(bodyWorkerId)) {
+      throw HpcException.badRequest(
+          "worker_id in request body must match X-Worker-Id header", requestId(ctx));
+    }
+    return headerWorkerId;
+  }
+
+  private static void requireSubmitterOrManager(Context ctx, Row job, String action) {
+    if ("HMAC".equals(ctx.attribute("hpcAuthMethod"))) {
+      return;
+    }
+
+    Privileges privilege = ctx.attribute("hpcPrivilege");
+    if (privilege != null && privilege.ordinal() >= Privileges.MANAGER.ordinal()) {
+      return;
+    }
+
+    String authUser = ctx.attribute("hpcAuthUser");
+    String submitUser = job.getString("submit_user");
+    if (authUser != null && authUser.equals(submitUser)) {
+      return;
+    }
+
+    throw HpcException.forbidden(
+        "Only the job submitter or a manager can " + action + " this job", requestId(ctx));
   }
 
   private Map<String, Object> enrichArtifactRef(String artifactId) {

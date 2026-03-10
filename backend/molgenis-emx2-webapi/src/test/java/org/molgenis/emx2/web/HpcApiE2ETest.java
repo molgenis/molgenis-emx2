@@ -51,13 +51,17 @@ class HpcApiE2ETest extends ApiTestBase {
     return HpcTestkit.hpcRequest(sessionId);
   }
 
+  private static RequestSpecification workerRequest(String workerId) {
+    return hpcRequest().header("X-Worker-Id", workerId);
+  }
+
   /** Helper: register a worker (idempotent). */
   private static void registerWorker(String workerId) {
     registerWorker(workerId, DEFAULT_CAPABILITIES);
   }
 
   private static void registerWorker(String workerId, String capabilitiesJson) {
-    hpcRequest()
+    workerRequest(workerId)
         .body(
             """
             {"worker_id": "%s", "hostname": "test.local",
@@ -111,7 +115,7 @@ class HpcApiE2ETest extends ApiTestBase {
 
   /** Helper: claim a job by a worker and return the response. */
   private static Response claimJobHelper(String jobId, String workerId) {
-    return hpcRequest()
+    return workerRequest(workerId)
         .body(
             """
             {"worker_id": "%s"}
@@ -145,7 +149,10 @@ class HpcApiE2ETest extends ApiTestBase {
       sb.append(", \"output_artifact_id\": \"%s\"".formatted(outputArtifactId));
     if (logArtifactId != null) sb.append(", \"log_artifact_id\": \"%s\"".formatted(logArtifactId));
     sb.append("}");
-    return hpcRequest().body(sb.toString()).when().post("/api/hpc/jobs/{id}/transition", jobId);
+    return workerRequest(workerId)
+        .body(sb.toString())
+        .when()
+        .post("/api/hpc/jobs/{id}/transition", jobId);
   }
 
   /** Helper: create a managed artifact, commit it, return its ID. */
@@ -271,6 +278,34 @@ class HpcApiE2ETest extends ApiTestBase {
         .then()
         .statusCode(200)
         .body("status", equalTo("COMPLETED"));
+  }
+
+  @Test
+  @Order(11)
+  void createJobDerivesSubmitUserFromSession() {
+    String jobId =
+        hpcRequest()
+            .body(
+                """
+                {
+                  "processor": "submit-user-test",
+                  "submit_user": "spoofed-user"
+                }
+                """)
+            .when()
+            .post("/api/hpc/jobs")
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath()
+            .getString("id");
+
+    hpcRequest()
+        .when()
+        .get("/api/hpc/jobs/{id}", jobId)
+        .then()
+        .statusCode(200)
+        .body("submit_user", equalTo("admin"));
   }
 
   // ── 3. Claim conflict ──────────────────────────────────────────────────
@@ -425,7 +460,7 @@ class HpcApiE2ETest extends ApiTestBase {
   @Test
   @Order(50)
   void workerRegistrationAndHeartbeat() {
-    hpcRequest()
+    workerRequest("e2e-worker-reg")
         .body(
             """
             {
@@ -444,7 +479,7 @@ class HpcApiE2ETest extends ApiTestBase {
         .body("registered_at", notNullValue())
         .body("last_heartbeat_at", notNullValue());
 
-    hpcRequest()
+    workerRequest("e2e-worker-reg")
         .when()
         .post("/api/hpc/workers/{id}/heartbeat", "e2e-worker-reg")
         .then()
@@ -480,7 +515,7 @@ class HpcApiE2ETest extends ApiTestBase {
   void heartbeatForUnknownWorkerReturnsNotFound() {
     String missingWorkerId = HpcTestkit.nextName("missing-worker");
 
-    hpcRequest()
+    workerRequest(missingWorkerId)
         .when()
         .post("/api/hpc/workers/{id}/heartbeat", missingWorkerId)
         .then()

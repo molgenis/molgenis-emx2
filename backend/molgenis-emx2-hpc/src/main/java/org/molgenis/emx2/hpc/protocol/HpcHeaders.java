@@ -27,6 +27,11 @@ public final class HpcHeaders {
     return ctx.header(WORKER_ID);
   }
 
+  /** Extracts the worker ID header, throwing if absent. */
+  public static String requireWorkerId(Context ctx) {
+    return requireHeader(ctx, WORKER_ID);
+  }
+
   /** Extracts the API version and validates it against the current version. */
   public static void validateApiVersion(Context ctx) {
     ApiVersion.validate(ctx.header(ApiVersion.HEADER_NAME));
