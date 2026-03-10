@@ -73,7 +73,10 @@ public enum ColumnType {
   SELECT(REF),
   RADIO(REF),
   MULTISELECT(REF_ARRAY),
-  CHECKBOX(REF_ARRAY);
+  CHECKBOX(REF_ARRAY),
+
+  // MG_*
+  MG_TABLECLASS(String.class);
 
   private Class javaType;
   private ColumnType baseType;

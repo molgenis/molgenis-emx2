@@ -86,7 +86,7 @@ public class Generator {
         if (column.getColumnType().isHeading()) {
           continue;
         }
-        if (column.isSystemColumn()) {
+        if (column.isSystemColumn() && !column.getColumnType().equals("MG_TABLECLASS")) {
           continue;
         }
 
@@ -116,7 +116,8 @@ public class Generator {
     return switch (columnType) {
       case BOOL -> "boolean";
       case BOOL_ARRAY -> "boolean[]";
-      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK, LONG -> "string";
+      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK, LONG, MG_TABLECLASS ->
+          "string";
       case EMAIL_ARRAY,
               STRING_ARRAY,
               TEXT_ARRAY,
