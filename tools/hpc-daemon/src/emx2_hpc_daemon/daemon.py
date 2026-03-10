@@ -27,7 +27,13 @@ import time
 from pathlib import Path
 
 from ._generated import TERMINAL_STATUSES
-from .backend import ExecutionBackend, ShellBackend, SimulatedBackend, SlurmBackend
+from .backend import (
+    ExecutionBackend,
+    ShellBackend,
+    SimulatedBackend,
+    SlurmBackend,
+    _normalize_input_artifact_ids,
+)
 from .client import ClaimConflict, HpcClient, NotFoundError, format_links
 from .config import DaemonConfig
 from .hashing import _sha256_file, compute_tree_hash_from_hashes
@@ -340,14 +346,9 @@ class HpcDaemon:
     @staticmethod
     def _extract_input_artifact_ids(inputs) -> str | None:
         """Extract input artifact IDs as a JSON array string."""
-        if not inputs or not isinstance(inputs, list):
+        ids = _normalize_input_artifact_ids(inputs)
+        if not ids:
             return None
-        ids = []
-        for item in inputs:
-            if isinstance(item, dict):
-                ids.append(item.get("id", str(item)))
-            else:
-                ids.append(str(item))
         return json.dumps(ids)
 
     def _submit_job(self, job: dict) -> None:

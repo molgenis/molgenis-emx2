@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import textwrap
 import time
 from pathlib import Path
@@ -159,6 +160,10 @@ def test_submit_stages_all_supported_input_forms(daemon_factory, tmp_path: Path,
     tracked = daemon.tracker.get(job["id"])
     assert tracked is not None
     assert tracked.status == "SUBMITTED"
+    assert json.loads(tracked.input_artifact_ids or "[]") == [
+        "art-managed",
+        "art-posix",
+    ]
     input_dir = Path(tracked.input_dir)
 
     managed_path = input_dir / "art-managed" / "managed" / "input.txt"
