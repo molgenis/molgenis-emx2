@@ -197,10 +197,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public void migrate(SchemaMetadata mergeSchema) {
-    tx(
-        database -> {
-          migrateTransaction(getName(), mergeSchema, database);
-        });
+    tx(database -> migrateTransaction(getName(), mergeSchema, database));
     this.getMetadata().reload();
     db.getListener().schemaChanged(getName());
   }
@@ -390,8 +387,7 @@ public class SqlSchema implements Schema {
   public SqlTable getTableById(String id) {
     Optional<Table> table =
         getTablesSorted().stream().filter(t -> t.getIdentifier().equals(id)).findFirst();
-    if (table.isPresent()) return (SqlTable) table.get();
-    else return null;
+    return (SqlTable) table.orElse(null);
   }
 
   @Override
