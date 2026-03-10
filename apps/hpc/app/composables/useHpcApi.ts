@@ -84,6 +84,7 @@ interface NormalizedJob {
   slurm_job_id: string | null;
   submit_user: string | null;
   created_at: string;
+  updated_at: string;
   parameters: any;
   inputs: any[];
   [key: string]: any;
@@ -536,10 +537,25 @@ export async function downloadArtifactFile(
 function normalizeJob(job: any): NormalizedJob {
   const output = job.output_artifact_id;
   const log = job.log_artifact_id;
+  const lifecycleTimestamps = [
+    job.created_at,
+    job.claimed_at,
+    job.submitted_at,
+    job.started_at,
+    job.completed_at,
+  ]
+    .filter(Boolean)
+    .sort(
+      (a: string, b: string) => new Date(a).getTime() - new Date(b).getTime()
+    );
+  const updatedAt =
+    lifecycleTimestamps[lifecycleTimestamps.length - 1] ?? job.created_at;
+
   return {
     ...job,
     status: job.status?.name ?? job.status,
     worker_id: job.worker_id?.worker_id ?? job.worker_id,
+    updated_at: updatedAt,
     output_artifact_id: output
       ? {
           id: output.id,

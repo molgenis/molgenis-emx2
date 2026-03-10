@@ -44,28 +44,58 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-1">
-            <span class="text-xs font-medium text-table-column-header uppercase tracking-wider">Job ID</span>
-            <span class="block text-sm text-title"><code>{{ job.id }}</code></span>
+            <span
+              class="text-xs font-medium text-table-column-header uppercase tracking-wider"
+              >Job ID</span
+            >
+            <span class="block text-sm text-title"
+              ><code>{{ job.id }}</code></span
+            >
           </div>
           <div class="space-y-1">
-            <span class="text-xs font-medium text-table-column-header uppercase tracking-wider">Submitted By</span>
-            <span class="block text-sm text-title">{{ job.submit_user || "-" }}</span>
+            <span
+              class="text-xs font-medium text-table-column-header uppercase tracking-wider"
+              >Submitted By</span
+            >
+            <span class="block text-sm text-title">{{
+              job.submit_user || "-"
+            }}</span>
           </div>
           <div class="space-y-1">
-            <span class="text-xs font-medium text-table-column-header uppercase tracking-wider">Processor</span>
-            <span class="block text-sm text-title">{{ job.processor || "-" }}</span>
+            <span
+              class="text-xs font-medium text-table-column-header uppercase tracking-wider"
+              >Processor</span
+            >
+            <span class="block text-sm text-title">{{
+              job.processor || "-"
+            }}</span>
           </div>
           <div class="space-y-1">
-            <span class="text-xs font-medium text-table-column-header uppercase tracking-wider">Profile</span>
-            <span class="block text-sm text-title">{{ job.profile || "-" }}</span>
+            <span
+              class="text-xs font-medium text-table-column-header uppercase tracking-wider"
+              >Profile</span
+            >
+            <span class="block text-sm text-title">{{
+              job.profile || "-"
+            }}</span>
           </div>
           <div class="space-y-1">
-            <span class="text-xs font-medium text-table-column-header uppercase tracking-wider">Worker</span>
-            <span class="block text-sm text-title">{{ job.worker_id || "-" }}</span>
+            <span
+              class="text-xs font-medium text-table-column-header uppercase tracking-wider"
+              >Worker</span
+            >
+            <span class="block text-sm text-title">{{
+              job.worker_id || "-"
+            }}</span>
           </div>
           <div class="space-y-1">
-            <span class="text-xs font-medium text-table-column-header uppercase tracking-wider">Slurm Job ID</span>
-            <span class="block text-sm text-title">{{ job.slurm_job_id || "-" }}</span>
+            <span
+              class="text-xs font-medium text-table-column-header uppercase tracking-wider"
+              >Slurm Job ID</span
+            >
+            <span class="block text-sm text-title">{{
+              job.slurm_job_id || "-"
+            }}</span>
           </div>
         </div>
 
@@ -80,9 +110,7 @@
         </div>
 
         <div v-if="normalizedInputs.length" class="mt-6">
-          <p class="text-sm font-semibold text-title mb-1">
-            Input Artifacts
-          </p>
+          <p class="text-sm font-semibold text-title mb-1">Input Artifacts</p>
           <p class="text-xs text-definition-list-term mb-2">
             Artifacts referenced by this job at submission time.
           </p>
@@ -90,16 +118,24 @@
             <table class="w-full text-sm text-table-row">
               <thead>
                 <tr class="border-b border-color-theme">
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                  <th
+                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                  >
                     Name
                   </th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                  <th
+                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                  >
                     Type
                   </th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                  <th
+                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                  >
                     Status
                   </th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"></th>
+                  <th
+                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                  ></th>
                 </tr>
               </thead>
               <tbody>
@@ -149,9 +185,7 @@
         >
           <div class="flex items-start justify-between mb-4">
             <div>
-              <p class="text-sm font-semibold text-title">
-                Output Artifact
-              </p>
+              <p class="text-sm font-semibold text-title">Output Artifact</p>
               <p class="text-xs text-definition-list-term">
                 Primary produced artifact for this run.
               </p>
@@ -173,11 +207,15 @@
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">Type</span>
-              <span class="text-title">{{ job.output_artifact_id.type || "-" }}</span>
+              <span class="text-title">{{
+                job.output_artifact_id.type || "-"
+              }}</span>
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">Residence</span>
-              <span class="text-title">{{ job.output_artifact_id.residence || "-" }}</span>
+              <span class="text-title">{{
+                job.output_artifact_id.residence || "-"
+              }}</span>
             </div>
           </div>
           <div class="mt-4">
@@ -212,17 +250,19 @@
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">ID</span>
-              <code class="text-xs">{{
-                shortId(job.log_artifact_id.id)
-              }}</code>
+              <code class="text-xs">{{ shortId(job.log_artifact_id.id) }}</code>
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">Type</span>
-              <span class="text-title">{{ job.log_artifact_id.type || "-" }}</span>
+              <span class="text-title">{{
+                job.log_artifact_id.type || "-"
+              }}</span>
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">Residence</span>
-              <span class="text-title">{{ job.log_artifact_id.residence || "-" }}</span>
+              <span class="text-title">{{
+                job.log_artifact_id.residence || "-"
+              }}</span>
             </div>
           </div>
           <div class="mt-4">
@@ -241,9 +281,7 @@
           class="flex items-center justify-between p-4 border-b border-color-theme"
         >
           <div>
-            <p class="text-sm font-semibold text-title">
-              Transition History
-            </p>
+            <p class="text-sm font-semibold text-title">Transition History</p>
             <p class="text-xs text-definition-list-term">
               Lifecycle events recorded for this job.
             </p>
@@ -256,19 +294,24 @@
           <table class="w-full text-sm text-table-row">
             <thead>
               <tr class="border-b border-color-theme">
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Time
                 </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   From
                 </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   To
                 </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
-                  Worker
-                </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Detail
                 </th>
               </tr>
@@ -287,13 +330,24 @@
                 <td class="px-4 py-2">
                   <StatusBadge :status="t.to_status" />
                 </td>
-                <td class="px-4 py-2">{{ t.worker_id || "-" }}</td>
-                <td class="px-4 py-2 max-w-xs truncate">
-                  {{ t.detail || "-" }}
+                <td class="px-4 py-2 align-top">
+                  <p class="whitespace-pre-wrap break-words">
+                    {{ displayDetail(t) }}
+                  </p>
+                  <button
+                    v-if="canExpandDetail(t.detail)"
+                    class="mt-1 text-xs text-button-outline hover:text-button-outline-hover underline underline-offset-2"
+                    @click.stop="toggleDetail(t.id)"
+                  >
+                    {{ isDetailExpanded(t.id) ? "Collapse" : "Expand" }}
+                  </button>
                 </td>
               </tr>
               <tr v-if="!transitions.length">
-                <td colspan="5" class="px-4 py-8 text-center text-definition-list-term">
+                <td
+                  colspan="4"
+                  class="px-4 py-8 text-center text-definition-list-term"
+                >
                   No transitions recorded
                 </td>
               </tr>
@@ -326,6 +380,8 @@ const transitions = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const deleting = ref(false);
+const expandedTransitionDetails = ref<Record<string, boolean>>({});
+const DETAIL_PREVIEW_LIMIT = 180;
 
 const normalizedInputs = computed(() => {
   const inputs = job.value?.inputs;
@@ -363,6 +419,26 @@ function formatJson(val: any): string {
     }
   }
   return JSON.stringify(val, null, 2);
+}
+
+function canExpandDetail(detail?: string | null): boolean {
+  return typeof detail === "string" && detail.length > DETAIL_PREVIEW_LIMIT;
+}
+
+function isDetailExpanded(transitionId: string): boolean {
+  return !!expandedTransitionDetails.value[transitionId];
+}
+
+function toggleDetail(transitionId: string): void {
+  expandedTransitionDetails.value[transitionId] =
+    !expandedTransitionDetails.value[transitionId];
+}
+
+function displayDetail(transition: any): string {
+  const detail = transition?.detail || "-";
+  if (!canExpandDetail(detail) || isDetailExpanded(transition.id))
+    return detail;
+  return `${detail.slice(0, DETAIL_PREVIEW_LIMIT)}...`;
 }
 
 onMounted(async () => {

@@ -9,6 +9,9 @@
           </p>
         </div>
         <div class="flex items-center gap-2">
+          <span class="text-xs text-definition-list-term">
+            {{ refreshing ? "Refreshing..." : "Auto-refresh: 10s" }}
+          </span>
           <button
             v-if="hasTerminalJobs"
             class="px-3 py-1.5 text-sm border border-color-theme rounded-md text-record-label hover:bg-hover disabled:opacity-50"
@@ -60,22 +63,39 @@
           <table class="w-full text-sm text-table-row">
             <thead>
               <tr class="border-b border-color-theme">
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   ID
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Processor
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Profile
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Status
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Created
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"></th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
+                  Updated
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                ></th>
               </tr>
             </thead>
             <tbody>
@@ -96,6 +116,7 @@
                   <StatusBadge :status="job.status" />
                 </td>
                 <td class="px-4 py-3">{{ formatDate(job.created_at) }}</td>
+                <td class="px-4 py-3">{{ formatDate(job.updated_at) }}</td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
                     <button
@@ -120,7 +141,10 @@
                 </td>
               </tr>
               <tr v-if="!items.length">
-                <td colspan="6" class="px-4 py-8 text-center text-definition-list-term">
+                <td
+                  colspan="7"
+                  class="px-4 py-8 text-center text-definition-list-term"
+                >
                   No jobs found
                 </td>
               </tr>
@@ -159,11 +183,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from "vue";
 import { navigateTo } from "#app/composables/router";
-import {
-  fetchJobs,
-  deleteJob,
-  cancelJob,
-} from "../composables/useHpcApi";
+import { fetchJobs, deleteJob, cancelJob } from "../composables/useHpcApi";
 import { JOB_STATUSES, isTerminal } from "../utils/protocol";
 import { formatDate } from "../utils/jobs";
 
@@ -172,6 +192,7 @@ const statuses = JOB_STATUSES;
 const items = ref<any[]>([]);
 const totalCount = ref(0);
 const loading = ref(false);
+const refreshing = ref(false);
 const error = ref<string | null>(null);
 const statusFilter = ref("");
 const offset = ref(0);
@@ -183,23 +204,39 @@ const clearing = ref(false);
 const hasTerminalJobs = ref(false);
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
+let initialLoadDone = false;
 
-async function loadJobs() {
-  loading.value = true;
-  error.value = null;
+function mergeJobs(nextJobs: any[]) {
+  const previousById = new Map(items.value.map((job) => [job.id, job]));
+  items.value = nextJobs.map((nextJob) => {
+    const previous = previousById.get(nextJob.id);
+    if (!previous) return nextJob;
+    Object.assign(previous, nextJob);
+    return previous;
+  });
+}
+
+async function loadJobs({ background = false }: { background?: boolean } = {}) {
+  if (!initialLoadDone && !background) loading.value = true;
+  if (background) refreshing.value = true;
+  if (!background) error.value = null;
   try {
     const result = await fetchJobs({
       status: statusFilter.value || undefined,
       limit: limit.value,
       offset: offset.value,
     });
-    items.value = result.items;
+    mergeJobs(result.items);
     totalCount.value = result.totalCount;
     hasTerminalJobs.value = result.items.some((j) => isTerminal(j.status));
   } catch (e: any) {
     error.value = e.message;
   } finally {
-    loading.value = false;
+    if (!initialLoadDone) {
+      loading.value = false;
+      initialLoadDone = true;
+    }
+    if (background) refreshing.value = false;
   }
 }
 
@@ -255,11 +292,13 @@ watch(statusFilter, () => {
   loadJobs();
 });
 
-watch(offset, loadJobs);
+watch(offset, () => {
+  loadJobs();
+});
 
 onMounted(() => {
   loadJobs();
-  refreshInterval = setInterval(loadJobs, 10000);
+  refreshInterval = setInterval(() => loadJobs({ background: true }), 10000);
 });
 
 onUnmounted(() => {
