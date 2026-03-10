@@ -51,6 +51,7 @@ public class GraphqlTableFieldFactory {
           .build();
   final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
+  private final Set<String> tablesWithSelectPermission;
 
   // cache so we can reuse types between tables
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
@@ -64,6 +65,11 @@ public class GraphqlTableFieldFactory {
 
   public GraphqlTableFieldFactory(Schema schema) {
     this.schema = schema;
+    this.tablesWithSelectPermission =
+        schema.getPermissionsForActiveUser().stream()
+            .filter(p -> p.select() != null)
+            .map(TablePermission::table)
+            .collect(Collectors.toUnmodifiableSet());
   }
 
   // helper to generate globally unique identifiers
@@ -302,9 +308,11 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private boolean hasViewPermission(TableMetadata table) {
+  boolean hasViewPermission(TableMetadata table) {
     return table.getTableType().equals(ONTOLOGIES)
-        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString());
+        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
+        || tablesWithSelectPermission.contains("*")
+        || tablesWithSelectPermission.contains(table.getTableName());
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
