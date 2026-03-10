@@ -282,6 +282,17 @@ const selectAllMatching = ref(false);
 const pageSelectCheckbox = ref<HTMLInputElement | null>(null);
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
+let initialLoadDone = false;
+
+function mergeArtifacts(nextItems: any[]) {
+  const previousById = new Map(items.value.map((a) => [a.id, a]));
+  items.value = nextItems.map((next) => {
+    const previous = previousById.get(next.id);
+    if (!previous) return next;
+    Object.assign(previous, next);
+    return previous;
+  });
+}
 
 const pageIds = computed(() =>
   items.value.map((a) => String(a?.id || "")).filter(Boolean)
@@ -424,21 +435,30 @@ async function deleteInBatches(
   return failedIds;
 }
 
-async function loadArtifacts() {
-  if (!items.value.length) loading.value = true;
-  error.value = null;
+async function loadArtifacts({
+  background = false,
+}: { background?: boolean } = {}) {
+  if (!initialLoadDone && !background) loading.value = true;
+  if (!background) error.value = null;
   try {
     const result = await fetchArtifacts({
       status: statusFilter.value || undefined,
       limit: limit.value,
       offset: offset.value,
     });
-    items.value = result.items;
+    if (background) {
+      mergeArtifacts(result.items);
+    } else {
+      items.value = result.items;
+    }
     totalCount.value = result.totalCount;
   } catch (e: any) {
-    error.value = e.message;
+    if (!background) error.value = e.message;
   } finally {
-    loading.value = false;
+    if (!initialLoadDone) {
+      loading.value = false;
+      initialLoadDone = true;
+    }
   }
 }
 
@@ -530,7 +550,7 @@ onMounted(() => {
   loadArtifacts();
   refreshInterval = setInterval(() => {
     if (bulkDeleting.value) return;
-    loadArtifacts();
+    loadArtifacts({ background: true });
   }, 10000);
 });
 

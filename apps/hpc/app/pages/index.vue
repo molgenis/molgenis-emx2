@@ -10,7 +10,7 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-definition-list-term">
-            {{ refreshing ? "Refreshing..." : "Auto-refresh: 10s" }}
+            Auto-refresh: 10s
           </span>
           <button
             v-if="hasTerminalJobs"
@@ -192,7 +192,6 @@ const statuses = JOB_STATUSES;
 const items = ref<any[]>([]);
 const totalCount = ref(0);
 const loading = ref(false);
-const refreshing = ref(false);
 const error = ref<string | null>(null);
 const statusFilter = ref("");
 const offset = ref(0);
@@ -218,7 +217,6 @@ function mergeJobs(nextJobs: any[]) {
 
 async function loadJobs({ background = false }: { background?: boolean } = {}) {
   if (!initialLoadDone && !background) loading.value = true;
-  if (background) refreshing.value = true;
   if (!background) error.value = null;
   try {
     const result = await fetchJobs({
@@ -236,7 +234,6 @@ async function loadJobs({ background = false }: { background?: boolean } = {}) {
       loading.value = false;
       initialLoadDone = true;
     }
-    if (background) refreshing.value = false;
   }
 }
 
