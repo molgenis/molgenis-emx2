@@ -135,7 +135,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .build();
 
-  private static final GraphQLType outputRolesType =
+  static final GraphQLType outputRolesType =
       new GraphQLObjectType.Builder()
           .name("MolgenisRolesType")
           .field(
@@ -549,6 +549,29 @@ public class GraphqlSchemaFieldFactory {
     // hide constructor
   }
 
+  static Map<String, Object> roleToMap(Role role) {
+    Map<String, Object> roleMap = new LinkedHashMap<>();
+    roleMap.put(GraphqlConstants.NAME, role.name());
+    roleMap.put(GraphqlConstants.DESCRIPTION, role.description());
+    roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
+    roleMap.put(
+        GraphqlConstants.PERMISSIONS,
+        role.permissions().stream()
+            .map(
+                p -> {
+                  Map<String, Object> permMap = new LinkedHashMap<>();
+                  permMap.put(TABLE, p.table());
+                  permMap.put(
+                      GraphqlConstants.SELECT, p.select() != null ? p.select().toString() : null);
+                  permMap.put(GraphqlConstants.INSERT, p.insert());
+                  permMap.put(GraphqlConstants.UPDATE, p.update());
+                  permMap.put(GraphqlConstants.DELETE, p.delete());
+                  return permMap;
+                })
+            .toList());
+    return roleMap;
+  }
+
   private static DataFetcher<?> queryFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
 
@@ -564,26 +587,8 @@ public class GraphqlSchemaFieldFactory {
       result.put(MEMBERS, members);
 
       // add roles with permissions (visible to all; system roles show their effective permissions)
-      List<Map<String, Object>> roles = new ArrayList<>();
-      for (Role role : schema.getRoleInfos()) {
-        Map<String, Object> roleMap = new LinkedHashMap<>();
-        roleMap.put(GraphqlConstants.NAME, role.name());
-        roleMap.put(GraphqlConstants.DESCRIPTION, role.description());
-        roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
-        List<Map<String, Object>> perms = new ArrayList<>();
-        for (TablePermission p : role.permissions()) {
-          Map<String, Object> permMap = new LinkedHashMap<>();
-          permMap.put(TABLE, p.table());
-          permMap.put(GraphqlConstants.SELECT, p.select() != null ? p.select().toString() : null);
-          permMap.put(GraphqlConstants.INSERT, p.insert());
-          permMap.put(GraphqlConstants.UPDATE, p.update());
-          permMap.put(GraphqlConstants.DELETE, p.delete());
-          perms.add(permMap);
-        }
-        roleMap.put(GraphqlConstants.PERMISSIONS, perms);
-        roles.add(roleMap);
-      }
-      result.put(ROLES, roles);
+      result.put(
+          ROLES, schema.getRoleInfos().stream().map(GraphqlSchemaFieldFactory::roleToMap).toList());
 
       // add settings for the schema
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
