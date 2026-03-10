@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IHeaders } from "../../../types/cms";
+import type { IHeaders } from "../../../types/test";
 
 withDefaults(defineProps<IHeaders>(), {
   enableFullScreenWidth: false,
