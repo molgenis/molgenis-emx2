@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
-public class TestTableLevelSecurity {
+class TestTableLevelSecurity {
 
   private static Database database;
   private static final String SCHEMA = "TestTableLevelSecurity";
@@ -89,13 +89,8 @@ public class TestTableLevelSecurity {
     assertThrows(
         MolgenisException.class,
         () ->
-            (SqlDatabase)
-                database
-                    .getRoleManager()
-                    .grant(
-                        SCHEMA,
-                        "Viewer",
-                        new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null)));
+            schema.grant(
+                "Viewer", new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null)));
   }
 
   @Test
@@ -140,7 +135,7 @@ public class TestTableLevelSecurity {
       Role info = schema.getRoleInfo("MetaRole");
       assertEquals(1, info.permissions().size());
 
-      TablePermission p = info.permissions().get(0);
+      TablePermission p = info.permissions().getFirst();
       assertEquals(TABLE_A, p.table());
       assertEquals(Privileges.VIEWER, p.select());
       assertEquals(Boolean.TRUE, p.update());
@@ -361,9 +356,9 @@ public class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     Role viewerInfo = schema.getRoleInfo("Viewer");
-    assertTrue(viewerInfo.system());
+    assertTrue(viewerInfo.isSystemRole());
     assertEquals(1, viewerInfo.permissions().size());
-    TablePermission p = viewerInfo.permissions().get(0);
+    TablePermission p = viewerInfo.permissions().getFirst();
     assertEquals("*", p.table());
     assertEquals(Privileges.VIEWER, p.select());
   }
