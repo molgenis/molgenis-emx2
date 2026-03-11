@@ -4,6 +4,15 @@ End-to-end tests for the EMX2 HPC execution bridge, exercising the full flow:
 **EMX2 API -> daemon -> Slurm -> artifacts**.
 This directory is the system-truth layer for real Slurm behavior.
 
+## Read First
+
+For operational onboarding (enable HPC, issue worker credentials, run daemon
+outside this test harness), start with:
+
+- [apps/hpc/README.md](../../../apps/hpc/README.md)
+
+This README is only for the real-Slurm VM e2e test system.
+
 ## Architecture
 
 ```
@@ -71,6 +80,9 @@ Requirements:
 2. `MOLGENIS_HPC_CREDENTIALS_KEY` set on `_SYSTEM_`
 3. admin signin must work (defaults `admin/admin`, overridable via
    `EMX2_ADMIN_EMAIL` and `EMX2_ADMIN_PASSWORD`)
+
+For manual credential/bootstrap flows, see
+[apps/hpc/README.md](../../../apps/hpc/README.md).
 
 ### Running EMX2
 

@@ -4,6 +4,15 @@ Outbound execution bridge that connects MOLGENIS EMX2 to HPC clusters managed by
 
 All communication is outbound from HPC to EMX2 — no inbound connections into the cluster are needed.
 
+## Read First
+
+For the full setup flow (EMX2 settings -> worker credential -> daemon -> first job),
+use the canonical quick start:
+
+- [apps/hpc/README.md](../../apps/hpc/README.md)
+
+This daemon README is daemon-specific reference documentation.
+
 ## Install
 
 Requires Python 3.11+. Install with [uv](https://docs.astral.sh/uv/):
@@ -14,47 +23,13 @@ uv pip install -e .
 
 ## Prerequisites
 
-Before starting the daemon, configure these `_SYSTEM_` settings:
+Before starting the daemon:
 
-- `MOLGENIS_HPC_ENABLED=true`
-- `MOLGENIS_HPC_CREDENTIALS_KEY=<strong-random-key>`
+1. EMX2 HPC must be enabled (`MOLGENIS_HPC_ENABLED=true`).
+2. EMX2 worker credential encryption key must be configured (`MOLGENIS_HPC_CREDENTIALS_KEY`).
+3. A worker credential secret must be issued for your `worker_id` and stored on the daemon host (for example in `.secret`).
 
-Worker authentication uses per-worker credentials. Issue or rotate a credential for the worker id,
-then place the returned secret on the daemon host.
-
-### Bootstrap worker credential (UI)
-
-From zero-state (no worker rows yet):
-
-1. Open `http://localhost:3000/workers` (or your HPC app URL).
-2. In **Bootstrap Worker Credential**, enter the daemon `worker_id`.
-3. Click **Issue** (or **Rotate** if re-keying an existing worker id).
-4. Copy the shown secret into a local `.secret` file next to your daemon config:
-
-```bash
-printf '%s' '<paste-secret>' > .secret && chmod 600 .secret
-```
-
-5. Configure daemon with:
-
-```yaml
-emx2:
-  worker_id: "hpc-headnode-01"
-  worker_secret_file: ".secret"
-```
-
-Issuing the credential creates the worker identity row. Capability data and
-heartbeat fields appear after the daemon successfully calls
-`POST /api/hpc/workers/register`.
-
-You can verify the setting is active by checking the health endpoint:
-
-```bash
-curl https://emx2.example.org/api/hpc/health
-# Should return: {"status":"ok","hpc_enabled":true,"credentials_key_configured":true,...}
-```
-
-If `MOLGENIS_HPC_CREDENTIALS_KEY` is missing, credential issue/rotate endpoints return `503 Service Unavailable`.
+If you need exact bootstrap steps, use [apps/hpc/README.md](../../apps/hpc/README.md).
 
 ## Configuration
 

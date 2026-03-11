@@ -760,27 +760,15 @@ Lists credential metadata for a worker. Secrets are never returned.
 
 ### Worker Credential Bootstrap Flow {.unnumbered}
 
-For first-time setup (no worker row yet):
-
-1. Open the HPC UI Workers page.
-2. Use **Bootstrap Worker Credential** to issue a credential for the daemon `worker_id`.
-3. Write the returned secret to a local `.secret` file on the daemon host:
-
-```bash
-printf '%s' '<secret>' > .secret && chmod 600 .secret
-```
-
-4. Configure daemon with:
-
-```yaml
-emx2:
-  worker_id: "hpc-headnode-01"
-  worker_secret_file: ".secret"
-```
-
-Credential issue/rotate ensures a worker identity row exists in `HpcWorkers`.
-Observed capabilities and heartbeat metadata are populated on successful
+Credential issue/rotate for a `worker_id` MUST ensure a worker identity row
+exists in `HpcWorkers`, even before the first successful
 `POST /api/hpc/workers/register`.
+
+Observed capabilities and heartbeat metadata are populated by
+`POST /api/hpc/workers/register`.
+
+Operational setup steps are intentionally documented in the canonical quick
+start: [apps/hpc/README.md](../README.md).
 
 ### DELETE /api/hpc/workers/{id} {.unnumbered}
 
