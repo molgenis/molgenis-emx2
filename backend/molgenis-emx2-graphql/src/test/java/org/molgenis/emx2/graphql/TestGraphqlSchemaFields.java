@@ -149,7 +149,7 @@ public class TestGraphqlSchemaFields {
       database.setActiveUser("shopmanager");
       graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
       graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
-      assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
+      assertTrue(execute("{_session{email,roles{name}}}").toString().contains("Manager"));
     } finally {
       database.becomeAdmin();
       graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
