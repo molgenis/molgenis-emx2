@@ -750,11 +750,6 @@ async function runBootstrapAction(action: CredentialAction) {
     });
     showBootstrap.value = false;
     await loadWorkers({ background: true });
-
-    if (workers.value.find((worker) => worker.worker_id === workerId)) {
-      expandedWorkerId.value = workerId;
-      await loadCredentials(workerId, true);
-    }
   } finally {
     bootstrapBusy.value = false;
   }
