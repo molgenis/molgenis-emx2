@@ -88,9 +88,7 @@ class TestTableLevelSecurity {
     // SqlRoleManager rejects grants to system roles directly
     assertThrows(
         MolgenisException.class,
-        () ->
-            schema.grant(
-                "Viewer", new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null)));
+        () -> schema.grant("Viewer", new TablePermission(TABLE_A, true, null, null, null)));
   }
 
   @Test
@@ -100,9 +98,7 @@ class TestTableLevelSecurity {
     assertThrows(
         MolgenisException.class,
         () ->
-            schema.grant(
-                "NonExistentRole",
-                new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null)));
+            schema.grant("NonExistentRole", new TablePermission(TABLE_A, true, null, null, null)));
   }
 
   @Test
@@ -114,9 +110,7 @@ class TestTableLevelSecurity {
       assertThrows(
           MolgenisException.class,
           () ->
-              schema.grant(
-                  "TempRole",
-                  new TablePermission("NoSuchTable", Privileges.VIEWER, null, null, null)));
+              schema.grant("TempRole", new TablePermission("NoSuchTable", true, null, null, null)));
     } finally {
       schema.deleteRole("TempRole");
     }
@@ -130,14 +124,14 @@ class TestTableLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MetaRole", "test");
     try {
-      schema.grant("MetaRole", new TablePermission(TABLE_A, Privileges.VIEWER, null, true, null));
+      schema.grant("MetaRole", new TablePermission(TABLE_A, true, null, true, null));
 
       Role info = schema.getRoleInfo("MetaRole");
       assertEquals(1, info.permissions().size());
 
       TablePermission p = info.permissions().getFirst();
       assertEquals(TABLE_A, p.table());
-      assertEquals(Privileges.VIEWER, p.select());
+      assertEquals(Boolean.TRUE, p.select());
       assertEquals(Boolean.TRUE, p.update());
       assertNull(p.insert());
       assertNull(p.delete());
@@ -166,7 +160,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ViewerRole", null);
-    schema.grant("ViewerRole", new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null));
+    schema.grant("ViewerRole", new TablePermission(TABLE_A, true, null, null, null));
     schema.addMember(USER_VIEWER, "ViewerRole");
 
     try {
@@ -210,7 +204,7 @@ class TestTableLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRole", null);
     // Grant access to TABLE_A only
-    schema.grant("PartialRole", new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null));
+    schema.grant("PartialRole", new TablePermission(TABLE_A, true, null, null, null));
     schema.addMember(USER_VIEWER, "PartialRole");
 
     try {
@@ -235,7 +229,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("EditorRole", null);
-    schema.grant("EditorRole", new TablePermission(TABLE_A, Privileges.VIEWER, true, true, true));
+    schema.grant("EditorRole", new TablePermission(TABLE_A, true, true, true, true));
     schema.addMember(USER_EDITOR, "EditorRole");
 
     try {
@@ -266,7 +260,7 @@ class TestTableLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ReadOnlyRole", null);
     // Only SELECT – no insert/update/delete
-    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null));
+    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A, true, null, null, null));
     schema.addMember(USER_EDITOR, "ReadOnlyRole");
 
     try {
@@ -294,7 +288,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("RevokeRole", null);
-    schema.grant("RevokeRole", new TablePermission(TABLE_A, Privileges.VIEWER, null, null, null));
+    schema.grant("RevokeRole", new TablePermission(TABLE_A, true, null, null, null));
     schema.addMember(USER_VIEWER, "RevokeRole");
 
     // Verify access exists
@@ -325,8 +319,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ActiveUserRole", null);
-    schema.grant(
-        "ActiveUserRole", new TablePermission(TABLE_B, Privileges.VIEWER, null, null, true));
+    schema.grant("ActiveUserRole", new TablePermission(TABLE_B, true, null, null, true));
     schema.addMember(USER_VIEWER, "ActiveUserRole");
 
     try {
@@ -337,7 +330,7 @@ class TestTableLevelSecurity {
             assertEquals(1, perms.size());
             TablePermission p = perms.getFirst();
             assertEquals(TABLE_B, p.table());
-            assertEquals(Privileges.VIEWER, p.select());
+            assertEquals(Boolean.TRUE, p.select());
             assertEquals(Boolean.TRUE, p.delete());
             assertNull(p.insert());
             assertNull(p.update());
@@ -360,7 +353,7 @@ class TestTableLevelSecurity {
     assertEquals(1, viewerInfo.permissions().size());
     TablePermission p = viewerInfo.permissions().getFirst();
     assertEquals("*", p.table());
-    assertEquals(Privileges.VIEWER, p.select());
+    assertEquals(Boolean.TRUE, p.select());
   }
 
   // --- Require manager to manage roles ---

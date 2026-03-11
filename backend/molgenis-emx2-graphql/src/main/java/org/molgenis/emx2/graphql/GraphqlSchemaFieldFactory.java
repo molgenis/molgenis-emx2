@@ -120,7 +120,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.SELECT)
-                  .type(Scalars.GraphQLString))
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.INSERT)
@@ -164,7 +164,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.SELECT)
-                  .type(Scalars.GraphQLString))
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.INSERT)
@@ -561,8 +561,7 @@ public class GraphqlSchemaFieldFactory {
                 p -> {
                   Map<String, Object> permMap = new LinkedHashMap<>();
                   permMap.put(TABLE, p.table());
-                  permMap.put(
-                      GraphqlConstants.SELECT, p.select() != null ? p.select().toString() : null);
+                  permMap.put(GraphqlConstants.SELECT, p.select());
                   permMap.put(GraphqlConstants.INSERT, p.insert());
                   permMap.put(GraphqlConstants.UPDATE, p.update());
                   permMap.put(GraphqlConstants.DELETE, p.delete());
@@ -713,16 +712,7 @@ public class GraphqlSchemaFieldFactory {
 
   private static TablePermission mapToTablePermission(Map<String, Object> permMap) {
     String table = (String) permMap.get(TABLE);
-    String selectStr = (String) permMap.get(GraphqlConstants.SELECT);
-    Privileges select = null;
-    if (selectStr != null) {
-      for (Privileges p : Privileges.values()) {
-        if (p.toString().equalsIgnoreCase(selectStr)) {
-          select = p;
-          break;
-        }
-      }
-    }
+    Boolean select = (Boolean) permMap.get(GraphqlConstants.SELECT);
     Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
     Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
     Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);

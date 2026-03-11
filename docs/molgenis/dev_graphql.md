@@ -302,7 +302,7 @@ effective permissions.
 
 - `system: true` — built-in role (Viewer, Editor, Manager, …). Its permissions apply to all tables (`table: "*"`).
 - `system: false` — custom role. Each entry in `permissions` targets a specific table.
-- `select` — one of `Viewer`, `Count`, `Aggregator`, `Range`, `Exists`, or `null`.
+- `select` — `true` when SELECT is granted, `null` when not.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
 
 ### Create a custom role and grant permissions
@@ -318,7 +318,7 @@ mutation {
         name: "TableAViewer"
         description: "Read-only access to TableA"
         permissions: [
-          { table: "TableA", select: "Viewer" }
+          { table: "TableA", select: true }
         ]
       }
     ]
@@ -337,7 +337,7 @@ mutation {
       {
         name: "TableAViewer"
         permissions: [
-          { table: "TableB", select: "Viewer", insert: true, update: true, delete: true }
+          { table: "TableB", select: true, insert: true, update: true, delete: true }
         ]
       }
     ]
