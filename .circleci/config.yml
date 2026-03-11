@@ -88,13 +88,13 @@ commands:
           command: |
               find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
           no_output_timeout: 5m
-    - restore_cache:
-        keys:
-          - gradle-{{ checksum "concatenated-build-gradle" }}
-          - gradle
-    - restore_cache:
-        keys:
-        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    # - restore_cache:
+    #     keys:
+    #       - gradle-{{ checksum "concatenated-build-gradle" }}
+    #       - gradle
+    # - restore_cache:
+    #     keys:
+    #     - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - run:
         name: Download Dependencies
         command: ./gradlew dependencies --no-daemon
