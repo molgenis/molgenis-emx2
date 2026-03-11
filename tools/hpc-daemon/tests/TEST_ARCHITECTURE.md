@@ -111,7 +111,7 @@ Level: M=MUST, S=SHOULD, Y=MAY.
 |----|-------------|-------|-----------|-------------|----------|
 | REQ-WORKER-REG-001 | Register upserts worker + replaces capabilities | M | — | — | test_01 |
 | REQ-WORKER-HEARTBEAT-001 | Heartbeat updates last_heartbeat_at | M | — | — | test_01 |
-| REQ-WORKER-STALE-001 | Workers without heartbeat > threshold are removed | M | HpcApiE2ETest (staleWorkersAreExpiredDuringPolling) | — | — |
+| REQ-WORKER-STALE-001 | Missed heartbeats do not auto-delete worker identities | M | WorkerServiceIntegrationTest (staleHeartbeatDoesNotRemoveWorkerAndHeartbeatRecovers) | — | — |
 | REQ-WORKER-DELETE-001 | Delete nullifies worker_id on associated jobs | M | — | — | — |
 
 ### API Shape (from protocol/hpc-protocol.json)

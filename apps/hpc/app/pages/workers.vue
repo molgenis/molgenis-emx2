@@ -116,58 +116,70 @@
       id="workers-page-secret"
       valid
     >
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p class="text-sm font-semibold text-title">Credential Issued</p>
-          <p class="text-xs text-definition-list-term mt-1">
-            Worker: <code>{{ revealedSecret.workerId }}</code> (shown once)
+      <div class="space-y-4">
+        <div
+          class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
+        >
+          <div class="space-y-1">
+            <p class="text-sm font-semibold text-title">Credential Issued</p>
+            <p class="text-xs text-definition-list-term">
+              Worker: <code>{{ revealedSecret.workerId }}</code>
+              <span class="text-title font-medium">(shown once)</span>
+            </p>
+          </div>
+          <div class="flex items-center gap-2 md:shrink-0">
+            <Button
+              type="primary"
+              size="tiny"
+              @click="copyRevealedSecret"
+            >
+              Copy Secret
+            </Button>
+            <Button
+              type="outline"
+              size="tiny"
+              @click="dismissRevealedSecret"
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+
+        <div class="rounded-md border border-color-theme bg-form px-3 py-3">
+          <p
+            class="text-[11px] font-semibold text-table-column-header uppercase tracking-wider"
+          >
+            Secret
           </p>
+          <code class="mt-2 block text-xs break-all leading-relaxed">{{
+            revealedSecret.secret
+          }}</code>
         </div>
-        <div class="flex items-center gap-2">
-          <Button
-            type="outline"
-            size="tiny"
-            @click="copyRevealedSecret"
-          >
-            Copy Secret
-          </Button>
-          <Button
-            type="outline"
-            size="tiny"
-            @click="dismissRevealedSecret"
-          >
-            Dismiss
-          </Button>
-        </div>
+
+        <details class="rounded-md border border-color-theme bg-form p-3">
+          <summary class="text-xs font-medium text-title cursor-pointer">
+            Daemon setup commands
+          </summary>
+          <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <div class="rounded-md border border-color-theme bg-content p-3">
+              <p class="text-xs text-definition-list-term mb-1">
+                Write secret to <code>.secret</code>
+              </p>
+              <pre class="text-xs overflow-x-auto">{{
+                secretWriteSnippet(revealedSecret.secret)
+              }}</pre>
+            </div>
+            <div class="rounded-md border border-color-theme bg-content p-3">
+              <p class="text-xs text-definition-list-term mb-1">
+                Daemon config snippet
+              </p>
+              <pre class="text-xs overflow-x-auto">{{
+                daemonConfigSnippet(revealedSecret.workerId)
+              }}</pre>
+            </div>
+          </div>
+        </details>
       </div>
-
-      <code class="mt-3 block text-xs bg-form px-2 py-2 rounded break-all">
-        {{ revealedSecret.secret }}
-      </code>
-
-      <details class="mt-3 rounded-md border border-color-theme bg-form p-3">
-        <summary class="text-xs font-medium text-title cursor-pointer">
-          Daemon setup commands
-        </summary>
-        <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <div>
-            <p class="text-xs text-definition-list-term mb-1">
-              Write secret to <code>.secret</code>
-            </p>
-            <pre class="text-xs bg-content p-2 rounded overflow-x-auto">{{
-              secretWriteSnippet(revealedSecret.secret)
-            }}</pre>
-          </div>
-          <div>
-            <p class="text-xs text-definition-list-term mb-1">
-              Daemon config snippet
-            </p>
-            <pre class="text-xs bg-content p-2 rounded overflow-x-auto">{{
-              daemonConfigSnippet(revealedSecret.workerId)
-            }}</pre>
-          </div>
-        </div>
-      </details>
     </Message>
 
     <div

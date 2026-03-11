@@ -56,27 +56,24 @@ class WorkerServiceIntegrationTest extends HpcServiceIntegrationTestBase {
   }
 
   @Test
-  void expiringStaleWorkersNullifiesJobOwnership() {
-    String workerId = "stale-worker";
+  void deleteWorkerNullifiesJobOwnership() {
+    String workerId = "delete-worker";
     workerService.registerOrHeartbeat(
         workerId,
-        "stale-host",
+        "delete-host",
         List.of(
             Map.of(
-                "processor", "expire-proc",
+                "processor", "delete-proc",
                 "profile", "any",
                 "max_concurrent_jobs", 1)));
 
-    String jobId = jobService.createJob("expire-proc", "any", null, null, "integration-test", null);
+    String jobId = jobService.createJob("delete-proc", "any", null, null, "integration-test", null);
     assertTrue(jobService.claimJob(jobId, workerId).isSuccess());
 
+    Row deleted = workerService.deleteWorker(workerId);
+    assertNotNull(deleted);
+
     Table workers = database.getSchema(schemaName).getTable("HpcWorkers");
-    Row worker = workers.where(f("worker_id", EQUALS, workerId)).retrieveRows().getFirst();
-    worker.set("last_heartbeat_at", LocalDateTime.now().minusMinutes(30));
-    workers.update(worker);
-
-    workerService.expireStaleWorkers();
-
     assertTrue(workers.where(f("worker_id", EQUALS, workerId)).retrieveRows().isEmpty());
 
     Table caps = database.getSchema(schemaName).getTable("HpcWorkerCapabilities");
@@ -97,5 +94,25 @@ class WorkerServiceIntegrationTest extends HpcServiceIntegrationTestBase {
 
     assertTrue(workerService.heartbeat(workerId));
     assertFalse(workerService.heartbeat("missing-worker"));
+  }
+
+  @Test
+  void staleHeartbeatDoesNotRemoveWorkerAndHeartbeatRecovers() {
+    String workerId = "sleepy-worker";
+    workerService.registerOrHeartbeat(
+        workerId,
+        "node-sleepy",
+        List.of(Map.of("processor", "sleepy-proc", "profile", "any", "max_concurrent_jobs", 1)));
+
+    Table workers = database.getSchema(schemaName).getTable("HpcWorkers");
+    Row worker = workers.where(f("worker_id", EQUALS, workerId)).retrieveRows().getFirst();
+    worker.set("last_heartbeat_at", LocalDateTime.now().minusHours(2));
+    workers.update(worker);
+
+    assertTrue(workerService.heartbeat(workerId));
+
+    List<Row> remaining = workers.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+    assertEquals(1, remaining.size());
+    assertNotNull(remaining.getFirst().getString("last_heartbeat_at"));
   }
 }

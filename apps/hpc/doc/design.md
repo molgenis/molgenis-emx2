@@ -684,6 +684,7 @@ Authentication is by per-worker HMAC credential. Unknown, revoked, expired, or i
 ### POST /api/hpc/workers/{id}/heartbeat {.unnumbered}
 
 Lightweight heartbeat. Updates `last_heartbeat_at` without re-submitting capabilities. The daemon SHOULD send this periodically (default: every 120 seconds) between poll cycles.
+Missed heartbeats MUST NOT auto-delete or auto-deregister the worker identity.
 
 `X-Worker-Id` MUST be present and MUST match `{id}`.
 
@@ -772,7 +773,8 @@ start: [apps/hpc/README.md](../README.md).
 
 ### DELETE /api/hpc/workers/{id} {.unnumbered}
 
-Removes a worker, its capabilities, and all worker credentials. Jobs previously assigned to this worker retain their history but have their `worker_id` nullified. Useful for cleaning up stale workers that are no longer active.
+Removes a worker, its capabilities, and all worker credentials. Jobs previously assigned to this worker retain their history but have their `worker_id` nullified.
+Worker removal is explicit-only via this endpoint; heartbeat timeout does not remove workers.
 
 **Response:** `204 No Content`, `404 Not Found`.
 

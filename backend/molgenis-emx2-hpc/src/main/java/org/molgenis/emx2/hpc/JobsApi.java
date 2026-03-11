@@ -20,7 +20,6 @@ import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.service.ArtifactService;
 import org.molgenis.emx2.hpc.service.ClaimResult;
 import org.molgenis.emx2.hpc.service.JobService;
-import org.molgenis.emx2.hpc.service.WorkerService;
 
 /**
  * Job lifecycle endpoints:
@@ -39,14 +38,11 @@ public class JobsApi {
 
   private final JobService jobService;
   private final ArtifactService artifactService;
-  private final WorkerService workerService;
   private final JobResponseMapper mapper;
 
-  public JobsApi(
-      JobService jobService, ArtifactService artifactService, WorkerService workerService) {
+  public JobsApi(JobService jobService, ArtifactService artifactService) {
     this.jobService = jobService;
     this.artifactService = artifactService;
-    this.workerService = workerService;
     this.mapper = new JobResponseMapper(artifactService);
   }
 
@@ -93,10 +89,9 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs — list jobs with optional filtering and pagination. */
   public void listJobs(Context ctx) {
-    // Expire stale jobs, artifacts, and workers before listing
+    // Expire stale jobs and artifacts before listing
     jobService.expireStaleJobs();
     artifactService.expireStaleArtifacts();
-    workerService.expireStaleWorkers();
 
     String status = ctx.queryParam("status");
     String processor = ctx.queryParam("processor");
