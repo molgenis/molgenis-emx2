@@ -54,7 +54,7 @@ public class CatalogueTest extends TestLoaders {
       Schema target = database.getSchema(DCAT_ROUND_TRIP);
 
       DcatHarvestTask harvestTask = new DcatHarvestTask(target, "roundtrip-test", sourceRdf);
-      HarvestReport report = harvestTask.harvestRdf(sourceRdf);
+      HarvestReport report = harvestTask.executeHarvest();
 
       assertTrue(report.getErrors().isEmpty(), "Harvest errors: " + report.getErrors());
       assertTrue(report.getResourcesImported() > 0, "Should import resources");

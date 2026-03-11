@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.UploadedFile;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.fairmapper.dcat.DcatHarvestTask;
@@ -28,6 +31,34 @@ public class DcatHarvestApi {
       throw new MolgenisException("Schema not found");
     }
 
+    UploadedFile uploadedFile = ctx.uploadedFile("file");
+    if (uploadedFile != null) {
+      handleFileUpload(ctx, schema, uploadedFile);
+      return;
+    }
+
+    handleJsonBody(ctx, schema);
+  }
+
+  private static void handleFileUpload(Context ctx, Schema schema, UploadedFile uploadedFile) {
+    try {
+      String rdfContent = new String(uploadedFile.content().readAllBytes(), StandardCharsets.UTF_8);
+      String fileName = uploadedFile.filename();
+      log.info(
+          "DCAT harvest requested for schema '{}' from file '{}' ({} chars)",
+          schema.getName(),
+          fileName,
+          rdfContent.length());
+      DcatHarvestTask task = new DcatHarvestTask(schema, fileName, rdfContent);
+      String taskId = TaskApi.submit(task);
+      ctx.status(202);
+      ctx.json(new TaskReference(taskId, schema));
+    } catch (IOException e) {
+      throw new MolgenisException("Failed to read uploaded file: " + e.getMessage());
+    }
+  }
+
+  private static void handleJsonBody(Context ctx, Schema schema) {
     String body = ctx.body();
     JsonNode json;
     try {
@@ -42,7 +73,7 @@ public class DcatHarvestApi {
     boolean hasRdf = rdfNode != null && !rdfNode.asText().isBlank();
 
     if (!hasUrl && !hasRdf) {
-      throw new MolgenisException("Request body must contain 'url' or 'rdf' field");
+      throw new MolgenisException("Request body must contain 'url', 'rdf', or file upload");
     }
 
     DcatHarvestTask task;

@@ -62,32 +62,23 @@ public class DcatHarvestTask extends Task {
   @Override
   public void run() {
     this.start();
-    HarvestReport report = new HarvestReport();
-    try {
-      Model rdfModel = stepFetch();
-      FrameResult frameResult = stepFrame(rdfModel);
-      List<Row> rows = stepMap(frameResult, report);
-      stepImport(frameResult.frame, rows, report);
-
-      if (report.hasErrors()) {
-        this.setError("Completed with " + report.getErrors().size() + " error(s)");
-      } else {
-        this.complete(report.getResourcesImported() + " resources imported");
-      }
-    } catch (Exception e) {
-      this.setError(e.getMessage());
+    HarvestReport report = executeHarvest();
+    if (report.hasErrors()) {
+      this.setError("Completed with " + report.getErrors().size() + " error(s)");
+    } else {
+      this.complete(report.getResourcesImported() + " resources imported");
     }
   }
 
-  public HarvestReport harvestRdf(String rdfTurtle) {
-    this.start();
+  public HarvestReport executeHarvest() {
     HarvestReport report = new HarvestReport();
     try {
-      Task fetchStep = this.addSubTask("Fetch");
-      fetchStep.start();
-      Model rdfModel = parseTurtle(rdfTurtle);
-      fetchStep.complete(rdfModel.size() + " triples parsed");
-
+      Model rdfModel;
+      if (rdfContent != null) {
+        rdfModel = stepParse();
+      } else {
+        rdfModel = stepFetch();
+      }
       FrameResult frameResult = stepFrame(rdfModel);
       List<Row> rows = stepMap(frameResult, report);
       stepImport(frameResult.frame, rows, report);
@@ -96,6 +87,19 @@ public class DcatHarvestTask extends Task {
       report.addError(e.getMessage());
     }
     return report;
+  }
+
+  private Model stepParse() throws IOException {
+    Task step = this.addSubTask("Parse");
+    step.start();
+    try {
+      Model rdfModel = parseTurtle(rdfContent);
+      step.complete(rdfModel.size() + " triples parsed");
+      return rdfModel;
+    } catch (Exception e) {
+      step.setError(e.getMessage());
+      throw e;
+    }
   }
 
   private Model stepFetch() throws IOException {

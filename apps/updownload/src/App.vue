@@ -1,14 +1,5 @@
 <template>
   <div id="app">
-    <Import />
+    <router-view />
   </div>
 </template>
-
-<script>
-import Import from "./components/Import.vue";
-
-export default {
-  name: "App",
-  components: { Import },
-};
-</script>
