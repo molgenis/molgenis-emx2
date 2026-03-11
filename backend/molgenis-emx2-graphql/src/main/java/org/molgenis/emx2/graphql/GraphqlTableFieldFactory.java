@@ -175,7 +175,6 @@ public class GraphqlTableFieldFactory {
 
   private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
     String id = col.getIdentifier();
-    TableMetadata table = col.getTable();
     switch (col.getColumnType().getBaseType()) {
       case HEADING:
         // nothing to do
@@ -244,7 +243,7 @@ public class GraphqlTableFieldFactory {
                 .type(GraphQLList.list(Scalars.GraphQLInt)));
         break;
       case REF:
-        if (hasViewPermission(table)) {
+        if (hasViewPermission(col.getRefTable())) {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
@@ -258,7 +257,7 @@ public class GraphqlTableFieldFactory {
         break;
       case REF_ARRAY:
       case REFBACK:
-        if (hasViewPermission(table)) {
+        if (hasViewPermission(col.getRefTable())) {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
