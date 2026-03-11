@@ -50,7 +50,7 @@
     "d3": "7.8.5",
     "http-server": "14.1.1",
     "if-env": "1.0.4",
-    "nuxt": "4.2.1",
+    "nuxt": "4.3.1",
     "nuxt-monaco-editor": "1.4.0",
     "playwright-core": "1.58.0",
     "prettier": "2.8.8",
