@@ -63,16 +63,16 @@
       @close="showForm = false"
     />
 
-    <div
-      v-if="loading && !items.length"
-      class="bg-form rounded-lg border border-color-theme p-6 text-center text-definition-list-term"
-    >
-      Loading artifacts...
-    </div>
-    <Message v-else-if="error" id="artifacts-page-error" invalid>
+    <Message v-if="error" id="artifacts-page-error" invalid>
       {{ error }}
     </Message>
     <div v-else>
+      <div
+        v-if="loading && !items.length"
+        class="bg-form rounded-lg border border-color-theme p-4 text-sm text-definition-list-term"
+      >
+        Loading artifacts...
+      </div>
       <Message v-if="notice" id="artifacts-page-notice" valid>
         {{ notice }}
       </Message>
@@ -237,24 +237,11 @@
           <span class="text-xs text-definition-list-term">
             Showing {{ items.length }} of {{ totalCount }} artifacts
           </span>
-          <div class="flex gap-1">
-            <Button
-              type="outline"
-              size="tiny"
-              :disabled="offset === 0"
-              @click="offset = Math.max(0, offset - limit)"
-            >
-              &laquo; Prev
-            </Button>
-            <Button
-              type="outline"
-              size="tiny"
-              :disabled="offset + limit >= totalCount"
-              @click="offset += limit"
-            >
-              Next &raquo;
-            </Button>
-          </div>
+          <HpcPagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @update="onPageUpdate"
+          />
         </div>
       </section>
     </div>
@@ -267,6 +254,7 @@ import { navigateTo } from "#app/composables/router";
 import { fetchArtifacts, deleteArtifact } from "../../composables/useHpcApi";
 import { formatDate } from "../../utils/jobs";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
+import HpcPagination from "../../components/HpcPagination.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
 import InputSelect from "../../../../tailwind-components/app/components/input/Select.vue";
 
@@ -289,6 +277,10 @@ const selectedIds = ref<Set<string>>(new Set());
 const excludedIds = ref<Set<string>>(new Set());
 const selectAllMatching = ref(false);
 const pageSelectCheckbox = ref<HTMLInputElement | null>(null);
+const currentPage = computed(() => Math.floor(offset.value / limit.value) + 1);
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(totalCount.value / limit.value))
+);
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
@@ -537,6 +529,10 @@ function onArtifactCreated() {
   showForm.value = false;
   notice.value = null;
   loadArtifacts();
+}
+
+function onPageUpdate(page: number) {
+  offset.value = Math.max(0, (page - 1) * limit.value);
 }
 
 watch([statusFilter], () => {

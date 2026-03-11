@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <div
       v-if="loading"
-      class="bg-form rounded-lg border border-color-theme p-6 text-center text-definition-list-term"
+      class="bg-form rounded-lg border border-color-theme p-4 text-sm text-definition-list-term"
     >
       Loading job...
     </div>

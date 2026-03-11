@@ -156,11 +156,12 @@
           }}</code>
         </div>
 
-        <details class="rounded-md border border-color-theme bg-form p-3">
-          <summary class="text-xs font-medium text-title cursor-pointer">
-            Daemon setup commands
-          </summary>
-          <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Accordion
+          label="daemon setup commands"
+          :open-by-default="false"
+          class="rounded-md border border-color-theme bg-form"
+        >
+          <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
             <div class="rounded-md border border-color-theme bg-content p-3">
               <p class="text-xs text-definition-list-term mb-1">
                 Write secret to <code>.secret</code>
@@ -178,13 +179,13 @@
               }}</pre>
             </div>
           </div>
-        </details>
+        </Accordion>
       </div>
     </Message>
 
     <div
       v-if="loading && !workers.length"
-      class="bg-form rounded-lg border border-color-theme p-6 text-center text-definition-list-term"
+      class="bg-form rounded-lg border border-color-theme p-6 text-sm text-definition-list-term"
     >
       Loading workers...
     </div>
@@ -575,6 +576,7 @@ import {
 } from "../composables/useHpcApi";
 import { formatDate } from "../utils/jobs";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import Accordion from "../../../tailwind-components/app/components/Accordion.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
 

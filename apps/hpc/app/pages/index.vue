@@ -38,16 +38,16 @@
       @close="showForm = false"
     />
 
-    <div
-      v-if="loading && !items.length"
-      class="bg-form rounded-lg border border-color-theme p-6 text-center text-definition-list-term"
-    >
-      Loading jobs...
-    </div>
-    <Message v-else-if="error" id="jobs-page-error" invalid>
+    <Message v-if="error" id="jobs-page-error" invalid>
       {{ error }}
     </Message>
     <div v-else>
+      <div
+        v-if="loading && !items.length"
+        class="bg-form rounded-lg border border-color-theme p-4 text-sm text-definition-list-term"
+      >
+        Loading jobs...
+      </div>
       <section class="bg-form rounded-lg border border-color-theme">
         <div class="p-4 border-b border-color-theme">
           <div class="w-56">
@@ -161,24 +161,11 @@
           <span class="text-xs text-definition-list-term">
             Showing {{ items.length }} of {{ totalCount }} jobs
           </span>
-          <div class="flex gap-1">
-            <Button
-              type="outline"
-              size="tiny"
-              :disabled="offset === 0"
-              @click="offset = Math.max(0, offset - limit)"
-            >
-              &laquo; Prev
-            </Button>
-            <Button
-              type="outline"
-              size="tiny"
-              :disabled="offset + limit >= totalCount"
-              @click="offset += limit"
-            >
-              Next &raquo;
-            </Button>
-          </div>
+          <HpcPagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @update="onPageUpdate"
+          />
         </div>
       </section>
     </div>
@@ -186,12 +173,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted, computed } from "vue";
 import { navigateTo } from "#app/composables/router";
 import { fetchJobs, deleteJob, cancelJob } from "../composables/useHpcApi";
 import { JOB_STATUSES, isTerminal } from "../utils/protocol";
 import { formatDate } from "../utils/jobs";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import HpcPagination from "../components/HpcPagination.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 
@@ -209,6 +197,10 @@ const deleting = ref(false);
 const cancelling = ref(false);
 const clearing = ref(false);
 const hasTerminalJobs = ref(false);
+const currentPage = computed(() => Math.floor(offset.value / limit.value) + 1);
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(totalCount.value / limit.value))
+);
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
@@ -290,6 +282,10 @@ async function onClearCompleted() {
 function onJobSubmitted() {
   showForm.value = false;
   loadJobs();
+}
+
+function onPageUpdate(page: number) {
+  offset.value = Math.max(0, (page - 1) * limit.value);
 }
 
 watch(statusFilter, () => {
