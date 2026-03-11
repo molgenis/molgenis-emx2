@@ -14,17 +14,17 @@ test.describe("PieChart", { tag: "@tw-components @tw-viz" }, () => {
   });
 
   test("segements and labels are rendered", async ({ page }) => {
-    const segments = await page.locator("g.pie-slices path").all();
+    const segments = await page.locator("g.pie-group path").all();
     expect(segments.length).toEqual(4);
     expect(await segments[0].getAttribute("class")).toContain(
       "stroke-chart-paths"
     );
 
-    const labels = await page.locator("g.pie-slice-labels text").all();
+    const labels = await page.locator("g.pie-group text").all();
     expect(labels.length).toEqual(4);
     expect(await labels[0].getAttribute("class")).toContain("fill-chart-text");
 
-    const ticks = await page.locator("g.pie-slice-labels polyline").all();
+    const ticks = await page.locator("g.pie-group polyline").all();
     expect(ticks.length).toEqual(4);
     expect(await ticks[0].getAttribute("class")).toContain(
       "stroke-chart-paths"
@@ -44,10 +44,7 @@ test.describe("PieChart", { tag: "@tw-components @tw-viz" }, () => {
     );
     await firstLegendItem.hover();
 
-    const segment = await page.locator(
-      "g.pie-slices path[data-group='Group A']"
-    );
-
+    const segment = await page.locator(".pie-group[data-group='Group A'] path");
     expect(await segment.getAttribute("class")).toContain("scale-125");
   });
 });
