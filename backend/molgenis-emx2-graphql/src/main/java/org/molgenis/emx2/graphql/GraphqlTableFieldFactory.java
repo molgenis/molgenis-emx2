@@ -117,7 +117,7 @@ public class GraphqlTableFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ORDERBY)
-                .type(createTableOrderByInputType(table))
+                .type(GraphQLList.list(createTableOrderByInputType(table)))
                 .build())
         .build();
   }
@@ -280,7 +280,7 @@ public class GraphqlTableFieldFactory {
                   .argument(
                       GraphQLArgument.newArgument()
                           .name(GraphqlConstants.ORDERBY)
-                          .type(createTableOrderByInputType(col.getRefTable()))
+                          .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
         }
         tableBuilder.field(
@@ -909,17 +909,18 @@ public class GraphqlTableFieldFactory {
 
   private Map<String, Order> convertOrderByIdsToNames(
       TableMetadata aTable, Map<String, Object> args) {
-    Map<String, Order> orderBy = (Map<String, Order>) args.get(ORDERBY);
-    Map<String, Order> unescapedMap = new HashMap<>();
-    for (Map.Entry<String, Order> entry : orderBy.entrySet()) {
-      Optional<Column> column = findColumnById(aTable, entry.getKey());
-      if (column.isPresent()) {
-        unescapedMap.put(column.get().getName(), entry.getValue());
-      } else {
-        throw new MolgenisException("Unknown order by column id: " + entry.getKey());
-      }
+    List<Map<String, Order>> orderByList = (List<Map<String, Order>>) args.get(ORDERBY);
+    Map<String, Order> result = new LinkedHashMap<>();
+    for (Map<String, Order> orderByEntry : orderByList) {
+      orderByEntry.forEach((id, order) -> result.put(resolveColumnName(aTable, id), order));
     }
-    return unescapedMap;
+    return result;
+  }
+
+  private String resolveColumnName(TableMetadata table, String id) {
+    return findColumnById(table, id)
+        .map(Column::getName)
+        .orElseThrow(() -> new MolgenisException("Unknown order by column id: " + id));
   }
 
   private GraphQLFieldDefinition getMutationDefinition(Schema schema, MutationType type) {
