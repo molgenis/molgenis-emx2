@@ -10,11 +10,11 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "@heroicons/vue": "^2.0.18",
+    "@heroicons/vue": "2.2.0",
+    "d3-scale-chromatic": "3.0.0",
     "graphql-request": "5.2.0",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
-    "d3-scale-chromatic": "3.0.0",
     "vue": "3.5.22",
     "vue-router": "4.4.3"
   },
