@@ -248,7 +248,9 @@ export default {
           this.loading = false;
           this.key = Date.now();
           this.dirty = false;
-          this.isManager = data._session.roles?.includes("Manager");
+          this.isManager = data._session.roles?.some(
+            (r) => r.name === "Manager"
+          );
         })
         .catch((error) => {
           if (error.response?.errors[0]?.message) {
