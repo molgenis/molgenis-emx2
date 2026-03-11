@@ -97,7 +97,8 @@ public class WorkerService {
   }
 
   /**
-   * Deletes a worker and its capabilities. Nullifies worker_id on any jobs referencing this worker.
+   * Deletes a worker, its capabilities, and all worker credentials. Nullifies worker_id on any jobs
+   * referencing this worker.
    *
    * @return the deleted worker row, or null if not found
    */
@@ -118,6 +119,14 @@ public class WorkerService {
           List<Row> caps = capTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
           for (Row cap : caps) {
             capTable.delete(cap);
+          }
+
+          // Delete worker credentials
+          Table credentialsTable = schema.getTable("HpcWorkerCredentials");
+          List<Row> credentials =
+              credentialsTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          for (Row credential : credentials) {
+            credentialsTable.delete(credential);
           }
 
           // Nullify worker_id on any jobs referencing this worker
@@ -152,7 +161,8 @@ public class WorkerService {
 
   /**
    * Detects and removes workers whose last heartbeat exceeds the stale threshold. Called lazily
-   * from the job-list poll cycle. Nullifies worker_id on any jobs referencing stale workers.
+   * from the job-list poll cycle. Nullifies worker_id on any jobs referencing stale workers and
+   * removes their credentials.
    */
   public void expireStaleWorkers() {
     tx.tx(
@@ -160,6 +170,7 @@ public class WorkerService {
           Schema schema = db.getSchema(systemSchemaName);
           Table workersTable = schema.getTable("HpcWorkers");
           Table capTable = schema.getTable("HpcWorkerCapabilities");
+          Table credentialsTable = schema.getTable("HpcWorkerCredentials");
           Table jobsTable = schema.getTable("HpcJobs");
           LocalDateTime cutoff = LocalDateTime.now().minusSeconds(STALE_HEARTBEAT_SECONDS);
 
@@ -175,6 +186,13 @@ public class WorkerService {
               List<Row> caps = capTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
               for (Row cap : caps) {
                 capTable.delete(cap);
+              }
+
+              // Delete worker credentials
+              List<Row> credentials =
+                  credentialsTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+              for (Row credential : credentials) {
+                credentialsTable.delete(credential);
               }
 
               // Nullify worker_id on associated jobs

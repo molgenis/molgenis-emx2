@@ -784,7 +784,7 @@ Observed capabilities and heartbeat metadata are populated on successful
 
 ### DELETE /api/hpc/workers/{id} {.unnumbered}
 
-Removes a worker and its capabilities. Jobs previously assigned to this worker retain their history but have their `worker_id` nullified. Useful for cleaning up stale workers that are no longer active.
+Removes a worker, its capabilities, and all worker credentials. Jobs previously assigned to this worker retain their history but have their `worker_id` nullified. Useful for cleaning up stale workers that are no longer active.
 
 **Response:** `204 No Content`, `404 Not Found`.
 

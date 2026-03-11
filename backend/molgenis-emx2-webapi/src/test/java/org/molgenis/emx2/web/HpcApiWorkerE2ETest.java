@@ -80,4 +80,33 @@ class HpcApiWorkerE2ETest extends HpcApiTestBase {
         .statusCode(404)
         .body("detail", containsString("not found"));
   }
+
+  @Test
+  @Order(53)
+  void deletingWorkerRemovesCredentialsSoWorkerIdCanBeReissued() {
+    String workerId = HpcTestkit.nextName("delete-worker-credentials");
+
+    hpcRequest()
+        .body("{}")
+        .when()
+        .post("/api/hpc/workers/{id}/credentials/issue", workerId)
+        .then()
+        .statusCode(201);
+
+    hpcRequest().when().delete("/api/hpc/workers/{id}", workerId).then().statusCode(204);
+
+    hpcRequest()
+        .body("{}")
+        .when()
+        .post("/api/hpc/workers/{id}/credentials/issue", workerId)
+        .then()
+        .statusCode(201);
+
+    hpcRequest()
+        .when()
+        .get("/api/hpc/workers/{id}/credentials", workerId)
+        .then()
+        .statusCode(200)
+        .body("count", equalTo(1));
+  }
 }

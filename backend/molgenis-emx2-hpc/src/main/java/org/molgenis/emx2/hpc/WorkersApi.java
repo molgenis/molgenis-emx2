@@ -75,7 +75,7 @@ public class WorkersApi {
     ctx.json(response);
   }
 
-  /** DELETE /api/hpc/workers/{id} — remove a worker and its capabilities. */
+  /** DELETE /api/hpc/workers/{id} — remove a worker, capabilities, and credentials. */
   public void deleteWorker(Context ctx) {
     String workerId = ctx.pathParam("id");
     if (workerId == null || workerId.isBlank()) {
