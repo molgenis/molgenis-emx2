@@ -98,6 +98,7 @@ def _setup_state(nodes: List[Node], eric: Directory, report_init):
         report=report,
         diseases=MagicMock(),
         catalog_id=MagicMock(),
+        publisher_id=MagicMock()
     )
     eric._init_state = MagicMock()
     eric._init_state.return_value = state

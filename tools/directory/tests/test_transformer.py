@@ -17,6 +17,7 @@ def transformer():
         eu_node_data=MagicMock(),
         diseases=MagicMock(),
         catalog_id=MagicMock(),
+        publisher_id=MagicMock()
     )
 
 
@@ -315,7 +316,6 @@ def test_transformer_fdp_fields(node_data, transformer):
     transformer._set_collection_fdp_fields()
 
     # Check fields correctly added
-    assert node_data.collections.rows[0]["publisher"] == "BBMRI-ERIC"
     assert node_data.collections.rows[0]["language"] == "English"
     assert (
         node_data.collections.rows[0]["license"]

@@ -58,6 +58,7 @@ async def test_publish(async_publisher, async_session):
         report=MagicMock(),
         diseases=MagicMock(),
         catalog_id=MagicMock(),
+        publisher_id=MagicMock()
     )
 
     await async_publisher.publish(state)
