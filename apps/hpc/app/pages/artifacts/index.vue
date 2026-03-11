@@ -71,13 +71,13 @@
     >
       {{ error }}
     </div>
-    <div
-      v-else-if="notice"
-      class="bg-green-500/10 border border-green-500/20 text-green-700 p-4 rounded-lg"
-    >
-      {{ notice }}
-    </div>
     <div v-else>
+      <div
+        v-if="notice"
+        class="bg-green-500/10 border border-green-500/20 text-green-700 p-4 rounded-lg"
+      >
+        {{ notice }}
+      </div>
       <section class="bg-form rounded-lg border border-color-theme">
         <div
           v-if="showSelectMoreBanner"
