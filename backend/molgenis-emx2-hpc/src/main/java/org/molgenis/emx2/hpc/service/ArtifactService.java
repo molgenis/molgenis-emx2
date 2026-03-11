@@ -55,7 +55,7 @@ public class ArtifactService {
    * @return the artifact ID
    */
   public String createArtifact(
-      String name, String type, String residence, String contentUrl, String metadata) {
+      String name, String type, String residence, String contentUrl, Object metadata) {
     // Defense-in-depth: validate content_url even if API layer already did
     InputValidator.validateContentUrl(contentUrl, residence);
 

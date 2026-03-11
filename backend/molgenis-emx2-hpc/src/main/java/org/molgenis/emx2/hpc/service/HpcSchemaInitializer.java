@@ -92,13 +92,13 @@ public final class HpcSchemaInitializer {
                   column("id").setPkey(),
                   column("processor").setRequired(true),
                   column("profile"),
-                  column("parameters").setType(ColumnType.TEXT),
+                  column("parameters").setType(ColumnType.JSON),
                   column("status")
                       .setType(ColumnType.ONTOLOGY)
                       .setRefTable("HpcJobStatus")
                       .setRequired(true),
                   column("worker_id").setType(ColumnType.REF).setRefTable("HpcWorkers"),
-                  column("inputs").setType(ColumnType.TEXT),
+                  column("inputs").setType(ColumnType.JSON),
                   column("slurm_job_id"),
                   column("submit_user"),
                   column("created_at").setType(ColumnType.DATETIME),
@@ -141,8 +141,8 @@ public final class HpcSchemaInitializer {
                   column("sha256"),
                   column("size_bytes").setType(ColumnType.LONG),
                   column("content_url"),
-                  column("metadata").setType(ColumnType.TEXT),
-                  column("schema_info").setType(ColumnType.TEXT),
+                  column("metadata").setType(ColumnType.JSON),
+                  column("schema_info").setType(ColumnType.JSON),
                   column("created_at").setType(ColumnType.DATETIME),
                   column("committed_at").setType(ColumnType.DATETIME)));
 

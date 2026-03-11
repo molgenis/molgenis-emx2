@@ -56,10 +56,9 @@ public class JobsApi {
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String processor = (String) body.get("processor");
     String profile = (String) body.get("profile");
-    String parameters =
-        body.get("parameters") != null ? MAPPER.writeValueAsString(body.get("parameters")) : null;
-    String inputs =
-        body.get("inputs") != null ? MAPPER.writeValueAsString(body.get("inputs")) : null;
+    Object parameters =
+        body.get("parameters") != null ? MAPPER.valueToTree(body.get("parameters")) : null;
+    Object inputs = body.get("inputs") != null ? MAPPER.valueToTree(body.get("inputs")) : null;
     String submitUser =
         "USER".equals(ctx.attribute("hpcAuthMethod")) ? ctx.attribute("hpcAuthUser") : null;
     Integer timeoutSeconds =

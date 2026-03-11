@@ -55,8 +55,8 @@ public class ArtifactsApi {
     String type = (String) body.get("type");
     String residence = (String) body.get("residence");
     String contentUrl = (String) body.get("content_url");
-    String metadata =
-        body.get("metadata") != null ? MAPPER.writeValueAsString(body.get("metadata")) : null;
+    Object metadata =
+        body.get("metadata") != null ? MAPPER.valueToTree(body.get("metadata")) : null;
 
     InputValidator.validateContentUrl(contentUrl, residence);
 

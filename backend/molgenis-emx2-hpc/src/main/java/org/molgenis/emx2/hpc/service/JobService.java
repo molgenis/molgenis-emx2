@@ -49,8 +49,8 @@ public class JobService {
   public String createJob(
       String processor,
       String profile,
-      String parameters,
-      String inputs,
+      Object parameters,
+      Object inputs,
       String submitUser,
       Integer timeoutSeconds) {
     String jobId = UUID.randomUUID().toString();
@@ -59,7 +59,7 @@ public class JobService {
           Schema schema = db.getSchema(systemSchemaName);
 
           // Validate that all input artifacts are COMMITTED
-          if (inputs != null && !inputs.isBlank()) {
+          if (inputs != null) {
             List<String> artifactIds = extractArtifactIds(inputs);
             validateArtifactsCommitted(schema, artifactIds);
           }
@@ -603,10 +603,13 @@ public class JobService {
    * Extracts artifact IDs from the inputs JSON. Supports: JSON array of strings, JSON array of
    * objects with "artifact_id" field, or JSON object with string values (name→artifact_id mapping).
    */
-  static List<String> extractArtifactIds(String inputsJson) {
+  static List<String> extractArtifactIds(Object inputsValue) {
     List<String> ids = new ArrayList<>();
     try {
-      JsonNode node = MAPPER.readTree(inputsJson);
+      JsonNode node = toJsonNode(inputsValue);
+      if (node == null) {
+        return ids;
+      }
       if (node.isArray()) {
         for (JsonNode element : node) {
           if (element.isTextual()) {
@@ -625,9 +628,22 @@ public class JobService {
                 });
       }
     } catch (Exception e) {
-      logger.warn("Could not parse inputs JSON for artifact validation: {}", e.getMessage());
+      logger.warn(
+          "Could not parse inputs JSON for artifact validation (type={}): {}",
+          inputsValue != null ? inputsValue.getClass().getSimpleName() : "null",
+          e.getMessage());
     }
     return ids;
+  }
+
+  private static JsonNode toJsonNode(Object value) throws Exception {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof JsonNode node) {
+      return node;
+    }
+    return MAPPER.valueToTree(value);
   }
 
   /**

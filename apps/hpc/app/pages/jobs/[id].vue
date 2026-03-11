@@ -99,47 +99,31 @@
           </div>
         </div>
 
-        <div v-if="showCurrentProgress" class="mt-6">
-          <p class="text-sm font-semibold text-title mb-1">Current Progress</p>
+        <div v-if="normalizedInputs.length" class="mt-6">
+          <p class="text-sm font-semibold text-title mb-1">Input Artifacts</p>
           <p class="text-xs text-definition-list-term mb-2">
-            Latest structured progress snapshot reported by the worker.
+            Artifacts referenced by this job at submission time.
           </p>
-          <div
-            v-if="hasJobProgress"
-            class="bg-content rounded-lg border border-color-theme p-4 space-y-2"
-          >
-            <div class="flex items-center justify-between text-sm text-title">
-              <span>{{
-                jobProgress.phase || jobProgress.message || "In progress"
-              }}</span>
-              <span>{{ formatProgressPercent(jobProgress.progress) }}</span>
-            </div>
-            <div class="h-2 bg-form rounded overflow-hidden">
-              <div
-                class="h-full bg-blue-500 transition-all duration-300"
-                :style="{
-                  width: `${Math.max(
-                    0,
-                    Math.min(100, Math.round((jobProgress.progress ?? 0) * 100))
-                  )}%`,
-                }"
-              />
-            </div>
-            <p
-              v-if="
-                jobProgress.message && jobProgress.message !== jobProgress.phase
-              "
-              class="text-xs text-definition-list-term"
+          <ul class="flex flex-wrap gap-2">
+            <li
+              v-for="(input, idx) in normalizedInputs"
+              :key="input.id || `${input.name || 'input'}-${idx}`"
             >
-              {{ jobProgress.message }}
-            </p>
-          </div>
-          <div
-            v-else
-            class="bg-content rounded-lg border border-color-theme p-4 text-sm text-definition-list-term"
-          >
-            No structured progress reported yet.
-          </div>
+              <NuxtLink
+                v-if="input.id"
+                :to="`/artifacts/${input.id}`"
+                class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-content text-sm text-title hover:bg-hover transition-colors"
+              >
+                {{ inputArtifactChipLabel(input) }}
+              </NuxtLink>
+              <span
+                v-else
+                class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-content text-sm text-title"
+              >
+                {{ inputArtifactChipLabel(input) }}
+              </span>
+            </li>
+          </ul>
         </div>
 
         <div v-if="job.parameters" class="mt-6">
@@ -150,71 +134,6 @@
           <pre
             class="bg-code-output border border-color-theme rounded-lg p-4 text-sm font-mono text-code-output overflow-x-auto"
           ><code>{{ formatJson(job.parameters) }}</code></pre>
-        </div>
-
-        <div v-if="normalizedInputs.length" class="mt-6">
-          <p class="text-sm font-semibold text-title mb-1">Input Artifacts</p>
-          <p class="text-xs text-definition-list-term mb-2">
-            Artifacts referenced by this job at submission time.
-          </p>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm text-table-row">
-              <thead>
-                <tr class="border-b border-color-theme">
-                  <th
-                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
-                  >
-                    Name
-                  </th>
-                  <th
-                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
-                  >
-                    Type
-                  </th>
-                  <th
-                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
-                  >
-                    Status
-                  </th>
-                  <th
-                    class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
-                  ></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="input in normalizedInputs"
-                  :key="input.id || input"
-                  class="border-b border-color-theme hover:bg-hover transition-colors"
-                >
-                  <td class="px-4 py-2">
-                    {{ input.name || shortId(input.id) || input }}
-                  </td>
-                  <td class="px-4 py-2">
-                    <span
-                      v-if="input.type"
-                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-content text-record-label"
-                      >{{ input.type }}</span
-                    >
-                    <span v-else class="text-definition-list-term">-</span>
-                  </td>
-                  <td class="px-4 py-2">
-                    <StatusBadge v-if="input.status" :status="input.status" />
-                    <span v-else class="text-definition-list-term">-</span>
-                  </td>
-                  <td class="px-4 py-2">
-                    <NuxtLink
-                      v-if="input.id"
-                      :to="`/artifacts/${input.id}`"
-                      class="px-2 py-1 text-xs border border-button-outline text-button-outline rounded hover:bg-button-outline-hover hover:text-button-outline-hover"
-                    >
-                      View
-                    </NuxtLink>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
       </section>
 
@@ -466,22 +385,6 @@ const normalizedInputs = computed(() => {
   });
 });
 
-const jobProgress = computed(() => ({
-  phase: typeof job.value?.phase === "string" ? job.value.phase : null,
-  message: typeof job.value?.message === "string" ? job.value.message : null,
-  progress: typeof job.value?.progress === "number" ? job.value.progress : null,
-}));
-
-const hasJobProgress = computed(
-  () =>
-    jobProgress.value.phase !== null ||
-    jobProgress.value.message !== null ||
-    jobProgress.value.progress !== null
-);
-const showCurrentProgress = computed(
-  () => !!job.value && !isTerminal(job.value.status)
-);
-
 async function onDelete() {
   if (!confirm(`Delete job ${id.value}?`)) return;
   deleting.value = true;
@@ -497,6 +400,14 @@ async function onDelete() {
 
 function shortId(idVal: string): string {
   return idVal?.substring?.(0, 8) || idVal || "-";
+}
+
+function inputArtifactChipLabel(input: any): string {
+  if (!input) return "-";
+  if (input.name) return input.name;
+  if (input.id) return shortId(input.id);
+  if (typeof input === "string") return shortId(input);
+  return "-";
 }
 
 function formatJson(val: any): string {

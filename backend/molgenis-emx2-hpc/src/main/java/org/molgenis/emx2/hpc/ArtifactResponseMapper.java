@@ -4,6 +4,8 @@ import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jooq.JSONB;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
@@ -28,13 +30,9 @@ class ArtifactResponseMapper {
     response.put("created_at", artifact.getString("created_at"));
     response.put("committed_at", artifact.getString("committed_at"));
 
-    String metadataJson = artifact.getString("metadata");
+    JSONB metadataJson = artifact.getJsonb("metadata");
     if (metadataJson != null) {
-      try {
-        response.put("metadata", MAPPER.readValue(metadataJson, Map.class));
-      } catch (Exception e) {
-        response.put("metadata", metadataJson);
-      }
+      response.put("metadata", parseJsonb(metadataJson, "metadata"));
     }
 
     ArtifactStatus status;
@@ -46,5 +44,13 @@ class ArtifactResponseMapper {
     response.put("_links", LinkBuilder.forArtifact(artifact.getString("id"), status));
 
     return response;
+  }
+
+  private static Object parseJsonb(JSONB jsonb, String fieldName) {
+    try {
+      return MAPPER.readValue(jsonb.toString(), Object.class);
+    } catch (Exception e) {
+      throw new MolgenisException("Invalid JSON in HPC field '" + fieldName + "'", e);
+    }
   }
 }

@@ -6,6 +6,8 @@ import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jooq.JSONB;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
@@ -39,39 +41,16 @@ class JobResponseMapper {
     response.put("slurm_job_id", job.getString("slurm_job_id"));
     response.put("submit_user", job.getString("submit_user"));
 
-    // Include parameters as parsed JSON if present, raw string otherwise
-    String parametersStr = job.getString("parameters");
-    if (parametersStr != null) {
-      try {
-        response.put("parameters", MAPPER.readValue(parametersStr, Object.class));
-      } catch (Exception e) {
-        response.put("parameters", parametersStr);
-      }
+    JSONB parametersJson = job.getJsonb("parameters");
+    if (parametersJson != null) {
+      response.put("parameters", parseJsonb(parametersJson, "parameters"));
     }
 
-    // Enrich inputs: resolve artifact IDs to objects with name, type, status
-    String inputsStr = job.getString("inputs");
-    if (inputsStr != null) {
-      try {
-        Object parsed = MAPPER.readValue(inputsStr, Object.class);
-        if (parsed instanceof List<?> inputList) {
-          List<Object> enriched =
-              inputList.stream()
-                  .map(
-                      item -> {
-                        if (item instanceof String artifactId) {
-                          return enrichArtifactRef(artifactId);
-                        }
-                        return item;
-                      })
-                  .toList();
-          response.put("inputs", enriched);
-        } else {
-          response.put("inputs", parsed);
-        }
-      } catch (Exception e) {
-        response.put("inputs", inputsStr);
-      }
+    Object parsedInputs = parseJsonb(job.getJsonb("inputs"), "inputs");
+    if (parsedInputs instanceof List<?> inputList) {
+      response.put("inputs", inputList.stream().map(this::enrichInputRef).toList());
+    } else if (parsedInputs != null) {
+      response.put("inputs", parsedInputs);
     }
 
     // Enrich output artifact
@@ -108,6 +87,17 @@ class JobResponseMapper {
     return response;
   }
 
+  private static Object parseJsonb(JSONB jsonb, String fieldName) {
+    if (jsonb == null) {
+      return null;
+    }
+    try {
+      return MAPPER.readValue(jsonb.toString(), Object.class);
+    } catch (Exception e) {
+      throw new MolgenisException("Invalid JSON in HPC field '" + fieldName + "'", e);
+    }
+  }
+
   /** Enrich an artifact reference with name, type, and status from the artifact service. */
   Map<String, Object> enrichArtifactRef(String artifactId) {
     Map<String, Object> ref = new LinkedHashMap<>();
@@ -123,6 +113,28 @@ class JobResponseMapper {
       // If artifact lookup fails, return minimal ref
     }
     return ref;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Object enrichInputRef(Object inputRef) {
+    if (inputRef instanceof String artifactId) {
+      return enrichArtifactRef(artifactId);
+    }
+    if (inputRef instanceof Map<?, ?> map) {
+      Object artifactIdValue = map.get("artifact_id");
+      if (!(artifactIdValue instanceof String)) {
+        artifactIdValue = map.get("id");
+      }
+      if (artifactIdValue instanceof String artifactId) {
+        Map<String, Object> enriched = new LinkedHashMap<>((Map<String, Object>) map);
+        Map<String, Object> artifact = enrichArtifactRef(artifactId);
+        enriched.putIfAbsent("id", artifactId);
+        enriched.putIfAbsent("artifact_id", artifactId);
+        artifact.forEach(enriched::putIfAbsent);
+        return enriched;
+      }
+    }
+    return inputRef;
   }
 
   /** Parse an optional bounded string from a request body value. */

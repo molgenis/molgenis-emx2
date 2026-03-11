@@ -5,7 +5,6 @@ import {
   gqlQuery,
   hpcHeaders,
   REST_BASE,
-  ACTIVE_JOB_STATUSES,
 } from "./useHpcApi";
 
 export interface FetchJobsOpts {
@@ -33,6 +32,132 @@ export interface NormalizedJob {
   parameters: any;
   inputs: any[];
   [key: string]: any;
+}
+
+const inputArtifactCache = new Map<
+  string,
+  {
+    id: string;
+    name?: string | null;
+    type?: string | null;
+    status?: string | null;
+    residence?: string | null;
+  } | null
+>();
+
+function parseInputsValue(rawInputs: unknown): any[] {
+  if (rawInputs == null) return [];
+  if (Array.isArray(rawInputs)) return rawInputs;
+  if (typeof rawInputs === "string") {
+    const trimmed = rawInputs.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return [];
+    }
+  }
+  return [rawInputs];
+}
+
+function normalizeInputRef(item: any): any {
+  if (typeof item === "string") {
+    const trimmed = item.trim();
+    return trimmed ? { id: trimmed } : item;
+  }
+
+  if (item && typeof item === "object") {
+    if (typeof item.id === "string" && item.id) return item;
+    if (typeof item.artifact_id === "string" && item.artifact_id) {
+      return { ...item, id: item.artifact_id };
+    }
+  }
+
+  return item;
+}
+
+function collectInputArtifactIds(jobs: NormalizedJob[]): string[] {
+  const ids = new Set<string>();
+  for (const job of jobs) {
+    const inputs = Array.isArray(job.inputs) ? job.inputs : [];
+    for (const input of inputs) {
+      const id =
+        typeof input === "string"
+          ? input
+          : input?.id || input?.artifact_id || null;
+      if (typeof id === "string" && id.trim()) ids.add(id);
+    }
+  }
+  return [...ids];
+}
+
+async function fetchArtifactSummary(id: string): Promise<{
+  id: string;
+  name?: string | null;
+  type?: string | null;
+  status?: string | null;
+  residence?: string | null;
+} | null> {
+  try {
+    const artifact = await $fetch<any>(`${REST_BASE}/artifacts/${id}`, {
+      method: "GET",
+      headers: hpcHeaders(),
+    });
+    return {
+      id,
+      name: artifact?.name ?? null,
+      type: artifact?.type ?? null,
+      status: artifact?.status ?? null,
+      residence: artifact?.residence ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function enrichInputArtifactCache(ids: string[]): Promise<void> {
+  const missing = ids.filter((id) => !inputArtifactCache.has(id));
+  if (!missing.length) return;
+
+  const resolved = await Promise.all(
+    missing.map(async (id) => [id, await fetchArtifactSummary(id)] as const)
+  );
+  for (const [id, summary] of resolved) {
+    inputArtifactCache.set(id, summary);
+  }
+}
+
+function enrichInputsWithNames(inputs: any[]): any[] {
+  return inputs.map((input) => {
+    const id =
+      typeof input === "string" ? input : input?.id || input?.artifact_id || null;
+    if (typeof id !== "string" || !id) return input;
+
+    const cached = inputArtifactCache.get(id);
+    if (!cached) {
+      return typeof input === "string" ? { id } : { ...input, id };
+    }
+
+    const base = typeof input === "string" ? { id } : { ...input, id };
+    return {
+      ...cached,
+      ...base,
+      name: base.name ?? cached.name ?? null,
+      type: base.type ?? cached.type ?? null,
+      status: base.status ?? cached.status ?? null,
+      residence: base.residence ?? cached.residence ?? null,
+    };
+  });
+}
+
+async function enrichJobsInputs(jobs: NormalizedJob[]): Promise<NormalizedJob[]> {
+  const ids = collectInputArtifactIds(jobs);
+  await enrichInputArtifactCache(ids);
+  return jobs.map((job) => ({
+    ...job,
+    inputs: enrichInputsWithNames(Array.isArray(job.inputs) ? job.inputs : []),
+  }));
 }
 
 /**
@@ -84,8 +209,10 @@ export async function fetchJobs({
 
   try {
     const data = await gqlQuery(query);
+    const normalized = (data.HpcJobs || []).map(normalizeJob);
+    const enriched = await enrichJobsInputs(normalized);
     return {
-      items: (data.HpcJobs || []).map(normalizeJob),
+      items: enriched,
       totalCount: data.HpcJobs_agg?.count ?? 0,
     };
   } catch (err: any) {
@@ -127,8 +254,10 @@ export async function fetchJobDetail(jobId: string): Promise<{
   try {
     const data = await gqlQuery(query);
     const job = data.HpcJobs?.[0];
+    const normalized = job ? normalizeJob(job) : null;
+    const enrichedJobs = normalized ? await enrichJobsInputs([normalized]) : [];
     return {
-      job: job ? normalizeJob(job) : null,
+      job: enrichedJobs[0] ?? null,
       transitions: (data.HpcJobTransitions || []).map(normalizeTransition),
     };
   } catch (err: any) {
@@ -200,6 +329,7 @@ export function normalizeJob(job: any): NormalizedJob {
     );
   const updatedAt =
     lifecycleTimestamps[lifecycleTimestamps.length - 1] ?? job.created_at;
+  const normalizedInputs = parseInputsValue(job.inputs).map(normalizeInputRef);
 
   return {
     ...job,
@@ -209,6 +339,7 @@ export function normalizeJob(job: any): NormalizedJob {
     message: progressSnapshot.message,
     progress: progressSnapshot.progress,
     updated_at: updatedAt,
+    inputs: normalizedInputs,
     output_artifact_id: output
       ? {
           id: output.id,
