@@ -608,7 +608,7 @@ importers:
         version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/integrations':
         specifier: 10.7.0
-        version: 10.7.0(axios@1.12.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
+        version: 10.7.0(axios@1.12.0)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
       axios:
         specifier: 1.12.0
         version: 1.12.0
@@ -969,12 +969,18 @@ importers:
       '@vueuse/core':
         specifier: 12.8.2
         version: 12.8.2(typescript@5.6.2)
+      '@vueuse/integrations':
+        specifier: 10.7.0
+        version: 10.7.0(axios@1.12.0)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
       consola:
         specifier: 3.2.3
         version: 3.2.3
       floating-vue:
         specifier: 5.2.2
         version: 5.2.2(@nuxt/kit@3.21.1(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
+      focus-trap:
+        specifier: ^8.0.0
+        version: 8.0.0
       graphql:
         specifier: 16.12.0
         version: 16.12.0
@@ -5274,6 +5280,9 @@ packages:
     peerDependenciesMeta:
       '@nuxt/kit':
         optional: true
+
+  focus-trap@8.0.0:
+    resolution: {integrity: sha512-Aa84FOGHs99vVwufDMdq2qgOwXPC2e9U66GcqBhn1/jEHPDhJaP8PYhkIbqG9lhfL5Kddk/567lj46LLHYCRUw==}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -12050,13 +12059,14 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@vueuse/integrations@10.7.0(axios@1.12.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))':
+  '@vueuse/integrations@10.7.0(axios@1.12.0)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))':
     dependencies:
       '@vueuse/core': 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/shared': 10.7.0(vue@3.5.22(typescript@5.6.2))
       vue-demi: 0.14.10(vue@3.5.22(typescript@5.6.2))
     optionalDependencies:
       axios: 1.12.0
+      focus-trap: 8.0.0
       fuse.js: 7.1.0
       sortablejs: 1.14.0
       universal-cookie: 4.0.4
@@ -13696,6 +13706,10 @@ snapshots:
       vue-resize: 2.0.0-alpha.1(vue@3.5.22(typescript@5.6.2))
     optionalDependencies:
       '@nuxt/kit': 4.2.1(magicast@0.5.2)
+
+  focus-trap@8.0.0:
+    dependencies:
+      tabbable: 6.4.0
 
   follow-redirects@1.15.11: {}
 

@@ -29,7 +29,7 @@ export default async (
     expandLevel,
     properties?.columns
   );
-  const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
+  const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
           limit:${limit}, 
@@ -45,7 +45,7 @@ export default async (
         }`;
 
   const filter = properties?.filter ? properties?.filter : {};
-  const orderby = properties?.orderby ? properties?.orderby : {};
+  const orderby = properties?.orderby ? [properties?.orderby] : [];
 
   const { data } = await $fetch(`/${schemaId}/graphql`, {
     method: "POST",
