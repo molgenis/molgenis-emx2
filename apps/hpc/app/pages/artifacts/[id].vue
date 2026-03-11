@@ -6,12 +6,9 @@
     >
       Loading artifact...
     </div>
-    <div
-      v-else-if="error"
-      class="bg-red-500/10 border border-red-500/20 text-red-700 p-4 rounded-lg"
-    >
+    <Message v-else-if="error" id="artifact-detail-error" invalid>
       {{ error }}
-    </div>
+    </Message>
     <template v-else-if="artifact">
       <section class="bg-form rounded-lg border border-color-theme p-6">
         <div class="flex items-start justify-between mb-6">
@@ -30,15 +27,15 @@
           </div>
           <div class="flex items-center gap-2">
             <StatusBadge :status="artifact.status" />
-            <button
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm border border-red-500 text-red-700 rounded-md hover:bg-red-500/10 disabled:opacity-50"
+            <Button
+              type="outline"
+              size="small"
+              icon="trash"
+              label="Delete"
               title="Delete artifact"
               :disabled="deleting"
               @click="onDelete"
-            >
-              <HpcIconTrash class="w-4 h-4" />
-              <span>Delete</span>
-            </button>
+            />
           </div>
         </div>
 
@@ -225,11 +222,8 @@
                     <code>{{ shortId(inputId) }}</code>
                   </td>
                   <td class="px-4 py-2">
-                    <NuxtLink
-                      :to="`/artifacts/${inputId}`"
-                      class="px-2 py-1 text-xs border border-button-outline text-button-outline rounded hover:bg-button-outline-hover hover:text-button-outline-hover"
-                    >
-                      View
+                    <NuxtLink :to="`/artifacts/${inputId}`">
+                      <Button type="outline" size="tiny">View</Button>
                     </NuxtLink>
                   </td>
                 </tr>
@@ -303,16 +297,17 @@
                 <td class="px-4 py-2">{{ formatSize(f.size_bytes) }}</td>
                 <td class="px-4 py-2">{{ f.content_type || "-" }}</td>
                 <td class="px-4 py-2">
-                  <button
+                  <Button
                     v-if="
                       artifact.residence === 'managed' &&
                       artifact.status === 'COMMITTED'
                     "
-                    class="px-2 py-1 text-xs border border-button-outline text-button-outline rounded hover:bg-button-outline-hover hover:text-button-outline-hover"
+                    type="outline"
+                    size="tiny"
                     @click="onDownload(f.path)"
                   >
                     Download
-                  </button>
+                  </Button>
                   <span
                     v-else-if="artifact.residence === 'posix'"
                     class="text-definition-list-term text-xs"
@@ -349,6 +344,8 @@ import {
   deleteArtifact,
 } from "../../composables/useHpcApi";
 import { formatDate } from "../../utils/jobs";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../../tailwind-components/app/components/Message.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id as string);

@@ -17,12 +17,13 @@
             <option value="">All Statuses</option>
             <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
           </select>
-          <button
-            class="px-3 py-1.5 text-sm font-medium bg-button-primary text-button-primary border border-button-primary rounded-md hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+          <Button
+            type="primary"
+            size="tiny"
             @click="showForm = !showForm"
           >
             {{ showForm ? "Hide Form" : "+ New Artifact" }}
-          </button>
+          </Button>
         </div>
       </div>
       <div
@@ -33,20 +34,22 @@
           {{ selectedCount }} selected
           <span class="text-definition-list-term">({{ scopeLabel }})</span>
         </span>
-        <button
-          class="px-3 py-1.5 text-sm border border-red-500 text-red-700 rounded-md hover:bg-red-500/10 disabled:opacity-50"
+        <Button
+          type="outline"
+          size="tiny"
           :disabled="bulkDeleting || deleting"
           @click="onDeleteSelected"
         >
           {{ selectAllMatching ? "Delete All Matching" : "Delete Selected" }}
-        </button>
-        <button
-          class="px-3 py-1.5 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+        </Button>
+        <Button
+          type="outline"
+          size="tiny"
           :disabled="bulkDeleting || deleting"
           @click="clearSelection"
         >
           Clear Selection
-        </button>
+        </Button>
         <span v-if="bulkDeleting" class="text-xs text-definition-list-term">
           Deleting {{ bulkDeletedCount }} / {{ bulkTotalCount }}...
         </span>
@@ -65,32 +68,28 @@
     >
       Loading artifacts...
     </div>
-    <div
-      v-else-if="error"
-      class="bg-red-500/10 border border-red-500/20 text-red-700 p-4 rounded-lg"
-    >
+    <Message v-else-if="error" id="artifacts-page-error" invalid>
       {{ error }}
-    </div>
+    </Message>
     <div v-else>
-      <div
-        v-if="notice"
-        class="bg-green-500/10 border border-green-500/20 text-green-700 p-4 rounded-lg"
-      >
+      <Message v-if="notice" id="artifacts-page-notice" valid>
         {{ notice }}
-      </div>
+      </Message>
       <section class="bg-form rounded-lg border border-color-theme">
         <div
           v-if="showSelectMoreBanner"
           class="px-4 py-3 border-b border-color-theme text-sm text-definition-list-term"
         >
           All {{ pageIds.length }} artifacts on this page are selected.
-          <button
+          <Button
+            type="text"
+            size="tiny"
             class="ml-1 text-button-outline hover:text-button-outline-hover underline underline-offset-2"
             :disabled="bulkDeleting || deleting"
             @click="selectAllMatchingResults"
           >
             Select all {{ totalCount }} matching artifacts
-          </button>
+          </Button>
           .
         </div>
         <div
@@ -98,13 +97,15 @@
           class="px-4 py-3 border-b border-color-theme text-sm text-definition-list-term"
         >
           All {{ selectedCount }} matching artifacts are selected.
-          <button
+          <Button
+            type="text"
+            size="tiny"
             class="ml-1 text-button-outline hover:text-button-outline-hover underline underline-offset-2"
             :disabled="bulkDeleting || deleting"
             @click="clearSelection"
           >
             Clear selection
-          </button>
+          </Button>
           .
         </div>
         <div class="overflow-x-auto">
@@ -205,14 +206,16 @@
                 <td class="px-4 py-3">{{ formatSize(a.size_bytes) }}</td>
                 <td class="px-4 py-3">{{ formatDate(a.created_at) }}</td>
                 <td class="px-4 py-3">
-                  <button
-                    class="p-1.5 text-red-500 hover:bg-red-500/10 rounded w-6 h-6"
+                  <Button
+                    type="outline"
+                    size="tiny"
+                    icon="trash"
+                    :icon-only="true"
+                    label="Delete artifact"
                     title="Delete artifact"
                     :disabled="deleting || bulkDeleting"
                     @click.stop="onDelete(a)"
-                  >
-                    <HpcIconTrash />
-                  </button>
+                  />
                 </td>
               </tr>
               <tr v-if="!items.length">
@@ -234,20 +237,22 @@
             Showing {{ items.length }} of {{ totalCount }} artifacts
           </span>
           <div class="flex gap-1">
-            <button
-              class="px-3 py-1 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50 transition-colors"
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="offset === 0"
               @click="offset = Math.max(0, offset - limit)"
             >
               &laquo; Prev
-            </button>
-            <button
-              class="px-3 py-1 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50 transition-colors"
+            </Button>
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="offset + limit >= totalCount"
               @click="offset += limit"
             >
               Next &raquo;
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -260,6 +265,8 @@ import { ref, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
 import { navigateTo } from "#app/composables/router";
 import { fetchArtifacts, deleteArtifact } from "../../composables/useHpcApi";
 import { formatDate } from "../../utils/jobs";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../../tailwind-components/app/components/Message.vue";
 
 const statuses = ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"];
 

@@ -7,20 +7,14 @@
           Create metadata, upload one or more files, then commit the artifact.
         </p>
       </div>
-      <button
-        class="px-3 py-1.5 text-sm border border-color-theme rounded-md text-record-label hover:bg-hover"
-        @click="$emit('close')"
-      >
+      <Button type="outline" size="tiny" @click="$emit('close')">
         Cancel
-      </button>
+      </Button>
     </div>
 
-    <div
-      v-if="error"
-      class="bg-red-500/10 border border-red-500/20 text-red-700 p-4 rounded-lg mb-3"
-    >
+    <Message v-if="error" id="artifact-upload-error" invalid class="mb-3">
       {{ error }}
-    </div>
+    </Message>
 
     <div v-if="step === 'metadata'" class="space-y-6">
       <section>
@@ -35,9 +29,9 @@
             <label class="block text-sm font-medium text-record-label mb-1"
               >Name *</label
             >
-            <input
+            <InputString
+              id="artifact-upload-name"
               v-model="form.name"
-              class="w-full rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
               placeholder="e.g. my-dataset-v1"
             />
           </div>
@@ -45,9 +39,9 @@
             <label class="block text-sm font-medium text-record-label mb-1"
               >Type</label
             >
-            <input
+            <InputString
+              id="artifact-upload-type"
               v-model="form.type"
-              class="w-full rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
               placeholder="e.g. csv, parquet, log, model"
             />
           </div>
@@ -89,13 +83,14 @@
       </section>
 
       <div class="flex justify-end">
-        <button
-          class="px-4 py-2 text-sm font-medium bg-button-primary text-button-primary border border-button-primary rounded-md hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover disabled:opacity-50"
+        <Button
+          type="primary"
+          size="tiny"
           :disabled="!canSubmit"
           @click="startUpload"
         >
           Upload Artifact
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -128,23 +123,18 @@
 
     <div v-else-if="step === 'done'" class="space-y-4">
       <section>
-        <div
-          class="bg-green-500/10 border border-green-500/20 text-green-800 p-4 rounded-lg"
-        >
+        <Message id="artifact-upload-success" valid>
           Artifact
           <code class="bg-green-500/20 px-1 rounded">{{
             artifactId?.substring(0, 8)
           }}</code>
           committed successfully.
-        </div>
+        </Message>
       </section>
       <div class="flex justify-end">
-        <button
-          class="px-3 py-2 text-sm border border-button-outline text-button-outline rounded-md hover:bg-button-outline-hover hover:text-button-outline-hover"
-          @click="$emit('created')"
-        >
+        <Button type="outline" size="tiny" @click="$emit('created')">
           Close
-        </button>
+        </Button>
       </div>
     </div>
   </section>
@@ -157,6 +147,9 @@ import {
   uploadArtifactFile,
   commitArtifact,
 } from "../composables/useHpcApi";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
 
 const emit = defineEmits(["created", "close"]);
 

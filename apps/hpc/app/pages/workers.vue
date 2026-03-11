@@ -28,12 +28,13 @@
           >
             {{ refreshing ? "Refreshing..." : "Auto-refresh: 15s" }}
           </span>
-          <button
-            class="px-3 py-1.5 text-sm font-medium bg-button-primary text-button-primary border border-button-primary rounded-md hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+          <Button
+            type="primary"
+            size="tiny"
             @click="showBootstrap = !showBootstrap"
           >
             {{ showBootstrap ? "Close Add Worker" : "+ Add Worker" }}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -58,11 +59,10 @@
               class="text-xs text-table-column-header uppercase tracking-wider"
               >Worker ID</span
             >
-            <input
+            <InputString
+              id="bootstrap-worker-id"
               v-model="bootstrapWorkerId"
-              type="text"
               autocomplete="off"
-              class="rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
               placeholder="e.g. hpc-headnode-01"
             />
           </label>
@@ -72,11 +72,10 @@
               class="text-xs text-table-column-header uppercase tracking-wider"
               >Label (Optional)</span
             >
-            <input
+            <InputString
+              id="bootstrap-worker-label"
               v-model="bootstrapLabel"
-              type="text"
               autocomplete="off"
-              class="rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
               placeholder="optional label"
             />
           </label>
@@ -108,16 +107,14 @@
       </div>
     </section>
 
-    <div
-      v-if="error"
-      class="bg-red-500/10 border border-red-500/20 text-red-700 p-4 rounded-lg"
-    >
+    <Message v-if="error" id="workers-page-error" invalid>
       {{ error }}
-    </div>
+    </Message>
 
-    <section
+    <Message
       v-if="revealedSecret"
-      class="bg-green-500/10 border border-green-500/20 text-green-800 p-4 rounded-lg"
+      id="workers-page-secret"
+      valid
     >
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -127,18 +124,20 @@
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <button
-            class="px-2.5 py-1.5 text-xs border border-color-theme rounded-md hover:bg-hover"
+          <Button
+            type="outline"
+            size="tiny"
             @click="copyRevealedSecret"
           >
             Copy Secret
-          </button>
-          <button
-            class="px-2.5 py-1.5 text-xs border border-color-theme rounded-md hover:bg-hover"
+          </Button>
+          <Button
+            type="outline"
+            size="tiny"
             @click="dismissRevealedSecret"
           >
             Dismiss
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -169,7 +168,7 @@
           </div>
         </div>
       </details>
-    </section>
+    </Message>
 
     <div
       v-if="loading && !workers.length"
@@ -303,22 +302,24 @@
 
               <td class="px-4 py-3 align-top whitespace-nowrap">
                 <div class="flex items-center gap-2">
-                  <button
-                    class="px-2 py-1 text-xs border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+                  <Button
+                    type="outline"
+                    size="tiny"
                     :disabled="credentialsLoadingFor === worker.worker_id"
                     @click="toggleCredentials(worker.worker_id)"
                   >
                     {{
                       expandedWorkerId === worker.worker_id ? "Close" : "Manage"
                     }}
-                  </button>
-                  <button
-                    class="px-2 py-1 text-xs border border-red-500 text-red-700 rounded-md hover:bg-red-500/10 disabled:opacity-50"
+                  </Button>
+                  <Button
+                    type="outline"
+                    size="tiny"
                     :disabled="deletingWorker === worker.worker_id"
                     @click="onDeleteWorker(worker.worker_id)"
                   >
                     Remove
-                  </button>
+                  </Button>
                 </div>
               </td>
             </tr>
@@ -341,34 +342,38 @@
             </p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button
+            <Button
               v-if="!activeCredential"
-              class="px-2.5 py-1.5 text-xs border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+              type="outline"
+              size="tiny"
               :disabled="credentialActionFor === activeWorker.worker_id"
               @click="onIssueCredential(activeWorker.worker_id)"
             >
               Issue
-            </button>
-            <button
-              class="px-2.5 py-1.5 text-xs border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+            </Button>
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="credentialActionFor === activeWorker.worker_id"
               @click="onRotateCredential(activeWorker.worker_id)"
             >
               Rotate
-            </button>
-            <button
-              class="px-2.5 py-1.5 text-xs border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+            </Button>
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="credentialsLoadingFor === activeWorker.worker_id"
               @click="loadCredentials(activeWorker.worker_id, true)"
             >
               Refresh
-            </button>
-            <button
-              class="px-2.5 py-1.5 text-xs border border-color-theme rounded-md hover:bg-hover"
+            </Button>
+            <Button
+              type="outline"
+              size="tiny"
               @click="expandedWorkerId = null"
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -516,9 +521,10 @@
                         {{ credential.label || "-" }}
                       </td>
                       <td class="px-3 py-2 align-top">
-                        <button
+                        <Button
                           v-if="credential.status === 'ACTIVE'"
-                          class="px-2 py-1 text-xs border border-red-500 text-red-700 rounded-md hover:bg-red-500/10 disabled:opacity-50"
+                          type="outline"
+                          size="tiny"
                           :disabled="
                             credentialActionFor === activeWorker.worker_id
                           "
@@ -530,7 +536,7 @@
                           "
                         >
                           Revoke
-                        </button>
+                        </Button>
                         <span v-else class="text-definition-list-term">-</span>
                       </td>
                     </tr>
@@ -556,6 +562,9 @@ import {
   revokeWorkerCredential,
 } from "../composables/useHpcApi";
 import { formatDate } from "../utils/jobs";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
 
 const workers = ref<any[]>([]);
 const loading = ref(false);

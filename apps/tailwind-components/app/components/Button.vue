@@ -109,6 +109,7 @@ const tooltipText = computed(() => {
 <template>
   <button
     v-tooltip.bottom="tooltipText"
+    :disabled="disabled"
     class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
   >

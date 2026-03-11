@@ -8,20 +8,14 @@
           artifacts.
         </p>
       </div>
-      <button
-        class="px-3 py-1.5 text-sm border border-color-theme rounded-md text-record-label hover:bg-hover"
-        @click="$emit('close')"
-      >
+      <Button type="outline" size="tiny" @click="$emit('close')">
         Cancel
-      </button>
+      </Button>
     </div>
 
-    <div
-      v-if="error"
-      class="bg-red-500/10 border border-red-500/20 text-red-700 p-4 rounded-lg mb-3"
-    >
+    <Message v-if="error" id="job-submit-error" invalid class="mb-3">
       {{ error }}
-    </div>
+    </Message>
 
     <div class="space-y-6">
       <section>
@@ -46,10 +40,10 @@
                 {{ p }}
               </option>
             </select>
-            <input
+            <InputString
+              id="job-submit-processor"
               v-else
               v-model="form.processor"
-              class="w-full rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
               placeholder="e.g. e2e-test"
             />
           </div>
@@ -67,10 +61,10 @@
                 {{ p }}
               </option>
             </select>
-            <input
+            <InputString
+              id="job-submit-profile"
               v-else
               v-model="form.profile"
-              class="w-full rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
               placeholder="e.g. bash, gpu-medium"
             />
           </div>
@@ -129,13 +123,14 @@
                 }}{{ a.type ? ` (${a.type})` : "" }}
               </option>
             </select>
-            <button
-              class="px-3 py-2 text-sm border border-button-outline text-button-outline rounded-md hover:bg-button-outline-hover hover:text-button-outline-hover disabled:opacity-50"
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="!selectedArtifact"
               @click="addArtifact"
             >
               Add
-            </button>
+            </Button>
           </div>
           <p class="text-xs text-definition-list-term mt-1">
             Selected artifacts are shown by name and sent by ID in the
@@ -169,13 +164,14 @@
     </div>
 
     <div class="flex justify-end mt-4">
-      <button
-        class="px-4 py-2 text-sm font-medium bg-button-primary text-button-primary border border-button-primary rounded-md hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover disabled:opacity-50"
+      <Button
+        type="primary"
+        size="tiny"
         @click="handleSubmit"
         :disabled="submitting"
       >
         {{ submitting ? "Submitting..." : "Submit Job" }}
-      </button>
+      </Button>
     </div>
   </section>
 </template>
@@ -187,6 +183,9 @@ import {
   fetchArtifacts,
   fetchCapabilities,
 } from "../composables/useHpcApi";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
 
 const emit = defineEmits(["submitted", "close"]);
 

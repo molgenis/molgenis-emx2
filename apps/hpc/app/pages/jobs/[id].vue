@@ -6,12 +6,9 @@
     >
       Loading job...
     </div>
-    <div
-      v-else-if="error"
-      class="bg-red-500/10 border border-red-500/20 text-red-700 p-4 rounded-lg"
-    >
+    <Message v-else-if="error" id="job-detail-error" invalid>
       {{ error }}
-    </div>
+    </Message>
     <template v-else-if="job">
       <section class="bg-form rounded-lg border border-color-theme p-6">
         <div class="flex items-start justify-between mb-6">
@@ -30,15 +27,15 @@
           </div>
           <div class="flex items-center gap-2">
             <StatusBadge :status="job.status" />
-            <button
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm border border-red-500 text-red-700 rounded-md hover:bg-red-500/10 disabled:opacity-50"
+            <Button
+              type="outline"
+              size="small"
+              icon="trash"
+              label="Delete"
               title="Delete job"
               :disabled="deleting"
               @click="onDelete"
-            >
-              <HpcIconTrash class="w-4 h-4" />
-              <span>Delete</span>
-            </button>
+            />
           </div>
         </div>
 
@@ -181,11 +178,8 @@
             </div>
           </div>
           <div class="mt-4">
-            <NuxtLink
-              :to="`/artifacts/${job.output_artifact_id.id}`"
-              class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-button-outline text-button-outline rounded-md hover:bg-button-outline-hover hover:text-button-outline-hover transition-colors"
-            >
-              View Details
+            <NuxtLink :to="`/artifacts/${job.output_artifact_id.id}`">
+              <Button type="outline" size="tiny">View Details</Button>
             </NuxtLink>
           </div>
         </div>
@@ -228,11 +222,8 @@
             </div>
           </div>
           <div class="mt-4">
-            <NuxtLink
-              :to="`/artifacts/${job.log_artifact_id.id}`"
-              class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-button-outline text-button-outline rounded-md hover:bg-button-outline-hover hover:text-button-outline-hover transition-colors"
-            >
-              View Details
+            <NuxtLink :to="`/artifacts/${job.log_artifact_id.id}`">
+              <Button type="outline" size="tiny">View Details</Button>
             </NuxtLink>
           </div>
         </div>
@@ -325,13 +316,15 @@
                   <p class="whitespace-pre-wrap break-words">
                     {{ displayDetail(t) }}
                   </p>
-                  <button
+                  <Button
                     v-if="canExpandDetail(t.detail)"
+                    type="text"
+                    size="tiny"
                     class="mt-1 text-xs text-button-outline hover:text-button-outline-hover underline underline-offset-2"
                     @click.stop="toggleDetail(t.id)"
                   >
                     {{ isDetailExpanded(t.id) ? "Collapse" : "Expand" }}
-                  </button>
+                  </Button>
                 </td>
               </tr>
               <tr v-if="!transitions.length">
@@ -363,6 +356,8 @@ import { fetchJobDetail, deleteJob } from "../../composables/useHpcApi";
 import { formatDate, formatProgressPercent } from "../../utils/jobs";
 import { isTerminal } from "../../utils/protocol";
 import { navigateTo } from "#app/composables/router";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../../tailwind-components/app/components/Message.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id as string);

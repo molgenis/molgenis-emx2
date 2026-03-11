@@ -12,20 +12,22 @@
           <span class="text-xs text-definition-list-term">
             Auto-refresh: 10s
           </span>
-          <button
+          <Button
             v-if="hasTerminalJobs"
-            class="px-3 py-1.5 text-sm border border-color-theme rounded-md text-record-label hover:bg-hover disabled:opacity-50"
+            type="outline"
+            size="tiny"
             :disabled="clearing"
             @click="onClearCompleted"
           >
             Clear Completed
-          </button>
-          <button
-            class="px-3 py-1.5 text-sm font-medium bg-button-primary text-button-primary border border-button-primary rounded-md hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+          </Button>
+          <Button
+            type="primary"
+            size="tiny"
             @click="showForm = !showForm"
           >
             {{ showForm ? "Hide Form" : "+ New Job" }}
-          </button>
+          </Button>
         </div>
       </div>
     </section>
@@ -42,12 +44,9 @@
     >
       Loading jobs...
     </div>
-    <div
-      v-else-if="error"
-      class="bg-red-500/10 border border-red-500/20 text-red-700 p-4 rounded-lg"
-    >
+    <Message v-else-if="error" id="jobs-page-error" invalid>
       {{ error }}
-    </div>
+    </Message>
     <div v-else>
       <section class="bg-form rounded-lg border border-color-theme">
         <div class="p-4 border-b border-color-theme">
@@ -119,24 +118,27 @@
                 <td class="px-4 py-3">{{ formatDate(job.updated_at) }}</td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <button
+                    <Button
                       v-if="isTerminal(job.status)"
-                      class="p-1.5 text-red-500 hover:bg-red-500/10 rounded w-6 h-6"
+                      type="outline"
+                      size="tiny"
+                      icon="trash"
+                      :icon-only="true"
+                      label="Delete job"
                       title="Delete job"
                       :disabled="deleting"
                       @click.stop="onDelete(job)"
-                    >
-                      <HpcIconTrash />
-                    </button>
-                    <button
+                    />
+                    <Button
                       v-else
-                      class="px-2 py-1 text-xs border border-yellow-500 text-yellow-800 rounded hover:bg-yellow-200/50 disabled:opacity-50"
+                      type="outline"
+                      size="tiny"
                       title="Cancel job"
                       :disabled="cancelling"
                       @click.stop="onCancel(job)"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -159,20 +161,22 @@
             Showing {{ items.length }} of {{ totalCount }} jobs
           </span>
           <div class="flex gap-1">
-            <button
-              class="px-3 py-1 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50 transition-colors"
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="offset === 0"
               @click="offset = Math.max(0, offset - limit)"
             >
               &laquo; Prev
-            </button>
-            <button
-              class="px-3 py-1 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50 transition-colors"
+            </Button>
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="offset + limit >= totalCount"
               @click="offset += limit"
             >
               Next &raquo;
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -186,6 +190,8 @@ import { navigateTo } from "#app/composables/router";
 import { fetchJobs, deleteJob, cancelJob } from "../composables/useHpcApi";
 import { JOB_STATUSES, isTerminal } from "../utils/protocol";
 import { formatDate } from "../utils/jobs";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
 
 const statuses = JOB_STATUSES;
 
