@@ -139,8 +139,7 @@ public class SqlRoleManager {
                        GROUP BY table_name""",
                   inline(fullRole), inline(schemaName));
       for (Record row : rows) {
-        Privileges select =
-            Boolean.TRUE.equals(row.get("can_select", Boolean.class)) ? Privileges.VIEWER : null;
+        Boolean select = Boolean.TRUE.equals(row.get("can_select", Boolean.class)) ? true : null;
         Boolean insert = Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? true : null;
         Boolean update = Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? true : null;
         Boolean delete = Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? true : null;
@@ -216,14 +215,11 @@ public class SqlRoleManager {
 
   private List<TablePermission> systemPermissions(String roleName) {
     return switch (roleName) {
-      case "Exists" -> List.of(new TablePermission("*", Privileges.EXISTS, null, null, null));
-      case "Range" -> List.of(new TablePermission("*", Privileges.RANGE, null, null, null));
-      case "Aggregator" ->
-          List.of(new TablePermission("*", Privileges.AGGREGATOR, null, null, null));
-      case "Count" -> List.of(new TablePermission("*", Privileges.COUNT, null, null, null));
-      case "Viewer" -> List.of(new TablePermission("*", Privileges.VIEWER, null, null, null));
+      case "Exists", "Range", "Aggregator", "Count" ->
+          List.of(new TablePermission("*", null, null, null, null));
+      case "Viewer" -> List.of(new TablePermission("*", true, null, null, null));
       case "Editor", "Manager", "Owner" ->
-          List.of(new TablePermission("*", Privileges.VIEWER, true, true, true));
+          List.of(new TablePermission("*", true, true, true, true));
       default -> List.of();
     };
   }

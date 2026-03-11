@@ -2,7 +2,7 @@ import { ISetting } from "metadata-utils";
 
 export interface IRolePermission {
   table: string;
-  select?: string;
+  select?: boolean;
   insert?: boolean;
   update?: boolean;
   delete?: boolean;
