@@ -31,7 +31,7 @@
         </ValueShowcase>
       </DashboardChart>
     </DashboardRow>
-    <DashboardRow :columns="2">
+    <DashboardRow :columns="1">
       <DashboardChart id="provider-overview-patients-by-workstream">
         <LoadingScreen v-if="loading" style="height: 215px" />
         <MessageBox
@@ -54,7 +54,7 @@
           :yTickValues="patientsByWorkstreamChart.yAxisTicks"
           xAxisLineBreaker=" "
           :columnColorPalette="patientsByWorkstreamPalette"
-          :chartHeight="275"
+          :chartHeight="300"
           :chartMargins="{
             top: patientsByWorkstreamChart.topMargin,
             right: patientsByWorkstreamChart.rightMargin,
@@ -65,7 +65,7 @@
           @columnClicked="updateSexByWorkstream"
         />
       </DashboardChart>
-      <DashboardChart v-if="selectedWorkstream">
+      <DashboardChart v-if="selectedWorkstream" style="min-height: 200px">
         <PieChart2
           :chartId="sexByWorkstreamChart?.chartId"
           :title="`${sexByWorkstreamChart?.chartTitle} for ${selectedWorkstream.dataPointName} patients`"
@@ -77,8 +77,8 @@
           :enableLegendHovering="true"
           legendPosition="bottom"
           :enableClicks="true"
-          :chartHeight="215"
-          :chartScale="0.85"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardChart>
     </DashboardRow>

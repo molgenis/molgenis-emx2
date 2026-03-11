@@ -45,7 +45,7 @@ const hasPrimaryKey = computed(() => {
 
 const addModalConstantValues = computed(() => {
   const result: IRow = {};
-  result[props.refBackColumn as string] = unref(props.refBackPrimaryKey);
+  result[props.refBackColumn] = unref(props.refBackPrimaryKey);
   return result;
 });
 

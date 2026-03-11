@@ -194,7 +194,7 @@ const filters = computed(() => {
 
 const query = computed(() => {
   return `
-  query Resources($filter:ResourcesFilter, $orderby:Resourcesorderby){
+  query Resources($filter:ResourcesFilter, $orderby:[Resourcesorderby]){
     Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
@@ -280,7 +280,7 @@ const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   method: "POST",
   body: {
     query: query,
-    variables: { filter: gqlFilter, orderby },
+    variables: { filter: gqlFilter, orderby: [orderby] },
   },
   onResponseError(_ctx) {
     logError({

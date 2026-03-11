@@ -29,7 +29,7 @@ const emit = defineEmits(["update:modelValue"]);
 const query = ` query 
     ${props.tableId}( $filter:${props.tableId}Filter )
     {   
-        ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC} )
+        ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC})
         {          
              ${props.nameField} ${props.descriptionField}
         }       

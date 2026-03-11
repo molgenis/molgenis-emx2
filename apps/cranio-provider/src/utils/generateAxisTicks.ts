@@ -1,4 +1,4 @@
-import type { IAxisTickData, IKeyValuePair } from "../types/index";
+import type { IAxisTickData } from "../types/index";
 import type { IChartData } from "../types/schema";
 
 /**
