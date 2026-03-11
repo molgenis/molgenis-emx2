@@ -30,16 +30,13 @@
             <label class="block text-sm font-medium text-record-label mb-1"
               >Processor *</label
             >
-            <select
+            <InputSelect
               v-if="processors.length"
+              id="job-submit-processor-select"
               v-model="form.processor"
-              class="w-full rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">Select a processor...</option>
-              <option v-for="p in processors" :key="p" :value="p">
-                {{ p }}
-              </option>
-            </select>
+              :options="processors"
+              placeholder="Select a processor..."
+            />
             <InputString
               id="job-submit-processor"
               v-else
@@ -51,16 +48,16 @@
             <label class="block text-sm font-medium text-record-label mb-1"
               >Profile</label
             >
-            <select
-              v-if="profiles.length"
+            <InputSelect
+              v-if="processors.length"
+              id="job-submit-profile-select"
               v-model="form.profile"
-              class="w-full rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">Select a profile...</option>
-              <option v-for="p in profiles" :key="p" :value="p">
-                {{ p }}
-              </option>
-            </select>
+              :options="profiles"
+              :disabled="!form.processor"
+              :placeholder="
+                form.processor ? 'Select a profile...' : 'Select processor first'
+              "
+            />
             <InputString
               id="job-submit-profile"
               v-else
@@ -83,12 +80,11 @@
           <label class="block text-sm font-medium text-record-label mb-1"
             >Parameters (JSON)</label
           >
-          <textarea
+          <InputTextArea
+            id="job-submit-parameters"
             v-model="form.parametersJson"
-            class="w-full rounded-md border border-input bg-input text-input px-3 py-2 text-sm font-mono focus:border-input-focused focus:ring-1 focus:ring-blue-500"
-            rows="4"
             placeholder='{"key":"value"}'
-          ></textarea>
+          />
           <p class="text-xs text-definition-list-term mt-1">
             Leave empty for no parameters. Invalid JSON will be rejected before
             submission.
@@ -109,20 +105,13 @@
             >Available Artifacts</label
           >
           <div class="flex gap-2">
-            <select
+            <InputSelect
+              id="job-submit-input-artifacts"
               v-model="selectedArtifact"
-              class="flex-1 rounded-md border border-input bg-input text-input px-3 py-2 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">Select a committed artifact...</option>
-              <option
-                v-for="a in availableArtifacts"
-                :key="a.id"
-                :value="a.id"
-              >
-                {{ a.name || a.id?.substring(0, 8)
-                }}{{ a.type ? ` (${a.type})` : "" }}
-              </option>
-            </select>
+              class="flex-1"
+              :options="artifactOptions"
+              placeholder="Select a committed artifact..."
+            />
             <Button
               type="outline"
               size="tiny"
@@ -146,14 +135,15 @@
               class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-content text-sm text-title"
             >
               <span>{{ artifactChipLabel(id) }}</span>
-              <button
-                type="button"
-                class="text-definition-list-term hover:text-record-label ml-1"
+              <Button
+                type="text"
+                size="tiny"
+                icon="cross"
+                :icon-only="true"
                 :aria-label="`Remove artifact ${artifactChipLabel(id)}`"
+                :label="`Remove artifact ${artifactChipLabel(id)}`"
                 @click="form.inputs.splice(idx, 1)"
-              >
-                &times;
-              </button>
+              />
             </li>
           </ul>
         </div>
@@ -186,6 +176,8 @@ import {
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
+import InputTextArea from "../../../tailwind-components/app/components/input/TextArea.vue";
 
 const emit = defineEmits(["submitted", "close"]);
 
@@ -214,6 +206,13 @@ const profiles = computed(() => {
     ),
   ];
 });
+
+const artifactOptions = computed(() =>
+  availableArtifacts.value.map((a) => ({
+    value: a.id,
+    label: `${a.name || a.id?.substring(0, 8)}${a.type ? ` (${a.type})` : ""}`,
+  }))
+);
 
 watch(
   () => form.processor,

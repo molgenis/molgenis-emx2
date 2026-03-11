@@ -50,13 +50,14 @@
     <div v-else>
       <section class="bg-form rounded-lg border border-color-theme">
         <div class="p-4 border-b border-color-theme">
-          <select
-            v-model="statusFilter"
-            class="rounded-md border border-input bg-input text-input px-3 py-1.5 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="">All Statuses</option>
-            <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
-          </select>
+          <div class="w-56">
+            <InputSelect
+              id="jobs-status-filter"
+              v-model="statusFilter"
+              :options="statuses"
+              placeholder="All Statuses"
+            />
+          </div>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-table-row">
@@ -192,6 +193,7 @@ import { JOB_STATUSES, isTerminal } from "../utils/protocol";
 import { formatDate } from "../utils/jobs";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
+import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 
 const statuses = JOB_STATUSES;
 

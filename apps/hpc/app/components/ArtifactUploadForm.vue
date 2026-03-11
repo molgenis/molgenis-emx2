@@ -60,12 +60,7 @@
           <label class="block text-sm font-medium text-record-label mb-1"
             >Files *</label
           >
-          <input
-            type="file"
-            class="w-full rounded-md border border-input px-3 py-2 text-sm text-input file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-1 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
-            multiple
-            @change="onFilesSelected"
-          />
+          <InputFiles id="artifact-upload-files" v-model="selectedFiles" />
           <p class="text-xs text-definition-list-term mt-1">
             Multi-file uploads are supported. Large files may take longer while
             the hash is computed before commit.
@@ -150,6 +145,7 @@ import {
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import InputFiles from "../../../tailwind-components/app/components/input/Files.vue";
 
 const emit = defineEmits(["created", "close"]);
 
@@ -178,11 +174,6 @@ function formatSize(bytes: number): string {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function onFilesSelected(e: Event) {
-  const target = e.target as HTMLInputElement;
-  selectedFiles.value = Array.from(target.files || []);
 }
 
 async function startUpload() {

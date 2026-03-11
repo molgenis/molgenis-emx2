@@ -81,21 +81,21 @@
           </label>
 
           <div class="flex gap-2">
-            <button
-              type="submit"
-              class="px-3 py-2 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+            <Button
+              type="primary"
+              size="tiny"
               :disabled="bootstrapBusy"
             >
               Issue
-            </button>
-            <button
-              type="button"
-              class="px-3 py-2 text-sm border border-color-theme rounded-md hover:bg-hover disabled:opacity-50"
+            </Button>
+            <Button
+              type="outline"
+              size="tiny"
               :disabled="bootstrapBusy"
               @click="onBootstrapRotate"
             >
               Rotate
-            </button>
+            </Button>
           </div>
         </form>
 

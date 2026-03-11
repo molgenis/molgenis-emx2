@@ -10,13 +10,14 @@
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <select
-            v-model="statusFilter"
-            class="rounded-md border border-input bg-input text-input px-3 py-1.5 text-sm focus:border-input-focused focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="">All Statuses</option>
-            <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
-          </select>
+          <div class="w-56">
+            <InputSelect
+              id="artifacts-status-filter"
+              v-model="statusFilter"
+              :options="statuses"
+              placeholder="All Statuses"
+            />
+          </div>
           <Button
             type="primary"
             size="tiny"
@@ -267,6 +268,7 @@ import { fetchArtifacts, deleteArtifact } from "../../composables/useHpcApi";
 import { formatDate } from "../../utils/jobs";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
+import InputSelect from "../../../../tailwind-components/app/components/input/Select.vue";
 
 const statuses = ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"];
 
