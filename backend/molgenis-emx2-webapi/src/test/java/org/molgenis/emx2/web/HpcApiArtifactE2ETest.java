@@ -4,6 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 import io.restassured.response.Response;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import org.junit.jupiter.api.*;
 
 /** E2E tests for HPC artifact lifecycle: creation, file upload, commit, and immutability. */
@@ -158,5 +161,65 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
         .statusCode(200)
         .header("X-Content-SHA256", equalTo("abc123"))
         .header("Content-Length", equalTo("12"));
+  }
+
+  @Test
+  @Order(63)
+  void binaryUploadRequiresContentSha256Header() {
+    String artifactId =
+        hpcRequest()
+            .body(
+                """
+                {"type": "dataset", "residence": "managed"}
+                """)
+            .when()
+            .post("/api/hpc/artifacts")
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath()
+            .getString("id");
+
+    hpcRequest()
+        .contentType("application/octet-stream")
+        .body("hello".getBytes(StandardCharsets.UTF_8))
+        .when()
+        .put("/api/hpc/artifacts/{id}/files/{path}", artifactId, "blob.bin")
+        .then()
+        .statusCode(400)
+        .body("detail", equalTo("Content-SHA256 header is required for binary uploads"));
+  }
+
+  @Test
+  @Order(64)
+  void binaryUploadAcceptsValidContentSha256Header() throws Exception {
+    String artifactId =
+        hpcRequest()
+            .body(
+                """
+                {"type": "dataset", "residence": "managed"}
+                """)
+            .when()
+            .post("/api/hpc/artifacts")
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath()
+            .getString("id");
+
+    byte[] payload = "hello".getBytes(StandardCharsets.UTF_8);
+    String sha256 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(payload));
+
+    hpcRequest()
+        .contentType("application/octet-stream")
+        .header("Content-SHA256", sha256)
+        .body(payload)
+        .when()
+        .put("/api/hpc/artifacts/{id}/files/{path}", artifactId, "blob.bin")
+        .then()
+        .statusCode(201)
+        .body("path", equalTo("blob.bin"))
+        .body("sha256", equalTo(sha256))
+        .body("size_bytes", equalTo(payload.length));
   }
 }

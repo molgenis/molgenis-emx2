@@ -20,6 +20,60 @@ from .tracker import TrackedJob
 logger = logging.getLogger(__name__)
 
 
+def _validate_upload_ack(
+    response: dict,
+    *,
+    artifact_id: str,
+    path: str,
+    expected_sha256: str,
+    expected_size: int,
+) -> None:
+    """Validate optional server acknowledgement fields for uploaded file metadata."""
+    if not isinstance(response, dict):
+        return
+    actual_sha = response.get("sha256")
+    if actual_sha is not None and str(actual_sha) != expected_sha256:
+        raise ValueError(
+            "Upload acknowledgement hash mismatch for "
+            f"{artifact_id}/{path}: expected={expected_sha256} actual={actual_sha}"
+        )
+    actual_size = response.get("size_bytes")
+    if actual_size is not None and int(actual_size) != expected_size:
+        raise ValueError(
+            "Upload acknowledgement size mismatch for "
+            f"{artifact_id}/{path}: expected={expected_size} actual={actual_size}"
+        )
+
+
+def _validate_commit_ack(
+    response: dict,
+    *,
+    artifact_id: str,
+    expected_sha256: str,
+    expected_size: int,
+) -> None:
+    """Validate optional server acknowledgement fields for artifact commit."""
+    if not isinstance(response, dict):
+        return
+    status = response.get("status")
+    if status is not None and status != "COMMITTED":
+        raise ValueError(
+            f"Artifact {artifact_id} commit acknowledgement returned unexpected status: {status}"
+        )
+    actual_sha = response.get("sha256")
+    if actual_sha is not None and str(actual_sha) != expected_sha256:
+        raise ValueError(
+            "Commit acknowledgement hash mismatch for "
+            f"{artifact_id}: expected={expected_sha256} actual={actual_sha}"
+        )
+    actual_size = response.get("size_bytes")
+    if actual_size is not None and int(actual_size) != expected_size:
+        raise ValueError(
+            "Commit acknowledgement size mismatch for "
+            f"{artifact_id}: expected={expected_size} actual={actual_size}"
+        )
+
+
 def classify_output_files(
     output_dir: str,
 ) -> tuple[list[Path], list[Path]]:
@@ -225,12 +279,19 @@ def register_posix_artifact(
         content_type = (
             mimetypes.guess_type(relative_path)[0] or "application/octet-stream"
         )
-        client.register_artifact_file(
+        register_result = client.register_artifact_file(
             artifact_id,
             path=relative_path,
             sha256=fhash,
             size_bytes=fsize,
             content_type=content_type,
+        )
+        _validate_upload_ack(
+            register_result,
+            artifact_id=artifact_id,
+            path=relative_path,
+            expected_sha256=fhash,
+            expected_size=fsize,
         )
 
     tree_hash = compute_tree_hash_from_hashes(file_hashes)
@@ -238,6 +299,12 @@ def register_posix_artifact(
         artifact_id,
         sha256=tree_hash,
         size_bytes=total_size,
+    )
+    _validate_commit_ack(
+        commit_result,
+        artifact_id=artifact_id,
+        expected_sha256=tree_hash,
+        expected_size=total_size,
     )
     logger.debug(
         "Committed posix artifact %s: sha256=%s, size=%d, _links: %s",
@@ -301,11 +368,18 @@ def upload_managed_artifact(
             file_size,
             artifact_id,
         )
-        client.upload_artifact_file(
+        upload_result = client.upload_artifact_file(
             artifact_id,
             path=relative_path,
             file_path=str(f),
             size_bytes=file_size,
+        )
+        _validate_upload_ack(
+            upload_result,
+            artifact_id=artifact_id,
+            path=relative_path,
+            expected_sha256=file_hash,
+            expected_size=file_size,
         )
 
     tree_hash = compute_tree_hash_from_hashes(file_hashes)
@@ -313,6 +387,12 @@ def upload_managed_artifact(
         artifact_id,
         sha256=tree_hash,
         size_bytes=total_size,
+    )
+    _validate_commit_ack(
+        commit_result,
+        artifact_id=artifact_id,
+        expected_sha256=tree_hash,
+        expected_size=total_size,
     )
     logger.debug(
         "Committed managed artifact %s: sha256=%s, size=%d, _links: %s",

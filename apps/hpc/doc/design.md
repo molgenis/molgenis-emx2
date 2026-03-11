@@ -396,7 +396,7 @@ Every request from a worker or runtime MUST include a standard set of headers:
 | `X-Trace-Id`         | No                | Identifier spanning a logical operation, e.g. an entire job lifecycle.                                                                         |
 | `X-Worker-Id`        | Worker write endpoints | Worker identifier; REQUIRED for worker-origin lifecycle endpoints (register, heartbeat, claim, transition, complete). Must match path/body where applicable. |
 | `Authorization`      | When HMAC enabled | `HMAC-SHA256 <hex-signature>` (see Authentication and Trust).                                                                                  |
-| `Content-SHA256`     | Non-JSON bodies   | Hex-encoded SHA-256 of the request body. Required for binary uploads when HMAC is enabled; used as the body hash in the HMAC canonical string. |
+| `Content-SHA256`     | Non-JSON bodies   | Hex-encoded SHA-256 of the request body. Required for all binary uploads; when HMAC is enabled it is also used as the body hash in the canonical string. |
 
 EMX2 MUST echo `X-Request-Id` in error responses for traceability.
 
@@ -1087,7 +1087,7 @@ X-EMX2-API-Version: 2025-01
 }
 ```
 
-**HMAC note:** For non-JSON request bodies (raw binary uploads), the client MUST include a `Content-SHA256` header containing the hex-encoded SHA-256 digest of the upload body. This value is used as the body hash component in the HMAC canonical string (see §8). The server verifies both the HMAC signature (proving the client intended this hash) and the actual body hash (proving the bytes were not altered in transit). This provides end-to-end integrity protection for binary uploads.
+For non-JSON request bodies (raw binary uploads), the client MUST include a `Content-SHA256` header containing the hex-encoded SHA-256 digest of the upload body. This is mandatory even without HMAC. When HMAC is enabled, the same value is used as the body hash component in the HMAC canonical string (see §8). The server verifies both the declared body hash and, when present, the HMAC signature.
 
 ### GET /api/hpc/artifacts/{id}/files/{path} {.unnumbered}
 

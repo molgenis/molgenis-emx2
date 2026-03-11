@@ -528,6 +528,7 @@ class HpcClient:
 
         files = self.list_artifact_files(artifact_id)
         downloaded = []
+        failed: list[str] = []
         for f in files:
             file_path = f.get("path", f.get("id", "unknown"))
             local_path = Path(dest_dir) / file_path
@@ -535,11 +536,17 @@ class HpcClient:
                 self.download_artifact_file(artifact_id, file_path, str(local_path))
                 downloaded.append(str(local_path))
             except Exception:
+                failed.append(file_path)
                 logger.warning(
                     "Failed to download file %s from artifact %s",
                     file_path,
                     artifact_id,
                 )
+        if failed:
+            raise RuntimeError(
+                "Failed to download artifact files for "
+                f"{artifact_id}: {', '.join(sorted(failed))}"
+            )
         return downloaded
 
     def create_artifact(

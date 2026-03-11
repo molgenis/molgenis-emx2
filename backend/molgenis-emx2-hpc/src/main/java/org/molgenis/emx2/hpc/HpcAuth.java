@@ -162,8 +162,19 @@ class HpcAuth {
     if ("GET".equals(method) || "HEAD".equals(method) || "DELETE".equals(method)) {
       return false;
     }
+    String transferEncoding = ctx.header("Transfer-Encoding");
+    if (transferEncoding != null && !transferEncoding.isBlank()) {
+      return true;
+    }
     String contentLength = ctx.header("Content-Length");
-    return contentLength != null && !"0".equals(contentLength);
+    if (contentLength == null || contentLength.isBlank()) {
+      return false;
+    }
+    try {
+      return Long.parseLong(contentLength) > 0;
+    } catch (NumberFormatException e) {
+      return true;
+    }
   }
 
   /**

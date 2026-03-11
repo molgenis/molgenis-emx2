@@ -60,17 +60,26 @@ final class HpcApiUtils {
   }
 
   /**
-   * Verifies that the Content-SHA256 header (if present) matches the actual SHA-256 of the received
-   * bytes. This closes the MITM window: the HMAC proved the client intended this hash, and this
-   * check verifies the bytes match.
+   * Verifies that the Content-SHA256 header is present and matches the actual SHA-256 of the
+   * received bytes. This closes the MITM window: the HMAC proved the client intended this hash, and
+   * this check verifies the bytes match.
    */
   static void verifyContentSha256(Context ctx, String actualSha256) {
     String claimedHash = ctx.header(HpcHeaders.CONTENT_SHA256);
-    if (claimedHash != null && !claimedHash.isBlank() && !actualSha256.equals(claimedHash)) {
+    if (claimedHash == null || claimedHash.isBlank()) {
+      throw HpcException.badRequest(
+          "Content-SHA256 header is required for binary uploads", requestId(ctx));
+    }
+    String normalized = claimedHash.trim().toLowerCase();
+    if (!normalized.matches("[0-9a-f]{64}")) {
+      throw HpcException.badRequest(
+          "Content-SHA256 must be a 64-character hex string", requestId(ctx));
+    }
+    if (!actualSha256.equals(normalized)) {
       throw HpcException.badRequest(
           "Content-SHA256 header does not match actual content hash"
               + " (claimed="
-              + claimedHash
+              + normalized
               + ", actual="
               + actualSha256
               + ")",
