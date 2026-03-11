@@ -202,7 +202,7 @@ public class SqlQuery extends QueryBean {
               .getRoleManager()
               .getPermissionsForActiveUser(schema.getName())
               .stream()
-              .filter(p -> p.select() != null)
+              .filter(p -> Boolean.TRUE.equals(p.select()))
               .map(TablePermission::table)
               .collect(Collectors.toUnmodifiableSet());
     }

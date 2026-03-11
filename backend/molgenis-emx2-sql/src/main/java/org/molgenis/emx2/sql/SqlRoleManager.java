@@ -104,7 +104,7 @@ public class SqlRoleManager {
   private void applyPgGrants(
       String schemaName, String fullRole, String tableName, TablePermission p) {
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-    if (p.select() != null) {
+    if (Boolean.TRUE.equals(p.select())) {
       jooq().execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
     }
     if (Boolean.TRUE.equals(p.insert())) {
@@ -214,13 +214,18 @@ public class SqlRoleManager {
   }
 
   private List<TablePermission> systemPermissions(String roleName) {
-    return switch (roleName) {
-      case "Exists", "Range", "Aggregator", "Count" ->
-          List.of(new TablePermission("*", null, null, null, null));
-      case "Viewer" -> List.of(new TablePermission("*", true, null, null, null));
-      case "Editor", "Manager", "Owner" ->
-          List.of(new TablePermission("*", true, true, true, true));
-      default -> List.of();
-    };
+    if (roleName.equals(Privileges.EXISTS.toString())
+        || roleName.equals(Privileges.RANGE.toString())
+        || roleName.equals(Privileges.AGGREGATOR.toString())
+        || roleName.equals(Privileges.COUNT.toString())) {
+      return List.of(new TablePermission("*", null, null, null, null));
+    } else if (roleName.equals(Privileges.VIEWER.toString())) {
+      return List.of(new TablePermission("*", true, null, null, null));
+    } else if (roleName.equals(Privileges.EDITOR.toString())
+        || roleName.equals(Privileges.MANAGER.toString())
+        || roleName.equals(Privileges.OWNER.toString())) {
+      return List.of(new TablePermission("*", true, true, true, true));
+    }
+    return List.of();
   }
 }
