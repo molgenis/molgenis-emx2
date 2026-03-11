@@ -374,6 +374,18 @@ def hpc_client(wait_for_daemon, emx2_base_url, shared_secret):
     client.close()
 
 
+@pytest.fixture(scope="session")
+def worker_client(wait_for_daemon, emx2_base_url, shared_secret):
+    """Client that uses the daemon worker identity for worker lifecycle calls."""
+    client = HpcClient(
+        base_url=emx2_base_url,
+        worker_id=WORKER_ID,
+        shared_secret=shared_secret,
+    )
+    yield client
+    client.close()
+
+
 @pytest.fixture
 def vm_run():
     """Run a command in the VM from tests."""

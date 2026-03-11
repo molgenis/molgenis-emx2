@@ -1,19 +1,15 @@
 """Cancel propagation across lifecycle states."""
 
-from conftest import WORKER_ID, create_job, wait_for_job_status
+from conftest import create_job, wait_for_job_status
 
 
-def test_cancel_at_claimed_state(hpc_client):
+def test_cancel_at_claimed_state(hpc_client, worker_client):
     """Cancel a claimed (not yet submitted) job."""
     resp = create_job(hpc_client, processor="e2e-test", profile="bash")
     job_id = resp["id"]
     assert resp["status"] == "PENDING"
 
-    claim = hpc_client._request(
-        "POST",
-        f"/api/hpc/jobs/{job_id}/claim",
-        json={"worker_id": WORKER_ID},
-    )
+    claim = worker_client.claim_job(job_id)
     assert claim["status"] == "CLAIMED"
 
     hpc_client.cancel_job(job_id)
