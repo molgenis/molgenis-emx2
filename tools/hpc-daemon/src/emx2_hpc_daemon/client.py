@@ -83,7 +83,7 @@ class HpcClient:
 
     base_url: str
     worker_id: str
-    shared_secret: str
+    worker_secret: str
     auth_mode: str = "hmac"
     max_retries: int = 3
     backoff_base: float = 1.0
@@ -120,13 +120,13 @@ class HpcClient:
             "Content-Type": "application/json",
         }
 
-        if self.shared_secret and self.auth_mode == "hmac":
+        if self.worker_secret and self.auth_mode == "hmac":
             auth_headers, _, _ = build_authorization_header(
-                method, path, body, self.shared_secret, body_hash=body_hash
+                method, path, body, self.worker_secret, body_hash=body_hash
             )
             headers.update(auth_headers)
-        elif self.shared_secret and self.auth_mode == "token":
-            headers["x-molgenis-token"] = self.shared_secret
+        elif self.worker_secret and self.auth_mode == "token":
+            headers["x-molgenis-token"] = self.worker_secret
             headers["X-Timestamp"] = str(int(time.time()))
         else:
             # No secret configured — send timestamp anyway for protocol compliance

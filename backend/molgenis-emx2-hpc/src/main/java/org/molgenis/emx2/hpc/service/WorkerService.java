@@ -65,6 +65,10 @@ public class WorkerService {
           } else {
             workerRow = existing.getFirst();
             workerRow.set("hostname", hostname);
+            if (workerRow.getString("registered_at") == null
+                || workerRow.getString("registered_at").isBlank()) {
+              workerRow.set("registered_at", now);
+            }
             workerRow.set("last_heartbeat_at", now);
             workersTable.update(workerRow);
           }

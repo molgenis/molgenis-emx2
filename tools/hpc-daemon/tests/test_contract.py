@@ -76,7 +76,7 @@ def test_required_headers_present_on_signed_requests(defs):
     client = HpcClient(
         base_url="http://example.invalid",
         worker_id="worker-1",
-        shared_secret="contract-secret-0123456789abcdef0123456789",
+        worker_secret="contract-secret-0123456789abcdef0123456789",
         auth_mode="hmac",
     )
     try:
@@ -108,7 +108,7 @@ def test_binary_upload_sends_content_sha256(defs):
     client = HpcClient(
         base_url="http://example.invalid",
         worker_id="worker-1",
-        shared_secret="contract-secret-0123456789abcdef0123456789",
+        worker_secret="contract-secret-0123456789abcdef0123456789",
         auth_mode="hmac",
     )
     try:

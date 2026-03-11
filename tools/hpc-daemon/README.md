@@ -14,24 +14,58 @@ uv pip install -e .
 
 ## Prerequisites
 
-Before starting the daemon, the `MOLGENIS_HPC_SHARED_SECRET` database setting must be configured on the `_SYSTEM_` schema in EMX2. This setting activates the HPC API — without it, all HPC endpoints return `503 Service Unavailable` and the daemon cannot connect. The HPC schema tables are created automatically on first use once the secret is set.
+Before starting the daemon, configure these `_SYSTEM_` settings:
+
+- `MOLGENIS_HPC_ENABLED=true`
+- `MOLGENIS_HPC_CREDENTIALS_KEY=<strong-random-key>`
+
+Worker authentication uses per-worker credentials. Issue or rotate a credential for the worker id,
+then place the returned secret on the daemon host.
+
+### Bootstrap worker credential (UI)
+
+From zero-state (no worker rows yet):
+
+1. Open `http://localhost:3000/workers` (or your HPC app URL).
+2. In **Bootstrap Worker Credential**, enter the daemon `worker_id`.
+3. Click **Issue** (or **Rotate** if re-keying an existing worker id).
+4. Copy the shown secret into a local `.secret` file next to your daemon config:
+
+```bash
+printf '%s' '<paste-secret>' > .secret && chmod 600 .secret
+```
+
+5. Configure daemon with:
+
+```yaml
+emx2:
+  worker_id: "hpc-headnode-01"
+  worker_secret_file: ".secret"
+```
+
+Issuing the credential creates the worker identity row. Capability data and
+heartbeat fields appear after the daemon successfully calls
+`POST /api/hpc/workers/register`.
 
 You can verify the setting is active by checking the health endpoint:
 
 ```bash
 curl https://emx2.example.org/api/hpc/health
-# Should return: {"status":"ok","hpc_enabled":true,...}
+# Should return: {"status":"ok","hpc_enabled":true,"credentials_key_configured":true,...}
 ```
+
+If `MOLGENIS_HPC_CREDENTIALS_KEY` is missing, credential issue/rotate endpoints return `503 Service Unavailable`.
 
 ## Configuration
 
-The daemon reads a YAML config file. Environment variables can be referenced with `${VAR}` syntax. Secrets should use `shared_secret_file` to read from a file with restricted permissions.
+The daemon reads a YAML config file. Environment variables can be referenced with `${VAR}` syntax.
+Secrets should use `worker_secret_file` to read from a file with restricted permissions.
 
 ```yaml
 emx2:
   base_url: "https://emx2.example.org"
   worker_id: "hpc-headnode-01"
-  shared_secret_file: /etc/emx2-hpc/secret  # chmod 600, owned by service user
+  worker_secret_file: /etc/emx2-hpc/secret  # chmod 600, owned by service user
   auth_mode: "hmac"  # or "token"
 
 worker:

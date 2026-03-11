@@ -496,30 +496,46 @@ The HMAC canonical form is `METHOD\nPATH\nBODY_HASH\nTIMESTAMP\nNONCE`.
 
 This provides:
 
-- **Channel authenticity:** request came from a caller that knows the shared secret.
+- **Channel authenticity:** request came from a caller that knows the worker credential.
 - **Integrity:** tampered path/body/headers fail signature verification.
 - **Freshness:** timestamp-window and nonce replay checks.
 
-In single-shared-secret mode, HMAC proves the daemon trust domain, not a specific worker identity.
-
 ## Provisioning and Activation
 
-HPC functionality is lazily initialized. All endpoints except `/api/hpc/health` return `503` until the shared secret is configured.
+HPC functionality is controlled by an explicit feature flag. All endpoints except `/api/hpc/health` return `503` until HPC is enabled.
 
-Set `_SYSTEM_` setting `MOLGENIS_HPC_SHARED_SECRET` (minimum 32 characters). Once set, the first authenticated HPC request initializes HPC tables.
+Set `_SYSTEM_` setting `MOLGENIS_HPC_ENABLED=true`. When enabled, the server initializes the HPC schema and activates `/api/hpc/*` routes. When disabled, the server MUST reject all non-health HPC requests with `503 Service Unavailable`.
+
+Worker credentials also require `_SYSTEM_` setting `MOLGENIS_HPC_CREDENTIALS_KEY` (server-side encryption key for stored worker secrets). If this setting is missing, credential issue/rotate MUST return `503 Service Unavailable`.
 
 Each head node must have a stable `worker_id` and include `X-Worker-Id` on worker write endpoints.
+
+Worker authentication is credential-based. Credentials are issued per worker identity and are independent of HPC activation. A worker credential MAY exist before the worker has ever registered.
 
 ## Authentication Resolution (Rewritten Cascade)
 
 The `/api/hpc/*` before-handler resolves principal type as follows:
 
-1. **Daemon principal (HMAC):** valid `Authorization: HMAC-SHA256 ...`.
+1. **Worker principal (HMAC):** valid `Authorization: HMAC-SHA256 ...` verified against the active credential for `X-Worker-Id`.
 2. **User principal (token):** valid `x-molgenis-token`.
 3. **User principal (session):** signed-in browser session.
 4. Otherwise: `401 Unauthorized`.
 
 This cascade determines **who** the caller is. It does not grant permissions by itself.
+
+### Worker Credential Validation
+
+Worker HMAC authentication is resolved by `X-Worker-Id`.
+
+- The server looks up the active credential for that worker identity.
+- The HMAC signature is verified against that credential.
+- If the credential is missing, revoked, expired, malformed, or does not verify the request, the server returns `401 Unauthorized`.
+- Revocation takes effect immediately. There is no grace period, overlap window, or fallback credential unless a new credential has been explicitly issued and configured on the worker.
+
+### `401` vs `403`
+
+- `401 Unauthorized` means the caller failed authentication: missing/invalid HMAC, revoked worker credential, expired worker credential, invalid token, or no signed-in session.
+- `403 Forbidden` means the caller is authenticated but lacks authorization: for example, a signed-in EMX2 user without the required `_SYSTEM_` role, or an `Editor` trying to cancel/delete another user's job.
 
 ## Authorization Model
 
@@ -531,7 +547,7 @@ Authorization is explicit and role-based on `_SYSTEM_`. No role means no HPC acc
 | ------------------ | ---------- |
 | `Viewer`           | Read-only HPC data (jobs, transitions, workers, artifacts, files metadata/download). |
 | `Editor`           | Submitter role: create jobs, create/upload/commit artifacts, cancel/delete own jobs only. |
-| `Manager`          | Operator role: full lifecycle control, including worker management and cancelling/deleting any job. |
+| `Manager`          | Operator role: full lifecycle control, including worker credential management and cancelling/deleting any job. |
 | `Owner` / admin    | Same or higher than `Manager`. |
 
 ### Endpoint Policy Matrix
@@ -543,6 +559,7 @@ Authorization is explicit and role-based on `_SYSTEM_`. No role means no HPC acc
 | POST `/api/hpc/jobs/{id}/cancel` | No | Own jobs only | Any job | Yes |
 | DELETE `/api/hpc/jobs/{id}` | No | Own jobs only (terminal only) | Any job (terminal only) | Yes |
 | Worker lifecycle (`/workers/register`, `/workers/{id}/heartbeat`, `/jobs/{id}/claim`, `/jobs/{id}/transition`, `/jobs/{id}/complete`) | No | No | Yes | Yes |
+| Worker credential management (`/workers/{id}/credentials*`) | No | No | Yes | No |
 | Artifact destructive ops (`DELETE /artifacts/{id}`, `DELETE /artifacts/{id}/files/{path}`) | No | No | Yes | Yes |
 
 ### Ownership Rules
@@ -552,12 +569,22 @@ Authorization is explicit and role-based on `_SYSTEM_`. No role means no HPC acc
 - `Manager` can cancel/delete any job.
 - Non-terminal delete remains forbidden (`409`, must cancel first).
 
-### Worker Identity in Shared-Secret Mode
+### Worker Identity and Capabilities
 
 - `X-Worker-Id` is required for worker write endpoints.
 - Where body/path also carry worker identity, they must match `X-Worker-Id`.
 - Effective worker identity for claim/transition/complete is derived from `X-Worker-Id`, not trusted from body fields.
-- This prevents accidental cross-worker updates; it does not protect against impersonation if the shared secret is leaked.
+- Workers self-advertise capabilities on registration. EMX2 treats those advertised capabilities as observed worker state.
+- The UI displays capabilities as reported by the worker; users do not configure them in advance.
+
+### Worker Credentials
+
+- Worker credentials are issued and revoked by `Manager` or `Owner` users.
+- Credentials are returned exactly once at issue/rotate time.
+- The stored secret is encrypted at rest.
+- Credential issuance reserves the `worker_id`, even if no worker row exists yet.
+- The first successful `POST /api/hpc/workers/register` for that `worker_id` creates or updates the worker row and replaces the observed capability set.
+- Rotation has no implicit overlap. If an operator wants the daemon to keep working, the daemon configuration must be updated before or immediately after rotation and then restarted or reloaded.
 
 ### GraphQL Boundary for HPC Tables
 
@@ -596,7 +623,7 @@ A minimal, deterministic bridge between EMX2 and HPC infrastructure with these i
 
 **S3-minimal file surface.** The artifact file API exposes path-based GET/PUT/HEAD/DELETE operations that map to S3 semantics (`GetObject`, `PutObject`, `HeadObject`, `DeleteObject`). This is sufficient for the initial use case and makes a future S3-compatible gateway straightforward to implement. Until then, analytical tools access managed artifacts via HTTP GET with range request support.
 
-**Authentication and authorization.** HMAC and user-token/session authentication are both supported, but access is role-gated and HPC write operations are REST-only. See §8 for details.
+**Authentication and authorization.** Per-worker HMAC and user-token/session authentication are both supported, but access is role-gated and HPC write operations are REST-only. See §8 for details.
 
 ## Open Design Decisions
 
@@ -618,6 +645,8 @@ Full endpoint specifications. All endpoints require authentication and authoriza
 Registers a worker or updates its registration. Idempotent — subsequent calls update the heartbeat timestamp and replace the capability set.
 
 `X-Worker-Id` MUST be present and MUST match `worker_id` in the request body.
+
+Authentication is by per-worker HMAC credential. Unknown, revoked, expired, or invalid credentials MUST return `401 Unauthorized`.
 
 ```json
 {
@@ -659,6 +688,99 @@ Lightweight heartbeat. Updates `last_heartbeat_at` without re-submitting capabil
 `X-Worker-Id` MUST be present and MUST match `{id}`.
 
 **Response:** `200 OK` with `{"worker_id": "...", "status": "ok"}`.
+
+### POST /api/hpc/workers/{id}/credentials/issue {.unnumbered}
+
+Issues a new credential for a worker identity. This endpoint is for `Manager` or `Owner` users only. It returns the new secret exactly once.
+
+If the `worker_id` does not yet exist in `HpcWorkers`, it is still considered reserved for future worker registration.
+
+```json
+{
+  "label": "slurm-headnode-01",
+  "expires_at": "2026-12-31T23:59:59"
+}
+```
+
+**Response:** `201 Created`
+
+```json
+{
+  "credential_id": "cred_001",
+  "worker_id": "hpc-headnode-01",
+  "status": "ACTIVE",
+  "secret": "emx2hpc_XXXXXXXXXXXXXXXX",
+  "created_at": "2026-02-21T10:00:00",
+  "expires_at": "2026-12-31T23:59:59"
+}
+```
+
+**Error responses:** `409 Conflict` when an active credential already exists, `503 Service Unavailable` when `_SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY` is not configured.
+
+### POST /api/hpc/workers/{id}/credentials/rotate {.unnumbered}
+
+Issues a replacement credential for a worker identity. The old credential is revoked immediately. There is no grace period.
+
+**Response:** `201 Created` with the new credential secret shown once.
+
+**Error responses:** `503 Service Unavailable` when `_SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY` is not configured.
+
+### POST /api/hpc/workers/{id}/credentials/{credential_id}/revoke {.unnumbered}
+
+Revokes a worker credential immediately.
+
+**Response:** `204 No Content`.
+
+Subsequent worker requests signed with that credential MUST fail with `401 Unauthorized`.
+
+### GET /api/hpc/workers/{id}/credentials {.unnumbered}
+
+Lists credential metadata for a worker. Secrets are never returned.
+
+**Response:** `200 OK`
+
+```json
+{
+  "items": [
+    {
+      "credential_id": "cred_001",
+      "worker_id": "hpc-headnode-01",
+      "label": "slurm-headnode-01",
+      "status": "ACTIVE",
+      "created_at": "2026-02-21T10:00:00",
+      "created_by": "admin",
+      "last_used_at": "2026-02-21T10:30:00",
+      "revoked_at": null,
+      "expires_at": "2026-12-31T23:59:59"
+    }
+  ],
+  "count": 1
+}
+```
+
+### Worker Credential Bootstrap Flow {.unnumbered}
+
+For first-time setup (no worker row yet):
+
+1. Open the HPC UI Workers page.
+2. Use **Bootstrap Worker Credential** to issue a credential for the daemon `worker_id`.
+3. Write the returned secret to a local `.secret` file on the daemon host:
+
+```bash
+printf '%s' '<secret>' > .secret && chmod 600 .secret
+```
+
+4. Configure daemon with:
+
+```yaml
+emx2:
+  worker_id: "hpc-headnode-01"
+  worker_secret_file: ".secret"
+```
+
+Credential issue/rotate ensures a worker identity row exists in `HpcWorkers`.
+Observed capabilities and heartbeat metadata are populated on successful
+`POST /api/hpc/workers/register`.
 
 ### DELETE /api/hpc/workers/{id} {.unnumbered}
 
@@ -720,6 +842,8 @@ Atomically claims a job. After the atomic claim succeeds, EMX2 verifies that the
 
 No request body fields are required. Worker identity is derived from `X-Worker-Id`.
 
+Authentication failure on the worker credential returns `401 Unauthorized`.
+
 **Response:** `200 OK` with the job in CLAIMED state, including `_links` for `submit` and `cancel`.
 
 ```json
@@ -747,6 +871,8 @@ No request body fields are required. Worker identity is derived from `X-Worker-I
 ### POST /api/hpc/jobs/{id}/transition {.unnumbered}
 
 Reports a state transition. MUST reject invalid transitions with `409 Conflict`. Idempotent: re-posting an identical transition returns `200 OK`. Response includes the updated job.
+
+Authentication failure on the worker credential returns `401 Unauthorized`.
 
 Optional structured progress fields are accepted on transition and completion payloads:
 

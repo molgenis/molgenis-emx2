@@ -35,8 +35,11 @@ export async function gqlQuery(query: string): Promise<any> {
  * Check whether HPC is enabled via the health endpoint.
  */
 export async function fetchHpcHealth(): Promise<{
-  ok: boolean;
+  status?: string;
+  ok?: boolean;
   hpc_enabled: boolean;
+  hpc_initialized?: boolean;
+  worker_auth_mode?: string;
   database: string;
 } | null> {
   try {

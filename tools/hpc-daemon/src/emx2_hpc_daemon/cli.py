@@ -163,7 +163,7 @@ def check(ctx, verbose, json_logs):
     click.echo("Configuration:")
     click.echo(f"  EMX2 URL: {config.emx2.base_url}")
     click.echo(f"  Worker ID: {config.emx2.worker_id}")
-    click.echo(f"  Secret configured: {'yes' if config.emx2.shared_secret else 'no'}")
+    click.echo(f"  Secret configured: {'yes' if config.emx2.worker_secret else 'no'}")
     click.echo(f"  Profiles: {len(config.profiles)}")
     for key in config.profiles:
         p = config.profiles[key]
@@ -199,7 +199,7 @@ def check(ctx, verbose, json_logs):
         client = HpcClient(
             base_url=config.emx2.base_url,
             worker_id=config.emx2.worker_id,
-            shared_secret=config.emx2.shared_secret,
+            worker_secret=config.emx2.worker_secret,
             max_retries=1,
         )
         # Try to list jobs as a connectivity test

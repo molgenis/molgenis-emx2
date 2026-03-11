@@ -289,7 +289,7 @@ mkdir -p /etc/hpc-daemon
 SECRET_FILE="/opt/hpc-daemon/.secret"
 if [ ! -f "$SECRET_FILE" ]; then
     echo "FATAL: .secret file not found at $SECRET_FILE"
-    echo "Create tools/hpc-daemon/.secret with the shared secret before provisioning."
+    echo "Create tools/hpc-daemon/.secret with the active worker credential secret before provisioning."
     exit 1
 fi
 cp "$SECRET_FILE" /etc/hpc-daemon/secret
@@ -300,7 +300,7 @@ cat > /etc/hpc-daemon/daemon-config.yaml <<DAEMON_CONF
 emx2:
   base_url: "${EMX2_BASE_URL}"
   worker_id: "e2e-test-worker"
-  shared_secret_file: /etc/hpc-daemon/secret
+  worker_secret_file: /etc/hpc-daemon/secret
 
 worker:
   poll_interval_seconds: 20

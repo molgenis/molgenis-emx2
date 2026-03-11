@@ -11,14 +11,19 @@ import org.junit.jupiter.api.Test;
 @Tag("slow")
 class HpcGraphqlGuardE2ETest extends ApiTestBase {
 
-  private static final String HPC_SECRET_SETTING = "MOLGENIS_HPC_SHARED_SECRET";
-  private static final String TEST_SHARED_SECRET = "hpc-graphql-guard-secret-0123456789abcdef";
-  private static String previousSharedSecret;
+  private static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
+  private static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
+  private static final String TEST_CREDENTIALS_KEY =
+      "hpc-graphql-guard-key-0123456789abcdef0123456789ab";
+  private static String previousEnabled;
+  private static String previousCredentialsKey;
 
   @BeforeAll
   static void setup() {
-    previousSharedSecret = database.getSetting(HPC_SECRET_SETTING);
-    database.setSetting(HPC_SECRET_SETTING, TEST_SHARED_SECRET);
+    previousEnabled = database.getSetting(HPC_ENABLED_SETTING);
+    previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
+    database.setSetting(HPC_ENABLED_SETTING, "true");
+    database.setSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
     login(database.getAdminUserName(), "admin");
 
     // Ensure HPC schema artifacts are initialized in _SYSTEM_.
@@ -27,10 +32,15 @@ class HpcGraphqlGuardE2ETest extends ApiTestBase {
 
   @AfterAll
   static void teardown() {
-    if (previousSharedSecret == null || previousSharedSecret.isBlank()) {
-      database.removeSetting(HPC_SECRET_SETTING);
+    if (previousEnabled == null || previousEnabled.isBlank()) {
+      database.removeSetting(HPC_ENABLED_SETTING);
     } else {
-      database.setSetting(HPC_SECRET_SETTING, previousSharedSecret);
+      database.setSetting(HPC_ENABLED_SETTING, previousEnabled);
+    }
+    if (previousCredentialsKey == null || previousCredentialsKey.isBlank()) {
+      database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
+    } else {
+      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey);
     }
   }
 

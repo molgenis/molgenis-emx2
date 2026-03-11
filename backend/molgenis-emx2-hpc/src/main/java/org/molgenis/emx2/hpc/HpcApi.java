@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Entry point for HPC API route registration. Routes are registered unconditionally, but HPC schema
- * tables and services are initialized lazily on first request when {@code
- * MOLGENIS_HPC_SHARED_SECRET} is configured as a database setting.
+ * tables and services are initialized lazily on first request after {@code
+ * MOLGENIS_HPC_ENABLED=true}.
  *
- * <p>When HPC is not configured, all endpoints except {@code /api/hpc/health} return 503 Service
+ * <p>When HPC is disabled, all endpoints except {@code /api/hpc/health} return 503 Service
  * Unavailable. The health endpoint always responds and indicates whether HPC is enabled.
  *
  * <p>Authentication and middleware infrastructure is provided by {@link HpcAuth}.
@@ -35,7 +35,7 @@ public class HpcApi {
   public static void create(Javalin app) {
     SqlDatabase database = new SqlDatabase(false);
 
-    // Lazy-init holder: initialized on first request and refreshed when secret rotates
+    // Lazy-init holder: initialized on first request while enabled; cleared when disabled
     AtomicReference<HpcContext> hpcContext = new AtomicReference<>(null);
 
     // Exception handler: converts HpcException to RFC 9457 problem+json responses
@@ -72,33 +72,28 @@ public class HpcApi {
             return;
           }
 
-          String configuredSecret = readSharedSecret(database);
-          if (configuredSecret == null || configuredSecret.isBlank()) {
+          boolean enabled = isHpcEnabled(database);
+          if (!enabled) {
             if (hpcContext.getAndSet(null) != null) {
-              logger.info("HPC API: disabled — {} was cleared", HPC_SECRET_SETTING);
+              logger.info("HPC API: disabled — cleared cached context");
             }
-            logger.info(
-                "HPC API: not configured — set {} database setting to enable", HPC_SECRET_SETTING);
+            logger.info("HPC API: disabled — set {}=true to enable", HPC_ENABLED_SETTING);
             throw HpcException.serviceUnavailable(
-                "HPC not configured — set "
-                    + HPC_SECRET_SETTING
-                    + " database setting on "
+                "HPC is disabled — set "
+                    + HPC_ENABLED_SETTING
+                    + "=true on "
                     + SYSTEM_SCHEMA
-                    + " to enable",
+                    + " to enable the HPC bridge",
                 ctx.header(HpcHeaders.REQUEST_ID));
           }
 
-          // Ensure HPC context matches the latest configured secret.
+          // Ensure HPC context exists while enabled.
           HpcContext hpc = hpcContext.get();
-          if (hpc == null || !configuredSecret.equals(hpc.sharedSecret())) {
-            HpcContext refreshed = initContext(database, configuredSecret);
-            HpcContext previous = hpcContext.getAndSet(refreshed);
-            hpc = refreshed;
-            if (previous == null) {
-              logger.info("HPC API: initialized — schema tables created in {}", SYSTEM_SCHEMA);
-            } else {
-              logger.info("HPC API: shared secret rotated — refreshed cached context");
-            }
+          if (hpc == null) {
+            HpcContext initialized = initContext(database);
+            hpcContext.set(initialized);
+            hpc = initialized;
+            logger.info("HPC API: initialized — schema tables created in {}", SYSTEM_SCHEMA);
           }
           ctx.attribute("hpcContext", hpc);
 
@@ -113,10 +108,8 @@ public class HpcApi {
           String authHeader = ctx.header("Authorization");
           String tokenHeader = ctx.header("x-molgenis-token");
           if (authHeader != null && !authHeader.isBlank()) {
-            // HMAC authentication (daemon — full access, no privilege check needed)
-            if (hpc.hmacVerifier() != null) {
-              verifyHmac(ctx, hpc.hmacVerifier());
-            }
+            // Worker HMAC authentication using per-worker credentials.
+            verifyHmac(ctx, hpc.workerCredentialService());
             ctx.attribute("hpcAuthMethod", "HMAC");
           } else if (tokenHeader != null && !tokenHeader.isBlank()) {
             // JWT token authentication
@@ -150,7 +143,9 @@ public class HpcApi {
         });
 
     // Health endpoint (exempt from auth, always available)
-    app.get("/api/hpc/health", ctx -> healthCheck(ctx, database, isHpcConfigured(database)));
+    app.get(
+        "/api/hpc/health",
+        ctx -> healthCheck(ctx, database, isHpcEnabled(database), hpcContext.get() != null));
 
     // Worker endpoints (MANAGER — daemon operations)
     app.post(
@@ -188,6 +183,38 @@ public class HpcApi {
                     "Worker " + wid + " not found", ctx.header(HpcHeaders.REQUEST_ID));
               }
               ctx.json(Map.of("worker_id", wid, "status", "ok"));
+            }));
+    app.post(
+        "/api/hpc/workers/{id}/credentials/issue",
+        hpcHandler(
+            ctx -> {
+              requireUserHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.workerCredentialsApi().issueCredential(ctx);
+            }));
+    app.post(
+        "/api/hpc/workers/{id}/credentials/rotate",
+        hpcHandler(
+            ctx -> {
+              requireUserHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.workerCredentialsApi().rotateCredential(ctx);
+            }));
+    app.post(
+        "/api/hpc/workers/{id}/credentials/{credentialId}/revoke",
+        hpcHandler(
+            ctx -> {
+              requireUserHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.workerCredentialsApi().revokeCredential(ctx);
+            }));
+    app.get(
+        "/api/hpc/workers/{id}/credentials",
+        hpcHandler(
+            ctx -> {
+              requireUserHpcPrivilege(ctx, Privileges.MANAGER);
+              HpcContext hpc = ctx.attribute("hpcContext");
+              hpc.workerCredentialsApi().listCredentials(ctx);
             }));
 
     // Job endpoints
@@ -341,8 +368,6 @@ public class HpcApi {
               hpc.artifactsApi().commitArtifact(ctx);
             }));
 
-    logger.info(
-        "HPC API: routes registered (lazy init — tables created on first use when {} is set)",
-        HPC_SECRET_SETTING);
+    logger.info("HPC API: routes registered (lazy init while {}=true)", HPC_ENABLED_SETTING);
   }
 }

@@ -68,11 +68,9 @@
             v-else-if="isSignedIn && hpcStatus === 'not_configured'"
             class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg"
           >
-            <strong>HPC not configured.</strong> The
-            <code>MOLGENIS_HPC_SHARED_SECRET</code> database setting is not set
-            on the <code>_SYSTEM_</code> schema. Set it in
-            <strong>Settings</strong> to enable HPC and allow daemon
-            connections.
+            <strong>HPC is disabled.</strong> Set
+            <code>MOLGENIS_HPC_ENABLED=true</code> on <code>_SYSTEM_</code> to
+            activate the bridge API.
           </div>
           <div
             v-else-if="isSignedIn && hpcStatus === 'unavailable'"

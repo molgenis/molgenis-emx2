@@ -83,6 +83,9 @@ public final class HpcSchemaInitializer {
                   column("profile").setRequired(true),
                   column("max_concurrent_jobs").setType(ColumnType.INT)));
 
+          createCredentialStatusOntologyIfMissing(schema);
+          createWorkerCredentialsTableIfMissing(schema);
+
           schema.create(
               table(
                   "HpcJobs",
@@ -165,6 +168,27 @@ public final class HpcSchemaInitializer {
     if (!schema.getTableNames().contains("HpcJobs")) {
       return;
     }
+    createCredentialStatusOntologyIfMissing(schema);
+    createWorkerCredentialsTableIfMissing(schema);
+
+    if (schema.getTableNames().contains("HpcWorkerCredentials")) {
+      Table credentials = schema.getTable("HpcWorkerCredentials");
+      addColumnIfMissing(credentials, column("worker_id").setRequired(true));
+      addColumnIfMissing(credentials, column("secret_encrypted").setType(ColumnType.TEXT));
+      addColumnIfMissing(
+          credentials,
+          column("status")
+              .setType(ColumnType.ONTOLOGY)
+              .setRefTable("HpcWorkerCredentialStatus")
+              .setRequired(true));
+      addColumnIfMissing(credentials, column("label"));
+      addColumnIfMissing(credentials, column("created_at").setType(ColumnType.DATETIME));
+      addColumnIfMissing(credentials, column("created_by"));
+      addColumnIfMissing(credentials, column("last_used_at").setType(ColumnType.DATETIME));
+      addColumnIfMissing(credentials, column("revoked_at").setType(ColumnType.DATETIME));
+      addColumnIfMissing(credentials, column("expires_at").setType(ColumnType.DATETIME));
+    }
+
     if (schema.getTableNames().contains("HpcArtifacts")) {
       addColumnIfMissing(
           schema.getTable("HpcJobs"),
@@ -184,6 +208,38 @@ public final class HpcSchemaInitializer {
       addColumnIfMissing(
           schema.getTable("HpcJobTransitions"), column("progress").setType(ColumnType.DECIMAL));
     }
+  }
+
+  private static void createCredentialStatusOntologyIfMissing(Schema schema) {
+    if (schema.getTableNames().contains("HpcWorkerCredentialStatus")) {
+      return;
+    }
+    Table credentialStatusTable =
+        schema.create(table("HpcWorkerCredentialStatus").setTableType(TableType.ONTOLOGIES));
+    credentialStatusTable.insert(
+        row("name", "ACTIVE"), row("name", "REVOKED"), row("name", "EXPIRED"));
+  }
+
+  private static void createWorkerCredentialsTableIfMissing(Schema schema) {
+    if (schema.getTableNames().contains("HpcWorkerCredentials")) {
+      return;
+    }
+    schema.create(
+        table(
+            "HpcWorkerCredentials",
+            column("id").setPkey(),
+            column("worker_id").setRequired(true),
+            column("secret_encrypted").setType(ColumnType.TEXT),
+            column("status")
+                .setType(ColumnType.ONTOLOGY)
+                .setRefTable("HpcWorkerCredentialStatus")
+                .setRequired(true),
+            column("label"),
+            column("created_at").setType(ColumnType.DATETIME),
+            column("created_by"),
+            column("last_used_at").setType(ColumnType.DATETIME),
+            column("revoked_at").setType(ColumnType.DATETIME),
+            column("expires_at").setType(ColumnType.DATETIME)));
   }
 
   private static void addColumnIfMissing(Table table, Column column) {

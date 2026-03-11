@@ -1,7 +1,7 @@
 """HMAC-SHA256 request signing for the HPC bridge protocol.
 
 Canonical request string: method + path + body_hash + timestamp + nonce
-Keyed with shared secret. Pluggable for JWT/mTLS in future.
+Keyed with per-worker secret material. Pluggable for JWT/mTLS in future.
 
 For binary uploads, pass the pre-computed SHA-256 of the body via the
 ``body_hash`` parameter to avoid double-hashing (the Content-SHA256 header

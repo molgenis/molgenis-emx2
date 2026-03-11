@@ -111,3 +111,60 @@ export async function deleteWorker(workerId: string): Promise<void> {
     headers: hpcHeaders(),
   });
 }
+
+export type WorkerCredential = {
+  id: string;
+  worker_id: string;
+  status: "ACTIVE" | "REVOKED" | "EXPIRED" | string;
+  label?: string | null;
+  created_at?: string | null;
+  created_by?: string | null;
+  last_used_at?: string | null;
+  revoked_at?: string | null;
+  expires_at?: string | null;
+};
+
+export async function fetchWorkerCredentials(
+  workerId: string
+): Promise<WorkerCredential[]> {
+  const result = await $fetch<any>(`${REST_BASE}/workers/${workerId}/credentials`, {
+    method: "GET",
+    headers: hpcHeaders(),
+  });
+  return (result?.items || []) as WorkerCredential[];
+}
+
+export async function issueWorkerCredential(
+  workerId: string,
+  payload: { label?: string; expires_at?: string } = {}
+): Promise<{ id: string; secret: string }> {
+  return await $fetch<any>(`${REST_BASE}/workers/${workerId}/credentials/issue`, {
+    method: "POST",
+    headers: hpcHeaders(),
+    body: payload,
+  });
+}
+
+export async function rotateWorkerCredential(
+  workerId: string,
+  payload: { label?: string; expires_at?: string } = {}
+): Promise<{ id: string; secret: string }> {
+  return await $fetch<any>(`${REST_BASE}/workers/${workerId}/credentials/rotate`, {
+    method: "POST",
+    headers: hpcHeaders(),
+    body: payload,
+  });
+}
+
+export async function revokeWorkerCredential(
+  workerId: string,
+  credentialId: string
+): Promise<void> {
+  await $fetch<any>(
+    `${REST_BASE}/workers/${workerId}/credentials/${credentialId}/revoke`,
+    {
+      method: "POST",
+      headers: hpcHeaders(),
+    }
+  );
+}

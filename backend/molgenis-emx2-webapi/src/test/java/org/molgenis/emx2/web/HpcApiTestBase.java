@@ -6,13 +6,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 /**
- * Shared test infrastructure for HPC API E2E tests. Manages the shared secret lifecycle and
- * provides helper methods for job/worker/artifact operations.
+ * Shared test infrastructure for HPC API E2E tests. Manages the HPC lifecycle settings and provides
+ * helper methods for job/worker/artifact operations.
  */
 abstract class HpcApiTestBase extends ApiTestBase {
 
-  static final String HPC_SECRET_SETTING = "MOLGENIS_HPC_SHARED_SECRET";
-  static final String TEST_SHARED_SECRET = "hpc-api-e2e-secret-0123456789abcdef0123456789abcdef";
+  static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
+  static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
+  static final String TEST_CREDENTIALS_KEY =
+      "hpc-api-e2e-credentials-key-0123456789abcdef0123456789";
 
   static final String WORKER_A = "e2e-worker-a";
   static final String WORKER_B = "e2e-worker-b";
@@ -29,7 +31,8 @@ abstract class HpcApiTestBase extends ApiTestBase {
       ]
       """;
 
-  private static String previousSharedSecret;
+  private static String previousHpcEnabled;
+  private static String previousCredentialsKey;
 
   /** Builds a request with the required HPC protocol headers. */
   static RequestSpecification hpcRequest() {
@@ -178,20 +181,27 @@ abstract class HpcApiTestBase extends ApiTestBase {
   }
 
   @BeforeAll
-  static void setUpHpcSecret() {
-    previousSharedSecret = database.getSetting(HPC_SECRET_SETTING);
-    database.setSetting(HPC_SECRET_SETTING, TEST_SHARED_SECRET);
+  static void setUpHpcSettings() {
+    previousHpcEnabled = database.getSetting(HPC_ENABLED_SETTING);
+    previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
+    database.setSetting(HPC_ENABLED_SETTING, "true");
+    database.setSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
     login(database.getAdminUserName(), "admin");
     registerWorker(WORKER_A);
     registerWorker(WORKER_B);
   }
 
   @AfterAll
-  static void restoreHpcSecret() {
-    if (previousSharedSecret == null || previousSharedSecret.isBlank()) {
-      database.removeSetting(HPC_SECRET_SETTING);
+  static void restoreHpcSettings() {
+    if (previousHpcEnabled == null || previousHpcEnabled.isBlank()) {
+      database.removeSetting(HPC_ENABLED_SETTING);
     } else {
-      database.setSetting(HPC_SECRET_SETTING, previousSharedSecret);
+      database.setSetting(HPC_ENABLED_SETTING, previousHpcEnabled);
+    }
+    if (previousCredentialsKey == null || previousCredentialsKey.isBlank()) {
+      database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
+    } else {
+      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey);
     }
   }
 }

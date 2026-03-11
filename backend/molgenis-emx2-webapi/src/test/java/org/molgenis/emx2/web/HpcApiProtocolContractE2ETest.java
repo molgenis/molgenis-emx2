@@ -21,13 +21,15 @@ import org.junit.jupiter.api.*;
 @Tag("slow")
 class HpcApiProtocolContractE2ETest extends ApiTestBase {
 
-  private static final String HPC_SECRET_SETTING = "MOLGENIS_HPC_SHARED_SECRET";
-  private static final String TEST_SHARED_SECRET =
-      "hpc-contract-secret-0123456789abcdef0123456789abcdef";
+  private static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
+  private static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
+  private static final String TEST_CREDENTIALS_KEY =
+      "hpc-contract-key-0123456789abcdef0123456789abcdef";
   private static final String CONTRACT_PROCESSOR = "contract-proc";
 
   private static JsonNode defs;
-  private static String previousSharedSecret;
+  private static String previousEnabled;
+  private static String previousCredentialsKey;
   private static String workerId;
 
   private static RequestSpecification hpcRequest() {
@@ -41,18 +43,25 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
   @BeforeAll
   static void setupContractContext() throws Exception {
     loadSpec();
-    previousSharedSecret = database.getSetting(HPC_SECRET_SETTING);
-    database.setSetting(HPC_SECRET_SETTING, TEST_SHARED_SECRET);
+    previousEnabled = database.getSetting(HPC_ENABLED_SETTING);
+    previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
+    database.setSetting(HPC_ENABLED_SETTING, "true");
+    database.setSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
     login(database.getAdminUserName(), "admin");
     workerId = HpcTestkit.nextName("contract-worker");
   }
 
   @AfterAll
   static void restoreSecret() {
-    if (previousSharedSecret == null || previousSharedSecret.isBlank()) {
-      database.removeSetting(HPC_SECRET_SETTING);
+    if (previousEnabled == null || previousEnabled.isBlank()) {
+      database.removeSetting(HPC_ENABLED_SETTING);
     } else {
-      database.setSetting(HPC_SECRET_SETTING, previousSharedSecret);
+      database.setSetting(HPC_ENABLED_SETTING, previousEnabled);
+    }
+    if (previousCredentialsKey == null || previousCredentialsKey.isBlank()) {
+      database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
+    } else {
+      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey);
     }
   }
 

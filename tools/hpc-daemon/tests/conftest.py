@@ -24,7 +24,7 @@ def sample_config() -> DaemonConfig:
         emx2=EmxConfig(
             base_url="http://localhost:8080",
             worker_id="test-worker-01",
-            shared_secret="test-secret-key",
+            worker_secret="test-secret-key",
         ),
         worker=WorkerConfig(poll_interval_seconds=5, max_concurrent_jobs=2),
         slurm=SlurmConfig(default_partition="normal", default_account="test"),

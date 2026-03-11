@@ -6,6 +6,7 @@ import contextvars
 import itertools
 import logging
 import os
+import shlex
 import subprocess
 import time
 import uuid
@@ -20,6 +21,8 @@ from emx2_hpc_daemon.client import HpcClient
 logger = logging.getLogger(__name__)
 
 EMX2_BASE_URL = os.environ.get("EMX2_BASE_URL", "http://localhost:8080")
+EMX2_ADMIN_EMAIL = os.environ.get("EMX2_ADMIN_EMAIL", "admin")
+EMX2_ADMIN_PASSWORD = os.environ.get("EMX2_ADMIN_PASSWORD", "admin")
 WORKER_ID = "e2e-test-worker"
 STARTUP_TIMEOUT = 180
 DAEMON_READY_TIMEOUT = 180
@@ -107,10 +110,14 @@ def _trigger_daemon_once(*, check: bool = True) -> subprocess.CompletedProcess:
     if check and result.returncode != 0:
         out = (result.stdout or "").strip()
         err = (result.stderr or "").strip()
+        daemon_tail = _vagrant_ssh("tail -120 /var/log/hpc-daemon.log", timeout=30)
+        daemon_log = (daemon_tail.stdout or "").strip()
         raise RuntimeError(
             "Manual daemon cycle failed\n"
             f"stdout:\n{out}\n"
-            f"stderr:\n{err}"
+            f"stderr:\n{err}\n"
+            "daemon_log_tail:\n"
+            f"{daemon_log}"
         )
     return result
 
@@ -125,12 +132,82 @@ def _register_created_job(job_id: str) -> None:
     _CREATED_JOBS[_CURRENT_TEST_NODEID.get()].append(job_id)
 
 
+def _protocol_headers() -> dict[str, str]:
+    return {
+        "X-EMX2-API-Version": "2025-01",
+        "X-Request-Id": str(uuid.uuid4()),
+        "X-Timestamp": str(int(time.time())),
+        "Content-Type": "application/json",
+    }
+
+
+def _rotate_worker_credential(base_url: str, worker_id: str) -> str:
+    with httpx.Client(base_url=base_url, timeout=10) as client:
+        signin_query = (
+            'mutation{signin(email:"%s",password:"%s"){status,message}}'
+            % (EMX2_ADMIN_EMAIL, EMX2_ADMIN_PASSWORD)
+        )
+        signin = client.post("/api/graphql", json={"query": signin_query})
+        signin.raise_for_status()
+        payload = signin.json()
+        status = (
+            payload.get("data", {})
+            .get("signin", {})
+            .get("status")
+        )
+        if status != "SUCCESS":
+            message = (
+                payload.get("data", {})
+                .get("signin", {})
+                .get("message", "unknown error")
+            )
+            raise RuntimeError(f"Admin signin failed: {message}")
+
+        rotate = client.post(
+            f"/api/hpc/workers/{worker_id}/credentials/rotate",
+            headers=_protocol_headers(),
+            json={},
+        )
+        rotate.raise_for_status()
+        secret = rotate.json().get("secret")
+        if not secret:
+            raise RuntimeError("Credential rotate did not return secret")
+        return secret
+
+
+def _sync_secret_to_vm(secret: str) -> None:
+    escaped = shlex.quote(secret)
+    _vagrant_ssh_checked(
+        "sudo sh -lc "
+        + shlex.quote(
+            f"printf '%s' {escaped} > /etc/hpc-daemon/secret && "
+            "chown vagrant:vagrant /etc/hpc-daemon/secret && "
+            "chmod 600 /etc/hpc-daemon/secret"
+        )
+    )
+
+
 def _make_support_client(base_url: str, secret: str) -> HpcClient:
     return HpcClient(
         base_url=base_url,
-        worker_id="e2e-test-support",
-        shared_secret=secret,
+        worker_id=WORKER_ID,
+        worker_secret=secret,
     )
+
+
+def _verify_worker_secret(base_url: str, secret: str) -> None:
+    client = _make_support_client(base_url, secret)
+    try:
+        client.poll_pending_jobs()
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 401:
+            raise RuntimeError(
+                "HMAC authentication failed: worker secret is not active for "
+                f"worker '{WORKER_ID}'."
+            ) from exc
+        raise
+    finally:
+        client.close()
 
 
 def _cleanup_jobs_for_test(nodeid: str, base_url: str, secret: str, *, policy: str) -> None:
@@ -251,7 +328,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
         return
 
     base_url = item.funcargs.get("emx2_base_url", EMX2_BASE_URL)
-    secret = item.funcargs.get("shared_secret")
+    secret = item.funcargs.get("worker_secret")
     if not secret:
         return
 
@@ -278,13 +355,13 @@ def _set_test_context(request: pytest.FixtureRequest):
 def _deterministic_teardown(
     request: pytest.FixtureRequest,
     emx2_base_url: str,
-    shared_secret: str,
+    worker_secret: str,
 ):
     yield
     _cleanup_jobs_for_test(
         request.node.nodeid,
         emx2_base_url,
-        shared_secret,
+        worker_secret,
         policy=CLEANUP_POLICY,
     )
 
@@ -295,52 +372,45 @@ def emx2_base_url():
 
 
 @pytest.fixture(scope="session")
-def shared_secret():
-    if not SECRET_FILE.exists():
-        raise FileNotFoundError(
-            f"Shared secret file not found: {SECRET_FILE}\n"
-            "Create it with the same secret configured in EMX2 "
-            "(MOLGENIS_HPC_SHARED_SECRET setting)."
-        )
-    secret = SECRET_FILE.read_text().strip()
-    if not secret:
-        raise ValueError(f"Shared secret file is empty: {SECRET_FILE}")
-    return secret
-
-
-@pytest.fixture(scope="session")
 def wait_for_services(emx2_base_url):
     _wait_for_emx2(emx2_base_url, STARTUP_TIMEOUT)
     _wait_for_vm_and_slurm(STARTUP_TIMEOUT)
 
 
 @pytest.fixture(scope="session")
-def bootstrap_hpc(wait_for_services, emx2_base_url, shared_secret):
+def bootstrap_hpc(wait_for_services, emx2_base_url):
     health = httpx.get(f"{emx2_base_url}/api/hpc/health", timeout=5).json()
     logger.info("HPC health: %s", health)
     if not health.get("hpc_enabled"):
         raise RuntimeError(
-            "HPC is not enabled in EMX2. Set MOLGENIS_HPC_SHARED_SECRET "
-            "to match tools/hpc-daemon/.secret."
+            "HPC is not enabled in EMX2. Set MOLGENIS_HPC_ENABLED=true."
         )
 
-    client = HpcClient(
-        base_url=emx2_base_url,
-        worker_id=WORKER_ID,
-        shared_secret=shared_secret,
-    )
-    try:
-        client.poll_pending_jobs()
-        logger.info("HPC auth verified and tables initialized")
-    except httpx.HTTPStatusError as exc:
-        if exc.response.status_code == 401:
-            raise RuntimeError(
-                "HMAC authentication failed: .secret does not match "
-                "MOLGENIS_HPC_SHARED_SECRET in EMX2."
-            ) from exc
-        raise
-    finally:
-        client.close()
+    if SECRET_FILE.exists():
+        existing = SECRET_FILE.read_text().strip()
+        if existing:
+            try:
+                _sync_secret_to_vm(existing)
+                _verify_worker_secret(emx2_base_url, existing)
+                logger.info("Using existing worker secret from %s", SECRET_FILE)
+                logger.info("HPC auth verified and tables initialized")
+                return existing
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Existing .secret failed verification, rotating: %s", exc)
+
+    worker_secret = _rotate_worker_credential(emx2_base_url, WORKER_ID)
+    SECRET_FILE.write_text(worker_secret)
+    os.chmod(SECRET_FILE, 0o600)
+    _sync_secret_to_vm(worker_secret)
+    _verify_worker_secret(emx2_base_url, worker_secret)
+    logger.info("Rotated worker secret and verified HMAC auth")
+    logger.info("HPC auth verified and tables initialized")
+    return worker_secret
+
+
+@pytest.fixture(scope="session")
+def worker_secret(bootstrap_hpc):
+    return bootstrap_hpc
 
 
 @pytest.fixture(scope="session")
@@ -364,23 +434,23 @@ def wait_for_daemon(bootstrap_hpc):
 
 
 @pytest.fixture(scope="session")
-def hpc_client(wait_for_daemon, emx2_base_url, shared_secret):
+def hpc_client(wait_for_daemon, emx2_base_url, worker_secret):
     client = HpcClient(
         base_url=emx2_base_url,
-        worker_id="e2e-test-submitter",
-        shared_secret=shared_secret,
+        worker_id=WORKER_ID,
+        worker_secret=worker_secret,
     )
     yield client
     client.close()
 
 
 @pytest.fixture(scope="session")
-def worker_client(wait_for_daemon, emx2_base_url, shared_secret):
+def worker_client(wait_for_daemon, emx2_base_url, worker_secret):
     """Client that uses the daemon worker identity for worker lifecycle calls."""
     client = HpcClient(
         base_url=emx2_base_url,
         worker_id=WORKER_ID,
-        shared_secret=shared_secret,
+        worker_secret=worker_secret,
     )
     yield client
     client.close()

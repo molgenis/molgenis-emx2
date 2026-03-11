@@ -1,10 +1,10 @@
 """Configuration loading from YAML with environment variable substitution.
 
-Config file supports ${ENV_VAR} syntax and ``shared_secret_file`` for secrets.
+Config file supports ${ENV_VAR} syntax and ``worker_secret_file`` for secrets.
 Example:
     emx2:
       base_url: "https://emx2.example.org"
-      shared_secret_file: /etc/emx2-hpc/secret
+      worker_secret_file: /etc/emx2-hpc/secret
 """
 
 from __future__ import annotations
@@ -41,8 +41,8 @@ def _walk_and_substitute(obj):
 class EmxConfig:
     base_url: str = "http://localhost:8080"
     worker_id: str = "hpc-daemon-01"
-    shared_secret: str = ""
-    shared_secret_file: str = ""
+    worker_secret: str = ""
+    worker_secret_file: str = ""
     auth_mode: str = "hmac"
 
 
@@ -125,15 +125,15 @@ def load_config(path: str | Path) -> DaemonConfig:
     if "emx2" in raw:
         config.emx2 = EmxConfig(**{k: v for k, v in raw["emx2"].items()})
 
-    # shared_secret_file takes priority over shared_secret
+    # worker_secret_file takes priority over worker_secret
     # Resolve relative paths against the config file's directory
-    if config.emx2.shared_secret_file:
-        secret_path = Path(config.emx2.shared_secret_file)
+    if config.emx2.worker_secret_file:
+        secret_path = Path(config.emx2.worker_secret_file)
         if not secret_path.is_absolute():
             secret_path = Path(path).parent / secret_path
         if not secret_path.is_file():
-            raise FileNotFoundError(f"shared_secret_file not found: {secret_path}")
-        config.emx2.shared_secret = secret_path.read_text().strip()
+            raise FileNotFoundError(f"worker_secret_file not found: {secret_path}")
+        config.emx2.worker_secret = secret_path.read_text().strip()
 
     if "worker" in raw:
         config.worker = WorkerConfig(**raw["worker"])

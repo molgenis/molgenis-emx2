@@ -41,11 +41,6 @@ from .tracker import JobTracker
 logger = logging.getLogger(__name__)
 
 
-# Re-export for backwards compatibility (used by daemon_monitor internally,
-# but also kept here so any external code importing from daemon still works).
-from .daemon_monitor import _build_slurm_detail  # noqa: F401, E402
-
-
 class HpcDaemon:
     """The main daemon orchestrating HPC job execution."""
 
@@ -55,7 +50,7 @@ class HpcDaemon:
         self.client = HpcClient(
             base_url=config.emx2.base_url,
             worker_id=config.emx2.worker_id,
-            shared_secret=config.emx2.shared_secret,
+            worker_secret=config.emx2.worker_secret,
             auth_mode=config.emx2.auth_mode,
         )
         state_db_path = self._resolve_state_db(config)

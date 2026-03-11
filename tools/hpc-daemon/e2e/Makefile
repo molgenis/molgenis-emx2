@@ -1,4 +1,14 @@
-.PHONY: up preflight test sync down logs diagnostics clean status
+.PHONY: ensure-vm reset-vm up preflight refresh-secret test test-clean sync down logs diagnostics clean status
+
+# Ensure VM is up and re-provisioned to current config/schema every run.
+ensure-vm:
+	cd vm && vagrant up
+	cd vm && vagrant provision
+
+# Hard reset when VM/runtime state is truly unrecoverable.
+reset-vm:
+	cd vm && vagrant destroy -f || true
+	$(MAKE) ensure-vm
 
 # Start the Slurm VM (EMX2 must be running externally)
 up:
@@ -15,9 +25,17 @@ sync:
 preflight:
 	cd vm && vagrant ssh -c 'sudo -n /usr/local/bin/hpc-e2e-preflight'
 
-# Run e2e tests (assumes EMX2 is running and VM is up)
-# Syncs latest daemon code and performs strict preflight before running
-test: sync preflight
+# Rotate/sync e2e worker credential before tests.
+refresh-secret:
+	cd .. && uv run --extra e2e python e2e/refresh_secret.py
+
+# Run e2e tests (assumes EMX2 is running). Uses deterministic reprovision,
+# not full destroy/recreate, for faster feedback.
+test: ensure-vm sync preflight refresh-secret
+	cd .. && uv run --extra e2e pytest e2e/ -v --tb=short -x
+
+# Full hard-reset test run.
+test-clean: reset-vm sync preflight refresh-secret
 	cd .. && uv run --extra e2e pytest e2e/ -v --tb=short -x
 
 # Show daemon + slurm status inside the VM
@@ -40,6 +58,6 @@ down:
 clean:
 	cd vm && vagrant destroy -f
 
-# Full cycle: start VM, run tests
-e2e: up
+# Full cycle: deterministic test run with reprovision
+e2e:
 	$(MAKE) test || ($(MAKE) diagnostics; exit 1)

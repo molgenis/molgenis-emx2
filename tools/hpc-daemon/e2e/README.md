@@ -56,16 +56,21 @@ The `provision.sh` script installs these inside the VM (no host action needed):
 - [Chrony](https://chrony-project.org/) for time synchronisation (prevents MUNGE credential expiry in VMs)
 - The `emx2-hpc-daemon` package (installed via uv from the synced source)
 
-### Shared secret
+### Worker credential secret
 
-The tests authenticate to EMX2 using HMAC-SHA256. A shared secret must be
-configured in **both** places:
+The tests authenticate to EMX2 using HMAC-SHA256 with per-worker credentials.
+The fixture bootstrap rotates a credential for worker `e2e-test-worker` and
+syncs the returned secret to both:
 
-1. **EMX2**: set the `MOLGENIS_HPC_SHARED_SECRET` database setting
-2. **File**: create `tools/hpc-daemon/.secret` containing the same secret
+1. `tools/hpc-daemon/.secret` on the host
+2. `/etc/hpc-daemon/secret` in the VM
 
-The `.secret` file is read by both the host-side pytest fixtures and the
-VM-side daemon config (copied to `/etc/hpc-daemon/secret` during provisioning).
+Requirements:
+
+1. `MOLGENIS_HPC_ENABLED=true` on `_SYSTEM_`
+2. `MOLGENIS_HPC_CREDENTIALS_KEY` set on `_SYSTEM_`
+3. admin signin must work (defaults `admin/admin`, overridable via
+   `EMX2_ADMIN_EMAIL` and `EMX2_ADMIN_PASSWORD`)
 
 ### Running EMX2
 
@@ -84,23 +89,27 @@ The VM connects to the host via QEMU's default gateway (`10.0.2.2:8080`).
 ```bash
 cd tools/hpc-daemon/e2e
 
-# Full cycle: provision VM + run tests
+# Full deterministic cycle: reprovision VM + run tests
 make e2e
 ```
 
 This will:
 
-1. Start a QEMU VM via Vagrant and run `provision.sh` (including Slurm
+1. Ensure VM is up and run `vagrant provision` with current e2e config
+   (including Slurm
    smoke tests that verify the cluster works before installing the daemon)
 2. Sync the daemon source into the VM and install it
 3. Run a strict VM preflight (clock sync + Slurm/Munge/cron health)
-4. Run the pytest suite against the EMX2 API on the host
+4. Rotate/sync the e2e worker credential secret
+5. Run the pytest suite against the EMX2 API on the host
 
 ## How it works
 
-1. **Bootstrap** (`conftest.py`): reads the HMAC shared secret from
-   `tools/hpc-daemon/.secret`, verifies that HPC is enabled in EMX2, and
-   makes an authenticated request to trigger lazy initialisation of HPC tables.
+1. **Bootstrap** (`conftest.py`): uses existing `tools/hpc-daemon/.secret`
+   first and verifies it. If invalid/missing, it rotates a worker credential
+   for `e2e-test-worker`, writes/syncs the new secret to
+   `tools/hpc-daemon/.secret` and `/etc/hpc-daemon/secret`, then makes an
+   authenticated request to trigger lazy initialisation of HPC tables.
 
 2. **Daemon** runs inside the VM as a cron job (every ~20s via the
    sleep-staggered cron trick). Each invocation runs a single
@@ -139,9 +148,13 @@ Managed and posix output residence paths are both covered.
 | Target | Description |
 |--------|-------------|
 | `make up` | Start the Vagrant VM |
+| `make ensure-vm` | Ensure VM is running and reprovisioned |
+| `make reset-vm` | Destroy and recreate the VM (clean-room state) |
 | `make preflight` | Strict VM preflight (clock sync + service readiness) |
-| `make test` | Sync daemon source + run pytest (EMX2 and VM must be running) |
-| `make e2e` | Full cycle: `up` + `test` (prints logs on failure) |
+| `make refresh-secret` | Rotate/sync worker credential secret to host + VM |
+| `make test` | Deterministic run: `ensure-vm` + sync + preflight + secret refresh + pytest |
+| `make test-clean` | Hard reset run: `reset-vm` + sync + preflight + secret refresh + pytest |
+| `make e2e` | Alias for `make test` (prints diagnostics on failure) |
 | `make sync` | Sync daemon source, reinstall daemon, refresh scripts/preflight helper |
 | `make status` | Show Slurm + daemon status inside the VM |
 | `make logs` | Show daemon logs from the VM |
