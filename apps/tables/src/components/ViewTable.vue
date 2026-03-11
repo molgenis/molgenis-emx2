@@ -69,7 +69,7 @@ export default {
           (p) =>
             (p.table === "*" || p.table === this.table) &&
             (permission === "select"
-              ? p.select != null
+              ? p.select === true
               : p[permission] === true)
         )
       );
