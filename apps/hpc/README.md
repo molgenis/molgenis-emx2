@@ -145,8 +145,8 @@ In **Workers**:
 - `409` on credential issue:
   - worker already has active credential; use **Rotate**.
 - worker disappears:
-  - stale-worker expiry after heartbeat timeout.
-  - daemon stopped, blocked, or clock drift broke auth.
+  - the worker was explicitly removed (UI/API `DELETE /api/hpc/workers/{id}`).
+  - daemon stopped, blocked, or clock drift broke auth and the row is stale in UI (not deleted).
 
 ## Doc Map
 

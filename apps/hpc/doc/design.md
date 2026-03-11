@@ -559,6 +559,7 @@ Authorization is explicit and role-based on `_SYSTEM_`. No role means no HPC acc
 | POST `/api/hpc/jobs/{id}/cancel` | No | Own jobs only | Any job | Yes |
 | DELETE `/api/hpc/jobs/{id}` | No | Own jobs only (terminal only) | Any job (terminal only) | Yes |
 | Worker lifecycle (`/workers/register`, `/workers/{id}/heartbeat`, `/jobs/{id}/claim`, `/jobs/{id}/transition`, `/jobs/{id}/complete`) | No | No | Yes | Yes |
+| DELETE `/api/hpc/workers/{id}` | No | No | Yes (user principal only) | No |
 | Worker credential management (`/workers/{id}/credentials*`) | No | No | Yes | No |
 | Artifact destructive ops (`DELETE /artifacts/{id}`, `DELETE /artifacts/{id}/files/{path}`) | No | No | Yes | Yes |
 
@@ -775,6 +776,7 @@ start: [apps/hpc/README.md](../README.md).
 
 Removes a worker, its capabilities, and all worker credentials. Jobs previously assigned to this worker retain their history but have their `worker_id` nullified.
 Worker removal is explicit-only via this endpoint; heartbeat timeout does not remove workers.
+This endpoint is user-only (`Manager`/`Owner`); worker HMAC principals cannot call it.
 
 **Response:** `204 No Content`, `404 Not Found`.
 

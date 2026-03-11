@@ -161,7 +161,9 @@ public class HpcApi {
         "/api/hpc/workers/{id}",
         hpcHandler(
             ctx -> {
-              requireHpcPrivilege(ctx, Privileges.MANAGER);
+              // Worker deletion is an explicit user operation only.
+              // Daemon/HMAC principals must never remove worker identities.
+              requireUserHpcPrivilege(ctx, Privileges.MANAGER);
               HpcContext hpc = ctx.attribute("hpcContext");
               hpc.workersApi().deleteWorker(ctx);
             }));
