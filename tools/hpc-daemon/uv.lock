@@ -65,6 +65,10 @@ e2e = [
     { name = "pytest" },
     { name = "pytest-timeout" },
 ]
+test = [
+    { name = "pytest" },
+    { name = "pytest-httpx" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -73,11 +77,13 @@ requires-dist = [
     { name = "httpx", marker = "extra == 'e2e'", specifier = ">=0.27" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pytest", marker = "extra == 'e2e'", specifier = ">=8.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0" },
     { name = "pytest-httpx", marker = "extra == 'dev'", specifier = ">=0.30" },
+    { name = "pytest-httpx", marker = "extra == 'test'", specifier = ">=0.30" },
     { name = "pytest-timeout", marker = "extra == 'e2e'", specifier = ">=2.3" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
-provides-extras = ["dev", "e2e"]
+provides-extras = ["dev", "test", "e2e"]
 
 [[package]]
 name = "h11"

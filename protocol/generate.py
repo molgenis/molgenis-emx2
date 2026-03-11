@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Code generator: reads hpc-protocol.json and emits Python + JS constants.
+"""Code generator: reads hpc-protocol.json and emits Python + TS constants.
 
 Usage:
     uv run python protocol/generate.py
 
 Generates:
     tools/hpc-daemon/src/emx2_hpc_daemon/_generated.py
-    apps/hpc/src/generated/protocol.js
+    apps/hpc/app/utils/protocol.ts
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = Path(__file__).resolve().parent / "hpc-protocol.json"
 
 PY_OUT = ROOT / "tools" / "hpc-daemon" / "src" / "emx2_hpc_daemon" / "_generated.py"
-JS_OUT = ROOT / "apps" / "hpc" / "src" / "generated" / "protocol.js"
+TS_OUT = ROOT / "apps" / "hpc" / "app" / "utils" / "protocol.ts"
 
 HEADER = "AUTO-GENERATED from protocol/hpc-protocol.json — do not edit"
 
@@ -82,7 +82,7 @@ def generate_python(defs: dict) -> str:
     return "\n".join(lines)
 
 
-def generate_js(defs: dict) -> str:
+def generate_ts(defs: dict) -> str:
     lines: list[str] = []
     lines.append(f"// {HEADER}")
     lines.append("")
@@ -95,30 +95,38 @@ def generate_js(defs: dict) -> str:
     # Job statuses
     job_statuses = defs["HpcJobStatus"]["enum"]
     items = ", ".join(f'"{s}"' for s in job_statuses)
-    lines.append(f"export const JOB_STATUSES = [{items}];")
+    lines.append(f"export const JOB_STATUSES = [{items}] as const;")
+    lines.append("")
+    lines.append("export type JobStatus = (typeof JOB_STATUSES)[number];")
     lines.append("")
 
     # Terminal statuses
     terminal = defs["terminalStatuses"]["const"]
     t_items = ", ".join(f'"{s}"' for s in terminal)
-    lines.append(f"export const TERMINAL_STATUSES = new Set([{t_items}]);")
+    lines.append(f"export const TERMINAL_STATUSES = new Set<JobStatus>([{t_items}]);")
     lines.append("")
 
     # Artifact statuses
     artifact_statuses = defs["ArtifactStatus"]["enum"]
     a_items = ", ".join(f'"{s}"' for s in artifact_statuses)
-    lines.append(f"export const ARTIFACT_STATUSES = [{a_items}];")
+    lines.append(f"export const ARTIFACT_STATUSES = [{a_items}] as const;")
+    lines.append("")
+    lines.append("export type ArtifactStatus = (typeof ARTIFACT_STATUSES)[number];")
     lines.append("")
 
     # Artifact residences
     residences = defs["ArtifactResidence"]["enum"]
     r_items = ", ".join(f'"{s}"' for s in residences)
-    lines.append(f"export const ARTIFACT_RESIDENCES = [{r_items}];")
+    lines.append(f"export const ARTIFACT_RESIDENCES = [{r_items}] as const;")
+    lines.append("")
+    lines.append(
+        "export type ArtifactResidence = (typeof ARTIFACT_RESIDENCES)[number];"
+    )
     lines.append("")
 
     # Helper
-    lines.append("export function isTerminal(status) {")
-    lines.append("  return TERMINAL_STATUSES.has(status);")
+    lines.append("export function isTerminal(status: string): boolean {")
+    lines.append("  return TERMINAL_STATUSES.has(status as JobStatus);")
     lines.append("}")
     lines.append("")
 
@@ -134,10 +142,10 @@ def main() -> None:
     PY_OUT.write_text(py_code)
     print(f"Generated {PY_OUT.relative_to(ROOT)}")
 
-    js_code = generate_js(defs)
-    JS_OUT.parent.mkdir(parents=True, exist_ok=True)
-    JS_OUT.write_text(js_code)
-    print(f"Generated {JS_OUT.relative_to(ROOT)}")
+    ts_code = generate_ts(defs)
+    TS_OUT.parent.mkdir(parents=True, exist_ok=True)
+    TS_OUT.write_text(ts_code)
+    print(f"Generated {TS_OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

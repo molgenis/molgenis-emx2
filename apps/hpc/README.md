@@ -135,6 +135,41 @@ In **Workers**:
 1. Confirm heartbeat updates.
 2. Confirm capabilities shown are the worker-advertised set.
 
+## Protocol Contract and Generated Types
+
+The HPC bridge has a protocol contract with one source of truth:
+
+- `protocol/hpc-protocol.json`
+
+This JSON Schema file defines shared protocol constants and contracts across Java, Python, and Vue:
+- API version
+- job/artifact status enums
+- allowed job transitions
+- required/optional headers
+- problem detail shape
+- HATEOAS link expectations
+- cross-language HMAC vectors
+
+Generated artifacts from that schema:
+- `tools/hpc-daemon/src/emx2_hpc_daemon/_generated.py`
+- `apps/hpc/app/utils/protocol.ts`
+
+Regenerate both from repo root:
+
+```bash
+uv run python protocol/generate.py
+```
+
+Rule: edit `protocol/hpc-protocol.json` first, regenerate, then run contract tests. Do not hand-edit generated files.
+
+Recommended drift checks:
+
+```bash
+./gradlew :backend:molgenis-emx2-hpc:test --tests org.molgenis.emx2.hpc.protocol.HpcApiContractTest
+uv run pytest tools/hpc-daemon/tests/test_contract.py -q
+./gradlew :backend:molgenis-emx2-webapi:test --tests org.molgenis.emx2.web.HpcApiProtocolContractE2ETest
+```
+
 ## Troubleshooting
 
 - `503` on HPC endpoints:
@@ -151,5 +186,6 @@ In **Workers**:
 ## Doc Map
 
 - Protocol/API spec: [doc/design.md](./doc/design.md)
+- Protocol contract schema: [../../protocol/hpc-protocol.json](../../protocol/hpc-protocol.json)
 - Daemon install/config reference: [../../tools/hpc-daemon/README.md](../../tools/hpc-daemon/README.md)
 - Real Slurm VM e2e harness: [../../tools/hpc-daemon/e2e/README.md](../../tools/hpc-daemon/e2e/README.md)

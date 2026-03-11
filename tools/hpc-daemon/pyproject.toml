@@ -29,6 +29,10 @@ dev = [
     "pytest>=8.0",
     "pytest-httpx>=0.30",
 ]
+test = [
+    "pytest>=8.0",
+    "pytest-httpx>=0.30",
+]
 e2e = [
     "pytest>=8.0",
     "pytest-timeout>=2.3",

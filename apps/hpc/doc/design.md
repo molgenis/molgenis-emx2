@@ -379,6 +379,40 @@ Input artifacts are referenced in the job's `inputs` field. The canonical format
 
 This section describes the principles governing the API. Full endpoint specifications with request and response payloads are in Appendix A.
 
+## Protocol Contract Source of Truth
+
+The canonical protocol contract is:
+
+- `protocol/hpc-protocol.json`
+
+This JSON Schema is normative for cross-stack protocol constants and shape contracts, including:
+- API version
+- job/artifact enum values
+- transition matrix
+- required/optional headers
+- RFC 9457 problem detail shape
+- expected HATEOAS link relations
+- cross-language HMAC fixture vectors
+
+Generated files derived from this schema:
+- `tools/hpc-daemon/src/emx2_hpc_daemon/_generated.py`
+- `apps/hpc/app/utils/protocol.ts`
+
+Regeneration command (run from repo root):
+
+```bash
+uv run python protocol/generate.py
+```
+
+Required change workflow for protocol edits:
+1. Edit `protocol/hpc-protocol.json`.
+2. Regenerate derived files with `protocol/generate.py`.
+3. Run contract/conformance tests:
+   - `backend/molgenis-emx2-hpc/.../HpcApiContractTest`
+   - `tools/hpc-daemon/tests/test_contract.py`
+   - `backend/molgenis-emx2-webapi/.../HpcApiProtocolContractE2ETest`
+4. Ship schema + generated files + contract tests in the same change.
+
 ## Versioning
 
 The API SHOULD be versioned via the `X-EMX2-API-Version` request header rather than a URL path prefix. Versions are date-based strings (e.g. `2025-01`). This keeps URLs stable across versions and avoids cascading changes to hypermedia links. Missing header → `400 Bad Request`; unsupported version → `400 Bad Request`.
