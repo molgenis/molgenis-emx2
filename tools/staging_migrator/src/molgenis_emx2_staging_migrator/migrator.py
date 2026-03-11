@@ -12,6 +12,7 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTable
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
+from .exceptions import MissingContactException
 from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
     set_all_delete, check_hricore, process_contacts
 
@@ -137,7 +138,11 @@ class StagingMigrator(Client):
                         updated_table = self.process_organisations(updated_table)
                     if table.id == "Contacts":
                         resources = self._get_filtered(self.get_schema_metadata(self.source).get_table('id', 'Resources'))
-                        updated_table = process_contacts(updated_table, resources)
+                        try:
+                            updated_table = process_contacts(updated_table, resources)
+                        except MissingContactException as e:
+                            self.errors.append(e)
+                            raise e
                     if table.id in ["CollectionEvents", "Subpopulations"]:
                         updated_table = self._copy_resource_columns(updated_table)
                     if table.id == "Resources":
