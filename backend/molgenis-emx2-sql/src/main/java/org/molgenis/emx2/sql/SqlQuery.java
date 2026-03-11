@@ -744,13 +744,13 @@ public class SqlQuery extends QueryBean {
   private Field<Integer> getCountField(SqlTableMetadata table) {
     if (schema.hasActiveUserRole(COUNT.toString())) {
       return count();
+    } else if (getTablesWithSelectPermission().contains("*")
+        || getTablesWithSelectPermission().contains(table.getTableName())) {
+      return count();
     } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
       return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
     } else if (schema.hasActiveUserRole(RANGE.toString())) {
       return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
-    } else if (getTablesWithSelectPermission().contains("*")
-        || getTablesWithSelectPermission().contains(table.getTableName())) {
-      return count();
     }
     throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }
