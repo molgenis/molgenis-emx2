@@ -290,8 +290,7 @@ function mergeArtifacts(nextItems: any[]) {
   items.value = nextItems.map((next) => {
     const previous = previousById.get(next.id);
     if (!previous) return next;
-    Object.assign(previous, next);
-    return previous;
+    return { ...previous, ...next };
   });
 }
 

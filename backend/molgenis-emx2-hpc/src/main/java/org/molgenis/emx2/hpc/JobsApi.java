@@ -148,6 +148,11 @@ public class JobsApi {
           requestId(ctx));
     }
 
+    if (result.outcome() == ClaimResult.ClaimOutcome.CAPACITY_EXCEEDED) {
+      throw HpcException.conflict(
+          "Worker " + workerId + " has reached its max_concurrent_jobs limit", requestId(ctx));
+    }
+
     // NOT_PENDING: either not found or already claimed
     Row existing = jobService.getJob(jobId);
     if (existing == null) {

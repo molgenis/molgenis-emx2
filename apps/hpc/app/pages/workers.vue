@@ -690,8 +690,7 @@ function mergeWorkers(nextWorkers: any[]) {
   workers.value = nextWorkers.map((nextWorker: any) => {
     const previous = previousById.get(nextWorker.worker_id);
     if (!previous) return nextWorker;
-    Object.assign(previous, nextWorker);
-    return previous;
+    return { ...previous, ...nextWorker };
   });
 }
 

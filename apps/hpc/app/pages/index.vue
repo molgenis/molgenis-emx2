@@ -210,8 +210,7 @@ function mergeJobs(nextJobs: any[]) {
   items.value = nextJobs.map((nextJob) => {
     const previous = previousById.get(nextJob.id);
     if (!previous) return nextJob;
-    Object.assign(previous, nextJob);
-    return previous;
+    return { ...previous, ...nextJob };
   });
 }
 

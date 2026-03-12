@@ -10,7 +10,7 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 
-/** E2E tests for HPC worker registration, heartbeat, and stale-worker expiry. */
+/** E2E tests for HPC worker registration, heartbeat, and lifecycle. */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Tag("slow")
 class HpcApiWorkerE2ETest extends HpcApiTestBase {
@@ -48,10 +48,11 @@ class HpcApiWorkerE2ETest extends HpcApiTestBase {
 
   @Test
   @Order(51)
-  void staleWorkersAreExpiredDuringPolling() {
+  void staleHeartbeatDoesNotRemoveWorker() {
     String staleWorkerId = HpcTestkit.nextName("stale-worker");
     registerWorkerWithCapability(staleWorkerId, "stale-test", null);
 
+    // Set heartbeat to 30 minutes ago
     Table workers = database.getSchema(Constants.SYSTEM_SCHEMA).getTable("HpcWorkers");
     Row staleWorker =
         workers.retrieveRows().stream()
@@ -61,11 +62,11 @@ class HpcApiWorkerE2ETest extends HpcApiTestBase {
     staleWorker.set("last_heartbeat_at", LocalDateTime.now().minusMinutes(30));
     workers.update(staleWorker);
 
-    // listJobs triggers lazy stale-worker expiry
+    // Poll jobs — worker MUST NOT be auto-removed (worker removal is explicit-only)
     hpcRequest().queryParam("status", "PENDING").when().get("/api/hpc/jobs").then().statusCode(200);
 
-    // Worker should already be removed by expiry.
-    hpcRequest().when().delete("/api/hpc/workers/{id}", staleWorkerId).then().statusCode(404);
+    // Worker must still exist — DELETE should succeed (204), not 404
+    hpcRequest().when().delete("/api/hpc/workers/{id}", staleWorkerId).then().statusCode(204);
   }
 
   @Test

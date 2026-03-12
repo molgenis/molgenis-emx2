@@ -11,7 +11,8 @@ public record ClaimResult(Row job, ClaimOutcome outcome) {
   public enum ClaimOutcome {
     SUCCESS,
     NOT_PENDING,
-    CAPABILITY_MISMATCH
+    CAPABILITY_MISMATCH,
+    CAPACITY_EXCEEDED
   }
 
   public boolean isSuccess() {
@@ -28,5 +29,9 @@ public record ClaimResult(Row job, ClaimOutcome outcome) {
 
   public static ClaimResult capabilityMismatch() {
     return new ClaimResult(null, ClaimOutcome.CAPABILITY_MISMATCH);
+  }
+
+  public static ClaimResult capacityExceeded() {
+    return new ClaimResult(null, ClaimOutcome.CAPACITY_EXCEEDED);
   }
 }

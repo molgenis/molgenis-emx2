@@ -134,12 +134,12 @@ public class JobService {
           String processor = job.getString("processor");
           String profile = job.getString("profile");
           if (!workerHasCapability(schema, workerId, processor, profile)) {
-            // Roll back: set status back to PENDING
+            // Roll back: set status back to PENDING (guarded by status='CLAIMED')
             jooq.update(jobsJooq)
                 .set(field("status"), HpcJobStatus.PENDING.name())
                 .setNull(field("worker_id"))
                 .setNull(field("claimed_at"))
-                .where(field("id").eq(jobId))
+                .where(field("id").eq(jobId).and(field("status").eq(HpcJobStatus.CLAIMED.name())))
                 .execute();
             logger.warn(
                 "Claim rejected for job={}: worker {} lacks capability {}/{}",
@@ -148,6 +148,24 @@ public class JobService {
                 processor,
                 profile);
             return ClaimResult.capabilityMismatch();
+          }
+
+          // Enforce max_concurrent_jobs from worker capability registration
+          if (isWorkerAtCapacity(schema, jooq, systemSchemaName, workerId, processor, profile)) {
+            // Roll back: set status back to PENDING (guarded by status='CLAIMED')
+            jooq.update(jobsJooq)
+                .set(field("status"), HpcJobStatus.PENDING.name())
+                .setNull(field("worker_id"))
+                .setNull(field("claimed_at"))
+                .where(field("id").eq(jobId).and(field("status").eq(HpcJobStatus.CLAIMED.name())))
+                .execute();
+            logger.warn(
+                "Claim rejected for job={}: worker {} at max_concurrent_jobs for {}/{}",
+                jobId,
+                workerId,
+                processor,
+                profile);
+            return ClaimResult.capacityExceeded();
           }
 
           recordTransition(
@@ -186,6 +204,57 @@ public class JobService {
       return true;
     }
     return caps.stream().anyMatch(c -> profile.equals(c.getString("profile")));
+  }
+
+  /**
+   * Checks whether a worker has reached its max_concurrent_jobs limit for the matching capability.
+   * Counts active (CLAIMED, SUBMITTED, STARTED) jobs assigned to this worker and compares against
+   * the declared limit. Returns false (not at capacity) if no limit is declared.
+   */
+  private static boolean isWorkerAtCapacity(
+      Schema schema,
+      DSLContext jooq,
+      String systemSchemaName,
+      String workerId,
+      String processor,
+      String profile) {
+    // Find the matching capability's max_concurrent_jobs
+    List<Row> caps =
+        schema
+            .getTable("HpcWorkerCapabilities")
+            .where(f("worker_id", EQUALS, workerId))
+            .where(f("processor", EQUALS, processor))
+            .retrieveRows();
+
+    Integer maxJobs = null;
+    for (Row cap : caps) {
+      String capProfile = cap.getString("profile");
+      if (profile == null || profile.isBlank() || profile.equals(capProfile)) {
+        maxJobs = cap.getInteger("max_concurrent_jobs");
+        break;
+      }
+    }
+
+    if (maxJobs == null || maxJobs <= 0) {
+      return false; // No limit declared
+    }
+
+    // Count active jobs for this worker (across all processors/profiles)
+    org.jooq.Table<?> jobsJooq = table(name(systemSchemaName, "HpcJobs"));
+    int activeCount =
+        jooq.fetchCount(
+            jooq.selectFrom(jobsJooq)
+                .where(
+                    field("worker_id")
+                        .eq(workerId)
+                        .and(
+                            field("status")
+                                .in(
+                                    HpcJobStatus.CLAIMED.name(),
+                                    HpcJobStatus.SUBMITTED.name(),
+                                    HpcJobStatus.STARTED.name()))));
+
+    return activeCount > maxJobs; // > not >= because the just-claimed job is already counted
   }
 
   /**

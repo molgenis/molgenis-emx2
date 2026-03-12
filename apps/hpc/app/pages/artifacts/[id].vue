@@ -337,7 +337,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "#app/composables/router";
+import { useRoute, navigateTo } from "#app/composables/router";
 import {
   fetchArtifactDetail,
   downloadArtifactFile,
