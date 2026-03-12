@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from molgenis_emx2.directory_client.categories import Category, CategoryMapper
-from molgenis_emx2.directory_client.model import OntologyTable
+from src.molgenis_emx2.directory_client.categories import Category, CategoryMapper
+from src.molgenis_emx2.directory_client.model import OntologyTable
 
 
 @pytest.fixture
