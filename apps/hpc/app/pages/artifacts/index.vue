@@ -116,19 +116,26 @@
                 <th
                   class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider w-10"
                 >
-                  <input
-                    ref="pageSelectCheckbox"
-                    type="checkbox"
-                    class="h-4 w-4 rounded border-input bg-input text-blue-600 focus:ring-blue-500"
-                    :checked="allPageSelected"
-                    :disabled="!pageIds.length || bulkDeleting || deleting"
-                    @click.stop
-                    @change="
-                      togglePageSelection(
-                        ($event.target as HTMLInputElement).checked
-                      )
-                    "
-                  />
+                  <label class="group inline-flex items-center cursor-pointer">
+                    <input
+                      ref="pageSelectCheckbox"
+                      type="checkbox"
+                      class="sr-only peer"
+                      :checked="allPageSelected"
+                      :disabled="!pageIds.length || bulkDeleting || deleting"
+                      @click.stop
+                      @change="
+                        togglePageSelection(
+                          ($event.target as HTMLInputElement).checked
+                        )
+                      "
+                    />
+                    <InputCheckboxIcon
+                      :checked="allPageSelected"
+                      :indeterminate="somePageSelected"
+                      :disabled="!pageIds.length || bulkDeleting || deleting"
+                    />
+                  </label>
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
@@ -178,18 +185,24 @@
                 @click="navigateTo(`/artifacts/${a.id}`)"
               >
                 <td class="px-4 py-3" @click.stop>
-                  <input
-                    type="checkbox"
-                    class="h-4 w-4 rounded border-input bg-input text-blue-600 focus:ring-blue-500"
-                    :checked="isArtifactSelected(a.id)"
-                    :disabled="bulkDeleting || deleting"
-                    @change="
-                      toggleArtifactSelection(
-                        a.id,
-                        ($event.target as HTMLInputElement).checked
-                      )
-                    "
-                  />
+                  <label class="group inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      class="sr-only peer"
+                      :checked="isArtifactSelected(a.id)"
+                      :disabled="bulkDeleting || deleting"
+                      @change="
+                        toggleArtifactSelection(
+                          a.id,
+                          ($event.target as HTMLInputElement).checked
+                        )
+                      "
+                    />
+                    <InputCheckboxIcon
+                      :checked="isArtifactSelected(a.id)"
+                      :disabled="bulkDeleting || deleting"
+                    />
+                  </label>
                 </td>
                 <td class="px-4 py-3">
                   <code class="text-xs bg-content px-1.5 py-0.5 rounded">{{
@@ -257,6 +270,7 @@ import Button from "../../../../tailwind-components/app/components/Button.vue";
 import HpcPagination from "../../components/HpcPagination.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
 import InputSelect from "../../../../tailwind-components/app/components/input/Select.vue";
+import InputCheckboxIcon from "../../../../tailwind-components/app/components/input/CheckboxIcon.vue";
 
 const statuses = ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"];
 
