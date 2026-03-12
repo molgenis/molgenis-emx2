@@ -27,7 +27,7 @@ export interface ChartOptions {
 }
 
 export interface ChartMargins {
-    marginTop?: number;
+  marginTop?: number;
   marginRight?: number;
   marginBottom?: number;
   marginLeft?: number;
@@ -60,7 +60,7 @@ export interface ColumnCharts extends Charts, ChartOptions, ChartMargins {
   columnColor?: string;
   columnColorOnHover?: string;
   columnBorderColor?: string;
-  colorPalette?: ColorPalette;  
+  colorPalette?: ColorPalette;
 }
 
 export interface NumericAxisTickData {
@@ -89,9 +89,9 @@ export interface NewCategoricalAxisGeneratorProps {
 }
 
 export interface ProgressMeter extends Charts, ChartOptions, ChartMargins {
-    label: string;
-    value: number;
-    total: number;
-    color: string;
-    width?: number;
+  label: string;
+  value: number;
+  total: number;
+  color?: string;
+  width?: number;
 }
