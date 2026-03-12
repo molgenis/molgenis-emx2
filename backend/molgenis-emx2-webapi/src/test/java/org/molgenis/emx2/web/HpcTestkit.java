@@ -36,7 +36,10 @@ final class HpcTestkit {
         given()
             .header("X-EMX2-API-Version", "2025-01")
             .header("X-Request-Id", nextUuid())
-            .header("X-Timestamp", BASE_TIMESTAMP.plusSeconds(TS_SEQ.getAndIncrement()).toString())
+            .header(
+                "X-Timestamp",
+                String.valueOf(
+                    BASE_TIMESTAMP.plusSeconds(TS_SEQ.getAndIncrement()).getEpochSecond()))
             .contentType("application/json");
     if (sessionId != null) {
       req = req.sessionId(sessionId);

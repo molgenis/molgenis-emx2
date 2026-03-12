@@ -1,6 +1,7 @@
 package org.molgenis.emx2.hpc.protocol;
 
 import io.javalin.http.Context;
+import java.util.UUID;
 
 /**
  * Extracts and validates required protocol headers from incoming HPC API requests. Every request to
@@ -40,8 +41,28 @@ public final class HpcHeaders {
   /** Validates all required protocol headers are present. */
   public static void validateAll(Context ctx) {
     validateApiVersion(ctx);
-    requireHeader(ctx, REQUEST_ID);
-    requireHeader(ctx, TIMESTAMP);
+    validateRequestId(requireHeader(ctx, REQUEST_ID));
+    validateTimestamp(requireHeader(ctx, TIMESTAMP));
+  }
+
+  private static void validateRequestId(String requestId) {
+    try {
+      UUID.fromString(requestId);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid X-Request-Id format: expected UUID");
+    }
+  }
+
+  private static void validateTimestamp(String timestamp) {
+    long parsed;
+    try {
+      parsed = Long.parseLong(timestamp);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid X-Timestamp format: expected unix epoch seconds");
+    }
+    if (parsed < 0) {
+      throw new IllegalArgumentException("Invalid X-Timestamp format: expected unix epoch seconds");
+    }
   }
 
   private static String requireHeader(Context ctx, String name) {

@@ -82,7 +82,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
       RequestSpecification req = given().sessionId(sessionId).contentType("application/json");
       if (!"X-EMX2-API-Version".equals(headerToOmit)) req.header("X-EMX2-API-Version", "2025-01");
       if (!"X-Request-Id".equals(headerToOmit)) req.header("X-Request-Id", HpcTestkit.nextUuid());
-      if (!"X-Timestamp".equals(headerToOmit)) req.header("X-Timestamp", "2026-01-01T00:00:00Z");
+      if (!"X-Timestamp".equals(headerToOmit)) req.header("X-Timestamp", "1767225600");
 
       Map<String, Object> problem =
           req.when()
@@ -99,6 +99,44 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
 
   @Test
   @Order(3)
+  void malformedRequiredHeaderValuesAreRejected() {
+    Map<String, Object> badRequestId =
+        given()
+            .sessionId(sessionId)
+            .contentType("application/json")
+            .header("X-EMX2-API-Version", "2025-01")
+            .header("X-Request-Id", "not-a-uuid")
+            .header("X-Timestamp", "1767225600")
+            .when()
+            .get("/api/hpc/jobs")
+            .then()
+            .statusCode(400)
+            .contentType(startsWith("application/problem+json"))
+            .extract()
+            .as(Map.class);
+    assertContainsRequiredKeys(
+        badRequestId, asStringSet(defs.get("ProblemDetail").get("required")));
+
+    Map<String, Object> badTimestamp =
+        given()
+            .sessionId(sessionId)
+            .contentType("application/json")
+            .header("X-EMX2-API-Version", "2025-01")
+            .header("X-Request-Id", HpcTestkit.nextUuid())
+            .header("X-Timestamp", "not-an-epoch")
+            .when()
+            .get("/api/hpc/jobs")
+            .then()
+            .statusCode(400)
+            .contentType(startsWith("application/problem+json"))
+            .extract()
+            .as(Map.class);
+    assertContainsRequiredKeys(
+        badTimestamp, asStringSet(defs.get("ProblemDetail").get("required")));
+  }
+
+  @Test
+  @Order(4)
   void workerRegistrationShapeMatchesContract() {
     Map<String, Object> worker =
         workerRequest(workerId)
@@ -122,7 +160,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
   }
 
   @Test
-  @Order(4)
+  @Order(5)
   void jobResponsesAndTransitionsMatchContract() {
     String jobId =
         hpcRequest()
@@ -203,7 +241,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
   }
 
   @Test
-  @Order(5)
+  @Order(6)
   void artifactResponsesAndFileShapesMatchContract() {
     String artifactId =
         hpcRequest()
@@ -264,7 +302,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
   }
 
   @Test
-  @Order(6)
+  @Order(7)
   void workerCredentialResponsesMatchContract() {
     String credentialWorkerId = HpcTestkit.nextName("contract-cred-worker");
 
@@ -328,7 +366,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
   }
 
   @Test
-  @Order(7)
+  @Order(8)
   void errorShapeMatchesProblemDetailContract() {
     String jobId =
         hpcRequest()
