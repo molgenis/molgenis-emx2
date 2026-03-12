@@ -54,21 +54,17 @@ def _verify_artifact_hash(artifact: dict, artifact_dir: Path, artifact_id: str) 
                 [(artifact_dir.name, artifact_dir)]
             )
         else:
-            logger.warning(
-                "Artifact %s directory not found at %s — skipping hash verification",
-                artifact_id,
-                artifact_dir,
+            raise ValueError(
+                f"input_hash_mismatch: artifact {artifact_id} "
+                f"staged path missing at {artifact_dir}"
             )
-            return
     else:
         file_list = sorted(f for f in artifact_dir.rglob("*") if f.is_file())
         if not file_list:
-            logger.warning(
-                "No files found in artifact %s at %s — skipping hash verification",
-                artifact_id,
-                artifact_dir,
+            raise ValueError(
+                f"input_hash_mismatch: artifact {artifact_id} "
+                f"staged path {artifact_dir} contains no files"
             )
-            return
 
         # Build (relative_path, file_path) pairs
         pairs: list[tuple[str, Path]] = []

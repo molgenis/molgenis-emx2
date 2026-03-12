@@ -58,6 +58,15 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
         .body("count", equalTo(1))
         .body("items[0].path", equalTo("results/output.csv"));
 
+    hpcRequest()
+        .when()
+        .get("/api/hpc/artifacts/{id}", artifactId)
+        .then()
+        .statusCode(200)
+        .body("status", equalTo("UPLOADING"))
+        .body("_links.upload", notNullValue())
+        .body("_links.commit", notNullValue());
+
     // Commit artifact -- sha256 must match the single file's sha256
     hpcRequest()
         .body(

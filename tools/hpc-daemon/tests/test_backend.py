@@ -138,6 +138,29 @@ def test_stage_input_artifacts_rejects_managed_hash_mismatch(tmp_path: Path):
         _stage_input_artifacts({"id": "job-2", "inputs": ["art-1"]}, str(input_dir), client)
 
 
+def test_stage_input_artifacts_rejects_missing_managed_content(tmp_path: Path):
+    input_dir = tmp_path / "input"
+    input_dir.mkdir()
+
+    client = MagicMock()
+    client.get_artifact.return_value = {
+        "id": "art-missing",
+        "residence": "managed",
+        "status": "COMMITTED",
+        "sha256": "0" * 64,
+        "_links": {},
+    }
+    client.list_artifact_files.return_value = [{"path": "data.txt"}]
+    client.download_artifact_files.return_value = []
+
+    with pytest.raises(ValueError, match="input_hash_mismatch"):
+        _stage_input_artifacts(
+            {"id": "job-missing", "inputs": ["art-missing"]},
+            str(input_dir),
+            client,
+        )
+
+
 def test_stage_input_artifacts_rejects_posix_hash_mismatch(tmp_path: Path):
     input_dir = tmp_path / "input"
     input_dir.mkdir()

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;

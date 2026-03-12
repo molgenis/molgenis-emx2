@@ -252,6 +252,18 @@ class HpcApiProtocolContractE2ETest extends HpcApiTestBase {
             .as(Map.class);
     assertContainsRequiredKeys(upload, requiredFields("artifactFileUpload"));
 
+    Map<String, Object> uploadingArtifact =
+        hpcRequest()
+            .when()
+            .get("/api/hpc/artifacts/{id}", artifactId)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(Map.class);
+    assertContainsRequiredKeys(uploadingArtifact, requiredFields("artifact"));
+    assertEquals("UPLOADING", uploadingArtifact.get("status"));
+    assertLinkRelations(uploadingArtifact, expectedLinks("artifactLinksByStatus", "UPLOADING"));
+
     Map<String, Object> files =
         hpcRequest()
             .when()

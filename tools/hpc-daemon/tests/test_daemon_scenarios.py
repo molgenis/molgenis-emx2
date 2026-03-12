@@ -174,6 +174,40 @@ def test_submit_stages_all_supported_input_forms(daemon_factory, tmp_path: Path,
     assert (posix_link / "posix.txt").read_text() == "posix-input\n"
 
 
+def test_submit_fails_with_input_hash_mismatch_detail(daemon_factory, tmp_path: Path):
+    entrypoint = _write_shell_entrypoint(tmp_path / "entrypoint.sh")
+    daemon = daemon_factory(
+        backend="shell",
+        profile=ProfileEntry(entrypoint=entrypoint),
+    )
+
+    daemon.client.get_artifact.return_value = {
+        "id": "art-bad",
+        "residence": "managed",
+        "status": "COMMITTED",
+        "sha256": "0" * 64,
+        "_links": {},
+    }
+    daemon.client.list_artifact_files.return_value = [{"path": "input.txt"}]
+    daemon.client.download_artifact_files.return_value = []
+
+    job = {
+        "id": "job-input-hash-mismatch",
+        "processor": "scenario",
+        "profile": "default",
+        "inputs": ["art-bad"],
+    }
+
+    daemon._submit_job(job)
+
+    assert daemon.tracker.get(job["id"]) is None
+    daemon.client.transition_job.assert_called_once()
+    args, kwargs = daemon.client.transition_job.call_args
+    assert args[0] == "job-input-hash-mismatch"
+    assert args[1] == "FAILED"
+    assert "input_hash_mismatch" in kwargs["detail"]
+
+
 @pytest.mark.parametrize("residence", ["managed", "posix"])
 def test_completion_uploads_nested_paths_for_managed_and_posix(
     daemon_factory,
