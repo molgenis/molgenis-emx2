@@ -1,3 +1,4 @@
+import { navigateTo } from "#app/composables/router";
 import { API_VERSION } from "../utils/protocol";
 
 export const GRAPHQL_URL = "/_SYSTEM_/graphql";
@@ -18,15 +19,44 @@ export function isSchemaNotReady(err: any): boolean {
   return msg.includes("FieldUndefined") || msg.includes("is undefined");
 }
 
+/**
+ * Returns true if the error indicates the user's session has expired or they
+ * lack permission to access the _SYSTEM_ schema.
+ */
+function isAuthError(err: any): boolean {
+  const msg =
+    err?.data?.errors?.[0]?.message ?? err?.message ?? String(err ?? "");
+  return (
+    msg.includes("sign in") ||
+    msg.includes("unknown") ||
+    err?.status === 403 ||
+    err?.statusCode === 403
+  );
+}
+
 /** Execute a GraphQL query against the _SYSTEM_ schema. */
 export async function gqlQuery(query: string): Promise<any> {
-  const resp = await $fetch<any>(GRAPHQL_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: { query },
-  });
+  let resp: any;
+  try {
+    resp = await $fetch<any>(GRAPHQL_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: { query },
+    });
+  } catch (fetchErr: any) {
+    if (isAuthError(fetchErr)) {
+      await navigateTo("/login");
+      throw fetchErr;
+    }
+    throw fetchErr;
+  }
   if (resp.errors?.length) {
-    throw new Error(resp.errors[0].message);
+    const err = new Error(resp.errors[0].message);
+    if (isAuthError({ message: resp.errors[0].message })) {
+      await navigateTo("/login");
+      throw err;
+    }
+    throw err;
   }
   return resp.data ?? resp;
 }
