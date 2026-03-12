@@ -84,3 +84,10 @@ export interface NewCategoricalAxisGeneratorProps {
   rangeStart?: number;
   rangeEnd: number;
 }
+
+export interface ProgressMeter extends Charts, ChartOptions {
+    label: string;
+    value: number;
+    total: number;
+    color: string;
+}
