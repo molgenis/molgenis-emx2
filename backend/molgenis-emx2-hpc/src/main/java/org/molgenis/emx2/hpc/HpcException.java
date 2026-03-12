@@ -67,6 +67,10 @@ public class HpcException extends RuntimeException {
     return new HpcException(409, "Conflict", detail, requestId);
   }
 
+  public static HpcException payloadTooLarge(String detail, String requestId) {
+    return new HpcException(413, "Payload Too Large", detail, requestId);
+  }
+
   public static HpcException internal(String detail, String requestId) {
     return new HpcException(500, "Internal Server Error", detail, requestId);
   }

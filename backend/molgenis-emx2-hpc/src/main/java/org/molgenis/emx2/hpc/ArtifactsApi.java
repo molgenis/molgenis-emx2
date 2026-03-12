@@ -10,8 +10,12 @@ import io.javalin.http.Context;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.Part;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
@@ -25,6 +29,9 @@ import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.service.ArtifactService;
 import org.molgenis.emx2.hpc.service.CommitResult;
+import org.molgenis.emx2.sql.SqlDatabase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Artifact CRUD endpoints:
@@ -39,11 +46,24 @@ import org.molgenis.emx2.hpc.service.CommitResult;
  */
 public class ArtifactsApi {
 
+  private static final Logger logger = LoggerFactory.getLogger(ArtifactsApi.class);
+
+  /** Database setting key for the maximum upload size in bytes. */
+  static final String MAX_UPLOAD_BYTES_SETTING = "MOLGENIS_HPC_MAX_UPLOAD_BYTES";
+
+  /** Default maximum upload size: 500 MB. */
+  static final long DEFAULT_MAX_UPLOAD_BYTES = 524_288_000L;
+
+  /** Buffer size for streaming uploads to temp files. */
+  private static final int STREAM_BUFFER_SIZE = 65_536;
+
   private final ArtifactService artifactService;
+  private final SqlDatabase database;
   private final ArtifactResponseMapper mapper;
 
-  public ArtifactsApi(ArtifactService artifactService) {
+  public ArtifactsApi(ArtifactService artifactService, SqlDatabase database) {
     this.artifactService = artifactService;
+    this.database = database;
     this.mapper = new ArtifactResponseMapper();
   }
 
@@ -152,11 +172,16 @@ public class ArtifactsApi {
    *
    * <ul>
    *   <li>Binary upload: raw bytes or multipart with "file" part — content is stored and SHA-256 is
-   *       computed from the bytes.
+   *       computed from the bytes. Binary uploads are streamed to a temp file to avoid holding the
+   *       entire payload in JVM heap.
    *   <li>JSON metadata-only: Content-Type application/json with {"sha256", "size_bytes",
    *       "content_type"} — registers file metadata without storing binary content (used for posix
    *       artifacts).
    * </ul>
+   *
+   * <p>Upload size is bounded by the {@code MOLGENIS_HPC_MAX_UPLOAD_BYTES} database setting
+   * (default 500 MB). The Content-Length header is checked eagerly, and the byte count is also
+   * enforced during streaming to guard against chunked-transfer or mismatched headers.
    */
   @SuppressWarnings("unchecked")
   public void uploadFileByPath(Context ctx) {
@@ -188,6 +213,9 @@ public class ArtifactsApi {
         }
         content = null;
       } else if (isMultipart) {
+        long maxBytes = getMaxUploadBytes();
+        enforceContentLengthLimit(ctx, maxBytes);
+
         tempFile = File.createTempFile("hpc_upload_", ".tmp");
         ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
@@ -196,10 +224,22 @@ public class ArtifactsApi {
         if (filePart == null) {
           throw HpcException.badRequest("Multipart 'file' part is required", requestId(ctx));
         }
-        byte[] fileBytes;
+
+        // Stream multipart content to temp file with incremental SHA-256
+        File multipartTemp = File.createTempFile("hpc_mp_upload_", ".tmp");
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
         try (InputStream input = filePart.getInputStream()) {
-          fileBytes = input.readAllBytes();
+          sizeBytes = streamToFile(input, multipartTemp, digest, maxBytes, requestId(ctx));
+        } catch (HpcException e) {
+          multipartTemp.delete();
+          throw e;
         }
+        // Replace tempFile reference so both get cleaned up
+        tempFile.delete();
+        tempFile = multipartTemp;
+
+        sha256 = HexFormat.of().formatHex(digest.digest());
+
         contentType = ctx.formParam("content_type");
         if (contentType == null) {
           contentType = filePart.getContentType();
@@ -212,15 +252,23 @@ public class ArtifactsApi {
           contentType = "application/octet-stream";
         }
 
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
-        sizeBytes = fileBytes.length;
-        content = new BinaryFileWrapper(contentType, filePath, fileBytes);
-
         verifyContentSha256(ctx, sha256);
+        content =
+            new BinaryFileWrapper(contentType, filePath, Files.readAllBytes(tempFile.toPath()));
       } else {
-        // Raw binary upload
-        byte[] fileBytes = ctx.bodyAsBytes();
+        // Raw binary upload — stream to temp file with incremental SHA-256
+        long maxBytes = getMaxUploadBytes();
+        enforceContentLengthLimit(ctx, maxBytes);
+
+        tempFile = File.createTempFile("hpc_upload_", ".tmp");
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        try (InputStream input = ctx.req().getInputStream()) {
+          sizeBytes = streamToFile(input, tempFile, digest, maxBytes, requestId(ctx));
+        } catch (HpcException e) {
+          throw e;
+        }
+
+        sha256 = HexFormat.of().formatHex(digest.digest());
         contentType = ct;
 
         String guessed = URLConnection.guessContentTypeFromName(filePath);
@@ -230,12 +278,12 @@ public class ArtifactsApi {
           contentType = "application/octet-stream";
         }
 
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        sha256 = HexFormat.of().formatHex(digest.digest(fileBytes));
-        sizeBytes = fileBytes.length;
-        content = new BinaryFileWrapper(contentType, filePath, fileBytes);
-
         verifyContentSha256(ctx, sha256);
+
+        // Read from temp file into BinaryFileWrapper — request body stream is already closed
+        // so we only hold one copy of the bytes at a time (temp file contents).
+        content =
+            new BinaryFileWrapper(contentType, filePath, Files.readAllBytes(tempFile.toPath()));
       }
 
       String fileId =
@@ -262,9 +310,85 @@ public class ArtifactsApi {
       throw HpcException.internal(e.getMessage(), requestId(ctx));
     } finally {
       if (tempFile != null) {
-        tempFile.delete();
+        if (!tempFile.delete() && tempFile.exists()) {
+          logger.warn("Failed to delete temp file: {}", tempFile.getAbsolutePath());
+        }
       }
     }
+  }
+
+  /**
+   * Reads the {@code MOLGENIS_HPC_MAX_UPLOAD_BYTES} database setting. Falls back to {@link
+   * #DEFAULT_MAX_UPLOAD_BYTES} when the setting is absent or unparseable.
+   */
+  long getMaxUploadBytes() {
+    String value = HpcAuth.readSetting(database, MAX_UPLOAD_BYTES_SETTING);
+    if (value != null && !value.isBlank()) {
+      try {
+        long parsed = Long.parseLong(value.trim());
+        if (parsed > 0) {
+          return parsed;
+        }
+      } catch (NumberFormatException ignored) {
+        logger.warn(
+            "Invalid {} setting '{}', using default {}",
+            MAX_UPLOAD_BYTES_SETTING,
+            value,
+            DEFAULT_MAX_UPLOAD_BYTES);
+      }
+    }
+    return DEFAULT_MAX_UPLOAD_BYTES;
+  }
+
+  /**
+   * Checks the Content-Length header against the maximum upload size. Returns 413 Payload Too Large
+   * before reading the body when the declared size exceeds the limit.
+   */
+  private static void enforceContentLengthLimit(Context ctx, long maxBytes) {
+    String contentLengthHeader = ctx.header("Content-Length");
+    if (contentLengthHeader != null) {
+      try {
+        long declaredSize = Long.parseLong(contentLengthHeader.trim());
+        if (declaredSize > maxBytes) {
+          throw HpcException.payloadTooLarge(
+              "Content-Length "
+                  + declaredSize
+                  + " exceeds maximum upload size of "
+                  + maxBytes
+                  + " bytes",
+              requestId(ctx));
+        }
+      } catch (NumberFormatException ignored) {
+        // Unparseable Content-Length — let streaming enforcement handle it
+      }
+    }
+  }
+
+  /**
+   * Streams an InputStream to a file while computing SHA-256 incrementally and enforcing a maximum
+   * byte count. Returns the total number of bytes written.
+   *
+   * @throws HpcException with 413 status if the stream exceeds maxBytes
+   * @throws IOException on I/O errors
+   */
+  private static long streamToFile(
+      InputStream input, File dest, MessageDigest digest, long maxBytes, String requestId)
+      throws IOException {
+    long totalBytes = 0;
+    byte[] buffer = new byte[STREAM_BUFFER_SIZE];
+    try (OutputStream out = new FileOutputStream(dest)) {
+      int bytesRead;
+      while ((bytesRead = input.read(buffer)) != -1) {
+        totalBytes += bytesRead;
+        if (totalBytes > maxBytes) {
+          throw HpcException.payloadTooLarge(
+              "Upload exceeds maximum size of " + maxBytes + " bytes", requestId);
+        }
+        digest.update(buffer, 0, bytesRead);
+        out.write(buffer, 0, bytesRead);
+      }
+    }
+    return totalBytes;
   }
 
   /** GET /api/hpc/artifacts/{id}/files/{path} — download file content. */

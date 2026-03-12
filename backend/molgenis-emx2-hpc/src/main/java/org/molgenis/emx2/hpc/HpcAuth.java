@@ -79,7 +79,7 @@ class HpcAuth {
     WorkersApi workersApi = new WorkersApi(workerService);
     WorkerCredentialsApi workerCredentialsApi = new WorkerCredentialsApi(workerCredentialService);
     JobsApi jobsApi = new JobsApi(jobService, artifactService);
-    ArtifactsApi artifactsApi = new ArtifactsApi(artifactService);
+    ArtifactsApi artifactsApi = new ArtifactsApi(artifactService, database);
 
     return new HpcContext(
         workerService,
