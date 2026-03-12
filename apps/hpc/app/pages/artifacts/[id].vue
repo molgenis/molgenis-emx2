@@ -200,36 +200,24 @@
           <p class="text-xs text-definition-list-term mb-2">
             Artifacts used as input to the producing job.
           </p>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm text-table-row">
-              <thead>
-                <tr class="border-b border-color-theme">
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
-                    Artifact ID
-                  </th>
-                  <th
-                    class="px-4 py-2 text-left font-medium text-table-column-header"
-                  ></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="inputId in provenance.input_artifact_ids"
-                  :key="inputId"
-                  class="border-b border-color-theme hover:bg-hover transition-colors"
-                >
-                  <td class="px-4 py-2">
-                    <code>{{ shortId(inputId) }}</code>
-                  </td>
-                  <td class="px-4 py-2">
-                    <NuxtLink :to="`/artifacts/${inputId}`">
-                      <Button type="outline" size="tiny">View</Button>
-                    </NuxtLink>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <ul class="flex flex-wrap gap-2">
+            <li
+              v-for="inputArtifact in provenanceInputArtifacts"
+              :key="inputArtifact.id"
+            >
+              <HpcPill :to="`/artifacts/${inputArtifact.id}`">
+                <template v-if="inputArtifact.name && inputArtifact.id">
+                  <span>{{ inputArtifact.name }}</span>
+                  <code class="font-mono text-[0.85em] text-definition-list-term"
+                    >[{{ shortId(inputArtifact.id) }}]</code
+                  >
+                </template>
+                <template v-else>
+                  {{ inputArtifactChipLabel(inputArtifact) }}
+                </template>
+              </HpcPill>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -340,18 +328,21 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, navigateTo } from "#app/composables/router";
 import {
   fetchArtifactDetail,
+  fetchArtifactSummary,
   downloadArtifactFile,
   deleteArtifact,
 } from "../../composables/useHpcApi";
 import { formatDate } from "../../utils/jobs";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
+import HpcPill from "../../components/HpcPill.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id as string);
 
 const artifact = ref<any>(null);
 const files = ref<any[]>([]);
+const provenanceInputArtifacts = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const deleting = ref(false);
@@ -392,6 +383,15 @@ const hasExtraMetadata = computed(() => {
 
 function shortId(idVal: string): string {
   return idVal?.substring?.(0, 8) || idVal || "-";
+}
+
+function inputArtifactChipLabel(input: any): string {
+  if (!input) return "-";
+  if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
+  if (input.name) return input.name;
+  if (input.id) return shortId(input.id);
+  if (typeof input === "string") return shortId(input);
+  return "-";
 }
 
 function formatSize(bytes: number | null | undefined): string {
@@ -440,6 +440,16 @@ onMounted(async () => {
     const result = await fetchArtifactDetail(id.value);
     artifact.value = result.artifact;
     files.value = result.files;
+
+    const inputIds = Array.isArray(result.artifact?.metadata?.input_artifact_ids)
+      ? result.artifact.metadata.input_artifact_ids.filter(
+          (value: unknown): value is string =>
+            typeof value === "string" && value.trim().length > 0
+        )
+      : [];
+    provenanceInputArtifacts.value = await Promise.all(
+      inputIds.map(async (inputId) => (await fetchArtifactSummary(inputId)) ?? { id: inputId })
+    );
   } catch (e: any) {
     error.value = e.message;
   } finally {

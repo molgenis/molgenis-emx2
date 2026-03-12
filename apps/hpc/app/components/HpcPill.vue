@@ -23,12 +23,12 @@ const props = withDefaults(
 
 const pillClass = computed(() => {
   const base =
-    "inline-flex items-center gap-1 rounded-full border border-color-theme bg-hover text-title";
+    "inline-flex items-center gap-1 rounded-full border border-input bg-content/50 text-title";
   const size = props.compact
     ? "px-2 py-0.5 text-xs font-medium"
     : "px-3 py-1 text-sm";
   const interactive = props.to
-    ? "transition-colors hover:bg-content hover:border-input focus-visible:bg-content"
+    ? "transition-colors hover:bg-hover hover:border-input-focused focus-visible:bg-hover focus-visible:border-input-focused"
     : "";
   return [base, size, interactive].join(" ").trim();
 });

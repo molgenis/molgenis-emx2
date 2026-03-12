@@ -13,6 +13,17 @@ interface FetchArtifactsOpts {
   offset?: number;
 }
 
+const artifactSummaryCache = new Map<
+  string,
+  {
+    id: string;
+    name?: string | null;
+    type?: string | null;
+    status?: string | null;
+    residence?: string | null;
+  } | null
+>();
+
 /**
  * Fetch artifacts via GraphQL.
  */
@@ -102,6 +113,37 @@ export async function fetchArtifactDetail(artifactId: string): Promise<{
       return { artifact: null, files: [], schemaNotReady: true };
     }
     throw err;
+  }
+}
+
+export async function fetchArtifactSummary(id: string): Promise<{
+  id: string;
+  name?: string | null;
+  type?: string | null;
+  status?: string | null;
+  residence?: string | null;
+} | null> {
+  if (artifactSummaryCache.has(id)) {
+    return artifactSummaryCache.get(id) ?? null;
+  }
+
+  try {
+    const artifact = await $fetch<any>(`${REST_BASE}/artifacts/${id}`, {
+      method: "GET",
+      headers: hpcHeaders(),
+    });
+    const summary = {
+      id,
+      name: artifact?.name ?? null,
+      type: artifact?.type ?? null,
+      status: artifact?.status ?? null,
+      residence: artifact?.residence ?? null,
+    };
+    artifactSummaryCache.set(id, summary);
+    return summary;
+  } catch {
+    artifactSummaryCache.set(id, null);
+    return null;
   }
 }
 

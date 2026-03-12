@@ -107,7 +107,15 @@
               :key="input.id || `${input.name || 'input'}-${idx}`"
             >
               <HpcPill :to="input.id ? `/artifacts/${input.id}` : undefined">
-                {{ inputArtifactChipLabel(input) }}
+                <template v-if="input.name && input.id">
+                  <span>{{ input.name }}</span>
+                  <code class="font-mono text-[0.85em] text-definition-list-term"
+                    >[{{ shortId(input.id) }}]</code
+                  >
+                </template>
+                <template v-else>
+                  {{ inputArtifactChipLabel(input) }}
+                </template>
               </HpcPill>
             </li>
           </ul>
@@ -409,6 +417,7 @@ function shortId(idVal: string): string {
 
 function inputArtifactChipLabel(input: any): string {
   if (!input) return "-";
+  if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
   if (input.name) return input.name;
   if (input.id) return shortId(input.id);
   if (typeof input === "string") return shortId(input);
