@@ -239,6 +239,21 @@ class HpcDaemon:
             job.get("profile"),
             job.get("inputs"),
         )
+
+        def ensure_claimed_tracking() -> None:
+            if self.tracker.get(job_id) is not None:
+                return
+            self.tracker.track(
+                emx2_job_id=job_id,
+                status="CLAIMED",
+                processor=job.get("processor"),
+                profile=job.get("profile"),
+                submit_user=job.get("submit_user"),
+                input_artifact_ids=self._extract_input_artifact_ids(job.get("inputs")),
+                parameters_hash=self._compute_parameters_hash(job.get("parameters")),
+                timeout_seconds=job.get("timeout_seconds"),
+            )
+
         try:
             result = self._backend.submit(job, self.client)
             self.tracker.track(
@@ -268,10 +283,24 @@ class HpcDaemon:
             logger.info("Submitted job %s as %s", job_id, result.slurm_job_id)
         except ValueError as e:
             logger.error("Cannot submit job %s: %s", job_id, e)
-            self.client.transition_job(job_id, "FAILED", detail=str(e))
+            ensure_claimed_tracking()
+            try:
+                self.client.transition_job(job_id, "FAILED", detail=str(e))
+                self.tracker.remove(job_id)
+            except Exception:
+                logger.exception(
+                    "Failed to report submit validation failure for job %s", job_id
+                )
         except Exception as e:
             logger.exception("Failed to submit job %s", job_id)
-            self.client.transition_job(job_id, "FAILED", detail=str(e))
+            ensure_claimed_tracking()
+            try:
+                self.client.transition_job(job_id, "FAILED", detail=str(e))
+                self.tracker.remove(job_id)
+            except Exception:
+                logger.exception(
+                    "Failed to report submit failure for job %s", job_id
+                )
 
     def _monitor_running_jobs(self) -> None:
         """Check status of all tracked jobs and report transitions."""

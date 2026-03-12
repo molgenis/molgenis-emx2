@@ -47,6 +47,7 @@ class TrackedJob:
     input_artifact_ids: str | None = None  # JSON array string
     parameters_hash: str | None = None
     timeout_seconds: int | None = None  # per-job timeout from EMX2
+    unknown_since: float = 0.0  # time.monotonic() when Slurm first became UNKNOWN
 
     @property
     def profile_key(self) -> str:
@@ -89,7 +90,8 @@ CREATE TABLE IF NOT EXISTS tracked_jobs (
     submit_user TEXT,
     input_artifact_ids TEXT,
     parameters_hash TEXT,
-    timeout_seconds INTEGER
+    timeout_seconds INTEGER,
+    unknown_since REAL NOT NULL DEFAULT 0.0
 )"""
 
 _MIGRATE_SQLS = [
@@ -100,6 +102,7 @@ _MIGRATE_SQLS = [
     "ALTER TABLE tracked_jobs ADD COLUMN input_artifact_ids TEXT",
     "ALTER TABLE tracked_jobs ADD COLUMN parameters_hash TEXT",
     "ALTER TABLE tracked_jobs ADD COLUMN timeout_seconds INTEGER",
+    "ALTER TABLE tracked_jobs ADD COLUMN unknown_since REAL NOT NULL DEFAULT 0.0",
 ]
 
 _UPSERT_SQL = """\
@@ -107,8 +110,8 @@ INSERT OR REPLACE INTO tracked_jobs
     (emx2_job_id, slurm_job_id, status, work_dir, input_dir, output_dir,
      processor, profile, claimed_at, last_progress_hash, last_queue_report,
      log_artifact_id, output_artifact_id, completion_phase,
-     submit_user, input_artifact_ids, parameters_hash, timeout_seconds)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+     submit_user, input_artifact_ids, parameters_hash, timeout_seconds, unknown_since)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 _DELETE_SQL = "DELETE FROM tracked_jobs WHERE emx2_job_id = ?"
 
@@ -125,7 +128,7 @@ class JobTracker:
     """
 
     _VALID_FIELDS = frozenset(f.name for f in fields(TrackedJob))
-    _TIME_FIELDS = frozenset({"claimed_at", "last_queue_report"})
+    _TIME_FIELDS = frozenset({"claimed_at", "last_queue_report", "unknown_since"})
 
     def __init__(self, state_db_path: Path | str | None = None):
         self._jobs: dict[str, TrackedJob] = {}

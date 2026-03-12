@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -19,12 +20,14 @@ from .daemon_artifacts import upload_log_artifact, upload_output_artifacts
 from .daemon_progress import check_progress_file
 from .profiles import resolve_profile
 from .slurm import SlurmJobInfo
-from .tracker import JobTracker, TrackedJob
+from .tracker import JobTracker, TrackedJob, _wall_to_mono
 
 if TYPE_CHECKING:
     from .daemon import HpcDaemon
 
 logger = logging.getLogger(__name__)
+UNKNOWN_STATE_GRACE_SECONDS = 120
+_NOTABLE_SLURM_STATES = frozenset({"SUSPENDED", "REQUEUED"})
 
 
 def _build_slurm_detail(info: SlurmJobInfo) -> str:
@@ -51,16 +54,124 @@ def monitor_running_jobs(daemon: HpcDaemon) -> None:
     report_queue_status(daemon.client, daemon.tracker, daemon.config, daemon._backend)
 
     for tracked in daemon.tracker.active_jobs():
-        if not tracked.slurm_job_id:
-            continue
-        check_progress_file(daemon.client, tracked)
-        process_job_status_change(daemon, tracked)
+        try:
+            if not tracked.slurm_job_id:
+                continue
+            check_progress_file(daemon.client, tracked)
+            process_job_status_change(daemon, tracked)
+        except Exception:
+            logger.exception(
+                "Failed monitoring job %s", tracked.emx2_job_id
+            )
+
+
+def _parse_server_timestamp_to_monotonic(raw: str | None) -> float | None:
+    if not raw or not isinstance(raw, str):
+        return None
+    try:
+        wall = datetime.fromisoformat(raw.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
+    return _wall_to_mono(wall)
+
+
+def _handle_unknown_status(
+    daemon: HpcDaemon,
+    tracked: TrackedJob,
+    info: SlurmJobInfo,
+) -> bool:
+    if tracked.status not in ("SUBMITTED", "STARTED") or info.state != "UNKNOWN":
+        if tracked.unknown_since > 0:
+            tracked.unknown_since = 0.0
+            daemon.tracker.update(tracked.emx2_job_id, unknown_since=0.0)
+        return False
+
+    now = time.monotonic()
+    if tracked.unknown_since <= 0:
+        tracked.unknown_since = now
+        daemon.tracker.update(tracked.emx2_job_id, unknown_since=now)
+        logger.warning(
+            "Job %s is missing from both squeue and sacct; starting UNKNOWN grace window",
+            tracked.emx2_job_id,
+        )
+        return True
+
+    if (now - tracked.unknown_since) < UNKNOWN_STATE_GRACE_SECONDS:
+        logger.warning(
+            "Job %s remains UNKNOWN in Slurm for %ds (grace %ds)",
+            tracked.emx2_job_id,
+            int(now - tracked.unknown_since),
+            UNKNOWN_STATE_GRACE_SECONDS,
+        )
+        return True
+
+    logger.error(
+        "Job %s exceeded UNKNOWN grace window; marking FAILED",
+        tracked.emx2_job_id,
+    )
+    try:
+        complete_job(
+            daemon,
+            tracked,
+            "FAILED",
+            SlurmJobInfo(
+                state="UNKNOWN",
+                reason=f"job not visible in squeue or sacct after {UNKNOWN_STATE_GRACE_SECONDS}s grace",
+            ),
+        )
+    except Exception:
+        logger.exception(
+            "Failed to report UNKNOWN-state failure for job %s", tracked.emx2_job_id
+        )
+    return True
+
+
+def _report_notable_slurm_state(
+    daemon: HpcDaemon,
+    tracked: TrackedJob,
+    info: SlurmJobInfo,
+) -> None:
+    """Post a throttled same-state transition for notable Slurm states (SUSPENDED, REQUEUED).
+
+    Reuses queue_report_interval_seconds for throttling so EMX2 gets periodic
+    visibility without being spammed every monitor cycle.
+    """
+    interval = daemon.config.worker.queue_report_interval_seconds
+    now = time.monotonic()
+    if interval > 0 and (now - tracked.last_queue_report) < interval:
+        return
+
+    detail = _build_slurm_detail(info)
+    try:
+        daemon.client.transition_job(
+            tracked.emx2_job_id, tracked.status, detail=detail
+        )
+        tracked.last_queue_report = now
+        logger.info(
+            "Notable Slurm state for job %s: %s", tracked.emx2_job_id, detail
+        )
+    except Exception:
+        logger.exception(
+            "Failed to report notable Slurm state for job %s",
+            tracked.emx2_job_id,
+        )
 
 
 def process_job_status_change(daemon: HpcDaemon, tracked: TrackedJob) -> None:
     """Query Slurm for a single job and report any status change to EMX2."""
     result = daemon._backend.query_status(tracked.slurm_job_id, tracked.status)
+    if result is None and tracked.status in ("SUBMITTED", "STARTED"):
+        info = daemon._backend.query_slurm_info(tracked.slurm_job_id)
+        if info and _handle_unknown_status(daemon, tracked, info):
+            return
+        if info and info.state in _NOTABLE_SLURM_STATES:
+            _report_notable_slurm_state(daemon, tracked, info)
+            return
+
     if result is None:
+        if tracked.unknown_since > 0:
+            tracked.unknown_since = 0.0
+            daemon.tracker.update(tracked.emx2_job_id, unknown_since=0.0)
         logger.debug(
             "Job %s (slurm %s): no status change from %s",
             tracked.emx2_job_id,
@@ -71,6 +182,9 @@ def process_job_status_change(daemon: HpcDaemon, tracked: TrackedJob) -> None:
 
     new_status = result.hpc_status
     info = result.slurm_info
+    if tracked.unknown_since > 0:
+        tracked.unknown_since = 0.0
+        daemon.tracker.update(tracked.emx2_job_id, unknown_since=0.0)
 
     logger.debug(
         "Job %s (slurm %s): %s -> %s",
@@ -253,11 +367,11 @@ def _fail_job_with_timeout(
             logger.exception("Failed to scancel job %s", tracked.slurm_job_id)
     try:
         client.transition_job(tracked.emx2_job_id, "FAILED", detail=detail)
+        tracker.remove(tracked.emx2_job_id)
     except Exception:
         logger.exception(
             "Failed to report timeout for job %s", tracked.emx2_job_id
         )
-    tracker.remove(tracked.emx2_job_id)
 
 
 def _append_slurm_detail(
@@ -382,18 +496,35 @@ def recover_jobs(
                     )
             else:
                 # Not in local DB -- derive dirs from config
+                job_details = job_data
+                try:
+                    job_details = client.get_job(emx2_id)
+                except Exception:
+                    logger.debug(
+                        "Could not fetch full recovery details for job %s; using list response",
+                        emx2_id,
+                        exc_info=True,
+                    )
+                claimed_at = _parse_server_timestamp_to_monotonic(
+                    job_details.get("claimed_at")
+                )
                 output_dir = str(
                     Path(config.apptainer.tmp_dir) / emx2_id / "output"
                 )
-                tracker.track(
+                track_kwargs = dict(
                     emx2_job_id=emx2_id,
-                    slurm_job_id=job_data.get("slurm_job_id"),
-                    status=job_data.get("status", "CLAIMED"),
-                    processor=job_data.get("processor"),
-                    profile=job_data.get("profile"),
+                    slurm_job_id=job_details.get("slurm_job_id"),
+                    status=job_details.get("status", "CLAIMED"),
+                    processor=job_details.get("processor"),
+                    profile=job_details.get("profile"),
                     output_dir=output_dir,
                     work_dir=str(Path(config.apptainer.tmp_dir) / emx2_id),
                 )
+                if claimed_at is not None:
+                    track_kwargs["claimed_at"] = claimed_at
+                if job_details.get("timeout_seconds") is not None:
+                    track_kwargs["timeout_seconds"] = job_details.get("timeout_seconds")
+                tracker.track(**track_kwargs)
                 logger.info(
                     "Recovered job %s from server (no local state, derived dirs)",
                     emx2_id,

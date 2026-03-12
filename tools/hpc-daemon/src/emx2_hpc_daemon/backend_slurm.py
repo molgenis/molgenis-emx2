@@ -26,6 +26,20 @@ from .slurm import (
 
 logger = logging.getLogger(__name__)
 
+NON_TERMINAL_SLURM_STATES = frozenset(
+    {
+        "PENDING",
+        "RUNNING",
+        "CONFIGURING",
+        "COMPLETING",
+        "STAGE_OUT",
+        "SUSPENDED",
+        "REQUEUED",
+        "RESIZING",
+        "SIGNALING",
+    }
+)
+
 
 class SlurmBackend(ExecutionBackend):
     """Real Slurm execution via sbatch/squeue/scancel."""
@@ -131,6 +145,8 @@ class SlurmBackend(ExecutionBackend):
     ) -> StatusResult | None:
         info = query_status(slurm_job_id)
         hpc_status = SLURM_TO_HPC_STATUS.get(info.state)
+        if hpc_status is None and info.state not in NON_TERMINAL_SLURM_STATES and info.state != "UNKNOWN":
+            hpc_status = "FAILED"
         if hpc_status is None or hpc_status == current_status:
             return None
         return StatusResult(hpc_status=hpc_status, slurm_info=info)

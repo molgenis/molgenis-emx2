@@ -359,6 +359,292 @@ def test_submission_timeout_marks_job_failed_and_untracks(daemon_factory):
     assert "submission_timeout_seconds" in kwargs["detail"]
 
 
+@pytest.mark.parametrize(
+    "slurm_state",
+    ["PREEMPTED", "BOOT_FAIL", "DEADLINE", "REVOKED", "SPECIAL_EXIT"],
+)
+def test_unmapped_terminal_slurm_states_now_fail(daemon_factory, tmp_path: Path, slurm_state: str):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    output_dir = tmp_path / f"output-{slurm_state.lower()}"
+    output_dir.mkdir(parents=True)
+    (output_dir / "stderr.log").write_text("boom")
+
+    daemon.tracker.track(
+        emx2_job_id=f"job-{slurm_state.lower()}",
+        slurm_job_id=f"sim-{slurm_state.lower()}",
+        status="STARTED",
+        output_dir=str(output_dir),
+        processor="scenario",
+        profile="default",
+    )
+    daemon._backend.query_status = MagicMock(
+        return_value=StatusResult(
+            hpc_status="FAILED",
+            slurm_info=SlurmJobInfo(state=slurm_state, reason=slurm_state),
+        )
+    )
+
+    daemon._monitor_running_jobs()
+
+    daemon.client.complete_job.assert_called_once()
+    args, kwargs = daemon.client.complete_job.call_args
+    assert args[0] == f"job-{slurm_state.lower()}"
+    assert args[1] == "FAILED"
+    assert slurm_state in kwargs["detail"]
+    assert daemon.tracker.get(f"job-{slurm_state.lower()}") is None
+
+
+def test_unknown_state_grace_window_then_fail(daemon_factory, tmp_path: Path):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    output_dir = tmp_path / "output-unknown"
+    output_dir.mkdir(parents=True)
+    (output_dir / "stderr.log").write_text("unknown failure")
+
+    daemon.tracker.track(
+        emx2_job_id="job-unknown",
+        slurm_job_id="sim-unknown",
+        status="STARTED",
+        output_dir=str(output_dir),
+        processor="scenario",
+        profile="default",
+    )
+    daemon._backend.query_status = MagicMock(return_value=None)
+    daemon._backend.query_slurm_info = MagicMock(return_value=SlurmJobInfo(state="UNKNOWN"))
+
+    daemon._monitor_running_jobs()
+    tracked = daemon.tracker.get("job-unknown")
+    assert tracked is not None
+    assert tracked.unknown_since > 0
+    assert daemon.client.complete_job.call_count == 0
+
+    daemon.tracker.update(
+        "job-unknown",
+        unknown_since=time.monotonic() - 121,
+    )
+    daemon._monitor_running_jobs()
+
+    daemon.client.complete_job.assert_called_once()
+    args, kwargs = daemon.client.complete_job.call_args
+    assert args[0] == "job-unknown"
+    assert args[1] == "FAILED"
+    assert "slurm_state=UNKNOWN" in kwargs["detail"]
+    assert daemon.tracker.get("job-unknown") is None
+
+
+def test_timeout_failure_keeps_job_tracked_when_server_transition_fails(daemon_factory):
+    profile = ProfileEntry(sif_image="/tmp/fake.sif", submission_timeout_seconds=1)
+    daemon = daemon_factory(backend="simulate", profile=profile)
+    daemon.client.transition_job.side_effect = RuntimeError("server down")
+
+    daemon.tracker.track(
+        emx2_job_id="job-timeout-transition-fails",
+        slurm_job_id=None,
+        status="CLAIMED",
+        processor="scenario",
+        profile="default",
+        claimed_at=time.monotonic() - 10,
+    )
+
+    daemon._monitor_running_jobs()
+
+    tracked = daemon.tracker.get("job-timeout-transition-fails")
+    assert tracked is not None
+    assert tracked.status == "CLAIMED"
+
+
+def test_recovery_preserves_claimed_at_and_timeout_seconds(daemon_factory):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    daemon.client.list_jobs.side_effect = [
+        [
+            {
+                "id": "job-recover",
+                "worker_id": daemon.config.emx2.worker_id,
+                "status": "STARTED",
+                "processor": "scenario",
+                "profile": "default",
+                "slurm_job_id": "slurm-recover",
+            }
+        ],
+        [],
+        [],
+    ]
+    daemon.client.get_job.return_value = {
+        "id": "job-recover",
+        "worker_id": daemon.config.emx2.worker_id,
+        "status": "STARTED",
+        "processor": "scenario",
+        "profile": "default",
+        "slurm_job_id": "slurm-recover",
+        "claimed_at": "2026-01-01T00:00:00Z",
+        "timeout_seconds": 600,
+    }
+
+    before = time.monotonic()
+    daemon._recover_jobs()
+    after = time.monotonic()
+
+    tracked = daemon.tracker.get("job-recover")
+    assert tracked is not None
+    assert tracked.timeout_seconds == 600
+    assert tracked.claimed_at < before
+    assert tracked.claimed_at < after
+
+
+def test_per_job_monitor_exception_does_not_abort_other_jobs(daemon_factory, tmp_path: Path):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    bad_dir = tmp_path / "bad-output"
+    bad_dir.mkdir(parents=True)
+    (bad_dir / ".hpc_progress.jsonl").mkdir()
+    good_dir = tmp_path / "good-output"
+    good_dir.mkdir(parents=True)
+    (good_dir / "result.txt").write_text("ok")
+
+    daemon.tracker.track(
+        emx2_job_id="job-bad",
+        slurm_job_id="slurm-bad",
+        status="STARTED",
+        output_dir=str(bad_dir),
+        processor="scenario",
+        profile="default",
+    )
+    daemon.tracker.track(
+        emx2_job_id="job-good",
+        slurm_job_id="slurm-good",
+        status="STARTED",
+        output_dir=str(good_dir),
+        processor="scenario",
+        profile="default",
+    )
+
+    def _query_status(slurm_job_id, current_status):
+        if slurm_job_id == "slurm-bad":
+            return None
+        return StatusResult(
+            hpc_status="COMPLETED",
+            slurm_info=SlurmJobInfo(state="COMPLETED", exit_code="0:0"),
+        )
+
+    def _query_info(slurm_job_id):
+        if slurm_job_id == "slurm-bad":
+            return SlurmJobInfo(state="RUNNING")
+        return SlurmJobInfo(state="COMPLETED")
+
+    daemon._backend.query_status = MagicMock(side_effect=_query_status)
+    daemon._backend.query_slurm_info = MagicMock(side_effect=_query_info)
+
+    daemon._monitor_running_jobs()
+
+    assert daemon.client.complete_job.call_count == 1
+    args, _ = daemon.client.complete_job.call_args
+    assert args[0] == "job-good"
+    assert daemon.tracker.get("job-good") is None
+
+
+def test_submit_failure_reporting_does_not_escape_and_keeps_claimed_tracking(daemon_factory):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    daemon._backend.submit = MagicMock(side_effect=ValueError("sbatch rejected"))
+    daemon.client.transition_job.side_effect = RuntimeError("server down")
+
+    daemon._submit_job(
+        {
+            "id": "job-submit-report-fails",
+            "processor": "scenario",
+            "profile": "default",
+            "timeout_seconds": 300,
+        }
+    )
+
+    tracked = daemon.tracker.get("job-submit-report-fails")
+    assert tracked is not None
+    assert tracked.status == "CLAIMED"
+    assert tracked.timeout_seconds == 300
+
+
+@pytest.mark.parametrize("slurm_state", ["SUSPENDED", "REQUEUED"])
+def test_notable_slurm_state_posts_same_state_transition(
+    daemon_factory, slurm_state: str
+):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    daemon.config.worker.queue_report_interval_seconds = 0  # no throttle
+
+    daemon.tracker.track(
+        emx2_job_id=f"job-{slurm_state.lower()}",
+        slurm_job_id=f"sim-{slurm_state.lower()}",
+        status="STARTED",
+        processor="scenario",
+        profile="default",
+    )
+    daemon._backend.query_status = MagicMock(return_value=None)
+    daemon._backend.query_slurm_info = MagicMock(
+        return_value=SlurmJobInfo(state=slurm_state, reason="AdminAction")
+    )
+
+    daemon._monitor_running_jobs()
+
+    # Job stays tracked (not terminal)
+    tracked = daemon.tracker.get(f"job-{slurm_state.lower()}")
+    assert tracked is not None
+    assert tracked.status == "STARTED"
+
+    # Same-state transition posted with Slurm state in detail
+    daemon.client.transition_job.assert_called_once()
+    args, kwargs = daemon.client.transition_job.call_args
+    assert args[0] == f"job-{slurm_state.lower()}"
+    assert args[1] == "STARTED"  # same-state
+    assert slurm_state in kwargs["detail"]
+
+
+@pytest.mark.parametrize("slurm_state", ["SUSPENDED", "REQUEUED"])
+def test_notable_slurm_state_is_throttled(daemon_factory, slurm_state: str):
+    daemon = daemon_factory(
+        backend="simulate",
+        profile=ProfileEntry(sif_image="/tmp/fake.sif"),
+    )
+    daemon.config.worker.queue_report_interval_seconds = 9999  # always throttled
+
+    daemon.tracker.track(
+        emx2_job_id=f"job-{slurm_state.lower()}-throttle",
+        slurm_job_id=f"sim-{slurm_state.lower()}-throttle",
+        status="STARTED",
+        processor="scenario",
+        profile="default",
+    )
+    # Simulate a recent report so the throttle window hasn't elapsed
+    daemon.tracker.update(
+        f"job-{slurm_state.lower()}-throttle",
+        last_queue_report=time.monotonic(),
+    )
+    daemon._backend.query_status = MagicMock(return_value=None)
+    daemon._backend.query_slurm_info = MagicMock(
+        return_value=SlurmJobInfo(state=slurm_state, reason="AdminAction")
+    )
+
+    daemon._monitor_running_jobs()
+
+    # Throttled — no transition posted
+    daemon.client.transition_job.assert_not_called()
+    # Job still tracked
+    assert daemon.tracker.get(f"job-{slurm_state.lower()}-throttle") is not None
+
+
 def test_progress_file_relay_posts_structured_fields(daemon_factory, tmp_path: Path):
     daemon = daemon_factory(
         backend="simulate",
