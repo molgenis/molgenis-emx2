@@ -41,131 +41,158 @@
 
     <section
       v-if="showBootstrap"
-      class="bg-form rounded-lg border border-color-theme bg-content/40 p-4"
+      class="bg-form rounded-lg border border-color-theme p-5"
     >
-      <div class="mb-3">
+      <div class="mb-4">
         <p class="text-sm font-semibold text-title">Add Worker Credential</p>
         <p class="text-xs text-definition-list-term">
-          Issue or rotate a credential for a worker before the daemon first
-          registers.
+          Create or replace a worker secret before daemon registration.
         </p>
       </div>
 
-      <form
-        class="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-end"
-        @submit.prevent="onBootstrapIssue"
-      >
-        <label class="flex flex-col gap-1">
-          <span
-            class="text-xs text-table-column-header uppercase tracking-wider"
-            >Worker ID</span
-          >
-          <InputString
-            id="bootstrap-worker-id"
-            v-model="bootstrapWorkerId"
-            autocomplete="off"
-            placeholder="e.g. hpc-headnode-01"
-          />
-        </label>
+      <form class="space-y-4" @submit.prevent="onBootstrapIssue">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <label class="flex flex-col gap-1">
+            <span
+              class="text-xs text-table-column-header uppercase tracking-wider"
+              >Worker ID</span
+            >
+            <InputString
+              id="bootstrap-worker-id"
+              v-model="bootstrapWorkerId"
+              autocomplete="off"
+              placeholder="e.g. hpc-headnode-01"
+            />
+          </label>
 
-        <label class="flex flex-col gap-1">
-          <span
-            class="text-xs text-table-column-header uppercase tracking-wider"
-            >Label (Optional)</span
-          >
-          <InputString
-            id="bootstrap-worker-label"
-            v-model="bootstrapLabel"
-            autocomplete="off"
-            placeholder="optional label"
-          />
-        </label>
+          <label class="flex flex-col gap-1">
+            <span
+              class="text-xs text-table-column-header uppercase tracking-wider"
+              >Label (Optional)</span
+            >
+            <InputString
+              id="bootstrap-worker-label"
+              v-model="bootstrapLabel"
+              autocomplete="off"
+              placeholder="optional label"
+            />
+          </label>
+        </div>
 
-        <div class="flex gap-2">
-          <Button type="primary" size="tiny" :disabled="bootstrapBusy">
-            Issue
-          </Button>
-          <Button
-            type="outline"
-            size="tiny"
-            :disabled="bootstrapBusy"
-            @click="onBootstrapRotate"
-          >
-            Rotate
-          </Button>
+        <div
+          class="flex flex-col gap-3 border-t border-color-theme pt-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p class="text-xs text-definition-list-term">
+            Requires <code>_SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY</code>.
+            Capabilities and heartbeat appear after
+            <code>/workers/register</code>.
+          </p>
+          <div class="flex gap-2 sm:shrink-0">
+            <Button type="primary" size="small" :disabled="bootstrapBusy"
+              >Issue</Button
+            >
+            <Button
+              type="outline"
+              size="small"
+              :disabled="bootstrapBusy"
+              @click="onBootstrapRotate"
+            >
+              Rotate
+            </Button>
+          </div>
         </div>
       </form>
-
-      <p class="mt-3 text-xs text-definition-list-term">
-        Requires <code>_SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY</code>. Capability
-        and heartbeat fields appear after successful
-        <code>/workers/register</code>.
-      </p>
     </section>
 
     <Message v-if="error" id="workers-page-error" invalid>
       {{ error }}
     </Message>
 
-    <Message v-if="revealedSecret" id="workers-page-secret" valid>
-      <div class="space-y-4">
-        <div
-          class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
-        >
-          <div class="space-y-1">
-            <p class="text-sm font-semibold text-title">Credential Issued</p>
-            <p class="text-xs text-definition-list-term">
-              Worker: <code>{{ revealedSecret.workerId }}</code>
-              <span class="text-title font-medium">(shown once)</span>
-            </p>
-          </div>
-          <div class="flex items-center gap-2 md:shrink-0">
-            <Button type="primary" size="tiny" @click="copyRevealedSecret">
-              Copy Secret
-            </Button>
-            <Button type="outline" size="tiny" @click="dismissRevealedSecret">
-              Dismiss
-            </Button>
-          </div>
-        </div>
-
-        <div class="rounded-md border border-color-theme bg-form px-3 py-3">
-          <p
-            class="text-[11px] font-semibold text-table-column-header uppercase tracking-wider"
-          >
-            Secret
+    <section
+      v-if="revealedSecret"
+      class="bg-form rounded-lg border border-color-theme p-4 space-y-3"
+    >
+      <div
+        class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between"
+      >
+        <div>
+          <p class="text-sm font-semibold text-title">Credential Issued</p>
+          <p class="text-xs text-definition-list-term">
+            Worker <code>{{ revealedSecret.workerId }}</code> • shown once
           </p>
-          <code class="mt-2 block text-xs break-all leading-relaxed">{{
-            revealedSecret.secret
-          }}</code>
+        </div>
+        <Button type="outline" size="tiny" @click="dismissRevealedSecret"
+          >Dismiss</Button
+        >
+      </div>
+
+      <div class="rounded-md border border-color-theme bg-content p-3">
+        <div
+          class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+        >
+          <div class="min-w-0">
+            <p
+              class="text-[11px] font-semibold text-table-column-header uppercase tracking-wider mb-1"
+            >
+              Secret
+            </p>
+            <code class="block text-xs leading-relaxed break-all">{{
+              revealedSecret.secret
+            }}</code>
+          </div>
+          <Button
+            type="primary"
+            size="tiny"
+            class="sm:shrink-0"
+            @click="copySecretValue"
+          >
+            {{ copyState === "secret" ? "Copied" : "Copy Secret" }}
+          </Button>
+        </div>
+      </div>
+
+      <p class="text-xs text-definition-list-term">
+        Store this secret now. It cannot be retrieved later.
+      </p>
+
+      <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div class="rounded-md border border-color-theme bg-content p-3">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <p
+              class="text-xs text-table-column-header font-semibold uppercase tracking-wider"
+            >
+              Write `.secret`
+            </p>
+            <Button type="outline" size="tiny" @click="copyWriteSecretCommand">
+              {{ copyState === "write" ? "Copied" : "Copy" }}
+            </Button>
+          </div>
+          <pre class="text-xs whitespace-pre-wrap break-all leading-relaxed">{{
+            secretWriteSnippet(revealedSecret.secret)
+          }}</pre>
         </div>
 
-        <Accordion
-          label="daemon setup commands"
-          :open-by-default="false"
-          class="rounded-md border border-color-theme bg-form"
-        >
-          <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <div class="rounded-md border border-color-theme bg-content p-3">
-              <p class="text-xs text-definition-list-term mb-1">
-                Write secret to <code>.secret</code>
-              </p>
-              <pre class="text-xs overflow-x-auto">{{
-                secretWriteSnippet(revealedSecret.secret)
-              }}</pre>
-            </div>
-            <div class="rounded-md border border-color-theme bg-content p-3">
-              <p class="text-xs text-definition-list-term mb-1">
-                Daemon config snippet
-              </p>
-              <pre class="text-xs overflow-x-auto">{{
-                daemonConfigSnippet(revealedSecret.workerId)
-              }}</pre>
-            </div>
+        <div class="rounded-md border border-color-theme bg-content p-3">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <p
+              class="text-xs text-table-column-header font-semibold uppercase tracking-wider"
+            >
+              Daemon Config
+            </p>
+            <Button type="outline" size="tiny" @click="copyDaemonConfig">
+              {{ copyState === "config" ? "Copied" : "Copy" }}
+            </Button>
           </div>
-        </Accordion>
+          <pre class="text-xs whitespace-pre-wrap break-all leading-relaxed">{{
+            daemonConfigSnippet(revealedSecret.workerId)
+          }}</pre>
+        </div>
       </div>
-    </Message>
+
+      <p v-if="copyMessage" class="text-xs text-definition-list-term">
+        {{ copyMessage }}
+      </p>
+    </section>
 
     <div
       v-if="loading && !workers.length"
@@ -571,7 +598,6 @@ import {
 } from "../composables/useHpcApi";
 import { formatDate } from "../utils/jobs";
 import Button from "../../../tailwind-components/app/components/Button.vue";
-import Accordion from "../../../tailwind-components/app/components/Accordion.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import HpcPill from "../components/HpcPill.vue";
@@ -590,6 +616,8 @@ const showBootstrap = ref(false);
 const bootstrapWorkerId = ref("");
 const bootstrapLabel = ref("");
 const bootstrapBusy = ref(false);
+const copyState = ref<"secret" | "write" | "config" | null>(null);
+const copyMessage = ref<string | null>(null);
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
@@ -789,15 +817,72 @@ async function onRevokeCredential(workerId: string, credentialId: string) {
   }
 }
 
-async function copyRevealedSecret() {
-  if (!revealedSecret.value) return;
+function fallbackCopyText(value: string): boolean {
   try {
-    await navigator.clipboard.writeText(revealedSecret.value.secret);
-  } catch {}
+    const area = document.createElement("textarea");
+    area.value = value;
+    area.setAttribute("readonly", "true");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    area.style.pointerEvents = "none";
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(area);
+    return copied;
+  } catch {
+    return false;
+  }
+}
+
+async function copyText(value: string, key: "secret" | "write" | "config") {
+  copyMessage.value = null;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+    } else if (!fallbackCopyText(value)) {
+      throw new Error("Clipboard unavailable");
+    }
+    copyState.value = key;
+    setTimeout(() => {
+      if (copyState.value === key) copyState.value = null;
+    }, 1500);
+  } catch {
+    const copied = fallbackCopyText(value);
+    if (copied) {
+      copyState.value = key;
+      copyMessage.value = "Copied using fallback clipboard mode.";
+      setTimeout(() => {
+        if (copyState.value === key) copyState.value = null;
+        copyMessage.value = null;
+      }, 2000);
+    } else {
+      copyMessage.value =
+        "Copy failed. Select text manually and press Cmd/Ctrl+C.";
+    }
+  }
+}
+
+async function copySecretValue() {
+  if (!revealedSecret.value) return;
+  await copyText(revealedSecret.value.secret, "secret");
+}
+
+async function copyWriteSecretCommand() {
+  if (!revealedSecret.value) return;
+  await copyText(secretWriteSnippet(revealedSecret.value.secret), "write");
+}
+
+async function copyDaemonConfig() {
+  if (!revealedSecret.value) return;
+  await copyText(daemonConfigSnippet(revealedSecret.value.workerId), "config");
 }
 
 function dismissRevealedSecret() {
   revealedSecret.value = null;
+  copyState.value = null;
+  copyMessage.value = null;
 }
 
 function secretWriteSnippet(secret: string): string {
