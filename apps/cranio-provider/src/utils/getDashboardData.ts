@@ -1,10 +1,6 @@
 import { request, gql } from "graphql-request";
-import type {
-  IDashboardPagesResponse,
-  IChartsResponse,
-  ICharts,
-  IDashboardPages,
-} from "../types/schema";
+import type { ICharts, IDashboardPages } from "../types/schema";
+import type { IDashboardPagesResponse, IChartsResponse } from "../types/app";
 
 export async function getDashboardPage(
   url: string,
