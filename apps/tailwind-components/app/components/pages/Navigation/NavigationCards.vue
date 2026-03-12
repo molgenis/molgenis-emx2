@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { INavigationCards } from "../../../../types/test";
+import type { INavigationCards } from "../../../../types/cms";
 import ExternalLink from "../../global/icons/ExternalLink.vue";
 
 withDefaults(defineProps<INavigationCards>(), {

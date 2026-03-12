@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ISections } from "../../../types/test";
+import type { ISections } from "../../../types/cms";
 
 withDefaults(defineProps<ISections>(), {
   enableFullScreenWidth: false,
